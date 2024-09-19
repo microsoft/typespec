@@ -210,29 +210,29 @@ export function createServer(host: ServerHost): Server {
           changeNotifications: true,
         },
       };
-      // eslint-disable-next-line deprecation/deprecation
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
     } else if (params.rootUri) {
       workspaceFolders = [
         {
           name: "<root>",
-          // eslint-disable-next-line deprecation/deprecation
+          // eslint-disable-next-line @typescript-eslint/no-deprecated
           uri: params.rootUri,
           path: ensureTrailingDirectorySeparator(
-            // eslint-disable-next-line deprecation/deprecation
-            await fileService.fileURLToRealPath(params.rootUri)
+            // eslint-disable-next-line @typescript-eslint/no-deprecated
+            await fileService.fileURLToRealPath(params.rootUri),
           ),
         },
       ];
-      // eslint-disable-next-line deprecation/deprecation
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
     } else if (params.rootPath) {
       workspaceFolders = [
         {
           name: "<root>",
-          // eslint-disable-next-line deprecation/deprecation
+          // eslint-disable-next-line @typescript-eslint/no-deprecated
           uri: compilerHost.pathToFileURL(params.rootPath),
           path: ensureTrailingDirectorySeparator(
-            // eslint-disable-next-line deprecation/deprecation
-            await getNormalizedRealPath(compilerHost, params.rootPath)
+            // eslint-disable-next-line @typescript-eslint/no-deprecated
+            await getNormalizedRealPath(compilerHost, params.rootPath),
           ),
         },
       ];
@@ -333,7 +333,7 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function findDocumentHighlight(
-    params: DocumentHighlightParams
+    params: DocumentHighlightParams,
   ): Promise<DocumentHighlight[]> {
     const result = await compileService.compile(params.textDocument);
     if (result === undefined) {
@@ -344,7 +344,7 @@ export function createServer(host: ServerHost): Server {
       program,
       script,
       document.offsetAt(params.position),
-      [script]
+      [script],
     );
     return identifiers.map((identifier) => ({
       range: getRange(identifier, script.file),
@@ -410,7 +410,7 @@ export function createServer(host: ServerHost): Server {
       const diagnostics = diagnosticMap.get(diagDocument);
       compilerAssert(
         diagnostics,
-        "Diagnostic reported against a source file that was not added to the program."
+        "Diagnostic reported against a source file that was not added to the program.",
       );
       diagnostics.push(diagnostic);
       currentDiagnosticIndex.set(diagnostic.data.id, each);
@@ -467,10 +467,10 @@ export function createServer(host: ServerHost): Server {
   function getSignatureHelpForTemplate(
     program: Program,
     node: TypeReferenceNode,
-    argumentIndex: number
+    argumentIndex: number,
   ): SignatureHelp | undefined {
     const sym = program.checker.resolveIdentifier(
-      node.target.kind === SyntaxKind.MemberExpression ? node.target.id : node.target
+      node.target.kind === SyntaxKind.MemberExpression ? node.target.id : node.target,
     );
     const templateDeclNode = sym?.declarations[0];
     if (
@@ -517,10 +517,10 @@ export function createServer(host: ServerHost): Server {
   function getSignatureHelpForDecorator(
     program: Program,
     node: DecoratorExpressionNode | AugmentDecoratorStatementNode,
-    argumentIndex: number
+    argumentIndex: number,
   ): SignatureHelp | undefined {
     const sym = program.checker.resolveIdentifier(
-      node.target.kind === SyntaxKind.MemberExpression ? node.target.id : node.target
+      node.target.kind === SyntaxKind.MemberExpression ? node.target.id : node.target,
     );
     if (!sym) {
       return undefined;
@@ -528,7 +528,7 @@ export function createServer(host: ServerHost): Server {
 
     const decoratorDeclNode: DecoratorDeclarationStatementNode | undefined = sym.declarations.find(
       (x): x is DecoratorDeclarationStatementNode =>
-        x.kind === SyntaxKind.DecoratorDeclarationStatement
+        x.kind === SyntaxKind.DecoratorDeclarationStatement,
     );
     if (decoratorDeclNode === undefined) {
       return undefined;
@@ -565,7 +565,7 @@ export function createServer(host: ServerHost): Server {
           info.documentation = { kind: MarkupKind.Markdown, value: doc };
         }
         return info;
-      })
+      }),
     );
 
     const help: SignatureHelp = {
@@ -665,7 +665,7 @@ export function createServer(host: ServerHost): Server {
 
   async function getImportLocation(
     importPath: string,
-    currentFile: TypeSpecScriptNode
+    currentFile: TypeSpecScriptNode,
   ): Promise<Location> {
     const host: ResolveModuleHost = {
       realpath: compilerHost.realpath,
@@ -706,7 +706,7 @@ export function createServer(host: ServerHost): Server {
           completions,
           params,
         },
-        posDetail
+        posDetail,
       );
     }
 
@@ -721,7 +721,7 @@ export function createServer(host: ServerHost): Server {
     const identifiers = findReferenceIdentifiers(
       result.program,
       result.script,
-      result.document.offsetAt(params.position)
+      result.document.offsetAt(params.position),
     );
     return getLocations(identifiers);
   }
@@ -742,7 +742,7 @@ export function createServer(host: ServerHost): Server {
       const identifiers = findReferenceIdentifiers(
         result.program,
         result.script,
-        result.document.offsetAt(params.position)
+        result.document.offsetAt(params.position),
       );
       for (const id of identifiers) {
         const location = getLocation(id);
@@ -764,7 +764,7 @@ export function createServer(host: ServerHost): Server {
     program: Program,
     file: TypeSpecScriptNode,
     pos: number,
-    searchFiles: Iterable<TypeSpecScriptNode> = program.sourceFiles.values()
+    searchFiles: Iterable<TypeSpecScriptNode> = program.sourceFiles.values(),
   ): IdentifierNode[] {
     const id = getNodeAtPosition(file, pos);
     if (id?.kind !== SyntaxKind.Identifier) {
@@ -836,7 +836,7 @@ export function createServer(host: ServerHost): Server {
               command: Commands.APPLY_CODE_FIX,
               arguments: [params.textDocument.uri, vsDiag.data?.id, fix.id],
             },
-            CodeActionKind.QuickFix
+            CodeActionKind.QuickFix,
           ),
           diagnostics: [vsDiag],
         };
@@ -1008,7 +1008,7 @@ type SignatureHelpNode =
 
 function getSignatureHelpNodeAtPosition(
   script: TypeSpecScriptNode,
-  position: number
+  position: number,
 ): { node: SignatureHelpNode; argumentIndex: number } | undefined {
   // Move back over any trailing trivia. Otherwise, if there is no
   // closing paren/angle bracket, we can find ourselves outside the desired
@@ -1045,7 +1045,7 @@ function getSignatureHelpNodeAtPosition(
         default:
           return false;
       }
-    }
+    },
   );
 
   if (!node) {
@@ -1063,7 +1063,7 @@ function getSignatureHelpNodeAtPosition(
 function getSignatureHelpArgumentIndex(
   script: TypeSpecScriptNode,
   node: SignatureHelpNode,
-  position: number
+  position: number,
 ) {
   // Normalize arguments into a single list to avoid special case for
   // augment decorators.
@@ -1097,7 +1097,7 @@ function getSignatureHelpArgumentIndex(
 export function getCompletionNodeAtPosition(
   script: TypeSpecScriptNode,
   position: number,
-  filter: (node: Node) => boolean = (node: Node) => true
+  filter: (node: Node) => boolean = (node: Node) => true,
 ): PositionDetail {
   return getNodeAtPositionDetail(script, position, filter);
 }

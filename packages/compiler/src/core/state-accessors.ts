@@ -6,7 +6,7 @@ export class StateSet extends Map<undefined | Projector, Set<Type>> {}
 class StateMapView<V> implements Map<Type, V> {
   public constructor(
     private state: StateMap,
-    private projector?: Projector
+    private projector?: Projector,
   ) {}
 
   has(t: Type) {
@@ -70,7 +70,7 @@ class StateMapView<V> implements Map<Type, V> {
 class StateSetView implements Set<Type> {
   public constructor(
     private state: StateSet,
-    private projector?: Projector
+    private projector?: Projector,
   ) {}
 
   has(t: Type) {
@@ -130,7 +130,7 @@ class StateSetView implements Set<Type> {
 export function createStateAccessors(
   stateMaps: Map<symbol, StateMap>,
   stateSets: Map<symbol, StateSet>,
-  projector?: Projector
+  projector?: Projector,
 ) {
   function stateMap<T>(key: symbol): StateMapView<T> {
     let m = stateMaps.get(key);

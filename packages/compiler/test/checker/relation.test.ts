@@ -59,7 +59,7 @@ describe("compiler: checker: type relations", () => {
     const [related, diagnostics] = runner.program.checker.isTypeAssignableTo(
       sourceProp,
       targetProp,
-      (decDeclaration?.parameters[0].node! as FunctionParameterNode).type!
+      (decDeclaration?.parameters[0].node! as FunctionParameterNode).type!,
     );
     return { related, diagnostics, expectedDiagnosticPos: pos };
   }
@@ -104,7 +104,7 @@ describe("compiler: checker: type relations", () => {
 
   async function expectValueNotAssignableToConstraint(
     options: RelatedTypeOptions,
-    match: DiagnosticMatch
+    match: DiagnosticMatch,
   ) {
     const { related, diagnostics, expectedDiagnosticPos } =
       await checkValueAssignableToConstraint(options);
@@ -325,7 +325,7 @@ describe("compiler: checker: type relations", () => {
         {
           code: "unassignable",
           message: "Type '123' is not assignable to type 'string'",
-        }
+        },
       );
     });
   });
@@ -348,7 +348,7 @@ describe("compiler: checker: type relations", () => {
         {
           code: "unassignable",
           message: `Type '"ab"' is not assignable to type 'myString'`,
-        }
+        },
       );
     });
     it("validate maxValue", async () => {
@@ -361,7 +361,7 @@ describe("compiler: checker: type relations", () => {
         {
           code: "unassignable",
           message: `Type '"abcdefg"' is not assignable to type 'myString'`,
-        }
+        },
       );
     });
   });
@@ -381,7 +381,7 @@ describe("compiler: checker: type relations", () => {
         {
           code: "unassignable",
           message: `Type '"bar"' is not assignable to type '"foo"'`,
-        }
+        },
       );
     });
 
@@ -391,7 +391,7 @@ describe("compiler: checker: type relations", () => {
         {
           code: "unassignable",
           message: `Type 'string' is not assignable to type '"foo"'`,
-        }
+        },
       );
     });
   });
@@ -428,7 +428,7 @@ describe("compiler: checker: type relations", () => {
         {
           code: "unassignable",
           message: "Type '129' is not assignable to type 'int8'",
-        }
+        },
       );
     });
     it("emit diagnostic assigning decimal", async () => {
@@ -437,7 +437,7 @@ describe("compiler: checker: type relations", () => {
         {
           code: "unassignable",
           message: "Type '21.49' is not assignable to type 'int8'",
-        }
+        },
       );
     });
   });
@@ -457,7 +457,7 @@ describe("compiler: checker: type relations", () => {
         {
           code: "unassignable",
           message: "Type '34000' is not assignable to type 'int16'",
-        }
+        },
       );
     });
 
@@ -467,7 +467,7 @@ describe("compiler: checker: type relations", () => {
         {
           code: "unassignable",
           message: "Type '31489.49' is not assignable to type 'int16'",
-        }
+        },
       );
     });
   });
@@ -487,7 +487,7 @@ describe("compiler: checker: type relations", () => {
         {
           code: "unassignable",
           message: "Type '3000000000' is not assignable to type 'int32'",
-        }
+        },
       );
     });
 
@@ -497,7 +497,7 @@ describe("compiler: checker: type relations", () => {
         {
           code: "unassignable",
           message: "Type '125125125.49' is not assignable to type 'int32'",
-        }
+        },
       );
     });
   });
@@ -518,7 +518,7 @@ describe("compiler: checker: type relations", () => {
         {
           code: "unassignable",
           message: "Type '109223372036854775808' is not assignable to type 'int64'",
-        }
+        },
       );
     });
 
@@ -528,7 +528,7 @@ describe("compiler: checker: type relations", () => {
         {
           code: "unassignable",
           message: "Type '9223372036875808.49' is not assignable to type 'int64'",
-        }
+        },
       );
     });
   });
@@ -563,7 +563,7 @@ describe("compiler: checker: type relations", () => {
         {
           code: "unassignable",
           message: "Type '125125125.49' is not assignable to type 'integer'",
-        }
+        },
       );
     });
   });
@@ -591,7 +591,7 @@ describe("compiler: checker: type relations", () => {
         {
           code: "unassignable",
           message: "Type 'integer' is not assignable to type 'float'",
-        }
+        },
       );
     });
 
@@ -601,7 +601,7 @@ describe("compiler: checker: type relations", () => {
         {
           code: "unassignable",
           message: "Type 'boolean' is not assignable to type 'float'",
-        }
+        },
       );
     });
   });
@@ -623,7 +623,7 @@ describe("compiler: checker: type relations", () => {
         {
           code: "unassignable",
           message: "Type '3.4e40' is not assignable to type 'float32'",
-        }
+        },
       );
     });
   });
@@ -681,7 +681,7 @@ describe("compiler: checker: type relations", () => {
         {
           code: "unassignable",
           message: "Type 'string' is not assignable to type 'numeric'",
-        }
+        },
       );
     });
   });
@@ -729,7 +729,7 @@ describe("compiler: checker: type relations", () => {
         {
           code: "unassignable",
           message: "Type '2' is not assignable to type 'myInt'",
-        }
+        },
       );
     });
     it("validate maxValue", async () => {
@@ -742,7 +742,7 @@ describe("compiler: checker: type relations", () => {
         {
           code: "unassignable",
           message: "Type '16' is not assignable to type 'myInt'",
-        }
+        },
       );
     });
     it("validate minValueExclusive", async () => {
@@ -755,7 +755,7 @@ describe("compiler: checker: type relations", () => {
         {
           code: "unassignable",
           message: "Type '3' is not assignable to type 'myInt'",
-        }
+        },
       );
     });
     it("validate maxValueExclusive", async () => {
@@ -768,7 +768,7 @@ describe("compiler: checker: type relations", () => {
         {
           code: "unassignable",
           message: "Type '15' is not assignable to type 'myInt'",
-        }
+        },
       );
     });
   });
@@ -833,7 +833,7 @@ describe("compiler: checker: type relations", () => {
         {
           code: "unassignable",
           message: "Type 'string' is not assignable to type 'Record<string>'",
-        }
+        },
       );
     });
 
@@ -846,7 +846,7 @@ describe("compiler: checker: type relations", () => {
             `Type 'Record<int32>' is not assignable to type 'Record<string>'`,
             "  Type 'int32' is not assignable to type 'string'",
           ].join("\n"),
-        }
+        },
       );
     });
 
@@ -856,7 +856,7 @@ describe("compiler: checker: type relations", () => {
         {
           code: "unassignable",
           message: "Type 'int32' is not assignable to type 'string'",
-        }
+        },
       );
     });
   });
@@ -910,7 +910,7 @@ describe("compiler: checker: type relations", () => {
         {
           code: "property-required",
           message: "Property 'foo' is required in type '{ foo: string }' but here is optional.",
-        }
+        },
       );
     });
 
@@ -920,7 +920,7 @@ describe("compiler: checker: type relations", () => {
         {
           code: "missing-property",
           message: `Property 'bar' is missing on type '{ foo: "abc" }' but required in '{ foo: string, bar: string }'`,
-        }
+        },
       );
     });
 
@@ -930,7 +930,7 @@ describe("compiler: checker: type relations", () => {
         {
           code: "missing-index",
           message: "Index signature for type 'integer' is missing in type '{}'.",
-        }
+        },
       );
     });
 
@@ -940,7 +940,7 @@ describe("compiler: checker: type relations", () => {
         {
           code: "unassignable",
           message: "Type 'string[] | int32[]' is not assignable to type '{}'",
-        }
+        },
       );
     });
 
@@ -1008,7 +1008,7 @@ describe("compiler: checker: type relations", () => {
               `Type '["one", string]' is not assignable to type 'Tags'`,
               `  Source has 2 element(s) but target requires 3.`,
             ].join("\n"),
-          }
+          },
         );
       });
 
@@ -1025,7 +1025,7 @@ describe("compiler: checker: type relations", () => {
               `Type '["one", string, "three", "four"]' is not assignable to type 'Tags'`,
               `  Source has 4 element(s) but target only allows 3.`,
             ].join("\n"),
-          }
+          },
         );
       });
     });
@@ -1036,7 +1036,7 @@ describe("compiler: checker: type relations", () => {
         {
           code: "unassignable",
           message: "Type 'string' is not assignable to type 'string[]'",
-        }
+        },
       );
     });
 
@@ -1046,7 +1046,7 @@ describe("compiler: checker: type relations", () => {
         {
           code: "unassignable",
           message: "Type '123' is not assignable to type 'string'",
-        }
+        },
       );
     });
 
@@ -1056,7 +1056,7 @@ describe("compiler: checker: type relations", () => {
         {
           code: "unassignable",
           message: "Type '{}' is not assignable to type 'string[]'",
-        }
+        },
       );
     });
   });
@@ -1086,7 +1086,7 @@ describe("compiler: checker: type relations", () => {
             "Type '[string]' is not assignable to type '[string, string]'",
             "  Source has 1 element(s) but target requires 2.",
           ].join("\n"),
-        }
+        },
       );
     });
     it("emit diagnostic when assigning a non tuple to a tuple", async () => {
@@ -1095,7 +1095,7 @@ describe("compiler: checker: type relations", () => {
         {
           code: "unassignable",
           message: "Type 'string' is not assignable to type '[string, string]'",
-        }
+        },
       );
     });
   });
@@ -1123,7 +1123,7 @@ describe("compiler: checker: type relations", () => {
         {
           code: "unassignable",
           message: "Type 'true' is not assignable to type 'string | int32'",
-        }
+        },
       );
     });
   });
@@ -1157,7 +1157,7 @@ describe("compiler: checker: type relations", () => {
         {
           code: "unassignable",
           message: "Type 'Bar.a' is not assignable to type 'Foo'",
-        }
+        },
       );
     });
   });
@@ -1261,7 +1261,7 @@ describe("compiler: checker: type relations", () => {
               target: `TypeSpec.Reflection.${name}`,
               commonCode: code,
             },
-            { code: "unassignable" }
+            { code: "unassignable" },
           );
         });
       });
@@ -1316,7 +1316,7 @@ describe("compiler: checker: type relations", () => {
             code: "invalid-argument",
             message:
               "Argument of type '123' is not assignable to parameter of type 'valueof string'",
-          }
+          },
         );
       });
 
@@ -1326,7 +1326,7 @@ describe("compiler: checker: type relations", () => {
           {
             code: "unassignable",
             message: "Type 'string' is not assignable to type 'valueof string'",
-          }
+          },
         );
       });
     });
@@ -1343,7 +1343,7 @@ describe("compiler: checker: type relations", () => {
             code: "invalid-argument",
             message:
               "Argument of type '123' is not assignable to parameter of type 'valueof boolean'",
-          }
+          },
         );
       });
 
@@ -1353,7 +1353,7 @@ describe("compiler: checker: type relations", () => {
           {
             code: "unassignable",
             message: "Type 'boolean' is not assignable to type 'valueof boolean'",
-          }
+          },
         );
       });
     });
@@ -1374,7 +1374,7 @@ describe("compiler: checker: type relations", () => {
             code: "invalid-argument",
             message:
               "Argument of type '123456' is not assignable to parameter of type 'valueof int16'",
-          }
+          },
         );
       });
 
@@ -1385,7 +1385,7 @@ describe("compiler: checker: type relations", () => {
             code: "invalid-argument",
             message:
               "Argument of type '12.6' is not assignable to parameter of type 'valueof int16'",
-          }
+          },
         );
       });
 
@@ -1395,7 +1395,7 @@ describe("compiler: checker: type relations", () => {
           {
             code: "invalid-argument",
             message: `Argument of type '"foo bar"' is not assignable to parameter of type 'valueof int16'`,
-          }
+          },
         );
       });
 
@@ -1405,7 +1405,7 @@ describe("compiler: checker: type relations", () => {
           {
             code: "unassignable",
             message: "Type 'int16' is not assignable to type 'valueof int16'",
-          }
+          },
         );
       });
     });
@@ -1421,7 +1421,7 @@ describe("compiler: checker: type relations", () => {
           {
             code: "invalid-argument",
             message: `Argument of type '"foo bar"' is not assignable to parameter of type 'valueof float32'`,
-          }
+          },
         );
       });
 
@@ -1431,7 +1431,7 @@ describe("compiler: checker: type relations", () => {
           {
             code: "unassignable",
             message: "Type 'float32' is not assignable to type 'valueof float32'",
-          }
+          },
         );
       });
     });
@@ -1472,7 +1472,7 @@ describe("compiler: checker: type relations", () => {
           {
             code: "unassignable",
             message: "Type '(anonymous model)' is not assignable to type 'valueof Info'",
-          }
+          },
         );
       });
 
@@ -1487,7 +1487,7 @@ describe("compiler: checker: type relations", () => {
             {
               code: "invalid-argument",
               message: `Argument of type '#{name: "foo", notDefined: "bar"}' is not assignable to parameter of type 'valueof Info'`,
-            }
+            },
           );
         });
 
@@ -1513,7 +1513,7 @@ describe("compiler: checker: type relations", () => {
           {
             code: "invalid-argument",
             message: `Argument of type '#["foo"]' is not assignable to parameter of type 'valueof Info'`,
-          }
+          },
         );
       });
 
@@ -1523,7 +1523,7 @@ describe("compiler: checker: type relations", () => {
           {
             code: "unassignable",
             message: "Type 'string' is not assignable to type 'valueof Info'",
-          }
+          },
         );
       });
     });
@@ -1554,7 +1554,7 @@ describe("compiler: checker: type relations", () => {
           {
             code: "unassignable",
             message: `Type '["foo"]' is not assignable to type 'valueof string[]'`,
-          }
+          },
         );
       });
 
@@ -1567,7 +1567,7 @@ describe("compiler: checker: type relations", () => {
           {
             code: "invalid-argument",
             message: `Argument of type '#{name: "foo"}' is not assignable to parameter of type 'valueof string[]'`,
-          }
+          },
         );
       });
 
@@ -1577,7 +1577,7 @@ describe("compiler: checker: type relations", () => {
           {
             code: "unassignable",
             message: "Type 'string' is not assignable to type 'valueof string[]'",
-          }
+          },
         );
       });
     });
@@ -1599,7 +1599,7 @@ describe("compiler: checker: type relations", () => {
           {
             code: "invalid-argument",
             message: `Argument of type '#["foo"]' is not assignable to parameter of type 'valueof [string, string]'`,
-          }
+          },
         );
       });
 
@@ -1612,7 +1612,7 @@ describe("compiler: checker: type relations", () => {
           {
             code: "invalid-argument",
             message: `Argument of type '#["a", "b", "c"]' is not assignable to parameter of type 'valueof [string, string]'`,
-          }
+          },
         );
       });
     });
@@ -1690,7 +1690,7 @@ describe("compiler: checker: type relations", () => {
       ])(`%s => %s`, async (source, target) => {
         await expectValueNotAssignableToConstraint(
           { source, target },
-          { code: "invalid-argument" }
+          { code: "invalid-argument" },
         );
       });
     });
@@ -1760,7 +1760,7 @@ describe("relation error target and messages", () => {
   it("report multiple extra property at assignment right on the property literal", async () => {
     const { source: sourceTmp, ...pos1 } = extractSquiggles(
       `const a: {} = #{┆a: "abc"┆, ┆b: "abc"┆};`,
-      "┆"
+      "┆",
     );
     const { source, ...pos2 } = extractSquiggles(sourceTmp, "┆");
     const diagnostics = await runner.diagnose(source);
@@ -1801,7 +1801,7 @@ describe("relation error target and messages", () => {
           `    Type '{ a: "abc" }' is not assignable to type '{}'`,
           `      Object value may only specify known properties, and 'a' does not exist in type '{}'.`,
         ].join("\n"),
-      }
+      },
     );
   });
 
@@ -1817,7 +1817,7 @@ describe("relation error target and messages", () => {
           `  Types of property 'a' are incompatible`,
           `    Type '"abc"' is not assignable to type 'int32'`,
         ].join("\n"),
-      }
+      },
     );
   });
 });

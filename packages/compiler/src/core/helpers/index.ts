@@ -6,7 +6,6 @@ export * from "./projected-names-utils.js";
 
 export {
   explainStringTemplateNotSerializable,
-  // eslint-disable-next-line deprecation/deprecation
   stringTemplateToString,
 } from "./string-template-utils.js";
 export { printIdentifier as formatIdentifier, printIdentifier } from "./syntax-utils.js";

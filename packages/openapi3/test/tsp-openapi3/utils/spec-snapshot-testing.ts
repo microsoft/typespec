@@ -9,7 +9,7 @@ import {
 import { fail, ok, strictEqual } from "assert";
 import { readdirSync } from "fs";
 import { mkdir, readFile, readdir, rm, writeFile } from "fs/promises";
-import { File, Suite, afterAll, beforeAll, it } from "vitest";
+import { RunnerTestFile, RunnerTestSuite, afterAll, beforeAll, it } from "vitest";
 import { convertAction } from "../../../src/cli/actions/convert/convert-file.js";
 
 const shouldUpdateSnapshots = process.env.RECORD === "true";
@@ -40,7 +40,7 @@ export function defineSpecSnaphotTests(config: SpecSnapshotTestOptions) {
     existingSnapshots = await readFilesInDirRecursively(config.outputDir);
   });
 
-  afterAll(async function (context: Readonly<Suite | File>) {
+  afterAll(async function (context: Readonly<RunnerTestSuite | RunnerTestFile>) {
     if (context.tasks.some((x) => x.mode === "skip")) {
       return; // Not running the full test suite, so don't bother checking snapshots.
     }
@@ -57,7 +57,7 @@ export function defineSpecSnaphotTests(config: SpecSnapshotTestOptions) {
       } else {
         const snapshotList = [...missingSnapshots].map((x) => `  ${x}`).join("\n");
         fail(
-          `The following snapshot are still present in the output dir but were not generated:\n${snapshotList}\n Run with RECORD=true to regenerate them.`
+          `The following snapshot are still present in the output dir but were not generated:\n${snapshotList}\n Run with RECORD=true to regenerate them.`,
         );
       }
     }
@@ -111,7 +111,7 @@ function defineSpecSnaphotTest(context: TestContext, config: SpecSnapshotTestOpt
         const snapshotPath = resolvePath(outputDir, filename);
         ok(
           host.outputs.has(snapshotPath),
-          `Snapshot for "${snapshotPath}" was not emitted. Run with RECORD=true to remove it.`
+          `Snapshot for "${snapshotPath}" was not emitted. Run with RECORD=true to remove it.`,
         );
       }
     }

@@ -13,7 +13,7 @@ function resolveVirtualPathUri(path: string): string {
 
 async function goToDefinitionAtCursor(
   sourceWithCursor: string,
-  otherFiles: Record<string, string> = {}
+  otherFiles: Record<string, string> = {},
 ): Promise<Location[]> {
   const { source, pos } = extractCursor(sourceWithCursor);
 
@@ -34,7 +34,7 @@ describe("go to imports", () => {
       `
     import "./othe┆r.tsp";
   `,
-      { "other.tsp": "model Other {}" }
+      { "other.tsp": "model Other {}" },
     );
     expect(locations).toEqual([
       {
@@ -58,7 +58,7 @@ describe("go to imports", () => {
           tspMain: "./main.tsp",
         }),
         "node_modules/test-lib/main.tsp": "model Other {}",
-      }
+      },
     );
     expect(locations).toEqual([
       {

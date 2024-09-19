@@ -1,0 +1,69 @@
+{
+  "name": "@typespec/spec-core",
+  "version": "0.1.0",
+  "description": "Typespec Core Tool to validate, run mock api, collect coverage.",
+  "main": "dist/index.js",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "spec-core": "./cmd/cli.mjs"
+  },
+  "scripts": {
+    "watch": "tsc -p ./tsconfig.build.json --watch",
+    "build": "tsc -p ./tsconfig.build.json",
+    "clean": "rimraf dist/ temp/",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/microsoft/typespec.git"
+  },
+  "author": "Microsoft",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/microsoft/typespec/issues"
+  },
+  "homepage": "https://github.com/microsoft/typespec#readme",
+  "dependencies": {
+    "@typespec/spec-api": "workspace:~",
+    "@typespec/spec-lib": "workspace:~",
+    "@typespec/spec-coverage-sdk": "workspace:~",
+    "@typespec/compiler": "workspace:~",
+    "@typespec/http": "workspace:~",
+    "@typespec/rest": "workspace:~",
+    "@azure/identity": "~4.4.1",
+    "@types/js-yaml": "^4.0.5",
+    "ajv": "~8.17.1",
+    "body-parser": "^1.20.2",
+    "deep-equal": "^2.2.0",
+    "express": "^4.19.2",
+    "express-promise-router": "^4.1.1",
+    "globby": "~14.0.2",
+    "js-yaml": "^4.1.0",
+    "morgan": "^1.10.0",
+    "node-fetch": "^3.3.1",
+    "picocolors": "~1.1.0",
+    "source-map-support": "~0.5.21",
+    "winston": "^3.8.2",
+    "xml2js": "^0.5.0",
+    "yargs": "~17.7.2",
+    "jackspeak": "2.1.1",
+    "multer": "^1.4.5-lts.1"
+  },
+  "devDependencies": {
+    "@types/multer": "^1.4.10",
+    "@types/body-parser": "^1.19.2",
+    "@types/deep-equal": "^1.0.1",
+    "@types/express": "^4.17.17",
+    "@types/morgan": "^1.9.4",
+    "@types/node": "~22.5.4",
+    "@types/node-fetch": "^2.6.3",
+    "@types/xml2js": "^0.4.11",
+    "@types/yargs": "~17.0.33",
+    "rimraf": "~6.0.1",
+    "typescript": "~5.6.2"
+  }
+}

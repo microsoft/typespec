@@ -214,7 +214,7 @@ describe("emit diagnostics when using metadata decorator in @body", () => {
     ["@path", "id: string"],
   ])("%s", async (dec, prop) => {
     const [_, diagnostics] = await compileOperations(
-      `op read(@body explicit: {${dec} ${prop}, other: string}): void;`
+      `op read(@body explicit: {${dec} ${prop}, other: string}): void;`,
     );
     expectDiagnostics(diagnostics, { code: "@typespec/http/metadata-ignored" });
   });

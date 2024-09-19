@@ -53,7 +53,7 @@ describe("openapi3: output file", () => {
   function expectOutput(
     filename: string,
     lines: string[] = expectedYamlEmptySpec,
-    newLine: "\n" | "\r\n" = "\n"
+    newLine: "\n" | "\r\n" = "\n",
   ) {
     const outPath = resolvePath(outputDir, filename);
     const content = runner.fs.get(outPath);
@@ -104,35 +104,32 @@ describe("openapi3: output file", () => {
   describe("multiple outputs", () => {
     (["json", "yaml"] as const).forEach((fileType) => {
       describe(`when file-type is ${fileType}`, () => {
-        it("create distinct files for distinct services", () => {
-          async () => {
-            await compileOpenAPI(
-              { "file-type": fileType },
-              `
+        it("create distinct files for distinct services", async () => {
+          await compileOpenAPI(
+            { "file-type": fileType },
+            `
           @service namespace Service1 {}
           @service namespace Service2 {}
-        `
-            );
-
-            expectHasOutput(`custom.Service1.${fileType}`);
-            expectHasOutput(`custom.Service2.${fileType}`);
-          };
+        `,
+          );
+          expectHasOutput(`openapi.Service1.${fileType}`);
+          expectHasOutput(`openapi.Service2.${fileType}`);
         });
 
-        it("create distinct files for distinct versions", () => {
-          async () => {
-            await compileOpenAPI(
-              {},
-              `
-          @versioned(Versions) namespace Service1 {
+        it("create distinct files for distinct versions", async () => {
+          await compileOpenAPI(
+            { "file-type": fileType },
+            `
+            using Versioning;
+
+          @versioned(Versions) @service namespace Service1 {
             enum Versions {v1, v2}
           }
-        `
-            );
+        `,
+          );
 
-            expectHasOutput(`custom.v1.${fileType}`);
-            expectHasOutput(`custom.v2.${fileType}`);
-          };
+          expectHasOutput(`openapi.v1.${fileType}`);
+          expectHasOutput(`openapi.v2.${fileType}`);
         });
       });
     });

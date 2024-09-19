@@ -13,6 +13,5 @@ namespace _Type.Property.Optional.Models
             get => throw null;
             set => throw null;
         }
-
     }
 }

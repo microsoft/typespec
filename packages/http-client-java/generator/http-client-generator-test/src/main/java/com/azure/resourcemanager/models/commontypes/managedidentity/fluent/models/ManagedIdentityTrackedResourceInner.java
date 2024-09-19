@@ -7,7 +7,6 @@ package com.azure.resourcemanager.models.commontypes.managedidentity.fluent.mode
 import com.azure.core.annotation.Fluent;
 import com.azure.core.management.Resource;
 import com.azure.core.management.SystemData;
-import com.azure.core.util.logging.ClientLogger;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonToken;
 import com.azure.json.JsonWriter;
@@ -166,14 +165,7 @@ public final class ManagedIdentityTrackedResourceInner extends Resource {
         if (identity() != null) {
             identity().validate();
         }
-        if (location() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Missing required property location in model ManagedIdentityTrackedResourceInner"));
-        }
     }
-
-    private static final ClientLogger LOGGER = new ClientLogger(ManagedIdentityTrackedResourceInner.class);
 
     /**
      * {@inheritDoc}

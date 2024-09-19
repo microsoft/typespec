@@ -35,20 +35,20 @@ describe("versioning: library loading", () => {
     notStrictEqual(
       buildVersionProjections,
       buildVersionProjectionsDifferent,
-      "The instance of the function loaded should have been different"
+      "The instance of the function loaded should have been different",
     );
     const versions = buildVersionProjectionsDifferent(runner.program, TestService);
 
     const v1Program = projectProgram(runner.program, versions[0].projections);
     strictEqual(
       v1Program.getGlobalNamespaceType().namespaces.get("TestService")!.models.has("Foo"),
-      false
+      false,
     );
 
     const v2Program = projectProgram(runner.program, versions[1].projections);
     strictEqual(
       v2Program.getGlobalNamespaceType().namespaces.get("TestService")!.models.has("Foo"),
-      true
+      true,
     );
   });
 });

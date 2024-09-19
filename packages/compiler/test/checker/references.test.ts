@@ -229,7 +229,7 @@ describe("compiler: references", () => {
         a: string;
         b: Foo.a;
       }
-      `
+      `,
         );
 
         const { Foo } = (await testHost.compile("./main.tsp")) as {
@@ -246,7 +246,7 @@ describe("compiler: references", () => {
         a: Foo.b;
         b: string;
       }
-      `
+      `,
         );
 
         const { Foo } = (await testHost.compile("./main.tsp")) as {
@@ -332,7 +332,7 @@ describe("compiler: references", () => {
 
           @collect(Template<My>)
           namespace Test { }
-      `
+      `,
         );
 
         const { MyEnum } = (await testHost.compile("./main.tsp")) as { MyEnum: Enum };
@@ -364,7 +364,7 @@ describe("compiler: references", () => {
           a,
         }
         
-      `
+      `,
         );
 
         const { Foo } = (await testHost.compile("./main.tsp")) as {
@@ -477,9 +477,7 @@ describe("compiler: references", () => {
       let linkedValue: Operation | undefined;
       beforeEach(() => {
         testHost.addJsFile("./test-link.js", {
-          $testLink: (_: any, t: any, value: Operation) => {
-            linkedValue;
-          },
+          $testLink: (_: any, t: any, value: Operation) => {},
         });
       });
       it("defined before", async () => {
@@ -492,7 +490,7 @@ describe("compiler: references", () => {
           @testLink(Foo.one)
           two(): void;
         }
-      `
+      `,
         );
 
         const { Foo } = (await testHost.compile("./main.tsp")) as {
@@ -511,7 +509,7 @@ describe("compiler: references", () => {
           one(): void;
           two(): void;
         }
-      `
+      `,
         );
 
         const { Foo } = (await testHost.compile("./main.tsp")) as {
@@ -537,7 +535,7 @@ describe("compiler: references", () => {
         u: U.x;
         e: E.x;
       }
-      `
+      `,
     );
 
     const diagnostics = await testHost.diagnose("./main.tsp");
@@ -568,7 +566,7 @@ describe("compiler: references", () => {
       `
       alias A = NotDefined;
       alias B = A;
-      `
+      `,
     );
 
     const diagnostics = await testHost.diagnose("./main.tsp");
@@ -635,7 +633,7 @@ describe("compiler: references", () => {
         }
 
         op testOp(...B::foo): void;
-        `
+        `,
       );
 
       const diagnostics = await testHost.diagnose("./main.tsp");
@@ -664,7 +662,7 @@ describe("compiler: references", () => {
         model Spread {
           ... B.a::type;
         }
-        `
+        `,
       );
 
       const diagnostics = await testHost.diagnose("./main.tsp");

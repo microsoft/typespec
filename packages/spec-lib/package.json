@@ -1,0 +1,44 @@
+{
+  "name": "@typespec/spec-lib",
+  "version": "0.1.0",
+  "author": "Microsoft",
+  "description": "Spec Library providing decorator and validation for specs",
+  "homepage": "https://github.com/microsoft/typespec#readme",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/microsoft/typespec.git"
+  },
+  "bugs": {
+    "url": "https://github.com/microsoft/typespec/issues"
+  },
+  "type": "module",
+  "private": true,
+  "main": "dist/index.js",
+  "tspMain": "lib/lib.tsp",
+  "exports": {
+    ".": "./dist/src/index.js"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "scripts": {
+    "watch": "tsc -p . --watch",
+    "build": "npm run gen-extern-signature && tsc -p .",
+    "clean": "rimraf dist/ temp/",
+    "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "@types/node": "~22.5.4",
+    "@typespec/tspd": "workspace:~",
+    "rimraf": "~6.0.1",
+    "typescript": "~5.6.2"
+  },
+  "peerDependencies": {
+    "@typespec/compiler": "workspace:~",
+    "@typespec/versioning": "workspace:~",
+    "@typespec/http": "workspace:~",
+    "@typespec/rest": "workspace:~"
+  }
+}

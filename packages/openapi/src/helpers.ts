@@ -56,7 +56,7 @@ export function getOpenAPITypeName(
   program: Program,
   type: Type,
   options: TypeNameOptions,
-  existing?: Record<string, any>
+  existing?: Record<string, any>,
 ): string {
   const name = getFriendlyName(program, type) ?? getTypeName(type, options);
 
@@ -75,7 +75,7 @@ export function checkDuplicateTypeName(
   program: Program,
   type: Type,
   name: string,
-  existing: Record<string, unknown> | undefined
+  existing: Record<string, unknown> | undefined,
 ) {
   if (existing && existing[name]) {
     reportDiagnostic(program, {
@@ -96,7 +96,7 @@ export function getParameterKey(
   property: ModelProperty,
   newParam: unknown,
   existingParams: Record<string, unknown>,
-  options: TypeNameOptions
+  options: TypeNameOptions,
 ): string {
   const parent = property.model!;
   let key = getOpenAPITypeName(program, parent, options);

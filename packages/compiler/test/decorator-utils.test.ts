@@ -35,7 +35,7 @@ describe("compiler: decorator utils", () => {
         import "./mapToJson.js";
 
         ${code};
-      `
+      `,
       );
       await host.compile("main.tsp");
       return result;

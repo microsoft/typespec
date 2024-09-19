@@ -9,7 +9,7 @@ export interface InitArgs {
 
 export async function initAction(
   host: CliCompilerHost,
-  args: InitArgs
+  args: InitArgs,
 ): Promise<readonly Diagnostic[]> {
   try {
     await initTypeSpecProject(host, process.cwd(), args);

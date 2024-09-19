@@ -30,7 +30,7 @@ export function visitAllTypes(ctx: JsContext, namespace: Namespace) {
     interfaces.values(),
     models.values(),
     unions.values(),
-    scalars.values()
+    scalars.values(),
   )) {
     ctx.typeQueue.add(type);
   }
@@ -69,7 +69,7 @@ export function visitAllTypes(ctx: JsContext, namespace: Namespace) {
 export function createOrGetModuleForNamespace(
   ctx: JsContext,
   namespace: Namespace,
-  root: Module = ctx.globalNamespaceModule
+  root: Module = ctx.globalNamespaceModule,
 ): Module {
   if (ctx.namespaceModules.has(namespace)) {
     return ctx.namespaceModules.get(namespace)!;
@@ -105,7 +105,7 @@ export function createOrGetModuleForNamespace(
 export function emitNamespaceInterfaceReference(
   ctx: JsContext,
   namespace: Namespace,
-  module: Module
+  module: Module,
 ): string {
   if (!namespace.namespace) {
     throw new Error("UNREACHABLE: no parent namespace in emitNamespaceInterfaceReference");
@@ -131,7 +131,7 @@ export function emitNamespaceInterfaceReference(
 function* emitModuleBodyDeclaration(
   ctx: JsContext,
   decl: ModuleBodyDeclaration,
-  queue: OnceQueue<Module>
+  queue: OnceQueue<Module>,
 ): Iterable<string> {
   if (isIterable(decl)) {
     yield* decl;
@@ -230,7 +230,7 @@ function* writeImportsNormalized(ctx: JsContext, module: Module): Iterable<strin
 export function* emitModuleBody(
   ctx: JsContext,
   module: Module,
-  queue: OnceQueue<Module>
+  queue: OnceQueue<Module>,
 ): Iterable<string> {
   yield* writeImportsNormalized(ctx, module);
 

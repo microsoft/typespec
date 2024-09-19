@@ -33,7 +33,7 @@ export function getContentTypes(property: ModelProperty): [string[], readonly Di
           createDiagnostic({
             code: "content-type-string",
             target: property,
-          })
+          }),
         );
         continue;
       }

@@ -41,7 +41,7 @@ export interface ConfigToOptionsOptions {
  */
 export async function resolveCompilerOptions(
   host: CompilerHost,
-  options: ResolveCompilerOptionsOptions
+  options: ResolveCompilerOptionsOptions,
 ): Promise<[CompilerOptions, readonly Diagnostic[]]> {
   const diagnostics = createDiagnosticCollector();
 
@@ -49,7 +49,7 @@ export async function resolveCompilerOptions(
     host.stat,
     options.entrypoint,
     (diag) => diagnostics.add(diag),
-    { allowFileNotFound: true }
+    { allowFileNotFound: true },
   );
   const configPath =
     options.configPath ??
@@ -58,7 +58,7 @@ export async function resolveCompilerOptions(
     host,
     configPath,
     options.configPath !== undefined,
-    options.configPath === undefined
+    options.configPath === undefined,
   );
   config.diagnostics.forEach((x) => diagnostics.add(x));
 
@@ -87,7 +87,7 @@ export function resolveOptionsFromConfig(config: TypeSpecConfig, options: Config
       outputDir: options.overrides?.outputDir,
       env: options.env ?? {},
       args: options.args,
-    })
+    }),
   );
   validateConfigPathsAbsolute(expandedConfig).forEach((x) => diagnostics.add(x));
 
@@ -107,7 +107,7 @@ export function resolveOptionsFromConfig(config: TypeSpecConfig, options: Config
 
 function mergeOptions(
   base: Record<string, Record<string, unknown>> | undefined,
-  overrides: Record<string, Record<string, unknown>> | undefined
+  overrides: Record<string, Record<string, unknown>> | undefined,
 ): Record<string, EmitterOptions> {
   const configuredEmitters: Record<string, Record<string, unknown>> = deepClone(base ?? {});
 

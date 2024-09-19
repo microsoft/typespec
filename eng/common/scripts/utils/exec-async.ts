@@ -9,7 +9,7 @@ export interface ExecResult {
 export function execAsync(
   cmd: string,
   args: string[],
-  opts: SpawnOptions = {}
+  opts: SpawnOptions = {},
 ): Promise<ExecResult> {
   return new Promise((resolve, reject) => {
     const child = spawn(cmd, args, opts);
