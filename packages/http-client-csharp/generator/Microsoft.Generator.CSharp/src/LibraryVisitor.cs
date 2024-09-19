@@ -125,9 +125,9 @@ namespace Microsoft.Generator.CSharp
             return type;
         }
 
-        protected virtual ConstructorProvider? Visit(ConstructorProvider constructor)
+        protected virtual ConstructorProvider? Visit(ConstructorProvider constructorProvider)
         {
-            return constructor;
+            return constructorProvider;
         }
 
         protected virtual MethodProvider? Visit(MethodProvider method)
@@ -135,9 +135,9 @@ namespace Microsoft.Generator.CSharp
             return method;
         }
 
-        protected virtual PropertyProvider? Visit(PropertyProvider property)
+        protected virtual PropertyProvider? Visit(PropertyProvider propertyProvider)
         {
-            return property;
+            return propertyProvider;
         }
 
         protected virtual FieldProvider? Visit(FieldProvider field)
