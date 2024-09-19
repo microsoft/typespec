@@ -72,8 +72,8 @@ export function createFileSystemCache({
         entry.data = data;
       }
     },
-    notify(changes: FileEvent[]) {
-      changes.push(...changes);
+    notify(events: FileEvent[]) {
+      changes.push(...events);
     },
   };
 }

@@ -1,0 +1,24 @@
+{% import 'keywords.jinja2' as keywords %}
+# coding=utf-8
+{{ code_model.options['license_header'] }}
+
+{% if clients %}
+    {% for client in clients %}
+from .{{ client.filename }} import {{ client.name }}
+    {% endfor %}
+{% endif %}
+{% if not async_mode and code_model.options['package_version']%}
+from ._version import VERSION
+
+__version__ = VERSION
+{% endif %}
+
+{{ keywords.patch_imports(try_except=True) }}
+__all__ = [
+    {% for client in clients %}
+    {{ keywords.escape_str(client.name) }},
+    {% endfor %}
+]
+{{ keywords.extend_all }}
+
+_patch_sdk()
