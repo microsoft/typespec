@@ -14,7 +14,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 export function useControllableValue<TValue>(
   controlledValue: TValue | undefined,
   defaultUncontrolledValue: TValue | undefined,
-  onChange?: (value: TValue) => void | undefined
+  onChange?: (value: TValue) => void | undefined,
 ): readonly [TValue, (update: TValue) => void] {
   const [value, setValue] = useState<TValue | undefined>(defaultUncontrolledValue);
   const isControlled = useMemo(() => controlledValue !== undefined, []);
@@ -45,7 +45,7 @@ export function useControllableValue<TValue>(
         setValue(newValue);
       }
     },
-    []
+    [],
   );
 
   return [currentValue, setValueOrCallOnChange] as any;

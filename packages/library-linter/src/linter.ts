@@ -46,7 +46,7 @@ function validateDecoratorSignature(program: Program) {
   function navigate(sym: Sym) {
     if (sym.flags & SymbolFlags.Decorator) {
       const hasSignature = sym.declarations.some(
-        (x) => x.kind === SyntaxKind.DecoratorDeclarationStatement
+        (x) => x.kind === SyntaxKind.DecoratorDeclarationStatement,
       );
       if (!hasSignature && !excludeDecoratorSignature.has(sym.name)) {
         reportDiagnostic(program, {

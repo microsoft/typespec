@@ -1,6 +1,6 @@
 {
   "name": "@typespec/prettier-plugin-typespec",
-  "version": "0.59.0",
+  "version": "0.60.0",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -21,8 +21,8 @@
     "@rollup/plugin-replace": "~5.0.7",
     "@typespec/compiler": "workspace:~",
     "@typespec/internal-build-utils": "workspace:~",
-    "rollup": "~4.19.0",
-    "vitest": "^2.0.4"
+    "rollup": "~4.21.3",
+    "vitest": "^2.1.0"
   },
   "files": [
     "dist/**/*",

@@ -11,6 +11,5 @@ namespace _Type.Model.Usage.Models
             get => throw null;
             set => throw null;
         }
-
     }
 }

@@ -126,7 +126,7 @@ export function createBinder(program: Program): Binder {
     mutate(sourceFile).symbol = createSymbol(
       sourceFile,
       sourceFile.file.path,
-      SymbolFlags.SourceFile
+      SymbolFlags.SourceFile,
     );
     const rootNs = sourceFile.esmExports["namespace"];
 
@@ -147,7 +147,7 @@ export function createBinder(program: Program): Binder {
               "decorator",
               decoratorName,
               decorator,
-              sourceFile
+              sourceFile,
             );
           }
         }
@@ -184,7 +184,7 @@ export function createBinder(program: Program): Binder {
     kind: "decorator" | "function",
     name: string,
     fn: (...args: any[]) => any,
-    sourceFile: JsSourceFileNode
+    sourceFile: JsSourceFileNode,
   ) {
     let containerSymbol = sourceFile.symbol;
 
@@ -232,7 +232,7 @@ export function createBinder(program: Program): Binder {
         sourceFile,
         "@" + name,
         SymbolFlags.Decorator | SymbolFlags.Implementation,
-        containerSymbol
+        containerSymbol,
       );
     } else {
       tracer.trace("function", `Bound function "${name}" in namespace "${nsParts.join(".")}".`);
@@ -240,7 +240,7 @@ export function createBinder(program: Program): Binder {
         sourceFile,
         name,
         SymbolFlags.Function | SymbolFlags.Implementation,
-        containerSymbol
+        containerSymbol,
       );
     }
     mutate(sym).value = fn;
@@ -459,7 +459,7 @@ export function createBinder(program: Program): Binder {
   }
 
   function bindProjectionLambdaParameterDeclaration(
-    node: ProjectionLambdaParameterDeclarationNode
+    node: ProjectionLambdaParameterDeclarationNode,
   ) {
     declareSymbol(node, SymbolFlags.FunctionParameter);
   }
@@ -658,7 +658,7 @@ export function createSymbol(
   name: string,
   flags: SymbolFlags,
   parent?: Sym,
-  value?: any
+  value?: any,
 ): Sym {
   let exports: SymbolTable | undefined;
   if (flags & SymbolFlags.ExportContainer) {

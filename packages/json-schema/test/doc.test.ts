@@ -25,7 +25,7 @@ deny = [
     { name = "simple", version = "*" },
     { name = "simple", wrappers = ["example"] }
 ]
-\`\`\``
+\`\`\``,
     );
   });
 });

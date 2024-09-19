@@ -103,7 +103,7 @@ export async function createTestServerHost(options?: TestHostOptions & { workspa
  */
 export function extractCursor(
   sourceWithCursor: string,
-  marker = "┆"
+  marker = "┆",
 ): { source: string; pos: number } {
   const pos = sourceWithCursor.indexOf(marker);
   ok(pos >= 0, "marker not found");
@@ -118,7 +118,7 @@ export function extractCursor(
  */
 export function extractSquiggles(
   sourceWithSquiggles: string,
-  marker = "~~~"
+  marker = "~~~",
 ): { source: string; pos: number; end: number } {
   const { source: sourceWithoutFistSquiggle, pos } = extractCursor(sourceWithSquiggles, marker);
   const { source, pos: end } = extractCursor(sourceWithoutFistSquiggle, marker);

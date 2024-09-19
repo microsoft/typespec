@@ -14,7 +14,6 @@ namespace Microsoft.Generator.CSharp.Providers
     public abstract class TypeProvider
     {
         private Lazy<TypeProvider?> _customCodeView;
-        private HashSet<string>? _propertyNames;
 
         protected TypeProvider()
         {
@@ -80,6 +79,9 @@ namespace Microsoft.Generator.CSharp.Providers
         }
 
         protected virtual TypeSignatureModifiers GetDeclarationModifiers() => TypeSignatureModifiers.None;
+
+        internal TypeSignatureModifiers GetCustomCodeModifiers() => CustomCodeView?.DeclarationModifiers ?? TypeSignatureModifiers.None;
+
         private TypeSignatureModifiers GetDeclarationModifiersInternal()
         {
             var modifiers = GetDeclarationModifiers();
@@ -100,7 +102,7 @@ namespace Microsoft.Generator.CSharp.Providers
             // mask & (mask - 1) gives us 0 if mask is a power of 2, it means we have exactly one flag of above when the mask is a power of 2
             if ((mask & (mask - 1)) != 0)
             {
-                throw new InvalidOperationException($"Invalid modifier {modifiers} on TypeProvider {Type.Namespace}.{Name}");
+                throw new InvalidOperationException($"Invalid modifier {modifiers} on TypeProvider {Name}");
             }
 
             // we always add partial when possible
@@ -124,8 +126,6 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private IReadOnlyList<PropertyProvider>? _properties;
         public IReadOnlyList<PropertyProvider> Properties => _properties ??= BuildProperties();
-
-        internal HashSet<string> PropertyNames => _propertyNames ??= BuildPropertyNames();
 
         private IReadOnlyList<MethodProvider>? _methods;
         public IReadOnlyList<MethodProvider> Methods => _methods ??= BuildMethods();

@@ -10,31 +10,31 @@ import type {
 export type ResourceLocationDecorator = (
   context: DecoratorContext,
   target: Scalar,
-  resourceType: Model
+  resourceType: Model,
 ) => void;
 
 export type ValidateHasKeyDecorator = (
   context: DecoratorContext,
   target: Type,
-  value: Type
+  value: Type,
 ) => void;
 
 export type ValidateIsErrorDecorator = (
   context: DecoratorContext,
   target: Type,
-  value: Type
+  value: Type,
 ) => void;
 
 export type ActionSegmentDecorator = (
   context: DecoratorContext,
   target: Operation,
-  value: string
+  value: string,
 ) => void;
 
 export type ResourceTypeForKeyParamDecorator = (
   context: DecoratorContext,
   entity: ModelProperty,
-  resourceType: Model
+  resourceType: Model,
 ) => void;
 
 export type TypeSpecRestPrivateDecorators = {

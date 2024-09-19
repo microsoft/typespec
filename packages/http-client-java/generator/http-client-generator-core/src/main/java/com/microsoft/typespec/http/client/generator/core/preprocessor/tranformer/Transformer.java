@@ -54,9 +54,16 @@ public class Transformer {
       markFlattenedSchemas(codeModel);
     }
     transformOperationGroups(codeModel.getOperationGroups(), codeModel);
+    if (codeModel.getGlobalParameters() != null) {
+      for (Parameter parameter : codeModel.getGlobalParameters()) {
+        if (parameter.getLanguage().getJava() == null) {
+          renameVariable(parameter);
+        }
+      }
+    }
     // multi-clients for TypeSpec
     if (codeModel.getClients() != null) {
-      transformClients(codeModel.getClients(), codeModel);
+      transformClients(codeModel.getClients());
     }
     return codeModel;
   }
@@ -108,7 +115,7 @@ public class Transformer {
     }
   }
 
-  private void transformClients(List<Client> clients, CodeModel codeModel) {
+  private void transformClients(List<Client> clients) {
     for (Client client : clients) {
       renameClient(client);
 
@@ -135,6 +142,14 @@ public class Transformer {
             if (nonNullNextLink(operation)) {
               addPagingNextOperation(client, operation.getOperationGroup(), operation);
             }
+          }
+        }
+      }
+
+      if (client.getGlobalParameters() != null) {
+        for (Parameter parameter : client.getGlobalParameters()) {
+          if (parameter.getLanguage().getJava() == null) {
+            renameVariable(parameter);
           }
         }
       }

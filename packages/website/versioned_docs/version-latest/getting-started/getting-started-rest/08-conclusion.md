@@ -12,7 +12,7 @@ Throughout this tutorial, we've covered a wide range of topics to help you build
 - **Defining Models and Services**: We learned how to define models and services using TypeSpec.
 - **Creating and Organizing Namespaces**: We organized our API using namespaces to group related models and operations.
 - **Defining HTTP Operations**: We defined various HTTP operations, including GET, POST, PUT, and DELETE.
-- **Handling Errors**: We created error models and custom response models to handle different types of errors.
+- **Handling Errors**: We created error models to handle different types of errors.
 - **Reusing Common Parameters**: We defined common parameters and reused them across multiple operations.
 - **Adding Authentication**: We enforced authentication on specific operations using the `@useAuth` decorator.
 - **Implementing Versioning**: We implemented versioning in our API using the `@versioned` and `@added` decorators.
@@ -28,6 +28,6 @@ To continue learning and exploring TypeSpec, here are some additional resources:
 
 ## Feedback and Community Engagement
 
-We value your feedback and would love to hear about your experiences with this tutorial. Please feel free to share your thoughts and suggestions.
+We value your feedback and would love to hear about your experiences with this tutorial. Please feel free to share your thoughts and suggestions in our [GitHub discussions channel](https://github.com/microsoft/typespec/discussions).
 
-Join the TypeSpec community on Discord to engage with other developers, ask questions, and contribute to discussions. Your participation helps us improve and grow the TypeSpec ecosystem.
+Join the TypeSpec community on [Discord](https://aka.ms/typespec/discord) to engage with other developers, ask questions, and contribute to discussions. Your participation helps us improve and grow the TypeSpec ecosystem.

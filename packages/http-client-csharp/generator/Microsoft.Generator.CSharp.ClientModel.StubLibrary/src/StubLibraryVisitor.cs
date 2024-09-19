@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
@@ -16,7 +17,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.StubLibrary
 
         protected override TypeProvider? Visit(TypeProvider type)
         {
-            if (!type.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) && !type.Name.StartsWith("Unknown"))
+            if (!type.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) &&
+                !type.Name.StartsWith("Unknown", StringComparison.Ordinal) &&
+                !type.Name.Equals("MultiPartFormDataBinaryContent", StringComparison.Ordinal))
                 return null;
 
             type.Update(xmlDocs: _emptyDocs);

@@ -1,0 +1,28 @@
+{% import 'keywords.jinja2' as keywords %}
+# coding=utf-8
+{{ code_model.options['license_header'] }}
+{% if schemas %}
+
+    {% for schema in schemas %}
+from .{{ code_model.models_filename }} import {{ schema }}
+    {% endfor %}
+{% endif %}
+{% if enums %}
+
+{% for enum in enums %}
+from .{{ code_model.enums_filename }} import {{ enum }}
+{% endfor %}
+{% endif %}
+{{ keywords.patch_imports() }}
+__all__ = [
+    {% for schema in schemas %}
+    '{{ schema }}',
+    {% endfor %}
+    {% if enums %}
+    {% for enum in enums %}
+    '{{ enum }}',
+    {% endfor %}
+{% endif %}
+]
+{{ keywords.extend_all }}
+_patch_sdk()

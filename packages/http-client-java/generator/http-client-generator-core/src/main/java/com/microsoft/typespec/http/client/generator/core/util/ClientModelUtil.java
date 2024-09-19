@@ -42,6 +42,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -488,18 +489,43 @@ public class ClientModelUtil {
    * Gets all parent properties.
    *
    * @param model The client model.
+   * @param modelFilter Filter parent models.
+   * @return Returns all properties that are defined by super types of the client model.
+   */
+  public static List<ClientModelProperty> getParentProperties(ClientModel model, Predicate<ClientModel> modelFilter) {
+    return getParentProperties(model, true, modelFilter);
+  }
+
+  /**
+   * Gets all parent properties.
+   *
+   * @param model The client model.
    * @param parentPropertiesFirst whether parent properties are in the front of the return list
    * @return Returns all properties that are defined by super types of the client model.
    */
   public static List<ClientModelProperty> getParentProperties(ClientModel model, boolean parentPropertiesFirst) {
+    return getParentProperties(model, parentPropertiesFirst, m -> true);
+  }
+
+  /**
+   * Gets all parent properties.
+   *
+   * @param model The client model.
+   * @param parentPropertiesFirst whether parent properties are in the front of the return list
+   * @param modelFilter Filter parent models.
+   * @return Returns all properties that are defined by super types of the client model.
+   */
+  public static List<ClientModelProperty> getParentProperties(ClientModel model, boolean parentPropertiesFirst, Predicate<ClientModel> modelFilter) {
     String lastParentName = model.getName();
     ClientModel parentModel = getClientModel(model.getParentModelName());
     List<ClientModelProperty> parentProperties = new ArrayList<>();
     while (parentModel != null && !lastParentName.equals(parentModel.getName())) {
-      // Add the properties in inverse order as they be reverse at the end.
-      List<ClientModelProperty> parentProps = new ArrayList<>(parentModel.getProperties());
-      for (int i = parentProps.size() - 1; i >= 0; i--) {
-        parentProperties.add(parentProps.get(i));
+      if (modelFilter == null || modelFilter.test(parentModel)) {
+        // Add the properties in inverse order as they be reverse at the end.
+        List<ClientModelProperty> parentProps = new ArrayList<>(parentModel.getProperties());
+        for (int i = parentProps.size() - 1; i >= 0; i--) {
+          parentProperties.add(parentProps.get(i));
+        }
       }
 
       lastParentName = parentModel.getName();

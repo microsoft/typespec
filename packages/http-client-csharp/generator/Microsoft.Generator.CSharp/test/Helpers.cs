@@ -4,7 +4,8 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using Microsoft.CodeAnalysis.CSharp;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 
 namespace Microsoft.Generator.CSharp.Tests
@@ -15,19 +16,24 @@ namespace Microsoft.Generator.CSharp.Tests
 
         public static string GetExpectedFromFile(string? parameters = null)
         {
-            return File.ReadAllText(GetAssetFilePath(parameters));
+            return File.ReadAllText(GetAssetFileOrDirectoryPath(true, parameters));
         }
 
-        private static string GetAssetFilePath(string? parameters = null)
+        private static string GetAssetFileOrDirectoryPath(bool isFile, string? parameters = null)
         {
             var stackTrace = new StackTrace();
             var stackFrame = GetRealMethodInvocation(stackTrace);
             var method = stackFrame.GetMethod();
             var callingClass = method!.DeclaringType;
             var nsSplit = callingClass!.Namespace!.Split('.');
-            var ns = nsSplit[^1];
             var paramString = parameters is null ? string.Empty : $"({parameters})";
-            return Path.Combine(_assemblyLocation, ns, "TestData", callingClass.Name, $"{method.Name}{paramString}.cs");
+            var extName = isFile ? ".cs" : string.Empty;
+            var path = _assemblyLocation;
+            for (int i = 4; i < nsSplit.Length; i++)
+            {
+                path = Path.Combine(path, nsSplit[i]);
+            }
+            return Path.Combine(path, "TestData", callingClass.Name, $"{method.Name}{paramString}{extName}");
         }
 
         private static StackFrame GetRealMethodInvocation(StackTrace stackTrace)
@@ -36,7 +42,9 @@ namespace Microsoft.Generator.CSharp.Tests
             while (i < stackTrace.FrameCount)
             {
                 var frame = stackTrace.GetFrame(i);
-                if (frame!.GetMethod()!.DeclaringType != typeof(Helpers))
+                var declaringType = frame!.GetMethod()!.DeclaringType!;
+                // we need to skip those method invocations from this class, or from the async state machine when the caller is an async method
+                if (declaringType != typeof(Helpers) && declaringType != typeof(MockHelpers) && !IsCompilerGenerated(declaringType))
                 {
                     return frame;
                 }
@@ -44,17 +52,20 @@ namespace Microsoft.Generator.CSharp.Tests
             }
 
             throw new InvalidOperationException($"There is no method invocation outside the {typeof(Helpers)} class in the stack trace");
+
+            static bool IsCompilerGenerated(Type type)
+            {
+                return type.IsDefined(typeof(CompilerGeneratedAttribute), false) || (type.Namespace?.StartsWith("System.Runtime.CompilerServices") ?? false) ||
+                    type.Name.StartsWith("<<", StringComparison.Ordinal);
+            }
         }
 
-        public static Compilation GetCompilationFromFile(string? parameters = null)
+        public static async Task<Compilation> GetCompilationFromDirectoryAsync(string? parameters = null)
         {
-            SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(File.ReadAllText(GetAssetFilePath(parameters)));
-            CSharpCompilation compilation = CSharpCompilation.Create("ExistingCode")
-                .WithOptions(new CSharpCompilationOptions(OutputKind.ConsoleApplication))
-                .AddReferences(MetadataReference.CreateFromFile(typeof(object).Assembly.Location))
-                .AddSyntaxTrees(syntaxTree);
-
-            return compilation;
+            var directory = GetAssetFileOrDirectoryPath(false, parameters);
+            var codeGenAttributeFiles = Path.Combine(_assemblyLocation, "..", "..", "..", "..", "..", "Microsoft.Generator.CSharp.Customization", "src");
+            var workspace = GeneratedCodeWorkspace.CreateExistingCodeProject([directory, codeGenAttributeFiles], Path.Combine(directory, "Generated"));
+            return await workspace.GetCompilationAsync();
         }
     }
 }

@@ -16,13 +16,13 @@ import { ProjectWatcher, WatchHost, createWatchHost, createWatcher } from "./wat
 
 export async function compileAction(
   host: CliCompilerHost,
-  args: CompileCliArgs & { path: string; pretty?: boolean }
+  args: CompileCliArgs & { path: string; pretty?: boolean },
 ) {
   const diagnostics: Diagnostic[] = [];
   const entrypoint = await resolveTypeSpecEntrypoint(
     host,
     resolvePath(process.cwd(), args.path),
-    (diag) => diagnostics.push(diag)
+    (diag) => diagnostics.push(diag),
   );
   if (entrypoint === undefined || diagnostics.length > 0) {
     logDiagnostics(diagnostics, host.logSink);
@@ -40,14 +40,14 @@ export async function compileAction(
 async function getCompilerOptionsOrExit(
   host: CompilerHost,
   entrypoint: string,
-  args: CompileCliArgs
+  args: CompileCliArgs,
 ): Promise<CompilerOptions> {
   const [options, diagnostics] = await getCompilerOptions(
     host,
     entrypoint,
     process.cwd(),
     args,
-    process.env
+    process.env,
   );
   if (diagnostics.length > 0) {
     logDiagnostics(diagnostics, host.logSink);
@@ -63,7 +63,7 @@ async function getCompilerOptionsOrExit(
 async function compileOnce(
   host: CompilerHost,
   path: string,
-  compilerOptions: CompilerOptions
+  compilerOptions: CompilerOptions,
 ): Promise<void> {
   try {
     const program = await compileProgram(host, resolve(path), compilerOptions);
@@ -79,7 +79,7 @@ async function compileOnce(
 function compileWatch(
   cliHost: CliCompilerHost,
   path: string,
-  compilerOptions: CompilerOptions
+  compilerOptions: CompilerOptions,
 ): Promise<void> {
   const entrypoint = resolve(path);
   const watchHost: WatchHost = createWatchHost(cliHost);
@@ -142,7 +142,7 @@ function compileWatch(
 function logProgramResult(
   host: CompilerHost,
   program: Program,
-  { showTimestamp }: { showTimestamp?: boolean } = {}
+  { showTimestamp }: { showTimestamp?: boolean } = {},
 ) {
   const log = (message?: any, ...optionalParams: any[]) => {
     const timestamp = showTimestamp ? `[${new Date().toLocaleTimeString()}] ` : "";
@@ -161,9 +161,8 @@ function logProgramResult(
   console.log(); // Insert a newline
 
   if (program.emitters.length === 0 && !program.compilerOptions.noEmit) {
-    // eslint-disable-next-line no-console
     log(
-      "No emitter was configured, no output was generated. Use `--emit <emitterName>` to pick emitter or specify it in the TypeSpec config."
+      "No emitter was configured, no output was generated. Use `--emit <emitterName>` to pick emitter or specify it in the TypeSpec config.",
     );
   }
 }

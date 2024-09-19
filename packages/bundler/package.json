@@ -1,6 +1,6 @@
 {
   "name": "@typespec/bundler",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "author": "Microsoft Corporation",
   "description": "Package to bundle a TypeSpec library.",
   "homepage": "https://typespec.io",
@@ -49,19 +49,19 @@
     "@rollup/plugin-node-resolve": "~15.2.3",
     "@rollup/plugin-virtual": "~3.0.2",
     "@typespec/compiler": "workspace:~",
-    "picocolors": "~1.0.1",
-    "rollup": "~4.19.0",
+    "picocolors": "~1.1.0",
+    "rollup": "~4.21.3",
     "yargs": "~17.7.2"
   },
   "devDependencies": {
-    "@types/node": "~18.11.19",
-    "@types/yargs": "~17.0.32",
-    "@vitest/coverage-v8": "^2.0.4",
-    "@vitest/ui": "^2.0.4",
+    "@types/node": "~22.5.4",
+    "@types/yargs": "~17.0.33",
+    "@vitest/coverage-v8": "^2.1.0",
+    "@vitest/ui": "^2.1.0",
     "c8": "^10.1.2",
     "rimraf": "~6.0.1",
-    "typescript": "~5.5.4",
-    "vite": "^5.3.4",
-    "vitest": "^2.0.4"
+    "typescript": "~5.6.2",
+    "vite": "^5.4.4",
+    "vitest": "^2.1.0"
   }
 }

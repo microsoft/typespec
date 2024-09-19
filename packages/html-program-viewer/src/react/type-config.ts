@@ -143,7 +143,7 @@ export const HiddenPropsSet = new Set(HiddenProps);
 
 export function getPropertyRendering<T extends Type, K extends keyof T>(
   type: T,
-  key: K
+  key: K,
 ): EntityPropertyConfig {
   const properties = (TypeConfig as any)[type.kind];
   const action = properties?.[key] ?? (CommonPropsConfig as any)[key];

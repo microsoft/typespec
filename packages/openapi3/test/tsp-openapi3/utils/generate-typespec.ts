@@ -36,7 +36,7 @@ export async function generateTypeSpec(folder: string) {
   const spawn = spawnSync("node", args);
   if (spawn.status !== 0) {
     throw new Error(
-      `Generation failed, command:\n openapi3-to-tsp ${args.join(" ")}\nStdout:\n${spawn.stdout}\nStderr:\n${spawn.stderr}`
+      `Generation failed, command:\n openapi3-to-tsp ${args.join(" ")}\nStdout:\n${spawn.stdout}\nStderr:\n${spawn.stderr}`,
     );
   }
 }

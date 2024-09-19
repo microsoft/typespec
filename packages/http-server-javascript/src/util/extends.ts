@@ -25,7 +25,7 @@ export function getAllProperties(model: Model, visited: Set<Model> = new Set()):
  */
 export function getAllOperations(
   iface: Interface,
-  visited: Set<Interface> = new Set()
+  visited: Set<Interface> = new Set(),
 ): Operation[] {
   if (visited.has(iface)) return [];
 
