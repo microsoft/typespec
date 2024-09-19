@@ -108,11 +108,6 @@ export class Realm {
    */
   #deletedTypes = new Set<Type>();
 
-  /**
-   * Stores types that are not present in the parent realm.
-   */
-  #createdTypes = new Set<Type>();
-
   #stateMaps = new Map<symbol, Map<Type, any>>();
   public key!: symbol;
 
