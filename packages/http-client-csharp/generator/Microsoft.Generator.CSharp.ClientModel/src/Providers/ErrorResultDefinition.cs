@@ -47,7 +47,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override CSharpType[] BuildImplements()
         {
-            return [new CSharpType(ClientModelPlugin.Instance.TypeFactory.ClientResponseGenericType, _t)];
+            return [new CSharpType(ClientModelPlugin.Instance.TypeFactory.ClientResponseOfTType, _t)];
         }
 
         protected override FieldProvider[] BuildFields()

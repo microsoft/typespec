@@ -18,19 +18,19 @@ namespace Microsoft.Generator.CSharp.ClientModel
         private Dictionary<InputClient, ClientProvider>? _clientCache;
         private Dictionary<InputClient, ClientProvider> ClientCache => _clientCache ??= [];
 
-        public virtual CSharpType MatchConditionsType => typeof(PipelineMessageClassifier);
+        public virtual Type MatchConditionsType => typeof(PipelineMessageClassifier);
 
-        public virtual CSharpType KeyCredentialType => typeof(ApiKeyCredential);
+        public virtual Type KeyCredentialType => typeof(ApiKeyCredential);
 
-        public virtual CSharpType TokenCredentialType => throw new NotImplementedException("Token credential is not supported in Scm libraries yet");
+        public virtual Type TokenCredentialType => throw new NotImplementedException("Token credential is not supported in Scm libraries yet");
 
-        public virtual CSharpType ClientResponseType => new CSharpType(typeof(ClientResult));
+        public virtual Type ClientResponseType => typeof(ClientResult);
 
-        public virtual Type ClientResponseGenericType => typeof(ClientResult<>);
+        public virtual Type ClientResponseOfTType => typeof(ClientResult<>);
 
         public virtual Type ClientResponseExceptionType => typeof(ClientResultException);
 
-        public virtual CSharpType HttpResponseType => new CSharpType(typeof(PipelineResponse));
+        public virtual Type HttpResponseType => typeof(PipelineResponse);
 
         internal ClientResponseApi CreateClientResponse(ValueExpression original) => new ClientResultProvider(original.As<ClientResult>());
 

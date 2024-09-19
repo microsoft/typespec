@@ -429,7 +429,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             responseBodyType = response?.BodyType is null ? null : ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(response.BodyType);
             return response is null || responseBodyType is null
                 ? ClientModelPlugin.Instance.TypeFactory.ClientResponseType
-                : new CSharpType(ClientModelPlugin.Instance.TypeFactory.ClientResponseGenericType, responseBodyType);
+                : new CSharpType(ClientModelPlugin.Instance.TypeFactory.ClientResponseOfTType, responseBodyType);
         }
     }
 }
