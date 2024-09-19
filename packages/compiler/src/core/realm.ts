@@ -33,7 +33,7 @@ class StateMapRealmView<V> implements Map<Type, V> {
 
   forEach(cb: (value: V, key: Type, map: Map<Type, V>) => void, thisArg?: any) {
     for (const item of this.entries()) {
-      cb.call(thisArg, item[1], item[0], this);
+      cb.call(thisArg, item[1], item[0], this as unknown as Map<Type, V>);
     }
 
     return this;
@@ -48,7 +48,7 @@ class StateMapRealmView<V> implements Map<Type, V> {
     this.#realmState.clear();
   }
 
-  *entries() {
+  *entries(): IterableIterator<[Type, V]> {
     for (const item of this.#realmState) {
       yield item;
     }
@@ -56,18 +56,21 @@ class StateMapRealmView<V> implements Map<Type, V> {
     for (const item of this.#parentState) {
       yield item;
     }
+    return undefined as any; // Explicitly return undefined to match the expected type.
   }
 
-  *values() {
+  *values(): IterableIterator<V> {
     for (const item of this.entries()) {
       yield item[1];
     }
+    return undefined as any; // Explicitly return undefined to match the expected type.
   }
 
-  *keys() {
+  *keys(): IterableIterator<Type> {
     for (const item of this.entries()) {
       yield item[0];
     }
+    return undefined as any; // Explicitly return undefined to match the expected type.
   }
 
   [Symbol.iterator]() {
