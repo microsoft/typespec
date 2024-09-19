@@ -987,7 +987,6 @@ export class CodeModelBuilder {
         }
       }
 
-      // track usage
       if (pollingSchema) {
         this.trackSchemaUsage(pollingSchema, { usage: [SchemaContext.Output] });
         if (trackConvenienceApi) {
@@ -1715,13 +1714,18 @@ export class CodeModelBuilder {
       op.addResponse(response);
 
       if (response instanceof SchemaResponse) {
-        this.trackSchemaUsage(response.schema, { usage: [SchemaContext.Output] });
-
-        if (trackConvenienceApi) {
-          this.trackSchemaUsage(response.schema, {
-            usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
+        if (!trackConvenienceApi) {
+          trackSchemaUsage(response.schema, {
+            usage: [SchemaContext.None]
           });
         }
+        // this.trackSchemaUsage(response.schema, { usage: [SchemaContext.Output] });
+
+        // if (trackConvenienceApi) {
+        //   this.trackSchemaUsage(response.schema, {
+        //     usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
+        //   });
+        // }
       }
     }
   }
@@ -2707,12 +2711,21 @@ export class CodeModelBuilder {
   private postProcessSchemaUsage(): void {
     this.codeModel.schemas.objects?.forEach((schema) => {
       const usages = (schema as SchemaUsage).usage;
+      // if (usages && usages.includes(SchemaContext.Public) && usages.includes(SchemaContext.Internal)) { // TODO haoling: add check to apply only to json-merge-patch and multipart
+      //   // remove internal
+      //   if (usages.includes(SchemaContext.JsonMergePatch) || schema.serializationFormats?.includes(KnownMediaType.Multipart)) {
+      //     usages.splice(usages.indexOf(SchemaContext.Internal), 1);
+      //   }
+      // }
       if (usages && usages.includes(SchemaContext.Public) && usages.includes(SchemaContext.Internal)) { // TODO haoling: add check to apply only to json-merge-patch and multipart
         // remove internal
-        if (usages.includes(SchemaContext.JsonMergePatch) || schema.serializationFormats?.includes(KnownMediaType.Multipart)) {
           usages.splice(usages.indexOf(SchemaContext.Internal), 1);
-        }
       }
+      if (usages && usages.includes(SchemaContext.None)) {
+        // no usage
+        (schema as SchemaUsage).usage = [];
+      }
+
       // if (usages && usages.includes(SchemaContext.Exception)) {
       //   // remove internal
       //   usages.length = 0; // remove all items in the usages array
