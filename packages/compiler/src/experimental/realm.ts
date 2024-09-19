@@ -1,7 +1,7 @@
 import { compilerAssert } from "../core/diagnostics.js";
 import { Program } from "../core/program.js";
 import { Type } from "../core/types.js";
-import { createTypeFactory } from "./type-factory.js";
+import { $ } from "./typekit/define-kit.js";
 
 class StateMapRealmView<V> implements Map<Type, V> {
   #realm: Realm;
@@ -91,6 +91,7 @@ class StateMapRealmView<V> implements Map<Type, V> {
   }
 }
 
+/** @experimental */
 export class Realm {
   #program!: Program;
 
@@ -114,13 +115,11 @@ export class Realm {
 
   #stateMaps = new Map<symbol, Map<Type, any>>();
   public key!: symbol;
-  public typeFactory: ReturnType<typeof createTypeFactory>;
 
   constructor(program: Program, description: string) {
     this.key = Symbol(description);
     this.#program = program;
     Realm.#knownRealms.set(this.key, this);
-    this.typeFactory = createTypeFactory(program, this);
   }
 
   stateMap(stateKey: symbol) {
@@ -138,7 +137,7 @@ export class Realm {
     compilerAssert(type, "Undefined type passed to clone");
 
     const clone = this.#cloneIntoRealm(type);
-    this.typeFactory.finishType(clone);
+    $.type.finishType(clone);
 
     return clone;
   }
@@ -157,7 +156,7 @@ export class Realm {
   }
 
   #cloneIntoRealm<T extends Type>(type: T): T {
-    const clone = this.typeFactory.initializeClone(type);
+    const clone = $.type.clone(type);
     this.#types.add(clone);
     Realm.realmForType.set(clone, this);
     return clone;

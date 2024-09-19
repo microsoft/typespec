@@ -1,8 +1,6 @@
 import { Program } from "../core/program.js";
-import { isArrayModelType } from "../core/type-utils.js";
 import {
   Decorator,
-  DecoratorFunction,
   Enum,
   EnumMember,
   FunctionParameter,
@@ -19,7 +17,6 @@ import {
   ScalarConstructor,
   StringTemplate,
   StringTemplateSpan,
-  SyntaxKind,
   TemplateParameter,
   Tuple,
   Type,
@@ -27,10 +24,10 @@ import {
   UnionVariant,
 } from "../core/types.js";
 import { CustomKeyMap } from "../emitter-framework/custom-key-map.js";
-import { $doc, isVisible } from "../lib/decorators.js";
 import { Realm } from "./realm.js";
-import { createTypeFactory } from "./type-factory.js";
+import { $ } from "./typekit/index.js";
 
+/** @experimental */
 export type MutatorRecord<T extends Type> =
   | {
       filter?: MutatorFilterFn<T>;
@@ -42,18 +39,22 @@ export type MutatorRecord<T extends Type> =
     }
   | MutatorFn<T>;
 
+/** @experimental */
 export interface MutatorFn<T extends Type> {
   (sourceType: T, clone: T, program: Program, realm: Realm): void;
 }
 
+/** @experimental */
 export interface MutatorFilterFn<T extends Type> {
   (sourceType: T, program: Program, realm: Realm): boolean | MutatorFlow;
 }
 
+/** @experimental */
 export interface MutatorReplaceFn<T extends Type> {
   (sourceType: T, clone: T, program: Program, realm: Realm): Type;
 }
 
+/** @experimental */
 export interface Mutator {
   name: string;
   Model?: MutatorRecord<Model>;
@@ -74,110 +75,14 @@ export interface Mutator {
   StringTemplateSpan?: MutatorRecord<StringTemplateSpan>;
 }
 
-export interface VisibilityOptions {
-  visibility: string;
-}
-
+/** @experimental */
 export enum MutatorFlow {
   MutateAndRecurse = 0,
   DoNotMutate = 1 << 0,
   DoNotRecurse = 1 << 1,
 }
 
-export function createVisibilityMutator(visibility: string): Mutator {
-  return {
-    name: visibility + " Visibility",
-    Model: {
-      filter(m, program, realm) {
-        if (isArrayModelType(program, m)) {
-          return MutatorFlow.DoNotMutate;
-        }
-        return true;
-      },
-      mutate(m, clone, program, realm) {
-        if (clone.name) {
-          clone.name = m.name + visibility.charAt(0).toUpperCase() + visibility.slice(1);
-        }
-
-        for (const prop of m.properties.values()) {
-          if (!isVisible(program, prop, [visibility])) {
-            clone.properties.delete(prop.name);
-            realm.remove(prop);
-          }
-        }
-        return;
-      },
-    },
-  };
-}
-
-const JSONMergePatch: Mutator = {
-  name: "JSON Merge Patch",
-  Model: {
-    filter(m, program, realm) {
-      // TODO: Revisit this, as it is not ideal
-      if (m.node!.parent!.kind === SyntaxKind.OperationSignatureDeclaration) {
-        return MutatorFlow.DoNotMutate;
-      }
-
-      return isArrayModelType(program, m)
-        ? MutatorFlow.DoNotRecurse | MutatorFlow.DoNotMutate
-        : true;
-    },
-    mutate(sourceType, clone, program, realm) {
-      if (clone.name) {
-        clone.name = clone.name + "MergePatch";
-      }
-      const typeFactory = createTypeFactory(program, realm);
-
-      for (const prop of clone.properties.values()) {
-        const clonedProp = realm.typeFactory.initializeClone(prop);
-        if (clonedProp.optional) {
-          if (clonedProp.type.kind === "Scalar") {
-            // remove everything but doc and apply it to the declaration
-            // TODO: THIS IS A HACK
-            const docDecorator = clonedProp.decorators.filter((d) => d.decorator === $doc);
-            const otherDecorators: [DecoratorFunction, ...any][] = clonedProp.decorators
-              .filter((d) => d.decorator !== $doc)
-              .map((d) => {
-                return [d.decorator, ...d.args.map((v) => v.jsValue)];
-              });
-
-            clonedProp.decorators = docDecorator;
-
-            const ginnedScalar = realm.typeFactory.scalar(
-              ...otherDecorators,
-              clone.name + prop.name[0].toUpperCase() + prop.name.slice(1),
-              {
-                extends: clonedProp.type,
-              }
-            );
-
-            clonedProp.type = realm.typeFactory.union([ginnedScalar, typeFactory.null]);
-          } else {
-            // otherwise pray it works, I guess
-            clonedProp.type = realm.typeFactory.union([clonedProp.type, typeFactory.null]);
-          }
-        }
-        clonedProp.optional = true;
-        clone.properties.set(prop.name, clonedProp);
-        realm.typeFactory.finishType(clonedProp);
-      }
-    },
-  },
-};
-
-export const Mutators = {
-  Visibility: {
-    create: createVisibilityMutator("create"),
-    read: createVisibilityMutator("read"),
-    update: createVisibilityMutator("update"),
-    delete: createVisibilityMutator("delete"),
-    query: createVisibilityMutator("query"),
-  },
-  JSONMergePatch,
-};
-
+/** @experimental */
 export type MutableType = Exclude<
   Type,
   | TemplateParameter
@@ -197,10 +102,12 @@ const seen = new CustomKeyMap<[MutableType, Set<Mutator> | Mutator[]], Type>(([t
     .join("-")}`;
   return key;
 });
+
+/** @experimental */
 export function mutateSubgraph<T extends MutableType>(
   program: Program,
   mutators: Mutator[],
-  type: T
+  type: T,
 ): { realm: Realm | null; type: MutableType } {
   const realm = new Realm(program, "realm for mutation");
   const interstitialFunctions: (() => void)[] = [];
@@ -215,7 +122,7 @@ export function mutateSubgraph<T extends MutableType>(
 
   function mutateSubgraphWorker<T extends MutableType>(
     type: T,
-    activeMutators: Set<Mutator>
+    activeMutators: Set<Mutator>,
   ): MutableType {
     let existing = seen.get([type, activeMutators]);
     if (existing) {
@@ -312,7 +219,7 @@ export function mutateSubgraph<T extends MutableType>(
         type,
         clone! as any,
         program,
-        realm
+        realm,
       ) as any;
 
       if (replaceFn && result !== undefined) {
@@ -326,12 +233,12 @@ export function mutateSubgraph<T extends MutableType>(
       visitSubgraph();
     }
 
-    realm.typeFactory.finishType(clone!);
+    $.type.finishType(clone!);
 
     return clone!;
 
     function initializeClone() {
-      clone = realm.typeFactory.initializeClone(type);
+      clone = $.type.clone(type, realm);
       seen.set([type, activeMutators], clone);
       seen.set([type, mutatorsToApply], clone);
     }
