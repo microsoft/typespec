@@ -8,7 +8,7 @@ import os from "os";
 const cadlCodeGenTempDir = joinPaths(os.tmpdir(), "cadl-codegen");
 
 export function createTempPath(extension: string, prefix: string = "") {
-  return joinPaths(cadlCodeGenTempDir, prefix + randomUUID() + extension);
+    return joinPaths(cadlCodeGenTempDir, prefix + randomUUID() + extension);
 }
 
 /**
@@ -18,11 +18,11 @@ export function createTempPath(extension: string, prefix: string = "") {
  * @return the absolute path to the created codemodel.
  */
 export async function saveCodeModelAsYaml(name: string, codemodel: unknown): Promise<string> {
-  await mkdir(cadlCodeGenTempDir, { recursive: true });
-  const filename = createTempPath(".yaml", name);
-  const yamlStr = jsyaml.dump(codemodel);
-  await writeFile(filename, yamlStr);
-  return filename;
+    await mkdir(cadlCodeGenTempDir, { recursive: true });
+    const filename = createTempPath(".yaml", name);
+    const yamlStr = jsyaml.dump(codemodel);
+    await writeFile(filename, yamlStr);
+    return filename;
 }
 
 /**
@@ -32,21 +32,21 @@ export async function saveCodeModelAsYaml(name: string, codemodel: unknown): Pro
  * @param options Options
  */
 export async function execAsync(
-  command: string,
-  args: string[],
-  options: SpawnOptions = {},
+    command: string,
+    args: string[],
+    options: SpawnOptions = {},
 ): Promise<{ exitCode: number; proc: ChildProcess }> {
-  const child = spawn(command, args, { stdio: "inherit", ...options });
-  return new Promise((resolve, reject) => {
-    child.on("error", (error) => {
-      reject(error);
-    });
+    const child = spawn(command, args, { stdio: "inherit", ...options });
+    return new Promise((resolve, reject) => {
+        child.on("error", (error) => {
+            reject(error);
+        });
 
-    child.on("exit", (exitCode) => {
-      resolve({
-        exitCode: exitCode ?? -1,
-        proc: child,
-      });
+        child.on("exit", (exitCode) => {
+            resolve({
+                exitCode: exitCode ?? -1,
+                proc: child,
+            });
+        });
     });
-  });
 }
