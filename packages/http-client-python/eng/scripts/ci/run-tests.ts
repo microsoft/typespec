@@ -27,7 +27,10 @@ const foldersToProcess = argv.values.flavor
 const commandToRun = argv.values.command || "all";
 
 function getCommand(command: string, flavor: string, name?: string): string {
-  if (!validCommands.includes(command)) throw new Error(`Unknown command '${command}'.`);
+  if (command.includes(",")) {
+    // if it's multiple, make sure we run base first
+    command = "base," + command;
+  }
   let retval: string;
   if (platform() === "win32") {
     retval = `set FOLDER=${flavor} && ${venvPath} -m tox -c ./test/${flavor}/tox.ini -e ${command}`;
@@ -44,21 +47,18 @@ function getCommand(command: string, flavor: string, name?: string): string {
 function sectionExistsInToxIni(command: string, flavor: string): boolean {
   const toxIniPath = join(root, `test/${flavor}/tox.ini`);
   const toxIniContent = readFileSync(toxIniPath, "utf-8");
-  const sectionHeader = `[testenv:${command}]`;
-  return toxIniContent.includes(sectionHeader);
+  return command
+    .split(",")
+    .map((c) => `[testenv:${c}]`)
+    .every((section) => toxIniContent.includes(section));
 }
 
 function myExecSync(command: string, flavor: string, name?: string): void {
-  if (command === "all") {
-    command = validCommands
-      .filter((c) => sectionExistsInToxIni(c, flavor))
-      .map((x) => getCommand(x, flavor, name))
-      .join(" && ");
-  } else if (!sectionExistsInToxIni(command, flavor)) {
+  if (!sectionExistsInToxIni(command, flavor)) {
     console.log(`No section for ${command} in tox.ini for flavor ${flavor}. Skipping...`);
     return;
   }
-  execSync(command, { stdio: "inherit" });
+  execSync(getCommand(command, flavor, name), { stdio: "inherit" });
 }
 
 let venvPath = join(root, "venv");
@@ -70,18 +70,13 @@ if (fs.existsSync(join(venvPath, "bin"))) {
   throw new Error("Virtual environment doesn't exist.");
 }
 
-// // Install dependencies from dev_requirements.txt
-// const devRequirementsPath = join(root, "generator", "dev_requirements.txt");
-// if (fs.existsSync(devRequirementsPath)) {
-//   console.log("Installing dependencies from dev_requirements.txt...");
-//   execSync(`${venvPath} -m pip install -r ${devRequirementsPath}`, { stdio: "inherit" });
-// } else {
-//   throw new Error("dev_requirements.txt doesn't exist.");
-// }
-
 foldersToProcess.forEach((flavor) => {
   try {
     if (commandToRun === "all") {
+      console.log(`Running ${commandToRun} for flavor ${flavor}...`);
+      myExecSync(validCommands.join(","), flavor, argv.values.name);
+    } else if (getCommand(commandToRun, flavor, argv.values.name)) {
+      console.log(`Running ${commandToRun} for flavor ${flavor}...`);
       myExecSync(commandToRun, flavor, argv.values.name);
     } else {
       console.error(`Error: Unknown command '${commandToRun}'.`);
