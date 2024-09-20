@@ -14,7 +14,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Client.Structure.RenamedOperation
         [Test]
         public void VerifyMethods()
         {
-            /*cheeck methods in RenamedOperationClient. */
+            /*check methods in RenamedOperationClient. */
             var methodsRenamedOperation = typeof(RenamedOperationClient).GetMethods();
             Assert.IsNotNull(methodsRenamedOperation);
             Assert.AreEqual(3, methodsRenamedOperation.Where(method => method.Name.EndsWith("Async")).Count());
