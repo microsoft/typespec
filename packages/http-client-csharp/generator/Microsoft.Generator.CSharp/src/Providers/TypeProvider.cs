@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Statements;
@@ -23,6 +24,8 @@ namespace Microsoft.Generator.CSharp.Providers
             => CodeModelPlugin.Instance.SourceInputModel.FindForType(GetNamespace(), BuildName());
 
         public TypeProvider? CustomCodeView => _customCodeView.Value;
+
+        internal virtual IEnumerable<AttributeData>? GetAttributes() => null;
 
         protected string? _deprecated;
 
