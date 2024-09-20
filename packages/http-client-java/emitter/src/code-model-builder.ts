@@ -542,15 +542,15 @@ export class CodeModelBuilder {
         if (initializationProperty.kind === "endpoint") {
           let sdkPathParameters: SdkPathParameter[] = [];
           if (initializationProperty.type.kind === "union") {
-            if (initializationProperty.type.values.length === 2) {
+            if (initializationProperty.type.variantTypes.length === 2) {
               // only get the sdkPathParameters from the endpoint whose serverUrl is not {"endpoint"}
-              for (const endpointType of initializationProperty.type.values) {
+              for (const endpointType of initializationProperty.type.variantTypes) {
                 if (endpointType.kind === "endpoint" && endpointType.serverUrl !== "{endpoint}") {
                   sdkPathParameters = endpointType.templateArguments;
                   baseUri = endpointType.serverUrl;
                 }
               }
-            } else if (initializationProperty.type.values.length > 2) {
+            } else if (initializationProperty.type.variantTypes.length > 2) {
               throw new Error("Multiple server url defined for one client is not supported yet.");
             }
           } else if (initializationProperty.type.kind === "endpoint") {
@@ -867,20 +867,32 @@ export class CodeModelBuilder {
     }
 
     // responses
-    for (const [code, response] of sdkMethod.operation.responses) {
-      this.processResponse(codeModelOperation, code, response, lroMetadata.longRunning, false);
+    for (const response of sdkMethod.operation.responses) {
+      this.processResponse(
+        codeModelOperation,
+        response.statusCodes,
+        response,
+        lroMetadata.longRunning,
+        false,
+      );
     }
 
     // exception
-    for (const [code, response] of sdkMethod.operation.exceptions) {
-      this.processResponse(codeModelOperation, code, response, lroMetadata.longRunning, true);
+    for (const response of sdkMethod.operation.exceptions) {
+      this.processResponse(
+        codeModelOperation,
+        response.statusCodes,
+        response,
+        lroMetadata.longRunning,
+        true,
+      );
     }
 
     // check for paged
     this.processRouteForPaged(codeModelOperation, sdkMethod.operation.responses, sdkMethod);
 
     // check for long-running operation
-    this.processRouteForLongRunning(codeModelOperation, sdkMethod.operation.responses, lroMetadata);
+    this.processRouteForLongRunning(codeModelOperation, lroMetadata);
 
     operationGroup.addOperation(codeModelOperation);
 
@@ -889,11 +901,11 @@ export class CodeModelBuilder {
 
   private processRouteForPaged(
     op: CodeModelOperation,
-    responses: Map<number | HttpStatusCodeRange, SdkHttpResponse>,
+    responses: SdkHttpResponse[],
     sdkMethod: SdkMethod<SdkHttpOperation>,
   ) {
     if (sdkMethod.kind === "paging" || sdkMethod.kind === "lropaging") {
-      for (const [_, response] of responses) {
+      for (const response of responses) {
         const bodyType = response.type;
         if (bodyType && bodyType.kind === "model") {
           const itemName = sdkMethod.response.resultPath;
@@ -1014,11 +1026,7 @@ export class CodeModelBuilder {
     return new LongRunningMetadata(false);
   }
 
-  private processRouteForLongRunning(
-    op: CodeModelOperation,
-    responses: Map<number | HttpStatusCodeRange, SdkHttpResponse>,
-    lroMetadata: LongRunningMetadata,
-  ) {
+  private processRouteForLongRunning(op: CodeModelOperation, lroMetadata: LongRunningMetadata) {
     if (lroMetadata.longRunning) {
       op.extensions = op.extensions ?? {};
       op.extensions["x-ms-long-running-operation"] = true;
@@ -1783,7 +1791,7 @@ export class CodeModelBuilder {
       return this.processIntegerSchema(type, nameHint, integerSize);
     } else {
       switch (type.kind) {
-        case "any":
+        case "unknown":
           return this.processAnySchema();
 
         case "string":
@@ -2211,7 +2219,7 @@ export class CodeModelBuilder {
       summary: type.description,
     });
     unionSchema.anyOf = [];
-    type.values.forEach((it) => {
+    type.variantTypes.forEach((it) => {
       const variantName = this.getUnionVariantName(it.__raw, { depth: 0 });
       const modelName = variantName + baseName;
       const propertyName = "value";

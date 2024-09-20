@@ -17,7 +17,7 @@ public class ChoiceMapper implements IMapper<ChoiceSchema, IType> {
     private static final ChoiceMapper INSTANCE = new ChoiceMapper();
     Map<ChoiceSchema, IType> parsed = new ConcurrentHashMap<>();
 
-    private ChoiceMapper() {
+    protected ChoiceMapper() {
     }
 
     /**
@@ -47,6 +47,6 @@ public class ChoiceMapper implements IMapper<ChoiceSchema, IType> {
     }
 
     private IType createChoiceType(ChoiceSchema enumType) {
-        return MapperUtils.createEnumType(enumType, true);
+        return MapperUtils.createEnumType(enumType, true, true);
     }
 }
