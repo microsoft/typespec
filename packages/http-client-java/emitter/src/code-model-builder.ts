@@ -872,9 +872,6 @@ export class CodeModelBuilder {
 
     // responses
     for (const response of sdkMethod.operation.responses) {
-<<<<<<< HEAD
-      this.processResponse(codeModelOperation, response.statusCodes, response, lroMetadata.longRunning, false);
-=======
       this.processResponse(
         codeModelOperation,
         response.statusCodes,
@@ -882,14 +879,10 @@ export class CodeModelBuilder {
         lroMetadata.longRunning,
         false,
       );
->>>>>>> remote/main
     }
 
     // exception
     for (const response of sdkMethod.operation.exceptions) {
-<<<<<<< HEAD
-      this.processResponse(codeModelOperation, response.statusCodes, response, lroMetadata.longRunning, true);
-=======
       this.processResponse(
         codeModelOperation,
         response.statusCodes,
@@ -897,7 +890,6 @@ export class CodeModelBuilder {
         lroMetadata.longRunning,
         true,
       );
->>>>>>> remote/main
     }
 
     // check for paged
@@ -1045,15 +1037,7 @@ export class CodeModelBuilder {
     return new LongRunningMetadata(false);
   }
 
-<<<<<<< HEAD
-  private processRouteForLongRunning(
-    op: CodeModelOperation,
-    responses: SdkHttpResponse[],
-    lroMetadata: LongRunningMetadata,
-  ) {
-=======
   private processRouteForLongRunning(op: CodeModelOperation, lroMetadata: LongRunningMetadata) {
->>>>>>> remote/main
     if (lroMetadata.longRunning) {
       op.extensions = op.extensions ?? {};
       op.extensions["x-ms-long-running-operation"] = true;
@@ -2749,7 +2733,7 @@ export class CodeModelBuilder {
   // }
 
   private postProcessSchemaUsage(): void {
-    const innerProcessUsage = (schema: ObjectSchema | ChoiceSchema | SealedChoiceSchema) => {
+    const innerProcessUsage = (schema: Schema) => {
       const usages = (schema as SchemaUsage).usage;
       // if (usages && usages.includes(SchemaContext.Public) && usages.includes(SchemaContext.Internal)) { // TODO haoling: add check to apply only to json-merge-patch and multipart
       //   // remove internal
@@ -2769,6 +2753,9 @@ export class CodeModelBuilder {
     this.codeModel.schemas.choices?.forEach(innerProcessUsage);
     this.codeModel.schemas.objects?.forEach(innerProcessUsage);
     this.codeModel.schemas.sealedChoices?.forEach(innerProcessUsage);
+    this.codeModel.schemas.constants?.forEach(innerProcessUsage);
+    this.codeModel.schemas.groups?.forEach(innerProcessUsage);
+    this.codeModel.schemas.ors?.forEach(innerProcessUsage);
   }
 
   private trackSchemaUsage(schema: Schema, schemaUsage: SchemaUsage): void {
