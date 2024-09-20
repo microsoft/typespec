@@ -27,8 +27,15 @@ import java.util.Objects;
 /**
  * Contains utility methods to help map from modelerfour to Java Autorest.
  */
-final class MapperUtils {
-    static IType createEnumType(ChoiceSchema enumType, boolean expandable) {
+public final class MapperUtils {
+    /**
+     * Create enum client type from code model.
+     * @param enumType code model schema for enum
+     * @param expandable whether it's expandable enum
+     * @param useCodeModelNameForEnumMember whether to use code model enum member name for client enum member name
+     * @return enum client type
+     */
+    public static IType createEnumType(ChoiceSchema enumType, boolean expandable, boolean useCodeModelNameForEnumMember) {
         JavaSettings settings = JavaSettings.getInstance();
         String enumTypeName = enumType.getLanguage().getJava().getName();
 
@@ -54,7 +61,7 @@ final class MapperUtils {
             for (ChoiceValue enumValue : enumType.getChoices()) {
                 String enumName = enumValue.getValue();
                 String enumDescription = null;
-                if (!settings.isFluent()) {
+                if (useCodeModelNameForEnumMember) {
                     if (enumValue.getLanguage() != null && enumValue.getLanguage().getJava() != null
                         && enumValue.getLanguage().getJava().getName() != null) {
                         enumName = enumValue.getLanguage().getJava().getName();
