@@ -21,7 +21,6 @@ import {
   isTypeSpecValueTypeOf,
 } from "@typespec/compiler";
 import { DurationSchema } from "./common/schemas/time.js";
-import { SchemaContext } from "./common/schemas/usage.js";
 import { getNamespace } from "./utils.js";
 import { SdkDurationType, SdkEnumType, SdkModelType, SdkType, UsageFlags, isSdkFloatKind, isSdkIntKind } from "@azure-tools/typespec-client-generator-core";
 import { SchemaContext, SchemaUsage } from "./common/schemas/usage.js";
