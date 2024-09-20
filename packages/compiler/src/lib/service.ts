@@ -4,6 +4,7 @@ import { Type, getTypeName, reportDeprecated } from "../core/index.js";
 import { reportDiagnostic } from "../core/messages.js";
 import type { Program } from "../core/program.js";
 import { DecoratorContext, Namespace } from "../core/types.js";
+import { useStateMap } from "./utils.js";
 
 export interface ServiceDetails {
   title?: string;
@@ -15,10 +16,9 @@ export interface Service extends ServiceDetails {
   type: Namespace;
 }
 
-const serviceDetailsKey = Symbol.for("@typespec/compiler.services");
-function getServiceMap(program: Program): Map<Namespace, Service> {
-  return program.stateMap(serviceDetailsKey) as Map<Namespace, Service>;
-}
+const [getService, setService, getServiceMap] = useStateMap<Namespace, Service>(
+  Symbol.for("@typespec/compiler.services"),
+);
 
 /**
  * List all the services defined in the TypeSpec program
@@ -29,15 +29,15 @@ export function listServices(program: Program): Service[] {
   return [...getServiceMap(program).values()];
 }
 
-/**
- * Get the service information for the given namespace.
- * @param program Program
- * @param namespace Service namespace
- * @returns Service information or undefined if namespace is not a service namespace.
- */
-export function getService(program: Program, namespace: Namespace): Service | undefined {
-  return getServiceMap(program).get(namespace);
-}
+export {
+  /**
+   * Get the service information for the given namespace.
+   * @param program Program
+   * @param namespace Service namespace
+   * @returns Service information or undefined if namespace is not a service namespace.
+   */
+  getService,
+};
 
 /**
  * Check if the namespace is defined as a service.
@@ -62,7 +62,7 @@ export function addService(
 ): void {
   const serviceMap = getServiceMap(program);
   const existing = serviceMap.get(namespace) ?? {};
-  serviceMap.set(namespace, { ...existing, ...details, type: namespace });
+  setService(program, namespace, { ...existing, ...details, type: namespace });
 }
 
 export const $service: ServiceDecorator = (

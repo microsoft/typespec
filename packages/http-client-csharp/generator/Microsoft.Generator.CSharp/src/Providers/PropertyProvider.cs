@@ -30,6 +30,7 @@ namespace Microsoft.Generator.CSharp.Providers
         public XmlDocProvider XmlDocs { get; private set; }
         public PropertyWireInformation? WireInfo { get; }
         public bool IsDiscriminator { get; }
+        public bool IsAdditionalProperties { get; init; }
 
         public FieldProvider? BackingField { get; set; }
         public PropertyProvider? BaseProperty { get; set; }

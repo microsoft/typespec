@@ -89,35 +89,34 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public void DerviedCtorShouldSetDiscriminator()
+        public void DerivedPublicCtorShouldSetDiscriminator()
         {
             MockHelpers.LoadMockPlugin();
             var catModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(_catModel);
             Assert.IsNotNull(catModel);
             Assert.AreEqual(2, catModel!.Constructors.Count);
-            foreach (var ctor in catModel.Constructors)
-            {
-                var init = ctor.Signature.Initializer;
-                Assert.IsNotNull(init);
-                var expression = init!.Arguments[0] as ScopedApi;
-                Assert.IsNotNull(expression);
-                var original = expression!.Original as LiteralExpression;
-                Assert.IsNotNull(original);
-                Assert.AreEqual("cat", original!.Literal);
-            }
+            var publicCtor = catModel.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsNotNull(publicCtor);
+
+            var init = publicCtor!.Signature.Initializer;
+            Assert.IsNotNull(init);
+            var expression = init!.Arguments[0] as ScopedApi;
+            Assert.IsNotNull(expression);
+            var original = expression!.Original as LiteralExpression;
+            Assert.IsNotNull(original);
+            Assert.AreEqual("cat", original!.Literal);
         }
 
         [Test]
-        public void DerivedCtorShouldNotHaveKindParam()
+        public void DerivedPublicCtorShouldNotHaveKindParam()
         {
             MockHelpers.LoadMockPlugin();
             var dogModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(_dogModel);
             Assert.IsNotNull(dogModel);
             Assert.AreEqual(2, dogModel!.Constructors.Count);
-            foreach (var ctor in dogModel.Constructors)
-            {
-                Assert.IsFalse(ctor.Signature.Parameters.Any(p => p.Name == "kind"));
-            }
+            var publicCtor = dogModel.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsNotNull(publicCtor);
+            Assert.IsFalse(publicCtor!.Signature.Parameters.Any(p => p.Name == "kind"));
         }
 
         [Test]

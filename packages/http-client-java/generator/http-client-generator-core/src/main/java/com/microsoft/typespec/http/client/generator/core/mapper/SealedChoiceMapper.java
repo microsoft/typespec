@@ -13,7 +13,7 @@ public class SealedChoiceMapper implements IMapper<SealedChoiceSchema, IType> {
     private static final SealedChoiceMapper INSTANCE = new SealedChoiceMapper();
     Map<SealedChoiceSchema, IType> parsed = new ConcurrentHashMap<>();
 
-    private SealedChoiceMapper() {
+    protected SealedChoiceMapper() {
     }
 
     public static SealedChoiceMapper getInstance() {
@@ -38,6 +38,6 @@ public class SealedChoiceMapper implements IMapper<SealedChoiceSchema, IType> {
     }
 
     private IType createSealedChoiceType(SealedChoiceSchema enumType) {
-        return MapperUtils.createEnumType(enumType, false);
+        return MapperUtils.createEnumType(enumType, false, true);
     }
 }

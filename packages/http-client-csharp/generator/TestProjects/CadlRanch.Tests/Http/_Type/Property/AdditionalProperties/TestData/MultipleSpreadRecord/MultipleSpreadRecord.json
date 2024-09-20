@@ -1,0 +1,5 @@
+{
+  "flag": true,
+  "extra": "foo",
+  "extraFloat": 42.2
+}

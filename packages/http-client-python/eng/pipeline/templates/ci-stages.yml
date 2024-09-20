@@ -1,0 +1,28 @@
+parameters:
+  - name: Condition
+    type: string
+    default: true
+  - name: DependsOn
+    type: object
+    default: []
+
+stages:
+  - template: /eng/emitters/pipelines/templates/stages/emitter-stages.yml
+    parameters:
+      StagePrefix: Python
+      BuildPrereleaseVersion: true
+      UseTypeSpecNext: false
+      Publish: "none"
+      PackagePath: /packages/http-client-python
+      EmitterPackageJsonPath: packages/http-client-python/package.json
+      Packages:
+        - name: typespec-http-client-python
+          file: typespec-http-client-python-*.tgz
+          type: npm
+      UnitTestArgs: -UnitTests
+      TestMatrix:
+        RegenCheck:
+          TestArguments: -GenerationChecks
+      Condition: ${{ parameters.Condition }}
+      DependsOn: ${{ parameters.DependsOn }}
+      LanguageShortName: "python"

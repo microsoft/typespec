@@ -13,7 +13,8 @@ namespace Microsoft.Generator.CSharp.Tests
         {
             var plugin = new TestPlugin();
             plugin.AddVisitor(new TestLibraryVisitor());
-            Assert.AreEqual(1, plugin.Visitors.Count);
+            // There is 1 default visitor added by the generator.
+            Assert.AreEqual(2, plugin.Visitors.Count);
         }
     }
 }

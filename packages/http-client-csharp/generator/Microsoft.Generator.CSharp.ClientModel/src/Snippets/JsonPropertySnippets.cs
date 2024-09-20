@@ -17,6 +17,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 
         public static ScopedApi<JsonElement> Value(this ScopedApi<JsonProperty> jsonProperty)
             => jsonProperty.Property(nameof(JsonProperty.Value)).As<JsonElement>();
+        public static ScopedApi<JsonElement> ValueKind(this ScopedApi<JsonProperty> jsonProperty)
+            => Value(jsonProperty).Property(nameof(JsonProperty.Value.ValueKind)).As<JsonElement>();
 
         public static ScopedApi<bool> NameEquals(this ScopedApi<JsonProperty> jsonProperty, string value)
             => jsonProperty.Invoke(nameof(JsonProperty.NameEquals), LiteralU8(value)).As<bool>();
