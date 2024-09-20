@@ -229,7 +229,7 @@ function emitFlattenedParameter(
     inDocstring: true,
     inFlattenedBody: true,
     inOverload: false,
-    inOverriden: false,
+    inOverridden: false,
     isApiVersion: bodyParameter["isApiVersion"],
     location: "other",
     optional: property["optional"],

@@ -54,7 +54,6 @@ function myExecSync(command: string, flavor: string, name?: string): void {
       .filter((c) => sectionExistsInToxIni(c, flavor))
       .map((x) => getCommand(x, flavor, name))
       .join(" && ");
-    console.error(`MY COMMMMMANDDD ${command}`);
   } else if (!sectionExistsInToxIni(command, flavor)) {
     console.log(`No section for ${command} in tox.ini for flavor ${flavor}. Skipping...`);
     return;
