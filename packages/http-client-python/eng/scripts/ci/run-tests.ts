@@ -49,11 +49,14 @@ function sectionExistsInToxIni(command: string, flavor: string): boolean {
 }
 
 function myExecSync(command: string, flavor: string, name?: string): void {
-  if (!sectionExistsInToxIni(command, flavor)) {
+  if (command === "all") {
+    command = validCommands.filter((c) => sectionExistsInToxIni(c, flavor)).map(x => getCommand(x, flavor, name)).join(" && ");
+    console.error(`MY COMMMMMANDDD ${command}`);
+  } else if (!sectionExistsInToxIni(command, flavor)) {
     console.log(`No section for ${command} in tox.ini for flavor ${flavor}. Skipping...`);
     return;
   }
-  execSync(getCommand(command, flavor, name), { stdio: "inherit" });
+  execSync(command, { stdio: "inherit" });
 }
 
 let venvPath = join(root, "venv");
@@ -65,24 +68,18 @@ if (fs.existsSync(join(venvPath, "bin"))) {
   throw new Error("Virtual environment doesn't exist.");
 }
 
-// Install dependencies from dev_requirements.txt
-const devRequirementsPath = join(root, "generator", "dev_requirements.txt");
-if (fs.existsSync(devRequirementsPath)) {
-  console.log("Installing dependencies from dev_requirements.txt...");
-  execSync(`${venvPath} -m pip install -r ${devRequirementsPath}`, { stdio: "inherit" });
-} else {
-  throw new Error("dev_requirements.txt doesn't exist.");
-}
+// // Install dependencies from dev_requirements.txt
+// const devRequirementsPath = join(root, "generator", "dev_requirements.txt");
+// if (fs.existsSync(devRequirementsPath)) {
+//   console.log("Installing dependencies from dev_requirements.txt...");
+//   execSync(`${venvPath} -m pip install -r ${devRequirementsPath}`, { stdio: "inherit" });
+// } else {
+//   throw new Error("dev_requirements.txt doesn't exist.");
+// }
 
 foldersToProcess.forEach((flavor) => {
   try {
     if (commandToRun === "all") {
-      for (const key of validCommands) {
-        console.log(`Running ${key} for flavor ${flavor}...`);
-        myExecSync(key, flavor, argv.values.name);
-      }
-    } else if (getCommand(commandToRun, flavor, argv.values.name)) {
-      console.log(`Running ${commandToRun} for flavor ${flavor}...`);
       myExecSync(commandToRun, flavor, argv.values.name);
     } else {
       console.error(`Error: Unknown command '${commandToRun}'.`);
