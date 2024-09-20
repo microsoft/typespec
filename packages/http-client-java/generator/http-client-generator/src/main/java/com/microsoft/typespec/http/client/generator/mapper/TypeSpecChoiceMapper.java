@@ -23,7 +23,7 @@ public class TypeSpecChoiceMapper extends ChoiceMapper {
         if (isStringEnum) {
             return MapperUtils.createEnumType(enumType, true, true);
         } else {
-            return MapperUtils.createEnumType(enumType, true, true, "getValue", "fromValue");
+            return MapperUtils.createEnumType(enumType, true, true, "getValue", "fromValue", null);
         }
     }
 }
