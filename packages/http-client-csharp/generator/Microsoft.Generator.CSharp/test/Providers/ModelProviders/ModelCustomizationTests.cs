@@ -271,6 +271,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             // The generated code should only contain the single internal ctor
             var ctor = plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel").Constructors.Single();
             Assert.IsTrue(ctor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+            Assert.AreEqual("prop1", ctor.Signature.Parameters.First().Name);
         }
 
         [Test]
@@ -288,7 +289,6 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
 
             await csharpGen.ExecuteAsync();
 
-            // The generated code should only contain the single internal ctor
             var ctors = plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel").Constructors;
             Assert.AreEqual(2, ctors.Count);
             Assert.IsTrue(ctors.Any(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)));
