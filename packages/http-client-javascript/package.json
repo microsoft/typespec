@@ -28,8 +28,8 @@
     "@typespec/openapi3": "workspace:*"
   },
   "dependencies": {
-    "@alloy-js/core": "https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@5535a9c",
-    "@alloy-js/typescript": "https://pkg.pr.new/alloy-framework/alloy/@alloy-js/typescript@5535a9c"
+    "@alloy-js/core": "0.1.0",
+    "@alloy-js/typescript": "0.1.0"
   },
   "devDependencies": {
     "@azure-tools/cadl-ranch-expect": "0.15.4",
@@ -37,7 +37,7 @@
     "@babel/cli": "^7.24.8",
     "@babel/core": "^7.24.9",
     "@rollup/plugin-babel": "^6.0.4",
-    "babel-preset-alloy": "https://pkg.pr.new/alloy-framework/alloy/babel-preset-alloy@5535a9c",
+    "@alloy-js/babel-preset": "0.1.0",
     "concurrently": "^8.2.2",
     "ts-morph": "^23.0.0",
     "typescript": "^5.5.3",
