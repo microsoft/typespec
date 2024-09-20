@@ -584,23 +584,23 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         if self._api_version_validation(builder):
             retval.append(self._api_version_validation(builder))
         return retval
-    
+
     def _api_version_validation(self, builder: OperationType) -> str:
-      if builder.is_overload:
-          return ""
-      retval: List[str] = []
-      if builder.added_on:
-          retval.append(f'    method_added_on="{builder.added_on}",')
-      params_added_on = defaultdict(list)
-      for parameter in builder.parameters:
-          if parameter.added_on:
-              params_added_on[parameter.added_on].append(parameter.client_name)
-      if params_added_on:
-          retval.append(f"    params_added_on={dict(params_added_on)},")
-      if retval:
-          retval_str = "\n".join(retval)
-          return f"@api_version_validation(\n{retval_str}\n){builder.pylint_disable(self.async_mode)}"
-      return ""
+        if builder.is_overload:
+            return ""
+        retval: List[str] = []
+        if builder.added_on:
+            retval.append(f'    method_added_on="{builder.added_on}",')
+        params_added_on = defaultdict(list)
+        for parameter in builder.parameters:
+            if parameter.added_on:
+                params_added_on[parameter.added_on].append(parameter.client_name)
+        if params_added_on:
+            retval.append(f"    params_added_on={dict(params_added_on)},")
+        if retval:
+            retval_str = "\n".join(retval)
+            return f"@api_version_validation(\n{retval_str}\n){builder.pylint_disable(self.async_mode)}"
+        return ""
 
     def pop_kwargs_from_signature(self, builder: OperationType) -> List[str]:
         kwargs_to_pop = builder.parameters.kwargs_to_pop
@@ -1190,8 +1190,8 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
             return ["@overload"]
         if self.code_model.options["tracing"] and builder.want_tracing:
             retval.append("@distributed_trace")
-        if _api_version_validation(builder):
-            retval.append(_api_version_validation(builder))
+        if self._api_version_validation(builder):
+            retval.append(self._api_version_validation(builder))
         return retval
 
     def call_next_link_request_builder(self, builder: PagingOperationType) -> List[str]:

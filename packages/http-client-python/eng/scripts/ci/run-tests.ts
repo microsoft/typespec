@@ -50,7 +50,10 @@ function sectionExistsInToxIni(command: string, flavor: string): boolean {
 
 function myExecSync(command: string, flavor: string, name?: string): void {
   if (command === "all") {
-    command = validCommands.filter((c) => sectionExistsInToxIni(c, flavor)).map(x => getCommand(x, flavor, name)).join(" && ");
+    command = validCommands
+      .filter((c) => sectionExistsInToxIni(c, flavor))
+      .map((x) => getCommand(x, flavor, name))
+      .join(" && ");
     console.error(`MY COMMMMMANDDD ${command}`);
   } else if (!sectionExistsInToxIni(command, flavor)) {
     console.log(`No section for ${command} in tox.ini for flavor ${flavor}. Skipping...`);
