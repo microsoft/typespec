@@ -165,6 +165,8 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override CSharpType BuildEnumUnderlyingType() => GetIsEnum() ? new CSharpType(typeof(int)) : throw new InvalidOperationException("This type is not an enum");
 
+        internal override IEnumerable<AttributeData> GetAttributes() => _namedTypeSymbol.GetAttributes();
+
         private ParameterProvider ConvertToParameterProvider(IMethodSymbol methodSymbol, IParameterSymbol parameterSymbol)
         {
             return new ParameterProvider(
