@@ -1,0 +1,19 @@
+{% import 'operation_tools.jinja2' as op_tools %}
+{% set operations_description = "async operations" if async_mode else "operations" %}
+{% set return_none_type_annotation = " -> None" if async_mode else "" %}
+# coding=utf-8
+{{ code_model.options['license_header'] }}
+{{ imports }}
+{{ unset }}
+{% if code_model.options["builders_visibility"] == "embedded" and not async_mode %}
+{{ op_tools.declare_serializer(code_model) }}
+    {% for operation_group in operation_groups %}
+        {% for request_builder in get_request_builders(operation_group) %}
+
+{% include "request_builder.py.jinja2" %}
+        {% endfor %}
+    {% endfor %}
+{% endif %}
+{% for operation_group in operation_groups %}
+    {% include "operation_group.py.jinja2" %}
+{% endfor %}

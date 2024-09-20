@@ -1,0 +1,97 @@
+{# actual template starts here #}
+{% import "macros.jinja2" as macros %}
+
+
+{{ serializer.declare_model(model) }}
+    """{{ op_tools.wrap_string(model.description(is_operation_file=False), "\n    ") }}
+    {% if model.discriminated_subtypes %}
+
+    {{ serializer.discriminator_docstring(model) | wordwrap(width=95, break_long_words=False, break_on_hyphens=False, wrapstring='\n    ') }}
+    {% endif %}
+    {% if model.has_readonly_or_constant_property %}
+
+    Readonly variables are only populated by the server, and will be ignored when sending a request.
+    {% endif %}
+    {% if (model.properties | selectattr('optional', "equalto", false) | first) is defined %}
+
+    {% if not model.is_usage_output %}
+    All required parameters must be populated in order to send to server.
+    {% endif %}
+    {% endif %}
+
+    {% if model.properties != None %}
+        {% for p in model.properties %}
+            {% for line in serializer.variable_documentation_string(p) %}
+                {% for doc_string in line.replace('\n', '\n ').split('\n') %}
+    {{ macros.wrap_model_string(doc_string, '\n     ') -}}
+                {% endfor %}
+            {% endfor %}
+        {% endfor %}
+    {% endif %}
+    """
+
+    {% if model.is_polymorphic %}
+    __mapping__: Dict[str, _model_base.Model] = {}
+    {% endif %}
+    {% for p in serializer.get_properties_to_declare(model)%}
+    {{ serializer.declare_property(p) }}
+        {% set prop_description = p.description(is_operation_file=False).replace('"', '\\"') %}
+        {% if prop_description %}
+    """{{ macros.wrap_model_string(prop_description, '\n     ', '\"\"\"') -}}
+        {% endif %}
+    {% endfor %}
+
+    {% if code_model.options["models_mode"] == "dpg" and model.flattened_property %}
+    __flattened_items = ["{{ model.flattened_items|join('\", \"') }}"]
+    {% endif %}
+
+    {% if model.xml_metadata %}
+    _xml = {{model.xml_metadata}}
+    {% endif %}
+
+
+    {% if serializer.need_init(model) %}
+    @overload
+    def __init__({{ model.init_pylint_disable }}
+        self,
+        {% for param_signature in serializer.init_line(model) %}
+        {{ param_signature }}
+        {% endfor %}
+    ):
+        ...
+
+    @overload
+    def __init__(self, mapping: Mapping[str, Any]):
+        """
+        :param mapping: raw JSON to initialize the model.
+        :type mapping: Mapping[str, Any]
+        """
+
+    {% endif %}
+    {% set initialize_properties = serializer.initialize_properties(model) %}
+    {% if serializer.need_init(model) or initialize_properties %}
+    def __init__(self, *args: Any, **kwargs: Any) -> None:{{ serializer.pylint_disable(model) }}
+        {% for line in serializer.super_call(model) %}
+        {{ line }}
+        {% endfor %}
+        {% for initialize_property in initialize_properties %}
+        {{ initialize_property }}
+        {% endfor %}
+        {% if code_model.options["models_mode"] == "dpg" and model.flattened_property %}
+        {% set flattened_property_attr = model.flattened_property.client_name %}
+
+    def __getattr__(self, name: str) -> Any:
+        if name in self.__flattened_items:
+            if self.{{ flattened_property_attr }} is None: return None
+            return getattr(self.{{ flattened_property_attr }}, name)
+        raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
+
+    def __setattr__(self, key: str, value: Any) -> None:
+        if key in self.__flattened_items:
+            if self.{{ flattened_property_attr }} is None:
+                self.{{ flattened_property_attr }} = self._attr_to_rest_field["{{ flattened_property_attr }}"]._class_type()
+            setattr(self.properties, key, value)
+        else:
+            super().__setattr__(key, value)
+        {% endif %}
+    {% endif %}
