@@ -186,7 +186,7 @@ export const $info: InfoDecorator = (
     return;
   }
   if (data.termsOfService) {
-    if (!validateIsUri(context, data.termsOfService)) {
+    if (!validateIsUri(context, data.termsOfService, "TermsOfService")) {
       return;
     }
   }
@@ -220,7 +220,7 @@ function omitUndefined<T extends Record<string, unknown>>(data: T): T {
   return Object.fromEntries(Object.entries(data).filter(([k, v]) => v !== undefined)) as any;
 }
 
-function validateIsUri(context: DecoratorContext, url: string) {
+function validateIsUri(context: DecoratorContext, url: string, propertyName: string) {
   try {
     new URL(url);
     return true;
@@ -228,7 +228,7 @@ function validateIsUri(context: DecoratorContext, url: string) {
     reportDiagnostic(context.program, {
       code: "not-uri",
       target: context.getArgumentTarget(0)!,
-      format: { value: url },
+      format: { property: propertyName, value: url },
     });
     return false;
   }

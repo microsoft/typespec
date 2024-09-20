@@ -19,7 +19,7 @@ export const $lib = createTypeSpecLibrary({
     "not-uri": {
       severity: "error",
       messages: {
-        default: paramMessage`${"value"} is not a valid URI.`,
+        default: paramMessage`${"property"}: ${"value"} is not a valid URI.`,
       },
     },
   },

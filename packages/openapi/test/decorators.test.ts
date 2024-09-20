@@ -160,7 +160,7 @@ describe("openapi: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "@typespec/openapi/not-uri",
-        message: "@asd is not a valid URI.",
+        message: "TermsOfService: @asd is not a valid URI.",
       });
     });
 
