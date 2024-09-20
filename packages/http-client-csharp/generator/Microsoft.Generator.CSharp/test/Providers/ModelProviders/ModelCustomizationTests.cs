@@ -268,7 +268,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
 
             await csharpGen.ExecuteAsync();
 
-            // The generated code should only contain the single internal ctor
+            // The generated code should only contain the single internal ctor containing the properties
             var ctor = plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel").Constructors.Single();
             Assert.IsTrue(ctor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
             Assert.AreEqual("prop1", ctor.Signature.Parameters.First().Name);
