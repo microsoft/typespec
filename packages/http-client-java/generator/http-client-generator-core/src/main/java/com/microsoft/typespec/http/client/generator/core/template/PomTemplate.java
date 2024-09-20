@@ -3,12 +3,12 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
+import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Pom;
 import com.microsoft.typespec.http.client.generator.core.model.projectmodel.Project;
 import com.microsoft.typespec.http.client.generator.core.model.xmlmodel.XmlBlock;
 import com.microsoft.typespec.http.client.generator.core.model.xmlmodel.XmlFile;
-import com.azure.core.util.CoreUtils;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -123,6 +123,7 @@ public class PomTemplate implements IXmlTemplate<Pom, XmlFile> {
                 propertiesBlock.tag("project.build.sourceEncoding", "UTF-8");
                 writeJacoco(propertiesBlock);
                 writeRevapi(propertiesBlock, pom);
+                writeSpotless(propertiesBlock);
             });
 
             if (!CoreUtils.isNullOrEmpty(pom.getDependencyIdentifiers())) {
@@ -181,6 +182,16 @@ public class PomTemplate implements IXmlTemplate<Pom, XmlFile> {
      */
     protected void writeRevapi(XmlBlock propertiesBlock, Pom pom) {
         // NOOP for data-plane
+    }
+
+    /**
+     * Extension for writing Spotless configuration.
+     *
+     * @param propertiesBlock The {@code <properties></properties>} XML block within the {@code pom.xml}.
+     */
+    protected void writeSpotless(XmlBlock propertiesBlock) {
+        // For now all generation will enable Spotless running.
+        propertiesBlock.tag("spotless.skip", "false");
     }
 
     /**
