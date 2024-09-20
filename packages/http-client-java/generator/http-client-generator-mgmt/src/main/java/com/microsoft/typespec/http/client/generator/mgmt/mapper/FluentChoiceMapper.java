@@ -18,6 +18,6 @@ public class FluentChoiceMapper extends ChoiceMapper {
 
     @Override
     public IType map(ChoiceSchema enumType) {
-        return MapperUtils.createEnumType(enumType, true, false);
+        return MapperUtils.createEnumType(enumType, true, false, "getValue", null);
     }
 }
