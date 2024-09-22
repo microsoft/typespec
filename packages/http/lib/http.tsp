@@ -36,13 +36,13 @@ model Body<Type> {
   body: Type;
 }
 
-model HttpStream<Type, ContentType extends valueof string, BodyType extends bytes | string>
+model HttpStream<Type, ContentType extends valueof string, BodyType extends bytes | string = string>
   is Stream<Type> {
   @header contentType: typeof ContentType;
   @body body: BodyType;
 }
 
-model JsonlStream<Type> is HttpStream<Type, "application/jsonl", string>;
+model JsonlStream<Type> is HttpStream<Type, "application/jsonl">;
 
 /**
  * The Location header contains the URL where the status of the long running operation can be checked.
