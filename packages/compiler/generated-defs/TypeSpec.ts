@@ -119,7 +119,7 @@ export type WithoutDefaultValuesDecorator = (context: DecoratorContext, target: 
 export type WithDefaultKeyVisibilityDecorator = (
   context: DecoratorContext,
   target: Model,
-  visibility: string
+  visibility: string | EnumValue
 ) => void;
 
 /**
@@ -630,6 +630,24 @@ export type OpExampleDecorator = (
 ) => void;
 
 /**
+ * A debugging decorator used to inspect a type.
+ *
+ * @param text Custom text to log
+ */
+export type InspectTypeDecorator = (context: DecoratorContext, target: Type, text: string) => void;
+
+/**
+ * A debugging decorator used to inspect a type name.
+ *
+ * @param text Custom text to log
+ */
+export type InspectTypeNameDecorator = (
+  context: DecoratorContext,
+  target: Type,
+  text: string
+) => void;
+
+/**
  * Indicates that a property is only considered to be present or applicable ("visible") with
  * the in the given named contexts ("visibilities"). When a property has no visibilities applied
  * to it, it is implicitly visible always.
@@ -662,7 +680,13 @@ export type OpExampleDecorator = (
 export type VisibilityDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
-  ...visibilities: string[]
+  ...visibilities: (string | EnumValue)[]
+) => void;
+
+export type InvisibleDecorator = (
+  context: DecoratorContext,
+  target: ModelProperty,
+  visibilityClass: Enum
 ) => void;
 
 /**
@@ -707,25 +731,7 @@ export type VisibilityDecorator = (
 export type WithVisibilityDecorator = (
   context: DecoratorContext,
   target: Model,
-  ...visibilities: string[]
-) => void;
-
-/**
- * A debugging decorator used to inspect a type.
- *
- * @param text Custom text to log
- */
-export type InspectTypeDecorator = (context: DecoratorContext, target: Type, text: string) => void;
-
-/**
- * A debugging decorator used to inspect a type name.
- *
- * @param text Custom text to log
- */
-export type InspectTypeNameDecorator = (
-  context: DecoratorContext,
-  target: Type,
-  text: string
+  ...visibilities: (string | EnumValue)[]
 ) => void;
 
 /**
@@ -736,7 +742,7 @@ export type InspectTypeNameDecorator = (
 export type ParameterVisibilityDecorator = (
   context: DecoratorContext,
   target: Operation,
-  ...visibilities: string[]
+  ...visibilities: (string | EnumValue)[]
 ) => void;
 
 /**
@@ -747,7 +753,7 @@ export type ParameterVisibilityDecorator = (
 export type ReturnTypeVisibilityDecorator = (
   context: DecoratorContext,
   target: Operation,
-  ...visibilities: string[]
+  ...visibilities: (string | EnumValue)[]
 ) => void;
 
 export type TypeSpecDecorators = {
@@ -787,10 +793,11 @@ export type TypeSpecDecorators = {
   discriminator: DiscriminatorDecorator;
   example: ExampleDecorator;
   opExample: OpExampleDecorator;
-  visibility: VisibilityDecorator;
-  withVisibility: WithVisibilityDecorator;
   inspectType: InspectTypeDecorator;
   inspectTypeName: InspectTypeNameDecorator;
+  visibility: VisibilityDecorator;
+  invisible: InvisibleDecorator;
+  withVisibility: WithVisibilityDecorator;
   parameterVisibility: ParameterVisibilityDecorator;
   returnTypeVisibility: ReturnTypeVisibilityDecorator;
 };

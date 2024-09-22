@@ -982,6 +982,24 @@ const diagnostics = {
     },
   },
 
+  // #region Visibility
+  "visibility-sealed": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Visibility of property '${"propName"}' is sealed and cannot be changed.`,
+    },
+  },
+  "visibility-mixed-legacy": {
+    severity: "error",
+    messages: {
+      "same-invocation":
+        "Cannot apply both string (legacy) visibility modifiers and enum-based visibility modifiers at the same time.",
+      "mixed-invocation":
+        "Cannot apply both string (legacy) visibility modifiers and enum-based visibility modifiers to a property.",
+    },
+  },
+  // #endregion
+
   // #region CLI
   "no-compatible-vs-installed": {
     severity: "error",

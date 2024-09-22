@@ -23,20 +23,14 @@ import type {
   MinValueExclusiveDecorator,
   OpExampleDecorator,
   OverloadDecorator,
-  ParameterVisibilityDecorator,
   PatternDecorator,
   ProjectedNameDecorator,
-  ReturnTypeVisibilityDecorator,
   ReturnsDocDecorator,
   SecretDecorator,
   SummaryDecorator,
   TagDecorator,
-  VisibilityDecorator,
-  WithDefaultKeyVisibilityDecorator,
   WithOptionalPropertiesDecorator,
   WithPickedPropertiesDecorator,
-  WithUpdateablePropertiesDecorator,
-  WithVisibilityDecorator,
   WithoutDefaultValuesDecorator,
   WithoutOmittedPropertiesDecorator,
 } from "../../generated-defs/TypeSpec.js";
@@ -44,7 +38,6 @@ import {
   getPropertyType,
   isIntrinsicType,
   validateDecoratorNotOnType,
-  validateDecoratorTarget,
 } from "../core/decorator-utils.js";
 import { getDeprecationDetails, markDeprecated } from "../core/deprecation.js";
 import {
@@ -125,7 +118,7 @@ function replaceTemplatedStringFromProperties(formatString: string, sourceObject
   });
 }
 
-function createStateSymbol(name: string) {
+export function createStateSymbol(name: string) {
   return Symbol.for(`TypeSpec.${name}`);
 }
 
@@ -819,47 +812,10 @@ export function getEncode(
   return program.stateMap(encodeKey).get(target);
 }
 
-// -- @visibility decorator ---------------------
-
-const visibilitySettingsKey = createStateSymbol("visibilitySettings");
-
-export const $visibility: VisibilityDecorator = (
-  context: DecoratorContext,
-  target: ModelProperty,
-  ...visibilities: string[]
-) => {
-  validateDecoratorUniqueOnNode(context, target, $visibility);
-
-  context.program.stateMap(visibilitySettingsKey).set(target, visibilities);
-};
-
-export function getVisibility(program: Program, target: Type): string[] | undefined {
-  return program.stateMap(visibilitySettingsKey).get(target);
-}
-
-function clearVisibilities(program: Program, target: Type) {
-  program.stateMap(visibilitySettingsKey).delete(target);
-}
-
-export const $withVisibility: WithVisibilityDecorator = (
-  context: DecoratorContext,
-  target: Model,
-  ...visibilities: string[]
-) => {
-  filterModelPropertiesInPlace(target, (p) => isVisible(context.program, p, visibilities));
-  [...target.properties.values()].forEach((p) => clearVisibilities(context.program, p));
-};
-
-export function isVisible(
-  program: Program,
-  property: ModelProperty,
-  visibilities: readonly string[]
+export function filterModelPropertiesInPlace(
+  model: Model,
+  filter: (prop: ModelProperty) => boolean
 ) {
-  const propertyVisibilities = getVisibility(program, property);
-  return !propertyVisibilities || propertyVisibilities.some((v) => visibilities.includes(v));
-}
-
-function filterModelPropertiesInPlace(model: Model, filter: (prop: ModelProperty) => boolean) {
   for (const [key, prop] of model.properties) {
     if (!filter(prop)) {
       model.properties.delete(key);
@@ -875,19 +831,6 @@ export const $withOptionalProperties: WithOptionalPropertiesDecorator = (
 ) => {
   // Make all properties of the target type optional
   target.properties.forEach((p) => (p.optional = true));
-};
-
-// -- @withUpdateableProperties decorator ----------------------
-
-export const $withUpdateableProperties: WithUpdateablePropertiesDecorator = (
-  context: DecoratorContext,
-  target: Type
-) => {
-  if (!validateDecoratorTarget(context, target, "@withUpdateableProperties", "Model")) {
-    return;
-  }
-
-  filterModelPropertiesInPlace(target, (p) => isVisible(context.program, p, ["update"]));
 };
 
 // -- @withoutOmittedProperties decorator ----------------------
@@ -1185,39 +1128,6 @@ export function getKeyName(program: Program, property: ModelProperty): string {
   return program.stateMap(keyKey).get(property);
 }
 
-export const $withDefaultKeyVisibility: WithDefaultKeyVisibilityDecorator = (
-  context: DecoratorContext,
-  entity: Model,
-  visibility: string
-) => {
-  const keyProperties: ModelProperty[] = [];
-  entity.properties.forEach((prop: ModelProperty) => {
-    // Keep track of any key property without a visibility
-    if (isKey(context.program, prop) && !getVisibility(context.program, prop)) {
-      keyProperties.push(prop);
-    }
-  });
-
-  // For each key property without a visibility, clone it and add the specified
-  // default visibility value
-  keyProperties.forEach((keyProp) => {
-    entity.properties.set(
-      keyProp.name,
-      context.program.checker.cloneType(keyProp, {
-        decorators: [
-          ...keyProp.decorators,
-          {
-            decorator: $visibility,
-            args: [
-              { value: context.program.checker.createLiteralType(visibility), jsValue: visibility },
-            ],
-          },
-        ],
-      })
-    );
-  });
-};
-
 /**
  * Mark a type as deprecated
  * @param context DecoratorContext
@@ -1430,46 +1340,6 @@ export const $discriminator: DiscriminatorDecorator = (
   }
   setDiscriminator(context.program, entity, discriminator);
 };
-
-const parameterVisibilityKey = createStateSymbol("parameterVisibility");
-
-export const $parameterVisibility: ParameterVisibilityDecorator = (
-  context: DecoratorContext,
-  entity: Operation,
-  ...visibilities: string[]
-) => {
-  validateDecoratorUniqueOnNode(context, entity, $parameterVisibility);
-  context.program.stateMap(parameterVisibilityKey).set(entity, visibilities);
-};
-
-/**
- * Returns the visibilities of the parameters of the given operation, if provided with `@parameterVisibility`.
- *
- * @see {@link $parameterVisibility}
- */
-export function getParameterVisibility(program: Program, entity: Operation): string[] | undefined {
-  return program.stateMap(parameterVisibilityKey).get(entity);
-}
-
-const returnTypeVisibilityKey = createStateSymbol("returnTypeVisibility");
-
-export const $returnTypeVisibility: ReturnTypeVisibilityDecorator = (
-  context: DecoratorContext,
-  entity: Operation,
-  ...visibilities: string[]
-) => {
-  validateDecoratorUniqueOnNode(context, entity, $returnTypeVisibility);
-  context.program.stateMap(returnTypeVisibilityKey).set(entity, visibilities);
-};
-
-/**
- * Returns the visibilities of the return type of the given operation, if provided with `@returnTypeVisibility`.
- *
- * @see {@link $returnTypeVisibility}
- */
-export function getReturnTypeVisibility(program: Program, entity: Operation): string[] | undefined {
-  return program.stateMap(returnTypeVisibilityKey).get(entity);
-}
 
 export interface Example extends ExampleOptions {
   readonly value: Value;
