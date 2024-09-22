@@ -277,6 +277,25 @@ model TypeSpec.Http.HttpPartOptions
 | ----- | -------- | ------------------------------------------- |
 | name? | `string` | Name of the part when using the array form. |
 
+### `HttpStream` {#TypeSpec.Http.HttpStream}
+
+```typespec
+model TypeSpec.Http.HttpStream<Type, ContentType>
+```
+
+#### Template Parameters
+
+| Name        | Description |
+| ----------- | ----------- |
+| Type        |             |
+| ContentType |             |
+
+#### Properties
+
+| Name        | Type     | Description |
+| ----------- | -------- | ----------- |
+| contentType | `string` |             |
+
 ### `ImplicitFlow` {#TypeSpec.Http.ImplicitFlow}
 
 Implicit flow
@@ -293,6 +312,25 @@ model TypeSpec.Http.ImplicitFlow
 | authorizationUrl | `string`                                | the authorization URL             |
 | refreshUrl?      | `string`                                | the refresh URL                   |
 | scopes?          | `string[]`                              | list of scopes for the credential |
+
+### `JsonlStream` {#TypeSpec.Http.JsonlStream}
+
+```typespec
+model TypeSpec.Http.JsonlStream<Type>
+```
+
+#### Template Parameters
+
+| Name | Description |
+| ---- | ----------- |
+| Type |             |
+
+#### Properties
+
+| Name        | Type                  | Description |
+| ----------- | --------------------- | ----------- |
+| contentType | `"application/jsonl"` |             |
+| body        | `string`              |             |
 
 ### `LocationHeader` {#TypeSpec.Http.LocationHeader}
 

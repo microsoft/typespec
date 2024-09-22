@@ -1,3 +1,4 @@
+import "@typespec/streams";
 import "../dist/src/tsp-index.js";
 import "./decorators.tsp";
 import "./private.decorators.tsp";
@@ -5,6 +6,7 @@ import "./auth.tsp";
 
 namespace TypeSpec.Http;
 
+using TypeSpec.Streams;
 using Private;
 
 /**
@@ -33,6 +35,14 @@ model Body<Type> {
   @doc("The body type of the operation request or response.")
   body: Type;
 }
+
+model HttpStream<Type, ContentType extends valueof string, BodyType extends bytes | string>
+  is Stream<Type> {
+  @header contentType: typeof ContentType;
+  @body body: BodyType;
+}
+
+model JsonlStream<Type> is HttpStream<Type, "application/jsonl", string>;
 
 /**
  * The Location header contains the URL where the status of the long running operation can be checked.
