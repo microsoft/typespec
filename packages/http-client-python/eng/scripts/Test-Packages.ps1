@@ -52,7 +52,7 @@ try {
             & pip list
             # Run tox
             Write-Host 'Running tests'
-            & npm run test
+            & npm run ci
             Write-Host 'tox tests passed'
         } 
         catch {

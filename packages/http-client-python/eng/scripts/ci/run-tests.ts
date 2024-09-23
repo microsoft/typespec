@@ -6,8 +6,6 @@ import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 import { parseArgs } from "util";
 
-const validCommands = ["ci", "lint", "mypy", "pyright", "apiview"];
-
 const root = join(dirname(fileURLToPath(import.meta.url)), "../../../");
 
 const argv = parseArgs({
@@ -24,13 +22,9 @@ const foldersToProcess = argv.values.flavor
   ? [argv.values.flavor]
   : argv.values.validFolders || ["azure", "unbranded"];
 
-const commandToRun = argv.values.command || "all";
+const commandToRun = argv.values.command || "ci";
 
 function getCommand(command: string, flavor: string, name?: string): string {
-  if (command.includes(",")) {
-    // if it's multiple, make sure we run base first
-    command = "base," + command;
-  }
   let retval: string;
   if (platform() === "win32") {
     retval = `set FOLDER=${flavor} && ${venvPath} -m tox -c ./test/${flavor}/tox.ini -e ${command}`;
@@ -72,10 +66,7 @@ if (fs.existsSync(join(venvPath, "bin"))) {
 
 foldersToProcess.forEach((flavor) => {
   try {
-    if (commandToRun === "all") {
-      console.log(`Running ${commandToRun} for flavor ${flavor}...`);
-      myExecSync(validCommands.join(","), flavor, argv.values.name);
-    } else if (getCommand(commandToRun, flavor, argv.values.name)) {
+    if (getCommand(commandToRun, flavor, argv.values.name)) {
       console.log(`Running ${commandToRun} for flavor ${flavor}...`);
       myExecSync(commandToRun, flavor, argv.values.name);
     } else {
