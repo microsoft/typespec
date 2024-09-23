@@ -1,8 +1,0 @@
-{
-    "CrossLanguagePackageId": "Versioning.MadeOptional",
-    "CrossLanguageDefinitionId": {
-        "versioning.madeoptional.models.TestModel": "Versioning.MadeOptional.TestModel",
-        "versioning.madeoptional.models.Versions": "Versioning.MadeOptional.Versions",
-        "versioning.madeoptional.MadeOptionalClient.test": "Versioning.MadeOptional.test"
-    }
-}

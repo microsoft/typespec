@@ -1,8 +1,0 @@
-include *.md
-include LICENSE
-include azure/resourcemanager/models/resources/py.typed
-recursive-include tests *.py
-recursive-include samples *.py *.md
-include azure/__init__.py
-include azure/resourcemanager/__init__.py
-include azure/resourcemanager/models/__init__.py
