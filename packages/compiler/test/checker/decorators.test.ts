@@ -366,7 +366,6 @@ describe("compiler: checker: decorators", () => {
         value: string,
         suppress?: boolean,
       ): Promise<any> {
-        mutate($flags).decoratorArgMarshalling = "new";
         await runner.compile(`
           extern dec testDec(target: unknown, arg1: ${type});
           
@@ -532,7 +531,7 @@ describe("compiler: checker: decorators", () => {
         suppress?: boolean,
       ): Promise<any> {
         // Default so shouldn't be needed
-        // mutate($flags).decoratorArgMarshalling = "legacy";
+        mutate($flags).decoratorArgMarshalling = "legacy";
         await runner.compile(`
           #suppress "deprecated" "for testing"
           extern dec testDec(target: unknown, arg1: ${type});
