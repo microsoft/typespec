@@ -9,8 +9,9 @@ import {
   LanguageClientOptions,
 } from "vscode-languageclient/node.js";
 import logger from "./extension-logger.js";
+import npmPackageProvider from "./npm-package.js";
 import { TypeSpecLogOutputChannel } from "./typespec-log-output-channel.js";
-import { normalizeSlash, useShellInExec } from "./utils.js";
+import { isFile, normalizeSlash, useShellInExec } from "./utils.js";
 
 let client: LanguageClient | undefined;
 /**
@@ -32,6 +33,8 @@ export async function activate(context: ExtensionContext) {
   context.subscriptions.push(
     commands.registerCommand("typespec.restartServer", restartTypeSpecServer),
   );
+
+  context.subscriptions.push(npmPackageProvider);
 
   return await vscode.window.withProgress(
     {
@@ -151,10 +154,20 @@ async function createBuiltInTasks(targetPath: string): Promise<vscode.Task[]> {
 }
 
 async function restartTypeSpecServer(): Promise<void> {
-  if (client) {
-    await client.stop();
-    await client.start();
+  if (!client) {
+    logger.error("Unexpected Error: LSP client is undefined for TypeSpec server.");
+    return;
+  }
+  if (client.needsStop()) {
+    await client.restart();
     logger.debug("TypeSpec server restarted");
+  } else if (client.needsStart()) {
+    await client.start();
+    logger.debug("TypeSpec server started");
+  } else {
+    logger.warning(
+      "Both needsStop() and needsStart() return false when restarting TypeSpec server. Please try to restart again later.",
+    );
   }
 }
 
@@ -338,15 +351,6 @@ async function resolveLocalCompiler(baseDir: string): Promise<string | undefined
     return undefined;
   }
   return undefined;
-}
-
-async function isFile(path: string) {
-  try {
-    const stats = await stat(path);
-    return stats.isFile();
-  } catch {
-    return false;
-  }
 }
 
 export async function deactivate() {

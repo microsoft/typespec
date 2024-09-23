@@ -1,8 +1,35 @@
+import type { NodePackage, ResolveModuleHost } from "@typespec/compiler";
+import { readFile, realpath, stat } from "fs/promises";
+import { dirname, join } from "path";
+import { pathToFileURL } from "url";
 import { Executable } from "vscode-languageclient/node.js";
+import logger from "./extension-logger.js";
 
 /** normalize / and \\ to / */
 export function normalizeSlash(str: string): string {
   return str.replaceAll(/\\/g, "/");
+}
+
+export async function isFile(path: string) {
+  try {
+    const stats = await stat(path);
+    return stats.isFile();
+  } catch {
+    return false;
+  }
+}
+
+// a debounce utility
+export function debounce<T extends (...args: any[]) => any>(fn: T, delayInMs: number): T {
+  let timer: NodeJS.Timeout | undefined;
+  return function (this: any, ...args: Parameters<T>) {
+    if (timer) {
+      clearTimeout(timer);
+    }
+    timer = setTimeout(() => {
+      fn.apply(this, args);
+    }, delayInMs);
+  } as T;
 }
 
 /**
@@ -23,4 +50,78 @@ export function useShellInExec(exe: Executable, win32Only: boolean = true): Exec
     }
   }
   return exe;
+}
+
+/**
+ * trigger action for the given curDir and all its parent dirs. return T to stop the loop or undefined to continue
+ * @param curDir
+ * @param action
+ * @returns
+ */
+export function foreachCurAndParentDirs<T>(curDir: string, action: (dir: string) => T | undefined) {
+  let lastFolder = "";
+  let curFolder = curDir;
+  while (curFolder !== lastFolder) {
+    const r = action(curFolder);
+    if (r !== undefined) {
+      return r;
+    }
+    lastFolder = curFolder;
+    curFolder = dirname(curFolder);
+  }
+  return undefined;
+}
+
+/**
+ *
+ * @param baseDir the dir containing the package.json file
+ * @returns
+ */
+export async function loadNpmPackage(baseDir: string): Promise<NodePackage | undefined> {
+  if (!baseDir) {
+    throw new Error("baseDir is required");
+  }
+  const packageJsonPath = join(baseDir, "package.json");
+  try {
+    if (!isFile(packageJsonPath)) {
+      return undefined;
+    }
+    const content = await readFile(packageJsonPath, "utf-8");
+    const data = JSON.parse(content) as NodePackage;
+
+    if (!data || !data.name || !data.version) {
+      return undefined;
+    }
+    return data;
+  } catch (e) {
+    logger.debug(`Exception when loading package.json from ${baseDir}`, [e]);
+    return undefined;
+  }
+}
+
+export async function loadModuleExports(
+  baseDir: string,
+  packageName: string,
+): Promise<object | undefined> {
+  const { resolveModule } = await import("@typespec/compiler/module-resolver");
+
+  const host: ResolveModuleHost = {
+    realpath,
+    readFile: (path: string) => readFile(path, "utf-8"),
+    stat,
+  };
+  try {
+    logger.debug(`Try to resolve module ${packageName} from local, baseDir: ${baseDir}`);
+    const module = await resolveModule(host, packageName, {
+      baseDir,
+    });
+    const entrypoint = module.type === "file" ? module.path : module.mainFile;
+    const path = pathToFileURL(entrypoint).href;
+    const exports = await import(path);
+
+    return exports;
+  } catch (e) {
+    logger.debug(`Exception when resolving module for ${packageName} from ${baseDir}`, [e]);
+    return undefined;
+  }
 }
