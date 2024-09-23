@@ -1,5 +1,4 @@
 import commonjs from "@rollup/plugin-commonjs";
-import json from "@rollup/plugin-json";
 import resolve from "@rollup/plugin-node-resolve";
 import typescript from "@rollup/plugin-typescript";
 
@@ -12,13 +11,11 @@ const baseConfig = defineConfig({
     format: "commonjs",
     sourcemap: true,
     exports: "named",
-    inlineDynamicImports: true,
   },
-  external: ["fs/promises", "vscode"],
+  external: ["vscode"],
   plugins: [
     (resolve as any)({ preferBuiltins: true }),
     (commonjs as any)(),
-    (json as any)(),
     (typescript as any)({ tsconfig: "./tsconfig.build.json" }),
   ],
   onwarn: (warning, warn) => {
