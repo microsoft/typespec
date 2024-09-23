@@ -227,6 +227,7 @@ function emitProperty<TServiceOperation extends SdkServiceOperation>(
     if (body) {
       // for `temperature: HttpPart<{@body body: float64, @header contentType: "text/plain"}>`, the real type is float64
       sourceType = body.type;
+      addDisableGenerationMap(property.type);
     }
   }
   if (isMultipartFileInput) {
