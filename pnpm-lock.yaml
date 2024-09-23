@@ -1628,9 +1628,6 @@ importers:
       '@rollup/plugin-commonjs':
         specifier: ~26.0.1
         version: 26.0.1(rollup@4.21.3)
-      '@rollup/plugin-json':
-        specifier: ~6.1.0
-        version: 6.1.0(rollup@4.21.3)
       '@rollup/plugin-node-resolve':
         specifier: ~15.2.3
         version: 15.2.3(rollup@4.21.3)
