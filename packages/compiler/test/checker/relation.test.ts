@@ -39,9 +39,7 @@ describe("compiler: checker: type relations", () => {
     expectedDiagnosticPos: number;
   }> {
     host.addJsFile("mock.js", {
-      $flags: definePackageFlags({
-        decoratorArgMarshalling: "new",
-      }),
+      $flags: definePackageFlags({}),
       $mock: () => null,
     });
     const { source: code, pos } = extractCursor(`
