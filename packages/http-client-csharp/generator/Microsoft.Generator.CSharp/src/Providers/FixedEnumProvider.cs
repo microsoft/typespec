@@ -87,7 +87,7 @@ namespace Microsoft.Generator.CSharp.Providers
                         if (CodeGenAttributes.TryGetCodeGenMemberAttributeValue(attribute, out var originalName)
                             && originalName == name)
                         {
-                            customMemberName = customMember.Name.ToCleanName();
+                            customMemberName = customMember.Name;
                             break;
                         }
                     }

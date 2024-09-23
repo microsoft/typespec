@@ -4,21 +4,21 @@
 
 using System.Threading;
 
-namespace sample.namespace
+namespace Sample
 {
     /// <summary></summary>
     public partial class Animal
     {
         /// <summary> Initializes a new instance of Dog. </summary>
-        public virtual global::sample.namespace.Dog GetDogClient()
+        public virtual global::Sample.Dog GetDogClient()
         {
-            return (global::System.Threading.Volatile.Read(ref _cachedDog) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedDog, new global::sample.namespace.Dog(), null) ?? _cachedDog));
+            return (global::System.Threading.Volatile.Read(ref _cachedDog) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedDog, new global::Sample.Dog(), null) ?? _cachedDog));
         }
 
         /// <summary> Initializes a new instance of Cat. </summary>
-        public virtual global::sample.namespace.Cat GetCatClient()
+        public virtual global::Sample.Cat GetCatClient()
         {
-            return (global::System.Threading.Volatile.Read(ref _cachedCat) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedCat, new global::sample.namespace.Cat(), null) ?? _cachedCat));
+            return (global::System.Threading.Volatile.Read(ref _cachedCat) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedCat, new global::Sample.Cat(), null) ?? _cachedCat));
         }
     }
 }
