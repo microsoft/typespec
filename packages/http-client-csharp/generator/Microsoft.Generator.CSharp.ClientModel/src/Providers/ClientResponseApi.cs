@@ -14,5 +14,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         }
 
         public abstract HttpResponseApi GetRawResponse();
+
+        public abstract ValueExpression FromValue(ValueExpression valueExpression, HttpResponseApi response);
+
+        public abstract ValueExpression FromValue<ValueType>(ValueExpression valueExpression, HttpResponseApi response);
+
+        public abstract ValueExpression FromResponse(ValueExpression valueExpression);
+
+        public abstract ValueExpression CreateAsync(HttpResponseApi response);
     }
 }

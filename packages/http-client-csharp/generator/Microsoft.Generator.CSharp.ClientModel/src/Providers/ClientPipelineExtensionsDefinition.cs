@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.IO;
 using System.Threading.Tasks;
@@ -92,11 +91,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 [
                     new SwitchCaseStatement(ValueExpression.Empty.GreaterThanOrEqual(Literal(200)).AndExpr(ValueExpression.Empty.LessThan(Literal(300))), new MethodBodyStatement[]
                     {
-                        Return(Static(ClientModelPlugin.Instance.TypeFactory.ClientResponseType).Invoke("FromValue", [True, response], [typeof(bool)], false).ToApi<ClientResponseApi>())
+                        Return(This.ToApi<ClientResponseApi>().FromValue<bool>(True, response))
                     }),
                     new SwitchCaseStatement(ValueExpression.Empty.GreaterThanOrEqual(Literal(400)).AndExpr(ValueExpression.Empty.LessThan(Literal(500))), new MethodBodyStatement[]
                     {
-                        Return(Static(ClientModelPlugin.Instance.TypeFactory.ClientResponseType).Invoke("FromValue", [False, response], [typeof(bool)], false).ToApi<ClientResponseApi>())
+                        Return(This.ToApi<ClientResponseApi>().FromValue<bool>(False, response))
                     }),
                     new SwitchCaseStatement(Array.Empty<ValueExpression>(), new MethodBodyStatement[]
                     {
@@ -168,7 +167,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 MethodBodyStatement.EmptyLine,
                 new IfStatement(_message.Response().IsError().And(new BinaryOperatorExpression("&", _options.NullConditional().Property("ErrorOptions"), clientErrorNoThrow).NotEqual(clientErrorNoThrow)))
                 {
-                    Throw(Static(ClientModelPlugin.Instance.TypeFactory.ClientResponseExceptionType).Invoke("CreateAsync", [_message.Response()], true))
+                    Throw(This.ToApi<ClientResponseApi>().CreateAsync(_message.Response()))
                 },
                 MethodBodyStatement.EmptyLine,
                 Declare("response", typeof(PipelineResponse), new TernaryConditionalExpression(_message.BufferResponse(), _message.Response(), _message.ExtractResponse()), out var response),

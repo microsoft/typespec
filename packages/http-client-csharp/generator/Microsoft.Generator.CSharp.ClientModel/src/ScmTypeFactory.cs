@@ -32,9 +32,9 @@ namespace Microsoft.Generator.CSharp.ClientModel
 
         public virtual Type HttpResponseType => typeof(PipelineResponse);
 
-        internal ClientResponseApi CreateClientResponse(ValueExpression original) => new ClientResultProvider(original.As<ClientResult>());
+        public virtual ClientResponseApi CreateClientResponse(ValueExpression original) => new ClientResultProvider(original.As<ClientResult>());
 
-        internal HttpResponseApi CreateHttpResponse(ValueExpression original) => new PipelineResponseProvider(original.As<PipelineResponse>());
+        public virtual HttpResponseApi CreateHttpResponse(ValueExpression original) => new PipelineResponseProvider(original.As<PipelineResponse>());
 
         /// <summary>
         /// Returns the serialization type providers for the given input type.

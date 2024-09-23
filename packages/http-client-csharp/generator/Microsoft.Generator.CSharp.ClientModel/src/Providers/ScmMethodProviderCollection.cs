@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
@@ -100,12 +99,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     .. GetStackVariablesForProtocolParamConversion(ConvenienceMethodParameters, out var paramDeclarations),
                     Declare("result", This.Invoke(protocolMethod.Signature, [.. GetParamConversions(ConvenienceMethodParameters, paramDeclarations), Null], isAsync).ToApi<ClientResponseApi>(), out ClientResponseApi result),
                     .. GetStackVariablesForReturnValueConversion(result, responseBodyType, isAsync, out var resultDeclarations),
-                    Return(Static(ClientModelPlugin.Instance.TypeFactory.ClientResponseType).Invoke(
-                        "FromValue",
-                        [
-                            GetResultConversion(result, responseBodyType, resultDeclarations),
-                            result.GetRawResponse()
-                        ])),
+                    Return(result.FromValue(GetResultConversion(result, responseBodyType, resultDeclarations), result.GetRawResponse())),
                 ];
             }
 
@@ -401,7 +395,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             MethodBodyStatement[] methodBody =
             [
                 UsingDeclare("message", typeof(PipelineMessage), This.Invoke(createRequestMethod.Signature, [.. MethodParameters]), out var message),
-                Return(Static(ClientModelPlugin.Instance.TypeFactory.ClientResponseType).Invoke("FromResponse", client.PipelineProperty.Invoke(processMessageName, [message, ScmKnownParameters.RequestOptions], isAsync, true))),
+                Return(This.ToApi<ClientResponseApi>().FromResponse(client.PipelineProperty.Invoke(processMessageName, [message, ScmKnownParameters.RequestOptions], isAsync, true))),
             ];
 
             var protocolMethod =
