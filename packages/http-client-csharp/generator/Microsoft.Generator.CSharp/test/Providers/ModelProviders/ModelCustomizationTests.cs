@@ -284,5 +284,48 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.AreEqual("Green", customCodeView?.Fields[1].Name);
             Assert.AreEqual("SkyBlue", customCodeView?.Fields[2].Name);
         }
+
+        [Test]
+        public async Task CanReplaceConstructor()
+        {
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModelTypes: new[] {
+                    InputFactory.Model(
+                        "mockInputModel",
+                        // use Input so that we generate a public ctor
+                        usage: InputModelTypeUsage.Input,
+                        properties: new[] { InputFactory.Property("Prop1", InputPrimitiveType.String) })
+                },
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var csharpGen = new CSharpGen();
+
+            await csharpGen.ExecuteAsync();
+
+            // The generated code should only contain the single internal ctor containing the properties
+            var ctor = plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel").Constructors.Single();
+            Assert.IsTrue(ctor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+            Assert.AreEqual("prop1", ctor.Signature.Parameters.First().Name);
+        }
+
+        [Test]
+        public async Task DoesNotReplaceDefaultConstructorIfNotCustomized()
+        {
+            var plugin = MockHelpers.LoadMockPlugin(
+                inputModelTypes: new[] {
+                    InputFactory.Model(
+                        "mockInputModel",
+                        // use Input so that we generate a public ctor
+                        usage: InputModelTypeUsage.Input,
+                        properties: new[] { InputFactory.Property("Prop1", InputPrimitiveType.String) })
+                });
+            var csharpGen = new CSharpGen();
+
+            await csharpGen.ExecuteAsync();
+
+            var ctors = plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel").Constructors;
+            Assert.AreEqual(2, ctors.Count);
+            Assert.IsTrue(ctors.Any(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)));
+            Assert.IsTrue(ctors.Any(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal)));
+        }
     }
 }

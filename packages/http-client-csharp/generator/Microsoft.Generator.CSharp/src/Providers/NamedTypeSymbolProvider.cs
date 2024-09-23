@@ -127,6 +127,9 @@ namespace Microsoft.Generator.CSharp.Providers
             List<ConstructorProvider> constructors = new List<ConstructorProvider>();
             foreach (var constructorSymbol in _namedTypeSymbol.Constructors)
             {
+                if (constructorSymbol.IsImplicitlyDeclared)
+                    continue;
+
                 var signature = new ConstructorSignature(
                     Type,
                     GetSymbolXmlDoc(constructorSymbol, "summary"),
