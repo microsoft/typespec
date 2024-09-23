@@ -21,7 +21,7 @@ import {
  */
 export function getAuthenticationForOperation(
   program: Program,
-  operation: Operation
+  operation: Operation,
 ): Authentication | undefined {
   const operationAuth = getAuthentication(program, operation);
   if (operationAuth) {
@@ -75,7 +75,7 @@ export function resolveAuthentication(service: HttpService): HttpServiceAuthenti
 
 function gatherAuth(
   authentication: Authentication,
-  serviceSchemes: Record<string, HttpAuth>
+  serviceSchemes: Record<string, HttpAuth>,
 ): {
   newServiceSchemes: Record<string, HttpAuth>;
   authOptions: AuthenticationReference;
@@ -126,7 +126,7 @@ function makeHttpAuthRef(local: HttpAuth, reference: HttpAuth): HttpAuthRef {
 
 function mergeOAuthScopes<Flows extends OAuth2Flow[]>(
   scheme1: Oauth2Auth<Flows>,
-  scheme2: Oauth2Auth<Flows>
+  scheme2: Oauth2Auth<Flows>,
 ): Oauth2Auth<Flows> {
   const flows = deepClone(scheme1.flows);
   flows.forEach((flow1, i) => {
@@ -141,7 +141,7 @@ function mergeOAuthScopes<Flows extends OAuth2Flow[]>(
 }
 
 function ignoreScopes<Flows extends OAuth2Flow[]>(
-  scheme: Omit<Oauth2Auth<Flows>, "model">
+  scheme: Omit<Oauth2Auth<Flows>, "model">,
 ): Omit<Oauth2Auth<Flows>, "model"> {
   const flows: Flows = deepClone(scheme.flows);
   flows.forEach((flow) => {

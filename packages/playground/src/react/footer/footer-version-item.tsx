@@ -107,7 +107,7 @@ const VersionSelector = memo(({ versions, selected, latest, onChange }: VersionS
     (ev: ChangeEvent<HTMLSelectElement>, data: SelectOnChangeData) => {
       onChange(versions.find((x) => x.name === data.value)!);
     },
-    [versions, onChange]
+    [versions, onChange],
   );
   return (
     <div>

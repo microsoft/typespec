@@ -6,7 +6,7 @@ import type { Diagnostic, StringTemplate } from "../types.js";
  * @deprecated use `{@link StringTemplate["stringValue"]} property on {@link StringTemplate} instead.
  */
 export function stringTemplateToString(
-  stringTemplate: StringTemplate
+  stringTemplate: StringTemplate,
 ): [string, readonly Diagnostic[]] {
   if (stringTemplate.stringValue !== undefined) {
     return [stringTemplate.stringValue, []];
@@ -16,7 +16,7 @@ export function stringTemplateToString(
 }
 
 export function isStringTemplateSerializable(
-  stringTemplate: StringTemplate
+  stringTemplate: StringTemplate,
 ): [boolean, readonly Diagnostic[]] {
   if (stringTemplate.stringValue !== undefined) {
     return [true, []];
@@ -29,7 +29,7 @@ export function isStringTemplateSerializable(
  * get a list of diagnostic explaining why this string template cannot be converted to a string.
  */
 export function explainStringTemplateNotSerializable(
-  stringTemplate: StringTemplate
+  stringTemplate: StringTemplate,
 ): readonly Diagnostic[] {
   const diagnostics = createDiagnosticCollector();
   for (const span of stringTemplate.spans) {
@@ -52,7 +52,7 @@ export function explainStringTemplateNotSerializable(
             createDiagnostic({
               code: "non-literal-string-template",
               target: span.node,
-            })
+            }),
           );
       }
     }

@@ -347,7 +347,7 @@ export interface Scanner {
     indentationStart: number,
     indentationEnd: number,
     token: Token.StringLiteral | StringTemplateToken,
-    tokenFlags: TokenFlags
+    tokenFlags: TokenFlags,
   ): string;
 
   /** Reset the scanner to the given start and end positions, invoke the callback, and then restore scanner state. */
@@ -405,7 +405,7 @@ export function isStatementKeyword(token: Token) {
 
 export function createScanner(
   source: string | SourceFile,
-  diagnosticHandler: DiagnosticHandler
+  diagnosticHandler: DiagnosticHandler,
 ): Scanner {
   const file = typeof source === "string" ? createSourceFile(source, "<anonymous file>") : source;
   const input = file.text;
@@ -791,7 +791,7 @@ export function createScanner(
   >(
     report: Omit<DiagnosticReport<CompilerDiagnostics, C, M>, "target">,
     pos?: number,
-    end?: number
+    end?: number,
   ) {
     const diagnostic = createDiagnostic({
       ...report,
@@ -916,7 +916,7 @@ export function createScanner(
   }
 
   function scanStringTemplateSpan(
-    tokenFlags: TokenFlags
+    tokenFlags: TokenFlags,
   ): Token.StringTemplateMiddle | Token.StringTemplateTail {
     position++; // consume '{'
 
@@ -926,7 +926,7 @@ export function createScanner(
   function scanStringLiteralLike<M extends Token, T extends Token>(
     requestedTokenFlags: TokenFlags,
     template: M,
-    tail: T
+    tail: T,
   ): M | T {
     const multiLine = requestedTokenFlags & TokenFlags.TripleQuoted;
     tokenFlags = requestedTokenFlags;
@@ -976,7 +976,7 @@ export function createScanner(
 
   function getStringLiteralOffsetStart(
     token: Token.StringLiteral | StringTemplateToken,
-    tokenFlags: TokenFlags
+    tokenFlags: TokenFlags,
   ) {
     switch (token) {
       case Token.StringLiteral:
@@ -989,7 +989,7 @@ export function createScanner(
 
   function getStringLiteralOffsetEnd(
     token: Token.StringLiteral | StringTemplateToken,
-    tokenFlags: TokenFlags
+    tokenFlags: TokenFlags,
   ) {
     switch (token) {
       case Token.StringLiteral:
@@ -1002,7 +1002,7 @@ export function createScanner(
 
   function getStringTokenValue(
     token: Token.StringLiteral | StringTemplateToken,
-    tokenFlags: TokenFlags
+    tokenFlags: TokenFlags,
   ): string {
     if (tokenFlags & TokenFlags.TripleQuoted) {
       const start = tokenPosition;
@@ -1014,7 +1014,7 @@ export function createScanner(
         indentationStart,
         indentationEnd,
         token,
-        tokenFlags
+        tokenFlags,
       );
     }
 
@@ -1114,7 +1114,7 @@ export function createScanner(
     indentationStart: number,
     indentationEnd: number,
     token: Token.StringLiteral | StringTemplateToken,
-    tokenFlags: TokenFlags
+    tokenFlags: TokenFlags,
   ): string {
     const startOffset = getStringLiteralOffsetStart(token, tokenFlags);
     const endOffset = getStringLiteralOffsetEnd(token, tokenFlags);
@@ -1217,7 +1217,7 @@ export function createScanner(
     pos: number,
     end: number,
     indentationStart: number,
-    indentationEnd: number
+    indentationEnd: number,
   ): number {
     let indentationPos = indentationStart;
     end = Math.min(end, pos + (indentationEnd - indentationStart));
@@ -1433,7 +1433,7 @@ export function createScanner(
 export function skipTriviaBackward(
   script: TypeSpecScriptNode,
   position: number,
-  endPosition = -1
+  endPosition = -1,
 ): number {
   endPosition = endPosition < -1 ? -1 : endPosition;
   const input = script.file.text;
@@ -1499,7 +1499,7 @@ export function skipTrivia(input: string, position: number, endPosition = input.
 export function skipWhiteSpace(
   input: string,
   position: number,
-  endPosition = input.length
+  endPosition = input.length,
 ): number {
   while (position < endPosition) {
     const ch = input.charCodeAt(position);
@@ -1516,7 +1516,7 @@ export function skipWhiteSpace(
 function skipSingleLineComment(
   input: string,
   position: number,
-  endPosition = input.length
+  endPosition = input.length,
 ): number {
   position += 2; // consume '//'
 
@@ -1532,7 +1532,7 @@ function skipSingleLineComment(
 function skipMultiLineComment(
   input: string,
   position: number,
-  endPosition = input.length
+  endPosition = input.length,
 ): [position: number, terminated: boolean] {
   position += 2; // consume '/*'
 
@@ -1588,11 +1588,11 @@ function getTokenDisplayTable(entries: [Token, string][]): readonly string[] {
   for (const [token, display] of entries) {
     compilerAssert(
       token >= 0 && token < Token.__Count,
-      `Invalid entry in token display table, ${token}, ${Token[token]}, ${display}`
+      `Invalid entry in token display table, ${token}, ${Token[token]}, ${display}`,
     );
     compilerAssert(
       !table[token],
-      `Duplicate entry in token display table for: ${token}, ${Token[token]}, ${display}`
+      `Duplicate entry in token display table for: ${token}, ${Token[token]}, ${display}`,
     );
     table[token] = display;
   }

@@ -66,7 +66,7 @@ function playgroundManifestPlugin(config: PlaygroundUserConfig): Plugin {
         const sampleImport = Object.values(samples ?? {})
           .map(
             (sampleValue, index) =>
-              `import s${index} from "${viteConfig.root}/${sampleValue.filename}?raw"`
+              `import s${index} from "${viteConfig.root}/${sampleValue.filename}?raw"`,
           )
           .join("\n");
         const sampleObj = [
@@ -85,7 +85,7 @@ function playgroundManifestPlugin(config: PlaygroundUserConfig): Plugin {
                     : ""
                 }
 
-              }, `
+              }, `,
           ),
           "}",
         ].join("\n");

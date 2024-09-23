@@ -13,7 +13,7 @@ import type { DecoratorContext, Model, Namespace, Operation, Type } from "@types
 export type OperationIdDecorator = (
   context: DecoratorContext,
   target: Operation,
-  operationId: string
+  operationId: string,
 ) => void;
 
 /**
@@ -32,7 +32,7 @@ export type ExtensionDecorator = (
   context: DecoratorContext,
   target: Type,
   key: string,
-  value: Type
+  value: Type,
 ) => void;
 
 /**
@@ -64,7 +64,7 @@ export type ExternalDocsDecorator = (
   context: DecoratorContext,
   target: Type,
   url: string,
-  description?: string
+  description?: string,
 ) => void;
 
 /**
@@ -76,7 +76,7 @@ export type ExternalDocsDecorator = (
 export type InfoDecorator = (
   context: DecoratorContext,
   target: Namespace,
-  additionalInfo: Type
+  additionalInfo: Type,
 ) => void;
 
 export type TypeSpecOpenAPIDecorators = {

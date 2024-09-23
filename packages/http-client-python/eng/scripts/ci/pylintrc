@@ -1,0 +1,59 @@
+[MASTER]
+py-version=3.8
+ignore-patterns=test_*,conftest,setup
+reports=no
+
+# PYLINT DIRECTORY BLACKLIST.
+ignore=_generated,samples,examples,test,tests,doc,.tox,generated_samples
+
+[MESSAGES CONTROL]
+
+# Add enable for useless disables
+enable=useless-suppression
+
+# For all codes, run 'pylint --list-msgs' or go to 'https://pylint.readthedocs.io/en/latest/reference_guide/features.html'
+# locally-disabled: Warning locally suppressed using disable-msg
+# cyclic-import: because of https://github.com/PyCQA/pylint/issues/850
+# too-many-arguments: Due to the nature of the CLI many commands have large arguments set which reflect in large arguments set in corresponding methods.
+# too-many-lines: Due to code generation many files end up with too many lines.
+# Let's black deal with bad-continuation
+disable=useless-object-inheritance,missing-docstring,locally-disabled,fixme,cyclic-import,too-many-arguments,invalid-name,duplicate-code,too-few-public-methods,consider-using-f-string,super-with-arguments,redefined-builtin,import-outside-toplevel,client-suffix-needed,unnecessary-dunder-call,unnecessary-ellipsis,disallowed-name,consider-using-max-builtin,too-many-lines,parse-error,useless-suppression,unknown-option-value
+
+[FORMAT]
+max-line-length=120
+
+[VARIABLES]
+# Tells whether we should check for unused import in __init__ files.
+init-import=yes
+
+[DESIGN]
+# Maximum number of locals for function / method body
+max-locals=25
+# Maximum number of branch for function / method body
+max-branches=20
+# Maximum number of instance attributes for class
+max-attributes=10
+# Maximum number of ancestors
+max-parents=15
+
+[SIMILARITIES]
+min-similarity-lines=10
+
+[BASIC]
+# Naming hints based on PEP 8 (https://www.python.org/dev/peps/pep-0008/#naming-conventions).
+# Consider these guidelines and not hard rules. Read PEP 8 for more details.
+
+# The invalid-name checker must be **enabled** for these hints to be used.
+include-naming-hint=yes
+
+# keep short; underscores are discouraged
+module-naming-style=snake_case
+const-naming-style=UPPER_CASE
+class-naming-style=PascalCase
+class-attribute-naming-style=snake_case
+attr-naming-style=snake_case
+method-naming-style=snake_case
+function-naming-style=snake_case
+argument-naming-style=snake_case
+variable-naming-style=snake_case
+inlinevar-naming-style=snake_case

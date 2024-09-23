@@ -2,14 +2,14 @@ import { execAsync, type ExecResult } from "./exec-async.js";
 
 export async function listChangedFilesSince(
   ref: string,
-  { repositoryPath }: { repositoryPath: string }
+  { repositoryPath }: { repositoryPath: string },
 ) {
   return splitStdoutLines(await execGit(["diff", "--name-only", `${ref}...`], { repositoryPath }));
 }
 
 async function execGit(
   args: string[],
-  { repositoryPath }: { repositoryPath: string }
+  { repositoryPath }: { repositoryPath: string },
 ): Promise<ExecResult> {
   const result = await execAsync("git", args, { cwd: repositoryPath });
 

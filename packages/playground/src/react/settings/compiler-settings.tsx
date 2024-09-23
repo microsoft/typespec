@@ -26,7 +26,7 @@ export const CompilerSettings: FunctionComponent<CompilerSettingsProps> = ({
         options: emitterOptions,
       });
     },
-    [onOptionsChanged, options]
+    [onOptionsChanged, options],
   );
   const library = host.libraries[selectedEmitter];
   const linterRuleSet = options.linterRuleSet ?? {};
@@ -37,7 +37,7 @@ export const CompilerSettings: FunctionComponent<CompilerSettingsProps> = ({
         linterRuleSet,
       });
     },
-    [onOptionsChanged, options]
+    [onOptionsChanged, options],
   );
   return (
     <div>

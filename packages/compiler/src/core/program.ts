@@ -64,7 +64,7 @@ export interface ProjectedProgram extends Program {
 export function projectProgram(
   program: Program,
   projections: ProjectionApplication[],
-  startNode?: Type
+  startNode?: Type,
 ): ProjectedProgram {
   return createProjector(program, projections, startNode);
 }
@@ -85,7 +85,7 @@ export interface Program {
   loadTypeSpecScript(typespecScript: SourceFile): Promise<TypeSpecScriptNode>;
   onValidate(
     cb: (program: Program) => void | Promise<void>,
-    LibraryMetadata: LibraryMetadata
+    LibraryMetadata: LibraryMetadata,
   ): void;
   getOption(key: string): string | undefined;
   stateSet(key: symbol): Set<Type>;
@@ -131,7 +131,7 @@ export async function compile(
   host: CompilerHost,
   mainFile: string,
   options: CompilerOptions = {},
-  oldProgram?: Program // NOTE: deliberately separate from options to avoid memory leak by chaining all old programs together.
+  oldProgram?: Program, // NOTE: deliberately separate from options to avoid memory leak by chaining all old programs together.
 ): Promise<Program> {
   const validateCbs: Validator[] = [];
   const stateMaps = new Map<symbol, StateMap>();
@@ -271,7 +271,7 @@ export async function compile(
         const found = libraries.get(packageJson.name);
         if (found && found.path !== root && found.manifest.version !== packageJson.version) {
           let incompatibleIndex: TypeSpecLibraryReference[] | undefined = incompatibleLibraries.get(
-            packageJson.name
+            packageJson.name,
           );
           if (incompatibleIndex === undefined) {
             incompatibleIndex = [found];
@@ -293,7 +293,7 @@ export async function compile(
               .join("\n"),
           },
           target: NoTarget,
-        })
+        }),
       );
     }
   }
@@ -342,7 +342,7 @@ export async function compile(
     const locationContext: LocationContext = { type: "compiler" };
     return loader.importFile(
       resolvePath(host.getExecutionRoot(), "lib/intrinsics.tsp"),
-      locationContext
+      locationContext,
     );
   }
 
@@ -386,7 +386,7 @@ export async function compile(
   async function loadEmitters(
     basedir: string,
     emitterNameOrPaths: string[],
-    emitterOptions: Record<string, EmitterOptions>
+    emitterOptions: Record<string, EmitterOptions>,
   ) {
     for (const emitterNameOrPath of emitterNameOrPaths) {
       const emitter = await loadEmitter(basedir, emitterNameOrPath, emitterOptions);
@@ -398,7 +398,7 @@ export async function compile(
 
   async function resolveEmitterModuleAndEntrypoint(
     basedir: string,
-    emitterNameOrPath: string
+    emitterNameOrPath: string,
   ): Promise<
     [
       { module: ModuleResolutionResult; entrypoint: JsSourceFileNode | undefined } | undefined,
@@ -410,7 +410,7 @@ export async function compile(
     const [module, diagnostics] = await resolveJSLibrary(
       emitterNameOrPath,
       basedir,
-      locationContext
+      locationContext,
     );
     if (!module) {
       return [undefined, diagnostics];
@@ -424,11 +424,11 @@ export async function compile(
 
   async function loadLibrary(
     basedir: string,
-    libraryNameOrPath: string
+    libraryNameOrPath: string,
   ): Promise<LibraryInstance | undefined> {
     const [resolution, diagnostics] = await resolveEmitterModuleAndEntrypoint(
       basedir,
-      libraryNameOrPath
+      libraryNameOrPath,
     );
 
     if (resolution === undefined) {
@@ -452,7 +452,7 @@ export async function compile(
   async function loadEmitter(
     basedir: string,
     emitterNameOrPath: string,
-    emittersOptions: Record<string, EmitterOptions>
+    emittersOptions: Record<string, EmitterOptions>,
   ): Promise<EmitterRef | undefined> {
     const library = await loadLibrary(basedir, emitterNameOrPath);
 
@@ -467,7 +467,7 @@ export async function compile(
           code: "invalid-emitter",
           format: { emitterPackage: emitterNameOrPath },
           target: NoTarget,
-        })
+        }),
       );
       return undefined;
     }
@@ -495,7 +495,7 @@ export async function compile(
                 path: ["options", emitterNameOrPath],
                 script: options.configFile.file,
               }
-            : NoTarget
+            : NoTarget,
         );
         if (diagnostics && diagnostics.length > 0) {
           program.reportDiagnostics(diagnostics);
@@ -515,7 +515,7 @@ export async function compile(
           code: "invalid-emitter",
           format: { emitterPackage: emitterNameOrPath },
           target: NoTarget,
-        })
+        }),
       );
       return undefined;
     }
@@ -523,7 +523,7 @@ export async function compile(
 
   function computeLibraryMetadata(
     module: ModuleResolutionResult,
-    libDefinition: TypeSpecLibrary<any> | undefined
+    libDefinition: TypeSpecLibrary<any> | undefined,
   ): LibraryMetadata {
     if (module.type === "file") {
       return {
@@ -590,7 +590,7 @@ export async function compile(
             code: "on-validate-fail",
             format: { error: error.stack },
             target: NoTarget,
-          })
+          }),
         );
       } else {
         throw new ExternalError({ kind: "validator", metadata: validator.metadata, error });
@@ -611,7 +611,7 @@ export async function compile(
             code: "missing-import",
             format: { requiredImport, emitterName },
             target: NoTarget,
-          })
+          }),
         );
       }
     }
@@ -624,7 +624,7 @@ export async function compile(
   async function resolveJSLibrary(
     specifier: string,
     baseDir: string,
-    locationContext: LocationContext
+    locationContext: LocationContext,
   ): Promise<[ModuleResolutionResult | undefined, readonly Diagnostic[]]> {
     try {
       return [await resolveModule(getResolveModuleHost(), specifier, { baseDir }), []];
@@ -688,11 +688,11 @@ export async function compile(
           },
         },
         "@typespec/compiler",
-        { baseDir }
+        { baseDir },
       );
       compilerAssert(
         resolved.type === "module",
-        `Expected to have resolved "@typespec/compiler" to a node module.`
+        `Expected to have resolved "@typespec/compiler" to a node module.`,
       );
       actual = resolved;
     } catch (err: any) {
@@ -711,7 +711,7 @@ export async function compile(
           code: "compiler-version-mismatch",
           format: { basedir: baseDir, betterTypeSpecServerPath, actual: actual.path, expected },
           target: NoTarget,
-        })
+        }),
       );
       return false;
     }
@@ -814,7 +814,7 @@ export async function compile(
    */
   function findDirectiveSuppressingCode(
     code: string,
-    directives: readonly DirectiveExpressionNode[]
+    directives: readonly DirectiveExpressionNode[],
   ): Directive | undefined {
     for (const directive of directives.map((x) => parseDirective(x))) {
       if (directive.name === "suppress") {
@@ -871,7 +871,7 @@ export async function compile(
               code: "duplicate-symbol",
               format: { name },
               target: symbol,
-            })
+            }),
           );
         }
       }

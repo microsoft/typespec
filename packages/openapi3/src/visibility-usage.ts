@@ -26,7 +26,7 @@ export function resolveVisibilityUsage(
   program: Program,
   metadataInfo: MetadataInfo,
   root: Namespace,
-  omitUnreachableTypes: boolean
+  omitUnreachableTypes: boolean,
 ): VisibilityUsageTracker {
   const usages = new Map<Type, Set<Visibility>>();
   addUsagesInContainer(program, metadataInfo, root, usages);
@@ -38,7 +38,7 @@ export function resolveVisibilityUsage(
     const trackType = (type: Type) => {
       if (!usages.has(type)) {
         navigateReferencedTypes(type, Visibility.All, (type, vis) =>
-          trackUsageExact(usages, type, vis)
+          trackUsageExact(usages, type, vis),
         );
       }
     };
@@ -68,7 +68,7 @@ function addUsagesInContainer(
   metadataInfo: MetadataInfo,
 
   type: OperationContainer,
-  usages: Map<Type, Set<Visibility>>
+  usages: Map<Type, Set<Visibility>>,
 ) {
   switch (type.kind) {
     case "Namespace":
@@ -87,7 +87,7 @@ function trackUsage(
   metadataInfo: MetadataInfo,
   usages: Map<Type, Set<Visibility>>,
   type: Type,
-  usage: Visibility
+  usage: Visibility,
 ) {
   const effective = metadataInfo.getEffectivePayloadType(type, usage);
 
@@ -107,7 +107,7 @@ function addUsagesInNamespace(
   program: Program,
   metadataInfo: MetadataInfo,
   namespace: Namespace,
-  usages: Map<Type, Set<Visibility>>
+  usages: Map<Type, Set<Visibility>>,
 ): void {
   for (const subNamespace of namespace.namespaces.values()) {
     addUsagesInNamespace(program, metadataInfo, subNamespace, usages);
@@ -125,7 +125,7 @@ function addUsagesInInterface(
   metadataInfo: MetadataInfo,
 
   Interface: Interface,
-  usages: Map<Type, Set<Visibility>>
+  usages: Map<Type, Set<Visibility>>,
 ): void {
   for (const operation of Interface.operations.values()) {
     addUsagesInOperation(program, metadataInfo, operation, usages);
@@ -136,24 +136,24 @@ function addUsagesInOperation(
   program: Program,
   metadataInfo: MetadataInfo,
   operation: Operation,
-  usages: Map<Type, Set<Visibility>>
+  usages: Map<Type, Set<Visibility>>,
 ): void {
   const httpOperation = ignoreDiagnostics(getHttpOperation(program, operation));
 
   const visibility = resolveRequestVisibility(program, operation, httpOperation.verb);
   if (httpOperation.parameters.body) {
     navigateReferencedTypes(httpOperation.parameters.body.type, visibility, (type, vis) =>
-      trackUsage(metadataInfo, usages, type, vis)
+      trackUsage(metadataInfo, usages, type, vis),
     );
   }
   for (const param of httpOperation.parameters.parameters) {
     navigateReferencedTypes(param.param, visibility, (type, vis) =>
-      trackUsage(metadataInfo, usages, type, vis)
+      trackUsage(metadataInfo, usages, type, vis),
     );
   }
 
   navigateReferencedTypes(operation.returnType, Visibility.Read, (type, vis) =>
-    trackUsage(metadataInfo, usages, type, vis)
+    trackUsage(metadataInfo, usages, type, vis),
   );
 }
 
@@ -161,7 +161,7 @@ function navigateReferencedTypes(
   type: Type,
   usage: Visibility,
   callback: (type: Type, visibility: Visibility) => void,
-  visited: TwoLevelMap<Type, Visibility, true> = new TwoLevelMap<Type, Visibility, true>()
+  visited: TwoLevelMap<Type, Visibility, true> = new TwoLevelMap<Type, Visibility, true>(),
 ) {
   if (visited.get(type)?.get(usage)) {
     return;
@@ -206,7 +206,7 @@ function navigateIterable<T extends Type>(
   map: Map<string | symbol, T> | T[],
   usage: Visibility,
   callback: (type: Type, visibility: Visibility) => void,
-  visited: TwoLevelMap<Type, Visibility, true>
+  visited: TwoLevelMap<Type, Visibility, true>,
 ) {
   for (const type of map.values()) {
     navigateReferencedTypes(type, usage, callback, visited);

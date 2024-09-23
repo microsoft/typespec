@@ -207,7 +207,7 @@ export class CSharpModel extends CSharpDeclaration {
   constructor(
     modelName: string,
     modelNamespace: string,
-    emitter: AssetEmitter<string, Record<string, never>>
+    emitter: AssetEmitter<string, Record<string, never>>,
   ) {
     super(
       new CSharpType({
@@ -216,7 +216,7 @@ export class CSharpModel extends CSharpDeclaration {
         isBuiltIn: false,
         isValueType: false,
       }),
-      emitter
+      emitter,
     );
   }
   properties: Parameter[] = [];

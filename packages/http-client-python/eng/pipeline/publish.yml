@@ -1,0 +1,32 @@
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - packages/http-client-python/
+
+pr: none
+
+extends:
+  template: /eng/common/pipelines/templates/1es-redirect.yml
+
+  parameters:
+    stages:
+      - template: /eng/emitters/pipelines/templates/stages/emitter-stages.yml
+        parameters:
+          BuildPrereleaseVersion: true
+          UseTypeSpecNext: false
+          Publish: "internal"
+          PublishDependsOnTest: true
+          PackagePath: /packages/http-client-python
+          EmitterPackageJsonPath: packages/http-client-python/package.json
+          Packages:
+            - name: typespec-http-client-python
+              file: typespec-http-client-python-*.tgz
+              type: npm
+          UnitTestArgs: -UnitTests
+          StagePrefix: "Python"
+          LanguageShortName: "python"
+          HasNugetPackages: true
+          CadlRanchName: "@typespec/http-client-python"

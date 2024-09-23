@@ -112,11 +112,11 @@ function prettyLabel(label: Label, padEnd: number = 0) {
 async function syncGithubLabels(config: RepoConfig, labels: Label[], options: ActionOptions = {}) {
   if (!options.dryRun && !process.env.GITHUB_TOKEN && !options.check) {
     throw new Error(
-      "GITHUB_TOKEN environment variable is required when not running in dry-run mode or check mode."
+      "GITHUB_TOKEN environment variable is required when not running in dry-run mode or check mode.",
     );
   }
   const octokit = new Octokit(
-    process.env.GITHUB_TOKEN ? { auth: `token ${process.env.GITHUB_TOKEN}` } : {}
+    process.env.GITHUB_TOKEN ? { auth: `token ${process.env.GITHUB_TOKEN}` } : {},
   );
 
   const existingLabels = await fetchAllLabels(octokit, config.repo);
@@ -161,8 +161,8 @@ async function checkLabelsToDelete(labels: GithubLabel[]) {
     if (label.issues.totalCount > 0) {
       console.log(
         pc.red(
-          `Label ${label.name} has ${label.issues.totalCount} issues assigned to it, make sure to rename the label manually first to not lose assignment.`
-        )
+          `Label ${label.name} has ${label.issues.totalCount} issues assigned to it, make sure to rename the label manually first to not lose assignment.`,
+        ),
       );
       hasError = true;
     }
@@ -203,7 +203,7 @@ async function fetchAllLabels(octokit: Octokit, repo: RepoConfig["repo"]): Promi
     {
       owner: repo.owner,
       repo: repo.repo,
-    }
+    },
   );
 
   return repository.labels.nodes;
@@ -224,13 +224,13 @@ async function createLabels(
   config: RepoConfig,
   octokit: Octokit,
   labels: Label[],
-  options: ActionOptions
+  options: ActionOptions,
 ) {
   for (const label of labels) {
     await doAction(
       () => octokit.rest.issues.createLabel({ ...config.repo, ...label }),
       `Created label ${label.name}, color: ${label.color}, description: ${label.description}`,
-      options
+      options,
     );
   }
 }
@@ -238,13 +238,13 @@ async function updateLabels(
   config: RepoConfig,
   octokit: Octokit,
   labels: Label[],
-  options: ActionOptions
+  options: ActionOptions,
 ) {
   for (const label of labels) {
     await doAction(
       () => octokit.rest.issues.updateLabel({ ...config.repo, ...label }),
       `Updated label ${label.name}, color: ${label.color}, description: ${label.description}`,
-      options
+      options,
     );
   }
 }
@@ -252,7 +252,7 @@ async function deleteLabels(
   config: RepoConfig,
   octokit: Octokit,
   labels: GithubLabel[],
-  options: ActionOptions
+  options: ActionOptions,
 ) {
   checkLabelsToDelete(labels);
 
@@ -260,7 +260,7 @@ async function deleteLabels(
     await doAction(
       () => octokit.rest.issues.deleteLabel({ ...config.repo, name: label.name }),
       `Deleted label ${label.name}`,
-      options
+      options,
     );
     console.log(`Deleted label ${label.name}`);
   }
@@ -302,8 +302,8 @@ async function updateContributingFile(labels: LabelsResolvedConfig, options: Act
     } else {
       console.log(
         pc.red(
-          "CONTRIBUTING.md file label section is not up to date, run pnpm sync-labels to update it"
-        )
+          "CONTRIBUTING.md file label section is not up to date, run pnpm sync-labels to update it",
+        ),
       );
       process.exit(1);
     }
@@ -311,7 +311,7 @@ async function updateContributingFile(labels: LabelsResolvedConfig, options: Act
     await doAction(
       () => writeFile(contributingFile, formatted),
       "Updated contributing file",
-      options
+      options,
     );
   }
 }

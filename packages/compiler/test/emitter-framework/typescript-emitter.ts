@@ -105,7 +105,7 @@ export class TypeScriptInterfaceEmitter extends CodeTypeEmitter {
       name,
       code`${commentCode}\nexport interface ${name} ${extendsClause} {
         ${this.emitter.emitModelProperties(model)}
-      }`
+      }`,
     );
   }
 
@@ -132,15 +132,15 @@ export class TypeScriptInterfaceEmitter extends CodeTypeEmitter {
 
     return this.emitter.result.rawCode(
       code`${docString}${name}${property.optional ? "?" : ""}: ${this.emitter.emitTypeReference(
-        property.type
-      )}`
+        property.type,
+      )}`,
     );
   }
 
   arrayDeclaration(array: Model, name: string, elementType: Type): EmitterOutput<string> {
     return this.emitter.result.declaration(
       name,
-      code`interface ${name} extends Array<${this.emitter.emitTypeReference(elementType)}> { };`
+      code`interface ${name} extends Array<${this.emitter.emitTypeReference(elementType)}> { };`,
     );
   }
 
@@ -154,7 +154,7 @@ export class TypeScriptInterfaceEmitter extends CodeTypeEmitter {
       name,
       code`interface ${name} {
       ${this.#operationSignature(operation)}
-    }`
+    }`,
     );
   }
 
@@ -162,7 +162,7 @@ export class TypeScriptInterfaceEmitter extends CodeTypeEmitter {
     const cb = new StringBuilder();
     for (const prop of parameters.properties.values()) {
       cb.push(
-        code`${prop.name}${prop.optional ? "?" : ""}: ${this.emitter.emitTypeReference(prop.type)},`
+        code`${prop.name}${prop.optional ? "?" : ""}: ${this.emitter.emitTypeReference(prop.type)},`,
       );
     }
     return cb;
@@ -170,7 +170,7 @@ export class TypeScriptInterfaceEmitter extends CodeTypeEmitter {
 
   #operationSignature(operation: Operation) {
     return code`(${this.emitter.emitOperationParameters(
-      operation
+      operation,
     )}): ${this.emitter.emitOperationReturnType(operation)}`;
   }
 
@@ -185,7 +185,7 @@ export class TypeScriptInterfaceEmitter extends CodeTypeEmitter {
       export interface ${name} {
         ${this.emitter.emitInterfaceOperations(iface)}
       }
-    `
+    `,
     );
   }
 
@@ -198,7 +198,7 @@ export class TypeScriptInterfaceEmitter extends CodeTypeEmitter {
       name,
       code`export enum ${name} {
         ${this.emitter.emitEnumMembers(en)}
-      }`
+      }`,
     );
   }
 
@@ -218,7 +218,7 @@ export class TypeScriptInterfaceEmitter extends CodeTypeEmitter {
   unionDeclaration(union: Union, name: string): EmitterOutput<string> {
     return this.emitter.result.declaration(
       name,
-      code`export type ${name} = ${this.emitter.emitUnionVariants(union)}`
+      code`export type ${name} = ${this.emitter.emitUnionVariants(union)}`,
     );
   }
 
@@ -252,7 +252,7 @@ export class TypeScriptInterfaceEmitter extends CodeTypeEmitter {
     targetDeclaration: Declaration<string>,
     pathUp: Scope<string>[],
     pathDown: Scope<string>[],
-    commonScope: Scope<string> | null
+    commonScope: Scope<string> | null,
   ) {
     if (!commonScope) {
       const sourceSf = (pathUp[0] as SourceFileScope<string>).sourceFile;

@@ -24,7 +24,7 @@ function checkForDuplicateResourceKeyNames(program: Program) {
     while (currentType) {
       const resourceKey = getResourceTypeKey(program, currentType);
       if (resourceKey) {
-        const keyName = getKeyName(program, resourceKey.keyProperty);
+        const keyName = getKeyName(program, resourceKey.keyProperty)!;
         keyProperties.track(keyName, resourceKey);
       }
 

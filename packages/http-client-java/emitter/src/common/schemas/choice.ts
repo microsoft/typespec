@@ -31,7 +31,7 @@ export class ChoiceSchema<ChoiceType extends PrimitiveSchema = StringSchema>
   constructor(
     name: string,
     description: string,
-    objectInitializer?: DeepPartial<ChoiceSchema<ChoiceType>>
+    objectInitializer?: DeepPartial<ChoiceSchema<ChoiceType>>,
   ) {
     super(name, description, SchemaType.Choice);
     this.apply(objectInitializer);
@@ -63,7 +63,7 @@ export class SealedChoiceSchema<ChoiceType extends PrimitiveSchema = StringSchem
   constructor(
     name: string,
     description: string,
-    objectInitializer?: DeepPartial<ChoiceSchema<ChoiceType>>
+    objectInitializer?: DeepPartial<ChoiceSchema<ChoiceType>>,
   ) {
     super(name, description, SchemaType.SealedChoice);
     this.apply(objectInitializer);

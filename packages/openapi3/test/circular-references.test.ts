@@ -8,7 +8,7 @@ describe("openapi3: circular reference", () => {
       "Pet",
       `
       model Pet { parent?: Pet };
-      `
+      `,
     );
 
     deepStrictEqual(res.schemas.Pet, {
@@ -24,7 +24,7 @@ describe("openapi3: circular reference", () => {
       "Pet",
       `
       model Pet { parents?: Pet[] };
-      `
+      `,
     );
 
     deepStrictEqual(res.schemas.Pet, {
@@ -40,7 +40,7 @@ describe("openapi3: circular reference", () => {
       "Pet",
       `
       model Pet { parents?: string | Pet };
-      `
+      `,
     );
 
     deepStrictEqual(res.schemas.Pet, {
