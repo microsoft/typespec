@@ -266,8 +266,8 @@ class _BuilderBaseSerializer(Generic[BuilderType]):
         return description_list
 
     @staticmethod
-    def line_too_long(docs: List[str]) -> bool:
-        return any(len(line) > 120 for line in docs)
+    def line_too_long(docs: List[str], indentation: int = 0) -> bool:
+        return any(len(line) > (120 - indentation) for line in docs)
 
     def example_template(self, builder: BuilderType) -> List[str]:
         template = []
@@ -599,7 +599,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             retval.append(f"    params_added_on={dict(params_added_on)},")
         if retval:
             retval_str = "\n".join(retval)
-            return f"@api_version_validation(\n{retval_str}\n)"
+            return f"@api_version_validation(\n{retval_str}\n){builder.pylint_disable(self.async_mode)}"
         return ""
 
     def pop_kwargs_from_signature(self, builder: OperationType) -> List[str]:

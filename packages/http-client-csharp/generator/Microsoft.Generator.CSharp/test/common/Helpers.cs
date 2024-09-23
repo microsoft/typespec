@@ -4,13 +4,14 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 
-namespace Microsoft.Generator.CSharp.Tests
+namespace Microsoft.Generator.CSharp.Tests.Common
 {
-    internal static class Helpers
+    public static class Helpers
     {
         private static readonly string _assemblyLocation = Path.GetDirectoryName(typeof(Helpers).Assembly.Location)!;
 
@@ -29,7 +30,8 @@ namespace Microsoft.Generator.CSharp.Tests
             var paramString = parameters is null ? string.Empty : $"({parameters})";
             var extName = isFile ? ".cs" : string.Empty;
             var path = _assemblyLocation;
-            for (int i = 4; i < nsSplit.Length; i++)
+            var nsSkip = nsSplit.Contains("ClientModel") ? 5 : 4;
+            for (int i = nsSkip; i < nsSplit.Length; i++)
             {
                 path = Path.Combine(path, nsSplit[i]);
             }
@@ -44,7 +46,7 @@ namespace Microsoft.Generator.CSharp.Tests
                 var frame = stackTrace.GetFrame(i);
                 var declaringType = frame!.GetMethod()!.DeclaringType!;
                 // we need to skip those method invocations from this class, or from the async state machine when the caller is an async method
-                if (declaringType != typeof(Helpers) && declaringType != typeof(MockHelpers) && !IsCompilerGenerated(declaringType))
+                if (declaringType != typeof(Helpers) && declaringType.Name != "MockHelpers" && !IsCompilerGenerated(declaringType))
                 {
                     return frame;
                 }

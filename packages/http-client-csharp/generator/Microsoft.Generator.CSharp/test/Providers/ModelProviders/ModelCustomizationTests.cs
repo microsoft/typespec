@@ -251,5 +251,81 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             await csharpGen.ExecuteAsync();
             Assert.AreEqual(0, plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel").Properties.Count);
         }
+
+        [Test]
+        public async Task CanChangeEnumMemberName()
+        {
+            var enumValues = new[]
+           {
+                InputFactory.EnumMember.Int32("Red", 1),
+                InputFactory.EnumMember.Int32("Green", 2),
+                InputFactory.EnumMember.Int32("Blue", 3)
+            };
+            var inputEnum = InputFactory.Enum("mockInputModel", underlyingType: InputPrimitiveType.String, values: enumValues);
+            await MockHelpers.LoadMockPluginAsync(
+                inputEnumTypes: [inputEnum],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var enumProvider = EnumProvider.Create(inputEnum);
+            var customCodeView = enumProvider.CustomCodeView;
+
+            Assert.IsNotNull(enumProvider);
+
+            // validate the enum provider uses the custom member name
+            Assert.AreEqual(3, enumProvider!.Fields.Count);
+            Assert.AreEqual("Red", enumProvider.Fields[0].Name);
+            Assert.AreEqual("Green", enumProvider.Fields[1].Name);
+            Assert.AreEqual("SkyBlue", enumProvider.Fields[2].Name);
+
+            // the members should also be added to the custom code view
+            Assert.IsNotNull(customCodeView);
+            Assert.AreEqual(3, customCodeView?.Fields.Count);
+            Assert.AreEqual("Red", customCodeView?.Fields[0].Name);
+            Assert.AreEqual("Green", customCodeView?.Fields[1].Name);
+            Assert.AreEqual("SkyBlue", customCodeView?.Fields[2].Name);
+        }
+
+        [Test]
+        public async Task CanReplaceConstructor()
+        {
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModelTypes: new[] {
+                    InputFactory.Model(
+                        "mockInputModel",
+                        // use Input so that we generate a public ctor
+                        usage: InputModelTypeUsage.Input,
+                        properties: new[] { InputFactory.Property("Prop1", InputPrimitiveType.String) })
+                },
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var csharpGen = new CSharpGen();
+
+            await csharpGen.ExecuteAsync();
+
+            // The generated code should only contain the single internal ctor containing the properties
+            var ctor = plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel").Constructors.Single();
+            Assert.IsTrue(ctor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+            Assert.AreEqual("prop1", ctor.Signature.Parameters.First().Name);
+        }
+
+        [Test]
+        public async Task DoesNotReplaceDefaultConstructorIfNotCustomized()
+        {
+            var plugin = MockHelpers.LoadMockPlugin(
+                inputModelTypes: new[] {
+                    InputFactory.Model(
+                        "mockInputModel",
+                        // use Input so that we generate a public ctor
+                        usage: InputModelTypeUsage.Input,
+                        properties: new[] { InputFactory.Property("Prop1", InputPrimitiveType.String) })
+                });
+            var csharpGen = new CSharpGen();
+
+            await csharpGen.ExecuteAsync();
+
+            var ctors = plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel").Constructors;
+            Assert.AreEqual(2, ctors.Count);
+            Assert.IsTrue(ctors.Any(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)));
+            Assert.IsTrue(ctors.Any(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal)));
+        }
     }
 }

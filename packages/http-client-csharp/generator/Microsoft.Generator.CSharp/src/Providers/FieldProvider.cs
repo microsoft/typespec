@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Statements;
@@ -32,6 +34,8 @@ namespace Microsoft.Generator.CSharp.Providers
         public VariableExpression AsVariableExpression => _variable ??= new(Type, Name.ToVariableName());
 
         public TypeProvider EnclosingType { get; }
+
+        internal IEnumerable<AttributeData>? Attributes { get; init; }
 
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.

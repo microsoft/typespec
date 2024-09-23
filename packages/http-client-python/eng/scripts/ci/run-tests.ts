@@ -6,8 +6,6 @@ import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 import { parseArgs } from "util";
 
-const validCommands = ["ci", "lint", "mypy", "pyright", "apiview"];
-
 const root = join(dirname(fileURLToPath(import.meta.url)), "../../../");
 
 const argv = parseArgs({
@@ -24,10 +22,9 @@ const foldersToProcess = argv.values.flavor
   ? [argv.values.flavor]
   : argv.values.validFolders || ["azure", "unbranded"];
 
-const commandToRun = argv.values.command || "all";
+const commandToRun = argv.values.command || "ci";
 
 function getCommand(command: string, flavor: string, name?: string): string {
-  if (!validCommands.includes(command)) throw new Error(`Unknown command '${command}'.`);
   let retval: string;
   if (platform() === "win32") {
     retval = `set FOLDER=${flavor} && ${venvPath} -m tox -c ./test/${flavor}/tox.ini -e ${command}`;
@@ -44,8 +41,10 @@ function getCommand(command: string, flavor: string, name?: string): string {
 function sectionExistsInToxIni(command: string, flavor: string): boolean {
   const toxIniPath = join(root, `test/${flavor}/tox.ini`);
   const toxIniContent = readFileSync(toxIniPath, "utf-8");
-  const sectionHeader = `[testenv:${command}]`;
-  return toxIniContent.includes(sectionHeader);
+  return command
+    .split(",")
+    .map((c) => `[testenv:${c}]`)
+    .every((section) => toxIniContent.includes(section));
 }
 
 function myExecSync(command: string, flavor: string, name?: string): void {
@@ -65,23 +64,9 @@ if (fs.existsSync(join(venvPath, "bin"))) {
   throw new Error("Virtual environment doesn't exist.");
 }
 
-// Install dependencies from dev_requirements.txt
-const devRequirementsPath = join(root, "generator", "dev_requirements.txt");
-if (fs.existsSync(devRequirementsPath)) {
-  console.log("Installing dependencies from dev_requirements.txt...");
-  execSync(`${venvPath} -m pip install -r ${devRequirementsPath}`, { stdio: "inherit" });
-} else {
-  throw new Error("dev_requirements.txt doesn't exist.");
-}
-
 foldersToProcess.forEach((flavor) => {
   try {
-    if (commandToRun === "all") {
-      for (const key of validCommands) {
-        console.log(`Running ${key} for flavor ${flavor}...`);
-        myExecSync(key, flavor, argv.values.name);
-      }
-    } else if (getCommand(commandToRun, flavor, argv.values.name)) {
+    if (getCommand(commandToRun, flavor, argv.values.name)) {
       console.log(`Running ${commandToRun} for flavor ${flavor}...`);
       myExecSync(commandToRun, flavor, argv.values.name);
     } else {

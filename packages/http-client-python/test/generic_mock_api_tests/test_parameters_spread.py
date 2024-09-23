@@ -53,12 +53,7 @@ def test_alias_multiple_parameter(client: SpreadClient):
     )
     client.alias.spread_with_multiple_parameters(
         "1",
-        {
-            "requiredString": "foo",
-            "optionalInt": 1,
-            "requiredIntList": [1, 2],
-            "optionalStringList": ["foo", "bar"],
-        },
+        {"requiredString": "foo", "optionalInt": 1, "requiredIntList": [1, 2], "optionalStringList": ["foo", "bar"]},
         x_ms_test_header="bar",
     )
 

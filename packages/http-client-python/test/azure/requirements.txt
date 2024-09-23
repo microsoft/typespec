@@ -4,11 +4,6 @@ pytest
 pytest-asyncio==0.14.0;python_full_version>="3.5.2"
 azure-core==1.30.0
 azure-mgmt-core==1.3.2
-pyright==1.1.379
-pylint==3.2.7
-tox==4.18.1
-mypy==1.10.1
-
 # only for azure
 -e ./generated/azure-client-generator-core-access
 -e ./generated/azure-client-generator-core-usage
@@ -86,3 +81,4 @@ mypy==1.10.1
 -e ./generated/versioning-renamedfrom
 -e ./generated/versioning-returntypechangedfrom
 -e ./generated/versioning-typechangedfrom
+-e ./generated/routes

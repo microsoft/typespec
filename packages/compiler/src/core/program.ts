@@ -1,6 +1,7 @@
 import { OutputDirectory, render } from "@alloy-js/core";
 import { EmitterOptions } from "../config/types.js";
 import { createAssetEmitter } from "../emitter-framework/asset-emitter.js";
+import { setCurrentProgram } from "../experimental/typekit/define-kit.js";
 import { validateEncodedNamesConflicts } from "../lib/encoded-names.js";
 import { MANIFEST } from "../manifest.js";
 import { deepEquals, findProjectRoot, isDefined, mapEquals, mutate } from "../utils/misc.js";
@@ -224,7 +225,8 @@ export async function compile(
 
   // let GC reclaim old program, we do not reuse it beyond this point.
   oldProgram = undefined;
-  currentProgram = program;
+  setCurrentProgram(program);
+
   const linter = createLinter(program, (name) => loadLibrary(basedir, name));
   if (options.linterRuleSet) {
     program.reportDiagnostics(await linter.extendRuleSet(options.linterRuleSet));
