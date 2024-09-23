@@ -2,7 +2,7 @@ import { strictEqual } from "assert";
 import { describe, it } from "vitest";
 import { camelToSnakeCase } from "../emitter/src/utils.js";
 
-describe("typespec-python: utils", () => {
+describe("http-client-python: utils", () => {
   it("camelToSnakeCase", async () => {
     const cases = {
       StandardSSD: "standard_ssd",
