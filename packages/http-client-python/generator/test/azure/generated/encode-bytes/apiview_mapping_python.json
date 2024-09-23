@@ -1,0 +1,31 @@
+{
+    "CrossLanguagePackageId": "Encode.Bytes",
+    "CrossLanguageDefinitionId": {
+        "encode.bytes.models.Base64BytesProperty": "Encode.Bytes.Base64BytesProperty",
+        "encode.bytes.models.Base64urlArrayBytesProperty": "Encode.Bytes.Base64urlArrayBytesProperty",
+        "encode.bytes.models.Base64urlBytesProperty": "Encode.Bytes.Base64urlBytesProperty",
+        "encode.bytes.models.DefaultBytesProperty": "Encode.Bytes.DefaultBytesProperty",
+        "encode.bytes.BytesClient.query.default": "Encode.Bytes.Query.default",
+        "encode.bytes.BytesClient.query.base64": "Encode.Bytes.Query.base64",
+        "encode.bytes.BytesClient.query.base64_url": "Encode.Bytes.Query.base64url",
+        "encode.bytes.BytesClient.query.base64_url_array": "Encode.Bytes.Query.base64urlArray",
+        "encode.bytes.BytesClient.property.default": "Encode.Bytes.Property.default",
+        "encode.bytes.BytesClient.property.base64": "Encode.Bytes.Property.base64",
+        "encode.bytes.BytesClient.property.base64_url": "Encode.Bytes.Property.base64url",
+        "encode.bytes.BytesClient.property.base64_url_array": "Encode.Bytes.Property.base64urlArray",
+        "encode.bytes.BytesClient.header.default": "Encode.Bytes.Header.default",
+        "encode.bytes.BytesClient.header.base64": "Encode.Bytes.Header.base64",
+        "encode.bytes.BytesClient.header.base64_url": "Encode.Bytes.Header.base64url",
+        "encode.bytes.BytesClient.header.base64_url_array": "Encode.Bytes.Header.base64urlArray",
+        "encode.bytes.BytesClient.request_body.default": "Encode.Bytes.RequestBody.default",
+        "encode.bytes.BytesClient.request_body.octet_stream": "Encode.Bytes.RequestBody.octetStream",
+        "encode.bytes.BytesClient.request_body.custom_content_type": "Encode.Bytes.RequestBody.customContentType",
+        "encode.bytes.BytesClient.request_body.base64": "Encode.Bytes.RequestBody.base64",
+        "encode.bytes.BytesClient.request_body.base64_url": "Encode.Bytes.RequestBody.base64url",
+        "encode.bytes.BytesClient.response_body.default": "Encode.Bytes.ResponseBody.default",
+        "encode.bytes.BytesClient.response_body.octet_stream": "Encode.Bytes.ResponseBody.octetStream",
+        "encode.bytes.BytesClient.response_body.custom_content_type": "Encode.Bytes.ResponseBody.customContentType",
+        "encode.bytes.BytesClient.response_body.base64": "Encode.Bytes.ResponseBody.base64",
+        "encode.bytes.BytesClient.response_body.base64_url": "Encode.Bytes.ResponseBody.base64url"
+    }
+}

@@ -1,0 +1,12 @@
+{
+    "CrossLanguagePackageId": "Client.Structure.Service",
+    "CrossLanguageDefinitionId": {
+        "client.structure.multiclient.models.ClientType": "Client.Structure.Service.ClientType",
+        "client.structure.multiclient.ClientAClient.renamed_one": "Client.Structure.MultiClient.ClientA.renamedOne",
+        "client.structure.multiclient.ClientAClient.renamed_three": "Client.Structure.MultiClient.ClientA.renamedThree",
+        "client.structure.multiclient.ClientAClient.renamed_five": "Client.Structure.MultiClient.ClientA.renamedFive",
+        "client.structure.multiclient.ClientBClient.renamed_two": "Client.Structure.MultiClient.ClientB.renamedTwo",
+        "client.structure.multiclient.ClientBClient.renamed_four": "Client.Structure.MultiClient.ClientB.renamedFour",
+        "client.structure.multiclient.ClientBClient.renamed_six": "Client.Structure.MultiClient.ClientB.renamedSix"
+    }
+}

@@ -1,0 +1,6 @@
+{
+    "CrossLanguagePackageId": "Server.Endpoint.NotDefined",
+    "CrossLanguageDefinitionId": {
+        "server.endpoint.notdefined.NotDefinedClient.valid": "Server.Endpoint.NotDefined.valid"
+    }
+}

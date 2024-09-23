@@ -1,0 +1,9 @@
+{
+    "CrossLanguagePackageId": "Type.Model.Inheritance.Recursive",
+    "CrossLanguageDefinitionId": {
+        "typetest.model.recursive.models.Element": "Type.Model.Inheritance.Recursive.Element",
+        "typetest.model.recursive.models.Extension": "Type.Model.Inheritance.Recursive.Extension",
+        "typetest.model.recursive.RecursiveClient.put": "Type.Model.Inheritance.Recursive.put",
+        "typetest.model.recursive.RecursiveClient.get": "Type.Model.Inheritance.Recursive.get"
+    }
+}

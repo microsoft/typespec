@@ -1,0 +1,16 @@
+{
+    "CrossLanguagePackageId": "_Specs_.Azure.Core.Page",
+    "CrossLanguageDefinitionId": {
+        "specs.azure.core.page.models.FirstItem": "_Specs_.Azure.Core.Page.FirstItem",
+        "specs.azure.core.page.models.ListItemInputBody": "_Specs_.Azure.Core.Page.ListItemInputBody",
+        "specs.azure.core.page.models.SecondItem": "_Specs_.Azure.Core.Page.SecondItem",
+        "specs.azure.core.page.models.User": "_Specs_.Azure.Core.Page.User",
+        "specs.azure.core.page.models.UserOrder": "_Specs_.Azure.Core.Page.UserOrder",
+        "specs.azure.core.page.models.ListItemInputExtensibleEnum": "_Specs_.Azure.Core.Page.ListItemInputExtensibleEnum",
+        "specs.azure.core.page.PageClient.two_models_as_page_item.list_first_item": "_Specs_.Azure.Core.Page.TwoModelsAsPageItem.listFirstItem",
+        "specs.azure.core.page.PageClient.two_models_as_page_item.list_second_item": "_Specs_.Azure.Core.Page.TwoModelsAsPageItem.listSecondItem",
+        "specs.azure.core.page.PageClient.list_with_page": "_Specs_.Azure.Core.Page.listWithPage",
+        "specs.azure.core.page.PageClient.list_with_parameters": "_Specs_.Azure.Core.Page.listWithParameters",
+        "specs.azure.core.page.PageClient.list_with_custom_page_model": "_Specs_.Azure.Core.Page.listWithCustomPageModel"
+    }
+}

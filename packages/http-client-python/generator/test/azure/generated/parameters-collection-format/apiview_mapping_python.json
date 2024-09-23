@@ -1,0 +1,11 @@
+{
+    "CrossLanguagePackageId": "Parameters.CollectionFormat",
+    "CrossLanguageDefinitionId": {
+        "parameters.collectionformat.CollectionFormatClient.query.multi": "Parameters.CollectionFormat.Query.multi",
+        "parameters.collectionformat.CollectionFormatClient.query.ssv": "Parameters.CollectionFormat.Query.ssv",
+        "parameters.collectionformat.CollectionFormatClient.query.tsv": "Parameters.CollectionFormat.Query.tsv",
+        "parameters.collectionformat.CollectionFormatClient.query.pipes": "Parameters.CollectionFormat.Query.pipes",
+        "parameters.collectionformat.CollectionFormatClient.query.csv": "Parameters.CollectionFormat.Query.csv",
+        "parameters.collectionformat.CollectionFormatClient.header.csv": "Parameters.CollectionFormat.Header.csv"
+    }
+}

@@ -1,0 +1,16 @@
+{
+    "CrossLanguagePackageId": "Type.Model.Inheritance.NestedDiscriminator",
+    "CrossLanguageDefinitionId": {
+        "typetest.model.nesteddiscriminator.models.Fish": "Type.Model.Inheritance.NestedDiscriminator.Fish",
+        "typetest.model.nesteddiscriminator.models.Shark": "Type.Model.Inheritance.NestedDiscriminator.Shark",
+        "typetest.model.nesteddiscriminator.models.GoblinShark": "Type.Model.Inheritance.NestedDiscriminator.GoblinShark",
+        "typetest.model.nesteddiscriminator.models.Salmon": "Type.Model.Inheritance.NestedDiscriminator.Salmon",
+        "typetest.model.nesteddiscriminator.models.SawShark": "Type.Model.Inheritance.NestedDiscriminator.SawShark",
+        "typetest.model.nesteddiscriminator.NestedDiscriminatorClient.get_model": "Type.Model.Inheritance.NestedDiscriminator.getModel",
+        "typetest.model.nesteddiscriminator.NestedDiscriminatorClient.put_model": "Type.Model.Inheritance.NestedDiscriminator.putModel",
+        "typetest.model.nesteddiscriminator.NestedDiscriminatorClient.get_recursive_model": "Type.Model.Inheritance.NestedDiscriminator.getRecursiveModel",
+        "typetest.model.nesteddiscriminator.NestedDiscriminatorClient.put_recursive_model": "Type.Model.Inheritance.NestedDiscriminator.putRecursiveModel",
+        "typetest.model.nesteddiscriminator.NestedDiscriminatorClient.get_missing_discriminator": "Type.Model.Inheritance.NestedDiscriminator.getMissingDiscriminator",
+        "typetest.model.nesteddiscriminator.NestedDiscriminatorClient.get_wrong_discriminator": "Type.Model.Inheritance.NestedDiscriminator.getWrongDiscriminator"
+    }
+}

@@ -27,10 +27,10 @@ const commandToRun = argv.values.command || "ci";
 function getCommand(command: string, flavor: string, name?: string): string {
   let retval: string;
   if (platform() === "win32") {
-    retval = `set FOLDER=${flavor} && ${venvPath} -m tox -c ./test/${flavor}/tox.ini -e ${command}`;
+    retval = `set FOLDER=${flavor} && ${venvPath} -m tox -c ./test/generator/${flavor}/tox.ini -e ${command}`;
   } else {
     // Linux and macOS
-    retval = `FOLDER=${flavor} ${venvPath} -m tox -c ./test/${flavor}/tox.ini -e ${command}`;
+    retval = `FOLDER=${flavor} ${venvPath} -m tox -c ./test/generator/${flavor}/tox.ini -e ${command}`;
   }
   if (name) {
     return `${retval} -- -f ${name}`;

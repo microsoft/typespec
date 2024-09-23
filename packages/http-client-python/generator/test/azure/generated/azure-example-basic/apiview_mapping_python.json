@@ -1,0 +1,10 @@
+{
+    "CrossLanguagePackageId": "_Specs_.Azure.Example.Basic",
+    "CrossLanguageDefinitionId": {
+        "specs.azure.example.basic.models.ActionRequest": "_Specs_.Azure.Example.Basic.ActionRequest",
+        "specs.azure.example.basic.models.ActionResponse": "_Specs_.Azure.Example.Basic.ActionResponse",
+        "specs.azure.example.basic.models.Model": "_Specs_.Azure.Example.Basic.Model",
+        "specs.azure.example.basic.models.EnumEnum": "_Specs_.Azure.Example.Basic.Enum",
+        "specs.azure.example.basic.AzureExampleClient.basic_action": "Client.AzureExampleClient.basicAction"
+    }
+}

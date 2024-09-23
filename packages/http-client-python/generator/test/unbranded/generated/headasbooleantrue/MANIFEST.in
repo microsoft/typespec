@@ -1,0 +1,5 @@
+include *.md
+include LICENSE
+include headasbooleantrue/py.typed
+recursive-include tests *.py
+recursive-include samples *.py *.md

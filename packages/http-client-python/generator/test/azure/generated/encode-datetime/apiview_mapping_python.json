@@ -1,0 +1,29 @@
+{
+    "CrossLanguagePackageId": "Encode.Datetime",
+    "CrossLanguageDefinitionId": {
+        "encode.datetime.models.DefaultDatetimeProperty": "Encode.Datetime.DefaultDatetimeProperty",
+        "encode.datetime.models.Rfc3339DatetimeProperty": "Encode.Datetime.Rfc3339DatetimeProperty",
+        "encode.datetime.models.Rfc7231DatetimeProperty": "Encode.Datetime.Rfc7231DatetimeProperty",
+        "encode.datetime.models.UnixTimestampArrayDatetimeProperty": "Encode.Datetime.UnixTimestampArrayDatetimeProperty",
+        "encode.datetime.models.UnixTimestampDatetimeProperty": "Encode.Datetime.UnixTimestampDatetimeProperty",
+        "encode.datetime.DatetimeClient.query.default": "Encode.Datetime.Query.default",
+        "encode.datetime.DatetimeClient.query.rfc3339": "Encode.Datetime.Query.rfc3339",
+        "encode.datetime.DatetimeClient.query.rfc7231": "Encode.Datetime.Query.rfc7231",
+        "encode.datetime.DatetimeClient.query.unix_timestamp": "Encode.Datetime.Query.unixTimestamp",
+        "encode.datetime.DatetimeClient.query.unix_timestamp_array": "Encode.Datetime.Query.unixTimestampArray",
+        "encode.datetime.DatetimeClient.property.default": "Encode.Datetime.Property.default",
+        "encode.datetime.DatetimeClient.property.rfc3339": "Encode.Datetime.Property.rfc3339",
+        "encode.datetime.DatetimeClient.property.rfc7231": "Encode.Datetime.Property.rfc7231",
+        "encode.datetime.DatetimeClient.property.unix_timestamp": "Encode.Datetime.Property.unixTimestamp",
+        "encode.datetime.DatetimeClient.property.unix_timestamp_array": "Encode.Datetime.Property.unixTimestampArray",
+        "encode.datetime.DatetimeClient.header.default": "Encode.Datetime.Header.default",
+        "encode.datetime.DatetimeClient.header.rfc3339": "Encode.Datetime.Header.rfc3339",
+        "encode.datetime.DatetimeClient.header.rfc7231": "Encode.Datetime.Header.rfc7231",
+        "encode.datetime.DatetimeClient.header.unix_timestamp": "Encode.Datetime.Header.unixTimestamp",
+        "encode.datetime.DatetimeClient.header.unix_timestamp_array": "Encode.Datetime.Header.unixTimestampArray",
+        "encode.datetime.DatetimeClient.response_header.default": "Encode.Datetime.ResponseHeader.default",
+        "encode.datetime.DatetimeClient.response_header.rfc3339": "Encode.Datetime.ResponseHeader.rfc3339",
+        "encode.datetime.DatetimeClient.response_header.rfc7231": "Encode.Datetime.ResponseHeader.rfc7231",
+        "encode.datetime.DatetimeClient.response_header.unix_timestamp": "Encode.Datetime.ResponseHeader.unixTimestamp"
+    }
+}

@@ -1,0 +1,19 @@
+{
+    "CrossLanguagePackageId": "Type.Model.Inheritance.SingleDiscriminator",
+    "CrossLanguageDefinitionId": {
+        "typetest.model.singlediscriminator.models.Bird": "Type.Model.Inheritance.SingleDiscriminator.Bird",
+        "typetest.model.singlediscriminator.models.Dinosaur": "Type.Model.Inheritance.SingleDiscriminator.Dinosaur",
+        "typetest.model.singlediscriminator.models.Eagle": "Type.Model.Inheritance.SingleDiscriminator.Eagle",
+        "typetest.model.singlediscriminator.models.Goose": "Type.Model.Inheritance.SingleDiscriminator.Goose",
+        "typetest.model.singlediscriminator.models.SeaGull": "Type.Model.Inheritance.SingleDiscriminator.SeaGull",
+        "typetest.model.singlediscriminator.models.Sparrow": "Type.Model.Inheritance.SingleDiscriminator.Sparrow",
+        "typetest.model.singlediscriminator.models.TRex": "Type.Model.Inheritance.SingleDiscriminator.TRex",
+        "typetest.model.singlediscriminator.SingleDiscriminatorClient.get_model": "Type.Model.Inheritance.SingleDiscriminator.getModel",
+        "typetest.model.singlediscriminator.SingleDiscriminatorClient.put_model": "Type.Model.Inheritance.SingleDiscriminator.putModel",
+        "typetest.model.singlediscriminator.SingleDiscriminatorClient.get_recursive_model": "Type.Model.Inheritance.SingleDiscriminator.getRecursiveModel",
+        "typetest.model.singlediscriminator.SingleDiscriminatorClient.put_recursive_model": "Type.Model.Inheritance.SingleDiscriminator.putRecursiveModel",
+        "typetest.model.singlediscriminator.SingleDiscriminatorClient.get_missing_discriminator": "Type.Model.Inheritance.SingleDiscriminator.getMissingDiscriminator",
+        "typetest.model.singlediscriminator.SingleDiscriminatorClient.get_wrong_discriminator": "Type.Model.Inheritance.SingleDiscriminator.getWrongDiscriminator",
+        "typetest.model.singlediscriminator.SingleDiscriminatorClient.get_legacy_model": "Type.Model.Inheritance.SingleDiscriminator.getLegacyModel"
+    }
+}

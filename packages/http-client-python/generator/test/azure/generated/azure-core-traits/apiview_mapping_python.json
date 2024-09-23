@@ -1,0 +1,11 @@
+{
+    "CrossLanguagePackageId": "_Specs_.Azure.Core.Traits",
+    "CrossLanguageDefinitionId": {
+        "specs.azure.core.traits.models.User": "_Specs_.Azure.Core.Traits.User",
+        "specs.azure.core.traits.models.UserActionParam": "_Specs_.Azure.Core.Traits.UserActionParam",
+        "specs.azure.core.traits.models.UserActionResponse": "_Specs_.Azure.Core.Traits.UserActionResponse",
+        "specs.azure.core.traits.models.RepeatabilityResult": "Azure.Core.RepeatabilityResult",
+        "specs.azure.core.traits.TraitsClient.smoke_test": "_Specs_.Azure.Core.Traits.smokeTest",
+        "specs.azure.core.traits.TraitsClient.repeatable_action": "_Specs_.Azure.Core.Traits.repeatableAction"
+    }
+}

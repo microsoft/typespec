@@ -1,0 +1,9 @@
+{
+    "CrossLanguagePackageId": "SpecialHeaders.ConditionalRequest",
+    "CrossLanguageDefinitionId": {
+        "specialheaders.conditionalrequest.ConditionalRequestClient.post_if_match": "SpecialHeaders.ConditionalRequest.postIfMatch",
+        "specialheaders.conditionalrequest.ConditionalRequestClient.post_if_none_match": "SpecialHeaders.ConditionalRequest.postIfNoneMatch",
+        "specialheaders.conditionalrequest.ConditionalRequestClient.head_if_modified_since": "SpecialHeaders.ConditionalRequest.headIfModifiedSince",
+        "specialheaders.conditionalrequest.ConditionalRequestClient.post_if_unmodified_since": "SpecialHeaders.ConditionalRequest.postIfUnmodifiedSince"
+    }
+}

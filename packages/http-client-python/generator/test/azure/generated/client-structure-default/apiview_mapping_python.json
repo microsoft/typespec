@@ -1,0 +1,13 @@
+{
+    "CrossLanguagePackageId": "Client.Structure.Service",
+    "CrossLanguageDefinitionId": {
+        "client.structure.service.models.ClientType": "Client.Structure.Service.ClientType",
+        "client.structure.service.ServiceClient.qux.eight": "Client.Structure.Service.Qux.eight",
+        "client.structure.service.ServiceClient.foo.three": "Client.Structure.Service.Foo.three",
+        "client.structure.service.ServiceClient.foo.four": "Client.Structure.Service.Foo.four",
+        "client.structure.service.ServiceClient.bar.five": "Client.Structure.Service.Bar.five",
+        "client.structure.service.ServiceClient.bar.six": "Client.Structure.Service.Bar.six",
+        "client.structure.service.ServiceClient.one": "Client.Structure.Service.one",
+        "client.structure.service.ServiceClient.two": "Client.Structure.Service.two"
+    }
+}

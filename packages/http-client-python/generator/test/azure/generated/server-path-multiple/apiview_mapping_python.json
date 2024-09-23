@@ -1,0 +1,8 @@
+{
+    "CrossLanguagePackageId": "Server.Path.Multiple",
+    "CrossLanguageDefinitionId": {
+        "server.path.multiple.models.Versions": "Server.Path.Multiple.Versions",
+        "server.path.multiple.MultipleClient.no_operation_params": "Server.Path.Multiple.noOperationParams",
+        "server.path.multiple.MultipleClient.with_operation_path_param": "Server.Path.Multiple.withOperationPathParam"
+    }
+}

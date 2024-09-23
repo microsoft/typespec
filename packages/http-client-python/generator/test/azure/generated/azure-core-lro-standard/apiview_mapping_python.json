@@ -1,0 +1,10 @@
+{
+    "CrossLanguagePackageId": "_Specs_.Azure.Core.Lro.Standard",
+    "CrossLanguageDefinitionId": {
+        "specs.azure.core.lro.standard.models.ExportedUser": "_Specs_.Azure.Core.Lro.Standard.ExportedUser",
+        "specs.azure.core.lro.standard.models.User": "_Specs_.Azure.Core.Lro.Standard.User",
+        "specs.azure.core.lro.standard.StandardClient.begin_create_or_replace": "_Specs_.Azure.Core.Lro.Standard.createOrReplace",
+        "specs.azure.core.lro.standard.StandardClient.begin_delete": "_Specs_.Azure.Core.Lro.Standard.delete",
+        "specs.azure.core.lro.standard.StandardClient.begin_export": "_Specs_.Azure.Core.Lro.Standard.export"
+    }
+}

@@ -1,0 +1,8 @@
+{
+    "CrossLanguagePackageId": "Parameters.Basic",
+    "CrossLanguageDefinitionId": {
+        "parameters.basic.models.User": "Parameters.Basic.ExplicitBody.User",
+        "parameters.basic.BasicClient.explicit_body.simple": "Parameters.Basic.ExplicitBody.simple",
+        "parameters.basic.BasicClient.implicit_body.simple": "Parameters.Basic.ImplicitBody.simple"
+    }
+}

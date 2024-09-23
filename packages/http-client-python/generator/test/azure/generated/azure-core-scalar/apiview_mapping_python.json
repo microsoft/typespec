@@ -1,0 +1,11 @@
+{
+    "CrossLanguagePackageId": "_Specs_.Azure.Core.Scalar",
+    "CrossLanguageDefinitionId": {
+        "specs.azure.core.scalar.models.AzureLocationModel": "_Specs_.Azure.Core.Scalar.AzureLocationModel",
+        "specs.azure.core.scalar.ScalarClient.azure_location_scalar.get": "_Specs_.Azure.Core.Scalar.AzureLocationScalar.get",
+        "specs.azure.core.scalar.ScalarClient.azure_location_scalar.put": "_Specs_.Azure.Core.Scalar.AzureLocationScalar.put",
+        "specs.azure.core.scalar.ScalarClient.azure_location_scalar.post": "_Specs_.Azure.Core.Scalar.AzureLocationScalar.post",
+        "specs.azure.core.scalar.ScalarClient.azure_location_scalar.header": "_Specs_.Azure.Core.Scalar.AzureLocationScalar.header",
+        "specs.azure.core.scalar.ScalarClient.azure_location_scalar.query": "_Specs_.Azure.Core.Scalar.AzureLocationScalar.query"
+    }
+}

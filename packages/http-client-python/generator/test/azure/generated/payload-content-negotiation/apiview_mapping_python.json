@@ -1,0 +1,10 @@
+{
+    "CrossLanguagePackageId": "Payload.ContentNegotiation",
+    "CrossLanguageDefinitionId": {
+        "payload.contentnegotiation.models.PngImageAsJson": "Payload.ContentNegotiation.DifferentBody.PngImageAsJson",
+        "payload.contentnegotiation.ContentNegotiationClient.same_body.get_avatar_as_png": "Payload.ContentNegotiation.SameBody.getAvatarAsPng",
+        "payload.contentnegotiation.ContentNegotiationClient.same_body.get_avatar_as_jpeg": "Payload.ContentNegotiation.SameBody.getAvatarAsJpeg",
+        "payload.contentnegotiation.ContentNegotiationClient.different_body.get_avatar_as_png": "Payload.ContentNegotiation.DifferentBody.getAvatarAsPng",
+        "payload.contentnegotiation.ContentNegotiationClient.different_body.get_avatar_as_json": "Payload.ContentNegotiation.DifferentBody.getAvatarAsJson"
+    }
+}
