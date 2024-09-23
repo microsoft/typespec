@@ -1,10 +1,26 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import { SdkArrayExampleValue, SdkBooleanExampleValue, SdkContext, SdkDictionaryExampleValue, SdkExampleValue, SdkHttpOperationExample, SdkHttpParameter, SdkHttpParameterExampleValue, SdkHttpResponse, SdkHttpResponseExampleValue, SdkModelExampleValue, SdkNullExampleValue, SdkNumberExampleValue, SdkStringExampleValue, SdkUnionExampleValue, SdkUnknownExampleValue } from "@azure-tools/typespec-client-generator-core";
+import {
+  SdkArrayExampleValue,
+  SdkBooleanExampleValue,
+  SdkContext,
+  SdkDictionaryExampleValue,
+  SdkExampleValue,
+  SdkHttpOperationExample,
+  SdkHttpParameter,
+  SdkHttpParameterExampleValue,
+  SdkHttpResponse,
+  SdkHttpResponseExampleValue,
+  SdkModelExampleValue,
+  SdkNullExampleValue,
+  SdkNumberExampleValue,
+  SdkStringExampleValue,
+  SdkUnionExampleValue,
+  SdkUnknownExampleValue,
+} from "@azure-tools/typespec-client-generator-core";
 import { NetEmitterOptions } from "../options.js";
 import {
-  InputUnknownExampleValue,
   InputArrayExampleValue,
   InputBooleanExampleValue,
   InputDictionaryExampleValue,
@@ -16,6 +32,7 @@ import {
   InputParameterExampleValue,
   InputStringExampleValue,
   InputUnionExampleValue,
+  InputUnknownExampleValue,
   OperationResponseExample,
 } from "../type/input-examples.js";
 import { InputParameter } from "../type/input-parameter.js";
@@ -51,7 +68,9 @@ export function fromSdkHttpExamples(
     };
   }
 
-  function fromSdkParameterExample(parameter: SdkHttpParameterExampleValue): InputParameterExampleValue {
+  function fromSdkParameterExample(
+    parameter: SdkHttpParameterExampleValue,
+  ): InputParameterExampleValue {
     return {
       parameter: parameterMap.get(parameter.parameter)!,
       value: fromSdkExample(parameter.value),
@@ -68,7 +87,9 @@ export function fromSdkHttpExamples(
     return result;
   }
 
-  function fromSdkOperationResponse(response: SdkHttpResponseExampleValue): OperationResponseExample {
+  function fromSdkOperationResponse(
+    response: SdkHttpResponseExampleValue,
+  ): OperationResponseExample {
     return {
       response: responseMap.get(response.response)!,
       statusCode: response.statusCode,
@@ -139,7 +160,9 @@ export function fromSdkHttpExamples(
     };
   }
 
-  function fromSdkDictionaryExample(example: SdkDictionaryExampleValue): InputDictionaryExampleValue {
+  function fromSdkDictionaryExample(
+    example: SdkDictionaryExampleValue,
+  ): InputDictionaryExampleValue {
     return {
       kind: example.kind,
       type: fromSdkType(example.type, sdkContext, typeMap) as InputDictionaryType,
