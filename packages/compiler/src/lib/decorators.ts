@@ -1510,7 +1510,7 @@ export const $opExample: OpExampleDecorator = (
   context: DecoratorContext,
   target: Operation,
   _example: unknown,
-  options?: unknown, // TODO: change `options?: ExampleOptions` when tspd supports it
+  options?: ExampleOptions,
 ) => {
   const decorator = target.decorators.find(
     (d) => d.decorator === $opExample && d.node === context.decoratorTarget,
@@ -1567,7 +1567,13 @@ function checkExampleValid(
     diagnosticTarget,
   );
   if (!assignable) {
-    program.reportDiagnostics(diagnostics);
+    // We exclude missing-property diagnostic because some properties might not be present in certain protocol due to visibility.
+    const filtered = diagnostics.filter((x) => x.code !== "missing-property");
+    if (filtered.length === 0) {
+      return true;
+    } else {
+      program.reportDiagnostics(filtered);
+    }
   }
   return assignable;
 }

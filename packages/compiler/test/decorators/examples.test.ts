@@ -1,7 +1,7 @@
 import { ok } from "assert";
 import { describe, expect, it } from "vitest";
 import { Operation, getExamples, getOpExamples, serializeValueAsJson } from "../../src/index.js";
-import { expectDiagnostics } from "../../src/testing/expect.js";
+import { expectDiagnosticEmpty, expectDiagnostics } from "../../src/testing/expect.js";
 import { createTestRunner } from "../../src/testing/test-host.js";
 
 async function getExamplesFor(code: string) {
@@ -246,6 +246,25 @@ describe("@opExample", () => {
     expectDiagnostics(diagnostics, {
       code: "unassignable",
     });
+  });
+
+  it("allow missing properties", async () => {
+    const diagnostics = await diagnoseCode(`
+      model Pet { @visibility("create") password: string; name: string; }
+      @opExample( #{ returnType: #{ name: "Fluffy" } } )
+      op read(): Pet;
+    `);
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  it("allow missing properties (nested)", async () => {
+    const diagnostics = await diagnoseCode(`
+      model Pet { nested: { @visibility("create") password: string; name: string; } }
+      const pet = #{ name: "Fluffy" };
+      @opExample(#{ returnType: #{ nested: pet } })
+      op read(): Pet;
+    `);
+    expectDiagnosticEmpty(diagnostics);
   });
 });
 
