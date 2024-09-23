@@ -112,7 +112,7 @@ export function getType<TServiceOperation extends SdkServiceOperation>(
     case "string":
     case "url":
       return emitBuiltInType(type);
-    case "any":
+    case "unknown":
       return KnownTypes.any;
     case "nullable":
       return getType(context, type.type);
@@ -466,7 +466,7 @@ function emitUnion<TServiceOperation extends SdkServiceOperation>(
     description: type.isGeneratedName ? "" : `Type of ${type.name}`,
     internal: true,
     type: "combined",
-    types: type.values.map((x) => getType(context, x)),
+    types: type.variantTypes.map((x) => getType(context, x)),
     xmlMetadata: {},
   });
 }
