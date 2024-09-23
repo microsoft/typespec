@@ -154,12 +154,16 @@
     "generate-third-party-notices": "typespec-build-tool generate-third-party-notices",
     "package-vsix": "vsce package",
     "deploy": "vsce publish",
-    "open-in-browser": "vscode-test-web --extensionDevelopmentPath=. ."
+    "open-in-browser": "vscode-test-web --extensionDevelopmentPath=. .",
+    "test:e2e": "pnpm test:web",
+    "test:web": "vscode-test-web --extensionDevelopmentPath=. --extensionTestsPath=dist/test/suite.js ./test/data"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "~26.0.1",
+    "@rollup/plugin-json": "~6.1.0",
     "@rollup/plugin-node-resolve": "~15.2.3",
     "@rollup/plugin-typescript": "~11.1.6",
+    "@types/mocha": "^10.0.8",
     "@types/node": "~22.5.4",
     "@types/vscode": "~1.93.0",
     "@typespec/compiler": "workspace:~",
@@ -169,6 +173,7 @@
     "@vscode/test-web": "^0.0.60",
     "@vscode/vsce": "~3.1.0",
     "c8": "^10.1.2",
+    "mocha": "^10.7.3",
     "rimraf": "~6.0.1",
     "rollup": "~4.21.3",
     "typescript": "~5.6.2",
