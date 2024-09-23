@@ -58,7 +58,7 @@
     "@azure-tools/cadl-ranch": "0.14.5",
     "@azure-tools/cadl-ranch-specs": "0.37.2",
     "@azure-tools/typespec-azure-core": "0.46.0",
-    "@azure-tools/typespec-client-generator-core": "0.46.0",
+    "@azure-tools/typespec-client-generator-core": "0.46.1",
     "@microsoft/api-extractor": "^7.40.3",
     "@types/node": "~18.13.0",
     "@typespec/compiler": "0.60.0",
