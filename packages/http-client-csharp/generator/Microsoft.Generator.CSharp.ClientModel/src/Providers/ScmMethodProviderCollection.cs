@@ -104,7 +104,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             var convenienceMethod = new ScmMethodProvider(methodSignature, methodBody, EnclosingType);
-            convenienceMethod.XmlDocs!.Exceptions.Add(new(ClientModelPlugin.Instance.TypeFactory.ClientResponseExceptionType, "Service returned a non-success status code.", []));
+            convenienceMethod.XmlDocs!.Exceptions.Add(new(ClientModelPlugin.Instance.TypeFactory.ClientResponseExceptionType.FrameworkType, "Service returned a non-success status code.", []));
             return convenienceMethod;
         }
 
@@ -400,7 +400,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             var protocolMethod =
                 new ScmMethodProvider(methodSignature, methodBody, EnclosingType) { IsServiceCall = true };
-            protocolMethod.XmlDocs!.Exceptions.Add(new(ClientModelPlugin.Instance.TypeFactory.ClientResponseExceptionType, "Service returned a non-success status code.", []));
+            protocolMethod.XmlDocs!.Exceptions.Add(new(ClientModelPlugin.Instance.TypeFactory.ClientResponseExceptionType.FrameworkType, "Service returned a non-success status code.", []));
             List<XmlDocStatement> listItems =
             [
                 new XmlDocStatement("item", [], new XmlDocStatement("description", [$"This <see href=\"https://aka.ms/azsdk/net/protocol-methods\">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios."]))
@@ -423,7 +423,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             responseBodyType = response?.BodyType is null ? null : ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(response.BodyType);
             return response is null || responseBodyType is null
                 ? ClientModelPlugin.Instance.TypeFactory.ClientResponseType
-                : new CSharpType(ClientModelPlugin.Instance.TypeFactory.ClientResponseOfTType, responseBodyType);
+                : new CSharpType(ClientModelPlugin.Instance.TypeFactory.ClientResponseOfTType.FrameworkType, responseBodyType);
         }
     }
 }

@@ -116,7 +116,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 isAsync ? "ProcessHeadAsBoolMessageAsync" : "ProcessHeadAsBoolMessage",
                 null,
                 modifiers,
-                isAsync ? new CSharpType(typeof(ValueTask<>), new CSharpType(ClientModelPlugin.Instance.TypeFactory.ClientResponseOfTType, typeof(bool))) : new CSharpType(ClientModelPlugin.Instance.TypeFactory.ClientResponseOfTType, typeof(bool)),
+                isAsync ? new CSharpType(typeof(ValueTask<>), new CSharpType(ClientModelPlugin.Instance.TypeFactory.ClientResponseOfTType.FrameworkType, typeof(bool))) : new CSharpType(ClientModelPlugin.Instance.TypeFactory.ClientResponseOfTType.FrameworkType, typeof(bool)),
                 null,
                 [_pipelineParam, _messageParam, _requestOptionsParam]);
         }
