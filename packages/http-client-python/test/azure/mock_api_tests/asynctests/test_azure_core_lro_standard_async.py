@@ -19,10 +19,7 @@ async def test_lro_core_put(client, async_polling_method):
     user = User({"name": "madge", "role": "contributor"})
     result = await (
         await client.begin_create_or_replace(
-            name=user.name,
-            resource=user,
-            polling_interval=0,
-            polling=async_polling_method,
+            name=user.name, resource=user, polling_interval=0, polling=async_polling_method
         )
     ).result()
     assert result == user
@@ -37,11 +34,6 @@ async def test_lro_core_delete(client, async_polling_method):
 async def test_lro_core_export(client, async_polling_method):
     export_user = ExportedUser({"name": "madge", "resourceUri": "/users/madge"})
     result = await (
-        await client.begin_export(
-            name="madge",
-            format="json",
-            polling_interval=0,
-            polling=async_polling_method,
-        )
+        await client.begin_export(name="madge", format="json", polling_interval=0, polling=async_polling_method)
     ).result()
     assert result == export_user

@@ -101,7 +101,7 @@ function addPagingInformation(
   method: SdkPagingServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
   operationGroupName: string,
 ) {
-  for (const response of method.operation.responses.values()) {
+  for (const response of method.operation.responses) {
     if (response.type) {
       getType(context, response.type)["usage"] = UsageFlags.None;
     }
@@ -164,11 +164,11 @@ function emitHttpOperation(
 ): Record<string, any> {
   const responses: Record<string, any>[] = [];
   const exceptions: Record<string, any>[] = [];
-  for (const [statusCodes, response] of operation.responses) {
-    responses.push(emitHttpResponse(context, statusCodes, response, method)!);
+  for (const response of operation.responses) {
+    responses.push(emitHttpResponse(context, response.statusCodes, response, method)!);
   }
-  for (const [statusCodes, exception] of operation.exceptions) {
-    exceptions.push(emitHttpResponse(context, statusCodes, exception, undefined, true)!);
+  for (const exception of operation.exceptions) {
+    exceptions.push(emitHttpResponse(context, exception.statusCodes, exception, undefined, true)!);
   }
   const result = {
     url: operation.path,
