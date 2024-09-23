@@ -254,8 +254,8 @@ importers:
   packages/compiler:
     dependencies:
       '@alloy-js/core':
-        specifier: 0.1.0
-        version: 0.1.0
+        specifier: 0.2.0
+        version: 0.2.0
       '@babel/code-frame':
         specifier: ~7.24.7
         version: 7.24.7
@@ -360,11 +360,11 @@ importers:
   packages/efnext-cli-sketch:
     dependencies:
       '@alloy-js/core':
-        specifier: 0.1.0
-        version: 0.1.0
+        specifier: 0.2.0
+        version: 0.2.0
       '@alloy-js/typescript':
-        specifier: 0.1.0
-        version: 0.1.0
+        specifier: 0.2.0
+        version: 0.2.0
       '@typespec/emitter-framework':
         specifier: workspace:~
         version: link:../emitter-framework
@@ -394,8 +394,8 @@ importers:
         version: 2.4.5
     devDependencies:
       '@alloy-js/babel-preset':
-        specifier: 0.1.0
-        version: 0.1.0(@babel/core@7.25.2)
+        specifier: 0.1.1
+        version: 0.1.1(@babel/core@7.25.2)
       '@babel/cli':
         specifier: ^7.24.8
         version: 7.24.8(@babel/core@7.25.2)
@@ -457,11 +457,11 @@ importers:
   packages/emitter-framework:
     dependencies:
       '@alloy-js/core':
-        specifier: 0.1.0
-        version: 0.1.0
+        specifier: 0.2.0
+        version: 0.2.0
       '@alloy-js/typescript':
-        specifier: 0.1.0
-        version: 0.1.0
+        specifier: 0.2.0
+        version: 0.2.0
       '@typespec/compiler':
         specifier: workspace:~
         version: link:../compiler
@@ -473,8 +473,8 @@ importers:
         version: link:../rest
     devDependencies:
       '@alloy-js/babel-preset':
-        specifier: 0.1.0
-        version: 0.1.0(@babel/core@7.25.2)
+        specifier: 0.1.1
+        version: 0.1.1(@babel/core@7.25.2)
       '@babel/cli':
         specifier: ^7.24.8
         version: 7.24.8(@babel/core@7.25.2)
@@ -518,11 +518,11 @@ importers:
   packages/emitter-sample:
     dependencies:
       '@alloy-js/core':
-        specifier: 0.1.0
-        version: 0.1.0
+        specifier: 0.2.0
+        version: 0.2.0
       '@alloy-js/typescript':
-        specifier: 0.1.0
-        version: 0.1.0
+        specifier: 0.2.0
+        version: 0.2.0
       '@typespec/compiler':
         specifier: workspace:*
         version: link:../compiler
@@ -531,8 +531,8 @@ importers:
         version: link:../emitter-framework
     devDependencies:
       '@alloy-js/babel-preset':
-        specifier: 0.1.0
-        version: 0.1.0(@babel/core@7.25.2)
+        specifier: 0.1.1
+        version: 0.1.1(@babel/core@7.25.2)
       '@babel/cli':
         specifier: ^7.24.8
         version: 7.24.8(@babel/core@7.25.2)
@@ -707,11 +707,11 @@ importers:
   packages/http-client-javascript:
     dependencies:
       '@alloy-js/core':
-        specifier: 0.1.0
-        version: 0.1.0
+        specifier: 0.2.0
+        version: 0.2.0
       '@alloy-js/typescript':
-        specifier: 0.1.0
-        version: 0.1.0
+        specifier: 0.2.0
+        version: 0.2.0
       '@typespec/compiler':
         specifier: workspace:*
         version: link:../compiler
@@ -735,8 +735,8 @@ importers:
         version: link:../rest
     devDependencies:
       '@alloy-js/babel-preset':
-        specifier: 0.1.0
-        version: 0.1.0(@babel/core@7.25.2)
+        specifier: 0.1.1
+        version: 0.1.1(@babel/core@7.25.2)
       '@azure-tools/cadl-ranch-expect':
         specifier: 0.15.4
         version: 0.15.4(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)(@typespec/versioning@0.60.0(@typespec/compiler@packages+compiler))
@@ -2229,18 +2229,18 @@ packages:
     peerDependencies:
       '@babel/core': ^7.24.7
 
-  '@alloy-js/babel-preset@0.1.0':
-    resolution: {integrity: sha512-UYNnygahzYWeYFWb+G0LTaVDctgUBiXY+VeQGV44msFLNBZdAENjaRgK6rioXZUKFnxE1+KmCmK5PGMMEyjNwA==}
+  '@alloy-js/babel-preset@0.1.1':
+    resolution: {integrity: sha512-sX3nb9+qciBXTaafIYYa/aW3FFZPcSIWm7VFwz134nFJu79jMS+JgsBgcL+md6zH4Vf9WPE/8V1E4LX9WdxS1A==}
 
-  '@alloy-js/core@0.1.0':
-    resolution: {integrity: sha512-MyAuhKHI9vibCtZ2/1cEojLtg3+kwXvCkMmnjxOQ9xNbdpLvupl3Ae8LXARFBLqZAWX1JBXzMj/GatxpsQ60OA==}
+  '@alloy-js/core@0.2.0':
+    resolution: {integrity: sha512-ztzgiqfosK4OYWJBTMTTgMimSfaP5MfZZ2Y76L9dIZ22FpjxWXEEkrRugkk23VSIEPLOx/EI9WQQmOQsU3JWQw==}
 
   '@alloy-js/prettier-plugin-alloy@0.1.0':
     resolution: {integrity: sha512-mFfag8sQm5gPJMoGvJNc1fx66Z3X3nxCeoiitBeFnd5nkBMsMnvVw6LZSrVyybt2qTzY+G/9Qvz3ULkW7RB15Q==}
     engines: {node: '>=18.0.0'}
 
-  '@alloy-js/typescript@0.1.0':
-    resolution: {integrity: sha512-sAT+CqyVgmB47lpjAWVWdIU+z9Nf0DeXmS5Aa8VvnvLXG7YUQxrFpz6GSqy7MT9VOCqT6wJmOrvs3k861Hy3NQ==}
+  '@alloy-js/typescript@0.2.0':
+    resolution: {integrity: sha512-BWxm9ksFO/Gx//aYG/SpnEhedJOm4uaLMm85+20RvxtKvJCl0Lr53l40+qOjs+ERhDnlVaD1DhHKC8xrh0w4mQ==}
 
   '@ampproject/remapping@2.3.0':
     resolution: {integrity: sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw==}
@@ -13028,16 +13028,16 @@ snapshots:
       '@babel/plugin-syntax-jsx': 7.24.7(@babel/core@7.25.2)
       '@babel/types': 7.25.4
 
-  '@alloy-js/babel-preset@0.1.0(@babel/core@7.25.2)':
+  '@alloy-js/babel-preset@0.1.1(@babel/core@7.25.2)':
     dependencies:
       '@alloy-js/babel-plugin': 0.1.0(@babel/core@7.25.2)
       '@alloy-js/babel-plugin-jsx-dom-expressions': 0.37.21(@babel/core@7.25.2)
     transitivePeerDependencies:
       - '@babel/core'
 
-  '@alloy-js/core@0.1.0':
+  '@alloy-js/core@0.2.0':
     dependencies:
-      '@alloy-js/babel-preset': 0.1.0(@babel/core@7.25.2)
+      '@alloy-js/babel-preset': 0.1.1(@babel/core@7.25.2)
       '@babel/core': 7.25.2
       '@babel/preset-typescript': 7.24.7(@babel/core@7.25.2)
       '@vue/reactivity': 3.4.38
@@ -13047,9 +13047,9 @@ snapshots:
 
   '@alloy-js/prettier-plugin-alloy@0.1.0': {}
 
-  '@alloy-js/typescript@0.1.0':
+  '@alloy-js/typescript@0.2.0':
     dependencies:
-      '@alloy-js/core': 0.1.0
+      '@alloy-js/core': 0.2.0
       change-case: 5.4.4
       pathe: 1.1.2
     transitivePeerDependencies:

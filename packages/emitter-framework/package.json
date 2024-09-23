@@ -36,14 +36,14 @@
     "@typespec/http": "workspace:~"
   },
   "dependencies": {
-    "@alloy-js/core": "0.1.0",
-    "@alloy-js/typescript": "0.1.0"
+    "@alloy-js/core": "0.2.0",
+    "@alloy-js/typescript": "0.2.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.24.8",
     "@babel/core": "^7.24.9",
     "@rollup/plugin-babel": "^6.0.4",
-    "@alloy-js/babel-preset": "0.1.0",
+    "@alloy-js/babel-preset": "0.1.1",
     "concurrently": "^8.2.2",
     "typescript": "^5.5.3",
     "vitest": "^2.0.3",
