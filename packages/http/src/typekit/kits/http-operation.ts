@@ -1,5 +1,5 @@
 import { ignoreDiagnostics, Operation, StringLiteral, Type, VoidType } from "@typespec/compiler";
-import { defineKit } from "@typespec/compiler/typekit";
+import { $, defineKit } from "@typespec/compiler/typekit";
 import { getHttpOperation } from "../../operations.js";
 import { HttpOperation, HttpOperationResponseContent, HttpStatusCodesEntry } from "../../types.js";
 
@@ -69,14 +69,14 @@ defineKit<HttpOperationKit>({
       if (responses.length > 1) {
         const res = [...new Set(responses.map((r) => r.responseContent.body?.type))];
         httpReturnType = this.union.create({
-          variants: res.map((t) =>
-            this.unionVariant.create({
-              type: t ?? voidType,
-            })
-          ),
+          variants: res.map((t) => {
+            return this.unionVariant.create({
+              type: getEffectiveType(t),
+            });
+          }),
         });
       } else {
-        httpReturnType = responses[0].responseContent.body?.type ?? voidType;
+        httpReturnType = getEffectiveType(responses[0].responseContent.body?.type);
       }
 
       return httpReturnType;
@@ -87,7 +87,7 @@ defineKit<HttpOperationKit>({
       for (const response of httpOperation.responses) {
         for (const responseContent of response.responses) {
           const contentTypeProperty = responseContent.properties.find(
-            (property) => property.kind === "contentType"
+            (property) => property.kind === "contentType",
           );
 
           let contentType: string | undefined;
@@ -106,3 +106,14 @@ defineKit<HttpOperationKit>({
     },
   },
 });
+
+function getEffectiveType(type?: Type): Type {
+  if (type === undefined) {
+    return { kind: "Intrinsic", name: "void" } as VoidType;
+  }
+  if ($.model.is(type)) {
+    return $.model.getEffectiveModel(type);
+  }
+
+  return type;
+}

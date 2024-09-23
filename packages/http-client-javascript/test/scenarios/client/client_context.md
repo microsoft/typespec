@@ -1,4 +1,4 @@
-# Should generate a basic client context factory
+# Should generate a client with complex structure
 
 ## TypeSpec
 
@@ -17,7 +17,7 @@ Should generate a factory function named after the namespace `createDemoServiceC
 ```ts src/api/clientContext.ts function createDemoServiceContext
 export function createDemoServiceContext(
   endpoint: string,
-  options?: DemoServiceOptions
+  options?: DemoServiceOptions,
 ): DemoServiceContext {
   return {
     endpoint,

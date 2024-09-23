@@ -1,3 +1,4 @@
+export * from "./class-method.js";
 export * from "./function-declaration.js";
 export * from "./interface-declaration.js";
 export * from "./interface-member.js";

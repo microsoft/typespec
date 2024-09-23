@@ -18,6 +18,26 @@ op foo(): Widget;
 
 ## TypeScript
 
+### Client
+
+It generates a class called TestClient with a single operation
+
+```ts src/client.ts
+import { Widget } from "./models/models.js";
+import { TestContext, TestOptions, createTestContext } from "./api/clientContext.js";
+import { foo } from "./api/test/operations.js";
+
+export class TestClient {
+  #context: TestContext;
+  constructor(endpoint: string, options?: TestOptions) {
+    this.context = createTestContext(endpoint, options);
+  }
+  foo(): Widget {
+    return foo(this.client);
+  }
+}
+```
+
 ### Model
 
 It generates a model for the Widget return type

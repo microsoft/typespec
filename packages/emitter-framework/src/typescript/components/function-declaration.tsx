@@ -1,7 +1,7 @@
-import { Children, refkey as getRefkey } from "@alloy-js/core";
+import { refkey as getRefkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Model, Operation } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/typekit";
+import { buildParameterDescriptors, getReturnType } from "../utils/operation.js";
 import { TypeExpression } from "./type-expression.js";
 
 export interface FunctionDeclarationPropsWithType
@@ -31,8 +31,10 @@ export function FunctionDeclaration(props: FunctionDeclarationProps) {
     name = `${name}_`;
   }
 
-  const returnType = props.returnType ?? getReturnType(props.type);
-
+  const returnType = props.returnType ?? <TypeExpression type={getReturnType(props.type)} />;
+  const allParameters = buildParameterDescriptors(props.type.parameters, {
+    params: props.parameters,
+  });
   return (
     <ts.FunctionDeclaration
       refkey={refkey}
@@ -43,7 +45,7 @@ export function FunctionDeclaration(props: FunctionDeclarationProps) {
       kind={props.kind}
       returnType={returnType}
     >
-      {buildParameterDescriptors(props.type.parameters, { params: props.parameters })}
+      <ts.FunctionDeclaration.Parameters parameters={allParameters} />
       {props.children}
     </ts.FunctionDeclaration>
   );
@@ -69,57 +71,16 @@ FunctionDeclaration.Parameters = function Parameters(props: FunctionParametersPr
   );
 };
 
-interface BuildParameterDescriptorsOptions {
-  params?: Record<string, Children | ts.ParameterDescriptor>;
-  location?: "start" | "end";
-}
-function buildParameterDescriptors(type: Model, options: BuildParameterDescriptorsOptions = {}) {
-  const namePolicy = ts.useTSNamePolicy();
-
-  const operationParams: Record<string, Children | ts.ParameterDescriptor> = {};
-
-  for (const [key, prop] of type.properties) {
-    const paramName = namePolicy.getName(key, "parameter");
-    const paramDescriptor: ts.ParameterDescriptor = {
-      refkey: getRefkey(prop),
-      optional: prop.optional,
-      type: <TypeExpression type={prop.type} />,
-    };
-    operationParams[paramName] = paramDescriptor;
-  }
-
-  // Merge parameters based on location
-  const allParams =
-    options.location === "end"
-      ? { ...operationParams, ...options.params }
-      : { ...options.params, ...operationParams };
-
-  return <ts.FunctionDeclaration.Parameters parameters={allParams} />;
-}
-
 function isTypedFunctionDeclarationProps(
-  props: FunctionDeclarationProps
+  props: FunctionDeclarationProps,
 ): props is FunctionDeclarationPropsWithType {
   return "type" in props;
 }
 
 function isTypedFunctionParametersProps(
-  props: FunctionParametersProps
+  props: FunctionParametersProps,
 ): props is TypedFunctionParametersProps {
   return "type" in props;
-}
-
-function getReturnType(
-  type: Operation,
-  options: { skipErrorFiltering: boolean } = { skipErrorFiltering: false }
-) {
-  let returnType = type.returnType;
-
-  if (!options.skipErrorFiltering && type.returnType.kind === "Union") {
-    returnType = $.union.filter(type.returnType, (variant) => !$.type.isError(variant.type));
-  }
-
-  return <TypeExpression type={returnType} />;
 }
 
 const reservedFunctionKeywords = new Set([

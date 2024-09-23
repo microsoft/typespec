@@ -3,6 +3,7 @@ import * as ts from "@alloy-js/typescript";
 import { Service } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import { getServers } from "@typespec/http";
+import { getClientParams } from "../utils/client.js";
 
 export interface ClientContextProps {
   service?: Service;
@@ -62,28 +63,20 @@ function ClientContextFactoryDeclaration(props: ClientContextFactoryDeclaration)
   const namePolicy = ts.useTSNamePolicy();
   const factoryFunctionName = namePolicy.getName(
     `create${getServiceName(props.service)}Context`,
-    "function"
+    "function",
   );
 
   const servers = getServers($.program, props.service.type);
   const server = servers?.[0];
 
-  const clientParameters: Record<string, ts.ParameterDescriptor> = {};
+  const clientParameters = getClientParams(props.service.type);
   const clientVarAssignments: Map<string, Children> = new Map();
 
   // If there is no URL defined we make it a required parameter
-  if (!server?.url) {
-    clientParameters["endpoint"] = { type: "string", refkey: refkey("endpoint") };
-  } else {
+  if (server?.url) {
     // Apply the override in the factory function
     clientVarAssignments.set("endpoint", code`options?.endpoint ?? "${server.url}"`);
   }
-
-  clientParameters["options"] = {
-    optional: true,
-    type: <ts.Reference refkey={ClientOptionsRefkey} />,
-    refkey: refkey("client.options"),
-  };
 
   return <ts.FunctionDeclaration
   export

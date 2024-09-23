@@ -15,7 +15,7 @@ async function assertGetEmittedFile(
   testLibrary: TypeSpecTestLibrary,
   emitterOutputDir: string,
   file: string,
-  code: string
+  code: string,
 ) {
   const [emittedFiles] = await emitWithDiagnostics(testLibrary, emitterOutputDir, code);
   const sourceFile = emittedFiles.find((x) => x.path === file);
@@ -34,7 +34,7 @@ function getCodeBlockTypes(
   testLibrary: TypeSpecTestLibrary,
   languageConfiguration: LanguageConfiguration,
   emitterOutputDir: string,
-  snippetExtractor: SnippetExtractor
+  snippetExtractor: SnippetExtractor,
 ): Record<string, EmitterFunction> {
   const languageTags = languageConfiguration.codeBlockTypes.join("|");
   return {
@@ -73,6 +73,18 @@ function getCodeBlockTypes(
       return snippet;
     },
 
+    // Snapshot of a particular class named {name} in the models file
+    [`(${languageTags}) {file} class {name}`]: async (code, { file, name }) => {
+      const sourceFile = await assertGetEmittedFile(testLibrary, emitterOutputDir, file, code);
+      const snippet = snippetExtractor.getClass(sourceFile.content, name);
+
+      if (!snippet) {
+        throw new Error(`Class ${name} not found in ${file}`);
+      }
+
+      return snippet;
+    },
+
     // Snapshot of the entire file
     [`(${languageTags}) {file}`]: async (code, { file }) => {
       const sourceFile = await assertGetEmittedFile(testLibrary, emitterOutputDir, file, code);
@@ -86,7 +98,7 @@ export function executeScenarios(
   languageConfiguration: LanguageConfiguration,
   scenariosLocation: string,
   emitterOutputDir: string,
-  snippetExtractor: SnippetExtractor
+  snippetExtractor: SnippetExtractor,
 ) {
   describe.only("Scenarios", function () {
     // First, scan all the scenarios to see if any are marked with `only:`.
@@ -100,7 +112,7 @@ export function executeScenarios(
         languageConfiguration,
         emitterOutputDir,
         snippetExtractor,
-        false
+        false,
       );
     } else {
       describeScenarios(
@@ -109,7 +121,7 @@ export function executeScenarios(
         languageConfiguration,
         emitterOutputDir,
         snippetExtractor,
-        true
+        true,
       );
     }
   });
@@ -121,7 +133,7 @@ function describeScenarios(
   languageConfiguration: LanguageConfiguration,
   emitterOutputDir: string,
   snippetExtractor: SnippetExtractor,
-  runAll = false
+  runAll = false,
 ) {
   const children = readdirSync(location);
   for (const child of children) {
@@ -135,7 +147,7 @@ function describeScenarios(
           languageConfiguration,
           emitterOutputDir,
           snippetExtractor,
-          runAll
+          runAll,
         );
       });
     } else {
@@ -145,7 +157,7 @@ function describeScenarios(
         languageConfiguration,
         emitterOutputDir,
         snippetExtractor,
-        runAll
+        runAll,
       );
     }
   }
@@ -157,7 +169,7 @@ function describeScenario(
   languageConfiguration: LanguageConfiguration,
   emitterOutputDir: string,
   snippetExtractor: SnippetExtractor,
-  runAll: boolean
+  runAll: boolean,
 ) {
   const content = readFileSync(scenarioFile, { encoding: "utf-8" });
 
@@ -182,7 +194,7 @@ function describeScenario(
           .map((x) => x.content)
           .join("\n");
         const testCodeBlocks = codeBlocks.filter(
-          (x) => x.heading !== "tsp" && x.heading !== "typespec"
+          (x) => x.heading !== "tsp" && x.heading !== "typespec",
         );
 
         for (const codeBlock of testCodeBlocks) {
@@ -191,12 +203,12 @@ function describeScenario(
             testLibrary,
             languageConfiguration,
             emitterOutputDir,
-            snippetExtractor
+            snippetExtractor,
           );
           for (const [template, fn] of Object.entries(outputCodeBlockTypes)) {
             // This regex creates a named capture group for each template argument
             const templateRegex = new RegExp(
-              "^" + template.replace(/\{(\w+)\}/g, "(?<$1>[^\\s]+)") + "$"
+              "^" + template.replace(/\{(\w+)\}/g, "(?<$1>[^\\s]+)") + "$",
             );
 
             const match = codeBlock.heading.match(templateRegex);
@@ -211,7 +223,7 @@ function describeScenario(
                   content = updateCodeBlock(
                     content,
                     codeBlock.heading,
-                    (await languageConfiguration.format(result)).trim()
+                    (await languageConfiguration.format(result)).trim(),
                   );
                 } else {
                   const expected = await languageConfiguration.format(codeBlock.content);

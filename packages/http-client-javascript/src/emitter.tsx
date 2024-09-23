@@ -10,10 +10,12 @@ import {
   navigateType,
   Operation,
   Scalar,
+  Service,
   Type,
   Union,
 } from "@typespec/compiler";
 import { ClientContext } from "./components/client-context.js";
+import { ClientFile } from "./components/client.jsx";
 import { uriTemplateLib } from "./components/external-packages/uri-template.js";
 import { ModelsFile } from "./components/models-file.js";
 import { Operations } from "./components/operations-file.js";
@@ -26,11 +28,12 @@ import {
 export async function $onEmit(context: EmitContext) {
   const visited = operationWalker(context);
   const tsNamePolicy = ts.createTSNamePolicy();
-  const service = listServices(context.program)[0];
+  const service: Service | undefined = listServices(context.program)[0];
   return <ay.Output namePolicy={tsNamePolicy} externals={[uriTemplateLib]}>
       <ts.PackageDirectory name="test-package" version="1.0.0" path=".">
         <ay.SourceDirectory path="src">
           <ts.BarrelFile export="." />
+          <ClientFile service={service}  />
           <ay.SourceDirectory path="models">
             <ts.BarrelFile />
             <ModelsFile types={visited.dataTypes} />
@@ -110,11 +113,11 @@ function operationWalker(context: EmitContext) {
               trackType(types, v.type);
             },
           },
-          { includeTemplateDeclaration: false }
+          { includeTemplateDeclaration: false },
         );
       },
     },
-    { includeTemplateDeclaration: false }
+    { includeTemplateDeclaration: false },
   );
 
   const dataTypes = Array.from(types);

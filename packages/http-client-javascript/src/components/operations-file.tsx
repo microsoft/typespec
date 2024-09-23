@@ -1,8 +1,9 @@
 import { Children, mapJoin, refkey, SourceDirectory } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { mutateSubgraph, Mutator, MutatorFlow, Operation, Service } from "@typespec/compiler";
+import { Operation, Service } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import { FunctionDeclaration, TypeExpression } from "@typespec/emitter-framework/typescript";
+import { prepareOperation } from "../utils/operations.js";
 import { ClientContextRefkey } from "./client-context.jsx";
 import { HttpRequest } from "./http-request.js";
 import { HttpResponse } from "./http-response.jsx";
@@ -17,16 +18,16 @@ export function Operations(props: OperationsProps) {
   return mapJoin(
     props.operations,
     (key, operations) => {
-      const containerParts = key.split("/") ?? [];
+      const containerParts = (key.split("/") ?? []).filter((p) => p !== props.service?.type.name);
       const subPathExport = ["api", ...containerParts]
         .map((p) => namePolicy.getName(p, "interface-member"))
         .join("/");
       return getSourceDirectory(
         containerParts,
-        <><ts.BarrelFile export={subPathExport} /><OperationsFile path="operations.ts" operations={operations} service={props.service} /></>
+        <><ts.BarrelFile export={subPathExport} /><OperationsFile path="operations.ts" operations={operations} service={props.service} /></>,
       );
     },
-    { joiner: "\n\n" }
+    { joiner: "\n\n" },
   );
 }
 
@@ -59,12 +60,12 @@ export function OperationsFile(props: OperationsFileProps) {
 
   return <ts.SourceFile path={props.path}>
       {mapJoin(props.operations, (o) => {
-        const mutatedOperation = mutateSubgraph($.program, [httpParamsMutator], o).type as Operation;
-        const httpReturnType = $.httpOperation.getReturnType(mutatedOperation);
+        const preparedOperation = prepareOperation(o);
+        const httpReturnType = $.httpOperation.getReturnType(preparedOperation);
         const responseRefkey = refkey();
         const signatureParams = {  "client": <ts.Reference refkey={ClientContextRefkey}/>};
         return (
-          <FunctionDeclaration export async type={mutatedOperation} returnType={httpReturnType ?<TypeExpression type={httpReturnType} /> : "void"} parameters={signatureParams}>
+          <FunctionDeclaration export async type={preparedOperation} returnType={httpReturnType ?<TypeExpression type={httpReturnType} /> : "void"} parameters={signatureParams}>
             <HttpRequest operation={o} responseRefkey={responseRefkey} />
             <HttpResponse operation={o} responseRefkey={responseRefkey} />
           </FunctionDeclaration>
@@ -72,50 +73,3 @@ export function OperationsFile(props: OperationsFileProps) {
       }, {joiner: "\n\n"})}
     </ts.SourceFile>;
 }
-
-/**
- * Mutates the operation so that the parameters model is split into required and optional parameters.
- */
-const httpParamsMutator: Mutator = {
-  name: "Http parameters",
-  Operation: {
-    filter() {
-      return MutatorFlow.DontRecurse;
-    },
-    mutate(o, clone, _program, realm) {
-      const httpOperation = $.httpOperation.get(o);
-      const params = $.httpRequest.getParameters(httpOperation, [
-        "query",
-        "header",
-        "path",
-        "body",
-        "contentType",
-      ]);
-
-      if (!params) {
-        return;
-      }
-
-      clone.parameters = params;
-
-      const optionals = [...clone.parameters.properties.values()].filter((p) => p.optional);
-
-      if (optionals.length === 0) {
-        return;
-      }
-
-      const optionsBag = realm.typeFactory.model("", optionals);
-      const optionsProp = realm.typeFactory.modelProperty("options", optionsBag, {
-        optional: true,
-      });
-
-      for (const [key, prop] of clone.parameters.properties) {
-        if (prop.optional) {
-          clone.parameters.properties.delete(key);
-        }
-      }
-
-      clone.parameters.properties.set("options", optionsProp);
-    },
-  },
-};
