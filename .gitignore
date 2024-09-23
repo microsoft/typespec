@@ -212,7 +212,7 @@ BenchmarkDotnet.Artifacts/
 !packages/http-client-java/package-lock.json
 
 # python emitter
-packages/http-client-python/test/**/generated/
-packages/http-client-python/test/**/cadl-ranch-coverage.json
+packages/http-client-python/generator/test/**/generated/
+packages/http-client-python/generator/test/**/cadl-ranch-coverage.json
 !packages/http-client-python/package-lock.json
 
