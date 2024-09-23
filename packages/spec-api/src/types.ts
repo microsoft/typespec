@@ -45,9 +45,21 @@ export type MockApiForHandler<Handler extends MockRequestHandler> =
   Handler extends KeyedMockRequestHandler<infer K> ? KeyedMockApi<K> : MockApi;
 
 export interface MockApi {
-  method: HttpMethod;
+  method?: HttpMethod;
   uri: string;
-  handler: MockRequestHandler;
+  handler?: MockRequestHandler;
+  mockMethods?: MockMethod[];
+}
+
+export interface MockMethod {
+  method: HttpMethod;
+  request: ServiceRequest;
+  response: any;
+}
+
+export interface ServiceRequest {
+  body?: any;
+  config?: any | undefined;
 }
 
 export const Fail = Symbol.for("Fail");

@@ -26,6 +26,7 @@ export {
   MockApi,
   MockApiForHandler,
   MockRequestHandler,
+  MockMethod,
   MockResponse,
   MockResponseBody,
   PassByKeyScenario,

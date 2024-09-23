@@ -40,8 +40,9 @@ export class MockApiApp {
 
   private registerScenario(name: string, scenario: ScenarioMockApi) {
     for (const endpoint of scenario.apis) {
+      if (endpoint.method === null || endpoint.method === undefined) continue;
       this.router.route(endpoint.uri)[endpoint.method]((req: RequestExt, res: Response) => {
-        processRequest(this.coverageTracker, name, endpoint.uri, req, res, endpoint.handler).catch(
+        processRequest(this.coverageTracker, name, endpoint.uri, req, res, endpoint.handler!).catch(
           (e) => {
             logger.error("Unexpected request error", e);
             res.status(500).end();
