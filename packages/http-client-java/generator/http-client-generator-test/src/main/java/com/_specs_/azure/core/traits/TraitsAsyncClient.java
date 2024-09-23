@@ -62,12 +62,14 @@ public final class TraitsAsyncClient {
      * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: int (Required)
      *     name: String (Optional)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param id The user's id.
      * @param foo header in request.
@@ -98,19 +100,23 @@ public final class TraitsAsyncClient {
      * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     userActionValue: String (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     userActionResult: String (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param id The user's id.
      * @param body The body parameter.

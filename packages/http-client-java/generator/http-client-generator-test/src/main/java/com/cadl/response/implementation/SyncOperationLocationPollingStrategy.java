@@ -17,7 +17,6 @@ import com.azure.core.util.polling.SyncOperationResourcePollingStrategy;
 import com.azure.core.util.serializer.JsonSerializerProviders;
 import com.azure.core.util.serializer.ObjectSerializer;
 import com.azure.core.util.serializer.TypeReference;
-
 import java.io.UncheckedIOException;
 import java.time.Duration;
 import java.time.OffsetDateTime;
