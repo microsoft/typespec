@@ -1,6 +1,6 @@
 import { refkey as getRefkey, mapJoin, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { Namespace, Operation, Service } from "@typespec/compiler";
+import { Interface, Namespace, Operation, Service } from "@typespec/compiler";
 import { ClassMethod } from "@typespec/emitter-framework/typescript";
 import { getClientParams } from "../utils/client.js";
 import { prepareOperation } from "../utils/operations.js";
@@ -19,26 +19,29 @@ export function ClientFile(props: ClientFileProps) {
   const clientlets = getClientlets(props.service.type);
 
   return <ts.SourceFile path="client.ts"> 
-    <Client namespace={props.service.type} />
-    {mapJoin(clientlets, (namespace) => <Client clientlet namespace={namespace} />, {joiner: "\n\n"})}
+    <Client type={props.service.type} />
+    {mapJoin(clientlets, (container) => <Client clientlet type={container} />, {joiner: "\n\n"})}
   </ts.SourceFile>;
 }
 
-function getClientlets(rootNamespace: Namespace): Namespace[] {
-  const clientlets = new Set<Namespace>();
-  const stack = [...rootNamespace.namespaces.values()];
+function getClientlets(rootNamespace: Namespace): (Namespace | Interface)[] {
+  const clientlets = new Set<Namespace | Interface>();
+  const stack = [...rootNamespace.namespaces.values(), ...rootNamespace.interfaces.values()];
   while (stack.length > 0) {
-    const namespace = stack.pop();
-    if (!namespace) {
+    const container = stack.pop();
+    if (!container) {
       continue;
     }
 
-    if (namespace.operations.size > 0) {
-      clientlets.add(namespace);
+    if (container.operations.size > 0) {
+      clientlets.add(container);
     }
 
-    for (const child of namespace.namespaces.values()) {
-      stack.push(child);
+    if (container.kind === "Namespace") {
+      stack.push(...container.interfaces.values());
+      for (const child of container.namespaces.values()) {
+        stack.push(child);
+      }
     }
   }
   return Array.from(clientlets);
@@ -47,16 +50,16 @@ function getClientlets(rootNamespace: Namespace): Namespace[] {
 export interface ClientProps {
   name?: string;
   clientlet?: boolean;
-  namespace: Namespace;
+  type: Namespace | Interface;
 }
 
 export function Client(props: ClientProps) {
   const namePolicy = ts.useTSNamePolicy();
-  const name = props.name ?? props.namespace.name;
+  const name = props.name ?? props.type.name;
   const className = namePolicy.getName(`${name}Client`, "class");
-  const methods = props.namespace.operations;
-  const clientlets = getClientlets(props.namespace);
-  const clientParameters = getClientParams(props.namespace, { isClientlet: props.clientlet });
+  const methods = props.type.operations;
+  const clientlets = props.type.kind === "Namespace" ? getClientlets(props.type) : [];
+  const clientParameters = getClientParams(props.type, { isClientlet: props.clientlet });
   const paramsInit = Object.keys(clientParameters);
   const thisContext = refkey();
 
@@ -66,8 +69,8 @@ export function Client(props: ClientProps) {
     <> <ts.Reference refkey={thisContext} /> = <ts.FunctionCallExpression refkey={ClientContextFactoryRefkey} args={paramsInit} /></>
   );
 
-  return <ts.ClassDeclaration export name={className} refkey={getClientletClassRefkey(props.namespace)}>
-  {mapJoin(clientlets, (namespace) => <ClientletField namespace={namespace} />, {joiner: "\n"})}
+  return <ts.ClassDeclaration export name={className} refkey={getClientletClassRefkey(props.type)}>
+  {mapJoin(clientlets, (namespace) => <ClientletField type={namespace} />, {joiner: "\n"})}
   <ts.ClassField name="context" jsPrivate={true} refkey={thisContext} type={<ts.Reference refkey={ClientContextRefkey} />}/>
     <ts.ClassMethod name="constructor" parameters={clientParameters}>
      {contextInit}
@@ -82,25 +85,25 @@ export function Client(props: ClientProps) {
 }
 
 export interface ClientletFieldProps {
-  namespace: Namespace;
+  type: Namespace | Interface;
 }
 
 export function ClientletField(props: ClientletFieldProps) {
   const namePolicy = ts.useTSNamePolicy();
-  const name = namePolicy.getName(props.namespace.name, "class");
-  const refkey = getClientletClassRefkey(props.namespace);
+  const name = namePolicy.getName(props.type.name, "class");
+  const refkey = getClientletClassRefkey(props.type);
   return <ts.ClassField 
     name={name} 
     type={<ts.Reference refkey={refkey}/>}
-    refkey={getClientletFieldRefkey(props.namespace)} />;
+    refkey={getClientletFieldRefkey(props.type)} />;
 }
 
-function getClientletClassRefkey(namespace: Namespace) {
-  return getRefkey(namespace, "client");
+function getClientletClassRefkey(type: Namespace | Interface) {
+  return getRefkey(type, "client");
 }
 
-function getClientletFieldRefkey(namespace: Namespace) {
-  return getRefkey(namespace, "field");
+function getClientletFieldRefkey(type: Namespace | Interface) {
+  return getRefkey(type, "field");
 }
 
 export interface ClientMethodsProps {

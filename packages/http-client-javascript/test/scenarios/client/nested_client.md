@@ -49,10 +49,43 @@ import {
   DemoServiceOptions,
   createDemoServiceContext,
 } from "./api/clientContext.js";
+import { list, read, create, update, delete_, analyze } from "./api/widgets/operations.js";
 
-+ export class DemoServiceClient {
-+   #context: DemoServiceContext;
-+   constructor(endpoint: string, options?: DemoServiceOptions) {
-+     this.#context = createDemoServiceContext(endpoint, options);
+export class DemoServiceClient {
+  widgets: WidgetsClient;
+  #context: DemoServiceContext;
+  constructor(endpoint: string, options?: DemoServiceOptions) {
+    this.#context = createDemoServiceContext(endpoint, options);
+    this.widgets = new WidgetsClient(this.#context);
+  }
+}
+export class WidgetsClient {
+  #context: DemoServiceContext;
+  constructor(context: DemoServiceContext) {
+    this.#context = context;
+  }
+  list() {
+    return list(this.#context);
+  }
+
+  read(id: string) {
+    return read(this.#context, id);
+  }
+
+  create(weight: number, color: "red" | "blue") {
+    return create(this.#context, weight, color);
+  }
+
+  update(id: string, weight: number, color: "red" | "blue") {
+    return update(this.#context, id, weight, color);
+  }
+
+  delete(id: string) {
+    return delete_(this.#context, id);
+  }
+
+  analyze(id: string) {
+    return analyze(this.#context, id);
+  }
 }
 ```

@@ -27,7 +27,7 @@ The response body is of type Widget so the right transform should be imported to
 
 It should throw an exception if an unexpected status code is received
 
-```ts src/api/test/operations.ts function foo
+```ts src/api/operations.ts function foo
 export async function foo(
   client: TestContext,
   id: string,
@@ -35,7 +35,7 @@ export async function foo(
   color: "red" | "blue",
   options?: {
     isRequired?: boolean;
-  }
+  },
 ): Promise<void> {
   const path = parse("/").expand({});
 

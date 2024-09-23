@@ -23,17 +23,16 @@ op foo(): Widget;
 It generates a class called TestClient with a single operation
 
 ```ts src/client.ts
-import { Widget } from "./models/models.js";
 import { TestContext, TestOptions, createTestContext } from "./api/clientContext.js";
-import { foo } from "./api/test/operations.js";
+import { foo } from "./api/operations.js";
 
 export class TestClient {
   #context: TestContext;
   constructor(endpoint: string, options?: TestOptions) {
-    this.context = createTestContext(endpoint, options);
+    this.#context = createTestContext(endpoint, options);
   }
-  foo(): Widget {
-    return foo(this.client);
+  foo() {
+    return foo(this.#context);
   }
 }
 ```
@@ -92,12 +91,12 @@ The response body is of type Widget so the right transform should be imported to
 
 It should throw an exception if an unexpected status code is received
 
-```ts src/api/test/operations.ts
-import { TestContext } from "../clientContext.js";
-import { Widget } from "../../models/models.js";
+```ts src/api/operations.ts
+import { TestContext } from "./clientContext.js";
+import { Widget } from "../models/models.js";
 import { parse } from "uri-template";
-import { widgetToApplication } from "../../models/serializers.js";
-import { httpFetch } from "../../utilities/http-fetch.js";
+import { widgetToApplication } from "../models/serializers.js";
+import { httpFetch } from "../utilities/http-fetch.js";
 
 export async function foo(client: TestContext): Promise<Widget> {
   const path = parse("/").expand({});
