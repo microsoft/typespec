@@ -24,7 +24,7 @@ public class LiveTests {
         return Collections.unmodifiableList(testCases);
     }
 
-    public void addTestCases(List<LiveTestCase> testCases){
+    public void addTestCases(List<LiveTestCase> testCases) {
         if (testCases != null) {
             this.testCases.addAll(testCases);
         }

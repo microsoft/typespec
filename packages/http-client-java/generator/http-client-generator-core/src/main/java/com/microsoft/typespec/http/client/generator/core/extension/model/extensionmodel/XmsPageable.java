@@ -3,12 +3,11 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.extensionmodel;
 
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonWriter;
-
+import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
 import java.io.IOException;
 
 /**

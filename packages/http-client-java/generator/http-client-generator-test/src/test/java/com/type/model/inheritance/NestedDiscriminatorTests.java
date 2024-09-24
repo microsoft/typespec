@@ -10,14 +10,12 @@ import com.type.model.inheritance.nesteddiscriminator.models.GoblinShark;
 import com.type.model.inheritance.nesteddiscriminator.models.Salmon;
 import com.type.model.inheritance.nesteddiscriminator.models.SawShark;
 import com.type.model.inheritance.nesteddiscriminator.models.Shark;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 class NestedDiscriminatorTests {
 
@@ -44,7 +42,6 @@ class NestedDiscriminatorTests {
         Assertions.assertEquals(1, salmon.getAge());
         Assertions.assertEquals(2, (salmon.getPartner()).getAge());
     }
-
 
     @Test
     void putRecursiveModel() {

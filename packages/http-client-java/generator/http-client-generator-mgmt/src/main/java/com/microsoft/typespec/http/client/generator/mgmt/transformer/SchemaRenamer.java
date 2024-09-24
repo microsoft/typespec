@@ -3,15 +3,14 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.transformer;
 
+import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Metadata;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
-import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentNamer;
-import com.azure.core.util.CoreUtils;
-import org.slf4j.Logger;
-
+import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
 import java.util.Map;
+import org.slf4j.Logger;
 
 public class SchemaRenamer {
 

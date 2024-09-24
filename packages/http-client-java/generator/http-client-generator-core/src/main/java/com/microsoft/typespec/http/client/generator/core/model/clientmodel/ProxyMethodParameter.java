@@ -3,11 +3,10 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
+import com.azure.core.util.serializer.CollectionFormat;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
-import com.azure.core.util.serializer.CollectionFormat;
-
 import java.util.Set;
 
 /**
@@ -16,20 +15,20 @@ import java.util.Set;
 public class ProxyMethodParameter extends MethodParameter {
 
     public static final ProxyMethodParameter REQUEST_OPTIONS_PARAMETER = new ProxyMethodParameter.Builder()
-            .description("The options to configure the HTTP request before HTTP client sends it.")
-            .wireType(ClassType.REQUEST_OPTIONS)
-            .clientType(ClassType.REQUEST_OPTIONS)
-            .name("requestOptions")
-            .requestParameterLocation(RequestParameterLocation.NONE)
-            .requestParameterName("requestOptions")
-            .alreadyEncoded(true)
-            .constant(false)
-            .required(false)
-            .nullable(false)
-            .fromClient(false)
-            .parameterReference("requestOptions")
-            .origin(ParameterSynthesizedOrigin.REQUEST_OPTIONS)
-            .build();
+        .description("The options to configure the HTTP request before HTTP client sends it.")
+        .wireType(ClassType.REQUEST_OPTIONS)
+        .clientType(ClassType.REQUEST_OPTIONS)
+        .name("requestOptions")
+        .requestParameterLocation(RequestParameterLocation.NONE)
+        .requestParameterName("requestOptions")
+        .alreadyEncoded(true)
+        .constant(false)
+        .required(false)
+        .nullable(false)
+        .fromClient(false)
+        .parameterReference("requestOptions")
+        .origin(ParameterSynthesizedOrigin.REQUEST_OPTIONS)
+        .build();
 
     /**
      * Get the name of this parameter when it is serialized.
@@ -125,7 +124,8 @@ public class ProxyMethodParameter extends MethodParameter {
     }
 
     public final String getParameterReferenceConverted() {
-        return String.format("%1$sConverted", CodeNamer.toCamelCase(CodeNamer.removeInvalidCharacters(getParameterReference())));
+        return String.format("%1$sConverted",
+            CodeNamer.toCamelCase(CodeNamer.removeInvalidCharacters(getParameterReference())));
     }
 
     public final CollectionFormat getCollectionFormat() {
@@ -156,9 +156,11 @@ public class ProxyMethodParameter extends MethodParameter {
             return String.format("%1$s %2$s = null;", getWireType(), target);
         }
         if (isRequired() || alwaysNonNull) {
-            return String.format("%1$s %2$s = %3$s;", getWireType(), target, getWireType().convertFromClientType(source));
+            return String.format("%1$s %2$s = %3$s;", getWireType(), target,
+                getWireType().convertFromClientType(source));
         } else {
-            return String.format("%1$s %2$s = %3$s == null ? null : %4$s;", getWireType(), target, source, getWireType().convertFromClientType(source));
+            return String.format("%1$s %2$s = %3$s == null ? null : %4$s;", getWireType(), target, source,
+                getWireType().convertFromClientType(source));
         }
     }
 
@@ -170,15 +172,14 @@ public class ProxyMethodParameter extends MethodParameter {
      * implementations.
      */
     public void addImportsTo(Set<String> imports, boolean includeImplementationImports, JavaSettings settings) {
-        if (getRequestParameterLocation() != RequestParameterLocation.NONE/* && getRequestParameterLocation() != RequestParameterLocation.FormData*/) {
+        if (getRequestParameterLocation()
+            != RequestParameterLocation.NONE/* && getRequestParameterLocation() != RequestParameterLocation.FormData */) {
             if (settings.isBranded()) {
-                imports.add(String.format("%1$s.annotation.%2$sParam",
-                        ExternalPackage.CORE.getPackageName(),
-                        CodeNamer.toPascalCase(getRequestParameterLocation().toString())));
+                imports.add(String.format("%1$s.annotation.%2$sParam", ExternalPackage.CORE.getPackageName(),
+                    CodeNamer.toPascalCase(getRequestParameterLocation().toString())));
             } else {
-                imports.add(String.format("%1$s.http.annotation.%2$sParam",
-                        ExternalPackage.CORE.getPackageName(),
-                        CodeNamer.toPascalCase(getRequestParameterLocation().toString())));
+                imports.add(String.format("%1$s.http.annotation.%2$sParam", ExternalPackage.CORE.getPackageName(),
+                    CodeNamer.toPascalCase(getRequestParameterLocation().toString())));
             }
         }
         if (getRequestParameterLocation() != RequestParameterLocation.BODY) {
@@ -459,24 +460,9 @@ public class ProxyMethodParameter extends MethodParameter {
         }
 
         public ProxyMethodParameter build() {
-            return new ProxyMethodParameter(description,
-                rawType,
-                wireType,
-                clientType,
-                name,
-                requestParameterLocation,
-                requestParameterName,
-                alreadyEncoded,
-                isConstant,
-                isRequired,
-                isNullable,
-                fromClient,
-                headerCollectionPrefix,
-                parameterReference,
-                defaultValue,
-                collectionFormat,
-                explode,
-                origin);
+            return new ProxyMethodParameter(description, rawType, wireType, clientType, name, requestParameterLocation,
+                requestParameterName, alreadyEncoded, isConstant, isRequired, isNullable, fromClient,
+                headerCollectionPrefix, parameterReference, defaultValue, collectionFormat, explode, origin);
         }
     }
 }

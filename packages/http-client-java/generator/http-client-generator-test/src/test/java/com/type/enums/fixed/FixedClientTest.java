@@ -8,16 +8,15 @@ import com.azure.core.http.policy.FixedDelayOptions;
 import com.azure.core.http.policy.RetryOptions;
 import com.azure.core.util.BinaryData;
 import com.type.enums.fixed.models.DaysOfWeekEnum;
+import java.time.Duration;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
-
 class FixedClientTest {
 
-    FixedClient client = new FixedClientBuilder()
-        .retryOptions(new RetryOptions(new FixedDelayOptions(0, Duration.ZERO)))
-        .buildClient();
+    FixedClient client
+        = new FixedClientBuilder().retryOptions(new RetryOptions(new FixedDelayOptions(0, Duration.ZERO)))
+            .buildClient();
 
     @Test
     void getKnownValue() {
@@ -29,7 +28,6 @@ class FixedClientTest {
     void putKnownValue() {
         client.putKnownValue(DaysOfWeekEnum.MONDAY);
     }
-
 
     @Test
     void putUnknownValue() {

@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.projectmodel;
 
+import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.Javagen;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
@@ -10,18 +11,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ExternalPackage;
 import com.microsoft.typespec.http.client.generator.core.template.TemplateHelper;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
-import com.azure.core.util.CoreUtils;
-import org.slf4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
-import org.xml.sax.SAXException;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -34,6 +23,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
+import org.slf4j.Logger;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 
 public class Project {
 
@@ -79,7 +78,8 @@ public class Project {
 
         private final String groupId;
         private final String artifactId;
-        private String version; // version could be updated in place, from "version_client.txt" or "external_dependencies.txt", on findPackageVersions method
+        private String version; // version could be updated in place, from "version_client.txt" or
+                                // "external_dependencies.txt", on findPackageVersions method
 
         Dependency(String groupId, String artifactId, String defaultVersion) {
             this.groupId = groupId;
@@ -133,7 +133,8 @@ public class Project {
         if (externalPackageNames.stream().anyMatch(p -> p.startsWith("com.azure.core.experimental"))) {
             // add to pomDependencyIdentifiers is not already there
             if (this.pomDependencyIdentifiers.stream()
-                    .noneMatch(identifier -> identifier.startsWith(Dependency.AZURE_CORE_EXPERIMENTAL.getGroupId() + ":" + Dependency.AZURE_CORE_EXPERIMENTAL.getArtifactId() + ":"))) {
+                .noneMatch(identifier -> identifier.startsWith(Dependency.AZURE_CORE_EXPERIMENTAL.getGroupId() + ":"
+                    + Dependency.AZURE_CORE_EXPERIMENTAL.getArtifactId() + ":"))) {
                 this.pomDependencyIdentifiers.add(Dependency.AZURE_CORE_EXPERIMENTAL.getDependencyIdentifier());
             }
         }
@@ -211,7 +212,8 @@ public class Project {
                     }
                 }
                 if (path != null) {
-                    LOGGER.info("'azure-sdk-for-java' SDK folder '{}' deduced from 'output-folder' parameter", path.toString());
+                    LOGGER.info("'azure-sdk-for-java' SDK folder '{}' deduced from 'output-folder' parameter",
+                        path.toString());
                     sdkFolderOpt = path.toString();
                 }
             }
@@ -236,10 +238,9 @@ public class Project {
     }
 
     private static final Map<String, String> VERSION_UPDATE_TAG_MAP = Map.of(
-            // see https://github.com/Azure/azure-sdk-for-java/blob/main/eng/versioning/external_dependencies.txt
-            "net.bytebuddy:byte-buddy", "testdep_net.bytebuddy:byte-buddy",
-            "net.bytebuddy:byte-buddy-agent", "testdep_net.bytebuddy:byte-buddy-agent"
-    );
+        // see https://github.com/Azure/azure-sdk-for-java/blob/main/eng/versioning/external_dependencies.txt
+        "net.bytebuddy:byte-buddy", "testdep_net.bytebuddy:byte-buddy", "net.bytebuddy:byte-buddy-agent",
+        "testdep_net.bytebuddy:byte-buddy-agent");
 
     /**
      * Gets the version update tag (x-version-update) for the groupId and artifactId.
@@ -315,59 +316,51 @@ public class Project {
                     DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
                     DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
                     Document doc = dBuilder.parse(pomPath.toFile());
-                    NodeList nodeList = doc.getDocumentElement().getChildNodes();
-                    for (int i = 0; i < nodeList.getLength(); ++i) {
-                        Node node = nodeList.item(i);
-                        if (node.getNodeType() == Node.ELEMENT_NODE) {
-                            Element elementNode = (Element) node;
-                            if ("dependencies".equals(elementNode.getTagName())) {
-                                NodeList dependencyNodeList = elementNode.getChildNodes();
-                                for (int j = 0; j < dependencyNodeList.getLength(); ++j) {
-                                    Node dependencyNode = dependencyNodeList.item(j);
-                                    if (dependencyNode.getNodeType() == Node.ELEMENT_NODE) {
-                                        Element dependencyElementNode = (Element) dependencyNode;
-                                        if ("dependency".equals(dependencyElementNode.getTagName())) {
-                                            String groupId = null;
-                                            String artifactId = null;
-                                            String version = null;
-                                            String scope = null;
-                                            NodeList itemNodeList = dependencyElementNode.getChildNodes();
-                                            for (int k = 0; k < itemNodeList.getLength(); ++k) {
-                                                Node itemNode = itemNodeList.item(k);
-                                                if (itemNode.getNodeType() == Node.ELEMENT_NODE) {
-                                                    Element elementItemNode = (Element) itemNode;
-                                                    switch (elementItemNode.getTagName()) {
-                                                        case "groupId":
-                                                            groupId = ((Text) elementItemNode.getChildNodes().item(0)).getWholeText();
-                                                            break;
-                                                        case "artifactId":
-                                                            artifactId = ((Text) elementItemNode.getChildNodes().item(0)).getWholeText();
-                                                            break;
-                                                        case "version":
-                                                            version = ((Text) elementItemNode.getChildNodes().item(0)).getWholeText();
-                                                            break;
-                                                        case "scope":
-                                                            scope = ((Text) elementItemNode.getChildNodes().item(0)).getWholeText();
-                                                            break;
-                                                    }
-                                                }
-                                            }
+                    NodeList nodeList = (NodeList) XPathFactory.newInstance()
+                        .newXPath()
+                        .compile("dependencies/dependency")
+                        .evaluate(doc, XPathConstants.NODESET);
+                    for (int i = 0; i < nodeList.getLength(); i++) {
+                        Node dependencyNode = nodeList.item(i);
+                        String groupId = null;
+                        String artifactId = null;
+                        String version = null;
+                        String scope = null;
+                        NodeList itemNodeList = dependencyNode.getChildNodes();
+                        for (int k = 0; k < itemNodeList.getLength(); ++k) {
+                            Node itemNode = itemNodeList.item(k);
+                            if (itemNode.getNodeType() == Node.ELEMENT_NODE) {
+                                Element elementItemNode = (Element) itemNode;
+                                switch (elementItemNode.getTagName()) {
+                                    case "groupId":
+                                        groupId = ((Text) elementItemNode.getChildNodes().item(0)).getWholeText();
+                                        break;
 
-                                            if (groupId != null && artifactId != null && version != null) {
-                                                String dependencyIdentifier = String.format("%s:%s:%s", groupId, artifactId, version);
-                                                if (scope != null) {
-                                                    dependencyIdentifier += ":" + scope;
-                                                }
-                                                this.pomDependencyIdentifiers.add(dependencyIdentifier);
-                                                LOGGER.info("Found dependency identifier '{}' from POM", dependencyIdentifier);
-                                            }
-                                        }
-                                    }
+                                    case "artifactId":
+                                        artifactId = ((Text) elementItemNode.getChildNodes().item(0)).getWholeText();
+                                        break;
+
+                                    case "version":
+                                        version = ((Text) elementItemNode.getChildNodes().item(0)).getWholeText();
+                                        break;
+
+                                    case "scope":
+                                        scope = ((Text) elementItemNode.getChildNodes().item(0)).getWholeText();
+                                        break;
                                 }
                             }
                         }
+
+                        if (groupId != null && artifactId != null && version != null) {
+                            String dependencyIdentifier = groupId + ":" + artifactId + ":" + version;
+                            if (scope != null) {
+                                dependencyIdentifier += ":" + scope;
+                            }
+                            this.pomDependencyIdentifiers.add(dependencyIdentifier);
+                            LOGGER.info("Found dependency identifier '{}' from POM", dependencyIdentifier);
+                        }
                     }
-                } catch (IOException | ParserConfigurationException | SAXException e) {
+                } catch (Exception e) {
                     LOGGER.warn("Failed to parse 'pom.xml'", e);
                 }
             } else {
@@ -419,7 +412,9 @@ public class Project {
     }
 
     public Optional<String> getSdkRepositoryUri() {
-        return Optional.ofNullable(sdkRepositoryPath == null ? null : ("https://github.com/Azure/azure-sdk-for-java/blob/main/" + sdkRepositoryPath));
+        return Optional.ofNullable(sdkRepositoryPath == null
+            ? null
+            : ("https://github.com/Azure/azure-sdk-for-java/blob/main/" + sdkRepositoryPath));
     }
 
     public Optional<String> getSdkRepositoryPath() {

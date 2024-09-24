@@ -14,7 +14,8 @@ public final class ClientResponse {
     private IType bodyType;
     private String crossLanguageDefinitionId;
 
-    private ClientResponse(String name, String packageKeyword, String description, IType headersType, IType bodyType, String crossLanguageDefinitionId) {
+    private ClientResponse(String name, String packageKeyword, String description, IType headersType, IType bodyType,
+        String crossLanguageDefinitionId) {
         this.name = name;
         packageName = packageKeyword;
         this.description = description;
@@ -55,7 +56,6 @@ public final class ClientResponse {
         private IType bodyType;
 
         private String crossLanguageDefinitionId;
-
 
         public Builder name(String name) {
             this.name = name;

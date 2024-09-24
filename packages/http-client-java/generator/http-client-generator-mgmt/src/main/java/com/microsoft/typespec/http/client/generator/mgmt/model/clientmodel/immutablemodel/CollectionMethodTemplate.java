@@ -3,15 +3,14 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.immutablemodel;
 
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentCollectionMethod;
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.ModelNaming;
-import com.microsoft.typespec.http.client.generator.mgmt.util.TypeConversionUtils;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
-
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentCollectionMethod;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.ModelNaming;
+import com.microsoft.typespec.http.client.generator.mgmt.util.TypeConversionUtils;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -33,26 +32,32 @@ public class CollectionMethodTemplate implements ImmutableMethod {
         }
 
         implementationMethodTemplate = MethodTemplate.builder()
-                .imports(imports)
-                .methodSignature(fluentMethod.getMethodSignature())
-                .method(block -> {
-                    String expression = String.format("this.%1$s().%2$s", ModelNaming.METHOD_SERVICE_CLIENT, fluentMethod.getMethodInvocation());
-                    if (innerType == PrimitiveType.VOID || innerType == PrimitiveType.VOID.asNullable()) {
-                        block.line(String.format("this.%1$s().%2$s;", ModelNaming.METHOD_SERVICE_CLIENT, fluentMethod.getMethodInvocation()));
-                    } else {
-                        if (innerType instanceof ListType || innerType instanceof MapType) {
-                            block.line(String.format("%1$s %2$s = %3$s;", innerType, TypeConversionUtils.tempVariableName(), expression));
-                            block.ifBlock(String.format("%1$s != null", TypeConversionUtils.tempVariableName()), ifBlock -> {
-                                block.methodReturn(TypeConversionUtils.objectOrUnmodifiableCollection(innerType, TypeConversionUtils.tempVariableName()));
-                            }).elseBlock(elseBlock -> {
+            .imports(imports)
+            .methodSignature(fluentMethod.getMethodSignature())
+            .method(block -> {
+                String expression = String.format("this.%1$s().%2$s", ModelNaming.METHOD_SERVICE_CLIENT,
+                    fluentMethod.getMethodInvocation());
+                if (innerType == PrimitiveType.VOID || innerType == PrimitiveType.VOID.asNullable()) {
+                    block.line(String.format("this.%1$s().%2$s;", ModelNaming.METHOD_SERVICE_CLIENT,
+                        fluentMethod.getMethodInvocation()));
+                } else {
+                    if (innerType instanceof ListType || innerType instanceof MapType) {
+                        block.line(String.format("%1$s %2$s = %3$s;", innerType, TypeConversionUtils.tempVariableName(),
+                            expression));
+                        block
+                            .ifBlock(String.format("%1$s != null", TypeConversionUtils.tempVariableName()), ifBlock -> {
+                                block.methodReturn(TypeConversionUtils.objectOrUnmodifiableCollection(innerType,
+                                    TypeConversionUtils.tempVariableName()));
+                            })
+                            .elseBlock(elseBlock -> {
                                 block.methodReturn(TypeConversionUtils.nullOrEmptyCollection(innerType));
                             });
-                        } else {
-                            block.methodReturn(expression);
-                        }
+                    } else {
+                        block.methodReturn(expression);
                     }
-                })
-                .build();
+                }
+            })
+            .build();
     }
 
     @Override
