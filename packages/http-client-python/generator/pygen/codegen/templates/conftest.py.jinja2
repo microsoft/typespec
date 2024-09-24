@@ -7,7 +7,7 @@ from devtools_testutils import test_proxy, add_general_regex_sanitizer, add_body
 
 load_dotenv()
 
-# avoid record sensitive identity information in recordings
+# For security, please avoid record sensitive identity information in recordings
 @pytest.fixture(scope="session", autouse=True)
 def add_sanitizers(test_proxy):
     {% for test_name in test_names %}
