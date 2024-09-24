@@ -223,16 +223,19 @@ function validateObject(context: DecoratorContext, typespecType: TypeSpecValue, 
   const decorator = entity.decorators.find(
     (d) => d.decorator === $info && d.node === context.decoratorTarget,
   );
-  const definition = decorator?.definition?.parameters.find((p) => p.name === "additionalInfo");
-  const propertyModel = definition?.type.type as Model;
+  const property = decorator?.definition?.parameters.find((p) => p.name === "additionalInfo")?.type;
 
-  if (typeof typespecType === "object") {
-    const [diagnostics] = typespecTypeCheck(
-      typespecType,
-      context.getArgumentTarget(0)!,
-      propertyModel,
-    );
-    context.program.reportDiagnostics(diagnostics);
+  if (property && typeof property === "object" && "type" in property) {
+    const propertyModel = property.type as Model;
+
+    if (typeof typespecType === "object" && propertyModel) {
+      const [diagnostics] = typespecTypeCheck(
+        typespecType,
+        context.getArgumentTarget(0)!,
+        propertyModel,
+      );
+      context.program.reportDiagnostics(diagnostics);
+    }
   }
 }
 
@@ -248,7 +251,7 @@ function typespecTypeCheck(
   target: DiagnosticTarget,
   propertyModel: Model,
 ): [Diagnostic[]] {
-  const diagnostics = [];
+  const diagnostics: Diagnostic[] = [];
 
   if (typespecType.kind === "Model") {
     for (const [name, type] of typespecType.properties.entries()) {
