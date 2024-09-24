@@ -57,14 +57,14 @@ public class Project {
     public enum Dependency {
         // azure
         AZURE_CLIENT_SDK_PARENT("com.azure", "azure-client-sdk-parent", "1.7.0"),
-        AZURE_JSON("com.azure", "azure-json", "1.2.0"),
+        AZURE_JSON("com.azure", "azure-json", "1.3.0"),
         AZURE_XML("com.azure", "azure-xml", "1.1.0"),
-        AZURE_CORE("com.azure", "azure-core", "1.51.0"),
-        AZURE_CORE_MANAGEMENT("com.azure", "azure-core-management", "1.15.2"),
-        AZURE_CORE_HTTP_NETTY("com.azure", "azure-core-http-netty", "1.15.3"),
-        AZURE_CORE_TEST("com.azure", "azure-core-test", "1.26.2"),
-        AZURE_IDENTITY("com.azure", "azure-identity", "1.13.2"),
-        AZURE_CORE_EXPERIMENTAL("com.azure", "azure-core-experimental", "1.0.0-beta.52"),
+        AZURE_CORE("com.azure", "azure-core", "1.52.0"),
+        AZURE_CORE_MANAGEMENT("com.azure", "azure-core-management", "1.15.3"),
+        AZURE_CORE_HTTP_NETTY("com.azure", "azure-core-http-netty", "1.15.4"),
+        AZURE_CORE_TEST("com.azure", "azure-core-test", "1.27.0-beta.1"),
+        AZURE_IDENTITY("com.azure", "azure-identity", "1.13.3"),
+        AZURE_CORE_EXPERIMENTAL("com.azure", "azure-core-experimental", "1.0.0-beta.53"),
 
         CLIENTCORE("io.clientcore", "core", "1.0.0-beta.1"),
         CLIENTCORE_JSON("io.clientcore", "core-json", "1.0.0-beta.1"),
