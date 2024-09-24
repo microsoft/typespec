@@ -234,6 +234,13 @@ words:
   - xplat
   - xxsubtype
   - yamls
+  - arraya
+  - primitivea
+  - recorda
+  - Hdvcmxk
+  - ints
+  - myname
+  - azuresdkcadlranch
 ignorePaths:
   - "**/node_modules/**"
   - "**/dist/**"

@@ -1,4 +1,4 @@
-# Cadl Ranch Project summary
+# Rest Specs Project summary
 
 ### Authentication_ApiKey_invalid
 
