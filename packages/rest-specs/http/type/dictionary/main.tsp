@@ -51,7 +51,10 @@ interface Int32Value extends DictionaryOperations<Record<int32>, "{'k1': 1, 'k2'
 @route("/int64")
 @operationGroup
 interface Int64Value
-  extends DictionaryOperations<Record<int64>, "{'k1': 0x7FFFFFFFFFFFFFFF, 'k2': -0x7FFFFFFFFFFFFFFF}"> {}
+  extends DictionaryOperations<
+      Record<int64>,
+      "{'k1': 0x7FFFFFFFFFFFFFFF, 'k2': -0x7FFFFFFFFFFFFFFF}"
+    > {}
 
 @doc("Dictionary of boolean values")
 @route("/boolean")
@@ -71,17 +74,20 @@ interface Float32Value extends DictionaryOperations<Record<float32>, "{'k1': 43.
 @doc("Dictionary of datetime values")
 @route("/datetime")
 @operationGroup
-interface DatetimeValue extends DictionaryOperations<Record<utcDateTime>, "{'k1': '2022-08-26T18:38:00Z'}"> {}
+interface DatetimeValue
+  extends DictionaryOperations<Record<utcDateTime>, "{'k1': '2022-08-26T18:38:00Z'}"> {}
 
 @doc("Dictionary of duration values")
 @route("/duration")
 @operationGroup
-interface DurationValue extends DictionaryOperations<Record<duration>, "{'k1': 'P123DT22H14M12.011S'}"> {}
+interface DurationValue
+  extends DictionaryOperations<Record<duration>, "{'k1': 'P123DT22H14M12.011S'}"> {}
 
 @doc("Dictionary of unknown values")
 @route("/unknown")
 @operationGroup
-interface UnknownValue extends DictionaryOperations<Record<unknown>, "{'k1': 1, 'k2': 'hello', 'k3': null}"> {}
+interface UnknownValue
+  extends DictionaryOperations<Record<unknown>, "{'k1': 1, 'k2': 'hello', 'k3': null}"> {}
 
 @doc("Dictionary inner model")
 model InnerModel {
@@ -95,7 +101,10 @@ model InnerModel {
 @route("/model")
 @operationGroup
 interface ModelValue
-  extends DictionaryOperations<Record<InnerModel>, "{'k1': {'property': 'hello'}, 'k2': {'property': 'world'}}"> {}
+  extends DictionaryOperations<
+      Record<InnerModel>,
+      "{'k1': {'property': 'hello'}, 'k2': {'property': 'world'}}"
+    > {}
 
 @doc("Dictionary of model values")
 @route("/model/recursive")

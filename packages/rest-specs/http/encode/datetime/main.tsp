@@ -207,7 +207,9 @@ namespace Property {
     ```
     """)
   @post
-  op unixTimestampArray(@body body: UnixTimestampArrayDatetimeProperty): UnixTimestampArrayDatetimeProperty;
+  op unixTimestampArray(
+    @body body: UnixTimestampArrayDatetimeProperty,
+  ): UnixTimestampArrayDatetimeProperty;
 }
 
 @operationGroup

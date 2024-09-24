@@ -238,7 +238,9 @@ namespace Property {
     }
     ```
     """)
-  op floatSecondsArray(@body body: FloatSecondsDurationArrayProperty): FloatSecondsDurationArrayProperty;
+  op floatSecondsArray(
+    @body body: FloatSecondsDurationArrayProperty,
+  ): FloatSecondsDurationArrayProperty;
 }
 
 @operationGroup

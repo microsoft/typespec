@@ -1,4 +1,4 @@
-import { passOnSuccess, ScenarioMockApi, mockapi, json, MockApi } from "@typespec/spec-api";
+import { json, mockapi, MockApi, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -34,7 +34,10 @@ const Int32ValueMock = createModelMockApis("int32", [1, 2]);
 Scenarios.Type_Array_Int32Value_get = passOnSuccess(Int32ValueMock.get);
 Scenarios.Type_Array_Int32Value_put = passOnSuccess(Int32ValueMock.put);
 
-const Int64ValueMock = createModelMockApis("int64", [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER]);
+const Int64ValueMock = createModelMockApis("int64", [
+  Number.MAX_SAFE_INTEGER,
+  Number.MIN_SAFE_INTEGER,
+]);
 Scenarios.Type_Array_Int64Value_get = passOnSuccess(Int64ValueMock.get);
 Scenarios.Type_Array_Int64Value_put = passOnSuccess(Int64ValueMock.put);
 
@@ -82,7 +85,11 @@ const NullableBooleanMock = createModelMockApis("nullable-boolean", [true, null,
 Scenarios.Type_Array_NullableBooleanValue_get = passOnSuccess(NullableBooleanMock.get);
 Scenarios.Type_Array_NullableBooleanValue_put = passOnSuccess(NullableBooleanMock.put);
 
-const NullableModelMock = createModelMockApis("nullable-model", [{ property: "hello" }, null, { property: "world" }]);
+const NullableModelMock = createModelMockApis("nullable-model", [
+  { property: "hello" },
+  null,
+  { property: "world" },
+]);
 Scenarios.Type_Array_NullableModelValue_get = passOnSuccess(NullableModelMock.get);
 Scenarios.Type_Array_NullableModelValue_put = passOnSuccess(NullableModelMock.put);
 
@@ -112,18 +119,36 @@ function createServerTests(uri: string, data: any) {
 }
 
 Scenarios.Type_Array_Int32 = createServerTests(`/type/array/int32`, [1, 2]);
-Scenarios.Type_Array_Int64 = createServerTests(`/type/array/int64`, [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER]);
+Scenarios.Type_Array_Int64 = createServerTests(`/type/array/int64`, [
+  Number.MAX_SAFE_INTEGER,
+  Number.MIN_SAFE_INTEGER,
+]);
 Scenarios.Type_Array_Boolean = createServerTests(`/type/array/boolean`, [true, false]);
 Scenarios.Type_Array_String = createServerTests(`/type/array/string`, ["hello", ""]);
 Scenarios.Type_Array_Float32 = createServerTests(`/type/array/float32`, [43.125]);
 Scenarios.Type_Array_Datetime = createServerTests(`/type/array/datetime`, ["2022-08-26T18:38:00Z"]);
 Scenarios.Type_Array_Duration = createServerTests(`/type/array/duration`, ["P123DT22H14M12.011S"]);
 Scenarios.Type_Array_Unknown = createServerTests(`/type/array/unknown`, [1, "hello", null]);
-Scenarios.Type_Array_Model = createServerTests(`/type/array/model`, [{ property: "hello" }, { property: "world" }]);
-Scenarios.Type_Array_Nullable_Float = createServerTests(`/type/array/nullable-float`, [1.25, null, 3.0]);
-Scenarios.Type_Array_Nullable_Boolean = createServerTests(`/type/array/nullable-boolean`, [true, null, false]);
+Scenarios.Type_Array_Model = createServerTests(`/type/array/model`, [
+  { property: "hello" },
+  { property: "world" },
+]);
+Scenarios.Type_Array_Nullable_Float = createServerTests(`/type/array/nullable-float`, [
+  1.25,
+  null,
+  3.0,
+]);
+Scenarios.Type_Array_Nullable_Boolean = createServerTests(`/type/array/nullable-boolean`, [
+  true,
+  null,
+  false,
+]);
 Scenarios.Type_Array_Nullable_Int32 = createServerTests(`/type/array/nullable-int32`, [1, null, 3]);
-Scenarios.Type_Array_Nullable_String = createServerTests(`/type/array/nullable-string`, ["hello", null, "world"]);
+Scenarios.Type_Array_Nullable_String = createServerTests(`/type/array/nullable-string`, [
+  "hello",
+  null,
+  "world",
+]);
 Scenarios.Type_Array_Nullable_Model = createServerTests(`/type/array/nullable-model`, [
   { property: "hello" },
   null,

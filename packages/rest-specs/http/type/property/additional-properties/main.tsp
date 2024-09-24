@@ -92,7 +92,8 @@ model ExtendsUnknownAdditionalPropertiesDiscriminated extends Record<unknown> {
 }
 
 @doc("The derived discriminated type")
-model ExtendsUnknownAdditionalPropertiesDiscriminatedDerived extends ExtendsUnknownAdditionalPropertiesDiscriminated {
+model ExtendsUnknownAdditionalPropertiesDiscriminatedDerived
+  extends ExtendsUnknownAdditionalPropertiesDiscriminated {
   kind: "derived";
 
   @doc("The index property")
@@ -153,7 +154,8 @@ model IsUnknownAdditionalPropertiesDiscriminated is Record<unknown> {
 }
 
 @doc("The derived discriminated type")
-model IsUnknownAdditionalPropertiesDiscriminatedDerived extends IsUnknownAdditionalPropertiesDiscriminated {
+model IsUnknownAdditionalPropertiesDiscriminatedDerived
+  extends IsUnknownAdditionalPropertiesDiscriminated {
   kind: "derived";
 
   @doc("The index property")
@@ -198,7 +200,10 @@ model IsStringAdditionalProperties is Record<string> {
 @route("/isRecordstring")
 @operationGroup
 interface IsString
-  extends ModelOperations<IsStringAdditionalProperties, "{'name': 'IsStringAdditionalProperties', 'prop': 'abc'}"> {}
+  extends ModelOperations<
+      IsStringAdditionalProperties,
+      "{'name': 'IsStringAdditionalProperties', 'prop': 'abc'}"
+    > {}
 
 @doc("The model spread Record<string> with the same known property type")
 model SpreadStringRecord {
@@ -210,7 +215,8 @@ model SpreadStringRecord {
 
 @route("/spreadRecordString")
 @operationGroup
-interface SpreadString extends ModelOperations<SpreadStringRecord, "{'name': 'SpreadSpringRecord', 'prop': 'abc'}"> {}
+interface SpreadString
+  extends ModelOperations<SpreadStringRecord, "{'name': 'SpreadSpringRecord', 'prop': 'abc'}"> {}
 
 // ********************************************** Record<float32> **********************************************
 #suppress "@azure-tools/typespec-azure-core/bad-record-type" "For testing"
@@ -222,7 +228,8 @@ model ExtendsFloatAdditionalProperties extends Record<float32> {
 
 @route("/extendsRecordFloat")
 @operationGroup
-interface ExtendsFloat extends ModelOperations<ExtendsFloatAdditionalProperties, "{'id': 43.125, 'prop': 43.125}"> {}
+interface ExtendsFloat
+  extends ModelOperations<ExtendsFloatAdditionalProperties, "{'id': 43.125, 'prop': 43.125}"> {}
 
 #suppress "@azure-tools/typespec-azure-core/bad-record-type" "For testing"
 @doc("The model is from Record<float32> type.")
@@ -233,7 +240,8 @@ model IsFloatAdditionalProperties is Record<float32> {
 
 @route("/isRecordFloat")
 @operationGroup
-interface IsFloat extends ModelOperations<IsFloatAdditionalProperties, "{'id': 43.125, 'prop': 43.125}"> {}
+interface IsFloat
+  extends ModelOperations<IsFloatAdditionalProperties, "{'id': 43.125, 'prop': 43.125}"> {}
 
 @doc("The model spread Record<float32> with the same known property type")
 model SpreadFloatRecord {
@@ -245,7 +253,8 @@ model SpreadFloatRecord {
 
 @route("/spreadRecordFloat")
 @operationGroup
-interface SpreadFloat extends ModelOperations<SpreadFloatRecord, "{'id': 43.125, 'prop': 43.125}"> {}
+interface SpreadFloat
+  extends ModelOperations<SpreadFloatRecord, "{'id': 43.125, 'prop': 43.125}"> {}
 
 // ********************************************** Record<Model> **********************************************
 @doc("model for record")
@@ -277,7 +286,10 @@ model IsModelAdditionalProperties is Record<ModelForRecord> {
 @route("/isRecordModel")
 @operationGroup
 interface IsModel
-  extends ModelOperations<IsModelAdditionalProperties, "{'knownProp': {'state': 'ok'}, 'prop': {'state': 'ok'}}"> {}
+  extends ModelOperations<
+      IsModelAdditionalProperties,
+      "{'knownProp': {'state': 'ok'}, 'prop': {'state': 'ok'}}"
+    > {}
 
 @doc("The model spread Record<ModelForRecord> with the same known property type")
 model SpreadModelRecord {
@@ -288,7 +300,10 @@ model SpreadModelRecord {
 @route("/spreadRecordModel")
 @operationGroup
 interface SpreadModel
-  extends ModelOperations<SpreadModelRecord, "{'knownProp': {'state': 'ok'}, 'prop': {'state': 'ok'}}"> {}
+  extends ModelOperations<
+      SpreadModelRecord,
+      "{'knownProp': {'state': 'ok'}, 'prop': {'state': 'ok'}}"
+    > {}
 
 // ********************************************** Record<Model[]> **********************************************
 #suppress "@azure-tools/typespec-azure-core/bad-record-type" "For testing"
@@ -344,7 +359,8 @@ model DifferentSpreadStringRecord {
 
 @route("/spreadDifferentRecordString")
 @operationGroup
-interface SpreadDifferentString extends ModelOperations<DifferentSpreadStringRecord, "{'id': 43.125, 'prop': 'abc'}"> {}
+interface SpreadDifferentString
+  extends ModelOperations<DifferentSpreadStringRecord, "{'id': 43.125, 'prop': 'abc'}"> {}
 
 // ********************************************** Record<float32> **********************************************
 @doc("The model spread Record<float32> with the different known property type")
@@ -357,7 +373,8 @@ model DifferentSpreadFloatRecord {
 
 @route("/spreadDifferentRecordFloat")
 @operationGroup
-interface SpreadDifferentFloat extends ModelOperations<DifferentSpreadFloatRecord, "{'name': 'abc', 'prop': 43.125}"> {}
+interface SpreadDifferentFloat
+  extends ModelOperations<DifferentSpreadFloatRecord, "{'name': 'abc', 'prop': 43.125}"> {}
 
 // ********************************************** Record<Model> **********************************************
 @doc("The model spread Record<ModelForRecord> with the different known property type")
@@ -369,7 +386,10 @@ model DifferentSpreadModelRecord {
 @route("/spreadDifferentRecordModel")
 @operationGroup
 interface SpreadDifferentModel
-  extends ModelOperations<DifferentSpreadModelRecord, "{'knownProp': 'abc', 'prop': {'state': 'ok'}}"> {}
+  extends ModelOperations<
+      DifferentSpreadModelRecord,
+      "{'knownProp': 'abc', 'prop': {'state': 'ok'}}"
+    > {}
 
 // ********************************************** Record<Model[]> **********************************************
 @doc("The model spread Record<ModelForRecord[]> with the different known property type")
@@ -396,7 +416,10 @@ model DifferentSpreadStringDerived extends DifferentSpreadStringRecord {
 @route("/extendsDifferentSpreadString")
 @operationGroup
 interface ExtendsDifferentSpreadString
-  extends ModelOperations<DifferentSpreadStringDerived, "{'id': 43.125, 'prop': 'abc', 'derivedProp': 'abc'}"> {}
+  extends ModelOperations<
+      DifferentSpreadStringDerived,
+      "{'id': 43.125, 'prop': 'abc', 'derivedProp': 'abc'}"
+    > {}
 
 // ****************** extends model has spread Record<float32> **************************
 @doc("The model extends from a model that spread Record<float32> with the different known property type")
@@ -408,7 +431,10 @@ model DifferentSpreadFloatDerived extends DifferentSpreadFloatRecord {
 @route("/extendsDifferentSpreadFloat")
 @operationGroup
 interface ExtendsDifferentSpreadFloat
-  extends ModelOperations<DifferentSpreadFloatDerived, "{'name': 'abc', 'prop': 43.125, 'derivedProp': 43.125}"> {}
+  extends ModelOperations<
+      DifferentSpreadFloatDerived,
+      "{'name': 'abc', 'prop': 43.125, 'derivedProp': 43.125}"
+    > {}
 
 // ****************** extends model has spread Record<Model> **************************
 
@@ -454,7 +480,10 @@ model MultipleSpreadRecord {
 @route("/multipleSpreadRecord")
 @operationGroup
 interface MultipleSpread
-  extends ModelOperations<MultipleSpreadRecord, "{'flag': true, 'prop1': 'abc', 'prop2': 43.125}"> {}
+  extends ModelOperations<
+      MultipleSpreadRecord,
+      "{'flag': true, 'prop1': 'abc', 'prop2': 43.125}"
+    > {}
 
 // ****************** spread record of unions **************************
 @doc("The model spread Record<string | float32>")
@@ -468,7 +497,10 @@ model SpreadRecordForUnion {
 @route("/spreadRecordUnion")
 @operationGroup
 interface SpreadRecordUnion
-  extends ModelOperations<SpreadRecordForUnion, "{'flag': true, 'prop1': 'abc', 'prop2': 43.125}"> {}
+  extends ModelOperations<
+      SpreadRecordForUnion,
+      "{'flag': true, 'prop1': 'abc', 'prop2': 43.125}"
+    > {}
 
 // ****************** spread record of discriminated unions **************************
 @discriminator("kind")

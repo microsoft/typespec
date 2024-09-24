@@ -5,12 +5,12 @@ import { checkCoverage } from "../actions/check-coverage.js";
 import { generateScenarioSummary } from "../actions/generate-scenario-summary.js";
 import { validateScenarios } from "../actions/index.js";
 import { serve, startInBackground, stop } from "../actions/serve.js";
+import { serverTest } from "../actions/server-test.js";
 import { uploadCoverageReport } from "../actions/upload-coverage-report.js";
 import { uploadScenarioManifest } from "../actions/upload-scenario-manifest.js";
 import { validateMockApis } from "../actions/validate-mock-apis.js";
 import { logger } from "../logger.js";
 import { getCommit } from "../utils/misc-utils.js";
-import { serverTest } from "../actions/server-test.js";
 
 export const DEFAULT_PORT = 3000;
 

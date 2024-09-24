@@ -1,5 +1,4 @@
-import { passOnSuccess, mockapi, json, MockApi } from "@typespec/spec-api";
-import { ScenarioMockApi } from "@typespec/spec-api";
+import { json, mockapi, MockApi, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -14,11 +13,17 @@ function createPropertyMockApis(route: string, value: string): MockApi {
   });
 }
 
-Scenarios.Encode_Numeric_Property_safeintAsString = passOnSuccess(createPropertyMockApis("safeint", "10000000000"));
+Scenarios.Encode_Numeric_Property_safeintAsString = passOnSuccess(
+  createPropertyMockApis("safeint", "10000000000"),
+);
 
-Scenarios.Encode_Numeric_Property_uint32AsStringOptional = passOnSuccess(createPropertyMockApis("uint32", "1"));
+Scenarios.Encode_Numeric_Property_uint32AsStringOptional = passOnSuccess(
+  createPropertyMockApis("uint32", "1"),
+);
 
-Scenarios.Encode_Numeric_Property_uint8AsString = passOnSuccess(createPropertyMockApis("uint8", "255"));
+Scenarios.Encode_Numeric_Property_uint8AsString = passOnSuccess(
+  createPropertyMockApis("uint8", "255"),
+);
 
 Scenarios.Encode_Numeric_Property_Safeint = passOnSuccess({
   uri: "/encode/numeric/property/safeint",

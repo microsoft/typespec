@@ -50,7 +50,8 @@ interface Int32Value extends ArrayOperations<int32[], "[1, 2]"> {}
 @doc("Array of int64 values")
 @route("/int64")
 @operationGroup
-interface Int64Value extends ArrayOperations<int64[], "[0x7FFFFFFFFFFFFFFF, -0x7FFFFFFFFFFFFFFF]"> {}
+interface Int64Value
+  extends ArrayOperations<int64[], "[0x7FFFFFFFFFFFFFFF, -0x7FFFFFFFFFFFFFFF]"> {}
 
 @doc("Array of boolean values")
 @route("/boolean")
@@ -93,7 +94,8 @@ model InnerModel {
 @doc("Array of model values")
 @route("/model")
 @operationGroup
-interface ModelValue extends ArrayOperations<InnerModel[], "[{'property': 'hello'}, {'property': 'world'}]"> {}
+interface ModelValue
+  extends ArrayOperations<InnerModel[], "[{'property': 'hello'}, {'property': 'world'}]"> {}
 
 alias NullableFloat = float32 | null;
 @doc("Array of nullable float values")
@@ -117,11 +119,15 @@ alias NullableString = string | null;
 @doc("Array of nullable string values")
 @route("/nullable-string")
 @operationGroup
-interface NullableStringValue extends ArrayOperations<NullableString[], "['hello', null, 'world']"> {}
+interface NullableStringValue
+  extends ArrayOperations<NullableString[], "['hello', null, 'world']"> {}
 
 alias NullableModel = InnerModel | null;
 @doc("Array of nullable model values")
 @route("/nullable-model")
 @operationGroup
 interface NullableModelValue
-  extends ArrayOperations<NullableModel[], "[{'property': 'hello'}, null, {'property': 'world'}]"> {}
+  extends ArrayOperations<
+      NullableModel[],
+      "[{'property': 'hello'}, null, {'property': 'world'}]"
+    > {}

@@ -1,5 +1,4 @@
-import { passOnSuccess, mockapi, json, ValidationError } from "@typespec/spec-api";
-import { ScenarioMockApi } from "@typespec/spec-api";
+import { json, mockapi, passOnSuccess, ScenarioMockApi, ValidationError } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 const validUser = { id: 1, name: "Madge", etag: "11bdc430-65e8-45ad-81d9-8ffa60d55b59" };
@@ -113,11 +112,11 @@ Scenarios.Azure_Core_Basic_List = passOnSuccess({
       request: {
         config: {
           params: {
-            "top": 5,
-            "skip": 10,
-            "orderby": "id",
-            "filter": "id lt 10",
-            "expand": "orders",
+            top: 5,
+            skip: 10,
+            orderby: "id",
+            filter: "id lt 10",
+            expand: "orders",
             "api-version": "2022-12-01-preview",
           },
         },
@@ -226,7 +225,7 @@ Scenarios.Azure_Core_Basic_Export = passOnSuccess({
       request: {
         config: {
           params: {
-            "format": "json",
+            format: "json",
             "api-version": "2022-12-01-preview",
           },
         },
@@ -248,7 +247,7 @@ Scenarios.Azure_Core_Basic_Export_All_Users = passOnSuccess({
         config: {
           params: {
             "api-version": "2022-12-01-preview",
-            "format": "json",
+            format: "json",
           },
         },
       },

@@ -1,13 +1,13 @@
 import {
-  passOnSuccess,
-  mockapi,
-  json,
   CollectionFormat,
+  json,
+  mockapi,
   MockApi,
+  passOnSuccess,
+  ScenarioMockApi,
   validateValueFormat,
   ValidationError,
 } from "@typespec/spec-api";
-import { ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -33,7 +33,11 @@ function createQueryMockApis(
   });
 }
 
-function createPropertyMockApis(route: string, format: "rfc7231" | "rfc3339" | undefined, value: any): MockApi {
+function createPropertyMockApis(
+  route: string,
+  format: "rfc7231" | "rfc3339" | undefined,
+  value: any,
+): MockApi {
   const url = `/encode/datetime/property/${route}`;
   return mockapi.post(url, (req) => {
     if (format) {
@@ -51,7 +55,11 @@ function createPropertyMockApis(route: string, format: "rfc7231" | "rfc3339" | u
   });
 }
 
-function createHeaderMockApis(route: string, format: "rfc7231" | "rfc3339" | undefined, value: any): MockApi {
+function createHeaderMockApis(
+  route: string,
+  format: "rfc7231" | "rfc3339" | undefined,
+  value: any,
+): MockApi {
   const url = `/encode/datetime/header/${route}`;
   return mockapi.get(url, (req) => {
     if (format) {
@@ -157,18 +165,30 @@ function createQueryServerTests(uri: string, paramData: any) {
     ],
   });
 }
-Scenarios.Encode_DateTime_Query_Default_Server_Test = createQueryServerTests("/encode/datetime/query/default", {
-  value: "2022-08-26T18:38:00.000Z",
-});
-Scenarios.Encode_DateTime_Query_rfc3339_Server_Test = createQueryServerTests("/encode/datetime/query/rfc3339", {
-  value: "2022-08-26T18:38:00.000Z",
-});
-Scenarios.Encode_DateTime_Query_rfc7231_Server_Test = createQueryServerTests("/encode/datetime/query/rfc7231", {
-  value: "Fri, 26 Aug 2022 14:38:00 GMT",
-});
-Scenarios.Encode_DateTime_Query_Unix_Timestamp = createQueryServerTests("/encode/datetime/query/unix-timestamp", {
-  value: 1686566864,
-});
+Scenarios.Encode_DateTime_Query_Default_Server_Test = createQueryServerTests(
+  "/encode/datetime/query/default",
+  {
+    value: "2022-08-26T18:38:00.000Z",
+  },
+);
+Scenarios.Encode_DateTime_Query_rfc3339_Server_Test = createQueryServerTests(
+  "/encode/datetime/query/rfc3339",
+  {
+    value: "2022-08-26T18:38:00.000Z",
+  },
+);
+Scenarios.Encode_DateTime_Query_rfc7231_Server_Test = createQueryServerTests(
+  "/encode/datetime/query/rfc7231",
+  {
+    value: "Fri, 26 Aug 2022 14:38:00 GMT",
+  },
+);
+Scenarios.Encode_DateTime_Query_Unix_Timestamp = createQueryServerTests(
+  "/encode/datetime/query/unix-timestamp",
+  {
+    value: 1686566864,
+  },
+);
 Scenarios.Encode_DateTime_Query_Unix_Timestamp_Array = createQueryServerTests(
   "/encode/datetime/query/unix-timestamp-array",
   {
@@ -239,18 +259,30 @@ function createHeaderServerTests(uri: string, data: any) {
     ],
   });
 }
-Scenarios.Encode_DateTime_Header_Default_Server_Test = createHeaderServerTests("/encode/datetime/header/default", {
-  value: "Fri, 26 Aug 2022 14:38:00 GMT",
-});
-Scenarios.Encode_DateTime_Header_rfc3339_Server_Test = createHeaderServerTests("/encode/datetime/header/rfc3339", {
-  value: "2022-08-26T18:38:00.000Z",
-});
-Scenarios.Encode_DateTime_Header_rfc7231_Server_Test = createHeaderServerTests("/encode/datetime/header/rfc7231", {
-  value: "Fri, 26 Aug 2022 14:38:00 GMT",
-});
-Scenarios.Encode_DateTime_Header_Unix_Timestamp = createHeaderServerTests("/encode/datetime/header/unix-timestamp", {
-  value: 1686566864,
-});
+Scenarios.Encode_DateTime_Header_Default_Server_Test = createHeaderServerTests(
+  "/encode/datetime/header/default",
+  {
+    value: "Fri, 26 Aug 2022 14:38:00 GMT",
+  },
+);
+Scenarios.Encode_DateTime_Header_rfc3339_Server_Test = createHeaderServerTests(
+  "/encode/datetime/header/rfc3339",
+  {
+    value: "2022-08-26T18:38:00.000Z",
+  },
+);
+Scenarios.Encode_DateTime_Header_rfc7231_Server_Test = createHeaderServerTests(
+  "/encode/datetime/header/rfc7231",
+  {
+    value: "Fri, 26 Aug 2022 14:38:00 GMT",
+  },
+);
+Scenarios.Encode_DateTime_Header_Unix_Timestamp = createHeaderServerTests(
+  "/encode/datetime/header/unix-timestamp",
+  {
+    value: 1686566864,
+  },
+);
 Scenarios.Encode_DateTime_Header_Unix_Timestamp_Array = createHeaderServerTests(
   "/encode/datetime/header/unix-timestamp-array",
   {

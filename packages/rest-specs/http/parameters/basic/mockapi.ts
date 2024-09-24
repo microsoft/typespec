@@ -1,5 +1,4 @@
-import { passOnSuccess, mockapi } from "@typespec/spec-api";
-import { ScenarioMockApi } from "@typespec/spec-api";
+import { mockapi, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -36,5 +35,9 @@ function createServerTests(uri: string) {
   });
 }
 
-Scenarios.Parameters_Basic_ExplicitBody_simple_server = createServerTests("/parameters/basic/explicit-body/simple");
-Scenarios.Parameters_Basic_ImplicitBody_simple_server = createServerTests("/parameters/basic/implicit-body/simple");
+Scenarios.Parameters_Basic_ExplicitBody_simple_server = createServerTests(
+  "/parameters/basic/explicit-body/simple",
+);
+Scenarios.Parameters_Basic_ImplicitBody_simple_server = createServerTests(
+  "/parameters/basic/implicit-body/simple",
+);

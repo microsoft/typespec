@@ -1,4 +1,4 @@
-import { passOnSuccess, ScenarioMockApi, mockapi, json, MockApi } from "@typespec/spec-api";
+import { json, mockapi, MockApi, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -34,7 +34,10 @@ const Int32ValueMock = createModelMockApis("int32", { k1: 1, k2: 2 });
 Scenarios.Type_Dictionary_Int32Value_get = passOnSuccess(Int32ValueMock.get);
 Scenarios.Type_Dictionary_Int32Value_put = passOnSuccess(Int32ValueMock.put);
 
-const Int64ValueMock = createModelMockApis("int64", { k1: Number.MAX_SAFE_INTEGER, k2: Number.MIN_SAFE_INTEGER });
+const Int64ValueMock = createModelMockApis("int64", {
+  k1: Number.MAX_SAFE_INTEGER,
+  k2: Number.MIN_SAFE_INTEGER,
+});
 Scenarios.Type_Dictionary_Int64Value_get = passOnSuccess(Int64ValueMock.get);
 Scenarios.Type_Dictionary_Int64Value_put = passOnSuccess(Int64ValueMock.put);
 
@@ -76,7 +79,11 @@ const RecursiveValueMock = createModelMockApis("model/recursive", {
 Scenarios.Type_Dictionary_RecursiveModelValue_get = passOnSuccess(RecursiveValueMock.get);
 Scenarios.Type_Dictionary_RecursiveModelValue_put = passOnSuccess(RecursiveValueMock.put);
 
-const NullableFloatValueMock = createModelMockApis("nullable-float", { k1: 1.25, k2: 0.5, k3: null });
+const NullableFloatValueMock = createModelMockApis("nullable-float", {
+  k1: 1.25,
+  k2: 0.5,
+  k3: null,
+});
 Scenarios.Type_Dictionary_NullableFloatValue_get = passOnSuccess(NullableFloatValueMock.get);
 Scenarios.Type_Dictionary_NullableFloatValue_put = passOnSuccess(NullableFloatValueMock.put);
 
@@ -110,12 +117,26 @@ Scenarios.Type_Dictionary_Int64 = createServerTests(`/type/dictionary/int64`, {
   k1: Number.MAX_SAFE_INTEGER,
   k2: Number.MIN_SAFE_INTEGER,
 });
-Scenarios.Type_Dictionary_Boolean = createServerTests(`/type/dictionary/boolean`, { k1: true, k2: false });
-Scenarios.Type_Dictionary_String = createServerTests(`/type/dictionary/string`, { k1: "hello", k2: "" });
+Scenarios.Type_Dictionary_Boolean = createServerTests(`/type/dictionary/boolean`, {
+  k1: true,
+  k2: false,
+});
+Scenarios.Type_Dictionary_String = createServerTests(`/type/dictionary/string`, {
+  k1: "hello",
+  k2: "",
+});
 Scenarios.Type_Dictionary_Float32 = createServerTests(`/type/dictionary/float32`, { k1: 43.125 });
-Scenarios.Type_Dictionary_Datetime = createServerTests(`/type/dictionary/datetime`, { k1: "2022-08-26T18:38:00Z" });
-Scenarios.Type_Dictionary_Duration = createServerTests(`/type/dictionary/duration`, { k1: "P123DT22H14M12.011S" });
-Scenarios.Type_Dictionary_Unknown = createServerTests(`/type/dictionary/unknown`, { k1: 1, k2: "hello", k3: null });
+Scenarios.Type_Dictionary_Datetime = createServerTests(`/type/dictionary/datetime`, {
+  k1: "2022-08-26T18:38:00Z",
+});
+Scenarios.Type_Dictionary_Duration = createServerTests(`/type/dictionary/duration`, {
+  k1: "P123DT22H14M12.011S",
+});
+Scenarios.Type_Dictionary_Unknown = createServerTests(`/type/dictionary/unknown`, {
+  k1: 1,
+  k2: "hello",
+  k3: null,
+});
 Scenarios.Type_Dictionary_Model = createServerTests(`/type/dictionary/model`, {
   k1: { property: "hello" },
   k2: { property: "world" },

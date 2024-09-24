@@ -1,5 +1,4 @@
-import { passOnSuccess, mockapi } from "@typespec/spec-api";
-import { ScenarioMockApi } from "@typespec/spec-api";
+import { mockapi, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 Scenarios.Client_Structure_RenamedOperation = passOnSuccess([
@@ -36,9 +35,21 @@ function createServerTests(uri: string) {
   });
 }
 
-Scenarios.Client_Structure_Renamed_Operation_One = createServerTests("/client/structure/renamed-operation/one");
-Scenarios.Client_Structure_Renamed_Operation_Two = createServerTests("/client/structure/renamed-operation/two");
-Scenarios.Client_Structure_Renamed_Operation_Three = createServerTests("/client/structure/renamed-operation/three");
-Scenarios.Client_Structure_Renamed_Operation_Four = createServerTests("/client/structure/renamed-operation/four");
-Scenarios.Client_Structure_Renamed_Operation_Five = createServerTests("/client/structure/renamed-operation/five");
-Scenarios.Client_Structure_Renamed_Operation_Six = createServerTests("/client/structure/renamed-operation/six");
+Scenarios.Client_Structure_Renamed_Operation_One = createServerTests(
+  "/client/structure/renamed-operation/one",
+);
+Scenarios.Client_Structure_Renamed_Operation_Two = createServerTests(
+  "/client/structure/renamed-operation/two",
+);
+Scenarios.Client_Structure_Renamed_Operation_Three = createServerTests(
+  "/client/structure/renamed-operation/three",
+);
+Scenarios.Client_Structure_Renamed_Operation_Four = createServerTests(
+  "/client/structure/renamed-operation/four",
+);
+Scenarios.Client_Structure_Renamed_Operation_Five = createServerTests(
+  "/client/structure/renamed-operation/five",
+);
+Scenarios.Client_Structure_Renamed_Operation_Six = createServerTests(
+  "/client/structure/renamed-operation/six",
+);

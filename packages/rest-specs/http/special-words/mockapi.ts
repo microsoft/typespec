@@ -1,4 +1,4 @@
-import { passOnSuccess, ScenarioMockApi, mockapi } from "@typespec/spec-api";
+import { mockapi, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -161,7 +161,10 @@ function propertyNameScenario(route: string, name: string) {
   );
 }
 
-Scenarios.SpecialWords_ModelProperties_sameAsModel = propertyNameScenario("same-as-model", "SameAsModel");
+Scenarios.SpecialWords_ModelProperties_sameAsModel = propertyNameScenario(
+  "same-as-model",
+  "SameAsModel",
+);
 
 Scenarios.Special_Words_Model_Properties_Same_As_Model = passOnSuccess({
   uri: "/special-words/model-properties/same-as-model",
@@ -205,7 +208,9 @@ Scenarios.Special_Words_Models_Async = createPostServerTests(`/special-words/mod
 Scenarios.Special_Words_Models_Await = createPostServerTests(`/special-words/models/await`);
 Scenarios.Special_Words_Models_Break = createPostServerTests(`/special-words/models/break`);
 Scenarios.Special_Words_Models_Class = createPostServerTests(`/special-words/models/class`);
-Scenarios.Special_Words_Models_Constructor = createPostServerTests(`/special-words/models/constructor`);
+Scenarios.Special_Words_Models_Constructor = createPostServerTests(
+  `/special-words/models/constructor`,
+);
 Scenarios.Special_Words_Models_Continue = createPostServerTests(`/special-words/models/continue`);
 Scenarios.Special_Words_Models_Def = createPostServerTests(`/special-words/models/def`);
 Scenarios.Special_Words_Models_Del = createPostServerTests(`/special-words/models/del`);
@@ -258,8 +263,12 @@ Scenarios.Special_Words_Operations_Async = createServerTests(`/special-words/ope
 Scenarios.Special_Words_Operations_Await = createServerTests(`/special-words/operations/await`);
 Scenarios.Special_Words_Operations_Break = createServerTests(`/special-words/operations/break`);
 Scenarios.Special_Words_Operations_Class = createServerTests(`/special-words/operations/class`);
-Scenarios.Special_Words_Operations_Constructor = createServerTests(`/special-words/operations/constructor`);
-Scenarios.Special_Words_Operations_Continue = createServerTests(`/special-words/operations/continue`);
+Scenarios.Special_Words_Operations_Constructor = createServerTests(
+  `/special-words/operations/constructor`,
+);
+Scenarios.Special_Words_Operations_Continue = createServerTests(
+  `/special-words/operations/continue`,
+);
 Scenarios.Special_Words_Operations_Def = createServerTests(`/special-words/operations/def`);
 Scenarios.Special_Words_Operations_Del = createServerTests(`/special-words/operations/del`);
 Scenarios.Special_Words_Operations_Elif = createServerTests(`/special-words/operations/elif`);
@@ -305,12 +314,18 @@ Scenarios.Special_Words_Parameters_Break = createServerTests(`/special-words/par
 Scenarios.Special_Words_Parameters_Class = createServerTests(`/special-words/parameters/class`, {
   class: "ok",
 });
-Scenarios.Special_Words_Parameters_Constructor = createServerTests(`/special-words/parameters/constructor`, {
-  constructor: "ok",
-});
-Scenarios.Special_Words_Parameters_Continue = createServerTests(`/special-words/parameters/continue`, {
-  continue: "ok",
-});
+Scenarios.Special_Words_Parameters_Constructor = createServerTests(
+  `/special-words/parameters/constructor`,
+  {
+    constructor: "ok",
+  },
+);
+Scenarios.Special_Words_Parameters_Continue = createServerTests(
+  `/special-words/parameters/continue`,
+  {
+    continue: "ok",
+  },
+);
 Scenarios.Special_Words_Parameters_Def = createServerTests(`/special-words/parameters/def`, {
   def: "ok",
 });
@@ -329,9 +344,12 @@ Scenarios.Special_Words_Parameters_Except = createServerTests(`/special-words/pa
 Scenarios.Special_Words_Parameters_Exec = createServerTests(`/special-words/parameters/exec`, {
   exec: "ok",
 });
-Scenarios.Special_Words_Parameters_Finally = createServerTests(`/special-words/parameters/finally`, {
-  finally: "ok",
-});
+Scenarios.Special_Words_Parameters_Finally = createServerTests(
+  `/special-words/parameters/finally`,
+  {
+    finally: "ok",
+  },
+);
 Scenarios.Special_Words_Parameters_For = createServerTests(`/special-words/parameters/for`, {
   for: "ok",
 });

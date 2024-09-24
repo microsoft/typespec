@@ -169,7 +169,8 @@ interface Model extends ModelOperations<ModelProperty, "{'property': 'hello'}"> 
 model CollectionsStringProperty is ModelTemplate<string[]>;
 @route("/collections/string")
 @operationGroup
-interface CollectionsString extends ModelOperations<CollectionsStringProperty, "['hello', 'world']"> {}
+interface CollectionsString
+  extends ModelOperations<CollectionsStringProperty, "['hello', 'world']"> {}
 
 // Test a model with an int collection property
 @doc("Model with collection int properties")
@@ -184,14 +185,18 @@ model CollectionsModelProperty is ModelTemplate<InnerModel[]>;
 @route("/collections/model")
 @operationGroup
 interface CollectionsModel
-  extends ModelOperations<CollectionsModelProperty, "[{'property': 'hello'}, {'property': 'world'}]"> {}
+  extends ModelOperations<
+      CollectionsModelProperty,
+      "[{'property': 'hello'}, {'property': 'world'}]"
+    > {}
 
 // Test a model with a string dictionary property
 @doc("Model with dictionary string properties")
 model DictionaryStringProperty is ModelTemplate<Record<string>>;
 @route("/dictionary/string")
 @operationGroup
-interface DictionaryString extends ModelOperations<DictionaryStringProperty, "{'k1': 'hello', 'k2': 'world'}"> {}
+interface DictionaryString
+  extends ModelOperations<DictionaryStringProperty, "{'k1': 'hello', 'k2': 'world'}"> {}
 
 // Test a model with a never property
 @doc("Model with a property never. (This property should not be included).")

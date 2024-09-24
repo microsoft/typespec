@@ -1,4 +1,4 @@
-import { passOnSuccess, ScenarioMockApi, mockapi, json, MockApi } from "@typespec/spec-api";
+import { json, mockapi, MockApi, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -77,23 +77,53 @@ Scenarios.Type_Property_Nullable_Duration_getNull = passOnSuccess(durationMock.g
 Scenarios.Type_Property_Nullable_Duration_patchNonNull = passOnSuccess(durationMock.patchNonNull);
 Scenarios.Type_Property_Nullable_Duration_patchNull = passOnSuccess(durationMock.patchNull);
 
-const collectionsBytesMock = createMockApis("collections/bytes", ["aGVsbG8sIHdvcmxkIQ==", "aGVsbG8sIHdvcmxkIQ=="]);
-Scenarios.Type_Property_Nullable_CollectionsByte_getNonNull = passOnSuccess(collectionsBytesMock.getNonNull);
-Scenarios.Type_Property_Nullable_CollectionsByte_getNull = passOnSuccess(collectionsBytesMock.getNull);
-Scenarios.Type_Property_Nullable_CollectionsByte_patchNonNull = passOnSuccess(collectionsBytesMock.patchNonNull);
-Scenarios.Type_Property_Nullable_CollectionsByte_patchNull = passOnSuccess(collectionsBytesMock.patchNull);
+const collectionsBytesMock = createMockApis("collections/bytes", [
+  "aGVsbG8sIHdvcmxkIQ==",
+  "aGVsbG8sIHdvcmxkIQ==",
+]);
+Scenarios.Type_Property_Nullable_CollectionsByte_getNonNull = passOnSuccess(
+  collectionsBytesMock.getNonNull,
+);
+Scenarios.Type_Property_Nullable_CollectionsByte_getNull = passOnSuccess(
+  collectionsBytesMock.getNull,
+);
+Scenarios.Type_Property_Nullable_CollectionsByte_patchNonNull = passOnSuccess(
+  collectionsBytesMock.patchNonNull,
+);
+Scenarios.Type_Property_Nullable_CollectionsByte_patchNull = passOnSuccess(
+  collectionsBytesMock.patchNull,
+);
 
-const collectionsModelMock = createMockApis("collections/model", [{ property: "hello" }, { property: "world" }]);
-Scenarios.Type_Property_Nullable_CollectionsModel_getNonNull = passOnSuccess(collectionsModelMock.getNonNull);
-Scenarios.Type_Property_Nullable_CollectionsModel_getNull = passOnSuccess(collectionsModelMock.getNull);
-Scenarios.Type_Property_Nullable_CollectionsModel_patchNonNull = passOnSuccess(collectionsModelMock.patchNonNull);
-Scenarios.Type_Property_Nullable_CollectionsModel_patchNull = passOnSuccess(collectionsModelMock.patchNull);
+const collectionsModelMock = createMockApis("collections/model", [
+  { property: "hello" },
+  { property: "world" },
+]);
+Scenarios.Type_Property_Nullable_CollectionsModel_getNonNull = passOnSuccess(
+  collectionsModelMock.getNonNull,
+);
+Scenarios.Type_Property_Nullable_CollectionsModel_getNull = passOnSuccess(
+  collectionsModelMock.getNull,
+);
+Scenarios.Type_Property_Nullable_CollectionsModel_patchNonNull = passOnSuccess(
+  collectionsModelMock.patchNonNull,
+);
+Scenarios.Type_Property_Nullable_CollectionsModel_patchNull = passOnSuccess(
+  collectionsModelMock.patchNull,
+);
 
 const collectionsStringMock = createMockApis("collections/string", ["hello", "world"]);
-Scenarios.Type_Property_Nullable_CollectionsString_getNonNull = passOnSuccess(collectionsStringMock.getNonNull);
-Scenarios.Type_Property_Nullable_CollectionsString_getNull = passOnSuccess(collectionsStringMock.getNull);
-Scenarios.Type_Property_Nullable_CollectionsString_patchNonNull = passOnSuccess(collectionsStringMock.patchNonNull);
-Scenarios.Type_Property_Nullable_CollectionsString_patchNull = passOnSuccess(collectionsStringMock.patchNull);
+Scenarios.Type_Property_Nullable_CollectionsString_getNonNull = passOnSuccess(
+  collectionsStringMock.getNonNull,
+);
+Scenarios.Type_Property_Nullable_CollectionsString_getNull = passOnSuccess(
+  collectionsStringMock.getNull,
+);
+Scenarios.Type_Property_Nullable_CollectionsString_patchNonNull = passOnSuccess(
+  collectionsStringMock.patchNonNull,
+);
+Scenarios.Type_Property_Nullable_CollectionsString_patchNull = passOnSuccess(
+  collectionsStringMock.patchNull,
+);
 
 function createServerTests(url: string, value: unknown, patchNullableProperty?: any) {
   return passOnSuccess({
@@ -128,22 +158,34 @@ function createServerTests(url: string, value: unknown, patchNullableProperty?: 
   });
 }
 
-Scenarios.Type_Property_Nullable_String_Null = createServerTests(`/type/property/nullable/string/null`, {
-  requiredProperty: "foo",
-  nullableProperty: null,
-});
-Scenarios.Type_Property_Nullable_Bytes_Null = createServerTests(`/type/property/nullable/bytes/null`, {
-  requiredProperty: "foo",
-  nullableProperty: null,
-});
-Scenarios.Type_Property_Nullable_DateTime_Null = createServerTests(`/type/property/nullable/datetime/null`, {
-  requiredProperty: "foo",
-  nullableProperty: null,
-});
-Scenarios.Type_Property_Nullable_Duration_Null = createServerTests(`/type/property/nullable/duration/null`, {
-  requiredProperty: "foo",
-  nullableProperty: null,
-});
+Scenarios.Type_Property_Nullable_String_Null = createServerTests(
+  `/type/property/nullable/string/null`,
+  {
+    requiredProperty: "foo",
+    nullableProperty: null,
+  },
+);
+Scenarios.Type_Property_Nullable_Bytes_Null = createServerTests(
+  `/type/property/nullable/bytes/null`,
+  {
+    requiredProperty: "foo",
+    nullableProperty: null,
+  },
+);
+Scenarios.Type_Property_Nullable_DateTime_Null = createServerTests(
+  `/type/property/nullable/datetime/null`,
+  {
+    requiredProperty: "foo",
+    nullableProperty: null,
+  },
+);
+Scenarios.Type_Property_Nullable_Duration_Null = createServerTests(
+  `/type/property/nullable/duration/null`,
+  {
+    requiredProperty: "foo",
+    nullableProperty: null,
+  },
+);
 Scenarios.Type_Property_Nullable_Collections_Bytes_Null = createServerTests(
   `/type/property/nullable/collections/bytes/null`,
   {

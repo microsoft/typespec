@@ -1,5 +1,11 @@
-import { mockapi, json, withKeys, ValidationError, passOnSuccess } from "@typespec/spec-api";
-import { ScenarioMockApi } from "@typespec/spec-api";
+import {
+  ScenarioMockApi,
+  ValidationError,
+  json,
+  mockapi,
+  passOnSuccess,
+  withKeys,
+} from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 

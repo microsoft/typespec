@@ -40,12 +40,20 @@ export async function makeServiceCall(
 }
 
 export async function makePutCall(request: ServiceRequest): Promise<AxiosResponse<any, any>> {
-  const response = await axios.put(request.endPoint, request.options?.requestBody, request.options?.config);
+  const response = await axios.put(
+    request.endPoint,
+    request.options?.requestBody,
+    request.options?.config,
+  );
   return response;
 }
 
 export async function makePostCall(request: ServiceRequest): Promise<AxiosResponse<any, any>> {
-  const response = await axios.post(request.endPoint, request.options?.requestBody, request.options?.config);
+  const response = await axios.post(
+    request.endPoint,
+    request.options?.requestBody,
+    request.options?.config,
+  );
   return response;
 }
 
@@ -55,7 +63,11 @@ export async function makeGetCall(request: ServiceRequest): Promise<AxiosRespons
 }
 
 export async function makePatchCall(request: ServiceRequest): Promise<AxiosResponse<any, any>> {
-  const response = await axios.patch(request.endPoint, request.options?.requestBody, request.options?.config);
+  const response = await axios.patch(
+    request.endPoint,
+    request.options?.requestBody,
+    request.options?.config,
+  );
   return response;
 }
 

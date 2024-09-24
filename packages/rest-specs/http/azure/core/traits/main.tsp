@@ -128,7 +128,11 @@ op repeatableAction is RepeatableOperationsWithTraits.ResourceAction<
   UserActionResponse
 >;
 
-alias BodyParameter<T, TName extends valueof string = "body", TDoc extends valueof string = "The body parameter."> = {
+alias BodyParameter<
+  T,
+  TName extends valueof string = "body",
+  TDoc extends valueof string = "The body parameter."
+> = {
   @doc(TDoc)
   @friendlyName(TName)
   @bodyRoot

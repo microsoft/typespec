@@ -1,5 +1,11 @@
-import { passOnSuccess, mockapi, ValidationError, json, MockApi } from "@typespec/spec-api";
-import { ScenarioMockApi } from "@typespec/spec-api";
+import {
+  json,
+  mockapi,
+  MockApi,
+  passOnSuccess,
+  ScenarioMockApi,
+  ValidationError,
+} from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -42,15 +48,18 @@ Scenarios.Azure_ClientGenerator_Core_Access_RelativeModelInOperation = passOnSuc
       body: json({ name: "Madge", inner: { name: "Madge" } }),
     };
   }),
-  mockapi.get("/azure/client-generator-core/access/relativeModelInOperation/discriminator", (req) => {
-    if (!("kind" in req.query)) {
-      throw new ValidationError("Should submit name query", "any string", undefined);
-    }
-    return {
-      status: 200,
-      body: json({ name: "Madge", kind: "real" }),
-    };
-  }),
+  mockapi.get(
+    "/azure/client-generator-core/access/relativeModelInOperation/discriminator",
+    (req) => {
+      if (!("kind" in req.query)) {
+        throw new ValidationError("Should submit name query", "any string", undefined);
+      }
+      return {
+        status: 200,
+        body: json({ name: "Madge", kind: "real" }),
+      };
+    },
+  ),
 ]);
 
 function createServerTests(uri: string, responseData: any) {
@@ -85,14 +94,16 @@ Scenarios.Azure_ClientGenerator_Core_Access_InternalOperation_NoDecInInternal = 
   "/azure/client-generator-core/access/internalOperation/noDecoratorInInternal",
   { name: "myname" },
 );
-Scenarios.Azure_ClientGenerator_Core_Access_InternalOperation_InternalDecInInternal = createServerTests(
-  "/azure/client-generator-core/access/internalOperation/internalDecoratorInInternal",
-  { name: "myname" },
-);
-Scenarios.Azure_ClientGenerator_Core_Access_InternalOperation_PublicDecInInternal = createServerTests(
-  "/azure/client-generator-core/access/internalOperation/publicDecoratorInInternal",
-  { name: "myname" },
-);
+Scenarios.Azure_ClientGenerator_Core_Access_InternalOperation_InternalDecInInternal =
+  createServerTests(
+    "/azure/client-generator-core/access/internalOperation/internalDecoratorInInternal",
+    { name: "myname" },
+  );
+Scenarios.Azure_ClientGenerator_Core_Access_InternalOperation_PublicDecInInternal =
+  createServerTests(
+    "/azure/client-generator-core/access/internalOperation/publicDecoratorInInternal",
+    { name: "myname" },
+  );
 Scenarios.Azure_ClientGenerator_Core_Access_SharedModelInOperation_Public = createServerTests(
   "/azure/client-generator-core/access/sharedModelInOperation/public",
   { name: "myname" },
@@ -105,7 +116,8 @@ Scenarios.Azure_ClientGenerator_Core_Access_RelativeModelInOperation_Operation =
   "/azure/client-generator-core/access/relativeModelInOperation/operation",
   { name: "Madge", inner: { name: "Madge" } },
 );
-Scenarios.Azure_ClientGenerator_Core_Access_RelativeModelInOperation_Discriminator = createServerTests(
-  "/azure/client-generator-core/access/relativeModelInOperation/discriminator",
-  { name: "Madge", kind: "real" },
-);
+Scenarios.Azure_ClientGenerator_Core_Access_RelativeModelInOperation_Discriminator =
+  createServerTests("/azure/client-generator-core/access/relativeModelInOperation/discriminator", {
+    name: "Madge",
+    kind: "real",
+  });

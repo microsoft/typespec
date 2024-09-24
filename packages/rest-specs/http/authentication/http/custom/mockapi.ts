@@ -1,5 +1,4 @@
-import { MockRequest, passOnSuccess, json } from "@typespec/spec-api";
-import { ScenarioMockApi } from "@typespec/spec-api";
+import { MockRequest, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 import { getValidAndInvalidScenarios } from "../../commonapi.js";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};

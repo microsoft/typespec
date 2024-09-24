@@ -1,6 +1,12 @@
-import { mockapi, ValidationError, json, withKeys, passOnSuccess } from "@typespec/spec-api";
-import { ScenarioMockApi } from "@typespec/spec-api";
-import { pngFile, jpgFile } from "../../helper.js";
+import {
+  json,
+  mockapi,
+  passOnSuccess,
+  ScenarioMockApi,
+  ValidationError,
+  withKeys,
+} from "@typespec/spec-api";
+import { jpgFile, pngFile } from "../../helper.js";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -27,12 +33,19 @@ Scenarios.Payload_ContentNegotiation_SameBody = withKeys(["image/png", "image/jp
           },
         } as const;
       default:
-        throw new ValidationError("Unsupported Accept header", `"image/png" | "image/jpeg"`, req.headers["accept"]);
+        throw new ValidationError(
+          "Unsupported Accept header",
+          `"image/png" | "image/jpeg"`,
+          req.headers["accept"],
+        );
     }
   }),
 );
 
-Scenarios.Payload_ContentNegotiation_DifferentBody = withKeys(["image/png", "application/json"]).pass(
+Scenarios.Payload_ContentNegotiation_DifferentBody = withKeys([
+  "image/png",
+  "application/json",
+]).pass(
   mockapi.get("/content-negotiation/different-body", (req) => {
     switch (req.headers["accept"]) {
       case "image/png":

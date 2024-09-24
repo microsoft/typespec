@@ -1,10 +1,10 @@
 import {
+  mockapi,
+  MockApi,
+  MockRequest,
   passOnSuccess,
   ScenarioMockApi,
-  mockapi,
   ValidationError,
-  MockRequest,
-  MockApi,
   withKeys,
 } from "@typespec/spec-api";
 import { jpgFile, pngFile } from "../../helper.js";
@@ -89,11 +89,19 @@ function checkAllFiles(req: MockRequest) {
       } else if (file.fieldname === "pictures") {
         checkPngFile(req, file);
       } else {
-        throw new ValidationError("unexpected fieldname", "profileImage or pictures", file.fieldname);
+        throw new ValidationError(
+          "unexpected fieldname",
+          "profileImage or pictures",
+          file.fieldname,
+        );
       }
     }
   } else {
-    throw new ValidationError("Can't parse files from request", "jpg/png files are expected", req.body);
+    throw new ValidationError(
+      "Can't parse files from request",
+      "jpg/png files are expected",
+      req.body,
+    );
   }
 }
 function checkPictures(req: MockRequest) {
@@ -118,7 +126,9 @@ function createMockApis(route: string, checkList: ((param: MockRequest) => void)
   });
 }
 
-Scenarios.Payload_MultiPart_FormData_basic = passOnSuccess(createMockApis("mixed-parts", [checkId, checkProfileImage]));
+Scenarios.Payload_MultiPart_FormData_basic = passOnSuccess(
+  createMockApis("mixed-parts", [checkId, checkProfileImage]),
+);
 
 Scenarios.Payload_MultiPart_FormData_fileArrayAndBasic = passOnSuccess(
   createMockApis("complex-parts", [checkId, checkAddress, checkAllFiles]),
@@ -132,7 +142,10 @@ Scenarios.Payload_MultiPart_FormData_binaryArrayParts = passOnSuccess(
   createMockApis("binary-array-parts", [checkId, checkPictures]),
 );
 
-Scenarios.Payload_MultiPart_FormData_multiBinaryParts = withKeys(["profileImage", "profileImage,picture"]).pass(
+Scenarios.Payload_MultiPart_FormData_multiBinaryParts = withKeys([
+  "profileImage",
+  "profileImage,picture",
+]).pass(
   mockapi.post("/multipart/form-data/multi-binary-parts", (req) => {
     if (req.files instanceof Array) {
       switch (req.files.length) {
@@ -150,7 +163,11 @@ Scenarios.Payload_MultiPart_FormData_multiBinaryParts = withKeys(["profileImage"
               checkPngFile(req, file, "picture");
               picture = true;
             } else {
-              throw new ValidationError("unexpected fieldname", "profileImage or picture", file.fieldname);
+              throw new ValidationError(
+                "unexpected fieldname",
+                "profileImage or picture",
+                file.fieldname,
+              );
             }
           }
           if (!profileImage) {
@@ -160,10 +177,18 @@ Scenarios.Payload_MultiPart_FormData_multiBinaryParts = withKeys(["profileImage"
           }
           return { pass: "profileImage,picture", status: 204 } as const;
         default:
-          throw new ValidationError("number of files is incorrect", "1 or 2 files are expected", req.body);
+          throw new ValidationError(
+            "number of files is incorrect",
+            "1 or 2 files are expected",
+            req.body,
+          );
       }
     } else {
-      throw new ValidationError("Can't parse files from request", "jpg/png files are expected", req.body);
+      throw new ValidationError(
+        "Can't parse files from request",
+        "jpg/png files are expected",
+        req.body,
+      );
     }
   }),
 );
@@ -177,7 +202,9 @@ Scenarios.Payload_MultiPart_FormData_anonymousModel = passOnSuccess(
 );
 
 Scenarios.Payload_MultiPart_FormData_HttpParts_ContentType_imageJpegContentType = passOnSuccess(
-  createMockApis("check-filename-and-specific-content-type-with-httppart", [checkFileNameAndContentType]),
+  createMockApis("check-filename-and-specific-content-type-with-httppart", [
+    checkFileNameAndContentType,
+  ]),
 );
 
 Scenarios.Payload_MultiPart_FormData_HttpParts_ContentType_requiredContentType = passOnSuccess(
@@ -187,7 +214,12 @@ Scenarios.Payload_MultiPart_FormData_HttpParts_ContentType_optionalContentType =
   createMockApis("file-with-http-part-optional-content-type", [checkOptionalContentType]),
 );
 Scenarios.Payload_MultiPart_FormData_HttpParts_jsonArrayAndFileArray = passOnSuccess(
-  createMockApis("complex-parts-with-httppart", [checkId, checkAddress, checkPreviousAddresses, checkAllFiles]),
+  createMockApis("complex-parts-with-httppart", [
+    checkId,
+    checkAddress,
+    checkPreviousAddresses,
+    checkAllFiles,
+  ]),
 );
 Scenarios.Payload_MultiPart_FormData_HttpParts_NonString_float = passOnSuccess(
   createMockApis("non-string-float", [checkFloat]),

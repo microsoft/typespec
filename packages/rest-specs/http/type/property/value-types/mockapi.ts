@@ -1,4 +1,4 @@
-import { passOnSuccess, ScenarioMockApi, mockapi, json, MockApi } from "@typespec/spec-api";
+import { json, mockapi, MockApi, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -88,7 +88,10 @@ const collectionsIntMock = createMockApis("collections/int", [1, 2]);
 Scenarios.Type_Property_ValueTypes_CollectionsInt_get = passOnSuccess(collectionsIntMock.get);
 Scenarios.Type_Property_ValueTypes_CollectionsInt_put = passOnSuccess(collectionsIntMock.put);
 
-const collectionsModelMock = createMockApis("collections/model", [{ property: "hello" }, { property: "world" }]);
+const collectionsModelMock = createMockApis("collections/model", [
+  { property: "hello" },
+  { property: "world" },
+]);
 Scenarios.Type_Property_ValueTypes_CollectionsModel_get = passOnSuccess(collectionsModelMock.get);
 Scenarios.Type_Property_ValueTypes_CollectionsModel_put = passOnSuccess(collectionsModelMock.put);
 
@@ -133,8 +136,12 @@ Scenarios.Type_Property_ValueTypes_BooleanLiteral_get = passOnSuccess(booleanLit
 Scenarios.Type_Property_ValueTypes_BooleanLiteral_put = passOnSuccess(booleanLiteralMock.put);
 
 const unionStringLiteralMock = createMockApis("union/string/literal", "world");
-Scenarios.Type_Property_ValueTypes_UnionStringLiteral_get = passOnSuccess(unionStringLiteralMock.get);
-Scenarios.Type_Property_ValueTypes_UnionStringLiteral_put = passOnSuccess(unionStringLiteralMock.put);
+Scenarios.Type_Property_ValueTypes_UnionStringLiteral_get = passOnSuccess(
+  unionStringLiteralMock.get,
+);
+Scenarios.Type_Property_ValueTypes_UnionStringLiteral_put = passOnSuccess(
+  unionStringLiteralMock.put,
+);
 
 const unionIntLiteralMock = createMockApis("union/int/literal", 42);
 Scenarios.Type_Property_ValueTypes_UnionIntLiteral_get = passOnSuccess(unionIntLiteralMock.get);
@@ -180,9 +187,12 @@ function createServerTests(url: string, data: unknown, convertedToFn?: (_: any) 
   });
 }
 
-Scenarios.Type_Property_ValueTypes_Boolean = createServerTests(`/type/property/value-types/boolean`, {
-  property: true,
-});
+Scenarios.Type_Property_ValueTypes_Boolean = createServerTests(
+  `/type/property/value-types/boolean`,
+  {
+    property: true,
+  },
+);
 Scenarios.Type_Property_ValueTypes_String = createServerTests(`/type/property/value-types/string`, {
   property: "hello",
 });
@@ -195,24 +205,39 @@ Scenarios.Type_Property_ValueTypes_Int = createServerTests(`/type/property/value
 Scenarios.Type_Property_ValueTypes_Float = createServerTests(`/type/property/value-types/float`, {
   property: 43.125,
 });
-Scenarios.Type_Property_ValueTypes_Decimal = createServerTests(`/type/property/value-types/decimal`, {
-  property: 0.33333,
-});
-Scenarios.Type_Property_ValueTypes_Decimal128 = createServerTests(`/type/property/value-types/decimal128`, {
-  property: 0.33333,
-});
-Scenarios.Type_Property_ValueTypes_DateTime = createServerTests(`/type/property/value-types/datetime`, {
-  property: "2022-08-26T18:38:00Z",
-});
-Scenarios.Type_Property_ValueTypes_Duration = createServerTests(`/type/property/value-types/duration`, {
-  property: "P123DT22H14M12.011S",
-});
+Scenarios.Type_Property_ValueTypes_Decimal = createServerTests(
+  `/type/property/value-types/decimal`,
+  {
+    property: 0.33333,
+  },
+);
+Scenarios.Type_Property_ValueTypes_Decimal128 = createServerTests(
+  `/type/property/value-types/decimal128`,
+  {
+    property: 0.33333,
+  },
+);
+Scenarios.Type_Property_ValueTypes_DateTime = createServerTests(
+  `/type/property/value-types/datetime`,
+  {
+    property: "2022-08-26T18:38:00Z",
+  },
+);
+Scenarios.Type_Property_ValueTypes_Duration = createServerTests(
+  `/type/property/value-types/duration`,
+  {
+    property: "P123DT22H14M12.011S",
+  },
+);
 Scenarios.Type_Property_ValueTypes_Enum = createServerTests(`/type/property/value-types/enum`, {
   property: "ValueOne",
 });
-Scenarios.Type_Property_ValueTypes_Extensible_Enum = createServerTests(`/type/property/value-types/extensible-enum`, {
-  property: "UnknownValue",
-});
+Scenarios.Type_Property_ValueTypes_Extensible_Enum = createServerTests(
+  `/type/property/value-types/extensible-enum`,
+  {
+    property: "UnknownValue",
+  },
+);
 Scenarios.Type_Property_ValueTypes_Model = createServerTests(`/type/property/value-types/model`, {
   property: { property: "hello" },
 });
@@ -222,9 +247,12 @@ Scenarios.Type_Property_ValueTypes_Collections_String = createServerTests(
     property: ["hello", "world"],
   },
 );
-Scenarios.Type_Property_ValueTypes_Collections_Int = createServerTests(`/type/property/value-types/collections/int`, {
-  property: [1, 2],
-});
+Scenarios.Type_Property_ValueTypes_Collections_Int = createServerTests(
+  `/type/property/value-types/collections/int`,
+  {
+    property: [1, 2],
+  },
+);
 Scenarios.Type_Property_ValueTypes_Collections_Model = createServerTests(
   `/type/property/value-types/collections/model`,
   {
@@ -240,30 +268,54 @@ Scenarios.Type_Property_ValueTypes_Dictionary_String = createServerTests(
 Scenarios.Type_Property_ValueTypes_Never = createServerTests(`/type/property/value-types/never`, {
   property: undefined,
 });
-Scenarios.Type_Property_ValueTypes_Unknown_String = createServerTests(`/type/property/value-types/unknown/string`, {
-  property: "hello",
-});
-Scenarios.Type_Property_ValueTypes_Unknown_Int = createServerTests(`/type/property/value-types/unknown/int`, {
-  property: 42,
-});
-Scenarios.Type_Property_ValueTypes_Unknown_Dict = createServerTests(`/type/property/value-types/unknown/dict`, {
-  property: { k1: "hello", k2: 42 },
-});
-Scenarios.Type_Property_ValueTypes_Unknown_Array = createServerTests(`/type/property/value-types/unknown/array`, {
-  property: ["hello", "world"],
-});
-Scenarios.Type_Property_ValueTypes_String_Literal = createServerTests(`/type/property/value-types/string/literal`, {
-  property: "hello",
-});
-Scenarios.Type_Property_ValueTypes_Int_Literal = createServerTests(`/type/property/value-types/int/literal`, {
-  property: 42,
-});
-Scenarios.Type_Property_ValueTypes_Float_Literal = createServerTests(`/type/property/value-types/float/literal`, {
-  property: 43.125,
-});
-Scenarios.Type_Property_ValueTypes_Boolean_Literal = createServerTests(`/type/property/value-types/boolean/literal`, {
-  property: true,
-});
+Scenarios.Type_Property_ValueTypes_Unknown_String = createServerTests(
+  `/type/property/value-types/unknown/string`,
+  {
+    property: "hello",
+  },
+);
+Scenarios.Type_Property_ValueTypes_Unknown_Int = createServerTests(
+  `/type/property/value-types/unknown/int`,
+  {
+    property: 42,
+  },
+);
+Scenarios.Type_Property_ValueTypes_Unknown_Dict = createServerTests(
+  `/type/property/value-types/unknown/dict`,
+  {
+    property: { k1: "hello", k2: 42 },
+  },
+);
+Scenarios.Type_Property_ValueTypes_Unknown_Array = createServerTests(
+  `/type/property/value-types/unknown/array`,
+  {
+    property: ["hello", "world"],
+  },
+);
+Scenarios.Type_Property_ValueTypes_String_Literal = createServerTests(
+  `/type/property/value-types/string/literal`,
+  {
+    property: "hello",
+  },
+);
+Scenarios.Type_Property_ValueTypes_Int_Literal = createServerTests(
+  `/type/property/value-types/int/literal`,
+  {
+    property: 42,
+  },
+);
+Scenarios.Type_Property_ValueTypes_Float_Literal = createServerTests(
+  `/type/property/value-types/float/literal`,
+  {
+    property: 43.125,
+  },
+);
+Scenarios.Type_Property_ValueTypes_Boolean_Literal = createServerTests(
+  `/type/property/value-types/boolean/literal`,
+  {
+    property: true,
+  },
+);
 Scenarios.Type_Property_ValueTypes_Union_String_Literal = createServerTests(
   `/type/property/value-types/union/string/literal`,
   {
@@ -282,6 +334,9 @@ Scenarios.Type_Property_ValueTypes_Union_Float_Literal = createServerTests(
     property: 46.875,
   },
 );
-Scenarios.Type_Property_ValueTypes_Union_Enum_Value = createServerTests(`/type/property/value-types/union-enum-value`, {
-  property: "value2",
-});
+Scenarios.Type_Property_ValueTypes_Union_Enum_Value = createServerTests(
+  `/type/property/value-types/union-enum-value`,
+  {
+    property: "value2",
+  },
+);

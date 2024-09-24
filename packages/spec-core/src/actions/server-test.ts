@@ -1,9 +1,9 @@
 import { HttpMethod, MockMethod } from "@typespec/spec-api";
-import { loadScenarioMockApis } from "../scenarios-resolver.js";
 import { exec } from "child_process";
 import * as fs from "fs";
 import * as path from "path";
 import { logger } from "../logger.js";
+import { loadScenarioMockApis } from "../scenarios-resolver.js";
 
 class ServerTestsGenerator {
   private name: string = "";
@@ -304,7 +304,10 @@ function copyHelperFile(sourceFile: string, destinationFile: string) {
 }
 
 function copyHelperFiles(directoryName: string, scenariosPath: string) {
-  copyHelperFile(`${scenariosPath}/../dist/http/helper-server-test.js`, `${directoryName}/helper.js`);
+  copyHelperFile(
+    `${scenariosPath}/../dist/http/helper-server-test.js`,
+    `${directoryName}/helper.js`,
+  );
   copyHelperFile(`${scenariosPath}/../assets/image.jpg`, `${directoryName}/image.jpg`);
   copyHelperFile(`${scenariosPath}/../assets/image.png`, `${directoryName}/image.png`);
 }

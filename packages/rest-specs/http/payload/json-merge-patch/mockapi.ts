@@ -1,4 +1,4 @@
-import { passOnSuccess, ScenarioMockApi, mockapi, json, MockApi } from "@typespec/spec-api";
+import { json, mockapi, MockApi, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -79,8 +79,12 @@ function createMockApis(route: string, isUpdateRequest: boolean): MockApi {
   }
 }
 
-Scenarios.Payload_JsonMergePatch_createResource = passOnSuccess(createMockApis("create/resource", false));
-Scenarios.Payload_JsonMergePatch_updateResource = passOnSuccess(createMockApis("update/resource", true));
+Scenarios.Payload_JsonMergePatch_createResource = passOnSuccess(
+  createMockApis("create/resource", false),
+);
+Scenarios.Payload_JsonMergePatch_updateResource = passOnSuccess(
+  createMockApis("update/resource", true),
+);
 Scenarios.Payload_JsonMergePatch_updateOptionalResource = passOnSuccess(
   createMockApis("update/resource/optional", true),
 );

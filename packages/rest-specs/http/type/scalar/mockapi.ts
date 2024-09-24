@@ -1,5 +1,4 @@
-import { passOnSuccess, mockapi, json, MockApi } from "@typespec/spec-api";
-import { ScenarioMockApi } from "@typespec/spec-api";
+import { json, mockapi, MockApi, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -77,12 +76,16 @@ function createModelMockApis(route: string, value: any): MockApiOperations {
 const DecimalTypeMock = createModelMockApis("decimal", 0.33333);
 Scenarios.Type_Scalar_DecimalType_responseBody = passOnSuccess(DecimalTypeMock.responseBody);
 Scenarios.Type_Scalar_DecimalType_requestBody = passOnSuccess(DecimalTypeMock.requestBody);
-Scenarios.Type_Scalar_DecimalType_requestParameter = passOnSuccess(DecimalTypeMock.requestParameter);
+Scenarios.Type_Scalar_DecimalType_requestParameter = passOnSuccess(
+  DecimalTypeMock.requestParameter,
+);
 
 const Decimal128TypeMock = createModelMockApis("decimal128", 0.33333);
 Scenarios.Type_Scalar_Decimal128Type_responseBody = passOnSuccess(Decimal128TypeMock.responseBody);
 Scenarios.Type_Scalar_Decimal128Type_requestBody = passOnSuccess(Decimal128TypeMock.requestBody);
-Scenarios.Type_Scalar_Decimal128Type_requestParameter = passOnSuccess(Decimal128TypeMock.requestParameter);
+Scenarios.Type_Scalar_Decimal128Type_requestParameter = passOnSuccess(
+  Decimal128TypeMock.requestParameter,
+);
 
 interface NumberTypesVerifyOperations {
   prepareVerify: MockApi;
@@ -115,7 +118,9 @@ Scenarios.Type_Scalar_DecimalVerify_prepareVerify = passOnSuccess(DecimalVerifyM
 Scenarios.Type_Scalar_DecimalVerify_verify = passOnSuccess(DecimalVerifyMock.verify);
 
 const Decimal128VerifyMock = createNumberTypesVerifyOperations("decimal128", [0.1, 0.1, 0.1], 0.3);
-Scenarios.Type_Scalar_Decimal128Verify_prepareVerify = passOnSuccess(Decimal128VerifyMock.prepareVerify);
+Scenarios.Type_Scalar_Decimal128Verify_prepareVerify = passOnSuccess(
+  Decimal128VerifyMock.prepareVerify,
+);
 Scenarios.Type_Scalar_Decimal128Verify_verify = passOnSuccess(Decimal128VerifyMock.verify);
 
 function createGetSendServerTestScenario(url: string, value: unknown, content_type: string) {
@@ -148,13 +153,21 @@ function createGetSendServerTestScenario(url: string, value: unknown, content_ty
   });
 }
 
-Scenarios.Type_Scalar_String = createGetSendServerTestScenario(`/type/scalar/string`, "test", "text/plain");
+Scenarios.Type_Scalar_String = createGetSendServerTestScenario(
+  `/type/scalar/string`,
+  "test",
+  "text/plain",
+);
 Scenarios.Type_Scalar_Boolean = createGetSendServerTestScenario(
   `/type/scalar/boolean`,
   true,
   "application/json; charset=utf-8",
 );
-Scenarios.Type_Scalar_Unknown = createGetSendServerTestScenario(`/type/scalar/unknown`, "test", "text/plain");
+Scenarios.Type_Scalar_Unknown = createGetSendServerTestScenario(
+  `/type/scalar/unknown`,
+  "test",
+  "text/plain",
+);
 
 function createModelMockResponseBodyServerTests(url: string, value: unknown) {
   return passOnSuccess({
@@ -272,5 +285,11 @@ function createModelMockVerifyServerTests(url: string, value: unknown) {
   });
 }
 
-Scenarios.Type_Scalar_Decimal_Verify = createModelMockVerifyServerTests(`/type/scalar/decimal/verify`, 0.3);
-Scenarios.Type_Scalar_Decimal128_Verify = createModelMockVerifyServerTests(`/type/scalar/decimal128/verify`, 0.3);
+Scenarios.Type_Scalar_Decimal_Verify = createModelMockVerifyServerTests(
+  `/type/scalar/decimal/verify`,
+  0.3,
+);
+Scenarios.Type_Scalar_Decimal128_Verify = createModelMockVerifyServerTests(
+  `/type/scalar/decimal128/verify`,
+  0.3,
+);

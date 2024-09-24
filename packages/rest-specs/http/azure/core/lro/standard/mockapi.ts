@@ -1,5 +1,4 @@
-import { passOnSuccess, mockapi, json } from "@typespec/spec-api";
-import { ScenarioMockApi } from "@typespec/spec-api";
+import { json, mockapi, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -178,7 +177,11 @@ Scenarios.Azure_Core_LRO_Standard_Users_Operation3 = passOnSuccess({
       },
       response: {
         status: 200,
-        data: { id: "operation3", status: "Succeeded", result: { name: "madge", resourceUri: "/users/madge" } },
+        data: {
+          id: "operation3",
+          status: "Succeeded",
+          result: { name: "madge", resourceUri: "/users/madge" },
+        },
       },
     },
   ],
@@ -192,7 +195,7 @@ Scenarios.Azure_Core_LRO_Standard_Users_Export = passOnSuccess({
         config: {
           params: {
             "api-version": "2022-12-01-preview",
-            "format": "json",
+            format: "json",
           },
         },
       },
@@ -222,7 +225,9 @@ Scenarios.Azure_Core_Lro_Standard_delete = passOnSuccess([
   mockapi.get("/azure/core/lro/standard/users/madge/operations/operation2", (req) => {
     req.expect.containsQueryParam("api-version", "2022-12-01-preview");
     const response =
-      deletePollCount > 0 ? { id: "operation2", status: "Succeeded" } : { id: "operation2", status: "InProgress" };
+      deletePollCount > 0
+        ? { id: "operation2", status: "Succeeded" }
+        : { id: "operation2", status: "InProgress" };
     deletePollCount += 1;
     return { status: 200, body: json(response) };
   }),
@@ -245,7 +250,11 @@ Scenarios.Azure_Core_Lro_Standard_export = passOnSuccess([
     req.expect.containsQueryParam("api-version", "2022-12-01-preview");
     const response =
       exportPollCount > 0
-        ? { id: "operation3", status: "Succeeded", result: { name: "madge", resourceUri: "/users/madge" } }
+        ? {
+            id: "operation3",
+            status: "Succeeded",
+            result: { name: "madge", resourceUri: "/users/madge" },
+          }
         : { id: "operation3", status: "InProgress" };
     exportPollCount += 1;
     return { status: 200, body: json(response) };

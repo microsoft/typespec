@@ -1,5 +1,4 @@
-import { passOnSuccess, mockapi, json, ValidationError } from "@typespec/spec-api";
-import { ScenarioMockApi } from "@typespec/spec-api";
+import { json, mockapi, passOnSuccess, ScenarioMockApi, ValidationError } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -63,31 +62,40 @@ const updateExpectedIdentity = {
 };
 
 // managed identity tracked resource
-Scenarios.Azure_ResourceManager_Models_CommonTypes_ManagedIdentity_ManagedIdentityTrackedResources_get = passOnSuccess([
-  mockapi.get(
-    "/subscriptions/:subscriptionId/resourceGroups/:resourceGroup/providers/Azure.ResourceManager.Models.CommonTypes.ManagedIdentity/managedIdentityTrackedResources/:managedIdentityResourceName",
-    (req) => {
-      req.expect.containsQueryParam("api-version", "2023-12-01-preview");
-      if (req.params.subscriptionId !== SUBSCRIPTION_ID_EXPECTED) {
-        throw new ValidationError("Unexpected subscriptionId", SUBSCRIPTION_ID_EXPECTED, req.params.subscriptionId);
-      }
-      if (req.params.resourceGroup.toLowerCase() !== RESOURCE_GROUP_EXPECTED) {
-        throw new ValidationError("Unexpected resourceGroup", RESOURCE_GROUP_EXPECTED, req.params.resourceGroup);
-      }
-      if (req.params.managedIdentityResourceName.toLowerCase() !== "identity") {
-        throw new ValidationError(
-          "Unexpected managed identity resource name",
-          "identity",
-          req.params.managedIdentityResourceName,
-        );
-      }
-      return {
-        status: 200,
-        body: json(validSystemAssignedManagedIdentityResource),
-      };
-    },
-  ),
-]);
+Scenarios.Azure_ResourceManager_Models_CommonTypes_ManagedIdentity_ManagedIdentityTrackedResources_get =
+  passOnSuccess([
+    mockapi.get(
+      "/subscriptions/:subscriptionId/resourceGroups/:resourceGroup/providers/Azure.ResourceManager.Models.CommonTypes.ManagedIdentity/managedIdentityTrackedResources/:managedIdentityResourceName",
+      (req) => {
+        req.expect.containsQueryParam("api-version", "2023-12-01-preview");
+        if (req.params.subscriptionId !== SUBSCRIPTION_ID_EXPECTED) {
+          throw new ValidationError(
+            "Unexpected subscriptionId",
+            SUBSCRIPTION_ID_EXPECTED,
+            req.params.subscriptionId,
+          );
+        }
+        if (req.params.resourceGroup.toLowerCase() !== RESOURCE_GROUP_EXPECTED) {
+          throw new ValidationError(
+            "Unexpected resourceGroup",
+            RESOURCE_GROUP_EXPECTED,
+            req.params.resourceGroup,
+          );
+        }
+        if (req.params.managedIdentityResourceName.toLowerCase() !== "identity") {
+          throw new ValidationError(
+            "Unexpected managed identity resource name",
+            "identity",
+            req.params.managedIdentityResourceName,
+          );
+        }
+        return {
+          status: 200,
+          body: json(validSystemAssignedManagedIdentityResource),
+        };
+      },
+    ),
+  ]);
 
 Scenarios.Azure_ResourceManager_Models_CommonTypes_ManagedIdentity_ManagedIdentityTrackedResources_createWithSystemAssigned =
   passOnSuccess([
@@ -96,10 +104,18 @@ Scenarios.Azure_ResourceManager_Models_CommonTypes_ManagedIdentity_ManagedIdenti
       (req) => {
         req.expect.containsQueryParam("api-version", "2023-12-01-preview");
         if (req.params.subscriptionId !== SUBSCRIPTION_ID_EXPECTED) {
-          throw new ValidationError("Unexpected subscriptionId", SUBSCRIPTION_ID_EXPECTED, req.params.subscriptionId);
+          throw new ValidationError(
+            "Unexpected subscriptionId",
+            SUBSCRIPTION_ID_EXPECTED,
+            req.params.subscriptionId,
+          );
         }
         if (req.params.resourceGroup.toLowerCase() !== RESOURCE_GROUP_EXPECTED) {
-          throw new ValidationError("Unexpected resourceGroup", RESOURCE_GROUP_EXPECTED, req.params.resourceGroup);
+          throw new ValidationError(
+            "Unexpected resourceGroup",
+            RESOURCE_GROUP_EXPECTED,
+            req.params.resourceGroup,
+          );
         }
         if (req.params.managedIdentityResourceName.toLowerCase() !== "identity") {
           throw new ValidationError(
@@ -124,10 +140,18 @@ Scenarios.Azure_ResourceManager_Models_CommonTypes_ManagedIdentity_ManagedIdenti
       (req) => {
         req.expect.containsQueryParam("api-version", "2023-12-01-preview");
         if (req.params.subscriptionId !== SUBSCRIPTION_ID_EXPECTED) {
-          throw new ValidationError("Unexpected subscriptionId", SUBSCRIPTION_ID_EXPECTED, req.params.subscriptionId);
+          throw new ValidationError(
+            "Unexpected subscriptionId",
+            SUBSCRIPTION_ID_EXPECTED,
+            req.params.subscriptionId,
+          );
         }
         if (req.params.resourceGroup.toLowerCase() !== RESOURCE_GROUP_EXPECTED) {
-          throw new ValidationError("Unexpected resourceGroup", RESOURCE_GROUP_EXPECTED, req.params.resourceGroup);
+          throw new ValidationError(
+            "Unexpected resourceGroup",
+            RESOURCE_GROUP_EXPECTED,
+            req.params.resourceGroup,
+          );
         }
         if (req.params.managedIdentityResourceName.toLowerCase() !== "identity") {
           throw new ValidationError(
@@ -145,60 +169,61 @@ Scenarios.Azure_ResourceManager_Models_CommonTypes_ManagedIdentity_ManagedIdenti
     ),
   ]);
 
-Scenarios.Azure_ResourceManager_Models_CommonTypes_ManagedIdentity_ManagedIdentityTrackedResources = passOnSuccess({
-  uri: "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.Models.CommonTypes.ManagedIdentity/managedIdentityTrackedResources/identity",
-  mockMethods: [
-    {
-      method: "get",
-      request: {
-        config: {
-          params: {
-            "api-version": "2023-12-01-preview",
+Scenarios.Azure_ResourceManager_Models_CommonTypes_ManagedIdentity_ManagedIdentityTrackedResources =
+  passOnSuccess({
+    uri: "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.Models.CommonTypes.ManagedIdentity/managedIdentityTrackedResources/identity",
+    mockMethods: [
+      {
+        method: "get",
+        request: {
+          config: {
+            params: {
+              "api-version": "2023-12-01-preview",
+            },
           },
         },
-      },
-      response: {
-        status: 200,
-        data: validSystemAssignedManagedIdentityResource,
-      },
-    },
-    {
-      method: "put",
-      request: {
-        body: {
-          identity: createExpectedIdentity,
-          location: LOCATION_REGION_EXPECTED,
-          tags: { tagKey1: "tagValue1" },
+        response: {
+          status: 200,
+          data: validSystemAssignedManagedIdentityResource,
         },
-        config: {
-          params: {
-            "api-version": "2023-12-01-preview",
+      },
+      {
+        method: "put",
+        request: {
+          body: {
+            identity: createExpectedIdentity,
+            location: LOCATION_REGION_EXPECTED,
+            tags: { tagKey1: "tagValue1" },
+          },
+          config: {
+            params: {
+              "api-version": "2023-12-01-preview",
+            },
           },
         },
-      },
-      response: {
-        status: 200,
-        data: validSystemAssignedManagedIdentityResource,
-      },
-    },
-    {
-      method: "patch",
-      request: {
-        body: {
-          identity: updateExpectedIdentity,
-          location: LOCATION_REGION_EXPECTED,
-          tags: { tagKey1: "tagValue1" },
+        response: {
+          status: 200,
+          data: validSystemAssignedManagedIdentityResource,
         },
-        config: {
-          params: {
-            "api-version": "2023-12-01-preview",
+      },
+      {
+        method: "patch",
+        request: {
+          body: {
+            identity: updateExpectedIdentity,
+            location: LOCATION_REGION_EXPECTED,
+            tags: { tagKey1: "tagValue1" },
+          },
+          config: {
+            params: {
+              "api-version": "2023-12-01-preview",
+            },
           },
         },
+        response: {
+          status: 200,
+          data: validUserAssignedAndSystemAssignedManagedIdentityResource,
+        },
       },
-      response: {
-        status: 200,
-        data: validUserAssignedAndSystemAssignedManagedIdentityResource,
-      },
-    },
-  ],
-});
+    ],
+  });

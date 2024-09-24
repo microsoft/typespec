@@ -132,7 +132,10 @@ model CollectionsByteProperty is ModelTemplate<bytes[]>;
 @route("/collections/bytes")
 @operationGroup
 interface CollectionsByte
-  extends OperationsTemplate<CollectionsByteProperty, "[\"aGVsbG8sIHdvcmxkIQ==\", \"aGVsbG8sIHdvcmxkIQ==\"]"> {}
+  extends OperationsTemplate<
+      CollectionsByteProperty,
+      "[\"aGVsbG8sIHdvcmxkIQ==\", \"aGVsbG8sIHdvcmxkIQ==\"]"
+    > {}
 
 // Model with optional collection models property
 @doc("Model with collection models properties")
@@ -140,7 +143,10 @@ model CollectionsModelProperty is ModelTemplate<StringProperty[]>;
 @route("/collections/model")
 @operationGroup
 interface CollectionsModel
-  extends OperationsTemplate<CollectionsModelProperty, "[{'property': 'hello'}, {'property': 'world'}]"> {}
+  extends OperationsTemplate<
+      CollectionsModelProperty,
+      "[{'property': 'hello'}, {'property': 'world'}]"
+    > {}
 
 // Model with optional string literal property
 @doc("Model with string literal property")

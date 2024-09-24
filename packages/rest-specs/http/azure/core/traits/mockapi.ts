@@ -1,5 +1,11 @@
-import { passOnSuccess, mockapi, json, ValidationError, validateValueFormat } from "@typespec/spec-api";
-import { ScenarioMockApi } from "@typespec/spec-api";
+import {
+  json,
+  mockapi,
+  passOnSuccess,
+  ScenarioMockApi,
+  validateValueFormat,
+  ValidationError,
+} from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -11,7 +17,11 @@ const validUser = {
 Scenarios.Azure_Core_Traits_smokeTest = passOnSuccess(
   mockapi.get("/azure/core/traits/user/:id", (req) => {
     if (!("x-ms-client-request-id" in req.headers)) {
-      throw new ValidationError("Should submit header x-ms-client-request-id", "any uuid", undefined);
+      throw new ValidationError(
+        "Should submit header x-ms-client-request-id",
+        "any uuid",
+        undefined,
+      );
     }
     if (req.params.id !== "1") {
       throw new ValidationError("Expected path param id=1", "1", req.params.id);
@@ -32,8 +42,8 @@ Scenarios.Azure_Core_Traits_smokeTest = passOnSuccess(
       status: 200,
       body: json(validUser),
       headers: {
-        "bar": "456",
-        "etag": "11bdc430-65e8-45ad-81d9-8ffa60d55b59",
+        bar: "456",
+        etag: "11bdc430-65e8-45ad-81d9-8ffa60d55b59",
         "x-ms-client-request-id": req.headers["x-ms-client-request-id"],
       },
     };
@@ -50,7 +60,11 @@ Scenarios.Azure_Core_Traits_repeatableAction = passOnSuccess(
       throw new ValidationError("Repeatability-Request-ID is missing", "A UUID string", undefined);
     }
     if (!("repeatability-first-sent" in req.headers)) {
-      throw new ValidationError("Repeatability-First-Sent is missing", "A date-time in headers format", undefined);
+      throw new ValidationError(
+        "Repeatability-First-Sent is missing",
+        "A date-time in headers format",
+        undefined,
+      );
     }
 
     validateValueFormat(req.headers["repeatability-request-id"], "uuid");
@@ -77,7 +91,7 @@ Scenarios.Azure_Core_Traits_User = passOnSuccess({
       request: {
         config: {
           headers: {
-            "foo": "123",
+            foo: "123",
             "If-Match": '\\"valid\\"',
             "If-None-Match": '\\"invalid\\"',
             "If-Modified-Since": "Thu, 26 Aug 2021 14:38:00 GMT",
@@ -90,8 +104,8 @@ Scenarios.Azure_Core_Traits_User = passOnSuccess({
         status: 200,
         data: validUser,
         headers: {
-          "bar": "456",
-          "etag": "11bdc430-65e8-45ad-81d9-8ffa60d55b59",
+          bar: "456",
+          etag: "11bdc430-65e8-45ad-81d9-8ffa60d55b59",
           "x-ms-client-request-id": "any uuid",
         },
       },

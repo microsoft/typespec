@@ -1,5 +1,4 @@
-import { passOnSuccess, mockapi } from "@typespec/spec-api";
-import { ScenarioMockApi } from "@typespec/spec-api";
+import { mockapi, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 Scenarios.Client_Structure_MultiClient = passOnSuccess([
@@ -36,9 +35,21 @@ function createServerTests(uri: string) {
   });
 }
 
-Scenarios.Client_Structure_Multi_Client_One = createServerTests("/client/structure/multi-client/one");
-Scenarios.Client_Structure_Multi_Client_Two = createServerTests("/client/structure/multi-client/two");
-Scenarios.Client_Structure_Multi_Client_Three = createServerTests("/client/structure/multi-client/three");
-Scenarios.Client_Structure_Multi_Client_Four = createServerTests("/client/structure/multi-client/four");
-Scenarios.Client_Structure_Multi_Client_Five = createServerTests("/client/structure/multi-client/five");
-Scenarios.Client_Structure_Multi_Client_Six = createServerTests("/client/structure/multi-client/six");
+Scenarios.Client_Structure_Multi_Client_One = createServerTests(
+  "/client/structure/multi-client/one",
+);
+Scenarios.Client_Structure_Multi_Client_Two = createServerTests(
+  "/client/structure/multi-client/two",
+);
+Scenarios.Client_Structure_Multi_Client_Three = createServerTests(
+  "/client/structure/multi-client/three",
+);
+Scenarios.Client_Structure_Multi_Client_Four = createServerTests(
+  "/client/structure/multi-client/four",
+);
+Scenarios.Client_Structure_Multi_Client_Five = createServerTests(
+  "/client/structure/multi-client/five",
+);
+Scenarios.Client_Structure_Multi_Client_Six = createServerTests(
+  "/client/structure/multi-client/six",
+);

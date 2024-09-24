@@ -1,4 +1,4 @@
-import { passOnSuccess, ScenarioMockApi, mockapi, json, MockApi } from "@typespec/spec-api";
+import { json, mockapi, MockApi, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -49,8 +49,12 @@ const extendsUnknownDerived = createMockApis("extendsRecordUnknownDerived", {
   prop2: true,
   prop3: "abc",
 });
-Scenarios.Type_Property_AdditionalProperties_ExtendsUnknownDerived_get = passOnSuccess(extendsUnknownDerived.get);
-Scenarios.Type_Property_AdditionalProperties_ExtendsUnknownDerived_put = passOnSuccess(extendsUnknownDerived.put);
+Scenarios.Type_Property_AdditionalProperties_ExtendsUnknownDerived_get = passOnSuccess(
+  extendsUnknownDerived.get,
+);
+Scenarios.Type_Property_AdditionalProperties_ExtendsUnknownDerived_put = passOnSuccess(
+  extendsUnknownDerived.put,
+);
 
 const extendsUnknownDiscriminated = createMockApis("extendsUnknownDiscriminated", {
   kind: "derived",
@@ -85,8 +89,12 @@ const isUnknownDerived = createMockApis("isRecordUnknownDerived", {
   prop2: true,
   prop3: "abc",
 });
-Scenarios.Type_Property_AdditionalProperties_IsUnknownDerived_get = passOnSuccess(isUnknownDerived.get);
-Scenarios.Type_Property_AdditionalProperties_IsUnknownDerived_put = passOnSuccess(isUnknownDerived.put);
+Scenarios.Type_Property_AdditionalProperties_IsUnknownDerived_get = passOnSuccess(
+  isUnknownDerived.get,
+);
+Scenarios.Type_Property_AdditionalProperties_IsUnknownDerived_put = passOnSuccess(
+  isUnknownDerived.put,
+);
 
 const isUnknownDiscriminated = createMockApis("isUnknownDiscriminated", {
   kind: "derived",
@@ -97,8 +105,12 @@ const isUnknownDiscriminated = createMockApis("isUnknownDiscriminated", {
   prop2: true,
   prop3: "abc",
 });
-Scenarios.Type_Property_AdditionalProperties_IsUnknownDiscriminated_get = passOnSuccess(isUnknownDiscriminated.get);
-Scenarios.Type_Property_AdditionalProperties_IsUnknownDiscriminated_put = passOnSuccess(isUnknownDiscriminated.put);
+Scenarios.Type_Property_AdditionalProperties_IsUnknownDiscriminated_get = passOnSuccess(
+  isUnknownDiscriminated.get,
+);
+Scenarios.Type_Property_AdditionalProperties_IsUnknownDiscriminated_put = passOnSuccess(
+  isUnknownDiscriminated.put,
+);
 
 // **************************************************** Record<string> ****************************************************
 const extendsString = createMockApis("extendsRecordString", {
@@ -162,42 +174,71 @@ const recordModelArrayBody = {
   prop: [{ state: "ok" }, { state: "ok" }],
 };
 const extendsModelArray = createMockApis("extendsRecordModelArray", recordModelArrayBody);
-Scenarios.Type_Property_AdditionalProperties_ExtendsModelArray_get = passOnSuccess(extendsModelArray.get);
-Scenarios.Type_Property_AdditionalProperties_ExtendsModelArray_put = passOnSuccess(extendsModelArray.put);
+Scenarios.Type_Property_AdditionalProperties_ExtendsModelArray_get = passOnSuccess(
+  extendsModelArray.get,
+);
+Scenarios.Type_Property_AdditionalProperties_ExtendsModelArray_put = passOnSuccess(
+  extendsModelArray.put,
+);
 
 const isModelArray = createMockApis("isRecordModelArray", recordModelArrayBody);
 Scenarios.Type_Property_AdditionalProperties_IsModelArray_get = passOnSuccess(isModelArray.get);
 Scenarios.Type_Property_AdditionalProperties_IsModelArray_put = passOnSuccess(isModelArray.put);
 
 const spreadModelArray = createMockApis("spreadRecordModelArray", recordModelArrayBody);
-Scenarios.Type_Property_AdditionalProperties_SpreadModelArray_get = passOnSuccess(spreadModelArray.get);
-Scenarios.Type_Property_AdditionalProperties_SpreadModelArray_put = passOnSuccess(spreadModelArray.put);
+Scenarios.Type_Property_AdditionalProperties_SpreadModelArray_get = passOnSuccess(
+  spreadModelArray.get,
+);
+Scenarios.Type_Property_AdditionalProperties_SpreadModelArray_put = passOnSuccess(
+  spreadModelArray.put,
+);
 
 // **************************************************** Spread different Record type ****************************************************
 const differentRecordStringBody = {
   id: 43.125,
   prop: "abc",
 };
-const spreadDifferentRecordString = createMockApis("spreadDifferentRecordString", differentRecordStringBody);
-Scenarios.Type_Property_AdditionalProperties_SpreadDifferentString_get = passOnSuccess(spreadDifferentRecordString.get);
-Scenarios.Type_Property_AdditionalProperties_SpreadDifferentString_put = passOnSuccess(spreadDifferentRecordString.put);
+const spreadDifferentRecordString = createMockApis(
+  "spreadDifferentRecordString",
+  differentRecordStringBody,
+);
+Scenarios.Type_Property_AdditionalProperties_SpreadDifferentString_get = passOnSuccess(
+  spreadDifferentRecordString.get,
+);
+Scenarios.Type_Property_AdditionalProperties_SpreadDifferentString_put = passOnSuccess(
+  spreadDifferentRecordString.put,
+);
 
 const differentRecordFloatBody = {
   name: "abc",
   prop: 43.125,
 };
-const spreadDifferentRecordFloat = createMockApis("spreadDifferentRecordFloat", differentRecordFloatBody);
-Scenarios.Type_Property_AdditionalProperties_SpreadDifferentFloat_get = passOnSuccess(spreadDifferentRecordFloat.get);
-Scenarios.Type_Property_AdditionalProperties_SpreadDifferentFloat_put = passOnSuccess(spreadDifferentRecordFloat.put);
+const spreadDifferentRecordFloat = createMockApis(
+  "spreadDifferentRecordFloat",
+  differentRecordFloatBody,
+);
+Scenarios.Type_Property_AdditionalProperties_SpreadDifferentFloat_get = passOnSuccess(
+  spreadDifferentRecordFloat.get,
+);
+Scenarios.Type_Property_AdditionalProperties_SpreadDifferentFloat_put = passOnSuccess(
+  spreadDifferentRecordFloat.put,
+);
 
 const differentRecordModelBody = {
   knownProp: "abc",
   prop: { state: "ok" },
 };
 
-const spreadDifferentRecordModel = createMockApis("spreadDifferentRecordModel", differentRecordModelBody);
-Scenarios.Type_Property_AdditionalProperties_SpreadDifferentModel_get = passOnSuccess(spreadDifferentRecordModel.get);
-Scenarios.Type_Property_AdditionalProperties_SpreadDifferentModel_put = passOnSuccess(spreadDifferentRecordModel.put);
+const spreadDifferentRecordModel = createMockApis(
+  "spreadDifferentRecordModel",
+  differentRecordModelBody,
+);
+Scenarios.Type_Property_AdditionalProperties_SpreadDifferentModel_get = passOnSuccess(
+  spreadDifferentRecordModel.get,
+);
+Scenarios.Type_Property_AdditionalProperties_SpreadDifferentModel_put = passOnSuccess(
+  spreadDifferentRecordModel.put,
+);
 
 const differentRecordModelArrayBody = {
   knownProp: "abc",
@@ -221,7 +262,10 @@ const extendsModelSpreadStringBody = {
   derivedProp: "abc",
 };
 
-const extendsModelSpreadString = createMockApis("extendsDifferentSpreadString", extendsModelSpreadStringBody);
+const extendsModelSpreadString = createMockApis(
+  "extendsDifferentSpreadString",
+  extendsModelSpreadStringBody,
+);
 Scenarios.Type_Property_AdditionalProperties_ExtendsDifferentSpreadString_get = passOnSuccess(
   extendsModelSpreadString.get,
 );
@@ -235,7 +279,10 @@ const extendsModelSpreadFloatBody = {
   prop: 43.125,
   derivedProp: 43.125,
 };
-const extendsModelSpreadFloat = createMockApis("extendsDifferentSpreadFloat", extendsModelSpreadFloatBody);
+const extendsModelSpreadFloat = createMockApis(
+  "extendsDifferentSpreadFloat",
+  extendsModelSpreadFloatBody,
+);
 Scenarios.Type_Property_AdditionalProperties_ExtendsDifferentSpreadFloat_get = passOnSuccess(
   extendsModelSpreadFloat.get,
 );
@@ -249,7 +296,10 @@ const extendsModelSpreadModelBody = {
   prop: { state: "ok" },
   derivedProp: { state: "ok" },
 };
-const extendsModelSpreadModel = createMockApis("extendsDifferentSpreadModel", extendsModelSpreadModelBody);
+const extendsModelSpreadModel = createMockApis(
+  "extendsDifferentSpreadModel",
+  extendsModelSpreadModelBody,
+);
 Scenarios.Type_Property_AdditionalProperties_ExtendsDifferentSpreadModel_get = passOnSuccess(
   extendsModelSpreadModel.get,
 );
@@ -281,8 +331,12 @@ const multipleSpreadBody = {
   prop2: 43.125,
 };
 const multipleSpreadRecord = createMockApis("multipleSpreadRecord", multipleSpreadBody);
-Scenarios.Type_Property_AdditionalProperties_MultipleSpread_get = passOnSuccess(multipleSpreadRecord.get);
-Scenarios.Type_Property_AdditionalProperties_MultipleSpread_put = passOnSuccess(multipleSpreadRecord.put);
+Scenarios.Type_Property_AdditionalProperties_MultipleSpread_get = passOnSuccess(
+  multipleSpreadRecord.get,
+);
+Scenarios.Type_Property_AdditionalProperties_MultipleSpread_put = passOnSuccess(
+  multipleSpreadRecord.put,
+);
 
 // **************************************************** Record of union ****************************************************
 const recordUnionBody = multipleSpreadBody;
@@ -304,7 +358,10 @@ const recordDiscriminatedUnionBody = {
   },
 };
 
-const recordDiscriminatedUnion = createMockApis("spreadRecordDiscriminatedUnion", recordDiscriminatedUnionBody);
+const recordDiscriminatedUnion = createMockApis(
+  "spreadRecordDiscriminatedUnion",
+  recordDiscriminatedUnionBody,
+);
 Scenarios.Type_Property_AdditionalProperties_SpreadRecordDiscriminatedUnion_get = passOnSuccess(
   recordDiscriminatedUnion.get,
 );
@@ -313,7 +370,10 @@ Scenarios.Type_Property_AdditionalProperties_SpreadRecordDiscriminatedUnion_put 
 );
 
 // **************************************************** Record of non discriminated union ****************************************************
-const recordNonDiscriminatedUnion = createMockApis("spreadRecordNonDiscriminatedUnion", recordDiscriminatedUnionBody);
+const recordNonDiscriminatedUnion = createMockApis(
+  "spreadRecordNonDiscriminatedUnion",
+  recordDiscriminatedUnionBody,
+);
 Scenarios.Type_Property_AdditionalProperties_SpreadRecordNonDiscriminatedUnion_get = passOnSuccess(
   recordNonDiscriminatedUnion.get,
 );
@@ -554,10 +614,11 @@ Scenarios.Type_Property_Additional_Properties_Spread_Different_Record_Model = cr
   differentRecordModelBody,
 );
 
-Scenarios.Type_Property_Additional_Properties_Spread_Different_Record_Model_Array = createServerTests(
-  `/type/property/additionalProperties/spreadDifferentRecordModelArray`,
-  differentRecordModelArrayBody,
-);
+Scenarios.Type_Property_Additional_Properties_Spread_Different_Record_Model_Array =
+  createServerTests(
+    `/type/property/additionalProperties/spreadDifferentRecordModelArray`,
+    differentRecordModelArrayBody,
+  );
 
 Scenarios.Type_Property_Additional_Properties_Extends_Different_Spread_String = createServerTests(
   `/type/property/additionalProperties/extendsDifferentSpreadString`,
@@ -574,10 +635,11 @@ Scenarios.Type_Property_Additional_Properties_Extends_Different_Spread_Model = c
   extendsModelSpreadModelBody,
 );
 
-Scenarios.Type_Property_Additional_Properties_Extends_Different_Spread_Model_Array = createServerTests(
-  `/type/property/additionalProperties/extendsDifferentSpreadModelArray`,
-  extendsModelSpreadModelArrayBody,
-);
+Scenarios.Type_Property_Additional_Properties_Extends_Different_Spread_Model_Array =
+  createServerTests(
+    `/type/property/additionalProperties/extendsDifferentSpreadModelArray`,
+    extendsModelSpreadModelArrayBody,
+  );
 
 Scenarios.Type_Property_Additional_Properties_Multiple_Spread_Record = createServerTests(
   `/type/property/additionalProperties/multipleSpreadRecord`,
@@ -594,17 +656,20 @@ Scenarios.Type_Property_Additional_Properties_Spread_Record_Discriminated_Union 
   recordDiscriminatedUnionBody,
 );
 
-Scenarios.Type_Property_Additional_Properties_Spread_Record_Non_Discriminated_Union = createServerTests(
-  `/type/property/additionalProperties/spreadRecordNonDiscriminatedUnion`,
-  recordDiscriminatedUnionBody,
-);
+Scenarios.Type_Property_Additional_Properties_Spread_Record_Non_Discriminated_Union =
+  createServerTests(
+    `/type/property/additionalProperties/spreadRecordNonDiscriminatedUnion`,
+    recordDiscriminatedUnionBody,
+  );
 
-Scenarios.Type_Property_Additional_Properties_Spread_Record_Non_Discriminated_Union2 = createServerTests(
-  `/type/property/additionalProperties/spreadRecordNonDiscriminatedUnion2`,
-  recordNonDiscriminatedUnion2Body,
-);
+Scenarios.Type_Property_Additional_Properties_Spread_Record_Non_Discriminated_Union2 =
+  createServerTests(
+    `/type/property/additionalProperties/spreadRecordNonDiscriminatedUnion2`,
+    recordNonDiscriminatedUnion2Body,
+  );
 
-Scenarios.Type_Property_Additional_Properties_Spread_Record_Non_Discriminated_Union3 = createServerTests(
-  `/type/property/additionalProperties/spreadRecordNonDiscriminatedUnion3`,
-  recordNonDiscriminatedUnion3Body,
-);
+Scenarios.Type_Property_Additional_Properties_Spread_Record_Non_Discriminated_Union3 =
+  createServerTests(
+    `/type/property/additionalProperties/spreadRecordNonDiscriminatedUnion3`,
+    recordNonDiscriminatedUnion3Body,
+  );

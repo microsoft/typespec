@@ -64,4 +64,7 @@ model TestModel {
   """)
 @route("/test")
 @post
-op test(@body body: TestModel, @typeChangedFrom(Versions.v2, int32) @query param: string): TestModel;
+op test(
+  @body body: TestModel,
+  @typeChangedFrom(Versions.v2, int32) @query param: string,
+): TestModel;

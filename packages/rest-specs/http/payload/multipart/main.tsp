@@ -103,7 +103,10 @@ namespace FormData {
   @doc("Test content-type: multipart/form-data")
   @post
   @route("/mixed-parts")
-  op basic(@header contentType: "multipart/form-data", @body body: MultiPartRequest): NoContentResponse;
+  op basic(
+    @header contentType: "multipart/form-data",
+    @body body: MultiPartRequest,
+  ): NoContentResponse;
 
   @scenario
   @scenarioDoc("""
@@ -160,7 +163,10 @@ namespace FormData {
   @doc("Test content-type: multipart/form-data for mixed scenarios")
   @post
   @route("/complex-parts")
-  op fileArrayAndBasic(@header contentType: "multipart/form-data", @body body: ComplexPartsRequest): NoContentResponse;
+  op fileArrayAndBasic(
+    @header contentType: "multipart/form-data",
+    @body body: ComplexPartsRequest,
+  ): NoContentResponse;
 
   @scenario
   @scenarioDoc("""
@@ -193,7 +199,10 @@ namespace FormData {
   @doc("Test content-type: multipart/form-data for scenario contains json part and binary part ")
   @post
   @route("/json-part")
-  op jsonPart(@header contentType: "multipart/form-data", @body body: JsonPartRequest): NoContentResponse;
+  op jsonPart(
+    @header contentType: "multipart/form-data",
+    @body body: JsonPartRequest,
+  ): NoContentResponse;
 
   @scenario
   @scenarioDoc("""

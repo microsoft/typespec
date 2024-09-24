@@ -1,5 +1,4 @@
-import { passOnSuccess, mockapi, json } from "@typespec/spec-api";
-import { ScenarioMockApi } from "@typespec/spec-api";
+import { json, mockapi, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -22,11 +21,17 @@ const Type_Union_StringsOnly = createGetSendScenario("/type/union/strings-only",
 Scenarios.Type_Union_StringsOnly_get = Type_Union_StringsOnly.get;
 Scenarios.Type_Union_StringsOnly_send = Type_Union_StringsOnly.send;
 
-const Type_Union_StringExtensible = createGetSendScenario("/type/union/string-extensible", "custom");
+const Type_Union_StringExtensible = createGetSendScenario(
+  "/type/union/string-extensible",
+  "custom",
+);
 Scenarios.Type_Union_StringExtensible_get = Type_Union_StringExtensible.get;
 Scenarios.Type_Union_StringExtensible_send = Type_Union_StringExtensible.send;
 
-const Type_Union_StringExtensibleNamed = createGetSendScenario("/type/union/string-extensible-named", "custom");
+const Type_Union_StringExtensibleNamed = createGetSendScenario(
+  "/type/union/string-extensible-named",
+  "custom",
+);
 Scenarios.Type_Union_StringExtensibleNamed_get = Type_Union_StringExtensibleNamed.get;
 Scenarios.Type_Union_StringExtensibleNamed_send = Type_Union_StringExtensibleNamed.send;
 
@@ -112,8 +117,14 @@ function createServerTests(url: string, value: unknown) {
 }
 
 Scenarios.Type_Union_Strings_Only = createServerTests(`/type/union/strings-only`, "b");
-Scenarios.Type_Union_Strings_Extensible = createServerTests(`/type/union/string-extensible`, "custom");
-Scenarios.Type_Union_Strings_Extensible_Named = createServerTests(`/type/union/string-extensible-named`, "custom");
+Scenarios.Type_Union_Strings_Extensible = createServerTests(
+  `/type/union/string-extensible`,
+  "custom",
+);
+Scenarios.Type_Union_Strings_Extensible_Named = createServerTests(
+  `/type/union/string-extensible-named`,
+  "custom",
+);
 Scenarios.Type_Union_Ints_Only = createServerTests(`/type/union/ints-only`, 2);
 Scenarios.Type_Union_Floats_Only = createServerTests(`/type/union/floats-only`, 2.2);
 Scenarios.Type_Union_Models_Only = createServerTests(`/type/union/models-only`, { name: "test" });

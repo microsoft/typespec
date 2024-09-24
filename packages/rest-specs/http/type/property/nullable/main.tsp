@@ -133,7 +133,10 @@ model CollectionsByteProperty is ModelTemplate<bytes[]>;
 @route("/collections/bytes")
 @operationGroup
 interface CollectionsByte
-  extends OperationsTemplate<CollectionsByteProperty, "[aGVsbG8sIHdvcmxkIQ==, aGVsbG8sIHdvcmxkIQ==]"> {}
+  extends OperationsTemplate<
+      CollectionsByteProperty,
+      "[aGVsbG8sIHdvcmxkIQ==, aGVsbG8sIHdvcmxkIQ==]"
+    > {}
 
 // Model with nullable collection models property
 @doc("Inner model used in collections model property")
@@ -146,11 +149,15 @@ model CollectionsModelProperty is ModelTemplate<InnerModel[]>;
 @route("/collections/model")
 @operationGroup
 interface CollectionsModel
-  extends OperationsTemplate<CollectionsModelProperty, "[{'property': 'hello'}, {'property': 'world'}]"> {}
+  extends OperationsTemplate<
+      CollectionsModelProperty,
+      "[{'property': 'hello'}, {'property': 'world'}]"
+    > {}
 
 // Model with nullable collection string property
 @doc("Model with collection string properties")
 model CollectionsStringProperty is ModelTemplate<string[]>;
 @route("/collections/string")
 @operationGroup
-interface CollectionsString extends OperationsTemplate<CollectionsStringProperty, "['hello', 'world']"> {}
+interface CollectionsString
+  extends OperationsTemplate<CollectionsStringProperty, "['hello', 'world']"> {}

@@ -1,5 +1,4 @@
-import { passOnSuccess, mockapi, xml } from "@typespec/spec-api";
-import { ScenarioMockApi } from "@typespec/spec-api";
+import { mockapi, passOnSuccess, ScenarioMockApi, xml } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -395,7 +394,10 @@ Scenarios.Payload_Xml_ModelWithOptionalField = createServerTests(
   "/payload/xml/modelWithOptionalField",
   modelWithOptionalField,
 );
-Scenarios.Payload_Xml_ModelWithAttributes = createServerTests("/payload/xml/modelWithAttributes", modelWithAttributes);
+Scenarios.Payload_Xml_ModelWithAttributes = createServerTests(
+  "/payload/xml/modelWithAttributes",
+  modelWithAttributes,
+);
 Scenarios.Payload_Xml_ModelWithUnwrappedArray = createServerTests(
   "/payload/xml/modelWithUnwrappedArray",
   modelWithUnwrappedArray,
@@ -408,9 +410,18 @@ Scenarios.Payload_Xml_ModelWithRenamedFields = createServerTests(
   "/payload/xml/modelWithRenamedFields",
   modelWithRenamedFields,
 );
-Scenarios.Payload_Xml_ModelWithEmptyArray = createServerTests("/payload/xml/modelWithEmptyArray", modelWithEmptyArray);
-Scenarios.Payload_Xml_ModelWithText = createServerTests("/payload/xml/modelWithText", modelWithText);
-Scenarios.Payload_Xml_ModelWithDictionary = createServerTests("/payload/xml/modelWithDictionary", modelWithDictionary);
+Scenarios.Payload_Xml_ModelWithEmptyArray = createServerTests(
+  "/payload/xml/modelWithEmptyArray",
+  modelWithEmptyArray,
+);
+Scenarios.Payload_Xml_ModelWithText = createServerTests(
+  "/payload/xml/modelWithText",
+  modelWithText,
+);
+Scenarios.Payload_Xml_ModelWithDictionary = createServerTests(
+  "/payload/xml/modelWithDictionary",
+  modelWithDictionary,
+);
 Scenarios.Payload_Xml_ModelWithEncodedNames = createServerTests(
   "/payload/xml/modelWithEncodedNames",
   modelWithEncodedNames,
