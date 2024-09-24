@@ -4,4 +4,4 @@ packages:
   - "@typespec/openapi"
 ---
 
-@info decorator failed to exclude unallow keys, it only allow fixed fields and start with "x-".
+@info decorator failed to exclude extension key not starting with "x-".
