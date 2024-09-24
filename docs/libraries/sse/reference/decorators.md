@@ -10,6 +10,9 @@ toc_max_heading_level: 3
 
 ### `@terminalEvent` {#@TypeSpec.SSE.terminalEvent}
 
+Indicates that the presence of this event is a terminal event,
+and the client should disconnect from the server.
+
 ```typespec
 @TypeSpec.SSE.terminalEvent
 ```

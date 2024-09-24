@@ -16,6 +16,9 @@ npm install @typespec/sse
 
 #### `@terminalEvent`
 
+Indicates that the presence of this event is a terminal event,
+and the client should disconnect from the server.
+
 ```typespec
 @TypeSpec.SSE.terminalEvent
 ```

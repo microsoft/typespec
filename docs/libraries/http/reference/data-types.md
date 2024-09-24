@@ -279,22 +279,30 @@ model TypeSpec.Http.HttpPartOptions
 
 ### `HttpStream` {#TypeSpec.Http.HttpStream}
 
+Defines a model that represents a stream protocol type whose data is described
+by `Type`.
+
+The `ContentType` and `BodyType` describe how the stream is encoded over the wire,
+while `Type` describes the data that the stream contains.
+
 ```typespec
-model TypeSpec.Http.HttpStream<Type, ContentType>
+model TypeSpec.Http.HttpStream<Type, ContentType, BodyType>
 ```
 
 #### Template Parameters
 
-| Name        | Description |
-| ----------- | ----------- |
-| Type        |             |
-| ContentType |             |
+| Name        | Description                             |
+| ----------- | --------------------------------------- |
+| Type        | The type of the stream's data.          |
+| ContentType | The content type of the stream.         |
+| BodyType    | The underlying wire type of the stream. |
 
 #### Properties
 
-| Name        | Type     | Description |
-| ----------- | -------- | ----------- |
-| contentType | `string` |             |
+| Name        | Type       | Description |
+| ----------- | ---------- | ----------- |
+| contentType | `string`   |             |
+| body        | `BodyType` |             |
 
 ### `ImplicitFlow` {#TypeSpec.Http.ImplicitFlow}
 
@@ -315,15 +323,36 @@ model TypeSpec.Http.ImplicitFlow
 
 ### `JsonlStream` {#TypeSpec.Http.JsonlStream}
 
+Describes a stream of JSON data with one JSON object per line and sets
+the content type to `application/jsonl`.
+
+The JSON data is described by `Type`.
+
 ```typespec
 model TypeSpec.Http.JsonlStream<Type>
 ```
 
 #### Template Parameters
 
-| Name | Description |
-| ---- | ----------- |
-| Type |             |
+| Name | Description                                               |
+| ---- | --------------------------------------------------------- |
+| Type | The set of models describing the JSON data in the stream. |
+
+#### Examples
+
+```typespec
+model Message {
+  id: string;
+  text: string;
+}
+
+@TypeSpec.Events.events
+union Events {
+  Message,
+}
+
+op subscribe(): JsonlStream<Events>;
+```
 
 #### Properties
 
