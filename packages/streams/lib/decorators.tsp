@@ -1,5 +1,3 @@
-import "../dist/src/decorators.js";
-
 using TypeSpec.Reflection;
 
 namespace TypeSpec.Streams;

@@ -2,12 +2,12 @@ import type { Model } from "@typespec/compiler";
 import type { BasicTestRunner } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import { getStreamOf } from "../src/decorators.js";
-import { createStreamTestRunner } from "./test-host.js";
+import { createStreamsTestRunner } from "./test-host.js";
 
 let runner: BasicTestRunner;
 
 beforeEach(async () => {
-  runner = await createStreamTestRunner();
+  runner = await createStreamsTestRunner();
 });
 
 describe("@streamOf", () => {
