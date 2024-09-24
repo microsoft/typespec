@@ -32,7 +32,7 @@ export async function createHttpClientJavascriptEmitterTestRunner() {
 const emitterOutputDir = join("tsp-output", "http-client-javascript");
 
 export async function emitWithDiagnostics(
-  code: string
+  code: string,
 ): Promise<[Record<string, string>, readonly Diagnostic[]]> {
   const runner = await createHttpClientJavascriptEmitterTestRunner();
   await runner.compileAndDiagnose(code, {
@@ -44,7 +44,7 @@ export async function emitWithDiagnostics(
 
 async function readFilesRecursively(
   dir: string,
-  runner: BasicTestRunner
+  runner: BasicTestRunner,
 ): Promise<Record<string, string>> {
   const entries = await runner.program.host.readDir(dir);
   const result: Record<string, string> = {};

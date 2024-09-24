@@ -37,7 +37,7 @@ describe("HttpRequest.Url", () => {
         <ts.SourceFile path="test.ts">
           <HttpRequest.Url operation={read} />
         </ts.SourceFile>
-      </Output>
+      </Output>,
     );
 
     const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -74,7 +74,7 @@ describe("HttpRequest.Url", () => {
         <ts.SourceFile path="test.ts">
           <HttpRequest.Url operation={read} />
         </ts.SourceFile>
-      </Output>
+      </Output>,
     );
 
     const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -117,7 +117,7 @@ describe("HttpRequest.Url", () => {
         <ts.SourceFile path="test.ts">
           <HttpRequest.Url operation={read} />
         </ts.SourceFile>
-      </Output>
+      </Output>,
     );
 
     const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -156,7 +156,7 @@ describe("HttpRequest.Url", () => {
         <ts.SourceFile path="test.ts">
           <HttpRequest.Url operation={read} />
         </ts.SourceFile>
-      </Output>
+      </Output>,
     );
 
     const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -195,7 +195,7 @@ describe("HttpRequest.Url", () => {
         <ts.SourceFile path="test.ts">
           <HttpRequest.Url operation={read} />
         </ts.SourceFile>
-      </Output>
+      </Output>,
     );
 
     const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -234,7 +234,7 @@ describe("HttpRequest.Url", () => {
         <ts.SourceFile path="test.ts">
           <HttpRequest.Url operation={read} />
         </ts.SourceFile>
-      </Output>
+      </Output>,
     );
 
     const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -277,7 +277,7 @@ describe("HttpRequest.Url", () => {
         <ts.SourceFile path="test.ts">
           <HttpRequest.Url operation={read} />
         </ts.SourceFile>
-      </Output>
+      </Output>,
     );
 
     const testFile = res.contents.find((file) => file.path === "test.ts");

@@ -1527,6 +1527,9 @@ importers:
       '@typespec/versioning':
         specifier: workspace:~
         version: link:../versioning
+      http-client-javascript:
+        specifier: workspace:~
+        version: link:../http-client-javascript
     devDependencies:
       '@types/node':
         specifier: ~22.5.4

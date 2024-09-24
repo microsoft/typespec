@@ -1,0 +1,16 @@
+{
+  "name": "test-package",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "uri-template": "^2.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.2"
+  },
+  "exports": {
+    ".": "./dist/index.js",
+    "./api/pets": "./dist/api/pets/index.js",
+    "./api/listPetToysResponse": "./dist/api/listPetToysResponse/index.js"
+  }
+}

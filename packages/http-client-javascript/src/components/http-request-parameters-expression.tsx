@@ -36,7 +36,7 @@ export function HttpRequestParametersExpression(props: HttpRequestParametersExpr
       const parameterPath = parameter.optional ? `options?.${applicationName}` : applicationName;
       return <ts.ObjectProperty name={JSON.stringify(name)} value={parameterPath} />;
     },
-    { joiner: ",\n" }
+    { joiner: ",\n" },
   );
 
   parameters.push(...members);

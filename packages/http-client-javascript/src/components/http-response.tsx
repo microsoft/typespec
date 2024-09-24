@@ -65,6 +65,6 @@ export function HttpResponses(props: HttpResponsesProps) {
       `;
       }
     },
-    { joiner: "\n\n" }
+    { joiner: "\n\n" },
   );
 }

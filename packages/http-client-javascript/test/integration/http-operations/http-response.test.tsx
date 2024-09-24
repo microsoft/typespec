@@ -39,7 +39,7 @@ describe("HttpResponse", () => {
         <ts.SourceFile path="test.ts">
           <HttpResponse operation={read} responseRefkey={refkey()} />
         </ts.SourceFile>
-      </Output>
+      </Output>,
     );
 
     const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -83,7 +83,7 @@ describe("HttpResponse", () => {
         <ts.SourceFile path="test.ts">
           <HttpResponse operation={read} responseRefkey={refkey()} />
         </ts.SourceFile>
-      </Output>
+      </Output>,
     );
 
     const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -130,7 +130,7 @@ describe("HttpResponse", () => {
         <ts.SourceFile path="test.ts">
           <HttpResponse operation={read} responseRefkey={refkey()} />
         </ts.SourceFile>
-      </Output>
+      </Output>,
     );
 
     const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -181,7 +181,7 @@ describe("HttpResponse", () => {
         <ts.SourceFile path="test.ts">
           <HttpResponse operation={read} responseRefkey={refkey()} />
         </ts.SourceFile>
-      </Output>
+      </Output>,
     );
 
     const testFile = res.contents.find((file) => file.path === "test.ts");

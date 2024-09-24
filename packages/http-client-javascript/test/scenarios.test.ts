@@ -14,5 +14,5 @@ executeScenarios(
   tsExtractorConfig,
   "./test/scenarios",
   join("tsp-output", "http-client-javascript"),
-  snipperExtractor
+  snipperExtractor,
 );

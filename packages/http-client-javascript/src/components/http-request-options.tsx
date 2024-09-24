@@ -28,7 +28,7 @@ export interface HttpRequestOptionsHeadersProps {
 }
 
 HttpRequestOptions.Headers = function HttpRequestOptionsHeaders(
-  props: HttpRequestOptionsHeadersProps
+  props: HttpRequestOptionsHeadersProps,
 ) {
   // Extract the header request parameters from the operation
   const httpOperation = $.httpOperation.get(props.operation);

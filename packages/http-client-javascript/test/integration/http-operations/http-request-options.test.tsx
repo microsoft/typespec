@@ -38,7 +38,7 @@ describe("HttpRequestHeaders", () => {
         <ts.SourceFile path="test.ts">
           <HttpRequestOptions.Headers operation={read} />
         </ts.SourceFile>
-      </Output>
+      </Output>,
     );
 
     const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -75,7 +75,7 @@ describe("HttpRequestHeaders", () => {
         <ts.SourceFile path="test.ts">
           <HttpRequestOptions.Headers operation={read} />
         </ts.SourceFile>
-      </Output>
+      </Output>,
     );
 
     const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -116,7 +116,7 @@ headers: {
         <ts.SourceFile path="test.ts">
           <HttpRequestOptions.Headers operation={read} />
         </ts.SourceFile>
-      </Output>
+      </Output>,
     );
 
     const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -159,7 +159,7 @@ headers: {
         <ts.SourceFile path="test.ts">
           <HttpRequestOptions.Headers operation={read} />
         </ts.SourceFile>
-      </Output>
+      </Output>,
     );
 
     const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -199,7 +199,7 @@ describe("HttpRequestBody", () => {
         <ts.SourceFile path="test.ts">
           <HttpRequestOptions.Body operation={read} />
         </ts.SourceFile>
-      </Output>
+      </Output>,
     );
 
     const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -229,7 +229,7 @@ describe("HttpRequestBody", () => {
         <ts.SourceFile path="test.ts">
           <HttpRequestOptions.Body operation={read} />
         </ts.SourceFile>
-      </Output>
+      </Output>,
     );
 
     const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -270,7 +270,7 @@ describe("HttpRequestBody", () => {
           `}
           <HttpRequestOptions.Body operation={read} itemName="widget" />
         </ts.SourceFile>
-      </Output>
+      </Output>,
     );
 
     const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -312,7 +312,7 @@ describe("HttpRequestBody", () => {
         <ts.SourceFile path="test.ts">
           <HttpRequestOptions.Body operation={read} />
         </ts.SourceFile>
-      </Output>
+      </Output>,
     );
 
     const testFile = res.contents.find((file) => file.path === "test.ts");

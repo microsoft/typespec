@@ -11,7 +11,8 @@
     "watch-tsc": "tsc -p . --watch",
     "watch": "concurrently --kill-others \"npm run watch-tsc\" \"npm run watch-src\"",
     "test": "vitest run",
-    "build-sample": "tsp compile sample/main.tsp --emit http-client-javascript && babel tsp-output -d dist/tsp-output --extensions '.ts,.tsx'",
+    "build-todo": "tsp compile sample/main.tsp --emit http-client-javascript --output-dir sample/output/todo && babel sample/output/todo -d dist/sample/output/todo --extensions '.ts,.tsx'",
+    "build-petstore": "tsp compile ../samples/specs/petstore/petstore.tsp --emit http-client-javascript --output-dir sample/output/petstore && babel sample/output/petstore -d dist/sample/output/petstore --extensions '.ts,.tsx'",
     "format": "prettier . --write"
   },
   "keywords": [],
