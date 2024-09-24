@@ -29,9 +29,7 @@ def test_no_decorator_in_internal(client: AccessClient):
     assert result == models._models.NoDecoratorModelInInternal(name="test")
 
     with pytest.raises(ImportError):
-        from specs.azure.clientgenerator.core.access.models import (
-            NoDecoratorModelInInternal,
-        )
+        from specs.azure.clientgenerator.core.access.models import NoDecoratorModelInInternal
 
     with pytest.raises(AttributeError):
         client.internal_operation.no_decorator_in_internal(name="test")
@@ -42,9 +40,7 @@ def test_internal_decorator_in_internal(client: AccessClient):
     assert result == models._models.InternalDecoratorModelInInternal(name="test")
 
     with pytest.raises(ImportError):
-        from specs.azure.clientgenerator.core.access.models import (
-            InternalDecoratorModelInInternal,
-        )
+        from specs.azure.clientgenerator.core.access.models import InternalDecoratorModelInInternal
 
     with pytest.raises(AttributeError):
         client.internal_operation.internal_decorator_in_internal(name="test")

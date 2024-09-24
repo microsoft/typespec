@@ -63,3 +63,8 @@ def test_delete(client: BasicClient):
 def test_export(client: BasicClient):
     result = client.export(id=1, format="json")
     assert result == VALID_USER
+
+
+def test_export_all_users(client: BasicClient):
+    result = client.export_all_users(format="json")
+    assert result.users[0] == VALID_USER
