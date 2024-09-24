@@ -16,22 +16,34 @@
     </properties>
 
     <modules>
-      <module>http-client-generator</module>
-      <module>http-client-generator-mgmt</module>
-      <module>http-client-generator-core</module>
+        <module>http-client-generator</module>
+        <module>http-client-generator-mgmt</module>
+        <module>http-client-generator-core</module>
     </modules>
 
     <profiles>
-      <profile>
-        <id>test</id>
-        <activation>
-          <property>
-            <name>test</name>
-          </property>
-        </activation>
-        <modules>
-          <module>http-client-generator-test</module>
-        </modules>
-      </profile>
+        <profile>
+            <id>test</id>
+            <activation>
+                <property>
+                    <name>test</name>
+                </property>
+            </activation>
+            <modules>
+                <module>http-client-generator-test</module>
+            </modules>
+        </profile>
     </profiles>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>3.2.5</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 </project>
