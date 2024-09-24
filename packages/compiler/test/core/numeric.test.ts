@@ -61,7 +61,7 @@ describe("parsing", () => {
       expectNumericData("-123.456", 123456n, 3, -1);
     });
 
-    it("decimal with leading 0", () => {
+    describe("decimal with leading 0", () => {
       it.each([
         ["0.1", 1n, 0],
         ["0.01", 1n, -1],

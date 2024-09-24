@@ -19,7 +19,7 @@ export interface Numeric {
 
 /** @internal */
 interface InternalData {
-  /** Digits as a big it */
+  /** Digits as a big int */
   readonly n: bigint;
   /** Exponent */
   readonly e: number;
