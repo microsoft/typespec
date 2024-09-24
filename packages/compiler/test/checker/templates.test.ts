@@ -37,7 +37,7 @@ describe("compiler: templates", () => {
         model B { 
           foo: A<string>
         };
-      `
+      `,
     );
     const diagnostics = await testHost.diagnose("main.tsp");
     strictEqual(diagnostics.length, 1);
@@ -58,7 +58,7 @@ describe("compiler: templates", () => {
         model B { 
           foo: A
         };
-      `
+      `,
     );
     const diagnostics = await testHost.diagnose("main.tsp");
     strictEqual(diagnostics.length, 1);
@@ -79,7 +79,7 @@ describe("compiler: templates", () => {
         model B { 
           foo: A<string, string>
         };
-      `
+      `,
     );
     const diagnostics = await testHost.diagnose("main.tsp");
     strictEqual(diagnostics.length, 1);
@@ -101,7 +101,7 @@ describe("compiler: templates", () => {
         model B { 
           foo: A<"bye">
         };
-      `
+      `,
     );
 
     const { A } = (await testHost.compile("main.tsp")) as { A: Model };
@@ -122,7 +122,7 @@ describe("compiler: templates", () => {
           b: B<T>
         }
         alias Test = A;
-      `
+      `,
     );
 
     const diagnostics = await testHost.diagnose("main.tsp");
@@ -137,7 +137,7 @@ describe("compiler: templates", () => {
         model B { 
           foo: A
         };
-      `
+      `,
     );
 
     const { A } = (await testHost.compile("main.tsp")) as { A: Model };
@@ -156,7 +156,7 @@ describe("compiler: templates", () => {
           b: Foo<string>;
           c: Foo<string, string>;
         };
-      `
+      `,
     );
 
     const { Test } = (await testHost.compile("main.tsp")) as { Test: Model };
@@ -175,7 +175,7 @@ describe("compiler: templates", () => {
         model B { 
           foo: A<"bye">
         };
-      `
+      `,
     );
 
     const diagnostics = await testHost.diagnose("main.tsp");
@@ -189,7 +189,7 @@ describe("compiler: templates", () => {
       "main.tsp",
       `
         @test model A<T = "hi", U> { a: T, b: U }
-      `
+      `,
     );
 
     const diagnostics = await testHost.diagnose("main.tsp");
@@ -201,7 +201,7 @@ describe("compiler: templates", () => {
       "main.tsp",
       `
         @test model A<A = B, B = "hi"> { a: A, b: B }
-      `
+      `,
     );
 
     const diagnostics = await testHost.diagnose("main.tsp");
@@ -217,7 +217,7 @@ describe("compiler: templates", () => {
       "main.tsp",
       `
         @test model A<A = "one" | B, B = "hi"> { a: A, b: B }
-      `
+      `,
     );
 
     const diagnostics = await testHost.diagnose("main.tsp");
@@ -233,7 +233,7 @@ describe("compiler: templates", () => {
       "main.tsp",
       `
         @test model A<T = Record> { a: T }
-      `
+      `,
     );
 
     const diagnostics = await testHost.diagnose("main.tsp");
@@ -250,7 +250,7 @@ describe("compiler: templates", () => {
         model A<T> { }
         const a = "abc";
         alias B = A<a>;
-      `
+      `,
     );
 
     const diagnostics = await testHost.diagnose("main.tsp");
@@ -291,7 +291,7 @@ describe("compiler: templates", () => {
           model Bar {
             a: Test<notExists>;
           }
-        `
+        `,
       );
       const [{ prop }, diagnostics] = await testHost.compileAndDiagnose("main.tsp");
       // Only one error
@@ -329,7 +329,7 @@ describe("compiler: templates", () => {
         model B { 
           foo: A<"bye">
         };
-      `
+      `,
     );
 
     const { A } = (await testHost.compile("main.tsp")) as { A: Model };
@@ -349,7 +349,7 @@ describe("compiler: templates", () => {
         model B { 
           foo: A<"bye">
         };
-      `
+      `,
     );
 
     const { A } = (await testHost.compile("main.tsp")) as { A: Model };
@@ -372,7 +372,7 @@ describe("compiler: templates", () => {
         model Foo<T> {
           t: T;
         }
-      `
+      `,
     );
 
     const { A } = (await testHost.compile("main.tsp")) as { A: Model };
@@ -391,7 +391,7 @@ describe("compiler: templates", () => {
         model B { 
           foo: A
         };
-      `
+      `,
     );
 
     const diagnostics = await testHost.diagnose("main.tsp");
@@ -410,7 +410,7 @@ describe("compiler: templates", () => {
         model B { 
           foo: A
         };
-      `
+      `,
     );
 
     const diagnostics = await testHost.diagnose("main.tsp");
@@ -429,7 +429,7 @@ describe("compiler: templates", () => {
         model B { 
           foo: A
         };
-      `
+      `,
     );
 
     const diagnostics = await testHost.diagnose("main.tsp");
@@ -562,7 +562,7 @@ describe("compiler: templates", () => {
         `
       import "./mark.js";
       ${code}
-     `
+     `,
       );
 
       await testHost.compile("main.tsp");
@@ -616,7 +616,7 @@ describe("compiler: templates", () => {
           @test model B {
             foo: A<T = string>
           };
-        `
+        `,
       );
 
       const { B } = (await testHost.compile("main.tsp")) as { B: Model };
@@ -635,7 +635,7 @@ describe("compiler: templates", () => {
           @test model B {
             foo: A<U = int32, T = string>
           };
-        `
+        `,
       );
 
       const { B } = (await testHost.compile("main.tsp")) as { B: Model };
@@ -657,7 +657,7 @@ describe("compiler: templates", () => {
           @test model B {
             foo: A<U = "bar">
           };
-        `
+        `,
       );
 
       const { B } = (await testHost.compile("main.tsp")) as { B: Model };
@@ -679,7 +679,7 @@ describe("compiler: templates", () => {
           @test model B {
             foo: A<T = string>
           };
-        `
+        `,
       );
 
       const { B } = (await testHost.compile("main.tsp")) as { B: Model };
@@ -706,7 +706,7 @@ describe("compiler: templates", () => {
           @test model C {
             foo: A<T = boolean, V = "bar">
           }
-        `
+        `,
       );
 
       const { B, C } = (await testHost.compile("main.tsp")) as { B: Model; C: Model };
@@ -941,7 +941,7 @@ describe("compiler: templates", () => {
         @test model B {
           bar: A<U = Dec<string>, T = Dec<int32>>
         }
-        `
+        `,
       );
 
       const { B } = (await testHost.compile("main.tsp")) as { B: Model };

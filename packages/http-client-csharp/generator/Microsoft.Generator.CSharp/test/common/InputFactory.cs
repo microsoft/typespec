@@ -53,17 +53,28 @@ namespace Microsoft.Generator.CSharp.Tests.Common
             }
         }
 
+        public static InputParameter ContentTypeParameter(string contentType)
+            => Parameter(
+                "contentType",
+                Literal.String(contentType),
+                location: RequestLocation.Header,
+                isRequired: true,
+                defaultValue: Constant.String(contentType),
+                nameInRequest: "Content-Type",
+                isContentType: true,
+                kind: InputOperationParameterKind.Constant);
+
         public static InputParameter Parameter(
-        string name,
-        InputType type,
-        string? nameInRequest = null,
-        InputConstant? defaultValue = null,
-        RequestLocation location = RequestLocation.Body,
-        bool isRequired = false,
-        InputOperationParameterKind kind = InputOperationParameterKind.Method,
-        bool isEndpoint = false,
-        bool isResourceParameter = false,
-        bool isContentType = false)
+            string name,
+            InputType type,
+            string? nameInRequest = null,
+            InputConstant? defaultValue = null,
+            RequestLocation location = RequestLocation.Body,
+            bool isRequired = false,
+            InputOperationParameterKind kind = InputOperationParameterKind.Method,
+            bool isEndpoint = false,
+            bool isResourceParameter = false,
+            bool isContentType = false)
         {
             return new InputParameter(
                 name,
@@ -84,12 +95,16 @@ namespace Microsoft.Generator.CSharp.Tests.Common
                 null);
         }
 
-        public static InputNamespace Namespace(string name, IEnumerable<InputModelType>? models = null, IEnumerable<InputClient>? clients = null)
+        public static InputNamespace Namespace(
+            string name,
+            IEnumerable<InputModelType>? models = null,
+            IEnumerable<InputEnumType>? enums = null,
+            IEnumerable<InputClient>? clients = null)
         {
             return new InputNamespace(
                 name,
                 [],
-                [],
+                enums is null ? [] : [.. enums],
                 models is null ? [] : [.. models],
                 clients is null ? [] : [.. clients],
                 new InputAuth());
@@ -175,11 +190,17 @@ namespace Microsoft.Generator.CSharp.Tests.Common
             return new InputDictionaryType("dictionary", keyType ?? InputPrimitiveType.String, valueType);
         }
 
+        public static InputType Union(IList<InputType> types)
+        {
+            return new InputUnionType("union", [.. types]);
+        }
+
         public static InputOperation Operation(
             string name,
             string access = "public",
             IEnumerable<InputParameter>? parameters = null,
-            IEnumerable<OperationResponse>? responses = null)
+            IEnumerable<OperationResponse>? responses = null,
+            IEnumerable<string>? requestMediaTypes = null)
         {
             return new InputOperation(
                 name,
@@ -194,7 +215,7 @@ namespace Microsoft.Generator.CSharp.Tests.Common
                 "",
                 "",
                 null,
-                null,
+                requestMediaTypes is null ? null : [.. requestMediaTypes],
                 false,
                 null,
                 null,

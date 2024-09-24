@@ -40,7 +40,7 @@ describe("compiler: diagnostics", () => {
       }
     
     `,
-        { locateId: true }
+        { locateId: true },
       ));
   });
 });

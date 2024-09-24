@@ -21,7 +21,7 @@ export const checkFormatCadl = checkFormatTypeSpec;
  */
 export async function checkFormatTypeSpec(
   code: string,
-  prettierConfig?: Options
+  prettierConfig?: Options,
 ): Promise<boolean> {
   return check(code, {
     ...prettierConfig,

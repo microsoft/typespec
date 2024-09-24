@@ -30,14 +30,14 @@ describe("compiler: server: main file", () => {
       `
       import "./work/test.tsp",
       model Base {}
-      `
+      `,
     );
 
     const document = host.addOrUpdateDocument(
       "./work/test.tsp",
       `
       model Sub extends Base {}
-      `
+      `,
     );
 
     await host.server.checkChange({ document });
@@ -53,7 +53,7 @@ describe("compiler: server: main file", () => {
         name: "test",
         version: "1.0.0",
         tspMain: "./entrypoint.tsp",
-      })
+      }),
     );
 
     host.addTypeSpecFile(
@@ -61,21 +61,21 @@ describe("compiler: server: main file", () => {
       `
       import "./lib1.tsp";
       import "./lib2.tsp";
-      `
+      `,
     );
 
     host.addTypeSpecFile(
       "./lib/lib1.tsp",
       `
       model Lib1 {}
-      `
+      `,
     );
 
     host.addTypeSpecFile(
       "./lib/lib2.tsp",
       `
       model Lib2 extends Lib1 {}
-      `
+      `,
     );
 
     // First, open user document that loads library, reading it's
@@ -86,7 +86,7 @@ describe("compiler: server: main file", () => {
       `
       import "./lib";
       model User extends Lib1 {}
-      `
+      `,
     );
 
     // Second, open a doc in the lib after that
@@ -97,14 +97,14 @@ describe("compiler: server: main file", () => {
     deepStrictEqual(
       host.getDiagnostics("./test.tsp"),
       [],
-      "No diagnostics expected in user document"
+      "No diagnostics expected in user document",
     );
 
     await host.server.checkChange({ document: libDoc });
     deepStrictEqual(
       host.getDiagnostics("./lib/lib2.tsp"),
       [],
-      "No diagnostics expected in library document"
+      "No diagnostics expected in library document",
     );
   });
 
@@ -119,7 +119,7 @@ describe("compiler: server: main file", () => {
       "./test.tsp",
       `
       model Test {}
-      `
+      `,
     );
 
     await host.server.checkChange({ document });

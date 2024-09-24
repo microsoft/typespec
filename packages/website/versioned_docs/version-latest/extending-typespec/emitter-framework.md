@@ -150,7 +150,7 @@ class MyCodeEmitter extends CodeTypeEmitter {
 
   modelPropertyLiteral(property: ModelProperty): EmitterOutput<string> {
     return code`a property named ${property.name} and a type of ${this.emitter.emitType(
-      property.type
+      property.type,
     )}`;
   }
 
@@ -243,7 +243,7 @@ class MyCodeEmitter extends CodeTypeEmitter {
     targetDeclaration: Declaration<string>,
     pathUp: Scope<string>[],
     pathDown: Scope<string>[],
-    commonScope: Scope<string> | null
+    commonScope: Scope<string> | null,
   ): string | EmitEntity<string> {
     const segments = pathDown.map((s) => s.name);
     segments.push(targetDeclaration.name);

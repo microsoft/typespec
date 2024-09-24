@@ -14,7 +14,7 @@ describe("compiler: duplicate declarations", () => {
       "main.tsp",
       `
       model A<T, T> { }
-    `
+    `,
     );
 
     const diagnostics = await testHost.diagnose("./");
@@ -27,7 +27,7 @@ describe("compiler: duplicate declarations", () => {
       `
       model A { }
       model A { }
-    `
+    `,
     );
 
     const diagnostics = await testHost.diagnose("./");
@@ -41,7 +41,7 @@ describe("compiler: duplicate declarations", () => {
       namespace Foo;
       model A { }
       model A { }
-    `
+    `,
     );
 
     const diagnostics = await testHost.diagnose("./");
@@ -59,7 +59,7 @@ describe("compiler: duplicate declarations", () => {
       namespace N {
         model A { };
       }
-    `
+    `,
     );
 
     const diagnostics = await testHost.diagnose("./");
@@ -72,7 +72,7 @@ describe("compiler: duplicate declarations", () => {
       `
       import "./a.tsp";
       import "./b.tsp";
-      `
+      `,
     );
     testHost.addTypeSpecFile(
       "a.tsp",
@@ -80,7 +80,7 @@ describe("compiler: duplicate declarations", () => {
       namespace N {
         model A { };
       }
-    `
+    `,
     );
     testHost.addTypeSpecFile(
       "b.tsp",
@@ -88,7 +88,7 @@ describe("compiler: duplicate declarations", () => {
       namespace N {
         model A { };
       }
-    `
+    `,
     );
 
     const diagnostics = await testHost.diagnose("./");
@@ -103,7 +103,7 @@ describe("compiler: duplicate declarations", () => {
           `
           namespace N {}
           model N {}
-          `
+          `,
         );
         const diagnostics = await testHost.diagnose("./");
         assertDuplicates(diagnostics);
@@ -115,7 +115,7 @@ describe("compiler: duplicate declarations", () => {
           `
           model N {}
           namespace N {}
-          `
+          `,
         );
         testHost.addTypeSpecFile("a.tsp", "namespace N {}");
         testHost.addTypeSpecFile("b.tsp", "model N {}");
@@ -132,7 +132,7 @@ describe("compiler: duplicate declarations", () => {
           `
           import "./a.tsp";
           import "./b.tsp";
-          `
+          `,
         );
         testHost.addTypeSpecFile("a.tsp", "namespace N {}");
         testHost.addTypeSpecFile("b.tsp", "model N {}");
@@ -145,7 +145,7 @@ describe("compiler: duplicate declarations", () => {
           `
           import "./a.tsp";
           import "./b.tsp";
-          `
+          `,
         );
         testHost.addTypeSpecFile("a.tsp", "model MMM {}");
         testHost.addTypeSpecFile(
@@ -154,7 +154,7 @@ describe("compiler: duplicate declarations", () => {
              // Also check that we don't drop local dupes when the namespace is discarded.
              model QQQ {}
              model QQQ {}
-           }`
+           }`,
         );
         const diagnostics = await testHost.diagnose("./");
         expectDiagnostics(diagnostics, [

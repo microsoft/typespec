@@ -29,7 +29,7 @@ describe("compiler: aliases", () => {
       @test model A {
         prop: FooBar
       }
-      `
+      `,
     );
     const { A } = (await testHost.compile("./")) as {
       A: Model;
@@ -56,7 +56,7 @@ describe("compiler: aliases", () => {
       @test model A {
         prop: FooBar
       }
-      `
+      `,
     );
     const { A } = (await testHost.compile("./")) as {
       A: Model;
@@ -81,7 +81,7 @@ describe("compiler: aliases", () => {
       @test model A {
         prop: Foo<"hi">
       }
-      `
+      `,
     );
 
     const { A } = (await testHost.compile("./")) as {
@@ -105,7 +105,7 @@ describe("compiler: aliases", () => {
       @test model A {
         prop: Bar<"hi", 42>
       }
-      `
+      `,
     );
 
     const { A } = (await testHost.compile("./")) as {
@@ -132,7 +132,7 @@ describe("compiler: aliases", () => {
       @test model A {
         prop: FooBar
       }
-      `
+      `,
     );
     const { A } = (await testHost.compile("./")) as {
       A: Model;
@@ -158,7 +158,7 @@ describe("compiler: aliases", () => {
       @test model A extends Alias { };
       @test model B { ... Alias };
       @test model C { c: Alias };
-      `
+      `,
     );
     const { Test, A, B, C } = (await testHost.compile("./")) as {
       Test: Model;
@@ -183,7 +183,7 @@ describe("compiler: aliases", () => {
       alias AliasFoo = Foo;
 
       @test model Baz { x: AliasFoo.Bar };
-      `
+      `,
     );
 
     const { Bar, Baz } = (await testHost.compile("./")) as {
@@ -204,7 +204,7 @@ describe("compiler: aliases", () => {
       @test model Test {
         prop: Foo.B;
       }
-      `
+      `,
     );
 
     const { Test, Foo } = (await testHost.compile("./")) as {
@@ -221,7 +221,7 @@ describe("compiler: aliases", () => {
       "main.tsp",
       `
       alias A = A;
-      `
+      `,
     );
     const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, {
@@ -237,7 +237,7 @@ describe("compiler: aliases", () => {
       alias A<T> = A<T>;
 
       model Foo {a: A<string>}
-      `
+      `,
     );
     const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, {
@@ -251,7 +251,7 @@ describe("compiler: aliases", () => {
       "main.tsp",
       `
       alias A = "string" | A;
-      `
+      `,
     );
     const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, {
@@ -275,7 +275,7 @@ describe("compiler: aliases", () => {
       alias Aliased = Foo.Bar;
       op getSmurf is Aliased.abc;
 
-      `
+      `,
     );
     const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnosticEmpty(diagnostics);
@@ -290,7 +290,7 @@ describe("compiler: aliases", () => {
 
       alias Aliased = A.prop;
 
-      `
+      `,
     );
     const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, {
@@ -306,7 +306,7 @@ describe("compiler: aliases", () => {
 
       alias Aliased = A.prop;
 
-      `
+      `,
     );
     const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, {

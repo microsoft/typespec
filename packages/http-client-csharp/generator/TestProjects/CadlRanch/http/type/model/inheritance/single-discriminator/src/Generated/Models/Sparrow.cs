@@ -11,6 +11,6 @@ namespace _Type.Model.Inheritance.SingleDiscriminator.Models
     {
         public Sparrow(int wingspan) : base("sparrow", wingspan) => throw null;
 
-        internal Sparrow(int wingspan, IDictionary<string, BinaryData> serializedAdditionalRawData) : base("sparrow", wingspan, serializedAdditionalRawData) => throw null;
+        internal Sparrow(string kind, int wingspan, IDictionary<string, BinaryData> additionalBinaryDataProperties) : base(kind, wingspan, additionalBinaryDataProperties) => throw null;
     }
 }

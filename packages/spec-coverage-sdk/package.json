@@ -1,0 +1,36 @@
+{
+  "name": "@typespec/spec-coverage-sdk",
+  "version": "0.1.0",
+  "description": "Spec utility to manage the reported coverage",
+  "main": "dist/index.js",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "watch": "tsc -p ./tsconfig.build.json --watch",
+    "build": "tsc -p ./tsconfig.build.json",
+    "clean": "rimraf dist/ temp/",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/microsoft/typespec.git"
+  },
+  "author": "Microsoft",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/microsoft/typespec/issues"
+  },
+  "homepage": "https://github.com/microsoft/typespec#readme",
+  "dependencies": {
+    "@azure/identity": "~4.4.1",
+    "@azure/storage-blob": "~12.24.0",
+    "@types/node": "~22.5.4"
+  },
+  "devDependencies": {
+    "rimraf": "~6.0.1",
+    "typescript": "~5.6.2"
+  }
+}

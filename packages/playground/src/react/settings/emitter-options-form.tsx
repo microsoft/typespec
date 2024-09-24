@@ -35,7 +35,7 @@ export const EmitterOptionsForm: FunctionComponent<EmitterOptionsFormProps> = ({
         },
       });
     },
-    [library.name, options, optionsChanged]
+    [library.name, options, optionsChanged],
   );
 
   const emitterOptionsSchema = library.definition?.emitter?.options?.properties;
@@ -84,14 +84,14 @@ const JsonSchemaPropertyInput: FunctionComponent<JsonSchemaPropertyInputProps> =
 }) => {
   const prettyName = useMemo(
     () => name[0].toUpperCase() + name.slice(1).replace(/-/g, " "),
-    [name]
+    [name],
   );
   const inputId = useId("input");
   const value = emitterOptions[name] ?? prop.default;
   const handleChange = useCallback(
     (_: unknown, data: RadioGroupOnChangeData | SwitchOnChangeData | InputOnChangeData) =>
       onChange({ name, value: "value" in data ? data.value : data.checked }),
-    [name, onChange]
+    [name, onChange],
   );
 
   switch (prop.type) {

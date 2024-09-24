@@ -1,0 +1,84 @@
+aiohttp;python_full_version>="3.5.2"
+requests==2.32.2
+pytest
+pytest-asyncio==0.14.0;python_full_version>="3.5.2"
+azure-core==1.30.0
+azure-mgmt-core==1.3.2
+# only for azure
+-e ./generated/azure-client-generator-core-access
+-e ./generated/azure-client-generator-core-usage
+-e ./generated/azure-client-generator-core-flatten-property
+-e ./generated/azure-core-basic
+-e ./generated/azure-core-scalar
+-e ./generated/azurecore-lro-rpc
+-e ./generated/azure-core-lro-standard
+-e ./generated/azure-core-model
+-e ./generated/azure-core-traits
+-e ./generated/azure-core-page
+-e ./generated/azure-special-headers-client-request-id/
+-e ./generated/azure-example-basic
+-e ./generated/azure-resource-manager-models-common-types-managed-identity
+-e ./generated/azure-resource-manager-models-resources
+
+# common test case
+-e ./generated/authentication-api-key
+-e ./generated/authentication-http-custom
+-e ./generated/authentication-oauth2
+-e ./generated/authentication-union
+-e ./generated/client-naming
+-e ./generated/encode-duration
+-e ./generated/encode-numeric
+-e ./generated/parameters-basic
+-e ./generated/parameters-collection-format
+-e ./generated/parameters-spread
+-e ./generated/resiliency-srv-driven1
+-e ./generated/resiliency-srv-driven2
+-e ./generated/serialization-encoded-name-json
+-e ./generated/server-endpoint-not-defined
+-e ./generated/server-path-multiple
+-e ./generated/server-path-single
+-e ./generated/server-versions-versioned
+-e ./generated/server-versions-not-versioned
+-e ./generated/special-words
+-e ./generated/typetest-array
+-e ./generated/typetest-dictionary
+-e ./generated/typetest-enum-extensible
+-e ./generated/typetest-enum-fixed
+-e ./generated/typetest-model-enumdiscriminator
+-e ./generated/typetest-model-nesteddiscriminator
+-e ./generated/typetest-model-notdiscriminated
+-e ./generated/typetest-model-singlediscriminator
+-e ./generated/typetest-model-recursive
+-e ./generated/typetest-model-usage
+-e ./generated/typetest-model-visibility
+-e ./generated/typetest-property-nullable
+-e ./generated/typetest-property-optional
+-e ./generated/typetest-property-valuetypes
+-e ./generated/typetest-property-additionalproperties
+-e ./generated/typetest-scalar
+-e ./generated/typetest-union
+-e ./generated/typetest-model-empty
+-e ./generated/headasbooleantrue
+-e ./generated/headasbooleanfalse
+-e ./generated/parameters-body-optionality
+-e ./generated/special-headers-repeatability
+-e ./generated/special-headers-conditional-request
+-e ./generated/encode-datetime
+-e ./generated/encode-bytes
+-e ./generated/client-structure-default
+-e ./generated/client-structure-multiclient
+-e ./generated/client-structure-renamedoperation
+-e ./generated/client-structure-twooperationgroup
+-e ./generated/payload-content-negotiation
+-e ./generated/payload-json-merge-patch
+-e ./generated/payload-pageable
+-e ./generated/payload-multipart
+-e ./generated/payload-media-type
+-e ./generated/payload-xml
+-e ./generated/versioning-added
+-e ./generated/versioning-madeoptional
+-e ./generated/versioning-removed
+-e ./generated/versioning-renamedfrom
+-e ./generated/versioning-returntypechangedfrom
+-e ./generated/versioning-typechangedfrom
+-e ./generated/routes
