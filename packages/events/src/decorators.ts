@@ -11,6 +11,7 @@ import {
   type Union,
   type UnionVariant,
 } from "@typespec/compiler";
+import { unsafe_useStateMap, unsafe_useStateSet } from "@typespec/compiler/experimental";
 import type {
   ContentTypeDecorator,
   DataDecorator,
@@ -18,24 +19,23 @@ import type {
 } from "../generated-defs/TypeSpec.Events.js";
 import { createDiagnostic, EventsStateKeys } from "./lib.js";
 
+const [isEvents, setEvents] = unsafe_useStateSet<Union>(EventsStateKeys.events);
+
 export const $eventsDecorator: EventsDecorator = (context, target) => {
-  context.program.stateSet(EventsStateKeys.events).add(target);
+  setEvents(context.program, target);
 };
 
-export function isEvents(program: Program, target: Union): boolean {
-  return program.stateSet(EventsStateKeys.events).has(target);
-}
+export { isEvents };
+
+const [getContentType, setContentType] = unsafe_useStateMap<ModelProperty | UnionVariant, string>(
+  EventsStateKeys.contentType,
+);
 
 export const $contentTypeDecorator: ContentTypeDecorator = (context, target, contentType) => {
-  context.program.stateMap(EventsStateKeys.contentType).set(target, contentType);
+  setContentType(context.program, target, contentType);
 };
 
-export function getContentType(
-  program: Program,
-  target: UnionVariant | ModelProperty,
-): string | undefined {
-  return program.stateMap(EventsStateKeys.contentType).get(target);
-}
+export { getContentType };
 
 function validateContentType(program: Program, target: ModelProperty): Diagnostic | undefined {
   const contentType = getContentType(program, target);
@@ -47,13 +47,13 @@ function validateContentType(program: Program, target: ModelProperty): Diagnosti
   });
 }
 
+const [isEventData, setEventData] = unsafe_useStateSet<ModelProperty>(EventsStateKeys.data);
+
 export const $dataDecorator: DataDecorator = (context, target) => {
-  context.program.stateSet(EventsStateKeys.data).add(target);
+  setEventData(context.program, target);
 };
 
-export function isEventData(program: Program, target: ModelProperty): boolean {
-  return program.stateSet(EventsStateKeys.data).has(target);
-}
+export { isEventData };
 
 function stringifyPropertyPath(path: Array<Model | ModelProperty | Tuple>): string {
   return path
