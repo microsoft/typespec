@@ -39,6 +39,7 @@ describe("@name", () => {
             type: "string",
           },
           xml: {
+            name: "tags",
             wrapped: true,
           },
         },
@@ -341,6 +342,7 @@ describe("Array of primitive types", () => {
           type: "array",
           items: {
             type: "string",
+            xml: { name: "string" },
           },
         },
       },
@@ -419,6 +421,7 @@ describe("Array of primitive types", () => {
             type: "array",
             items: {
               type: `${type}`,
+              xml: { name: "ItemsName" },
             },
           },
         },
