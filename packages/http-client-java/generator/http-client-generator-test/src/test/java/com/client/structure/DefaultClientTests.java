@@ -14,29 +14,23 @@ import org.junit.jupiter.api.Test;
 
 public class DefaultClientTests {
 
-    private final ServiceClientClient client = new ServiceClientClientBuilder()
-            .endpoint("http://localhost:3000")
-            .client("default").buildClient();
+    private final ServiceClientClient client
+        = new ServiceClientClientBuilder().endpoint("http://localhost:3000").client("default").buildClient();
 
-    private final FooClient client2 = new ServiceClientClientBuilder()
-            .endpoint("http://localhost:3000")
-            .client("default").buildFooClient();
+    private final FooClient client2
+        = new ServiceClientClientBuilder().endpoint("http://localhost:3000").client("default").buildFooClient();
 
-    private final BarClient client3 = new ServiceClientClientBuilder()
-            .endpoint("http://localhost:3000")
-            .client("default").buildBarClient();
+    private final BarClient client3
+        = new ServiceClientClientBuilder().endpoint("http://localhost:3000").client("default").buildBarClient();
 
-    private final QuxClient client4 = new ServiceClientClientBuilder()
-            .endpoint("http://localhost:3000")
-            .client("default").buildQuxClient();
+    private final QuxClient client4
+        = new ServiceClientClientBuilder().endpoint("http://localhost:3000").client("default").buildQuxClient();
 
-    private final QuxBarClient client5 = new ServiceClientClientBuilder()
-            .endpoint("http://localhost:3000")
-            .client("default").buildQuxBarClient();
+    private final QuxBarClient client5
+        = new ServiceClientClientBuilder().endpoint("http://localhost:3000").client("default").buildQuxBarClient();
 
-    private final BazFooClient client6 = new ServiceClientClientBuilder()
-            .endpoint("http://localhost:3000")
-            .client("default").buildBazFooClient();
+    private final BazFooClient client6
+        = new ServiceClientClientBuilder().endpoint("http://localhost:3000").client("default").buildBazFooClient();
 
     @Test
     public void testClient() {

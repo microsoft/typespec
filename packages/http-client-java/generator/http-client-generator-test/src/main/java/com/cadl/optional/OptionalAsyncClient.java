@@ -62,7 +62,8 @@ public final class OptionalAsyncClient {
      * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     boolean: Boolean (Optional)
      *     booleanNullable: Boolean (Optional)
@@ -88,11 +89,13 @@ public final class OptionalAsyncClient {
      *     epochDateTimeRequiredNullable: Long (Required)
      *     epochDateTimeNullable: Long (Optional)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     boolean: Boolean (Optional)
      *     booleanNullable: Boolean (Optional)
@@ -122,7 +125,8 @@ public final class OptionalAsyncClient {
      *         stringReadOnlyOptional: String (Optional)
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param requestHeaderRequired The requestHeaderRequired parameter.
      * @param booleanRequired The booleanRequired parameter.
@@ -191,7 +195,7 @@ public final class OptionalAsyncClient {
         }
         return putWithResponse(requestHeaderRequired, booleanRequired, booleanRequiredNullable, stringRequired,
             stringRequiredNullable, requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(AllPropertiesOptional.class));
+                .map(protocolMethodData -> protocolMethodData.toObject(AllPropertiesOptional.class));
     }
 
     /**
@@ -218,6 +222,6 @@ public final class OptionalAsyncClient {
         RequestOptions requestOptions = new RequestOptions();
         return putWithResponse(requestHeaderRequired, booleanRequired, booleanRequiredNullable, stringRequired,
             stringRequiredNullable, requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(AllPropertiesOptional.class));
+                .map(protocolMethodData -> protocolMethodData.toObject(AllPropertiesOptional.class));
     }
 }

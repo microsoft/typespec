@@ -3,17 +3,22 @@
 
 package com.type.model.visibility;
 
+import com.azure.core.http.HttpClient;
+import com.azure.core.http.netty.NettyAsyncHttpClientProvider;
+import com.azure.core.util.HttpClientOptions;
 import com.type.model.visibility.models.ReadOnlyModel;
 import com.type.model.visibility.models.VisibilityModel;
+import java.util.Arrays;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.util.Arrays;
 
 // These cases are using protocol method, we don't support automatic visibility for convenience methods yet, the tests are added for cadl-ranch coverage.
 class AutomaticClientTest {
 
-    private final VisibilityClient client = new VisibilityClientBuilder().buildClient();
+    private final VisibilityClient client = new VisibilityClientBuilder()
+        .httpClient(
+            HttpClient.createDefault(new HttpClientOptions().setHttpClientProvider(NettyAsyncHttpClientProvider.class)))
+        .buildClient();
 
     @Test
     void getModel() {
@@ -29,7 +34,8 @@ class AutomaticClientTest {
 
     @Test
     void putModel() {
-        // client.putModelWithResponse(BinaryData.fromString("{\"createProp\": [\"foo\",\"bar\"], \"updateProp\": [1, 2]}"), null);
+        // client.putModelWithResponse(BinaryData.fromString("{\"createProp\": [\"foo\",\"bar\"], \"updateProp\": [1,
+        // 2]}"), null);
         client.putModel(new VisibilityModel(null, Arrays.asList("foo", "bar"), Arrays.asList(1, 2), null));
     }
 

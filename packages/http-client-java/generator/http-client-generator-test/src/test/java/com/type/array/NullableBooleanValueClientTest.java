@@ -3,12 +3,11 @@
 
 package com.type.array;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 
 import java.util.Arrays;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import org.junit.jupiter.api.Test;
 
 public class NullableBooleanValueClientTest {
 

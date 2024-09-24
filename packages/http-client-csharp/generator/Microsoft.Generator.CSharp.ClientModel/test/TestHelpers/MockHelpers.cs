@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Input;
@@ -20,6 +21,20 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
     {
         private static readonly string _configFilePath = Path.Combine(AppContext.BaseDirectory, TestHelpersFolder);
         public const string TestHelpersFolder = "TestHelpers";
+
+        public static async Task<Mock<ClientModelPlugin>> LoadMockPluginAsync(
+            Func<IReadOnlyList<InputEnumType>>? inputEnums = null,
+            Func<Task<Compilation>>? compilation = null)
+        {
+            var mockPlugin = LoadMockPlugin(inputEnums: inputEnums);
+
+            var compilationResult = compilation == null ? null : await compilation();
+
+            var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(compilationResult)) { CallBase = true };
+            mockPlugin.Setup(p => p.SourceInputModel).Returns(sourceInputModel.Object);
+
+            return mockPlugin;
+        }
 
         public static Mock<ClientModelPlugin> LoadMockPlugin(
             Func<InputType, TypeProvider, IReadOnlyList<TypeProvider>>? createSerializationsCore = null,

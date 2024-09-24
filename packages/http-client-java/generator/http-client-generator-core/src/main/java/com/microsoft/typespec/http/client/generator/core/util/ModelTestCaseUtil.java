@@ -3,6 +3,8 @@
 
 package com.microsoft.typespec.http.client.generator.core.util;
 
+import com.azure.core.util.CoreUtils;
+import com.azure.core.util.DateTimeRfc1123;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientEnumValue;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
@@ -11,9 +13,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumT
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
-import com.azure.core.util.CoreUtils;
-import com.azure.core.util.DateTimeRfc1123;
-
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -59,9 +58,8 @@ public class ModelTestCaseUtil {
 
         // polymorphism
         if (model.isPolymorphic()) {
-            addForProperty(jsonObject,
-                    model.getPolymorphicDiscriminatorName(), model.getNeedsFlatten(),
-                    model.getSerializedName());
+            addForProperty(jsonObject, model.getPolymorphicDiscriminatorName(), model.getNeedsFlatten(),
+                model.getSerializedName());
         }
 
         // class
@@ -125,13 +123,14 @@ public class ModelTestCaseUtil {
         } else if (type == ClassType.UUID) {
             return UUID.randomUUID().toString();
         } else if (type == ClassType.URL) {
-            return  "http://example.org/" + URLEncoder.encode(randomString(), StandardCharsets.UTF_8);
+            return "http://example.org/" + URLEncoder.encode(randomString(), StandardCharsets.UTF_8);
         } else if (type == ClassType.OBJECT) {
             // unknown type, use a simple string
             return "data" + randomString();
         } else if (type instanceof EnumType) {
             IType elementType = ((EnumType) type).getElementType();
-            List<String> values = ((EnumType) type).getValues().stream().map(ClientEnumValue::getValue).collect(Collectors.toList());
+            List<String> values
+                = ((EnumType) type).getValues().stream().map(ClientEnumValue::getValue).collect(Collectors.toList());
             if (values.isEmpty()) {
                 // empty enum
                 return null;
@@ -186,7 +185,6 @@ public class ModelTestCaseUtil {
         return null;
     }
 
-
     public static String redactStringValue(List<String> serializedNames, String value) {
         for (String keyName : serializedNames) {
             String keyNameLower = keyName.toLowerCase(Locale.ROOT);
@@ -200,33 +198,31 @@ public class ModelTestCaseUtil {
         return value;
     }
 
-    private static void addForProperty(int depth, Map<String, Object> jsonObject,
-                                       ClientModelProperty property, boolean modelNeedsFlatten) {
+    private static void addForProperty(int depth, Map<String, Object> jsonObject, ClientModelProperty property,
+        boolean modelNeedsFlatten) {
         final boolean maxDepthReached = depth > CONFIGURATION.maxDepth;
 
         Object value = null;
         if (property.isConstant()) {
             // TODO (weidxu): skip for now, as the property.getDefaultValue() is the code, not the raw data
-            //value = property.getDefaultValue();
+            // value = property.getDefaultValue();
             return;
         } else {
             if (property.isRequired()
-                    // required property must be generated
-                    // optional property only be generated when still have depth remains
-                    // we assume here that there is no infinitely nested required properties
-                    || (!maxDepthReached && RANDOM.nextFloat() > CONFIGURATION.nullableProbability)) {
+                // required property must be generated
+                // optional property only be generated when still have depth remains
+                // we assume here that there is no infinitely nested required properties
+                || (!maxDepthReached && RANDOM.nextFloat() > CONFIGURATION.nullableProbability)) {
                 value = jsonFromType(depth, property.getWireType());
             }
         }
 
-        addForProperty(jsonObject,
-                property.getSerializedName(), modelNeedsFlatten || property.getNeedsFlatten(),
-                value);
+        addForProperty(jsonObject, property.getSerializedName(), modelNeedsFlatten || property.getNeedsFlatten(),
+            value);
     }
 
-    private static void addForProperty(Map<String, Object> jsonObject,
-                                       String serializedName, boolean modelNeedsFlatten,
-                                       Object value) {
+    private static void addForProperty(Map<String, Object> jsonObject, String serializedName, boolean modelNeedsFlatten,
+        Object value) {
         if (value != null) {
             List<String> serializedNames;
             if (modelNeedsFlatten) {
@@ -261,15 +257,8 @@ public class ModelTestCaseUtil {
         }
     }
 
-    private static final List<String> POSSIBLE_CREDENTIAL_KEY = Arrays.asList(
-            "key",
-            "code",
-            "credential",
-            "password",
-            "token",
-            "secret",
-            "authorization"
-    );
+    private static final List<String> POSSIBLE_CREDENTIAL_KEY
+        = Arrays.asList("key", "code", "credential", "password", "token", "secret", "authorization");
 
     private static void checkCredential(List<String> serializedNames) {
         for (String keyName : serializedNames) {
@@ -288,13 +277,13 @@ public class ModelTestCaseUtil {
         int targetStringLength = RANDOM.nextInt(CONFIGURATION.maxStringLen - 1) + 1;
 
         return RANDOM.ints(leftLimit, rightLimit + 1)
-                .limit(targetStringLength)
-                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
-                .toString();
+            .limit(targetStringLength)
+            .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+            .toString();
     }
 
-
     private static final OffsetDateTime TIME = OffsetDateTime.parse("2020-12-20T00:00:00.000Z");
+
     private static OffsetDateTime randomDateTime() {
         return TIME.plusSeconds(RANDOM.nextInt(356 * 24 * 60 * 60));
     }

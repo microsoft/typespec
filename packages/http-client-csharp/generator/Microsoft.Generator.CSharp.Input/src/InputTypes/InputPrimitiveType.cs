@@ -36,7 +36,7 @@ namespace Microsoft.Generator.CSharp.Input
         public static InputPrimitiveType Int64 { get; } = new(InputPrimitiveTypeKind.Int64, "int64", "TypeSpec.int64");
         public static InputPrimitiveType String { get; } = new(InputPrimitiveTypeKind.String, "string", "TypeSpec.string");
         public static InputPrimitiveType PlainTime { get; } = new(InputPrimitiveTypeKind.PlainTime, "plainTime", "TypeSpec.plainTime");
-        public static InputPrimitiveType Any { get; } = new(InputPrimitiveTypeKind.Any, "any", string.Empty);
+        public static InputPrimitiveType Any { get; } = new(InputPrimitiveTypeKind.Unknown, "unknown", string.Empty);
 
         public bool IsNumber => Kind is InputPrimitiveTypeKind.Integer or InputPrimitiveTypeKind.Float or InputPrimitiveTypeKind.Int32 or InputPrimitiveTypeKind.Int64 or InputPrimitiveTypeKind.Float32 or InputPrimitiveTypeKind.Float64 or InputPrimitiveTypeKind.Decimal or InputPrimitiveTypeKind.Decimal128 or InputPrimitiveTypeKind.Numeric;
     }

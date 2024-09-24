@@ -87,11 +87,15 @@ namespace Microsoft.Generator.CSharp.Providers
                     }
 
                     var fieldProvider = new FieldProvider(
-                    modifiers,
-                    GetCSharpType(fieldSymbol.Type),
-                    fieldSymbol.Name,
-                    this,
-                    GetSymbolXmlDoc(fieldSymbol, "summary"));
+                        modifiers,
+                        GetCSharpType(fieldSymbol.Type),
+                        fieldSymbol.Name,
+                        this,
+                        GetSymbolXmlDoc(fieldSymbol, "summary"))
+                    {
+                        Attributes = fieldSymbol.GetAttributes()
+                    };
+
                     fields.Add(fieldProvider);
                 }
             }
@@ -123,6 +127,9 @@ namespace Microsoft.Generator.CSharp.Providers
             List<ConstructorProvider> constructors = new List<ConstructorProvider>();
             foreach (var constructorSymbol in _namedTypeSymbol.Constructors)
             {
+                if (constructorSymbol.IsImplicitlyDeclared)
+                    continue;
+
                 var signature = new ConstructorSignature(
                     Type,
                     GetSymbolXmlDoc(constructorSymbol, "summary"),

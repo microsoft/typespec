@@ -4,10 +4,9 @@
 package com.type.property.valuetypes;
 
 import com.type.property.valuetypes.models.DatetimeProperty;
+import java.time.OffsetDateTime;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.time.OffsetDateTime;
 
 class DatetimeOperationClientTest {
 
