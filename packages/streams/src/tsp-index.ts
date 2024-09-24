@@ -1,8 +1,8 @@
-import { $streamOf } from "./decorators.js";
+import { $streamOfDecorator } from "./decorators.js";
 export { $lib } from "./lib.js";
 
 export const $decorators = {
   "TypeSpec.Streams": {
-    streamOf: $streamOf,
+    streamOf: $streamOfDecorator,
   },
 };
