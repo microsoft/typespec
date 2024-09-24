@@ -30,7 +30,7 @@ describe("@streamOf", () => {
     const { CustomStream, Message } = await runner.compile(
       `
       @test model Message { id: string, text: string }
-      @test model CustomStream is Stream<Message> {}`
+      @test model CustomStream is Stream<Message> {}`,
     );
 
     expect(getStreamOf(runner.program, CustomStream as Model)).toBe(Message);
