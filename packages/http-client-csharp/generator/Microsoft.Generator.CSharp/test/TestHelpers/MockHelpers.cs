@@ -23,9 +23,10 @@ namespace Microsoft.Generator.CSharp.Tests
             Func<OutputLibrary>? createOutputLibrary = null,
             string? configuration = null,
             InputModelType[]? inputModelTypes = null,
+            InputEnumType[]? inputEnumTypes = null,
             Func<Task<Compilation>>? compilation = null)
         {
-            var mockPlugin = LoadMockPlugin(createCSharpTypeCore, createOutputLibrary, configuration, inputModelTypes);
+            var mockPlugin = LoadMockPlugin(createCSharpTypeCore, createOutputLibrary, configuration, inputModelTypes, inputEnumTypes);
 
             var compilationResult = compilation == null ? null : await compilation();
 
@@ -39,7 +40,8 @@ namespace Microsoft.Generator.CSharp.Tests
             Func<InputType, CSharpType>? createCSharpTypeCore = null,
             Func<OutputLibrary>? createOutputLibrary = null,
             string? configuration = null,
-            InputModelType[]? inputModelTypes = null)
+            InputModelType[]? inputModelTypes = null,
+            InputEnumType[]? inputEnumTypes = null)
         {
             var configFilePath = Path.Combine(AppContext.BaseDirectory, TestHelpersFolder);
             // initialize the singleton instance of the plugin
@@ -60,7 +62,8 @@ namespace Microsoft.Generator.CSharp.Tests
             Mock<InputLibrary> mockInputLibrary = new Mock<InputLibrary>() { CallBase = true };
             mockInputLibrary.Setup(l => l.InputNamespace).Returns(InputFactory.Namespace(
                 "TestLibrary",
-                models: inputModelTypes));
+                models: inputModelTypes,
+                enums: inputEnumTypes));
 
             mockPlugin.Setup(p => p.InputLibrary).Returns(mockInputLibrary.Object);
 

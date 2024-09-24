@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.Tests.Writers

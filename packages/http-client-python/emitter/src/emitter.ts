@@ -79,7 +79,7 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
   const outputDir = context.emitterOutputDir;
   const yamlMap = emitCodeModel(sdkContext);
   addDefaultOptions(sdkContext);
-  const yamlPath = await saveCodeModelAsYaml("typespec-python-yaml-map", yamlMap);
+  const yamlPath = await saveCodeModelAsYaml("python-yaml-path", yamlMap);
   let venvPath = path.join(root, "venv");
   if (fs.existsSync(path.join(venvPath, "bin"))) {
     venvPath = path.join(venvPath, "bin", "python");

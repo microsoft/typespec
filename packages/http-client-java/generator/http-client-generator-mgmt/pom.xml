@@ -31,6 +31,7 @@
       <groupId>com.azure</groupId>
       <artifactId>azure-core-management</artifactId>
       <version>1.15.3</version>
+<<<<<<< HEAD
       <exclusions>
         <exclusion>
           <groupId>com.fasterxml.jackson.core</groupId>
@@ -45,6 +46,8 @@
           <artifactId>jackson-databind</artifactId>
         </exclusion>
       </exclusions>
+=======
+>>>>>>> 9d684b77d2701e3826b0ab1a5138687c5eaa4fe5
     </dependency>
   </dependencies>
 </project>
