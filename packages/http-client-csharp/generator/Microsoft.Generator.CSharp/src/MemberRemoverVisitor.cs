@@ -19,7 +19,7 @@ namespace Microsoft.Generator.CSharp
         {
             foreach (var attribute in GetMemberSuppressionAttributes(methodProvider.EnclosingType))
             {
-                if (ShouldRemove(methodProvider.EnclosingType, methodProvider.Signature, attribute))
+                if (IsMatch(methodProvider.EnclosingType, methodProvider.Signature, attribute))
                 {
                     return null;
                 }
@@ -32,20 +32,46 @@ namespace Microsoft.Generator.CSharp
         {
             foreach (var attribute in GetMemberSuppressionAttributes(constructorProvider.EnclosingType))
             {
-                if (ShouldRemove(constructorProvider.EnclosingType, constructorProvider.Signature, attribute))
+                if (IsMatch(constructorProvider.EnclosingType, constructorProvider.Signature, attribute))
                 {
                     return null;
                 }
             }
 
+            var customConstructors = constructorProvider.EnclosingType.CustomCodeView?.Constructors ?? [];
+            foreach (var customConstructor in customConstructors)
+            {
+                if (IsMatch(customConstructor, constructorProvider))
+                {
+                    return null;
+                }
+            }
             return constructorProvider;
+        }
+
+        private static bool IsMatch(ConstructorProvider customConstructor, ConstructorProvider constructor)
+        {
+            if (customConstructor.Signature.Parameters.Count != constructor.Signature.Parameters.Count)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < customConstructor.Signature.Parameters.Count; i++)
+            {
+                if (customConstructor.Signature.Parameters[i].Type.Name != constructor.Signature.Parameters[i].Type.Name)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         protected override PropertyProvider? Visit(PropertyProvider propertyProvider)
         {
             foreach (var attribute in GetMemberSuppressionAttributes(propertyProvider.EnclosingType))
             {
-                if (ShouldRemove(propertyProvider, attribute))
+                if (IsMatch(propertyProvider, attribute))
                 {
                     return null;
                 }
@@ -77,7 +103,7 @@ namespace Microsoft.Generator.CSharp
         private static IEnumerable<AttributeData> GetMemberSuppressionAttributes(TypeProvider typeProvider)
             => typeProvider.CustomCodeView?.GetAttributes()?.Where(a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenSuppressAttributeName) ?? [];
 
-        private static bool ShouldRemove(TypeProvider enclosingType, MethodSignatureBase signature, AttributeData attribute)
+        private static bool IsMatch(TypeProvider enclosingType, MethodSignatureBase signature, AttributeData attribute)
         {
             ValidateArguments(enclosingType, attribute);
             var name = attribute.ConstructorArguments[0].Value as string;
@@ -115,7 +141,7 @@ namespace Microsoft.Generator.CSharp
             return true;
         }
 
-        private static bool ShouldRemove(PropertyProvider propertyProvider, AttributeData attribute)
+        private static bool IsMatch(PropertyProvider propertyProvider, AttributeData attribute)
         {
             ValidateArguments(propertyProvider.EnclosingType, attribute);
             var name = attribute.ConstructorArguments[0].Value as string;

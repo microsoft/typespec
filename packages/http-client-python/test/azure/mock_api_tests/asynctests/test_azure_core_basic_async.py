@@ -68,3 +68,9 @@ async def test_delete(client: aio.BasicClient):
 async def test_export(client: aio.BasicClient):
     result = await client.export(id=1, format="json")
     assert result == VALID_USER
+
+
+@pytest.mark.asyncio
+async def test_export_all_users(client: aio.BasicClient):
+    result = await client.export_all_users(format="json")
+    assert result.users[0] == VALID_USER

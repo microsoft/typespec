@@ -14,10 +14,7 @@ RESOURCE_GROUP_NAME = "test-rg"
 @pytest.fixture
 def client(credential, authentication_policy):
     with ResourcesClient(
-        credential,
-        SUBSCRIPTION_ID,
-        "http://localhost:3000",
-        authentication_policy=authentication_policy,
+        credential, SUBSCRIPTION_ID, "http://localhost:3000", authentication_policy=authentication_policy
     ) as client:
         yield client
 
@@ -25,10 +22,7 @@ def client(credential, authentication_policy):
 def test_client_signature(credential, authentication_policy):
     # make sure signautre order is correct
     client1 = ResourcesClient(
-        credential,
-        SUBSCRIPTION_ID,
-        "http://localhost:3000",
-        authentication_policy=authentication_policy,
+        credential, SUBSCRIPTION_ID, "http://localhost:3000", authentication_policy=authentication_policy
     )
     # make sure signautre name is correct
     client2 = ResourcesClient(
@@ -42,8 +36,7 @@ def test_client_signature(credential, authentication_policy):
         client.top_level_tracked_resources.get(RESOURCE_GROUP_NAME, "top")
         # make sure signautre name is correct
         client.top_level_tracked_resources.get(
-            resource_group_name=RESOURCE_GROUP_NAME,
-            top_level_tracked_resource_name="top",
+            resource_group_name=RESOURCE_GROUP_NAME, top_level_tracked_resource_name="top"
         )
 
 
@@ -192,4 +185,70 @@ def test_nested_proxy_resources_list_by_top_level_tracked_resource(client):
         assert result.properties.provisioning_state == "Succeeded"
         assert result.name == "nested"
         assert result.type == "Azure.ResourceManager.Models.Resources/topLevelTrackedResources/top/nestedProxyResources"
+        assert result.system_data.created_by == "AzureSDK"
+
+
+def test_top_level_tracked_resources_action_sync(client):
+    client.top_level_tracked_resources.action_sync(
+        resource_group_name=RESOURCE_GROUP_NAME,
+        top_level_tracked_resource_name="top",
+        body={"message": "Resource action at top level.", "urgent": True},
+    )
+
+
+def test_singleton_tracked_resources_get_by_resource_group(client):
+    result = client.singleton_tracked_resources.get_by_resource_group(
+        resource_group_name=RESOURCE_GROUP_NAME,
+    )
+    assert result.properties.description == "valid"
+    assert result.properties.provisioning_state == "Succeeded"
+    assert result.name == "default"
+    assert result.type == "Azure.ResourceManager.Models.Resources/singletonTrackedResources"
+    assert result.system_data.created_by == "AzureSDK"
+
+
+def test_singleton_tracked_resources_begin_create_or_replace(client):
+    result = client.singleton_tracked_resources.begin_create_or_update(
+        resource_group_name=RESOURCE_GROUP_NAME,
+        resource=models.SingletonTrackedResource(
+            location="eastus",
+            properties=models.SingletonTrackedResourceProperties(
+                models.SingletonTrackedResourceProperties(description="valid")
+            ),
+        ),
+    ).result()
+    assert result.properties.description == "valid"
+    assert result.properties.provisioning_state == "Succeeded"
+    assert result.name == "default"
+    assert result.type == "Azure.ResourceManager.Models.Resources/singletonTrackedResources"
+    assert result.system_data.created_by == "AzureSDK"
+
+
+def test_singleton_tracked_resources_update(client):
+    result = client.singleton_tracked_resources.update(
+        resource_group_name=RESOURCE_GROUP_NAME,
+        properties=models.SingletonTrackedResource(
+            location="eastus2",
+            properties=models.SingletonTrackedResourceProperties(
+                models.SingletonTrackedResourceProperties(description="valid2")
+            ),
+        ),
+    )
+    assert result.properties.description == "valid2"
+    assert result.properties.provisioning_state == "Succeeded"
+    assert result.name == "default"
+    assert result.type == "Azure.ResourceManager.Models.Resources/singletonTrackedResources"
+    assert result.system_data.created_by == "AzureSDK"
+
+
+def test_singleton_tracked_resources_list_by_resource_group(client):
+    response = client.singleton_tracked_resources.list_by_resource_group(
+        resource_group_name=RESOURCE_GROUP_NAME,
+    )
+    result = [r for r in response]
+    for result in result:
+        assert result.properties.description == "valid"
+        assert result.properties.provisioning_state == "Succeeded"
+        assert result.name == "default"
+        assert result.type == "Azure.ResourceManager.Models.Resources/singletonTrackedResources"
         assert result.system_data.created_by == "AzureSDK"
