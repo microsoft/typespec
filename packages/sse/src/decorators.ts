@@ -1,12 +1,14 @@
+import type { UnionVariant } from "@typespec/compiler";
+import { unsafe_useStateSet } from "@typespec/compiler/experimental";
 import type { TerminalEventDecorator } from "../generated-defs/TypeSpec.SSE.js";
 import { SSEStateKeys } from "./lib.js";
 
-/** @internal */
-export const namespace = "TypeSpec.SSE";
+const [isTerminalEvent, setTerminalEvent] = unsafe_useStateSet<UnionVariant>(
+  SSEStateKeys.terminalEvent,
+);
 
-export const $terminalEvent: TerminalEventDecorator = (context, target) => {
-  // TODO: Add a check that the target's parent Union is decorated with `@events`.
-  // validateTerminalEvent(context.program, target);
-
-  context.program.stateSet(SSEStateKeys.terminalEvent).add(target);
+export const $terminalEventDecorator: TerminalEventDecorator = (context, target) => {
+  setTerminalEvent(context.program, target);
 };
+
+export { isTerminalEvent };

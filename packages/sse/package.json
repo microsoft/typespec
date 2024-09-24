@@ -48,12 +48,16 @@
   "peerDependencies": {
     "@typespec/compiler": "workspace:~",
     "@typespec/events": "workspace:~",
-    "@typespec/http": "workspace:~"
+    "@typespec/http": "workspace:~",
+    "@typespec/streams": "workspace:~"
   },
   "devDependencies": {
     "@types/node": "~22.5.4",
     "@typespec/compiler": "workspace:~",
+    "@typespec/events": "workspace:~",
+    "@typespec/http": "workspace:~",
     "@typespec/library-linter": "workspace:~",
+    "@typespec/streams": "workspace:~",
     "@typespec/tspd": "workspace:~",
     "@vitest/coverage-v8": "^2.0.4",
     "@vitest/ui": "^2.0.4",

@@ -1,10 +1,10 @@
-import { $terminalEvent } from "./decorators.js";
+import { $terminalEventDecorator } from "./decorators.js";
 
 export { $lib } from "./lib.js";
 
 export const $decorators = {
   "TypeSpec.SSE": {
-    terminalEvent: $terminalEvent,
+    terminalEvent: $terminalEventDecorator,
   },
 };
 
