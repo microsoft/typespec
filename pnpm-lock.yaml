@@ -1247,7 +1247,7 @@ importers:
         specifier: workspace:~
         version: link:../rest
       '@typespec/spec':
-        specifier: workspace:~
+        specifier: workspace:*
         version: link:../spec
       '@typespec/spec-api':
         specifier: workspace:~
@@ -1265,7 +1265,7 @@ importers:
         specifier: ^1.7.5
         version: 1.7.7
       dotenv:
-        specifier: ^16.4.5
+        specifier: ~16.4.5
         version: 16.4.5
       multer:
         specifier: ^1.4.5-lts.1
@@ -1490,13 +1490,13 @@ importers:
         specifier: ^1.20.2
         version: 1.20.2
       cross-env:
-        specifier: ^7.0.3
+        specifier: ~7.0.3
         version: 7.0.3
       deep-equal:
         specifier: ^2.2.0
         version: 2.2.3
       dotenv:
-        specifier: ^16.4.5
+        specifier: ~16.4.5
         version: 16.4.5
       express:
         specifier: ^4.19.2
