@@ -5,9 +5,8 @@ package com.microsoft.typespec.http.client.generator.core.customization;
 
 import com.microsoft.typespec.http.client.generator.core.customization.implementation.Utils;
 import com.microsoft.typespec.http.client.generator.core.customization.implementation.ls.EclipseLanguageClient;
-import org.eclipse.lsp4j.SymbolInformation;
-
 import java.util.Optional;
+import org.eclipse.lsp4j.SymbolInformation;
 
 /**
  * The top level customization for an AutoRest generated client library.
@@ -40,7 +39,8 @@ public final class LibraryCustomization {
      */
     public ClassCustomization getClass(String packageName, String className) {
         String packagePath = packageName.replace(".", "/");
-        Optional<SymbolInformation> classSymbol = languageClient.findWorkspaceSymbol(className).stream()
+        Optional<SymbolInformation> classSymbol = languageClient.findWorkspaceSymbol(className)
+            .stream()
             // findWorkspace symbol finds all classes that contain the classname term
             // The filter that checks the filename only works if there are no nested classes
             // So, when customizing client classes that contain service interface, this can incorrectly return

@@ -12,8 +12,8 @@ import org.junit.jupiter.api.Test;
 public class ScalarTests {
 
     private final static String LOCATION_REGION = "eastus";
-    private final ScalarClient client = new ScalarClientBuilder()
-            .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC))
+    private final ScalarClient client
+        = new ScalarClientBuilder().httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC))
             .buildClient();
 
     @Test

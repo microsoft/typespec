@@ -3,6 +3,9 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
+import com.azure.core.http.rest.PagedIterable;
+import com.azure.core.http.rest.ResponseBase;
+import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ArrayType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
@@ -15,10 +18,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Gener
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
-import com.azure.core.http.rest.PagedIterable;
-import com.azure.core.http.rest.ResponseBase;
-import com.azure.core.util.CoreUtils;
-
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -53,16 +52,15 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
     @Override
     protected boolean isMethodIncluded(ConvenienceMethod method) {
         return !isMethodAsync(method.getProtocolMethod()) && isMethodVisible(method.getProtocolMethod())
-                // for LRO, we actually choose the protocol method of "WithModel"
-                && (method.getProtocolMethod().getType() != ClientMethodType.LongRunningBeginSync || (method.getProtocolMethod().getImplementationDetails() != null && method.getProtocolMethod().getImplementationDetails().isImplementationOnly()));
+        // for LRO, we actually choose the protocol method of "WithModel"
+            && (method.getProtocolMethod().getType() != ClientMethodType.LongRunningBeginSync
+                || (method.getProtocolMethod().getImplementationDetails() != null
+                    && method.getProtocolMethod().getImplementationDetails().isImplementationOnly()));
     }
 
     @Override
-    protected void writeMethodImplementation(
-            ClientMethod protocolMethod,
-            ClientMethod convenienceMethod,
-            JavaBlock methodBlock,
-            Set<GenericType> typeReferenceStaticClasses) {
+    protected void writeMethodImplementation(ClientMethod protocolMethod, ClientMethod convenienceMethod,
+        JavaBlock methodBlock, Set<GenericType> typeReferenceStaticClasses) {
         if (!JavaSettings.getInstance().isSyncStackEnabled()) {
             if (protocolMethod.getType() == ClientMethodType.PagingSync) {
                 // Call the convenience method from async client
@@ -77,7 +75,8 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
 
                 methodBlock.methodReturn(methodInvoke);
             } else {
-                super.writeMethodImplementation(protocolMethod, convenienceMethod, methodBlock, typeReferenceStaticClasses);
+                super.writeMethodImplementation(protocolMethod, convenienceMethod, methodBlock,
+                    typeReferenceStaticClasses);
             }
         } else {
             super.writeMethodImplementation(protocolMethod, convenienceMethod, methodBlock, typeReferenceStaticClasses);
@@ -85,34 +84,26 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
     }
 
     @Override
-    protected void writeInvocationAndConversion(
-            ClientMethod convenienceMethod,
-            ClientMethod protocolMethod,
-            String invocationExpression,
-            JavaBlock methodBlock,
-            Set<GenericType> typeReferenceStaticClasses) {
+    protected void writeInvocationAndConversion(ClientMethod convenienceMethod, ClientMethod protocolMethod,
+        String invocationExpression, JavaBlock methodBlock, Set<GenericType> typeReferenceStaticClasses) {
 
         IType responseBodyType = getResponseBodyType(convenienceMethod);
         IType protocolResponseBodyType = getResponseBodyType(protocolMethod);
         IType rawResponseBodyType = convenienceMethod.getProxyMethod().getRawResponseBodyType();
 
-        String convertFromResponse = convenienceMethod.getType() == ClientMethodType.SimpleSyncRestResponse
-                ? "" : ".getValue()";
+        String convertFromResponse
+            = convenienceMethod.getType() == ClientMethodType.SimpleSyncRestResponse ? "" : ".getValue()";
 
         if (convenienceMethod.getType() == ClientMethodType.PagingSync) {
-            methodBlock.methodReturn(String.format(
-                    "serviceClient.%1$s(%2$s).mapPage(bodyItemValue -> %3$s)",
-                    protocolMethod.getName(),
-                    invocationExpression,
-                    expressionConvertFromBinaryData(
-                            responseBodyType, rawResponseBodyType, "bodyItemValue",
-                            protocolMethod.getProxyMethod().getResponseContentTypes(),
-                            typeReferenceStaticClasses)));
-        } else if (convenienceMethod.getType() == ClientMethodType.LongRunningBeginSync){
+            methodBlock.methodReturn(String.format("serviceClient.%1$s(%2$s).mapPage(bodyItemValue -> %3$s)",
+                protocolMethod.getName(), invocationExpression,
+                expressionConvertFromBinaryData(responseBodyType, rawResponseBodyType, "bodyItemValue",
+                    protocolMethod.getProxyMethod().getResponseContentTypes(), typeReferenceStaticClasses)));
+        } else if (convenienceMethod.getType() == ClientMethodType.LongRunningBeginSync) {
             String methodName = protocolMethod.getName();
             methodBlock.methodReturn(String.format("serviceClient.%1$s(%2$s)", methodName, invocationExpression));
         } else if (convenienceMethod.getType() == ClientMethodType.SimpleSyncRestResponse
-                && !(responseBodyType.asNullable() == ClassType.VOID || responseBodyType == ClassType.BINARY_DATA)) {
+            && !(responseBodyType.asNullable() == ClassType.VOID || responseBodyType == ClassType.BINARY_DATA)) {
 
             // protocolMethodResponse = ...
             methodBlock.line(getProtocolMethodResponseStatement(protocolMethod, invocationExpression));
@@ -120,39 +111,37 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
             // e.g. protocolMethodResponse.getValue().toObject(...)
             String expressConversion = "protocolMethodResponse.getValue()";
             if (protocolResponseBodyType == ClassType.BINARY_DATA) {
-                expressConversion = expressionConvertFromBinaryData(
-                        responseBodyType, rawResponseBodyType, expressConversion,
-                        protocolMethod.getProxyMethod().getResponseContentTypes(),
-                        typeReferenceStaticClasses);
+                expressConversion
+                    = expressionConvertFromBinaryData(responseBodyType, rawResponseBodyType, expressConversion,
+                        protocolMethod.getProxyMethod().getResponseContentTypes(), typeReferenceStaticClasses);
             }
 
             if (isResponseBase(convenienceMethod.getReturnValue().getType())) {
                 IType headerType = ((GenericType) convenienceMethod.getReturnValue().getType()).getTypeArguments()[0];
                 methodBlock.methodReturn(String.format(
-                        "new ResponseBase<>(protocolMethodResponse.getRequest(), protocolMethodResponse.getStatusCode(), protocolMethodResponse.getHeaders(), %1$s, new %2$s(protocolMethodResponse.getHeaders()))", expressConversion, headerType));
+                    "new ResponseBase<>(protocolMethodResponse.getRequest(), protocolMethodResponse.getStatusCode(), protocolMethodResponse.getHeaders(), %1$s, new %2$s(protocolMethodResponse.getHeaders()))",
+                    expressConversion, headerType));
             } else {
-                methodBlock.methodReturn(String.format(
-                        "new SimpleResponse<>(protocolMethodResponse, %s)", expressConversion));
+                methodBlock
+                    .methodReturn(String.format("new SimpleResponse<>(protocolMethodResponse, %s)", expressConversion));
             }
         } else {
-            String statement = String.format("%1$s(%2$s)%3$s",
-                    getMethodName(protocolMethod),
-                    invocationExpression,
-                    convertFromResponse);
+            String statement = String.format("%1$s(%2$s)%3$s", getMethodName(protocolMethod), invocationExpression,
+                convertFromResponse);
             if (protocolResponseBodyType == ClassType.BINARY_DATA) {
-                statement = expressionConvertFromBinaryData(
-                        responseBodyType, rawResponseBodyType, statement,
-                        protocolMethod.getProxyMethod().getResponseContentTypes(),
-                        typeReferenceStaticClasses);
+                statement = expressionConvertFromBinaryData(responseBodyType, rawResponseBodyType, statement,
+                    protocolMethod.getProxyMethod().getResponseContentTypes(), typeReferenceStaticClasses);
             }
             if (convenienceMethod.getType() == ClientMethodType.SimpleSyncRestResponse) {
                 if (isResponseBase(convenienceMethod.getReturnValue().getType())) {
-                    IType headerType = ((GenericType) convenienceMethod.getReturnValue().getType()).getTypeArguments()[0];
+                    IType headerType
+                        = ((GenericType) convenienceMethod.getReturnValue().getType()).getTypeArguments()[0];
 
                     methodBlock.line(getProtocolMethodResponseStatement(protocolMethod, invocationExpression));
 
                     methodBlock.methodReturn(String.format(
-                            "new ResponseBase<>(protocolMethodResponse.getRequest(), protocolMethodResponse.getStatusCode(), protocolMethodResponse.getHeaders(), null, new %1$s(protocolMethodResponse.getHeaders()))", headerType));
+                        "new ResponseBase<>(protocolMethodResponse.getRequest(), protocolMethodResponse.getStatusCode(), protocolMethodResponse.getHeaders(), null, new %1$s(protocolMethodResponse.getHeaders()))",
+                        headerType));
                 } else {
                     methodBlock.methodReturn(statement);
                 }
@@ -174,30 +163,28 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
     }
 
     private static String getMethodInvokeViaAsyncClient(ClientMethod convenienceMethod) {
-        List<String> parameterNames = convenienceMethod.getMethodInputParameters().stream()
-                .map(ClientMethodParameter::getName).collect(Collectors.toList());
+        List<String> parameterNames = convenienceMethod.getMethodInputParameters()
+            .stream()
+            .map(ClientMethodParameter::getName)
+            .collect(Collectors.toList());
 
-        return String.format("%1$s.%2$s(%3$s)",
-                ASYNC_CLIENT_VAR_NAME, convenienceMethod.getName(), String.join(", ", parameterNames));
+        return String.format("%1$s.%2$s(%3$s)", ASYNC_CLIENT_VAR_NAME, convenienceMethod.getName(),
+            String.join(", ", parameterNames));
     }
 
     private String getProtocolMethodResponseStatement(ClientMethod protocolMethod, String invocationExpression) {
-        String statement = String.format("%1$s(%2$s)",
-                getMethodName(protocolMethod),
-                invocationExpression);
+        String statement = String.format("%1$s(%2$s)", getMethodName(protocolMethod), invocationExpression);
 
-        return String.format(
-                "%1$s protocolMethodResponse = %2$s;",
-                protocolMethod.getReturnValue().getType(), statement);
+        return String.format("%1$s protocolMethodResponse = %2$s;", protocolMethod.getReturnValue().getType(),
+            statement);
     }
 
     private IType getResponseBodyType(ClientMethod method) {
         // no need to care about LRO
         IType type = method.getReturnValue().getType();
         if (type instanceof GenericType
-                && (
-                ClassType.RESPONSE.getName().equals(((GenericType) type).getName())
-                        || (PagedIterable.class.getSimpleName().equals(((GenericType) type).getName())))) {
+            && (ClassType.RESPONSE.getName().equals(((GenericType) type).getName())
+                || (PagedIterable.class.getSimpleName().equals(((GenericType) type).getName())))) {
             type = ((GenericType) type).getTypeArguments()[0];
         } else if (isResponseBase(type)) {
             // TODO: ResponseBase is not in use, hence it may have bug
@@ -211,8 +198,7 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
     }
 
     private String expressionConvertFromBinaryData(IType responseBodyType, IType rawType, String invocationExpression,
-                                                   Set<String> mediaTypes,
-                                                   Set<GenericType> typeReferenceStaticClasses) {
+        Set<String> mediaTypes, Set<GenericType> typeReferenceStaticClasses) {
         SupportedMimeType mimeType = SupportedMimeType.getResponseKnownMimeType(mediaTypes);
         // TODO (weidxu): support XML etc.
         switch (mimeType) {
@@ -227,17 +213,20 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
                 if (responseBodyType instanceof EnumType) {
                     // enum
                     IType elementType = ((EnumType) responseBodyType).getElementType();
-                    return String.format("%1$s.from%2$s(%3$s.toObject(%2$s.class))", responseBodyType, elementType, invocationExpression);
+                    return String.format("%1$s.from%2$s(%3$s.toObject(%2$s.class))", responseBodyType, elementType,
+                        invocationExpression);
                 } else if (responseBodyType instanceof GenericType) {
                     // generic, e.g. List, Map
                     typeReferenceStaticClasses.add((GenericType) responseBodyType);
-                    return String.format("%2$s.toObject(%1$s)", TemplateUtil.getTypeReferenceCreation(responseBodyType), invocationExpression);
+                    return String.format("%2$s.toObject(%1$s)", TemplateUtil.getTypeReferenceCreation(responseBodyType),
+                        invocationExpression);
                 } else if (responseBodyType == ClassType.BINARY_DATA) {
                     // BinaryData
                     return invocationExpression;
                 } else if (isModelOrBuiltin(responseBodyType)) {
                     // class
-                    return String.format("%2$s.toObject(%1$s.class)", responseBodyType.asNullable(), invocationExpression);
+                    return String.format("%2$s.toObject(%1$s.class)", responseBodyType.asNullable(),
+                        invocationExpression);
                 } else if (responseBodyType == ArrayType.BYTE_ARRAY) {
                     // byte[]
                     if (rawType == ClassType.BASE_64_URL) {

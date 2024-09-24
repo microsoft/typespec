@@ -3,8 +3,18 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.mapper;
 
+import com.azure.core.http.HttpMethod;
+import com.azure.core.management.Region;
+import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.MethodParameter;
+import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
+import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentGen;
 import com.microsoft.typespec.http.client.generator.mgmt.model.ResourceTypeName;
 import com.microsoft.typespec.http.client.generator.mgmt.model.arm.ModelCategory;
@@ -13,7 +23,6 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.Fluen
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentCollectionMethod;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceCollection;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceModel;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.MethodParameter;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.ResourceLocalVariables;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.action.ResourceActions;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.create.ResourceCreate;
@@ -22,17 +31,6 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluen
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.update.ResourceUpdate;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodType;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
-import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
-import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
-import com.azure.core.http.HttpMethod;
-import com.azure.core.management.Region;
-import com.azure.core.util.CoreUtils;
-import org.slf4j.Logger;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -46,16 +44,17 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
 
 public class ResourceParser {
 
     private static final Logger LOGGER = new PluginLogger(FluentGen.getPluginInstance(), ResourceParser.class);
 
     public static void parseResourcesCategory(FluentResourceCollection collection,
-                                              List<FluentResourceModel> availableFluentModels,
-                                              List<ClientModel> availableModels) {
+        List<FluentResourceModel> availableFluentModels, List<ClientModel> availableModels) {
         // resource create
-        List<ResourceCreate> resourceCreates = ResourceParser.resolveResourceCreate(collection, availableFluentModels, availableModels);
+        List<ResourceCreate> resourceCreates
+            = ResourceParser.resolveResourceCreate(collection, availableFluentModels, availableModels);
 
         // resource update
         resourceCreates.forEach(rc -> ResourceParser.resolveResourceUpdate(collection, rc, availableModels));
@@ -84,115 +83,115 @@ public class ResourceParser {
             if (FluentUtils.modelHasLocationProperty(model) && !model.hasProperty("region")) {
                 // if resource instance has location property, add region() method
                 methods.add(MethodTemplate.builder()
-                        .imports(Collections.singletonList(Region.class.getName()))
-                        .comment(commentBlock -> {
-                            commentBlock.description("Gets the region of the resource.");
-                            commentBlock.methodReturns("the region of the resource.");
-                        })
-                        .methodSignature("Region region()")
-                        .method(methodBlock -> {
-                            methodBlock.methodReturn("Region.fromName(this.regionName())");
-                        })
-                        .build());
-                methods.add(MethodTemplate.builder()
-                        .comment(commentBlock -> {
-                            commentBlock.description("Gets the name of the resource region.");
-                            commentBlock.methodReturns("the name of the resource region.");
-                        })
-                        .methodSignature("String regionName()")
-                        .method(methodBlock -> {
-                            methodBlock.methodReturn("this.location()");
-                        })
-                        .build());
+                    .imports(Collections.singletonList(Region.class.getName()))
+                    .comment(commentBlock -> {
+                        commentBlock.description("Gets the region of the resource.");
+                        commentBlock.methodReturns("the region of the resource.");
+                    })
+                    .methodSignature("Region region()")
+                    .method(methodBlock -> {
+                        methodBlock.methodReturn("Region.fromName(this.regionName())");
+                    })
+                    .build());
+                methods.add(MethodTemplate.builder().comment(commentBlock -> {
+                    commentBlock.description("Gets the name of the resource region.");
+                    commentBlock.methodReturns("the name of the resource region.");
+                }).methodSignature("String regionName()").method(methodBlock -> {
+                    methodBlock.methodReturn("this.location()");
+                }).build());
             }
         }
 
         // resourceGroupName() from class variable
-        if ((model.getCategory() == ModelCategory.RESOURCE_GROUP_AS_PARENT || model.getCategory() == ModelCategory.NESTED_CHILD)
-                && model.getResourceCreate() != null
-                // here we use class variable "resourceGroupName", and hence we need the FluentConstructorByInner that parses the resource ID to resourceGroupName
-                // for a create-only resource, "resourceGroupName" variable would be null, if the resource is retrieved via Get or List from collection
-                // alternatively, we can parse resourceGroupName from resource ID in method implementation
-                && model.getResourceUpdate() != null
-                && !model.hasProperty("resourceGroupName")) {
+        if ((model.getCategory() == ModelCategory.RESOURCE_GROUP_AS_PARENT
+            || model.getCategory() == ModelCategory.NESTED_CHILD) && model.getResourceCreate() != null
+        // here we use class variable "resourceGroupName", and hence we need the FluentConstructorByInner that parses
+        // the resource ID to resourceGroupName
+        // for a create-only resource, "resourceGroupName" variable would be null, if the resource is retrieved via Get
+        // or List from collection
+        // alternatively, we can parse resourceGroupName from resource ID in method implementation
+            && model.getResourceUpdate() != null
+            && !model.hasProperty("resourceGroupName")) {
             UrlPathSegments urlPathSegments = model.getResourceCreate().getUrlPathSegments();
-            urlPathSegments.getReverseParameterSegments().stream()
-                    .filter(s -> s.getType() == UrlPathSegments.ParameterSegmentType.RESOURCE_GROUP)
-                    .findFirst().ifPresent(segment -> {
-                        ResourceLocalVariables localVariables = model.getResourceCreate().getResourceLocalVariables();
+            urlPathSegments.getReverseParameterSegments()
+                .stream()
+                .filter(s -> s.getType() == UrlPathSegments.ParameterSegmentType.RESOURCE_GROUP)
+                .findFirst()
+                .ifPresent(segment -> {
+                    ResourceLocalVariables localVariables = model.getResourceCreate().getResourceLocalVariables();
 
-                        Map<String, MethodParameter> pathParametersMap = model.getResourceCreate().getPathParameters().stream()
-                                .collect(Collectors.toMap(p -> p.getClientMethodParameter().getName(), Function.identity()));
-                        localVariables.getLocalVariablesMap().entrySet().stream()
-                                .filter(e -> e.getKey().getClientType() == ClassType.STRING)
-                                // match url path segment to method parameter to local variable
-                                .filter(e -> {
-                                    MethodParameter pathParameter = pathParametersMap.get(e.getKey().getName());
-                                    return pathParameter != null && pathParameter.getProxyMethodParameter() != null
-                                            && segment.getParameterName().equalsIgnoreCase(pathParameter.getSerializedName());
-                                })
-                                .map(Map.Entry::getValue)
-                                .findFirst().ifPresent(var -> {
-                                    methods.add(MethodTemplate.builder()
-                                            .comment(commentBlock -> {
-                                                commentBlock.description("Gets the name of the resource group.");
-                                                commentBlock.methodReturns("the name of the resource group.");
-                                            })
-                                            .methodSignature("String resourceGroupName()")
-                                            .method(methodBlock -> methodBlock.methodReturn(var.getName()))
-                                            .build());
-                                });
-                    });
+                    Map<String, MethodParameter> pathParametersMap = model.getResourceCreate()
+                        .getPathParameters()
+                        .stream()
+                        .collect(Collectors.toMap(p -> p.getClientMethodParameter().getName(), Function.identity()));
+                    localVariables.getLocalVariablesMap()
+                        .entrySet()
+                        .stream()
+                        .filter(e -> e.getKey().getClientType() == ClassType.STRING)
+                        // match url path segment to method parameter to local variable
+                        .filter(e -> {
+                            MethodParameter pathParameter = pathParametersMap.get(e.getKey().getName());
+                            return pathParameter != null
+                                && pathParameter.getProxyMethodParameter() != null
+                                && segment.getParameterName().equalsIgnoreCase(pathParameter.getSerializedName());
+                        })
+                        .map(Map.Entry::getValue)
+                        .findFirst()
+                        .ifPresent(var -> {
+                            methods.add(MethodTemplate.builder().comment(commentBlock -> {
+                                commentBlock.description("Gets the name of the resource group.");
+                                commentBlock.methodReturns("the name of the resource group.");
+                            })
+                                .methodSignature("String resourceGroupName()")
+                                .method(methodBlock -> methodBlock.methodReturn(var.getName()))
+                                .build());
+                        });
+                });
         }
     }
 
     private static void processAdditionalCollectionMethods(FluentResourceCollection collection) {
         // getById method
-        collection.getAdditionalMethods().addAll(
-                collection.getResourceGets().stream()
-                        .flatMap(rg -> rg.getGetByIdCollectionMethods().stream())
-                        .collect(Collectors.toList()));
+        collection.getAdditionalMethods()
+            .addAll(collection.getResourceGets()
+                .stream()
+                .flatMap(rg -> rg.getGetByIdCollectionMethods().stream())
+                .collect(Collectors.toList()));
 
         // deleteById method
-        collection.getAdditionalMethods().addAll(
-                collection.getResourceDeletes().stream()
-                        .flatMap(rg -> rg.getDeleteByIdCollectionMethods().stream())
-                        .collect(Collectors.toList()));
+        collection.getAdditionalMethods()
+            .addAll(collection.getResourceDeletes()
+                .stream()
+                .flatMap(rg -> rg.getDeleteByIdCollectionMethods().stream())
+                .collect(Collectors.toList()));
     }
 
-    static List<ResourceCreate> resolveResourceCreate(
-            FluentResourceCollection collection,
-            List<FluentResourceModel> availableFluentModels,
-            List<ClientModel> availableModels) {
+    static List<ResourceCreate> resolveResourceCreate(FluentResourceCollection collection,
+        List<FluentResourceModel> availableFluentModels, List<ClientModel> availableModels) {
 
-        List<ModelCategory> categories = Arrays.asList(
-                ModelCategory.RESOURCE_GROUP_AS_PARENT,
-                ModelCategory.SUBSCRIPTION_AS_PARENT,
-                ModelCategory.NESTED_CHILD,
-                ModelCategory.SCOPE_AS_PARENT,
-                ModelCategory.SCOPE_NESTED_CHILD);
+        List<ModelCategory> categories
+            = Arrays.asList(ModelCategory.RESOURCE_GROUP_AS_PARENT, ModelCategory.SUBSCRIPTION_AS_PARENT,
+                ModelCategory.NESTED_CHILD, ModelCategory.SCOPE_AS_PARENT, ModelCategory.SCOPE_NESTED_CHILD);
 
         return resolveResourceCreate(collection, availableFluentModels, availableModels, categories);
     }
 
     // for unit test purpose
-    static List<ResourceCreate> resolveResourceCreate(
-            FluentResourceCollection collection,
-            List<FluentResourceModel> availableFluentModels,
-            List<ClientModel> availableModels,
-            List<ModelCategory> categories) {
+    static List<ResourceCreate> resolveResourceCreate(FluentResourceCollection collection,
+        List<FluentResourceModel> availableFluentModels, List<ClientModel> availableModels,
+        List<ModelCategory> categories) {
 
         // reference https://github.com/Azure/azure-resource-manager-rpc/blob/master/v1.0/resource-api-reference.md
 
         Map<String, FluentResourceModel> fluentModelMapByName = availableFluentModels.stream()
-                .collect(Collectors.toMap(m -> m.getInterfaceType().toString(), Function.identity()));
+            .collect(Collectors.toMap(m -> m.getInterfaceType().toString(), Function.identity()));
 
         List<ResourceCreate> supportsCreateList = new ArrayList<>();
         Set<FluentResourceModel> foundModels = new HashSet<>();
 
         for (ModelCategory category : categories) {
-            Map<FluentResourceModel, ResourceCreate> modelResourceCreateMap =
-                    findResourceCreateForCategory(collection, fluentModelMapByName, availableModels, foundModels, category);
+            Map<FluentResourceModel, ResourceCreate> modelResourceCreateMap = findResourceCreateForCategory(collection,
+                fluentModelMapByName, availableModels, foundModels, category);
 
             foundModels.addAll(modelResourceCreateMap.keySet());
 
@@ -217,10 +216,8 @@ public class ResourceParser {
         return supportsCreateList;
     }
 
-    static Optional<ResourceUpdate> resolveResourceUpdate(
-            FluentResourceCollection collection,
-            ResourceCreate resourceCreate,
-            List<ClientModel> availableModels) {
+    static Optional<ResourceUpdate> resolveResourceUpdate(FluentResourceCollection collection,
+        ResourceCreate resourceCreate, List<ClientModel> availableModels) {
 
         ResourceUpdate resourceUpdate = null;
 
@@ -234,66 +231,69 @@ public class ResourceParser {
         if (method != null) {
             ClientModel bodyClientModel = getBodyClientModel(method, availableModels);
             if (bodyClientModel == null) {
-                LOGGER.warn("client model not found for collection '{}', method '{}'", collection.getInterfaceType().getName(), method.getInnerClientMethod().getName());
+                LOGGER.warn("client model not found for collection '{}', method '{}'",
+                    collection.getInterfaceType().getName(), method.getInnerClientMethod().getName());
             } else {
                 resourceUpdate = new ResourceUpdate(resourceCreate.getResourceModel(), collection,
-                        resourceCreate.getUrlPathSegments(), method.getInnerClientMethod().getName(),
-                        bodyClientModel);
+                    resourceCreate.getUrlPathSegments(), method.getInnerClientMethod().getName(), bodyClientModel);
 
                 resourceCreate.getResourceModel().setResourceUpdate(resourceUpdate);
                 collection.getResourceUpdates().add(resourceUpdate);
 
-                resourceUpdate.getMethodReferences().addAll(collectMethodReferences(collection, resourceUpdate.getMethodName()));
+                resourceUpdate.getMethodReferences()
+                    .addAll(collectMethodReferences(collection, resourceUpdate.getMethodName()));
             }
         }
 
         return Optional.ofNullable(resourceUpdate);
     }
 
-    static Optional<ResourceRefresh> resolveResourceRefresh(
-            FluentResourceCollection collection,
-            ResourceCreate resourceCreate) {
+    static Optional<ResourceRefresh> resolveResourceRefresh(FluentResourceCollection collection,
+        ResourceCreate resourceCreate) {
 
         ResourceRefresh resourceRefresh = null;
 
-        FluentCollectionMethod method = findCollectionMethod(collection, resourceCreate, HttpMethod.GET, name -> name.contains("get"));
+        FluentCollectionMethod method
+            = findCollectionMethod(collection, resourceCreate, HttpMethod.GET, name -> name.contains("get"));
         if (method != null) {
             resourceRefresh = new ResourceRefresh(resourceCreate.getResourceModel(), collection,
-                    resourceCreate.getUrlPathSegments(), method.getInnerClientMethod().getName());
+                resourceCreate.getUrlPathSegments(), method.getInnerClientMethod().getName());
 
             resourceCreate.getResourceModel().setResourceRefresh(resourceRefresh);
             collection.getResourceGets().add(resourceRefresh);
 
-            resourceRefresh.getMethodReferences().addAll(collectMethodReferences(collection, resourceRefresh.getMethodName()));
+            resourceRefresh.getMethodReferences()
+                .addAll(collectMethodReferences(collection, resourceRefresh.getMethodName()));
         }
 
         return Optional.ofNullable(resourceRefresh);
     }
 
-    static Optional<ResourceDelete> resolveResourceDelete(
-            FluentResourceCollection collection,
-            ResourceCreate resourceCreate) {
+    static Optional<ResourceDelete> resolveResourceDelete(FluentResourceCollection collection,
+        ResourceCreate resourceCreate) {
 
         ResourceDelete resourceDelete = null;
 
-        FluentCollectionMethod method = findCollectionMethod(collection, resourceCreate, HttpMethod.DELETE, name -> name.contains("delete"));
+        FluentCollectionMethod method
+            = findCollectionMethod(collection, resourceCreate, HttpMethod.DELETE, name -> name.contains("delete"));
         if (method != null) {
             resourceDelete = new ResourceDelete(resourceCreate.getResourceModel(), collection,
-                    resourceCreate.getUrlPathSegments(), method.getInnerClientMethod().getName());
+                resourceCreate.getUrlPathSegments(), method.getInnerClientMethod().getName());
 
             collection.getResourceDeletes().add(resourceDelete);
 
-            resourceDelete.getMethodReferences().addAll(collectMethodReferences(collection, resourceDelete.getMethodName()));
+            resourceDelete.getMethodReferences()
+                .addAll(collectMethodReferences(collection, resourceDelete.getMethodName()));
         }
 
         return Optional.ofNullable(resourceDelete);
     }
 
-    static Optional<ResourceActions> resourceResourceActions(
-            FluentResourceCollection collection,
-            ResourceCreate resourceCreate) {
+    static Optional<ResourceActions> resourceResourceActions(FluentResourceCollection collection,
+        ResourceCreate resourceCreate) {
 
-        // reference https://github.com/Azure/azure-resource-manager-rpc/blob/master/v1.0/proxy-api-reference.md#resource-action-requests
+        // reference
+        // https://github.com/Azure/azure-resource-manager-rpc/blob/master/v1.0/proxy-api-reference.md#resource-action-requests
 
         ResourceActions resourceActions = null;
         List<FluentCollectionMethod> actionMethods = new ArrayList<>();
@@ -305,16 +305,23 @@ public class ResourceParser {
                 String url = method.getInnerProxyMethod().getUrlPath();
                 // except last literal segment, same url as create
                 if (url.startsWith(resourceCreate.getUrlPathSegments().getPath())
-                        && url.substring(0, url.lastIndexOf("/")).equals(resourceCreate.getUrlPathSegments().getPath())
-                        && !new UrlPathSegments(url).getReverseSegments().iterator().next().isParameterSegment()) {
+                    && url.substring(0, url.lastIndexOf("/")).equals(resourceCreate.getUrlPathSegments().getPath())
+                    && !new UrlPathSegments(url).getReverseSegments().iterator().next().isParameterSegment()) {
                     // parameter from request body
-                    if (method.getInnerProxyMethod().getParameters().stream()
-                            .allMatch(p -> p.isFromClient()
-                                    || !p.isRequired()
-                                    || (p.getRequestParameterLocation() == RequestParameterLocation.QUERY && p.isConstant())     // usually 'api-version' query parameter
-                                    || (p.getRequestParameterLocation() == RequestParameterLocation.HEADER && p.isConstant())    // usually 'accept' header
-                                    || p.getRequestParameterLocation() == RequestParameterLocation.PATH
-                                    || p.getRequestParameterLocation() == RequestParameterLocation.BODY)) {
+                    if (method.getInnerProxyMethod()
+                        .getParameters()
+                        .stream()
+                        .allMatch(p -> p.isFromClient()
+                            || !p.isRequired()
+                            || (p.getRequestParameterLocation() == RequestParameterLocation.QUERY && p.isConstant())     // usually
+                                                                                                                         // 'api-version'
+                                                                                                                         // query
+                                                                                                                         // parameter
+                            || (p.getRequestParameterLocation() == RequestParameterLocation.HEADER && p.isConstant())    // usually
+                                                                                                                         // 'accept'
+                                                                                                                         // header
+                            || p.getRequestParameterLocation() == RequestParameterLocation.PATH
+                            || p.getRequestParameterLocation() == RequestParameterLocation.BODY)) {
                         actionMethods.add(method);
                     }
                 }
@@ -330,12 +337,9 @@ public class ResourceParser {
         return Optional.ofNullable(resourceActions);
     }
 
-    static Map<FluentResourceModel, ResourceCreate> findResourceCreateForCategory(
-            FluentResourceCollection collection,
-            Map<String, FluentResourceModel> fluentModelMapByName,
-            List<ClientModel> availableModels,
-            Set<FluentResourceModel> excludeModels,
-            ModelCategory category) {
+    static Map<FluentResourceModel, ResourceCreate> findResourceCreateForCategory(FluentResourceCollection collection,
+        Map<String, FluentResourceModel> fluentModelMapByName, List<ClientModel> availableModels,
+        Set<FluentResourceModel> excludeModels, ModelCategory category) {
 
         Map<FluentResourceModel, ResourceCreate> foundModels = new LinkedHashMap<>();
 
@@ -348,28 +352,38 @@ public class ResourceParser {
                 String methodNameLowerCase = m.getInnerClientMethod().getName().toLowerCase(Locale.ROOT);
                 if (!(methodNameLowerCase.contains("update") && !methodNameLowerCase.contains("create"))) {
                     // body in request
-                    if (m.getInnerProxyMethod().getParameters().stream().anyMatch(p -> p.getRequestParameterLocation() == RequestParameterLocation.BODY)) {
+                    if (m.getInnerProxyMethod()
+                        .getParameters()
+                        .stream()
+                        .anyMatch(p -> p.getRequestParameterLocation() == RequestParameterLocation.BODY)) {
                         String returnTypeName = m.getFluentReturnType().toString();
                         FluentResourceModel fluentModel = fluentModelMapByName.get(returnTypeName);
                         // at present, cannot handle derived models
                         if (fluentModel != null && fluentModel.getInnerModel().getDerivedModels().isEmpty()) {
                             // "id", "name", "type" in resource instance
-                            if (fluentModel != null && fluentModel.getResourceCreate() == null
-                                    && !foundModels.containsKey(fluentModel) && !excludeModels.contains(fluentModel)
-                                    && fluentModel.hasProperty(ResourceTypeName.FIELD_ID)
-                                    && fluentModel.hasProperty(ResourceTypeName.FIELD_NAME)
-                                    && fluentModel.hasProperty(ResourceTypeName.FIELD_TYPE)) {
+                            if (fluentModel != null
+                                && fluentModel.getResourceCreate() == null
+                                && !foundModels.containsKey(fluentModel)
+                                && !excludeModels.contains(fluentModel)
+                                && fluentModel.hasProperty(ResourceTypeName.FIELD_ID)
+                                && fluentModel.hasProperty(ResourceTypeName.FIELD_NAME)
+                                && fluentModel.hasProperty(ResourceTypeName.FIELD_TYPE)) {
                                 String url = m.getInnerProxyMethod().getUrlPath();
                                 UrlPathSegments urlPathSegments = new UrlPathSegments(url);
 
-                                //logger.info("Candidate fluent model '{}', hasSubscription '{}', hasResourceGroup '{}', isNested '{}', method name '{}'", fluentModel.getName(), urlPathSegments.hasSubscription(), urlPathSegments.hasResourceGroup(), urlPathSegments.isNested(), m.getInnerClientMethod().getName());
+                                // logger.info("Candidate fluent model '{}', hasSubscription '{}', hasResourceGroup
+                                // '{}', isNested '{}', method name '{}'", fluentModel.getName(),
+                                // urlPathSegments.hasSubscription(), urlPathSegments.hasResourceGroup(),
+                                // urlPathSegments.isNested(), m.getInnerClientMethod().getName());
 
                                 // has "subscriptions" segment, and last segment should be resource name
-                                if (!urlPathSegments.getReverseSegments().isEmpty() && urlPathSegments.getReverseSegments().iterator().next().isParameterSegment()) {
+                                if (!urlPathSegments.getReverseSegments().isEmpty()
+                                    && urlPathSegments.getReverseSegments().iterator().next().isParameterSegment()) {
 
                                     // requires named parameters in URL
-                                    boolean urlParameterSegmentsNamed = urlPathSegments.getReverseParameterSegments().stream()
-                                            .noneMatch(s -> CoreUtils.isNullOrEmpty(s.getSegmentName()));
+                                    boolean urlParameterSegmentsNamed = urlPathSegments.getReverseParameterSegments()
+                                        .stream()
+                                        .noneMatch(s -> CoreUtils.isNullOrEmpty(s.getSegmentName()));
 
                                     boolean categoryMatch = false;
                                     if (urlParameterSegmentsNamed && urlPathSegments.hasSubscription()) {
@@ -381,7 +395,8 @@ public class ResourceParser {
                                                 break;
 
                                             case SUBSCRIPTION_AS_PARENT:
-                                                if (!urlPathSegments.hasResourceGroup() && !urlPathSegments.isNested()) {
+                                                if (!urlPathSegments.hasResourceGroup()
+                                                    && !urlPathSegments.isNested()) {
                                                     categoryMatch = true;
                                                 }
                                                 break;
@@ -393,13 +408,20 @@ public class ResourceParser {
                                                 break;
                                         }
                                     }
-                                    if (!categoryMatch && (category == ModelCategory.SCOPE_AS_PARENT || category == ModelCategory.SCOPE_NESTED_CHILD)) {
+                                    if (!categoryMatch
+                                        && (category == ModelCategory.SCOPE_AS_PARENT
+                                            || category == ModelCategory.SCOPE_NESTED_CHILD)) {
                                         // check for scope, required named parameters except scope
-                                        boolean urlParameterSegmentsNamedExceptScope = urlPathSegments.getReverseParameterSegments().stream()
-                                                .noneMatch(s -> s.getType() != UrlPathSegments.ParameterSegmentType.SCOPE && CoreUtils.isNullOrEmpty(s.getSegmentName()));
+                                        boolean urlParameterSegmentsNamedExceptScope = urlPathSegments
+                                            .getReverseParameterSegments()
+                                            .stream()
+                                            .noneMatch(s -> s.getType() != UrlPathSegments.ParameterSegmentType.SCOPE
+                                                && CoreUtils.isNullOrEmpty(s.getSegmentName()));
 
-                                        if (urlParameterSegmentsNamedExceptScope && urlPathSegments.hasScope()
-                                                && !urlPathSegments.hasSubscription() && !urlPathSegments.hasResourceGroup()) {
+                                        if (urlParameterSegmentsNamedExceptScope
+                                            && urlPathSegments.hasScope()
+                                            && !urlPathSegments.hasSubscription()
+                                            && !urlPathSegments.hasResourceGroup()) {
                                             switch (category) {
                                                 case SCOPE_AS_PARENT:
                                                     if (!urlPathSegments.isNested()) {
@@ -419,10 +441,12 @@ public class ResourceParser {
                                     if (categoryMatch) {
                                         ClientModel bodyClientModel = getBodyClientModel(m, availableModels);
                                         if (bodyClientModel == null) {
-                                            LOGGER.warn("client model not found for collection '{}', method '{}'", collection.getInterfaceType().getName(), m.getInnerClientMethod().getName());
+                                            LOGGER.warn("client model not found for collection '{}', method '{}'",
+                                                collection.getInterfaceType().getName(),
+                                                m.getInnerClientMethod().getName());
                                         } else {
-                                            ResourceCreate resourceCreate = new ResourceCreate(fluentModel, collection, urlPathSegments,
-                                                    m.getInnerClientMethod().getName(), bodyClientModel);
+                                            ResourceCreate resourceCreate = new ResourceCreate(fluentModel, collection,
+                                                urlPathSegments, m.getInnerClientMethod().getName(), bodyClientModel);
 
                                             foundModels.put(fluentModel, resourceCreate);
                                         }
@@ -439,29 +463,31 @@ public class ResourceParser {
     }
 
     private static ClientModel getBodyClientModel(FluentCollectionMethod method, List<ClientModel> availableModels) {
-        Optional<String> bodyTypeNameOpt = method.getInnerClientMethod().getProxyMethod().getParameters()
-                .stream()
-                .filter(p -> p.getRequestParameterLocation() == RequestParameterLocation.BODY)
-                .map(p -> p.getClientType().toString())
-                .findAny();
+        Optional<String> bodyTypeNameOpt = method.getInnerClientMethod()
+            .getProxyMethod()
+            .getParameters()
+            .stream()
+            .filter(p -> p.getRequestParameterLocation() == RequestParameterLocation.BODY)
+            .map(p -> p.getClientType().toString())
+            .findAny();
 
         if (!bodyTypeNameOpt.isPresent()) {
-            throw new IllegalStateException("Body type not found for method " + method.getInnerClientMethod().getName());
+            throw new IllegalStateException(
+                "Body type not found for method " + method.getInnerClientMethod().getName());
         }
 
-        Optional<ClientModel> clientModelOpt = availableModels.stream()
-                .filter(model -> model.getName().equals(bodyTypeNameOpt.get()))
-                .findAny();
+        Optional<ClientModel> clientModelOpt
+            = availableModels.stream().filter(model -> model.getName().equals(bodyTypeNameOpt.get())).findAny();
 
         if (!clientModelOpt.isPresent()) {
-            LOGGER.warn("Client model not found for type name '{}', method '{}'", bodyTypeNameOpt.get(), method.getInnerClientMethod().getName());
+            LOGGER.warn("Client model not found for type name '{}', method '{}'", bodyTypeNameOpt.get(),
+                method.getInnerClientMethod().getName());
         }
         return clientModelOpt.orElse(null);
     }
 
     private static FluentCollectionMethod findCollectionMethod(FluentResourceCollection collection,
-                                                               ResourceCreate resourceCreate,
-                                                               HttpMethod matchingMethod, Predicate<String> nameMatcher) {
+        ResourceCreate resourceCreate, HttpMethod matchingMethod, Predicate<String> nameMatcher) {
         boolean isGetOrDelete = matchingMethod == HttpMethod.GET || matchingMethod == HttpMethod.DELETE;
         boolean isDelete = matchingMethod == HttpMethod.DELETE;
 
@@ -474,27 +500,40 @@ public class ResourceParser {
                 if (nameMatcher.test(methodNameLowerCase)) {
                     String returnTypeName = method.getFluentReturnType().toString();
                     // same model as create
-                    if (isDelete || returnTypeName.equals(resourceCreate.getResourceModel().getInterfaceType().getName())) {
+                    if (isDelete
+                        || returnTypeName.equals(resourceCreate.getResourceModel().getInterfaceType().getName())) {
                         String url = method.getInnerProxyMethod().getUrlPath();
                         // same url as create
                         if (url.equals(resourceCreate.getUrlPathSegments().getPath())) {
                             boolean hasBodyParam = methodHasBodyParameter(method);
-                            boolean hasRequiredQueryParam = method.getInnerProxyMethod().getParameters().stream()
-                                    .anyMatch(p -> p.getRequestParameterLocation() == RequestParameterLocation.QUERY
-                                            && p.isRequired()
-                                            && !p.isFromClient() && !p.isConstant());
-                            boolean hasNewNonConstantPathParam = method.getInnerProxyMethod().getParameters().stream()
-                                    .anyMatch(p -> p.getRequestParameterLocation() == RequestParameterLocation.PATH
-                                            && !p.isConstant() && !p.isFromClient()
-                                            && resourceCreate.getMethodReferences().stream().allMatch(
-                                                    m -> m.getInnerProxyMethod().getParameters().stream().anyMatch(
-                                                            p1 -> p1.getRequestParameterLocation() == RequestParameterLocation.PATH
-                                                                    && p1.getRequestParameterName().equals(p.getRequestParameterName())
-                                                                    && p1.isConstant() && !p1.isFromClient())));
+                            boolean hasRequiredQueryParam = method.getInnerProxyMethod()
+                                .getParameters()
+                                .stream()
+                                .anyMatch(p -> p.getRequestParameterLocation() == RequestParameterLocation.QUERY
+                                    && p.isRequired()
+                                    && !p.isFromClient()
+                                    && !p.isConstant());
+                            boolean hasNewNonConstantPathParam = method.getInnerProxyMethod()
+                                .getParameters()
+                                .stream()
+                                .anyMatch(p -> p.getRequestParameterLocation() == RequestParameterLocation.PATH
+                                    && !p.isConstant()
+                                    && !p.isFromClient()
+                                    && resourceCreate.getMethodReferences()
+                                        .stream()
+                                        .allMatch(m -> m.getInnerProxyMethod()
+                                            .getParameters()
+                                            .stream()
+                                            .anyMatch(
+                                                p1 -> p1.getRequestParameterLocation() == RequestParameterLocation.PATH
+                                                    && p1.getRequestParameterName().equals(p.getRequestParameterName())
+                                                    && p1.isConstant()
+                                                    && !p1.isFromClient())));
                             // if for update, need a body parameter
-                            // if for get or delete, do not allow required query parameter (that not from client, and not constant), since it cannot be deduced from resource id
+                            // if for get or delete, do not allow required query parameter (that not from client, and
+                            // not constant), since it cannot be deduced from resource id
                             if ((isGetOrDelete && !hasRequiredQueryParam && !hasNewNonConstantPathParam)
-                                    || (!isGetOrDelete && hasBodyParam)) {
+                                || (!isGetOrDelete && hasBodyParam)) {
                                 return method;
                             }
                         }
@@ -505,14 +544,16 @@ public class ResourceParser {
         return null;
     }
 
-    private static List<FluentCollectionMethod> collectMethodReferences(FluentResourceCollection collection, String methodName) {
+    private static List<FluentCollectionMethod> collectMethodReferences(FluentResourceCollection collection,
+        String methodName) {
         // The matching method could already contain the postfix, so we need to create both the WithResponse and
         // non-WithResponse matches.
         String nonWithResponseMatch;
         String withResponseMatch;
         if (methodName.endsWith(Utils.METHOD_POSTFIX_WITH_RESPONSE)) {
             withResponseMatch = methodName;
-            nonWithResponseMatch = methodName.substring(0, methodName.length() - Utils.METHOD_POSTFIX_WITH_RESPONSE.length());
+            nonWithResponseMatch
+                = methodName.substring(0, methodName.length() - Utils.METHOD_POSTFIX_WITH_RESPONSE.length());
         } else {
             nonWithResponseMatch = methodName;
             withResponseMatch = methodName + Utils.METHOD_POSTFIX_WITH_RESPONSE;
@@ -527,12 +568,15 @@ public class ResourceParser {
             // Check for the method name matching the non-WithResponse match or the method being a WithResponse method
             // and matching the WithResponse match.
             if (!innerName.equals(nonWithResponseMatch)
-                && !(innerMethod.getType() == ClientMethodType.SimpleSyncRestResponse && innerName.equals(withResponseMatch))) {
+                && !(innerMethod.getType() == ClientMethodType.SimpleSyncRestResponse
+                    && innerName.equals(withResponseMatch))) {
                 continue;
             }
 
             // Check for the HTTP method being either GET or DELETE and the method having a body parameter.
-            if (httpMethod != HttpMethod.GET && httpMethod != HttpMethod.DELETE && !methodHasBodyParameter(fluentMethod)) {
+            if (httpMethod != HttpMethod.GET
+                && httpMethod != HttpMethod.DELETE
+                && !methodHasBodyParameter(fluentMethod)) {
                 continue;
             }
 
@@ -544,7 +588,9 @@ public class ResourceParser {
 
     private static boolean methodHasBodyParameter(FluentCollectionMethod method) {
         // Previous it filtered on isClientModel but filter on parameter location as that's the cheaper check.
-        return method.getInnerProxyMethod().getParameters().stream()
+        return method.getInnerProxyMethod()
+            .getParameters()
+            .stream()
             .filter(p -> p.getRequestParameterLocation() == RequestParameterLocation.BODY)
             .anyMatch(p -> ClientModelUtil.isClientModel(p.getClientType()));
     }

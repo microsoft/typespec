@@ -4,7 +4,6 @@
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
-
 import java.util.List;
 import java.util.Set;
 
@@ -38,16 +37,15 @@ public class EnumType implements IType {
 
     /**
      * Create a new Enum with the provided properties.
+     * 
      * @param name The name of the new Enum.
      * @param description The description of the Enum.
      * @param expandable Whether this will be an ExpandableStringEnum type.
      * @param values The values of the Enum.
      */
-    private EnumType(String packageKeyword, String name, String description,
-                     boolean expandable, List<ClientEnumValue> values,
-                     IType elementType,
-                     ImplementationDetails implementationDetails,
-                     String crossLanguageDefinitionId) {
+    private EnumType(String packageKeyword, String name, String description, boolean expandable,
+        List<ClientEnumValue> values, IType elementType, ImplementationDetails implementationDetails,
+        String crossLanguageDefinitionId) {
         this.name = name;
         this.packageName = packageKeyword;
         this.description = description;
@@ -190,8 +188,8 @@ public class EnumType implements IType {
             ? valueGetter + "." + getToMethodName() + "()"
             : valueGetter + " == null ? null : " + valueGetter + "." + getToMethodName() + "()";
 
-        return elementType.asNullable().jsonSerializationMethodCall(jsonWriterName, fieldName, actualValueGetter,
-            jsonMergePatch);
+        return elementType.asNullable()
+            .jsonSerializationMethodCall(jsonWriterName, fieldName, actualValueGetter, jsonMergePatch);
     }
 
     @Override
@@ -234,6 +232,7 @@ public class EnumType implements IType {
 
         /**
          * Sets the name of the Enum.
+         * 
          * @param name the name of the Enum
          * @return the Builder
          */
@@ -244,6 +243,7 @@ public class EnumType implements IType {
 
         /**
          * Sets the package name of the Enum.
+         * 
          * @param packageName the package name of the Enum
          * @return the Builder
          */
@@ -254,6 +254,7 @@ public class EnumType implements IType {
 
         /**
          * Sets the description of the Enum.
+         * 
          * @param description the description of the Enum
          * @return the Builder
          */
@@ -264,6 +265,7 @@ public class EnumType implements IType {
 
         /**
          * Sets whether the Enum is expandable.
+         * 
          * @param expandable whether the Enum is expandable
          * @return the Builder
          */
@@ -274,6 +276,7 @@ public class EnumType implements IType {
 
         /**
          * Sets the values of the Enum.
+         * 
          * @param values the values of the Enum
          * @return the Builder
          */
@@ -284,6 +287,7 @@ public class EnumType implements IType {
 
         /**
          * Sets the type of elements of the Enum.
+         * 
          * @param elementType the type of elements of the Enum
          * @return the Builder
          */
@@ -296,6 +300,7 @@ public class EnumType implements IType {
 
         /**
          * Sets the implementation details for the model.
+         * 
          * @param implementationDetails the implementation details.
          * @return the Builder itself
          */
@@ -313,16 +318,8 @@ public class EnumType implements IType {
          * @return an immutable EnumType instance with the configurations on this builder.
          */
         public EnumType build() {
-            return new EnumType(
-                    packageName,
-                    name,
-                    description,
-                    expandable,
-                    values,
-                    elementType,
-                    implementationDetails,
-                    crossLanguageDefinitionId
-            );
+            return new EnumType(packageName, name, description, expandable, values, elementType, implementationDetails,
+                crossLanguageDefinitionId);
         }
     }
 }

@@ -44,10 +44,13 @@ public class AndroidPrimitiveMapper extends PrimitiveMapper {
                 }
             case DURATION:
                 return ClassType.ANDROID_DURATION;
+
             case DATE:
                 return ClassType.ANDROID_LOCAL_DATE;
+
             case UNIXTIME:
                 return ClassType.ANDROID_DATE_TIME;
+
             default:
                 return baseResolved;
         }

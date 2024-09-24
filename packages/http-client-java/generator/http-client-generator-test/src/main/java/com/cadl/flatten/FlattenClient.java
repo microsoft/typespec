@@ -53,7 +53,8 @@ public final class FlattenClient {
      * The send operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     endpoint: String (Required)
      *     user (Optional): {
@@ -63,7 +64,8 @@ public final class FlattenClient {
      *     constant: String (Required)
      *     requiredInt: int (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param id The id parameter.
      * @param sendRequest The sendRequest parameter.
@@ -84,11 +86,13 @@ public final class FlattenClient {
      * The sendProjectedName operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     file_id: String (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param id The id parameter.
      * @param sendProjectedNameRequest The sendProjectedNameRequest parameter.
@@ -117,7 +121,8 @@ public final class FlattenClient {
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     user (Optional): {
      *         user: String (Required)
@@ -134,7 +139,8 @@ public final class FlattenClient {
      *     _dummy: String (Optional)
      *     constant: String (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param name The name parameter.
      * @param sendLongRequest The sendLongRequest parameter.
@@ -155,7 +161,8 @@ public final class FlattenClient {
      * The update operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     patch (Optional, Required on create): {
      *         title: String (Optional)
@@ -163,11 +170,13 @@ public final class FlattenClient {
      *         status: String(NotStarted/InProgress/Completed) (Optional)
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: long (Required)
      *     title: String (Required)
@@ -178,7 +187,8 @@ public final class FlattenClient {
      *     completedAt: OffsetDateTime (Optional)
      *     _dummy: String (Optional)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param id The id parameter.
      * @param updateRequest The updateRequest parameter.
@@ -325,11 +335,11 @@ public final class FlattenClient {
         String filter = options.getFilter();
         SendLongRequest sendLongRequestObj = new SendLongRequest(options.getInput(), options.getDataInt(),
             options.getRequiredUser(), options.getTitle(), options.getStatus()).setUser(options.getUser())
-            .setDataIntOptional(options.getDataIntOptional())
-            .setDataLong(options.getDataLong())
-            .setDataFloat(options.getDataFloat())
-            .setDescription(options.getDescription())
-            .setDummy(options.getDummy());
+                .setDataIntOptional(options.getDataIntOptional())
+                .setDataLong(options.getDataLong())
+                .setDataFloat(options.getDataFloat())
+                .setDescription(options.getDescription())
+                .setDummy(options.getDummy());
         BinaryData sendLongRequest = BinaryData.fromObject(sendLongRequestObj);
         if (filter != null) {
             requestOptions.addQueryParam("filter", filter, false);

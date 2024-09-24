@@ -4,7 +4,6 @@
 package com.microsoft.typespec.http.client.generator.core.model.xmlmodel;
 
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
-
 import java.util.function.Consumer;
 
 public class XmlBlock {
@@ -53,6 +52,6 @@ public class XmlBlock {
     }
 
     public final void tagCData(String tag, String value) {
-        contents.line("<" + tag +"><![CDATA[" + value + "]]></" + tag + ">");
+        contents.line("<" + tag + "><![CDATA[" + value + "]]></" + tag + ">");
     }
 }
