@@ -119,7 +119,7 @@ public class ProtocolTestWriter {
                 methodBlock.line(String.format("%1$s = %2$s.%3$s();", clientVarName, builderVarName,
                     syncClient.getClientBuilder().getBuilderMethodNameForSyncClient(syncClient)));
                 methodBlock.line();
-            } ;
+            }
         };
     }
 
