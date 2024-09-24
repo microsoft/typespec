@@ -19,10 +19,9 @@ public class BodyTests {
 
     private final ContentTypeValidationPolicy validationPolicy = new ContentTypeValidationPolicy();
     private final BodyOptionalityClient client = new BodyOptionalityClientBuilder().buildClient();
-    private final OptionalExplicitClient optionalClient = new BodyOptionalityClientBuilder()
-            .addPolicy(validationPolicy)
-            .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BODY_AND_HEADERS))
-            .buildOptionalExplicitClient();
+    private final OptionalExplicitClient optionalClient = new BodyOptionalityClientBuilder().addPolicy(validationPolicy)
+        .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BODY_AND_HEADERS))
+        .buildOptionalExplicitClient();
 
     private final static class ContentTypeValidationPolicy implements HttpPipelinePolicy {
         private boolean contentTypeHeaderExists;
@@ -36,10 +35,10 @@ public class BodyTests {
         private void validateContentTypeHeader(boolean exists) {
             if (exists != contentTypeHeaderExists) {
                 AssertionFailureBuilder.assertionFailure()
-                        .message("content-type header validation failed")
-                        .expected(exists)
-                        .actual(contentTypeHeaderExists)
-                        .buildAndThrow();
+                    .message("content-type header validation failed")
+                    .expected(exists)
+                    .actual(contentTypeHeaderExists)
+                    .buildAndThrow();
             }
         }
     }
