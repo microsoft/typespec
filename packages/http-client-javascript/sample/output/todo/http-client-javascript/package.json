@@ -1,0 +1,17 @@
+{
+  "name": "test-package",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "uri-template": "^2.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.2"
+  },
+  "exports": {
+    ".": "./dist/index.js",
+    "./api/users": "./dist/api/users/index.js",
+    "./api/todoItems": "./dist/api/todoItems/index.js",
+    "./api/todoItems/attachments": "./dist/api/todoItems/attachments/index.js"
+  }
+}

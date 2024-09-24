@@ -2,7 +2,29 @@ import type { ModelProperty, Scalar, Type } from "../../../core/types.js";
 import { EncodeData, getEncode, getFormat, getVisibility } from "../../../lib/decorators.js";
 import { defineKit } from "../define-kit.js";
 
+export interface ModelPropertyDescriptor {
+  /**
+   * The name of the model property.
+   */
+  name: string;
+
+  /**
+   * The type of the model property.
+   */
+  type: Type;
+
+  /**
+   * Whether the model property is optional.
+   */
+  optional?: boolean;
+}
+
 export interface ModelPropertyKit {
+  /**
+   * Creates a modelProperty type.
+   * @param desc The descriptor of the model property.
+   */
+  create(desc: ModelPropertyDescriptor): ModelProperty;
   /**
    * Check if the given `type` is a model property.
    *
@@ -65,6 +87,16 @@ defineKit<TypeKit>({
 
     getVisibility(property) {
       return getVisibility(this.program, property);
+    },
+    create(desc) {
+      return this.program.checker.createType({
+        kind: "ModelProperty",
+        name: desc.name,
+        node: undefined as any,
+        type: desc.type,
+        optional: desc.optional ?? false,
+        decorators: [],
+      });
     },
   },
 });

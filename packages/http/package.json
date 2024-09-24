@@ -28,6 +28,10 @@
     "./testing": {
       "types": "./dist/src/testing/index.d.ts",
       "default": "./dist/src/testing/index.js"
+    },
+    "./typekit": {
+      "types": "./dist/src/typekit/index.d.ts",
+      "default": "./dist/src/typekit/index.js"
     }
   },
   "engines": {
