@@ -390,6 +390,39 @@ importers:
         specifier: ^2.1.0
         version: 2.1.0(@types/node@22.5.4)(@vitest/ui@2.1.0)(happy-dom@15.7.4)(jsdom@19.0.0)(terser@5.30.0)
 
+  packages/events:
+    devDependencies:
+      '@types/node':
+        specifier: ~22.5.4
+        version: 22.5.4
+      '@typespec/compiler':
+        specifier: workspace:~
+        version: link:../compiler
+      '@typespec/library-linter':
+        specifier: workspace:~
+        version: link:../library-linter
+      '@typespec/tspd':
+        specifier: workspace:~
+        version: link:../tspd
+      '@vitest/coverage-v8':
+        specifier: ^2.0.4
+        version: 2.1.0(vitest@2.1.0(@types/node@22.5.4)(@vitest/ui@2.1.0)(happy-dom@15.7.4)(jsdom@19.0.0)(terser@5.30.0))
+      '@vitest/ui':
+        specifier: ^2.0.4
+        version: 2.1.0(vitest@2.1.0)
+      c8:
+        specifier: ^10.1.2
+        version: 10.1.2
+      rimraf:
+        specifier: ~6.0.1
+        version: 6.0.1
+      typescript:
+        specifier: ~5.6.2
+        version: 5.6.2
+      vitest:
+        specifier: ^2.0.4
+        version: 2.1.0(@types/node@22.5.4)(@vitest/ui@2.1.0)(happy-dom@15.7.4)(jsdom@19.0.0)(terser@5.30.0)
+
   packages/html-program-viewer:
     dependencies:
       '@fluentui/react-components':
@@ -480,6 +513,9 @@ importers:
       '@typespec/library-linter':
         specifier: workspace:~
         version: link:../library-linter
+      '@typespec/streams':
+        specifier: workspace:~
+        version: link:../streams
       '@typespec/tspd':
         specifier: workspace:~
         version: link:../tspd
@@ -529,6 +565,9 @@ importers:
       '@typespec/rest':
         specifier: workspace:~
         version: link:../rest
+      '@typespec/streams':
+        specifier: workspace:~
+        version: link:../streams
       '@typespec/tspd':
         specifier: workspace:~
         version: link:../tspd
@@ -743,6 +782,9 @@ importers:
       '@typespec/rest':
         specifier: workspace:~
         version: link:../rest
+      '@typespec/streams':
+        specifier: workspace:~
+        version: link:../streams
       '@typespec/tspd':
         specifier: workspace:~
         version: link:../tspd
@@ -795,6 +837,9 @@ importers:
       '@typespec/rest':
         specifier: workspace:~
         version: link:../rest
+      '@typespec/streams':
+        specifier: workspace:~
+        version: link:../streams
       '@typespec/tspd':
         specifier: workspace:~
         version: link:../tspd
@@ -1210,6 +1255,9 @@ importers:
       '@typespec/library-linter':
         specifier: workspace:~
         version: link:../library-linter
+      '@typespec/streams':
+        specifier: workspace:~
+        version: link:../streams
       '@typespec/tspd':
         specifier: workspace:~
         version: link:../tspd
@@ -1240,6 +1288,9 @@ importers:
       '@typespec/compiler':
         specifier: workspace:~
         version: link:../compiler
+      '@typespec/events':
+        specifier: workspace:~
+        version: link:../events
       '@typespec/html-program-viewer':
         specifier: workspace:~
         version: link:../html-program-viewer
@@ -1261,6 +1312,12 @@ importers:
       '@typespec/rest':
         specifier: workspace:~
         version: link:../rest
+      '@typespec/sse':
+        specifier: workspace:~
+        version: link:../sse
+      '@typespec/streams':
+        specifier: workspace:~
+        version: link:../streams
       '@typespec/versioning':
         specifier: workspace:~
         version: link:../versioning
@@ -1536,6 +1593,81 @@ importers:
       typescript:
         specifier: ~5.6.2
         version: 5.6.2
+
+  packages/sse:
+    devDependencies:
+      '@types/node':
+        specifier: ~22.5.4
+        version: 22.5.4
+      '@typespec/compiler':
+        specifier: workspace:~
+        version: link:../compiler
+      '@typespec/events':
+        specifier: workspace:~
+        version: link:../events
+      '@typespec/http':
+        specifier: workspace:~
+        version: link:../http
+      '@typespec/library-linter':
+        specifier: workspace:~
+        version: link:../library-linter
+      '@typespec/streams':
+        specifier: workspace:~
+        version: link:../streams
+      '@typespec/tspd':
+        specifier: workspace:~
+        version: link:../tspd
+      '@vitest/coverage-v8':
+        specifier: ^2.0.4
+        version: 2.1.0(vitest@2.1.0(@types/node@22.5.4)(@vitest/ui@2.1.0)(happy-dom@15.7.4)(jsdom@19.0.0)(terser@5.30.0))
+      '@vitest/ui':
+        specifier: ^2.0.4
+        version: 2.1.0(vitest@2.1.0)
+      c8:
+        specifier: ^10.1.2
+        version: 10.1.2
+      rimraf:
+        specifier: ~6.0.1
+        version: 6.0.1
+      typescript:
+        specifier: ~5.6.2
+        version: 5.6.2
+      vitest:
+        specifier: ^2.0.4
+        version: 2.1.0(@types/node@22.5.4)(@vitest/ui@2.1.0)(happy-dom@15.7.4)(jsdom@19.0.0)(terser@5.30.0)
+
+  packages/streams:
+    devDependencies:
+      '@types/node':
+        specifier: ~22.5.4
+        version: 22.5.4
+      '@typespec/compiler':
+        specifier: workspace:~
+        version: link:../compiler
+      '@typespec/library-linter':
+        specifier: workspace:~
+        version: link:../library-linter
+      '@typespec/tspd':
+        specifier: workspace:~
+        version: link:../tspd
+      '@vitest/coverage-v8':
+        specifier: ^2.0.4
+        version: 2.1.0(vitest@2.1.0(@types/node@22.5.4)(@vitest/ui@2.1.0)(happy-dom@15.7.4)(jsdom@19.0.0)(terser@5.30.0))
+      '@vitest/ui':
+        specifier: ^2.0.4
+        version: 2.1.0(vitest@2.1.0)
+      c8:
+        specifier: ^10.1.2
+        version: 10.1.2
+      rimraf:
+        specifier: ~6.0.1
+        version: 6.0.1
+      typescript:
+        specifier: ~5.6.2
+        version: 5.6.2
+      vitest:
+        specifier: ^2.0.4
+        version: 2.1.0(@types/node@22.5.4)(@vitest/ui@2.1.0)(happy-dom@15.7.4)(jsdom@19.0.0)(terser@5.30.0)
 
   packages/tmlanguage-generator:
     dependencies:
