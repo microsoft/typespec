@@ -154,13 +154,13 @@ describe("openapi: decorators", () => {
   describe("@info", () => {
     it("emit diagnostic if termsOfService is not a valid url", async () => {
       const diagnostics = await runner.diagnose(`
-        @info({termsOfService:"@asd"})
+        @info({termsOfService:"notvalidurl"})
         @test namespace Service {}
       `);
 
       expectDiagnostics(diagnostics, {
         code: "@typespec/openapi/not-uri",
-        message: "TermsOfService: @asd is not a valid URI.",
+        message: "TermsOfService: notvalidurl is not a valid URI.",
       });
     });
 
