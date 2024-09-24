@@ -30,9 +30,7 @@ async def test_get(client: TraitsClient, check_client_request_id_header):
             if_modified_since=datetime(year=2021, month=8, day=26, hour=14, minute=38, second=0),
             cls=lambda x, y, z: (y, z),
             raw_request_hook=functools.partial(
-                check_client_request_id_header,
-                header="x-ms-client-request-id",
-                checked=checked,
+                check_client_request_id_header, header="x-ms-client-request-id", checked=checked
             ),
             **kwargs,
         )

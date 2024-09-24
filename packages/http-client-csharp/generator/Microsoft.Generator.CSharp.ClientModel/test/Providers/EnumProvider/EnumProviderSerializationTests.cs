@@ -11,7 +11,7 @@ using Microsoft.Generator.CSharp.Statements;
 using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 
-namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
+namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.EnumProvider
 {
     public class EnumProviderSerializationTests
     {
