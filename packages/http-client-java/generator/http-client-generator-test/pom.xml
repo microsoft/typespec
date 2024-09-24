@@ -14,7 +14,6 @@
   <name>http-client-generator-test</name>
   <url>http://maven.apache.org</url>
 
-<<<<<<< HEAD
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -42,29 +41,6 @@
       <artifactId>azure-core-test</artifactId>
       <version>1.27.0-beta.1</version>
       <scope>test</scope>
-=======
-    <dependencies>
-      <dependency>
-        <groupId>com.azure</groupId>
-        <artifactId>azure-core</artifactId>
-        <version>1.52.0</version>
-      </dependency>
-      <dependency>
-        <groupId>com.azure</groupId>
-        <artifactId>azure-json</artifactId>
-        <version>1.3.0</version>
-      </dependency>
-      <dependency>
-        <groupId>com.azure</groupId>
-        <artifactId>azure-xml</artifactId>
-        <version>1.1.0</version>
-      </dependency>
-      <dependency>
-        <groupId>com.azure</groupId>
-        <artifactId>azure-core-test</artifactId>
-        <version>1.27.0-beta.1</version>
-        <scope>test</scope>
->>>>>>> 9d684b77d2701e3826b0ab1a5138687c5eaa4fe5
     </dependency>
     <dependency>
       <groupId>com.azure</groupId>

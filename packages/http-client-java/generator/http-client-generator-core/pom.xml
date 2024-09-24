@@ -25,7 +25,6 @@
       <groupId>com.azure</groupId>
       <artifactId>azure-core</artifactId>
       <version>1.52.0</version>
-<<<<<<< HEAD
       <exclusions>
         <exclusion>
           <groupId>com.fasterxml.jackson.core</groupId>
@@ -44,8 +43,6 @@
           <artifactId>jackson-datatype-jsr310</artifactId>
         </exclusion>
       </exclusions>
-=======
->>>>>>> 9d684b77d2701e3826b0ab1a5138687c5eaa4fe5
     </dependency>
     <dependency>
       <groupId>com.azure</groupId>
