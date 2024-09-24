@@ -10,6 +10,7 @@ import {
   OpenAPI3Schema,
   Refable,
 } from "../../../src/types.js";
+import { StreamsTestLibrary } from "@typespec/streams/testing";
 
 function wrapCodeInTest(code: string): string {
   // Find the 1st namespace declaration and decorate it
@@ -43,7 +44,7 @@ export async function tspForOpenAPI3({ parameters, schemas }: OpenAPI3Options) {
   const code = await convertOpenAPI3Document(openApi3Doc);
   const testableCode = wrapCodeInTest(code);
   const host = await createTestHost({
-    libraries: [HttpTestLibrary, OpenAPITestLibrary, OpenAPI3TestLibrary],
+    libraries: [ StreamsTestLibrary, HttpTestLibrary, OpenAPITestLibrary, OpenAPI3TestLibrary],
   });
   host.addTypeSpecFile("main.tsp", testableCode);
 

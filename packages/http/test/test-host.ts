@@ -14,10 +14,11 @@ import {
   RouteResolutionOptions,
 } from "../src/index.js";
 import { HttpTestLibrary } from "../src/testing/index.js";
+import { StreamsTestLibrary } from "@typespec/streams/testing";
 
 export async function createHttpTestHost(): Promise<TestHost> {
   return createTestHost({
-    libraries: [HttpTestLibrary],
+    libraries: [StreamsTestLibrary, HttpTestLibrary],
   });
 }
 export async function createHttpTestRunner(): Promise<BasicTestRunner> {
