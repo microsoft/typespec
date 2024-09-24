@@ -62,16 +62,15 @@ describe("parsing", () => {
     });
 
     it("decimal with leading 0", () => {
-      expectNumericData("123.00456", 12300456n, 3);
-    });
-
-    it.each([
-      ["0.1", 1n, 0],
-      ["0.01", 1n, -1],
-      ["0.41", 41n, 0],
-      ["0.041", 41n, -1],
-    ])(`%s`, (a, b, c) => {
-      expectNumericData(a, b, c);
+      it.each([
+        ["0.1", 1n, 0],
+        ["0.01", 1n, -1],
+        ["0.41", 41n, 0],
+        ["0.041", 41n, -1],
+        ["123.00456", 12300456n, 3],
+      ])(`%s`, (a, b, c) => {
+        expectNumericData(a, b, c);
+      });
     });
 
     it("large integer (> Number.MAX_SAFE_INTEGER)", () => {
