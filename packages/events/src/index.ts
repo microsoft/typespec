@@ -1,5 +1,7 @@
 export { $lib } from "./lib.js";
 
-export { $decorators } from "./tsp-index.js";
+export { $decorators, $onValidate } from "./tsp-index.js";
 
-export { isEvents } from "./decorators.js";
+export { getContentType, getEventDefinitions, isEventData, isEvents } from "./decorators.js";
+
+export type { EventDefinition } from "./decorators.js";
