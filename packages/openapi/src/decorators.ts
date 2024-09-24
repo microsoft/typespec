@@ -248,30 +248,28 @@ function typespecTypeCheck(
   target: DiagnosticTarget,
   propertyModel: Model,
 ): [Diagnostic[]] {
+  const diagnostics = [];
+
   if (typespecType.kind === "Model") {
-    const diagnostics = [];
     for (const [name, type] of typespecType.properties.entries()) {
       const sourceProperty = getProperty(propertyModel, name);
-      if (sourceProperty !== undefined) {
+
+      if (sourceProperty) {
         if (sourceProperty.type.kind === "Model") {
-          const [diagnostics] = typespecTypeCheck(type.type, target, sourceProperty.type);
-          if (diagnostics.length > 0) {
-            return [diagnostics];
-          }
+          const [nestedDiagnostics] = typespecTypeCheck(type.type, target, sourceProperty.type);
+          diagnostics.push(...nestedDiagnostics);
         }
-      } else {
-        if (!isOpenAPIExtensionKey(name)) {
-          diagnostics.push(
-            createDiagnostic({
-              code: "invalid-extension-key",
-              format: { value: name },
-              target,
-            }),
-          );
-        }
+      } else if (!isOpenAPIExtensionKey(name)) {
+        diagnostics.push(
+          createDiagnostic({
+            code: "invalid-extension-key",
+            format: { value: name },
+            target,
+          }),
+        );
       }
     }
-    return [diagnostics];
   }
-  return [[]];
+
+  return [diagnostics];
 }
