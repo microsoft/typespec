@@ -741,9 +741,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       }
     }
 
-    if (isXmlModel && isArrayProperty && !hasUnwrappedDecorator) {
-      xmlObject.wrapped = true;
-
+    if (isXmlModel && isArrayProperty) {
       // update items
       const propValue = (prop.type as ArrayModelType).indexer.value;
       const xmlName = resolveEncodedName(program, propValue as Scalar | Model, "application/xml");
@@ -756,13 +754,19 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
           } else if (propValue.baseScalar) {
             scalarSchema = this.#getSchemaForScalar(propValue.baseScalar);
           }
-          scalarSchema.xml = { name: xmlName };
           ref.items = scalarSchema;
-        } else {
-          ref.items = new ObjectBuilder({
-            allOf: [ref.items],
-            xml: { name: xmlName },
-          });
+        }
+
+        // handel unwrapped decorator
+        if (!hasUnwrappedDecorator) {
+          if (propValue.kind !== "Scalar") {
+            ref.items = new ObjectBuilder({
+              allOf: [ref.items],
+            });
+          }
+
+          xmlObject.wrapped = true;
+          ref.items.xml = { name: xmlName };
         }
       }
     }

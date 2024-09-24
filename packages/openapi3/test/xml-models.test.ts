@@ -418,7 +418,7 @@ describe("Array of primitive types", () => {
           tags: {
             type: "array",
             items: {
-              $ref: "#/components/schemas/tag",
+              type: `${type}`,
             },
           },
         },
