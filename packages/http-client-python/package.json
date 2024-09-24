@@ -45,7 +45,7 @@
     "ci": "npm run test:emitter && npm run ci:generator --",
     "ci:generator": "tsx ./eng/scripts/ci/run-ci.ts",
     "test:generator": "tsx ./eng/scripts/ci/run-ci.ts --command=test",
-    "test:emitter": "vitest run emitter/test"
+    "test:emitter": "vitest run -c ./emitter/vitest.config.ts"
   },
   "files": [
     "dist/**",
