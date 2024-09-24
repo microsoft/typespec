@@ -9,5 +9,6 @@ namespace TypeSpec.Streams;
  *
  * @template Type The type of the stream's data.
  */
+@doc("")
 @streamOf(Type)
 model Stream<Type> {}
