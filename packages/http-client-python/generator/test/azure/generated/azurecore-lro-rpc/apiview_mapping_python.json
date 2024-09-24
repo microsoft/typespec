@@ -1,8 +1,0 @@
-{
-    "CrossLanguagePackageId": "_Specs_.Azure.Core.Lro.Rpc",
-    "CrossLanguageDefinitionId": {
-        "azurecore.lro.rpc.models.GenerationOptions": "_Specs_.Azure.Core.Lro.Rpc.GenerationOptions",
-        "azurecore.lro.rpc.models.GenerationResult": "_Specs_.Azure.Core.Lro.Rpc.GenerationResult",
-        "azurecore.lro.rpc.RpcClient.begin_long_running_rpc": "_Specs_.Azure.Core.Lro.Rpc.longRunningRpc"
-    }
-}

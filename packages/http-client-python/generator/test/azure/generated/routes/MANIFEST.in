@@ -1,5 +1,0 @@
-include *.md
-include LICENSE
-include routes/py.typed
-recursive-include tests *.py
-recursive-include samples *.py *.md
