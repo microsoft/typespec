@@ -152,6 +152,25 @@ describe("openapi: decorators", () => {
   });
 
   describe("@info", () => {
+    describe("emit diagnostics when passing extension key not starting with `x-` in additionalInfo", () => {
+      it.each([
+        ["root", `{ foo:"Bar" }`],
+        ["license", `{ license:{ name: "Apache 2.0", foo:"Bar"} }`],
+        ["contact", `{ contact:{ foo:"Bar"} }`],
+        ["complex", `{ contact:{ "x-custom": "string" }, foo:"Bar" }`],
+      ])("%s", async (_, code) => {
+        const diagnostics = await runner.diagnose(`
+        @info(${code})
+        @test namespace Service;
+      `);
+
+        expectDiagnostics(diagnostics, {
+          code: "@typespec/openapi/invalid-extension-key",
+          message: `OpenAPI extension must start with 'x-' but was 'foo'`,
+        });
+      });
+    });
+
     it("emit diagnostic if use on non namespace", async () => {
       const diagnostics = await runner.diagnose(`
         @info({})

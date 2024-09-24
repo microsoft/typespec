@@ -1,9 +1,12 @@
 import {
   DecoratorContext,
+  Diagnostic,
+  DiagnosticTarget,
   getDoc,
   getService,
   getSummary,
   Model,
+  ModelProperty,
   Namespace,
   Operation,
   Program,
@@ -19,7 +22,7 @@ import {
   InfoDecorator,
   OperationIdDecorator,
 } from "../generated-defs/TypeSpec.OpenAPI.js";
-import { createStateSymbol, reportDiagnostic } from "./lib.js";
+import { createDiagnostic, createStateSymbol, reportDiagnostic } from "./lib.js";
 import { AdditionalInfo, ExtensionKey, ExternalDocs } from "./types.js";
 
 const operationIdsKey = createStateSymbol("operationIds");
@@ -185,6 +188,7 @@ export const $info: InfoDecorator = (
   if (data === undefined) {
     return;
   }
+  validateObject(context, model, entity);
   setInfo(context.program, entity, data);
 };
 
@@ -213,4 +217,61 @@ export function resolveInfo(program: Program, entity: Namespace): AdditionalInfo
 
 function omitUndefined<T extends Record<string, unknown>>(data: T): T {
   return Object.fromEntries(Object.entries(data).filter(([k, v]) => v !== undefined)) as any;
+}
+
+function validateObject(context: DecoratorContext, typespecType: TypeSpecValue, entity: Namespace) {
+  const decorator = entity.decorators.find(
+    (d) => d.decorator === $info && d.node === context.decoratorTarget,
+  );
+  const definition = decorator?.definition?.parameters.find((p) => p.name === "additionalInfo");
+  const propertyModel = definition?.type.type as Model;
+
+  if (typeof typespecType === "object") {
+    const [diagnostics] = typespecTypeCheck(
+      typespecType,
+      context.getArgumentTarget(0)!,
+      propertyModel,
+    );
+    context.program.reportDiagnostics(diagnostics);
+  }
+}
+
+function getProperty(model: Model, name: string): ModelProperty | undefined {
+  return (
+    model.properties.get(name) ??
+    (model.baseModel !== undefined ? getProperty(model.baseModel, name) : undefined)
+  );
+}
+
+function typespecTypeCheck(
+  typespecType: Type,
+  target: DiagnosticTarget,
+  propertyModel: Model,
+): [Diagnostic[]] {
+  if (typespecType.kind === "Model") {
+    const diagnostics = [];
+    for (const [name, type] of typespecType.properties.entries()) {
+      const sourceProperty = getProperty(propertyModel, name);
+      if (sourceProperty !== undefined) {
+        if (sourceProperty.type.kind === "Model") {
+          const [diagnostics] = typespecTypeCheck(type.type, target, sourceProperty.type);
+          if (diagnostics.length > 0) {
+            return [diagnostics];
+          }
+        }
+      } else {
+        if (!isOpenAPIExtensionKey(name)) {
+          diagnostics.push(
+            createDiagnostic({
+              code: "invalid-extension-key",
+              format: { value: name },
+              target,
+            }),
+          );
+        }
+      }
+    }
+    return [diagnostics];
+  }
+  return [[]];
 }
