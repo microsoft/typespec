@@ -1,4 +1,9 @@
-import { mutateSubgraph, Mutator, MutatorFlow, Operation } from "@typespec/compiler";
+import { ModelProperty, Operation } from "@typespec/compiler";
+import {
+  unsafe_mutateSubgraph as mutateSubgraph,
+  unsafe_Mutator as Mutator,
+  unsafe_MutatorFlow as MutatorFlow,
+} from "@typespec/compiler/experimental";
 import { $ } from "@typespec/compiler/typekit";
 
 /**
@@ -17,7 +22,7 @@ const httpParamsMutator: Mutator = {
   name: "Http parameters",
   Operation: {
     filter() {
-      return MutatorFlow.DontRecurse;
+      return MutatorFlow.DoNotRecurse;
     },
     mutate(o, clone, _program, realm) {
       const httpOperation = $.httpOperation.get(o);
@@ -35,14 +40,27 @@ const httpParamsMutator: Mutator = {
 
       clone.parameters = params;
 
-      const optionals = [...clone.parameters.properties.values()].filter((p) => p.optional);
+      const optionals = [...clone.parameters.properties.values()]
+        .filter((p) => p.optional)
+        .reduce(
+          (acc, prop) => {
+            acc[prop.name] = prop;
+            return acc;
+          },
+          {} as Record<string, ModelProperty>,
+        );
 
-      if (optionals.length === 0) {
+      if (Object.entries(optionals).length === 0) {
         return;
       }
 
-      const optionsBag = realm.typeFactory.model("", optionals);
-      const optionsProp = realm.typeFactory.modelProperty("options", optionsBag, {
+      const optionsBag = $.model.create({
+        properties: optionals,
+      });
+
+      const optionsProp = $.modelProperty.create({
+        name: "options",
+        type: optionsBag,
         optional: true,
       });
 

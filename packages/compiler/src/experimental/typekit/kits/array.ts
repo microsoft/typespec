@@ -1,4 +1,4 @@
-import { isArrayModelType, Model, Type } from "../../index.js";
+import { isArrayModelType, Model, Type } from "../../../index.js";
 import { defineKit } from "../define-kit.js";
 
 export interface ArrayKit {

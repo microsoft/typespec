@@ -1,8 +1,8 @@
-import type { Enum, EnumMember, Type, Union } from "../../core/types.js";
+import type { Enum, EnumMember, Type, Union } from "../../../core/types.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { type UnionKit } from "./union.js";
 
-import { createRekeyableMap } from "../../utils/misc.js";
+import { createRekeyableMap } from "../../../utils/misc.js";
 import { defineKit } from "../define-kit.js";
 import { decoratorApplication, DecoratorArgs } from "../utils.js";
 

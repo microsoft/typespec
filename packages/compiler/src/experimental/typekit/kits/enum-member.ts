@@ -1,4 +1,4 @@
-import type { Enum, EnumMember, Type } from "../../core/types.js";
+import type { Enum, EnumMember, Type } from "../../../core/types.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 
 import { defineKit } from "../define-kit.js";

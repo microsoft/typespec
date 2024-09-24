@@ -1,5 +1,5 @@
 import { beforeAll, expect, it } from "vitest";
-import { $ } from "../../src/typekit/index.js";
+import { $ } from "../../../src/experimental/typekit/index.js";
 import { createContextMock } from "./utils.js";
 beforeAll(async () => {
   // need the side effect of creating the program.

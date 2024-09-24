@@ -26,6 +26,11 @@ interface UnionDescriptor {
 export interface UnionKit {
   union: {
     /**
+     * Creates a union type with filtered variants.
+     * @param filterFn Function to filter the union variants
+     */
+    filter(union: Union, filterFn: (variant: UnionVariant) => boolean): Union;
+    /**
      * Create a union type.
      *
      * @param desc The descriptor of the union.
@@ -55,6 +60,12 @@ export interface UnionKit {
      * @param type The union to check.
      */
     isExtensible(type: Union): boolean;
+
+    /**
+     * Checks if an uinton is an expression (anonymous) or declared.
+     * @param type Uniton to check if it is an expression
+     */
+    isExpression(type: Union): boolean;
   };
 }
 
@@ -64,6 +75,10 @@ declare module "../define-kit.js" {
 
 export const UnionKit = defineKit<UnionKit>({
   union: {
+    filter(union, filterFn) {
+      const variants = Array.from(union.variants.values()).filter(filterFn);
+      return this.union.create({ variants });
+    },
     create(desc) {
       const union: Union = this.program.checker.createType({
         kind: "Union",
@@ -138,6 +153,10 @@ export const UnionKit = defineKit<UnionKit>({
       }
 
       return false;
+    },
+
+    isExpression(type) {
+      return type.name === undefined || type.name === "";
     },
   },
 });

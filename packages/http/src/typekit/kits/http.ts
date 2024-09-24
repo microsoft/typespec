@@ -13,7 +13,7 @@ import { HeaderFieldOptions, PathParameterOptions, QueryParameterOptions } from 
 
 export interface HttpModelPropertyKit {
   getHttpParamOptions(
-    prop: ModelProperty
+    prop: ModelProperty,
   ): HeaderFieldOptions | PathParameterOptions | QueryParameterOptions | undefined;
   getHttpHeaderOptions(prop: ModelProperty): HeaderFieldOptions | undefined;
   getHttpPathOptions(prop: ModelProperty): PathParameterOptions | undefined;

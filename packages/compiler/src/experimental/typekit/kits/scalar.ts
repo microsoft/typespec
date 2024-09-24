@@ -4,7 +4,6 @@ import { type EncodeData, getEncode, getFormat } from "../../../lib/decorators.j
 import { defineKit, type TypekitPrototype } from "../define-kit.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { ModelPropertyKit } from "./model-property.js";
-
 interface ScalarKit {
   /**
    * Operations for scalar types like strings, numerics, booleans, dates, etc.

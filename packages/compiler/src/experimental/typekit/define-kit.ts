@@ -73,7 +73,11 @@ export function defineKit<T extends Record<string, any>>(
   source: StripGuards<T> & ThisType<TypekitPrototype>,
 ): void {
   for (const [name, fnOrNs] of Object.entries(source)) {
-    TypekitPrototype[name] = fnOrNs;
+    let kits = fnOrNs;
+    if (TypekitPrototype[name] !== undefined) {
+      kits = { ...TypekitPrototype[name], ...fnOrNs };
+    }
+    TypekitPrototype[name] = kits;
   }
 }
 
