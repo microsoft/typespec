@@ -94,35 +94,44 @@ public class ProtocolTestWriter {
                     }
                     methodBlock.line(".%1$s(%2$s)", serviceClientProperty.getAccessorMethodSuffix(), expr);
                 });
-                methodBlock.line(".httpClient(HttpClient.createDefault())");
+                methodBlock.line(".httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))");
                 methodBlock.line(".httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));");
                 methodBlock.decreaseIndent();
 
-                JavaIfBlock codeBlock = methodBlock.ifBlock("getTestMode() == TestMode.PLAYBACK", ifBlock -> {
-                    if (isTokenCredential) {
-                        ifBlock.line(String.format("%1$s.httpClient(interceptorManager.getPlaybackClient())", builderVarName));
-                        ifBlock.line(".credential(new MockTokenCredential());");
-                    } else {
-                        ifBlock.line(String.format("%1$s.httpClient(interceptorManager.getPlaybackClient());", builderVarName));
-                    }
-                }).elseIfBlock("getTestMode() == TestMode.RECORD", ifBlock -> {
-                    if (isTokenCredential) {
-                        ifBlock.line(String.format("%1$s.addPolicy(interceptorManager.getRecordPolicy())", builderVarName));
-                        ifBlock.line(".credential(new DefaultAzureCredentialBuilder().build());");
-                    } else {
-                        ifBlock.line(String.format("%1$s.addPolicy(interceptorManager.getRecordPolicy());", builderVarName));
-                    }
-                });
+                JavaIfBlock codeBlock = null;
+                if (isTokenCredential) {
+                    codeBlock = methodBlock.ifBlock("getTestMode() == TestMode.PLAYBACK",
+                        ifBlock -> ifBlock.line(builderVarName + ".credential(new MockTokenCredential());"));
+                }
+
+                if (codeBlock != null) {
+                    codeBlock = codeBlock.elseIfBlock("getTestMode() == TestMode.RECORD",
+                        recordModeBlock(isTokenCredential, builderVarName));
+                } else {
+                    codeBlock = methodBlock.ifBlock("getTestMode() == TestMode.RECORD",
+                        recordModeBlock(isTokenCredential, builderVarName));
+                }
 
                 if (isTokenCredential) {
                     codeBlock.elseIfBlock("getTestMode() == TestMode.LIVE", ifBlock -> {
-                        ifBlock.line(String.format("%1$s.credential(new DefaultAzureCredentialBuilder().build());", builderVarName));
+                        ifBlock.line(builderVarName + ".credential(new DefaultAzureCredentialBuilder().build());");
                     });
                 }
 
                 methodBlock.line(String.format("%1$s = %2$s.%3$s();", clientVarName, builderVarName, syncClient.getClientBuilder().getBuilderMethodNameForSyncClient(syncClient)));
                 methodBlock.line();
             };
+        };
+    }
+
+    private static Consumer<JavaBlock> recordModeBlock(boolean isTokenCredential, String builderVarName) {
+        return ifBlock -> {
+            if (isTokenCredential) {
+                ifBlock.line(builderVarName + ".addPolicy(interceptorManager.getRecordPolicy())");
+                ifBlock.line(".credential(new DefaultAzureCredentialBuilder().build());");
+            } else {
+                ifBlock.line(builderVarName + ".addPolicy(interceptorManager.getRecordPolicy());");
+            }
         };
     }
 
