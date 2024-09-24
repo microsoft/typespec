@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.Snippets;
 using Moq;
 using Moq.Protected;
 using NUnit.Framework;
@@ -19,7 +21,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [SetUp]
         public void Setup()
         {
-            _mockPlugin = new Mock<CodeModelPlugin>();
+            _mockPlugin = MockHelpers.LoadMockPlugin();
             var mockOutputLibrary = new Mock<OutputLibrary>();
             _mockPlugin.Setup(p => p.OutputLibrary).Returns(mockOutputLibrary.Object);
             _mockTypeProvider = new Mock<TypeProvider>() { CallBase = true };
@@ -40,39 +42,45 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void VisitsMethods()
         {
-            var mockMethodProvider = new Mock<MethodProvider>();
+            var testMethod = new MethodProvider(
+                new MethodSignature("Test", $"", MethodSignatureModifiers.Public, null, $"", []),
+                Snippet.ThrowExpression(Snippet.Null), new TestTypeProvider());
+
             _mockTypeProvider.Protected().Setup<MethodProvider[]>("BuildMethods")
-                .Returns([mockMethodProvider.Object]);
+                .Returns([testMethod]);
 
             _mockVisitor.Object.Visit(_mockPlugin.Object.OutputLibrary);
             _mockVisitor.Protected().Verify<TypeProvider>("Visit", Times.Once(), _mockTypeProvider.Object);
-            _mockVisitor.Protected().Verify<MethodProvider>("Visit", Times.Once(), mockMethodProvider.Object);
+            _mockVisitor.Protected().Verify<MethodProvider>("Visit", Times.Once(), testMethod);
         }
 
         [Test]
         public void VisitsConstructors()
         {
-            var mockConstructorProvider = new Mock<ConstructorProvider>();
+            var testConstructor = new ConstructorProvider(
+                new ConstructorSignature(typeof(TestTypeProvider), $"", MethodSignatureModifiers.Public, []),
+                Snippet.ThrowExpression(Snippet.Null), new TestTypeProvider());
             _mockTypeProvider.Protected().Setup<ConstructorProvider[]>("BuildConstructors")
-                .Returns([mockConstructorProvider.Object]);
+                .Returns([testConstructor]);
 
             _mockVisitor.Object.Visit(_mockPlugin.Object.OutputLibrary);
 
             _mockVisitor.Protected().Verify<TypeProvider>("Visit", Times.Once(), _mockTypeProvider.Object);
-            _mockVisitor.Protected().Verify<ConstructorProvider>("Visit", Times.Once(), mockConstructorProvider.Object);
+            _mockVisitor.Protected().Verify<ConstructorProvider>("Visit", Times.Once(), testConstructor);
         }
 
         [Test]
         public void VisitsProperties()
         {
-            var mockPropertyProvider = new Mock<PropertyProvider>();
+            var testProperty = new PropertyProvider($"", MethodSignatureModifiers.Public, typeof(string),
+                "Name", new AutoPropertyBody(true), new TestTypeProvider());
             _mockTypeProvider.Protected().Setup<PropertyProvider[]>("BuildProperties")
-                .Returns([mockPropertyProvider.Object]);
+                .Returns([testProperty]);
 
             _mockVisitor.Object.Visit(_mockPlugin.Object.OutputLibrary);
 
             _mockVisitor.Protected().Verify<TypeProvider>("Visit", Times.Once(), _mockTypeProvider.Object);
-            _mockVisitor.Protected().Verify<PropertyProvider>("Visit", Times.Once(), mockPropertyProvider.Object);
+            _mockVisitor.Protected().Verify<PropertyProvider>("Visit", Times.Once(), testProperty);
         }
 
         [Test]
@@ -91,46 +99,52 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void DoesNotVisitMethodsWhenTypeIsNulledOut()
         {
-            var mockMethodProvider = new Mock<MethodProvider>();
+            var testMethod = new MethodProvider(
+                new MethodSignature("Test", $"", MethodSignatureModifiers.Public, null, $"", []),
+                Snippet.ThrowExpression(Snippet.Null), new TestTypeProvider());
+
             _mockTypeProvider.Protected().Setup<MethodProvider[]>("BuildMethods")
-                .Returns([mockMethodProvider.Object]);
+                .Returns([testMethod]);
             _mockVisitor.Protected().Setup<TypeProvider?>("Visit", _mockTypeProvider.Object).Returns<TypeProvider?>(
                 (t) => null);
 
             _mockVisitor.Object.Visit(_mockPlugin.Object.OutputLibrary);
 
             _mockVisitor.Protected().Verify<TypeProvider>("Visit", Times.Once(), _mockTypeProvider.Object);
-            _mockVisitor.Protected().Verify<MethodProvider>("Visit", Times.Never(), mockMethodProvider.Object);
+            _mockVisitor.Protected().Verify<MethodProvider>("Visit", Times.Never(), testMethod);
         }
 
         [Test]
         public void DoesNotVisitConstructorsWhenTypeIsNulledOut()
         {
-            var mockConstructorProvider = new Mock<ConstructorProvider>();
+            var testConstructor = new ConstructorProvider(
+                new ConstructorSignature(typeof(TestTypeProvider), $"", MethodSignatureModifiers.Public, []),
+                Snippet.ThrowExpression(Snippet.Null), new TestTypeProvider());
             _mockTypeProvider.Protected().Setup<ConstructorProvider[]>("BuildConstructors")
-                .Returns([mockConstructorProvider.Object]);
+                .Returns([testConstructor]);
             _mockVisitor.Protected().Setup<TypeProvider?>("Visit", _mockTypeProvider.Object).Returns<TypeProvider?>(
                 (t) => null);
 
             _mockVisitor.Object.Visit(_mockPlugin.Object.OutputLibrary);
 
             _mockVisitor.Protected().Verify<TypeProvider>("Visit", Times.Once(), _mockTypeProvider.Object);
-            _mockVisitor.Protected().Verify<ConstructorProvider>("Visit", Times.Never(), mockConstructorProvider.Object);
+            _mockVisitor.Protected().Verify<ConstructorProvider>("Visit", Times.Never(), testConstructor);
         }
 
         [Test]
         public void DoesNotVisitPropertiesWhenTypeIsNulledOut()
         {
-            var mockFieldProvider = new Mock<PropertyProvider>();
+            var testProperty = new PropertyProvider($"", MethodSignatureModifiers.Public, typeof(string),
+                "Name", new AutoPropertyBody(true), new TestTypeProvider());
             _mockTypeProvider.Protected().Setup<PropertyProvider[]>("BuildProperties")
-                .Returns([mockFieldProvider.Object]);
+                .Returns([testProperty]);
             _mockVisitor.Protected().Setup<TypeProvider?>("Visit", _mockTypeProvider.Object).Returns<TypeProvider?>(
                 (t) => null);
 
             _mockVisitor.Object.Visit(_mockPlugin.Object.OutputLibrary);
 
             _mockVisitor.Protected().Verify<TypeProvider>("Visit", Times.Once(), _mockTypeProvider.Object);
-            _mockVisitor.Protected().Verify<PropertyProvider>("Visit", Times.Never(), mockFieldProvider.Object);
+            _mockVisitor.Protected().Verify<PropertyProvider>("Visit", Times.Never(), testProperty);
         }
 
         [Test]
