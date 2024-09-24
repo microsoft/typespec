@@ -9,7 +9,6 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -69,8 +68,7 @@ public class ObjectMapper implements IMapper<ObjectSchema, IType>, NeedsPlainObj
             classPackage = settings.getPackage(settings.getModelsSubpackage());
         }
 
-        return new ClassType.Builder()
-            .packageName(classPackage)
+        return new ClassType.Builder().packageName(classPackage)
             .name(className)
             .extensions(compositeType.getExtensions())
             .usedInXml(SchemaUtil.treatAsXml(compositeType))
@@ -100,7 +98,8 @@ public class ObjectMapper implements IMapper<ObjectSchema, IType>, NeedsPlainObj
     /**
      * Extension for Page model.
      * <p>
-     * Page model does not need to be exposed to user, as it is internal wire data that will be converted to PagedFlux or PagedIterable.
+     * Page model does not need to be exposed to user, as it is internal wire data that will be converted to PagedFlux
+     * or PagedIterable.
      * Check in TypeSpec.
      *
      * @param compositeType object type

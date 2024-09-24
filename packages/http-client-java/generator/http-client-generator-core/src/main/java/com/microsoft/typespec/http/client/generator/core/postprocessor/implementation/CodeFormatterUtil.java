@@ -6,7 +6,6 @@ package com.microsoft.typespec.http.client.generator.core.postprocessor.implemen
 import com.microsoft.typespec.http.client.generator.core.customization.implementation.Utils;
 import com.microsoft.typespec.http.client.generator.core.extension.base.util.FileUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -61,7 +60,9 @@ public final class CodeFormatterUtil {
 
             Path pomPath = tmpDir.resolve("spotless-pom.xml");
             Files.copy(CodeFormatterUtil.class.getClassLoader().getResourceAsStream("readme/pom.xml"), pomPath);
-            Files.copy(CodeFormatterUtil.class.getClassLoader().getResourceAsStream("readme/eclipse-format-azure-sdk-for-java.xml"),
+            Files.copy(
+                CodeFormatterUtil.class.getClassLoader()
+                    .getResourceAsStream("readme/eclipse-format-azure-sdk-for-java.xml"),
                 pomPath.resolveSibling("eclipse-format-azure-sdk-for-java.xml"));
 
             attemptMavenSpotless(pomPath);
@@ -85,8 +86,7 @@ public final class CodeFormatterUtil {
     private static void attemptMavenSpotless(Path pomPath) {
         String[] command;
         if (Utils.isWindows()) {
-            command = new String[] {
-                "cmd", "/c", "mvn", "spotless:apply", "-P", "spotless", "-f", pomPath.toString() };
+            command = new String[] { "cmd", "/c", "mvn", "spotless:apply", "-P", "spotless", "-f", pomPath.toString() };
         } else {
             command = new String[] { "mvn", "spotless:apply", "-P", "spotless", "-f", pomPath.toString() };
         }
@@ -102,8 +102,8 @@ public final class CodeFormatterUtil {
             if (process.isAlive() || process.exitValue() != 0) {
                 process.destroyForcibly();
                 throw new RuntimeException(
-                    "Spotless failed to complete within 60 seconds or failed with an error code. " + Files.readString(
-                        outputFile.toPath()));
+                    "Spotless failed to complete within 60 seconds or failed with an error code. "
+                        + Files.readString(outputFile.toPath()));
             }
         } catch (IOException | InterruptedException ex) {
             throw new RuntimeException("Failed to run Spotless on generated code.", ex);

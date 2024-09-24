@@ -4,7 +4,6 @@
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SchemaContext;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -129,20 +128,28 @@ public class ImplementationDetails {
             switch (schemaContext) {
                 case INPUT:
                     return INPUT;
+
                 case OUTPUT:
                     return OUTPUT;
+
                 case EXCEPTION:
                     return EXCEPTION;
+
                 case PUBLIC:
                     return PUBLIC;
+
                 case PAGED:
                     return PAGED;
+
                 case INTERNAL:
                     return INTERNAL;
+
                 case JSON_MERGE_PATCH:
                     return JSON_MERGE_PATCH;
+
                 case OPTIONS_GROUP:
                     return OPTIONS_GROUP;
+
                 default:
                     throw new IllegalArgumentException(schemaContext.toString());
             }

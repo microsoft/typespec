@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
+import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
@@ -11,15 +12,13 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFil
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
-import com.azure.core.util.CoreUtils;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class JsonMergePatchHelperTemplate implements IJavaTemplate<List<ClientModel>, JavaFile>{
+public class JsonMergePatchHelperTemplate implements IJavaTemplate<List<ClientModel>, JavaFile> {
 
     private static final JsonMergePatchHelperTemplate INSTANCE = new JsonMergePatchHelperTemplate();
 
@@ -39,8 +38,8 @@ public class JsonMergePatchHelperTemplate implements IJavaTemplate<List<ClientMo
         javaFile.declareImport(imports);
 
         // class javadoc
-        javaFile.javadocComment(comment ->
-            comment.description("This is the Helper class to enable json merge patch serialization for a model"));
+        javaFile.javadocComment(comment -> comment
+            .description("This is the Helper class to enable json merge patch serialization for a model"));
         // class code
         javaFile.publicClass(null, ClientModelUtil.JSON_MERGE_PATCH_HELPER_CLASS_NAME,
             javaClass -> createJsonMergePatchAccessHelpers(models, javaClass));
@@ -88,7 +87,8 @@ public class JsonMergePatchHelperTemplate implements IJavaTemplate<List<ClientMo
                 continue;
             }
 
-            List<ClientModelProperty> setterProperties = model.getProperties().stream()
+            List<ClientModelProperty> setterProperties = model.getProperties()
+                .stream()
                 .filter(property -> !property.isConstant() && !property.isPolymorphicDiscriminator())
                 .collect(Collectors.toList());
 
@@ -107,25 +107,23 @@ public class JsonMergePatchHelperTemplate implements IJavaTemplate<List<ClientMo
             javaClass.interfaceBlock(JavaVisibility.Public, modelName + "Accessor", interfaceBlock -> {
                 if (CoreUtils.isNullOrEmpty(model.getParentModelName())) {
                     // Only the super most parent model generates the prepareModelForJsonMergePatch method.
-                    interfaceBlock.publicMethod(
-                        modelName + " prepareModelForJsonMergePatch(" + modelName + " " + camelModelName
-                            + ", boolean jsonMergePatchEnabled)");
+                    interfaceBlock.publicMethod(modelName + " prepareModelForJsonMergePatch(" + modelName + " "
+                        + camelModelName + ", boolean jsonMergePatchEnabled)");
 
-                    interfaceBlock.publicMethod("boolean isJsonMergePatch("  + modelName + " " + camelModelName + ")");
+                    interfaceBlock.publicMethod("boolean isJsonMergePatch(" + modelName + " " + camelModelName + ")");
                 }
 
                 if (model.isPolymorphicParent()) {
-                    String modelNameParameter = model.getName().substring(0, 1).toLowerCase(Locale.ROOT)
-                        + model.getName().substring(1);
+                    String modelNameParameter
+                        = model.getName().substring(0, 1).toLowerCase(Locale.ROOT) + model.getName().substring(1);
                     for (ClientModelProperty property : model.getProperties()) {
                         if (property.isConstant() || property.isPolymorphicDiscriminator()) {
                             // Don't generate setters for constant or discriminator properties.
                             continue;
                         }
 
-                        interfaceBlock.publicMethod("void " + property.getSetterName() + "("
-                            + model.getName() + " " + modelNameParameter + ", "
-                            + property.getClientType() + " " + property.getName() + ")");
+                        interfaceBlock.publicMethod("void " + property.getSetterName() + "(" + model.getName() + " "
+                            + modelNameParameter + ", " + property.getClientType() + " " + property.getName() + ")");
                     }
                 }
             });

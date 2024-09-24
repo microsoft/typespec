@@ -4,7 +4,6 @@
 package com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.ExampleHelperFeature;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -47,7 +46,7 @@ public class FluentLiveTestCase {
         private Builder() {
         }
 
-        public Set<ExampleHelperFeature> getHelperFeatures(){
+        public Set<ExampleHelperFeature> getHelperFeatures() {
             return Collections.unmodifiableSet(this.helperFeatures);
         }
 

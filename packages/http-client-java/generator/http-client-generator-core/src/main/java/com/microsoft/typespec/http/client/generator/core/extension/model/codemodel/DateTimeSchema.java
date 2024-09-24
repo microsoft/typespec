@@ -3,10 +3,9 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonWriter;
-
+import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import java.io.IOException;
 import java.util.Objects;
 
@@ -44,7 +43,7 @@ public class DateTimeSchema extends PrimitiveSchema {
     @Override
     public String toString() {
         return DateTimeSchema.class.getName() + '@' + Integer.toHexString(System.identityHashCode(this)) + "[format="
-        + Objects.toString(format, "<null>") + ']';
+            + Objects.toString(format, "<null>") + ']';
     }
 
     @Override
@@ -103,6 +102,7 @@ public class DateTimeSchema extends PrimitiveSchema {
          * The RFC 1123 date-time format.
          */
         DATE_TIME_RFC_1123("date-time-rfc1123");
+
         private final String value;
 
         Format(String value) {

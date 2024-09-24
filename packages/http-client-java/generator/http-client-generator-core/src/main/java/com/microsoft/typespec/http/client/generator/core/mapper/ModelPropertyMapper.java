@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
+import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ArraySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ConstantSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
@@ -17,8 +18,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
-import com.azure.core.util.CoreUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -49,8 +48,8 @@ public class ModelPropertyMapper implements IMapper<Property, ClientModelPropert
     public ClientModelProperty map(Property property, boolean mutableAsOptional) {
         JavaSettings settings = JavaSettings.getInstance();
 
-        ClientModelProperty.Builder builder = new ClientModelProperty.Builder()
-                .name(property.getLanguage().getJava().getName())
+        ClientModelProperty.Builder builder
+            = new ClientModelProperty.Builder().name(property.getLanguage().getJava().getName())
                 .required(property.isRequired())
                 .readOnly(property.isReadOnly());
 
@@ -61,7 +60,8 @@ public class ModelPropertyMapper implements IMapper<Property, ClientModelPropert
 
         String description;
         String summaryInProperty = property.getSummary();
-        String descriptionInProperty = property.getLanguage().getJava() == null ? null : property.getLanguage().getJava().getDescription();
+        String descriptionInProperty
+            = property.getLanguage().getJava() == null ? null : property.getLanguage().getJava().getDescription();
         if (CoreUtils.isNullOrEmpty(summaryInProperty) && CoreUtils.isNullOrEmpty(descriptionInProperty)) {
             description = String.format("The %s property.", property.getSerializedName());
         } else {
@@ -73,25 +73,30 @@ public class ModelPropertyMapper implements IMapper<Property, ClientModelPropert
         if (settings.getModelerSettings().isFlattenModel()) {   // enabled by modelerfour
             if (settings.getClientFlattenAnnotationTarget() == JavaSettings.ClientFlattenAnnotationTarget.TYPE) {
                 if (property.getParentSchema() != null) {
-                    flattened = property.getParentSchema().getProperties().stream()
-                            .anyMatch(p -> !CoreUtils.isNullOrEmpty(p.getFlattenedNames()));
+                    flattened = property.getParentSchema()
+                        .getProperties()
+                        .stream()
+                        .anyMatch(p -> !CoreUtils.isNullOrEmpty(p.getFlattenedNames()));
                     if (!flattened) {
-                        String discriminatorSerializedName = SchemaUtil.getDiscriminatorSerializedName(property.getParentSchema());
+                        String discriminatorSerializedName
+                            = SchemaUtil.getDiscriminatorSerializedName(property.getParentSchema());
                         flattened = discriminatorSerializedName.contains(".");
                     }
                 } else {
                     flattened = !CoreUtils.isNullOrEmpty(property.getFlattenedNames());
                 }
-            } else if (settings.getClientFlattenAnnotationTarget() == JavaSettings.ClientFlattenAnnotationTarget.FIELD) {
+            } else if (settings.getClientFlattenAnnotationTarget()
+                == JavaSettings.ClientFlattenAnnotationTarget.FIELD) {
                 flattened = !CoreUtils.isNullOrEmpty(property.getFlattenedNames());
             }
         }
         builder.needsFlatten(flattened);
 
         if (property.getExtensions() != null && property.getExtensions().isXmsClientFlatten()
-                // avoid non-object schema or a plain object schema without any properties
-                && property.getSchema() instanceof ObjectSchema && !isPlainObject((ObjectSchema) property.getSchema())
-                && settings.getClientFlattenAnnotationTarget() == JavaSettings.ClientFlattenAnnotationTarget.NONE) {
+        // avoid non-object schema or a plain object schema without any properties
+            && property.getSchema() instanceof ObjectSchema
+            && !isPlainObject((ObjectSchema) property.getSchema())
+            && settings.getClientFlattenAnnotationTarget() == JavaSettings.ClientFlattenAnnotationTarget.NONE) {
             // avoid naming conflict
             builder.name("inner" + CodeNamer.toPascalCase(property.getLanguage().getJava().getName()));
             builder.clientFlatten(true);
@@ -109,7 +114,8 @@ public class ModelPropertyMapper implements IMapper<Property, ClientModelPropert
             serializedName.append(property.getSerializedName());
         }
         builder.serializedName(serializedName.toString());
-        if (serializedName.toString().isEmpty() && "additionalProperties".equals(property.getLanguage().getJava().getName())) {
+        if (serializedName.toString().isEmpty()
+            && "additionalProperties".equals(property.getLanguage().getJava().getName())) {
             builder.additionalProperties(true);
         }
 
@@ -148,9 +154,11 @@ public class ModelPropertyMapper implements IMapper<Property, ClientModelPropert
             .xmlText(isXmlText)
             .xmlPrefix(xmlPrefix);
 
-        List<String> annotationArgumentList = new ArrayList<String>() {{
-            add(String.format("value = \"%s\"", xmlParamName));
-        }};
+        List<String> annotationArgumentList = new ArrayList<String>() {
+            {
+                add(String.format("value = \"%s\"", xmlParamName));
+            }
+        };
 
         if (property.isRequired() && !propertyIsSecret && !settings.isDisableRequiredJsonAnnotation()) {
             annotationArgumentList.add("required = true");
@@ -196,7 +204,8 @@ public class ModelPropertyMapper implements IMapper<Property, ClientModelPropert
         if (property.getSchema() instanceof ConstantSchema) {
             Object objValue = ((ConstantSchema) property.getSchema()).getValue().getValue();
             builder.constant(true);
-            builder.defaultValue(objValue == null ? null : propertyClientType.defaultValueExpression(String.valueOf(objValue)));
+            builder.defaultValue(
+                objValue == null ? null : propertyClientType.defaultValueExpression(String.valueOf(objValue)));
         }
 
         // x-ms-mutability
@@ -204,18 +213,20 @@ public class ModelPropertyMapper implements IMapper<Property, ClientModelPropert
             List<String> xmsMutability = property.getExtensions().getXmsMutability();
             if (xmsMutability != null) {
                 List<ClientModelProperty.Mutability> mutabilities = xmsMutability.stream()
-                        .map(m -> ClientModelProperty.Mutability.valueOf(m.toUpperCase(Locale.ROOT)))
-                        .collect(Collectors.toList());
+                    .map(m -> ClientModelProperty.Mutability.valueOf(m.toUpperCase(Locale.ROOT)))
+                    .collect(Collectors.toList());
                 builder.mutabilities(mutabilities);
             }
         }
 
         // handle x-ms-client-default for primitive type, enum, boxed type and string
-        if (property.getClientDefaultValue() != null &&
-                (propertyWireType instanceof PrimitiveType || propertyWireType instanceof EnumType ||
-                        (propertyWireType instanceof ClassType && ((ClassType) propertyWireType).isBoxedType()) ||
-                        propertyWireType.equals(ClassType.STRING))) {
-            String autoRestPropertyDefaultValueExpression = propertyWireType.defaultValueExpression(property.getClientDefaultValue());
+        if (property.getClientDefaultValue() != null
+            && (propertyWireType instanceof PrimitiveType
+                || propertyWireType instanceof EnumType
+                || (propertyWireType instanceof ClassType && ((ClassType) propertyWireType).isBoxedType())
+                || propertyWireType.equals(ClassType.STRING))) {
+            String autoRestPropertyDefaultValueExpression
+                = propertyWireType.defaultValueExpression(property.getClientDefaultValue());
             builder.defaultValue(autoRestPropertyDefaultValueExpression);
         }
 

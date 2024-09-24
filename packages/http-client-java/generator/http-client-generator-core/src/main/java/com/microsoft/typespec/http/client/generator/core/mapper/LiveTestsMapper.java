@@ -13,7 +13,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.LiveT
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodExample;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.XmsExampleWrapper;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,7 +23,7 @@ import java.util.stream.Collectors;
 /**
  * A mapper to map test model to live tests.
  */
-public class LiveTestsMapper implements IMapper<TestModel, List<LiveTests>>{
+public class LiveTestsMapper implements IMapper<TestModel, List<LiveTests>> {
 
     private static final LiveTestsMapper INSTANCE = new LiveTestsMapper();
 
@@ -40,16 +39,20 @@ public class LiveTestsMapper implements IMapper<TestModel, List<LiveTests>>{
         return testModel.getScenarioTests().stream().map(scenarioTest -> {
             LiveTests liveTests = new LiveTests(getFilename(scenarioTest.getFilePath()));
             liveTests.addTestCases(scenarioTest.getScenarios().stream().map(testScenario -> {
-                LiveTestCase liveTestCase = new LiveTestCase(CodeNamer.toCamelCase(testScenario.getScenario()), testScenario.getDescription());
-                liveTestCase.addTestSteps(testScenario.getResolvedSteps().stream()
+                LiveTestCase liveTestCase = new LiveTestCase(CodeNamer.toCamelCase(testScenario.getScenario()),
+                    testScenario.getDescription());
+                liveTestCase.addTestSteps(testScenario.getResolvedSteps()
+                    .stream()
                     // future work: support other step types, for now only support example file
-                    .filter(scenarioStep -> scenarioStep.getType() == TestScenarioStepType.REST_CALL &&
-                        scenarioStep.getExampleFile() != null)
+                    .filter(scenarioStep -> scenarioStep.getType() == TestScenarioStepType.REST_CALL
+                        && scenarioStep.getExampleFile() != null)
                     .map((Function<ScenarioStep, LiveTestStep>) scenarioStep -> {
                         Map<String, Object> example = new HashMap<>();
                         example.put("parameters", scenarioStep.getRequestParameters());
-                        XmsExampleWrapper exampleWrapper = new XmsExampleWrapper(example, scenarioStep.getOperationId(), scenarioStep.getExampleName());
-                        ProxyMethodExample proxyMethodExample = Mappers.getProxyMethodExampleMapper().map(exampleWrapper);
+                        XmsExampleWrapper exampleWrapper = new XmsExampleWrapper(example, scenarioStep.getOperationId(),
+                            scenarioStep.getExampleName());
+                        ProxyMethodExample proxyMethodExample
+                            = Mappers.getProxyMethodExampleMapper().map(exampleWrapper);
                         return ExampleLiveTestStep.newBuilder()
                             .operationId(scenarioStep.getOperationId())
                             .description(scenarioStep.getDescription())

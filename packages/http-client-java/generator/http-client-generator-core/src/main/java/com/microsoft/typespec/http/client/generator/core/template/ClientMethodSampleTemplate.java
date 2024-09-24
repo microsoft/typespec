@@ -14,7 +14,6 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFil
 import com.microsoft.typespec.http.client.generator.core.template.example.ClientInitializationExampleWriter;
 import com.microsoft.typespec.http.client.generator.core.template.example.ClientMethodExampleWriter;
 import com.microsoft.typespec.http.client.generator.core.template.example.ModelExampleWriter;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -33,15 +32,11 @@ public class ClientMethodSampleTemplate implements IJavaTemplate<ClientMethodExa
         final ServiceClient serviceClient = clientMethodExample.getClientBuilder().getServiceClient();
         final ProxyMethodExample proxyMethodExample = clientMethodExample.getProxyMethodExample();
 
-        ClientInitializationExampleWriter clientInitializationExampleWriter =
-                new ClientInitializationExampleWriter(
-                        syncClient,
-                        method,
-                        proxyMethodExample,
-                        serviceClient);
+        ClientInitializationExampleWriter clientInitializationExampleWriter
+            = new ClientInitializationExampleWriter(syncClient, method, proxyMethodExample, serviceClient);
 
-        ClientMethodExampleWriter clientMethodExampleWriter =
-                new ClientMethodExampleWriter(method, clientInitializationExampleWriter.getClientVarName(), proxyMethodExample);
+        ClientMethodExampleWriter clientMethodExampleWriter = new ClientMethodExampleWriter(method,
+            clientInitializationExampleWriter.getClientVarName(), proxyMethodExample);
 
         // declare imports
         Set<String> imports = new HashSet<>();
@@ -82,6 +77,7 @@ public class ClientMethodSampleTemplate implements IJavaTemplate<ClientMethodExa
 
     /**
      * Returns whether the given convenience example should be included in the generated sample code.
+     * 
      * @param clientMethod the client method to generate samples for
      * @param convenienceMethod the convenience method
      * @return whether the given convenience example should be included in the generated sample code
@@ -89,6 +85,6 @@ public class ClientMethodSampleTemplate implements IJavaTemplate<ClientMethodExa
     public boolean isExampleIncluded(ClientMethod clientMethod, ConvenienceMethod convenienceMethod) {
         ConvenienceSyncMethodTemplate syncMethodTemplate = Templates.getConvenienceSyncMethodTemplate();
         return syncMethodTemplate.isMethodIncluded(clientMethod)
-                && syncMethodTemplate.isMethodIncluded(convenienceMethod);
+            && syncMethodTemplate.isMethodIncluded(convenienceMethod);
     }
 }

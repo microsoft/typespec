@@ -5,8 +5,6 @@ package com.microsoft.typespec.http.client.generator.mgmt.model.projectmodel;
 
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentGen;
-import org.slf4j.Logger;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -16,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
 
 public class CodeSample {
 
@@ -69,7 +68,7 @@ public class CodeSample {
                         Arrays.fill(chars, ' ');
                         embedmeBlockIndent = String.valueOf(chars);
                     }
-                } else  {
+                } else {
                     if (line.startsWith(embedmeBlockIndent + EMBEDME_END_COMMENT)) {
                         // embedme block ends
 

@@ -12,8 +12,6 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlu
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.core.partialupdate.util.PartialUpdateHandler;
 import com.microsoft.typespec.http.client.generator.core.postprocessor.implementation.CodeFormatterUtil;
-import org.slf4j.Logger;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -26,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
 
 public class Postprocessor {
     protected final NewPlugin plugin;
@@ -59,7 +58,7 @@ public class Postprocessor {
         }
 
         try {
-            //Step 1: post process
+            // Step 1: post process
             Class<? extends Customization> customizationClass;
             if (jarPath != null) {
                 URL jarUrl = null;
@@ -76,12 +75,12 @@ public class Postprocessor {
                     jarUrl = new URI(jarPath).toURL();
                 }
                 if (jarUrl == null || Files.notExists(Paths.get(jarUrl.toURI()))) {
-                    new PluginLogger(plugin, Postprocessor.class, "LoadCustomizationJar").warn(
-                        "Customization JAR {} not found. Customization skipped.", jarPath);
+                    new PluginLogger(plugin, Postprocessor.class, "LoadCustomizationJar")
+                        .warn("Customization JAR {} not found. Customization skipped.", jarPath);
                     return;
                 }
-                URLClassLoader loader = URLClassLoader.newInstance(new URL[] { jarUrl },
-                    ClassLoader.getSystemClassLoader());
+                URLClassLoader loader
+                    = URLClassLoader.newInstance(new URL[] { jarUrl }, ClassLoader.getSystemClassLoader());
                 try {
                     customizationClass = (Class<? extends Customization>) Class.forName(className, true, loader);
                 } catch (Exception e) {
@@ -105,7 +104,7 @@ public class Postprocessor {
                 throw new RuntimeException("Unable to complete customization", e);
             }
 
-            //Step 2: Print to files
+            // Step 2: Print to files
             writeToFiles(fileContents, plugin, logger);
         } catch (Exception e) {
             logger.error("Failed to complete postprocessing.", e);
@@ -131,9 +130,7 @@ public class Postprocessor {
             jsonReader -> jsonReader.readArray(JsonReader::getString));
 
         return configurationFiles == null || configurationFiles.isEmpty()
-            ? JavaSettings.getInstance()
-            .getAutorestSettings()
-            .getOutputFolder()
+            ? JavaSettings.getInstance().getAutorestSettings().getOutputFolder()
             : configurationFiles.stream().filter(key -> !key.contains(".autorest")).findFirst().orElse(null);
     }
 
@@ -183,8 +180,8 @@ public class Postprocessor {
             attemptMavenInstall(pomPath);
 
             URL fileUrl = customizationCompile.resolve("target/classes").toUri().toURL();
-            URLClassLoader classLoader = URLClassLoader.newInstance(new URL[] { fileUrl },
-                ClassLoader.getSystemClassLoader());
+            URLClassLoader classLoader
+                = URLClassLoader.newInstance(new URL[] { fileUrl }, ClassLoader.getSystemClassLoader());
             return (Class<? extends Customization>) Class.forName(className, true, classLoader);
         } catch (Exception ex) {
             throw new RuntimeException(ex);
@@ -232,8 +229,7 @@ public class Postprocessor {
 
     private static void attemptMavenInstall(Path pomPath) {
         String[] command = Utils.isWindows()
-            ? new String[] {
-            "cmd", "/c", "mvn", "compiler:compile", "-f", pomPath.toString() }
+            ? new String[] { "cmd", "/c", "mvn", "compiler:compile", "-f", pomPath.toString() }
             : new String[] { "mvn", "compiler:compile", "-f", pomPath.toString() };
 
         try {
@@ -245,10 +241,9 @@ public class Postprocessor {
 
             if (process.isAlive() || process.exitValue() != 0) {
                 process.destroyForcibly();
-                throw new RuntimeException(
-                    "Compile failed to complete within 60 seconds or failed with an error code. " + Files.readString(
-                        outputFile.toPath()) + "If this happens 'mvn compile -f " + pomPath
-                        + "' to install dependencies manually.");
+                throw new RuntimeException("Compile failed to complete within 60 seconds or failed with an error code. "
+                    + Files.readString(outputFile.toPath()) + "If this happens 'mvn compile -f " + pomPath
+                    + "' to install dependencies manually.");
             }
         } catch (IOException | InterruptedException ex) {
             throw new RuntimeException("Failed to run compile on generated code.", ex);
