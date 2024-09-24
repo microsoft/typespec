@@ -486,7 +486,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private static FileLinePositionSpan GetFileLinePosition(SyntaxReference? syntaxReference)
             => syntaxReference?.SyntaxTree.GetLocation(syntaxReference.Span).GetLineSpan() ?? default;
 
-        public IEnumerable<AttributeData> GetMemberSuppressionAttributes()
+        private IEnumerable<AttributeData> GetMemberSuppressionAttributes()
             => CustomCodeView?.GetAttributes()?.Where(a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenSuppressAttributeName) ?? [];
     }
 }
