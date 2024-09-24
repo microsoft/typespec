@@ -1,0 +1,9 @@
+{
+    "CrossLanguagePackageId": "Server.Versions.Versioned",
+    "CrossLanguageDefinitionId": {
+        "server.versions.versioned.VersionedClient.without_api_version": "Server.Versions.Versioned.withoutApiVersion",
+        "server.versions.versioned.VersionedClient.with_query_api_version": "Server.Versions.Versioned.withQueryApiVersion",
+        "server.versions.versioned.VersionedClient.with_path_api_version": "Server.Versions.Versioned.withPathApiVersion",
+        "server.versions.versioned.VersionedClient.with_query_old_api_version": "Server.Versions.Versioned.withQueryOldApiVersion"
+    }
+}

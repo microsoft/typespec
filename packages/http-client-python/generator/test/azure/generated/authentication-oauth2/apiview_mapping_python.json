@@ -1,0 +1,8 @@
+{
+    "CrossLanguagePackageId": "Authentication.OAuth2",
+    "CrossLanguageDefinitionId": {
+        "authentication.oauth2.models.InvalidAuth": "Authentication.OAuth2.InvalidAuth",
+        "authentication.oauth2.OAuth2Client.valid": "Authentication.OAuth2.valid",
+        "authentication.oauth2.OAuth2Client.invalid": "Authentication.OAuth2.invalid"
+    }
+}

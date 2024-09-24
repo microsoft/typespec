@@ -1,0 +1,13 @@
+{
+    "CrossLanguagePackageId": "Routes",
+    "CrossLanguageDefinitionId": {
+        "routes.RoutesClient.path_parameters.template_only": "Routes.PathParameters.templateOnly",
+        "routes.RoutesClient.path_parameters.explicit": "Routes.PathParameters.explicit",
+        "routes.RoutesClient.path_parameters.annotation_only": "Routes.PathParameters.annotationOnly",
+        "routes.RoutesClient.query_parameters.template_only": "Routes.QueryParameters.templateOnly",
+        "routes.RoutesClient.query_parameters.explicit": "Routes.QueryParameters.explicit",
+        "routes.RoutesClient.query_parameters.annotation_only": "Routes.QueryParameters.annotationOnly",
+        "routes.RoutesClient.in_interface.fixed": "Routes.InInterface.fixed",
+        "routes.RoutesClient.fixed": "Routes.fixed"
+    }
+}

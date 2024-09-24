@@ -1,0 +1,11 @@
+{
+    "CrossLanguagePackageId": "Type.Model.Empty",
+    "CrossLanguageDefinitionId": {
+        "typetest.model.empty.models.EmptyInput": "Type.Model.Empty.EmptyInput",
+        "typetest.model.empty.models.EmptyInputOutput": "Type.Model.Empty.EmptyInputOutput",
+        "typetest.model.empty.models.EmptyOutput": "Type.Model.Empty.EmptyOutput",
+        "typetest.model.empty.EmptyClient.put_empty": "Type.Model.Empty.putEmpty",
+        "typetest.model.empty.EmptyClient.get_empty": "Type.Model.Empty.getEmpty",
+        "typetest.model.empty.EmptyClient.post_round_trip_empty": "Type.Model.Empty.postRoundTripEmpty"
+    }
+}

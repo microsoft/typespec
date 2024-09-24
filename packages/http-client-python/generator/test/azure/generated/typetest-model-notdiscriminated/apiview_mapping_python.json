@@ -1,0 +1,11 @@
+{
+    "CrossLanguagePackageId": "Type.Model.Inheritance.NotDiscriminated",
+    "CrossLanguageDefinitionId": {
+        "typetest.model.notdiscriminated.models.Pet": "Type.Model.Inheritance.NotDiscriminated.Pet",
+        "typetest.model.notdiscriminated.models.Cat": "Type.Model.Inheritance.NotDiscriminated.Cat",
+        "typetest.model.notdiscriminated.models.Siamese": "Type.Model.Inheritance.NotDiscriminated.Siamese",
+        "typetest.model.notdiscriminated.NotDiscriminatedClient.post_valid": "Type.Model.Inheritance.NotDiscriminated.postValid",
+        "typetest.model.notdiscriminated.NotDiscriminatedClient.get_valid": "Type.Model.Inheritance.NotDiscriminated.getValid",
+        "typetest.model.notdiscriminated.NotDiscriminatedClient.put_valid": "Type.Model.Inheritance.NotDiscriminated.putValid"
+    }
+}

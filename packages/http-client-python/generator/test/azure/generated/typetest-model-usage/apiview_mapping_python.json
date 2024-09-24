@@ -1,0 +1,11 @@
+{
+    "CrossLanguagePackageId": "Type.Model.Usage",
+    "CrossLanguageDefinitionId": {
+        "typetest.model.usage.models.InputOutputRecord": "Type.Model.Usage.InputOutputRecord",
+        "typetest.model.usage.models.InputRecord": "Type.Model.Usage.InputRecord",
+        "typetest.model.usage.models.OutputRecord": "Type.Model.Usage.OutputRecord",
+        "typetest.model.usage.UsageClient.input": "Type.Model.Usage.input",
+        "typetest.model.usage.UsageClient.output": "Type.Model.Usage.output",
+        "typetest.model.usage.UsageClient.input_and_output": "Type.Model.Usage.inputAndOutput"
+    }
+}

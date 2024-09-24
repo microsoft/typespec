@@ -1,0 +1,21 @@
+{
+    "CrossLanguagePackageId": "Type.Scalar",
+    "CrossLanguageDefinitionId": {
+        "typetest.scalar.ScalarClient.string.get": "Type.Scalar.String.get",
+        "typetest.scalar.ScalarClient.string.put": "Type.Scalar.String.put",
+        "typetest.scalar.ScalarClient.boolean.get": "Type.Scalar.Boolean.get",
+        "typetest.scalar.ScalarClient.boolean.put": "Type.Scalar.Boolean.put",
+        "typetest.scalar.ScalarClient.unknown.get": "Type.Scalar.Unknown.get",
+        "typetest.scalar.ScalarClient.unknown.put": "Type.Scalar.Unknown.put",
+        "typetest.scalar.ScalarClient.decimal_type.response_body": "Type.Scalar.DecimalType.responseBody",
+        "typetest.scalar.ScalarClient.decimal_type.request_body": "Type.Scalar.DecimalType.requestBody",
+        "typetest.scalar.ScalarClient.decimal_type.request_parameter": "Type.Scalar.DecimalType.requestParameter",
+        "typetest.scalar.ScalarClient.decimal128_type.response_body": "Type.Scalar.Decimal128Type.responseBody",
+        "typetest.scalar.ScalarClient.decimal128_type.request_body": "Type.Scalar.Decimal128Type.requestBody",
+        "typetest.scalar.ScalarClient.decimal128_type.request_parameter": "Type.Scalar.Decimal128Type.requestParameter",
+        "typetest.scalar.ScalarClient.decimal_verify.prepare_verify": "Type.Scalar.DecimalVerify.prepareVerify",
+        "typetest.scalar.ScalarClient.decimal_verify.verify": "Type.Scalar.DecimalVerify.verify",
+        "typetest.scalar.ScalarClient.decimal128_verify.prepare_verify": "Type.Scalar.Decimal128Verify.prepareVerify",
+        "typetest.scalar.ScalarClient.decimal128_verify.verify": "Type.Scalar.Decimal128Verify.verify"
+    }
+}

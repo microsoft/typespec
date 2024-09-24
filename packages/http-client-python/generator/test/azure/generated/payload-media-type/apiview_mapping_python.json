@@ -1,0 +1,9 @@
+{
+    "CrossLanguagePackageId": "Payload.MediaType",
+    "CrossLanguageDefinitionId": {
+        "payload.mediatype.MediaTypeClient.string_body.send_as_text": "Payload.MediaType.StringBody.sendAsText",
+        "payload.mediatype.MediaTypeClient.string_body.get_as_text": "Payload.MediaType.StringBody.getAsText",
+        "payload.mediatype.MediaTypeClient.string_body.send_as_json": "Payload.MediaType.StringBody.sendAsJson",
+        "payload.mediatype.MediaTypeClient.string_body.get_as_json": "Payload.MediaType.StringBody.getAsJson"
+    }
+}

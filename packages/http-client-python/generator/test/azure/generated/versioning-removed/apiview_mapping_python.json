@@ -1,0 +1,9 @@
+{
+    "CrossLanguagePackageId": "Versioning.Removed",
+    "CrossLanguageDefinitionId": {
+        "versioning.removed.models.ModelV2": "Versioning.Removed.ModelV2",
+        "versioning.removed.models.Versions": "Versioning.Removed.Versions",
+        "versioning.removed.models.EnumV2": "Versioning.Removed.EnumV2",
+        "versioning.removed.RemovedClient.v2": "Versioning.Removed.v2"
+    }
+}

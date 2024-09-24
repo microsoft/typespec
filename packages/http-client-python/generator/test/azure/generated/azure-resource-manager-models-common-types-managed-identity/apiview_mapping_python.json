@@ -1,0 +1,20 @@
+{
+    "CrossLanguagePackageId": "Azure.ResourceManager.Models.CommonTypes.ManagedIdentity",
+    "CrossLanguageDefinitionId": {
+        "azure.resourcemanager.models.commontypes.managedidentity.models.ErrorAdditionalInfo": "Azure.ResourceManager.CommonTypes.ErrorAdditionalInfo",
+        "azure.resourcemanager.models.commontypes.managedidentity.models.ErrorDetail": "Azure.ResourceManager.CommonTypes.ErrorDetail",
+        "azure.resourcemanager.models.commontypes.managedidentity.models.ErrorResponse": "Azure.ResourceManager.CommonTypes.ErrorResponse",
+        "azure.resourcemanager.models.commontypes.managedidentity.models.Resource": "Azure.ResourceManager.CommonTypes.Resource",
+        "azure.resourcemanager.models.commontypes.managedidentity.models.TrackedResource": "Azure.ResourceManager.CommonTypes.TrackedResource",
+        "azure.resourcemanager.models.commontypes.managedidentity.models.ManagedIdentityTrackedResource": "Azure.ResourceManager.Models.CommonTypes.ManagedIdentity.ManagedIdentityTrackedResource",
+        "azure.resourcemanager.models.commontypes.managedidentity.models.ManagedIdentityTrackedResourceProperties": "Azure.ResourceManager.Models.CommonTypes.ManagedIdentity.ManagedIdentityTrackedResourceProperties",
+        "azure.resourcemanager.models.commontypes.managedidentity.models.ManagedServiceIdentity": "Azure.ResourceManager.CommonTypes.ManagedServiceIdentity",
+        "azure.resourcemanager.models.commontypes.managedidentity.models.SystemData": "Azure.ResourceManager.CommonTypes.SystemData",
+        "azure.resourcemanager.models.commontypes.managedidentity.models.UserAssignedIdentity": "Azure.ResourceManager.CommonTypes.UserAssignedIdentity",
+        "azure.resourcemanager.models.commontypes.managedidentity.models.CreatedByType": "Azure.ResourceManager.CommonTypes.createdByType",
+        "azure.resourcemanager.models.commontypes.managedidentity.models.ManagedServiceIdentityType": "Azure.ResourceManager.CommonTypes.ManagedServiceIdentityType",
+        "azure.resourcemanager.models.commontypes.managedidentity.ManagedIdentityClient.managed_identity_tracked_resources.get": "Azure.ResourceManager.Models.CommonTypes.ManagedIdentity.ManagedIdentityTrackedResources.get",
+        "azure.resourcemanager.models.commontypes.managedidentity.ManagedIdentityClient.managed_identity_tracked_resources.create_with_system_assigned": "Azure.ResourceManager.Models.CommonTypes.ManagedIdentity.ManagedIdentityTrackedResources.createWithSystemAssigned",
+        "azure.resourcemanager.models.commontypes.managedidentity.ManagedIdentityClient.managed_identity_tracked_resources.update_with_user_assigned_and_system_assigned": "Azure.ResourceManager.Models.CommonTypes.ManagedIdentity.ManagedIdentityTrackedResources.updateWithUserAssignedAndSystemAssigned"
+    }
+}

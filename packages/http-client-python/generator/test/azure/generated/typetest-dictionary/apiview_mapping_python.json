@@ -1,0 +1,28 @@
+{
+    "CrossLanguagePackageId": "Type.Dictionary",
+    "CrossLanguageDefinitionId": {
+        "typetest.dictionary.models.InnerModel": "Type.Dictionary.InnerModel",
+        "typetest.dictionary.DictionaryClient.int32_value.get": "Type.Dictionary.Int32Value.get",
+        "typetest.dictionary.DictionaryClient.int32_value.put": "Type.Dictionary.Int32Value.put",
+        "typetest.dictionary.DictionaryClient.int64_value.get": "Type.Dictionary.Int64Value.get",
+        "typetest.dictionary.DictionaryClient.int64_value.put": "Type.Dictionary.Int64Value.put",
+        "typetest.dictionary.DictionaryClient.boolean_value.get": "Type.Dictionary.BooleanValue.get",
+        "typetest.dictionary.DictionaryClient.boolean_value.put": "Type.Dictionary.BooleanValue.put",
+        "typetest.dictionary.DictionaryClient.string_value.get": "Type.Dictionary.StringValue.get",
+        "typetest.dictionary.DictionaryClient.string_value.put": "Type.Dictionary.StringValue.put",
+        "typetest.dictionary.DictionaryClient.float32_value.get": "Type.Dictionary.Float32Value.get",
+        "typetest.dictionary.DictionaryClient.float32_value.put": "Type.Dictionary.Float32Value.put",
+        "typetest.dictionary.DictionaryClient.datetime_value.get": "Type.Dictionary.DatetimeValue.get",
+        "typetest.dictionary.DictionaryClient.datetime_value.put": "Type.Dictionary.DatetimeValue.put",
+        "typetest.dictionary.DictionaryClient.duration_value.get": "Type.Dictionary.DurationValue.get",
+        "typetest.dictionary.DictionaryClient.duration_value.put": "Type.Dictionary.DurationValue.put",
+        "typetest.dictionary.DictionaryClient.unknown_value.get": "Type.Dictionary.UnknownValue.get",
+        "typetest.dictionary.DictionaryClient.unknown_value.put": "Type.Dictionary.UnknownValue.put",
+        "typetest.dictionary.DictionaryClient.model_value.get": "Type.Dictionary.ModelValue.get",
+        "typetest.dictionary.DictionaryClient.model_value.put": "Type.Dictionary.ModelValue.put",
+        "typetest.dictionary.DictionaryClient.recursive_model_value.get": "Type.Dictionary.RecursiveModelValue.get",
+        "typetest.dictionary.DictionaryClient.recursive_model_value.put": "Type.Dictionary.RecursiveModelValue.put",
+        "typetest.dictionary.DictionaryClient.nullable_float_value.get": "Type.Dictionary.NullableFloatValue.get",
+        "typetest.dictionary.DictionaryClient.nullable_float_value.put": "Type.Dictionary.NullableFloatValue.put"
+    }
+}

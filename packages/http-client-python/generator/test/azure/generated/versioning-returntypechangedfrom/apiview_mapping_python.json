@@ -1,0 +1,7 @@
+{
+    "CrossLanguagePackageId": "Versioning.ReturnTypeChangedFrom",
+    "CrossLanguageDefinitionId": {
+        "versioning.returntypechangedfrom.models.Versions": "Versioning.ReturnTypeChangedFrom.Versions",
+        "versioning.returntypechangedfrom.ReturnTypeChangedFromClient.test": "Versioning.ReturnTypeChangedFrom.test"
+    }
+}

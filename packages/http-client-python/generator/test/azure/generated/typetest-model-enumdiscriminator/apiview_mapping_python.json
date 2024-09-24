@@ -1,0 +1,19 @@
+{
+    "CrossLanguagePackageId": "Type.Model.Inheritance.EnumDiscriminator",
+    "CrossLanguageDefinitionId": {
+        "typetest.model.enumdiscriminator.models.Snake": "Type.Model.Inheritance.EnumDiscriminator.Snake",
+        "typetest.model.enumdiscriminator.models.Cobra": "Type.Model.Inheritance.EnumDiscriminator.Cobra",
+        "typetest.model.enumdiscriminator.models.Dog": "Type.Model.Inheritance.EnumDiscriminator.Dog",
+        "typetest.model.enumdiscriminator.models.Golden": "Type.Model.Inheritance.EnumDiscriminator.Golden",
+        "typetest.model.enumdiscriminator.models.DogKind": "Type.Model.Inheritance.EnumDiscriminator.DogKind",
+        "typetest.model.enumdiscriminator.models.SnakeKind": "Type.Model.Inheritance.EnumDiscriminator.SnakeKind",
+        "typetest.model.enumdiscriminator.EnumDiscriminatorClient.get_extensible_model": "Type.Model.Inheritance.EnumDiscriminator.getExtensibleModel",
+        "typetest.model.enumdiscriminator.EnumDiscriminatorClient.put_extensible_model": "Type.Model.Inheritance.EnumDiscriminator.putExtensibleModel",
+        "typetest.model.enumdiscriminator.EnumDiscriminatorClient.get_extensible_model_missing_discriminator": "Type.Model.Inheritance.EnumDiscriminator.getExtensibleModelMissingDiscriminator",
+        "typetest.model.enumdiscriminator.EnumDiscriminatorClient.get_extensible_model_wrong_discriminator": "Type.Model.Inheritance.EnumDiscriminator.getExtensibleModelWrongDiscriminator",
+        "typetest.model.enumdiscriminator.EnumDiscriminatorClient.get_fixed_model": "Type.Model.Inheritance.EnumDiscriminator.getFixedModel",
+        "typetest.model.enumdiscriminator.EnumDiscriminatorClient.put_fixed_model": "Type.Model.Inheritance.EnumDiscriminator.putFixedModel",
+        "typetest.model.enumdiscriminator.EnumDiscriminatorClient.get_fixed_model_missing_discriminator": "Type.Model.Inheritance.EnumDiscriminator.getFixedModelMissingDiscriminator",
+        "typetest.model.enumdiscriminator.EnumDiscriminatorClient.get_fixed_model_wrong_discriminator": "Type.Model.Inheritance.EnumDiscriminator.getFixedModelWrongDiscriminator"
+    }
+}

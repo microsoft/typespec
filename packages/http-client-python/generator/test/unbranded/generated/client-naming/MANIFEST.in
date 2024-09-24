@@ -1,0 +1,6 @@
+include *.md
+include LICENSE
+include client/naming/py.typed
+recursive-include tests *.py
+recursive-include samples *.py *.md
+include client/__init__.py

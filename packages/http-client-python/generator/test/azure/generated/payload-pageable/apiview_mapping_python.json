@@ -1,0 +1,7 @@
+{
+    "CrossLanguagePackageId": "Payload.Pageable",
+    "CrossLanguageDefinitionId": {
+        "payload.pageable.models.User": "Payload.Pageable.User",
+        "payload.pageable.PageableClient.list": "Payload.Pageable.list"
+    }
+}

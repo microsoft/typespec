@@ -1,0 +1,14 @@
+{
+    "CrossLanguagePackageId": "Type.Model.Visibility",
+    "CrossLanguageDefinitionId": {
+        "headasbooleanfalse.models.ReadOnlyModel": "Type.Model.Visibility.ReadOnlyModel",
+        "headasbooleanfalse.models.VisibilityModel": "Type.Model.Visibility.VisibilityModel",
+        "headasbooleanfalse.VisibilityClient.get_model": "Type.Model.Visibility.getModel",
+        "headasbooleanfalse.VisibilityClient.head_model": "Type.Model.Visibility.headModel",
+        "headasbooleanfalse.VisibilityClient.put_model": "Type.Model.Visibility.putModel",
+        "headasbooleanfalse.VisibilityClient.patch_model": "Type.Model.Visibility.patchModel",
+        "headasbooleanfalse.VisibilityClient.post_model": "Type.Model.Visibility.postModel",
+        "headasbooleanfalse.VisibilityClient.delete_model": "Type.Model.Visibility.deleteModel",
+        "headasbooleanfalse.VisibilityClient.put_read_only_model": "Type.Model.Visibility.putReadOnlyModel"
+    }
+}

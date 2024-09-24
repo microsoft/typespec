@@ -1,0 +1,7 @@
+{
+    "CrossLanguagePackageId": "Authentication.Union",
+    "CrossLanguageDefinitionId": {
+        "authentication.union.UnionClient.valid_key": "Authentication.Union.validKey",
+        "authentication.union.UnionClient.valid_token": "Authentication.Union.validToken"
+    }
+}
