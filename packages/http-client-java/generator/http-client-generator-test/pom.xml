@@ -22,12 +22,12 @@
       <dependency>
         <groupId>com.azure</groupId>
         <artifactId>azure-core</artifactId>
-        <version>1.51.0</version>
+        <version>1.52.0</version>
       </dependency>
       <dependency>
         <groupId>com.azure</groupId>
         <artifactId>azure-json</artifactId>
-        <version>1.2.0</version>
+        <version>1.3.0</version>
       </dependency>
       <dependency>
         <groupId>com.azure</groupId>
@@ -37,23 +37,23 @@
       <dependency>
         <groupId>com.azure</groupId>
         <artifactId>azure-core-test</artifactId>
-        <version>1.26.2</version>
+        <version>1.27.0-beta.1</version>
         <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.azure</groupId>
       <artifactId>azure-identity</artifactId>
-      <version>1.13.2</version>
+      <version>1.13.3</version>
     </dependency>
     <dependency>
       <groupId>com.azure</groupId>
       <artifactId>azure-core-management</artifactId>
-      <version>1.15.2</version>
+      <version>1.15.3</version>
     </dependency>
     <dependency>
       <groupId>com.azure</groupId>
       <artifactId>azure-core-http-netty</artifactId>
-      <version>1.15.3</version>
+      <version>1.15.4</version>
       <scope>test</scope>
     </dependency>
     <dependency>
