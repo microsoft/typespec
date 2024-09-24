@@ -1,6 +1,8 @@
 import {
+  createDiagnosticCollector,
   navigateType,
   type Diagnostic,
+  type DiagnosticResult,
   type Model,
   type ModelProperty,
   type Program,
@@ -38,16 +40,14 @@ export function getContentType(
   return program.stateMap(EventsStateKeys.contentType).get(target);
 }
 
-function validateContentType(program: Program, target: ModelProperty): Diagnostic[] {
+function validateContentType(program: Program, target: ModelProperty): Diagnostic | undefined {
   const contentType = getContentType(program, target);
-  if (!contentType || isEventData(program, target)) return [];
+  if (!contentType || isEventData(program, target)) return;
 
-  return [
-    createDiagnostic({
-      code: "invalid-content-type-target",
-      target,
-    }),
-  ];
+  return createDiagnostic({
+    code: "invalid-content-type-target",
+    target,
+  });
 }
 
 export const $dataDecorator: DataDecorator = (context, target) => {
@@ -77,8 +77,8 @@ function stringifyPropertyPath(path: Array<Model | ModelProperty | Tuple>): stri
 function getEventDefinition(
   program: Program,
   target: UnionVariant,
-): [EventDefinition, readonly Diagnostic[]] {
-  const diagnostics: Diagnostic[] = [];
+): DiagnosticResult<EventDefinition> {
+  const diagnostics = createDiagnosticCollector();
 
   // If the variant has a name, that may be used for out-of-band event types.
   const eventType = typeof target.name === "string" ? target.name : undefined;
@@ -106,12 +106,15 @@ function getEventDefinition(
     {
       modelProperty(prop) {
         currentPropertyPath.push(prop);
-        diagnostics.push(...validateContentType(program, prop));
+        const contentTypeDiagnostic = validateContentType(program, prop);
+        if (contentTypeDiagnostic) {
+          diagnostics.add(contentTypeDiagnostic);
+        }
 
         // This detects the scenario where a model that contains a `@data` property
         // is referenced multiple times directly or indirectly by the target event.
         if (typesThatChainToPayload.has(prop.type)) {
-          diagnostics.push(
+          diagnostics.add(
             createDiagnostic({
               code: "multiple-event-payloads",
               format: {
@@ -139,7 +142,7 @@ function getEventDefinition(
         // Found the payload property but it's referenced indirectly by
         // a Record or Array, which implies there would be more than 1 payload.
         if (indexerDepth > 0) {
-          diagnostics.push(
+          diagnostics.add(
             createDiagnostic({
               code: "multiple-event-payloads",
               messageId: "payloadInIndexedModel",
@@ -154,7 +157,7 @@ function getEventDefinition(
 
         // A payload type was previously found, but only one is allowed.
         if (payloadType) {
-          diagnostics.push(
+          diagnostics.add(
             createDiagnostic({
               code: "multiple-event-payloads",
               format: {
@@ -181,7 +184,7 @@ function getEventDefinition(
         // They won't be visited again, so need to create diagnostic here.
         tuple.values.forEach((value) => {
           if (typesThatChainToPayload.has(value)) {
-            diagnostics.push(
+            diagnostics.add(
               createDiagnostic({
                 code: "multiple-event-payloads",
                 format: {
@@ -224,24 +227,22 @@ function getEventDefinition(
     payloadContentType: payloadType ? payloadContentType : envelopeContentType,
   };
 
-  return [eventDefinition, diagnostics];
+  return diagnostics.wrap(eventDefinition);
 }
 
 export function getEventDefinitions(
   program: Program,
   target: Union,
-): [EventDefinition[], readonly Diagnostic[]] {
-  const diagnostics: Diagnostic[] = [];
+): DiagnosticResult<EventDefinition[]> {
+  const diagnostics = createDiagnosticCollector();
   // 1. Iterate over each variant of the action
   const events: EventDefinition[] = [];
 
   target.variants.forEach((variant) => {
-    const [event, variantDiagnostics] = getEventDefinition(program, variant);
-    events.push(event);
-    diagnostics.push(...variantDiagnostics);
+    events.push(diagnostics.pipe(getEventDefinition(program, variant)));
   });
 
-  return [events, diagnostics];
+  return diagnostics.wrap(events);
 }
 
 /**
@@ -253,34 +254,34 @@ export interface EventDefinition {
    * This may be used when the underlying event protocol supports event types
    * out-of-band from the event evelope or event payload.
    */
-  eventType?: string;
+  readonly eventType?: string;
   /**
    * The root variant of the union that represents the event.
    */
-  root: UnionVariant;
+  readonly root: UnionVariant;
   /**
    * Indicates whether the `type` describes an event envelope
    * with a separate event payload.
    */
-  isEventEnvelope: boolean;
+  readonly isEventEnvelope: boolean;
   /**
    * The type of the event.
    * This represents an event envelope if `isEventEnvelope` is `true`.
    */
-  type: Type;
+  readonly type: Type;
   /**
    * The content type of the event.
    * This represents the content type of the event envelope if `isEventEnvelope` is `true`.
    */
-  contentType?: string;
+  readonly contentType?: string;
   /**
    * The type of the event payload.
    * This matches `type` if `isEventEnvelope` is `false`.
    */
-  payloadType: Type;
+  readonly payloadType: Type;
   /**
    * The content type of the event payload.
    * This matches `contentType` if `isEventEnvelope` is `false`.
    */
-  payloadContentType?: string;
+  readonly payloadContentType?: string;
 }
