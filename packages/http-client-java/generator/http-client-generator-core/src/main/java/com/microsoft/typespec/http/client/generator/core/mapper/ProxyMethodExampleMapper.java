@@ -7,7 +7,6 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodExample;
 import com.microsoft.typespec.http.client.generator.core.preprocessor.namer.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.XmsExampleWrapper;
-
 import java.util.Locale;
 import java.util.Map;
 
@@ -57,14 +56,18 @@ public class ProxyMethodExampleMapper implements IMapper<XmsExampleWrapper, Prox
             String xmsOriginalFile = (String) ((Map<String, Object>) xmsExample).get("x-ms-original-file");
             builder.originalFile(xmsOriginalFile);
             if (exampleWrapper.getOperationId() != null) {
-                builder.codeSnippetIdentifier(buildCodeSnippetIdentifier(exampleWrapper.getOperationId(), exampleWrapper.getExampleName()));
+                builder.codeSnippetIdentifier(
+                    buildCodeSnippetIdentifier(exampleWrapper.getOperationId(), exampleWrapper.getExampleName()));
             }
         }
         return builder.build();
     }
 
     private String buildCodeSnippetIdentifier(String operationId, String exampleName) {
-        return String.format("%s.generated.%s.%s", JavaSettings.getInstance().getPackage(), getValidName(operationId), getValidName(exampleName)).toLowerCase(Locale.ROOT);
+        return String
+            .format("%s.generated.%s.%s", JavaSettings.getInstance().getPackage(), getValidName(operationId),
+                getValidName(exampleName))
+            .toLowerCase(Locale.ROOT);
     }
 
     private String getValidName(String exampleName) {

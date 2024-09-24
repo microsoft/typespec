@@ -42,12 +42,14 @@ public final class EnumNestedDiscriminatorAsyncClient {
      * The getModel operation.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     kind: String(shark/salmon) (Required)
      *     age: int (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -67,12 +69,14 @@ public final class EnumNestedDiscriminatorAsyncClient {
      * The putModel operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     kind: String(shark/salmon) (Required)
      *     age: int (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -92,12 +96,14 @@ public final class EnumNestedDiscriminatorAsyncClient {
      * The getRecursiveModel operation.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     kind: String(shark/salmon) (Required)
      *     age: int (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -117,12 +123,14 @@ public final class EnumNestedDiscriminatorAsyncClient {
      * The putRecursiveModel operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     kind: String(shark/salmon) (Required)
      *     age: int (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -142,12 +150,14 @@ public final class EnumNestedDiscriminatorAsyncClient {
      * The getMissingDiscriminator operation.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     kind: String(shark/salmon) (Required)
      *     age: int (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -167,12 +177,14 @@ public final class EnumNestedDiscriminatorAsyncClient {
      * The getWrongDiscriminator operation.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     kind: String(shark/salmon) (Required)
      *     age: int (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.

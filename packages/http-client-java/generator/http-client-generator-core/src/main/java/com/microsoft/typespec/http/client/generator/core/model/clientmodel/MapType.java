@@ -14,6 +14,7 @@ public class MapType extends GenericType {
 
     /**
      * Create a new MapType from the provided properties.
+     * 
      * @param valueType The type of values that are stored in this dictionary.
      */
     public MapType(IType valueType) {
@@ -50,10 +51,11 @@ public class MapType extends GenericType {
     public String validate(String expression, int depth) {
         String var = depth == 0 ? "e" : "e" + depth;
         String elementValidation = getValueType() instanceof GenericType
-                ? ((GenericType) getValueType()).validate(var, ++depth)
-                : getValueType().validate(var);
+            ? ((GenericType) getValueType()).validate(var, ++depth)
+            : getValueType().validate(var);
         if (elementValidation != null) {
-            return String.format("%s.values().forEach(%s -> { if (%s != null) { %s; } })", expression, var, var, elementValidation);
+            return String.format("%s.values().forEach(%s -> { if (%s != null) { %s; } })", expression, var, var,
+                elementValidation);
         } else {
             return null;
         }
