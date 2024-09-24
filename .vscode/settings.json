@@ -61,6 +61,5 @@
   "prettier.documentSelectors": ["**/*.tsp"],
   "testExplorer.errorDecoration": false,
   "typespec.tsp-server.path": "${workspaceFolder}/packages/compiler",
-  "eslint.experimental.useFlatConfig": true,
-  "java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx2G -Xms100m -Xlog:disable" // Still needed new version coming soon should work without https://github.com/microsoft/vscode-eslint/issues/1644
+  "eslint.experimental.useFlatConfig": true // Still needed new version coming soon should work without https://github.com/microsoft/vscode-eslint/issues/1644
 }
