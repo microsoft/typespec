@@ -743,9 +743,14 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
     if (isXmlModel && isArrayProperty) {
       // update items
-      const propValue = (prop.type as ArrayModelType).indexer.value;
-      const xmlName = resolveEncodedName(program, propValue as Scalar | Model, "application/xml");
+      const xmlName = resolveEncodedName(program, prop, "application/xml");
       if (ref && ref.items) {
+        const propValue = (prop.type as ArrayModelType).indexer.value;
+        const propXmlName = resolveEncodedName(
+          program,
+          propValue as Scalar | Model,
+          "application/xml",
+        );
         if (propValue.kind === "Scalar") {
           let scalarSchema: OpenAPI3Schema = {};
           const isStd = this.#isStdType(propValue);
@@ -754,19 +759,19 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
           } else if (propValue.baseScalar) {
             scalarSchema = this.#getSchemaForScalar(propValue.baseScalar);
           }
+          scalarSchema.xml = { name: propXmlName };
           ref.items = scalarSchema;
+        } else {
+          ref.items = new ObjectBuilder({
+            allOf: [ref.items],
+            xml: { name: propXmlName },
+          });
         }
 
+        xmlObject.name = xmlName;
         // handel unwrapped decorator
         if (!hasUnwrappedDecorator) {
-          if (propValue.kind !== "Scalar") {
-            ref.items = new ObjectBuilder({
-              allOf: [ref.items],
-            });
-          }
-
           xmlObject.wrapped = true;
-          ref.items.xml = { name: xmlName };
         }
       }
     }
