@@ -358,7 +358,7 @@ op op5(@body body: ExtendsFooArray): ExtendsFooArray;
     ok(extendsFooModel);
     ok(extendsFooArrayModel);
     // assert the inherited dictionary type is expected
-    strictEqual(extendsUnknownModel.additionalProperties?.kind, "any");
+    strictEqual(extendsUnknownModel.additionalProperties?.kind, "unknown");
 
     strictEqual(extendsStringModel.additionalProperties?.kind, "string");
 
@@ -450,7 +450,7 @@ op op5(@body body: IsFooArray): IsFooArray;
     assert(isFooModel !== undefined);
     assert(isFooArrayModel !== undefined);
     // assert the inherited dictionary type is expected
-    strictEqual(isUnknownModel.additionalProperties?.kind, "any");
+    strictEqual(isUnknownModel.additionalProperties?.kind, "unknown");
 
     strictEqual(isStringModel.additionalProperties?.kind, "string");
 
