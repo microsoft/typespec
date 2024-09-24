@@ -18,9 +18,6 @@ import type {
 } from "../generated-defs/TypeSpec.Events.js";
 import { createDiagnostic, EventsStateKeys } from "./lib.js";
 
-/** @internal */
-export const namespace = "TypeSpec.Events";
-
 export const $eventsDecorator: EventsDecorator = (context, target) => {
   context.program.stateSet(EventsStateKeys.events).add(target);
 };
