@@ -3,6 +3,9 @@
 
 package com.microsoft.typespec.http.client.generator.core.util;
 
+import com.azure.core.util.CoreUtils;
+import com.azure.json.JsonProviders;
+import com.azure.json.JsonWriter;
 import com.microsoft.typespec.http.client.generator.core.Javagen;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
@@ -19,11 +22,6 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaCla
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFileContents;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaType;
 import com.microsoft.typespec.http.client.generator.core.template.Templates;
-import com.azure.core.util.CoreUtils;
-import com.azure.json.JsonProviders;
-import com.azure.json.JsonWriter;
-import org.slf4j.Logger;
-
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -36,6 +34,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
 
 public class TemplateUtil {
 
@@ -100,9 +99,8 @@ public class TemplateUtil {
         String text = "";
         try (InputStream inputStream = TemplateUtil.class.getClassLoader().getResourceAsStream(filename)) {
             if (inputStream != null) {
-                text = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))
-                        .lines()
-                        .collect(Collectors.joining(System.lineSeparator()));
+                text = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8)).lines()
+                    .collect(Collectors.joining(System.lineSeparator()));
                 if (!text.isEmpty()) {
                     text += System.lineSeparator();
                 }
@@ -112,7 +110,7 @@ public class TemplateUtil {
                         // replacement in template
                         for (int i = 0; i < replacements.length; i += 2) {
                             String key = replacements[i];
-                            String value = replacements[i+1];
+                            String value = replacements[i + 1];
                             text = text.replace("{{" + key + "}}", value);
                         }
                     } else {
@@ -142,10 +140,13 @@ public class TemplateUtil {
         for (ClientMethod clientMethod : clientMethods) {
             Templates.getClientMethodTemplate().write(clientMethod, classBlock);
 
-            // this is coupled with ClientMethodTemplate.generateLongRunningBeginAsync, see getLongRunningOperationTypeReferenceExpression
-            if (clientMethod.getType() == ClientMethodType.LongRunningBeginAsync && clientMethod.getMethodPollingDetails() != null) {
+            // this is coupled with ClientMethodTemplate.generateLongRunningBeginAsync, see
+            // getLongRunningOperationTypeReferenceExpression
+            if (clientMethod.getType() == ClientMethodType.LongRunningBeginAsync
+                && clientMethod.getMethodPollingDetails() != null) {
                 if (clientMethod.getMethodPollingDetails().getIntermediateType() instanceof GenericType) {
-                    typeReferenceStaticClasses.add((GenericType) clientMethod.getMethodPollingDetails().getIntermediateType());
+                    typeReferenceStaticClasses
+                        .add((GenericType) clientMethod.getMethodPollingDetails().getIntermediateType());
                 }
 
                 if (clientMethod.getMethodPollingDetails().getFinalType() instanceof GenericType) {
@@ -160,8 +161,7 @@ public class TemplateUtil {
         }
 
         // helper methods for LLC
-        if (settings.isDataPlaneClient() &&
-                clientMethods.stream().anyMatch(m -> m.getMethodPageDetails() != null)) {
+        if (settings.isDataPlaneClient() && clientMethods.stream().anyMatch(m -> m.getMethodPageDetails() != null)) {
             writePagingHelperMethods(classBlock);
         }
     }
@@ -191,11 +191,17 @@ public class TemplateUtil {
         // or use a singleton instance.
         // Generic types must use a custom instance that supports complex generic parameters.
         if (!JavaSettings.getInstance().isBranded()) {
-            return (type instanceof ArrayType || type instanceof ClassType || type instanceof EnumType || type instanceof PrimitiveType)
+            return (type instanceof ArrayType
+                || type instanceof ClassType
+                || type instanceof EnumType
+                || type instanceof PrimitiveType)
                     ? type.asNullable() + ".class"
                     : CodeNamer.getEnumMemberName("TypeReference" + ((GenericType) type).toJavaPropertyString());
         } else {
-            return (type instanceof ArrayType || type instanceof ClassType || type instanceof EnumType || type instanceof PrimitiveType)
+            return (type instanceof ArrayType
+                || type instanceof ClassType
+                || type instanceof EnumType
+                || type instanceof PrimitiveType)
                     ? "TypeReference.createInstance(" + type.asNullable() + ".class)"
                     : CodeNamer.getEnumMemberName("TypeReference" + ((GenericType) type).toJavaPropertyString());
         }
@@ -219,13 +225,15 @@ public class TemplateUtil {
                 }
                 sb.append(typeArgument.getClientType().toString()).append(".class");
             }
-            classBlock.privateStaticFinalVariable(String.format("Type %1$s = new ParameterizedType() {"
-                            + "@Override public Type getRawType() { return " + type.getName() + ".class; }"
-                            + "@Override public Type[] getActualTypeArguments() { return new Type[] { " + sb + " }; }"
-                            + "@Override public Type getOwnerType() { return null; } }",
-                    CodeNamer.getEnumMemberName("TypeReference" + type.toJavaPropertyString())));
+            classBlock.privateStaticFinalVariable(String.format(
+                "Type %1$s = new ParameterizedType() {" + "@Override public Type getRawType() { return "
+                    + type.getName() + ".class; }"
+                    + "@Override public Type[] getActualTypeArguments() { return new Type[] { " + sb + " }; }"
+                    + "@Override public Type getOwnerType() { return null; } }",
+                CodeNamer.getEnumMemberName("TypeReference" + type.toJavaPropertyString())));
         } else {
-            classBlock.privateStaticFinalVariable(String.format("TypeReference<%1$s> %2$s = new TypeReference<%1$s>() {}",
+            classBlock
+                .privateStaticFinalVariable(String.format("TypeReference<%1$s> %2$s = new TypeReference<%1$s>() {}",
                     type, CodeNamer.getEnumMemberName("TypeReference" + type.toJavaPropertyString())));
         }
     }
@@ -263,10 +271,12 @@ public class TemplateUtil {
             case PagingAsync:
                 typeBlock.annotation("ServiceMethod(returns = ReturnType.COLLECTION)");
                 break;
+
             case LongRunningBeginSync:
             case LongRunningBeginAsync:
                 typeBlock.annotation("ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)");
                 break;
+
             default:
                 if (JavaSettings.getInstance().isBranded()) {
                     typeBlock.annotation("ServiceMethod(returns = ReturnType.SINGLE)");

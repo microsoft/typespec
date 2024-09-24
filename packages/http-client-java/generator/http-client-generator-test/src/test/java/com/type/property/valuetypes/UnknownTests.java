@@ -7,13 +7,12 @@ import com.type.property.valuetypes.models.UnknownArrayProperty;
 import com.type.property.valuetypes.models.UnknownDictProperty;
 import com.type.property.valuetypes.models.UnknownIntProperty;
 import com.type.property.valuetypes.models.UnknownStringProperty;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class UnknownTests {
 

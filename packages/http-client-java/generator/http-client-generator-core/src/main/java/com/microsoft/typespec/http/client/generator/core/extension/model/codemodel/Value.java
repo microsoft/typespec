@@ -3,10 +3,9 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonWriter;
-
+import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -176,7 +175,8 @@ public class Value extends Metadata {
         // This should ideally be done by the modeler if the header collection prefix is set.
         // The schema should be of type dictionary
         // TODO: remove this when modeler is fixed.
-        if (this.getExtensions() != null && this.getExtensions().getXmsHeaderCollectionPrefix() != null
+        if (this.getExtensions() != null
+            && this.getExtensions().getXmsHeaderCollectionPrefix() != null
             && schema instanceof StringSchema) {
             DictionarySchema dictionarySchema = new DictionarySchema();
             dictionarySchema.setElementType(schema);
@@ -228,8 +228,7 @@ public class Value extends Metadata {
     }
 
     JsonWriter writeParentProperties(JsonWriter jsonWriter) throws IOException {
-        return super.writeParentProperties(jsonWriter)
-            .writeJsonField("schema", schema)
+        return super.writeParentProperties(jsonWriter).writeJsonField("schema", schema)
             .writeBooleanField("required", required)
             .writeBooleanField("nullable", nullable)
             .writeStringField("$key", $key)

@@ -3,10 +3,9 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
-import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonWriter;
-
+import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -56,13 +55,11 @@ public class GraalVmConfig {
 
             @Override
             public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-                return jsonWriter.writeStartObject()
-                    .writeStringField("pattern", pattern)
-                    .writeEndObject();
+                return jsonWriter.writeStartObject().writeStringField("pattern", pattern).writeEndObject();
             }
         }
 
-        private static class Resource implements JsonSerializable<Resource>{
+        private static class Resource implements JsonSerializable<Resource> {
             private final List<Pattern> includes;
 
             public Resource(List<Pattern> includes) {
@@ -81,8 +78,8 @@ public class GraalVmConfig {
         private final List<Object> bundles = Collections.emptyList();
 
         private ResourceConfig(String artifactId) {
-            this.resources = new Resource(Collections.singletonList(
-                    new Pattern("\\Q" + artifactId + ".properties" + "\\E")));
+            this.resources
+                = new Resource(Collections.singletonList(new Pattern("\\Q" + artifactId + ".properties" + "\\E")));
         }
 
         @Override

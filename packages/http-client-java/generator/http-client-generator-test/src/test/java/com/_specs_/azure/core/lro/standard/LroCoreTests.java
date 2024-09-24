@@ -14,24 +14,22 @@ import com.azure.core.util.polling.PollOperationDetails;
 import com.azure.core.util.polling.PollResponse;
 import com.azure.core.util.polling.PollerFlux;
 import com.azure.core.util.polling.SyncPoller;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class LroCoreTests {
 
     private final StandardClient client = new StandardClientBuilder()
-            .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BODY_AND_HEADERS))
-            .buildClient();
+        .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BODY_AND_HEADERS))
+        .buildClient();
 
     private final StandardAsyncClient asyncClient = new StandardClientBuilder()
-            .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BODY_AND_HEADERS))
-            .buildAsyncClient();
+        .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BODY_AND_HEADERS))
+        .buildAsyncClient();
 
     @Test
     public void testPut() {
-        SyncPoller<PollOperationDetails, User> poller = client.beginCreateOrReplace(
-                "madge", new User("contributor"));
+        SyncPoller<PollOperationDetails, User> poller = client.beginCreateOrReplace("madge", new User("contributor"));
 
         PollResponse<PollOperationDetails> response = poller.waitForCompletion();
         Assertions.assertEquals(LongRunningOperationStatus.SUCCESSFULLY_COMPLETED, response.getStatus());
@@ -42,8 +40,8 @@ public class LroCoreTests {
 
     @Test
     public void testPutAsync() {
-        PollerFlux<PollOperationDetails, User> poller = asyncClient.beginCreateOrReplace(
-                "madge", new User("contributor"));
+        PollerFlux<PollOperationDetails, User> poller
+            = asyncClient.beginCreateOrReplace("madge", new User("contributor"));
 
         AsyncPollResponse<PollOperationDetails, User> response = poller.blockLast();
         Assertions.assertEquals(LongRunningOperationStatus.SUCCESSFULLY_COMPLETED, response.getStatus());
@@ -54,8 +52,8 @@ public class LroCoreTests {
 
     @Test
     public void testPutProtocol() {
-        SyncPoller<BinaryData, BinaryData> poller = client.beginCreateOrReplace(
-                "madge", BinaryData.fromObject(new User("contributor")), null);
+        SyncPoller<BinaryData, BinaryData> poller
+            = client.beginCreateOrReplace("madge", BinaryData.fromObject(new User("contributor")), null);
 
         PollResponse<BinaryData> response = poller.waitForCompletion();
         Assertions.assertEquals(LongRunningOperationStatus.SUCCESSFULLY_COMPLETED, response.getStatus());
@@ -75,8 +73,7 @@ public class LroCoreTests {
 
     @Test
     public void testPost() {
-        SyncPoller<PollOperationDetails, ExportedUser> poller = client.beginExport(
-                "madge", "json");
+        SyncPoller<PollOperationDetails, ExportedUser> poller = client.beginExport("madge", "json");
 
         PollResponse<PollOperationDetails> response = poller.waitForCompletion();
         Assertions.assertEquals(LongRunningOperationStatus.SUCCESSFULLY_COMPLETED, response.getStatus());

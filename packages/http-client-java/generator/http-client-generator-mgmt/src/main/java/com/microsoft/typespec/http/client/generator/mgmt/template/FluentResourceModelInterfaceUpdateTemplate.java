@@ -3,13 +3,12 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.template;
 
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaInterface;
+import com.microsoft.typespec.http.client.generator.core.template.IJavaTemplate;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.ModelNaming;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentMethod;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.update.ResourceUpdate;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.update.UpdateStage;
-import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaInterface;
-import com.microsoft.typespec.http.client.generator.core.template.IJavaTemplate;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,11 +31,10 @@ public class FluentResourceModelInterfaceUpdateTemplate implements IJavaTemplate
         });
         String definitionInterfaceSignature = ModelNaming.MODEL_FLUENT_INTERFACE_UPDATE;
         String updateExtendsStr = updateStages.stream()
-                .map(s -> String.format("%1$s.%2$s", ModelNaming.MODEL_FLUENT_INTERFACE_UPDATE_STAGES, s.getName()))
-                .collect(Collectors.joining(", "));
+            .map(s -> String.format("%1$s.%2$s", ModelNaming.MODEL_FLUENT_INTERFACE_UPDATE_STAGES, s.getName()))
+            .collect(Collectors.joining(", "));
         if (!updateExtendsStr.isEmpty()) {
-            definitionInterfaceSignature += String.format(" extends %1$s",
-                    updateExtendsStr);
+            definitionInterfaceSignature += String.format(" extends %1$s", updateExtendsStr);
         }
         interfaceBlock.interfaceBlock(definitionInterfaceSignature, block1 -> {
             List<FluentMethod> applyMethods = resourceUpdate.getApplyMethods();

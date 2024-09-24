@@ -4,9 +4,8 @@
 package com.microsoft.typespec.http.client.generator.core.customization;
 
 import com.microsoft.typespec.http.client.generator.core.customization.implementation.ls.EclipseLanguageClient;
-import org.eclipse.lsp4j.SymbolInformation;
-
 import java.lang.annotation.Annotation;
+import org.eclipse.lsp4j.SymbolInformation;
 
 public final class AnnotationCustomization<A extends Annotation> extends CodeCustomization {
     private final String packageName;
@@ -16,8 +15,8 @@ public final class AnnotationCustomization<A extends Annotation> extends CodeCus
     private final A annotation;
 
     static <A extends Annotation> AnnotationCustomization<A> createClassAnnotationCustomization(Editor editor,
-                                                                                                EclipseLanguageClient languageClient, SymbolInformation symbol, String packageName, String className,
-                                                                                                A annotation) {
+        EclipseLanguageClient languageClient, SymbolInformation symbol, String packageName, String className,
+        A annotation) {
         return new AnnotationCustomization<>(editor, languageClient, symbol, packageName, className, null, null,
             annotation);
     }
