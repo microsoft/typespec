@@ -42,8 +42,10 @@
     "install": "tsx ./eng/scripts/setup/run-python3.ts ./eng/scripts/setup/install.py",
     "prepare": "tsx ./eng/scripts/setup/run-python3.ts ./eng/scripts/setup/prepare.py",
     "regenerate": "tsx ./eng/scripts/ci/regenerate.ts",
-    "ci": "tsx ./eng/scripts/ci/run-tests.ts",
-    "test": "tsx ./eng/scripts/ci/run-tests.ts --command=test"
+    "ci": "npm run ci:generator && npm run test:emitter",
+    "ci:generator": "tsx ./eng/scripts/ci/run-ci.ts",
+    "test:generator": "tsx ./eng/scripts/ci/run-ci.ts --command=test",
+    "test:emitter": "vitest run emitter/test"
   },
   "files": [
     "dist/**",
