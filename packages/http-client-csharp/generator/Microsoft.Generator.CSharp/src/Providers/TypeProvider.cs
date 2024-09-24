@@ -347,23 +347,29 @@ namespace Microsoft.Generator.CSharp.Providers
                 }
             }
 
-            var customProperties = new Dictionary<string, PropertyProvider>();
+            var customPropertyReplacements = new Dictionary<string, PropertyProvider>();
+            var customPropertyNames = new HashSet<string>();
             foreach (var customProperty in CustomCodeView?.Properties ?? [])
             {
-                customProperties.Add(customProperty.Name, customProperty);
+                customPropertyNames.Add(customProperty.Name);
                 foreach (var attribute in customProperty.Attributes ?? [])
                 {
                     if (CodeGenAttributes.TryGetCodeGenMemberAttributeValue(attribute, out var name))
                     {
-                        customProperties.Add(name, customProperty);
+                        customPropertyReplacements.Add(name, customProperty);
                     }
                 }
             }
 
-            if (customProperties.TryGetValue(property.Name, out PropertyProvider? customProp))
+            if (customPropertyReplacements.TryGetValue(property.Name, out PropertyProvider? customProp))
             {
                 // Store the spec property on the custom property so that we can use it for serialization.
                 customProp.SpecProperty = property;
+                return false;
+            }
+
+            if (customPropertyNames.Contains(property.Name))
+            {
                 return false;
             }
 
