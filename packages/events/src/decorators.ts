@@ -19,7 +19,7 @@ import { createDiagnostic, EventsStateKeys } from "./lib.js";
 /** @internal */
 export const namespace = "TypeSpec.Events";
 
-export const $events: EventsDecorator = (context, target) => {
+export const $eventsDecorator: EventsDecorator = (context, target) => {
   context.program.stateSet(EventsStateKeys.events).add(target);
 };
 
@@ -27,7 +27,7 @@ export function isEvents(program: Program, target: Union): boolean {
   return program.stateSet(EventsStateKeys.events).has(target);
 }
 
-export const $contentType: ContentTypeDecorator = (context, target, contentType) => {
+export const $contentTypeDecorator: ContentTypeDecorator = (context, target, contentType) => {
   context.program.stateMap(EventsStateKeys.contentType).set(target, contentType);
 };
 
@@ -50,7 +50,7 @@ function validateContentType(program: Program, target: ModelProperty): Diagnosti
   ];
 }
 
-export const $data: DataDecorator = (context, target) => {
+export const $dataDecorator: DataDecorator = (context, target) => {
   context.program.stateSet(EventsStateKeys.data).add(target);
 };
 

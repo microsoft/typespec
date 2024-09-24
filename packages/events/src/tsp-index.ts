@@ -1,11 +1,11 @@
-import { $contentType, $data, $events } from "./decorators.js";
+import { $contentTypeDecorator, $dataDecorator, $eventsDecorator } from "./decorators.js";
 
 export { $lib } from "./lib.js";
 export { $onValidate } from "./validate.js";
 export const $decorators = {
   "TypeSpec.Events": {
-    contentType: $contentType,
-    data: $data,
-    events: $events,
+    contentType: $contentTypeDecorator,
+    data: $dataDecorator,
+    events: $eventsDecorator,
   },
 };
