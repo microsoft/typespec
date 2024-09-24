@@ -244,14 +244,15 @@ function loadLongRunningOperation(
 }
 
 function fromSdkHttpOperationResponses(
-  operationResponses: Map<HttpStatusCodeRange | number, SdkHttpResponse>,
+  operationResponses: SdkHttpResponse[],
   sdkContext: SdkContext<NetEmitterOptions>,
   typeMap: SdkTypeMap,
 ): Map<SdkHttpResponse, OperationResponse> {
   const responses = new Map<SdkHttpResponse, OperationResponse>();
-  for (const [range, r] of operationResponses) {
+  for (const r of operationResponses) {
+    const range = r.statusCodes;
     responses.set(r, {
-      StatusCodes: toStatusCodesArray(range),
+      StatusCodes: toStatusCodesArray(range as number | HttpStatusCodeRange), // the status code of responses would never be *
       BodyType: r.type ? fromSdkType(r.type, sdkContext, typeMap) : undefined,
       BodyMediaType: BodyMediaType.Json,
       Headers: fromSdkServiceResponseHeaders(r.headers, sdkContext, typeMap),
@@ -319,7 +320,7 @@ function getMediaTypes(type: SdkType): string[] {
     return [type.value as string];
   } else if (type.kind === "union") {
     const mediaTypes: string[] = [];
-    for (const unionItem of type.values) {
+    for (const unionItem of type.variantTypes) {
       if (unionItem.kind === "constant" && unionItem.valueType.kind === "string") {
         mediaTypes.push(unionItem.value as string);
       } else {
