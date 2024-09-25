@@ -59,22 +59,22 @@ function addDefaultOptions(sdkContext: SdkContext) {
 
 async function createPythonSdkContext<TServiceOperation extends SdkServiceOperation>(
   context: EmitContext<PythonEmitterOptions>,
-  emitterName: string,
 ): Promise<PythonSdkContext<TServiceOperation>> {
   return {
-    ...(await createSdkContext<PythonEmitterOptions, TServiceOperation>(context, emitterName, {
-      additionalDecorators: ["TypeSpec\\.@encodedName"],
-    })),
+    ...(await createSdkContext<PythonEmitterOptions, TServiceOperation>(
+      context,
+      "@typespec/http-client-python",
+      {
+        additionalDecorators: ["TypeSpec\\.@encodedName"],
+      },
+    )),
     __endpointPathParameters: [],
   };
 }
 
-export async function $onEmit(
-  context: EmitContext<PythonEmitterOptions>,
-  emitterName: string = "@typespec/http-client-python",
-) {
+export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
   const program = context.program;
-  const sdkContext = await createPythonSdkContext<SdkHttpOperation>(context, emitterName);
+  const sdkContext = await createPythonSdkContext<SdkHttpOperation>(context);
   const root = path.join(dirname(fileURLToPath(import.meta.url)), "..", "..");
   const outputDir = context.emitterOutputDir;
   const yamlMap = emitCodeModel(sdkContext);
