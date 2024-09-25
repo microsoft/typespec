@@ -3,13 +3,12 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
+import static com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils.readObject;
+
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonWriter;
-
 import java.io.IOException;
-
-import static com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils.readObject;
 
 /**
  * Represents the per-language metadata.

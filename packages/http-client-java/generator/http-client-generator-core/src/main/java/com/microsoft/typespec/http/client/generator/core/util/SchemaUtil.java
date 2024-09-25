@@ -3,6 +3,8 @@
 
 package com.microsoft.typespec.http.client.generator.core.util;
 
+import com.azure.core.http.HttpMethod;
+import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.AnySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Header;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.KnownMediaType;
@@ -23,9 +25,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Imple
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
-import com.azure.core.http.HttpMethod;
-import com.azure.core.util.CoreUtils;
-
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -95,8 +94,8 @@ public class SchemaUtil {
     /*
      * Returns raw response type.
      * In case of binary response:
-     *   For DPG, returns BinaryData
-     *   For vanilla/mgmt, returns InputStream
+     * For DPG, returns BinaryData
+     * For vanilla/mgmt, returns InputStream
      */
     public static IType getOperationResponseType(Operation operation, JavaSettings settings) {
         Schema responseBodySchema = SchemaUtil.getLowestCommonParent(
@@ -108,8 +107,8 @@ public class SchemaUtil {
     /*
      * Returns raw response type.
      * In case of binary response:
-     *   For DPG, returns BinaryData
-     *   For vanilla/mgmt, returns InputStream
+     * For DPG, returns BinaryData
+     * For vanilla/mgmt, returns InputStream
      */
     public static IType getOperationResponseType(Schema responseBodySchema, Operation operation,
         JavaSettings settings) {
@@ -182,11 +181,15 @@ public class SchemaUtil {
      * @return whether response of the operation contains headers
      */
     public static boolean responseContainsHeaderSchemas(Operation operation, JavaSettings settings) {
-        return operation.getResponses().stream()
-            .filter(r -> r.getProtocol() != null && r.getProtocol().getHttp() != null && r.getProtocol().getHttp().getHeaders() != null)
+        return operation.getResponses()
+            .stream()
+            .filter(r -> r.getProtocol() != null
+                && r.getProtocol().getHttp() != null
+                && r.getProtocol().getHttp().getHeaders() != null)
             .flatMap(r -> r.getProtocol().getHttp().getHeaders().stream().map(Header::getSchema))
             .anyMatch(Objects::nonNull)
-            && operationIsNotFluentLRO(operation, settings) && operationIsNotDataPlaneLRO(operation, settings);
+            && operationIsNotFluentLRO(operation, settings)
+            && operationIsNotDataPlaneLRO(operation, settings);
     }
 
     /**
@@ -242,8 +245,12 @@ public class SchemaUtil {
     }
 
     private static boolean operationIsHeadAsBoolean(Operation operation) {
-        return operation.getRequests().stream().anyMatch(req -> HttpMethod.HEAD.name().equalsIgnoreCase(req.getProtocol().getHttp().getMethod()))
-            && operation.getResponses().stream().anyMatch(r -> r.getProtocol().getHttp().getStatusCodes().contains("404"));
+        return operation.getRequests()
+            .stream()
+            .anyMatch(req -> HttpMethod.HEAD.name().equalsIgnoreCase(req.getProtocol().getHttp().getMethod()))
+            && operation.getResponses()
+                .stream()
+                .anyMatch(r -> r.getProtocol().getHttp().getStatusCodes().contains("404"));
     }
 
     /**
@@ -273,17 +280,20 @@ public class SchemaUtil {
                 }
 
                 if (compositeType.getLanguage().getJava() != null
-                        && compositeType.getLanguage().getJava().getNamespace() != null) {
+                    && compositeType.getLanguage().getJava().getNamespace() != null) {
 
                     // https://github.com/Azure/azure-sdk-for-java/blob/main/sdk/core/azure-core-experimental/src/main/java/com/azure/core/experimental/models/PollResult.java
                     if (Objects.equals(name, ClassType.POLL_OPERATION_DETAILS.getName())
-                        && Objects.equals(compositeType.getLanguage().getJava().getNamespace(), ClassType.POLL_OPERATION_DETAILS.getPackage())) {
+                        && Objects.equals(compositeType.getLanguage().getJava().getNamespace(),
+                            ClassType.POLL_OPERATION_DETAILS.getPackage())) {
                         classType = ClassType.POLL_OPERATION_DETAILS;
                     } else if (Objects.equals(name, ClassType.REQUEST_CONDITIONS.getName())
-                        && Objects.equals(compositeType.getLanguage().getJava().getNamespace(), ClassType.REQUEST_CONDITIONS.getPackage())) {
+                        && Objects.equals(compositeType.getLanguage().getJava().getNamespace(),
+                            ClassType.REQUEST_CONDITIONS.getPackage())) {
                         classType = ClassType.REQUEST_CONDITIONS;
                     } else if (Objects.equals(name, ClassType.MATCH_CONDITIONS.getName())
-                        && Objects.equals(compositeType.getLanguage().getJava().getNamespace(), ClassType.REQUEST_CONDITIONS.getPackage())) {
+                        && Objects.equals(compositeType.getLanguage().getJava().getNamespace(),
+                            ClassType.REQUEST_CONDITIONS.getPackage())) {
                         classType = ClassType.MATCH_CONDITIONS;
                     }
                 }
@@ -302,9 +312,7 @@ public class SchemaUtil {
         if (schemaContexts == null) {
             return Collections.emptySet();
         }
-        return schemaContexts.stream()
-            .map(ImplementationDetails.Usage::fromSchemaContext)
-            .collect(Collectors.toSet());
+        return schemaContexts.stream().map(ImplementationDetails.Usage::fromSchemaContext).collect(Collectors.toSet());
     }
 
     private static boolean containsBinaryResponse(Operation operation) {
@@ -313,11 +321,15 @@ public class SchemaUtil {
 
     // SyncPoller or PollerFlux does not contain full Response and hence does not have headers
     private static boolean operationIsNotFluentLRO(Operation operation, JavaSettings settings) {
-        return !(settings.isFluent() && operation.getExtensions() != null && operation.getExtensions().isXmsLongRunningOperation());
+        return !(settings.isFluent()
+            && operation.getExtensions() != null
+            && operation.getExtensions().isXmsLongRunningOperation());
     }
 
     private static boolean operationIsNotDataPlaneLRO(Operation operation, JavaSettings settings) {
-        return !(settings.isDataPlaneClient() && operation.getExtensions() != null && operation.getExtensions().isXmsLongRunningOperation());
+        return !(settings.isDataPlaneClient()
+            && operation.getExtensions() != null
+            && operation.getExtensions().isXmsLongRunningOperation());
     }
 
     public static String getDefaultName(Metadata m) {
@@ -335,7 +347,8 @@ public class SchemaUtil {
     }
 
     public static boolean treatAsXml(Schema schema) {
-        return (schema.getSerializationFormats() != null && schema.getSerializationFormats().contains(KnownMediaType.XML.value()))
+        return (schema.getSerializationFormats() != null
+            && schema.getSerializationFormats().contains(KnownMediaType.XML.value()))
             || (schema.getSerialization() != null && schema.getSerialization().getXml() != null);
     }
 }

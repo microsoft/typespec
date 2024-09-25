@@ -5,7 +5,6 @@ package com.microsoft.typespec.http.client.generator.core.extension.base.util;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonToken;
 import com.azure.json.WriteValueCallback;
-
 import java.io.IOException;
 import java.util.function.Supplier;
 

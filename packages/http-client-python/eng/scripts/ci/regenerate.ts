@@ -229,7 +229,7 @@ function addOptions(
     if (options["emitter-output-dir"] === undefined) {
       const packageName = options["package-name"] || defaultPackageName(spec);
       options["emitter-output-dir"] = toPosix(
-        `${generatedFolder}/test/${flags.flavor}/generated/${packageName}`,
+        `${generatedFolder}/generator/test/${flags.flavor}/generated/${packageName}`,
       );
     }
     if (flags.debug) {

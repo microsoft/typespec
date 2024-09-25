@@ -4,10 +4,9 @@
 package com.type.property.nullable;
 
 import com.type.property.nullable.models.StringProperty;
+import java.io.IOException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
 
 public class StringClientTests {
 

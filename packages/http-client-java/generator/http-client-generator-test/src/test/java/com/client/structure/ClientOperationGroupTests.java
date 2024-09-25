@@ -11,12 +11,10 @@ public class ClientOperationGroupTests {
 
     @Test
     public void test() {
-        FirstClientBuilder clientBuilder1 = new FirstClientBuilder()
-                .endpoint("http://localhost:3000")
-                .client("client-operation-group");
-        SecondClientBuilder clientBuilder2 = new SecondClientBuilder()
-                .endpoint("http://localhost:3000")
-                .client("client-operation-group");
+        FirstClientBuilder clientBuilder1
+            = new FirstClientBuilder().endpoint("http://localhost:3000").client("client-operation-group");
+        SecondClientBuilder clientBuilder2
+            = new SecondClientBuilder().endpoint("http://localhost:3000").client("client-operation-group");
 
         clientBuilder1.buildClient().one();
         clientBuilder1.buildGroup3Client().two();

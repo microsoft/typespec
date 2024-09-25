@@ -3,6 +3,8 @@
 
 package com.microsoft.typespec.http.client.generator.core.util;
 
+import com.azure.core.http.HttpMethod;
+import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.BinarySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ChoiceValue;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.KnownMediaType;
@@ -26,9 +28,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.MethodParameter;
-import com.azure.core.http.HttpMethod;
-import com.azure.core.util.CoreUtils;
-
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -45,10 +44,13 @@ public class MethodUtil {
 
     public static final String REPEATABILITY_REQUEST_ID_HEADER = "repeatability-request-id";
     public static final String REPEATABILITY_FIRST_SENT_HEADER = "repeatability-first-sent";
-    public static final String REPEATABILITY_REQUEST_ID_VARIABLE_NAME = CodeNamer.toCamelCase(REPEATABILITY_REQUEST_ID_HEADER);
-    public static final String REPEATABILITY_FIRST_SENT_VARIABLE_NAME = CodeNamer.toCamelCase(REPEATABILITY_FIRST_SENT_HEADER);
+    public static final String REPEATABILITY_REQUEST_ID_VARIABLE_NAME
+        = CodeNamer.toCamelCase(REPEATABILITY_REQUEST_ID_HEADER);
+    public static final String REPEATABILITY_FIRST_SENT_VARIABLE_NAME
+        = CodeNamer.toCamelCase(REPEATABILITY_FIRST_SENT_HEADER);
     public static final String REPEATABILITY_REQUEST_ID_EXPRESSION = "CoreUtils.randomUuid().toString()";
-    public static final String REPEATABILITY_FIRST_SENT_EXPRESSION = "DateTimeRfc1123.toRfc1123String(OffsetDateTime.now())";
+    public static final String REPEATABILITY_FIRST_SENT_EXPRESSION
+        = "DateTimeRfc1123.toRfc1123String(OffsetDateTime.now())";
 
     public static final String CONTENT_TYPE_APPLICATION_JSON_ERROR_WEIGHT = "application/json;q=0.9";
 
@@ -57,6 +59,7 @@ public class MethodUtil {
 
     /**
      * Checks that method include special headers for Repeatable Requests Version 1.0 ("repeatability-request-id")
+     * 
      * @param proxyMethod the proxy method
      * @return whether method include special headers for Repeatable Requests Version 1.0
      */
@@ -97,7 +100,8 @@ public class MethodUtil {
         }
 
         String javadocDescription = SchemaUtil.mergeSummaryWithDescription(summary, description);
-        if (CoreUtils.isNullOrEmpty(javadocDescription)) { // fallback to dummy description only when both summary and description are empty
+        if (CoreUtils.isNullOrEmpty(javadocDescription)) { // fallback to dummy description only when both summary and
+                                                           // description are empty
             javadocDescription = "The " + name + " parameter";
         }
 
@@ -117,10 +121,11 @@ public class MethodUtil {
      */
     public static HttpMethod getHttpMethod(Operation operation) {
         if (!CoreUtils.isNullOrEmpty(operation.getRequests())
-                && operation.getRequests().get(0).getProtocol() != null
-                && operation.getRequests().get(0).getProtocol().getHttp() != null) {
+            && operation.getRequests().get(0).getProtocol() != null
+            && operation.getRequests().get(0).getProtocol().getHttp() != null) {
             try {
-                return HttpMethod.valueOf(operation.getRequests().get(0).getProtocol().getHttp().getMethod().toUpperCase(Locale.ROOT));
+                return HttpMethod.valueOf(
+                    operation.getRequests().get(0).getProtocol().getHttp().getMethod().toUpperCase(Locale.ROOT));
             } catch (IllegalArgumentException | NullPointerException e) {
                 return null;
             }
@@ -141,13 +146,15 @@ public class MethodUtil {
         Request selectedRequest = requests.get(0);
         for (Request request : requests) {
             if (request.getProtocol().getHttp().getKnownMediaType() != null
-                    && request.getProtocol().getHttp().getKnownMediaType().equals(KnownMediaType.BINARY)) {
+                && request.getProtocol().getHttp().getKnownMediaType().equals(KnownMediaType.BINARY)) {
                 // add contentType parameter
                 if (getContentTypeCount(requests) > 1 && !hasContentTypeParameter(request)) {
                     Parameter contentTypeParameter = createContentTypeParameter(request, operation);
-                    request.getParameters().add(findIndexForContentTypeParam(request.getParameters()), contentTypeParameter);
+                    request.getParameters()
+                        .add(findIndexForContentTypeParam(request.getParameters()), contentTypeParameter);
                     if (contentTypeParameter.isRequired()) {
-                        request.getSignatureParameters().add(findIndexForContentTypeParam(request.getSignatureParameters()), contentTypeParameter);
+                        request.getSignatureParameters()
+                            .add(findIndexForContentTypeParam(request.getSignatureParameters()), contentTypeParameter);
                     }
                 }
                 selectedRequest = request;
@@ -222,7 +229,9 @@ public class MethodUtil {
     }
 
     /**
-     * If the parameter is not enum type, return the description directly, otherwise append the string of allowed values to the description
+     * If the parameter is not enum type, return the description directly, otherwise append the string of allowed values
+     * to the description
+     * 
      * @param parameter a parameter
      * @param description parameter description
      * @return the description that appends the string of allowed values for enum type parameter
@@ -271,14 +280,17 @@ public class MethodUtil {
      * @return the list of 1-1 pair of proxy method parameter and client method parameter
      */
     public static List<MethodParameter> getParameters(ClientMethod clientMethod, boolean allParameter) {
-        List<ProxyMethodParameter> parameters = allParameter ? clientMethod.getProxyMethod().getAllParameters()
-                : clientMethod.getProxyMethod().getParameters();
+        List<ProxyMethodParameter> parameters = allParameter
+            ? clientMethod.getProxyMethod().getAllParameters()
+            : clientMethod.getProxyMethod().getParameters();
         Map<String, ProxyMethodParameter> proxyMethodParameterByClientParameterName = parameters.stream()
-                .collect(Collectors.toMap(p -> CodeNamer.getEscapedReservedClientMethodParameterName(p.getName()), Function.identity()));
-        return clientMethod.getMethodInputParameters().stream()
-                .filter(p -> !p.isConstant() && !p.isFromClient())
-                .map(p -> new MethodParameter(proxyMethodParameterByClientParameterName.get(p.getName()), p))
-                .collect(Collectors.toList());
+            .collect(Collectors.toMap(p -> CodeNamer.getEscapedReservedClientMethodParameterName(p.getName()),
+                Function.identity()));
+        return clientMethod.getMethodInputParameters()
+            .stream()
+            .filter(p -> !p.isConstant() && !p.isFromClient())
+            .map(p -> new MethodParameter(proxyMethodParameterByClientParameterName.get(p.getName()), p))
+            .collect(Collectors.toList());
     }
 
     /**
@@ -291,10 +303,11 @@ public class MethodUtil {
      */
     public static boolean isMaxPageSizeParameter(Parameter parameter) {
         return parameter.getProtocol() != null && parameter.getProtocol().getHttp() != null
-                // query parameter
-                && parameter.getProtocol().getHttp().getIn() == RequestParameterLocation.QUERY
-                // serialized name == maxpagesize, or relax a bit, client name == maxPageSize
-                && (Objects.equals(parameter.getLanguage().getDefault().getSerializedName(), "maxpagesize") || Objects.equals(SchemaUtil.getJavaName(parameter), "maxPageSize"));
+        // query parameter
+            && parameter.getProtocol().getHttp().getIn() == RequestParameterLocation.QUERY
+            // serialized name == maxpagesize, or relax a bit, client name == maxPageSize
+            && (Objects.equals(parameter.getLanguage().getDefault().getSerializedName(), "maxpagesize")
+                || Objects.equals(SchemaUtil.getJavaName(parameter), "maxPageSize"));
     }
 
     /**
@@ -304,11 +317,13 @@ public class MethodUtil {
      * @return the serialized name of "maxpagesize" parameter, if exists.
      */
     public static Optional<String> serializedNameOfMaxPageSizeParameter(ProxyMethod proxyMethod) {
-        return proxyMethod.getAllParameters().stream()
-                .filter(p -> p.getRequestParameterLocation() == RequestParameterLocation.QUERY
-                        && (Objects.equals(p.getRequestParameterName(), "maxpagesize") || Objects.equals(p.getName(), "maxPageSize")))
-                .map(ProxyMethodParameter::getRequestParameterName)
-                .findFirst();
+        return proxyMethod.getAllParameters()
+            .stream()
+            .filter(p -> p.getRequestParameterLocation() == RequestParameterLocation.QUERY
+                && (Objects.equals(p.getRequestParameterName(), "maxpagesize")
+                    || Objects.equals(p.getName(), "maxPageSize")))
+            .map(ProxyMethodParameter::getRequestParameterName)
+            .findFirst();
     }
 
     /**
@@ -318,10 +333,12 @@ public class MethodUtil {
      */
     private static boolean hasContentTypeParameter(Request request) {
         for (Parameter parameter : request.getParameters()) {
-            if (parameter.getProtocol() != null && parameter.getProtocol().getHttp() != null
-                    && RequestParameterLocation.HEADER == parameter.getProtocol().getHttp().getIn()
-                    && parameter.getLanguage() != null && parameter.getLanguage().getJava() != null
-                    && "Content-Type".equalsIgnoreCase(parameter.getLanguage().getJava().getSerializedName())) {
+            if (parameter.getProtocol() != null
+                && parameter.getProtocol().getHttp() != null
+                && RequestParameterLocation.HEADER == parameter.getProtocol().getHttp().getIn()
+                && parameter.getLanguage() != null
+                && parameter.getLanguage().getJava() != null
+                && "Content-Type".equalsIgnoreCase(parameter.getLanguage().getJava().getSerializedName())) {
                 return true;
             }
         }
@@ -335,10 +352,12 @@ public class MethodUtil {
     private static int findIndexForContentTypeParam(List<Parameter> parameters) {
         int binarySchemaBodyIndex = -1;
         for (int i = 0; i < parameters.size(); ++i) {
-            if (parameters.get(i).getProtocol() != null && parameters.get(i).getProtocol().getHttp() != null
-                    && RequestParameterLocation.HEADER == parameters.get(i).getProtocol().getHttp().getIn()
-                    && parameters.get(i).getLanguage() != null && parameters.get(i).getLanguage().getJava() != null
-                    && "Content-Length".equalsIgnoreCase(parameters.get(i).getLanguage().getJava().getSerializedName())) {
+            if (parameters.get(i).getProtocol() != null
+                && parameters.get(i).getProtocol().getHttp() != null
+                && RequestParameterLocation.HEADER == parameters.get(i).getProtocol().getHttp().getIn()
+                && parameters.get(i).getLanguage() != null
+                && parameters.get(i).getLanguage().getJava() != null
+                && "Content-Length".equalsIgnoreCase(parameters.get(i).getLanguage().getJava().getSerializedName())) {
                 return i;
             }
             if (parameters.get(i).getSchema() instanceof BinarySchema) {
@@ -373,8 +392,9 @@ public class MethodUtil {
     }
 
     public static boolean isContentTypeInRequest(Request request, String contentType) {
-        return request.getProtocol() != null && request.getProtocol().getHttp() != null
-                && request.getProtocol().getHttp().getMediaTypes() != null
-                && request.getProtocol().getHttp().getMediaTypes().contains(contentType);
+        return request.getProtocol() != null
+            && request.getProtocol().getHttp() != null
+            && request.getProtocol().getHttp().getMediaTypes() != null
+            && request.getProtocol().getHttp().getMediaTypes().contains(contentType);
     }
 }

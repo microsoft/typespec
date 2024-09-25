@@ -11,7 +11,7 @@ public class MethodPollingDetails {
     private final int pollIntervalInSeconds;
 
     public MethodPollingDetails(String pollingStrategy, String syncPollingStrategy, IType intermediateType,
-                                IType finalType, int pollIntervalInSeconds) {
+        IType finalType, int pollIntervalInSeconds) {
         this.pollingStrategy = pollingStrategy;
         this.syncPollingStrategy = syncPollingStrategy;
         this.intermediateType = intermediateType;
