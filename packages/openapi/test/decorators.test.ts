@@ -159,8 +159,8 @@ describe("openapi: decorators", () => {
       `);
 
       expectDiagnostics(diagnostics, {
-        code: "@typespec/openapi/not-uri",
-        message: "TermsOfService: notvalidurl is not a valid URI.",
+        code: "@typespec/openapi/not-url",
+        message: "TermsOfService: notvalidurl is not a valid URL.",
       });
     });
 
