@@ -305,7 +305,7 @@ function copyHelperFile(sourceFile: string, destinationFile: string) {
 
 function copyHelperFiles(directoryName: string, scenariosPath: string) {
   copyHelperFile(
-    `${scenariosPath}/../dist/http/helper-server-test.js`,
+    `${scenariosPath}/../dist/specs/helper-server-test.js`,
     `${directoryName}/helper.js`,
   );
   copyHelperFile(`${scenariosPath}/../assets/image.jpg`, `${directoryName}/image.jpg`);

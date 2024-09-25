@@ -7,5 +7,5 @@
     "types": ["multer"],
     "allowJs": true
   },
-  "include": ["./http/**/*.ts", "./http/**/*.js"]
+  "include": ["specs/**/*.ts", "specs/**/*.js"]
 }
