@@ -140,6 +140,18 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 null,
                 [.. GetMethodParameters(operation, true), options]);
             var paramMap = new Dictionary<string, ParameterProvider>(signature.Parameters.ToDictionary(p => p.Name));
+
+            /* add client-level parameter.*/
+            foreach (var inputParam in operation.Parameters)
+            {
+                if (inputParam.Kind == InputOperationParameterKind.Client)
+                {
+                    var param = ClientModelPlugin.Instance.TypeFactory.CreateParameter(inputParam);
+                    param.Field = ClientProvider.Fields.FirstOrDefault(f => f.Name == "_" + inputParam.Name);
+                    paramMap[inputParam.Name] = param;
+                }
+            }
+
             foreach (var param in ClientProvider.GetUriParameters())
             {
                 paramMap[param.Name] = param;

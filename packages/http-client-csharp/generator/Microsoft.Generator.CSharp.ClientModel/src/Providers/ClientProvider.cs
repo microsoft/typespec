@@ -7,6 +7,7 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Threading;
 using Microsoft.Generator.CSharp.ClientModel.Primitives;
 using Microsoft.Generator.CSharp.ClientModel.Snippets;
@@ -34,6 +35,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private readonly FieldProvider? _apiKeyAuthField;
         private readonly FieldProvider? _authorizationHeaderConstant;
         private readonly FieldProvider? _authorizationApiKeyPrefixConstant;
+        private FieldProvider? _apiVersionField;
         private readonly ParameterProvider[] _subClientInternalConstructorParams;
         private IReadOnlyList<Lazy<ClientProvider>>? _subClients;
         private ParameterProvider? _clientOptionsParameter;
@@ -177,6 +179,29 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 }
             }
 
+            // Add the onClient: true parameter from operations as fields
+            var clientParamtersFromOperation = _inputClient.Operations.SelectMany(op => op.Parameters).Where(p => p.Kind == InputOperationParameterKind.Client).DistinctBy(p => p.NameInRequest);
+            foreach (var p in clientParamtersFromOperation)
+            {
+                if (!p.IsEndpoint)
+                {
+                    var type = ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(p.Type);
+                    if (type != null)
+                    {
+                        FieldProvider field = new(
+                            FieldModifiers.Private | FieldModifiers.ReadOnly,
+                            type,
+                            "_" + p.Name.ToVariableName(),
+                            this);
+                        if (p.IsApiVersion)
+                        {
+                            _apiVersionField = field;
+                        }
+                        fields.Add(field);
+                    }
+                }
+            }
+
             // add sub-client caching fields
             foreach (var subClient in SubClients)
             {
@@ -255,6 +280,20 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 }
             }
 
+            // Add the onClient: true parameter from operations as fields
+            foreach (var op in _inputClient.Operations)
+            {
+                foreach (var p in op.Parameters)
+                {
+                    if (!p.IsEndpoint && !p.IsApiVersion && p.Kind == InputOperationParameterKind.Client && p.IsRequired)
+                    {
+                        currentParam = ClientModelPlugin.Instance.TypeFactory.CreateParameter(p);
+                        currentParam.Field = Fields.FirstOrDefault(f => f.Name == "_" + p.Name);
+                        requiredParameters.Add(currentParam);
+                    }
+                }
+            }
+
             if (_apiKeyAuthField is not null)
                 requiredParameters.Add(_apiKeyAuthField.AsParameter);
 
@@ -304,10 +343,16 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 if (f != _apiKeyAuthField
                     && f != EndpointField
-                    && !f.Modifiers.HasFlag(FieldModifiers.Const)
-                    && clientOptionsPropertyDict.TryGetValue(f.Name.ToCleanName(), out var optionsProperty))
+                    && !f.Modifiers.HasFlag(FieldModifiers.Const))
                 {
-                    body.Add(f.Assign(ClientOptionsParameter.Property(optionsProperty.Name)).Terminate());
+                    if (f == _apiVersionField && ClientOptions.VersionProperty != null)
+                    {
+                        body.Add(f.Assign(ClientOptionsParameter.Property(ClientOptions.VersionProperty.Name)).Terminate());
+                    }
+                    else if (clientOptionsPropertyDict.TryGetValue(f.Name.ToCleanName(), out var optionsProperty))
+                    {
+                        clientOptionsPropertyDict.TryGetValue(f.Name.ToCleanName(), out optionsProperty);
+                    }
                 }
             }
 
