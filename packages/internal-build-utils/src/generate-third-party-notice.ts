@@ -1,7 +1,7 @@
 import { readdir, readFile, stat, writeFile } from "fs/promises";
 import { basename, dirname, join, resolve } from "path";
 
-const skipDirs = new Set(["node_modules", "dist-dev"]);
+const skipDirs = new Set(["node_modules", "dist-dev", "test"]);
 
 export async function generateThirdPartyNotice() {
   const root = resolve("./");

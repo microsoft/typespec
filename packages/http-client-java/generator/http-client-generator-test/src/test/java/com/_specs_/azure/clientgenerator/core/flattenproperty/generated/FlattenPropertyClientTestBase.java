@@ -10,7 +10,6 @@ package com._specs_.azure.clientgenerator.core.flattenproperty.generated;
 
 import com._specs_.azure.clientgenerator.core.flattenproperty.FlattenPropertyClient;
 import com._specs_.azure.clientgenerator.core.flattenproperty.FlattenPropertyClientBuilder;
-import com.azure.core.http.HttpClient;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.test.TestMode;
@@ -24,11 +23,9 @@ class FlattenPropertyClientTestBase extends TestProxyTestBase {
     protected void beforeTest() {
         FlattenPropertyClientBuilder flattenPropertyClientbuilder = new FlattenPropertyClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            flattenPropertyClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             flattenPropertyClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         flattenPropertyClient = flattenPropertyClientbuilder.buildClient();

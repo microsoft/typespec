@@ -4,16 +4,15 @@ import typescript from "@rollup/plugin-typescript";
 
 import { defineConfig } from "rollup";
 
-export default defineConfig({
+const baseConfig = defineConfig({
   input: "src/extension.ts",
   output: {
     file: "dist/src/extension.cjs",
     format: "commonjs",
     sourcemap: true,
     exports: "named",
-    inlineDynamicImports: true,
   },
-  external: ["fs/promises", "vscode"],
+  external: ["vscode"],
   plugins: [
     (resolve as any)({ preferBuiltins: true }),
     (commonjs as any)(),
@@ -31,3 +30,37 @@ export default defineConfig({
     warn(warning);
   },
 });
+
+export default defineConfig([
+  {
+    ...baseConfig,
+    input: "src/extension.ts",
+    output: {
+      file: "dist/src/extension.cjs",
+      format: "commonjs",
+      sourcemap: true,
+      exports: "named",
+      inlineDynamicImports: true,
+    },
+  },
+  {
+    ...baseConfig,
+    input: "src/web/extension.ts",
+    output: {
+      file: "dist/src/web/extension.js", // VSCode web will add extra .js if you use .cjs
+      format: "commonjs",
+      sourcemap: true,
+      inlineDynamicImports: true,
+    },
+  },
+  {
+    ...baseConfig,
+    input: "test/suite.ts",
+    output: {
+      file: "dist/test/suite.js", // VSCode web will add extra .js if you use .cjs
+      format: "commonjs",
+      sourcemap: true,
+      inlineDynamicImports: true,
+    },
+  },
+]);
