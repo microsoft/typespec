@@ -203,6 +203,9 @@ obj/
 packages/*/etc/
 docs/**/js-api/
 
+# VS Code test web temp files
+.vscode-test-web/
+
 # csharp emitter
 !packages/http-client-csharp/package-lock.json
 packages/http-client-csharp/generator/artifacts/
@@ -212,7 +215,7 @@ BenchmarkDotnet.Artifacts/
 !packages/http-client-java/package-lock.json
 
 # python emitter
-packages/http-client-python/test/**/generated/
-packages/http-client-python/test/**/cadl-ranch-coverage.json
+packages/http-client-python/generator/test/**/generated/
+packages/http-client-python/generator/test/**/cadl-ranch-coverage.json
 !packages/http-client-python/package-lock.json
 

@@ -10,5 +10,5 @@
     "sourceRoot": "..",
     "outDir": "dist/src"
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts", "test/**/*.ts"]
 }
