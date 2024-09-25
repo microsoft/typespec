@@ -13,7 +13,12 @@ if (process.env.TYPESPEC_SKIP_DOCUSAURUS_BUILD?.toLowerCase() === "true") {
   process.exit(0);
 }
 
-await runOrExit("docusaurus", ["build"]);
+await runOrExit("docusaurus", ["build"], {
+  env: {
+    ...process.env,
+    USE_SIMPLE_CSS_MINIFIER: "true",
+  },
+});
 
 function loadDotenv() {
   const dirname = path.dirname(fileURLToPath(import.meta.url));
