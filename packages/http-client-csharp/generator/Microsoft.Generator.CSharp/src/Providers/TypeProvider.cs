@@ -364,7 +364,7 @@ namespace Microsoft.Generator.CSharp.Providers
             if (customPropertyReplacements.TryGetValue(property.Name, out PropertyProvider? customProp))
             {
                 // Store the spec property on the custom property so that we can use it for serialization.
-                customProp.SpecProperty = property;
+                customProp.WireInfo = property.WireInfo;
                 return false;
             }
 

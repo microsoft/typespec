@@ -28,7 +28,7 @@ namespace Microsoft.Generator.CSharp.Providers
         public PropertyBody Body { get; internal set; }
         public CSharpType? ExplicitInterface { get; }
         public XmlDocProvider XmlDocs { get; private set; }
-        public PropertyWireInformation? WireInfo { get; }
+        public PropertyWireInformation? WireInfo { get; internal set; }
         public bool IsDiscriminator { get; }
         public bool IsAdditionalProperties { get; init; }
 
@@ -43,8 +43,6 @@ namespace Microsoft.Generator.CSharp.Providers
         public TypeProvider EnclosingType { get; }
 
         internal IEnumerable<AttributeData>? Attributes { get; init; }
-
-        public PropertyProvider? SpecProperty { get; internal set; }
 
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.

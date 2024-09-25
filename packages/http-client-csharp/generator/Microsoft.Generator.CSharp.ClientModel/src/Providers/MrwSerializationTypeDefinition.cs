@@ -1242,13 +1242,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private MethodBodyStatement[] CreateWritePropertiesStatements()
         {
             var properties = _model.Properties.
-                Concat(_model.CustomCodeView?.Properties.Where(p => p.SpecProperty != null) ?? []);
+                Concat(_model.CustomCodeView?.Properties.Where(p => p.WireInfo != null) ?? []);
             List<MethodBodyStatement> propertyStatements = new();
             foreach (var property in properties)
             {
-                var wireInfo = property.WireInfo ?? property.SpecProperty?.WireInfo;
                 // we should only write those properties with a wire info. Those properties without wireinfo indicate they are not spec properties.
-                if (wireInfo is null)
+                if (property.WireInfo is not { } wireInfo)
                 {
                     continue;
                 }
