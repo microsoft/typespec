@@ -55,6 +55,7 @@ import {
   SdkEnumType,
   SdkEnumValueType,
   SdkHeaderParameter,
+  SdkHttpErrorResponse,
   SdkHttpOperation,
   SdkHttpResponse,
   SdkLroPagingServiceMethod,
@@ -1605,7 +1606,7 @@ export class CodeModelBuilder {
   private processResponse(
     op: CodeModelOperation,
     statusCode: number | HttpStatusCodeRange | "*",
-    sdkResponse: SdkHttpResponse,
+    sdkResponse: SdkHttpResponse | SdkHttpErrorResponse,
     longRunning: boolean,
     isErrorResponse: boolean,
   ) {
