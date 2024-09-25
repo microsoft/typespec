@@ -8,7 +8,6 @@ package com.payload.multipart.generated;
 // If you wish to modify these files, please copy them out of the 'generated' package, and modify there.
 // See https://aka.ms/azsdk/dpg/java/tests for guide on adding a test.
 
-import com.azure.core.http.HttpClient;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.test.TestMode;
@@ -33,33 +32,27 @@ class MultiPartClientTestBase extends TestProxyTestBase {
     protected void beforeTest() {
         MultiPartClientBuilder formDataClientbuilder = new MultiPartClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            formDataClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             formDataClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         formDataClient = formDataClientbuilder.buildFormDataClient();
 
         MultiPartClientBuilder formDataHttpPartsClientbuilder = new MultiPartClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            formDataHttpPartsClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             formDataHttpPartsClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         formDataHttpPartsClient = formDataHttpPartsClientbuilder.buildFormDataHttpPartsClient();
 
         MultiPartClientBuilder formDataHttpPartsContentTypeClientbuilder = new MultiPartClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            formDataHttpPartsContentTypeClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             formDataHttpPartsContentTypeClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         formDataHttpPartsContentTypeClient
@@ -67,11 +60,9 @@ class MultiPartClientTestBase extends TestProxyTestBase {
 
         MultiPartClientBuilder formDataHttpPartsNonStringClientbuilder = new MultiPartClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            formDataHttpPartsNonStringClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             formDataHttpPartsNonStringClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         formDataHttpPartsNonStringClient

@@ -10,7 +10,6 @@ package com._specs_.azure.core.lro.standard.generated;
 
 import com._specs_.azure.core.lro.standard.StandardClient;
 import com._specs_.azure.core.lro.standard.StandardClientBuilder;
-import com.azure.core.http.HttpClient;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.test.TestMode;
@@ -24,11 +23,9 @@ class StandardClientTestBase extends TestProxyTestBase {
     protected void beforeTest() {
         StandardClientBuilder standardClientbuilder = new StandardClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            standardClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             standardClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         standardClient = standardClientbuilder.buildClient();
