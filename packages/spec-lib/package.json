@@ -30,7 +30,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
-    "@types/node": "~22.7.0",
+    "@types/node": "~22.7.1",
     "@typespec/tspd": "workspace:~",
     "rimraf": "~6.0.1",
     "typescript": "~5.6.2"

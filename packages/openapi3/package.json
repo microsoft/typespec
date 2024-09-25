@@ -67,7 +67,7 @@
     "@typespec/versioning": "workspace:~"
   },
   "devDependencies": {
-    "@types/node": "~22.7.0",
+    "@types/node": "~22.7.1",
     "@types/yargs": "~17.0.33",
     "@typespec/compiler": "workspace:~",
     "@typespec/http": "workspace:~",
