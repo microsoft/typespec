@@ -34,7 +34,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private readonly FieldProvider? _apiKeyAuthField;
         private readonly FieldProvider? _authorizationHeaderConstant;
         private readonly FieldProvider? _authorizationApiKeyPrefixConstant;
-        private readonly ParameterProvider[] _subClientInternalConstructorParams;
+        private readonly Lazy<ParameterProvider[]> _subClientInternalConstructorParams;
         private IReadOnlyList<Lazy<ClientProvider>>? _subClients;
         private ParameterProvider? _clientOptionsParameter;
         private ClientOptionsProvider? _clientOptions;
@@ -59,6 +59,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _inputAuth = ClientModelPlugin.Instance.InputLibrary.InputNamespace.Auth;
             _endpointParameter = BuildClientEndpointParameter();
             _publicCtorDescription = $"Initializes a new instance of {Name}.";
+
+            _subClientInternalConstructorParams = new Lazy<ParameterProvider[]>(GetSubClientConstructorParameters().ToArray());
 
             var apiKey = _inputAuth?.ApiKey;
             _apiKeyAuthField = apiKey != null ? new FieldProvider(
@@ -92,10 +94,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 body: new AutoPropertyBody(false),
                 enclosingType: this);
 
-            _subClientInternalConstructorParams = _apiKeyAuthField != null
-                ? [PipelineProperty.AsParameter, _apiKeyAuthField.AsParameter, _endpointParameter]
-                : [PipelineProperty.AsParameter, _endpointParameter];
-
             if (_inputClient.Parent != null)
             {
                 // Represents the cached children
@@ -107,6 +105,20 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
             _parent = new Lazy<ClientProvider?>(GetParent);
             _endpointParameterName = new(GetEndpointParameterName);
+        }
+
+        internal IEnumerable<ParameterProvider> GetSubClientConstructorParameters()
+        {
+            yield return PipelineProperty.AsParameter;
+            if (_apiKeyAuthField != null)
+            {
+                yield return _apiKeyAuthField.AsParameter;
+            }
+            yield return _endpointParameter;
+            foreach (var param in GetUriParameters())
+            {
+                yield return param;
+            }
         }
 
         private List<ParameterProvider>? _uriParameters;
@@ -209,7 +221,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             if (ClientOptionsParameter is null)
             {
                 List<MethodBodyStatement> body = new(3) { EndpointField.Assign(_endpointParameter).Terminate() };
-                foreach (var p in _subClientInternalConstructorParams)
+                foreach (var p in _subClientInternalConstructorParams.Value)
                 {
                     var assignment = p.Field?.Assign(p).Terminate() ?? p.Property?.Assign(p).Terminate();
                     if (assignment != null)
@@ -218,7 +230,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     }
                 }
                 var subClientConstructor = new ConstructorProvider(
-                    new ConstructorSignature(Type, _publicCtorDescription, MethodSignatureModifiers.Internal, _subClientInternalConstructorParams),
+                    new ConstructorSignature(Type, _publicCtorDescription, MethodSignatureModifiers.Internal, _subClientInternalConstructorParams.Value),
                     body,
                     this);
 
@@ -385,7 +397,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 List<ValueExpression> subClientConstructorArgs = new(3);
 
                 // Populate constructor arguments
-                foreach (var param in subClientInstance._subClientInternalConstructorParams)
+                foreach (var param in subClientInstance._subClientInternalConstructorParams.Value)
                 {
                     if (parentClientProperties.TryGetValue(param.Name, out var parentProperty))
                     {
