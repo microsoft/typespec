@@ -1,13 +1,3 @@
-# User-specific files
-*.suo
-*.user
-*.idea
-*.sln.docstates
-.vs/
-*.lock.json
-developer/
-launch.json
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -189,6 +179,14 @@ bin/
 obj/
 .vs/
 *.binlog
+
+# User-specific files
+*.suo
+*.user
+*.idea
+*.sln.docstates
+*.lock.json
+developer/
 
 # tsc incremental build files
 *.tsbuildinfo
