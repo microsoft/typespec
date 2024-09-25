@@ -9,5 +9,5 @@
     "declarationMap": false,
     "sourceRoot": ".."
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts", "test/**/*.ts"]
 }
