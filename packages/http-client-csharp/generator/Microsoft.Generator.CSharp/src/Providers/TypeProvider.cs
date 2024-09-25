@@ -365,6 +365,7 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 // Store the wire info on the custom property so that we can use it for serialization.
                 customProp.WireInfo = property.WireInfo;
+                customProp.BaseProperty = property.BaseProperty;
                 return false;
             }
 

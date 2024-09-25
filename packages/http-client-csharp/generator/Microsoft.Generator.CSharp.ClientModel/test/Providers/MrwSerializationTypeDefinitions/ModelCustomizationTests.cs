@@ -12,7 +12,7 @@ using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializationTypeDefinitions
 {
-    public class SerializationCustomizationTests
+    public class ModelCustomizationTests
     {
         [Test]
         public async Task CanChangePropertyName()
@@ -33,8 +33,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             Assert.AreEqual(0, serializationProvider!.Fields.Count);
 
             // validate the methods use the custom member name
-            var writer = new TypeProviderWriter(serializationProvider);
+            var writer = new TypeProviderWriter(modelProvider);
             var file = writer.Write();
+            var expected = Helpers.GetExpectedFromFile();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
     }

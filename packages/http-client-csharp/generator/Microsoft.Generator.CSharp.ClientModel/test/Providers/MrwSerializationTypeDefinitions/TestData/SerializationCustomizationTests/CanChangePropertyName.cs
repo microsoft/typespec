@@ -83,15 +83,37 @@ namespace Sample.Models
             {
                 return null;
             }
+            global::System.String[] prop2 = default;
             global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new global::Sample.ChangeTrackingDictionary<string, global::System.BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
+                if (prop.NameEquals("prop1"u8))
+                {
+                    if ((prop.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
+                    {
+                        continue;
+                    }
+                    global::System.Collections.Generic.List<string> array = new global::System.Collections.Generic.List<string>();
+                    foreach (var item in prop.Value.EnumerateArray())
+                    {
+                        if ((item.ValueKind == global::System.Text.Json.JsonValueKind.Null))
+                        {
+                            array.Add(null);
+                        }
+                        else
+                        {
+                            array.Add(item.GetString());
+                        }
+                    }
+                    prop2 = array;
+                    continue;
+                }
                 if ((options.Format != "W"))
                 {
                     additionalBinaryDataProperties.Add(prop.Name, global::System.BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
-            return new global::Sample.Models.MockInputModel(additionalBinaryDataProperties);
+            return new global::Sample.Models.MockInputModel(prop2, additionalBinaryDataProperties);
         }
 
         global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.MockInputModel>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
