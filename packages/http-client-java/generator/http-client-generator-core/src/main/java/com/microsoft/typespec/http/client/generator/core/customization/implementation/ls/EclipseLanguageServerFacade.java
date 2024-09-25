@@ -52,12 +52,9 @@ public class EclipseLanguageServerFacade {
             if (javaVersion < 17) {
                 // JAR to start v1.12.0
                 command.add("./plugins/org.eclipse.equinox.launcher_1.6.400.v20210924-0641.jar");
-            } else if (javaVersion < 21) {
-                // JAR to start v1.29.0
-                command.add("./plugins/org.eclipse.equinox.launcher_1.6.500.v20230717-2134.jar");
             } else {
-                // JAR to start v1.31.0
-                command.add("./plugins/org.eclipse.equinox.launcher_1.6.700.v20231214-2017.jar");
+                // JAR to start v1.39.0
+                command.add("./plugins/org.eclipse.equinox.launcher_1.6.900.v20240613-2009.jar");
             }
 
             command.add("--add-modules=ALL-SYSTEM");
@@ -97,20 +94,13 @@ public class EclipseLanguageServerFacade {
             downloadUrl
                 = URI.create(DOWNLOAD_BASE_URL + "1.12.0/jdt-language-server-1.12.0-202206011637.tar.gz").toURL();
             languageServerPath = autorestLanguageServer.resolve("1.12.0");
-        } else if (javaVersion < 21) {
-            // Eclipse JDT language server version 1.29.0 is the latest version that supports Java 17.
+        } else {
+            // Eclipse JDT language server version 1.39.0 is the latest version that supports Java 17.
             // In the future this else statement may need to be replaced with an else if as newer versions of
             // Eclipse JDT language server may baseline on Java 21 (or later).
             downloadUrl
-                = URI.create(DOWNLOAD_BASE_URL + "1.29.0/jdt-language-server-1.29.0-202310261436.tar.gz").toURL();
-            languageServerPath = autorestLanguageServer.resolve("1.29.0");
-        } else {
-            // Eclipse JDT language server version 1.31.0 is the latest version that supports Java 21.
-            // In the future this else statement may need to be replaced with an else if as newer versions of
-            // Eclipse JDT language server may baseline on Java 25 (or later).
-            downloadUrl
-                = URI.create(DOWNLOAD_BASE_URL + "1.31.0/jdt-language-server-1.31.0-202401111522.tar.gz").toURL();
-            languageServerPath = autorestLanguageServer.resolve("1.31.0");
+                = URI.create(DOWNLOAD_BASE_URL + "1.39.0/jdt-language-server-1.39.0-202408291433.tar.gz").toURL();
+            languageServerPath = autorestLanguageServer.resolve("1.39.0");
         }
 
         Path languageServer = languageServerPath.resolve("jdt-language-server");
