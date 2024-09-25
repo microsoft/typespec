@@ -1474,12 +1474,6 @@ importers:
       '@typespec/spec-lib':
         specifier: workspace:~
         version: link:../spec-lib
-      '@vitest/coverage-v8':
-        specifier: ^2.1.0
-        version: 2.1.0(vitest@2.1.0(@types/node@22.5.4)(@vitest/ui@2.1.0)(happy-dom@15.7.4)(jsdom@19.0.0)(terser@5.30.0))
-      '@vitest/ui':
-        specifier: ^2.1.0
-        version: 2.1.0(vitest@2.1.0)
       ajv:
         specifier: ~8.17.1
         version: 8.17.1
@@ -1489,15 +1483,9 @@ importers:
       body-parser:
         specifier: ^1.20.2
         version: 1.20.2
-      cross-env:
-        specifier: ~7.0.3
-        version: 7.0.3
       deep-equal:
         specifier: ^2.2.0
         version: 2.2.3
-      dotenv:
-        specifier: ~16.4.5
-        version: 16.4.5
       express:
         specifier: ^4.19.2
         version: 4.19.2
@@ -1528,9 +1516,6 @@ importers:
       source-map-support:
         specifier: ~0.5.21
         version: 0.5.21
-      vitest:
-        specifier: ^2.1.0
-        version: 2.1.0(@types/node@22.5.4)(@vitest/ui@2.1.0)(happy-dom@15.7.4)(jsdom@19.0.0)(terser@5.30.0)
       winston:
         specifier: ^3.8.2
         version: 3.14.2

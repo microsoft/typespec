@@ -52,12 +52,7 @@
     "yargs": "~17.7.2",
     "jackspeak": "2.1.1",
     "multer": "^1.4.5-lts.1",
-    "cross-env": "~7.0.3",
-    "axios": "^1.7.5",
-    "dotenv": "~16.4.5",
-    "vitest": "^2.1.0",
-    "@vitest/coverage-v8": "^2.1.0",
-    "@vitest/ui": "^2.1.0"
+    "axios": "^1.7.5"
   },
   "devDependencies": {
     "@types/multer": "^1.4.10",
