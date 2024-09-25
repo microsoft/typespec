@@ -26,9 +26,8 @@ public class AsyncSyncClient {
     // clientBuilder can be null, if builder is disabled via "disable-client-builder"
     private ClientBuilder clientBuilder;
 
-    private AsyncSyncClient(String packageName, String className,
-        MethodGroupClient methodGroupClient, ServiceClient serviceClient,
-        List<ConvenienceMethod> convenienceMethods, String crossLanguageDefinitionId) {
+    private AsyncSyncClient(String packageName, String className, MethodGroupClient methodGroupClient,
+        ServiceClient serviceClient, List<ConvenienceMethod> convenienceMethods, String crossLanguageDefinitionId) {
         this.packageName = packageName;
         this.className = className;
         this.methodGroupClient = methodGroupClient;
@@ -195,7 +194,8 @@ public class AsyncSyncClient {
          * @return The instance of {@link AsyncSyncClient}.
          */
         public AsyncSyncClient build() {
-            return new AsyncSyncClient(packageName, className, methodGroupClient, serviceClient, convenienceMethods, crossLanguageDefinitionId);
+            return new AsyncSyncClient(packageName, className, methodGroupClient, serviceClient, convenienceMethods,
+                crossLanguageDefinitionId);
         }
     }
 }

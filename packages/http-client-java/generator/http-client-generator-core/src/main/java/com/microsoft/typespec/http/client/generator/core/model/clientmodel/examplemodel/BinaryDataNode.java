@@ -16,6 +16,7 @@ public class BinaryDataNode extends ExampleNode {
     /**
      * Get example value as string.
      * We treat all example values for BinaryData as string and generate BinaryData.fromBytes(exampleValue.getBytes()).
+     * 
      * @return example value as string
      */
     public String getExampleValue() {

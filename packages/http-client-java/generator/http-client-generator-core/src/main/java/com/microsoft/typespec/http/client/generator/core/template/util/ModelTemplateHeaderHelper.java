@@ -3,6 +3,9 @@
 
 package com.microsoft.typespec.http.client.generator.core.template.util;
 
+import com.azure.core.http.HttpHeaderName;
+import com.azure.core.http.HttpHeaders;
+import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ArrayType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
@@ -19,10 +22,6 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaMod
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.template.ModelTemplate;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
-import com.azure.core.http.HttpHeaderName;
-import com.azure.core.http.HttpHeaders;
-import com.azure.core.util.CoreUtils;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -95,7 +94,8 @@ public final class ModelTemplateHeaderHelper {
     /**
      * Gets an expression of HttpHeaderName instance.
      * <p>
-     * For known name, it would be {@code HttpHeaderName.IF_MATCH}. For unknown name, it would be {@code HttpHeaderName.fromString("foo")}.
+     * For known name, it would be {@code HttpHeaderName.IF_MATCH}. For unknown name, it would be
+     * {@code HttpHeaderName.fromString("foo")}.
      *
      * @param headerName the header name
      * @return the expression of HttpHeaderName instance.
@@ -141,13 +141,16 @@ public final class ModelTemplateHeaderHelper {
 
     private static void generateHeaderDeserializationFunction(ClientModelProperty property, JavaBlock javaBlock) {
         IType wireType = property.getWireType();
-        boolean needsNullGuarding = wireType != ClassType.STRING &&
-            (wireType instanceof ArrayType || wireType instanceof ClassType
-                || wireType instanceof EnumType || wireType instanceof GenericType);
+        boolean needsNullGuarding = wireType != ClassType.STRING
+            && (wireType instanceof ArrayType
+                || wireType instanceof ClassType
+                || wireType instanceof EnumType
+                || wireType instanceof GenericType);
 
         // No matter the wire type the rawHeaders will need to be accessed.
         String knownHttpHeaderNameConstant = HEADER_TO_KNOWN_HTTPHEADERNAME.get(property.getSerializedName());
-        String httpHeaderName = knownHttpHeaderNameConstant != null ? "HttpHeaderName." + knownHttpHeaderNameConstant
+        String httpHeaderName = knownHttpHeaderNameConstant != null
+            ? "HttpHeaderName." + knownHttpHeaderNameConstant
             : CodeNamer.getEnumMemberName(property.getSerializedName());
 
         String rawHeaderAccess = String.format("rawHeaders.getValue(%s)", httpHeaderName);

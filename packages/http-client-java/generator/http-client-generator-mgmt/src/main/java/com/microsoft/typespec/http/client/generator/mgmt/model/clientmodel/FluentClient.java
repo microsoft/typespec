@@ -3,10 +3,9 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel;
 
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.examplemodel.FluentMethodMockUnitTest;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Client;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModuleInfo;
-
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.examplemodel.FluentMethodMockUnitTest;
 import java.util.ArrayList;
 import java.util.List;
 
