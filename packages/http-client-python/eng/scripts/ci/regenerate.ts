@@ -29,7 +29,7 @@ const PLUGIN_DIR = argv.values.pluginDir
 const CADL_RANCH_DIR = resolve(PLUGIN_DIR, "node_modules/@azure-tools/cadl-ranch-specs/http");
 const GENERATED_FOLDER = argv.values.generatedFolder
   ? resolve(argv.values.generatedFolder)
-  : resolve(PLUGIN_DIR, "generated");
+  : resolve(PLUGIN_DIR, "generator");
 
 interface TspCommand {
   outputDir: string;
