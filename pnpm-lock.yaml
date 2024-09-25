@@ -862,8 +862,8 @@ importers:
         specifier: 0.6.3
         version: 0.6.3
       monaco-editor:
-        specifier: ~0.46.0
-        version: 0.46.0
+        specifier: ~0.52.0
+        version: 0.52.0
       react:
         specifier: ~18.3.1
         version: 18.3.1
@@ -10180,9 +10180,6 @@ packages:
     peerDependencies:
       monaco-editor: '>= 0.31.0'
       webpack: ^4.5.0 || 5.x
-
-  monaco-editor@0.46.0:
-    resolution: {integrity: sha512-ADwtLIIww+9FKybWscd7OCfm9odsFYHImBRI1v9AviGce55QY8raT+9ihH8jX/E/e6QVSGM+pKj4jSUSRmALNQ==}
 
   monaco-editor@0.52.0:
     resolution: {integrity: sha512-OeWhNpABLCeTqubfqLMXGsqf6OmPU6pHM85kF3dhy6kq5hnhuVS1p3VrEW/XhWHc71P2tHyS5JFySD8mgs1crw==}
@@ -24389,8 +24386,6 @@ snapshots:
       loader-utils: 2.0.4
       monaco-editor: 0.52.0
       webpack: 5.91.0(@swc/core@1.7.28(@swc/helpers@0.5.13))
-
-  monaco-editor@0.46.0: {}
 
   monaco-editor@0.52.0: {}
 
