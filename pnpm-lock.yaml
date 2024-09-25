@@ -405,10 +405,10 @@ importers:
         specifier: workspace:~
         version: link:../tspd
       '@vitest/coverage-v8':
-        specifier: ^2.0.4
+        specifier: ^2.1.0
         version: 2.1.0(vitest@2.1.0(@types/node@22.5.4)(@vitest/ui@2.1.0)(happy-dom@15.7.4)(jsdom@19.0.0)(terser@5.30.0))
       '@vitest/ui':
-        specifier: ^2.0.4
+        specifier: ^2.1.0
         version: 2.1.0(vitest@2.1.0)
       c8:
         specifier: ^10.1.2
@@ -420,7 +420,7 @@ importers:
         specifier: ~5.6.2
         version: 5.6.2
       vitest:
-        specifier: ^2.0.4
+        specifier: ^2.1.0
         version: 2.1.0(@types/node@22.5.4)(@vitest/ui@2.1.0)(happy-dom@15.7.4)(jsdom@19.0.0)(terser@5.30.0)
 
   packages/html-program-viewer:
@@ -1618,10 +1618,10 @@ importers:
         specifier: workspace:~
         version: link:../tspd
       '@vitest/coverage-v8':
-        specifier: ^2.0.4
+        specifier: ^2.1.0
         version: 2.1.0(vitest@2.1.0(@types/node@22.5.4)(@vitest/ui@2.1.0)(happy-dom@15.7.4)(jsdom@19.0.0)(terser@5.30.0))
       '@vitest/ui':
-        specifier: ^2.0.4
+        specifier: ^2.1.0
         version: 2.1.0(vitest@2.1.0)
       c8:
         specifier: ^10.1.2
@@ -1633,7 +1633,7 @@ importers:
         specifier: ~5.6.2
         version: 5.6.2
       vitest:
-        specifier: ^2.0.4
+        specifier: ^2.1.0
         version: 2.1.0(@types/node@22.5.4)(@vitest/ui@2.1.0)(happy-dom@15.7.4)(jsdom@19.0.0)(terser@5.30.0)
 
   packages/streams:
@@ -1651,10 +1651,10 @@ importers:
         specifier: workspace:~
         version: link:../tspd
       '@vitest/coverage-v8':
-        specifier: ^2.0.4
+        specifier: ^2.1.0
         version: 2.1.0(vitest@2.1.0(@types/node@22.5.4)(@vitest/ui@2.1.0)(happy-dom@15.7.4)(jsdom@19.0.0)(terser@5.30.0))
       '@vitest/ui':
-        specifier: ^2.0.4
+        specifier: ^2.1.0
         version: 2.1.0(vitest@2.1.0)
       c8:
         specifier: ^10.1.2
@@ -1666,7 +1666,7 @@ importers:
         specifier: ~5.6.2
         version: 5.6.2
       vitest:
-        specifier: ^2.0.4
+        specifier: ^2.1.0
         version: 2.1.0(@types/node@22.5.4)(@vitest/ui@2.1.0)(happy-dom@15.7.4)(jsdom@19.0.0)(terser@5.30.0)
 
   packages/tmlanguage-generator:
@@ -21725,8 +21725,8 @@ snapshots:
 
   magicast@0.3.4:
     dependencies:
-      '@babel/parser': 7.24.8
-      '@babel/types': 7.24.9
+      '@babel/parser': 7.25.6
+      '@babel/types': 7.25.6
       source-map-js: 1.2.0
 
   make-dir@2.1.0:
