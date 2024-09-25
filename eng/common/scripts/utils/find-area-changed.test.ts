@@ -74,12 +74,12 @@ it("Should return CSharp, Core and Java if .editorconfig is changed", () => {
   expect(areas).toEqual(["CSharp", "Java", "Python", "Core"]);
 });
 
-it("Should not return Core for .prettierignore, .prettierrc.json, cspell.yaml, esling.config.json", () => {
+it("Should not return Core for .prettierignore, .prettierrc.json, cspell.yaml, eslint.config.json", () => {
   const areas = findAreasChanged([
     ".prettierignore",
     ".prettierrc.json",
     "cspell.yaml",
-    "esling.config.json",
+    "eslint.config.json",
     "packages/http-client-csharp/emitter/src/constants.ts",
     "packages/http-client-java/emitter/src/emitter.ts",
     "packages/http-client-python/emitter/src/emitter.ts",

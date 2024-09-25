@@ -16,7 +16,6 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
     <spotless.config.path>../</spotless.config.path>
   </properties>
 
@@ -41,6 +40,12 @@
       <artifactId>azure-core-test</artifactId>
       <version>1.27.0-beta.1</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>com.azure</groupId>
+          <artifactId>azure-core-http-jdk-httpclient</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.azure</groupId>
@@ -51,12 +56,6 @@
       <groupId>com.azure</groupId>
       <artifactId>azure-core-management</artifactId>
       <version>1.15.3</version>
-    </dependency>
-    <dependency>
-      <groupId>com.azure</groupId>
-      <artifactId>azure-core-http-netty</artifactId>
-      <version>1.15.4</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
