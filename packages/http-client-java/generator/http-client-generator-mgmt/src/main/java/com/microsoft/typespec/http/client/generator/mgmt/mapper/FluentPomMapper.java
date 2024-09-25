@@ -4,11 +4,10 @@
 package com.microsoft.typespec.http.client.generator.mgmt.mapper;
 
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
-import com.microsoft.typespec.http.client.generator.mgmt.model.projectmodel.FluentProject;
 import com.microsoft.typespec.http.client.generator.core.mapper.PomMapper;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Pom;
 import com.microsoft.typespec.http.client.generator.core.model.projectmodel.Project;
-
+import com.microsoft.typespec.http.client.generator.mgmt.model.projectmodel.FluentProject;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -29,31 +28,32 @@ public class FluentPomMapper extends PomMapper {
         Set<String> addedDependencyPrefixes = new HashSet<>();
         List<String> dependencyIdentifiers = new ArrayList<>();
         if (JavaSettings.getInstance().isStreamStyleSerialization()) {
-            addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes,
-                Project.Dependency.AZURE_JSON, false);
+            addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes, Project.Dependency.AZURE_JSON,
+                false);
         }
+        addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes, Project.Dependency.AZURE_CORE, false);
         addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes,
-                Project.Dependency.AZURE_CORE, false);
-        addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes,
-                Project.Dependency.AZURE_CORE_MANAGEMENT, false);
+            Project.Dependency.AZURE_CORE_MANAGEMENT, false);
         if (JavaSettings.getInstance().isGenerateTests()) {
+            addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes, Project.Dependency.AZURE_CORE_TEST,
+                true);
+            addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes, Project.Dependency.AZURE_IDENTITY,
+                true);
             addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes,
-                    Project.Dependency.AZURE_CORE_TEST, true);
+                Project.Dependency.JUNIT_JUPITER_API, true);
             addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes,
-                    Project.Dependency.AZURE_IDENTITY, true);
-            addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes,
-                    Project.Dependency.JUNIT_JUPITER_API, true);
-            addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes,
-                    Project.Dependency.JUNIT_JUPITER_ENGINE, true);
+                Project.Dependency.JUNIT_JUPITER_ENGINE, true);
 
-            addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes,
-                    Project.Dependency.SLF4J_SIMPLE, true);
+            addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes, Project.Dependency.SLF4J_SIMPLE,
+                true);
         }
 
         // merge dependencies in POM and dependencies added above
-        dependencyIdentifiers.addAll(project.getPomDependencyIdentifiers().stream()
-                .filter(dependencyIdentifier -> addedDependencyPrefixes.stream().noneMatch(dependencyIdentifier::startsWith))
-                .collect(Collectors.toList()));
+        dependencyIdentifiers.addAll(project.getPomDependencyIdentifiers()
+            .stream()
+            .filter(
+                dependencyIdentifier -> addedDependencyPrefixes.stream().noneMatch(dependencyIdentifier::startsWith))
+            .collect(Collectors.toList()));
 
         pom.setDependencyIdentifiers(dependencyIdentifiers);
 

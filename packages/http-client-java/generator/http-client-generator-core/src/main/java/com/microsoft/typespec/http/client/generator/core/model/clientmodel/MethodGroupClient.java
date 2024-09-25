@@ -3,10 +3,9 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
+import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
-import com.azure.core.util.CoreUtils;
-
 import java.util.List;
 import java.util.Set;
 
@@ -61,6 +60,7 @@ public class MethodGroupClient {
 
     /**
      * Create a new MethodGroupClient with the provided properties.
+     * 
      * @param className The name of the client's class.
      * @param interfaceName The name of the client's interface.
      * @param implementedInterfaces The interfaces that the client implements.
@@ -71,11 +71,10 @@ public class MethodGroupClient {
      * @param variableName The variable name for any instances of this MethodGroupClient.
      * @param clientMethods The ClientMethods for this MethodGroupClient.
      */
-    protected MethodGroupClient(
-            String packageKeyword, String className, String interfaceName, List<String> implementedInterfaces,
-            Proxy proxy, String serviceClientName, String variableType, String variableName,
-            List<ClientMethod> clientMethods, List<IType> supportedInterfaces, String classBaseName,
-            List<ServiceClientProperty> properties) {
+    protected MethodGroupClient(String packageKeyword, String className, String interfaceName,
+        List<String> implementedInterfaces, Proxy proxy, String serviceClientName, String variableType,
+        String variableName, List<ClientMethod> clientMethods, List<IType> supportedInterfaces, String classBaseName,
+        List<ServiceClientProperty> properties) {
         packageName = packageKeyword;
         this.className = className;
         this.interfaceName = interfaceName;
@@ -87,8 +86,8 @@ public class MethodGroupClient {
         this.variableName = variableName;
         this.clientMethods = clientMethods;
         this.classBaseName = classBaseName != null
-                ? classBaseName
-                : (className.endsWith("Impl") ? className.substring(0, className.length() - 4) : className);
+            ? classBaseName
+            : (className.endsWith("Impl") ? className.substring(0, className.length() - 4) : className);
         this.properties = properties;
     }
 
@@ -142,8 +141,10 @@ public class MethodGroupClient {
 
     /**
      * Add this property's imports to the provided set of imports.
+     * 
      * @param imports The set of imports to add to.
-     * @param includeImplementationImports Whether to include imports that are only necessary for method implementations.
+     * @param includeImplementationImports Whether to include imports that are only necessary for method
+     * implementations.
      */
     public final void addImportsTo(Set<String> imports, boolean includeImplementationImports, JavaSettings settings) {
         if (!settings.isFluent() && settings.isGenerateClientInterfaces()) {
@@ -155,7 +156,7 @@ public class MethodGroupClient {
         }
 
         if (includeImplementationImports) {
-            //ClassType proxyType = settings.isAzureOrFluent() ? ClassType.AzureProxy : ClassType.RestProxy;
+            // ClassType proxyType = settings.isAzureOrFluent() ? ClassType.AzureProxy : ClassType.RestProxy;
             ClassType proxyType = getProxyClassType();
             imports.add(proxyType.getFullName());
 
@@ -201,6 +202,7 @@ public class MethodGroupClient {
 
         /**
          * Sets the name of the package.
+         * 
          * @param packageName the name of the package
          * @return the Builder itself
          */
@@ -211,6 +213,7 @@ public class MethodGroupClient {
 
         /**
          * Sets the name of this client's class.
+         * 
          * @param className the name of this client's class
          * @return the Builder itself
          */
@@ -221,6 +224,7 @@ public class MethodGroupClient {
 
         /**
          * Sets the name of this client's interface.
+         * 
          * @param interfaceName the name of this client's interface
          * @return the Builder itself
          */
@@ -231,6 +235,7 @@ public class MethodGroupClient {
 
         /**
          * Sets the interfaces that the client implements.
+         * 
          * @param implementedInterfaces the interfaces that the client implements
          * @return the Builder itself
          */
@@ -241,6 +246,7 @@ public class MethodGroupClient {
 
         /**
          * Sets the REST API that this client will send requests to.
+         * 
          * @param proxy the REST API that this client will send requests to
          * @return the Builder itself
          */
@@ -251,6 +257,7 @@ public class MethodGroupClient {
 
         /**
          * Sets the name of the ServiceClient that contains this MethodGroupClient.
+         * 
          * @param serviceClientName the name of the ServiceClient that contains this MethodGroupClient
          * @return the Builder itself
          */
@@ -261,6 +268,7 @@ public class MethodGroupClient {
 
         /**
          * Sets the type of this MethodGroupClient when it is used as a variable.
+         * 
          * @param variableType the type of this MethodGroupClient when it is used as a variable
          * @return the Builder itself
          */
@@ -271,6 +279,7 @@ public class MethodGroupClient {
 
         /**
          * Sets the variable name for any instances of this MethodGroupClient.
+         * 
          * @param variableName the variable name for any instances of this MethodGroupClient
          * @return the Builder itself
          */
@@ -281,6 +290,7 @@ public class MethodGroupClient {
 
         /**
          * Sets the client method overloads for this MethodGroupClient.
+         * 
          * @param clientMethods the client method overloads for this MethodGroupClient
          * @return the Builder itself
          */
@@ -291,6 +301,7 @@ public class MethodGroupClient {
 
         /**
          * Sets the interfaces that the client supports.
+         * 
          * @param supportedInterfaces the interfaces that the client supports
          * @return the Builder itself
          */
@@ -301,6 +312,7 @@ public class MethodGroupClient {
 
         /**
          * Sets the class base name.
+         * 
          * @param classBaseName class base name.
          * @return the Builder itself
          */
@@ -321,18 +333,9 @@ public class MethodGroupClient {
         }
 
         public MethodGroupClient build() {
-            return new MethodGroupClient(packageName,
-                    className,
-                    interfaceName,
-                    implementedInterfaces,
-                    proxy,
-                    serviceClientName,
-                    variableType,
-                    variableName,
-                    clientMethods,
-                    supportedInterfaces,
-                    classBaseName,
-                    properties);
+            return new MethodGroupClient(packageName, className, interfaceName, implementedInterfaces, proxy,
+                serviceClientName, variableType, variableName, clientMethods, supportedInterfaces, classBaseName,
+                properties);
         }
     }
 }

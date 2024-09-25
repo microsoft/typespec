@@ -16,6 +16,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spotless.config.path>../</spotless.config.path>
     </properties>
 
     <dependencies>

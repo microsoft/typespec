@@ -3,10 +3,9 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonWriter;
-
+import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -162,8 +161,7 @@ public class Client extends Metadata {
     }
 
     JsonWriter writeParentProperties(JsonWriter jsonWriter) throws IOException {
-        return super.writeParentProperties(jsonWriter)
-            .writeStringField("summary", summary)
+        return super.writeParentProperties(jsonWriter).writeStringField("summary", summary)
             .writeArrayField("operationGroups", operationGroups, JsonWriter::writeJson)
             .writeArrayField("globalParameters", globalParameters, JsonWriter::writeJson)
             .writeJsonField("security", security)

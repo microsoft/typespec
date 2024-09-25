@@ -5,7 +5,6 @@ package com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -52,8 +51,9 @@ public class FluentManagerProperty {
     }
 
     public List<ClassType> getResourceModelTypes() {
-        return this.resourceCollection.getResourceCreates().stream()
-                .map(rc -> rc.getResourceModel().getInterfaceType())
-                .collect(Collectors.toList());
+        return this.resourceCollection.getResourceCreates()
+            .stream()
+            .map(rc -> rc.getResourceModel().getInterfaceType())
+            .collect(Collectors.toList());
     }
 }

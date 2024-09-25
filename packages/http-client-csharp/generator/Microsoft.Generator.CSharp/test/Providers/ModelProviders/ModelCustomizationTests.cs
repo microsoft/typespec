@@ -51,6 +51,40 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             // the property should be added to the custom code view
             Assert.AreEqual(1, modelTypeProvider.CustomCodeView!.Properties.Count);
             Assert.AreEqual("Prop2", modelTypeProvider.CustomCodeView.Properties[0].Name);
+            var specProperty = modelTypeProvider.CustomCodeView.Properties[0].SpecProperty;
+            Assert.IsNotNull(specProperty);
+            Assert.AreEqual( "Prop1", specProperty!.Name);
+
+            Assert.AreEqual(0, modelTypeProvider.Properties.Count);
+        }
+
+        [Test]
+        public async Task CanChangePropertyNameAndRedefineOriginal()
+        {
+            var props = new[]
+            {
+                InputFactory.Property("Prop1", InputFactory.Array(InputPrimitiveType.String))
+            };
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
+
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModelTypes: new[] { inputModel },
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelTypeProvider = plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+
+            AssertCommon(modelTypeProvider, "Sample.Models", "MockInputModel");
+
+            // the properties should be added to the custom code view
+            Assert.AreEqual(2, modelTypeProvider.CustomCodeView!.Properties.Count);
+            Assert.AreEqual("Prop2", modelTypeProvider.CustomCodeView.Properties[0].Name);
+            var specProperty = modelTypeProvider.CustomCodeView.Properties[0].SpecProperty;
+            Assert.IsNotNull(specProperty);
+            Assert.AreEqual( "Prop1", specProperty!.Name);
+            Assert.AreEqual("Prop1", modelTypeProvider.CustomCodeView.Properties[1].Name);
+
+            Assert.AreEqual(0, modelTypeProvider.Properties.Count);
         }
 
         [Test]

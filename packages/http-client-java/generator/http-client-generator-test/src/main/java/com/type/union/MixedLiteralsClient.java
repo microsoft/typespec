@@ -42,7 +42,8 @@ public final class MixedLiteralsClient {
      * The get operation.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     prop (Required): {
      *         stringLiteral: BinaryData (Required)
@@ -51,7 +52,8 @@ public final class MixedLiteralsClient {
      *         booleanLiteral: BinaryData (Required)
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -70,7 +72,8 @@ public final class MixedLiteralsClient {
      * The send operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     prop (Required): {
      *         stringLiteral: BinaryData (Required)
@@ -79,7 +82,8 @@ public final class MixedLiteralsClient {
      *         booleanLiteral: BinaryData (Required)
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param sendRequest1 The sendRequest1 parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

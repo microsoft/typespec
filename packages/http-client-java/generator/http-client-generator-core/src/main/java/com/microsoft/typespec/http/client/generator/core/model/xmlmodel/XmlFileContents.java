@@ -60,7 +60,8 @@ public class XmlFileContents {
         if (linePrefix.length() <= toRemoveLength) {
             linePrefix.setLength(0);
         } else {
-            linePrefix.delete(linePrefix.length() - toRemoveLength, linePrefix.length() - toRemoveLength + toRemoveLength);
+            linePrefix.delete(linePrefix.length() - toRemoveLength,
+                linePrefix.length() - toRemoveLength + toRemoveLength);
         }
     }
 
@@ -103,7 +104,8 @@ public class XmlFileContents {
 
         String prefix = addPrefix ? linePrefix.toString() : null;
         for (String line : lines) {
-            if (addPrefix && prefix != null && !prefix.trim().isEmpty() || (prefix != null && !prefix.isEmpty() && line != null && !line.trim().isEmpty())) {
+            if (addPrefix && prefix != null && !prefix.trim().isEmpty()
+                || (prefix != null && !prefix.isEmpty() && line != null && !line.trim().isEmpty())) {
                 contents.append(prefix);
             }
 
@@ -158,22 +160,21 @@ public class XmlFileContents {
 
     public void block(String text, Consumer<XmlBlock> bodyAction) {
         line("<" + text + ">");
-        indent(() ->
-                bodyAction.accept(new XmlBlock(this)));
+        indent(() -> bodyAction.accept(new XmlBlock(this)));
         line("</" + text + ">");
     }
 
     public void block(String text, Map<String, String> annotations, Consumer<XmlBlock> bodyAction) {
         if (annotations != null && !annotations.isEmpty()) {
-            String append = annotations.entrySet().stream()
+            String append = annotations.entrySet()
+                .stream()
                 .map(entry -> entry.getKey() + "=\"" + entry.getValue() + "\"")
                 .collect(Collectors.joining(" "));
             line("<" + text + " " + append + ">");
         } else {
             line("<" + text + ">");
         }
-        indent(() ->
-                bodyAction.accept(new XmlBlock(this)));
+        indent(() -> bodyAction.accept(new XmlBlock(this)));
         line("</" + text + ">");
     }
 
@@ -188,8 +189,6 @@ public class XmlFileContents {
     }
 
     private enum CurrentLineType {
-        Empty,
-        AfterIf,
-        Text
+        Empty, AfterIf, Text
     }
 }

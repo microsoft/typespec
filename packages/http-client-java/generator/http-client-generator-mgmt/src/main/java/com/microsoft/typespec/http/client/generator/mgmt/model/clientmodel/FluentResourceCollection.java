@@ -4,13 +4,6 @@
 package com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
-import com.microsoft.typespec.http.client.generator.mgmt.model.WellKnownMethodName;
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.create.ResourceCreate;
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.delete.ResourceDelete;
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.get.ResourceRefresh;
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.update.ResourceUpdate;
-import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
-import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
@@ -19,7 +12,13 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Metho
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
-
+import com.microsoft.typespec.http.client.generator.mgmt.model.WellKnownMethodName;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.create.ResourceCreate;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.delete.ResourceDelete;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.get.ResourceRefresh;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.update.ResourceUpdate;
+import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
+import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -59,21 +58,20 @@ public class FluentResourceCollection {
 
         String baseClassName = CodeNamer.getPlural(groupClient.getClassBaseName());
 
-        this.interfaceType = new ClassType.Builder()
-            .packageName(settings.getPackage(settings.getModelsSubpackage()))
+        this.interfaceType = new ClassType.Builder().packageName(settings.getPackage(settings.getModelsSubpackage()))
             .name(baseClassName)
             .build();
-        this.implementationType = new ClassType.Builder()
-            .packageName(settings.getPackage(settings.getImplementationSubpackage()))
-            .name(baseClassName + ModelNaming.COLLECTION_IMPL_SUFFIX)
-            .build();
+        this.implementationType
+            = new ClassType.Builder().packageName(settings.getPackage(settings.getImplementationSubpackage()))
+                .name(baseClassName + ModelNaming.COLLECTION_IMPL_SUFFIX)
+                .build();
 
-        this.innerClientType = new ClassType.Builder()
-            .packageName(settings.getPackage(settings.getFluentSubpackage()))
+        this.innerClientType = new ClassType.Builder().packageName(settings.getPackage(settings.getFluentSubpackage()))
             .name(groupClient.getInterfaceName())
             .build();
 
-        Set<String> existingMethodNames = this.groupClient.getClientMethods().stream()
+        Set<String> existingMethodNames = this.groupClient.getClientMethods()
+            .stream()
             .filter(m -> !m.isImplementationOnly() && m.getMethodVisibility() == JavaVisibility.Public)
             .map(ClientMethod::getName)
             .collect(Collectors.toSet());
@@ -93,7 +91,7 @@ public class FluentResourceCollection {
 //                || methodType == ClientMethodType.LongRunningAsync
 //                || methodType == ClientMethodType.SimpleAsyncRestResponse);
 
-            if (!isSyncMethod /*&& (!isAsyncMethod && FluentStatic.getFluentJavaSettings().isGenerateAsyncMethods())*/) {
+            if (!isSyncMethod /* && (!isAsyncMethod && FluentStatic.getFluentJavaSettings().isGenerateAsyncMethods()) */) {
                 continue;
             }
 
@@ -109,16 +107,21 @@ public class FluentResourceCollection {
                 && methodParameters.get(0).getClientType() == ClassType.STRING
                 && methodParameters.get(1).getClientType() == ClassType.STRING) {
                 // Transform "delete(String, String)" into "deleteByResourceGroup(String, String)"
-                fluentMethod = new FluentCollectionMethod(clientMethod, WellKnownMethodName.DELETE_BY_RESOURCE_GROUP.getMethodName());
+                fluentMethod = new FluentCollectionMethod(clientMethod,
+                    WellKnownMethodName.DELETE_BY_RESOURCE_GROUP.getMethodName());
                 existingMethodNames.add(fluentMethod.getMethodName());
-            } else if ((WellKnownMethodName.DELETE.getMethodName() + Utils.METHOD_POSTFIX_WITH_RESPONSE).equals(methodName)
+            } else if ((WellKnownMethodName.DELETE.getMethodName() + Utils.METHOD_POSTFIX_WITH_RESPONSE)
+                .equals(methodName)
                 && methodType == ClientMethodType.SimpleSyncRestResponse
-                && !existingMethodNames.contains(WellKnownMethodName.DELETE_BY_RESOURCE_GROUP.getMethodName() + Utils.METHOD_POSTFIX_WITH_RESPONSE)
+                && !existingMethodNames.contains(
+                    WellKnownMethodName.DELETE_BY_RESOURCE_GROUP.getMethodName() + Utils.METHOD_POSTFIX_WITH_RESPONSE)
                 && methodParameters.size() == 3
                 && methodParameters.get(0).getClientType() == ClassType.STRING
                 && methodParameters.get(1).getClientType() == ClassType.STRING) {
-                // Transform "deleteWithResponse(String, String, ?)" into "deleteByResourceGroupWithResponse(String, String, ?)"
-                fluentMethod = new FluentCollectionMethod(clientMethod, WellKnownMethodName.DELETE_BY_RESOURCE_GROUP.getMethodName() + Utils.METHOD_POSTFIX_WITH_RESPONSE);
+                // Transform "deleteWithResponse(String, String, ?)" into "deleteByResourceGroupWithResponse(String,
+                // String, ?)"
+                fluentMethod = new FluentCollectionMethod(clientMethod,
+                    WellKnownMethodName.DELETE_BY_RESOURCE_GROUP.getMethodName() + Utils.METHOD_POSTFIX_WITH_RESPONSE);
                 existingMethodNames.add(fluentMethod.getMethodName());
             } else {
                 fluentMethod = new FluentCollectionMethod(clientMethod);
@@ -144,8 +147,14 @@ public class FluentResourceCollection {
         List<FluentCollectionMethod> fluentMethods = new ArrayList<>(methods);
 
         Set<FluentCollectionMethod> excludeMethods = new HashSet<>();
-        excludeMethods.addAll(this.getResourceCreates().stream().flatMap(rc -> rc.getMethodReferences().stream()).collect(Collectors.toSet()));
-        excludeMethods.addAll(this.getResourceUpdates().stream().flatMap(ru -> ru.getMethodReferences().stream()).collect(Collectors.toSet()));
+        excludeMethods.addAll(this.getResourceCreates()
+            .stream()
+            .flatMap(rc -> rc.getMethodReferences().stream())
+            .collect(Collectors.toSet()));
+        excludeMethods.addAll(this.getResourceUpdates()
+            .stream()
+            .flatMap(ru -> ru.getMethodReferences().stream())
+            .collect(Collectors.toSet()));
         fluentMethods.removeAll(excludeMethods);
 
         return fluentMethods;
@@ -165,7 +174,8 @@ public class FluentResourceCollection {
 
     // method signature for inner client
     public String getInnerMethodSignature() {
-        return String.format("%1$s %2$s()", this.getInnerClientType().getName(), FluentUtils.getGetterName(ModelNaming.METHOD_SERVICE_CLIENT));
+        return String.format("%1$s %2$s()", this.getInnerClientType().getName(),
+            FluentUtils.getGetterName(ModelNaming.METHOD_SERVICE_CLIENT));
     }
 
     public List<ResourceCreate> getResourceCreates() {

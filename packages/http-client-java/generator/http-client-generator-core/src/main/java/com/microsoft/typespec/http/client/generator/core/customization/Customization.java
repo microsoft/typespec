@@ -6,13 +6,12 @@ package com.microsoft.typespec.http.client.generator.core.customization;
 import com.microsoft.typespec.http.client.generator.core.customization.implementation.Utils;
 import com.microsoft.typespec.http.client.generator.core.customization.implementation.ls.EclipseLanguageClient;
 import com.microsoft.typespec.http.client.generator.core.extension.base.util.FileUtils;
-import org.slf4j.Logger;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Map;
+import org.slf4j.Logger;
 
 /**
  * The base class for customization. Extend this class to plug into AutoRest generation.

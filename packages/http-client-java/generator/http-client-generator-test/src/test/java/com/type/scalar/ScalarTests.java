@@ -3,10 +3,9 @@
 
 package com.type.scalar;
 
+import java.math.BigDecimal;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.math.BigDecimal;
 
 public class ScalarTests {
 

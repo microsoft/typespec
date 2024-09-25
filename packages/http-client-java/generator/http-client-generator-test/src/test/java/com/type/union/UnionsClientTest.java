@@ -9,19 +9,18 @@ import com.type.union.models.Cat;
 import com.type.union.models.EnumsOnlyCases;
 import com.type.union.models.EnumsOnlyCasesLr;
 import com.type.union.models.EnumsOnlyCasesUd;
-import com.type.union.models.GetResponseProp2;
-import com.type.union.models.MixedLiteralsCases;
-import com.type.union.models.MixedTypesCases;
 import com.type.union.models.GetResponseProp1;
+import com.type.union.models.GetResponseProp2;
 import com.type.union.models.GetResponseProp3;
 import com.type.union.models.GetResponseProp4;
+import com.type.union.models.MixedLiteralsCases;
+import com.type.union.models.MixedTypesCases;
 import com.type.union.models.StringAndArrayCases;
 import com.type.union.models.StringExtensibleNamedUnion;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import java.util.Arrays;
 import java.util.List;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class UnionsClientTest {
 
@@ -90,7 +89,9 @@ public class UnionsClientTest {
     public void testStringAndArrayClient() {
         StringAndArrayCases prop = client8.get().getProp();
         Assertions.assertEquals("test", prop.getString().toObject(String.class));
-        Assertions.assertEquals(Arrays.asList("test1", "test2"), prop.getArray().toObject(new TypeReference<List<String>>() {}));
+        Assertions.assertEquals(Arrays.asList("test1", "test2"),
+            prop.getArray().toObject(new TypeReference<List<String>>() {
+            }));
         client8.send(prop);
     }
 

@@ -3,21 +3,14 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.plugin;
 
+import com.azure.json.JsonProviders;
+import com.azure.json.JsonReader;
+import com.azure.json.ReadValueCallback;
 import com.microsoft.typespec.http.client.generator.core.extension.jsonrpc.Connection;
 import com.microsoft.typespec.http.client.generator.core.extension.model.Message;
 import com.microsoft.typespec.http.client.generator.core.extension.model.MessageChannel;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.AnnotatedPropertyUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModelCustomConstructor;
-import com.azure.json.JsonProviders;
-import com.azure.json.JsonReader;
-import com.azure.json.ReadValueCallback;
-import org.yaml.snakeyaml.DumperOptions;
-import org.yaml.snakeyaml.LoaderOptions;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
-import org.yaml.snakeyaml.inspector.TrustedTagInspector;
-import org.yaml.snakeyaml.representer.Representer;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -28,6 +21,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.LoaderOptions;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.inspector.TrustedTagInspector;
+import org.yaml.snakeyaml.representer.Representer;
 
 /**
  * Represents a plugin that can be run by AutoRest.
@@ -227,8 +226,8 @@ public abstract class NewPlugin {
         if (sourceMap == null) {
             message.setDetails(Map.of("content", content, "type", artifactType, "uri", fileName));
         } else {
-            message.setDetails(
-                Map.of("content", content, "type", artifactType, "uri", fileName, "sourceMap", sourceMap));
+            message
+                .setDetails(Map.of("content", content, "type", artifactType, "uri", fileName, "sourceMap", sourceMap));
         }
         message.setText(content);
         message.setKey(Arrays.asList(artifactType, fileName));
@@ -259,8 +258,8 @@ public abstract class NewPlugin {
      * @return The content of the configuration file.
      */
     public String getConfigurationFile(String fileName) {
-        Map<String, String> configurations = getValueWithJsonReader("configurationFiles",
-            jsonReader -> jsonReader.readMap(JsonReader::getString));
+        Map<String, String> configurations
+            = getValueWithJsonReader("configurationFiles", jsonReader -> jsonReader.readMap(JsonReader::getString));
 
         if (configurations != null) {
             Iterator<String> it = configurations.keySet().iterator();

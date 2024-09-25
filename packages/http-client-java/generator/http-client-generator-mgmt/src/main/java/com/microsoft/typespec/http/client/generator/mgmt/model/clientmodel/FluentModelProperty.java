@@ -3,10 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel;
 
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.immutablemodel.ImmutableMethod;
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.immutablemodel.PropertyTemplate;
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.immutablemodel.PropertyTypeConversionTemplate;
-import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelPropertyAccess;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
@@ -14,7 +10,10 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListT
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelProperty;
 import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
-
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.immutablemodel.ImmutableMethod;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.immutablemodel.PropertyTemplate;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.immutablemodel.PropertyTypeConversionTemplate;
+import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import java.util.Set;
 
 public class FluentModelProperty {
@@ -29,8 +28,8 @@ public class FluentModelProperty {
         this.modelProperty = ModelProperty.ofClientModelProperty(property);
         this.fluentType = getWrapperType(property.getClientType());
         this.immutableMethod = this.fluentType == property.getClientType()
-                ? new PropertyTemplate(this, this.modelProperty)
-                : new PropertyTypeConversionTemplate(this, this.modelProperty);
+            ? new PropertyTemplate(this, this.modelProperty)
+            : new PropertyTypeConversionTemplate(this, this.modelProperty);
     }
 
     public String getName() {
