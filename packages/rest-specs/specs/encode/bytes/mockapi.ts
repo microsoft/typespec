@@ -363,14 +363,14 @@ Scenarios.Encode_Bytes_Body_Response_Base64_URL = createResponseBodyServerTests(
 );
 Scenarios.Encode_Bytes_Body_Response_Custom_Content_Type = createResponseBodyServerTests(
   "/encode/bytes/body/response/custom-content-type",
-  'uint8ArrayToString(response.data, "utf-8"), readFileSync(`${__dirname}/image.png`).toString()',
+  "image.png",
   {
     "Content-Type": "image/png",
   },
 );
 Scenarios.Encode_Bytes_Body_Response_Octet_Stream = createResponseBodyServerTests(
   "/encode/bytes/body/response/octet-stream",
-  'uint8ArrayToString(response.data, "utf-8"), readFileSync(`${__dirname}/image.png`).toString()',
+  "image.png",
   {
     "Content-Type": "application/octet-stream",
   },

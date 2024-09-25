@@ -46,7 +46,7 @@ Scenarios.Special_Headers_Conditional_Request_If_Match = passOnSuccess({
       request: {
         config: {
           headers: {
-            "if-match": '\\"valid\\"',
+            "if-match": '"valid"',
           },
         },
       },
@@ -65,7 +65,7 @@ Scenarios.Special_Headers_Conditional_Request_If_None_Match = passOnSuccess({
       request: {
         config: {
           headers: {
-            "if-none-match": '\\"invalid\\"',
+            "if-none-match": '"invalid"',
           },
         },
       },

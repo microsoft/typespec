@@ -88,7 +88,7 @@ Scenarios.Payload_Content_Negotiation_SameBody = passOnSuccess({
         },
       },
       response: {
-        data: `uint8ArrayToString(response.data, "utf-8"),readFileSync(\`\${__dirname}/image.png\`).toString()`,
+        data: `image.png`,
         status: 200,
       },
     },
@@ -102,7 +102,7 @@ Scenarios.Payload_Content_Negotiation_SameBody = passOnSuccess({
         },
       },
       response: {
-        data: `uint8ArrayToString(response.data, "utf-8"),readFileSync(\`\${__dirname}/image.jpg\`).toString()`,
+        data: `image.jpg`,
         status: 200,
       },
     },
@@ -142,7 +142,7 @@ Scenarios.Payload_Content_Negotiation_DifferentBody = passOnSuccess({
       },
       response: {
         status: 200,
-        data: `uint8ArrayToString(response.data, "utf-8"),readFileSync(\`\${__dirname}/image.png\`).toString()`,
+        data: `image.png`,
       },
     },
     {
@@ -156,7 +156,7 @@ Scenarios.Payload_Content_Negotiation_DifferentBody = passOnSuccess({
       },
       response: {
         status: 200,
-        data: `response.data.content,readFileSync(\`\${__dirname}/image.png\`).toString("base64")`,
+        data: `image.png`,
       },
     },
     {

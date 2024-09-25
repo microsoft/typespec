@@ -92,8 +92,8 @@ Scenarios.Azure_Core_Traits_User = passOnSuccess({
         config: {
           headers: {
             foo: "123",
-            "If-Match": '\\"valid\\"',
-            "If-None-Match": '\\"invalid\\"',
+            "If-Match": '"valid"',
+            "If-None-Match": '"invalid"',
             "If-Modified-Since": "Thu, 26 Aug 2021 14:38:00 GMT",
             "If-Unmodified-Since": "Fri, 26 Aug 2022 14:38:00 GMT",
             "x-ms-client-request-id": "any uuid",

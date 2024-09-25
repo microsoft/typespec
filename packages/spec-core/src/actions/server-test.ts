@@ -4,6 +4,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { logger } from "../logger.js";
 import { loadScenarioMockApis } from "../scenarios-resolver.js";
+import { makeServiceCall, SERVICE_CALL_TYPE, uint8ArrayToString } from "./helper-server-test.js";
 
 class ServerTestsGenerator {
   private name: string = "";
@@ -11,6 +12,7 @@ class ServerTestsGenerator {
   private mockMethods: MockMethod[] | undefined;
   private serverBasePath: string = "";
   private testFolderPath: string = "";
+  private scenariosPath: string = "";
 
   constructor(
     name: string,
@@ -18,12 +20,14 @@ class ServerTestsGenerator {
     mockMethods: MockMethod[] | undefined,
     serverBasePath: string,
     testFolderPath: string,
+    scenariosPath: string,
   ) {
     this.name = name;
     this.endpoint = endpoint;
     this.mockMethods = mockMethods;
     this.serverBasePath = serverBasePath;
     this.testFolderPath = testFolderPath;
+    this.scenariosPath = scenariosPath;
   }
 
   private getHeadersBlock(headers: Record<string, string>): string {
@@ -282,6 +286,107 @@ class ServerTestsGenerator {
       encoding: "utf-8",
     });
   }
+
+  public async executeScenario() {
+    if (!this.mockMethods) return;
+    for (const mockMethod of this.mockMethods) {
+      logger.info(`Executing ${this.name} endpoint - Method: ${mockMethod.method}`);
+      let methodName = SERVICE_CALL_TYPE.get;
+
+      if (mockMethod.method === "get") methodName = SERVICE_CALL_TYPE.get;
+      if (mockMethod.method === "put") methodName = SERVICE_CALL_TYPE.put;
+      if (mockMethod.method === "patch") methodName = SERVICE_CALL_TYPE.patch;
+      if (mockMethod.method === "delete") methodName = SERVICE_CALL_TYPE.delete;
+      if (mockMethod.method === "post") methodName = SERVICE_CALL_TYPE.post;
+      if (mockMethod.method === "head") methodName = SERVICE_CALL_TYPE.head;
+
+      let body = mockMethod.request.body;
+      if (mockMethod.request.body === `image.png`) {
+        body = fs.readFileSync(`${path.resolve(this.scenariosPath)}/../assets/image.png`);
+      }
+
+      if (mockMethod.request.config?.validStatuses) {
+        mockMethod.request.config = {
+          ...mockMethod.request.config,
+          validateStatus: function (status: number) {
+            return (
+              (status >= 200 && status < 300) ||
+              status === mockMethod.request.config?.validStatuses[0]
+            );
+          },
+        };
+      }
+      if (mockMethod.response.data && mockMethod.response.data["nextLink"]) {
+        mockMethod.response.data = {
+          ...mockMethod.response.data,
+          nextLink: `${this.serverBasePath}${mockMethod.response.data["nextLink"]}`,
+        };
+      }
+
+      const response = await makeServiceCall(methodName, {
+        endPoint: `${this.serverBasePath}${this.endpoint}`,
+        options: {
+          requestBody: body,
+          config: mockMethod.request.config,
+        },
+      });
+      if (mockMethod.response.status !== response.status) {
+        throw new Error(`Status code mismatch for ${this.name} endpoint`);
+      }
+      if (mockMethod.response.data) {
+        if (mockMethod.response.data["contentType"] === "application/xml") {
+          if (
+            JSON.stringify(mockMethod.response.data["rawContent"]) !== JSON.stringify(response.data)
+          ) {
+            throw new Error(`Response data mismatch for ${this.name} endpoint`);
+          }
+        } else if ([`image.png`, `image.jpg`].includes(mockMethod.response.data)) {
+          if (
+            (mockMethod.request.config?.headers &&
+              ["image/png", "image/jpeg"].includes(mockMethod.request.config.headers["accept"])) ||
+            ["application/octet-stream"].includes(mockMethod.request.config.headers["Content-Type"])
+          ) {
+            if (
+              uint8ArrayToString(response.data, "utf-8") !==
+              fs
+                .readFileSync(
+                  `${path.resolve(this.scenariosPath)}/../assets/${mockMethod.response.data}`,
+                )
+                .toString()
+            ) {
+              throw new Error(`Response data mismatch for ${this.name} endpoint`);
+            }
+          } else if (
+            mockMethod.request.config?.headers &&
+            mockMethod.request.config.headers["accept"] === "application/json"
+          ) {
+            if (
+              response.data.content !==
+              fs
+                .readFileSync(
+                  `${path.resolve(this.scenariosPath)}/../assets/${mockMethod.response.data}`,
+                )
+                .toString("base64")
+            ) {
+              throw new Error(`Response data mismatch for ${this.name} endpoint`);
+            }
+          }
+        } else {
+          if (JSON.stringify(mockMethod.response.data) !== JSON.stringify(response.data)) {
+            throw new Error(`Response data mismatch for ${this.name} endpoint`);
+          }
+        }
+      }
+      if (mockMethod.response.config?.headers) {
+        if (
+          JSON.stringify(mockMethod.response.config.headers) !==
+          JSON.stringify(response.config.headers)
+        ) {
+          throw new Error(`Response headers mismatch for ${this.name} endpoint`);
+        }
+      }
+    }
+  }
 }
 
 function createDirectory(directoryName: string) {
@@ -349,15 +454,17 @@ export async function serverTest(
           endpoint.mockMethods,
           serverBasePath,
           path.resolve(`./${directoryName}`),
+          scenariosPath,
         );
-        await obj.generateFile();
+        // await obj.generateFile();
+        await obj.executeScenario();
       }
     }
   }
   // 6. Copy the helper files to the temp
   copyHelperFiles(directoryName, scenariosPath);
   // 7. Execute the tests
-  await executeServerTest(path.resolve(`./${directoryName}`), serverBasePath);
+  // await executeServerTest(path.resolve(`./${directoryName}`), serverBasePath);
 }
 
 async function executeServerTest(testFolderPath: string, serverBasePath: string) {
