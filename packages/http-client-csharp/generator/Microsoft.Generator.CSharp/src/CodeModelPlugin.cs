@@ -21,7 +21,7 @@ namespace Microsoft.Generator.CSharp
     [ExportMetadata("PluginName", nameof(CodeModelPlugin))]
     public abstract class CodeModelPlugin
     {
-        private List<LibraryVisitor> _visitors = [new MemberRemoverVisitor()];
+        private List<LibraryVisitor> _visitors = [];
         private static CodeModelPlugin? _instance;
         internal static CodeModelPlugin Instance
         {
