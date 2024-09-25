@@ -151,7 +151,7 @@
       "debugWebWorkerHost": true,
       "request": "launch",
       "args": ["--extensionDevelopmentPath=${workspaceFolder}/packages/typespec-vscode", "--extensionDevelopmentKind=web"],
-      "outFiles": ["${workspaceFolder}/dist/web/**/*.js"]
+      "outFiles": ["${workspaceFolder}/dist/src/web/**/*.js"]
     }
   ],
   "compounds": [
