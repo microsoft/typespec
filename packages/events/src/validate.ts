@@ -1,5 +1,5 @@
 import type { Program, Union } from "@typespec/compiler";
-import { getEventDefinitions } from "./decorators.js";
+import { unsafe_getEventDefinitions } from "./experimental/index.js";
 import { EventsStateKeys } from "./lib.js";
 export function $onValidate(program: Program) {
   checkForInvalidEvents(program);
@@ -7,7 +7,7 @@ export function $onValidate(program: Program) {
 
 function checkForInvalidEvents(program: Program) {
   program.stateSet(EventsStateKeys.events).forEach((events) => {
-    const [, diagnostics] = getEventDefinitions(program, events as Union);
+    const [, diagnostics] = unsafe_getEventDefinitions(program, events as Union);
     program.reportDiagnostics(diagnostics);
   });
 }

@@ -5,7 +5,8 @@ import {
   type BasicTestRunner,
 } from "@typespec/compiler/testing";
 import { assert, beforeEach, describe, expect, it } from "vitest";
-import { getContentType, getEventDefinitions, isEventData, isEvents } from "../src/decorators.js";
+import { getContentType, isEventData, isEvents } from "../src/decorators.js";
+import { unsafe_getEventDefinitions as getEventDefinitions } from "../src/experimental/index.js";
 import { createEventsTestRunner } from "./test-host.js";
 
 let runner: BasicTestRunner;
