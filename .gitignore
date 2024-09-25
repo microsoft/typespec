@@ -6,7 +6,6 @@
 .vs/
 *.lock.json
 developer/
-launch.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
