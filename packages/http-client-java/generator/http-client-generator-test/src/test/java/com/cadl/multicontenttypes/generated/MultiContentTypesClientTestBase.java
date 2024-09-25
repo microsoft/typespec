@@ -8,7 +8,6 @@ package com.cadl.multicontenttypes.generated;
 // If you wish to modify these files, please copy them out of the 'generated' package, and modify there.
 // See https://aka.ms/azsdk/dpg/java/tests for guide on adding a test.
 
-import com.azure.core.http.HttpClient;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.test.TestMode;
@@ -30,33 +29,27 @@ class MultiContentTypesClientTestBase extends TestProxyTestBase {
     protected void beforeTest() {
         MultiContentTypesClientBuilder multiContentTypesClientbuilder = new MultiContentTypesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            multiContentTypesClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             multiContentTypesClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         multiContentTypesClient = multiContentTypesClientbuilder.buildClient();
 
         MultiContentTypesClientBuilder singleContentTypeClientbuilder = new MultiContentTypesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            singleContentTypeClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             singleContentTypeClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         singleContentTypeClient = singleContentTypeClientbuilder.buildSingleContentTypeClient();
 
         MultiContentTypesClientBuilder multipleContentTypesOnRequestClientbuilder = new MultiContentTypesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            multipleContentTypesOnRequestClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             multipleContentTypesOnRequestClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         multipleContentTypesOnRequestClient
