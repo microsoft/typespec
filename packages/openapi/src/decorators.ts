@@ -3,10 +3,10 @@ import {
   Diagnostic,
   DiagnosticTarget,
   getDoc,
+  getProperty,
   getService,
   getSummary,
   Model,
-  ModelProperty,
   Namespace,
   Operation,
   Program,
@@ -220,46 +220,38 @@ function omitUndefined<T extends Record<string, unknown>>(data: T): T {
 }
 
 function validateObject(context: DecoratorContext, typespecType: TypeSpecValue, entity: Namespace) {
-  const decorator = entity.decorators.find(
-    (d) => d.decorator === $info && d.node === context.decoratorTarget,
-  );
-  const property = decorator?.definition?.parameters.find((p) => p.name === "additionalInfo")?.type;
+  const propertyModel = context.program.resolveTypeReference(
+    "TypeSpec.OpenAPI.AdditionalInfo",
+  )[0]! as Model;
 
-  if (property && typeof property === "object" && "type" in property) {
-    const propertyModel = property.type as Model;
-
-    if (typeof typespecType === "object" && propertyModel) {
-      const [diagnostics] = typespecTypeCheck(
-        typespecType,
-        context.getArgumentTarget(0)!,
-        propertyModel,
-      );
-      context.program.reportDiagnostics(diagnostics);
-    }
+  if (typeof typespecType === "object" && propertyModel) {
+    const [diagnostics] = checkNoAdditionalProperties(
+      typespecType,
+      context.getArgumentTarget(0)!,
+      propertyModel,
+    );
+    context.program.reportDiagnostics(diagnostics);
   }
 }
 
-function getProperty(model: Model, name: string): ModelProperty | undefined {
-  return (
-    model.properties.get(name) ??
-    (model.baseModel !== undefined ? getProperty(model.baseModel, name) : undefined)
-  );
-}
-
-function typespecTypeCheck(
+function checkNoAdditionalProperties(
   typespecType: Type,
   target: DiagnosticTarget,
-  propertyModel: Model,
+  source: Model,
 ): [Diagnostic[]] {
   const diagnostics: Diagnostic[] = [];
 
   if (typespecType.kind === "Model") {
     for (const [name, type] of typespecType.properties.entries()) {
-      const sourceProperty = getProperty(propertyModel, name);
+      const sourceProperty = getProperty(source, name);
 
       if (sourceProperty) {
         if (sourceProperty.type.kind === "Model") {
-          const [nestedDiagnostics] = typespecTypeCheck(type.type, target, sourceProperty.type);
+          const [nestedDiagnostics] = checkNoAdditionalProperties(
+            type.type,
+            target,
+            sourceProperty.type,
+          );
           diagnostics.push(...nestedDiagnostics);
         }
       } else if (!isOpenAPIExtensionKey(name)) {
