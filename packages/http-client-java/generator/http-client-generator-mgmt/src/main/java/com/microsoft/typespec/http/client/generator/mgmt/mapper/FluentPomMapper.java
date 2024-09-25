@@ -35,16 +35,11 @@ public class FluentPomMapper extends PomMapper {
         addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes,
             Project.Dependency.AZURE_CORE_MANAGEMENT, false);
         if (JavaSettings.getInstance().isGenerateTests()) {
+            // JUnit, Reactor Test, and SLF4J Simple no longer need to be added to generated POMs as these are now
+            // dependencies managed through azure-core-test.
             addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes, Project.Dependency.AZURE_CORE_TEST,
                 true);
             addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes, Project.Dependency.AZURE_IDENTITY,
-                true);
-            addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes,
-                Project.Dependency.JUNIT_JUPITER_API, true);
-            addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes,
-                Project.Dependency.JUNIT_JUPITER_ENGINE, true);
-
-            addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes, Project.Dependency.SLF4J_SIMPLE,
                 true);
         }
 
