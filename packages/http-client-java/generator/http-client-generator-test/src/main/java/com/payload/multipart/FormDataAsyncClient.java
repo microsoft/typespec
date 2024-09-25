@@ -360,13 +360,12 @@ public final class FormDataAsyncClient {
         // Generated convenience method for anonymousModelWithResponse
         RequestOptions requestOptions = new RequestOptions();
         AnonymousModelRequest anonymousModelRequestObj = new AnonymousModelRequest(profileImage);
-        BinaryData anonymousModelRequest
-            = new MultipartFormDataHelper(requestOptions)
-                .serializeFileField("profileImage", anonymousModelRequestObj.getProfileImage().getContent(),
-                    anonymousModelRequestObj.getProfileImage().getContentType(),
-                    anonymousModelRequestObj.getProfileImage().getFilename())
-                .end()
-                .getRequestBody();
+        BinaryData anonymousModelRequest = new MultipartFormDataHelper(requestOptions)
+            .serializeFileField("profileImage", anonymousModelRequestObj.getProfileImage().getContent(),
+                anonymousModelRequestObj.getProfileImage().getContentType(),
+                anonymousModelRequestObj.getProfileImage().getFilename())
+            .end()
+            .getRequestBody();
         return anonymousModelWithResponse(anonymousModelRequest, requestOptions).flatMap(FluxUtil::toMono);
     }
 }

@@ -40,23 +40,27 @@ public final class RenamedFromClient {
      * The newOp operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     newProp: String (Required)
      *     enumProp: String(newEnumMember) (Required)
      *     unionProp: BinaryData (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     newProp: String (Required)
      *     enumProp: String(newEnumMember) (Required)
      *     unionProp: BinaryData (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param newQuery The newQuery parameter.
      * @param body The body parameter.

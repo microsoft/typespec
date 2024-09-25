@@ -10,7 +10,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumT
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GraalVmConfig;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ImplementationDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceClient;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,10 +23,8 @@ public class GraalVmConfigMapper implements IMapper<GraalVmConfigMapper.ServiceA
         private final Collection<ClientModel> models;
         private final Collection<EnumType> enums;
 
-        public ServiceAndModel(Collection<ServiceClient> serviceClients,
-                               Collection<ClientException> exceptions,
-                               Collection<ClientModel> models,
-                               Collection<EnumType> enums) {
+        public ServiceAndModel(Collection<ServiceClient> serviceClients, Collection<ClientException> exceptions,
+            Collection<ClientModel> models, Collection<EnumType> enums) {
             this.serviceClients = serviceClients;
             this.exceptions = exceptions;
             this.models = models;
@@ -53,34 +50,32 @@ public class GraalVmConfigMapper implements IMapper<GraalVmConfigMapper.ServiceA
 
         // Reflect
         // Exception and error model is still created by reflection in azure-core
-        reflects = data.exceptions.stream()
-                .map(e -> e.getPackage() + "." + e.getName())
-                .collect(Collectors.toList());
+        reflects = data.exceptions.stream().map(e -> e.getPackage() + "." + e.getName()).collect(Collectors.toList());
         reflects.addAll(data.models.stream()
-                .filter(m -> !streamStyle || m.hasUsage(ImplementationDetails.Usage.EXCEPTION))
-                .map(m -> m.getPackage() + "." + m.getName())
-                .collect(Collectors.toList()));
+            .filter(m -> !streamStyle || m.hasUsage(ImplementationDetails.Usage.EXCEPTION))
+            .map(m -> m.getPackage() + "." + m.getName())
+            .collect(Collectors.toList()));
         reflects.addAll(data.enums.stream()
-                .filter(m -> !streamStyle || (m.getImplementationDetails() != null && m.getImplementationDetails().isException()))
-                .map(m -> m.getPackage() + "." + m.getName())
-                .collect(Collectors.toList()));
+            .filter(m -> !streamStyle
+                || (m.getImplementationDetails() != null && m.getImplementationDetails().isException()))
+            .map(m -> m.getPackage() + "." + m.getName())
+            .collect(Collectors.toList()));
 
         // Proxy
-        proxies = data.serviceClients.stream()
-                .flatMap(sc -> {
-                    if (sc.getMethodGroupClients() != null) {
-                        return sc.getMethodGroupClients().stream();
-                    } else {
-                        return Stream.empty();
-                    }
-                })
-                .filter(m -> m.getProxy() != null)
-                .map(m -> m.getPackage() + "." + m.getClassName() + "$" + m.getProxy().getName())
-                .collect(Collectors.toList());
+        proxies = data.serviceClients.stream().flatMap(sc -> {
+            if (sc.getMethodGroupClients() != null) {
+                return sc.getMethodGroupClients().stream();
+            } else {
+                return Stream.empty();
+            }
+        })
+            .filter(m -> m.getProxy() != null)
+            .map(m -> m.getPackage() + "." + m.getClassName() + "$" + m.getProxy().getName())
+            .collect(Collectors.toList());
         proxies.addAll(data.serviceClients.stream()
-                .filter(sc -> sc.getProxy() != null)
-                .map(sc -> sc.getPackage() + "." + sc.getClassName() + "$" + sc.getProxy().getName())
-                .collect(Collectors.toList()));
+            .filter(sc -> sc.getProxy() != null)
+            .map(sc -> sc.getPackage() + "." + sc.getClassName() + "$" + sc.getProxy().getName())
+            .collect(Collectors.toList()));
 
         return new GraalVmConfig(proxies, reflects, JavaSettings.getInstance().isFluent());
     }

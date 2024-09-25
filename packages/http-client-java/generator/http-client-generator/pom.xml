@@ -15,6 +15,8 @@
   <properties>
     <shade.finalName>emitter</shade.finalName>
     <shade.mainClass>com.microsoft.typespec.http.client.generator.Main</shade.mainClass>
+
+    <spotless.config.path>../</spotless.config.path>
   </properties>
 
   <dependencies>
@@ -92,15 +94,6 @@
             </configuration>
           </execution>
         </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>${maven.compiler.source}</source>
-          <target>${maven.compiler.target}</target>
-        </configuration>
       </plugin>
     </plugins>
   </build>

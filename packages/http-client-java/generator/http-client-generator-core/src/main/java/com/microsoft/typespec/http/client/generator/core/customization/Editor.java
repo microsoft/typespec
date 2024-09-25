@@ -4,9 +4,6 @@
 package com.microsoft.typespec.http.client.generator.core.customization;
 
 import com.microsoft.typespec.http.client.generator.core.customization.implementation.Utils;
-import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Range;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
@@ -21,6 +18,8 @@ import java.util.Scanner;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 
 /**
  * The raw editor containing the current files being customized.

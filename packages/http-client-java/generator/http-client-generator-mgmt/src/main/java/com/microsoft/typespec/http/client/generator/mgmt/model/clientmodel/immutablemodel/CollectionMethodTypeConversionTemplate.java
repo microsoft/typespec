@@ -3,16 +3,15 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.immutablemodel;
 
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentCollectionMethod;
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.ModelNaming;
-import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
-import com.microsoft.typespec.http.client.generator.mgmt.util.TypeConversionUtils;
+import com.azure.core.http.rest.SimpleResponse;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
 import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
-import com.azure.core.http.rest.SimpleResponse;
-
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentCollectionMethod;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.ModelNaming;
+import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
+import com.microsoft.typespec.http.client.generator.mgmt.util.TypeConversionUtils;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -43,22 +42,26 @@ public class CollectionMethodTypeConversionTemplate implements ImmutableMethod {
         }
 
         conversionMethodTemplate = MethodTemplate.builder()
-                .imports(imports)
-                .methodSignature(fluentMethod.getMethodSignature())
-                .method(block -> {
-                    block.line(String.format("%1$s %2$s = this.%3$s().%4$s;", innerType, TypeConversionUtils.tempVariableName(), ModelNaming.METHOD_SERVICE_CLIENT, fluentMethod.getMethodInvocation()));
-                    if (TypeConversionUtils.isPagedIterable(innerType)) {
-                        block.methodReturn(TypeConversionUtils.conversionExpression(innerType, TypeConversionUtils.tempVariableName()));
-                    } else {
-                        block.ifBlock(String.format("%1$s != null", TypeConversionUtils.tempVariableName()), ifBlock -> {
-                            String expression = TypeConversionUtils.conversionExpression(innerType, TypeConversionUtils.tempVariableName());
-                            block.methodReturn(TypeConversionUtils.objectOrUnmodifiableCollection(innerType, expression));
-                        }).elseBlock(elseBlock -> {
-                            block.methodReturn(TypeConversionUtils.nullOrEmptyCollection(innerType));
-                        });
-                    }
-                })
-                .build();
+            .imports(imports)
+            .methodSignature(fluentMethod.getMethodSignature())
+            .method(block -> {
+                block.line(
+                    String.format("%1$s %2$s = this.%3$s().%4$s;", innerType, TypeConversionUtils.tempVariableName(),
+                        ModelNaming.METHOD_SERVICE_CLIENT, fluentMethod.getMethodInvocation()));
+                if (TypeConversionUtils.isPagedIterable(innerType)) {
+                    block.methodReturn(
+                        TypeConversionUtils.conversionExpression(innerType, TypeConversionUtils.tempVariableName()));
+                } else {
+                    block.ifBlock(String.format("%1$s != null", TypeConversionUtils.tempVariableName()), ifBlock -> {
+                        String expression = TypeConversionUtils.conversionExpression(innerType,
+                            TypeConversionUtils.tempVariableName());
+                        block.methodReturn(TypeConversionUtils.objectOrUnmodifiableCollection(innerType, expression));
+                    }).elseBlock(elseBlock -> {
+                        block.methodReturn(TypeConversionUtils.nullOrEmptyCollection(innerType));
+                    });
+                }
+            })
+            .build();
     }
 
     @Override

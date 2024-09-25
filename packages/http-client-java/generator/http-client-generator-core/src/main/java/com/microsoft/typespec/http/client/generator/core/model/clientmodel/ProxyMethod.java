@@ -3,13 +3,12 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
-import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.HttpExceptionType;
-import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
-import com.microsoft.typespec.http.client.generator.core.util.MethodNamer;
 import com.azure.core.http.ContentType;
 import com.azure.core.http.HttpMethod;
-
+import com.microsoft.typespec.http.client.generator.core.extension.base.util.HttpExceptionType;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
+import com.microsoft.typespec.http.client.generator.core.util.MethodNamer;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -292,15 +291,11 @@ public class ProxyMethod {
             return syncProxy;
         }
 
-        List<ProxyMethodParameter> syncParams = this.getParameters()
-            .stream()
-            .map(this::mapToSyncParam)
-            .collect(Collectors.toList());
+        List<ProxyMethodParameter> syncParams
+            = this.getParameters().stream().map(this::mapToSyncParam).collect(Collectors.toList());
 
-        List<ProxyMethodParameter> allSyncParams = this.getAllParameters()
-            .stream()
-            .map(this::mapToSyncParam)
-            .collect(Collectors.toList());
+        List<ProxyMethodParameter> allSyncParams
+            = this.getAllParameters().stream().map(this::mapToSyncParam).collect(Collectors.toList());
 
         this.syncProxy = new ProxyMethod.Builder().parameters(syncParams)
             .httpMethod(this.getHttpMethod())
@@ -357,8 +352,9 @@ public class ProxyMethod {
                 }
 
                 if (genericType.getTypeArguments()[0] == ClassType.STREAM_RESPONSE) {
-                    return JavaSettings.getInstance().isInputStreamForBinary() ? GenericType.Response(
-                        ClassType.INPUT_STREAM) : GenericType.Response(ClassType.BINARY_DATA);
+                    return JavaSettings.getInstance().isInputStreamForBinary()
+                        ? GenericType.Response(ClassType.INPUT_STREAM)
+                        : GenericType.Response(ClassType.BINARY_DATA);
                 }
                 return genericType.getTypeArguments()[0];
             }
@@ -469,7 +465,9 @@ public class ProxyMethod {
 
         /*
          * Sets the Content-Type of the request.
+         * 
          * @param requestContentType the Content-Type of the request
+         * 
          * @return the Builder itself
          */
         public Builder requestContentType(String requestContentType) {
@@ -551,8 +549,8 @@ public class ProxyMethod {
          * unexpected response status code
          * @return the Builder itself
          */
-        public Builder unexpectedResponseExceptionTypes(
-            Map<ClassType, List<Integer>> unexpectedResponseExceptionTypes) {
+        public Builder
+            unexpectedResponseExceptionTypes(Map<ClassType, List<Integer>> unexpectedResponseExceptionTypes) {
             this.unexpectedResponseExceptionTypes = unexpectedResponseExceptionTypes;
             return this;
         }

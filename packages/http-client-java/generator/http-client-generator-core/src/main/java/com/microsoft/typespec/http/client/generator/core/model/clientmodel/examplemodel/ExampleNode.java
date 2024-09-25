@@ -4,7 +4,6 @@
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel;
 
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
-
 import java.util.ArrayList;
 import java.util.List;
 
