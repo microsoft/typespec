@@ -4,11 +4,10 @@
 package com.cadl.wiretype;
 
 import com.azure.core.util.BinaryData;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class LocalModelTests {
 

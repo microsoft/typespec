@@ -3,11 +3,10 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.extensionmodel;
 
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonWriter;
-
+import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import java.io.IOException;
 import java.util.List;
 
@@ -232,7 +231,8 @@ public class XmsExtensions implements JsonSerializable<XmsExtensions> {
      *
      * @param xmsInternalAutorestAnonymousSchema The internal autorest anonymous schema of the model.
      */
-    public void setXmsInternalAutorestAnonymousSchema(XmsInternalAutorestAnonymousSchema xmsInternalAutorestAnonymousSchema) {
+    public void
+        setXmsInternalAutorestAnonymousSchema(XmsInternalAutorestAnonymousSchema xmsInternalAutorestAnonymousSchema) {
         this.xmsInternalAutorestAnonymousSchema = xmsInternalAutorestAnonymousSchema;
     }
 

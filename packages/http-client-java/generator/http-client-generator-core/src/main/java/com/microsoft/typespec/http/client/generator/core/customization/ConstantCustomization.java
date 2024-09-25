@@ -5,15 +5,14 @@ package com.microsoft.typespec.http.client.generator.core.customization;
 
 import com.microsoft.typespec.http.client.generator.core.customization.implementation.Utils;
 import com.microsoft.typespec.http.client.generator.core.customization.implementation.ls.EclipseLanguageClient;
-import org.eclipse.lsp4j.SymbolInformation;
-import org.eclipse.lsp4j.SymbolKind;
-import org.eclipse.lsp4j.WorkspaceEdit;
-
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
+import org.eclipse.lsp4j.SymbolInformation;
+import org.eclipse.lsp4j.SymbolKind;
+import org.eclipse.lsp4j.WorkspaceEdit;
 
 /**
  * Customization for an AutoRest generated constant property.
@@ -28,7 +27,7 @@ public final class ConstantCustomization extends CodeCustomization {
     private final String constantName;
 
     ConstantCustomization(Editor editor, EclipseLanguageClient languageClient, String packageName, String className,
-                          SymbolInformation symbol, String constantName) {
+        SymbolInformation symbol, String constantName) {
         super(editor, languageClient, symbol);
 
         this.packageName = packageName;
@@ -118,8 +117,7 @@ public final class ConstantCustomization extends CodeCustomization {
             if (si.getKind() == SymbolKind.Constant) {
                 edits.add(languageClient.renameSymbol(fileUri, si.getLocation().getRange().getStart(), newName));
             } else if (si.getKind() == SymbolKind.Method) {
-                String methodName = si.getName().replace(currentCamelName, newCamelName)
-                    .replace(constantName, newName);
+                String methodName = si.getName().replace(currentCamelName, newCamelName).replace(constantName, newName);
                 methodName = METHOD_PARAMS_CAPTURE.matcher(methodName).replaceFirst("");
                 edits.add(languageClient.renameSymbol(fileUri, si.getLocation().getRange().getStart(), methodName));
             }
@@ -167,14 +165,17 @@ public final class ConstantCustomization extends CodeCustomization {
      * @return A new instance of {@link ConstantCustomization} for chaining.
      */
     public ConstantCustomization removeAnnotation(String annotation) {
-        return Utils.removeAnnotation(this, compilationUnit -> compilationUnit.getClassByName(className).get()
-            .getFieldByName(constantName).get()
-            .getAnnotationByName(Utils.cleanAnnotationName(annotation)), () -> refreshCustomization(constantName));
+        return Utils.removeAnnotation(this,
+            compilationUnit -> compilationUnit.getClassByName(className)
+                .get()
+                .getFieldByName(constantName)
+                .get()
+                .getAnnotationByName(Utils.cleanAnnotationName(annotation)),
+            () -> refreshCustomization(constantName));
     }
 
     private ConstantCustomization refreshCustomization(String constantName) {
-        return new PackageCustomization(editor, languageClient, packageName)
-            .getClass(className)
+        return new PackageCustomization(editor, languageClient, packageName).getClass(className)
             .getConstant(constantName);
     }
 }

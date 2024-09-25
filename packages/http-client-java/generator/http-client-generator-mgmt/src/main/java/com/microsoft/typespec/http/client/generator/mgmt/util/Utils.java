@@ -9,11 +9,10 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Property;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
-import org.slf4j.Logger;
-
 import java.lang.reflect.Field;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
 
 public class Utils {
 
@@ -65,16 +64,14 @@ public class Utils {
         } else if (JavaSettings.getInstance().isFluentLite()) {
             nameForUngroupOperations = Constants.DEFAULT_NAME_FOR_UNGROUPED_OPERATIONS;
 
-            Set<String> operationGroupNames = client.getOperationGroups().stream()
-                .map(Utils::getDefaultName)
-                .collect(Collectors.toSet());
+            Set<String> operationGroupNames
+                = client.getOperationGroups().stream().map(Utils::getDefaultName).collect(Collectors.toSet());
             if (operationGroupNames.contains(nameForUngroupOperations)) {
                 nameForUngroupOperations += Constants.OPERATION_GROUP_DEDUPLICATE_SUFFIX;
             }
         }
         return nameForUngroupOperations;
     }
-
 
     public static String getSingular(String name) {
         if (name == null) {

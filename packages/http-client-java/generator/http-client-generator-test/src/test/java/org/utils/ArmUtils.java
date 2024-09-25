@@ -16,7 +16,6 @@ import com.azure.core.http.policy.RetryPolicy;
 import com.azure.core.http.policy.UserAgentPolicy;
 import com.azure.core.management.AzureEnvironment;
 import com.azure.core.management.profile.AzureProfile;
-
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,9 +23,8 @@ import java.util.Map;
 
 public final class ArmUtils {
 
-    private final static AzureProfile AZURE_PROFILE = new AzureProfile(
-            "00000000-0000-0000-0000-000000000000",
-            "00000000-0000-0000-0000-000000000000",
+    private final static AzureProfile AZURE_PROFILE
+        = new AzureProfile("00000000-0000-0000-0000-000000000000", "00000000-0000-0000-0000-000000000000",
             new AzureEnvironment(Map.of("resourceManagerEndpointUrl", "http://localhost:3000")));
 
     private ArmUtils() {
@@ -41,9 +39,7 @@ public final class ArmUtils {
         policies.add(new AddDatePolicy());
         // no ArmChallengeAuthenticationPolicy
         policies.add(new HttpLoggingPolicy(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BODY_AND_HEADERS)));
-        return new HttpPipelineBuilder()
-                .policies(policies.toArray(new HttpPipelinePolicy[0]))
-                .build();
+        return new HttpPipelineBuilder().policies(policies.toArray(new HttpPipelinePolicy[0])).build();
     }
 
     public static AzureProfile getAzureProfile() {

@@ -20,7 +20,8 @@ public class AndroidResponseTemplate extends ResponseTemplate {
 
     @Override
     protected IType getRestResponseType(ClientResponse response) {
-        return new GenericType("com.azure.android.core.rest", "ResponseBase", response.getHeadersType(), response.getBodyType());
+        return new GenericType("com.azure.android.core.rest", "ResponseBase", response.getHeadersType(),
+            response.getBodyType());
     }
 
     @Override

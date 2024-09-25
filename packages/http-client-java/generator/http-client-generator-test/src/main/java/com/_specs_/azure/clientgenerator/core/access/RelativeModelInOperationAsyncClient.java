@@ -53,14 +53,16 @@ public final class RelativeModelInOperationAsyncClient {
      * ```.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     name: String (Required)
      *     inner (Required): {
      *         name: String (Required)
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param name The name parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -88,12 +90,14 @@ public final class RelativeModelInOperationAsyncClient {
      * ```.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     kind: String (Required)
      *     name: String (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param kind The kind parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

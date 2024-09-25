@@ -3,6 +3,8 @@
 
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
+import com.azure.core.http.HttpMethod;
+import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.Javagen;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Parameter;
@@ -25,10 +27,6 @@ import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
 import com.microsoft.typespec.http.client.generator.core.util.XmsExampleWrapper;
-import com.azure.core.http.HttpMethod;
-import com.azure.core.util.CoreUtils;
-import org.slf4j.Logger;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -42,6 +40,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
 
 /**
  * Maps Swagger definition into the interface methods that RestProxy consumes.
@@ -50,10 +49,10 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
 
     private final Logger logger = new PluginLogger(Javagen.getPluginInstance(), ProxyMethodMapper.class);
 
-    private static final List<IType> RETURN_VALUE_WIRE_TYPE_OPTIONS = Arrays.asList(ClassType.BASE_64_URL,
-        ClassType.DATE_TIME_RFC_1123, PrimitiveType.DURATION_LONG, PrimitiveType.DURATION_DOUBLE,
-        ClassType.DURATION_LONG, ClassType.DURATION_DOUBLE, PrimitiveType.UNIX_TIME_LONG, ClassType.UNIX_TIME_LONG,
-        ClassType.UNIX_TIME_DATE_TIME);
+    private static final List<IType> RETURN_VALUE_WIRE_TYPE_OPTIONS
+        = Arrays.asList(ClassType.BASE_64_URL, ClassType.DATE_TIME_RFC_1123, PrimitiveType.DURATION_LONG,
+            PrimitiveType.DURATION_DOUBLE, ClassType.DURATION_LONG, ClassType.DURATION_DOUBLE,
+            PrimitiveType.UNIX_TIME_LONG, ClassType.UNIX_TIME_LONG, ClassType.UNIX_TIME_DATE_TIME);
 
     private static final ProxyMethodMapper INSTANCE = new ProxyMethodMapper();
 
@@ -72,14 +71,14 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
         Map<Request, List<ProxyMethod>> result = new LinkedHashMap<>();
 
         String operationName = operation.getLanguage().getJava().getName();
-        ProxyMethod.Builder builder = createProxyMethodBuilder().description(operation.getDescription())
-            .name(operationName)
-            .isResumable(false);
+        ProxyMethod.Builder builder
+            = createProxyMethodBuilder().description(operation.getDescription()).name(operationName).isResumable(false);
 
         String operationId = operation.getOperationId();
-        if (CoreUtils.isNullOrEmpty(operationId) && operation.getLanguage() != null
-            && operation.getLanguage().getDefault()
-            != null) {  // operationId or language.default could be null for generated method like "listNext"
+        if (CoreUtils.isNullOrEmpty(operationId)
+            && operation.getLanguage() != null
+            && operation.getLanguage().getDefault() != null) {  // operationId or language.default could be null for
+                                                                // generated method like "listNext"
             if (operationGroupNotNull(operation, settings)) {
                 operationId = operation.getOperationGroup().getLanguage().getDefault().getName() + "_"
                     + operation.getLanguage().getDefault().getName();
@@ -104,8 +103,8 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
             responseBodyType = SchemaUtil.removeModelFromResponse(responseBodyType, operation);
         }
         builder.responseBodyType(responseBodyType);
-        IType asyncRestResponseReturnType = getAsyncRestResponseReturnType(operation, responseBodyType,
-            settings.isDataPlaneClient(), settings);
+        IType asyncRestResponseReturnType
+            = getAsyncRestResponseReturnType(operation, responseBodyType, settings.isDataPlaneClient(), settings);
         builder.returnType(asyncRestResponseReturnType);
 
         buildUnexpectedResponseExceptionTypes(builder, operation, expectedStatusCodes, settings);
@@ -118,7 +117,8 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
 
         Set<String> responseContentTypes = operation.getResponses()
             .stream()
-            .filter(r -> r.getProtocol() != null && r.getProtocol().getHttp() != null
+            .filter(r -> r.getProtocol() != null
+                && r.getProtocol().getHttp() != null
                 && r.getProtocol().getHttp().getMediaTypes() != null)
             .flatMap(r -> r.getProtocol().getHttp().getMediaTypes().stream())
             .filter(s -> !s.isEmpty())
@@ -161,13 +161,15 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
             if (settings.isDataPlaneClient()
                 // only if "content-type" is not already defined in parameters
                 && request.getParameters()
-                .stream()
-                .noneMatch(p -> p.getProtocol() != null && p.getProtocol().getHttp() != null
-                    && p.getProtocol().getHttp().getIn() == RequestParameterLocation.HEADER
-                    && "content-type".equalsIgnoreCase(p.getLanguage().getDefault().getSerializedName()))) {
+                    .stream()
+                    .noneMatch(p -> p.getProtocol() != null
+                        && p.getProtocol().getHttp() != null
+                        && p.getProtocol().getHttp().getIn() == RequestParameterLocation.HEADER
+                        && "content-type".equalsIgnoreCase(p.getLanguage().getDefault().getSerializedName()))) {
                 boolean isBodyParamRequired = request.getParameters()
                     .stream()
-                    .filter(p -> p.getProtocol() != null && p.getProtocol().getHttp() != null
+                    .filter(p -> p.getProtocol() != null
+                        && p.getProtocol().getHttp() != null
                         && p.getProtocol().getHttp().getIn() == RequestParameterLocation.BODY)
                     .map(Parameter::isRequired)
                     .findFirst()
@@ -193,12 +195,12 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
                 } else {
                     // LLC will put required path, body, query, header parameters to method signature
                     final boolean parameterIsRequired = parameter.isRequired();
-                    final boolean parameterIsClientOrApiVersion =
-                        ClientModelUtil.getClientDefaultValueOrConstantValue(parameter) != null
+                    final boolean parameterIsClientOrApiVersion
+                        = ClientModelUtil.getClientDefaultValueOrConstantValue(parameter) != null
                             && ParameterSynthesizedOrigin.fromValue(parameter.getOrigin())
-                            == ParameterSynthesizedOrigin.API_VERSION;
-                    final boolean parameterIsConstantOrFromClient = proxyMethodParameter.isConstant()
-                        || proxyMethodParameter.isFromClient();
+                                == ParameterSynthesizedOrigin.API_VERSION;
+                    final boolean parameterIsConstantOrFromClient
+                        = proxyMethodParameter.isConstant() || proxyMethodParameter.isFromClient();
                     if (parameterIsRequired || parameterIsConstantOrFromClient || parameterIsClientOrApiVersion) {
                         parameters.add(proxyMethodParameter);
                     }
@@ -234,11 +236,10 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
             builder.allParameters(allParameters);
             builder.parameters(parameters);
 
-            if (operation.getExtensions() != null && operation.getExtensions().getXmsExamples() != null
-                && operation.getExtensions().getXmsExamples().getExamples() != null && !operation.getExtensions()
-                .getXmsExamples()
-                .getExamples()
-                .isEmpty()) {
+            if (operation.getExtensions() != null
+                && operation.getExtensions().getXmsExamples() != null
+                && operation.getExtensions().getXmsExamples().getExamples() != null
+                && !operation.getExtensions().getXmsExamples().getExamples().isEmpty()) {
                 String operationIdLocal = operationId;
                 Map<String, ProxyMethodExample> examples = operation.getExtensions()
                     .getXmsExamples()
@@ -300,10 +301,11 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
             return;
         }
 
-        if (settings.isNoCustomHeaders() && asyncRestResponseReturnType instanceof GenericType
+        if (settings.isNoCustomHeaders()
+            && asyncRestResponseReturnType instanceof GenericType
             && ((GenericType) asyncRestResponseReturnType).getTypeArguments()[0] instanceof GenericType
             && ((GenericType) ((GenericType) asyncRestResponseReturnType).getTypeArguments()[0]).getName()
-            .equals("ResponseBase")) {
+                .equals("ResponseBase")) {
             IType asyncResponseWithNoHeaders = getAsyncRestResponseReturnType(operation, responseBodyType,
                 settings.isDataPlaneClient(), settings, true);
             builder.returnType(asyncResponseWithNoHeaders);
@@ -314,7 +316,7 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
 
             // reset builder state
             // TODO (srnagar): add a clone method to proxy method builder. Each proxy method should use it's own
-            //  builder instance to maintain its state separately.
+            // builder instance to maintain its state separately.
             builder.returnType(asyncRestResponseReturnType);
             builder.name(operationName);
             builder.customHeaderIgnored(false);
@@ -335,9 +337,10 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
     }
 
     protected boolean operationGroupNotNull(Operation operation, JavaSettings settings) {
-        return operation.getOperationGroup() != null && operation.getOperationGroup().getLanguage() != null
-            && operation.getOperationGroup().getLanguage().getDefault() != null && !CoreUtils.isNullOrEmpty(
-            operation.getOperationGroup().getLanguage().getDefault().getName());
+        return operation.getOperationGroup() != null
+            && operation.getOperationGroup().getLanguage() != null
+            && operation.getOperationGroup().getLanguage().getDefault() != null
+            && !CoreUtils.isNullOrEmpty(operation.getOperationGroup().getLanguage().getDefault().getName());
     }
 
     private ProxyMethodParameter getContextParameter() {
@@ -399,9 +402,11 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
                 singleValueType = GenericType.Response(responseBodyType);
             }
             return createSingleValueAsyncReturnType(singleValueType);
-        } else if (operation.getExtensions() != null && operation.getExtensions().isXmsLongRunningOperation()
-            && settings.isFluent() && (operation.getExtensions().getXmsPageable() == null || !(
-            operation.getExtensions().getXmsPageable().getNextOperation() == operation))) {
+        } else if (operation.getExtensions() != null
+            && operation.getExtensions().isXmsLongRunningOperation()
+            && settings.isFluent()
+            && (operation.getExtensions().getXmsPageable() == null
+                || !(operation.getExtensions().getXmsPageable().getNextOperation() == operation))) {
             // LRO in fluent uses Flux<ByteBuffer> for PollerFactory in azure-core-management
             return createBinaryContentAsyncReturnType();
         } else if (SchemaUtil.responseContainsHeaderSchemas(operation, settings)) {
@@ -429,7 +434,9 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
                 return createClientResponseAsyncReturnType(clientResponseClassType);
             }
         } else {
-            if ((!settings.isDataPlaneClient() && !settings.isSyncStackEnabled() && settings.isInputStreamForBinary()
+            if ((!settings.isDataPlaneClient()
+                && !settings.isSyncStackEnabled()
+                && settings.isInputStreamForBinary()
                 && responseBodyType.equals(ClassType.BINARY_DATA)) || responseBodyType.equals(ClassType.INPUT_STREAM)) {
                 return createStreamContentAsyncReturnType();
             } else if (responseBodyType.equals(PrimitiveType.VOID)) {
@@ -492,8 +499,8 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
 
         // Initialize the merged map with the Swagger defined configurations so that the settings configurations
         // overrides it.
-        Map<Integer, ClassType> mergedExceptionTypeMapping = new HashMap<>(
-            swaggerExceptionDefinitions.exceptionTypeMapping);
+        Map<Integer, ClassType> mergedExceptionTypeMapping
+            = new HashMap<>(swaggerExceptionDefinitions.exceptionTypeMapping);
         mergedExceptionTypeMapping.putAll(settingsExceptionTypeMap);
 
         // remove expected status codes
@@ -532,9 +539,11 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
             exceptionDefinitions.exceptionTypeMapping = swaggerExceptionTypeMap;
         } else {
             /*
-            1. If exception has valid numeric status codes, group them to unexpectedResponseExceptionTypes
-            2. If exception does not have status codes, or have 'default' or invalid number, put the first to unexpectedResponseExceptionType, ignore the rest
-            3. After processing, if no model in unexpectedResponseExceptionType, take any from unexpectedResponseExceptionTypes and put it to unexpectedResponseExceptionType
+             * 1. If exception has valid numeric status codes, group them to unexpectedResponseExceptionTypes
+             * 2. If exception does not have status codes, or have 'default' or invalid number, put the first to
+             * unexpectedResponseExceptionType, ignore the rest
+             * 3. After processing, if no model in unexpectedResponseExceptionType, take any from
+             * unexpectedResponseExceptionTypes and put it to unexpectedResponseExceptionType
              */
             if (operation.getExceptions() != null && !operation.getExceptions().isEmpty()) {
                 for (Response exception : operation.getExceptions()) {
@@ -555,7 +564,7 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
                             isDefaultError = false;
                         } catch (NumberFormatException ex) {
                             // statusCodes can be 'default'
-                            //logger.warn("Failed to parse status code, exception {}", ex.toString());
+                            // logger.warn("Failed to parse status code, exception {}", ex.toString());
                         }
                     }
 
@@ -566,7 +575,7 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
                 }
 
                 if (swaggerDefaultExceptionType == null && !CoreUtils.isNullOrEmpty(operation.getExceptions())
-                    // m4 could return Response without schema, when the Swagger uses e.g. "produces: [ application/x-rdp ]"
+                // m4 could return Response without schema, when the Swagger uses e.g. "produces: [ application/x-rdp ]"
                     && operation.getExceptions().get(0).getSchema() != null) {
                     // no default error, use the 1st to keep backward compatibility
                     swaggerDefaultExceptionType = processExceptionClassType(
@@ -618,8 +627,9 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
             exceptionName += "Exception";
         }
 
-        String exceptionPackage = (settings.isCustomType(exceptionName)) ? settings.getPackage(
-            settings.getCustomTypesSubpackage()) : settings.getPackage(settings.getModelsSubpackage());
+        String exceptionPackage = (settings.isCustomType(exceptionName))
+            ? settings.getPackage(settings.getCustomTypesSubpackage())
+            : settings.getPackage(settings.getModelsSubpackage());
 
         return new ClassType.Builder().packageName(exceptionPackage).name(exceptionName).build();
     }
@@ -629,9 +639,9 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
         String name = operationName;
         List<String> methodSignature = new ArrayList<>();
         methodSignature.add(operationName);
-        methodSignature.addAll(
-            parameters.stream().map(p -> p.getWireType().toString())   // simple class name should be enough?
-                .collect(Collectors.toList()));
+        methodSignature.addAll(parameters.stream()
+            .map(p -> p.getWireType().toString())   // simple class name should be enough?
+            .collect(Collectors.toList()));
         if (methodSignatures.contains(methodSignature)) {
             // got a conflict on method signature
             String conflictMethodSignature = methodSignature.toString();
@@ -676,8 +686,8 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
 
         Map<Integer, String> customExceptionMapping = settings.getHttpStatusCodeToExceptionTypeMapping();
         if (!CoreUtils.isNullOrEmpty(customExceptionMapping)) {
-            customExceptionMapping.forEach(
-                (key, value) -> exceptionMapping.put(key, createExceptionTypeFromFullyQualifiedClass(value)));
+            customExceptionMapping
+                .forEach((key, value) -> exceptionMapping.put(key, createExceptionTypeFromFullyQualifiedClass(value)));
         }
 
         return exceptionMapping;
@@ -728,40 +738,42 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
      */
     protected List<ProxyMethodParameter> getSpecialParameters(Operation operation) {
         List<ProxyMethodParameter> specialParameters = new ArrayList<>();
-        if (!CoreUtils.isNullOrEmpty(operation.getSpecialHeaders()) && !CoreUtils.isNullOrEmpty(
-            operation.getRequests())) {
+        if (!CoreUtils.isNullOrEmpty(operation.getSpecialHeaders())
+            && !CoreUtils.isNullOrEmpty(operation.getRequests())) {
             HttpMethod httpMethod = MethodUtil.getHttpMethod(operation);
             if (MethodUtil.isHttpMethodSupportRepeatableRequestHeaders(httpMethod)) {
                 List<String> specialHeaders = operation.getSpecialHeaders()
                     .stream()
                     .map(s -> s.toLowerCase(Locale.ROOT))
                     .collect(Collectors.toList());
-                boolean supportRepeatabilityRequest = specialHeaders.contains(
-                    MethodUtil.REPEATABILITY_REQUEST_ID_HEADER);
+                boolean supportRepeatabilityRequest
+                    = specialHeaders.contains(MethodUtil.REPEATABILITY_REQUEST_ID_HEADER);
                 if (supportRepeatabilityRequest) {
                     Function<ProxyMethodParameter.Builder, ProxyMethodParameter.Builder> commonBuilderSetting
                         = builder -> {
-                        builder.rawType(ClassType.STRING)
-                            .wireType(ClassType.STRING)
-                            .clientType(ClassType.STRING)
-                            .requestParameterLocation(RequestParameterLocation.HEADER)
-                            .required(false)
-                            .nullable(true)
-                            .fromClient(false);
-                        return builder;
-                    };
+                            builder.rawType(ClassType.STRING)
+                                .wireType(ClassType.STRING)
+                                .clientType(ClassType.STRING)
+                                .requestParameterLocation(RequestParameterLocation.HEADER)
+                                .required(false)
+                                .nullable(true)
+                                .fromClient(false);
+                            return builder;
+                        };
 
                     specialParameters.add(commonBuilderSetting.apply(
                         new ProxyMethodParameter.Builder().name(MethodUtil.REPEATABILITY_REQUEST_ID_VARIABLE_NAME)
                             .parameterReference(MethodUtil.REPEATABILITY_REQUEST_ID_EXPRESSION)
                             .requestParameterName(MethodUtil.REPEATABILITY_REQUEST_ID_HEADER)
-                            .description("Repeatability request ID header")).build());
+                            .description("Repeatability request ID header"))
+                        .build());
                     if (specialHeaders.contains(MethodUtil.REPEATABILITY_FIRST_SENT_HEADER)) {
                         specialParameters.add(commonBuilderSetting.apply(
                             new ProxyMethodParameter.Builder().name(MethodUtil.REPEATABILITY_FIRST_SENT_VARIABLE_NAME)
                                 .parameterReference(MethodUtil.REPEATABILITY_FIRST_SENT_EXPRESSION)
                                 .requestParameterName(MethodUtil.REPEATABILITY_FIRST_SENT_HEADER)
-                                .description("Repeatability first sent header as HTTP-date")).build());
+                                .description("Repeatability first sent header as HTTP-date"))
+                            .build());
                     }
                 }
             }
