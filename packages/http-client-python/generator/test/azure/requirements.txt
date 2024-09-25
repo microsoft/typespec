@@ -80,10 +80,10 @@ mypy==1.10.1
 -e ./generated/payload-multipart
 -e ./generated/payload-media-type
 -e ./generated/payload-xml
+-e ./generated/routes
 -e ./generated/versioning-added
 -e ./generated/versioning-madeoptional
 -e ./generated/versioning-removed
 -e ./generated/versioning-renamedfrom
 -e ./generated/versioning-returntypechangedfrom
 -e ./generated/versioning-typechangedfrom
--e ./generated/routes
