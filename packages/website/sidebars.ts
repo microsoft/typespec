@@ -122,6 +122,7 @@ const sidebars: SidebarsConfig = {
         "standard-library/encoded-names",
         "standard-library/discriminated-types",
         "standard-library/examples",
+        "standard-library/pagination",
       ],
     },
     {

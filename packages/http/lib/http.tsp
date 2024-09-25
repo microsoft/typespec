@@ -120,3 +120,11 @@ model HttpPartOptions {
 
 @Private.httpPart(Type, Options)
 model HttpPart<Type, Options extends valueof HttpPartOptions = #{}> {}
+
+model Link {
+  target: url;
+  rel: string;
+  attributes?: Record<unknown>;
+}
+
+scalar LinkHeader<T extends Record<url> | Link[]> extends string;

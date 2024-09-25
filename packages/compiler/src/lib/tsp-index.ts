@@ -14,7 +14,6 @@ import {
   $inspectTypeName,
   $key,
   $knownValues,
-  $list,
   $maxItems,
   $maxLength,
   $maxValue,
@@ -43,6 +42,18 @@ import {
   $withoutDefaultValues,
   $withoutOmittedProperties,
 } from "./decorators.js";
+import {
+  continuationTokenDecorator,
+  firstLinkDecorator,
+  lastLinkDecorator,
+  listDecorator,
+  nextLinkDecorator,
+  offsetDecorator,
+  pageIndexDecorator,
+  pageItemsDecorator,
+  pageSizeDecorator,
+  prevLinkDecorator,
+} from "./paging.js";
 
 /** @internal */
 export const $decorators = {
@@ -72,7 +83,6 @@ export const $decorators = {
     minValueExclusive: $minValueExclusive,
     maxValueExclusive: $maxValueExclusive,
     secret: $secret,
-    list: $list,
     tag: $tag,
     friendlyName: $friendlyName,
     knownValues: $knownValues,
@@ -89,6 +99,17 @@ export const $decorators = {
     inspectTypeName: $inspectTypeName,
     parameterVisibility: $parameterVisibility,
     returnTypeVisibility: $returnTypeVisibility,
+
+    list: listDecorator,
+    offset: offsetDecorator,
+    pageIndex: pageIndexDecorator,
+    pageSize: pageSizeDecorator,
+    pageItems: pageItemsDecorator,
+    continuationToken: continuationTokenDecorator,
+    nextLink: nextLinkDecorator,
+    prevLink: prevLinkDecorator,
+    firstLink: firstLinkDecorator,
+    lastLink: lastLinkDecorator,
   } satisfies TypeSpecDecorators,
 };
 
