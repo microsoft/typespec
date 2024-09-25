@@ -12,12 +12,11 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.Fluen
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentActionMethod;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentMethod;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentMethodType;
-import org.slf4j.Logger;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
 
 /**
  * Collection of resource actions.
@@ -33,14 +32,15 @@ public class ResourceActions {
     private List<FluentMethod> resourceActionMethods;
 
     public ResourceActions(FluentResourceModel resourceModel, FluentResourceCollection resourceCollection,
-                           List<FluentCollectionMethod> actionMethods) {
+        List<FluentCollectionMethod> actionMethods) {
 
         this.resourceModel = resourceModel;
         this.resourceCollection = resourceCollection;
         this.actionMethods = actionMethods;
 
         if (LOGGER.isInfoEnabled()) {
-            Set<String> methodNames = actionMethods.stream().map(m -> m.getInnerProxyMethod().getName()).collect(Collectors.toSet());
+            Set<String> methodNames
+                = actionMethods.stream().map(m -> m.getInnerProxyMethod().getName()).collect(Collectors.toSet());
             LOGGER.info("ResourceActions: Fluent model '{}', action methods: {}", resourceModel.getName(), methodNames);
         }
     }
@@ -52,8 +52,7 @@ public class ResourceActions {
             for (FluentCollectionMethod method : actionMethods) {
                 if (!unavailableMethodNames.contains(method.getMethodName())) {
                     resourceActionMethods.add(new FluentActionMethod(resourceModel, FluentMethodType.OTHER,
-                            resourceCollection, method,
-                            resourceModel.getResourceCreate().getResourceLocalVariables()));
+                        resourceCollection, method, resourceModel.getResourceCreate().getResourceLocalVariables()));
                 }
             }
         }
@@ -65,9 +64,10 @@ public class ResourceActions {
     }
 
     private Set<String> getUnavailableMethodNames() {
-        Set<String> unavailableMethodNames = resourceModel.getProperties().stream()
-                .map(FluentModelProperty::getMethodName)
-                .collect(Collectors.toSet());
+        Set<String> unavailableMethodNames = resourceModel.getProperties()
+            .stream()
+            .map(FluentModelProperty::getMethodName)
+            .collect(Collectors.toSet());
         if (resourceModel.getResourceCreate() != null) {
             unavailableMethodNames.add("create");
         }

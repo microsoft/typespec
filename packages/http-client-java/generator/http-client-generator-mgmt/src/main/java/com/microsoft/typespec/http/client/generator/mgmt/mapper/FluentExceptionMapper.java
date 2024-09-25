@@ -5,11 +5,11 @@ package com.microsoft.typespec.http.client.generator.mgmt.mapper;
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
-import com.microsoft.typespec.http.client.generator.mgmt.model.FluentType;
-import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
 import com.microsoft.typespec.http.client.generator.core.mapper.ExceptionMapper;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientException;
+import com.microsoft.typespec.http.client.generator.mgmt.model.FluentType;
+import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
 
 public class FluentExceptionMapper extends ExceptionMapper {
 
@@ -32,10 +32,10 @@ public class FluentExceptionMapper extends ExceptionMapper {
         String methodOperationExceptionTypeName = errorName + "Exception";
 
         boolean isManagementException = compositeType.getParents() != null
-                && !FluentType.nonManagementError(Utils.getJavaName(compositeType.getParents().getImmediate().get(0)));
+            && !FluentType.nonManagementError(Utils.getJavaName(compositeType.getParents().getImmediate().get(0)));
 
-        ClientException exception = new ClientException.Builder()
-                .packageName(settings.getPackage(settings.getModelsSubpackage()))
+        ClientException exception
+            = new ClientException.Builder().packageName(settings.getPackage(settings.getModelsSubpackage()))
                 .name(methodOperationExceptionTypeName)
                 .errorName(errorName)
                 .parentType(isManagementException ? FluentType.MANAGEMENT_EXCEPTION : ClassType.HTTP_RESPONSE_EXCEPTION)

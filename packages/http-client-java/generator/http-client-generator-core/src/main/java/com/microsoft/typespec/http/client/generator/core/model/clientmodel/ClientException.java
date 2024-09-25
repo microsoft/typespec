@@ -14,6 +14,7 @@ public class ClientException {
 
     /**
      * Create a new ServiceException with the provided properties.
+     * 
      * @param packageKeyword The package that this Exception will appear in.
      * @param name The name of the ServiceException type.
      * @param errorName The name of the error type contained by the ServiceException.
@@ -65,6 +66,7 @@ public class ClientException {
 
         /**
          * Sets exception name.
+         * 
          * @param name exception name.
          * @return the Builder.
          */
@@ -75,6 +77,7 @@ public class ClientException {
 
         /**
          * Sets error name.
+         * 
          * @param errorName error name.
          * @return the Builder.
          */
@@ -85,6 +88,7 @@ public class ClientException {
 
         /**
          * Sets package name.
+         * 
          * @param packageName package name.
          * @return the Builder.
          */
@@ -95,6 +99,7 @@ public class ClientException {
 
         /**
          * Sets parent exception IType.
+         * 
          * @param parentType parent exception IType.
          * @return the Builder.
          */
@@ -105,13 +110,11 @@ public class ClientException {
 
         /**
          * Builds ClientException
+         * 
          * @return the new ClientException instance.
          */
         public ClientException build() {
-            return new ClientException(packageName,
-                    name,
-                    errorName,
-                    parentType);
+            return new ClientException(packageName, name, errorName, parentType);
         }
     }
 }

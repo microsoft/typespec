@@ -19,7 +19,7 @@ export interface Numeric {
 
 /** @internal */
 interface InternalData {
-  /** Digits as a big it */
+  /** Digits as a big int */
   readonly n: bigint;
   /** Exponent */
   readonly e: number;
@@ -155,7 +155,7 @@ function stringify(value: InternalData): string {
   const n = value.n.toString();
   const sign = value.s === -1 ? "-" : "";
   const int = value.e <= 0 ? "0" : n.slice(0, value.e);
-  const decimal = value.e < n.length ? "." + n.slice(value.e).padStart(value.d, "0") : "";
+  const decimal = value.e < n.length ? "." + n.slice(-value.d).padStart(value.d, "0") : "";
   return sign + int + decimal;
 }
 const equals = (a: InternalData, b: InternalData) => a.n === b.n && a.e === b.e;

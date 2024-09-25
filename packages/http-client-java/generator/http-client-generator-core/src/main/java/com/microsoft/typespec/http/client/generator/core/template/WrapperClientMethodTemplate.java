@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
+import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Annotation;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
@@ -16,8 +17,6 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaCla
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
-import com.azure.core.util.CoreUtils;
-
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -42,7 +41,8 @@ public class WrapperClientMethodTemplate extends ClientMethodTemplateBase {
     public void write(ClientMethod clientMethod, JavaType typeBlock) {
         JavaSettings settings = JavaSettings.getInstance();
 
-        if (clientMethod.getType() == ClientMethodType.PagingAsyncSinglePage || clientMethod.getType() == ClientMethodType.PagingSyncSinglePage) {
+        if (clientMethod.getType() == ClientMethodType.PagingAsyncSinglePage
+            || clientMethod.getType() == ClientMethodType.PagingSyncSinglePage) {
             return;
         }
 
@@ -61,16 +61,19 @@ public class WrapperClientMethodTemplate extends ClientMethodTemplateBase {
             methodName = methodName.substring(0, methodName.length() - "Async".length());
         }
 
-        String declaration = String.format("%1$s %2$s(%3$s)", clientMethod.getReturnValue().getType(), methodName, clientMethod.getParametersDeclaration());
+        String declaration = String.format("%1$s %2$s(%3$s)", clientMethod.getReturnValue().getType(), methodName,
+            clientMethod.getParametersDeclaration());
         Consumer<JavaBlock> method = function -> {
 
             // API comment
-            if (clientMethod.getImplementationDetails() != null && !CoreUtils.isNullOrEmpty(clientMethod.getImplementationDetails().getComment())) {
+            if (clientMethod.getImplementationDetails() != null
+                && !CoreUtils.isNullOrEmpty(clientMethod.getImplementationDetails().getComment())) {
                 function.line("// " + clientMethod.getImplementationDetails().getComment());
             }
 
             boolean shouldReturn = true;
-            if (clientMethod.getReturnValue() != null && clientMethod.getReturnValue().getType() instanceof PrimitiveType) {
+            if (clientMethod.getReturnValue() != null
+                && clientMethod.getReturnValue().getType() instanceof PrimitiveType) {
                 PrimitiveType type = (PrimitiveType) clientMethod.getReturnValue().getType();
                 if (type.asNullable() == ClassType.VOID) {
                     shouldReturn = false;
@@ -97,9 +100,8 @@ public class WrapperClientMethodTemplate extends ClientMethodTemplateBase {
      */
     protected void writeMethodInvocation(ClientMethod clientMethod, JavaBlock function, boolean shouldReturn) {
         List<ClientMethodParameter> parameters = clientMethod.getMethodInputParameters();
-        function.line((shouldReturn ? "return " : "") + "this.serviceClient.%1$s(%2$s);",
-                clientMethod.getName(),
-                parameters.stream().map(ClientMethodParameter::getName).collect(Collectors.joining(", ")));
+        function.line((shouldReturn ? "return " : "") + "this.serviceClient.%1$s(%2$s);", clientMethod.getName(),
+            parameters.stream().map(ClientMethodParameter::getName).collect(Collectors.joining(", ")));
     }
 
     protected void generateJavadoc(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod) {
@@ -115,9 +117,10 @@ public class WrapperClientMethodTemplate extends ClientMethodTemplateBase {
             if (restAPIMethod != null) {
                 if (restAPIMethod.getUnexpectedResponseExceptionType() != null) {
                     comment.methodThrows(restAPIMethod.getUnexpectedResponseExceptionType().toString(),
-                            "thrown if the request is rejected by server");
+                        "thrown if the request is rejected by server");
                 }
-                comment.methodThrows("RuntimeException", "all other wrapped checked exceptions if the request fails to be sent");
+                comment.methodThrows("RuntimeException",
+                    "all other wrapped checked exceptions if the request fails to be sent");
             }
             comment.methodReturns(clientMethod.getReturnValue().getDescription());
         });

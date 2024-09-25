@@ -3,13 +3,12 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.template;
 
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.ModelNaming;
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentMethod;
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.create.DefinitionStage;
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.create.ResourceCreate;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaInterface;
 import com.microsoft.typespec.http.client.generator.core.template.IJavaTemplate;
-
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.ModelNaming;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.create.DefinitionStage;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.create.ResourceCreate;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentMethod;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,11 +25,11 @@ public class FluentResourceModelInterfaceDefinitionTemplate implements IJavaTemp
             commentBlock.description(String.format("The entirety of the %1$s definition.", modelName));
         });
         String definitionInterfaceSignature = String.format("%1$s extends %2$s",
-                ModelNaming.MODEL_FLUENT_INTERFACE_DEFINITION,
-                definitionStages.stream()
-                        .filter(DefinitionStage::isMandatoryStage)
-                        .map(s -> String.format("%1$s.%2$s", ModelNaming.MODEL_FLUENT_INTERFACE_DEFINITION_STAGES, s.getName()))
-                        .collect(Collectors.joining(", ")));
+            ModelNaming.MODEL_FLUENT_INTERFACE_DEFINITION,
+            definitionStages.stream()
+                .filter(DefinitionStage::isMandatoryStage)
+                .map(s -> String.format("%1$s.%2$s", ModelNaming.MODEL_FLUENT_INTERFACE_DEFINITION_STAGES, s.getName()))
+                .collect(Collectors.joining(", ")));
         interfaceBlock.interfaceBlock(definitionInterfaceSignature, block1 -> {
         });
 

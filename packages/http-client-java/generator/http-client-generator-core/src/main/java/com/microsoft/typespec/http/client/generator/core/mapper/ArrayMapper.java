@@ -8,7 +8,6 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -45,9 +44,8 @@ public class ArrayMapper implements IMapper<ArraySchema, IType> {
         IType mappedType = Mappers.getSchemaMapper().map(sequenceType.getElementType());
 
         // Choose IterableType or ListType depending on whether arrays should use Iterable.
-        arrayType = JavaSettings.getInstance().isUseIterable()
-            ? new IterableType(mappedType)
-            : new ListType(mappedType);
+        arrayType
+            = JavaSettings.getInstance().isUseIterable() ? new IterableType(mappedType) : new ListType(mappedType);
 
         parsed.put(sequenceType, arrayType);
         return arrayType;

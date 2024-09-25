@@ -5,11 +5,6 @@ package com.microsoft.typespec.http.client.generator.core.customization;
 
 import com.microsoft.typespec.http.client.generator.core.customization.implementation.Utils;
 import com.microsoft.typespec.http.client.generator.core.customization.implementation.ls.EclipseLanguageClient;
-import org.eclipse.lsp4j.FileChangeType;
-import org.eclipse.lsp4j.FileEvent;
-import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Range;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -18,7 +13,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+import org.eclipse.lsp4j.FileChangeType;
+import org.eclipse.lsp4j.FileEvent;
+import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 
 /**
  * The Javadoc customization for an AutoRest generated classes and methods.
@@ -235,7 +233,8 @@ public final class JavadocCustomization {
      *
      * @param seeDoc the link to the extra documentation
      * @return the Javadoc customization object for chaining
-     * @see <a href="https://docs.oracle.com/javase/7/docs/technotes/tools/windows/javadoc.html#see">Oracle docs on see tag</a>
+     * @see <a href="https://docs.oracle.com/javase/7/docs/technotes/tools/windows/javadoc.html#see">Oracle docs on see
+     * tag</a>
      */
     public JavadocCustomization addSee(String seeDoc) {
         seeDocs.add(seeDoc);
@@ -324,34 +323,40 @@ public final class JavadocCustomization {
                     String type = THROWS_TAG.matcher(lineContent).replaceFirst("");
                     type = SPACE_THEN_ANYTHING.matcher(type).replaceFirst("");
                     Position docStart = new Position(symbolLine, lineContent.indexOf("@throws") + 8);
-                    Position docEnd = new Position(currentDocEndLine, editor.getFileLine(fileName, currentDocEndLine).length());
+                    Position docEnd
+                        = new Position(currentDocEndLine, editor.getFileLine(fileName, currentDocEndLine).length());
                     throwsDocs.put(type, readJavadocTextRange(editor, fileName, docStart, docEnd));
                     currentDocEndLine = symbolLine - 1;
                 } else if (lineContent.contains("@return")) {
                     Position docStart = new Position(symbolLine, lineContent.indexOf("@return") + 8);
-                    Position docEnd = new Position(currentDocEndLine, editor.getFileLine(fileName, currentDocEndLine).length());
+                    Position docEnd
+                        = new Position(currentDocEndLine, editor.getFileLine(fileName, currentDocEndLine).length());
                     returnDoc = readJavadocTextRange(editor, fileName, docStart, docEnd);
                     currentDocEndLine = symbolLine - 1;
                 } else if (lineContent.contains("@since")) {
                     Position docStart = new Position(symbolLine, lineContent.indexOf("@since") + 7);
-                    Position docEnd = new Position(currentDocEndLine, editor.getFileLine(fileName, currentDocEndLine).length());
+                    Position docEnd
+                        = new Position(currentDocEndLine, editor.getFileLine(fileName, currentDocEndLine).length());
                     sinceDoc = readJavadocTextRange(editor, fileName, docStart, docEnd);
                     currentDocEndLine = symbolLine - 1;
                 } else if (lineContent.contains("@see")) {
                     Position docStart = new Position(symbolLine, lineContent.indexOf("@see") + 5);
-                    Position docEnd = new Position(currentDocEndLine, editor.getFileLine(fileName, currentDocEndLine).length());
+                    Position docEnd
+                        = new Position(currentDocEndLine, editor.getFileLine(fileName, currentDocEndLine).length());
                     seeDocs.add(readJavadocTextRange(editor, fileName, docStart, docEnd));
                     currentDocEndLine = symbolLine - 1;
                 } else if (lineContent.contains("@deprecated")) {
                     Position docStart = new Position(symbolLine, lineContent.indexOf("@deprecated") + 5);
-                    Position docEnd = new Position(currentDocEndLine, editor.getFileLine(fileName, currentDocEndLine).length());
+                    Position docEnd
+                        = new Position(currentDocEndLine, editor.getFileLine(fileName, currentDocEndLine).length());
                     deprecatedDoc = readJavadocTextRange(editor, fileName, docStart, docEnd);
                     currentDocEndLine = symbolLine - 1;
                 } else if (lineContent.contains("@param")) {
                     String name = PARAM_TAG.matcher(lineContent).replaceFirst("");
                     name = SPACE_THEN_ANYTHING.matcher(name).replaceFirst("");
                     Position docStart = new Position(symbolLine, lineContent.indexOf("@param") + 8 + name.length());
-                    Position docEnd = new Position(currentDocEndLine, editor.getFileLine(fileName, currentDocEndLine).length());
+                    Position docEnd
+                        = new Position(currentDocEndLine, editor.getFileLine(fileName, currentDocEndLine).length());
                     paramDocs.put(name, readJavadocTextRange(editor, fileName, docStart, docEnd));
                     currentDocEndLine = symbolLine - 1;
                 } else if (EMPTY_JAVADOC_LINE_PATTERN.matcher(lineContent).matches()) {
@@ -365,21 +370,25 @@ public final class JavadocCustomization {
             if (lineContent.endsWith("/*") || lineContent.endsWith("/**")) {
                 symbolLine++;
             }
-            Position descriptionStart = new Position(symbolLine, JAVADOC_LINE_WITH_CONTENT.matcher(editor.getFileLine(fileName, symbolLine)).replaceFirst("").length() + 2);
+            Position descriptionStart = new Position(symbolLine,
+                JAVADOC_LINE_WITH_CONTENT.matcher(editor.getFileLine(fileName, symbolLine)).replaceFirst("").length()
+                    + 2);
             String descriptionEndLineContent = editor.getFileLine(fileName, currentDocEndLine);
             while (descriptionEndLineContent.trim().endsWith("*")) {
                 descriptionEndLineContent = editor.getFileLine(fileName, --currentDocEndLine);
             }
-            Position descriptionEnd = new Position(currentDocEndLine, END_JAVADOC_LINE.matcher(descriptionEndLineContent).replaceFirst("").length());
-            this.descriptionDocs = JAVADOC_CONTENT.matcher(editor.getTextInRange(fileName, new Range(descriptionStart, descriptionEnd), " "))
-                .replaceAll(" ").trim();
+            Position descriptionEnd = new Position(currentDocEndLine,
+                END_JAVADOC_LINE.matcher(descriptionEndLineContent).replaceFirst("").length());
+            this.descriptionDocs = JAVADOC_CONTENT
+                .matcher(editor.getTextInRange(fileName, new Range(descriptionStart, descriptionEnd), " "))
+                .replaceAll(" ")
+                .trim();
         } else {
             initialize(symbolLine);
         }
     }
 
-    private static String readJavadocTextRange(Editor editor, String fileName, Position docStart,
-        Position docEnd) {
+    private static String readJavadocTextRange(Editor editor, String fileName, Position docStart, Position docEnd) {
         return editor.getTextInRange(fileName, new Range(docStart, docEnd), " ", line -> {
             Matcher lineCleaningMatch = JAVADOC_LINE_CLEANER.matcher(line);
             return (lineCleaningMatch.find()) ? lineCleaningMatch.group(1) : line;
@@ -400,10 +409,8 @@ public final class JavadocCustomization {
             Utils.writeLine(stringBuilder.append(indent), " * ");
 
             for (Map.Entry<String, String> paramDoc : paramDocs.entrySet()) {
-                Utils.writeLine(stringBuilder.append(indent)
-                    .append(" * @param ")
-                    .append(paramDoc.getKey())
-                    .append(" "), paramDoc.getValue());
+                Utils.writeLine(stringBuilder.append(indent).append(" * @param ").append(paramDoc.getKey()).append(" "),
+                    paramDoc.getValue());
             }
 
             if (returnDoc != null) {
@@ -411,10 +418,9 @@ public final class JavadocCustomization {
             }
 
             for (Map.Entry<String, String> throwsDoc : throwsDocs.entrySet()) {
-                Utils.writeLine(stringBuilder.append(indent)
-                    .append(" * @throws ")
-                    .append(throwsDoc.getKey())
-                    .append(" "), throwsDoc.getValue());
+                Utils.writeLine(
+                    stringBuilder.append(indent).append(" * @throws ").append(throwsDoc.getKey()).append(" "),
+                    throwsDoc.getValue());
             }
 
             for (String seeDoc : seeDocs) {

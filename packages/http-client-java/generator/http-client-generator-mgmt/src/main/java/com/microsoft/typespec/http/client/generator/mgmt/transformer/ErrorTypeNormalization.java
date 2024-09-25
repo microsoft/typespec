@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.transformer;
 
+import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ArraySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Language;
@@ -15,12 +16,9 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SchemaContext;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Value;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
+import com.microsoft.typespec.http.client.generator.mgmt.FluentNamer;
 import com.microsoft.typespec.http.client.generator.mgmt.model.FluentType;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
-import com.microsoft.typespec.http.client.generator.mgmt.FluentNamer;
-import com.azure.core.util.CoreUtils;
-import org.slf4j.Logger;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -31,27 +29,32 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
 
 public class ErrorTypeNormalization {
 
-    private static final Logger LOGGER = new PluginLogger(FluentNamer.getPluginInstance(), ErrorTypeNormalization.class);
+    private static final Logger LOGGER
+        = new PluginLogger(FluentNamer.getPluginInstance(), ErrorTypeNormalization.class);
 
     private static final String ERROR_PROPERTY_NAME = "error";
 
     public CodeModel process(CodeModel codeModel) {
-        codeModel.getOperationGroups().stream()
-                .flatMap(og -> og.getOperations().stream())
-                .flatMap(o -> o.getExceptions().stream())
-                .map(Response::getSchema)
-                .filter(Objects::nonNull)
-                .distinct()
-                .forEach(s -> process((ObjectSchema) s));
+        codeModel.getOperationGroups()
+            .stream()
+            .flatMap(og -> og.getOperations().stream())
+            .flatMap(o -> o.getExceptions().stream())
+            .map(Response::getSchema)
+            .filter(Objects::nonNull)
+            .distinct()
+            .forEach(s -> process((ObjectSchema) s));
 
         return codeModel;
     }
 
-    private static final Set<String> MANAGEMENT_ERROR_FIELDS = new HashSet<>(Arrays.asList("code", "message", "target", "details", "additionalInfo"));
-    private static final Set<String> MANAGEMENT_ERROR_FIELDS_MIN_REQUIRED = new HashSet<>(Arrays.asList("code", "message"));
+    private static final Set<String> MANAGEMENT_ERROR_FIELDS
+        = new HashSet<>(Arrays.asList("code", "message", "target", "details", "additionalInfo"));
+    private static final Set<String> MANAGEMENT_ERROR_FIELDS_MIN_REQUIRED
+        = new HashSet<>(Arrays.asList("code", "message"));
 
     private static final ObjectSchema DUMMY_ERROR = dummyManagementError();
 
@@ -71,12 +74,13 @@ public class ErrorTypeNormalization {
     private void process(ObjectSchema error) {
         ObjectSchema errorSchema = error;
 
-        Optional<ObjectSchema> errorSchemaOpt = error.getProperties().stream()
-                .filter(p -> ERROR_PROPERTY_NAME.equalsIgnoreCase(p.getSerializedName()))
-                .map(Value::getSchema)
-                .filter(s -> s instanceof ObjectSchema)
-                .map(s -> (ObjectSchema) s)
-                .findFirst();
+        Optional<ObjectSchema> errorSchemaOpt = error.getProperties()
+            .stream()
+            .filter(p -> ERROR_PROPERTY_NAME.equalsIgnoreCase(p.getSerializedName()))
+            .map(Value::getSchema)
+            .filter(s -> s instanceof ObjectSchema)
+            .map(s -> (ObjectSchema) s)
+            .findFirst();
 
         if (errorSchemaOpt.isPresent()) {
             errorSchema = errorSchemaOpt.get();
@@ -100,11 +104,15 @@ public class ErrorTypeNormalization {
 
                 if (updateChildrenParent) {
                     // update its subclass of usage=input/output, to avoid inherit from this error model "ErrorResponse"
-                    error.getChildren().getAll().stream().filter(ErrorTypeNormalization::usedMoreThanException).forEach(o -> {
-                        if (o instanceof ObjectSchema) {
-                            adaptForParentSchema((ObjectSchema) o, error);
-                        }
-                    });
+                    error.getChildren()
+                        .getAll()
+                        .stream()
+                        .filter(ErrorTypeNormalization::usedMoreThanException)
+                        .forEach(o -> {
+                            if (o instanceof ObjectSchema) {
+                                adaptForParentSchema((ObjectSchema) o, error);
+                            }
+                        });
                 }
 
                 if (errorSchema != error && !updateChildrenParent) {
@@ -166,22 +174,30 @@ public class ErrorTypeNormalization {
         }
 
         // move "error" to subclass, make it composite with "error", instead of inherit from "ErrorResponse"
-        if (compositeType.getProperties() == null || compositeType.getProperties().stream().noneMatch(p -> ERROR_PROPERTY_NAME.equalsIgnoreCase(p.getSerializedName()))) {
+        if (compositeType.getProperties() == null
+            || compositeType.getProperties()
+                .stream()
+                .noneMatch(p -> ERROR_PROPERTY_NAME.equalsIgnoreCase(p.getSerializedName()))) {
             if (compositeType.getProperties() == null) {
                 compositeType.setProperties(new ArrayList<>());
             }
-            compositeType.getProperties().add(error.getProperties().stream().filter(p -> ERROR_PROPERTY_NAME.equalsIgnoreCase(p.getSerializedName())).findFirst().get());
+            compositeType.getProperties()
+                .add(error.getProperties()
+                    .stream()
+                    .filter(p -> ERROR_PROPERTY_NAME.equalsIgnoreCase(p.getSerializedName()))
+                    .findFirst()
+                    .get());
         }
     }
 
     private static boolean existNoneExceptionChildren(ObjectSchema error) {
-        return error.getChildren() != null && error.getChildren().getAll().stream()
-                .anyMatch(ErrorTypeNormalization::usedMoreThanException);
+        return error.getChildren() != null
+            && error.getChildren().getAll().stream().anyMatch(ErrorTypeNormalization::usedMoreThanException);
     }
 
     private static boolean usedMoreThanException(Schema schema) {
         return !CoreUtils.isNullOrEmpty(schema.getUsage())
-                && (schema.getUsage().contains(SchemaContext.INPUT) || schema.getUsage().contains(SchemaContext.OUTPUT));
+            && (schema.getUsage().contains(SchemaContext.INPUT) || schema.getUsage().contains(SchemaContext.OUTPUT));
     }
 
     private void normalizeSubclass(ObjectSchema errorSchema) {
@@ -190,7 +206,8 @@ public class ErrorTypeNormalization {
                 if (schema instanceof ObjectSchema) {
                     ObjectSchema error = (ObjectSchema) schema;
 
-                    LOGGER.info("Modify type '{}' as subclass of '{}'", Utils.getJavaName(error), Utils.getJavaName(errorSchema));
+                    LOGGER.info("Modify type '{}' as subclass of '{}'", Utils.getJavaName(error),
+                        Utils.getJavaName(errorSchema));
 
                     filterProperties(error);
                 }
@@ -217,9 +234,11 @@ public class ErrorTypeNormalization {
 
     private void normalizeErrorDetailType(Property details) {
         Schema detailsSchema = details.getSchema();
-        if (detailsSchema instanceof ArraySchema && ((ArraySchema) detailsSchema).getElementType() instanceof ObjectSchema ) {
+        if (detailsSchema instanceof ArraySchema
+            && ((ArraySchema) detailsSchema).getElementType() instanceof ObjectSchema) {
             ObjectSchema error = (ObjectSchema) ((ArraySchema) detailsSchema).getElementType();
-            if (error.getParents() == null || FluentType.nonManagementError(Utils.getJavaName(error.getParents().getImmediate().get(0)))) {
+            if (error.getParents() == null
+                || FluentType.nonManagementError(Utils.getJavaName(error.getParents().getImmediate().get(0)))) {
                 // if not subclass of ManagementError, normalize it
 
                 switch (getErrorType(error)) {
@@ -251,9 +270,8 @@ public class ErrorTypeNormalization {
     }
 
     private ErrorType getErrorType(ObjectSchema error) {
-        Set<String> propertyNames = error.getProperties().stream()
-                .map(Property::getSerializedName)
-                .collect(Collectors.toSet());
+        Set<String> propertyNames
+            = error.getProperties().stream().map(Property::getSerializedName).collect(Collectors.toSet());
 
         ErrorType type;
         if (MANAGEMENT_ERROR_FIELDS.containsAll(propertyNames)) {

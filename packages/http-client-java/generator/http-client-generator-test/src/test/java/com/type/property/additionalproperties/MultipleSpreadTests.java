@@ -5,14 +5,14 @@ package com.type.property.additionalproperties;
 
 import com.azure.core.util.BinaryData;
 import com.type.property.additionalproperties.models.MultipleSpreadRecord;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 public class MultipleSpreadTests {
-    private final MultipleSpreadClient multipleSpreadClient = new AdditionalPropertiesClientBuilder().buildMultipleSpreadClient();
+    private final MultipleSpreadClient multipleSpreadClient
+        = new AdditionalPropertiesClientBuilder().buildMultipleSpreadClient();
 
     @Test
     public void testMultipleSpread() {

@@ -9,9 +9,8 @@ import org.junit.jupiter.api.Test;
 
 public class NotVersionedTests {
 
-    private final NotVersionedClient client = new NotVersionedClientBuilder()
-            .endpoint("http://localhost:3000")
-            .buildClient();
+    private final NotVersionedClient client
+        = new NotVersionedClientBuilder().endpoint("http://localhost:3000").buildClient();
 
     @Test
     public void test() {

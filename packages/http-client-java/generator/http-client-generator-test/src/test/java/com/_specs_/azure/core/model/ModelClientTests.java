@@ -4,10 +4,9 @@
 package com._specs_.azure.core.model;
 
 import com._specs_.azure.core.model.models.AzureEmbeddingModel;
+import java.util.Arrays;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.util.Arrays;
 
 public class ModelClientTests {
     ModelClient client = new ModelClientBuilder().buildClient();

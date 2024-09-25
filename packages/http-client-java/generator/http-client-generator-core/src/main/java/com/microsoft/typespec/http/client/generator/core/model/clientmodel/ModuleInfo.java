@@ -38,8 +38,10 @@ public class ModuleInfo {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
             RequireModule that = (RequireModule) o;
             return isTransitive == that.isTransitive && Objects.equals(moduleName, that.moduleName);
         }
@@ -63,8 +65,10 @@ public class ModuleInfo {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
             ExportModule that = (ExportModule) o;
             return Objects.equals(moduleName, that.moduleName);
         }
@@ -103,8 +107,10 @@ public class ModuleInfo {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
             OpenModule that = (OpenModule) o;
             return Objects.equals(moduleName, that.moduleName) && Objects.equals(openToModules, that.openToModules);
         }
