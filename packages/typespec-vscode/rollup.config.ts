@@ -4,6 +4,7 @@ import typescript from "@rollup/plugin-typescript";
 
 import { defineConfig } from "rollup";
 
+const plugins = [(resolve as any)({ preferBuiltins: true }), (commonjs as any)()];
 const baseConfig = defineConfig({
   input: "src/extension.ts",
   output: {
@@ -13,11 +14,6 @@ const baseConfig = defineConfig({
     exports: "named",
   },
   external: ["vscode"],
-  plugins: [
-    (resolve as any)({ preferBuiltins: true }),
-    (commonjs as any)(),
-    (typescript as any)({ tsconfig: "./tsconfig.build.json" }),
-  ],
   onwarn: (warning, warn) => {
     if (warning.code === "CIRCULAR_DEPENDENCY") {
       // filter out warnings about circular dependencies out of our control
@@ -42,6 +38,7 @@ export default defineConfig([
       exports: "named",
       inlineDynamicImports: true,
     },
+    plugins: [...plugins, ts("dist/src")],
   },
   {
     ...baseConfig,
@@ -52,6 +49,7 @@ export default defineConfig([
       sourcemap: true,
       inlineDynamicImports: true,
     },
+    plugins: [...plugins, ts("dist/src/web")],
   },
   {
     ...baseConfig,
@@ -62,5 +60,10 @@ export default defineConfig([
       sourcemap: true,
       inlineDynamicImports: true,
     },
+    plugins: [...plugins, ts("dist/test")],
   },
 ]);
+
+function ts(outDir: string) {
+  return (typescript as any)({ tsconfig: "./tsconfig.build.json", outDir });
+}
