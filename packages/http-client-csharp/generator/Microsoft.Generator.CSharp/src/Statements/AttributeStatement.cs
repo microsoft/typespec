@@ -20,6 +20,10 @@ namespace Microsoft.Generator.CSharp.Statements
             PositionalArguments = positionalArguments;
         }
 
+        public AttributeStatement(CSharpType type, IReadOnlyList<ValueExpression> arguments) : this(type, arguments, new Dictionary<string, ValueExpression>()) { }
+
+        public AttributeStatement(CSharpType type, IReadOnlyDictionary<string, ValueExpression> positionalArguments) : this(type, [], positionalArguments) { }
+
         public AttributeStatement(CSharpType type, params ValueExpression[] arguments) : this(type, arguments, new Dictionary<string, ValueExpression>()) { }
 
         internal override void Write(CodeWriter writer)
@@ -39,6 +43,24 @@ namespace Microsoft.Generator.CSharp.Statements
                     {
                         writer.AppendRaw(", ");
                     }
+                }
+            }
+            if (PositionalArguments.Count > 0)
+            {
+                if (Arguments.Count > 0)
+                {
+                    writer.AppendRaw(", ");
+                }
+                int i = 0;
+                foreach (var (key, value) in PositionalArguments)
+                {
+                    writer.Append($"{key} = ");
+                    value.Write(writer);
+                    if (i != PositionalArguments.Count - 1)
+                    {
+                        writer.AppendRaw(", ");
+                    }
+                    i++;
                 }
             }
             if (hasArguments)
