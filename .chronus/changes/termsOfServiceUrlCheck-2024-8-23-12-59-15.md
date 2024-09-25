@@ -4,4 +4,4 @@ packages:
   - "@typespec/openapi"
 ---
 
-check type url for termsOfService
+`@info` decorator validate `termsOfService` is a valid url
