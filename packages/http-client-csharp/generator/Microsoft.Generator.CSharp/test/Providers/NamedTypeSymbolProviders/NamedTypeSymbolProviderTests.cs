@@ -20,11 +20,11 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.NamedTypeSymbolProviders
 
         public NamedTypeSymbolProviderTests()
         {
-            var compilation = CompilationHelper.LoadCompilation([new NamedSymbol(), new PropertyType()]);
+            _namedSymbol = new NamedSymbol();
+            var compilation = CompilationHelper.LoadCompilation([_namedSymbol, new PropertyType()]);
             var iNamedSymbol = GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "NamedSymbol");
 
             _namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!);
-            _namedSymbol = new NamedSymbol();
         }
 
         [Test]
@@ -64,6 +64,39 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.NamedTypeSymbolProviders
                 Assert.AreEqual(expected.Body.GetType(), actual.Body.GetType());
                 Assert.AreEqual(expected.Body.HasSetter, actual.Body.HasSetter);
             }
+        }
+
+        [TestCase(typeof(int))]
+        [TestCase(typeof(string))]
+        [TestCase(typeof(double?))]
+        [TestCase(typeof(float?))]
+        [TestCase(typeof(PropertyType))]
+        [TestCase(typeof(IList<string>))]
+        [TestCase(typeof(IList<string?>))]
+        [TestCase(typeof(IList<PropertyType>))]
+        public void ValidatePropertyTypes(Type propertyType)
+        {
+            // setup
+            var namedSymbol = new NamedSymbol(propertyType);
+            _namedSymbol = namedSymbol;
+            var compilation = CompilationHelper.LoadCompilation([namedSymbol, new PropertyType()]);
+            var iNamedSymbol = GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "NamedSymbol");
+
+            _namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!);
+
+            Assert.AreEqual(_namedSymbol.Properties.Count, _namedTypeSymbolProvider.Properties.Count);
+
+            var property = _namedTypeSymbolProvider.Properties.FirstOrDefault();
+            Assert.IsNotNull(property);
+
+            bool isNullable = Nullable.GetUnderlyingType(propertyType) != null;
+            var expectedType = new CSharpType(propertyType, isNullable);
+
+            Assert.AreEqual(expectedType.Name, property!.Type.Name);
+            Assert.AreEqual(expectedType.IsNullable, property.Type.IsNullable);
+
+            bool isList = propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(IList<>);
+            Assert.AreEqual(isList, property.Type.IsList);
         }
 
         [Test]
@@ -134,11 +167,17 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.NamedTypeSymbolProviders
 
         private class NamedSymbol : TypeProvider
         {
+            private readonly Type? _propertyType;
             protected override string BuildRelativeFilePath() => ".";
 
             protected override string BuildName() => "NamedSymbol";
 
             protected override string GetNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
+
+            public NamedSymbol(Type? propertyType = null) : base()
+            {
+                _propertyType = propertyType;
+            }
 
             protected override FieldProvider[] BuildFields()
             {
@@ -153,12 +192,20 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.NamedTypeSymbolProviders
 
             protected override PropertyProvider[] BuildProperties()
             {
+                if (_propertyType == null)
+                {
+                    return
+                    [
+                        new PropertyProvider($"IntProperty property", MethodSignatureModifiers.Public, typeof(int), "IntProperty", new AutoPropertyBody(true), this),
+                        new PropertyProvider($"StringProperty property no setter", MethodSignatureModifiers.Public, typeof(string), "StringProperty", new AutoPropertyBody(false), this),
+                        new PropertyProvider($"InternalStringProperty property no setter", MethodSignatureModifiers.Public, typeof(string), "InternalStringProperty", new AutoPropertyBody(false), this),
+                        new PropertyProvider($"PropertyTypeProperty property", MethodSignatureModifiers.Public, new PropertyType().Type, "PropertyTypeProperty", new AutoPropertyBody(true), this),
+                    ];
+                }
+
                 return
                 [
-                    new PropertyProvider($"IntProperty property", MethodSignatureModifiers.Public, typeof(int), "IntProperty", new AutoPropertyBody(true), this),
-                    new PropertyProvider($"StringProperty property no setter", MethodSignatureModifiers.Public, typeof(string), "StringProperty", new AutoPropertyBody(false), this),
-                    new PropertyProvider($"InternalStringProperty property no setter", MethodSignatureModifiers.Public, typeof(string), "InternalStringProperty", new AutoPropertyBody(false), this),
-                    new PropertyProvider($"PropertyTypeProperty property", MethodSignatureModifiers.Public, new PropertyType().Type, "PropertyTypeProperty", new AutoPropertyBody(true), this),
+                    new PropertyProvider($"p1", MethodSignatureModifiers.Public, _propertyType, "P1", new AutoPropertyBody(true), this)
                 ];
             }
 

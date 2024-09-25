@@ -12,9 +12,9 @@ using Sample;
 namespace Sample.Models
 {
     /// <summary></summary>
-    public partial class MockInputModel : global::System.ClientModel.Primitives.IJsonModel<global::Sample.Models.MockInputModel>
+    public partial class Model : global::System.ClientModel.Primitives.IJsonModel<global::Sample.Models.Model>
     {
-        void global::System.ClientModel.Primitives.IJsonModel<global::Sample.Models.MockInputModel>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        void global::System.ClientModel.Primitives.IJsonModel<global::Sample.Models.Model>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             writer.WriteStartObject();
             this.JsonModelWriteCore(writer, options);
@@ -25,10 +25,10 @@ namespace Sample.Models
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.MockInputModel>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.Model>)this).GetFormatFromOptions(options) : options.Format;
             if ((format != "J"))
             {
-                throw new global::System.FormatException($"The model {nameof(global::Sample.Models.MockInputModel)} does not support writing '{format}' format.");
+                throw new global::System.FormatException($"The model {nameof(global::Sample.Models.Model)} does not support writing '{format}' format.");
             }
             if (global::Sample.Optional.IsDefined(Prop2))
             {
@@ -62,22 +62,22 @@ namespace Sample.Models
             }
         }
 
-        global::Sample.Models.MockInputModel global::System.ClientModel.Primitives.IJsonModel<global::Sample.Models.MockInputModel>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => ((global::Sample.Models.MockInputModel)this.JsonModelCreateCore(ref reader, options));
+        global::Sample.Models.Model global::System.ClientModel.Primitives.IJsonModel<global::Sample.Models.Model>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => ((global::Sample.Models.Model)this.JsonModelCreateCore(ref reader, options));
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual global::Sample.Models.MockInputModel JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        protected virtual global::Sample.Models.Model JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.MockInputModel>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.Model>)this).GetFormatFromOptions(options) : options.Format;
             if ((format != "J"))
             {
-                throw new global::System.FormatException($"The model {nameof(global::Sample.Models.MockInputModel)} does not support reading '{format}' format.");
+                throw new global::System.FormatException($"The model {nameof(global::Sample.Models.Model)} does not support reading '{format}' format.");
             }
             using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.ParseValue(ref reader);
-            return global::Sample.Models.MockInputModel.DeserializeMockInputModel(document.RootElement, options);
+            return global::Sample.Models.Model.DeserializeModel(document.RootElement, options);
         }
 
-        internal static global::Sample.Models.MockInputModel DeserializeMockInputModel(global::System.Text.Json.JsonElement element, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        internal static global::Sample.Models.Model DeserializeModel(global::System.Text.Json.JsonElement element, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             if ((element.ValueKind == global::System.Text.Json.JsonValueKind.Null))
             {
@@ -113,57 +113,57 @@ namespace Sample.Models
                     additionalBinaryDataProperties.Add(prop.Name, global::System.BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
-            return new global::Sample.Models.MockInputModel(prop2, additionalBinaryDataProperties);
+            return new global::Sample.Models.Model(prop2, additionalBinaryDataProperties);
         }
 
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.MockInputModel>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.Model>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
 
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.MockInputModel>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.Model>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
                     return global::System.ClientModel.Primitives.ModelReaderWriter.Write(this, options);
                 default:
-                    throw new global::System.FormatException($"The model {nameof(global::Sample.Models.MockInputModel)} does not support writing '{options.Format}' format.");
+                    throw new global::System.FormatException($"The model {nameof(global::Sample.Models.Model)} does not support writing '{options.Format}' format.");
             }
         }
 
-        global::Sample.Models.MockInputModel global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.MockInputModel>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => ((global::Sample.Models.MockInputModel)this.PersistableModelCreateCore(data, options));
+        global::Sample.Models.Model global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.Model>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => ((global::Sample.Models.Model)this.PersistableModelCreateCore(data, options));
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual global::Sample.Models.MockInputModel PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        protected virtual global::Sample.Models.Model PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.MockInputModel>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.Model>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
                     using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(data))
                     {
-                        return global::Sample.Models.MockInputModel.DeserializeMockInputModel(document.RootElement, options);
+                        return global::Sample.Models.Model.DeserializeModel(document.RootElement, options);
                     }
                 default:
-                    throw new global::System.FormatException($"The model {nameof(global::Sample.Models.MockInputModel)} does not support reading '{options.Format}' format.");
+                    throw new global::System.FormatException($"The model {nameof(global::Sample.Models.Model)} does not support reading '{options.Format}' format.");
             }
         }
 
-        string global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.MockInputModel>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => "J";
+        string global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.Model>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => "J";
 
-        /// <param name="mockInputModel"> The <see cref="global::Sample.Models.MockInputModel"/> to serialize into <see cref="global::System.ClientModel.BinaryContent"/>. </param>
-        public static implicit operator BinaryContent(global::Sample.Models.MockInputModel mockInputModel)
+        /// <param name="model"> The <see cref="global::Sample.Models.Model"/> to serialize into <see cref="global::System.ClientModel.BinaryContent"/>. </param>
+        public static implicit operator BinaryContent(global::Sample.Models.Model model)
         {
-            return global::System.ClientModel.BinaryContent.Create(mockInputModel, global::Sample.ModelSerializationExtensions.WireOptions);
+            return global::System.ClientModel.BinaryContent.Create(model, global::Sample.ModelSerializationExtensions.WireOptions);
         }
 
-        /// <param name="result"> The <see cref="global::System.ClientModel.ClientResult"/> to deserialize the <see cref="global::Sample.Models.MockInputModel"/> from. </param>
-        public static explicit operator MockInputModel(global::System.ClientModel.ClientResult result)
+        /// <param name="result"> The <see cref="global::System.ClientModel.ClientResult"/> to deserialize the <see cref="global::Sample.Models.Model"/> from. </param>
+        public static explicit operator Model(global::System.ClientModel.ClientResult result)
         {
             using global::System.ClientModel.Primitives.PipelineResponse response = result.GetRawResponse();
             using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(response.Content);
-            return global::Sample.Models.MockInputModel.DeserializeMockInputModel(document.RootElement, global::Sample.ModelSerializationExtensions.WireOptions);
+            return global::Sample.Models.Model.DeserializeModel(document.RootElement, global::Sample.ModelSerializationExtensions.WireOptions);
         }
     }
 }

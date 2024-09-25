@@ -22,7 +22,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 InputFactory.Property("Prop1", InputFactory.Array(InputPrimitiveType.String))
             };
 
-            var inputModel = InputFactory.Model("mockInputModel", properties: props, usage: InputModelTypeUsage.Json);
+            var inputModel = InputFactory.Model("Model", properties: props, usage: InputModelTypeUsage.Json);
             var plugin = await MockHelpers.LoadMockPluginAsync(
                 inputModels: () => [inputModel],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());

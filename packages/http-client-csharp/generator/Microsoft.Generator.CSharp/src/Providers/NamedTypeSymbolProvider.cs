@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
@@ -286,14 +285,11 @@ namespace Microsoft.Generator.CSharp.Providers
             Type? type = System.Type.GetType(fullyQualifiedName);
             if (type is null)
             {
-                if (typeSymbol.TypeKind == TypeKind.Error)
-                    throw new InvalidOperationException($"Unable to convert ITypeSymbol: {fullyQualifiedName} to a CSharpType in {Name}");
-
                 return ConstructCSharpTypeFromSymbol(typeSymbol, fullyQualifiedName, namedTypeSymbol);
             }
 
             CSharpType result = new CSharpType(type);
-            if (namedTypeSymbol is not null && namedTypeSymbol.IsGenericType)
+            if (namedTypeSymbol is not null && namedTypeSymbol.IsGenericType && !result.IsNullable)
             {
                 return result.MakeGenericType([.. namedTypeSymbol.TypeArguments.Select(GetCSharpType)]);
             }
@@ -308,17 +304,23 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             bool isValueType = typeSymbol.IsValueType;
             bool isEnum = typeSymbol.TypeKind == TypeKind.Enum;
+            bool isNullable = typeSymbol.NullableAnnotation == NullableAnnotation.Annotated;
+            bool isNullableUnknownType = isNullable && namedTypeSymbol?.TypeArguments.FirstOrDefault()?.TypeKind == TypeKind.Error;
+            string name = isNullableUnknownType ? fullyQualifiedName : typeSymbol.Name;
             var pieces = fullyQualifiedName.Split('.');
+
             return new CSharpType(
-                typeSymbol.Name,
+                name,
                 string.Join('.', pieces.Take(pieces.Length - 1)),
                 isValueType,
-                typeSymbol.NullableAnnotation == NullableAnnotation.Annotated,
+                isNullable,
                 typeSymbol.ContainingType is not null ? GetCSharpType(typeSymbol.ContainingType) : null,
-                namedTypeSymbol is not null ? [.. namedTypeSymbol.TypeArguments.Select(GetCSharpType)] : [],
+                namedTypeSymbol is not null && !isNullableUnknownType ? [.. namedTypeSymbol.TypeArguments.Select(GetCSharpType)] : [],
                 typeSymbol.DeclaredAccessibility == Accessibility.Public,
                 isValueType && !isEnum,
-                baseType: typeSymbol.BaseType is not null && typeSymbol.BaseType.TypeKind != TypeKind.Error ? GetCSharpType(typeSymbol.BaseType) : null,
+                baseType: typeSymbol.BaseType is not null && typeSymbol.BaseType.TypeKind != TypeKind.Error && !isNullableUnknownType
+                    ? GetCSharpType(typeSymbol.BaseType)
+                    : null,
                 underlyingEnumType: namedTypeSymbol is not null && namedTypeSymbol.EnumUnderlyingType is not null
                     ? GetCSharpType(namedTypeSymbol.EnumUnderlyingType).FrameworkType
                     : null);
@@ -375,6 +377,23 @@ namespace Microsoft.Generator.CSharp.Providers
             // Handle generic types
             if (typeSymbol is INamedTypeSymbol namedTypeSymbol && namedTypeSymbol.IsGenericType)
             {
+                // handle nullable types
+                if (typeSymbol.NullableAnnotation == NullableAnnotation.Annotated && !IsCollectionType(namedTypeSymbol))
+                {
+                    const string nullableTypeName = "System.Nullable";
+                    var argTypeSymbol = namedTypeSymbol.TypeArguments.FirstOrDefault();
+
+                    if (argTypeSymbol != null)
+                    {
+                        if (argTypeSymbol.TypeKind == TypeKind.Error)
+                        {
+                            return GetFullyQualifiedName(argTypeSymbol);
+                        }
+
+                        string[] typeArguments = [.. namedTypeSymbol.TypeArguments.Select(GetFullyQualifiedName)];
+                        return $"{nullableTypeName}`{namedTypeSymbol.TypeArguments.Length}[{string.Join(", ", typeArguments)}]";
+                    }
+                }
                 var typeNameSpan = namedTypeSymbol.ConstructedFrom.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat).AsSpan();
                 var start = typeNameSpan.IndexOf(':') + 2;
                 var end = typeNameSpan.IndexOf('<');
@@ -384,6 +403,15 @@ namespace Microsoft.Generator.CSharp.Providers
 
             // Default to fully qualified name
             return GetFullyQualifiedNameFromDisplayString(typeSymbol);
+        }
+
+        private static bool IsCollectionType(INamedTypeSymbol typeSymbol)
+        {
+            // Check if the type implements IEnumerable<T>, ICollection<T>, or IEnumerable
+            return typeSymbol.AllInterfaces.Any(i =>
+                i.OriginalDefinition.SpecialType == SpecialType.System_Collections_Generic_IEnumerable_T ||
+                i.OriginalDefinition.SpecialType == SpecialType.System_Collections_Generic_ICollection_T ||
+                i.OriginalDefinition.SpecialType == SpecialType.System_Collections_IEnumerable);
         }
 
         private static string GetFullyQualifiedNameFromDisplayString(ISymbol typeSymbol)
