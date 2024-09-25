@@ -4,13 +4,12 @@
 package com.microsoft.typespec.http.client.generator.core.extension.plugin;
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.MessageChannel;
-import org.slf4j.helpers.FormattingTuple;
-import org.slf4j.helpers.MarkerIgnoringBase;
-import org.slf4j.helpers.MessageFormatter;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.slf4j.helpers.FormattingTuple;
+import org.slf4j.helpers.MarkerIgnoringBase;
+import org.slf4j.helpers.MessageFormatter;
 
 /**
  * A logger for AutoRest plugins.
@@ -176,7 +175,6 @@ public final class PluginLogger extends MarkerIgnoringBase {
     public boolean isInfoEnabled() {
         return true;
     }
-
 
     /**
      * {@inheritDoc}

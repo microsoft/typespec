@@ -7,12 +7,11 @@ import com.azure.core.util.BinaryData;
 import com.cadl.wiretype.models.SubClass;
 import com.cadl.wiretype.models.SubClassBothMismatch;
 import com.cadl.wiretype.models.SubClassMismatch;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class WireTypeTests {
 

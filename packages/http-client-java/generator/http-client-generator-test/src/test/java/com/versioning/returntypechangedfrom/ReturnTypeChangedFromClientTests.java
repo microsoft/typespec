@@ -6,8 +6,8 @@ package com.versioning.returntypechangedfrom;
 import org.junit.jupiter.api.Test;
 
 public class ReturnTypeChangedFromClientTests {
-    private final ReturnTypeChangedFromClient returnTypeChangedFromClient = new ReturnTypeChangedFromClientBuilder()
-            .endpoint("http://localhost:3000").version("v2").buildClient();
+    private final ReturnTypeChangedFromClient returnTypeChangedFromClient
+        = new ReturnTypeChangedFromClientBuilder().endpoint("http://localhost:3000").version("v2").buildClient();
 
     @Test
     public void testReturnTypeChangedFromClient() {

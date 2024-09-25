@@ -14,24 +14,22 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType
  */
 public class BinaryMapper implements IMapper<BinarySchema, IType> {
 
-  private static final BinaryMapper INSTANCE = new BinaryMapper();
+    private static final BinaryMapper INSTANCE = new BinaryMapper();
 
-  /**
-   * Gets the global {@link BinaryMapper} instance.
-   *
-   * @return The global {@link BinaryMapper} instance.
-   */
-  public static BinaryMapper getInstance() {
-    return INSTANCE;
-  }
-
-  @Override
-  public IType map(BinarySchema binarySchema) {
-    if (binarySchema == null) {
-      return null;
+    /**
+     * Gets the global {@link BinaryMapper} instance.
+     *
+     * @return The global {@link BinaryMapper} instance.
+     */
+    public static BinaryMapper getInstance() {
+        return INSTANCE;
     }
-    return JavaSettings.getInstance().isDataPlaneClient()
-            ? ClassType.BINARY_DATA
-            : GenericType.FLUX_BYTE_BUFFER;
-  }
+
+    @Override
+    public IType map(BinarySchema binarySchema) {
+        if (binarySchema == null) {
+            return null;
+        }
+        return JavaSettings.getInstance().isDataPlaneClient() ? ClassType.BINARY_DATA : GenericType.FLUX_BYTE_BUFFER;
+    }
 }

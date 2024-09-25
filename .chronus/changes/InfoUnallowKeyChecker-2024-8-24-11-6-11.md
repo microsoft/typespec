@@ -4,4 +4,4 @@ packages:
   - "@typespec/openapi"
 ---
 
-@info decorator failed to exclude extension key not starting with "x-".
+`@info` decorator validate no extra properties not starting with `x-` are provided.

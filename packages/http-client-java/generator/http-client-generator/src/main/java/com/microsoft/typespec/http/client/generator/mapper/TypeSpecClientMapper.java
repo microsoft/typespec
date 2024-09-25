@@ -11,7 +11,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceClient;
 import com.microsoft.typespec.http.client.generator.util.ModelUtil;
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -44,22 +43,23 @@ public class TypeSpecClientMapper extends ClientMapper {
     }
 
     @Override
-    protected List<String> getModelsPackages(List<ClientModel> clientModels, List<EnumType> enumTypes, List<ClientResponse> responseModels) {
+    protected List<String> getModelsPackages(List<ClientModel> clientModels, List<EnumType> enumTypes,
+        List<ClientResponse> responseModels) {
 
         Set<String> packages = clientModels.stream()
-                .filter(ModelUtil::isGeneratingModel)
-                .map(ClientModel::getPackage)
-                .collect(Collectors.toSet());
+            .filter(ModelUtil::isGeneratingModel)
+            .map(ClientModel::getPackage)
+            .collect(Collectors.toSet());
 
         packages.addAll(enumTypes.stream()
-                .filter(ModelUtil::isGeneratingModel)
-                .map(EnumType::getPackage)
-                .collect(Collectors.toSet()));
+            .filter(ModelUtil::isGeneratingModel)
+            .map(EnumType::getPackage)
+            .collect(Collectors.toSet()));
 
         packages.addAll(responseModels.stream()
-                .filter(ModelUtil::isGeneratingModel)
-                .map(ClientResponse::getPackage)
-                .collect(Collectors.toSet()));
+            .filter(ModelUtil::isGeneratingModel)
+            .map(ClientResponse::getPackage)
+            .collect(Collectors.toSet()));
 
         return new ArrayList<>(packages);
     }

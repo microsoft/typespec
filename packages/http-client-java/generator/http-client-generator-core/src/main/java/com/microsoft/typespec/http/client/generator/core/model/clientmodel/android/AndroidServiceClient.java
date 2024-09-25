@@ -11,7 +11,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Proxy
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.SecurityInfo;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceClient;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceClientProperty;
-
 import java.util.List;
 import java.util.Set;
 

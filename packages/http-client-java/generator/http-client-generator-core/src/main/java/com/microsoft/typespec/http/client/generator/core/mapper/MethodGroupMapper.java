@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
+import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.OperationGroup;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
@@ -16,8 +17,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Servi
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
-import com.azure.core.util.CoreUtils;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -55,7 +54,8 @@ public class MethodGroupMapper implements IMapper<OperationGroup, MethodGroupCli
         return methodGroupClient;
     }
 
-    private MethodGroupClient createMethodGroupClient(OperationGroup methodGroup, List<ServiceClientProperty> parentClientProperties) {
+    private MethodGroupClient createMethodGroupClient(OperationGroup methodGroup,
+        List<ServiceClientProperty> parentClientProperties) {
         JavaSettings settings = JavaSettings.getInstance();
         MethodGroupClient.Builder builder = createMethodGroupClientBuilder();
 
@@ -63,8 +63,13 @@ public class MethodGroupMapper implements IMapper<OperationGroup, MethodGroupCli
         builder.classBaseName(classBaseName);
         String interfaceName = CodeNamer.getPlural(classBaseName);
         final String interfaceNameForCheckDeduplicate = interfaceName;
-        if (ClientModels.getInstance().getModels().stream().anyMatch(cm -> interfaceNameForCheckDeduplicate.equals(cm.getName()))
-            || parsed.values().stream().anyMatch(mg -> interfaceNameForCheckDeduplicate.equals(mg.getInterfaceName()))) {
+        if (ClientModels.getInstance()
+            .getModels()
+            .stream()
+            .anyMatch(cm -> interfaceNameForCheckDeduplicate.equals(cm.getName()))
+            || parsed.values()
+                .stream()
+                .anyMatch(mg -> interfaceNameForCheckDeduplicate.equals(mg.getInterfaceName()))) {
             interfaceName += "Operations";
         }
         builder.interfaceName(interfaceName);
@@ -83,20 +88,26 @@ public class MethodGroupMapper implements IMapper<OperationGroup, MethodGroupCli
         if (!CoreUtils.isNullOrEmpty(methodGroup.getOperations())) {
             Proxy.Builder proxyBuilder = createProxyBuilder();
 
-            String restAPIName = CodeNamer.toPascalCase(CodeNamer.getPlural(methodGroup.getLanguage().getJava().getName()));
+            String restAPIName
+                = CodeNamer.toPascalCase(CodeNamer.getPlural(methodGroup.getLanguage().getJava().getName()));
             restAPIName += "Service";
             String serviceClientName = methodGroup.getCodeModel().getLanguage().getJava().getName();
             // TODO: Assume all operations share the same base url
             proxyBuilder.name(restAPIName)
-                    .clientTypeName(serviceClientName + interfaceName)
-                    .baseURL(methodGroup.getOperations().get(0).getRequests().get(0).getProtocol().getHttp().getUri());
+                .clientTypeName(serviceClientName + interfaceName)
+                .baseURL(methodGroup.getOperations().get(0).getRequests().get(0).getProtocol().getHttp().getUri());
 
             List<ProxyMethod> restAPIMethods = new ArrayList<>();
             for (Operation method : methodGroup.getOperations()) {
                 if (settings.isDataPlaneClient()) {
                     MethodUtil.tryMergeBinaryRequestsAndUpdateOperation(method.getRequests(), method);
                 }
-                restAPIMethods.addAll(Mappers.getProxyMethodMapper().map(method).values().stream().flatMap(Collection::stream).collect(Collectors.toList()));
+                restAPIMethods.addAll(Mappers.getProxyMethodMapper()
+                    .map(method)
+                    .values()
+                    .stream()
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toList()));
             }
             proxyBuilder.methods(restAPIMethods);
 
@@ -123,10 +134,14 @@ public class MethodGroupMapper implements IMapper<OperationGroup, MethodGroupCli
 
         String packageName;
         if (settings.isFluent()) {
-            packageName = settings.getPackage(settings.isGenerateClientAsImpl() ? settings.getImplementationSubpackage() : settings.getFluentSubpackage());
+            packageName = settings.getPackage(settings.isGenerateClientAsImpl()
+                ? settings.getImplementationSubpackage()
+                : settings.getFluentSubpackage());
         } else {
             boolean isCustomType = settings.isCustomType(className);
-            packageName = settings.getPackage(isCustomType ? settings.getCustomTypesSubpackage() : (settings.isGenerateClientAsImpl() ? settings.getImplementationSubpackage() : null));
+            packageName = settings.getPackage(isCustomType
+                ? settings.getCustomTypesSubpackage()
+                : (settings.isGenerateClientAsImpl() ? settings.getImplementationSubpackage() : null));
         }
         builder.packageName(packageName);
 

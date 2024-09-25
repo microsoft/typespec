@@ -4,6 +4,14 @@
 package com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.create;
 
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelProperty;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.MethodParameter;
+import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentGen;
 import com.microsoft.typespec.http.client.generator.mgmt.model.ResourceTypeName;
 import com.microsoft.typespec.http.client.generator.mgmt.model.arm.ModelCategory;
@@ -12,9 +20,7 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.Fluen
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceCollection;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceModel;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentStatic;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.MethodParameter;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.ModelNaming;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelProperty;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.ResourceOperation;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentConstructorByName;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentCreateMethod;
@@ -26,20 +32,13 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluen
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentModelPropertyRegion;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentParentMethod;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
-import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
-import org.slf4j.Logger;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.slf4j.Logger;
 
 public class ResourceCreate extends ResourceOperation {
 
@@ -52,12 +51,12 @@ public class ResourceCreate extends ResourceOperation {
 //    public static final ResourceCreate NO_ASSOCIATION = new ResourceCreate(null, null, null, null, null);
 
     public ResourceCreate(FluentResourceModel resourceModel, FluentResourceCollection resourceCollection,
-                          UrlPathSegments urlPathSegments, String methodName, ClientModel bodyParameterModel) {
+        UrlPathSegments urlPathSegments, String methodName, ClientModel bodyParameterModel) {
         super(resourceModel, resourceCollection, urlPathSegments, methodName, bodyParameterModel);
 
         if (resourceModel != null) {
             LOGGER.info("ResourceCreate: Fluent model '{}', method reference '{}', body parameter '{}'",
-                    resourceModel.getName(), methodName, bodyParameterModel.getName());
+                resourceModel.getName(), methodName, bodyParameterModel.getName());
         }
     }
 
@@ -99,7 +98,8 @@ public class ResourceCreate extends ResourceOperation {
         DefinitionStage lastStage = null;
         if (!requiredProperties.isEmpty()) {
             for (ModelProperty property : requiredProperties) {
-                DefinitionStage stage = new DefinitionStage("With" + CodeNamer.toPascalCase(property.getName()), property);
+                DefinitionStage stage
+                    = new DefinitionStage("With" + CodeNamer.toPascalCase(property.getName()), property);
                 if (lastStage == null) {
                     // first property
                     if (isLocationProperty(property)) {
@@ -176,10 +176,11 @@ public class ResourceCreate extends ResourceOperation {
         List<ClientMethodParameter> miscParameters = this.getMiscParameters();
         for (ClientMethodParameter parameter : miscParameters) {
             // it is possible that parameter got same name as one of the model properties
-            String parameterNameForMethodSignature = deduplicateParameterNameForMethodSignature(
-                    definitionStages, optionalDefinitionStages, parameter.getName());
+            String parameterNameForMethodSignature = deduplicateParameterNameForMethodSignature(definitionStages,
+                optionalDefinitionStages, parameter.getName());
 
-            DefinitionStage stage = new DefinitionStageMisc("With" + CodeNamer.toPascalCase(parameterNameForMethodSignature), parameter);
+            DefinitionStage stage
+                = new DefinitionStageMisc("With" + CodeNamer.toPascalCase(parameterNameForMethodSignature), parameter);
             stage.setNextStage(definitionStageCreate);
 
             stage.getMethods().add(this.getParameterSetterMethod(stage, parameter, parameterNameForMethodSignature));
@@ -189,8 +190,8 @@ public class ResourceCreate extends ResourceOperation {
 
         if (!optionalDefinitionStages.isEmpty()) {
             definitionStageCreate.setExtendStages(optionalDefinitionStages.stream()
-                    .map(s -> String.format("%1$s.%2$s", ModelNaming.MODEL_FLUENT_INTERFACE_DEFINITION_STAGES, s.getName()))
-                    .collect(Collectors.joining(", ")));
+                .map(s -> String.format("%1$s.%2$s", ModelNaming.MODEL_FLUENT_INTERFACE_DEFINITION_STAGES, s.getName()))
+                .collect(Collectors.joining(", ")));
         }
 
         definitionStages.addAll(optionalDefinitionStages);
@@ -199,12 +200,14 @@ public class ResourceCreate extends ResourceOperation {
     }
 
     private String deduplicateStageName(String stageName) {
-        Set<String> propertyStageNames = this.getProperties().stream()
-                .map(p -> "With" + CodeNamer.toPascalCase(p.getName()))
-                .collect(Collectors.toSet());
-        Set<String> parameterStageNames = this.getMiscParameters().stream()
-                .map(p -> "With" + CodeNamer.toPascalCase(p.getName()))
-                .collect(Collectors.toSet());
+        Set<String> propertyStageNames = this.getProperties()
+            .stream()
+            .map(p -> "With" + CodeNamer.toPascalCase(p.getName()))
+            .collect(Collectors.toSet());
+        Set<String> parameterStageNames = this.getMiscParameters()
+            .stream()
+            .map(p -> "With" + CodeNamer.toPascalCase(p.getName()))
+            .collect(Collectors.toSet());
         if (propertyStageNames.contains(stageName) || parameterStageNames.contains(stageName)) {
             stageName += "Stage";
         }
@@ -212,30 +215,25 @@ public class ResourceCreate extends ResourceOperation {
     }
 
     private List<ModelProperty> getRequiredProperties() {
-        return this.getProperties().stream()
-                .filter(p -> p.isRequired())
-                .collect(Collectors.toList());
+        return this.getProperties().stream().filter(p -> p.isRequired()).collect(Collectors.toList());
     }
 
     private List<ModelProperty> getNonRequiredProperties() {
-        return this.getProperties().stream()
-                .filter(p -> !p.isRequired())
-                .collect(Collectors.toList());
+        return this.getProperties().stream().filter(p -> !p.isRequired()).collect(Collectors.toList());
     }
 
     @Override
     protected List<ModelProperty> getProperties() {
         return super.getProperties().stream()
-                .filter(p -> !p.isReadOnlyForCreate())
-                .filter(p -> !isIdProperty(p))           // create should not be able to set id
-                .collect(Collectors.toList());
+            .filter(p -> !p.isReadOnlyForCreate())
+            .filter(p -> !isIdProperty(p))           // create should not be able to set id
+            .collect(Collectors.toList());
     }
 
     @Override
     public List<FluentMethod> getFluentMethods() {
-        List<FluentMethod> methods = this.getDefinitionStages().stream()
-                .flatMap(s -> s.getMethods().stream())
-                .collect(Collectors.toList());
+        List<FluentMethod> methods
+            = this.getDefinitionStages().stream().flatMap(s -> s.getMethods().stream()).collect(Collectors.toList());
         methods.add(this.getConstructor());
         return methods;
     }
@@ -246,14 +244,14 @@ public class ResourceCreate extends ResourceOperation {
     }
 
     private FluentMethod getParameterSetterMethod(DefinitionStage stage, ClientMethodParameter parameter,
-                                                  String parameterNameForMethodSignature) {
-        return new FluentMethodParameterMethod(this.getResourceModel(), FluentMethodType.CREATE_WITH,
-                stage, parameter, this.getLocalVariableByMethodParameter(parameter),
-                CodeNamer.getModelNamer().modelPropertySetterName(parameterNameForMethodSignature));
+        String parameterNameForMethodSignature) {
+        return new FluentMethodParameterMethod(this.getResourceModel(), FluentMethodType.CREATE_WITH, stage, parameter,
+            this.getLocalVariableByMethodParameter(parameter),
+            CodeNamer.getModelNamer().modelPropertySetterName(parameterNameForMethodSignature));
     }
 
-    private String deduplicateParameterNameForMethodSignature(
-            List<DefinitionStage> stages1, List<DefinitionStage> stages2, String parameterName) {
+    private String deduplicateParameterNameForMethodSignature(List<DefinitionStage> stages1,
+        List<DefinitionStage> stages2, String parameterName) {
         String stageName = "With" + CodeNamer.toPascalCase(parameterName);
         for (DefinitionStage stage : Stream.concat(stages1.stream(), stages2.stream()).collect(Collectors.toList())) {
             if (stageName.equals(stage.getName())) {
@@ -266,14 +264,17 @@ public class ResourceCreate extends ResourceOperation {
     public FluentDefineMethod getDefineMethod() {
         if (defineMethod == null) {
             String resourceName = this.getResourceName();
-            LOGGER.info("ResourceCreate: Fluent model '{}', resource define method '{}'", resourceModel.getName(), "define" + resourceName);
+            LOGGER.info("ResourceCreate: Fluent model '{}', resource define method '{}'", resourceModel.getName(),
+                "define" + resourceName);
 
             if (this.isConstantResourceNamePathParameter()) {
-                defineMethod = FluentDefineMethod.defineMethodWithConstantResourceName(this.getResourceModel(), FluentMethodType.DEFINE, resourceName);
+                defineMethod = FluentDefineMethod.defineMethodWithConstantResourceName(this.getResourceModel(),
+                    FluentMethodType.DEFINE, resourceName);
             } else {
-                ClientMethodParameter clientMethodParameter = this.getResourceNamePathParameter().getClientMethodParameter();
-                defineMethod = new FluentDefineMethod(this.getResourceModel(), FluentMethodType.DEFINE,
-                        resourceName, clientMethodParameter);
+                ClientMethodParameter clientMethodParameter
+                    = this.getResourceNamePathParameter().getClientMethodParameter();
+                defineMethod = new FluentDefineMethod(this.getResourceModel(), FluentMethodType.DEFINE, resourceName,
+                    clientMethodParameter);
             }
         }
         return defineMethod;
@@ -296,31 +297,34 @@ public class ResourceCreate extends ResourceOperation {
     private FluentMethod getConstructor() {
         if (this.isConstantResourceNamePathParameter()) {
             return FluentConstructorByName.constructorMethodWithConstantResourceName(this.getResourceModel(),
-                    FluentMethodType.CONSTRUCTOR, FluentStatic.getFluentManager().getType(),
-                    this.getResourceLocalVariables());
+                FluentMethodType.CONSTRUCTOR, FluentStatic.getFluentManager().getType(),
+                this.getResourceLocalVariables());
         } else {
-            ClientMethodParameter resourceNamePathParameter = this.getResourceNamePathParameter().getClientMethodParameter();
+            ClientMethodParameter resourceNamePathParameter
+                = this.getResourceNamePathParameter().getClientMethodParameter();
             IType resourceNameType = resourceNamePathParameter.getClientType();
             String propertyName = resourceNamePathParameter.getName();
-            return new FluentConstructorByName(this.getResourceModel(), FluentMethodType.CONSTRUCTOR,
-                    resourceNameType, propertyName, FluentStatic.getFluentManager().getType(),
-                    this.getResourceLocalVariables());
+            return new FluentConstructorByName(this.getResourceModel(), FluentMethodType.CONSTRUCTOR, resourceNameType,
+                propertyName, FluentStatic.getFluentManager().getType(), this.getResourceLocalVariables());
         }
     }
 
     private boolean isConstantResourceNamePathParameter() {
-        // check whether the last segment in URL (resource name) is a constant parameter (which does not have a corresponding client method parameter)
+        // check whether the last segment in URL (resource name) is a constant parameter (which does not have a
+        // corresponding client method parameter)
 
         String parameterName = urlPathSegments.getReverseParameterSegments().iterator().next().getParameterName();
         FluentCollectionMethod method = this.getMethodReferencesOfFullParameters().iterator().next();
         ProxyMethod proxyMethod = method.getInnerProxyMethod();
-        Optional<ProxyMethodParameter> resourceNamePathParameter = proxyMethod.getParameters().stream()
-                .filter(m -> parameterName.equals(m.getRequestParameterName()))
-                .findFirst();
+        Optional<ProxyMethodParameter> resourceNamePathParameter = proxyMethod.getParameters()
+            .stream()
+            .filter(m -> parameterName.equals(m.getRequestParameterName()))
+            .findFirst();
         if (resourceNamePathParameter.isPresent()) {
             return resourceNamePathParameter.get().isConstant() || resourceNamePathParameter.get().isFromClient();
         } else {
-            throw new IllegalStateException(String.format("Resource name parameter not found in proxy method %1$s, name segment %2$s",
+            throw new IllegalStateException(
+                String.format("Resource name parameter not found in proxy method %1$s, name segment %2$s",
                     proxyMethod.getName(), parameterName));
         }
     }
@@ -329,33 +333,34 @@ public class ResourceCreate extends ResourceOperation {
         // this only works when isConstantResourceNamePathParameter() == false
 
         String parameterName = urlPathSegments.getReverseParameterSegments().iterator().next().getParameterName();
-        Optional<MethodParameter> pathParameter = this.getPathParameters().stream()
-                .filter(m -> parameterName.equals(m.getSerializedName()))
-                .findFirst();
+        Optional<MethodParameter> pathParameter
+            = this.getPathParameters().stream().filter(m -> parameterName.equals(m.getSerializedName())).findFirst();
         if (pathParameter.isPresent()) {
             return pathParameter.get();
         } else {
             FluentCollectionMethod method = this.getMethodReferencesOfFullParameters().iterator().next();
-            throw new IllegalStateException(String.format("Resource name parameter not found in client method %1$s, name segment %2$s",
+            throw new IllegalStateException(
+                String.format("Resource name parameter not found in client method %1$s, name segment %2$s",
                     method.getInnerClientMethod().getName(), parameterName));
         }
     }
 
     private void generatePropertyMethods(DefinitionStage stage, ClientModel model, ModelProperty property) {
-        if (FluentUtils.modelHasLocationProperty(getProperties()) && property.getName().equals(ResourceTypeName.FIELD_LOCATION)) {
+        if (FluentUtils.modelHasLocationProperty(getProperties())
+            && property.getName().equals(ResourceTypeName.FIELD_LOCATION)) {
             String baseName = "region";
             if (getProperties().stream().anyMatch(p -> "region".equals(p.getName()))) {
                 baseName = ResourceTypeName.FIELD_LOCATION;
             }
 
             // location -> region
-            stage.getMethods().add(new FluentModelPropertyRegion.FluentModelPropertyRegionMethod(
-                    this.getResourceModel(), FluentMethodType.CREATE_WITH,
-                    stage, model, property,
+            stage.getMethods()
+                .add(new FluentModelPropertyRegion.FluentModelPropertyRegionMethod(this.getResourceModel(),
+                    FluentMethodType.CREATE_WITH, stage, model, property,
                     this.getLocalVariableByMethodParameter(this.getBodyParameter()), baseName));
-            stage.getMethods().add(new FluentModelPropertyRegion.FluentModelPropertyRegionNameMethod(
-                    this.getResourceModel(), FluentMethodType.CREATE_WITH,
-                    stage, model, property,
+            stage.getMethods()
+                .add(new FluentModelPropertyRegion.FluentModelPropertyRegionNameMethod(this.getResourceModel(),
+                    FluentMethodType.CREATE_WITH, stage, model, property,
                     this.getLocalVariableByMethodParameter(this.getBodyParameter()), baseName));
         } else {
             stage.getMethods().add(getPropertyMethod(stage, model, property));
@@ -363,9 +368,8 @@ public class ResourceCreate extends ResourceOperation {
     }
 
     private FluentMethod getPropertyMethod(DefinitionStage stage, ClientModel model, ModelProperty property) {
-        return new FluentModelPropertyMethod(this.getResourceModel(), FluentMethodType.CREATE_WITH,
-                stage, model, property,
-                this.getLocalVariableByMethodParameter(this.getBodyParameter()));
+        return new FluentModelPropertyMethod(this.getResourceModel(), FluentMethodType.CREATE_WITH, stage, model,
+            property, this.getLocalVariableByMethodParameter(this.getBodyParameter()));
     }
 
     private FluentMethod getExistingParentMethod(DefinitionStageParent stage) {
@@ -376,39 +380,41 @@ public class ResourceCreate extends ResourceOperation {
             String serializedResourceNamePathParameterName = resourceNamePathParameter.getSerializedName();
 
             parameters = parameters.stream()
-                    .filter(p -> !p.getSerializedName().equals(serializedResourceNamePathParameterName))
-                    .collect(Collectors.toList());
+                .filter(p -> !p.getSerializedName().equals(serializedResourceNamePathParameterName))
+                .collect(Collectors.toList());
         }
 
         // resource name of immediate parent
-        Set<String> serializedParameterNames = parameters.stream()
-                .map(MethodParameter::getSerializedName)
-                .collect(Collectors.toSet());
+        Set<String> serializedParameterNames
+            = parameters.stream().map(MethodParameter::getSerializedName).collect(Collectors.toSet());
         String resourceNameOfImmediateParent = null;
         for (UrlPathSegments.ParameterSegment parameterSegment : urlPathSegments.getReverseParameterSegments()) {
             if (serializedParameterNames.contains(parameterSegment.getParameterName())) {
                 if (parameterSegment.getSegmentName().isEmpty()) {
                     // segment name is empty for SCOPE_AS_PARENT and SCOPE_NESTED_CHILD
-                    resourceNameOfImmediateParent = CodeNamer.toPascalCase(FluentUtils.getSingular(parameterSegment.getParameterName()));
+                    resourceNameOfImmediateParent
+                        = CodeNamer.toPascalCase(FluentUtils.getSingular(parameterSegment.getParameterName()));
                 } else {
-                    resourceNameOfImmediateParent = CodeNamer.toPascalCase(FluentUtils.getSingular(parameterSegment.getSegmentName()));
+                    resourceNameOfImmediateParent
+                        = CodeNamer.toPascalCase(FluentUtils.getSingular(parameterSegment.getSegmentName()));
                 }
                 break;
             }
         }
         if (resourceNameOfImmediateParent == null) {
-            throw new IllegalStateException(String.format("Resource name of immediate parent not found for url %1$s, model %2$s, candidate parameter names %3$s",
-                    urlPathSegments.getPath(), resourceModel.getName(), serializedParameterNames));
+            throw new IllegalStateException(String.format(
+                "Resource name of immediate parent not found for url %1$s, model %2$s, candidate parameter names %3$s",
+                urlPathSegments.getPath(), resourceModel.getName(), serializedParameterNames));
         }
         // if parent is resourceGroup, just set it as such
         if (resourceModel.getCategory() == ModelCategory.RESOURCE_GROUP_AS_PARENT) {
             resourceNameOfImmediateParent = "ResourceGroup";
         }
 
-        return new FluentParentMethod(resourceModel, FluentMethodType.CREATE_PARENT,
-                stage, resourceNameOfImmediateParent,
-                parameters.stream().map(MethodParameter::getClientMethodParameter).collect(Collectors.toList()),
-                this.getResourceLocalVariables());
+        return new FluentParentMethod(resourceModel, FluentMethodType.CREATE_PARENT, stage,
+            resourceNameOfImmediateParent,
+            parameters.stream().map(MethodParameter::getClientMethodParameter).collect(Collectors.toList()),
+            this.getResourceLocalVariables());
     }
 
     private FluentMethod getCreateMethod(boolean hasContextParameter) {
@@ -418,9 +424,8 @@ public class ResourceCreate extends ResourceOperation {
             if (!hasContextParameter) {
                 parameters.clear();
             }
-            return new FluentCreateMethod(resourceModel, FluentMethodType.CREATE,
-                    parameters, this.getResourceLocalVariables(),
-                    resourceCollection, methodOpt.get());
+            return new FluentCreateMethod(resourceModel, FluentMethodType.CREATE, parameters,
+                this.getResourceLocalVariables(), resourceCollection, methodOpt.get());
         } else {
             throw new IllegalStateException("Create method not found on model " + resourceModel.getName());
         }

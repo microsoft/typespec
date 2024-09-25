@@ -43,7 +43,8 @@ public final class VisibilityAsyncClient {
      * The getModel operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     readProp: String (Required)
      *     queryProp: Integer (Required)
@@ -55,11 +56,13 @@ public final class VisibilityAsyncClient {
      *     ]
      *     deleteProp: Boolean (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     readProp: String (Required)
      *     queryProp: Integer (Required)
@@ -71,7 +74,8 @@ public final class VisibilityAsyncClient {
      *     ]
      *     deleteProp: Boolean (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -92,7 +96,8 @@ public final class VisibilityAsyncClient {
      * The headModel operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     readProp: String (Required)
      *     queryProp: Integer (Required)
@@ -104,7 +109,8 @@ public final class VisibilityAsyncClient {
      *     ]
      *     deleteProp: Boolean (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -124,7 +130,8 @@ public final class VisibilityAsyncClient {
      * The putModel operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     readProp: String (Required)
      *     queryProp: Integer (Required)
@@ -136,7 +143,8 @@ public final class VisibilityAsyncClient {
      *     ]
      *     deleteProp: Boolean (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -156,7 +164,8 @@ public final class VisibilityAsyncClient {
      * The patchModel operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     readProp: String (Required)
      *     queryProp: Integer (Required)
@@ -168,7 +177,8 @@ public final class VisibilityAsyncClient {
      *     ]
      *     deleteProp: Boolean (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -188,7 +198,8 @@ public final class VisibilityAsyncClient {
      * The postModel operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     readProp: String (Required)
      *     queryProp: Integer (Required)
@@ -200,7 +211,8 @@ public final class VisibilityAsyncClient {
      *     ]
      *     deleteProp: Boolean (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -220,7 +232,8 @@ public final class VisibilityAsyncClient {
      * The deleteModel operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     readProp: String (Required)
      *     queryProp: Integer (Required)
@@ -232,7 +245,8 @@ public final class VisibilityAsyncClient {
      *     ]
      *     deleteProp: Boolean (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -252,7 +266,8 @@ public final class VisibilityAsyncClient {
      * The putReadOnlyModel operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     optionalNullableIntList (Optional): [
      *         int (Optional)
@@ -261,11 +276,13 @@ public final class VisibilityAsyncClient {
      *         String: String (Required)
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     optionalNullableIntList (Optional): [
      *         int (Optional)
@@ -274,7 +291,8 @@ public final class VisibilityAsyncClient {
      *         String: String (Required)
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
