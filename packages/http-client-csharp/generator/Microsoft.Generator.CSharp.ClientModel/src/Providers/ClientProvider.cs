@@ -7,7 +7,6 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection.Metadata;
 using System.Threading;
 using Microsoft.Generator.CSharp.ClientModel.Primitives;
 using Microsoft.Generator.CSharp.ClientModel.Snippets;
@@ -162,26 +161,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 }
             }
 
-            // Add optional client parameters as fields
-            foreach (var p in _inputClient.Parameters)
-            {
-                if (!p.IsEndpoint)
-                {
-                    var type = ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(p.Type);
-                    if (type != null)
-                    {
-                        fields.Add(new(
-                            FieldModifiers.Private | FieldModifiers.ReadOnly,
-                            type,
-                            "_" + p.Name.ToVariableName(),
-                            this));
-                    }
-                }
-            }
-
-            // Add the onClient: true parameter from operations as fields
-            var clientParamtersFromOperation = _inputClient.Operations.SelectMany(op => op.Parameters).Where(p => p.Kind == InputOperationParameterKind.Client).DistinctBy(p => p.NameInRequest);
-            foreach (var p in clientParamtersFromOperation)
+            // Add optional client parameters and onClient: true parameter from operations as fields
+            var allParameters = _inputClient.Parameters.Concat(_inputClient.Operations.SelectMany(op => op.Parameters).Where(p => p.Kind == InputOperationParameterKind.Client)).DistinctBy(p => p.Name);
+            foreach (var p in allParameters)
             {
                 if (!p.IsEndpoint)
                 {
@@ -266,9 +248,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _uriParameters = [];
 
             ParameterProvider? currentParam = null;
-            foreach (var parameter in _inputClient.Parameters)
+            var allParameters = _inputClient.Parameters.Concat(_inputClient.Operations.SelectMany(op => op.Parameters).Where(p => p.Kind == InputOperationParameterKind.Client)).DistinctBy(p => p.Name);
+            foreach (var parameter in allParameters)
             {
-                if (parameter.IsRequired && !parameter.IsEndpoint)
+                if (parameter.IsRequired && !parameter.IsEndpoint && !parameter.IsApiVersion)
                 {
                     currentParam = ClientModelPlugin.Instance.TypeFactory.CreateParameter(parameter);
                     currentParam.Field = Fields.FirstOrDefault(f => f.Name == "_" + parameter.Name);
@@ -277,20 +260,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 if (parameter.Location == RequestLocation.Uri)
                 {
                     _uriParameters.Add(currentParam ?? ClientModelPlugin.Instance.TypeFactory.CreateParameter(parameter));
-                }
-            }
-
-            // Add the onClient: true parameter from operations as fields
-            foreach (var op in _inputClient.Operations)
-            {
-                foreach (var p in op.Parameters)
-                {
-                    if (!p.IsEndpoint && !p.IsApiVersion && p.Kind == InputOperationParameterKind.Client && p.IsRequired)
-                    {
-                        currentParam = ClientModelPlugin.Instance.TypeFactory.CreateParameter(p);
-                        currentParam.Field = Fields.FirstOrDefault(f => f.Name == "_" + p.Name);
-                        requiredParameters.Add(currentParam);
-                    }
                 }
             }
 
