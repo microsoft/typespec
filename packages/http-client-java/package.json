@@ -61,7 +61,7 @@
   "devDependencies": {
     "@azure-tools/typespec-autorest": "0.46.0",
     "@azure-tools/typespec-azure-core": "0.46.0",
-    "@azure-tools/typespec-azure-resource-manager": "0.46.0",
+    "@azure-tools/typespec-azure-resource-manager": "0.46.1",
     "@azure-tools/typespec-azure-rulesets": "0.46.0",
     "@azure-tools/typespec-client-generator-core": "0.46.2",
     "@microsoft/api-extractor": "^7.47.8",
