@@ -226,7 +226,7 @@ function validateIsUri(context: DecoratorContext, url: string, propertyName: str
     return true;
   } catch {
     reportDiagnostic(context.program, {
-      code: "not-uri",
+      code: "not-url",
       target: context.getArgumentTarget(0)!,
       format: { property: propertyName, value: url },
     });
