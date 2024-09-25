@@ -3,14 +3,13 @@
 
 package com.type.array;
 
-import com.type.array.models.InnerModel;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.type.array.models.InnerModel;
 import java.util.Arrays;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class NullableModelValueClientTest {
 
@@ -27,8 +26,7 @@ public class NullableModelValueClientTest {
 
     @Test
     public void put() {
-        List<InnerModel> body = Arrays.asList(
-                new InnerModel("hello"), null, new InnerModel("world"));
+        List<InnerModel> body = Arrays.asList(new InnerModel("hello"), null, new InnerModel("world"));
         client.put(body);
     }
 }

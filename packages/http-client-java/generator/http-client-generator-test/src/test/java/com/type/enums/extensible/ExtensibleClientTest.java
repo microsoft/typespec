@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 class ExtensibleClientTest {
 
     ExtensibleClient client = new ExtensibleClientBuilder().buildClient();
+
     @Test
     void getKnownValue() {
         DaysOfWeekExtensibleEnum daysOfWeekExtensibleEnum = client.getKnownValue();

@@ -3,10 +3,9 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonWriter;
-
+import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import java.io.IOException;
 
 /**
@@ -253,6 +252,7 @@ public class Parameter extends Value {
          * The parameter is implemented in the method.
          */
         METHOD("Method");
+
         private final String value;
 
         ImplementationLocation(String value) {

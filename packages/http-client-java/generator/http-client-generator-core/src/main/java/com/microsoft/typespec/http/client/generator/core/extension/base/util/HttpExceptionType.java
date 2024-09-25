@@ -13,10 +13,10 @@ public enum HttpExceptionType {
      *
      * <p>A runtime exception indicating request authorization failure caused by one of the following scenarios:</p>
      * <ul>
-     *     <li>A client did not send the required authorization credentials to access the requested resource, i.e.
-     *     Authorization HTTP header is missing in the request</li>
-     *     <li>If the request contains the HTTP Authorization header, then the exception indicates that authorization
-     *     has been refused for the credentials contained in the request header.</li>
+     * <li>A client did not send the required authorization credentials to access the requested resource, i.e.
+     * Authorization HTTP header is missing in the request</li>
+     * <li>If the request contains the HTTP Authorization header, then the exception indicates that authorization
+     * has been refused for the credentials contained in the request header.</li>
      * </ul>
      */
     CLIENT_AUTHENTICATION,

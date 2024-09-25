@@ -4,26 +4,25 @@
 package com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.get;
 
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.MethodParameter;
+import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentGen;
 import com.microsoft.typespec.http.client.generator.mgmt.model.arm.UrlPathSegments;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentCollectionMethod;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceCollection;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceModel;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.MethodParameter;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.ResourceOperation;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.CollectionMethodOperationByIdTemplate;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentMethod;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentMethodType;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentRefreshMethod;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
-import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
-import org.slf4j.Logger;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.slf4j.Logger;
 
 public class ResourceRefresh extends ResourceOperation {
 
@@ -32,11 +31,10 @@ public class ResourceRefresh extends ResourceOperation {
     private List<FluentMethod> refreshMethods;
 
     public ResourceRefresh(FluentResourceModel resourceModel, FluentResourceCollection resourceCollection,
-                           UrlPathSegments urlPathSegments, String methodName) {
+        UrlPathSegments urlPathSegments, String methodName) {
         super(resourceModel, resourceCollection, urlPathSegments, methodName, null);
 
-        LOGGER.info("ResourceRefresh: Fluent model '{}', method reference '{}'",
-                resourceModel.getName(), methodName);
+        LOGGER.info("ResourceRefresh: Fluent model '{}', method reference '{}'", resourceModel.getName(), methodName);
     }
 
     @Override
@@ -66,10 +64,9 @@ public class ResourceRefresh extends ResourceOperation {
             if (!hasContextParameter) {
                 parameters.clear();
             }
-            return new FluentRefreshMethod(resourceModel, FluentMethodType.REFRESH,
-                    parameters, this.getResourceLocalVariables(),
-                    resourceCollection, methodOpt.get(),
-                    resourceModel.getResourceCreate().getResourceLocalVariables());
+            return new FluentRefreshMethod(resourceModel, FluentMethodType.REFRESH, parameters,
+                this.getResourceLocalVariables(), resourceCollection, methodOpt.get(),
+                resourceModel.getResourceCreate().getResourceLocalVariables());
         } else {
             throw new IllegalStateException("Refresh method not found on model " + resourceModel.getName());
         }
@@ -92,17 +89,11 @@ public class ResourceRefresh extends ResourceOperation {
             if (!hasConflictingMethod(name)) {
                 List<MethodParameter> pathParameters = this.getPathParameters();
 
-                methods.add(new CollectionMethodOperationByIdTemplate(
-                        resourceModel, name,
-                        pathParameters, urlPathSegments, false, getResourceLocalVariables(),
-                        collectionMethod)
-                        .getMethodTemplate());
+                methods.add(new CollectionMethodOperationByIdTemplate(resourceModel, name, pathParameters,
+                    urlPathSegments, false, getResourceLocalVariables(), collectionMethod).getMethodTemplate());
 
-                methods.add(new CollectionMethodOperationByIdTemplate(
-                        resourceModel, name,
-                        pathParameters, urlPathSegments, true, getResourceLocalVariables(),
-                        collectionMethod)
-                        .getMethodTemplate());
+                methods.add(new CollectionMethodOperationByIdTemplate(resourceModel, name, pathParameters,
+                    urlPathSegments, true, getResourceLocalVariables(), collectionMethod).getMethodTemplate());
             }
         }
         return methods;
@@ -114,7 +105,8 @@ public class ResourceRefresh extends ResourceOperation {
         if (indexOfBy > 0) {
             getByIdMethodName = methodName.substring(0, indexOfBy);
         } else if (methodName.endsWith(Utils.METHOD_POSTFIX_WITH_RESPONSE)) {
-            getByIdMethodName = methodName.substring(0, methodName.length() - Utils.METHOD_POSTFIX_WITH_RESPONSE.length());
+            getByIdMethodName
+                = methodName.substring(0, methodName.length() - Utils.METHOD_POSTFIX_WITH_RESPONSE.length());
         }
         getByIdMethodName += "ById";
         return getByIdMethodName;

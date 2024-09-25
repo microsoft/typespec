@@ -13,8 +13,10 @@ public class AccessTests {
 
     private final PublicOperationClient publicClient = new AccessClientBuilder().buildPublicOperationClient();
     private final InternalOperationClient internalClient = new AccessClientBuilder().buildInternalOperationClient();
-    private final SharedModelInOperationClient sharedClient = new AccessClientBuilder().buildSharedModelInOperationClient();
-    private final RelativeModelInOperationClient relativeClient = new AccessClientBuilder().buildRelativeModelInOperationClient();
+    private final SharedModelInOperationClient sharedClient
+        = new AccessClientBuilder().buildSharedModelInOperationClient();
+    private final RelativeModelInOperationClient relativeClient
+        = new AccessClientBuilder().buildRelativeModelInOperationClient();
 
     @Test
     public void test() {

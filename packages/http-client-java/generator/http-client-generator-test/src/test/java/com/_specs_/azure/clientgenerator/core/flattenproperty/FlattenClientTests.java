@@ -16,6 +16,7 @@ public class FlattenClientTests {
     public void testFlattenModel() {
         // flatten is not enabled for data-plane
         flattenClient.putFlattenModel(new FlattenModel("foo", new ChildModel("bar", 10)));
-        flattenClient.putNestedFlattenModel(new NestedFlattenModel("foo", new ChildFlattenModel("bar", new ChildModel("test",10))));
+        flattenClient.putNestedFlattenModel(
+            new NestedFlattenModel("foo", new ChildFlattenModel("bar", new ChildModel("test", 10))));
     }
 }

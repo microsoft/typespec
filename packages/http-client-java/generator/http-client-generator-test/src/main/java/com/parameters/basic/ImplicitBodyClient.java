@@ -40,11 +40,13 @@ public final class ImplicitBodyClient {
      * The simple operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     name: String (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param simpleRequest The simpleRequest parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

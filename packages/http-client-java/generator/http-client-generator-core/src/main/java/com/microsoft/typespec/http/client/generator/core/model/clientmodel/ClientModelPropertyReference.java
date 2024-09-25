@@ -4,7 +4,6 @@
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -12,11 +11,13 @@ import java.util.Set;
 public class ClientModelPropertyReference implements ClientModelPropertyAccess {
 
     /*
-    Usage of the ClientModelPropertyReference
-    1. Reference to property (or propertyReference) from superclass, which has non-null referenceProperty, i.e., super.referenceProperty
-    2. Reference to property from a flattened client model (targetModel), which has non-null referenceProperty and targetProperty, i.e., targetProperty.referenceProperty
-
-    This could be recursive, as
+     * Usage of the ClientModelPropertyReference
+     * 1. Reference to property (or propertyReference) from superclass, which has non-null referenceProperty, i.e.,
+     * super.referenceProperty
+     * 2. Reference to property from a flattened client model (targetModel), which has non-null referenceProperty and
+     * targetProperty, i.e., targetProperty.referenceProperty
+     * 
+     * This could be recursive, as
      */
 
     private final String name;
