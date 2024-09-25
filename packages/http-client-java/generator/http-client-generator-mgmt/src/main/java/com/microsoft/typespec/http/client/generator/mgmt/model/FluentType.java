@@ -3,11 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.model;
 
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
-import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.azure.core.management.ProxyResource;
 import com.azure.core.management.Region;
 import com.azure.core.management.Resource;
@@ -17,6 +12,11 @@ import com.azure.core.management.exception.AdditionalInfo;
 import com.azure.core.management.exception.ManagementError;
 import com.azure.core.management.exception.ManagementException;
 import com.azure.core.management.profile.AzureProfile;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
+import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
 
 public class FluentType {
 
@@ -24,8 +24,8 @@ public class FluentType {
     public static final ClassType PROXY_RESOURCE = new ClassType.Builder().knownClass(ProxyResource.class).build();
     public static final ClassType SUB_RESOURCE = new ClassType.Builder().knownClass(SubResource.class).build();
 
-    public static final ClassType MANAGEMENT_EXCEPTION = new ClassType.Builder().knownClass(ManagementException.class)
-        .build();
+    public static final ClassType MANAGEMENT_EXCEPTION
+        = new ClassType.Builder().knownClass(ManagementException.class).build();
     public static final ClassType MANAGEMENT_ERROR = new ClassType.Builder().knownClass(ManagementError.class).build();
 
     public static final ClassType AZURE_PROFILE = new ClassType.Builder().knownClass(AzureProfile.class).build();
@@ -34,8 +34,8 @@ public class FluentType {
 
     public static final ClassType SYSTEM_DATA = new ClassType.Builder().knownClass(SystemData.class).build();
 
-    public static final ClassType AZURE_RESOURCE_MANAGER = new ClassType.Builder()
-        .packageName("com.azure.resourcemanager").name("AzureResourceManager").build();
+    public static final ClassType AZURE_RESOURCE_MANAGER
+        = new ClassType.Builder().packageName("com.azure.resourcemanager").name("AzureResourceManager").build();
 
     public static final ClassType ADDITIONAL_INFO = new ClassType.Builder().knownClass(AdditionalInfo.class).build();
 
@@ -62,15 +62,13 @@ public class FluentType {
     }
 
     public static boolean nonResourceType(ClassType modelType) {
-        return !(RESOURCE.equals(modelType)
-                || PROXY_RESOURCE.equals(modelType)
-                || SUB_RESOURCE.equals(modelType));
+        return !(RESOURCE.equals(modelType) || PROXY_RESOURCE.equals(modelType) || SUB_RESOURCE.equals(modelType));
     }
 
     public static boolean nonResourceType(String modelName) {
         return !(RESOURCE.getName().equals(modelName)
-                || PROXY_RESOURCE.getName().equals(modelName)
-                || SUB_RESOURCE.getName().equals(modelName));
+            || PROXY_RESOURCE.getName().equals(modelName)
+            || SUB_RESOURCE.getName().equals(modelName));
     }
 
     public static boolean nonSystemData(ClassType modelType) {

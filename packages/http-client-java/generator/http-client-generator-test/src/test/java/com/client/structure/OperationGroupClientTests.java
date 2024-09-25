@@ -10,12 +10,12 @@ import org.junit.jupiter.api.Test;
 
 public class OperationGroupClientTests {
 
-    private final Group1Client client1 = new TwoOperationGroupClientBuilder()
-            .endpoint("http://localhost:3000")
-            .client("two-operation-group").buildGroup1Client();
-    private final Group2Client client2 = new TwoOperationGroupClientBuilder()
-            .endpoint("http://localhost:3000")
-            .client("two-operation-group").buildGroup2Client();
+    private final Group1Client client1 = new TwoOperationGroupClientBuilder().endpoint("http://localhost:3000")
+        .client("two-operation-group")
+        .buildGroup1Client();
+    private final Group2Client client2 = new TwoOperationGroupClientBuilder().endpoint("http://localhost:3000")
+        .client("two-operation-group")
+        .buildGroup2Client();
 
     @Test
     public void testClient() {

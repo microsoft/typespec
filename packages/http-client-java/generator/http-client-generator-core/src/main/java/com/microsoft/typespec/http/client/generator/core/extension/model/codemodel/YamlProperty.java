@@ -23,6 +23,7 @@ public @interface YamlProperty {
 
     /**
      * The property name to read from yaml.
+     * 
      * @return the property name to read from yaml
      */
     String value();

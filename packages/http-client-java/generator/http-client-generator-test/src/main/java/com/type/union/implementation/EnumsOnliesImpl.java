@@ -101,14 +101,16 @@ public final class EnumsOnliesImpl {
      * The get operation.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     prop (Required): {
      *         lr: String(left/right/up/down) (Required)
      *         ud: String(up/down) (Required)
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -127,14 +129,16 @@ public final class EnumsOnliesImpl {
      * The get operation.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     prop (Required): {
      *         lr: String(left/right/up/down) (Required)
      *         ud: String(up/down) (Required)
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -153,14 +157,16 @@ public final class EnumsOnliesImpl {
      * The send operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     prop (Required): {
      *         lr: String(left/right/up/down) (Required)
      *         ud: String(up/down) (Required)
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param sendRequest3 The sendRequest3 parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -181,14 +187,16 @@ public final class EnumsOnliesImpl {
      * The send operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     prop (Required): {
      *         lr: String(left/right/up/down) (Required)
      *         ud: String(up/down) (Required)
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param sendRequest3 The sendRequest3 parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

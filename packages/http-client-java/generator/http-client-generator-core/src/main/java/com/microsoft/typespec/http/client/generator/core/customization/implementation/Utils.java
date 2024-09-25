@@ -3,22 +3,13 @@
 
 package com.microsoft.typespec.http.client.generator.core.customization.implementation;
 
+import com.github.javaparser.StaticJavaParser;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.microsoft.typespec.http.client.generator.core.customization.ClassCustomization;
 import com.microsoft.typespec.http.client.generator.core.customization.CodeCustomization;
 import com.microsoft.typespec.http.client.generator.core.customization.Editor;
 import com.microsoft.typespec.http.client.generator.core.customization.implementation.ls.EclipseLanguageClient;
-import com.github.javaparser.StaticJavaParser;
-import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.expr.AnnotationExpr;
-import org.eclipse.lsp4j.CodeActionKind;
-import org.eclipse.lsp4j.FileChangeType;
-import org.eclipse.lsp4j.FileEvent;
-import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4j.SymbolInformation;
-import org.eclipse.lsp4j.TextEdit;
-import org.eclipse.lsp4j.WorkspaceEdit;
-
 import java.io.File;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -33,6 +24,14 @@ import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.eclipse.lsp4j.CodeActionKind;
+import org.eclipse.lsp4j.FileChangeType;
+import org.eclipse.lsp4j.FileEvent;
+import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.SymbolInformation;
+import org.eclipse.lsp4j.TextEdit;
+import org.eclipse.lsp4j.WorkspaceEdit;
 
 public class Utils {
     /**
@@ -68,12 +67,13 @@ public class Utils {
      * 3. If a method, the return type. If a constructor, empty/null.
      * 4. The name of the constructor or method.
      */
-    private static final Pattern BEGINNING_OF_PARAMETERS_PATTERN =
-        Pattern.compile("^(\\s*(?:([\\w\\s]*?)\\s)?(?:([a-zA-Z$_][\\w]*?)\\s+)?([a-zA-Z$_][\\w]*?)\\s*)\\(.*$");
+    private static final Pattern BEGINNING_OF_PARAMETERS_PATTERN
+        = Pattern.compile("^(\\s*(?:([\\w\\s]*?)\\s)?(?:([a-zA-Z$_][\\w]*?)\\s+)?([a-zA-Z$_][\\w]*?)\\s*)\\(.*$");
 
     private static final Pattern ENDING_OF_PARAMETERS_PATTERN = Pattern.compile("^(.*)\\)\\s*\\{.*$");
 
-    public static void applyWorkspaceEdit(WorkspaceEdit workspaceEdit, Editor editor, EclipseLanguageClient languageClient) {
+    public static void applyWorkspaceEdit(WorkspaceEdit workspaceEdit, Editor editor,
+        EclipseLanguageClient languageClient) {
         Map<String, FileEvent> changes = new HashMap<>();
         applyWorkspaceEditInternal(workspaceEdit.getChanges(), changes, editor);
         languageClient.notifyWatchedFilesChanged(new ArrayList<>(changes.values()));
@@ -93,8 +93,8 @@ public class Utils {
         languageClient.notifyWatchedFilesChanged(new ArrayList<>(changes.values()));
     }
 
-    private static void applyWorkspaceEditInternal(Map<String, List<TextEdit>> edits,
-        Map<String, FileEvent> changes, Editor editor) {
+    private static void applyWorkspaceEditInternal(Map<String, List<TextEdit>> edits, Map<String, FileEvent> changes,
+        Editor editor) {
         if (edits == null || edits.isEmpty()) {
             return;
         }
@@ -104,21 +104,24 @@ public class Utils {
             String fileName = edit.getKey().substring(i);
             if (editor.getContents().containsKey(fileName)) {
                 for (TextEdit textEdit : edit.getValue()) {
-                    editor.replace(fileName, textEdit.getRange().getStart(), textEdit.getRange().getEnd(), textEdit.getNewText());
+                    editor.replace(fileName, textEdit.getRange().getStart(), textEdit.getRange().getEnd(),
+                        textEdit.getNewText());
                 }
                 changes.putIfAbsent(fileName, new FileEvent(edit.getKey(), FileChangeType.Changed));
             }
         }
     }
 
-    public static void applyTextEdits(String fileUri, List<TextEdit> textEdits, Editor editor, EclipseLanguageClient languageClient) {
+    public static void applyTextEdits(String fileUri, List<TextEdit> textEdits, Editor editor,
+        EclipseLanguageClient languageClient) {
         List<FileEvent> changes = new ArrayList<>();
         int i = fileUri.indexOf("src/main/java/");
         String fileName = fileUri.substring(i);
         if (editor.getContents().containsKey(fileName)) {
             for (int j = textEdits.size() - 1; j >= 0; j--) {
                 TextEdit textEdit = textEdits.get(j);
-                editor.replace(fileName, textEdit.getRange().getStart(), textEdit.getRange().getEnd(), textEdit.getNewText());
+                editor.replace(fileName, textEdit.getRange().getStart(), textEdit.getRange().getEnd(),
+                    textEdit.getNewText());
             }
             FileEvent fileEvent = new FileEvent();
             fileEvent.setUri(fileUri);
@@ -359,8 +362,7 @@ public class Utils {
         languageClient.notifyWatchedFilesChanged(Collections.singletonList(fileEvent));
     }
 
-    public static boolean declarationContainsSymbol(com.github.javaparser.Range declarationRange,
-        Range symbolRange) {
+    public static boolean declarationContainsSymbol(com.github.javaparser.Range declarationRange, Range symbolRange) {
         return declarationRange.begin.line <= symbolRange.getStart().getLine()
             && declarationRange.end.line >= symbolRange.getStart().getLine();
     }
@@ -386,8 +388,9 @@ public class Utils {
 
         // Loop until the line containing the body start is found.
         Pattern startPattern = Pattern.compile(".*\\{\\s*");
-        int startLine = walkDownFileUntilLineMatches(editor, fileName, line, lineContent ->
-            startPattern.matcher(lineContent).matches()) + 1; // Plus one since the start is after the opening '{'
+        int startLine = walkDownFileUntilLineMatches(editor, fileName, line,
+            lineContent -> startPattern.matcher(lineContent).matches()) + 1; // Plus one since the start is after the
+                                                                             // opening '{'
 
         // Then determine the base indentation level for the body.
         String methodContentIndent = getIndent(editor.getFileLine(fileName, startLine));
@@ -395,8 +398,9 @@ public class Utils {
 
         // Then continue iterating over lines until the body close line is found.
         Pattern closePattern = Pattern.compile(methodBlockIndent + "}\\s*");
-        int lastLine = walkDownFileUntilLineMatches(editor, fileName, startLine, lineContent ->
-            closePattern.matcher(lineContent).matches()) - 1; // Minus one since the end is before the closing '}'
+        int lastLine = walkDownFileUntilLineMatches(editor, fileName, startLine,
+            lineContent -> closePattern.matcher(lineContent).matches()) - 1; // Minus one since the end is before the
+                                                                             // closing '}'
         Position oldBodyEnd = new Position(lastLine, editor.getFileLine(fileName, lastLine).length());
 
         editor.replaceWithIndentedContent(fileName, oldBodyStart, oldBodyEnd, newBody, methodContentIndent.length());
@@ -500,7 +504,8 @@ public class Utils {
 
     public static void organizeImportsOnRange(EclipseLanguageClient languageClient, Editor editor, String fileUri,
         Range range) {
-        languageClient.listCodeActions(fileUri, range, CodeActionKind.SourceOrganizeImports).stream()
+        languageClient.listCodeActions(fileUri, range, CodeActionKind.SourceOrganizeImports)
+            .stream()
             .filter(ca -> ca.getKind().equals(CodeActionKind.SourceOrganizeImports))
             .findFirst()
             .ifPresent(action -> Utils.applyWorkspaceEdit(action.getEdit(), editor, languageClient));

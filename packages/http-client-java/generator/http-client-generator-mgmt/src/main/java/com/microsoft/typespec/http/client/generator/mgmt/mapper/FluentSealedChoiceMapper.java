@@ -10,7 +10,9 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType
 
 public class FluentSealedChoiceMapper extends SealedChoiceMapper {
     private static final FluentSealedChoiceMapper INSTANCE = new FluentSealedChoiceMapper();
-    private FluentSealedChoiceMapper() {}
+
+    private FluentSealedChoiceMapper() {
+    }
 
     public static FluentSealedChoiceMapper getInstance() {
         return INSTANCE;

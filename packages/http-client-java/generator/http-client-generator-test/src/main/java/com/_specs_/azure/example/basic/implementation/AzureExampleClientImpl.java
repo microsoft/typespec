@@ -175,7 +175,8 @@ public final class AzureExampleClientImpl {
      * The basicAction operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     stringProperty: String (Required)
      *     modelProperty (Optional): {
@@ -190,11 +191,13 @@ public final class AzureExampleClientImpl {
      *         String: String (Required)
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     stringProperty: String (Required)
      *     modelProperty (Optional): {
@@ -209,7 +212,8 @@ public final class AzureExampleClientImpl {
      *         String: String (Required)
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param queryParam The queryParam parameter.
      * @param headerParam The headerParam parameter.
@@ -235,7 +239,8 @@ public final class AzureExampleClientImpl {
      * The basicAction operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     stringProperty: String (Required)
      *     modelProperty (Optional): {
@@ -250,11 +255,13 @@ public final class AzureExampleClientImpl {
      *         String: String (Required)
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     stringProperty: String (Required)
      *     modelProperty (Optional): {
@@ -269,7 +276,8 @@ public final class AzureExampleClientImpl {
      *         String: String (Required)
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param queryParam The queryParam parameter.
      * @param headerParam The headerParam parameter.

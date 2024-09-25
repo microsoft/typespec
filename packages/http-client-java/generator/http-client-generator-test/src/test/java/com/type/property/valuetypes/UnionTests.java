@@ -3,19 +3,20 @@
 
 package com.type.property.valuetypes;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import com.type.property.valuetypes.models.UnionFloatLiteralProperty;
 import com.type.property.valuetypes.models.UnionFloatLiteralPropertyProperty;
 import com.type.property.valuetypes.models.UnionIntLiteralProperty;
 import com.type.property.valuetypes.models.UnionIntLiteralPropertyProperty;
 import com.type.property.valuetypes.models.UnionStringLiteralProperty;
 import com.type.property.valuetypes.models.UnionStringLiteralPropertyProperty;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class UnionTests {
-    private final UnionStringLiteralClient unionStringClient = new ValueTypesClientBuilder().buildUnionStringLiteralClient();
-    private final UnionFloatLiteralClient unionFloatClient = new ValueTypesClientBuilder().buildUnionFloatLiteralClient();
+    private final UnionStringLiteralClient unionStringClient
+        = new ValueTypesClientBuilder().buildUnionStringLiteralClient();
+    private final UnionFloatLiteralClient unionFloatClient
+        = new ValueTypesClientBuilder().buildUnionFloatLiteralClient();
     private final UnionIntLiteralClient unionIntClient = new ValueTypesClientBuilder().buildUnionIntLiteralClient();
 
     @Test
@@ -29,11 +30,13 @@ public class UnionTests {
 
     @Test
     public void testUnionFloatLiteral() {
-        UnionFloatLiteralProperty body = new UnionFloatLiteralProperty(UnionFloatLiteralPropertyProperty.FOUR_SIX_EIGHT_SEVEN_FIVE);
+        UnionFloatLiteralProperty body
+            = new UnionFloatLiteralProperty(UnionFloatLiteralPropertyProperty.FOUR_SIX_EIGHT_SEVEN_FIVE);
         unionFloatClient.put(body);
 
         Assertions.assertNotNull(unionFloatClient.get());
-        Assertions.assertEquals(UnionFloatLiteralPropertyProperty.FOUR_SIX_EIGHT_SEVEN_FIVE, unionFloatClient.get().getProperty());
+        Assertions.assertEquals(UnionFloatLiteralPropertyProperty.FOUR_SIX_EIGHT_SEVEN_FIVE,
+            unionFloatClient.get().getProperty());
     }
 
     @Test
