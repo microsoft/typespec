@@ -104,13 +104,13 @@
   "devDependencies": {
     "@types/babel__code-frame": "~7.0.6",
     "@types/mustache": "~4.2.5",
-    "@types/node": "~22.5.4",
+    "@types/node": "~22.7.0",
     "@types/prompts": "~2.4.9",
     "@types/semver": "^7.5.8",
     "@types/yargs": "~17.0.33",
     "@typespec/internal-build-utils": "workspace:~",
-    "@vitest/coverage-v8": "^2.1.0",
-    "@vitest/ui": "^2.1.0",
+    "@vitest/coverage-v8": "^2.1.1",
+    "@vitest/ui": "^2.1.1",
     "c8": "^10.1.2",
     "grammarkdown": "~3.3.2",
     "rimraf": "~6.0.1",
@@ -118,7 +118,7 @@
     "tmlanguage-generator": "workspace:~",
     "ts-node": "~10.9.2",
     "typescript": "~5.6.2",
-    "vitest": "^2.1.0",
+    "vitest": "^2.1.1",
     "vscode-oniguruma": "~2.0.1",
     "vscode-textmate": "~9.1.0"
   }
