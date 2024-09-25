@@ -17,8 +17,8 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.andro
 public class AndroidClientMethodMapper extends ClientMethodMapper {
     private static final ClientMethodMapper INSTANCE = new AndroidClientMethodMapper();
 
-    private static final ClientMethodParameter ANDROID_CONTEXT_PARAM = new ClientMethodParameter.Builder()
-            .description("The context to associate with this operation.")
+    private static final ClientMethodParameter ANDROID_CONTEXT_PARAM
+        = new ClientMethodParameter.Builder().description("The context to associate with this operation.")
             .wireType(ClassType.ANDROID_CONTEXT)
             .name("context")
             .annotations(new java.util.ArrayList<>())
@@ -82,7 +82,8 @@ public class AndroidClientMethodMapper extends ClientMethodMapper {
     }
 
     @Override
-    protected IType createSyncReturnWithResponseType(IType syncReturnType, Operation operation, boolean isProtocolMethod, JavaSettings settings) {
+    protected IType createSyncReturnWithResponseType(IType syncReturnType, Operation operation,
+        boolean isProtocolMethod, JavaSettings settings) {
         return GenericType.AndroidResponse(syncReturnType);
     }
 
@@ -92,15 +93,18 @@ public class AndroidClientMethodMapper extends ClientMethodMapper {
     }
 
     @Override
-    protected ReturnValue createSimpleSyncRestResponseReturnValue(Operation operation, IType syncReturnWithResponse, IType syncReturnType) {
-        return new ReturnValue(returnTypeDescription(operation, syncReturnWithResponse, syncReturnType), syncReturnWithResponse);
+    protected ReturnValue createSimpleSyncRestResponseReturnValue(Operation operation, IType syncReturnWithResponse,
+        IType syncReturnType) {
+        return new ReturnValue(returnTypeDescription(operation, syncReturnWithResponse, syncReturnType),
+            syncReturnWithResponse);
     }
 
     @Override
-    protected ReturnValue createSimpleAsyncRestResponseReturnValue(Operation operation, IType asyncRestResponseReturnType, IType syncReturnType) {
+    protected ReturnValue createSimpleAsyncRestResponseReturnValue(Operation operation,
+        IType asyncRestResponseReturnType, IType syncReturnType) {
         IType asyncWithResponseType = GenericType.AndroidCompletableFuture(GenericType.AndroidResponse(syncReturnType));
         return new ReturnValue(returnTypeDescription(operation, asyncWithResponseType, syncReturnType),
-                asyncWithResponseType);
+            asyncWithResponseType);
     }
 
     @Override
@@ -109,7 +113,8 @@ public class AndroidClientMethodMapper extends ClientMethodMapper {
     }
 
     @Override
-    protected ReturnValue createSimpleAsyncReturnValue(Operation operation, IType asyncReturnType, IType syncReturnType) {
+    protected ReturnValue createSimpleAsyncReturnValue(Operation operation, IType asyncReturnType,
+        IType syncReturnType) {
         return new ReturnValue(returnTypeDescription(operation, asyncReturnType, syncReturnType), asyncReturnType);
     }
 

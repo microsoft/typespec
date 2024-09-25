@@ -3,9 +3,9 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.namer;
 
-import com.microsoft.typespec.http.client.generator.mgmt.util.FluentJavaSettings;
 import com.microsoft.typespec.http.client.generator.core.util.ModelNamer;
 import com.microsoft.typespec.http.client.generator.core.util.NamerFactory;
+import com.microsoft.typespec.http.client.generator.mgmt.util.FluentJavaSettings;
 
 public class FluentNamerFactory implements NamerFactory {
 

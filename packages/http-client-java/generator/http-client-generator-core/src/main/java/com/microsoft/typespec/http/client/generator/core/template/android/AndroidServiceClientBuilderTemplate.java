@@ -14,7 +14,6 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlo
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaClass;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaContext;
 import com.microsoft.typespec.http.client.generator.core.template.ServiceClientBuilderTemplate;
-
 import java.util.ArrayList;
 import java.util.Set;
 
@@ -44,16 +43,14 @@ public class AndroidServiceClientBuilderTemplate extends ServiceClientBuilderTem
         SecurityInfo securityInfo) {
         ArrayList<ServiceClientProperty> commonProperties = new ArrayList<>();
 
-        commonProperties.add(
-            new ServiceClientProperty("The HTTP pipeline to send requests through", ClassType.ANDROID_HTTP_PIPELINE,
-                "pipeline", false, "createHttpPipeline()"));
+        commonProperties.add(new ServiceClientProperty("The HTTP pipeline to send requests through",
+            ClassType.ANDROID_HTTP_PIPELINE, "pipeline", false, "createHttpPipeline()"));
 
-        commonProperties.add(
-            new ServiceClientProperty("The HTTP client used to send the request.", ClassType.ANDROID_HTTP_CLIENT,
-                "httpClient", false, null));
+        commonProperties.add(new ServiceClientProperty("The HTTP client used to send the request.",
+            ClassType.ANDROID_HTTP_CLIENT, "httpClient", false, null));
 
-        commonProperties.add(
-            new ServiceClientProperty("The logging configuration for HTTP requests and " + "responses.",
+        commonProperties
+            .add(new ServiceClientProperty("The logging configuration for HTTP requests and " + "responses.",
                 ClassType.ANDROID_HTTP_LOG_OPTIONS, "httpLogOptions", false, null));
         commonProperties.add(new ServiceClientProperty(
             "The retry policy that will attempt to retry failed " + "requests, if applicable.",
@@ -85,13 +82,11 @@ public class AndroidServiceClientBuilderTemplate extends ServiceClientBuilderTem
     }
 
     @Override
-    protected void addCreateHttpPipelineMethod(JavaSettings settings,
-                                               JavaClass classBlock, String defaultCredentialScopes,
-                                               SecurityInfo securityInfo, PipelinePolicyDetails pipelinePolicyDetails) {
+    protected void addCreateHttpPipelineMethod(JavaSettings settings, JavaClass classBlock,
+        String defaultCredentialScopes, SecurityInfo securityInfo, PipelinePolicyDetails pipelinePolicyDetails) {
         classBlock.privateMethod("HttpPipeline createHttpPipeline()", function -> {
 
-            function.ifBlock("httpLogOptions == null",
-                action -> action.line("httpLogOptions = new HttpLogOptions();"));
+            function.ifBlock("httpLogOptions == null", action -> action.line("httpLogOptions = new HttpLogOptions();"));
 
             function.line("List<HttpPipelinePolicy> policies = new ArrayList<>();");
 

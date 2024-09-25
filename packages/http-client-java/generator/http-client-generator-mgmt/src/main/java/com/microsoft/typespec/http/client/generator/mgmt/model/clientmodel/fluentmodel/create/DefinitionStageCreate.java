@@ -11,6 +11,8 @@ public class DefinitionStageCreate extends DefinitionStage {
 
     @Override
     public String getDescription(String modelName) {
-        return String.format("The stage of the %1$s definition which contains all the minimum required properties for the resource to be created, but also allows for any other optional properties to be specified.", modelName);
+        return String.format(
+            "The stage of the %1$s definition which contains all the minimum required properties for the resource to be created, but also allows for any other optional properties to be specified.",
+            modelName);
     }
 }

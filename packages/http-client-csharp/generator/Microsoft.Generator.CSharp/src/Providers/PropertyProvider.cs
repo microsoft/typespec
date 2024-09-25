@@ -44,6 +44,8 @@ namespace Microsoft.Generator.CSharp.Providers
 
         internal IEnumerable<AttributeData>? Attributes { get; init; }
 
+        internal PropertyProvider? SpecProperty { get; set; }
+
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected PropertyProvider()

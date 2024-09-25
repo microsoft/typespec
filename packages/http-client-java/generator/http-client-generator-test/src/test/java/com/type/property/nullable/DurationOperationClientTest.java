@@ -3,13 +3,12 @@
 
 package com.type.property.nullable;
 
-import com.type.property.nullable.models.DurationProperty;
-import org.junit.jupiter.api.Test;
-
-import java.time.Duration;
-
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+
+import com.type.property.nullable.models.DurationProperty;
+import java.time.Duration;
+import org.junit.jupiter.api.Test;
 
 class DurationOperationClientTest {
 
@@ -17,7 +16,8 @@ class DurationOperationClientTest {
 
     @Test
     void patchNonNullWithResponse() {
-        DurationProperty property = new DurationProperty().setRequiredProperty("foo").setNullableProperty(Duration.parse("PT2974H14M12.011S"));
+        DurationProperty property = new DurationProperty().setRequiredProperty("foo")
+            .setNullableProperty(Duration.parse("PT2974H14M12.011S"));
         client.patchNonNull(property);
     }
 

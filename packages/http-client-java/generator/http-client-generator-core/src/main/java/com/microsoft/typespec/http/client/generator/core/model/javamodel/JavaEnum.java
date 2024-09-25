@@ -3,9 +3,8 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.javamodel;
 
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.azure.core.util.CoreUtils;
-
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
@@ -81,7 +80,8 @@ public class JavaEnum {
         addNewLine = true;
     }
 
-    public final void method(JavaVisibility visibility, List<JavaModifier> modifiers, String methodSignature, Consumer<JavaBlock> method) {
+    public final void method(JavaVisibility visibility, List<JavaModifier> modifiers, String methodSignature,
+        Consumer<JavaBlock> method) {
         addExpectedSemicolonAndNewLine();
         contents.method(visibility, modifiers, methodSignature, method);
         previouslyAddedValue = false;

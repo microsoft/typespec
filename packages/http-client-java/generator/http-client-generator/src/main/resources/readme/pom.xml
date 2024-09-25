@@ -33,6 +33,8 @@
 
       <build>
         <plugins>
+          <!-- All configuration, except the plugin version, in this plugin must be aligned with the Spotless -->
+          <!-- configurations used in azure-sdk-for-java -->
           <plugin>
             <groupId>com.diffplug.spotless</groupId>
             <artifactId>spotless-maven-plugin</artifactId>
@@ -45,8 +47,8 @@
                   <include>src/test/java/**/*.java</include>
                 </includes>
 
-                <importOrder/>
                 <removeUnusedImports/>
+                <importOrder/>
                 <eclipse>
                   <version>4.21</version>
                   <file>eclipse-format-azure-sdk-for-java.xml</file>

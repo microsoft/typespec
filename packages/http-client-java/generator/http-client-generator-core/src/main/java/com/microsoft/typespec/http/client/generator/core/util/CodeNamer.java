@@ -3,13 +3,12 @@
 
 package com.microsoft.typespec.http.client.generator.core.util;
 
-import org.atteo.evo.inflector.English;
+import static com.microsoft.typespec.http.client.generator.core.preprocessor.namer.CodeNamer.getBasicLatinCharacter;
 
 import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Pattern;
-
-import static com.microsoft.typespec.http.client.generator.core.preprocessor.namer.CodeNamer.getBasicLatinCharacter;
+import org.atteo.evo.inflector.English;
 
 public class CodeNamer {
 
@@ -71,15 +70,16 @@ public class CodeNamer {
     }
 
     public static String removeInvalidCharacters(String name) {
-        return com.microsoft.typespec.http.client.generator.core.preprocessor.namer.CodeNamer.getValidName(name, c -> c == '_' || c == '-');
+        return com.microsoft.typespec.http.client.generator.core.preprocessor.namer.CodeNamer.getValidName(name,
+            c -> c == '_' || c == '-');
     }
 
     public static String getPropertyName(String name) {
         if (name == null || name.trim().isEmpty()) {
             return name;
         }
-        return com.microsoft.typespec.http.client.generator.core.preprocessor.namer.CodeNamer.getEscapedReservedName(
-            toCamelCase(removeInvalidCharacters(name)), "Property");
+        return com.microsoft.typespec.http.client.generator.core.preprocessor.namer.CodeNamer
+            .getEscapedReservedName(toCamelCase(removeInvalidCharacters(name)), "Property");
     }
 
     public static String getPlural(String name) {
@@ -147,8 +147,9 @@ public class CodeNamer {
         return result.toUpperCase();
     }
 
-    private static final Set<String> RESERVED_CLIENT_METHOD_PARAMETER_NAME = Set.of(
-        "service",      // the ServiceInterface local variable
+    private static final Set<String> RESERVED_CLIENT_METHOD_PARAMETER_NAME = Set.of("service",      // the
+                                                                                                    // ServiceInterface
+                                                                                                    // local variable
         "client"        // the ManagementClient local variable
     );
 

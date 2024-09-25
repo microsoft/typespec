@@ -3,10 +3,9 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonWriter;
-
+import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import java.io.IOException;
 
 /**
@@ -41,9 +40,7 @@ public class NotSchema extends Schema {
 
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return jsonWriter.writeStartObject()
-            .writeJsonField("not", not)
-            .writeEndObject();
+        return jsonWriter.writeStartObject().writeJsonField("not", not).writeEndObject();
     }
 
     /**

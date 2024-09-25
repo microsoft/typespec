@@ -8,7 +8,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Proxy
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaInterface;
 import com.microsoft.typespec.http.client.generator.core.template.ProxyTemplate;
-
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -29,22 +28,24 @@ public class FluentProxyTemplate extends ProxyTemplate {
         headers.put("Content-Type", restAPIMethod.getRequestContentType());
         headers.put("Accept", String.join(",", restAPIMethod.getResponseContentTypes()));
 
-        Set<String> headerParameterNames = restAPIMethod.getParameters().stream()
-                .filter(p -> p.getRequestParameterLocation() == RequestParameterLocation.HEADER)
-                .map(ProxyMethodParameter::getRequestParameterName)
-                .map(String::toLowerCase)
-                .collect(Collectors.toSet());
+        Set<String> headerParameterNames = restAPIMethod.getParameters()
+            .stream()
+            .filter(p -> p.getRequestParameterLocation() == RequestParameterLocation.HEADER)
+            .map(ProxyMethodParameter::getRequestParameterName)
+            .map(String::toLowerCase)
+            .collect(Collectors.toSet());
 
-        headers = headers.entrySet().stream()
-                .filter(e -> !headerParameterNames.contains(e.getKey().toLowerCase(Locale.ROOT)))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        headers = headers.entrySet()
+            .stream()
+            .filter(e -> !headerParameterNames.contains(e.getKey().toLowerCase(Locale.ROOT)))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         if (!headers.isEmpty()) {
-            String headersString = headers.entrySet().stream()
-                    .map(e -> String.format("\"%s: %s\"", e.getKey(), e.getValue()))
-                    .collect(Collectors.joining(", "));
-            interfaceBlock.annotation(String.format("Headers({ %s })",
-                    headersString));
+            String headersString = headers.entrySet()
+                .stream()
+                .map(e -> String.format("\"%s: %s\"", e.getKey(), e.getValue()))
+                .collect(Collectors.joining(", "));
+            interfaceBlock.annotation(String.format("Headers({ %s })", headersString));
         }
     }
 }

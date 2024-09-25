@@ -40,7 +40,6 @@ public enum ParameterSynthesizedOrigin {
      */
     NONE("none");   // NONE is not defined as m4 output
 
-
     private final String origin;
 
     ParameterSynthesizedOrigin(String origin) {

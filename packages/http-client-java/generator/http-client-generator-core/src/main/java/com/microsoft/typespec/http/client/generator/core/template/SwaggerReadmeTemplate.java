@@ -3,20 +3,19 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
+import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.AutorestSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.projectmodel.Project;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
-import com.azure.core.util.CoreUtils;
-import org.yaml.snakeyaml.DumperOptions;
-import org.yaml.snakeyaml.Yaml;
-
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.Yaml;
 
 public class SwaggerReadmeTemplate {
 
@@ -24,8 +23,8 @@ public class SwaggerReadmeTemplate {
 
     private static final String NEW_LINE = System.lineSeparator();
 
-    private static final Pattern MARKDOWN_YAML_BLOCK =
-            Pattern.compile("```\\s?(?:yaml|YAML).*?\\n(.*?)```", Pattern.DOTALL);
+    private static final Pattern MARKDOWN_YAML_BLOCK
+        = Pattern.compile("```\\s?(?:yaml|YAML).*?\\n(.*?)```", Pattern.DOTALL);
 
     private static final Map<String, Object> OVERRIDE_OPTIONS = new LinkedHashMap<>();
     static {
@@ -126,8 +125,8 @@ public class SwaggerReadmeTemplate {
                     Map<String, Object> yamlMap = (Map<String, Object>) yamlObj;
                     yamlMap.entrySet().forEach(e -> {
                         if (e.getValue() instanceof String
-                                || e.getValue() instanceof Boolean
-                                || e.getValue() instanceof Integer) {
+                            || e.getValue() instanceof Boolean
+                            || e.getValue() instanceof Integer) {
                             defaultOptions.put(e.getKey(), e.getValue());
                         }
                     });
@@ -145,12 +144,11 @@ public class SwaggerReadmeTemplate {
         }
 
         if (!settings.getAutorestSettings().getSecurity().isEmpty()) {
-            OVERRIDE_OPTIONS.putIfAbsent("security",
-                    stringOrArray(settings.getAutorestSettings().getSecurity()));
+            OVERRIDE_OPTIONS.putIfAbsent("security", stringOrArray(settings.getAutorestSettings().getSecurity()));
         }
         if (!settings.getAutorestSettings().getSecurityScopes().isEmpty()) {
             OVERRIDE_OPTIONS.putIfAbsent("security-scopes",
-                    stringOrArray(settings.getAutorestSettings().getSecurityScopes()));
+                stringOrArray(settings.getAutorestSettings().getSecurityScopes()));
         }
 
         String securityHeaderName = settings.getAutorestSettings().getSecurityHeaderName();

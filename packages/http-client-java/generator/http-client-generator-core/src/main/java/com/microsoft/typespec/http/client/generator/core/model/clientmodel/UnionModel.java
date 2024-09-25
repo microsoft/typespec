@@ -35,11 +35,8 @@ public class UnionModel {
     private final List<ClientModelProperty> properties;
     private final ImplementationDetails implementationDetails;
 
-    protected UnionModel(
-            String packageKeyword, String name, List<String> imports, String description,
-            String parentModelName,
-            List<ClientModelProperty> properties,
-            ImplementationDetails implementationDetails) {
+    protected UnionModel(String packageKeyword, String name, List<String> imports, String description,
+        String parentModelName, List<ClientModelProperty> properties, ImplementationDetails implementationDetails) {
         this.packageName = packageKeyword;
         this.name = name;
         this.imports = imports;
@@ -102,6 +99,7 @@ public class UnionModel {
 
         /**
          * Sets the package that this model class belongs to.
+         * 
          * @param packageName the package that this model class belongs to
          * @return the Builder itself
          */
@@ -112,6 +110,7 @@ public class UnionModel {
 
         /**
          * Sets the name of this model.
+         * 
          * @param name the name of this model
          * @return the Builder itself
          */
@@ -122,6 +121,7 @@ public class UnionModel {
 
         /**
          * Sets the imports for this model.
+         * 
          * @param imports the imports for this model
          * @return the Builder itself
          */
@@ -132,6 +132,7 @@ public class UnionModel {
 
         /**
          * Sets the description of this model.
+         * 
          * @param description the description of this model
          * @return the Builder itself
          */
@@ -142,6 +143,7 @@ public class UnionModel {
 
         /**
          * Sets the parent model of this model.
+         * 
          * @param parentModelName the parent model of this model
          * @return the Builder itself
          */
@@ -152,6 +154,7 @@ public class UnionModel {
 
         /**
          * Sets the properties for this model.
+         * 
          * @param properties the properties for this model
          * @return the Builder itself
          */
@@ -162,6 +165,7 @@ public class UnionModel {
 
         /**
          * Sets the implementation details for the model.
+         * 
          * @param implementationDetails the implementation details.
          * @return the Builder itself
          */
@@ -171,13 +175,8 @@ public class UnionModel {
         }
 
         public UnionModel build() {
-            return new UnionModel(packageName,
-                    name,
-                    imports,
-                    description,
-                    parentModelName,
-                    properties,
-                    implementationDetails);
+            return new UnionModel(packageName, name, imports, description, parentModelName, properties,
+                implementationDetails);
         }
     }
 }
