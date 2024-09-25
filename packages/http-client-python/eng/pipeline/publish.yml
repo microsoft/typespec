@@ -28,5 +28,4 @@ extends:
           UnitTestArgs: -UnitTests
           StagePrefix: "Python"
           LanguageShortName: "python"
-          HasNugetPackages: true
           CadlRanchName: "@typespec/http-client-python"
