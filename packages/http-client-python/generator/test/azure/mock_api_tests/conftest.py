@@ -13,9 +13,9 @@ from pathlib import Path
 
 
 def start_server_process():
-    path = Path(os.path.dirname(__file__)) / Path("../../../node_modules/@azure-tools/cadl-ranch-specs")
+    path = Path(os.path.dirname(__file__)) / Path("../../../../node_modules/@azure-tools/cadl-ranch-specs")
     os.chdir(path.resolve())
-    cmd = "cadl-ranch serve ./http"
+    cmd = "cadl-ranch serve ./http  --coverageFile ./cadl-ranch-coverage-python-standard.json"
     if os.name == "nt":
         return subprocess.Popen(cmd, shell=True)
     return subprocess.Popen(cmd, shell=True, preexec_fn=os.setsid)
