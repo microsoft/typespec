@@ -72,6 +72,10 @@ parameters:
     type: string
     default: ""
 
+  - name: EnableCadlRanchReport
+    type: boolean
+    default: true
+
 stages:
   # Build stage
   # Responsible for building the autorest generator and typespec emitter packages
