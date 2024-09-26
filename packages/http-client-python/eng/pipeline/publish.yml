@@ -1,7 +1,7 @@
 trigger:
   branches:
     include:
-      - main
+      - python-pipeline-debug
   paths:
     include:
       - packages/http-client-python/
