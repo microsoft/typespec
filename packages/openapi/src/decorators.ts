@@ -225,7 +225,7 @@ function validateObject(context: DecoratorContext, typespecType: TypeSpecValue) 
   )[0]! as Model;
 
   if (typeof typespecType === "object" && propertyModel) {
-    const [diagnostics] = checkNoAdditionalProperties(
+    const diagnostics = checkNoAdditionalProperties(
       typespecType,
       context.getArgumentTarget(0)!,
       propertyModel,
@@ -238,7 +238,7 @@ function checkNoAdditionalProperties(
   typespecType: Type,
   target: DiagnosticTarget,
   source: Model,
-): [Diagnostic[]] {
+): Diagnostic[] {
   const diagnostics: Diagnostic[] = [];
 
   if (typespecType.kind === "Model") {
@@ -246,7 +246,7 @@ function checkNoAdditionalProperties(
       const sourceProperty = getProperty(source, name);
       if (sourceProperty) {
         if (sourceProperty.type.kind === "Model") {
-          const [nestedDiagnostics] = checkNoAdditionalProperties(
+          const nestedDiagnostics = checkNoAdditionalProperties(
             type.type,
             target,
             sourceProperty.type,
@@ -265,5 +265,5 @@ function checkNoAdditionalProperties(
     }
   }
 
-  return [diagnostics];
+  return diagnostics;
 }
