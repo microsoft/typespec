@@ -37,7 +37,7 @@ public final class MapperUtils {
      */
     public static IType createEnumType(ChoiceSchema enumType, boolean expandable,
         boolean useCodeModelNameForEnumMember) {
-        return createEnumType(enumType, expandable, useCodeModelNameForEnumMember, null, null, null);
+        return createEnumType(enumType, expandable, useCodeModelNameForEnumMember, null, null);
     }
 
     /**
@@ -48,11 +48,10 @@ public final class MapperUtils {
      * @param useCodeModelNameForEnumMember whether to use code model enum member name for client enum member name
      * @param serializationMethodName method name for serialization
      * @param deserializationMethodName method name for deserialization
-     * @param wireType wire type for serialization, if null, will default to element type of the enum
      * @return enum client type
      */
     public static IType createEnumType(ChoiceSchema enumType, boolean expandable, boolean useCodeModelNameForEnumMember,
-        String serializationMethodName, String deserializationMethodName, IType wireType) {
+        String serializationMethodName, String deserializationMethodName) {
         JavaSettings settings = JavaSettings.getInstance();
         String enumTypeName = enumType.getLanguage().getJava().getName();
 
