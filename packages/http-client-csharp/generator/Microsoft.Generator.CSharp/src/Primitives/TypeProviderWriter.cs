@@ -40,7 +40,6 @@ namespace Microsoft.Generator.CSharp.Primitives
             foreach (var attribute in _provider.Attributes)
             {
                 attribute.Write(writer);
-                writer.WriteLine();
             }
             writer.WriteTypeModifiers(_provider.DeclarationModifiers); // class, struct, enum and interface is written as modifiers in this part
             writer.Append($"{_provider.Type:D}")

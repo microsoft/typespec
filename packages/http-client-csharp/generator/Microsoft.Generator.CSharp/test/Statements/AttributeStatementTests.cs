@@ -26,7 +26,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
             using var writer = new CodeWriter();
             attributeStatement.Write(writer);
 
-            Assert.AreEqual(Helpers.GetExpectedFromFile().TrimEnd(), writer.ToString(false));
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
         }
 
         [Test]
@@ -37,7 +37,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
             using var writer = new CodeWriter();
             attributeStatement.Write(writer);
 
-            Assert.AreEqual(Helpers.GetExpectedFromFile().TrimEnd(), writer.ToString(false));
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
         }
 
         [Test]
@@ -48,51 +48,51 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
             using var writer = new CodeWriter();
             attributeStatement.Write(writer);
 
-            Assert.AreEqual(Helpers.GetExpectedFromFile().TrimEnd(), writer.ToString(false));
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
         }
 
         [Test]
         public void AttributeStatementWithOneNamedArgument()
         {
-            var attributeStatement = new AttributeStatement(typeof(ObsoleteAttribute), new Dictionary<string, ValueExpression>
-            {
-                ["DiagnosticId"] = Literal("TypeSpecGenerator001")
-            });
+            var attributeStatement = new AttributeStatement(typeof(ObsoleteAttribute),
+                [
+                    new KeyValuePair<string, ValueExpression>("DiagnosticId", Literal("TypeSpecGenerator001"))
+                ]);
 
             using var writer = new CodeWriter();
             attributeStatement.Write(writer);
 
-            Assert.AreEqual(Helpers.GetExpectedFromFile().TrimEnd(), writer.ToString(false));
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
         }
 
         [Test]
         public void AttributeStatementWithNamedArguments()
         {
-            var attributeStatement = new AttributeStatement(typeof(ObsoleteAttribute), new Dictionary<string, ValueExpression>
-            {
-                ["DiagnosticId"] = Literal("TypeSpecGenerator001"),
-                ["UrlFormat"] = Literal("my-format")
-            });
+            var attributeStatement = new AttributeStatement(typeof(ObsoleteAttribute),
+                [
+                    new KeyValuePair<string, ValueExpression>("DiagnosticId", Literal("TypeSpecGenerator001")),
+                    new KeyValuePair<string, ValueExpression>("UrlFormat", Literal("my-format"))
+                ]);
 
             using var writer = new CodeWriter();
             attributeStatement.Write(writer);
 
-            Assert.AreEqual(Helpers.GetExpectedFromFile().TrimEnd(), writer.ToString(false));
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
         }
 
         [Test]
         public void AttributeStatementWithArgumentsAndNamedArguments()
         {
-            var attributeStatement = new AttributeStatement(typeof(ObsoleteAttribute), [Literal("This is obsolete"), Literal(true)], new Dictionary<string, ValueExpression>
-            {
-                ["DiagnosticId"] = Literal("TypeSpecGenerator001"),
-                ["UrlFormat"] = Literal("my-format")
-            });
+            var attributeStatement = new AttributeStatement(typeof(ObsoleteAttribute), [Literal("This is obsolete"), Literal(true)],
+                [
+                    new KeyValuePair<string, ValueExpression>("DiagnosticId", Literal("TypeSpecGenerator001")),
+                    new KeyValuePair<string, ValueExpression>("UrlFormat", Literal("my-format"))
+                ]);
 
             using var writer = new CodeWriter();
             attributeStatement.Write(writer);
 
-            Assert.AreEqual(Helpers.GetExpectedFromFile().TrimEnd(), writer.ToString(false));
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
         }
     }
 }

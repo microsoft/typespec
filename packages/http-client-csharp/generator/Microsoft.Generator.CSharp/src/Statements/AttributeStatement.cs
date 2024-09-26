@@ -11,20 +11,20 @@ namespace Microsoft.Generator.CSharp.Statements
     {
         public CSharpType Type { get; }
         public IReadOnlyList<ValueExpression> Arguments { get; }
-        public IReadOnlyDictionary<string, ValueExpression> PositionalArguments { get; }
+        public IReadOnlyList<KeyValuePair<string, ValueExpression>> PositionalArguments { get; }
 
-        public AttributeStatement(CSharpType type, IReadOnlyList<ValueExpression> arguments, IReadOnlyDictionary<string, ValueExpression> positionalArguments)
+        public AttributeStatement(CSharpType type, IReadOnlyList<ValueExpression> arguments, IReadOnlyList<KeyValuePair<string, ValueExpression>> positionalArguments)
         {
             Type = type;
             Arguments = arguments;
             PositionalArguments = positionalArguments;
         }
 
-        public AttributeStatement(CSharpType type, IReadOnlyList<ValueExpression> arguments) : this(type, arguments, new Dictionary<string, ValueExpression>()) { }
+        public AttributeStatement(CSharpType type, IReadOnlyList<ValueExpression> arguments) : this(type, arguments, []) { }
 
-        public AttributeStatement(CSharpType type, IReadOnlyDictionary<string, ValueExpression> positionalArguments) : this(type, [], positionalArguments) { }
+        public AttributeStatement(CSharpType type, IReadOnlyList<KeyValuePair<string, ValueExpression>> positionalArguments) : this(type, [], positionalArguments) { }
 
-        public AttributeStatement(CSharpType type, params ValueExpression[] arguments) : this(type, arguments, new Dictionary<string, ValueExpression>()) { }
+        public AttributeStatement(CSharpType type, params ValueExpression[] arguments) : this(type, arguments, []) { }
 
         internal override void Write(CodeWriter writer)
         {
@@ -67,7 +67,7 @@ namespace Microsoft.Generator.CSharp.Statements
             {
                 writer.AppendRaw(")");
             }
-            writer.AppendRaw("]");
+            writer.WriteRawLine("]");
         }
     }
 }

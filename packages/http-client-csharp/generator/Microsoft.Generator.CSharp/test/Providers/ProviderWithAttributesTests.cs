@@ -35,20 +35,10 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                     new(typeof(ObsoleteAttribute)),
                     new(typeof(ObsoleteAttribute), Literal("This is obsolete")),
                     new(typeof(ObsoleteAttribute), Literal("This is obsolete"), Literal(true)),
-                    new(typeof(ObsoleteAttribute), new Dictionary<string, ValueExpression>
-                    {
-                        ["DiagnosticId"] = Literal("TypeSpecGenerator001")
-                    }),
-                    new(typeof(ObsoleteAttribute), new Dictionary<string, ValueExpression>
-                    {
-                        ["DiagnosticId"] = Literal("TypeSpecGenerator001"),
-                        ["UrlFormat"] = Literal("my-format")
-                    }),
-                    new(typeof(ObsoleteAttribute), [Literal("This is obsolete"), Literal(true)], new Dictionary<string, ValueExpression>
-                    {
-                        ["DiagnosticId"] = Literal("TypeSpecGenerator001"),
-                        ["UrlFormat"] = Literal("my-format")
-                    })
+                    new(typeof(ObsoleteAttribute), [new KeyValuePair<string, ValueExpression>("DiagnosticId", Literal("TypeSpecGenerator001"))]),
+                    new(typeof(ObsoleteAttribute), [new KeyValuePair<string, ValueExpression>("DiagnosticId", Literal("TypeSpecGenerator001")), new KeyValuePair<string, ValueExpression>("UrlFormat", Literal("my-format"))]),
+                    new(typeof(ObsoleteAttribute), [Literal("This is obsolete"), Literal(true)],
+                        [new KeyValuePair<string, ValueExpression>("DiagnosticId", Literal("TypeSpecGenerator001")), new KeyValuePair<string, ValueExpression>("UrlFormat", Literal("my-format"))]),
                     ];
             }
         }
