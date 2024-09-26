@@ -15,7 +15,6 @@ import { useCallback, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Fragment } from "react/jsx-runtime";
 import { useProgram } from "../program-context.js";
-
 import { NodeIcon } from "../tree-navigation.js";
 import { useTreeNavigator, type TypeGraphNode } from "../use-tree-navigation.js";
 import style from "./current-path.module.css";
