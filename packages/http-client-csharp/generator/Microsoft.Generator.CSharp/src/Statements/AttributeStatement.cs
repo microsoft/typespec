@@ -34,33 +34,26 @@ namespace Microsoft.Generator.CSharp.Statements
             {
                 writer.AppendRaw("(");
             }
-            if (Arguments.Count > 0)
+            for (int i = 0; i < Arguments.Count; i++)
             {
-                for (int i = 0; i < Arguments.Count; i++)
-                {
-                    Arguments[i].Write(writer);
-                    if (i != Arguments.Count - 1)
-                    {
-                        writer.AppendRaw(", ");
-                    }
-                }
-            }
-            if (PositionalArguments.Count > 0)
-            {
-                if (Arguments.Count > 0)
+                Arguments[i].Write(writer);
+                if (i != Arguments.Count - 1)
                 {
                     writer.AppendRaw(", ");
                 }
-                int i = 0;
-                foreach (var (key, value) in PositionalArguments)
+            }
+            if (Arguments.Count > 0 && PositionalArguments.Count > 0)
+            {
+                writer.AppendRaw(", ");
+            }
+            for (int i = 0; i < PositionalArguments.Count; i++)
+            {
+                var (key, value) = PositionalArguments[i];
+                writer.Append($"{key} = ");
+                value.Write(writer);
+                if (i != PositionalArguments.Count - 1)
                 {
-                    writer.Append($"{key} = ");
-                    value.Write(writer);
-                    if (i != PositionalArguments.Count - 1)
-                    {
-                        writer.AppendRaw(", ");
-                    }
-                    i++;
+                    writer.AppendRaw(", ");
                 }
             }
             if (hasArguments)
