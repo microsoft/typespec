@@ -18,13 +18,13 @@ export type ScenarioPassCondition = "response-success" | "status-code";
 
 export interface PassOnSuccessScenario {
   passCondition: "response-success";
-  apis: MockApi[];
+  apis: MockApi[] | APIDefinition;
 }
 
 export interface PassOnCodeScenario {
   passCondition: "status-code";
   code: number;
-  apis: MockApi[];
+  apis: MockApi[] | APIDefinition;
 }
 export interface PassByKeyScenario<K extends string = string> {
   passCondition: "by-key";
@@ -45,10 +45,14 @@ export type MockApiForHandler<Handler extends MockRequestHandler> =
   Handler extends KeyedMockRequestHandler<infer K> ? KeyedMockApi<K> : MockApi;
 
 export interface MockApi {
-  method?: HttpMethod;
+  method: HttpMethod;
   uri: string;
-  handler?: MockRequestHandler;
-  mockMethods?: MockMethod[];
+  handler: MockRequestHandler;
+}
+
+export interface APIDefinition {
+  uri: string;
+  mockMethods: MockMethod[];
 }
 
 export interface MockMethod {

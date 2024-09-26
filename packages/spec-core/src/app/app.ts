@@ -1,4 +1,4 @@
-import { MockMethod, RequestExt, ScenarioMockApi } from "@typespec/spec-api";
+import { APIDefinition, MockMethod, RequestExt, ScenarioMockApi } from "@typespec/spec-api";
 import { Response, Router } from "express";
 import { getScenarioMetadata } from "../coverage/common.js";
 import { CoverageTracker } from "../coverage/coverage-tracker.js";
@@ -43,9 +43,27 @@ export class MockApiApp {
   }
 
   private registerScenario(name: string, scenario: ScenarioMockApi) {
+    if (!Array.isArray(scenario.apis)) return;
     for (const endpoint of scenario.apis) {
-      if (endpoint.mockMethods && this.containsHandlers(endpoint.mockMethods)) {
-        for (const method of endpoint.mockMethods) {
+      if (endpoint.method) {
+        this.router.route(endpoint.uri)[endpoint.method]((req: RequestExt, res: Response) => {
+          processRequest(
+            this.coverageTracker,
+            name,
+            endpoint.uri,
+            req,
+            res,
+            endpoint.handler,
+          ).catch((e) => {
+            logger.error("Unexpected request error", e);
+            res.status(500).end();
+          });
+        });
+      } else {
+        for (const method of (endpoint as any as APIDefinition).mockMethods) {
+          if (!method.handler) {
+            continue;
+          }
           this.router.route(endpoint.uri)[method.method]((req: RequestExt, res: Response) => {
             processRequest(
               this.coverageTracker,
@@ -60,21 +78,6 @@ export class MockApiApp {
             });
           });
         }
-      } else {
-        if (endpoint.method === null || endpoint.method === undefined) continue;
-        this.router.route(endpoint.uri)[endpoint.method]((req: RequestExt, res: Response) => {
-          processRequest(
-            this.coverageTracker,
-            name,
-            endpoint.uri,
-            req,
-            res,
-            endpoint.handler!,
-          ).catch((e) => {
-            logger.error("Unexpected request error", e);
-            res.status(500).end();
-          });
-        });
       }
     }
   }

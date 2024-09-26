@@ -1,4 +1,4 @@
-import { MockMethod } from "@typespec/spec-api";
+import { APIDefinition, MockMethod } from "@typespec/spec-api";
 import * as fs from "fs";
 import * as path from "path";
 import { logger } from "../logger.js";
@@ -121,13 +121,14 @@ export async function serverTest(
   const scenarios = await loadScenarioMockApis(scenariosPath);
   // 3. Execute each scenario
   for (const [name, scenario] of Object.entries(scenarios)) {
-    for (const endpoint of scenario.apis) {
-      if (endpoint.method !== undefined) continue;
+    if (!Array.isArray(scenario.apis)) continue;
+    for (const api of scenario.apis) {
+      if (api.method !== undefined) continue;
       if (testCasesToRun.length === 0 || testCasesToRun.includes(name)) {
         const obj: ServerTestsGenerator = new ServerTestsGenerator(
           name,
-          endpoint.uri,
-          endpoint.mockMethods,
+          api.uri,
+          (api as any as APIDefinition).mockMethods,
           serverBasePath,
           scenariosPath,
         );
