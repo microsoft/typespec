@@ -119,7 +119,6 @@ function mergeOptions(
     if (typeof emitter !== "object") {
       return emitter;
     }
-
     for (const key of Object.keys(emitter)) {
       if (hasNestedOptions(emitter[key])) {
         emitter[key] = deepMerge(emitter[key], options, `${name}.${key}`);
@@ -130,9 +129,12 @@ function mergeOptions(
     return emitter;
   }
 
-  for (const [emitterName] of Object.entries(overrides ?? {})) {
+  for (const [emitterName, cliOptionOverride] of Object.entries(overrides ?? {})) {
     configuredEmitters[emitterName] = deepMerge(
-      configuredEmitters[emitterName] ?? {},
+      {
+        ...(configuredEmitters[emitterName] ?? {}),
+        ...cliOptionOverride,
+      },
       overrides,
       emitterName,
     );
