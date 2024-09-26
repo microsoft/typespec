@@ -38,10 +38,8 @@
     "dotenv": "~16.4.5"
   },
   "devDependencies": {
-    "@azure-tools/typespec-autorest": "0.46.0",
-    "@azure-tools/typespec-azure-resource-manager": "0.46.0",
     "@azure-tools/typespec-client-generator-core": "0.46.0",
-    "@types/node": "~22.5.4",
+    "@types/node": "~22.7.1",
     "@types/multer": "^1.4.10",
     "@typespec/openapi": "workspace:~",
     "@typespec/openapi3": "workspace:~",
