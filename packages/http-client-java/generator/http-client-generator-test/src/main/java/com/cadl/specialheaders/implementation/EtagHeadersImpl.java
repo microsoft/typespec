@@ -529,8 +529,6 @@ public final class EtagHeadersImpl {
     }
 
     /**
-     * Resource list operation template.
-     * 
      * Get the next page of items.
      * <p><strong>Response Body Schema</strong></p>
      * 
@@ -565,8 +563,6 @@ public final class EtagHeadersImpl {
     }
 
     /**
-     * Resource list operation template.
-     * 
      * Get the next page of items.
      * <p><strong>Response Body Schema</strong></p>
      * 
