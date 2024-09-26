@@ -6,7 +6,6 @@ package com.cadl.enumservice.models;
 
 import com.azure.core.annotation.Generated;
 import com.azure.core.util.ExpandableEnum;
-import java.lang.IllegalArgumentException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;

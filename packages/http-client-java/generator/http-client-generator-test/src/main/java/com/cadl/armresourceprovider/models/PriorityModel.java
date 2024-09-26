@@ -6,7 +6,6 @@ package com.cadl.armresourceprovider.models;
 
 import com.azure.core.util.ExpandableEnum;
 import com.fasterxml.jackson.annotation.JsonCreator;
-import java.lang.IllegalArgumentException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
