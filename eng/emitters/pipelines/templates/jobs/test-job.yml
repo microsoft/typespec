@@ -44,6 +44,10 @@ parameters:
     type: string
     default: ""
 
+  - name: EnableCadlRanchReport
+    type: boolean
+    default: true
+
 jobs:
   - job: Test_${{ parameters.Os }}_${{ split(parameters.NodeVersion, '.')[0] }}
     ${{ if eq(parameters.Os, 'linux') }}:
@@ -73,6 +77,7 @@ jobs:
             TestArgs: ${{ parameters.TestArgs }}
           EmitArtifacts: ${{ parameters.EmitArtifacts }}
           CadlRanchName: ${{ parameters.CadlRanchName }}
+          EnableCadlRanchReport: ${{ parameters.EnableCadlRanchReport }}
     ${{ if parameters.EmitArtifacts }}:
       templateContext:
         outputs:
