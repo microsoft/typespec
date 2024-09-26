@@ -43,7 +43,7 @@ public class ProtocolTestWriter {
             HttpLogOptions.class.getName(), Configuration.class.getName(),
             "com.azure.core.test.utils.MockTokenCredential", "com.azure.identity.DefaultAzureCredentialBuilder",
             "com.azure.core.test.TestProxyTestBase", "com.azure.core.test.TestMode",
-//                "com.azure.core.test.annotation.DoNotRecord",
+            // "com.azure.core.test.annotation.DoNotRecord",
             "org.junit.jupiter.api.Disabled", "org.junit.jupiter.api.Test"));
         // client and builder
         syncClients.forEach(c -> {
