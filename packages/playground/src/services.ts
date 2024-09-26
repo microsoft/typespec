@@ -45,12 +45,14 @@ function getTypeSpecLanguageConfiguration(): monaco.languages.LanguageConfigurat
 }
 
 export async function registerMonacoLanguage(host: BrowserHost) {
-  if (monaco.languages.getLanguages().some((x) => x.id === "typespec")) {
-    return;
-  }
   monaco.languages.register({ id: "typespec", extensions: [".tsp"] });
   monaco.languages.setLanguageConfiguration("typespec", getTypeSpecLanguageConfiguration());
 
+  if ((window as any).registeredServices) {
+    return;
+  }
+
+  (window as any).registeredServices = true;
   const serverHost: ServerHost = {
     compilerHost: host,
     getOpenDocumentByURL(url: string) {
