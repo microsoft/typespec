@@ -21,12 +21,8 @@
   "main": "dist/emitter/index.js",
   "exports": {
     ".": {
-      "types": "./dist/src/index.d.ts",
-      "default": "./dist/src/index.js"
-    },
-    "./testing": {
-      "types": "./dist/src/testing/index.d.ts",
-      "default": "./dist/src/testing/index.js"
+      "types": "./dist/emitter/index.d.ts",
+      "default": "./dist/emitter/index.js"
     }
   },
   "engines": {
@@ -51,7 +47,8 @@
     "dist/**",
     "!dist/test/**",
     "generator/**",
-    "eng/scripts/**"
+    "eng/scripts/**",
+    "emitter"
   ],
   "peerDependencies": {
     "@azure-tools/typespec-azure-core": ">=0.46.0 <1.0.0",
