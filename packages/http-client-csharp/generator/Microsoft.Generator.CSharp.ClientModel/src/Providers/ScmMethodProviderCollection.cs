@@ -99,7 +99,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     .. GetStackVariablesForProtocolParamConversion(ConvenienceMethodParameters, out var paramDeclarations),
                     Declare("result", This.Invoke(protocolMethod.Signature, [.. GetParamConversions(ConvenienceMethodParameters, paramDeclarations), Null], isAsync).ToApi<ClientResponseApi>(), out ClientResponseApi result),
                     .. GetStackVariablesForReturnValueConversion(result, responseBodyType, isAsync, out var resultDeclarations),
-                    Return(result.FromValue(GetResultConversion(result, responseBodyType, resultDeclarations), result.GetRawResponse())),
+                    Return(result.FromValue(GetResultConversion(result, responseBodyType, resultDeclarations), result)),
                 ];
             }
 
