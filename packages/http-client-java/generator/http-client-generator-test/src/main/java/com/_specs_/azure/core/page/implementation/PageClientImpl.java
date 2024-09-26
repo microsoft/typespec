@@ -814,8 +814,6 @@ public final class PageClientImpl {
     }
 
     /**
-     * List with Azure.Core.Page&lt;&gt;.
-     * 
      * Get the next page of items.
      * <p><strong>Response Body Schema</strong></p>
      * 
@@ -856,8 +854,6 @@ public final class PageClientImpl {
     }
 
     /**
-     * List with Azure.Core.Page&lt;&gt;.
-     * 
      * Get the next page of items.
      * <p><strong>Response Body Schema</strong></p>
      * 
@@ -896,8 +892,6 @@ public final class PageClientImpl {
     }
 
     /**
-     * List with extensible enum parameter Azure.Core.Page&lt;&gt;.
-     * 
      * Get the next page of items.
      * <p><strong>Response Body Schema</strong></p>
      * 
@@ -937,8 +931,6 @@ public final class PageClientImpl {
     }
 
     /**
-     * List with extensible enum parameter Azure.Core.Page&lt;&gt;.
-     * 
      * Get the next page of items.
      * <p><strong>Response Body Schema</strong></p>
      * 
@@ -977,8 +969,6 @@ public final class PageClientImpl {
     }
 
     /**
-     * List with custom page model.
-     * 
      * Get the next page of items.
      * <p><strong>Response Body Schema</strong></p>
      * 
@@ -1019,8 +1009,6 @@ public final class PageClientImpl {
     }
 
     /**
-     * List with custom page model.
-     * 
      * Get the next page of items.
      * <p><strong>Response Body Schema</strong></p>
      * 

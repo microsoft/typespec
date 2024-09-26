@@ -349,8 +349,6 @@ public final class PageableClientImpl {
     }
 
     /**
-     * List users
-     * 
      * Get the next page of items.
      * <p><strong>Response Body Schema</strong></p>
      * 
@@ -380,8 +378,6 @@ public final class PageableClientImpl {
     }
 
     /**
-     * List users
-     * 
      * Get the next page of items.
      * <p><strong>Response Body Schema</strong></p>
      * 
