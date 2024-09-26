@@ -24,9 +24,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
 
         public static async Task<Mock<ClientModelPlugin>> LoadMockPluginAsync(
             Func<IReadOnlyList<InputEnumType>>? inputEnums = null,
+            Func<IReadOnlyList<InputModelType>>? inputModels = null,
             Func<Task<Compilation>>? compilation = null)
         {
-            var mockPlugin = LoadMockPlugin(inputEnums: inputEnums);
+            var mockPlugin = LoadMockPlugin(inputEnums: inputEnums, inputModels: inputModels);
 
             var compilationResult = compilation == null ? null : await compilation();
 
