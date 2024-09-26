@@ -611,6 +611,12 @@ const diagnostics = {
       default: paramMessage`Path "${"path"}" cannot be relative. Use {cwd} or {project-root} to specify what the path should be relative to.`,
     },
   },
+  "config-invalid-name": {
+    severity: "error",
+    messages: {
+      default: paramMessage`The configuration name "${"name"}" is invalid because it contains a dot ("."). Configuration names should not include dots to avoid potential conflicts and parsing issues.`,
+    },
+  },
   "path-unix-style": {
     severity: "warning",
     messages: {

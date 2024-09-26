@@ -65,7 +65,7 @@ function resolveArgs(
     for (const [declarationName, definition] of declarations) {
       const name = parentName ? `${parentName}.${declarationName}` : declarationName;
       if (hasNestedValues(definition)) {
-        resolveNestedArgs(name, Object.entries(definition));
+        resolveNestedArgs(name, Object.entries(definition ?? {}));
       }
 
       unmatchedArgs.delete(name);
@@ -76,7 +76,7 @@ function resolveArgs(
   }
 
   if (declarations !== undefined) {
-    resolveNestedArgs("", Object.entries(declarations));
+    resolveNestedArgs("", Object.entries(declarations ?? {}));
   }
 
   if (!allowUnspecified) {
