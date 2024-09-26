@@ -1,4 +1,4 @@
-import { APIDefinition, MockApi, RequestExt, ScenarioMockApi } from "@typespec/spec-api";
+import { MockApi, MockApiDefinition, RequestExt, ScenarioMockApi } from "@typespec/spec-api";
 import { Response, Router } from "express";
 import { getScenarioMetadata } from "../coverage/common.js";
 import { CoverageTracker } from "../coverage/coverage-tracker.js";
@@ -41,7 +41,7 @@ export class MockApiApp {
   private registerScenario(name: string, scenario: ScenarioMockApi) {
     if (!Array.isArray(scenario.apis)) return;
     for (const endpoint of scenario.apis) {
-      if ((endpoint as any as APIDefinition).mockMethods === undefined) {
+      if ((endpoint as any as MockApiDefinition).mockMethods === undefined) {
         const mockApi = endpoint as any as MockApi;
         this.router.route(endpoint.uri)[mockApi.method]((req: RequestExt, res: Response) => {
           processRequest(this.coverageTracker, name, endpoint.uri, req, res, mockApi.handler).catch(
@@ -52,7 +52,7 @@ export class MockApiApp {
           );
         });
       } else {
-        for (const method of (endpoint as any as APIDefinition).mockMethods) {
+        for (const method of (endpoint as any as MockApiDefinition).mockMethods) {
           if (!method.handler) {
             continue;
           }

@@ -1,7 +1,7 @@
 import {
-  APIDefinition,
   KeyedMockApi,
   MockApi,
+  MockApiDefinition,
   PassByKeyScenario,
   PassOnCodeScenario,
   PassOnSuccessScenario,
@@ -12,7 +12,7 @@ import {
  * @param apis Endpoint or List of endpoints for this scenario
  */
 export function passOnSuccess(
-  apis: MockApi | readonly MockApi[] | APIDefinition,
+  apis: MockApi | readonly MockApi[] | MockApiDefinition,
 ): PassOnSuccessScenario {
   return {
     passCondition: "response-success",
@@ -26,7 +26,7 @@ export function passOnSuccess(
  */
 export function passOnCode(
   code: number,
-  apis: MockApi | readonly MockApi[] | APIDefinition,
+  apis: MockApi | readonly MockApi[] | MockApiDefinition,
 ): PassOnCodeScenario {
   return {
     passCondition: "status-code",

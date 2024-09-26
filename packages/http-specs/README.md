@@ -1,11 +1,11 @@
-# Cadl Ranch Specs
+# Http Specs
 
-This package contains all the scenarios that should be supported by a client generator.
+This package contains all the scenarios that should be supported by a client & service generator.
 
 ## Development
 
 1. [FOLLOW THE MONOREPO INSTRUCTION](https://github.com/Azure/cadl-ranch) to get the environment setup.
-2. Scenarios should be in `./http` folder
+2. Scenarios should be in `./specs` folder
 
 #### Writing scenarios
 

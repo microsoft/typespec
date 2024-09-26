@@ -17,7 +17,6 @@ export { json, xml } from "./response-utils.js";
 export { mockapi } from "./routes.js";
 export { WithKeysScenarioExpect, passOnCode, passOnSuccess, withKeys } from "./scenarios.js";
 export {
-  APIDefinition,
   CollectionFormat,
   Fail,
   HttpMethod,
@@ -25,6 +24,7 @@ export {
   KeyedMockRequestHandler,
   KeyedMockResponse,
   MockApi,
+  MockApiDefinition,
   MockApiForHandler,
   MockMethod,
   MockRequestHandler,
