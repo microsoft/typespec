@@ -5,7 +5,6 @@ package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
-
 import java.util.List;
 import java.util.Set;
 
@@ -252,6 +251,7 @@ public class EnumType implements IType {
 
         /**
          * Sets the name of the Enum.
+         * 
          * @param name the name of the Enum
          * @return the Builder
          */
@@ -262,6 +262,7 @@ public class EnumType implements IType {
 
         /**
          * Sets the package name of the Enum.
+         * 
          * @param packageName the package name of the Enum
          * @return the Builder
          */
@@ -272,6 +273,7 @@ public class EnumType implements IType {
 
         /**
          * Sets the description of the Enum.
+         * 
          * @param description the description of the Enum
          * @return the Builder
          */
@@ -282,6 +284,7 @@ public class EnumType implements IType {
 
         /**
          * Sets whether the Enum is expandable.
+         * 
          * @param expandable whether the Enum is expandable
          * @return the Builder
          */
@@ -292,6 +295,7 @@ public class EnumType implements IType {
 
         /**
          * Sets the values of the Enum.
+         * 
          * @param values the values of the Enum
          * @return the Builder
          */
@@ -302,6 +306,7 @@ public class EnumType implements IType {
 
         /**
          * Sets the type of elements of the Enum.
+         * 
          * @param elementType the type of elements of the Enum
          * @return the Builder
          */
@@ -314,6 +319,7 @@ public class EnumType implements IType {
 
         /**
          * Sets the implementation details for the model.
+         * 
          * @param implementationDetails the implementation details.
          * @return the Builder itself
          */

@@ -3,6 +3,10 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
+import com.azure.xml.XmlReader;
+import com.azure.xml.XmlSerializable;
+import com.azure.xml.XmlToken;
+import com.azure.xml.XmlWriter;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
@@ -10,14 +14,9 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.XmlSe
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaClass;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
-import com.azure.xml.XmlReader;
-import com.azure.xml.XmlSerializable;
-import com.azure.xml.XmlToken;
-import com.azure.xml.XmlWriter;
-
+import java.util.ArrayList;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
-import java.util.ArrayList;
 
 /**
  * Writes an XmlSequenceWrapper to a JavaFile.
@@ -50,8 +49,8 @@ public class XmlSequenceWrapperTemplate implements IJavaTemplate<XmlSequenceWrap
                 XmlToken.class.getName(), XmlWriter.class.getName());
         }
 
-        javaFile.javadocComment(comment -> comment.description(
-            "A wrapper around " + sequenceType + " which provides top-level metadata for serialization."));
+        javaFile.javadocComment(comment -> comment
+            .description("A wrapper around " + sequenceType + " which provides top-level metadata for serialization."));
 
         String className = xmlSequenceWrapper.getWrapperClassName();
         if (!settings.isStreamStyleSerialization()) {
@@ -80,8 +79,9 @@ public class XmlSequenceWrapperTemplate implements IJavaTemplate<XmlSequenceWrap
             comment.param(xmlElementNameCamelCase, "the list");
         });
         classBlock.annotation("JsonCreator");
-        classBlock.publicConstructor(String.format("%1$s(@JsonProperty(\"%2$s\") %3$s %4$s)",
-                xmlSequenceWrapper.getWrapperClassName(), xmlListElementName, sequenceType, xmlElementNameCamelCase),
+        classBlock.publicConstructor(
+            String.format("%1$s(@JsonProperty(\"%2$s\") %3$s %4$s)", xmlSequenceWrapper.getWrapperClassName(),
+                xmlListElementName, sequenceType, xmlElementNameCamelCase),
             constructor -> constructor.line("this." + xmlElementNameCamelCase + " = " + xmlElementNameCamelCase + ";"));
 
         addGetter(classBlock, sequenceType, xmlElementNameCamelCase);
@@ -103,16 +103,15 @@ public class XmlSequenceWrapperTemplate implements IJavaTemplate<XmlSequenceWrap
             comment.description("Creates an instance of " + xmlSequenceWrapper.getWrapperClassName() + ".");
             comment.param(xmlElementNameCamelCase, "the list");
         });
-        classBlock.publicConstructor(String.format("%s(%s %s)", xmlSequenceWrapper.getWrapperClassName(), sequenceType,
-                xmlElementNameCamelCase),
+        classBlock.publicConstructor(
+            String.format("%s(%s %s)", xmlSequenceWrapper.getWrapperClassName(), sequenceType, xmlElementNameCamelCase),
             constructor -> constructor.line("this." + xmlElementNameCamelCase + " = " + xmlElementNameCamelCase + ";"));
 
         addGetter(classBlock, sequenceType, xmlElementNameCamelCase);
 
         StreamSerializationModelTemplate.xmlWrapperClassXmlSerializableImplementation(classBlock,
             xmlSequenceWrapper.getWrapperClassName(), sequenceType, xmlRootElementName,
-            xmlSequenceWrapper.getXmlRootElementNamespace(), xmlListElementName,
-            xmlElementNameCamelCase, xmlSequenceWrapper.getXmlListElementNamespace(),
-            Templates.getModelTemplate()::addGeneratedAnnotation);
+            xmlSequenceWrapper.getXmlRootElementNamespace(), xmlListElementName, xmlElementNameCamelCase,
+            xmlSequenceWrapper.getXmlListElementNamespace(), Templates.getModelTemplate()::addGeneratedAnnotation);
     }
 }

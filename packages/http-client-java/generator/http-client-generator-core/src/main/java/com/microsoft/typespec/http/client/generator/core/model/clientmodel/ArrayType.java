@@ -4,10 +4,8 @@
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
-
 import java.util.Set;
 import java.util.function.Function;
-
 
 /**
  * The details of an array type that is used by a client.
@@ -16,14 +14,13 @@ public class ArrayType implements IType {
     /**
      * The {@code byte[]} type.
      */
-    public static final ArrayType BYTE_ARRAY = new ArrayType(PrimitiveType.BYTE,
-        defaultValueExpression -> {
-            if (defaultValueExpression != null) {
-                return String.format("\"%1$s\".getBytes()", defaultValueExpression);
-            } else {
-                return JavaSettings.getInstance().isNullByteArrayMapsToEmptyArray() ? "EMPTY_BYTE_ARRAY" : "null";
-            }
-        });
+    public static final ArrayType BYTE_ARRAY = new ArrayType(PrimitiveType.BYTE, defaultValueExpression -> {
+        if (defaultValueExpression != null) {
+            return String.format("\"%1$s\".getBytes()", defaultValueExpression);
+        } else {
+            return JavaSettings.getInstance().isNullByteArrayMapsToEmptyArray() ? "EMPTY_BYTE_ARRAY" : "null";
+        }
+    });
 
     private final String toStringValue;
     private final IType elementType;

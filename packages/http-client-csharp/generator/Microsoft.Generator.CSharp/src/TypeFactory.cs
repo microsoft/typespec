@@ -128,7 +128,7 @@ namespace Microsoft.Generator.CSharp
                 InputPrimitiveTypeKind.Stream => new CSharpType(typeof(Stream)),
                 InputPrimitiveTypeKind.String => new CSharpType(typeof(string)),
                 InputPrimitiveTypeKind.Url => new CSharpType(typeof(Uri)),
-                InputPrimitiveTypeKind.Any => new CSharpType(typeof(BinaryData)),
+                InputPrimitiveTypeKind.Unknown => new CSharpType(typeof(BinaryData)),
                 _ => new CSharpType(typeof(object)),
             },
             InputDateTimeType dateTimeType => new CSharpType(typeof(DateTimeOffset)),

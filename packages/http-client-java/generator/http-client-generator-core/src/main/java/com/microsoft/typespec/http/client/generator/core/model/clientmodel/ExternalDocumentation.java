@@ -7,7 +7,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
- *  External documentation, can be used to link to rest API documentation
+ * External documentation, can be used to link to rest API documentation
  */
 public class ExternalDocumentation {
     private String description;
@@ -26,13 +26,9 @@ public class ExternalDocumentation {
         return url;
     }
 
-
     @Override
     public String toString() {
-        return "ExternalDocumentation{" +
-                "description='" + description + '\'' +
-                ", url='" + url + '\'' +
-                '}';
+        return "ExternalDocumentation{" + "description='" + description + '\'' + ", url='" + url + '\'' + '}';
     }
 
     public static class Builder {
@@ -43,6 +39,7 @@ public class ExternalDocumentation {
 
         /**
          * Sets the description of this ExternalDocumentation.
+         * 
          * @param description the description of this ExternalDocumentation
          * @return the Builder itself
          */
@@ -53,6 +50,7 @@ public class ExternalDocumentation {
 
         /**
          * Sets the url of this ExternalDocumentation.
+         * 
          * @param url of this ExternalDocumentation
          * @return the Builder itself
          */
@@ -67,9 +65,7 @@ public class ExternalDocumentation {
         }
 
         public ExternalDocumentation build() {
-            return new ExternalDocumentation(
-                    description,
-                    url);
+            return new ExternalDocumentation(description, url);
         }
 
     }

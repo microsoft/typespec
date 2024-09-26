@@ -3,11 +3,10 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonWriter;
-
+import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import java.io.IOException;
 import java.util.Objects;
 
@@ -121,7 +120,9 @@ public class Protocols implements JsonSerializable<Protocols> {
         }
 
         Protocols rhs = ((Protocols) other);
-        return Objects.equals(http, rhs.http) && Objects.equals(jsonrpc, rhs.jsonrpc) && Objects.equals(amqp, rhs.amqp)
+        return Objects.equals(http, rhs.http)
+            && Objects.equals(jsonrpc, rhs.jsonrpc)
+            && Objects.equals(amqp, rhs.amqp)
             && Objects.equals(mqtt, rhs.mqtt);
     }
 

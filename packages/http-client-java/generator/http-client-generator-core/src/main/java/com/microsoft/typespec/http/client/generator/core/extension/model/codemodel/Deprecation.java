@@ -3,11 +3,10 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonWriter;
-
+import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,7 +64,7 @@ public class Deprecation implements JsonSerializable<Deprecation> {
     @Override
     public String toString() {
         return Deprecation.class.getName() + "@" + Integer.toHexString(System.identityHashCode(this)) + "[message="
-                + Objects.toString(message, "<null>") + ",apiVersions=" + Objects.toString(apiVersions, "<null>") + "]";
+            + Objects.toString(message, "<null>") + ",apiVersions=" + Objects.toString(apiVersions, "<null>") + "]";
     }
 
     @Override

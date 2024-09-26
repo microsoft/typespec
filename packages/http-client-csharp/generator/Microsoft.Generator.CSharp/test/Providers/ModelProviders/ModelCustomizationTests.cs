@@ -51,6 +51,40 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             // the property should be added to the custom code view
             Assert.AreEqual(1, modelTypeProvider.CustomCodeView!.Properties.Count);
             Assert.AreEqual("Prop2", modelTypeProvider.CustomCodeView.Properties[0].Name);
+            var wireInfo = modelTypeProvider.CustomCodeView.Properties[0].WireInfo;
+            Assert.IsNotNull(wireInfo);
+            Assert.AreEqual( "prop1", wireInfo!.SerializedName);
+
+            Assert.AreEqual(0, modelTypeProvider.Properties.Count);
+        }
+
+        [Test]
+        public async Task CanChangePropertyNameAndRedefineOriginal()
+        {
+            var props = new[]
+            {
+                InputFactory.Property("Prop1", InputFactory.Array(InputPrimitiveType.String))
+            };
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
+
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModelTypes: new[] { inputModel },
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelTypeProvider = plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+
+            AssertCommon(modelTypeProvider, "Sample.Models", "MockInputModel");
+
+            // the properties should be added to the custom code view
+            Assert.AreEqual(2, modelTypeProvider.CustomCodeView!.Properties.Count);
+            Assert.AreEqual("Prop2", modelTypeProvider.CustomCodeView.Properties[0].Name);
+            var wireInfo = modelTypeProvider.CustomCodeView.Properties[0].WireInfo;
+            Assert.IsNotNull(wireInfo);
+            Assert.AreEqual( "prop1", wireInfo!.SerializedName);
+            Assert.AreEqual("Prop1", modelTypeProvider.CustomCodeView.Properties[1].Name);
+
+            Assert.AreEqual(0, modelTypeProvider.Properties.Count);
         }
 
         [Test]
@@ -250,6 +284,39 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             var csharpGen = new CSharpGen();
             await csharpGen.ExecuteAsync();
             Assert.AreEqual(0, plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel").Properties.Count);
+        }
+
+        [Test]
+        public async Task CanChangeEnumMemberName()
+        {
+            var enumValues = new[]
+           {
+                InputFactory.EnumMember.Int32("Red", 1),
+                InputFactory.EnumMember.Int32("Green", 2),
+                InputFactory.EnumMember.Int32("Blue", 3)
+            };
+            var inputEnum = InputFactory.Enum("mockInputModel", underlyingType: InputPrimitiveType.String, values: enumValues);
+            await MockHelpers.LoadMockPluginAsync(
+                inputEnumTypes: [inputEnum],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var enumProvider = EnumProvider.Create(inputEnum);
+            var customCodeView = enumProvider.CustomCodeView;
+
+            Assert.IsNotNull(enumProvider);
+
+            // validate the enum provider uses the custom member name
+            Assert.AreEqual(3, enumProvider!.Fields.Count);
+            Assert.AreEqual("Red", enumProvider.Fields[0].Name);
+            Assert.AreEqual("Green", enumProvider.Fields[1].Name);
+            Assert.AreEqual("SkyBlue", enumProvider.Fields[2].Name);
+
+            // the members should also be added to the custom code view
+            Assert.IsNotNull(customCodeView);
+            Assert.AreEqual(3, customCodeView?.Fields.Count);
+            Assert.AreEqual("Red", customCodeView?.Fields[0].Name);
+            Assert.AreEqual("Green", customCodeView?.Fields[1].Name);
+            Assert.AreEqual("SkyBlue", customCodeView?.Fields[2].Name);
         }
 
         [Test]

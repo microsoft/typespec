@@ -4,7 +4,6 @@
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -16,16 +15,17 @@ public class ClientBuilder {
     private final String className;
     private final ServiceClient serviceClient;
 
-    // There is naturally ClientBuilder to Client reference, via "buildClient" method and via "@ServiceClientBuilder(serviceClients = {Client.class, AsyncClient.class})"
-    // syncClients and asyncClients can be empty. In this case, ClientBuilder build serviceClient directly. Note this usually is only used for internal implementation, as this pattern does not match Java guidelines.
+    // There is naturally ClientBuilder to Client reference, via "buildClient" method and via
+    // "@ServiceClientBuilder(serviceClients = {Client.class, AsyncClient.class})"
+    // syncClients and asyncClients can be empty. In this case, ClientBuilder build serviceClient directly. Note this
+    // usually is only used for internal implementation, as this pattern does not match Java guidelines.
     private final List<AsyncSyncClient> syncClients;
     private final List<AsyncSyncClient> asyncClients;
     private final List<ClientBuilderTrait> builderTraits = new ArrayList<>();
     private String crossLanguageDefinitionId;
 
-    public ClientBuilder(String packageName, String className,
-                         ServiceClient serviceClient,
-                         List<AsyncSyncClient> syncClients, List<AsyncSyncClient> asyncClients, String crossLanguageDefinitionId) {
+    public ClientBuilder(String packageName, String className, ServiceClient serviceClient,
+        List<AsyncSyncClient> syncClients, List<AsyncSyncClient> asyncClients, String crossLanguageDefinitionId) {
         this.packageName = Objects.requireNonNull(packageName);
         this.className = Objects.requireNonNull(className);
         this.serviceClient = Objects.requireNonNull(serviceClient);
@@ -56,16 +56,12 @@ public class ClientBuilder {
 
     public String getBuilderMethodNameForSyncClient(AsyncSyncClient syncClient) {
         boolean singleClient = asyncClients.size() == 1 || syncClient.getMethodGroupClient() == null;
-        return singleClient
-                ? "buildClient"
-                : ("build" + syncClient.getClassName());
+        return singleClient ? "buildClient" : ("build" + syncClient.getClassName());
     }
 
     public String getBuilderMethodNameForAsyncClient(AsyncSyncClient asyncClient) {
         boolean singleClient = asyncClients.size() == 1 || asyncClient.getMethodGroupClient() == null;
-        return singleClient
-                ? "buildAsyncClient"
-                : ("build" + asyncClient.getClassName());
+        return singleClient ? "buildAsyncClient" : ("build" + asyncClient.getClassName());
     }
 
     public void addImportsTo(Set<String> imports, boolean includeImplementationImports) {

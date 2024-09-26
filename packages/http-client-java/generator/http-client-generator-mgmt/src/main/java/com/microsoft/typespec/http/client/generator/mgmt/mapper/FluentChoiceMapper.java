@@ -11,7 +11,9 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType
 
 public class FluentChoiceMapper extends ChoiceMapper {
     private static final FluentChoiceMapper INSTANCE = new FluentChoiceMapper();
-    private FluentChoiceMapper() {}
+
+    private FluentChoiceMapper() {
+    }
 
     public static FluentChoiceMapper getInstance() {
         return INSTANCE;

@@ -3,8 +3,8 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel;
 
-import com.microsoft.typespec.http.client.generator.mgmt.util.FluentJavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Client;
+import com.microsoft.typespec.http.client.generator.mgmt.util.FluentJavaSettings;
 
 /**
  * Convenient class for global variables.

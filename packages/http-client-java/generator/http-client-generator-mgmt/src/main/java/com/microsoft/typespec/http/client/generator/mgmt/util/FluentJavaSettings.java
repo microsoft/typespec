@@ -3,13 +3,11 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.util;
 
+import com.azure.core.util.CoreUtils;
+import com.azure.json.JsonReader;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.mgmt.model.ResourceCollectionAssociation;
-import com.azure.core.util.CoreUtils;
-import com.azure.json.JsonReader;
-import org.slf4j.Logger;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -22,6 +20,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
 
 public class FluentJavaSettings {
 
@@ -86,8 +85,7 @@ public class FluentJavaSettings {
     private boolean sdkIntegration = false;
 
     private enum SampleGeneration {
-        NONE,
-        AGGREGATED
+        NONE, AGGREGATED
     }
 
     public FluentJavaSettings(NewPlugin host) {
@@ -107,12 +105,12 @@ public class FluentJavaSettings {
 
     public boolean isTrack1Naming() {
         return true;
-        //return track1Naming;
+        // return track1Naming;
     }
 
     public boolean isResourcePropertyAsSubResource() {
         return false;
-        //return resourcePropertyAsSubResource;
+        // return resourcePropertyAsSubResource;
     }
 
     public Optional<String> getNameForUngroupedOperations() {
@@ -231,7 +229,8 @@ public class FluentJavaSettings {
 
         loadBooleanSetting("generate-async-methods", s -> generateAsyncMethods = s);
 
-        loadBooleanSetting("generate-samples", s -> generateSamples = (s ? SampleGeneration.AGGREGATED : SampleGeneration.NONE));
+        loadBooleanSetting("generate-samples",
+            s -> generateSamples = (s ? SampleGeneration.AGGREGATED : SampleGeneration.NONE));
 
         loadStringSetting("graalvm-config-suffix", s -> graalVmConfigSuffix = s);
 

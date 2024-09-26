@@ -3,10 +3,9 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.template;
 
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentExample;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.postprocessor.implementation.CodeFormatterUtil;
-
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentExample;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,8 +25,8 @@ public class SampleTemplate {
 
         // clean up copyright etc.
         List<Map.Entry<String, String>> javaFiles = sampleJavaFiles.stream()
-                .map(e -> Map.entry(e.getFilePath(), cleanJavaFile(e)))
-                .collect(Collectors.toList());
+            .map(e -> Map.entry(e.getFilePath(), cleanJavaFile(e)))
+            .collect(Collectors.toList());
         // format code
         List<String> javaFileContents;
         try {

@@ -3,8 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.preprocessor.namer;
 
-import org.atteo.evo.inflector.English;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Objects;
@@ -12,6 +10,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.atteo.evo.inflector.English;
 
 public class CodeNamer {
     private static final String[] BASIC_LATIN_CHARACTERS;
@@ -66,14 +65,13 @@ public class CodeNamer {
         BASIC_LATIN_CHARACTERS[125] = "RightCurlyBracket";
         BASIC_LATIN_CHARACTERS[126] = "Tilde";
 
-        RESERVED_WORDS = Set.of("abstract", "assert", "boolean", "Boolean", "break",
-            "byte", "Byte", "case", "catch", "char", "Character", "class", "Class", "const", "continue", "default",
-            "do", "double", "Double", "else", "enum", "extends", "false", "final", "finally", "float", "Float", "for",
-            "goto", "if", "implements", "import", "int", "Integer", "long", "Long", "interface", "instanceof", "native",
-            "new", "null", "package", "private", "protected", "public", "return", "short", "Short", "static",
-            "strictfp", "super", "switch", "synchronized", "this", "throw", "throws", "transient", "true", "try",
-            "void", "Void", "volatile", "while", "Date", "Datetime", "OffsetDateTime", "Duration", "Period", "Stream",
-            "String", "Object", "header", "_");
+        RESERVED_WORDS = Set.of("abstract", "assert", "boolean", "Boolean", "break", "byte", "Byte", "case", "catch",
+            "char", "Character", "class", "Class", "const", "continue", "default", "do", "double", "Double", "else",
+            "enum", "extends", "false", "final", "finally", "float", "Float", "for", "goto", "if", "implements",
+            "import", "int", "Integer", "long", "Long", "interface", "instanceof", "native", "new", "null", "package",
+            "private", "protected", "public", "return", "short", "Short", "static", "strictfp", "super", "switch",
+            "synchronized", "this", "throw", "throws", "transient", "true", "try", "void", "Void", "volatile", "while",
+            "Date", "Datetime", "OffsetDateTime", "Duration", "Period", "Stream", "String", "Object", "header", "_");
 
         // following are commonly used classes/annotations in service client, from azure-core
         RESERVED_WORDS_CLASSES = new HashSet<>(RESERVED_WORDS);
@@ -128,9 +126,9 @@ public class CodeNamer {
         }
 
         return CASE_SPLIT.splitAsStream(name)
-                .filter(s -> s != null && !s.isEmpty())
-                .map(s -> formatCase(s, false))
-                .collect(Collectors.joining());
+            .filter(s -> s != null && !s.isEmpty())
+            .map(s -> formatCase(s, false))
+            .collect(Collectors.joining());
     }
 
     public static String escapeXmlComment(String comment) {
@@ -187,11 +185,10 @@ public class CodeNamer {
 
         int length = name.length();
         char c0 = name.charAt(0);
-        if ((length < 2)
-            || ((length == 2) && Character.isUpperCase(c0) && Character.isUpperCase(name.charAt(1)))) {
+        if ((length < 2) || ((length == 2) && Character.isUpperCase(c0) && Character.isUpperCase(name.charAt(1)))) {
             return toLower ? name.toLowerCase() : name.toUpperCase();
         } else {
-            return  (toLower ? Character.toLowerCase(c0) : Character.toUpperCase(c0)) + name.substring(1);
+            return (toLower ? Character.toLowerCase(c0) : Character.toUpperCase(c0)) + name.substring(1);
         }
     }
 
