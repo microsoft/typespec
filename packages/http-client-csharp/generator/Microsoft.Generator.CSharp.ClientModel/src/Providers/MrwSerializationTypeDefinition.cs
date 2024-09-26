@@ -1138,9 +1138,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private ValueExpression CreateDeserializeValueExpression(CSharpType valueType, SerializationFormat serializationFormat, ScopedApi<JsonElement> jsonElement) =>
             valueType switch
             {
-                { IsFrameworkType: true } when valueType.FrameworkType == typeof(Nullable<>) =>
+                { IsFrameworkType: true } when valueType.FrameworkType == typeof(Nullable<>) && valueType.Arguments[0].IsFrameworkType =>
                     GetValueTypeDeserializationExpression(valueType.Arguments[0].FrameworkType, jsonElement, serializationFormat),
-                { IsFrameworkType: true } =>
+                { IsFrameworkType: true } when valueType.FrameworkType != typeof(Nullable<>) =>
                     GetValueTypeDeserializationExpression(valueType.FrameworkType, jsonElement, serializationFormat),
                 { IsEnum: true } =>
                     valueType.ToEnum(GetValueTypeDeserializationExpression(valueType.UnderlyingEnumType!, jsonElement, serializationFormat)),
@@ -1441,7 +1441,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             if (valueType == typeof(Nullable<>))
             {
-                valueType = type.Arguments[0].FrameworkType;
+                return CreateSerializationStatement(type.Arguments[0], value, serializationFormat);
             }
 
             value = value.NullableStructValue(type);
