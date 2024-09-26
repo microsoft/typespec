@@ -15,6 +15,7 @@ const argv = parseArgs({
     flavor: { type: "string" },
     command: { type: "string" },
     name: { type: "string" },
+    testFolder: { type: "string" },
   },
 });
 
@@ -23,14 +24,15 @@ const foldersToProcess = argv.values.flavor
   : argv.values.validFolders || ["azure", "unbranded"];
 
 const commandToRun = argv.values.command || "ci";
+const TEST_FOLDER = argv.values.testFolder || "generator/test";
 
 function getCommand(command: string, flavor: string, name?: string): string {
   let retval: string;
   if (platform() === "win32") {
-    retval = `set FOLDER=${flavor} && ${venvPath} -m tox -c ./generator/test/${flavor}/tox.ini -e ${command}`;
+    retval = `set FOLDER=${flavor} && ${venvPath} -m tox -c ./${TEST_FOLDER}/${flavor}/tox.ini -e ${command}`;
   } else {
     // Linux and macOS
-    retval = `FOLDER=${flavor} ${venvPath} -m tox -c ./generator/test/${flavor}/tox.ini -e ${command}`;
+    retval = `FOLDER=${flavor} ${venvPath} -m tox -c ./${TEST_FOLDER}/${flavor}/tox.ini -e ${command}`;
   }
   if (name) {
     return `${retval} -- -f ${name}`;
@@ -39,7 +41,7 @@ function getCommand(command: string, flavor: string, name?: string): string {
 }
 
 function sectionExistsInToxIni(command: string, flavor: string): boolean {
-  const toxIniPath = join(root, `generator/test/${flavor}/tox.ini`);
+  const toxIniPath = join(root, `${TEST_FOLDER}/${flavor}/tox.ini`);
   const toxIniContent = readFileSync(toxIniPath, "utf-8");
   return command
     .split(",")
