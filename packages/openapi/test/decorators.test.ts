@@ -170,7 +170,7 @@ describe("openapi: decorators", () => {
         });
       });
 
-      it("multiple extensions that not allow", async () => {
+      it("multiple", async () => {
         const diagnostics = await runner.diagnose(`
           @info({
             license:{ name: "Apache 2.0", foo1:"Bar"}, 
