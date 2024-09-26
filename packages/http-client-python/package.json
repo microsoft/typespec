@@ -33,7 +33,7 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "clean": "rimraf ./dist ./temp ./test/**/generated/ ./venv",
+    "clean": "rimraf ./dist ./temp ./**/test/**/generated/ ./venv",
     "build": "tsc -p ./emitter/tsconfig.build.json",
     "watch": "tsc -p ./emitter/tsconfig.build.json --watch",
     "lint": "eslint . --max-warnings=0",
@@ -42,8 +42,10 @@
     "install": "tsx ./eng/scripts/setup/run-python3.ts ./eng/scripts/setup/install.py",
     "prepare": "tsx ./eng/scripts/setup/run-python3.ts ./eng/scripts/setup/prepare.py",
     "regenerate": "tsx ./eng/scripts/ci/regenerate.ts",
-    "ci": "tsx ./eng/scripts/ci/run-tests.ts",
-    "test": "tsx ./eng/scripts/ci/run-tests.ts --command=test"
+    "ci": "npm run test:emitter && npm run ci:generator --",
+    "ci:generator": "tsx ./eng/scripts/ci/run-ci.ts",
+    "test:generator": "tsx ./eng/scripts/ci/run-ci.ts --command=test",
+    "test:emitter": "vitest run -c ./emitter/vitest.config.ts"
   },
   "files": [
     "dist/**",
