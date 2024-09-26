@@ -8,7 +8,6 @@ package com.client.structure.service.generated;
 // If you wish to modify these files, please copy them out of the 'generated' package, and modify there.
 // See https://aka.ms/azsdk/dpg/java/tests for guide on adding a test.
 
-import com.azure.core.http.HttpClient;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.test.TestMode;
@@ -38,11 +37,9 @@ class FirstClientTestBase extends TestProxyTestBase {
         FirstClientBuilder firstClientbuilder
             = new FirstClientBuilder().endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
                 .client(Configuration.getGlobalConfiguration().get("CLIENT", "client"))
-                .httpClient(HttpClient.createDefault())
+                .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
                 .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            firstClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             firstClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         firstClient = firstClientbuilder.buildClient();
@@ -50,11 +47,9 @@ class FirstClientTestBase extends TestProxyTestBase {
         FirstClientBuilder group3Clientbuilder
             = new FirstClientBuilder().endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
                 .client(Configuration.getGlobalConfiguration().get("CLIENT", "client"))
-                .httpClient(HttpClient.createDefault())
+                .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
                 .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            group3Clientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             group3Clientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         group3Client = group3Clientbuilder.buildGroup3Client();
@@ -62,11 +57,9 @@ class FirstClientTestBase extends TestProxyTestBase {
         FirstClientBuilder group4Clientbuilder
             = new FirstClientBuilder().endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
                 .client(Configuration.getGlobalConfiguration().get("CLIENT", "client"))
-                .httpClient(HttpClient.createDefault())
+                .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
                 .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            group4Clientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             group4Clientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         group4Client = group4Clientbuilder.buildGroup4Client();
@@ -74,11 +67,9 @@ class FirstClientTestBase extends TestProxyTestBase {
         SecondClientBuilder secondClientbuilder
             = new SecondClientBuilder().endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
                 .client(Configuration.getGlobalConfiguration().get("CLIENT", "client"))
-                .httpClient(HttpClient.createDefault())
+                .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
                 .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            secondClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             secondClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         secondClient = secondClientbuilder.buildClient();
@@ -86,11 +77,9 @@ class FirstClientTestBase extends TestProxyTestBase {
         SecondClientBuilder group5Clientbuilder
             = new SecondClientBuilder().endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
                 .client(Configuration.getGlobalConfiguration().get("CLIENT", "client"))
-                .httpClient(HttpClient.createDefault())
+                .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
                 .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            group5Clientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             group5Clientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         group5Client = group5Clientbuilder.buildGroup5Client();

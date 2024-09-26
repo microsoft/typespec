@@ -252,7 +252,7 @@ function fromSdkHttpOperationResponses(
   for (const r of operationResponses) {
     const range = r.statusCodes;
     responses.set(r, {
-      StatusCodes: toStatusCodesArray(range as number | HttpStatusCodeRange), // the status code of responses would never be *
+      StatusCodes: toStatusCodesArray(range),
       BodyType: r.type ? fromSdkType(r.type, sdkContext, typeMap) : undefined,
       BodyMediaType: BodyMediaType.Json,
       Headers: fromSdkServiceResponseHeaders(r.headers, sdkContext, typeMap),

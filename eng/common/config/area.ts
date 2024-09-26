@@ -48,7 +48,7 @@ export const CIRules = {
     "!.prettierignore", // Prettier is already run as its dedicated CI(via github action)
     "!.prettierrc.json",
     "!cspell.yaml", // CSpell is already run as its dedicated CI(via github action)
-    "!esling.config.json", // Eslint is already run as its dedicated CI(via github action)
+    "!eslint.config.json", // Eslint is already run as its dedicated CI(via github action)
     ...ignore(isolatedEmitters),
     ...ignore(AreaPaths["emitter:client:csharp"]),
     ...ignore(AreaPaths["emitter:client:java"]),

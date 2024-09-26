@@ -10,7 +10,6 @@ package com.authentication.apikey.generated;
 
 import com.authentication.apikey.ApiKeyClient;
 import com.authentication.apikey.ApiKeyClientBuilder;
-import com.azure.core.http.HttpClient;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.test.TestMode;
@@ -24,11 +23,9 @@ class ApiKeyClientTestBase extends TestProxyTestBase {
     protected void beforeTest() {
         ApiKeyClientBuilder apiKeyClientbuilder = new ApiKeyClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            apiKeyClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             apiKeyClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         apiKeyClient = apiKeyClientbuilder.buildClient();

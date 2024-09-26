@@ -119,6 +119,7 @@ public class PomTemplate implements IXmlTemplate<Pom, XmlFile> {
                 propertiesBlock.tag("project.build.sourceEncoding", "UTF-8");
                 writeJacoco(propertiesBlock);
                 writeRevapi(propertiesBlock, pom);
+                writeSpotless(propertiesBlock);
             });
 
             if (!CoreUtils.isNullOrEmpty(pom.getDependencyIdentifiers())) {
@@ -177,6 +178,16 @@ public class PomTemplate implements IXmlTemplate<Pom, XmlFile> {
      */
     protected void writeRevapi(XmlBlock propertiesBlock, Pom pom) {
         // NOOP for data-plane
+    }
+
+    /**
+     * Extension for writing Spotless configuration.
+     *
+     * @param propertiesBlock The {@code <properties></properties>} XML block within the {@code pom.xml}.
+     */
+    protected void writeSpotless(XmlBlock propertiesBlock) {
+        // For now all generation will enable Spotless running.
+        propertiesBlock.tag("spotless.skip", "false");
     }
 
     /**
