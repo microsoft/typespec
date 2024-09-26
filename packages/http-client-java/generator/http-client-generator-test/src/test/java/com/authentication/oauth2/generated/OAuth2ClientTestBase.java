@@ -10,7 +10,6 @@ package com.authentication.oauth2.generated;
 
 import com.authentication.oauth2.OAuth2Client;
 import com.authentication.oauth2.OAuth2ClientBuilder;
-import com.azure.core.http.HttpClient;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.test.TestMode;
@@ -26,11 +25,10 @@ class OAuth2ClientTestBase extends TestProxyTestBase {
     protected void beforeTest() {
         OAuth2ClientBuilder oAuth2Clientbuilder = new OAuth2ClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.PLAYBACK) {
-            oAuth2Clientbuilder.httpClient(interceptorManager.getPlaybackClient())
-                .credential(new MockTokenCredential());
+            oAuth2Clientbuilder.credential(new MockTokenCredential());
         } else if (getTestMode() == TestMode.RECORD) {
             oAuth2Clientbuilder.addPolicy(interceptorManager.getRecordPolicy())
                 .credential(new DefaultAzureCredentialBuilder().build());

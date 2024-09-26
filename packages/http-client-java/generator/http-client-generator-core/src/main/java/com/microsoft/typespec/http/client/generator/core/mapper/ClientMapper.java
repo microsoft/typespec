@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
+import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.Javagen;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ArraySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ChoiceSchema;
@@ -50,8 +51,6 @@ import com.microsoft.typespec.http.client.generator.core.template.Templates;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
-import com.azure.core.util.CoreUtils;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -115,7 +114,8 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         builder.enums(enumTypes);
 
         // exception
-        List<ClientException> exceptions = codeModel.getOperationGroups().stream()
+        List<ClientException> exceptions = codeModel.getOperationGroups()
+            .stream()
             .flatMap(og -> og.getOperations().stream())
             .flatMap(o -> o.getExceptions().stream())
             .map(Response::getSchema)
@@ -130,33 +130,40 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         builder.xmlSequenceWrappers(parseXmlSequenceWrappers(codeModel, settings));
 
         // class model
-        Stream<ObjectSchema> autoRestModelTypes = Stream.concat(
-            codeModel.getSchemas().getObjects().stream(),
-            codeModel.getOperationGroups().stream().flatMap(og -> og.getOperations().stream())
-                .map(o -> parseHeader(o, settings)).filter(Objects::nonNull));
+        Stream<ObjectSchema> autoRestModelTypes = Stream.concat(codeModel.getSchemas().getObjects().stream(),
+            codeModel.getOperationGroups()
+                .stream()
+                .flatMap(og -> og.getOperations().stream())
+                .map(o -> parseHeader(o, settings))
+                .filter(Objects::nonNull));
 
-        List<ClientModel> clientModelsFromCodeModel = autoRestModelTypes
-            .distinct()
+        List<ClientModel> clientModelsFromCodeModel = autoRestModelTypes.distinct()
             .map(autoRestCompositeType -> Mappers.getModelMapper().map(autoRestCompositeType))
             .filter(Objects::nonNull)
             .distinct()
             .collect(Collectors.toList());
-        // append some models not from CodeModel (currently, only for ##FileDetails models for multipart/form-data request)
+        // append some models not from CodeModel (currently, only for ##FileDetails models for multipart/form-data
+        // request)
         // TODO (weidxu): we can remove this code block, if ##FileDetails moves to azure-core
-        final List<ClientModel> clientModels = Stream.concat(clientModelsFromCodeModel.stream(), ClientModels.getInstance().getModels().stream())
-            .distinct()
-            .collect(Collectors.toList());
+        final List<ClientModel> clientModels
+            = Stream.concat(clientModelsFromCodeModel.stream(), ClientModels.getInstance().getModels().stream())
+                .distinct()
+                .collect(Collectors.toList());
         builder.models(clientModels);
 
         // union model (class)
-        builder.unionModels(codeModel.getSchemas().getOrs().stream().distinct()
+        builder.unionModels(codeModel.getSchemas()
+            .getOrs()
+            .stream()
+            .distinct()
             .flatMap(schema -> Mappers.getUnionModelMapper().map(schema).stream())
             .filter(Objects::nonNull)
             .distinct()
             .collect(Collectors.toList()));
 
         // response model (subclass of Response with headers)
-        final List<ClientResponse> responseModels = codeModel.getOperationGroups().stream()
+        final List<ClientResponse> responseModels = codeModel.getOperationGroups()
+            .stream()
             .flatMap(og -> og.getOperations().stream())
             .distinct()
             .map(m -> parseResponse(m, clientModels, settings))
@@ -169,20 +176,18 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         String serviceClientDescription = codeModel.getInfo().getDescription();
         builder.clientName(serviceClientName).clientDescription(serviceClientDescription);
 
-        Map<ServiceClient, com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client> serviceClientsMap = new LinkedHashMap<>();
+        Map<ServiceClient, com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client> serviceClientsMap
+            = new LinkedHashMap<>();
 
         boolean multipleClientsWithOperationsPresent = codeModel.getClients()
-                .stream()
-                .flatMap(client -> client.getOperationGroups().stream())
-                .flatMap(og -> og.getOperations().stream())
-                .findAny()
-                .isPresent();
+            .stream()
+            .flatMap(client -> client.getOperationGroups().stream())
+            .flatMap(og -> og.getOperations().stream())
+            .findAny()
+            .isPresent();
 
-        boolean singleClientOperationsPresent = codeModel.getOperationGroups()
-                .stream()
-                .flatMap(og -> og.getOperations().stream())
-                .findAny()
-                .isPresent();
+        boolean singleClientOperationsPresent
+            = codeModel.getOperationGroups().stream().flatMap(og -> og.getOperations().stream()).findAny().isPresent();
 
         if (multipleClientsWithOperationsPresent || singleClientOperationsPresent) {
             // set the service clients only if there are client operations present
@@ -203,80 +208,83 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         // package info
         // client
         Map<String, PackageInfo> packageInfos = new HashMap<>();
-        if (settings.isGenerateClientInterfaces() || !settings.isGenerateClientAsImpl()
-            || settings.getImplementationSubpackage() == null || settings.getImplementationSubpackage().isEmpty()
-            || settings.isFluent() || settings.isGenerateSyncAsyncClients() || settings.isDataPlaneClient()) {
-            packageInfos.put(settings.getPackage(), new PackageInfo(
-                settings.getPackage(),
-                String.format("Package containing the classes for %s.\n%s", serviceClientName,
-                    serviceClientDescription)));
+        if (settings.isGenerateClientInterfaces()
+            || !settings.isGenerateClientAsImpl()
+            || settings.getImplementationSubpackage() == null
+            || settings.getImplementationSubpackage().isEmpty()
+            || settings.isFluent()
+            || settings.isGenerateSyncAsyncClients()
+            || settings.isDataPlaneClient()) {
+            packageInfos.put(settings.getPackage(), new PackageInfo(settings.getPackage(), String
+                .format("Package containing the classes for %s.\n%s", serviceClientName, serviceClientDescription)));
         }
         if (settings.isFluent()) {
             if (settings.isFluentLite() && !CoreUtils.isNullOrEmpty(settings.getImplementationSubpackage())) {
                 String implementationPackage = settings.getPackage(settings.getImplementationSubpackage());
                 if (!packageInfos.containsKey(implementationPackage)) {
-                    packageInfos.put(implementationPackage, new PackageInfo(
-                        implementationPackage,
-                        String.format("Package containing the implementations for %s.\n%s",
-                            serviceClientName, serviceClientDescription)));
+                    packageInfos.put(implementationPackage,
+                        new PackageInfo(implementationPackage,
+                            String.format("Package containing the implementations for %s.\n%s", serviceClientName,
+                                serviceClientDescription)));
                 }
             }
             if (!CoreUtils.isNullOrEmpty(settings.getFluentSubpackage())) {
                 String fluentPackage = settings.getPackage(settings.getFluentSubpackage());
                 if (!packageInfos.containsKey(fluentPackage)) {
-                    packageInfos.put(fluentPackage, new PackageInfo(
-                        fluentPackage,
-                        String.format("Package containing the service clients for %s.\n%s",
-                            serviceClientName, serviceClientDescription)));
+                    packageInfos.put(fluentPackage,
+                        new PackageInfo(fluentPackage,
+                            String.format("Package containing the service clients for %s.\n%s", serviceClientName,
+                                serviceClientDescription)));
                 }
                 String fluentInnerPackage = settings.getPackage(settings.getFluentModelsSubpackage());
                 if (!packageInfos.containsKey(fluentInnerPackage)) {
-                    packageInfos.put(fluentInnerPackage, new PackageInfo(
-                        fluentInnerPackage,
-                        String.format("Package containing the inner data models for %s.\n%s",
-                            serviceClientName, serviceClientDescription)));
+                    packageInfos.put(fluentInnerPackage,
+                        new PackageInfo(fluentInnerPackage,
+                            String.format("Package containing the inner data models for %s.\n%s", serviceClientName,
+                                serviceClientDescription)));
                 }
             }
         } else {
-            if (settings.isGenerateClientAsImpl() && settings.getImplementationSubpackage() != null
+            if (settings.isGenerateClientAsImpl()
+                && settings.getImplementationSubpackage() != null
                 && !settings.getImplementationSubpackage().isEmpty()) {
 
                 String implementationPackage = settings.getPackage(settings.getImplementationSubpackage());
                 if (!packageInfos.containsKey(implementationPackage)) {
-                    packageInfos.put(implementationPackage, new PackageInfo(
-                        implementationPackage,
-                        String.format("Package containing the implementations for %s.\n%s",
-                            serviceClientName, serviceClientDescription)));
+                    packageInfos.put(implementationPackage,
+                        new PackageInfo(implementationPackage,
+                            String.format("Package containing the implementations for %s.\n%s", serviceClientName,
+                                serviceClientDescription)));
                 }
             }
         }
         // client in different packages
         for (ServiceClient client : serviceClientsMap.keySet()) {
             if (client.getBuilderPackageName() != null && !packageInfos.containsKey(client.getBuilderPackageName())) {
-                packageInfos.put(client.getBuilderPackageName(), new PackageInfo(
-                        client.getBuilderPackageName(),
+                packageInfos.put(client.getBuilderPackageName(),
+                    new PackageInfo(client.getBuilderPackageName(),
                         String.format("Package containing the classes for %s.\n%s", client.getInterfaceName(),
-                                serviceClientDescription)));
+                            serviceClientDescription)));
             }
         }
         // model
         final List<String> modelsPackages = getModelsPackages(clientModels, enumTypes, responseModels);
         for (String modelsPackage : modelsPackages) {
             if (!packageInfos.containsKey(modelsPackage)) {
-                packageInfos.put(modelsPackage, new PackageInfo(
-                    modelsPackage,
-                    String.format("Package containing the data models for %s.\n%s", serviceClientName,
-                        serviceClientDescription)));
+                packageInfos.put(modelsPackage,
+                    new PackageInfo(modelsPackage, String.format("Package containing the data models for %s.\n%s",
+                        serviceClientName, serviceClientDescription)));
             }
         }
-        if (settings.getCustomTypes() != null && !settings.getCustomTypes().isEmpty()
-            && settings.getCustomTypesSubpackage() != null && !settings.getCustomTypesSubpackage().isEmpty()) {
+        if (settings.getCustomTypes() != null
+            && !settings.getCustomTypes().isEmpty()
+            && settings.getCustomTypesSubpackage() != null
+            && !settings.getCustomTypesSubpackage().isEmpty()) {
             String customTypesPackage = settings.getPackage(settings.getCustomTypesSubpackage());
             if (!packageInfos.containsKey(customTypesPackage)) {
-                packageInfos.put(customTypesPackage, new PackageInfo(
-                    customTypesPackage,
-                    String.format("Package containing the data models for %s.\n%s", serviceClientName,
-                        serviceClientDescription)));
+                packageInfos.put(customTypesPackage,
+                    new PackageInfo(customTypesPackage, String.format("Package containing the data models for %s.\n%s",
+                        serviceClientName, serviceClientDescription)));
             }
         }
         builder.packageInfos(new ArrayList<>(packageInfos.values()));
@@ -288,12 +296,14 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         List<AsyncSyncClient> syncClients = new ArrayList<>();
         List<AsyncSyncClient> asyncClients = new ArrayList<>();
         List<ClientBuilder> clientBuilders = new ArrayList<>();
-        for (Map.Entry<ServiceClient, ? extends com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client> entry : serviceClientsMap.entrySet()) {
+        for (Map.Entry<ServiceClient, ? extends com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client> entry : serviceClientsMap
+            .entrySet()) {
             List<AsyncSyncClient> syncClientsLocal = new ArrayList<>();
             List<AsyncSyncClient> asyncClientsLocal = new ArrayList<>();
 
             ServiceClient serviceClient = entry.getKey();
-            com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client client = entry.getValue();
+            com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client client
+                = entry.getValue();
             if (settings.isGenerateSyncAsyncClients()) {
                 ClientModelUtil.getAsyncSyncClients(client, serviceClient, asyncClientsLocal, syncClientsLocal);
             }
@@ -314,10 +324,10 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
                             ? syncClient.getClassName()
                             : asyncClient.getClassName().replace("AsyncClient", "Client"));
                         String clientBuilderName = clientName + builderSuffix;
-                        ClientBuilder clientBuilder = new ClientBuilder(
-                            builderPackage, clientBuilderName, serviceClient,
-                            (syncClient == null) ? Collections.emptyList() : Collections.singletonList(syncClient),
-                            Collections.singletonList(asyncClient), serviceClient.getCrossLanguageDefinitionId());
+                        ClientBuilder clientBuilder
+                            = new ClientBuilder(builderPackage, clientBuilderName, serviceClient,
+                                (syncClient == null) ? Collections.emptyList() : Collections.singletonList(syncClient),
+                                Collections.singletonList(asyncClient), serviceClient.getCrossLanguageDefinitionId());
 
                         addBuilderTraits(clientBuilder, serviceClient);
                         clientBuilders.add(clientBuilder);
@@ -330,8 +340,8 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
                     }
                 } else {
                     // service client builder
-                    ClientBuilder clientBuilder = new ClientBuilder(builderPackage, builderName,
-                        serviceClient, syncClientsLocal, asyncClientsLocal, serviceClient.getCrossLanguageDefinitionId());
+                    ClientBuilder clientBuilder = new ClientBuilder(builderPackage, builderName, serviceClient,
+                        syncClientsLocal, asyncClientsLocal, serviceClient.getCrossLanguageDefinitionId());
                     addBuilderTraits(clientBuilder, serviceClient);
                     clientBuilders.add(clientBuilder);
 
@@ -358,11 +368,8 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         }
 
         builder.graalVmConfig(Mappers.getGraalVmConfigMapper()
-                .map(new GraalVmConfigMapper.ServiceAndModel(
-                        serviceClientsMap.keySet(),
-                        exceptions,
-                        clientModels,
-                        enumTypes)));
+            .map(new GraalVmConfigMapper.ServiceAndModel(serviceClientsMap.keySet(), exceptions, clientModels,
+                enumTypes)));
 
         return builder.build();
     }
@@ -376,8 +383,10 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
             ClientBuilder clientBuilder = c.getClientBuilder();
             if (clientBuilder != null && convenienceMethod.getProtocolMethod().getProxyMethod().getExamples() != null) {
                 // only generate sample for convenience methods with max overload parameters
-                convenienceMethod.getConvenienceMethods().stream()
-                    .filter(clientMethod -> clientMethod.getMethodVisibility() == JavaVisibility.Public && clientMethod.getMethodVisibilityInWrapperClient() == JavaVisibility.Public)
+                convenienceMethod.getConvenienceMethods()
+                    .stream()
+                    .filter(clientMethod -> clientMethod.getMethodVisibility() == JavaVisibility.Public
+                        && clientMethod.getMethodVisibilityInWrapperClient() == JavaVisibility.Public)
                     .filter(clientMethod -> Templates.getClientMethodSampleTemplate()
                         .isExampleIncluded(clientMethod, convenienceMethod))
                     .max((clientMethod1, clientMethod2) -> {
@@ -385,23 +394,22 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
                         int m2ParameterCount = clientMethod2.getMethodInputParameters().size();
                         return m1ParameterCount - m2ParameterCount;
                     })
-                    .ifPresent(clientMethod ->
-                        clientMethod.getProxyMethod().getExamples().forEach((name, example) -> {
-                            String filename = CodeNamer.toPascalCase(CodeNamer.removeInvalidCharacters(name));
-                            if (!convenienceExampleNameSet.contains(filename)) {
-                                ClientMethodExample convenienceExample =
-                                    new ClientMethodExample(clientMethod, c, clientBuilder, filename, example);
-                                convenienceExamples.add(convenienceExample);
-                                convenienceExampleNameSet.add(filename);
-                            }
-                        }));
+                    .ifPresent(clientMethod -> clientMethod.getProxyMethod().getExamples().forEach((name, example) -> {
+                        String filename = CodeNamer.toPascalCase(CodeNamer.removeInvalidCharacters(name));
+                        if (!convenienceExampleNameSet.contains(filename)) {
+                            ClientMethodExample convenienceExample
+                                = new ClientMethodExample(clientMethod, c, clientBuilder, filename, example);
+                            convenienceExamples.add(convenienceExample);
+                            convenienceExampleNameSet.add(filename);
+                        }
+                    }));
             }
         };
 
         // convenience examples
-        syncClients.stream().filter(c -> !CoreUtils.isNullOrEmpty(c.getConvenienceMethods()))
-            .forEach(c -> c.getConvenienceMethods()
-                .forEach(m -> handleConvenienceExample.accept(c, m)));
+        syncClients.stream()
+            .filter(c -> !CoreUtils.isNullOrEmpty(c.getConvenienceMethods()))
+            .forEach(c -> c.getConvenienceMethods().forEach(m -> handleConvenienceExample.accept(c, m)));
         builder.clientMethodExamples(convenienceExamples);
     }
 
@@ -412,8 +420,8 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         BiConsumer<AsyncSyncClient, ClientMethod> handleExample = (c, m) -> {
             if (m.getMethodVisibility() == JavaVisibility.Public
                 && m.getMethodVisibilityInWrapperClient() == JavaVisibility.Public
-                && !m.isImplementationOnly() &&
-                (m.getType() == ClientMethodType.SimpleSyncRestResponse
+                && !m.isImplementationOnly()
+                && (m.getType() == ClientMethodType.SimpleSyncRestResponse
                     || m.getType() == ClientMethodType.PagingSync
                     || m.getType() == ClientMethodType.LongRunningBeginSync)) {
                 ClientBuilder clientBuilder = c.getClientBuilder();
@@ -421,7 +429,8 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
                     m.getProxyMethod().getExamples().forEach((name, example) -> {
                         String filename = CodeNamer.toPascalCase(CodeNamer.removeInvalidCharacters(name));
                         if (!protocolExampleNameSet.contains(filename)) {
-                            ProtocolExample protocolExample = new ProtocolExample(m, c, clientBuilder, filename, example);
+                            ProtocolExample protocolExample
+                                = new ProtocolExample(m, c, clientBuilder, filename, example);
                             protocolExamples.add(protocolExample);
                             protocolExampleNameSet.add(filename);
                         }
@@ -431,34 +440,34 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         };
 
         // protocol examples, exclude those that have convenience methods
-        syncClients.stream().filter(c -> c.getServiceClient() != null)
-            .forEach(c -> {
-                Set<String> convenienceProxyMethodNames = new HashSet<>();
-                if (c.getConvenienceMethods() != null) {
-                    convenienceProxyMethodNames.addAll(c.getConvenienceMethods().stream()
-                        .map(convenienceMethod -> convenienceMethod
-                            .getProtocolMethod().getProxyMethod().getBaseName())
-                        .collect(Collectors.toSet()));
-                }
-                c.getServiceClient().getClientMethods()
+        syncClients.stream().filter(c -> c.getServiceClient() != null).forEach(c -> {
+            Set<String> convenienceProxyMethodNames = new HashSet<>();
+            if (c.getConvenienceMethods() != null) {
+                convenienceProxyMethodNames.addAll(c.getConvenienceMethods()
                     .stream()
-                    .filter(m -> !convenienceProxyMethodNames.contains(m.getProxyMethod().getBaseName()))
-                    .forEach(m -> handleExample.accept(c, m));
-            });
-        syncClients.stream().filter(c -> c.getMethodGroupClient() != null)
-            .forEach(c -> {
-                Set<String> convenienceProxyMethodNames = new HashSet<>();
-                if (c.getConvenienceMethods() != null) {
-                    convenienceProxyMethodNames.addAll(c.getConvenienceMethods().stream()
-                        .map(convenienceMethod -> convenienceMethod
-                            .getProtocolMethod().getProxyMethod().getBaseName())
-                        .collect(Collectors.toSet()));
-                }
-                c.getMethodGroupClient().getClientMethods()
+                    .map(convenienceMethod -> convenienceMethod.getProtocolMethod().getProxyMethod().getBaseName())
+                    .collect(Collectors.toSet()));
+            }
+            c.getServiceClient()
+                .getClientMethods()
+                .stream()
+                .filter(m -> !convenienceProxyMethodNames.contains(m.getProxyMethod().getBaseName()))
+                .forEach(m -> handleExample.accept(c, m));
+        });
+        syncClients.stream().filter(c -> c.getMethodGroupClient() != null).forEach(c -> {
+            Set<String> convenienceProxyMethodNames = new HashSet<>();
+            if (c.getConvenienceMethods() != null) {
+                convenienceProxyMethodNames.addAll(c.getConvenienceMethods()
                     .stream()
-                    .filter(m -> !convenienceProxyMethodNames.contains(m.getProxyMethod().getBaseName()))
-                    .forEach(m -> handleExample.accept(c, m));
-            });
+                    .map(convenienceMethod -> convenienceMethod.getProtocolMethod().getProxyMethod().getBaseName())
+                    .collect(Collectors.toSet()));
+            }
+            c.getMethodGroupClient()
+                .getClientMethods()
+                .stream()
+                .filter(m -> !convenienceProxyMethodNames.contains(m.getProxyMethod().getBaseName()))
+                .forEach(m -> handleExample.accept(c, m));
+        });
         builder.protocolExamples(protocolExamples);
     }
 
@@ -468,7 +477,9 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
      * @param clients List of clients.
      * @return List of service clients.
      */
-    protected Map<ServiceClient, com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client> processClients(List<com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client> clients, CodeModel codeModel) {
+    protected Map<ServiceClient, com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client>
+        processClients(List<com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client> clients,
+            CodeModel codeModel) {
         return Collections.emptyMap();
     }
 
@@ -489,11 +500,10 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
                 clientBuilder.addBuilderTrait(ClientBuilderTrait.AZURE_KEY_CREDENTIAL_TRAIT);
             }
         }
-        serviceClient.getProperties().stream()
-                .map(property -> {
-                    Javagen.getPluginInstance().getLogger().info("Client property name " + property.getName());
-                    return property;
-                })
+        serviceClient.getProperties().stream().map(property -> {
+            Javagen.getPluginInstance().getLogger().info("Client property name " + property.getName());
+            return property;
+        })
             .filter(property -> property.getName().equals("endpoint"))
             .findFirst()
             .ifPresent(property -> clientBuilder.addBuilderTrait(ClientBuilderTrait.getEndpointTrait(property)));
@@ -503,10 +513,8 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         Map<String, XmlSequenceWrapper> xmlSequenceWrappers = new LinkedHashMap<>();
         for (OperationGroup operationGroup : codeModel.getOperationGroups()) {
             for (Operation operation : operationGroup.getOperations()) {
-                Schema responseBodySchema = SchemaUtil.getLowestCommonParent(operation.getResponses().stream()
-                    .map(Response::getSchema)
-                    .filter(Objects::nonNull)
-                    .iterator());
+                Schema responseBodySchema = SchemaUtil.getLowestCommonParent(
+                    operation.getResponses().stream().map(Response::getSchema).filter(Objects::nonNull).iterator());
 
                 if (responseBodySchema instanceof ArraySchema) {
                     parseXmlSequenceWrappers((ArraySchema) responseBodySchema, xmlSequenceWrappers, settings);
@@ -612,7 +620,8 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         ClassType classType = ClientMapper.getClientResponseClassType(method, models, settings);
         return builder.name(classType.getName())
             .packageName(classType.getPackage())
-            .description(String.format("Contains all response data for the %s operation.", method.getLanguage().getJava().getName()))
+            .description(String.format("Contains all response data for the %s operation.",
+                method.getLanguage().getJava().getName()))
             .headersType(Mappers.getSchemaMapper().map(headerSchema))
             .bodyType(SchemaUtil.getOperationResponseType(method, settings))
             .build();
@@ -632,7 +641,8 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         for (ServiceClient client : clients) {
             String builderPackageName = client.getBuilderPackageName();
             if (builderPackageName != null
-                    && exportModules.stream().noneMatch(exportModule -> exportModule.getModuleName().equals(builderPackageName))) {
+                && exportModules.stream()
+                    .noneMatch(exportModule -> exportModule.getModuleName().equals(builderPackageName))) {
                 exportModules.add(new ModuleInfo.ExportModule(builderPackageName));
             }
         }
@@ -667,7 +677,8 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
      * @param responseModels the list of client response models (for responses that contains headers).
      * @return whether SDK contains "models" package,
      */
-    protected List<String> getModelsPackages(List<ClientModel> clientModels, List<EnumType> enumTypes, List<ClientResponse> responseModels) {
+    protected List<String> getModelsPackages(List<ClientModel> clientModels, List<EnumType> enumTypes,
+        List<ClientResponse> responseModels) {
 
         List<String> ret = Collections.emptyList();
 
@@ -679,16 +690,10 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
             && !settings.getModelsSubpackage().equals(settings.getImplementationSubpackage());
 
         if (hasModels) {
-            Set<String> packages = clientModels.stream()
-                .map(ClientModel::getPackage)
-                .collect(Collectors.toSet());
+            Set<String> packages = clientModels.stream().map(ClientModel::getPackage).collect(Collectors.toSet());
 
-            packages.addAll(enumTypes.stream()
-                .map(EnumType::getPackage)
-                .collect(Collectors.toSet()));
-            packages.addAll(responseModels.stream()
-                .map(ClientResponse::getPackage)
-                .collect(Collectors.toSet()));
+            packages.addAll(enumTypes.stream().map(EnumType::getPackage).collect(Collectors.toSet()));
+            packages.addAll(responseModels.stream().map(ClientResponse::getPackage).collect(Collectors.toSet()));
 
             ret = new ArrayList<>(packages);
         }

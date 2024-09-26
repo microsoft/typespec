@@ -10,7 +10,6 @@ package com.authentication.http.custom.generated;
 
 import com.authentication.http.custom.CustomClient;
 import com.authentication.http.custom.CustomClientBuilder;
-import com.azure.core.http.HttpClient;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.test.TestMode;
@@ -24,11 +23,9 @@ class CustomClientTestBase extends TestProxyTestBase {
     protected void beforeTest() {
         CustomClientBuilder customClientbuilder = new CustomClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            customClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             customClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         customClient = customClientbuilder.buildClient();

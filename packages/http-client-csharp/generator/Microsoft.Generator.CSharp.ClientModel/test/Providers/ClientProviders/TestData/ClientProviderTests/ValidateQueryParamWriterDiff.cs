@@ -3,14 +3,14 @@
 #nullable disable
 
 using System.ClientModel;
-using sample.namespace.Models;
+using Sample.Models;
 
-namespace sample.namespace
+namespace Sample
 {
     /// <summary></summary>
     public partial class TestClient
     {
-        public virtual global::System.ClientModel.ClientResult Operation(global::sample.namespace.Models.InputEnum queryParam)
+        public virtual global::System.ClientModel.ClientResult Operation(global::Sample.Models.InputEnum queryParam)
         {
             return this.Operation(queryParam.ToString(), null);
         }

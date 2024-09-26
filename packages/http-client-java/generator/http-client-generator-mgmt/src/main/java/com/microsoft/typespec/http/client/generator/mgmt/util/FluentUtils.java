@@ -3,18 +3,15 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.util;
 
+import com.azure.core.http.rest.PagedIterable;
+import com.azure.core.http.rest.Response;
+import com.azure.core.http.rest.ResponseBase;
+import com.azure.core.http.rest.SimpleResponse;
+import com.azure.core.http.rest.StreamResponse;
+import com.azure.core.util.Context;
+import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
-import com.microsoft.typespec.http.client.generator.mgmt.FluentGen;
-import com.microsoft.typespec.http.client.generator.mgmt.model.ResourceTypeName;
-import com.microsoft.typespec.http.client.generator.mgmt.model.arm.ErrorClientModel;
-import com.microsoft.typespec.http.client.generator.mgmt.model.arm.ResourceClientModel;
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentCollectionMethod;
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceModel;
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentStatic;
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.ModelNaming;
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.LocalVariable;
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.ResourceLocalVariables;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
@@ -31,15 +28,16 @@ import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TypeUtil;
-import com.azure.core.http.rest.PagedIterable;
-import com.azure.core.http.rest.Response;
-import com.azure.core.http.rest.ResponseBase;
-import com.azure.core.http.rest.SimpleResponse;
-import com.azure.core.http.rest.StreamResponse;
-import com.azure.core.util.Context;
-import com.azure.core.util.CoreUtils;
-import org.slf4j.Logger;
-
+import com.microsoft.typespec.http.client.generator.mgmt.FluentGen;
+import com.microsoft.typespec.http.client.generator.mgmt.model.ResourceTypeName;
+import com.microsoft.typespec.http.client.generator.mgmt.model.arm.ErrorClientModel;
+import com.microsoft.typespec.http.client.generator.mgmt.model.arm.ResourceClientModel;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentCollectionMethod;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceModel;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentStatic;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.ModelNaming;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.LocalVariable;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.ResourceLocalVariables;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -49,15 +47,14 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
 
 public class FluentUtils {
 
     private static final Logger LOGGER = new PluginLogger(FluentGen.getPluginInstance(), FluentUtils.class);
 
-    private static final Set<String> RESERVED_CLASS_NAMES = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
-            Response.class.getSimpleName(),
-            Context.class.getSimpleName()
-    )));
+    private static final Set<String> RESERVED_CLASS_NAMES = Collections
+        .unmodifiableSet(new HashSet<>(Arrays.asList(Response.class.getSimpleName(), Context.class.getSimpleName())));
 
     private FluentUtils() {
     }
@@ -94,10 +91,9 @@ public class FluentUtils {
         if (reservedClassNames().contains(modelName)) {
             modelName += "Model";
         }
-        return new ClassType.Builder()
-                .packageName(settings.getPackage(settings.getModelsSubpackage()))
-                .name(modelName)
-                .build();
+        return new ClassType.Builder().packageName(settings.getPackage(settings.getModelsSubpackage()))
+            .name(modelName)
+            .build();
     }
 
     public static String getGetterName(String propertyName) {
@@ -193,10 +189,12 @@ public class FluentUtils {
             GenericType type = (GenericType) clientType;
             if (PagedIterable.class.getSimpleName().equals(type.getName())) {
                 IType wrapperItemType = getFluentWrapperType(type.getTypeArguments()[0]);
-                wrapperType = wrapperItemType == type.getTypeArguments()[0] ? type : GenericType.PagedIterable(wrapperItemType);
+                wrapperType
+                    = wrapperItemType == type.getTypeArguments()[0] ? type : GenericType.PagedIterable(wrapperItemType);
             } else if (Response.class.getSimpleName().equals(type.getName())) {
                 IType wrapperItemType = getFluentWrapperType(type.getTypeArguments()[0]);
-                wrapperType = wrapperItemType == type.getTypeArguments()[0] ? type : GenericType.Response(wrapperItemType);
+                wrapperType
+                    = wrapperItemType == type.getTypeArguments()[0] ? type : GenericType.Response(wrapperItemType);
             }
         }
         return wrapperType;
@@ -228,8 +226,8 @@ public class FluentUtils {
         }
         if (clientModel == null) {
             clientModel = ResourceClientModel.getResourceClientModel(name)
-                    .or(() -> ErrorClientModel.getErrorClientModel(name))
-                    .orElse(null);
+                .or(() -> ErrorClientModel.getErrorClientModel(name))
+                .orElse(null);
         }
         return clientModel;
     }
@@ -242,7 +240,8 @@ public class FluentUtils {
      * Get the name of the argument for the method call.
      *
      * If the parameter is provided by the caller, the name is unchanged and directly passed to the method call.
-     * If the parameter is provided by class variable or local variable, the name is unchanged, or might need simple conversion as the type might not align exactly.
+     * If the parameter is provided by class variable or local variable, the name is unchanged, or might need simple
+     * conversion as the type might not align exactly.
      * If the parameter is same as innerModel of the resource model, use innerModel.
      * If the parameter is Context, use Context.NONE.
      *
@@ -254,15 +253,16 @@ public class FluentUtils {
      * @return the name of the argument
      */
     public static String getLocalMethodArgument(ClientMethodParameter parameter,
-                                                Set<ClientMethodParameter> inputParametersSet, ResourceLocalVariables localVariables,
-                                                FluentResourceModel resourceModel, FluentCollectionMethod collectionMethod) {
-        return getLocalMethodArgument(parameter, inputParametersSet, localVariables, resourceModel, collectionMethod, null);
+        Set<ClientMethodParameter> inputParametersSet, ResourceLocalVariables localVariables,
+        FluentResourceModel resourceModel, FluentCollectionMethod collectionMethod) {
+        return getLocalMethodArgument(parameter, inputParametersSet, localVariables, resourceModel, collectionMethod,
+            null);
     }
 
     public static String getLocalMethodArgument(ClientMethodParameter parameter,
-                                                Set<ClientMethodParameter> inputParametersSet, ResourceLocalVariables localVariables,
-                                                FluentResourceModel resourceModel, FluentCollectionMethod collectionMethod,
-                                                ResourceLocalVariables resourceLocalVariablesDefinedInClass) {
+        Set<ClientMethodParameter> inputParametersSet, ResourceLocalVariables localVariables,
+        FluentResourceModel resourceModel, FluentCollectionMethod collectionMethod,
+        ResourceLocalVariables resourceLocalVariablesDefinedInClass) {
         if (inputParametersSet.contains(parameter)) {
             // input parameter
             return parameter.getName();
@@ -276,21 +276,29 @@ public class FluentUtils {
             // local variables
             LocalVariable localVariable = localVariables.getLocalVariableByMethodParameter(parameter);
             if (localVariable == null) {
-                throw new IllegalStateException(String.format("Local variable not found for method %1$s, model %2$s, parameter %3$s, available local variables %4$s",
-                        collectionMethod.getMethodName(),
-                        resourceModel.getName(),
-                        parameter.getName(),
-                        localVariables.getLocalVariablesMap().entrySet().stream().collect(Collectors.toMap(e -> e.getKey().getName(), e -> e.getValue().getName()))));
+                throw new IllegalStateException(String.format(
+                    "Local variable not found for method %1$s, model %2$s, parameter %3$s, available local variables %4$s",
+                    collectionMethod.getMethodName(), resourceModel.getName(), parameter.getName(),
+                    localVariables.getLocalVariablesMap()
+                        .entrySet()
+                        .stream()
+                        .collect(Collectors.toMap(e -> e.getKey().getName(), e -> e.getValue().getName()))));
             }
             String name = localVariable.getName();
 
-            // there could be case that the variable used in method (ResourceUpdate or ResourceRefresh) is different from the one defined in class (by ResourceCreate)
+            // there could be case that the variable used in method (ResourceUpdate or ResourceRefresh) is different
+            // from the one defined in class (by ResourceCreate)
             LocalVariable localVariableDefinedInClass = resourceLocalVariablesDefinedInClass == null
-                    ? null
-                    : resourceLocalVariablesDefinedInClass.getLocalVariablesMap().values().stream()
-                    .filter(var -> localVariable.getName().equals(var.getName())).findFirst().orElse(null);
+                ? null
+                : resourceLocalVariablesDefinedInClass.getLocalVariablesMap()
+                    .values()
+                    .stream()
+                    .filter(var -> localVariable.getName().equals(var.getName()))
+                    .findFirst()
+                    .orElse(null);
             if (localVariableDefinedInClass != null
-                    && !Objects.equals(localVariableDefinedInClass.getVariableType().toString(), localVariable.getVariableType().toString())) {
+                && !Objects.equals(localVariableDefinedInClass.getVariableType().toString(),
+                    localVariable.getVariableType().toString())) {
                 if (localVariableDefinedInClass.getVariableType() == ClassType.STRING) {
                     name = String.format("%1$s.fromString(%2$s)", localVariable.getVariableType().toString(), name);
                 } else if (localVariable.getVariableType() == ClassType.STRING) {
@@ -303,12 +311,13 @@ public class FluentUtils {
 
     public static boolean modelHasLocationProperty(FluentResourceModel resourceModel) {
         return resourceModel.hasProperty(ResourceTypeName.FIELD_LOCATION)
-                && resourceModel.getProperty(ResourceTypeName.FIELD_LOCATION).getFluentType() == ClassType.STRING;
+            && resourceModel.getProperty(ResourceTypeName.FIELD_LOCATION).getFluentType() == ClassType.STRING;
     }
 
     public static boolean modelHasLocationProperty(List<ModelProperty> properties) {
         return properties.stream()
-                .anyMatch(p -> ResourceTypeName.FIELD_LOCATION.equals(p.getName()) && p.getClientType() == ClassType.STRING);
+            .anyMatch(
+                p -> ResourceTypeName.FIELD_LOCATION.equals(p.getName()) && p.getClientType() == ClassType.STRING);
     }
 
     public static boolean isResponseType(IType clientType) {
@@ -324,9 +333,11 @@ public class FluentUtils {
         } else if (clientType instanceof ClassType) {
             // ClientResponse is type of a subclass of Response<>
             ClassType type = (ClassType) clientType;
-            Optional<ClientResponse> clientResponse = FluentStatic.getClient().getResponseModels().stream()
-                    .filter(r -> r.getName().equals(type.getName()))
-                    .findAny();
+            Optional<ClientResponse> clientResponse = FluentStatic.getClient()
+                .getResponseModels()
+                .stream()
+                .filter(r -> r.getName().equals(type.getName()))
+                .findAny();
             ret = clientResponse.isPresent();
         }
         return ret;
@@ -343,9 +354,11 @@ public class FluentUtils {
             }
         } else if (clientType instanceof ClassType) {
             ClassType type = (ClassType) clientType;
-            Optional<ClientResponse> clientResponse = FluentStatic.getClient().getResponseModels().stream()
-                    .filter(r -> r.getName().equals(type.getName()))
-                    .findFirst();
+            Optional<ClientResponse> clientResponse = FluentStatic.getClient()
+                .getResponseModels()
+                .stream()
+                .filter(r -> r.getName().equals(type.getName()))
+                .findFirst();
             if (clientResponse.isPresent()) {
                 bodyType = clientResponse.get().getBodyType();
             }
@@ -381,10 +394,10 @@ public class FluentUtils {
         // for now, only accept JSON as request body
 
         String requestContentType = clientMethod.getProxyMethod().getRequestContentType();
-        return clientMethod.getProxyMethod().getExamples() != null
-                && requiresExample(clientMethod)
-                // currently only generate for json payload, i.e. "text/json", "application/json"
-                && requestContentType != null && requestContentType.contains("json");
+        return clientMethod.getProxyMethod().getExamples() != null && requiresExample(clientMethod)
+        // currently only generate for json payload, i.e. "text/json", "application/json"
+            && requestContentType != null
+            && requestContentType.contains("json");
     }
 
     public static boolean validResponseContentTypeToGenerateExample(ClientMethod clientMethod) {
@@ -396,9 +409,9 @@ public class FluentUtils {
 
     public static boolean requiresExample(ClientMethod clientMethod) {
         if (clientMethod.getType() == ClientMethodType.SimpleSync
-                || clientMethod.getType() == ClientMethodType.SimpleSyncRestResponse
-                || clientMethod.getType() == ClientMethodType.PagingSync
-                || clientMethod.getType() == ClientMethodType.LongRunningSync) {
+            || clientMethod.getType() == ClientMethodType.SimpleSyncRestResponse
+            || clientMethod.getType() == ClientMethodType.PagingSync
+            || clientMethod.getType() == ClientMethodType.LongRunningSync) {
             // generate example for the method with full parameters
             return clientMethod.getParameters().stream().anyMatch(p -> ClassType.CONTEXT.equals(p.getClientType()));
         }

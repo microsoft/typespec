@@ -3,12 +3,10 @@
 
 package com.type.property.optional;
 
-
 import com.type.property.optional.models.DurationProperty;
+import java.time.Duration;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.time.Duration;
 
 class DurationOperationClientTest {
 

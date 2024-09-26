@@ -31,14 +31,16 @@ public class ProtocolSampleTemplate implements IJavaTemplate<ProtocolExample, Ja
 
                 // codesnippet begin
                 if (protocolExample.getProxyMethodExample().getCodeSnippetIdentifier() != null) {
-                    methodBlock.line(String.format("// BEGIN:%s", protocolExample.getProxyMethodExample().getCodeSnippetIdentifier()));
+                    methodBlock.line(String.format("// BEGIN:%s",
+                        protocolExample.getProxyMethodExample().getCodeSnippetIdentifier()));
                 }
 
                 writer.writeClientMethodInvocation(methodBlock, false);
 
                 // codesnippet end
                 if (protocolExample.getProxyMethodExample().getCodeSnippetIdentifier() != null) {
-                    methodBlock.line(String.format("// END:%s", protocolExample.getProxyMethodExample().getCodeSnippetIdentifier()));
+                    methodBlock.line(
+                        String.format("// END:%s", protocolExample.getProxyMethodExample().getCodeSnippetIdentifier()));
                 }
             });
         });

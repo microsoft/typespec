@@ -12,7 +12,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Primi
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.android.AndroidProxyMethod;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,8 +68,8 @@ public class AndroidProxyMethodMapper extends ProxyMethodMapper {
 
     @Override
     protected void appendCallbackParameter(List<ProxyMethodParameter> parameters, IType responseBodyType) {
-        ProxyMethodParameter callbackParameter = new ProxyMethodParameter.Builder()
-                .description("The async callback associated with this operation.")
+        ProxyMethodParameter callbackParameter
+            = new ProxyMethodParameter.Builder().description("The async callback associated with this operation.")
                 .wireType(GenericType.AndroidCallback(GenericType.AndroidResponse(responseBodyType)))
                 .clientType(GenericType.AndroidCallback(GenericType.AndroidResponse(responseBodyType)))
                 .name("callback")

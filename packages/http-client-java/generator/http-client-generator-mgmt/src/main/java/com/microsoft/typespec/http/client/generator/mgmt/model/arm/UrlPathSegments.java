@@ -15,10 +15,7 @@ public class UrlPathSegments {
     public static final String SEGMENT_NAME_EMPTY = "";
 
     public enum ParameterSegmentType {
-        RESOURCE_GROUP,
-        SUBSCRIPTION,
-        SCOPE,
-        OTHER
+        RESOURCE_GROUP, SUBSCRIPTION, SCOPE, OTHER
     }
 
     public interface Segment {
@@ -47,9 +44,11 @@ public class UrlPathSegments {
                     case "resourcegroups":
                         this.type = ParameterSegmentType.RESOURCE_GROUP;
                         break;
+
                     case "subscriptions":
                         this.type = ParameterSegmentType.SUBSCRIPTION;
                         break;
+
                     default:
                         this.type = ParameterSegmentType.OTHER;
                         break;
@@ -77,11 +76,13 @@ public class UrlPathSegments {
 
         @Override
         public String toString() {
-            return new StringBuilder()
-                    .append("Parameter: segName=").append(segmentName)
-                    .append(", parameterName=").append(parameterName)
-                    .append(", type=").append(type)
-                    .toString();
+            return new StringBuilder().append("Parameter: segName=")
+                .append(segmentName)
+                .append(", parameterName=")
+                .append(parameterName)
+                .append(", type=")
+                .append(type)
+                .toString();
         }
     }
 
@@ -104,9 +105,7 @@ public class UrlPathSegments {
 
         @Override
         public String toString() {
-            return new StringBuilder()
-                    .append("Literal: segName=").append(segmentName)
-                    .toString();
+            return new StringBuilder().append("Literal: segName=").append(segmentName).toString();
         }
     }
 
@@ -158,13 +157,14 @@ public class UrlPathSegments {
 
     public List<ParameterSegment> getReverseParameterSegments() {
         return reverseSegments.stream()
-                .filter(Segment::isParameterSegment)
-                .map(s -> (ParameterSegment) s)
-                .collect(Collectors.toList());
+            .filter(Segment::isParameterSegment)
+            .map(s -> (ParameterSegment) s)
+            .collect(Collectors.toList());
     }
 
     public boolean hasResourceGroup() {
-        return getNestLevel() >= 1 && reverseSegments.stream()
+        return getNestLevel() >= 1
+            && reverseSegments.stream()
                 .filter(Segment::isParameterSegment)
                 .map(s -> (ParameterSegment) s)
                 .anyMatch(s -> s.getType() == ParameterSegmentType.RESOURCE_GROUP);
@@ -172,15 +172,22 @@ public class UrlPathSegments {
 
     public boolean hasSubscription() {
         return (getNestLevel() >= 1
-                || (getNestLevel() == 0 && !getReverseParameterSegments().isEmpty() && getReverseParameterSegments().iterator().next().getType() == ParameterSegmentType.RESOURCE_GROUP))   // the special case for ResourceGroup
-                && reverseSegments.stream()
+            || (getNestLevel() == 0
+                && !getReverseParameterSegments().isEmpty()
+                && getReverseParameterSegments().iterator().next().getType() == ParameterSegmentType.RESOURCE_GROUP))   // the
+                                                                                                                        // special
+                                                                                                                        // case
+                                                                                                                        // for
+                                                                                                                        // ResourceGroup
+            && reverseSegments.stream()
                 .filter(Segment::isParameterSegment)
                 .map(s -> (ParameterSegment) s)
                 .anyMatch(s -> s.getType() == ParameterSegmentType.SUBSCRIPTION);
     }
 
     public boolean hasScope() {
-        return getNestLevel() >= 1 && reverseSegments.stream()
+        return getNestLevel() >= 1
+            && reverseSegments.stream()
                 .filter(Segment::isParameterSegment)
                 .map(s -> (ParameterSegment) s)
                 .anyMatch(s -> s.getType() == ParameterSegmentType.SCOPE);

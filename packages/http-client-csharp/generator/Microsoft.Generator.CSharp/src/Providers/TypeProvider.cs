@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.SourceInput;
@@ -24,6 +26,8 @@ namespace Microsoft.Generator.CSharp.Providers
             => CodeModelPlugin.Instance.SourceInputModel.FindForType(GetNamespace(), BuildName());
 
         public TypeProvider? CustomCodeView => _customCodeView.Value;
+
+        internal virtual IEnumerable<AttributeData>? GetAttributes() => null;
 
         protected string? _deprecated;
 
@@ -125,14 +129,14 @@ namespace Microsoft.Generator.CSharp.Providers
         public IReadOnlyList<CSharpType> Implements => _implements ??= BuildImplements();
 
         private IReadOnlyList<PropertyProvider>? _properties;
-        public IReadOnlyList<PropertyProvider> Properties => _properties ??= BuildProperties();
+        public IReadOnlyList<PropertyProvider> Properties => _properties ??= BuildPropertiesInternal();
 
         private IReadOnlyList<MethodProvider>? _methods;
-        public IReadOnlyList<MethodProvider> Methods => _methods ??= BuildMethods();
+        public IReadOnlyList<MethodProvider> Methods => _methods ??= BuildMethodsInternal();
 
         private IReadOnlyList<ConstructorProvider>? _constructors;
 
-        public IReadOnlyList<ConstructorProvider> Constructors => _constructors ??= BuildConstructors();
+        public IReadOnlyList<ConstructorProvider> Constructors => _constructors ??= BuildConstructorsInternal();
 
         private IReadOnlyList<FieldProvider>? _fields;
         public IReadOnlyList<FieldProvider> Fields => _fields ??= BuildFields();
@@ -149,24 +153,49 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected virtual CSharpType[] GetTypeArguments() => [];
 
-        protected virtual PropertyProvider[] BuildProperties() => [];
-
-        private HashSet<string> BuildPropertyNames()
+        private PropertyProvider[] BuildPropertiesInternal()
         {
-            var propertyNames = new HashSet<string>();
-            foreach (var property in Properties)
+            var properties = new List<PropertyProvider>();
+            foreach (var property in BuildProperties())
             {
-                propertyNames.Add(property.Name);
-                foreach (var attribute in property.Attributes ?? [])
+                if (ShouldGenerate(property))
                 {
-                    if (CodeGenAttributes.TryGetCodeGenMemberAttributeValue(attribute, out var name))
-                    {
-                        propertyNames.Add(name);
-                    }
+                    properties.Add(property);
                 }
             }
-            return propertyNames;
+
+            return properties.ToArray();
         }
+
+        private MethodProvider[] BuildMethodsInternal()
+        {
+            var methods = new List<MethodProvider>();
+            foreach (var method in BuildMethods())
+            {
+                if (ShouldGenerate(method))
+                {
+                    methods.Add(method);
+                }
+            }
+
+            return methods.ToArray();
+        }
+
+        private ConstructorProvider[] BuildConstructorsInternal()
+        {
+            var constructors = new List<ConstructorProvider>();
+            foreach (var constructor in BuildConstructors())
+            {
+                if (ShouldGenerate(constructor))
+                {
+                    constructors.Add(constructor);
+                }
+            }
+
+            return constructors.ToArray();
+        }
+
+        protected virtual PropertyProvider[] BuildProperties() => [];
 
         protected virtual FieldProvider[] BuildFields() => [];
 
@@ -263,5 +292,208 @@ namespace Microsoft.Generator.CSharp.Providers
         }
 
         private IReadOnlyList<EnumTypeMember>? _enumValues;
+
+        private bool ShouldGenerate(ConstructorProvider constructor)
+        {
+            foreach (var attribute in GetMemberSuppressionAttributes())
+            {
+                if (IsMatch(constructor.EnclosingType, constructor.Signature, attribute))
+                {
+                    return false;
+                }
+            }
+
+            var customConstructors = constructor.EnclosingType.CustomCodeView?.Constructors ?? [];
+            foreach (var customConstructor in customConstructors)
+            {
+                if (IsMatch(customConstructor.Signature, constructor.Signature))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private bool ShouldGenerate(MethodProvider method)
+        {
+            foreach (var attribute in GetMemberSuppressionAttributes())
+            {
+                if (IsMatch(method.EnclosingType, method.Signature, attribute))
+                {
+                    return false;
+                }
+            }
+
+            var customMethods = method.EnclosingType.CustomCodeView?.Methods ?? [];
+            foreach (var customMethod in customMethods)
+            {
+                if (IsMatch(customMethod.Signature, method.Signature))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private bool ShouldGenerate(PropertyProvider property)
+        {
+            foreach (var attribute in GetMemberSuppressionAttributes())
+            {
+                if (IsMatch(property, attribute))
+                {
+                    return false;
+                }
+            }
+
+            var customPropertyReplacements = new Dictionary<string, PropertyProvider>();
+            var customPropertyNames = new HashSet<string>();
+            foreach (var customProperty in CustomCodeView?.Properties ?? [])
+            {
+                customPropertyNames.Add(customProperty.Name);
+                foreach (var attribute in customProperty.Attributes ?? [])
+                {
+                    if (CodeGenAttributes.TryGetCodeGenMemberAttributeValue(attribute, out var name))
+                    {
+                        customPropertyReplacements.Add(name, customProperty);
+                    }
+                }
+            }
+
+            if (customPropertyReplacements.TryGetValue(property.Name, out PropertyProvider? customProp))
+            {
+                // Store the wire info on the custom property so that we can use it for serialization.
+                customProp.WireInfo = property.WireInfo;
+                customProp.BaseProperty = property.BaseProperty;
+                return false;
+            }
+
+            if (customPropertyNames.Contains(property.Name))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool IsMatch(PropertyProvider propertyProvider, AttributeData attribute)
+        {
+            ValidateArguments(propertyProvider.EnclosingType, attribute);
+            var name = attribute.ConstructorArguments[0].Value as string;
+            return name == propertyProvider.Name;
+        }
+
+        private static bool IsMatch(TypeProvider enclosingType, MethodSignatureBase signature, AttributeData attribute)
+        {
+            ValidateArguments(enclosingType, attribute);
+            var name = attribute.ConstructorArguments[0].Value as string;
+            if (name != signature.Name)
+            {
+                return false;
+            }
+
+            ISymbol?[]? parameterTypes;
+            if (attribute.ConstructorArguments.Length == 1)
+            {
+                parameterTypes = [];
+            }
+            else if (attribute.ConstructorArguments[1].Kind != TypedConstantKind.Array)
+            {
+                parameterTypes = [(ISymbol?) attribute.ConstructorArguments[1].Value];
+            }
+            else
+            {
+                parameterTypes = attribute.ConstructorArguments[1].Values.Select(v => (ISymbol?)v.Value).ToArray();
+            }
+            if (parameterTypes.Length != signature.Parameters.Count)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < parameterTypes.Length; i++)
+            {
+                if (parameterTypes[i]?.Name != signature.Parameters[i].Type.Name)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private static bool IsMatch(MethodSignatureBase customMethod, MethodSignatureBase method)
+        {
+            if (customMethod.Parameters.Count != method.Parameters.Count)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < customMethod.Parameters.Count; i++)
+            {
+                if (customMethod.Parameters[i].Type.Name != method.Parameters[i].Type.Name)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private static void ValidateArguments(TypeProvider type, AttributeData attributeData)
+        {
+            var arguments = attributeData.ConstructorArguments;
+            if (arguments.Length == 0)
+            {
+                throw new InvalidOperationException($"CodeGenSuppress attribute on {type.Name} must specify a method, constructor, or property name as its first argument.");
+            }
+
+            if (arguments[0].Kind != TypedConstantKind.Primitive || arguments[0].Value is not string)
+            {
+                var attribute = GetText(attributeData.ApplicationSyntaxReference);
+                throw new InvalidOperationException($"{attribute} attribute on {type.Name} must specify a method, constructor, or property name as its first argument.");
+            }
+
+            if (arguments.Length == 2 && arguments[1].Kind == TypedConstantKind.Array)
+            {
+                ValidateTypeArguments(type, attributeData, arguments[1].Values);
+            }
+            else
+            {
+                ValidateTypeArguments(type, attributeData, arguments.Skip(1));
+            }
+        }
+
+        private static void ValidateTypeArguments(TypeProvider type, AttributeData attributeData, IEnumerable<TypedConstant> arguments)
+        {
+            foreach (var argument in arguments)
+            {
+                if (argument.Kind == TypedConstantKind.Type)
+                {
+                    if (argument.Value is IErrorTypeSymbol errorType)
+                    {
+                        var attribute = GetText(attributeData.ApplicationSyntaxReference);
+                        var fileLinePosition = GetFileLinePosition(attributeData.ApplicationSyntaxReference);
+                        var filePath = fileLinePosition.Path;
+                        var line = fileLinePosition.StartLinePosition.Line + 1;
+                        throw new InvalidOperationException($"The undefined type '{errorType.Name}' is referenced in the '{attribute}' attribute ({filePath}, line: {line}). Please define this type or remove it from the attribute.");
+                    }
+                }
+                else
+                {
+                    var attribute = GetText(attributeData.ApplicationSyntaxReference);
+                    throw new InvalidOperationException($"Argument '{argument.ToCSharpString()}' in attribute '{attribute}' applied to '{type.Name}' must be a type.");
+                }
+            }
+        }
+
+        private static string GetText(SyntaxReference? syntaxReference)
+            => syntaxReference?.SyntaxTree.GetText().ToString(syntaxReference.Span) ?? string.Empty;
+
+        private static FileLinePositionSpan GetFileLinePosition(SyntaxReference? syntaxReference)
+            => syntaxReference?.SyntaxTree.GetLocation(syntaxReference.Span).GetLineSpan() ?? default;
+
+        private IEnumerable<AttributeData> GetMemberSuppressionAttributes()
+            => CustomCodeView?.GetAttributes()?.Where(a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenSuppressAttributeName) ?? [];
     }
 }

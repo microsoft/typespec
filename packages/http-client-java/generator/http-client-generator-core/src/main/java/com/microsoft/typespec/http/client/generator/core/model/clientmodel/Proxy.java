@@ -4,10 +4,8 @@
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
-
 import java.util.List;
 import java.util.Set;
-
 
 /**
  * Details that describe the dynamic proxy.
@@ -32,6 +30,7 @@ public class Proxy {
 
     /**
      * Create a new Proxy using the provided properties.
+     * 
      * @param name The name of the REST API interface.
      * @param clientTypeName The name of the method group.
      * @param baseURL The base URL that will be used for each REST API method.
@@ -62,8 +61,10 @@ public class Proxy {
 
     /**
      * Add this property's imports to the provided set of imports.
+     * 
      * @param imports The set of imports to add to.
-     * @param includeImplementationImports Whether to include imports that are only necessary for method implementations.
+     * @param includeImplementationImports Whether to include imports that are only necessary for method
+     * implementations.
      */
     public void addImportsTo(Set<String> imports, boolean includeImplementationImports, JavaSettings settings) {
         if (includeImplementationImports) {
@@ -84,6 +85,7 @@ public class Proxy {
 
         /**
          * Sets the name of the REST API interface.
+         * 
          * @param name the name of the REST API interface
          * @return the Builder itself
          */
@@ -91,8 +93,10 @@ public class Proxy {
             this.name = name;
             return this;
         }
+
         /**
          * Sets the name of the method group.
+         * 
          * @param clientTypeName the name of the method group
          * @return the Builder itself
          */
@@ -100,8 +104,10 @@ public class Proxy {
             this.clientTypeName = clientTypeName;
             return this;
         }
+
         /**
          * Sets the base URL that will be used for each REST API method.
+         * 
          * @param baseURL the base URL that will be used for each REST API method
          * @return the Builder itself
          */
@@ -109,8 +115,10 @@ public class Proxy {
             this.baseURL = baseURL;
             return this;
         }
+
         /**
          * Sets the methods of this REST API.
+         * 
          * @param methods the methods of this REST API
          * @return the Builder itself
          */
@@ -120,10 +128,7 @@ public class Proxy {
         }
 
         public Proxy build() {
-            return new Proxy(name,
-                    clientTypeName,
-                    baseURL,
-                    methods);
+            return new Proxy(name, clientTypeName, baseURL, methods);
         }
     }
 }

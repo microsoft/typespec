@@ -4,15 +4,14 @@
 package com.cadl.union;
 
 import com.azure.core.util.BinaryData;
-import com.cadl.union.models.Result;
 import com.cadl.union.implementation.models.SubResult;
+import com.cadl.union.models.Result;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import java.io.IOException;
 import java.util.Collections;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class UnionTests {
 

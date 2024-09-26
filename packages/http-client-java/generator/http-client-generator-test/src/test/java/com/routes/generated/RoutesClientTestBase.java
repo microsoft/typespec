@@ -8,7 +8,6 @@ package com.routes.generated;
 // If you wish to modify these files, please copy them out of the 'generated' package, and modify there.
 // See https://aka.ms/azsdk/dpg/java/tests for guide on adding a test.
 
-import com.azure.core.http.HttpClient;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.test.TestMode;
@@ -72,33 +71,27 @@ class RoutesClientTestBase extends TestProxyTestBase {
     protected void beforeTest() {
         RoutesClientBuilder routesClientbuilder = new RoutesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            routesClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             routesClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         routesClient = routesClientbuilder.buildClient();
 
         RoutesClientBuilder pathParametersClientbuilder = new RoutesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            pathParametersClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             pathParametersClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         pathParametersClient = pathParametersClientbuilder.buildPathParametersClient();
 
         RoutesClientBuilder pathParametersReservedExpansionClientbuilder = new RoutesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            pathParametersReservedExpansionClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             pathParametersReservedExpansionClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         pathParametersReservedExpansionClient
@@ -106,11 +99,9 @@ class RoutesClientTestBase extends TestProxyTestBase {
 
         RoutesClientBuilder pathParametersSimpleExpansionStandardClientbuilder = new RoutesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            pathParametersSimpleExpansionStandardClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             pathParametersSimpleExpansionStandardClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         pathParametersSimpleExpansionStandardClient
@@ -118,11 +109,9 @@ class RoutesClientTestBase extends TestProxyTestBase {
 
         RoutesClientBuilder pathParametersSimpleExpansionExplodeClientbuilder = new RoutesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            pathParametersSimpleExpansionExplodeClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             pathParametersSimpleExpansionExplodeClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         pathParametersSimpleExpansionExplodeClient
@@ -130,11 +119,9 @@ class RoutesClientTestBase extends TestProxyTestBase {
 
         RoutesClientBuilder pathParametersPathExpansionStandardClientbuilder = new RoutesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            pathParametersPathExpansionStandardClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             pathParametersPathExpansionStandardClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         pathParametersPathExpansionStandardClient
@@ -142,11 +129,9 @@ class RoutesClientTestBase extends TestProxyTestBase {
 
         RoutesClientBuilder pathParametersPathExpansionExplodeClientbuilder = new RoutesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            pathParametersPathExpansionExplodeClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             pathParametersPathExpansionExplodeClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         pathParametersPathExpansionExplodeClient
@@ -154,11 +139,9 @@ class RoutesClientTestBase extends TestProxyTestBase {
 
         RoutesClientBuilder pathParametersLabelExpansionStandardClientbuilder = new RoutesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            pathParametersLabelExpansionStandardClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             pathParametersLabelExpansionStandardClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         pathParametersLabelExpansionStandardClient
@@ -166,11 +149,9 @@ class RoutesClientTestBase extends TestProxyTestBase {
 
         RoutesClientBuilder pathParametersLabelExpansionExplodeClientbuilder = new RoutesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            pathParametersLabelExpansionExplodeClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             pathParametersLabelExpansionExplodeClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         pathParametersLabelExpansionExplodeClient
@@ -178,11 +159,9 @@ class RoutesClientTestBase extends TestProxyTestBase {
 
         RoutesClientBuilder pathParametersMatrixExpansionStandardClientbuilder = new RoutesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            pathParametersMatrixExpansionStandardClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             pathParametersMatrixExpansionStandardClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         pathParametersMatrixExpansionStandardClient
@@ -190,11 +169,9 @@ class RoutesClientTestBase extends TestProxyTestBase {
 
         RoutesClientBuilder pathParametersMatrixExpansionExplodeClientbuilder = new RoutesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            pathParametersMatrixExpansionExplodeClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             pathParametersMatrixExpansionExplodeClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         pathParametersMatrixExpansionExplodeClient
@@ -202,22 +179,18 @@ class RoutesClientTestBase extends TestProxyTestBase {
 
         RoutesClientBuilder queryParametersClientbuilder = new RoutesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            queryParametersClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             queryParametersClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         queryParametersClient = queryParametersClientbuilder.buildQueryParametersClient();
 
         RoutesClientBuilder queryParametersQueryExpansionStandardClientbuilder = new RoutesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            queryParametersQueryExpansionStandardClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             queryParametersQueryExpansionStandardClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         queryParametersQueryExpansionStandardClient
@@ -225,11 +198,9 @@ class RoutesClientTestBase extends TestProxyTestBase {
 
         RoutesClientBuilder queryParametersQueryExpansionExplodeClientbuilder = new RoutesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            queryParametersQueryExpansionExplodeClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             queryParametersQueryExpansionExplodeClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         queryParametersQueryExpansionExplodeClient
@@ -237,11 +208,9 @@ class RoutesClientTestBase extends TestProxyTestBase {
 
         RoutesClientBuilder queryParametersQueryContinuationStandardClientbuilder = new RoutesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            queryParametersQueryContinuationStandardClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             queryParametersQueryContinuationStandardClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         queryParametersQueryContinuationStandardClient = queryParametersQueryContinuationStandardClientbuilder
@@ -249,11 +218,9 @@ class RoutesClientTestBase extends TestProxyTestBase {
 
         RoutesClientBuilder queryParametersQueryContinuationExplodeClientbuilder = new RoutesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            queryParametersQueryContinuationExplodeClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             queryParametersQueryContinuationExplodeClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         queryParametersQueryContinuationExplodeClient
@@ -261,11 +228,9 @@ class RoutesClientTestBase extends TestProxyTestBase {
 
         RoutesClientBuilder inInterfaceClientbuilder = new RoutesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            inInterfaceClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             inInterfaceClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         inInterfaceClient = inInterfaceClientbuilder.buildInInterfaceClient();

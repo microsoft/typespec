@@ -14,7 +14,8 @@ public class UnionFloatLiteralClientTests {
     @Test
     public void getAll() {
         UnionFloatLiteralProperty unionFloatLiteralProperty = client.getAll();
-        Assertions.assertEquals(UnionFloatLiteralPropertyProperty.TWO_THREE_SEVEN_FIVE, unionFloatLiteralProperty.getProperty());
+        Assertions.assertEquals(UnionFloatLiteralPropertyProperty.TWO_THREE_SEVEN_FIVE,
+            unionFloatLiteralProperty.getProperty());
     }
 
     @Test

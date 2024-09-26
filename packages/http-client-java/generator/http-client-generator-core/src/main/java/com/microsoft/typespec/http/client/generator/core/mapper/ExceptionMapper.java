@@ -6,7 +6,6 @@ package com.microsoft.typespec.http.client.generator.core.mapper;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientException;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -24,8 +23,9 @@ public class ExceptionMapper implements IMapper<ObjectSchema, ClientException> {
     @Override
     public ClientException map(ObjectSchema compositeType) {
         if (compositeType == null
-                // there is no need to generate Exception class, if we use Exceptions from azure-core
-                || (JavaSettings.getInstance().isDataPlaneClient() && JavaSettings.getInstance().isUseDefaultHttpStatusCodeToExceptionTypeMapping())) {
+            // there is no need to generate Exception class, if we use Exceptions from azure-core
+            || (JavaSettings.getInstance().isDataPlaneClient()
+                && JavaSettings.getInstance().isUseDefaultHttpStatusCodeToExceptionTypeMapping())) {
             return null;
         }
 
@@ -41,16 +41,14 @@ public class ExceptionMapper implements IMapper<ObjectSchema, ClientException> {
         }
 
         boolean isCustomType = settings.isCustomType(methodOperationExceptionTypeName);
-        String exceptionSubPackage = isCustomType
-                ? settings.getCustomTypesSubpackage()
-                : settings.getModelsSubpackage();
+        String exceptionSubPackage
+            = isCustomType ? settings.getCustomTypesSubpackage() : settings.getModelsSubpackage();
         String packageName = settings.getPackage(exceptionSubPackage);
 
-        return createClientExceptionBuilder()
-                .packageName(packageName)
-                .name(methodOperationExceptionTypeName)
-                .errorName(errorName)
-                .build();
+        return createClientExceptionBuilder().packageName(packageName)
+            .name(methodOperationExceptionTypeName)
+            .errorName(errorName)
+            .build();
     }
 
     protected ClientException.Builder createClientExceptionBuilder() {
