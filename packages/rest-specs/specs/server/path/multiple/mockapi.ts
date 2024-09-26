@@ -1,18 +1,6 @@
-import { mockapi, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
+import { MockRequest, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
-
-Scenarios.Server_Path_Multiple_noOperationParams = passOnSuccess(
-  mockapi.get("/server/path/multiple/v1.0", (req) => {
-    return { status: 204 };
-  }),
-);
-
-Scenarios.Server_Path_Multiple_withOperationPathParam = passOnSuccess(
-  mockapi.get("/server/path/multiple/v1.0/test", (req) => {
-    return { status: 204 };
-  }),
-);
 
 Scenarios.Server_Path_Multiple_V10 = passOnSuccess({
   uri: "/server/path/multiple/v1.0",
@@ -22,6 +10,9 @@ Scenarios.Server_Path_Multiple_V10 = passOnSuccess({
       request: {},
       response: {
         status: 204,
+      },
+      handler: (req: MockRequest) => {
+        return { status: 204 };
       },
     },
   ],
@@ -35,6 +26,9 @@ Scenarios.Server_Path_Multiple_V10_Test = passOnSuccess({
       request: {},
       response: {
         status: 204,
+      },
+      handler: (req: MockRequest) => {
+        return { status: 204 };
       },
     },
   ],

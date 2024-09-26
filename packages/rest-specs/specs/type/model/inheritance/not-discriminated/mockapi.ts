@@ -1,26 +1,8 @@
-import { json, mockapi, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
+import { json, MockRequest, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
 const inheritanceValidBody = { name: "abc", age: 32, smart: true };
-Scenarios.Type_Model_Inheritance_NotDiscriminated_postValid = passOnSuccess(
-  mockapi.post("/type/model/inheritance/not-discriminated/valid", (req) => {
-    req.expect.bodyEquals(inheritanceValidBody);
-    return { status: 204 };
-  }),
-);
-
-Scenarios.Type_Model_Inheritance_NotDiscriminated_getValid = passOnSuccess(
-  mockapi.get("/type/model/inheritance/not-discriminated/valid", (req) => {
-    return { status: 200, body: json(inheritanceValidBody) };
-  }),
-);
-
-Scenarios.Type_Model_Inheritance_NotDiscriminated_putValid = passOnSuccess(
-  mockapi.put("/type/model/inheritance/not-discriminated/valid", (req) => {
-    return { status: 200, body: json(req.body) };
-  }),
-);
 
 Scenarios.Type_Model_Inheritance_Not_Discriminated_Valid = passOnSuccess({
   uri: "/type/model/inheritance/not-discriminated/valid",
@@ -32,6 +14,9 @@ Scenarios.Type_Model_Inheritance_Not_Discriminated_Valid = passOnSuccess({
         status: 200,
         data: inheritanceValidBody,
       },
+      handler: (req: MockRequest) => {
+        return { status: 200, body: json(inheritanceValidBody) };
+      },
     },
     {
       method: "put",
@@ -42,6 +27,9 @@ Scenarios.Type_Model_Inheritance_Not_Discriminated_Valid = passOnSuccess({
         status: 200,
         data: inheritanceValidBody,
       },
+      handler: (req: MockRequest) => {
+        return { status: 200, body: json(req.body) };
+      },
     },
     {
       method: "post",
@@ -50,6 +38,10 @@ Scenarios.Type_Model_Inheritance_Not_Discriminated_Valid = passOnSuccess({
       },
       response: {
         status: 204,
+      },
+      handler: (req: MockRequest) => {
+        req.expect.bodyEquals(inheritanceValidBody);
+        return { status: 204 };
       },
     },
   ],

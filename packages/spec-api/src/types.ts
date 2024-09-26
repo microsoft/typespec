@@ -55,6 +55,7 @@ export interface MockMethod {
   method: HttpMethod;
   request: ServiceRequest;
   response: any;
+  handler?: MockRequestHandler;
 }
 
 export interface ServiceRequest {

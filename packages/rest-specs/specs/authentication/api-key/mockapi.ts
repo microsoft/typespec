@@ -1,19 +1,6 @@
-import { MockRequest, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
-import { getValidAndInvalidScenarios } from "../commonapi.js";
+import { json, MockRequest, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
-
-const validAndInvalidScenarios = getValidAndInvalidScenarios(
-  "api-key",
-  "invalid-api-key",
-  function addOptionalParamOldApiVersionNewClientValidate(req: MockRequest): void {
-    req.expect.containsHeader("x-ms-api-key", "valid-key");
-  },
-);
-
-Scenarios.Authentication_ApiKey_valid = validAndInvalidScenarios.valid;
-
-Scenarios.Authentication_ApiKey_invalid = validAndInvalidScenarios.invalid;
 
 Scenarios.Authentication_ApiKey_InValid_Server_Test = passOnSuccess({
   uri: `/authentication/api-key/invalid`,
@@ -25,7 +12,7 @@ Scenarios.Authentication_ApiKey_InValid_Server_Test = passOnSuccess({
           headers: {
             "x-ms-api-key": "valid-key",
           },
-          validStatuses: [403],
+          validStatus: 403,
         },
       },
       response: {
@@ -33,6 +20,14 @@ Scenarios.Authentication_ApiKey_InValid_Server_Test = passOnSuccess({
         data: {
           error: "invalid-api-key",
         },
+      },
+      handler: (req: MockRequest) => {
+        return {
+          status: 403,
+          body: json({
+            error: "invalid-api-key",
+          }),
+        };
       },
     },
   ],
@@ -52,6 +47,10 @@ Scenarios.Authentication_ApiKey_Valid_Server_Test = passOnSuccess({
       },
       response: {
         status: 204,
+      },
+      handler: (req: MockRequest) => {
+        req.expect.containsHeader("x-ms-api-key", "valid-key");
+        return { status: 204 };
       },
     },
   ],

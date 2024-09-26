@@ -44,13 +44,12 @@ class ServerTestsGenerator {
         body = fs.readFileSync(`${path.resolve(this.scenariosPath)}/../assets/image.png`);
       }
 
-      if (mockMethod.request.config?.validStatuses) {
+      if (mockMethod.request.config?.validStatus) {
         mockMethod.request.config = {
           ...mockMethod.request.config,
           validateStatus: function (status: number) {
             return (
-              (status >= 200 && status < 300) ||
-              status === mockMethod.request.config?.validStatuses[0]
+              (status >= 200 && status < 300) || status === mockMethod.request.config?.validStatus
             );
           },
         };

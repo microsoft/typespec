@@ -1,6 +1,6 @@
 import "@typespec/http";
 import "@typespec/xml";
-import "@azure-tools/cadl-ranch-expect";
+import "@typespec/spec-lib";
 import "@azure-tools/typespec-client-generator-core";
 
 using TypeSpec.Http;

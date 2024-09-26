@@ -1,5 +1,5 @@
 import "@typespec/http";
-import "@azure-tools/cadl-ranch-expect";
+import "@typespec/spec-lib";
 import "@azure-tools/typespec-azure-core";
 import "@typespec/versioning";
 

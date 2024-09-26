@@ -1,6 +1,6 @@
 import "@typespec/http";
 import "@azure-tools/typespec-azure-core";
-import "@azure-tools/cadl-ranch-expect";
+import "@typespec/spec-lib";
 
 using Azure.Core;
 using TypeSpec.Http;

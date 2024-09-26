@@ -1,15 +1,6 @@
-import { MockRequest, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
-import { getValidAndInvalidScenarios } from "../../commonapi.js";
+import { json, MockRequest, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
-
-const validAndInvalidScenarios = getValidAndInvalidScenarios(
-  "http/custom",
-  "invalid-api-key",
-  function addOptionalParamOldApiVersionNewClientValidate(req: MockRequest): void {
-    req.expect.containsHeader("authorization", "SharedAccessKey valid-key");
-  },
-);
 
 Scenarios.Authentication_Http_Custom_Valid_Key = passOnSuccess({
   uri: `/authentication/http/custom/valid`,
@@ -26,6 +17,10 @@ Scenarios.Authentication_Http_Custom_Valid_Key = passOnSuccess({
       response: {
         status: 204,
       },
+      handler: (req: MockRequest) => {
+        req.expect.containsHeader("authorization", "SharedAccessKey valid-key");
+        return { status: 204 };
+      },
     },
   ],
 });
@@ -40,7 +35,7 @@ Scenarios.Authentication_Http_Custom_InValid_Key = passOnSuccess({
           headers: {
             authorization: "SharedAccessKey valid-key",
           },
-          validStatuses: [403],
+          validStatus: 403,
         },
       },
       response: {
@@ -49,10 +44,14 @@ Scenarios.Authentication_Http_Custom_InValid_Key = passOnSuccess({
           error: "invalid-api-key",
         },
       },
+      handler: (req: MockRequest) => {
+        return {
+          status: 403,
+          body: json({
+            error: "invalid-api-key",
+          }),
+        };
+      },
     },
   ],
 });
-
-Scenarios.Authentication_Http_Custom_valid = validAndInvalidScenarios.valid;
-
-Scenarios.Authentication_Http_Custom_invalid = validAndInvalidScenarios.invalid;

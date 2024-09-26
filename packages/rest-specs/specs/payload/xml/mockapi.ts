@@ -1,4 +1,4 @@
-import { mockapi, passOnSuccess, ScenarioMockApi, xml } from "@typespec/spec-api";
+import { MockRequest, passOnSuccess, ScenarioMockApi, xml } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -123,234 +123,6 @@ export const modelWithEncodedNames = `
 </ModelWithEncodedNamesSrc>
 `;
 
-Scenarios.Payload_Xml_SimpleModelValue_get = passOnSuccess(
-  mockapi.get("/payload/xml/simpleModel", (req) => {
-    return {
-      status: 200,
-      body: xml(simpleModel),
-    };
-  }),
-);
-
-Scenarios.Payload_Xml_SimpleModelValue_put = passOnSuccess(
-  mockapi.put("/payload/xml/simpleModel", (req) => {
-    req.expect.containsHeader("content-type", "application/xml");
-    req.expect.xmlBodyEquals(simpleModel);
-    return {
-      status: 204,
-    };
-  }),
-);
-
-Scenarios.Payload_Xml_ModelWithSimpleArraysValue_get = passOnSuccess(
-  mockapi.get("/payload/xml/modelWithSimpleArrays", (req) => {
-    return {
-      status: 200,
-      body: xml(modelWithSimpleArrays),
-    };
-  }),
-);
-
-Scenarios.Payload_Xml_ModelWithSimpleArraysValue_put = passOnSuccess(
-  mockapi.put("/payload/xml/modelWithSimpleArrays", (req) => {
-    req.expect.containsHeader("content-type", "application/xml");
-    req.expect.xmlBodyEquals(modelWithSimpleArrays);
-    return {
-      status: 204,
-    };
-  }),
-);
-
-Scenarios.Payload_Xml_ModelWithArrayOfModelValue_get = passOnSuccess(
-  mockapi.get("/payload/xml/modelWithArrayOfModel", (req) => {
-    return {
-      status: 200,
-      body: xml(modelWithArrayOfModel),
-    };
-  }),
-);
-
-Scenarios.Payload_Xml_ModelWithArrayOfModelValue_put = passOnSuccess(
-  mockapi.put("/payload/xml/modelWithArrayOfModel", (req) => {
-    req.expect.containsHeader("content-type", "application/xml");
-    req.expect.xmlBodyEquals(modelWithArrayOfModel);
-    return {
-      status: 204,
-    };
-  }),
-);
-
-Scenarios.Payload_Xml_ModelWithOptionalFieldValue_get = passOnSuccess(
-  mockapi.get("/payload/xml/modelWithOptionalField", (req) => {
-    return {
-      status: 200,
-      body: xml(modelWithOptionalField),
-    };
-  }),
-);
-
-Scenarios.Payload_Xml_ModelWithOptionalFieldValue_put = passOnSuccess(
-  mockapi.put("/payload/xml/modelWithOptionalField", (req) => {
-    req.expect.containsHeader("content-type", "application/xml");
-    req.expect.xmlBodyEquals(modelWithOptionalField);
-    return {
-      status: 204,
-    };
-  }),
-);
-
-Scenarios.Payload_Xml_ModelWithAttributesValue_get = passOnSuccess(
-  mockapi.get("/payload/xml/modelWithAttributes", (req) => {
-    return {
-      status: 200,
-      body: xml(modelWithAttributes),
-    };
-  }),
-);
-
-Scenarios.Payload_Xml_ModelWithAttributesValue_put = passOnSuccess(
-  mockapi.put("/payload/xml/modelWithAttributes", (req) => {
-    req.expect.containsHeader("content-type", "application/xml");
-    req.expect.xmlBodyEquals(modelWithAttributes);
-    return {
-      status: 204,
-    };
-  }),
-);
-
-Scenarios.Payload_Xml_ModelWithUnwrappedArrayValue_get = passOnSuccess(
-  mockapi.get("/payload/xml/modelWithUnwrappedArray", (req) => {
-    return {
-      status: 200,
-      body: xml(modelWithUnwrappedArray),
-    };
-  }),
-);
-
-Scenarios.Payload_Xml_ModelWithUnwrappedArrayValue_put = passOnSuccess(
-  mockapi.put("/payload/xml/modelWithUnwrappedArray", (req) => {
-    req.expect.containsHeader("content-type", "application/xml");
-    req.expect.xmlBodyEquals(modelWithUnwrappedArray);
-    return {
-      status: 204,
-    };
-  }),
-);
-
-Scenarios.Payload_Xml_ModelWithRenamedArraysValue_get = passOnSuccess(
-  mockapi.get("/payload/xml/modelWithRenamedArrays", (req) => {
-    return {
-      status: 200,
-      body: xml(modelWithRenamedArrays),
-    };
-  }),
-);
-
-Scenarios.Payload_Xml_ModelWithRenamedArraysValue_put = passOnSuccess(
-  mockapi.put("/payload/xml/modelWithRenamedArrays", (req) => {
-    req.expect.containsHeader("content-type", "application/xml");
-    req.expect.xmlBodyEquals(modelWithRenamedArrays);
-    return {
-      status: 204,
-    };
-  }),
-);
-
-Scenarios.Payload_Xml_ModelWithRenamedFieldsValue_get = passOnSuccess(
-  mockapi.get("/payload/xml/modelWithRenamedFields", (req) => {
-    return {
-      status: 200,
-      body: xml(modelWithRenamedFields),
-    };
-  }),
-);
-
-Scenarios.Payload_Xml_ModelWithRenamedFieldsValue_put = passOnSuccess(
-  mockapi.put("/payload/xml/modelWithRenamedFields", (req) => {
-    req.expect.containsHeader("content-type", "application/xml");
-    req.expect.xmlBodyEquals(modelWithRenamedFields);
-    return {
-      status: 204,
-    };
-  }),
-);
-
-Scenarios.Payload_Xml_ModelWithEmptyArrayValue_get = passOnSuccess(
-  mockapi.get("/payload/xml/modelWithEmptyArray", (req) => {
-    return {
-      status: 200,
-      body: xml(modelWithEmptyArray),
-    };
-  }),
-);
-
-Scenarios.Payload_Xml_ModelWithEmptyArrayValue_put = passOnSuccess(
-  mockapi.put("/payload/xml/modelWithEmptyArray", (req) => {
-    req.expect.containsHeader("content-type", "application/xml");
-    req.expect.xmlBodyEquals(modelWithEmptyArray);
-    return {
-      status: 204,
-    };
-  }),
-);
-
-Scenarios.Payload_Xml_ModelWithTextValue_get = passOnSuccess(
-  mockapi.get("/payload/xml/modelWithText", (req) => {
-    return {
-      status: 200,
-      body: xml(modelWithText),
-    };
-  }),
-);
-
-Scenarios.Payload_Xml_ModelWithTextValue_put = passOnSuccess(
-  mockapi.put("/payload/xml/modelWithText", (req) => {
-    req.expect.containsHeader("content-type", "application/xml");
-    req.expect.xmlBodyEquals(modelWithText);
-    return {
-      status: 204,
-    };
-  }),
-);
-
-Scenarios.Payload_Xml_ModelWithDictionaryValue_get = passOnSuccess(
-  mockapi.get("/payload/xml/modelWithDictionary", (req) => {
-    return {
-      status: 200,
-      body: xml(modelWithDictionary),
-    };
-  }),
-);
-
-Scenarios.Payload_Xml_ModelWithDictionaryValue_put = passOnSuccess(
-  mockapi.put("/payload/xml/modelWithDictionary", (req) => {
-    req.expect.containsHeader("content-type", "application/xml");
-    req.expect.xmlBodyEquals(modelWithDictionary);
-    return {
-      status: 204,
-    };
-  }),
-);
-
-Scenarios.Payload_Xml_ModelWithEncodedNamesValue_get = passOnSuccess(
-  mockapi.get("/payload/xml/modelWithEncodedNames", (req) => {
-    return {
-      status: 200,
-      body: xml(modelWithEncodedNames),
-    };
-  }),
-);
-
-Scenarios.Payload_Xml_ModelWithEncodedNamesValue_put = passOnSuccess(
-  mockapi.put("/payload/xml/modelWithEncodedNames", (req) => {
-    req.expect.containsHeader("content-type", "application/xml");
-    req.expect.xmlBodyEquals(modelWithEncodedNames);
-    return {
-      status: 204,
-    };
-  }),
-);
-
 function createServerTests(uri: string, data?: any) {
   return passOnSuccess({
     uri,
@@ -361,6 +133,12 @@ function createServerTests(uri: string, data?: any) {
         response: {
           status: 200,
           data: xml(data),
+        },
+        handler: (req: MockRequest) => {
+          return {
+            status: 200,
+            body: xml(data),
+          };
         },
       },
       {
@@ -375,6 +153,13 @@ function createServerTests(uri: string, data?: any) {
         },
         response: {
           status: 204,
+        },
+        handler: (req: MockRequest) => {
+          req.expect.containsHeader("content-type", "application/xml");
+          req.expect.xmlBodyEquals(data);
+          return {
+            status: 204,
+          };
         },
       },
     ],

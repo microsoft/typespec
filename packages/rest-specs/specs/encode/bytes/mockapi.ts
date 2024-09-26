@@ -2,8 +2,7 @@ import { resolvePath } from "@typespec/compiler";
 import {
   CollectionFormat,
   json,
-  mockapi,
-  MockApi,
+  MockRequest,
   passOnSuccess,
   ScenarioMockApi,
 } from "@typespec/spec-api";
@@ -16,137 +15,12 @@ const pngFile = readFileSync(resolvePath(root, "assets/image.png"));
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
-function createQueryMockApis(
-  route: string,
+function createQueryServerTests(
+  uri: string,
+  data: any,
   value: any,
   collectionFormat?: CollectionFormat,
-): MockApi {
-  const url = `/encode/bytes/query/${route}`;
-  return mockapi.get(url, (req) => {
-    req.expect.containsQueryParam("value", value, collectionFormat);
-    return {
-      status: 204,
-    };
-  });
-}
-
-function createPropertyMockApis(route: string, value: any): MockApi {
-  const url = `/encode/bytes/property/${route}`;
-  return mockapi.post(url, (req) => {
-    req.expect.coercedBodyEquals({ value: value });
-    return {
-      status: 200,
-      body: json({ value: value }),
-    };
-  });
-}
-
-function createHeaderMockApis(route: string, value: any): MockApi {
-  const url = `/encode/bytes/header/${route}`;
-  return mockapi.get(url, (req) => {
-    req.expect.containsHeader("value", value);
-    return {
-      status: 204,
-    };
-  });
-}
-
-function createRequestBodyMockApis(
-  route: string,
-  value: any,
-  contentType: string = "application/json",
-): MockApi {
-  const url = `/encode/bytes/body/request/${route}`;
-  return mockapi.post(url, (req) => {
-    req.expect.containsHeader("content-type", contentType);
-    req.expect.rawBodyEquals(value);
-    return {
-      status: 204,
-    };
-  });
-}
-
-function createResponseBodyMockApis(
-  route: string,
-  value: any,
-  contentType: string = "application/json",
-): MockApi {
-  const url = `/encode/bytes/body/response/${route}`;
-  return mockapi.get(url, (req) => {
-    return {
-      status: 200,
-      body: {
-        contentType: contentType,
-        rawContent: value,
-      },
-    };
-  });
-}
-
-Scenarios.Encode_Bytes_Query_default = passOnSuccess(createQueryMockApis("default", "dGVzdA=="));
-Scenarios.Encode_Bytes_Query_base64 = passOnSuccess(createQueryMockApis("base64", "dGVzdA=="));
-Scenarios.Encode_Bytes_Query_base64url = passOnSuccess(createQueryMockApis("base64url", "dGVzdA"));
-Scenarios.Encode_Bytes_Query_base64urlArray = passOnSuccess(
-  createQueryMockApis("base64url-array", ["dGVzdA", "dGVzdA"], "csv"),
-);
-
-Scenarios.Encode_Bytes_Property_default = passOnSuccess(
-  createPropertyMockApis("default", "dGVzdA=="),
-);
-Scenarios.Encode_Bytes_Property_base64 = passOnSuccess(
-  createPropertyMockApis("base64", "dGVzdA=="),
-);
-Scenarios.Encode_Bytes_Property_base64url = passOnSuccess(
-  createPropertyMockApis("base64url", "dGVzdA"),
-);
-Scenarios.Encode_Bytes_Property_base64urlArray = passOnSuccess(
-  createPropertyMockApis("base64url-array", ["dGVzdA", "dGVzdA"]),
-);
-
-Scenarios.Encode_Bytes_Header_default = passOnSuccess(createHeaderMockApis("default", "dGVzdA=="));
-Scenarios.Encode_Bytes_Header_base64 = passOnSuccess(createHeaderMockApis("base64", "dGVzdA=="));
-Scenarios.Encode_Bytes_Header_base64url = passOnSuccess(
-  createHeaderMockApis("base64url", "dGVzdA"),
-);
-Scenarios.Encode_Bytes_Header_base64urlArray = passOnSuccess(
-  createHeaderMockApis("base64url-array", "dGVzdA,dGVzdA"),
-);
-
-// Request body
-Scenarios.Encode_Bytes_RequestBody_default = passOnSuccess(
-  createRequestBodyMockApis("default", '"dGVzdA=="'),
-);
-Scenarios.Encode_Bytes_RequestBody_octetStream = passOnSuccess(
-  createRequestBodyMockApis("octet-stream", pngFile, "application/octet-stream"),
-);
-Scenarios.Encode_Bytes_RequestBody_customContentType = passOnSuccess(
-  createRequestBodyMockApis("custom-content-type", pngFile, "image/png"),
-);
-Scenarios.Encode_Bytes_RequestBody_base64 = passOnSuccess(
-  createRequestBodyMockApis("base64", '"dGVzdA=="'),
-);
-Scenarios.Encode_Bytes_RequestBody_base64url = passOnSuccess(
-  createRequestBodyMockApis("base64url", '"dGVzdA"'),
-);
-
-// Response body
-Scenarios.Encode_Bytes_ResponseBody_default = passOnSuccess(
-  createResponseBodyMockApis("default", '"dGVzdA=="'),
-);
-Scenarios.Encode_Bytes_ResponseBody_octetStream = passOnSuccess(
-  createResponseBodyMockApis("octet-stream", pngFile, "application/octet-stream"),
-);
-Scenarios.Encode_Bytes_ResponseBody_customContentType = passOnSuccess(
-  createResponseBodyMockApis("custom-content-type", pngFile, "image/png"),
-);
-Scenarios.Encode_Bytes_ResponseBody_base64 = passOnSuccess(
-  createResponseBodyMockApis("base64", '"dGVzdA=="'),
-);
-Scenarios.Encode_Bytes_ResponseBody_base64url = passOnSuccess(
-  createResponseBodyMockApis("base64url", '"dGVzdA"'),
-);
-
-function createQueryServerTests(uri: string, data: any) {
+) {
   return passOnSuccess({
     uri,
     mockMethods: [
@@ -160,6 +34,12 @@ function createQueryServerTests(uri: string, data: any) {
         response: {
           status: 204,
         },
+        handler: (req: MockRequest) => {
+          req.expect.containsQueryParam("value", value, collectionFormat);
+          return {
+            status: 204,
+          };
+        },
       },
     ],
   });
@@ -169,23 +49,31 @@ Scenarios.Encode_Bytes_Query_Default_Server_Test = createQueryServerTests(
   {
     value: "dGVzdA==",
   },
+  "dGVzdA==",
 );
 Scenarios.Encode_Bytes_Query_Base64_Server_Test = createQueryServerTests(
   "/encode/bytes/query/base64",
   {
     value: "dGVzdA==",
   },
+  "dGVzdA==",
 );
-Scenarios.Encode_Bytes_Query_Base64_URL = createQueryServerTests("/encode/bytes/query/base64url", {
-  value: "dGVzdA",
-});
+Scenarios.Encode_Bytes_Query_Base64_URL = createQueryServerTests(
+  "/encode/bytes/query/base64url",
+  {
+    value: "dGVzdA",
+  },
+  "dGVzdA",
+);
 Scenarios.Encode_Bytes_Query_Base64_URL_Array = createQueryServerTests(
   "/encode/bytes/query/base64url-array",
   {
     value: ["dGVzdA", "dGVzdA"].join(","),
   },
+  ["dGVzdA", "dGVzdA"],
+  "csv",
 );
-function createPropertyServerTests(uri: string, data: any) {
+function createPropertyServerTests(uri: string, data: any, value: any) {
   return passOnSuccess({
     uri,
     mockMethods: [
@@ -197,6 +85,13 @@ function createPropertyServerTests(uri: string, data: any) {
         response: {
           status: 200,
         },
+        handler: (req: MockRequest) => {
+          req.expect.coercedBodyEquals({ value: value });
+          return {
+            status: 200,
+            body: json({ value: value }),
+          };
+        },
       },
     ],
   });
@@ -206,26 +101,30 @@ Scenarios.Encode_Bytes_Property_Default_Server_Test = createPropertyServerTests(
   {
     value: "dGVzdA==",
   },
+  "dGVzdA==",
 );
 Scenarios.Encode_Bytes_Property_Base64_Server_Test = createPropertyServerTests(
   "/encode/bytes/property/base64",
   {
     value: "dGVzdA==",
   },
+  "dGVzdA==",
 );
 Scenarios.Encode_Bytes_Property_Base64_URL = createPropertyServerTests(
   "/encode/bytes/property/base64url",
   {
     value: "dGVzdA",
   },
+  "dGVzdA",
 );
 Scenarios.Encode_Bytes_Property_Base64_URL_Array = createPropertyServerTests(
   "/encode/bytes/property/base64url-array",
   {
     value: ["dGVzdA", "dGVzdA"],
   },
+  ["dGVzdA", "dGVzdA"],
 );
-function createHeaderServerTests(uri: string, data: any) {
+function createHeaderServerTests(uri: string, data: any, value: any) {
   return passOnSuccess({
     uri,
     mockMethods: [
@@ -239,6 +138,12 @@ function createHeaderServerTests(uri: string, data: any) {
         response: {
           status: 204,
         },
+        handler: (req: MockRequest) => {
+          req.expect.containsHeader("value", value);
+          return {
+            status: 204,
+          };
+        },
       },
     ],
   });
@@ -248,26 +153,36 @@ Scenarios.Encode_Bytes_Header_Default_Server_Test = createHeaderServerTests(
   {
     value: "dGVzdA==",
   },
+  "dGVzdA==",
 );
 Scenarios.Encode_Bytes_Header_Base64_Server_Test = createHeaderServerTests(
   "/encode/bytes/header/base64",
   {
     value: "dGVzdA==",
   },
+  "dGVzdA==",
 );
 Scenarios.Encode_Bytes_Header_Base64_URL = createHeaderServerTests(
   "/encode/bytes/header/base64url",
   {
     value: "dGVzdA",
   },
+  "dGVzdA",
 );
 Scenarios.Encode_Bytes_Header_Base64_URL_Array = createHeaderServerTests(
   "/encode/bytes/header/base64url-array",
   {
     value: ["dGVzdA", "dGVzdA"].join(","),
   },
+  ["dGVzdA", "dGVzdA"].join(","),
 );
-function createRequestBodyServerTests(uri: string, data: any, headersData: any) {
+function createRequestBodyServerTests(
+  uri: string,
+  data: any,
+  headersData: any,
+  value: any,
+  contentType: string = "application/json",
+) {
   return passOnSuccess({
     uri,
     mockMethods: [
@@ -282,30 +197,40 @@ function createRequestBodyServerTests(uri: string, data: any, headersData: any) 
         response: {
           status: 204,
         },
+        handler(req: MockRequest) {
+          req.expect.containsHeader("content-type", contentType);
+          req.expect.rawBodyEquals(value);
+          return {
+            status: 204,
+          };
+        },
       },
     ],
   });
 }
 Scenarios.Encode_Bytes_Body_Request_Default_Server_Test = createRequestBodyServerTests(
   "/encode/bytes/body/request/default",
-  "dGVzdA==",
+  '"dGVzdA=="',
   {
     "Content-Type": "application/json",
   },
+  '"dGVzdA=="',
 );
 Scenarios.Encode_Bytes_Body_Request_Base64 = createRequestBodyServerTests(
   "/encode/bytes/body/request/base64",
-  "dGVzdA==",
+  '"dGVzdA=="',
   {
     "Content-Type": "application/json",
   },
+  '"dGVzdA=="',
 );
 Scenarios.Encode_Bytes_Body_Request_Base64_URL = createRequestBodyServerTests(
   "/encode/bytes/body/request/base64url",
-  "dGVzdA",
+  '"dGVzdA=="',
   {
     "Content-Type": "application/json",
   },
+  '"dGVzdA=="',
 );
 Scenarios.Encode_Bytes_Body_Request_Custom_Content_Type = createRequestBodyServerTests(
   "/encode/bytes/body/request/custom-content-type",
@@ -313,6 +238,8 @@ Scenarios.Encode_Bytes_Body_Request_Custom_Content_Type = createRequestBodyServe
   {
     "Content-Type": "image/png",
   },
+  pngFile,
+  "image/png",
 );
 Scenarios.Encode_Bytes_Body_Request_Octet_Stream = createRequestBodyServerTests(
   "/encode/bytes/body/request/octet-stream",
@@ -320,8 +247,16 @@ Scenarios.Encode_Bytes_Body_Request_Octet_Stream = createRequestBodyServerTests(
   {
     "Content-Type": "application/octet-stream",
   },
+  pngFile,
+  "application/octet-stream",
 );
-function createResponseBodyServerTests(uri: string, data: any, headerData: any) {
+function createResponseBodyServerTests(
+  uri: string,
+  data: any,
+  headerData: any,
+  value: any,
+  contentType: string = "application/json",
+) {
   return passOnSuccess({
     uri,
     mockMethods: [
@@ -336,6 +271,15 @@ function createResponseBodyServerTests(uri: string, data: any, headerData: any) 
           status: 200,
           data: data,
         },
+        handler(req: MockRequest) {
+          return {
+            status: 200,
+            body: {
+              contentType: contentType,
+              rawContent: value,
+            },
+          };
+        },
       },
     ],
   });
@@ -346,6 +290,7 @@ Scenarios.Encode_Bytes_Body_Response_Default = createResponseBodyServerTests(
   {
     "Content-Type": "application/json",
   },
+  "dGVzdA==",
 );
 Scenarios.Encode_Bytes_Body_Response_Base64 = createResponseBodyServerTests(
   "/encode/bytes/body/response/base64",
@@ -353,6 +298,7 @@ Scenarios.Encode_Bytes_Body_Response_Base64 = createResponseBodyServerTests(
   {
     "Content-Type": "application/json",
   },
+  "dGVzdA==",
 );
 Scenarios.Encode_Bytes_Body_Response_Base64_URL = createResponseBodyServerTests(
   "/encode/bytes/body/response/base64url",
@@ -360,6 +306,7 @@ Scenarios.Encode_Bytes_Body_Response_Base64_URL = createResponseBodyServerTests(
   {
     "Content-Type": "application/json",
   },
+  "dGVzdA",
 );
 Scenarios.Encode_Bytes_Body_Response_Custom_Content_Type = createResponseBodyServerTests(
   "/encode/bytes/body/response/custom-content-type",
@@ -367,6 +314,8 @@ Scenarios.Encode_Bytes_Body_Response_Custom_Content_Type = createResponseBodySer
   {
     "Content-Type": "image/png",
   },
+  pngFile,
+  "image/png",
 );
 Scenarios.Encode_Bytes_Body_Response_Octet_Stream = createResponseBodyServerTests(
   "/encode/bytes/body/response/octet-stream",
@@ -374,4 +323,6 @@ Scenarios.Encode_Bytes_Body_Response_Octet_Stream = createResponseBodyServerTest
   {
     "Content-Type": "application/octet-stream",
   },
+  pngFile,
+  "application/octet-stream",
 );

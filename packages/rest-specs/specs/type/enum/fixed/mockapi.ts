@@ -1,29 +1,6 @@
-import { json, mockapi, passOnCode, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
+import { json, MockRequest, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
-
-// Known Values
-Scenarios.Type_Enum_Fixed_String_getKnownValue = passOnSuccess(
-  mockapi.get("/type/enum/fixed/string/known-value", (req) => {
-    return { status: 200, body: json("Monday") };
-  }),
-);
-
-Scenarios.Type_Enum_Fixed_String_putKnownValue = passOnSuccess(
-  mockapi.put("/type/enum/fixed/string/known-value", (req) => {
-    req.expect.bodyEquals("Monday");
-    return { status: 204 };
-  }),
-);
-
-// Unknown values
-Scenarios.Type_Enum_Fixed_String_putUnknownValue = passOnCode(
-  500,
-  mockapi.put("/type/enum/fixed/string/unknown-value", (req) => {
-    req.expect.bodyEquals("Weekend");
-    return { status: 500 };
-  }),
-);
 
 Scenarios.Type_Enum_Fixed_String_Known_Value = passOnSuccess({
   uri: "/type/enum/fixed/string/known-value",
@@ -34,6 +11,9 @@ Scenarios.Type_Enum_Fixed_String_Known_Value = passOnSuccess({
       response: {
         status: 200,
         data: "Monday",
+      },
+      handler: (req: MockRequest) => {
+        return { status: 200, body: json("Monday") };
       },
     },
     {
@@ -48,6 +28,10 @@ Scenarios.Type_Enum_Fixed_String_Known_Value = passOnSuccess({
       },
       response: {
         status: 204,
+      },
+      handler: (req: MockRequest) => {
+        req.expect.bodyEquals("Monday");
+        return { status: 204 };
       },
     },
   ],
@@ -64,11 +48,15 @@ Scenarios.Type_Enum_Fixed_String_Unknown_Value = passOnSuccess({
           headers: {
             "Content-Type": "application/json",
           },
-          validStatuses: [500],
+          validStatus: 500,
         },
       },
       response: {
         status: 500,
+      },
+      handler: (req: MockRequest) => {
+        req.expect.bodyEquals("Weekend");
+        return { status: 500 };
       },
     },
   ],

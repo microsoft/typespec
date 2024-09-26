@@ -1,23 +1,6 @@
-import { json, mockapi, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
+import { json, MockRequest, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
-
-Scenarios.Serialization_EncodedName_Json_Property_send = passOnSuccess(
-  mockapi.post("/serialization/encoded-name/json/property", (req) => {
-    req.expect.bodyEquals({ wireName: true });
-    return {
-      status: 204,
-    };
-  }),
-);
-Scenarios.Serialization_EncodedName_Json_Property_get = passOnSuccess(
-  mockapi.get("/serialization/encoded-name/json/property", (req) => {
-    return {
-      status: 200,
-      body: json({ wireName: true }),
-    };
-  }),
-);
 
 Scenarios.Serialization_Encoded_Name_JSON_Property = passOnSuccess({
   uri: "/serialization/encoded-name/json/property",
@@ -29,11 +12,23 @@ Scenarios.Serialization_Encoded_Name_JSON_Property = passOnSuccess({
         status: 200,
         data: { wireName: true },
       },
+      handler: (req: MockRequest) => {
+        return {
+          status: 200,
+          body: json({ wireName: true }),
+        };
+      },
     },
     {
       method: "post",
       request: { body: { wireName: true } },
       response: { status: 204 },
+      handler: (req: MockRequest) => {
+        req.expect.bodyEquals({ wireName: true });
+        return {
+          status: 204,
+        };
+      },
     },
   ],
 });

@@ -1,21 +1,6 @@
-import { mockapi, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
+import { MockRequest, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
-
-Scenarios.Parameters_Basic_ExplicitBody_simple = passOnSuccess(
-  mockapi.put("/parameters/basic/explicit-body/simple", (req) => {
-    req.expect.bodyEquals({ name: "foo" });
-    return { status: 204 };
-  }),
-);
-
-Scenarios.Parameters_Basic_ImplicitBody_simple = passOnSuccess(
-  mockapi.put("/parameters/basic/implicit-body/simple", (req) => {
-    req.expect.bodyEquals({ name: "foo" });
-    return { status: 204 };
-  }),
-);
-
 function createServerTests(uri: string) {
   return passOnSuccess({
     uri,
@@ -30,14 +15,18 @@ function createServerTests(uri: string) {
         response: {
           status: 204,
         },
+        handler: (req: MockRequest) => {
+          req.expect.bodyEquals({ name: "foo" });
+          return { status: 204 };
+        },
       },
     ],
   });
 }
 
-Scenarios.Parameters_Basic_ExplicitBody_simple_server = createServerTests(
+Scenarios.Parameters_Basic_ExplicitBody_Simple = createServerTests(
   "/parameters/basic/explicit-body/simple",
 );
-Scenarios.Parameters_Basic_ImplicitBody_simple_server = createServerTests(
+Scenarios.Parameters_Basic_ImplicitBody_Simple = createServerTests(
   "/parameters/basic/implicit-body/simple",
 );

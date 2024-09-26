@@ -1,4 +1,4 @@
-import { json, mockapi, MockApi, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
+import { json, MockRequest, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -43,52 +43,6 @@ export const expectedUpdateBody = {
   intArray: null,
 };
 
-function createMockApis(route: string, isUpdateRequest: boolean): MockApi {
-  const url = `/json-merge-patch/${route}`;
-
-  if (isUpdateRequest) {
-    return mockapi.patch(url, (req) => {
-      req.expect.deepEqual(req.body.description, expectedUpdateBody.description);
-      req.expect.deepEqual(req.body.map.key.description, expectedUpdateBody.map.key.description);
-      req.expect.deepEqual(req.body.map.key2, expectedUpdateBody.map.key2);
-      req.expect.deepEqual(req.body.array, expectedUpdateBody.array);
-      req.expect.deepEqual(req.body.intValue, expectedUpdateBody.intValue);
-      req.expect.deepEqual(req.body.floatValue, expectedUpdateBody.floatValue);
-      req.expect.deepEqual(req.body.innerModel, expectedUpdateBody.innerModel);
-      req.expect.deepEqual(req.body.intArray, expectedUpdateBody.intArray);
-      return {
-        status: 200,
-        body: json({
-          name: "Madge",
-          map: {
-            key: {
-              name: "InnerMadge",
-            },
-          },
-        }),
-      };
-    });
-  } else {
-    return mockapi.put(url, (req) => {
-      req.expect.coercedBodyEquals(expectedCreateBody);
-      return {
-        status: 200,
-        body: json(expectedCreateBody),
-      };
-    });
-  }
-}
-
-Scenarios.Payload_JsonMergePatch_createResource = passOnSuccess(
-  createMockApis("create/resource", false),
-);
-Scenarios.Payload_JsonMergePatch_updateResource = passOnSuccess(
-  createMockApis("update/resource", true),
-);
-Scenarios.Payload_JsonMergePatch_updateOptionalResource = passOnSuccess(
-  createMockApis("update/resource/optional", true),
-);
-
 Scenarios.Payload_JsonMergePatch_Create_Resource = passOnSuccess({
   uri: "/json-merge-patch/create/resource",
   mockMethods: [
@@ -100,6 +54,13 @@ Scenarios.Payload_JsonMergePatch_Create_Resource = passOnSuccess({
       response: {
         status: 200,
         data: expectedCreateBody,
+      },
+      handler: (req: MockRequest) => {
+        req.expect.coercedBodyEquals(expectedCreateBody);
+        return {
+          status: 200,
+          body: json(expectedCreateBody),
+        };
       },
     },
   ],
@@ -124,6 +85,27 @@ Scenarios.Payload_JsonMergePatch_Update_Resource = passOnSuccess({
           },
         },
       },
+      handler: (req: MockRequest) => {
+        req.expect.deepEqual(req.body.description, expectedUpdateBody.description);
+        req.expect.deepEqual(req.body.map.key.description, expectedUpdateBody.map.key.description);
+        req.expect.deepEqual(req.body.map.key2, expectedUpdateBody.map.key2);
+        req.expect.deepEqual(req.body.array, expectedUpdateBody.array);
+        req.expect.deepEqual(req.body.intValue, expectedUpdateBody.intValue);
+        req.expect.deepEqual(req.body.floatValue, expectedUpdateBody.floatValue);
+        req.expect.deepEqual(req.body.innerModel, expectedUpdateBody.innerModel);
+        req.expect.deepEqual(req.body.intArray, expectedUpdateBody.intArray);
+        return {
+          status: 200,
+          body: json({
+            name: "Madge",
+            map: {
+              key: {
+                name: "InnerMadge",
+              },
+            },
+          }),
+        };
+      },
     },
   ],
 });
@@ -146,6 +128,27 @@ Scenarios.Payload_JsonMergePatch_Update_Resource_Optional = passOnSuccess({
             },
           },
         },
+      },
+      handler: (req: MockRequest) => {
+        req.expect.deepEqual(req.body.description, expectedUpdateBody.description);
+        req.expect.deepEqual(req.body.map.key.description, expectedUpdateBody.map.key.description);
+        req.expect.deepEqual(req.body.map.key2, expectedUpdateBody.map.key2);
+        req.expect.deepEqual(req.body.array, expectedUpdateBody.array);
+        req.expect.deepEqual(req.body.intValue, expectedUpdateBody.intValue);
+        req.expect.deepEqual(req.body.floatValue, expectedUpdateBody.floatValue);
+        req.expect.deepEqual(req.body.innerModel, expectedUpdateBody.innerModel);
+        req.expect.deepEqual(req.body.intArray, expectedUpdateBody.intArray);
+        return {
+          status: 200,
+          body: json({
+            name: "Madge",
+            map: {
+              key: {
+                name: "InnerMadge",
+              },
+            },
+          }),
+        };
       },
     },
   ],

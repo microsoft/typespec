@@ -1,6 +1,6 @@
 import "@typespec/http";
 import "@typespec/versioning";
-import "@azure-tools/cadl-ranch-expect";
+import "@typespec/spec-lib";
 
 using TypeSpec.Http;
 using TypeSpec.Versioning;

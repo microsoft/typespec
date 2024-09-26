@@ -1,43 +1,6 @@
-import { json, mockapi, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
+import { json, MockRequest, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
-
-Scenarios.Payload_MediaType_StringBody_sendAsText = passOnSuccess(
-  mockapi.post("/payload/media-type/string-body/sendAsText", (req) => {
-    req.expect.containsHeader("content-type", "text/plain");
-    req.expect.bodyEquals("{cat}");
-    return { status: 200 };
-  }),
-);
-
-Scenarios.Payload_MediaType_StringBody_getAsText = passOnSuccess(
-  mockapi.get("/payload/media-type/string-body/getAsText", (req) => {
-    req.expect.containsHeader("accept", "text/plain");
-    return {
-      status: 200,
-      body: { rawContent: "{cat}", contentType: "text/plain" },
-    };
-  }),
-);
-
-Scenarios.Payload_MediaType_StringBody_sendAsJson = passOnSuccess(
-  mockapi.post("/payload/media-type/string-body/sendAsJson", (req) => {
-    req.expect.containsHeader("content-type", "application/json");
-    req.expect.bodyEquals("foo");
-    return { status: 200 };
-  }),
-);
-
-Scenarios.Payload_MediaType_StringBody_getAsJson = passOnSuccess(
-  mockapi.get("/payload/media-type/string-body/getAsJson", (req) => {
-    req.expect.containsHeader("accept", "application/json");
-    return {
-      status: 200,
-      body: json("foo"),
-      contentType: "application/json",
-    };
-  }),
-);
 
 Scenarios.Payload_MediaType_String_Body_SendAsText = passOnSuccess({
   uri: "/payload/media-type/string-body/sendAsText",
@@ -54,6 +17,11 @@ Scenarios.Payload_MediaType_String_Body_SendAsText = passOnSuccess({
       },
       response: {
         status: 200,
+      },
+      handler: (req: MockRequest) => {
+        req.expect.containsHeader("content-type", "text/plain");
+        req.expect.bodyEquals("{cat}");
+        return { status: 200 };
       },
     },
   ],
@@ -75,6 +43,13 @@ Scenarios.Payload_MediaType_String_Body_GetAsText = passOnSuccess({
         status: 200,
         data: "{cat}",
       },
+      handler: (req: MockRequest) => {
+        req.expect.containsHeader("accept", "text/plain");
+        return {
+          status: 200,
+          body: { rawContent: "{cat}", contentType: "text/plain" },
+        };
+      },
     },
   ],
 });
@@ -95,6 +70,11 @@ Scenarios.Payload_MediaType_String_Body_SendAsJson = passOnSuccess({
       response: {
         status: 200,
       },
+      handler: (req: MockRequest) => {
+        req.expect.containsHeader("content-type", "application/json");
+        req.expect.bodyEquals("foo");
+        return { status: 200 };
+      },
     },
   ],
 });
@@ -114,6 +94,14 @@ Scenarios.Payload_MediaType_String_Body_GetAsJson = passOnSuccess({
       response: {
         status: 200,
         data: "foo",
+      },
+      handler: (req: MockRequest) => {
+        req.expect.containsHeader("accept", "application/json");
+        return {
+          status: 200,
+          body: json("foo"),
+          contentType: "application/json",
+        };
       },
     },
   ],

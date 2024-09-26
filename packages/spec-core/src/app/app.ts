@@ -1,4 +1,4 @@
-import { RequestExt, ScenarioMockApi } from "@typespec/spec-api";
+import { MockMethod, RequestExt, ScenarioMockApi } from "@typespec/spec-api";
 import { Response, Router } from "express";
 import { getScenarioMetadata } from "../coverage/common.js";
 import { CoverageTracker } from "../coverage/coverage-tracker.js";
@@ -38,17 +38,44 @@ export class MockApiApp {
     this.server.start();
   }
 
+  private containsHandlers(mockMethods: MockMethod[]) {
+    return mockMethods.some((method) => method.handler !== undefined);
+  }
+
   private registerScenario(name: string, scenario: ScenarioMockApi) {
     for (const endpoint of scenario.apis) {
-      if (endpoint.method === null || endpoint.method === undefined) continue;
-      this.router.route(endpoint.uri)[endpoint.method]((req: RequestExt, res: Response) => {
-        processRequest(this.coverageTracker, name, endpoint.uri, req, res, endpoint.handler!).catch(
-          (e) => {
+      if (endpoint.mockMethods && this.containsHandlers(endpoint.mockMethods)) {
+        for (const method of endpoint.mockMethods) {
+          this.router.route(endpoint.uri)[method.method]((req: RequestExt, res: Response) => {
+            processRequest(
+              this.coverageTracker,
+              name,
+              endpoint.uri,
+              req,
+              res,
+              method.handler!,
+            ).catch((e) => {
+              logger.error("Unexpected request error", e);
+              res.status(500).end();
+            });
+          });
+        }
+      } else {
+        if (endpoint.method === null || endpoint.method === undefined) continue;
+        this.router.route(endpoint.uri)[endpoint.method]((req: RequestExt, res: Response) => {
+          processRequest(
+            this.coverageTracker,
+            name,
+            endpoint.uri,
+            req,
+            res,
+            endpoint.handler!,
+          ).catch((e) => {
             logger.error("Unexpected request error", e);
             res.status(500).end();
-          },
-        );
-      });
+          });
+        });
+      }
     }
   }
 }

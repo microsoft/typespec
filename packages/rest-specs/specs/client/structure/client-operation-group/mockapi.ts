@@ -1,29 +1,6 @@
-import { mockapi, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
+import { MockRequest, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
-Scenarios.Client_Structure_ClientOperationGroup = passOnSuccess([
-  mockapi.post("/client/structure/client-operation-group/one", (req) => {
-    return { status: 204 };
-  }),
-  mockapi.post("/client/structure/client-operation-group/two", (req) => {
-    return { status: 204 };
-  }),
-  mockapi.post("/client/structure/client-operation-group/three", (req) => {
-    return { status: 204 };
-  }),
-  mockapi.post("/client/structure/client-operation-group/four", (req) => {
-    return { status: 204 };
-  }),
-]);
-
-Scenarios.Client_Structure_AnotherClientOperationGroup = passOnSuccess([
-  mockapi.post("/client/structure/client-operation-group/five", (req) => {
-    return { status: 204 };
-  }),
-  mockapi.post("/client/structure/client-operation-group/six", (req) => {
-    return { status: 204 };
-  }),
-]);
 
 function createServerTests(uri: string) {
   return passOnSuccess({
@@ -33,6 +10,9 @@ function createServerTests(uri: string) {
         method: "post",
         request: {},
         response: { status: 204 },
+        handler: (req: MockRequest) => {
+          return { status: 204 };
+        },
       },
     ],
   });

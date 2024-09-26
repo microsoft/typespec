@@ -1,19 +1,6 @@
-import { MockRequest, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
-import { getValidAndInvalidScenarios } from "../commonapi.js";
+import { json, MockRequest, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
-
-const validAndInvalidScenarios = getValidAndInvalidScenarios(
-  "oauth2",
-  "invalid-grant",
-  function addOptionalParamOldApiVersionNewClientValidate(req: MockRequest): void {
-    req.expect.containsHeader("authorization", "Bearer https://security.microsoft.com/.default");
-  },
-);
-
-Scenarios.Authentication_OAuth2_valid = validAndInvalidScenarios.valid;
-
-Scenarios.Authentication_OAuth2_invalid = validAndInvalidScenarios.invalid;
 
 Scenarios.Authentication_OAuth2_Valid_Server_Test = passOnSuccess({
   uri: `/authentication/oauth2/valid`,
@@ -30,6 +17,13 @@ Scenarios.Authentication_OAuth2_Valid_Server_Test = passOnSuccess({
       response: {
         status: 204,
       },
+      handler: (req: MockRequest) => {
+        req.expect.containsHeader(
+          "authorization",
+          "Bearer https://security.microsoft.com/.default",
+        );
+        return { status: 204 };
+      },
     },
   ],
 });
@@ -41,7 +35,7 @@ Scenarios.Authentication_OAuth2_Invalid_Server_Test = passOnSuccess({
       method: "get",
       request: {
         config: {
-          validStatuses: [403],
+          validStatus: 403,
         },
       },
       response: {
@@ -49,6 +43,14 @@ Scenarios.Authentication_OAuth2_Invalid_Server_Test = passOnSuccess({
         data: {
           error: "invalid-grant",
         },
+      },
+      handler: (req: MockRequest) => {
+        return {
+          status: 403,
+          body: json({
+            error: "invalid-grant",
+          }),
+        };
       },
     },
   ],

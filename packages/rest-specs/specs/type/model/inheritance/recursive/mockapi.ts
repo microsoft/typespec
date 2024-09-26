@@ -1,4 +1,4 @@
-import { json, mockapi, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
+import { json, MockRequest, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -18,20 +18,6 @@ const body = {
     },
   ],
 };
-
-Scenarios.Type_Model_Inheritance_Recursive_put = passOnSuccess(
-  mockapi.put("/type/model/inheritance/recursive", (req) => {
-    req.expect.bodyEquals(body);
-    return { status: 204 };
-  }),
-);
-
-Scenarios.Type_Model_Inheritance_Recursive_get = passOnSuccess(
-  mockapi.get("/type/model/inheritance/recursive", (req) => {
-    return { status: 200, body: json(body) };
-  }),
-);
-
 Scenarios.Type_Model_Inheritance_Recursive = passOnSuccess({
   uri: "/type/model/inheritance/recursive",
   mockMethods: [
@@ -42,6 +28,9 @@ Scenarios.Type_Model_Inheritance_Recursive = passOnSuccess({
         status: 200,
         data: body,
       },
+      handler: (req: MockRequest) => {
+        return { status: 200, body: json(body) };
+      },
     },
     {
       method: "put",
@@ -50,6 +39,10 @@ Scenarios.Type_Model_Inheritance_Recursive = passOnSuccess({
       },
       response: {
         status: 204,
+      },
+      handler: (req: MockRequest) => {
+        req.expect.bodyEquals(body);
+        return { status: 204 };
       },
     },
   ],

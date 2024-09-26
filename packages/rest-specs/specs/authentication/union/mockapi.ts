@@ -1,20 +1,6 @@
-import { mockapi, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
+import { MockRequest, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
-
-Scenarios.Authentication_Union_validKey = passOnSuccess(
-  mockapi.get("/authentication/union/validkey", (req) => {
-    req.expect.containsHeader("x-ms-api-key", "valid-key");
-    return { status: 204 };
-  }),
-);
-
-Scenarios.Authentication_Union_validToken = passOnSuccess(
-  mockapi.get("/authentication/union/validtoken", (req) => {
-    req.expect.containsHeader("authorization", "Bearer https://security.microsoft.com/.default");
-    return { status: 204 };
-  }),
-);
 
 Scenarios.Authentication_Union_Valid_Key = passOnSuccess({
   uri: `/authentication/union/validkey`,
@@ -30,6 +16,10 @@ Scenarios.Authentication_Union_Valid_Key = passOnSuccess({
       },
       response: {
         status: 204,
+      },
+      handler: (req: MockRequest) => {
+        req.expect.containsHeader("x-ms-api-key", "valid-key");
+        return { status: 204 };
       },
     },
   ],
@@ -49,6 +39,13 @@ Scenarios.Authentication_Union_Valid_Token = passOnSuccess({
       },
       response: {
         status: 204,
+      },
+      handler: (req: MockRequest) => {
+        req.expect.containsHeader(
+          "authorization",
+          "Bearer https://security.microsoft.com/.default",
+        );
+        return { status: 204 };
       },
     },
   ],

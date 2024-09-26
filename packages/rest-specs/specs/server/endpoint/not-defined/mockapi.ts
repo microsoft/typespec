@@ -1,12 +1,6 @@
-import { mockapi, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
+import { MockRequest, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
-
-Scenarios.Server_Endpoint_NotDefined_valid = passOnSuccess(
-  mockapi.head("/server/endpoint/not-defined/valid", (req) => {
-    return { status: 200 };
-  }),
-);
 
 Scenarios.Server_Endpoint_Not_Defined_Valid = passOnSuccess({
   uri: "/server/endpoint/not-defined/valid",
@@ -16,6 +10,9 @@ Scenarios.Server_Endpoint_Not_Defined_Valid = passOnSuccess({
       request: {},
       response: {
         status: 200,
+      },
+      handler: (req: MockRequest) => {
+        return { status: 200 };
       },
     },
   ],
