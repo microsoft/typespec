@@ -12,7 +12,7 @@ it("warns for custom scalars", async () => {
     getStandardService(`
       /** bar scalar */
       scalar bar;
-    `)
+    `),
   );
 
   expectDiagnostics(diagnostics, [
@@ -32,7 +32,7 @@ it("warns for integer", async () => {
         /**An imprecise integer property */
         integerProp: integer;
       }
-    `)
+    `),
   );
 
   expectDiagnostics(diagnostics, [
@@ -52,7 +52,7 @@ it("warns for float", async () => {
         /**An imprecise floating point property */
         floatProp: float;
       }
-    `)
+    `),
   );
 
   expectDiagnostics(diagnostics, [
@@ -72,7 +72,7 @@ it("warns for numeric", async () => {
         /**An imprecise numeric property */
         numericProp: numeric;
       }
-    `)
+    `),
   );
 
   expectDiagnostics(diagnostics, [
@@ -93,7 +93,7 @@ it("warns for invalid identifiers", async () => {
       /** An invalid name test */
       \`**()invalid~~Name\`?: string = "This is a string literal";
     }
-    `)
+    `),
   );
 
   expectDiagnostics(diagnostics, [

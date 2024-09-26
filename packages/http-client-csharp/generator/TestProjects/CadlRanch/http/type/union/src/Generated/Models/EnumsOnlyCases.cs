@@ -14,12 +14,10 @@ namespace _Type.Union.Models
             set => throw null;
         }
 
-
         public EnumsOnlyCasesUd Ud
         {
             get => throw null;
             set => throw null;
         }
-
     }
 }

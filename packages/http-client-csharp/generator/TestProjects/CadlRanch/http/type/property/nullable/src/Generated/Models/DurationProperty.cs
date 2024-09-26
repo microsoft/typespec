@@ -14,12 +14,10 @@ namespace _Type.Property.Nullable.Models
             set => throw null;
         }
 
-
         public TimeSpan? NullableProperty
         {
             get => throw null;
             set => throw null;
         }
-
     }
 }

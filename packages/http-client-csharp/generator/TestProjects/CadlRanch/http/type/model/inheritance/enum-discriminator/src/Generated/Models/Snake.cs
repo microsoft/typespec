@@ -9,9 +9,9 @@ namespace _Type.Model.Inheritance.EnumDiscriminator.Models
 {
     public abstract partial class Snake
     {
-        protected Snake(SnakeKind kind, int length) => throw null;
+        private protected Snake(SnakeKind kind, int length) => throw null;
 
-        internal Snake(SnakeKind kind, int length, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
+        internal Snake(SnakeKind kind, int length, IDictionary<string, BinaryData> additionalBinaryDataProperties) => throw null;
 
         internal SnakeKind Kind
         {
@@ -19,12 +19,10 @@ namespace _Type.Model.Inheritance.EnumDiscriminator.Models
             set => throw null;
         }
 
-
         public int Length
         {
             get => throw null;
             set => throw null;
         }
-
     }
 }

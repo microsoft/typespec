@@ -4,7 +4,6 @@
 package com.microsoft.typespec.http.client.generator.core.model.javamodel;
 
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
-
 import java.util.regex.Pattern;
 
 public class JavaJavadocComment {

@@ -29,14 +29,12 @@ export {
   type Discriminator,
 } from "./intrinsic-type-state.js";
 export {
-  // eslint-disable-next-line deprecation/deprecation
   createCadlLibrary,
   createLinterRule as createRule,
   createTypeSpecLibrary,
   defineLinter,
   definePackageFlags,
   paramMessage,
-  // eslint-disable-next-line deprecation/deprecation
   setCadlNamespace,
   setTypeSpecNamespace,
 } from "./library.js";

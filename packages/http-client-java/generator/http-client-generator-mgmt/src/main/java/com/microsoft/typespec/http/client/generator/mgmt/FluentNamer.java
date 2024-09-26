@@ -3,20 +3,26 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt;
 
+import com.azure.json.JsonProviders;
+import com.azure.json.JsonReader;
+import com.microsoft.typespec.http.client.generator.core.extension.base.util.FileUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.jsonrpc.Connection;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.FileUtils;
-import com.microsoft.typespec.http.client.generator.mgmt.namer.FluentNamerFactory;
-import com.microsoft.typespec.http.client.generator.mgmt.transformer.FluentTransformer;
-import com.microsoft.typespec.http.client.generator.mgmt.util.FluentJavaSettings;
 import com.microsoft.typespec.http.client.generator.core.preprocessor.Preprocessor;
 import com.microsoft.typespec.http.client.generator.core.preprocessor.tranformer.Transformer;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
-import com.azure.json.JsonProviders;
-import com.azure.json.JsonReader;
+import com.microsoft.typespec.http.client.generator.mgmt.namer.FluentNamerFactory;
+import com.microsoft.typespec.http.client.generator.mgmt.transformer.FluentTransformer;
+import com.microsoft.typespec.http.client.generator.mgmt.util.FluentJavaSettings;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
@@ -27,13 +33,6 @@ import org.yaml.snakeyaml.introspector.Property;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Representer;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class FluentNamer extends Preprocessor {
 
@@ -84,8 +83,8 @@ public class FluentNamer extends Preprocessor {
     protected CodeModel getCodeModelAndWriteToTargetFolder(Path codeModelFolder) throws IOException {
         List<String> files = listInputs().stream().filter(s -> s.contains("no-tags")).collect(Collectors.toList());
         if (files.size() != 1) {
-            throw new RuntimeException(String
-                .format("Generator received incorrect number of inputs: %s : %s}", files.size(), String.join(", ", files)));
+            throw new RuntimeException(String.format("Generator received incorrect number of inputs: %s : %s}",
+                files.size(), String.join(", ", files)));
         }
         // Read input file
         String file = readFile(files.get(0));
@@ -109,7 +108,7 @@ public class FluentNamer extends Preprocessor {
         Representer representer = new Representer(new DumperOptions()) {
             @Override
             protected NodeTuple representJavaBeanProperty(Object javaBean, Property property, Object propertyValue,
-                                                          Tag customTag) {
+                Tag customTag) {
                 // if value of property is null, ignore it.
                 if (propertyValue == null) {
                     return null;

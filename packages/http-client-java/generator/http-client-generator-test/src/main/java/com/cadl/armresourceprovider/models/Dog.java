@@ -16,7 +16,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "kind", defaultImpl = Dog.class, visible = true)
 @JsonTypeName("Dog")
-@JsonSubTypes({ @JsonSubTypes.Type(name = "golden", value = Golden.class) })
+@JsonSubTypes({ @JsonSubTypes.Type(name = "golden_dog", value = Golden.class) })
 @Fluent
 public class Dog {
     /*

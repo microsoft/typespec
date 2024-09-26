@@ -15,18 +15,23 @@ import {
   isVisible,
   Program,
   setLegacyVisibility,
+  splitLegacyVisibility,
+  VisibilityFilter,
 } from "../core/index.js";
 import { reportDiagnostic } from "../core/messages.js";
 import {
   DecoratorContext,
   Enum,
-  EnumMember,
   EnumValue,
   Model,
   ModelProperty,
   Operation,
   Type,
 } from "../core/types.js";
+import {
+  getLifecycleVisibilityEnum,
+  normalizeLegacyLifecycleVisibilityString,
+} from "../core/visibility/lifecycle.js";
 import { createStateSymbol, filterModelPropertiesInPlace, isKey } from "./decorators.js";
 
 // #region Legacy Visibility Utilities
@@ -34,7 +39,7 @@ import { createStateSymbol, filterModelPropertiesInPlace, isKey } from "./decora
 export const $withDefaultKeyVisibility: WithDefaultKeyVisibilityDecorator = (
   context: DecoratorContext,
   entity: Model,
-  visibility: string | EnumValue
+  visibility: string | EnumValue,
 ) => {
   const keyProperties: ModelProperty[] = [];
   entity.properties.forEach((prop: ModelProperty) => {
@@ -65,7 +70,7 @@ export const $withDefaultKeyVisibility: WithDefaultKeyVisibilityDecorator = (
             ],
           },
         ],
-      })
+      }),
     );
   });
 };
@@ -117,16 +122,7 @@ export const $visibility: VisibilityDecorator = (
   target: ModelProperty,
   ...visibilities: (string | EnumValue)[]
 ) => {
-  const legacyVisibilities = [] as string[];
-  const modifiers = [] as EnumMember[];
-
-  for (const visibility of visibilities) {
-    if (typeof visibility === "string") {
-      legacyVisibilities.push(visibility);
-    } else {
-      modifiers.push(visibility.value);
-    }
-  }
+  const [modifiers, legacyVisibilities] = splitLegacyVisibility(visibilities);
 
   if (legacyVisibilities.length > 0) {
     const isUnique = validateDecoratorUniqueOnNode(context, target, $visibility);
@@ -134,7 +130,6 @@ export const $visibility: VisibilityDecorator = (
     if (modifiers.length > 0) {
       reportDiagnostic(context.program, {
         code: "visibility-mixed-legacy",
-        messageId: "same-invocation",
         target: context.decoratorTarget,
       });
 
@@ -152,7 +147,7 @@ export const $visibility: VisibilityDecorator = (
 export const $invisible: InvisibleDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
-  visibilityClass: Enum
+  visibilityClass: Enum,
 ) => {
   clearVisibilityModifiersForClass(context.program, target, visibilityClass);
 };
@@ -162,15 +157,54 @@ export const $withVisibility: WithVisibilityDecorator = (
   target: Model,
   ...visibilities: (string | EnumValue)[]
 ) => {
-  filterModelPropertiesInPlace(target, (p) => isVisible(context.program, p, visibilities));
-  [...target.properties.values()].forEach((p) => clearVisibilities(context.program, p));
+  const [modifiers, legacyVisibilities] = splitLegacyVisibility(visibilities);
+
+  if (legacyVisibilities.length > 0) {
+    if (modifiers.length > 0) {
+      reportDiagnostic(context.program, {
+        code: "visibility-mixed-legacy",
+        target: context.decoratorTarget,
+      });
+
+      return;
+    }
+
+    const filter: VisibilityFilter = {
+      all: new Set(
+        legacyVisibilities
+          .map((v) => normalizeLegacyLifecycleVisibilityString(context.program, v))
+          .filter((v) => !!v),
+      ),
+    };
+
+    filterModelPropertiesInPlace(target, (p) => isVisible(context.program, p, filter));
+    for (const p of target.properties.values()) {
+      clearVisibilityModifiersForClass(
+        context.program,
+        p,
+        getLifecycleVisibilityEnum(context.program),
+      );
+    }
+  } else {
+    const filter: VisibilityFilter = {
+      all: new Set(modifiers),
+    };
+
+    const visibilityClasses = new Set(modifiers.map((m) => m.enum));
+    filterModelPropertiesInPlace(target, (p) => isVisible(context.program, p, filter));
+    for (const p of target.properties.values()) {
+      for (const c of visibilityClasses) {
+        clearVisibilityModifiersForClass(context.program, p, c);
+      }
+    }
+  }
 };
 
 // -- @withUpdateableProperties decorator ----------------------
 
 export const $withUpdateableProperties: WithUpdateablePropertiesDecorator = (
   context: DecoratorContext,
-  target: Type
+  target: Type,
 ) => {
   if (!validateDecoratorTarget(context, target, "@withUpdateableProperties", "Model")) {
     return;

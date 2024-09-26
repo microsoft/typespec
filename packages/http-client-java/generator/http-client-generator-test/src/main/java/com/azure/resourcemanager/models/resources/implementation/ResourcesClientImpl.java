@@ -13,8 +13,8 @@ import com.azure.core.http.rest.Response;
 import com.azure.core.management.AzureEnvironment;
 import com.azure.core.management.exception.ManagementError;
 import com.azure.core.management.exception.ManagementException;
-import com.azure.core.management.polling.PollerFactory;
 import com.azure.core.management.polling.PollResult;
+import com.azure.core.management.polling.PollerFactory;
 import com.azure.core.util.Context;
 import com.azure.core.util.CoreUtils;
 import com.azure.core.util.logging.ClientLogger;
@@ -25,6 +25,7 @@ import com.azure.core.util.serializer.SerializerAdapter;
 import com.azure.core.util.serializer.SerializerEncoding;
 import com.azure.resourcemanager.models.resources.fluent.NestedProxyResourcesClient;
 import com.azure.resourcemanager.models.resources.fluent.ResourcesClient;
+import com.azure.resourcemanager.models.resources.fluent.SingletonTrackedResourcesClient;
 import com.azure.resourcemanager.models.resources.fluent.TopLevelTrackedResourcesClient;
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -153,6 +154,20 @@ public final class ResourcesClientImpl implements ResourcesClient {
     }
 
     /**
+     * The SingletonTrackedResourcesClient object to access its operations.
+     */
+    private final SingletonTrackedResourcesClient singletonTrackedResources;
+
+    /**
+     * Gets the SingletonTrackedResourcesClient object to access its operations.
+     * 
+     * @return the SingletonTrackedResourcesClient object.
+     */
+    public SingletonTrackedResourcesClient getSingletonTrackedResources() {
+        return this.singletonTrackedResources;
+    }
+
+    /**
      * Initializes an instance of ResourcesClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
@@ -172,6 +187,7 @@ public final class ResourcesClientImpl implements ResourcesClient {
         this.apiVersion = "2023-12-01-preview";
         this.topLevelTrackedResources = new TopLevelTrackedResourcesClientImpl(this);
         this.nestedProxyResources = new NestedProxyResourcesClientImpl(this);
+        this.singletonTrackedResources = new SingletonTrackedResourcesClientImpl(this);
     }
 
     /**

@@ -61,7 +61,7 @@ function addUsagesInContainer(type: OperationContainer, usages: Map<TrackableTyp
 function trackUsage(
   usages: Map<TrackableType, UsageFlags>,
   type: TrackableType,
-  usage: UsageFlags
+  usage: UsageFlags,
 ) {
   const existingFlag = usages.get(type) ?? UsageFlags.None;
   usages.set(type, existingFlag | usage);
@@ -87,17 +87,17 @@ function addUsagesInInterface(Interface: Interface, usages: Map<TrackableType, U
 
 function addUsagesInOperation(operation: Operation, usages: Map<TrackableType, UsageFlags>): void {
   navigateReferencedTypes(operation.parameters, (type) =>
-    trackUsage(usages, type, UsageFlags.Input)
+    trackUsage(usages, type, UsageFlags.Input),
   );
   navigateReferencedTypes(operation.returnType, (type) =>
-    trackUsage(usages, type, UsageFlags.Output)
+    trackUsage(usages, type, UsageFlags.Output),
   );
 }
 
 function navigateReferencedTypes(
   type: Type,
   callback: (type: TrackableType) => void,
-  visited: Set<Type> = new Set()
+  visited: Set<Type> = new Set(),
 ) {
   if (visited.has(type)) {
     return;
@@ -130,7 +130,7 @@ function navigateReferencedTypes(
 function navigateIterable<T extends Type>(
   map: Map<string | symbol, T> | T[],
   callback: (type: TrackableType) => void,
-  visited: Set<Type> = new Set()
+  visited: Set<Type> = new Set(),
 ) {
   for (const type of map.values()) {
     navigateReferencedTypes(type, callback, visited);

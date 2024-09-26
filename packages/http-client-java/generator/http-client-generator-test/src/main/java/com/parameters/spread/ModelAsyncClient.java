@@ -17,7 +17,6 @@ import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.FluxUtil;
 import com.parameters.spread.implementation.ModelsImpl;
-import com.parameters.spread.implementation.models.SpreadAsRequestBodyRequest1;
 import com.parameters.spread.implementation.models.SpreadCompositeRequestMixRequest;
 import com.parameters.spread.models.BodyParameter;
 import reactor.core.publisher.Mono;
@@ -44,13 +43,15 @@ public final class ModelAsyncClient {
      * The spreadAsRequestBody operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     name: String (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
-     * @param spreadAsRequestBodyRequest1 The spreadAsRequestBodyRequest1 parameter.
+     * @param bodyParameter The bodyParameter parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -60,20 +61,22 @@ public final class ModelAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> spreadAsRequestBodyWithResponse(BinaryData spreadAsRequestBodyRequest1,
+    public Mono<Response<Void>> spreadAsRequestBodyWithResponse(BinaryData bodyParameter,
         RequestOptions requestOptions) {
-        return this.serviceClient.spreadAsRequestBodyWithResponseAsync(spreadAsRequestBodyRequest1, requestOptions);
+        return this.serviceClient.spreadAsRequestBodyWithResponseAsync(bodyParameter, requestOptions);
     }
 
     /**
      * The spreadCompositeRequestOnlyWithBody operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     name: String (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param body The body parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -113,11 +116,13 @@ public final class ModelAsyncClient {
      * The spreadCompositeRequest operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     name: String (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param name The name parameter.
      * @param testHeader The testHeader parameter.
@@ -140,11 +145,13 @@ public final class ModelAsyncClient {
      * The spreadCompositeRequestMix operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     prop: String (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param name The name parameter.
      * @param testHeader The testHeader parameter.
@@ -181,9 +188,9 @@ public final class ModelAsyncClient {
     public Mono<Void> spreadAsRequestBody(String name) {
         // Generated convenience method for spreadAsRequestBodyWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        SpreadAsRequestBodyRequest1 spreadAsRequestBodyRequest1Obj = new SpreadAsRequestBodyRequest1(name);
-        BinaryData spreadAsRequestBodyRequest1 = BinaryData.fromObject(spreadAsRequestBodyRequest1Obj);
-        return spreadAsRequestBodyWithResponse(spreadAsRequestBodyRequest1, requestOptions).flatMap(FluxUtil::toMono);
+        BodyParameter bodyParameterObj = new BodyParameter(name);
+        BinaryData bodyParameter = BinaryData.fromObject(bodyParameterObj);
+        return spreadAsRequestBodyWithResponse(bodyParameter, requestOptions).flatMap(FluxUtil::toMono);
     }
 
     /**

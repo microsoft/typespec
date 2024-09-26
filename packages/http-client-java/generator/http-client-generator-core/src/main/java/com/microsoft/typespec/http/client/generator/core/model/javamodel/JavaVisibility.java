@@ -21,7 +21,6 @@ public enum JavaVisibility {
         this.keyword = keyword;
     }
 
-
     @Override
     public String toString() {
         return keyword;

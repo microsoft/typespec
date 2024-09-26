@@ -4,10 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.SourceInput;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -19,7 +21,7 @@ namespace Microsoft.Generator.CSharp
     [ExportMetadata("PluginName", nameof(CodeModelPlugin))]
     public abstract class CodeModelPlugin
     {
-        private List<LibraryVisitor> _visitors = new();
+        private List<LibraryVisitor> _visitors = [];
         private static CodeModelPlugin? _instance;
         internal static CodeModelPlugin Instance
         {
@@ -53,11 +55,11 @@ namespace Microsoft.Generator.CSharp
         }
 
         internal bool IsNewProject { get; set; }
-
         private Lazy<InputLibrary> _inputLibrary;
 
         // Extensibility points to be implemented by a plugin
         public virtual TypeFactory TypeFactory { get; }
+        public virtual SourceInputModel SourceInputModel => _sourceInputModel ?? throw new InvalidOperationException($"SourceInputModel has not been initialized yet");
         public virtual string LicenseString => string.Empty;
         public virtual OutputLibrary OutputLibrary { get; } = new();
         public virtual InputLibrary InputLibrary => _inputLibrary.Value;
@@ -71,6 +73,21 @@ namespace Microsoft.Generator.CSharp
         public virtual void AddVisitor(LibraryVisitor visitor)
         {
             _visitors.Add(visitor);
+        }
+
+        private SourceInputModel? _sourceInputModel;
+        internal async Task InitializeSourceInputModelAsync()
+        {
+            GeneratedCodeWorkspace existingCode = GeneratedCodeWorkspace.CreateExistingCodeProject([Instance.Configuration.ProjectDirectory], Instance.Configuration.ProjectGeneratedDirectory);
+            _sourceInputModel =  new SourceInputModel(await existingCode.GetCompilationAsync());
+        }
+
+        internal HashSet<string> TypesToKeep { get; } = new();
+        //TODO consider using TypeProvider so we can have a fully qualified name to filter on
+        //https://github.com/microsoft/typespec/issues/4418
+        public void AddTypeToKeep(string typeName)
+        {
+            TypesToKeep.Add(typeName);
         }
     }
 }

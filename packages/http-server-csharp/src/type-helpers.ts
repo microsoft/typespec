@@ -57,7 +57,7 @@ export interface StringConstraint {
  */
 export function getStringConstraint(
   program: Program,
-  type: ModelProperty | Scalar
+  type: ModelProperty | Scalar,
 ): StringConstraint | undefined {
   if (type.kind === "ModelProperty" && type.type.kind !== "Scalar") return undefined;
   const result: StringConstraint = {
@@ -101,7 +101,7 @@ export function getUnknownType(program: Program): Type {
  */
 export function isKnownReferenceType(
   program: Program,
-  type: Type | Value | IndeterminateEntity
+  type: Type | Value | IndeterminateEntity,
 ): boolean {
   if (type.entityKind === "Indeterminate" || type.entityKind === "Value") return false;
 

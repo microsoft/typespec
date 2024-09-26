@@ -13,7 +13,7 @@ function findNavigationEntries(nodes, structure, ...path) {
       throw new Error(
         `Cannot find ${segment} in [${Object.values(structure)
           .map((x) => x.id)
-          .join(",")}].`
+          .join(",")}].`,
       );
     }
     structure = sub.items;
@@ -24,13 +24,13 @@ function findNavigationEntries(nodes, structure, ...path) {
       const navBar = nodes.find((x) => x.data.id === docId);
       if (navBar === undefined) {
         throw new Error(
-          `Cannot find doc with id "${docId}". Make sure to set "id: " in doc front-matter.`
+          `Cannot find doc with id "${docId}". Make sure to set "id: " in doc front-matter.`,
         );
       }
       const title = navBar.data.title;
       if (title === undefined) {
         throw new Error(
-          `Doc "${docId}" does not have a title. Make sure to set "title: " in doc front-matter. At ${navBar.inputPath}`
+          `Doc "${docId}" does not have a title. Make sure to set "title: " in doc front-matter. At ${navBar.inputPath}`,
         );
       }
       return {

@@ -444,8 +444,13 @@ const diagnostics = {
   unassignable: {
     severity: "error",
     messages: {
-      default: paramMessage`Type '${"value"}' is not assignable to type '${"targetType"}'`,
-      withDetails: paramMessage`Type '${"sourceType"}' is not assignable to type '${"targetType"}'\n  ${"details"}`,
+      default: paramMessage`Type '${"sourceType"}' is not assignable to type '${"targetType"}'`,
+    },
+  },
+  "property-unassignable": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Types of property '${"propName"}' are incompatible`,
     },
   },
   "property-required": {
@@ -992,9 +997,7 @@ const diagnostics = {
   "visibility-mixed-legacy": {
     severity: "error",
     messages: {
-      "same-invocation":
-        "Cannot apply both string (legacy) visibility modifiers and enum-based visibility modifiers at the same time.",
-      "mixed-invocation":
+      default:
         "Cannot apply both string (legacy) visibility modifiers and enum-based visibility modifiers to a property.",
     },
   },

@@ -4,7 +4,7 @@
 import { deepStrictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { Model } from "../../src/core/types.js";
-import { getVisibility } from "../../src/lib/visibility.js";
+import { getVisibility } from "../../src/core/visibility/core.js";
 import { BasicTestRunner, createTestRunner } from "../../src/testing/index.js";
 
 describe("visibility (legacy)", function () {
@@ -25,7 +25,7 @@ describe("visibility (legacy)", function () {
 
         @test
         model TestModel is DefaultKeyVisibility<OriginalModel, "read"> {
-        } `
+        } `,
       )) as { TestModel: Model };
 
       deepStrictEqual(getVisibility(runner.program, TestModel.properties.get("name")!), ["read"]);
@@ -42,7 +42,7 @@ describe("visibility (legacy)", function () {
 
         @test
         model TestModel is DefaultKeyVisibility<OriginalModel, "create"> {
-        } `
+        } `,
       )) as { TestModel: Model };
 
       deepStrictEqual(getVisibility(runner.program, TestModel.properties.get("name")!), [

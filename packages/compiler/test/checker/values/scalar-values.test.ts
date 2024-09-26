@@ -55,7 +55,7 @@ describe("instantiate with named constructor", () => {
       `
       scalar a { init fromString(val: string);}
       scalar b extends a { }
-    `
+    `,
     );
     strictEqual(value.valueKind, "ScalarValue");
     strictEqual(value.type.kind, "Scalar");
@@ -70,7 +70,7 @@ describe("instantiate with named constructor", () => {
       `
       scalar a { init fromString(val: string);}
       scalar b { init fromA(val: a);}
-    `
+    `,
     );
     strictEqual(value.valueKind, "ScalarValue");
     strictEqual(value.type.kind, "Scalar");
@@ -116,7 +116,7 @@ describe("instantiate with named constructor", () => {
           scalar ipv4 {
             init fromItems(a: string, b?: string);
           }
-        `
+        `,
       );
       strictEqual(value.valueKind, "ScalarValue");
       strictEqual(value.value.name, "fromItems");
@@ -129,7 +129,7 @@ describe("instantiate with named constructor", () => {
           scalar ipv4 {
             init fromItems(a: string, b?: string);
           }
-        `
+        `,
       );
       strictEqual(value.valueKind, "ScalarValue");
       strictEqual(value.value.name, "fromItems");
@@ -143,7 +143,7 @@ describe("instantiate with named constructor", () => {
           scalar ipv4 {
             init fromItems(...value: string[]);
           }
-        `
+        `,
       );
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
@@ -159,7 +159,7 @@ describe("instantiate with named constructor", () => {
           scalar ipv4 {
             init fromItems(...value: string[]);
           }
-        `
+        `,
       );
       strictEqual(value.valueKind, "ScalarValue");
       strictEqual(value.value.name, "fromItems");
@@ -173,7 +173,7 @@ describe("instantiate with named constructor", () => {
           scalar ipv4 {
             init fromItems(value: int32, ...value: string[]);
           }
-        `
+        `,
       );
       strictEqual(value.valueKind, "ScalarValue");
       strictEqual(value.value.name, "fromItems");
@@ -187,7 +187,7 @@ describe("instantiate with named constructor", () => {
           scalar ipv4 {
             init fromItems(...value: string[]);
           }
-        `
+        `,
       );
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",

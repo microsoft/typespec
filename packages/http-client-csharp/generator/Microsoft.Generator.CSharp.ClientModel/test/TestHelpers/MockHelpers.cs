@@ -5,10 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.SourceInput;
 using Moq;
 using Moq.Protected;
 
@@ -19,11 +22,26 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
         private static readonly string _configFilePath = Path.Combine(AppContext.BaseDirectory, TestHelpersFolder);
         public const string TestHelpersFolder = "TestHelpers";
 
+        public static async Task<Mock<ClientModelPlugin>> LoadMockPluginAsync(
+            Func<IReadOnlyList<InputEnumType>>? inputEnums = null,
+            Func<IReadOnlyList<InputModelType>>? inputModels = null,
+            Func<Task<Compilation>>? compilation = null)
+        {
+            var mockPlugin = LoadMockPlugin(inputEnums: inputEnums, inputModels: inputModels);
+
+            var compilationResult = compilation == null ? null : await compilation();
+
+            var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(compilationResult)) { CallBase = true };
+            mockPlugin.Setup(p => p.SourceInputModel).Returns(sourceInputModel.Object);
+
+            return mockPlugin;
+        }
+
         public static Mock<ClientModelPlugin> LoadMockPlugin(
             Func<InputType, TypeProvider, IReadOnlyList<TypeProvider>>? createSerializationsCore = null,
             Func<InputType, CSharpType>? createCSharpTypeCore = null,
             Func<CSharpType>? matchConditionsType = null,
-            Func<CSharpType>? tokenCredentialType = null,
+            Func<CSharpType>? keyCredentialType = null,
             Func<InputParameter, ParameterProvider>? createParameterCore = null,
             Func<InputApiKeyAuth>? apiKeyAuth = null,
             Func<IReadOnlyList<string>>? apiVersions = null,
@@ -51,12 +69,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
 
             if (matchConditionsType is not null)
             {
-                mockTypeFactory.Setup(p => p.MatchConditionsType()).Returns(matchConditionsType);
+                mockTypeFactory.Setup(p => p.MatchConditionsType).Returns(matchConditionsType);
             }
 
-            if (tokenCredentialType is not null)
+            if (keyCredentialType is not null)
             {
-                mockTypeFactory.Setup(p => p.TokenCredentialType()).Returns(tokenCredentialType);
+                mockTypeFactory.Setup(p => p.KeyCredentialType).Returns(keyCredentialType);
             }
 
             if (createParameterCore is not null)
@@ -95,6 +113,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             {
                 mockPluginInstance.Setup(p => p.InputLibrary).Returns(createInputLibrary);
             }
+
+            var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(null)) { CallBase = true };
+            mockPluginInstance.Setup(p => p.SourceInputModel).Returns(sourceInputModel.Object);
 
             codeModelInstance!.SetValue(null, mockPluginInstance.Object);
             clientModelInstance!.SetValue(null, mockPluginInstance.Object);

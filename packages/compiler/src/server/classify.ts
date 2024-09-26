@@ -93,7 +93,7 @@ export function getSemanticTokens(ast: TypeSpecScriptNode): SemanticToken[] {
               } else {
                 compilerAssert(
                   token === Token.StringTemplateMiddle,
-                  "Should have been a template middle."
+                  "Should have been a template middle.",
                 );
                 classifyStringTemplate(token, {
                   pos: scanner.tokenPosition,
@@ -126,7 +126,7 @@ export function getSemanticTokens(ast: TypeSpecScriptNode): SemanticToken[] {
 
     function classifyStringTemplate(
       token: Token.StringTemplateHead | Token.StringTemplateMiddle | Token.StringTemplateTail,
-      range: TextRange
+      range: TextRange,
     ) {
       const stringStart = token === Token.StringTemplateHead ? range.pos : range.pos + 1;
       const stringEnd = token === Token.StringTemplateTail ? range.end : range.end - 2;

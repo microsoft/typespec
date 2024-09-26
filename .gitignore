@@ -1,13 +1,3 @@
-# User-specific files
-*.suo
-*.user
-*.idea
-*.sln.docstates
-.vs/
-*.lock.json
-developer/
-launch.json
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -135,6 +125,7 @@ lib-cov
 
 # Coverage directory used by tools like istanbul
 coverage
+!packages/spec-core/src/coverage
 
 # nyc test coverage
 .nyc_output
@@ -189,6 +180,14 @@ obj/
 .vs/
 *.binlog
 
+# User-specific files
+*.suo
+*.user
+*.idea
+*.sln.docstates
+*.lock.json
+developer/
+
 # tsc incremental build files
 *.tsbuildinfo
 
@@ -198,8 +197,12 @@ obj/
 *.vsix
 *.zip
 
-
+# Api extractor
+packages/*/etc/
 docs/**/js-api/
+
+# VS Code test web temp files
+.vscode-test-web/
 
 # csharp emitter
 !packages/http-client-csharp/package-lock.json
@@ -208,3 +211,9 @@ BenchmarkDotnet.Artifacts/
 
 # java emitter
 !packages/http-client-java/package-lock.json
+
+# python emitter
+packages/http-client-python/generator/test/**/generated/
+packages/http-client-python/generator/test/**/cadl-ranch-coverage.json
+!packages/http-client-python/package-lock.json
+

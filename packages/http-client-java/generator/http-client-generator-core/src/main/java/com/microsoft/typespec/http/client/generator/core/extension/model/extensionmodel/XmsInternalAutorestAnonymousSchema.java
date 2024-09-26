@@ -3,13 +3,12 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.extensionmodel;
 
+import static com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils.readObject;
+
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonWriter;
-
 import java.io.IOException;
-
-import static com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils.readObject;
 
 /**
  * Represents an anonymous schema.
@@ -43,9 +42,7 @@ public class XmsInternalAutorestAnonymousSchema implements JsonSerializable<XmsI
 
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return jsonWriter.writeStartObject()
-            .writeBooleanField("anonymous", anonymous)
-            .writeEndObject();
+        return jsonWriter.writeStartObject().writeBooleanField("anonymous", anonymous).writeEndObject();
     }
 
     /**

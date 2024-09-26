@@ -7,5 +7,5 @@ export default mergeConfig(
     test: {
       exclude: [...configDefaults.exclude, "dist-dev/**/*"],
     },
-  })
+  }),
 );

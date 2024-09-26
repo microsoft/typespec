@@ -18,7 +18,7 @@
 import { compilerAssert } from "../diagnostics.js";
 import { reportDiagnostic } from "../messages.js";
 import { Program } from "../program.js";
-import { DecoratorContext, Enum, EnumMember, ModelProperty } from "../types.js";
+import { DecoratorContext, Enum, EnumMember, EnumValue, ModelProperty } from "../types.js";
 import {
   getLifecycleVisibilityEnum,
   normalizeLegacyLifecycleVisibilityString,
@@ -66,7 +66,7 @@ function getOrInitializeActiveModifierSetForClass(
   program: Program,
   property: ModelProperty,
   visibilityClass: Enum,
-  defaultSet: Set<EnumMember>
+  defaultSet: Set<EnumMember>,
 ): Set<EnumMember> {
   const visibilityModifiers = getOrInitializeVisibilityModifiers(property);
   let visibilityModifierSet = visibilityModifiers.get(visibilityClass);
@@ -166,11 +166,11 @@ const LEGACY_VISIBILITY_MODIFIERS = new WeakMap<ModelProperty, string[]>();
 export function setLegacyVisibility(
   context: DecoratorContext,
   property: ModelProperty,
-  visibilities: string[]
+  visibilities: string[],
 ) {
   compilerAssert(
     LEGACY_VISIBILITY_MODIFIERS.get(property) === undefined,
-    "Legacy visibility modifiers have already been set for this property."
+    "Legacy visibility modifiers have already been set for this property.",
   );
 
   LEGACY_VISIBILITY_MODIFIERS.set(property, visibilities);
@@ -202,6 +202,23 @@ export function getVisibility(program: Program, property: ModelProperty): string
   return LEGACY_VISIBILITY_MODIFIERS.get(property);
 }
 
+export function splitLegacyVisibility(
+  visibilities: (string | EnumValue)[],
+): [EnumMember[], string[]] {
+  const legacyVisibilities = [] as string[];
+  const modifiers = [] as EnumMember[];
+
+  for (const visibility of visibilities) {
+    if (typeof visibility === "string") {
+      legacyVisibilities.push(visibility);
+    } else {
+      modifiers.push(visibility.value);
+    }
+  }
+
+  return [modifiers, legacyVisibilities] as const;
+}
+
 // #endregion
 
 // #region Visibility Management API
@@ -222,11 +239,11 @@ export function getVisibility(program: Program, property: ModelProperty): string
  */
 export function initializeDefaultModifierSetForClass(
   visibilityClass: Enum,
-  defaultSet: Set<EnumMember>
+  defaultSet: Set<EnumMember>,
 ) {
   compilerAssert(
     !DEFAULT_MODIFIER_SET_CACHE.has(visibilityClass),
-    "The default modifier set for a visibility class may only be initialized once."
+    "The default modifier set for a visibility class may only be initialized once.",
   );
 
   DEFAULT_MODIFIER_SET_CACHE.set(visibilityClass, defaultSet);
@@ -247,7 +264,7 @@ export function initializeDefaultModifierSetForClass(
 export function isSealed(
   program: Program,
   property: ModelProperty,
-  visibilityClass?: Enum
+  visibilityClass?: Enum,
 ): boolean {
   if (VISIBILITY_PROGRAM_SEALS.has(program)) return true;
 
@@ -309,7 +326,7 @@ export function addVisibilityModifiers(
   program: Program,
   property: ModelProperty,
   modifiers: EnumMember[],
-  context?: DecoratorContext
+  context?: DecoratorContext,
 ) {
   const modifiersByClass = groupModifiersByVisibilityClass(modifiers);
 
@@ -330,7 +347,7 @@ export function addVisibilityModifiers(
       program,
       property,
       visibilityClass,
-      /* defaultSet: */ new Set()
+      /* defaultSet: */ new Set(),
     );
 
     for (const modifier of newModifiers) {
@@ -350,7 +367,7 @@ export function removeVisibilityModifiers(
   program: Program,
   property: ModelProperty,
   modifiers: EnumMember[],
-  context?: DecoratorContext
+  context?: DecoratorContext,
 ) {
   const modifiersByClass = groupModifiersByVisibilityClass(modifiers);
 
@@ -371,7 +388,7 @@ export function removeVisibilityModifiers(
       program,
       property,
       visibilityClass,
-      /* defaultSet: */ getDefaultModifierSetForClass(visibilityClass)
+      /* defaultSet: */ getDefaultModifierSetForClass(visibilityClass),
     );
 
     for (const modifier of newModifiers) {
@@ -384,7 +401,7 @@ export function clearVisibilityModifiersForClass(
   program: Program,
   property: ModelProperty,
   visibilityClass: Enum,
-  context?: DecoratorContext
+  context?: DecoratorContext,
 ) {
   const target = context?.decoratorTarget ?? property;
   if (isSealed(program, property, visibilityClass)) {
@@ -402,7 +419,7 @@ export function clearVisibilityModifiersForClass(
     program,
     property,
     visibilityClass,
-    /* defaultSet: */ new Set()
+    /* defaultSet: */ new Set(),
   );
 
   modifierSet.clear();
@@ -415,13 +432,13 @@ export function clearVisibilityModifiersForClass(
 export function getVisibilityForClass(
   program: Program,
   property: ModelProperty,
-  visibilityClass: Enum
+  visibilityClass: Enum,
 ): Set<EnumMember> {
   return getOrInitializeActiveModifierSetForClass(
     program,
     property,
     visibilityClass,
-    /* defaultSet: */ getDefaultModifierSetForClass(visibilityClass)
+    /* defaultSet: */ getDefaultModifierSetForClass(visibilityClass),
   );
 }
 
@@ -439,13 +456,13 @@ export function getVisibilityForClass(
 export function hasVisibility(
   program: Program,
   property: ModelProperty,
-  modifier: EnumMember
+  modifier: EnumMember,
 ): boolean {
   const activeSet = getOrInitializeActiveModifierSetForClass(
     program,
     property,
     modifier.enum,
-    /* defaultSet: */ getDefaultModifierSetForClass(modifier.enum)
+    /* defaultSet: */ getDefaultModifierSetForClass(modifier.enum),
   );
 
   return activeSet?.has(modifier) ?? false;
@@ -485,7 +502,7 @@ export interface VisibilityFilter {
 export function isVisible(
   program: Program,
   property: ModelProperty,
-  filter: VisibilityFilter
+  filter: VisibilityFilter,
 ): boolean;
 /**
  * Determines if a property has any of the specified (legacy) visibility strings.
@@ -495,12 +512,12 @@ export function isVisible(
 export function isVisible(
   program: Program,
   property: ModelProperty,
-  visibilities: readonly string[]
+  visibilities: readonly string[],
 ): boolean;
 export function isVisible(
   program: Program,
   property: ModelProperty,
-  _filterOrLegacyVisibilities: VisibilityFilter | readonly string[]
+  _filterOrLegacyVisibilities: VisibilityFilter | readonly string[],
 ): boolean {
   if (Array.isArray(_filterOrLegacyVisibilities)) {
     return isVisibleLegacy(_filterOrLegacyVisibilities);

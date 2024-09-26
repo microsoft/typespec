@@ -56,7 +56,7 @@ export function getOpenAPITypeName(
   program: Program,
   type: Type,
   options: TypeNameOptions,
-  existing?: Record<string, any>
+  existing?: Record<string, any>,
 ): string {
   const name = getFriendlyName(program, type) ?? getTypeName(type, options);
 
@@ -64,11 +64,18 @@ export function getOpenAPITypeName(
   return name;
 }
 
+/**
+ * Check the given name is not already specific in the existing map. Report a diagnostic if it is.
+ * @param program  Program
+ * @param type Type with the name to check
+ * @param name Name to check
+ * @param existing Existing map of name
+ */
 export function checkDuplicateTypeName(
   program: Program,
   type: Type,
   name: string,
-  existing: Record<string, unknown> | undefined
+  existing: Record<string, unknown> | undefined,
 ) {
   if (existing && existing[name]) {
     reportDiagnostic(program, {
@@ -89,7 +96,7 @@ export function getParameterKey(
   property: ModelProperty,
   newParam: unknown,
   existingParams: Record<string, unknown>,
-  options: TypeNameOptions
+  options: TypeNameOptions,
 ): string {
   const parent = property.model!;
   let key = getOpenAPITypeName(program, parent, options);
@@ -114,7 +121,7 @@ export function getParameterKey(
 
 /**
  * Resolve the OpenAPI operation ID for the given operation using the following logic:
- * - If @operationId was specified use that value
+ * - If `@operationId` was specified use that value
  * - If operation is defined at the root or under the service namespace return `<operation.name>`
  * - Otherwise(operation is under another namespace or interface) return `<namespace/interface.name>_<operation.name>`
  *

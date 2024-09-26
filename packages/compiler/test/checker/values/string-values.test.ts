@@ -45,7 +45,7 @@ describe("implicit type", () => {
       `a`,
       `
       const a: string | myString = "abc";
-      scalar myString extends string;`
+      scalar myString extends string;`,
     );
     expectDiagnostics(diagnostics, {
       code: "ambiguous-scalar-type",

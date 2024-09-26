@@ -18,7 +18,7 @@ export async function getVisualStudioMsBuildPath(): Promise<{ path: string } | {
 
   const vswhere = join(
     process.env["ProgramFiles(x86)"]!,
-    "Microsoft Visual Studio/Installer/vswhere.exe"
+    "Microsoft Visual Studio/Installer/vswhere.exe",
   );
 
   const result = await run(vswhere, vswhereArgs, {

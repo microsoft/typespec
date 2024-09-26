@@ -54,7 +54,6 @@ export const callDecoratorRule = createRule<never[], keyof typeof messages>({
   meta: {
     docs: {
       description: "Calling a TypeSpec decorator from JS/TS code should be done with context.call",
-      recommended: "recommended",
     },
     hasSuggestions: true,
     messages,
@@ -67,7 +66,7 @@ export const callDecoratorRule = createRule<never[], keyof typeof messages>({
 function isTypeSpecFunctionSignature(
   checker: ts.TypeChecker,
   signature: ts.Signature,
-  tsNode: ts.Node
+  tsNode: ts.Node,
 ): boolean {
   if (signature.parameters.length < 2) {
     return false;

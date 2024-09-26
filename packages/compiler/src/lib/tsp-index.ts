@@ -74,7 +74,6 @@ export const $decorators = {
     minValueExclusive: $minValueExclusive,
     maxValueExclusive: $maxValueExclusive,
     secret: $secret,
-    // eslint-disable-next-line deprecation/deprecation
     list: $list,
     tag: $tag,
     friendlyName: $friendlyName,

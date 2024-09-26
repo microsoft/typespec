@@ -64,7 +64,7 @@ export const namespace = "TypeSpec.Http";
 export const $header: HeaderDecorator = (
   context: DecoratorContext,
   entity: ModelProperty,
-  headerNameOrOptions?: StringLiteral | Type
+  headerNameOrOptions?: StringLiteral | Type,
 ) => {
   const options: HeaderFieldOptions = {
     type: "header",
@@ -125,7 +125,7 @@ export function isHeader(program: Program, entity: Type) {
 export const $query: QueryDecorator = (
   context: DecoratorContext,
   entity: ModelProperty,
-  queryNameOrOptions?: string | QueryOptions
+  queryNameOrOptions?: string | QueryOptions,
 ) => {
   const paramName =
     typeof queryNameOrOptions === "string"
@@ -137,7 +137,7 @@ export const $query: QueryDecorator = (
     reportDeprecated(
       context.program,
       "The `format` option of `@query` decorator is deprecated. Use `explode: true` instead of `form` and `multi`. `csv` or `simple` is the default now.",
-      entity
+      entity,
     );
   }
   const options: QueryParameterOptions = {
@@ -151,10 +151,10 @@ export const $query: QueryDecorator = (
   if (
     entity.type.kind === "Model" &&
     isArrayModelType(context.program, entity.type) &&
-    // eslint-disable-next-line deprecation/deprecation
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     options.format === undefined
   ) {
-    // eslint-disable-next-line deprecation/deprecation
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     options.format = userOptions.explode ? "multi" : "csv";
   }
   context.program.stateMap(HttpStateKeys.query).set(entity, options);
@@ -175,7 +175,7 @@ export function isQueryParam(program: Program, entity: Type) {
 export const $path: PathDecorator = (
   context: DecoratorContext,
   entity: ModelProperty,
-  paramNameOrOptions?: string | PathOptions
+  paramNameOrOptions?: string | PathOptions,
 ) => {
   const paramName =
     typeof paramNameOrOptions === "string"
@@ -215,7 +215,7 @@ export const $bodyRoot: BodyRootDecorator = (context: DecoratorContext, entity: 
 
 export const $bodyIgnore: BodyIgnoreDecorator = (
   context: DecoratorContext,
-  entity: ModelProperty
+  entity: ModelProperty,
 ) => {
   context.program.stateSet(HttpStateKeys.bodyIgnore).add(entity);
 };
@@ -234,7 +234,7 @@ export function isBodyIgnore(program: Program, entity: ModelProperty): boolean {
 
 export const $multipartBody: MultipartBodyDecorator = (
   context: DecoratorContext,
-  entity: ModelProperty
+  entity: ModelProperty,
 ) => {
   context.program.stateSet(HttpStateKeys.multipartBody).add(entity);
 };
@@ -245,11 +245,11 @@ export function isMultipartBodyProperty(program: Program, entity: Type): boolean
 
 export const $statusCode: StatusCodeDecorator = (
   context: DecoratorContext,
-  entity: ModelProperty
+  entity: ModelProperty,
 ) => {
   context.program.stateSet(HttpStateKeys.statusCode).add(entity);
 
-  // eslint-disable-next-line deprecation/deprecation
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
   setLegacyStatusCodeState(context, entity);
 };
 
@@ -312,7 +312,7 @@ export function isStatusCode(program: Program, entity: Type) {
 
 export function getStatusCodesWithDiagnostics(
   program: Program,
-  type: ModelProperty
+  type: ModelProperty,
 ): [HttpStatusCodes, readonly Diagnostic[]] {
   return getStatusCodesFromType(program, type, type);
 }
@@ -384,7 +384,7 @@ function validateVerbUniqueOnNode(context: DecoratorContext, type: Operation) {
     (x) =>
       VERB_DECORATORS.includes(x.decorator) &&
       x.node?.kind === SyntaxKind.DecoratorExpression &&
-      x.node?.parent === type.node
+      x.node?.parent === type.node,
   );
 
   if (verbDecorators.length > 1) {
@@ -435,7 +435,7 @@ export const $server: ServerDecorator = (
   target: Namespace,
   url: string,
   description: string,
-  parameters?: Type
+  parameters?: Type,
 ) => {
   const params = extractParamsFromPath(url);
   const parameterMap = new Map((parameters as Model)?.properties ?? []);
@@ -470,7 +470,7 @@ export function getServers(program: Program, type: Namespace): HttpServer[] | un
 export function $useAuth(
   context: DecoratorContext,
   entity: Namespace | Interface | Operation,
-  authConfig: Type
+  authConfig: Type,
 ) {
   validateDecoratorUniqueOnNode(context, entity, $useAuth);
   const [auth, diagnostics] = extractAuthentication(context.program, authConfig);
@@ -483,14 +483,14 @@ export function $useAuth(
 export function setAuthentication(
   program: Program,
   entity: Namespace | Interface | Operation,
-  auth: Authentication
+  auth: Authentication,
 ) {
   program.stateMap(HttpStateKeys.authentication).set(entity, auth);
 }
 
 function extractAuthentication(
   program: Program,
-  type: Type
+  type: Type,
 ): [Authentication | undefined, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
 
@@ -521,7 +521,7 @@ function extractAuthentication(
 function extractHttpAuthenticationOptions(
   program: Program,
   tuple: Union,
-  diagnosticTarget: DiagnosticTarget
+  diagnosticTarget: DiagnosticTarget,
 ): [Authentication, readonly Diagnostic[]] {
   const options: AuthenticationOption[] = [];
   const diagnostics = createDiagnosticCollector();
@@ -530,7 +530,7 @@ function extractHttpAuthenticationOptions(
     switch (value.kind) {
       case "Model":
         const result = diagnostics.pipe(
-          extractHttpAuthentication(program, value, diagnosticTarget)
+          extractHttpAuthentication(program, value, diagnosticTarget),
         );
         if (result !== undefined) {
           options.push({ schemes: [result] });
@@ -538,7 +538,7 @@ function extractHttpAuthenticationOptions(
         break;
       case "Tuple":
         const option = diagnostics.pipe(
-          extractHttpAuthenticationOption(program, value, diagnosticTarget)
+          extractHttpAuthenticationOption(program, value, diagnosticTarget),
         );
         options.push(option);
         break;
@@ -548,7 +548,7 @@ function extractHttpAuthenticationOptions(
             code: "invalid-type-for-auth",
             format: { kind: value.kind },
             target: value,
-          })
+          }),
         );
     }
   }
@@ -558,7 +558,7 @@ function extractHttpAuthenticationOptions(
 function extractHttpAuthenticationOption(
   program: Program,
   tuple: Tuple,
-  diagnosticTarget: DiagnosticTarget
+  diagnosticTarget: DiagnosticTarget,
 ): [AuthenticationOption, readonly Diagnostic[]] {
   const schemes: HttpAuth[] = [];
   const diagnostics = createDiagnosticCollector();
@@ -566,7 +566,7 @@ function extractHttpAuthenticationOption(
     switch (value.kind) {
       case "Model":
         const result = diagnostics.pipe(
-          extractHttpAuthentication(program, value, diagnosticTarget)
+          extractHttpAuthentication(program, value, diagnosticTarget),
         );
         if (result !== undefined) {
           schemes.push(result);
@@ -578,7 +578,7 @@ function extractHttpAuthenticationOption(
             code: "invalid-type-for-auth",
             format: { kind: value.kind },
             target: value,
-          })
+          }),
         );
     }
   }
@@ -588,7 +588,7 @@ function extractHttpAuthenticationOption(
 function extractHttpAuthentication(
   program: Program,
   modelType: Model,
-  diagnosticTarget: DiagnosticTarget
+  diagnosticTarget: DiagnosticTarget,
 ): [HttpAuth | undefined, readonly Diagnostic[]] {
   const [result, diagnostics] = typespecTypeToJson<HttpAuth>(modelType, diagnosticTarget);
   if (result === undefined) {
@@ -635,7 +635,7 @@ function extractOAuth2Auth(modelType: Model, data: any): HttpAuth {
 
 export function getAuthentication(
   program: Program,
-  entity: Namespace | Interface | Operation
+  entity: Namespace | Interface | Operation,
 ): Authentication | undefined {
   return program.stateMap(HttpStateKeys.authentication).get(entity);
 }
@@ -653,7 +653,7 @@ export const $route: RouteDecorator = (
   context: DecoratorContext,
   entity: Type,
   path: string,
-  parameters?: Type
+  parameters?: Type,
 ) => {
   validateDecoratorUniqueOnNode(context, entity, $route);
 
@@ -664,7 +664,7 @@ export const $route: RouteDecorator = (
     reportDeprecated(
       context.program,
       "The `shared` option is deprecated, use the `@sharedRoute` decorator instead.",
-      entity
+      entity,
     );
 
     // The type checker should have raised a diagnostic if the value isn't boolean
@@ -689,7 +689,7 @@ export const $route: RouteDecorator = (
  */
 export const $sharedRoute: SharedRouteDecorator = (
   context: DecoratorContext,
-  entity: Operation
+  entity: Operation,
 ) => {
   setSharedRoute(context.program, entity);
 };
@@ -712,7 +712,7 @@ export const $sharedRoute: SharedRouteDecorator = (
 export function $includeInapplicableMetadataInPayload(
   context: DecoratorContext,
   entity: Type,
-  value: boolean
+  value: boolean,
 ) {
   if (
     !validateDecoratorTarget(context, entity, "@includeInapplicableMetadataInPayload", [
@@ -736,7 +736,7 @@ export function $includeInapplicableMetadataInPayload(
  */
 export function includeInapplicableMetadataInPayload(
   program: Program,
-  property: ModelProperty
+  property: ModelProperty,
 ): boolean {
   let e: ModelProperty | Namespace | Model | undefined;
   for (e = property; e; e = e.kind === "ModelProperty" ? e.model : e.namespace) {

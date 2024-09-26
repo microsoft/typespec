@@ -19,7 +19,6 @@ interface InputExampleBase {
   name: string;
   description: string;
   filePath: string;
-  rawExample: any;
 }
 
 export interface InputHttpOperationExample extends InputExampleBase {
@@ -35,6 +34,7 @@ export interface InputParameterExampleValue {
 
 export interface OperationResponseExample {
   response: OperationResponse;
+  statusCode: number;
   // TODO -- enable this when we are ready to write headers in responses.
   // headers: SdkHttpResponseHeaderExample[];
   bodyValue?: InputExampleValue;
@@ -45,7 +45,7 @@ export type InputExampleValue =
   | InputNumberExampleValue
   | InputBooleanExampleValue
   | InputNullExampleValue
-  | InputAnyExampleValue
+  | InputUnknownExampleValue
   | InputArrayExampleValue
   | InputDictionaryExampleValue
   | InputUnionExampleValue
@@ -76,8 +76,8 @@ export interface InputNullExampleValue extends InputExampleTypeValueBase {
   type: InputNullableType;
   value: null;
 }
-export interface InputAnyExampleValue extends InputExampleTypeValueBase {
-  kind: "any";
+export interface InputUnknownExampleValue extends InputExampleTypeValueBase {
+  kind: "unknown";
   type: InputPrimitiveType;
   value: unknown;
 }

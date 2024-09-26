@@ -1,5 +1,4 @@
 import {
-  DuplicateTracker,
   getKeyName,
   getTypeName,
   listServices,
@@ -7,6 +6,7 @@ import {
   navigateTypesInNamespace,
   Program,
 } from "@typespec/compiler";
+import { DuplicateTracker } from "@typespec/compiler/utils";
 import { isSharedRoute } from "@typespec/http";
 import { reportDiagnostic } from "./lib.js";
 import { getParentResource, getResourceTypeKey, ResourceKey } from "./resource.js";
@@ -24,7 +24,7 @@ function checkForDuplicateResourceKeyNames(program: Program) {
     while (currentType) {
       const resourceKey = getResourceTypeKey(program, currentType);
       if (resourceKey) {
-        const keyName = getKeyName(program, resourceKey.keyProperty);
+        const keyName = getKeyName(program, resourceKey.keyProperty)!;
         keyProperties.track(keyName, resourceKey);
       }
 

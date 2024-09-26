@@ -1,5 +1,25 @@
 # Change Log - @typespec/versioning
 
+## 0.60.1
+
+### Bug Fixes
+
+- [#4408](https://github.com/microsoft/typespec/pull/4408) Fixes versioning when using versioned named union variants
+
+
+## 0.60.0
+
+### Bug Fixes
+
+- [#4145](https://github.com/microsoft/typespec/pull/4145) Fix error when trying to reference types from another sub namespace of a versioned namespace
+- [#4179](https://github.com/microsoft/typespec/pull/4179) Add validation to make sure operation params reference models available in the current version
+- [#4179](https://github.com/microsoft/typespec/pull/4179) Add validation to make sure types referencing array in union types have compatible versioning.
+
+### Features
+
+- [#4139](https://github.com/microsoft/typespec/pull/4139) Internals: Migrate to new api for declaring decorator implementation
+
+
 ## 0.59.0
 
 ### Bug Fixes

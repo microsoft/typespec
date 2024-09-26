@@ -16,7 +16,7 @@ const validatedMissingKey = createStateSymbol("validatedMissing");
 const $validateHasKey: ValidateHasKeyDecorator = (
   context: DecoratorContext,
   target: Type,
-  value: Type
+  value: Type,
 ) => {
   if (context.program.stateSet(validatedMissingKey).has(value)) {
     return;
@@ -37,7 +37,7 @@ const validatedErrorKey = createStateSymbol("validatedError");
 const $validateIsError: ValidateIsErrorDecorator = (
   context: DecoratorContext,
   target: Type,
-  value: Type
+  value: Type,
 ) => {
   if (context.program.stateSet(validatedErrorKey).has(value)) {
     return;

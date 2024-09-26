@@ -16,12 +16,10 @@ namespace _Type.Union.Models
             set => throw null;
         }
 
-
         public BinaryData Array
         {
             get => throw null;
             set => throw null;
         }
-
     }
 }

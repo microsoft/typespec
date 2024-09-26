@@ -14,6 +14,7 @@
     "jsx": "react-jsx",
     "lib": ["DOM"]
   },
+  "references": [{ "path": "../compiler/tsconfig.json" }],
   "include": [
     ".storybook/**/*.ts",
     ".storybook/**/*.tsx",

@@ -32,9 +32,12 @@ export default defineConfig({
     react(),
     dts({
       logLevel: "silent", // checker reports the errors
+      tsconfigPath: "./tsconfig.build.json",
     }),
     checker({
-      typescript: true,
+      typescript: {
+        tsconfigPath: "./tsconfig.build.json",
+      },
     }),
   ],
 });

@@ -7,11 +7,10 @@ import com._specs_.azure.clientgenerator.core.usage.models.InputModel;
 import com._specs_.azure.clientgenerator.core.usage.models.OutputModel;
 import com._specs_.azure.clientgenerator.core.usage.models.ResultModel;
 import com._specs_.azure.clientgenerator.core.usage.models.RoundTripModel;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class UsageTests {
 

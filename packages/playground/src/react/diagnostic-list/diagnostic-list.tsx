@@ -21,7 +21,7 @@ export const DiagnosticList: FunctionComponent<DiagnosticListProps> = ({
     (diagnostic: Diagnostic) => {
       onDiagnosticSelected?.(diagnostic);
     },
-    [onDiagnosticSelected]
+    [onDiagnosticSelected],
   );
   if (diagnostics.length === 0) {
     return <div className={style["list"]}>No errors</div>;
@@ -49,7 +49,7 @@ const DiagnosticItem: FunctionComponent<DiagnosticItemProps> = ({ diagnostic, on
       <div
         className={mergeClasses(
           (style["item-severity"],
-          style[diagnostic.severity === "error" ? "item--error" : "item--warning"])
+          style[diagnostic.severity === "error" ? "item--error" : "item--warning"]),
         )}
       >
         {diagnostic.severity}

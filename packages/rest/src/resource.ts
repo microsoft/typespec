@@ -26,7 +26,7 @@ const resourceTypeForKeyParamKey = createStateSymbol("resourceTypeForKeyParam");
 export function setResourceTypeKey(
   program: Program,
   resourceType: Model,
-  keyProperty: ModelProperty
+  keyProperty: ModelProperty,
 ): void {
   program.stateMap(resourceKeysKey).set(resourceType, {
     resourceType,
@@ -80,7 +80,7 @@ export function getResourceTypeKey(program: Program, resourceType: Model): Resou
 export function $resourceTypeForKeyParam(
   context: DecoratorContext,
   entity: Type,
-  resourceType: Type
+  resourceType: Type,
 ) {
   if (!validateDecoratorTarget(context, entity, "@resourceTypeForKeyParam", "ModelProperty")) {
     return;
@@ -93,7 +93,7 @@ setTypeSpecNamespace("Private", $resourceTypeForKeyParam);
 
 export function getResourceTypeForKeyParam(
   program: Program,
-  param: ModelProperty
+  param: ModelProperty,
 ): Model | undefined {
   return program.stateMap(resourceTypeForKeyParamKey).get(param);
 }
@@ -109,7 +109,7 @@ function cloneKeyProperties(context: DecoratorContext, target: Model, resourceTy
   const resourceKey = getResourceTypeKey(program, resourceType);
   if (resourceKey) {
     const { keyProperty } = resourceKey;
-    const keyName = getKeyName(program, keyProperty);
+    const keyName = getKeyName(program, keyProperty)!;
 
     const decorators = [
       // Filter out the @visibility decorator because it might affect metadata
@@ -144,7 +144,7 @@ function cloneKeyProperties(context: DecoratorContext, target: Model, resourceTy
 export function $copyResourceKeyParameters(
   context: DecoratorContext,
   entity: Model,
-  filter?: string
+  filter?: string,
 ) {
   const reportNoKeyError = () =>
     reportDiagnostic(context.program, {
@@ -194,7 +194,7 @@ export function getParentResource(program: Program, resourceType: Model): Model 
 export const $parentResource: ParentResourceDecorator = (
   context: DecoratorContext,
   entity: Type,
-  parentType: Model
+  parentType: Model,
 ) => {
   const { program } = context;
 

@@ -12,23 +12,23 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType
  */
 public class AnyMapper implements IMapper<AnySchema, IType> {
 
-  private static final AnyMapper INSTANCE = new AnyMapper();
+    private static final AnyMapper INSTANCE = new AnyMapper();
 
-  private AnyMapper() {
-    // private constructor
-  }
+    private AnyMapper() {
+        // private constructor
+    }
 
-  /**
-   * Gets the global {@link AnyMapper} instance.
-   *
-   * @return The global {@link AnyMapper} instance.
-   */
-  public static AnyMapper getInstance() {
-    return INSTANCE;
-  }
+    /**
+     * Gets the global {@link AnyMapper} instance.
+     *
+     * @return The global {@link AnyMapper} instance.
+     */
+    public static AnyMapper getInstance() {
+        return INSTANCE;
+    }
 
-  @Override
-  public IType map(AnySchema anySchema) {
-    return ClassType.OBJECT;
-  }
+    @Override
+    public IType map(AnySchema anySchema) {
+        return ClassType.OBJECT;
+    }
 }

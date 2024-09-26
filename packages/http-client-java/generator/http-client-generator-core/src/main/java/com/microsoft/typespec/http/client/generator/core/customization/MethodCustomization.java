@@ -5,6 +5,10 @@ package com.microsoft.typespec.http.client.generator.core.customization;
 
 import com.microsoft.typespec.http.client.generator.core.customization.implementation.Utils;
 import com.microsoft.typespec.http.client.generator.core.customization.implementation.ls.EclipseLanguageClient;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.eclipse.lsp4j.FileChangeType;
 import org.eclipse.lsp4j.FileEvent;
 import org.eclipse.lsp4j.Position;
@@ -12,12 +16,6 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
-
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 
 /**
  * The method level customization for an AutoRest generated method.
@@ -29,7 +27,7 @@ public final class MethodCustomization extends CodeCustomization {
     private final String methodSignature;
 
     MethodCustomization(Editor editor, EclipseLanguageClient languageClient, String packageName, String className,
-                        String methodName, String methodSignature, SymbolInformation symbol) {
+        String methodName, String methodSignature, SymbolInformation symbol) {
         super(editor, languageClient, symbol);
         this.packageName = packageName;
         this.className = className;
@@ -96,11 +94,13 @@ public final class MethodCustomization extends CodeCustomization {
      * @return the current method customization for chaining
      */
     public MethodCustomization removeAnnotation(String annotation) {
-        return Utils.removeAnnotation(this, compilationUnit -> compilationUnit.getClassByName(className).get()
+        return Utils.removeAnnotation(this, compilationUnit -> compilationUnit.getClassByName(className)
+            .get()
             .getMethodsByName(methodName)
             .stream()
             .filter(method -> Utils.declarationContainsSymbol(method.getRange().get(), symbol.getLocation().getRange()))
-            .findFirst().get()
+            .findFirst()
+            .get()
             .getAnnotationByName(Utils.cleanAnnotationName(annotation)), () -> refreshCustomization(methodSignature));
     }
 
@@ -145,11 +145,11 @@ public final class MethodCustomization extends CodeCustomization {
     public MethodCustomization replaceParameters(String newParameters, List<String> importsToAdd) {
         String newSignature = methodName + "(" + newParameters + ")";
 
-        ClassCustomization classCustomization = new PackageCustomization(editor, languageClient, packageName)
-            .getClass(className);
+        ClassCustomization classCustomization
+            = new PackageCustomization(editor, languageClient, packageName).getClass(className);
 
-        ClassCustomization updatedClassCustomization = Utils.addImports(importsToAdd, classCustomization,
-            classCustomization::refreshSymbol);
+        ClassCustomization updatedClassCustomization
+            = Utils.addImports(importsToAdd, classCustomization, classCustomization::refreshSymbol);
 
         return Utils.replaceParameters(newParameters, updatedClassCustomization.getMethod(methodSignature),
             () -> updatedClassCustomization.getMethod(newSignature));
@@ -174,11 +174,11 @@ public final class MethodCustomization extends CodeCustomization {
      * @return A new MethodCustomization representing the updated method.
      */
     public MethodCustomization replaceBody(String newBody, List<String> importsToAdd) {
-        ClassCustomization classCustomization = new PackageCustomization(editor, languageClient, packageName)
-            .getClass(className);
+        ClassCustomization classCustomization
+            = new PackageCustomization(editor, languageClient, packageName).getClass(className);
 
-        ClassCustomization updatedClassCustomization = Utils.addImports(importsToAdd, classCustomization,
-            classCustomization::refreshSymbol);
+        ClassCustomization updatedClassCustomization
+            = Utils.addImports(importsToAdd, classCustomization, classCustomization::refreshSymbol);
 
         return Utils.replaceBody(newBody, updatedClassCustomization.getMethod(methodSignature),
             () -> updatedClassCustomization.getMethod(methodSignature));
@@ -237,7 +237,8 @@ public final class MethodCustomization extends CodeCustomization {
         String methodIndent = Utils.getIndent(editor.getFileLine(fileName, line));
         String methodContentIndent = Utils.getIndent(editor.getFileLine(fileName, line + 1));
         String oldReturnType = oldLineContent.replaceAll(" " + methodName + "\\(.*", "")
-            .replaceFirst(methodIndent + "(\\w.* )?", "").trim();
+            .replaceFirst(methodIndent + "(\\w.* )?", "")
+            .trim();
         int returnLine = -1;
         while (!oldLineContent.startsWith(methodIndent + "}")) {
             if (oldLineContent.contains("return ")) {
@@ -267,7 +268,8 @@ public final class MethodCustomization extends CodeCustomization {
             // replace return statement
             TextEdit returnValueEdit = new TextEdit();
             String returnLineText = editor.getFileLine(fileName, returnLine);
-            returnValueEdit.setRange(new Range(new Position(returnLine, 0), new Position(returnLine, returnLineText.length())));
+            returnValueEdit
+                .setRange(new Range(new Position(returnLine, 0), new Position(returnLine, returnLineText.length())));
             returnValueEdit.setNewText(returnLineText.replace("return ", oldReturnType + " returnValue = "));
             edits.add(returnValueEdit);
 
@@ -283,7 +285,8 @@ public final class MethodCustomization extends CodeCustomization {
             if (replaceReturnStatement) {
                 returnEdit.setNewText(String.format(returnValueFormatter, "returnValue"));
             } else {
-                returnEdit.setNewText(methodContentIndent + "return " + String.format(returnValueFormatter, "returnValue") + ";");
+                returnEdit.setNewText(
+                    methodContentIndent + "return " + String.format(returnValueFormatter, "returnValue") + ";");
             }
 
             edits.add(returnEdit);
@@ -295,14 +298,14 @@ public final class MethodCustomization extends CodeCustomization {
 
         Utils.organizeImportsOnRange(languageClient, editor, fileUri, new Range(start, end));
 
-        String newMethodSignature = methodSignature.replace(oldReturnType + " " + methodName, newReturnType + " " + methodName);
+        String newMethodSignature
+            = methodSignature.replace(oldReturnType + " " + methodName, newReturnType + " " + methodName);
 
         return refreshCustomization(newMethodSignature);
     }
 
     private MethodCustomization refreshCustomization(String methodSignature) {
-        return new PackageCustomization(editor, languageClient, packageName)
-            .getClass(className)
+        return new PackageCustomization(editor, languageClient, packageName).getClass(className)
             .getMethod(methodSignature);
     }
 }
