@@ -188,7 +188,7 @@ export const $info: InfoDecorator = (
   if (data === undefined) {
     return;
   }
-  validateObject(context, model, entity);
+  validateObject(context, model);
   setInfo(context.program, entity, data);
 };
 
@@ -219,7 +219,7 @@ function omitUndefined<T extends Record<string, unknown>>(data: T): T {
   return Object.fromEntries(Object.entries(data).filter(([k, v]) => v !== undefined)) as any;
 }
 
-function validateObject(context: DecoratorContext, typespecType: TypeSpecValue, entity: Namespace) {
+function validateObject(context: DecoratorContext, typespecType: TypeSpecValue) {
   const propertyModel = context.program.resolveTypeReference(
     "TypeSpec.OpenAPI.AdditionalInfo",
   )[0]! as Model;
@@ -244,7 +244,6 @@ function checkNoAdditionalProperties(
   if (typespecType.kind === "Model") {
     for (const [name, type] of typespecType.properties.entries()) {
       const sourceProperty = getProperty(source, name);
-
       if (sourceProperty) {
         if (sourceProperty.type.kind === "Model") {
           const [nestedDiagnostics] = checkNoAdditionalProperties(

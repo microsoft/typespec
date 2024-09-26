@@ -169,6 +169,32 @@ describe("openapi: decorators", () => {
           message: `OpenAPI extension must start with 'x-' but was 'foo'`,
         });
       });
+
+      it("multiple extensions that not allow", async () => {
+        const diagnostics = await runner.diagnose(`
+          @info({
+            license:{ name: "Apache 2.0", foo1:"Bar"}, 
+            contact:{ "x-custom": "string", foo2:"Bar" }, 
+            foo3:"Bar" 
+          })
+          @test namespace Service;
+        `);
+
+        expectDiagnostics(diagnostics, [
+          {
+            code: "@typespec/openapi/invalid-extension-key",
+            message: `OpenAPI extension must start with 'x-' but was 'foo1'`,
+          },
+          {
+            code: "@typespec/openapi/invalid-extension-key",
+            message: `OpenAPI extension must start with 'x-' but was 'foo2'`,
+          },
+          {
+            code: "@typespec/openapi/invalid-extension-key",
+            message: `OpenAPI extension must start with 'x-' but was 'foo3'`,
+          },
+        ]);
+      });
     });
 
     it("emit diagnostic if use on non namespace", async () => {
