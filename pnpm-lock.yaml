@@ -573,6 +573,73 @@ importers:
         specifier: ~5.6.2
         version: 5.6.2
 
+  packages/http-specs:
+    dependencies:
+      '@azure-tools/typespec-azure-core':
+        specifier: ~0.46.0
+        version: 0.46.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)
+      '@typespec/compiler':
+        specifier: workspace:~
+        version: link:../compiler
+      '@typespec/http':
+        specifier: workspace:~
+        version: link:../http
+      '@typespec/rest':
+        specifier: workspace:~
+        version: link:../rest
+      '@typespec/spec':
+        specifier: workspace:*
+        version: link:../spec
+      '@typespec/spec-api':
+        specifier: workspace:~
+        version: link:../spec-api
+      '@typespec/spec-lib':
+        specifier: workspace:~
+        version: link:../spec-lib
+      '@typespec/versioning':
+        specifier: workspace:~
+        version: link:../versioning
+      '@typespec/xml':
+        specifier: workspace:~
+        version: link:../xml
+      axios:
+        specifier: ^1.7.5
+        version: 1.7.7
+      dotenv:
+        specifier: ~16.4.5
+        version: 16.4.5
+      multer:
+        specifier: ^1.4.5-lts.1
+        version: 1.4.5-lts.1
+    devDependencies:
+      '@azure-tools/typespec-autorest':
+        specifier: 0.46.0
+        version: 0.46.0(zv7ftny5ts5t4oabneiuzzondm)
+      '@azure-tools/typespec-azure-resource-manager':
+        specifier: 0.46.0
+        version: 0.46.0(@azure-tools/typespec-azure-core@0.46.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest))(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/openapi@packages+openapi)(@typespec/rest@packages+rest)(@typespec/versioning@packages+versioning)
+      '@azure-tools/typespec-client-generator-core':
+        specifier: 0.46.0
+        version: 0.46.0(@azure-tools/typespec-azure-core@0.46.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest))(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/openapi@packages+openapi)(@typespec/rest@packages+rest)(@typespec/versioning@packages+versioning)
+      '@types/multer':
+        specifier: ^1.4.10
+        version: 1.4.12
+      '@types/node':
+        specifier: ~22.5.4
+        version: 22.5.4
+      '@typespec/openapi':
+        specifier: workspace:~
+        version: link:../openapi
+      '@typespec/openapi3':
+        specifier: workspace:~
+        version: link:../openapi3
+      rimraf:
+        specifier: ~6.0.1
+        version: 6.0.1
+      typescript:
+        specifier: ~5.6.2
+        version: 5.6.2
+
   packages/internal-build-utils:
     dependencies:
       '@pnpm/find-workspace-packages':
@@ -1231,73 +1298,6 @@ importers:
       vitest:
         specifier: ^2.1.0
         version: 2.1.0(@types/node@22.5.4)(@vitest/ui@2.1.0)(happy-dom@15.7.4)(jsdom@19.0.0)(terser@5.30.0)
-
-  packages/rest-specs:
-    dependencies:
-      '@azure-tools/typespec-azure-core':
-        specifier: ~0.46.0
-        version: 0.46.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)
-      '@typespec/compiler':
-        specifier: workspace:~
-        version: link:../compiler
-      '@typespec/http':
-        specifier: workspace:~
-        version: link:../http
-      '@typespec/rest':
-        specifier: workspace:~
-        version: link:../rest
-      '@typespec/spec':
-        specifier: workspace:*
-        version: link:../spec
-      '@typespec/spec-api':
-        specifier: workspace:~
-        version: link:../spec-api
-      '@typespec/spec-lib':
-        specifier: workspace:~
-        version: link:../spec-lib
-      '@typespec/versioning':
-        specifier: workspace:~
-        version: link:../versioning
-      '@typespec/xml':
-        specifier: workspace:~
-        version: link:../xml
-      axios:
-        specifier: ^1.7.5
-        version: 1.7.7
-      dotenv:
-        specifier: ~16.4.5
-        version: 16.4.5
-      multer:
-        specifier: ^1.4.5-lts.1
-        version: 1.4.5-lts.1
-    devDependencies:
-      '@azure-tools/typespec-autorest':
-        specifier: 0.46.0
-        version: 0.46.0(zv7ftny5ts5t4oabneiuzzondm)
-      '@azure-tools/typespec-azure-resource-manager':
-        specifier: 0.46.0
-        version: 0.46.0(@azure-tools/typespec-azure-core@0.46.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest))(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/openapi@packages+openapi)(@typespec/rest@packages+rest)(@typespec/versioning@packages+versioning)
-      '@azure-tools/typespec-client-generator-core':
-        specifier: 0.46.0
-        version: 0.46.0(@azure-tools/typespec-azure-core@0.46.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest))(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/openapi@packages+openapi)(@typespec/rest@packages+rest)(@typespec/versioning@packages+versioning)
-      '@types/multer':
-        specifier: ^1.4.10
-        version: 1.4.12
-      '@types/node':
-        specifier: ~22.5.4
-        version: 22.5.4
-      '@typespec/openapi':
-        specifier: workspace:~
-        version: link:../openapi
-      '@typespec/openapi3':
-        specifier: workspace:~
-        version: link:../openapi3
-      rimraf:
-        specifier: ~6.0.1
-        version: 6.0.1
-      typescript:
-        specifier: ~5.6.2
-        version: 5.6.2
 
   packages/samples:
     dependencies:

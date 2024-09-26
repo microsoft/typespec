@@ -1,7 +1,7 @@
 ---
 changeKind: internal
 packages:
-  - "@typespec/rest-specs"
+  - "@typespec/http-specs"
 ---
 
-Migrating cadl-ranch-spec package to rest-specs along with the server tests and framework
+Migrating cadl-ranch-spec package to http-specs along with the server tests and framework
