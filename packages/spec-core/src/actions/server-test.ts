@@ -3,7 +3,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { logger } from "../logger.js";
 import { loadScenarioMockApis } from "../scenarios-resolver.js";
-import { makeServiceCall, SERVICE_CALL_TYPE, uint8ArrayToString } from "./helper-server-test.js";
+import { makeServiceCall, uint8ArrayToString } from "./helper.js";
 
 class ServerTestsGenerator {
   private name: string = "";
@@ -30,14 +30,6 @@ class ServerTestsGenerator {
     if (!this.mockMethods) return;
     for (const mockMethod of this.mockMethods) {
       logger.info(`Executing ${this.name} endpoint - Method: ${mockMethod.method}`);
-      let methodName = SERVICE_CALL_TYPE.get;
-
-      if (mockMethod.method === "get") methodName = SERVICE_CALL_TYPE.get;
-      if (mockMethod.method === "put") methodName = SERVICE_CALL_TYPE.put;
-      if (mockMethod.method === "patch") methodName = SERVICE_CALL_TYPE.patch;
-      if (mockMethod.method === "delete") methodName = SERVICE_CALL_TYPE.delete;
-      if (mockMethod.method === "post") methodName = SERVICE_CALL_TYPE.post;
-      if (mockMethod.method === "head") methodName = SERVICE_CALL_TYPE.head;
 
       if (mockMethod.request.config?.validStatus) {
         mockMethod.request.config = {
@@ -56,7 +48,7 @@ class ServerTestsGenerator {
         };
       }
 
-      const response = await makeServiceCall(methodName, {
+      const response = await makeServiceCall(mockMethod.method, {
         endPoint: `${this.serverBasePath}${this.endpoint}`,
         options: {
           requestBody: mockMethod.request.body,
@@ -127,7 +119,7 @@ export async function serverTest(
   }
   // 2. Load all the scenarios
   const scenarios = await loadScenarioMockApis(scenariosPath);
-  // 3. For each scenario, generate the test files
+  // 3. Execute each scenario
   for (const [name, scenario] of Object.entries(scenarios)) {
     for (const endpoint of scenario.apis) {
       if (endpoint.method !== undefined) continue;

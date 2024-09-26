@@ -1,13 +1,5 @@
+import { HttpMethod } from "@typespec/spec-api";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
-
-export enum SERVICE_CALL_TYPE {
-  put,
-  post,
-  get,
-  patch,
-  delete,
-  head,
-}
 
 export interface ServiceRequest {
   endPoint: string;
@@ -18,22 +10,22 @@ export interface ServiceRequest {
 }
 
 export async function makeServiceCall(
-  serviceCallType: SERVICE_CALL_TYPE,
+  serviceCallType: HttpMethod,
   request: ServiceRequest,
 ): Promise<AxiosResponse<any, any>> {
-  if (serviceCallType === SERVICE_CALL_TYPE.put) {
+  if (serviceCallType === "put") {
     return await makePutCall(request);
   }
-  if (serviceCallType === SERVICE_CALL_TYPE.post) {
+  if (serviceCallType === "post") {
     return await makePostCall(request);
   }
-  if (serviceCallType === SERVICE_CALL_TYPE.get) {
+  if (serviceCallType === "get") {
     return await makeGetCall(request);
   }
-  if (serviceCallType === SERVICE_CALL_TYPE.delete) {
+  if (serviceCallType === "delete") {
     return await makeDeleteCall(request);
   }
-  if (serviceCallType === SERVICE_CALL_TYPE.head) {
+  if (serviceCallType === "head") {
     return await makeHeadCall(request);
   }
   return await makePatchCall(request);
