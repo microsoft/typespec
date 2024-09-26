@@ -57,13 +57,26 @@ function resolveArgs(
 ): [Record<string, string>, readonly Diagnostic[]] {
   const unmatchedArgs = new Set(Object.keys(args ?? {}));
   const result: Record<string, string> = {};
-  if (declarations !== undefined) {
-    for (const [name, definition] of Object.entries(declarations)) {
+
+  function resolveNestedArgs(
+    parentName: string,
+    declarations: [string, ConfigParameter | ConfigEnvironmentVariable][],
+  ) {
+    for (const [declarationName, definition] of declarations) {
+      const name = parentName ? `${parentName}.${declarationName}` : declarationName;
+      if (hasNestedValues(definition)) {
+        resolveNestedArgs(name, Object.entries(definition));
+      }
+
       unmatchedArgs.delete(name);
       result[name] = ignoreDiagnostics(
-        resolveValue(args?.[name] ?? definition.default, predefinedVariables),
+        resolveValue(args?.[name] ?? definition.default ?? definition, predefinedVariables),
       );
     }
+  }
+
+  if (declarations !== undefined) {
+    resolveNestedArgs("", Object.entries(declarations));
   }
 
   if (!allowUnspecified) {
@@ -77,6 +90,12 @@ function resolveArgs(
     return [result, diagnostics];
   }
   return [result, []];
+}
+
+function hasNestedValues(value: any): boolean {
+  return (
+    value && typeof value === "object" && !Array.isArray(value) && Object.keys(value).length > 0
+  );
 }
 
 const VariableInterpolationRegex = /{([a-zA-Z-_.]+)}/g;
@@ -97,10 +116,20 @@ export function resolveValues<T extends Record<string, unknown>>(
   const resolvedValues: Record<string, unknown> = {};
   const resolvingValues = new Set<string>();
 
-  function resolveValue(key: string) {
+  function resolveValue(key: string, valuePassed?: any) {
     resolvingValues.add(key);
-    const value = values[key];
-    if (!(typeof value === "string")) {
+    let value = values[key] ?? valuePassed;
+
+    if (typeof value !== "string") {
+      if (hasNestedValues(value)) {
+        value = value as Record<string, any>;
+        const resultObject: Record<string, any> = {};
+        for (const [nestedKey, nestedValue] of Object.entries(value)) {
+          resolvingValues.add(nestedKey);
+          resultObject[nestedKey] = resolveValue(nestedKey, value[key] ?? nestedValue) as any;
+        }
+        return resultObject;
+      }
       return value;
     }
     return value.replace(VariableInterpolationRegex, (match, expression) => {
@@ -128,8 +157,12 @@ export function resolveValues<T extends Record<string, unknown>>(
       return resolveValue(expression) as any;
     }
 
-    const segments = expression.split(".");
     let resolved: any = predefinedVariables;
+    if (expression in resolved) {
+      return resolved[expression];
+    }
+
+    const segments = expression.split(".");
     for (const segment of segments) {
       resolved = resolved[segment];
       if (resolved === undefined) {
