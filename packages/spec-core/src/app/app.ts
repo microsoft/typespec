@@ -1,4 +1,4 @@
-import { APIDefinition, MockMethod, RequestExt, ScenarioMockApi } from "@typespec/spec-api";
+import { APIDefinition, MockApi, RequestExt, ScenarioMockApi } from "@typespec/spec-api";
 import { Response, Router } from "express";
 import { getScenarioMetadata } from "../coverage/common.js";
 import { CoverageTracker } from "../coverage/coverage-tracker.js";
@@ -38,26 +38,18 @@ export class MockApiApp {
     this.server.start();
   }
 
-  private containsHandlers(mockMethods: MockMethod[]) {
-    return mockMethods.some((method) => method.handler !== undefined);
-  }
-
   private registerScenario(name: string, scenario: ScenarioMockApi) {
     if (!Array.isArray(scenario.apis)) return;
     for (const endpoint of scenario.apis) {
-      if (endpoint.method) {
-        this.router.route(endpoint.uri)[endpoint.method]((req: RequestExt, res: Response) => {
-          processRequest(
-            this.coverageTracker,
-            name,
-            endpoint.uri,
-            req,
-            res,
-            endpoint.handler,
-          ).catch((e) => {
-            logger.error("Unexpected request error", e);
-            res.status(500).end();
-          });
+      if ((endpoint as any as APIDefinition).mockMethods === undefined) {
+        const mockApi = endpoint as any as MockApi;
+        this.router.route(endpoint.uri)[mockApi.method]((req: RequestExt, res: Response) => {
+          processRequest(this.coverageTracker, name, endpoint.uri, req, res, mockApi.handler).catch(
+            (e) => {
+              logger.error("Unexpected request error", e);
+              res.status(500).end();
+            },
+          );
         });
       } else {
         for (const method of (endpoint as any as APIDefinition).mockMethods) {

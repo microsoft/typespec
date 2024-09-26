@@ -18,13 +18,13 @@ export type ScenarioPassCondition = "response-success" | "status-code";
 
 export interface PassOnSuccessScenario {
   passCondition: "response-success";
-  apis: MockApi[] | APIDefinition;
+  apis: MockApi[] | APIDefinition[];
 }
 
 export interface PassOnCodeScenario {
   passCondition: "status-code";
   code: number;
-  apis: MockApi[] | APIDefinition;
+  apis: MockApi[] | APIDefinition[];
 }
 export interface PassByKeyScenario<K extends string = string> {
   passCondition: "by-key";
