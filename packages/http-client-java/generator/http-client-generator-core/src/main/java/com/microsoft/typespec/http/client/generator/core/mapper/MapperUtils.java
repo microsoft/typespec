@@ -116,7 +116,6 @@ public final class MapperUtils {
                 .crossLanguageDefinitionId(enumType.getCrossLanguageDefinitionId())
                 .fromMethodName(deserializationMethodName)
                 .toMethodName(serializationMethodName)
-                .wireType(wireType)
                 .build();
         }
     }

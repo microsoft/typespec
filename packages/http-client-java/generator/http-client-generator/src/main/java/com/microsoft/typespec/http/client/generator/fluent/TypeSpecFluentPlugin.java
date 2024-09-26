@@ -13,7 +13,6 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Client;
-import com.microsoft.typespec.http.client.generator.core.template.Templates;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentGen;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentNamer;
 import com.microsoft.typespec.http.client.generator.mgmt.mapper.FluentMapper;
@@ -89,7 +88,6 @@ public class TypeSpecFluentPlugin extends FluentGen {
     protected FluentMapper getFluentMapper() {
         FluentMapper fluentMapper = super.getFluentMapper();
         Mappers.setFactory(new TypeSpecFluentMapperFactory());
-        Templates.setFactory(new TypeSpecFluentTemplateFactory());
         return fluentMapper;
     }
 

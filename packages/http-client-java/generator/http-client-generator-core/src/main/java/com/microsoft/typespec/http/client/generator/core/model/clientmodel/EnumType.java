@@ -37,7 +37,6 @@ public class EnumType implements IType {
     private String crossLanguageDefinitionId;
     private final String fromMethodName;
     private final String toMethodName;
-    private final IType wireType;
 
     /**
      * Create a new Enum with the provided properties.
@@ -48,11 +47,10 @@ public class EnumType implements IType {
      * @param values The values of the Enum.
      * @param fromMethodName The method name used to convert JSON to the enum type.
      * @param toMethodName The method name used to convert the enum type to JSON.
-     * @param wireType The actual wire type in JSON form.
      */
     private EnumType(String packageKeyword, String name, String description, boolean expandable,
         List<ClientEnumValue> values, IType elementType, ImplementationDetails implementationDetails,
-        String crossLanguageDefinitionId, String fromMethodName, String toMethodName, IType wireType) {
+        String crossLanguageDefinitionId, String fromMethodName, String toMethodName) {
         this.name = name;
         this.packageName = packageKeyword;
         this.description = description;
@@ -63,7 +61,6 @@ public class EnumType implements IType {
         this.crossLanguageDefinitionId = crossLanguageDefinitionId;
         this.fromMethodName = fromMethodName;
         this.toMethodName = toMethodName;
-        this.wireType = wireType;
     }
 
     public String getCrossLanguageDefinitionId() {
@@ -202,7 +199,7 @@ public class EnumType implements IType {
             ? valueGetter + "." + getToMethodName() + "()"
             : valueGetter + " == null ? null : " + valueGetter + "." + getToMethodName() + "()";
 
-        return wireType.asNullable()
+        return elementType.asNullable()
             .jsonSerializationMethodCall(jsonWriterName, fieldName, actualValueGetter, jsonMergePatch);
     }
 
@@ -245,7 +242,6 @@ public class EnumType implements IType {
         private String crossLanguageDefinitionId;
         private String fromMethodName;
         private String toMethodName;
-        private IType wireType;
 
         /**
          * Sets the name of the Enum.
@@ -341,21 +337,12 @@ public class EnumType implements IType {
             return this;
         }
 
-        public Builder wireType(IType wireType) {
-            this.wireType = wireType;
-            return this;
-        }
-
         /**
          * @return an immutable EnumType instance with the configurations on this builder.
          */
         public EnumType build() {
-            IType wireType = this.wireType;
-            if (wireType == null) {
-                wireType = elementType;
-            }
             return new EnumType(packageName, name, description, expandable, values, elementType, implementationDetails,
-                crossLanguageDefinitionId, fromMethodName, toMethodName, wireType);
+                crossLanguageDefinitionId, fromMethodName, toMethodName);
         }
     }
 }
