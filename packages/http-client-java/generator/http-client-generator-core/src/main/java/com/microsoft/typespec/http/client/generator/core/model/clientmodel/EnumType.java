@@ -42,19 +42,17 @@ public class EnumType implements IType {
     /**
      * Create a new Enum with the provided properties.
      *
-     * @param name           The name of the new Enum.
-     * @param description    The description of the Enum.
-     * @param expandable     Whether this will be an ExpandableStringEnum type.
-     * @param values         The values of the Enum.
+     * @param name The name of the new Enum.
+     * @param description The description of the Enum.
+     * @param expandable Whether this will be an ExpandableStringEnum type.
+     * @param values The values of the Enum.
      * @param fromMethodName The method name used to convert JSON to the enum type.
-     * @param toMethodName   The method name used to convert the enum type to JSON.
-     * @param wireType       The actual wire type in JSON form.
+     * @param toMethodName The method name used to convert the enum type to JSON.
+     * @param wireType The actual wire type in JSON form.
      */
-    private EnumType(String packageKeyword, String name, String description,
-                     boolean expandable, List<ClientEnumValue> values,
-                     IType elementType,
-                     ImplementationDetails implementationDetails,
-                     String crossLanguageDefinitionId, String fromMethodName, String toMethodName, IType wireType) {
+    private EnumType(String packageKeyword, String name, String description, boolean expandable,
+        List<ClientEnumValue> values, IType elementType, ImplementationDetails implementationDetails,
+        String crossLanguageDefinitionId, String fromMethodName, String toMethodName, IType wireType) {
         this.name = name;
         this.packageName = packageKeyword;
         this.description = description;
@@ -204,8 +202,8 @@ public class EnumType implements IType {
             ? valueGetter + "." + getToMethodName() + "()"
             : valueGetter + " == null ? null : " + valueGetter + "." + getToMethodName() + "()";
 
-        return wireType.asNullable().jsonSerializationMethodCall(jsonWriterName, fieldName, actualValueGetter,
-            jsonMergePatch);
+        return wireType.asNullable()
+            .jsonSerializationMethodCall(jsonWriterName, fieldName, actualValueGetter, jsonMergePatch);
     }
 
     @Override
@@ -356,18 +354,8 @@ public class EnumType implements IType {
             if (wireType == null) {
                 wireType = elementType;
             }
-            return new EnumType(
-                    packageName,
-                    name,
-                    description,
-                    expandable,
-                    values,
-                    elementType,
-                    implementationDetails,
-                    crossLanguageDefinitionId,
-                    fromMethodName,
-                    toMethodName,
-                    wireType);
+            return new EnumType(packageName, name, description, expandable, values, elementType, implementationDetails,
+                crossLanguageDefinitionId, fromMethodName, toMethodName, wireType);
         }
     }
 }

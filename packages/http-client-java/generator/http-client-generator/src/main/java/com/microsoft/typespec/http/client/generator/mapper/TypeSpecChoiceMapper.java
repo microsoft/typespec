@@ -13,6 +13,7 @@ public class TypeSpecChoiceMapper extends ChoiceMapper {
     public static TypeSpecChoiceMapper getInstance() {
         return INSTANCE;
     }
+
     private TypeSpecChoiceMapper() {
     }
 

@@ -30,27 +30,29 @@ public final class MapperUtils {
     /**
      * Create enum client type from code model.
      *
-     * @param enumType                      code model schema for enum
-     * @param expandable                    whether it's expandable enum
+     * @param enumType code model schema for enum
+     * @param expandable whether it's expandable enum
      * @param useCodeModelNameForEnumMember whether to use code model enum member name for client enum member name
      * @return enum client type
      */
-    public static IType createEnumType(ChoiceSchema enumType, boolean expandable, boolean useCodeModelNameForEnumMember) {
+    public static IType createEnumType(ChoiceSchema enumType, boolean expandable,
+        boolean useCodeModelNameForEnumMember) {
         return createEnumType(enumType, expandable, useCodeModelNameForEnumMember, null, null, null);
     }
 
     /**
      * Create enum client type from code model.
      *
-     * @param enumType                      code model schema for enum
-     * @param expandable                    whether it's expandable enum
+     * @param enumType code model schema for enum
+     * @param expandable whether it's expandable enum
      * @param useCodeModelNameForEnumMember whether to use code model enum member name for client enum member name
-     * @param serializationMethodName       method name for serialization
-     * @param deserializationMethodName     method name for deserialization
-     * @param wireType                      wire type for serialization, if null, will default to element type of the enum
+     * @param serializationMethodName method name for serialization
+     * @param deserializationMethodName method name for deserialization
+     * @param wireType wire type for serialization, if null, will default to element type of the enum
      * @return enum client type
      */
-    public static IType createEnumType(ChoiceSchema enumType, boolean expandable, boolean useCodeModelNameForEnumMember, String serializationMethodName, String deserializationMethodName, IType wireType) {
+    public static IType createEnumType(ChoiceSchema enumType, boolean expandable, boolean useCodeModelNameForEnumMember,
+        String serializationMethodName, String deserializationMethodName, IType wireType) {
         JavaSettings settings = JavaSettings.getInstance();
         String enumTypeName = enumType.getLanguage().getJava().getName();
 
@@ -102,16 +104,15 @@ public final class MapperUtils {
                 }
             }
 
-            return new EnumType.Builder()
-                .packageName(enumPackage)
+            return new EnumType.Builder().packageName(enumPackage)
                 .name(enumTypeName)
                 .description(description)
                 .expandable(expandable)
                 .values(enumValues)
                 .elementType(Mappers.getSchemaMapper().map(enumType.getChoiceType()))
-                .implementationDetails(new ImplementationDetails.Builder()
-                    .usages(SchemaUtil.mapSchemaContext(enumType.getUsage()))
-                    .build())
+                .implementationDetails(
+                    new ImplementationDetails.Builder().usages(SchemaUtil.mapSchemaContext(enumType.getUsage()))
+                        .build())
                 .crossLanguageDefinitionId(enumType.getCrossLanguageDefinitionId())
                 .fromMethodName(deserializationMethodName)
                 .toMethodName(serializationMethodName)

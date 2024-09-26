@@ -14,7 +14,6 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaMod
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.template.EnumTemplate;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -56,7 +55,8 @@ public class TypeSpecEnumTemplate extends EnumTemplate {
             String pascalTypeName = CodeNamer.toPascalCase(typeName);
             String declaration = enumName + " implements ExpandableEnum<" + pascalTypeName + ">";
             javaFile.publicFinalClass(declaration, classBlock -> {
-                classBlock.privateStaticFinalVariable(String.format("Map<%1$s, %2$s> VALUES = new ConcurrentHashMap<>()", pascalTypeName, enumName));
+                classBlock.privateStaticFinalVariable(
+                    String.format("Map<%1$s, %2$s> VALUES = new ConcurrentHashMap<>()", pascalTypeName, enumName));
 
                 for (ClientEnumValue enumValue : enumType.getValues()) {
                     String value = enumValue.getValue();
@@ -87,7 +87,8 @@ public class TypeSpecEnumTemplate extends EnumTemplate {
 
                 classBlock.publicStaticMethod(String.format("%1$s fromValue(%2$s value)", enumName, pascalTypeName),
                     function -> {
-                        function.ifBlock("value == null", ifAction -> ifAction.line("throw new IllegalArgumentException(\"value can't be null\");"));
+                        function.ifBlock("value == null",
+                            ifAction -> ifAction.line("throw new IllegalArgumentException(\"value can't be null\");"));
                         function.line(enumName + " member = VALUES.get(value);");
                         function.ifBlock("member != null", ifAction -> {
                             ifAction.line("return member;");
@@ -118,17 +119,21 @@ public class TypeSpecEnumTemplate extends EnumTemplate {
                 // toString
                 addGeneratedAnnotation(classBlock);
                 classBlock.annotation("Override");
-                classBlock.method(JavaVisibility.Public, null, "String toString()", function -> function.methodReturn("getValue().toString()"));
+                classBlock.method(JavaVisibility.Public, null, "String toString()",
+                    function -> function.methodReturn("getValue().toString()"));
 
                 // equals
                 addGeneratedAnnotation(classBlock);
                 classBlock.annotation("Override");
-                classBlock.method(JavaVisibility.Public, null, "boolean equals(Object obj)", function -> function.methodReturn(String.format("(obj instanceof %1$s) && ((%1$s) obj).getValue().equals(getValue())", enumName)));
+                classBlock.method(JavaVisibility.Public, null, "boolean equals(Object obj)",
+                    function -> function.methodReturn(String
+                        .format("(obj instanceof %1$s) && ((%1$s) obj).getValue().equals(getValue())", enumName)));
 
                 // hashcode
                 addGeneratedAnnotation(classBlock);
                 classBlock.annotation("Override");
-                classBlock.method(JavaVisibility.Public, null, "int hashCode()", function -> function.methodReturn("getValue().hashCode()"));
+                classBlock.method(JavaVisibility.Public, null, "int hashCode()",
+                    function -> function.methodReturn("getValue().hashCode()"));
             });
         }
     }

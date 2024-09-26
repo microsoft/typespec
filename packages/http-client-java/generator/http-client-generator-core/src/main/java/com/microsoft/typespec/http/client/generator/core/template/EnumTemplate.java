@@ -38,7 +38,7 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
         JavaSettings settings = JavaSettings.getInstance();
 
         if (enumType.getExpandable()) {
-            if(settings.isBranded()) {
+            if (settings.isBranded()) {
                 writeBrandedExpandableEnum(enumType, javaFile, settings);
             } else {
                 writeExpandableStringEnumInterface(enumType, javaFile, settings);
