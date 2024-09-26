@@ -1,12 +1,17 @@
 import {
   Discriminator,
+  Enum,
   getDiscriminatedUnion,
   getDiscriminator,
   isErrorType,
   isTemplateDeclaration,
+  Model,
+  Scalar,
+  TemplatedType,
+  Type,
+  Union,
 } from "../../../core/index.js";
-import type { Enum, Model, Scalar, TemplatedType, Type, Union } from "../../core/types.js";
-import { getDoc, getSummary, resolveEncodedName } from "../../lib/decorators.js";
+import { getDoc, getSummary, resolveEncodedName } from "../../../index.js";
 import { $, defineKit } from "../define-kit.js";
 import { copyMap } from "../utils.js";
 import { getPlausibleName } from "../utils/get-plausible-name.js";

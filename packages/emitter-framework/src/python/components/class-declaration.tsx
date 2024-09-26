@@ -1,16 +1,32 @@
 import { Children, Declaration, DeclarationProps, Indent, mapJoin, Scope } from "@alloy-js/core";
 import { usePythonNamePolicy } from "../name-policy.js";
-import { Model, ModelProperty } from "@typespec/compiler";
+import { Model, Enum, ModelProperty } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
-import { ClassVariable, Decorator, DecoratorProps, InitDeclaration, TypeExpression, useModule } from "./index.js";
+import { ClassVariable, Decorator, DecoratorProps, InitDeclaration, PythonModuleContext, TypeExpression, useModule } from "./index.js";
+
+export enum ClassDeclarationFlags {
+  None      = 0,
+  Enum      = 1 << 0,
+  Dataclass = 1 << 1,
+}
+
+export interface ClassDeclarationContext {
+  parent: PythonModuleContext | ClassDeclarationContext; // TODO: | FunctionDeclarationContext | MethodDeclarationContext;
+  flags: ClassDeclarationFlags;
+  scope: Scope;
+}
 
 /**
  * Represents the properties for a class declaration.
  */
 export interface ClassDeclarationProps extends DeclarationProps {
-  type: Model;
+  type?: Model | Enum;
+  name?: string;
+  docstring?: string | null;
   decorators?: DecoratorProps[];
-  extends?: Children;
+  extends?: string[]; // needs to also include references
+  dataclass?: boolean;
+  children?: Children;
 }
 
 export function ClassDeclaration(props: ClassDeclarationProps) {
