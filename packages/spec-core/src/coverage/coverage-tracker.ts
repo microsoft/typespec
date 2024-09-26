@@ -74,17 +74,18 @@ export class CoverageTracker {
     }
 
     function checkAll(condition: (res: MockResponse) => boolean): ScenarioStatus {
-      for (const endpoint of mockApi.apis) {
-        const hits = scenarioHits?.get(endpoint.uri);
-        if (hits === undefined) {
-          return "not-implemented";
-        }
-
-        if (!condition(hits[hits.length - 1])) {
-          return "fail";
+      if(Array.isArray(mockApi.apis)) {
+        for (const endpoint of mockApi.apis) {
+          const hits = scenarioHits?.get(endpoint.uri);
+          if (hits === undefined) {
+            return "not-implemented";
+          }
+  
+          if (!condition(hits[hits.length - 1])) {
+            return "fail";
+          }
         }
       }
-
       return "pass";
     }
 
