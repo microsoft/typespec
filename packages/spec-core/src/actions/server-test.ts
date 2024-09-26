@@ -56,6 +56,8 @@ class ServerTestsGenerator {
         },
       });
       if (mockMethod.response.status !== response.status) {
+        logger.error(`Status code mismatch for ${this.name} endpoint`);
+        logger.error(`Expected: ${mockMethod.response.status} - Actual: ${response.status}`);
         throw new Error(`Status code mismatch for ${this.name} endpoint`);
       }
       if (mockMethod.response.data) {
@@ -63,6 +65,10 @@ class ServerTestsGenerator {
           if (
             JSON.stringify(mockMethod.response.data["rawContent"]) !== JSON.stringify(response.data)
           ) {
+            logger.error(`Response data mismatch for ${this.name} endpoint`);
+            logger.error(
+              `Expected: ${mockMethod.response.data["rawContent"]} - Actual: ${response.data}`,
+            );
             throw new Error(`Response data mismatch for ${this.name} endpoint`);
           }
         } else if (Buffer.isBuffer(mockMethod.response.data)) {
@@ -82,6 +88,8 @@ class ServerTestsGenerator {
           }
         } else {
           if (JSON.stringify(mockMethod.response.data) !== JSON.stringify(response.data)) {
+            logger.error(`Response data mismatch for ${this.name} endpoint`);
+            logger.error(`Expected: ${mockMethod.response.data} - Actual: ${response.data}`);
             throw new Error(`Response data mismatch for ${this.name} endpoint`);
           }
         }
