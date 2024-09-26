@@ -2,9 +2,17 @@
 import chalk from "chalk";
 import { exec } from "child_process";
 import { existsSync } from "fs";
-import { dirname, join } from "path";
+import { dirname, join, resolve } from "path";
 import process from "process";
 import { fileURLToPath } from "url";
+import { parseArgs } from "util";
+
+const argv = parseArgs({
+  args: process.argv.slice(2),
+  options: {
+    pythonPath: { type: "string" },
+  },
+});
 
 // execute the command
 export function executeCommand(command: string, prettyName: string) {
@@ -25,7 +33,9 @@ export function executeCommand(command: string, prettyName: string) {
 
 // Function to run a command and log the output
 export function runCommand(command: string, prettyName: string) {
-  let pythonPath = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "venv/");
+  let pythonPath = argv.values.pythonPath
+    ? resolve(argv.values.pythonPath)
+    : join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "venv/");
   if (existsSync(join(pythonPath, "bin"))) {
     pythonPath = join(pythonPath, "bin", "python");
   } else if (existsSync(join(pythonPath, "Scripts"))) {
