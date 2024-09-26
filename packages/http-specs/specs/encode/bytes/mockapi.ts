@@ -232,9 +232,10 @@ Scenarios.Encode_Bytes_Body_Request_Base64_URL = createRequestBodyServerTests(
   },
   '"dGVzdA=="',
 );
+
 Scenarios.Encode_Bytes_Body_Request_Custom_Content_Type = createRequestBodyServerTests(
   "/encode/bytes/body/request/custom-content-type",
-  "image.png",
+  pngFile,
   {
     "Content-Type": "image/png",
   },
@@ -243,7 +244,7 @@ Scenarios.Encode_Bytes_Body_Request_Custom_Content_Type = createRequestBodyServe
 );
 Scenarios.Encode_Bytes_Body_Request_Octet_Stream = createRequestBodyServerTests(
   "/encode/bytes/body/request/octet-stream",
-  "image.png",
+  pngFile,
   {
     "Content-Type": "application/octet-stream",
   },
@@ -310,7 +311,7 @@ Scenarios.Encode_Bytes_Body_Response_Base64_URL = createResponseBodyServerTests(
 );
 Scenarios.Encode_Bytes_Body_Response_Custom_Content_Type = createResponseBodyServerTests(
   "/encode/bytes/body/response/custom-content-type",
-  "image.png",
+  pngFile,
   {
     "Content-Type": "image/png",
   },
@@ -319,7 +320,7 @@ Scenarios.Encode_Bytes_Body_Response_Custom_Content_Type = createResponseBodySer
 );
 Scenarios.Encode_Bytes_Body_Response_Octet_Stream = createResponseBodyServerTests(
   "/encode/bytes/body/response/octet-stream",
-  "image.png",
+  pngFile,
   {
     "Content-Type": "application/octet-stream",
   },

@@ -80,7 +80,7 @@ Scenarios.Payload_Content_Negotiation_SameBody = passOnSuccess({
         },
       },
       response: {
-        data: `image.png`,
+        data: pngFile,
         status: 200,
       },
       handler: sameBodyHandler,
@@ -95,7 +95,7 @@ Scenarios.Payload_Content_Negotiation_SameBody = passOnSuccess({
         },
       },
       response: {
-        data: `image.jpg`,
+        data: jpgFile,
         status: 200,
       },
       handler: sameBodyHandler,
@@ -137,7 +137,7 @@ Scenarios.Payload_Content_Negotiation_DifferentBody = passOnSuccess({
       },
       response: {
         status: 200,
-        data: `image.png`,
+        data: pngFile,
       },
       handler: differentBodyHandler,
     },
@@ -152,7 +152,7 @@ Scenarios.Payload_Content_Negotiation_DifferentBody = passOnSuccess({
       },
       response: {
         status: 200,
-        data: `image.png`,
+        data: pngFile,
       },
       handler: differentBodyHandler,
     },

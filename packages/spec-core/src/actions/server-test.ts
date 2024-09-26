@@ -39,11 +39,6 @@ class ServerTestsGenerator {
       if (mockMethod.method === "post") methodName = SERVICE_CALL_TYPE.post;
       if (mockMethod.method === "head") methodName = SERVICE_CALL_TYPE.head;
 
-      let body = mockMethod.request.body;
-      if (mockMethod.request.body === `image.png`) {
-        body = fs.readFileSync(`${path.resolve(this.scenariosPath)}/../assets/image.png`);
-      }
-
       if (mockMethod.request.config?.validStatus) {
         mockMethod.request.config = {
           ...mockMethod.request.config,
@@ -64,7 +59,7 @@ class ServerTestsGenerator {
       const response = await makeServiceCall(methodName, {
         endPoint: `${this.serverBasePath}${this.endpoint}`,
         options: {
-          requestBody: body,
+          requestBody: mockMethod.request.body,
           config: mockMethod.request.config,
         },
       });
@@ -78,33 +73,17 @@ class ServerTestsGenerator {
           ) {
             throw new Error(`Response data mismatch for ${this.name} endpoint`);
           }
-        } else if ([`image.png`, `image.jpg`].includes(mockMethod.response.data)) {
+        } else if (Buffer.isBuffer(mockMethod.response.data)) {
           if (
-            (mockMethod.request.config?.headers &&
-              ["image/png", "image/jpeg"].includes(mockMethod.request.config.headers["accept"])) ||
-            ["application/octet-stream"].includes(mockMethod.request.config.headers["Content-Type"])
-          ) {
-            if (
-              uint8ArrayToString(response.data, "utf-8") !==
-              fs
-                .readFileSync(
-                  `${path.resolve(this.scenariosPath)}/../assets/${mockMethod.response.data}`,
-                )
-                .toString()
-            ) {
-              throw new Error(`Response data mismatch for ${this.name} endpoint`);
-            }
-          } else if (
             mockMethod.request.config?.headers &&
             mockMethod.request.config.headers["accept"] === "application/json"
           ) {
+            if (response.data.content !== mockMethod.response.data.toString("base64")) {
+              throw new Error(`Response data mismatch for ${this.name} endpoint`);
+            }
+          } else {
             if (
-              response.data.content !==
-              fs
-                .readFileSync(
-                  `${path.resolve(this.scenariosPath)}/../assets/${mockMethod.response.data}`,
-                )
-                .toString("base64")
+              uint8ArrayToString(response.data, "utf-8") !== mockMethod.response.data.toString()
             ) {
               throw new Error(`Response data mismatch for ${this.name} endpoint`);
             }
