@@ -85,6 +85,8 @@ namespace Microsoft.Generator.CSharp.Providers
         internal bool SupportsBinaryDataAdditionalProperties => AdditionalPropertyProperties.Any(p => p.Type.ElementType.Equals(_additionalPropsUnknownType));
         public ConstructorProvider FullConstructor => _fullConstructor ??= BuildFullConstructor();
 
+        internal IReadOnlyList<PropertyProvider> AllSpecProperties => Properties.Concat(CustomCodeView?.Properties.Where(p => p.WireInfo != null) ?? []).ToList();
+
         protected override string GetNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
 
         protected override CSharpType? GetBaseType()
@@ -465,7 +467,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 baseParameters.AddRange(BaseModelProvider.FullConstructor.Signature.Parameters);
             }
 
-            HashSet<PropertyProvider> overriddenProperties = Properties.Where(p => p.BaseProperty is not null).Select(p => p.BaseProperty!).ToHashSet();
+            HashSet<PropertyProvider> overriddenProperties = AllSpecProperties.Where(p => p.BaseProperty is not null).Select(p => p.BaseProperty!).ToHashSet();
 
             // add the base parameters, if any
             foreach (var property in baseProperties)
@@ -476,7 +478,7 @@ namespace Microsoft.Generator.CSharp.Providers
             // construct the initializer using the parameters from base signature
             var constructorInitializer = new ConstructorInitializer(true, [.. baseParameters.Select(p => GetExpressionForCtor(p, overriddenProperties, isPrimaryConstructor))]);
 
-            foreach (var property in Properties)
+            foreach (var property in AllSpecProperties)
             {
                 AddInitializationParameterForCtor(constructorParameters, property, Type.IsStruct, isPrimaryConstructor);
             }
@@ -603,7 +605,7 @@ namespace Microsoft.Generator.CSharp.Providers
             List<MethodBodyStatement> methodBodyStatements = new(Properties.Count + 1);
             Dictionary<string, ParameterProvider> parameterMap = parameters?.ToDictionary(p => p.Name) ?? [];
 
-            foreach (var property in Properties)
+            foreach (var property in AllSpecProperties)
             {
                 // skip those non-spec properties
                 if (property.WireInfo == null)

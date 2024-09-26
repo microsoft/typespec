@@ -944,6 +944,7 @@ const listPropertiesKey = createStateSymbol("listProperties");
 /**
  * @deprecated Use the `listsResource` decorator in `@typespec/rest` instead.
  */
+// eslint-disable-next-line @typescript-eslint/no-deprecated
 export const $list: ListDecorator = (
   context: DecoratorContext,
   target: Operation,
@@ -1211,6 +1212,7 @@ export const $withDefaultKeyVisibility: WithDefaultKeyVisibilityDecorator = (
  *     model Foo {}
  * ```
  */
+// eslint-disable-next-line @typescript-eslint/no-deprecated
 export const $deprecated: DeprecatedDecorator = (
   context: DecoratorContext,
   target: Type,

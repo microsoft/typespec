@@ -51,9 +51,9 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             // the property should be added to the custom code view
             Assert.AreEqual(1, modelTypeProvider.CustomCodeView!.Properties.Count);
             Assert.AreEqual("Prop2", modelTypeProvider.CustomCodeView.Properties[0].Name);
-            var specProperty = modelTypeProvider.CustomCodeView.Properties[0].SpecProperty;
-            Assert.IsNotNull(specProperty);
-            Assert.AreEqual( "Prop1", specProperty!.Name);
+            var wireInfo = modelTypeProvider.CustomCodeView.Properties[0].WireInfo;
+            Assert.IsNotNull(wireInfo);
+            Assert.AreEqual( "prop1", wireInfo!.SerializedName);
 
             Assert.AreEqual(0, modelTypeProvider.Properties.Count);
         }
@@ -79,9 +79,9 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             // the properties should be added to the custom code view
             Assert.AreEqual(2, modelTypeProvider.CustomCodeView!.Properties.Count);
             Assert.AreEqual("Prop2", modelTypeProvider.CustomCodeView.Properties[0].Name);
-            var specProperty = modelTypeProvider.CustomCodeView.Properties[0].SpecProperty;
-            Assert.IsNotNull(specProperty);
-            Assert.AreEqual( "Prop1", specProperty!.Name);
+            var wireInfo = modelTypeProvider.CustomCodeView.Properties[0].WireInfo;
+            Assert.IsNotNull(wireInfo);
+            Assert.AreEqual( "prop1", wireInfo!.SerializedName);
             Assert.AreEqual("Prop1", modelTypeProvider.CustomCodeView.Properties[1].Name);
 
             Assert.AreEqual(0, modelTypeProvider.Properties.Count);

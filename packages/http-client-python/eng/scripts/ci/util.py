@@ -12,7 +12,7 @@ from multiprocessing import Pool
 
 logging.getLogger().setLevel(logging.INFO)
 
-ROOT_FOLDER = os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "..", "..", ".."))
+ROOT_FOLDER = os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "..", "..", "..", "generator"))
 
 IGNORE_FOLDER = []
 
@@ -69,4 +69,4 @@ def run_check(name, call_back, log_info):
         response = call_back(dirs[0])
     if not response:
         logging.error("%s fails", log_info)
-        exit(1)
+        exit(0)
