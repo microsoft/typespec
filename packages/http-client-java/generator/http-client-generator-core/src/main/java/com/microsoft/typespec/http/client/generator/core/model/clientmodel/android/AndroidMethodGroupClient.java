@@ -8,7 +8,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodGroupClient;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Proxy;
-
 import java.util.List;
 
 public class AndroidMethodGroupClient extends MethodGroupClient {
@@ -16,9 +15,11 @@ public class AndroidMethodGroupClient extends MethodGroupClient {
         List<String> implementedInterfaces, Proxy proxy, String serviceClientName, String variableType,
         String variableName, List<ClientMethod> clientMethods, List<IType> supportedInterfaces, String classBaseName) {
         super(packageKeyword, className, interfaceName, implementedInterfaces, proxy, serviceClientName, variableType,
-            variableName, clientMethods, supportedInterfaces, classBaseName != null
+            variableName, clientMethods, supportedInterfaces,
+            classBaseName != null
                 ? classBaseName
-                : (className.endsWith("Impl") ? className.substring(0, className.length() - 4) : className), null);
+                : (className.endsWith("Impl") ? className.substring(0, className.length() - 4) : className),
+            null);
     }
 
     @Override

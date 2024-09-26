@@ -185,11 +185,13 @@ public final class BodyOptionalityClientImpl {
      * The requiredExplicit operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     name: String (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param body The body parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -210,11 +212,13 @@ public final class BodyOptionalityClientImpl {
      * The requiredExplicit operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     name: String (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param body The body parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -234,11 +238,13 @@ public final class BodyOptionalityClientImpl {
      * The requiredImplicit operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     name: String (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param bodyModel The bodyModel parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -259,11 +265,13 @@ public final class BodyOptionalityClientImpl {
      * The requiredImplicit operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     name: String (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param bodyModel The bodyModel parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

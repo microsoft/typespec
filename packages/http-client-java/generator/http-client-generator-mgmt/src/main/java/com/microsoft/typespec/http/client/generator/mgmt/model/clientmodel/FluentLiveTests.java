@@ -3,11 +3,10 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel;
 
+import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.ExampleHelperFeature;
-import com.azure.core.util.CoreUtils;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -26,7 +25,6 @@ public class FluentLiveTests {
     public ClassType getManagerType() {
         return managerType;
     }
-
 
     public String getManagerName() {
         return managerName;

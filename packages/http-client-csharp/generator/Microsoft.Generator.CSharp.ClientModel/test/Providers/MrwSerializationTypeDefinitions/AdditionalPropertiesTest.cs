@@ -61,12 +61,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             {
                 // skip the first value type name as it is already included in the return statement
                 var additionalPropertiesVariables = "additionalProperties, " + string.Join(", ", expectedValueTypeNames.Skip(1).Select(v => $"additional{v.ToCleanName()}Properties,"));
-                var expectedReturnStatement = $"return new global::sample.namespace.Models.Cat(color, {additionalPropertiesVariables} additionalBinaryDataProperties);";
+                var expectedReturnStatement = $"return new global::Sample.Models.Cat(color, {additionalPropertiesVariables} additionalBinaryDataProperties);";
                 Assert.IsTrue(methodBodyString.Contains(expectedReturnStatement));
             }
             else
             {
-                Assert.IsTrue(methodBodyString.Contains("return new global::sample.namespace.Models.Cat(color, additionalProperties, additionalBinaryDataProperties);"));
+                Assert.IsTrue(methodBodyString.Contains("return new global::Sample.Models.Cat(color, additionalProperties, additionalBinaryDataProperties);"));
             }
         }
 

@@ -4,16 +4,15 @@
 package com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.immutablemodel.CollectionMethodTemplate;
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.immutablemodel.CollectionMethodTypeConversionTemplate;
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.immutablemodel.ImmutableMethod;
-import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
-
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.immutablemodel.CollectionMethodTemplate;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.immutablemodel.CollectionMethodTypeConversionTemplate;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.immutablemodel.ImmutableMethod;
+import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -37,8 +36,8 @@ public class FluentCollectionMethod {
         this.fluentReturnType = FluentUtils.getFluentWrapperType(method.getReturnValue().getType());
 
         this.immutableMethod = this.fluentReturnType == method.getReturnValue().getType()
-                ? new CollectionMethodTemplate(this, method.getReturnValue().getType())
-                : new CollectionMethodTypeConversionTemplate(this, method.getReturnValue().getType());
+            ? new CollectionMethodTemplate(this, method.getReturnValue().getType())
+            : new CollectionMethodTypeConversionTemplate(this, method.getReturnValue().getType());
     }
 
     public IType getFluentReturnType() {
@@ -47,7 +46,8 @@ public class FluentCollectionMethod {
 
     // method signature
     public String getMethodSignature() {
-        return String.format("%1$s %2$s(%3$s)", this.getFluentReturnType(), getMethodName(), method.getParametersDeclaration());
+        return String.format("%1$s %2$s(%3$s)", this.getFluentReturnType(), getMethodName(),
+            method.getParametersDeclaration());
     }
 
     public String getMethodName() {
@@ -57,7 +57,8 @@ public class FluentCollectionMethod {
     // method invocation
     public String getMethodInvocation() {
         List<ClientMethodParameter> methodParameters = method.getMethodInputParameters();
-        String argumentsLine = methodParameters.stream().map(ClientMethodParameter::getName).collect(Collectors.joining(", "));
+        String argumentsLine
+            = methodParameters.stream().map(ClientMethodParameter::getName).collect(Collectors.joining(", "));
         return String.format("%1$s(%2$s)", method.getName(), argumentsLine);
     }
 

@@ -3,28 +3,12 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt;
 
+import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.Javagen;
 import com.microsoft.typespec.http.client.generator.core.extension.jsonrpc.Connection;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
-import com.microsoft.typespec.http.client.generator.mgmt.mapper.ExampleParser;
-import com.microsoft.typespec.http.client.generator.mgmt.mapper.FluentMapper;
-import com.microsoft.typespec.http.client.generator.mgmt.mapper.FluentMapperFactory;
-import com.microsoft.typespec.http.client.generator.mgmt.mapper.FluentPomMapper;
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentClient;
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentExample;
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentLiveTests;
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceCollection;
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceModel;
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentStatic;
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.examplemodel.FluentMethodMockUnitTest;
-import com.microsoft.typespec.http.client.generator.mgmt.model.javamodel.FluentJavaPackage;
-import com.microsoft.typespec.http.client.generator.mgmt.model.projectmodel.FluentProject;
-import com.microsoft.typespec.http.client.generator.mgmt.namer.FluentNamerFactory;
-import com.microsoft.typespec.http.client.generator.mgmt.template.FluentTemplateFactory;
-import com.microsoft.typespec.http.client.generator.mgmt.util.FluentJavaSettings;
-import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.AsyncSyncClient;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Client;
@@ -47,7 +31,27 @@ import com.microsoft.typespec.http.client.generator.core.postprocessor.Postproce
 import com.microsoft.typespec.http.client.generator.core.template.Templates;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
-import com.azure.core.util.CoreUtils;
+import com.microsoft.typespec.http.client.generator.mgmt.mapper.ExampleParser;
+import com.microsoft.typespec.http.client.generator.mgmt.mapper.FluentMapper;
+import com.microsoft.typespec.http.client.generator.mgmt.mapper.FluentMapperFactory;
+import com.microsoft.typespec.http.client.generator.mgmt.mapper.FluentPomMapper;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentClient;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentExample;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentLiveTests;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceCollection;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceModel;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentStatic;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.examplemodel.FluentMethodMockUnitTest;
+import com.microsoft.typespec.http.client.generator.mgmt.model.javamodel.FluentJavaPackage;
+import com.microsoft.typespec.http.client.generator.mgmt.model.projectmodel.FluentProject;
+import com.microsoft.typespec.http.client.generator.mgmt.namer.FluentNamerFactory;
+import com.microsoft.typespec.http.client.generator.mgmt.template.FluentTemplateFactory;
+import com.microsoft.typespec.http.client.generator.mgmt.util.FluentJavaSettings;
+import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
@@ -58,11 +62,6 @@ import org.yaml.snakeyaml.introspector.Property;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Representer;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class FluentGen extends Javagen {
 
@@ -94,8 +93,7 @@ public class FluentGen extends Javagen {
 
             logger.info("Read YAML");
             // Parse yaml to code model
-            CodeModel codeModel = new FluentNamer(this, connection, pluginName, sessionId)
-                .processCodeModel();
+            CodeModel codeModel = new FluentNamer(this, connection, pluginName, sessionId).processCodeModel();
 
             // Map code model to client model
             Client client = this.handleMap(codeModel);
@@ -108,8 +106,11 @@ public class FluentGen extends Javagen {
 
             // Print to files
             logger.info("Write Java");
-            Postprocessor.writeToFiles(javaPackage.getJavaFiles().stream()
-                .collect(Collectors.toMap(JavaFile::getFilePath, file -> file.getContents().toString())), this, logger);
+            Postprocessor.writeToFiles(
+                javaPackage.getJavaFiles()
+                    .stream()
+                    .collect(Collectors.toMap(JavaFile::getFilePath, file -> file.getContents().toString())),
+                this, logger);
 
             logger.info("Write Xml");
             for (XmlFile xmlFile : javaPackage.getXmlFiles()) {
@@ -122,7 +123,7 @@ public class FluentGen extends Javagen {
             return true;
         } catch (Exception e) {
             logger.error("Failed to successfully run fluentgen plugin " + e, e);
-            //connection.sendError(1, 500, "Error occurred while running fluentgen plugin: " + e.getMessage());
+            // connection.sendError(1, 500, "Error occurred while running fluentgen plugin: " + e.getMessage());
             return false;
         }
     }
@@ -130,12 +131,12 @@ public class FluentGen extends Javagen {
     CodeModel handleYaml(String yamlContent) {
         Representer representer = new Representer(new DumperOptions()) {
             @Override
-            protected NodeTuple representJavaBeanProperty(Object javaBean, Property property, Object propertyValue, Tag customTag) {
+            protected NodeTuple representJavaBeanProperty(Object javaBean, Property property, Object propertyValue,
+                Tag customTag) {
                 // if value of property is null, ignore it.
                 if (propertyValue == null) {
                     return null;
-                }
-                else {
+                } else {
                     return super.representJavaBeanProperty(javaBean, property, propertyValue, customTag);
                 }
             }
@@ -164,9 +165,11 @@ public class FluentGen extends Javagen {
         if (fluentJavaSettings.isGenerateSamples() && settings.isFluentPremium()) {
             FluentStatic.setClient(client);
             ExampleParser exampleParser = new ExampleParser();
-            fluentPremiumExamples = client.getServiceClient().getMethodGroupClients().stream()
-                    .flatMap(mg -> exampleParser.parseMethodGroup(mg).stream())
-                    .collect(Collectors.toList());
+            fluentPremiumExamples = client.getServiceClient()
+                .getMethodGroupClients()
+                .stream()
+                .flatMap(mg -> exampleParser.parseMethodGroup(mg).stream())
+                .collect(Collectors.toList());
         }
 
         return client;
@@ -205,9 +208,11 @@ public class FluentGen extends Javagen {
 
         // Method group
         for (MethodGroupClient methodGroupClient : client.getServiceClient().getMethodGroupClients()) {
-            javaPackage.addMethodGroup(methodGroupClient.getPackage(), methodGroupClient.getClassName(), methodGroupClient);
+            javaPackage.addMethodGroup(methodGroupClient.getPackage(), methodGroupClient.getClassName(),
+                methodGroupClient);
             if (javaSettings.isGenerateClientInterfaces()) {
-                javaPackage.addMethodGroupInterface(interfacePackage, methodGroupClient.getInterfaceName(), methodGroupClient);
+                javaPackage.addMethodGroupInterface(interfacePackage, methodGroupClient.getInterfaceName(),
+                    methodGroupClient);
             }
         }
 
@@ -228,8 +233,8 @@ public class FluentGen extends Javagen {
 
         // XML sequence wrapper
         for (XmlSequenceWrapper xmlSequenceWrapper : client.getXmlSequenceWrappers()) {
-            javaPackage.addXmlSequenceWrapper(xmlSequenceWrapper.getPackage(),
-                    xmlSequenceWrapper.getWrapperClassName(), xmlSequenceWrapper);
+            javaPackage.addXmlSequenceWrapper(xmlSequenceWrapper.getPackage(), xmlSequenceWrapper.getWrapperClassName(),
+                xmlSequenceWrapper);
         }
 
         // Exception
@@ -270,13 +275,11 @@ public class FluentGen extends Javagen {
         return javaPackage;
     }
 
-    private void addServiceClient(JavaSettings javaSettings, FluentJavaPackage javaPackage, String interfacePackage, ServiceClient serviceClient) {
-        javaPackage
-                .addServiceClient(serviceClient.getPackage(), serviceClient.getClassName(),
-                        serviceClient);
+    private void addServiceClient(JavaSettings javaSettings, FluentJavaPackage javaPackage, String interfacePackage,
+        ServiceClient serviceClient) {
+        javaPackage.addServiceClient(serviceClient.getPackage(), serviceClient.getClassName(), serviceClient);
         if (javaSettings.isGenerateClientInterfaces()) {
-            javaPackage
-                    .addServiceClientInterface(interfacePackage, serviceClient.getInterfaceName(), serviceClient);
+            javaPackage.addServiceClientInterface(interfacePackage, serviceClient.getInterfaceName(), serviceClient);
         }
     }
 
@@ -364,8 +367,8 @@ public class FluentGen extends Javagen {
 
     // Fix the case where there are no models but only resource collections.
     private void ensureModelsPackageInfos(FluentJavaPackage javaPackage, FluentClient fluentClient) {
-        Set<String> packageInfos = fluentClient
-            .getInnerClient().getPackageInfos()
+        Set<String> packageInfos = fluentClient.getInnerClient()
+            .getPackageInfos()
             .stream()
             .map(PackageInfo::getPackage)
             .collect(Collectors.toSet());
@@ -373,12 +376,10 @@ public class FluentGen extends Javagen {
         for (FluentResourceCollection resourceCollection : fluentClient.getResourceCollections()) {
             String packageName = resourceCollection.getInterfaceType().getPackage();
             if (!packageInfos.contains(packageName)) {
-                javaPackage.addPackageInfo(
-                    packageName,
-                    "package-info",
-                    new PackageInfo(
-                        packageName,
-                        String.format("Package containing the data models for %s.\n%s", fluentClient.getInnerClient().getClientName(),
+                javaPackage.addPackageInfo(packageName, "package-info",
+                    new PackageInfo(packageName,
+                        String.format("Package containing the data models for %s.\n%s",
+                            fluentClient.getInnerClient().getClientName(),
                             fluentClient.getInnerClient().getClientDescription())));
                 packageInfos.add(packageName);
             }

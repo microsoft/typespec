@@ -13,7 +13,6 @@ import com._specs_.azure.clientgenerator.core.access.InternalOperationClient;
 import com._specs_.azure.clientgenerator.core.access.PublicOperationClient;
 import com._specs_.azure.clientgenerator.core.access.RelativeModelInOperationClient;
 import com._specs_.azure.clientgenerator.core.access.SharedModelInOperationClient;
-import com.azure.core.http.HttpClient;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.test.TestMode;
@@ -33,44 +32,36 @@ class AccessClientTestBase extends TestProxyTestBase {
     protected void beforeTest() {
         AccessClientBuilder publicOperationClientbuilder = new AccessClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            publicOperationClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             publicOperationClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         publicOperationClient = publicOperationClientbuilder.buildPublicOperationClient();
 
         AccessClientBuilder internalOperationClientbuilder = new AccessClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            internalOperationClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             internalOperationClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         internalOperationClient = internalOperationClientbuilder.buildInternalOperationClient();
 
         AccessClientBuilder sharedModelInOperationClientbuilder = new AccessClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            sharedModelInOperationClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             sharedModelInOperationClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         sharedModelInOperationClient = sharedModelInOperationClientbuilder.buildSharedModelInOperationClient();
 
         AccessClientBuilder relativeModelInOperationClientbuilder = new AccessClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            relativeModelInOperationClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             relativeModelInOperationClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         relativeModelInOperationClient = relativeModelInOperationClientbuilder.buildRelativeModelInOperationClient();

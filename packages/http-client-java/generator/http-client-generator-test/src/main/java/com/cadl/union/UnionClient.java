@@ -46,14 +46,16 @@ public final class UnionClient {
      * The send operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     user (Optional): {
      *         user: String (Required)
      *     }
      *     input: BinaryData (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param id The id parameter.
      * @param sendRequest The sendRequest parameter.
@@ -81,7 +83,8 @@ public final class UnionClient {
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     user (Optional): {
      *         user: String (Required)
@@ -92,7 +95,8 @@ public final class UnionClient {
      *     dataLong: Long (Optional)
      *     data_float: Double (Optional)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param id The id parameter.
      * @param sendLongRequest The sendLongRequest parameter.
@@ -136,7 +140,8 @@ public final class UnionClient {
      * A long-running remote procedure call (RPC) operation.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     status: String(NotStarted/Running/Succeeded/Failed/Canceled) (Required)
@@ -154,7 +159,8 @@ public final class UnionClient {
      *         data: BinaryData (Required)
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.

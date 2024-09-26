@@ -3,9 +3,8 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.examplemodel;
 
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.ExampleNode;
-
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentMethod;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;

@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.transformer;
 
+import com.azure.core.http.HttpMethod;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ArraySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
@@ -12,12 +13,9 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Response;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
+import com.microsoft.typespec.http.client.generator.mgmt.FluentNamer;
 import com.microsoft.typespec.http.client.generator.mgmt.model.WellKnownMethodName;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
-import com.microsoft.typespec.http.client.generator.mgmt.FluentNamer;
-import com.azure.core.http.HttpMethod;
-import org.slf4j.Logger;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,13 +29,15 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
 
 /**
  * Normalizes the names of common operations (list, get, delete).
  */
 class OperationNameNormalization {
 
-    private static final Logger LOGGER = new PluginLogger(FluentNamer.getPluginInstance(), OperationNameNormalization.class);
+    private static final Logger LOGGER
+        = new PluginLogger(FluentNamer.getPluginInstance(), OperationNameNormalization.class);
 
     private static final Pattern TRIM_LEADING_AND_TRAILING_FORWARD_SLASH = Pattern.compile("^(?:/*)?(.*?)(?:/*)?$");
 
@@ -58,7 +58,8 @@ class OperationNameNormalization {
     private static void applyRename(OperationGroup operationGroup, Map<String, String> renamePlan) {
         Optional<Set<String>> conflictNames = checkConflict(operationGroup, renamePlan);
         conflictNames.ifPresent(names -> {
-            LOGGER.warn("Conflict operation name found after attempted rename '{}', in operation group '{}'", names, Utils.getJavaName(operationGroup));
+            LOGGER.warn("Conflict operation name found after attempted rename '{}', in operation group '{}'", names,
+                Utils.getJavaName(operationGroup));
             renamePlan.values().removeAll(names);
         });
 
@@ -66,41 +67,43 @@ class OperationNameNormalization {
     }
 
     private static Optional<Set<String>> checkConflict(OperationGroup operationGroup, Map<String, String> renamePlan) {
-        List<String> names = operationGroup.getOperations().stream()
-                .map(Utils::getJavaName)
-                .map(name -> renamePlan.getOrDefault(name, name))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+        List<String> names = operationGroup.getOperations()
+            .stream()
+            .map(Utils::getJavaName)
+            .map(name -> renamePlan.getOrDefault(name, name))
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
 
         Set<String> namesWithConflict = names.stream()
-                .collect(Collectors.groupingBy(Function.identity()))
-                .entrySet().stream()
-                .filter(e -> e.getValue().size() > 1)
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toSet());
+            .collect(Collectors.groupingBy(Function.identity()))
+            .entrySet()
+            .stream()
+            .filter(e -> e.getValue().size() > 1)
+            .map(Map.Entry::getKey)
+            .collect(Collectors.toSet());
 
         return namesWithConflict.isEmpty() ? Optional.empty() : Optional.of(namesWithConflict);
     }
 
     private static void rename(OperationGroup operationGroup, Map<String, String> renamePlan) {
-        operationGroup.getOperations().stream()
-                .filter(operation -> renamePlan.containsKey(Utils.getJavaName(operation)))
-                .forEach(operation -> {
-                    String newName = renamePlan.get(Utils.getJavaName(operation));
-                    LOGGER.info("Rename operation from '{}' to '{}', in operation group '{}'", Utils.getJavaName(operation), newName, Utils.getJavaName(operationGroup));
-                    operation.getLanguage().getJava().setName(newName);
-                    if (operation.getConvenienceApi() != null) {
-                        operation.getConvenienceApi().getLanguage().getJava().setName(newName);
-                    }
-                });
+        operationGroup.getOperations()
+            .stream()
+            .filter(operation -> renamePlan.containsKey(Utils.getJavaName(operation)))
+            .forEach(operation -> {
+                String newName = renamePlan.get(Utils.getJavaName(operation));
+                LOGGER.info("Rename operation from '{}' to '{}', in operation group '{}'", Utils.getJavaName(operation),
+                    newName, Utils.getJavaName(operationGroup));
+                operation.getLanguage().getJava().setName(newName);
+                if (operation.getConvenienceApi() != null) {
+                    operation.getConvenienceApi().getLanguage().getJava().setName(newName);
+                }
+            });
     }
 
     private static Map<String, String> makeRenamePlan(OperationGroup operationGroup) {
-        final Set<WellKnownMethodName> candidateWellKnownName = new HashSet<>(Arrays.asList(
-                WellKnownMethodName.LIST,
-                WellKnownMethodName.LIST_BY_RESOURCE_GROUP,
-                WellKnownMethodName.GET_BY_RESOURCE_GROUP,
-                WellKnownMethodName.DELETE));
+        final Set<WellKnownMethodName> candidateWellKnownName
+            = new HashSet<>(Arrays.asList(WellKnownMethodName.LIST, WellKnownMethodName.LIST_BY_RESOURCE_GROUP,
+                WellKnownMethodName.GET_BY_RESOURCE_GROUP, WellKnownMethodName.DELETE));
 
         Map<String, String> renamePlan = new HashMap<>();
 
@@ -113,23 +116,25 @@ class OperationNameNormalization {
             String[] urlSegments = path.split(Pattern.quote("/"));
 
             String newName = null;
-            if (HttpMethod.GET.name().equalsIgnoreCase(operation.getRequests().iterator().next().getProtocol().getHttp().getMethod())) {
-                if (urlSegments.length == 8 // e.g. subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.AzureSphere/catalogs/{catalogName}
-                        && urlSegments[0].equalsIgnoreCase(SEGMENT_SUBSCRIPTIONS)
-                        && urlSegments[2].equalsIgnoreCase(SEGMENT_RESOURCE_GROUPS)
-                        && urlSegments[4].equalsIgnoreCase(SEGMENT_PROVIDERS)) {
+            if (HttpMethod.GET.name()
+                .equalsIgnoreCase(operation.getRequests().iterator().next().getProtocol().getHttp().getMethod())) {
+                if (urlSegments.length == 8 // e.g.
+                                            // subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.AzureSphere/catalogs/{catalogName}
+                    && urlSegments[0].equalsIgnoreCase(SEGMENT_SUBSCRIPTIONS)
+                    && urlSegments[2].equalsIgnoreCase(SEGMENT_RESOURCE_GROUPS)
+                    && urlSegments[4].equalsIgnoreCase(SEGMENT_PROVIDERS)) {
                     if (candidateWellKnownName.contains(WellKnownMethodName.GET_BY_RESOURCE_GROUP)) {
                         newName = WellKnownMethodName.GET_BY_RESOURCE_GROUP.getMethodName();
 
                         normalizePathParameterOrder(operation, urlSegments);
                     }
                 } else if ((urlSegments.length == 5 || urlSegments.length == 7)
-                        && urlSegments[0].equalsIgnoreCase(SEGMENT_SUBSCRIPTIONS)
-                        && isPossiblePagedList(operation)
-                        && hasArrayInResponse(operation.getResponses())) {
+                    && urlSegments[0].equalsIgnoreCase(SEGMENT_SUBSCRIPTIONS)
+                    && isPossiblePagedList(operation)
+                    && hasArrayInResponse(operation.getResponses())) {
                     if (candidateWellKnownName.contains(WellKnownMethodName.LIST_BY_RESOURCE_GROUP)) {
                         if ((urlSegments.length == 7 && urlSegments[2].equalsIgnoreCase(SEGMENT_RESOURCE_GROUPS))
-                                || (urlSegments.length == 5 && !urlSegments[2].equalsIgnoreCase(SEGMENT_PROVIDERS))) {
+                            || (urlSegments.length == 5 && !urlSegments[2].equalsIgnoreCase(SEGMENT_PROVIDERS))) {
                             newName = WellKnownMethodName.LIST_BY_RESOURCE_GROUP.getMethodName();
                         }
                     }
@@ -140,11 +145,12 @@ class OperationNameNormalization {
                         }
                     }
                 }
-            } else if (HttpMethod.DELETE.name().equalsIgnoreCase(operation.getRequests().iterator().next().getProtocol().getHttp().getMethod())) {
+            } else if (HttpMethod.DELETE.name()
+                .equalsIgnoreCase(operation.getRequests().iterator().next().getProtocol().getHttp().getMethod())) {
                 if (urlSegments.length == 8
-                        && urlSegments[0].equalsIgnoreCase(SEGMENT_SUBSCRIPTIONS)
-                        && urlSegments[2].equalsIgnoreCase(SEGMENT_RESOURCE_GROUPS)
-                        && urlSegments[4].equalsIgnoreCase(SEGMENT_PROVIDERS)) {
+                    && urlSegments[0].equalsIgnoreCase(SEGMENT_SUBSCRIPTIONS)
+                    && urlSegments[2].equalsIgnoreCase(SEGMENT_RESOURCE_GROUPS)
+                    && urlSegments[4].equalsIgnoreCase(SEGMENT_PROVIDERS)) {
                     if (candidateWellKnownName.contains(WellKnownMethodName.DELETE)) {
                         newName = WellKnownMethodName.DELETE.getMethodName();
 
@@ -168,15 +174,18 @@ class OperationNameNormalization {
         // check path parameter order
         String resourceGroupParameterName = parameterSerializedName(urlSegments[3]);
         operation.getRequests().forEach(request -> {
-            List<Parameter> pathMethodParameters = request.getParameters().stream()
-                    .filter(OperationNameNormalization::isPathParameterInMethod)
-                    .collect(Collectors.toList());
+            List<Parameter> pathMethodParameters = request.getParameters()
+                .stream()
+                .filter(OperationNameNormalization::isPathParameterInMethod)
+                .collect(Collectors.toList());
             if (pathMethodParameters.size() == 2
-                    && resourceGroupParameterName.equals(pathMethodParameters.get(1).getLanguage().getDefault().getSerializedName())) {
+                && resourceGroupParameterName
+                    .equals(pathMethodParameters.get(1).getLanguage().getDefault().getSerializedName())) {
                 // resourceGroup parameter and resourceName parameter in reverse order
                 String resourceNameParameterName = parameterSerializedName(urlSegments[7]);
 
-                LOGGER.info("Reorder '{}' parameter and '{}' parameter, in operation '{}'", resourceGroupParameterName, resourceNameParameterName, Utils.getJavaName(operation));
+                LOGGER.info("Reorder '{}' parameter and '{}' parameter, in operation '{}'", resourceGroupParameterName,
+                    resourceNameParameterName, Utils.getJavaName(operation));
 
                 int rgIndex = -1;
                 int nameIndex = -1;
@@ -204,15 +213,17 @@ class OperationNameNormalization {
 
     private static boolean hasArrayInResponse(List<Response> responses) {
         return responses.stream()
-                .anyMatch(r -> r.getSchema() instanceof ObjectSchema
-                        && ((ObjectSchema) r.getSchema()).getProperties().stream().anyMatch(p -> p.getSerializedName().equals("value") && p.getSchema() instanceof ArraySchema));
+            .anyMatch(r -> r.getSchema() instanceof ObjectSchema
+                && ((ObjectSchema) r.getSchema()).getProperties()
+                    .stream()
+                    .anyMatch(p -> p.getSerializedName().equals("value") && p.getSchema() instanceof ArraySchema));
     }
 
     private static boolean isPathParameterInMethod(Parameter parameter) {
         return parameter.getImplementation() == Parameter.ImplementationLocation.METHOD
-                && parameter.getProtocol() != null
-                && parameter.getProtocol().getHttp() != null
-                && parameter.getProtocol().getHttp().getIn() == RequestParameterLocation.PATH;
+            && parameter.getProtocol() != null
+            && parameter.getProtocol().getHttp() != null
+            && parameter.getProtocol().getHttp().getIn() == RequestParameterLocation.PATH;
     }
 
     private static String parameterSerializedName(String parameterNameInUrl) {

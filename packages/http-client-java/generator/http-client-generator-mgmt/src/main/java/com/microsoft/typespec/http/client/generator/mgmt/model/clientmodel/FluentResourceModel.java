@@ -4,17 +4,16 @@
 package com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
-import com.microsoft.typespec.http.client.generator.mgmt.model.arm.ModelCategory;
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.action.ResourceActions;
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.create.ResourceCreate;
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.ResourceImplementation;
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.get.ResourceRefresh;
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.update.ResourceUpdate;
-import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
-
+import com.microsoft.typespec.http.client.generator.mgmt.model.arm.ModelCategory;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.ResourceImplementation;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.action.ResourceActions;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.create.ResourceCreate;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.get.ResourceRefresh;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.update.ResourceUpdate;
+import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -58,30 +57,26 @@ public class FluentResourceModel {
         this.parentModels = parentModels;
 
         interfaceType = FluentUtils.resourceModelInterfaceClassType(innerModel.getName());
-        implementationType = new ClassType.Builder()
-                .packageName(settings.getPackage(settings.getImplementationSubpackage()))
+        implementationType
+            = new ClassType.Builder().packageName(settings.getPackage(settings.getImplementationSubpackage()))
                 .name(interfaceType.getName() + ModelNaming.MODEL_IMPL_SUFFIX)
                 .build();
 
         List<List<FluentModelProperty>> propertiesFromTypeAndParents = new ArrayList<>();
         propertiesFromTypeAndParents.add(new ArrayList<>());
-        this.innerModel.getAccessibleProperties().stream()
-                .map(FluentModelProperty::new)
-                .forEach(p -> {
-                    propertiesMap.putIfAbsent(p.getName(), p);
-                    propertiesFromTypeAndParents.get(propertiesFromTypeAndParents.size() - 1).add(p);
-                });
+        this.innerModel.getAccessibleProperties().stream().map(FluentModelProperty::new).forEach(p -> {
+            propertiesMap.putIfAbsent(p.getName(), p);
+            propertiesFromTypeAndParents.get(propertiesFromTypeAndParents.size() - 1).add(p);
+        });
 
         for (ClientModel parent : parentModels) {
             propertiesFromTypeAndParents.add(new ArrayList<>());
 
-            parent.getAccessibleProperties().stream()
-                    .map(FluentModelProperty::new)
-                    .forEach(p -> {
-                        if (propertiesMap.putIfAbsent(p.getName(), p) == null) {
-                            propertiesFromTypeAndParents.get(propertiesFromTypeAndParents.size() - 1).add(p);
-                        }
-                    });
+            parent.getAccessibleProperties().stream().map(FluentModelProperty::new).forEach(p -> {
+                if (propertiesMap.putIfAbsent(p.getName(), p) == null) {
+                    propertiesFromTypeAndParents.get(propertiesFromTypeAndParents.size() - 1).add(p);
+                }
+            });
         }
 
         Collections.reverse(propertiesFromTypeAndParents);
@@ -124,7 +119,8 @@ public class FluentResourceModel {
 
     // method signature for inner model
     public String getInnerMethodSignature() {
-        return String.format("%1$s %2$s()", this.getInnerModel().getName(), FluentUtils.getGetterName(ModelNaming.METHOD_INNER_MODEL));
+        return String.format("%1$s %2$s()", this.getInnerModel().getName(),
+            FluentUtils.getGetterName(ModelNaming.METHOD_INNER_MODEL));
     }
 
     public ModelCategory getCategory() {

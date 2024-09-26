@@ -3,10 +3,9 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonWriter;
-
+import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -125,7 +124,8 @@ public class ChoiceSchema extends ValueSchema {
     }
 
     static boolean sharedEquals(ChoiceSchema lhs, ChoiceSchema rhs) {
-        return Objects.equals(lhs.choiceType, rhs.choiceType) && Objects.equals(lhs.choices, rhs.choices)
+        return Objects.equals(lhs.choiceType, rhs.choiceType)
+            && Objects.equals(lhs.choices, rhs.choices)
             && Objects.equals(lhs.getLanguage().getJava().getName(), rhs.getLanguage().getJava().getName());
     }
 
@@ -135,8 +135,7 @@ public class ChoiceSchema extends ValueSchema {
     }
 
     JsonWriter writeParentProperties(JsonWriter jsonWriter) throws IOException {
-        return super.writeParentProperties(jsonWriter)
-            .writeJsonField("choiceType", choiceType)
+        return super.writeParentProperties(jsonWriter).writeJsonField("choiceType", choiceType)
             .writeArrayField("choices", choices, JsonWriter::writeJson)
             .writeStringField("summary", summary)
             .writeStringField("crossLanguageDefinitionId", crossLanguageDefinitionId);

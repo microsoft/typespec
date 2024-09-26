@@ -8,7 +8,6 @@ package com.client.structure.service.generated;
 // If you wish to modify these files, please copy them out of the 'generated' package, and modify there.
 // See https://aka.ms/azsdk/dpg/java/tests for guide on adding a test.
 
-import com.azure.core.http.HttpClient;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.test.TestMode;
@@ -28,11 +27,9 @@ class RenamedOperationClientTestBase extends TestProxyTestBase {
         RenamedOperationClientBuilder renamedOperationClientbuilder = new RenamedOperationClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
             .client(Configuration.getGlobalConfiguration().get("CLIENT", "client"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            renamedOperationClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             renamedOperationClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         renamedOperationClient = renamedOperationClientbuilder.buildClient();
@@ -40,11 +37,9 @@ class RenamedOperationClientTestBase extends TestProxyTestBase {
         RenamedOperationClientBuilder groupClientbuilder = new RenamedOperationClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
             .client(Configuration.getGlobalConfiguration().get("CLIENT", "client"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            groupClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             groupClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         groupClient = groupClientbuilder.buildGroupClient();

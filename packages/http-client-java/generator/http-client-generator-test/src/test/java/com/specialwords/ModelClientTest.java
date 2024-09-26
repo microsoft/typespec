@@ -4,9 +4,8 @@
 package com.specialwords;
 
 import com.azure.core.util.BinaryData;
-import org.junit.jupiter.api.Test;
-
 import java.util.Collections;
+import org.junit.jupiter.api.Test;
 
 public class ModelClientTest {
 
@@ -14,6 +13,7 @@ public class ModelClientTest {
 
     @Test
     public void test() throws Exception {
-        ReflectHelper.invokeWithResponseMethods(client.getClass(), client, BinaryData.fromObject(Collections.singletonMap("name", "ok")));
+        ReflectHelper.invokeWithResponseMethods(client.getClass(), client,
+            BinaryData.fromObject(Collections.singletonMap("name", "ok")));
     }
 }

@@ -10,7 +10,6 @@ package com._specs_.azure.core.scalar.generated;
 
 import com._specs_.azure.core.scalar.ScalarClient;
 import com._specs_.azure.core.scalar.ScalarClientBuilder;
-import com.azure.core.http.HttpClient;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.test.TestMode;
@@ -24,11 +23,9 @@ class ScalarClientTestBase extends TestProxyTestBase {
     protected void beforeTest() {
         ScalarClientBuilder scalarClientbuilder = new ScalarClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            scalarClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             scalarClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         scalarClient = scalarClientbuilder.buildClient();

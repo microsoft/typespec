@@ -200,12 +200,12 @@ class TestSerializer(TestGeneralSerializer):
         test_name = TestName(self.code_model, self.client.name, is_async=self.is_async)
         async_suffix = "_async" if self.is_async else ""
         imports.add_submodule_import(
-            ("devtools_testutils" if self.code_model.options["azure_arm"] else "testpreparer" + async_suffix),
+            "devtools_testutils" if self.code_model.options["azure_arm"] else "testpreparer" + async_suffix,
             test_name.base_test_class_name,
             ImportType.LOCAL,
         )
         imports.add_submodule_import(
-            ("devtools_testutils" if self.code_model.options["azure_arm"] else "testpreparer"),
+            "devtools_testutils" if self.code_model.options["azure_arm"] else "testpreparer",
             test_name.preparer_name,
             ImportType.LOCAL,
         )

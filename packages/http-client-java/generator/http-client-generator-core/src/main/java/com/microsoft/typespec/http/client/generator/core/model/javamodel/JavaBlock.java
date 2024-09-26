@@ -64,7 +64,8 @@ public class JavaBlock implements JavaContext {
         contents.returnAnonymousClass(anonymousClassDeclaration, anonymousClassBlock);
     }
 
-    public final void anonymousClass(String anonymousClassDeclaration, String instanceName, Consumer<JavaClass> anonymousClassBlock) {
+    public final void anonymousClass(String anonymousClassDeclaration, String instanceName,
+        Consumer<JavaClass> anonymousClassBlock) {
         contents.anonymousClass(anonymousClassDeclaration, instanceName, anonymousClassBlock);
     }
 

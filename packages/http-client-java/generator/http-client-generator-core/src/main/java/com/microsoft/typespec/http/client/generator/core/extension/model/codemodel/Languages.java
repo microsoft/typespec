@@ -3,14 +3,13 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
+import static com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils.readObject;
+
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonWriter;
-
 import java.io.IOException;
 import java.util.Objects;
-
-import static com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils.readObject;
 
 /**
  * Represents all languages.
@@ -287,11 +286,18 @@ public class Languages implements JsonSerializable<Languages> {
         }
 
         Languages rhs = ((Languages) other);
-        return Objects.equals(_default, rhs._default) && Objects.equals(python, rhs.python)
-            && Objects.equals(cpp, rhs.cpp) && Objects.equals(c, rhs.c) && Objects.equals(go, rhs.go)
-            && Objects.equals(objectivec, rhs.objectivec) && Objects.equals(javascript, rhs.javascript)
-            && Objects.equals(ruby, rhs.ruby) && Objects.equals(csharp, rhs.csharp) && Objects.equals(java, rhs.java)
-            && Objects.equals(powershell, rhs.powershell) && Objects.equals(typescript, rhs.typescript)
+        return Objects.equals(_default, rhs._default)
+            && Objects.equals(python, rhs.python)
+            && Objects.equals(cpp, rhs.cpp)
+            && Objects.equals(c, rhs.c)
+            && Objects.equals(go, rhs.go)
+            && Objects.equals(objectivec, rhs.objectivec)
+            && Objects.equals(javascript, rhs.javascript)
+            && Objects.equals(ruby, rhs.ruby)
+            && Objects.equals(csharp, rhs.csharp)
+            && Objects.equals(java, rhs.java)
+            && Objects.equals(powershell, rhs.powershell)
+            && Objects.equals(typescript, rhs.typescript)
             && Objects.equals(swift, rhs.swift);
     }
 
