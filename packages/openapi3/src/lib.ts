@@ -266,7 +266,7 @@ export const libDef = {
     "invalid-property-type": {
       severity: "warning",
       messages: {
-        default: paramMessage`propertie "${"name"}" is not supported in the openapi3 emitter, it will be ignored.`,
+        default: paramMessage`Propertie '${"name"}' is not supported in the OpenAPI 3 emitter, it will be ignored.`,
       },
     },
   },
