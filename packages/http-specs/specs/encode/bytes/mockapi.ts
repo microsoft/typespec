@@ -43,14 +43,14 @@ function createQueryServerTests(
     kind: "MockApiDefinition",
   });
 }
-Scenarios.Encode_Bytes_Query_Default_Server_Test = createQueryServerTests(
+Scenarios.Encode_Bytes_Query_Default = createQueryServerTests(
   "/encode/bytes/query/default",
   {
     value: "dGVzdA==",
   },
   "dGVzdA==",
 );
-Scenarios.Encode_Bytes_Query_Base64_Server_Test = createQueryServerTests(
+Scenarios.Encode_Bytes_Query_Base64 = createQueryServerTests(
   "/encode/bytes/query/base64",
   {
     value: "dGVzdA==",
@@ -96,14 +96,14 @@ function createPropertyServerTests(uri: string, data: any, value: any) {
     kind: "MockApiDefinition",
   });
 }
-Scenarios.Encode_Bytes_Property_Default_Server_Test = createPropertyServerTests(
+Scenarios.Encode_Bytes_Property_Default = createPropertyServerTests(
   "/encode/bytes/property/default",
   {
     value: "dGVzdA==",
   },
   "dGVzdA==",
 );
-Scenarios.Encode_Bytes_Property_Base64_Server_Test = createPropertyServerTests(
+Scenarios.Encode_Bytes_Property_Base64 = createPropertyServerTests(
   "/encode/bytes/property/base64",
   {
     value: "dGVzdA==",
@@ -147,14 +147,14 @@ function createHeaderServerTests(uri: string, data: any, value: any) {
     kind: "MockApiDefinition",
   });
 }
-Scenarios.Encode_Bytes_Header_Default_Server_Test = createHeaderServerTests(
+Scenarios.Encode_Bytes_Header_Default = createHeaderServerTests(
   "/encode/bytes/header/default",
   {
     value: "dGVzdA==",
   },
   "dGVzdA==",
 );
-Scenarios.Encode_Bytes_Header_Base64_Server_Test = createHeaderServerTests(
+Scenarios.Encode_Bytes_Header_Base64 = createHeaderServerTests(
   "/encode/bytes/header/base64",
   {
     value: "dGVzdA==",
@@ -206,7 +206,7 @@ function createRequestBodyServerTests(
     kind: "MockApiDefinition",
   });
 }
-Scenarios.Encode_Bytes_Body_Request_Default_Server_Test = createRequestBodyServerTests(
+Scenarios.Encode_Bytes_Body_Request_Default = createRequestBodyServerTests(
   "/encode/bytes/body/request/default",
   '"dGVzdA=="',
   {

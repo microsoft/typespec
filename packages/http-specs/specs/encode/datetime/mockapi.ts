@@ -46,7 +46,7 @@ function createQueryServerTests(
     kind: "MockApiDefinition",
   });
 }
-Scenarios.Encode_DateTime_Query_Default_Server_Test = createQueryServerTests(
+Scenarios.Encode_DateTime_Query_Default = createQueryServerTests(
   "/encode/datetime/query/default",
   {
     value: "2022-08-26T18:38:00.000Z",
@@ -54,7 +54,7 @@ Scenarios.Encode_DateTime_Query_Default_Server_Test = createQueryServerTests(
   "rfc3339",
   "2022-08-26T18:38:00.000Z",
 );
-Scenarios.Encode_DateTime_Query_rfc3339_Server_Test = createQueryServerTests(
+Scenarios.Encode_DateTime_Query_rfc3339 = createQueryServerTests(
   "/encode/datetime/query/rfc3339",
   {
     value: "2022-08-26T18:38:00.000Z",
@@ -62,7 +62,7 @@ Scenarios.Encode_DateTime_Query_rfc3339_Server_Test = createQueryServerTests(
   "rfc3339",
   "2022-08-26T18:38:00.000Z",
 );
-Scenarios.Encode_DateTime_Query_rfc7231_Server_Test = createQueryServerTests(
+Scenarios.Encode_DateTime_Query_rfc7231 = createQueryServerTests(
   "/encode/datetime/query/rfc7231",
   {
     value: "Fri, 26 Aug 2022 14:38:00 GMT",
@@ -123,7 +123,7 @@ function createPropertyServerTests(
     kind: "MockApiDefinition",
   });
 }
-Scenarios.Encode_DateTime_Property_Default_Server_Test = createPropertyServerTests(
+Scenarios.Encode_DateTime_Property_Default = createPropertyServerTests(
   "/encode/datetime/property/default",
   {
     value: "2022-08-26T18:38:00.000Z",
@@ -131,7 +131,7 @@ Scenarios.Encode_DateTime_Property_Default_Server_Test = createPropertyServerTes
   "rfc3339",
   "2022-08-26T18:38:00.000Z",
 );
-Scenarios.Encode_DateTime_Property_rfc3339_Server_Test = createPropertyServerTests(
+Scenarios.Encode_DateTime_Property_rfc3339 = createPropertyServerTests(
   "/encode/datetime/property/rfc3339",
   {
     value: "2022-08-26T18:38:00.000Z",
@@ -139,7 +139,7 @@ Scenarios.Encode_DateTime_Property_rfc3339_Server_Test = createPropertyServerTes
   "rfc3339",
   "2022-08-26T18:38:00.000Z",
 );
-Scenarios.Encode_DateTime_Property_rfc7231_Server_Test = createPropertyServerTests(
+Scenarios.Encode_DateTime_Property_rfc7231 = createPropertyServerTests(
   "/encode/datetime/property/rfc7231",
   {
     value: "Fri, 26 Aug 2022 14:38:00 GMT",
@@ -198,7 +198,7 @@ function createHeaderServerTests(
     kind: "MockApiDefinition",
   });
 }
-Scenarios.Encode_DateTime_Header_Default_Server_Test = createHeaderServerTests(
+Scenarios.Encode_DateTime_Header_Default = createHeaderServerTests(
   "/encode/datetime/header/default",
   {
     value: "Fri, 26 Aug 2022 14:38:00 GMT",
@@ -206,7 +206,7 @@ Scenarios.Encode_DateTime_Header_Default_Server_Test = createHeaderServerTests(
   "rfc7231",
   "Fri, 26 Aug 2022 14:38:00 GMT",
 );
-Scenarios.Encode_DateTime_Header_rfc3339_Server_Test = createHeaderServerTests(
+Scenarios.Encode_DateTime_Header_rfc3339 = createHeaderServerTests(
   "/encode/datetime/header/rfc3339",
   {
     value: "2022-08-26T18:38:00.000Z",
@@ -214,7 +214,7 @@ Scenarios.Encode_DateTime_Header_rfc3339_Server_Test = createHeaderServerTests(
   "rfc3339",
   "2022-08-26T18:38:00.000Z",
 );
-Scenarios.Encode_DateTime_Header_rfc7231_Server_Test = createHeaderServerTests(
+Scenarios.Encode_DateTime_Header_rfc7231 = createHeaderServerTests(
   "/encode/datetime/header/rfc7231",
   {
     value: "Fri, 26 Aug 2022 14:38:00 GMT",
@@ -260,21 +260,21 @@ function createResponseHeaderServerTests(uri: string, data: any, value: any) {
     kind: "MockApiDefinition",
   });
 }
-Scenarios.Encode_DateTime_ResponseHeader_Default_Server_Test = createResponseHeaderServerTests(
+Scenarios.Encode_DateTime_ResponseHeader_Default = createResponseHeaderServerTests(
   "/encode/datetime/responseheader/default",
   {
     value: "Fri, 26 Aug 2022 14:38:00 GMT",
   },
   "Fri, 26 Aug 2022 14:38:00 GMT",
 );
-Scenarios.Encode_DateTime_ResponseHeader_rfc3339_Server_Test = createResponseHeaderServerTests(
+Scenarios.Encode_DateTime_ResponseHeader_rfc3339 = createResponseHeaderServerTests(
   "/encode/datetime/responseheader/rfc3339",
   {
     value: "2022-08-26T18:38:00.000Z",
   },
   "2022-08-26T18:38:00.000Z",
 );
-Scenarios.Encode_DateTime_ResponseHeader_rfc7231_Server_Test = createResponseHeaderServerTests(
+Scenarios.Encode_DateTime_ResponseHeader_rfc7231 = createResponseHeaderServerTests(
   "/encode/datetime/responseheader/rfc7231",
   {
     value: "Fri, 26 Aug 2022 14:38:00 GMT",

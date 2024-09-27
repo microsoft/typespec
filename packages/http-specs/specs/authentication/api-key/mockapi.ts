@@ -2,7 +2,7 @@ import { json, MockRequest, passOnSuccess, ScenarioMockApi } from "@typespec/spe
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
-Scenarios.Authentication_ApiKey_InValid_Server_Test = passOnSuccess({
+Scenarios.Authentication_ApiKey_InValid = passOnSuccess({
   uri: `/authentication/api-key/invalid`,
   mockMethods: [
     {
@@ -32,7 +32,7 @@ Scenarios.Authentication_ApiKey_InValid_Server_Test = passOnSuccess({
   kind: "MockApiDefinition",
 });
 
-Scenarios.Authentication_ApiKey_Valid_Server_Test = passOnSuccess({
+Scenarios.Authentication_ApiKey_Valid = passOnSuccess({
   uri: `/authentication/api-key/valid`,
   mockMethods: [
     {
