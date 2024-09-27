@@ -45,9 +45,9 @@ async function main() {
         const resolvedRoot = resolvePath(process.cwd(), args.entrypoint);
         await bundleTypeSpecLibrary(
           resolvedRoot,
-          args["output-dir"] ?? resolvePath(resolvedRoot, "out/browser")
+          args["output-dir"] ?? resolvePath(resolvedRoot, "out/browser"),
         );
-      }
+      },
     )
     .version(typespecVersion)
     .demandCommand(1, "You must use one of the supported commands.").argv;

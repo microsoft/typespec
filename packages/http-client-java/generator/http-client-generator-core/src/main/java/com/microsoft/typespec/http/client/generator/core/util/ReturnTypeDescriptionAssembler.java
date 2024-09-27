@@ -3,24 +3,26 @@
 
 package com.microsoft.typespec.http.client.generator.core.util;
 
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.azure.core.http.rest.PagedFlux;
 import com.azure.core.http.rest.PagedIterable;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.polling.PollerFlux;
 import com.azure.core.util.polling.SyncPoller;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import reactor.core.publisher.Mono;
 
 public class ReturnTypeDescriptionAssembler {
 
     /**
      * Assemble description for return types.
-     * @param description   parsed swagger description of the returnType, either from operation description, or schema itself
-     * @param returnType    actual returnType that needs documentation
-     * @param baseType      baseType of the returnType
-     * @return  assembled description
+     * 
+     * @param description parsed swagger description of the returnType, either from operation description, or schema
+     * itself
+     * @param returnType actual returnType that needs documentation
+     * @param baseType baseType of the returnType
+     * @return assembled description
      */
     public static String assemble(String description, IType returnType, IType baseType) {
         return (returnType instanceof GenericType)
@@ -43,10 +45,11 @@ public class ReturnTypeDescriptionAssembler {
     }
 
     /*
-    Mono<Void> - A {@link Mono} that completes when a successful response is received
-    Mono<Response<?>> - "Response return type description" on successful completion of {@link Mono}
-    Mono<T> - "something" on successful completion of {@link Mono} (something here is the description in the operation)
-    Mono<OtherType> - the response body on successful completion of {@link Mono}
+     * Mono<Void> - A {@link Mono} that completes when a successful response is received
+     * Mono<Response<?>> - "Response return type description" on successful completion of {@link Mono}
+     * Mono<T> - "something" on successful completion of {@link Mono} (something here is the description in the
+     * operation)
+     * Mono<OtherType> - the response body on successful completion of {@link Mono}
      */
     private static String assembleForMono(String description, GenericType returnType, IType baseType) {
         if (TypeUtil.isGenericTypeClassSubclassOf(returnType.getTypeArguments()[0], Response.class)) { // Mono<Response<?>>
@@ -55,9 +58,10 @@ public class ReturnTypeDescriptionAssembler {
         } else {
             if (description == null) {
                 if (ClassType.VOID == baseType.asNullable()) { // Mono<Void>
-                    return "A {@link " + returnType.getName() + "} that completes when a successful response is received";
+                    return "A {@link " + returnType.getName()
+                        + "} that completes when a successful response is received";
                 } else { // Mono<OtherType>
-                    return  "the response body on successful completion of {@link " + returnType.getName() + "}";
+                    return "the response body on successful completion of {@link " + returnType.getName() + "}";
                 }
             } else { // Mono<T>
                 return description + " on successful completion of {@link " + returnType.getName() + "}";
@@ -66,9 +70,9 @@ public class ReturnTypeDescriptionAssembler {
     }
 
     /*
-    Response<Void> - the {@link Response}
-    Response<T> - "something" along with {@link Response}
-    Response<OtherType> - the response body along with {@link Response}
+     * Response<Void> - the {@link Response}
+     * Response<T> - "something" along with {@link Response}
+     * Response<OtherType> - the response body along with {@link Response}
      */
     private static String assembleForResponse(String description, GenericType returnType, IType baseType) {
         if (description == null) {
@@ -83,8 +87,8 @@ public class ReturnTypeDescriptionAssembler {
     }
 
     /*
-    PagedIterable<T> - "something" as paginated response with {@link PagedIterable}
-    PagedIterable<OtherType> - the paginated response with {@link PagedIterable}
+     * PagedIterable<T> - "something" as paginated response with {@link PagedIterable}
+     * PagedIterable<OtherType> - the paginated response with {@link PagedIterable}
      */
     private static String assembleForPagination(String description, GenericType returnType) {
         if (description == null) {
@@ -95,8 +99,8 @@ public class ReturnTypeDescriptionAssembler {
     }
 
     /*
-    SyncPoller<S, T> - the {@link SyncPoller} for polling of "something"
-    SyncPoller<S, OtherType> - the {@link SyncPoller} for polling of long-running operation
+     * SyncPoller<S, T> - the {@link SyncPoller} for polling of "something"
+     * SyncPoller<S, OtherType> - the {@link SyncPoller} for polling of long-running operation
      */
     private static String assembleForPoller(String description, GenericType returnType) {
         if (description == null) {

@@ -4,7 +4,6 @@
 package com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.create;
 
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentMethod;
-
 import java.util.Arrays;
 import java.util.List;
 

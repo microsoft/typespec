@@ -23,8 +23,8 @@ describe("utils", () => {
     it("parse multiple OData params", () => {
       expect(
         extractParamsFromPath(
-          "/certificates(thumbprintAlgorithm={thumbprintAlgorithm},thumbprint={thumbprint})/canceldelete"
-        )
+          "/certificates(thumbprintAlgorithm={thumbprintAlgorithm},thumbprint={thumbprint})/canceldelete",
+        ),
       ).toEqual(["thumbprintAlgorithm", "thumbprint"]);
     });
   });

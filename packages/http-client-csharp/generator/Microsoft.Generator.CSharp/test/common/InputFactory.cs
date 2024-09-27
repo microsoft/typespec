@@ -95,12 +95,16 @@ namespace Microsoft.Generator.CSharp.Tests.Common
                 null);
         }
 
-        public static InputNamespace Namespace(string name, IEnumerable<InputModelType>? models = null, IEnumerable<InputClient>? clients = null)
+        public static InputNamespace Namespace(
+            string name,
+            IEnumerable<InputModelType>? models = null,
+            IEnumerable<InputEnumType>? enums = null,
+            IEnumerable<InputClient>? clients = null)
         {
             return new InputNamespace(
                 name,
                 [],
-                [],
+                enums is null ? [] : [.. enums],
                 models is null ? [] : [.. models],
                 clients is null ? [] : [.. clients],
                 new InputAuth());

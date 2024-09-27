@@ -44,7 +44,7 @@ describe("compiler: models", () => {
       model A<T1,T2> {
 
       }
-      `
+      `,
     );
 
     const { B, C } = (await testHost.compile("./")) as {
@@ -61,7 +61,7 @@ describe("compiler: models", () => {
       "main.tsp",
       `
       model A { x: int32; x: int32; }
-      `
+      `,
     );
     const diagnostics = await testHost.diagnose("main.tsp");
     strictEqual(diagnostics.length, 1);
@@ -82,7 +82,7 @@ describe("compiler: models", () => {
       `
       import "./dec.js";
       @blue model A<T> { @blue x: int32}
-      `
+      `,
     );
     await testHost.compile("./");
     strictEqual(calls, 0);
@@ -98,7 +98,7 @@ describe("compiler: models", () => {
           instance1: A<string>;
           instance2: A<int32>;
         }
-        `
+        `,
     );
     const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, [
@@ -124,7 +124,7 @@ describe("compiler: models", () => {
           "main.tsp",
           `
           model A { @test foo?: ${type} = ${defaultValue} }
-          `
+          `,
         );
         const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
         strictEqual(foo.defaultValue?.valueKind, expectedValue.kind);
@@ -136,7 +136,7 @@ describe("compiler: models", () => {
           "main.tsp",
           `
         model A { @test foo?: string[] = #["abc"] }
-        `
+        `,
         );
         const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
         strictEqual(foo.defaultValue?.valueKind, "ArrayValue");
@@ -147,7 +147,7 @@ describe("compiler: models", () => {
           "main.tsp",
           `
         model A { @test foo?: {name: string} = #{name: "abc"} }
-        `
+        `,
         );
         const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
         strictEqual(foo.defaultValue?.valueKind, "ObjectValue");
@@ -159,7 +159,7 @@ describe("compiler: models", () => {
           `
         const a = 123;
         model A { @test foo?: int32 = a }
-        `
+        `,
         );
         const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
         strictEqual(foo.defaultValue?.valueKind, "NumericValue");
@@ -173,7 +173,7 @@ describe("compiler: models", () => {
           `
         model A { @test foo?: TestEnum = TestEnum.up }
         enum TestEnum {up, down}
-        `
+        `,
         );
         const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
         strictEqual(foo.defaultValue?.valueKind, "EnumValue");
@@ -187,7 +187,7 @@ describe("compiler: models", () => {
           `
         model A { @test foo?: Direction = Direction.up }
         union Direction {up: "up-value", down: "down-value"}
-        `
+        `,
         );
         const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
         strictEqual(foo.defaultValue?.valueKind, "StringValue");
@@ -209,7 +209,7 @@ describe("compiler: models", () => {
           "main.tsp",
           `
           model A { @test foo?: ${type} = ${defaultValue} }
-          `
+          `,
         );
         const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
         expect({ ...foo.default }).toMatchObject(expectedValue);
@@ -220,7 +220,7 @@ describe("compiler: models", () => {
           "main.tsp",
           `
         model A { @test foo?: string[] = #["abc"] }
-        `
+        `,
         );
         const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
         deepStrictEqual(foo.default, undefined);
@@ -231,7 +231,7 @@ describe("compiler: models", () => {
           "main.tsp",
           `
         model A { @test foo?: {name: string} = #{name: "abc"} }
-        `
+        `,
         );
         const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
         deepStrictEqual(foo.default, undefined);
@@ -254,7 +254,7 @@ describe("compiler: models", () => {
           "main.tsp",
           `
           model A { foo?: ${type} = ${defaultValue} }
-          `
+          `,
         );
         const diagnostics = await testHost.diagnose("main.tsp");
         expectDiagnostics(diagnostics, {
@@ -285,7 +285,7 @@ describe("compiler: models", () => {
       "main.tsp",
       `
         model A { foo?: bool = false }
-      `
+      `,
     );
     const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, [
@@ -308,7 +308,7 @@ describe("compiler: models", () => {
           pB: int32;
   
         }
-        `
+        `,
       );
 
       const { A, B } = (await testHost.compile("./")) as { A: Model; B: Model };
@@ -329,7 +329,7 @@ describe("compiler: models", () => {
       }
 
       @test model Test {prop: A & B}
-      `
+      `,
       );
       const { Test } = (await testHost.compile("main.tsp")) as { Test: Model };
       const AB = Test.properties.get("prop")?.type;
@@ -348,7 +348,7 @@ describe("compiler: models", () => {
       }
 
       @test model Test {...Foo}
-      `
+      `,
       );
       const { Test } = (await testHost.compile("main.tsp")) as { Test: Model };
       strictEqual(Test.properties.get("prop")?.model, Test);
@@ -363,7 +363,7 @@ describe("compiler: models", () => {
       }
 
       @test model Test is Foo;
-      `
+      `,
       );
       const { Test } = (await testHost.compile("main.tsp")) as { Test: Model };
       strictEqual(Test.properties.get("prop")?.model, Test);
@@ -380,7 +380,7 @@ describe("compiler: models", () => {
 
         model Car { kind: string };
         model Ford extends Car { kind: "Ford" };
-        `
+        `,
       );
       await testHost.compile("main.tsp");
     });
@@ -394,7 +394,7 @@ describe("compiler: models", () => {
 
         model Car { kind: "Ford" | "Toyota" };
         model Ford extends Car { kind: "Ford" };
-        `
+        `,
       );
       const diagnostics = await testHost.diagnose("main.tsp");
       expectDiagnosticEmpty(diagnostics);
@@ -410,7 +410,7 @@ describe("compiler: models", () => {
 
         model A { x: Named }
         model B extends A { x: {name: "B"} };
-        `
+        `,
       );
       const diagnostics = await testHost.diagnose("main.tsp");
       expectDiagnosticEmpty(diagnostics);
@@ -425,7 +425,7 @@ describe("compiler: models", () => {
 
         model Car { kind: string };
         model Ford extends Car { kind: int32 };
-        `
+        `,
       );
       const diagnostics = await testHost.diagnose("main.tsp");
       expectDiagnostics(diagnostics, [
@@ -448,7 +448,7 @@ describe("compiler: models", () => {
         `
         model A { x: int32; }
         model B extends A { x?: int32; }
-        `
+        `,
       );
 
       const diagnostics = await testHost.diagnose("main.tsp");
@@ -469,7 +469,7 @@ describe("compiler: models", () => {
         model A { x: int32; }
         model B extends A { }
         model C extends B { x?: int16; }
-        `
+        `,
       );
 
       const diagnostics = await testHost.diagnose("main.tsp");
@@ -489,7 +489,7 @@ describe("compiler: models", () => {
         `
         model A { x: int32; }
         model B extends A { x?: string; }
-        `
+        `,
       );
 
       const diagnostics = await testHost.diagnose("main.tsp");
@@ -516,7 +516,7 @@ describe("compiler: models", () => {
         model A { x: int64 };
         model B extends A { x: int32 };
         model C extends B { x: int16 };
-        `
+        `,
       );
       await testHost.compile("main.tsp");
     });
@@ -528,7 +528,7 @@ describe("compiler: models", () => {
         model A { x: int64 };
         model B extends A { x: int16 };
         model C extends B { x: int32 };
-        `
+        `,
       );
       const diagnostics = await testHost.diagnose("main.tsp");
       expectDiagnostics(diagnostics, [
@@ -546,7 +546,7 @@ describe("compiler: models", () => {
         `
         model Base { @doc("Base") h: string;}
         @test model Widget extends Base { h: "test";}
-        `
+        `,
       );
       const { Widget } = (await testHost.compile("main.tsp")) as { Widget: Model };
       strictEqual(Widget.decorators.length, 1);
@@ -560,7 +560,7 @@ describe("compiler: models", () => {
         model Base {prop: string;}
         model Widget extends Base {prop: "test";}
         @test op foo(): Widget & {};
-        `
+        `,
       );
       const { foo } = (await testHost.compile("main.tsp")) as { foo: Operation };
       strictEqual(((foo.returnType as Model).properties.get("prop")!.type as any)!.value, "test");
@@ -573,7 +573,7 @@ describe("compiler: models", () => {
         model Base {h1: string}
         model Widget extends Base {h1: "test"}
         @test model Spread {...Widget}
-        `
+        `,
       );
       const { Spread } = (await testHost.compile("main.tsp")) as { Spread: Model };
       strictEqual((Spread.properties.get("h1")!.type as any)!.value, "test");
@@ -594,7 +594,7 @@ describe("compiler: models", () => {
         @test model Dog extends Pet {
           bark: true;
         }
-        `
+        `,
       );
       const { Pet, Dog, Cat } = (await testHost.compile("main.tsp")) as {
         Pet: Model;
@@ -626,7 +626,7 @@ describe("compiler: models", () => {
         @test model Dog is TPet<string> {
           bark: true;
         }
-        `
+        `,
       );
       const { Pet, Dog, Cat } = (await testHost.compile("main.tsp")) as {
         Pet: Model;
@@ -652,7 +652,7 @@ describe("compiler: models", () => {
         "main.tsp",
         `
         model A extends (string | int32) {}
-        `
+        `,
       );
       const diagnostics = await testHost.diagnose("main.tsp");
       expectDiagnostics(diagnostics, {
@@ -666,7 +666,7 @@ describe("compiler: models", () => {
         "main.tsp",
         `
         model A extends {name: string} {}
-        `
+        `,
       );
       const diagnostics = await testHost.diagnose("main.tsp");
       expectDiagnostics(diagnostics, {
@@ -681,7 +681,7 @@ describe("compiler: models", () => {
         `
         alias B = {name: string};
         model A extends B {}
-        `
+        `,
       );
       const diagnostics = await testHost.diagnose("main.tsp");
       expectDiagnostics(diagnostics, {
@@ -695,7 +695,7 @@ describe("compiler: models", () => {
         "main.tsp",
         `
         model A extends A {}
-        `
+        `,
       );
       const diagnostics = await testHost.diagnose("main.tsp");
       strictEqual(diagnostics.length, 1);
@@ -708,7 +708,7 @@ describe("compiler: models", () => {
         `
         model A extends B {}
         model B extends A {}
-        `
+        `,
       );
       const diagnostics = await testHost.diagnose("main.tsp");
       strictEqual(diagnostics.length, 1);
@@ -723,7 +723,7 @@ describe("compiler: models", () => {
         model B {
           a: A
         }
-        `
+        `,
       );
       const diagnostics = await testHost.diagnose("main.tsp");
       expectDiagnosticEmpty(diagnostics);
@@ -752,7 +752,7 @@ describe("compiler: models", () => {
         `
         @test model A { }
         @test  model B is A { };
-        `
+        `,
       );
       const { A, B } = (await testHost.compile("main.tsp")) as { A: Model; B: Model };
       strictEqual(B.sourceModel, A);
@@ -764,7 +764,7 @@ describe("compiler: models", () => {
         `
         @test model A { }
         @test model B is A { };
-        `
+        `,
       );
       const { A, B } = (await testHost.compile("main.tsp")) as { A: Model; B: Model };
       expect(B.sourceModels).toHaveLength(1);
@@ -779,7 +779,7 @@ describe("compiler: models", () => {
         import "./dec.js";
         @blue model A { }
         @test @red model B is A { };
-        `
+        `,
       );
       const { B } = (await testHost.compile("main.tsp")) as { B: Model };
       ok(blues.has(B));
@@ -792,7 +792,7 @@ describe("compiler: models", () => {
         `
         model A { x: int32 }
         @test model B is A { y: string };
-        `
+        `,
       );
       const { B } = (await testHost.compile("main.tsp")) as { B: Model };
       ok(B.properties.has("x"));
@@ -807,7 +807,7 @@ describe("compiler: models", () => {
         @test model A { x: int32 }
         model B extends A { y: string };
         @test model C is B { }
-        `
+        `,
       );
       const { A, C } = (await testHost.compile("main.tsp")) as { A: Model; C: Model };
       strictEqual(C.baseModel, A);
@@ -820,7 +820,7 @@ describe("compiler: models", () => {
         `
         import "./dec.js";
         @test model A is string[];
-        `
+        `,
       );
       const { A } = (await testHost.compile("main.tsp")) as { A: Model };
       ok(isArrayModelType(testHost.program, A));
@@ -832,7 +832,7 @@ describe("compiler: models", () => {
         `
         import "./dec.js";
         @test model A is (string | int32)[];
-        `
+        `,
       );
       const { A } = (await testHost.compile("main.tsp")) as { A: Model };
       ok(isArrayModelType(testHost.program, A));
@@ -846,7 +846,7 @@ describe("compiler: models", () => {
         @test model A is string[] {
           prop: string;
         }
-        `
+        `,
       );
       const diagnostics = await testHost.diagnose("main.tsp");
       expectDiagnostics(diagnostics, {
@@ -862,7 +862,7 @@ describe("compiler: models", () => {
         @test model A extends Array<string> {
           prop: string;
         }
-        `
+        `,
       );
       const diagnostics = await testHost.diagnose("main.tsp");
       expectDiagnostics(diagnostics, {
@@ -878,7 +878,7 @@ describe("compiler: models", () => {
         import "./dec.js";
         model A { x: int32 }
         model B is A { x: int32 };
-        `
+        `,
       );
       const diagnostics = await testHost.diagnose("main.tsp");
       strictEqual(diagnostics.length, 1);
@@ -890,7 +890,7 @@ describe("compiler: models", () => {
         "main.tsp",
         `
         model A is (string | int32) {}
-        `
+        `,
       );
       const diagnostics = await testHost.diagnose("main.tsp");
       expectDiagnostics(diagnostics, {
@@ -904,7 +904,7 @@ describe("compiler: models", () => {
         "main.tsp",
         `
         model A is {name: string} {}
-        `
+        `,
       );
       const diagnostics = await testHost.diagnose("main.tsp");
       expectDiagnostics(diagnostics, {
@@ -919,7 +919,7 @@ describe("compiler: models", () => {
         `
         alias B = {name: string};
         model A is B {}
-        `
+        `,
       );
       const diagnostics = await testHost.diagnose("main.tsp");
       expectDiagnostics(diagnostics, {
@@ -933,7 +933,7 @@ describe("compiler: models", () => {
         "main.tsp",
         `
         model A is A {}
-        `
+        `,
       );
       const diagnostics = await testHost.diagnose("main.tsp");
       strictEqual(diagnostics.length, 1);
@@ -950,7 +950,7 @@ describe("compiler: models", () => {
           instance1: A<string>;
           instance2: A<int32>;
         }
-        `
+        `,
       );
       const diagnostics = await testHost.diagnose("main.tsp");
       expectDiagnostics(diagnostics, [
@@ -967,7 +967,7 @@ describe("compiler: models", () => {
         `
         model A is B {}
         model B is A {}
-        `
+        `,
       );
       const diagnostics = await testHost.diagnose("main.tsp");
       strictEqual(diagnostics.length, 1);
@@ -980,7 +980,7 @@ describe("compiler: models", () => {
         `
         model A is B {}
         model B extends A {}
-        `
+        `,
       );
       const diagnostics = await testHost.diagnose("main.tsp");
       strictEqual(diagnostics.length, 1);
@@ -995,7 +995,7 @@ describe("compiler: models", () => {
         model B {
           a: A
         }
-        `
+        `,
       );
       const diagnostics = await testHost.diagnose("main.tsp");
       expectDiagnosticEmpty(diagnostics);
@@ -1013,7 +1013,7 @@ describe("compiler: models", () => {
         model B is A<string> {}
         @test
         model C is A<int32> {}
-        `
+        `,
       );
       const { B, C } = await testHost.compile("main.tsp");
       strictEqual((B as Model).properties.size, 2);
@@ -1035,7 +1035,7 @@ describe("compiler: models", () => {
         @test model Spread {...Base}
 
         @@doc(Spread.one, "override for spread");
-        `
+        `,
       );
       const { Base, Spread } = (await testHost.compile("main.tsp")) as {
         Base: Model;
@@ -1052,7 +1052,7 @@ describe("compiler: models", () => {
         @test model A { one: string }
         @test model B { two: string }
         @test model C {...A, ...B}
-        `
+        `,
       );
       const { A, B, C } = (await testHost.compile("main.tsp")) as { A: Model; B: Model; C: Model };
       expect(C.sourceModels).toHaveLength(2);
@@ -1067,7 +1067,7 @@ describe("compiler: models", () => {
         "main.tsp",
         `
         @test model Test {...Record<int32>;}
-        `
+        `,
       );
       const { Test } = (await testHost.compile("main.tsp")) as {
         Test: Model;
@@ -1086,7 +1086,7 @@ describe("compiler: models", () => {
           name: string;
           ...Record<int32>;
         }
-        `
+        `,
       );
       const { Test } = (await testHost.compile("main.tsp")) as {
         Test: Model;
@@ -1108,7 +1108,7 @@ describe("compiler: models", () => {
           ...Record<int32>;
           ...Record<string>;
         }
-        `
+        `,
       );
       const { Test } = (await testHost.compile("main.tsp")) as {
         Test: Model;
@@ -1129,7 +1129,7 @@ describe("compiler: models", () => {
         "main.tsp",
         `
         @test model Test {...Array<int32>;}
-        `
+        `,
       );
       const diagnostics = await testHost.diagnose("main.tsp");
       expectDiagnostics(diagnostics, {
@@ -1145,7 +1145,7 @@ describe("compiler: models", () => {
         "main.tsp",
         `
         model A { a: A.a }
-        `
+        `,
       );
       const diagnostics = await testHost.diagnose("main.tsp");
       expectDiagnostics(diagnostics, {
@@ -1160,7 +1160,7 @@ describe("compiler: models", () => {
         `
         model A { a: B.a }
         model B { a: A.a }
-        `
+        `,
       );
       const diagnostics = await testHost.diagnose("main.tsp");
       expectDiagnostics(diagnostics, {
@@ -1176,7 +1176,7 @@ describe("compiler: models", () => {
         model A { a: B.a }
         model B { a: C }
         alias C = A.a;
-        `
+        `,
       );
       const diagnostics = await testHost.diagnose("main.tsp");
       expectDiagnostics(diagnostics, {

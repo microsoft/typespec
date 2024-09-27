@@ -3,6 +3,10 @@
 
 package com.microsoft.typespec.http.client.generator.core.preprocessor;
 
+import com.azure.json.JsonProviders;
+import com.azure.json.JsonReader;
+import com.azure.json.ReadValueCallback;
+import com.microsoft.typespec.http.client.generator.core.extension.base.util.FileUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.jsonrpc.Connection;
 import com.microsoft.typespec.http.client.generator.core.extension.model.Message;
 import com.microsoft.typespec.http.client.generator.core.extension.model.MessageChannel;
@@ -16,22 +20,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.FileUtils;
 import com.microsoft.typespec.http.client.generator.core.preprocessor.tranformer.Transformer;
-import com.azure.json.JsonProviders;
-import com.azure.json.JsonReader;
-import com.azure.json.ReadValueCallback;
-import org.slf4j.Logger;
-import org.yaml.snakeyaml.DumperOptions;
-import org.yaml.snakeyaml.LoaderOptions;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
-import org.yaml.snakeyaml.inspector.TrustedTagInspector;
-import org.yaml.snakeyaml.introspector.Property;
-import org.yaml.snakeyaml.nodes.NodeTuple;
-import org.yaml.snakeyaml.nodes.Tag;
-import org.yaml.snakeyaml.representer.Representer;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -44,6 +33,16 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.LoaderOptions;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.inspector.TrustedTagInspector;
+import org.yaml.snakeyaml.introspector.Property;
+import org.yaml.snakeyaml.nodes.NodeTuple;
+import org.yaml.snakeyaml.nodes.Tag;
+import org.yaml.snakeyaml.representer.Representer;
 
 public class Preprocessor extends NewPlugin {
     private final NewPlugin wrappedPlugin;
@@ -65,9 +64,8 @@ public class Preprocessor extends NewPlugin {
         List<String> allFiles = listInputs();
         List<String> files = allFiles.stream().filter(s -> s.contains("no-tags")).collect(Collectors.toList());
         if (files.size() != 1) {
-            throw new RuntimeException(
-                String.format("Generator received incorrect number of inputs: %s : %s}", files.size(),
-                    String.join(", ", files)));
+            throw new RuntimeException(String.format("Generator received incorrect number of inputs: %s : %s}",
+                files.size(), String.join(", ", files)));
         }
         String file = readFile(files.get(0));
 
@@ -150,21 +148,24 @@ public class Preprocessor extends NewPlugin {
     }
 
     public static CodeModel convertOptionalConstantsToEnum(CodeModel codeModel) {
-        Function<ConstantSchema, Boolean> schemaIsConstantWithChoice = schema -> schema.getValueType() instanceof ChoiceSchema;
+        Function<ConstantSchema, Boolean> schemaIsConstantWithChoice
+            = schema -> schema.getValueType() instanceof ChoiceSchema;
 
         Set<ConstantSchema> constantSchemas = new HashSet<>(codeModel.getSchemas().getConstants());
         if (!constantSchemas.isEmpty()) {
             Map<ConstantSchema, SealedChoiceSchema> convertedChoiceSchemas = new HashMap<>();
 
             codeModel.getOperationGroups().stream().flatMap(og -> og.getOperations().stream()).forEach(o -> {
-                o.getParameters().stream().filter(p -> !p.isRequired() && p.getSchema() instanceof ConstantSchema)
+                o.getParameters()
+                    .stream()
+                    .filter(p -> !p.isRequired() && p.getSchema() instanceof ConstantSchema)
                     .forEach(p -> {
                         ConstantSchema constantSchema = (ConstantSchema) p.getSchema();
                         if (schemaIsConstantWithChoice.apply(constantSchema)) {
                             p.setSchema(constantSchema.getValueType());
                         } else {
-                            SealedChoiceSchema sealedChoiceSchema = convertedChoiceSchemas.computeIfAbsent(constantSchema,
-                                Preprocessor::convertToChoiceSchema);
+                            SealedChoiceSchema sealedChoiceSchema = convertedChoiceSchemas
+                                .computeIfAbsent(constantSchema, Preprocessor::convertToChoiceSchema);
                             p.setSchema(sealedChoiceSchema);
                         }
 
@@ -172,14 +173,16 @@ public class Preprocessor extends NewPlugin {
                     });
 
                 o.getRequests().forEach(r -> {
-                    r.getParameters().stream().filter(p -> !p.isRequired() && p.getSchema() instanceof ConstantSchema)
+                    r.getParameters()
+                        .stream()
+                        .filter(p -> !p.isRequired() && p.getSchema() instanceof ConstantSchema)
                         .forEach(p -> {
                             ConstantSchema constantSchema = (ConstantSchema) p.getSchema();
                             if (schemaIsConstantWithChoice.apply(constantSchema)) {
                                 p.setSchema(constantSchema.getValueType());
                             } else {
-                                SealedChoiceSchema sealedChoiceSchema = convertedChoiceSchemas.computeIfAbsent(
-                                    constantSchema, Preprocessor::convertToChoiceSchema);
+                                SealedChoiceSchema sealedChoiceSchema = convertedChoiceSchemas
+                                    .computeIfAbsent(constantSchema, Preprocessor::convertToChoiceSchema);
                                 p.setSchema(sealedChoiceSchema);
                             }
 
@@ -188,7 +191,10 @@ public class Preprocessor extends NewPlugin {
                 });
             });
 
-            codeModel.getSchemas().getObjects().stream().flatMap(s -> s.getProperties().stream())
+            codeModel.getSchemas()
+                .getObjects()
+                .stream()
+                .flatMap(s -> s.getProperties().stream())
                 .filter(p -> !p.isRequired() && p.getSchema() instanceof ConstantSchema)
                 .forEach(p -> {
                     ConstantSchema constantSchema = (ConstantSchema) p.getSchema();
@@ -203,16 +209,21 @@ public class Preprocessor extends NewPlugin {
 
             if (JavaSettings.getInstance().getClientFlattenAnnotationTarget()
                 == JavaSettings.ClientFlattenAnnotationTarget.NONE) {
-                codeModel.getSchemas().getObjects().stream().flatMap(s -> s.getProperties().stream())
+                codeModel.getSchemas()
+                    .getObjects()
+                    .stream()
+                    .flatMap(s -> s.getProperties().stream())
                     .filter(p -> !p.isRequired() && p.getExtensions() != null && p.getExtensions().isXmsClientFlatten())
-                    .filter(p -> p.getSchema() instanceof ObjectSchema).forEach(
-                        p -> ((ObjectSchema) p.getSchema()).getProperties().stream()
-                            .filter(p1 -> p1.getSchema() instanceof ConstantSchema).forEach(p1 -> {
-                                ConstantSchema constantSchema = (ConstantSchema) p1.getSchema();
-                                SealedChoiceSchema sealedChoiceSchema = convertedChoiceSchemas.computeIfAbsent(
-                                    constantSchema, Preprocessor::convertToChoiceSchema);
-                                p1.setSchema(sealedChoiceSchema);
-                            }));
+                    .filter(p -> p.getSchema() instanceof ObjectSchema)
+                    .forEach(p -> ((ObjectSchema) p.getSchema()).getProperties()
+                        .stream()
+                        .filter(p1 -> p1.getSchema() instanceof ConstantSchema)
+                        .forEach(p1 -> {
+                            ConstantSchema constantSchema = (ConstantSchema) p1.getSchema();
+                            SealedChoiceSchema sealedChoiceSchema = convertedChoiceSchemas
+                                .computeIfAbsent(constantSchema, Preprocessor::convertToChoiceSchema);
+                            p1.setSchema(sealedChoiceSchema);
+                        }));
             }
 
             codeModel.getSchemas().getSealedChoices().addAll(convertedChoiceSchemas.values());

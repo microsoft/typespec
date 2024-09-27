@@ -1,0 +1,81 @@
+{% macro wrap_string(string, wrapstring, width=95) %}{{ string | replace("\\", "\\\\") | wordwrap(width=width, break_long_words=False, break_on_hyphens=False, wrapstring=wrapstring)}}{% endmacro %}
+
+{% macro description(builder, serializer) %}
+{% set example_template = serializer.example_template(builder) %}
+{% set param_description_and_response_docstring = serializer.param_description_and_response_docstring(builder) %}
+{% set ns = namespace(line_too_long=false) %}
+{% for item in param_description_and_response_docstring %}
+    {% if item and serializer.line_too_long(wrap_string(item, wrapstring='\n ').split('\n'), 8) %}
+        {% set ns.line_too_long = true %}
+    {% endif %}
+{% endfor %}
+    {% for description in serializer.description_and_summary(builder) %}
+        {% if description %}
+{% set description = wrap_string(description, wrapstring='\n') %}
+            {% if (serializer.line_too_long(example_template) or ns.line_too_long) and loop.first %}
+# pylint: disable=line-too-long
+            {% endif %}
+{{ '"""' + description if loop.first else description }}
+        {% else %}
+
+        {% endif %}
+    {% endfor %}
+    {% for description in param_description_and_response_docstring %}
+        {% if description %}
+{{ wrap_string(description, wrapstring='\n ') }}
+        {% else %}
+
+        {% endif %}
+{% endfor %}
+{% if example_template %}
+
+Example:
+    .. code-block:: python
+    {% for template_line in example_template %}
+        {% if template_line %}
+            {% set wrap_amount = (template_line | length) - (template_line.lstrip() | length) + 10 %}
+        {{  wrap_string(template_line, wrapstring='\n' + " " * wrap_amount, width=(95 - wrap_amount)) }}
+        {% else %}
+
+        {% endif %}
+    {% endfor %}
+{% endif %}
+"""
+{% endmacro %}
+
+{% macro serialize(lines) %}
+{% for line in lines %}
+    {% if line %}
+{{ line }}
+    {% else %}
+
+    {% endif %}
+{% endfor %}{% endmacro %}
+
+{% macro serialize_with_wrap(lines, wrapstring) %}
+{% for line in lines %}
+    {% if line %}
+{{ wrap_string(line, wrapstring=wrapstring) }}
+    {% else %}
+
+    {% endif %}
+{% endfor %}{% endmacro %}
+
+{% macro declare_serializer(code_model) %}
+{% if code_model.has_non_abstract_operations %}
+_SERIALIZER = Serializer()
+    {% if not code_model.options["client_side_validation"] %}
+_SERIALIZER.client_side_validation = False
+    {% endif %}
+{% endif %}
+{% endmacro %}
+
+{% macro generate_overloads(operation_serializer, operation) %}
+{% for overload in operation.overloads %}
+{{ operation_serializer.method_signature_and_response_type_annotation(overload) }}
+{% if not operation.internal %}
+    {{ description(overload, operation_serializer) | indent }}
+{% else %}
+    ...
+{% endif %}
+{% endfor %}{% endmacro %}

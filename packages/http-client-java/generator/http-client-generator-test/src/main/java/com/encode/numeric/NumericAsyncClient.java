@@ -44,19 +44,23 @@ public final class NumericAsyncClient {
      * The safeintAsString operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     value: long (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     value: long (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param value The value parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -76,19 +80,23 @@ public final class NumericAsyncClient {
      * The uint32AsStringOptional operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     value: Integer (Optional)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     value: Integer (Optional)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param value The value parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -109,19 +117,23 @@ public final class NumericAsyncClient {
      * The uint8AsString operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     value: int (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     value: int (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param value The value parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

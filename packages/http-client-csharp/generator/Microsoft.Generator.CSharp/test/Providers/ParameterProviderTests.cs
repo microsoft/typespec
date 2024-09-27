@@ -78,8 +78,8 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                new ParameterProvider("name1", $"Description", new CSharpType(typeof(string))),
                false);
             yield return new TestCaseData(
-               new ParameterProvider("name", $"Description", new CSharpType(typeof(string)), attributes: [new(new CSharpType(typeof(int)), [])]),
-               new ParameterProvider("name1", $"Description", new CSharpType(typeof(string)), attributes: [new(new CSharpType(typeof(string)), [])]),
+               new ParameterProvider("name", $"Description", new CSharpType(typeof(string)), attributes: [new(new CSharpType(typeof(int)))]),
+               new ParameterProvider("name1", $"Description", new CSharpType(typeof(string)), attributes: [new(new CSharpType(typeof(string)))]),
                false);
         }
 

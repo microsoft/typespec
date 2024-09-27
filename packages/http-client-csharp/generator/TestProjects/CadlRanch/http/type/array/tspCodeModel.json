@@ -1677,7 +1677,7 @@
         "name": "Array",
         "valueType": {
          "$id": "175",
-         "kind": "any",
+         "kind": "unknown",
          "name": "unknown",
          "crossLanguageDefinitionId": "",
          "decorators": []
@@ -1750,7 +1750,7 @@
         "name": "Array",
         "valueType": {
          "$id": "182",
-         "kind": "any",
+         "kind": "unknown",
          "name": "unknown",
          "crossLanguageDefinitionId": "",
          "decorators": []

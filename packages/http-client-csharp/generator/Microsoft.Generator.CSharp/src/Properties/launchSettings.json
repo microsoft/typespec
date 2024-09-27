@@ -115,6 +115,11 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     },
+    "http-type-property-additional-properties": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/type/property/additional-properties -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
     "http-type-property-nullable": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/type/property/nullable -p StubLibraryPlugin",
       "commandName": "Executable",

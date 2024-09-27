@@ -3,18 +3,18 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.template;
 
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceCollection;
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentDefineMethod;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.template.ClientMethodTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.IJavaTemplate;
-
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceCollection;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentDefineMethod;
 import java.util.HashSet;
 import java.util.Set;
 
 public class FluentResourceCollectionInterfaceTemplate implements IJavaTemplate<FluentResourceCollection, JavaFile> {
 
-    private static final FluentResourceCollectionInterfaceTemplate INSTANCE = new FluentResourceCollectionInterfaceTemplate();
+    private static final FluentResourceCollectionInterfaceTemplate INSTANCE
+        = new FluentResourceCollectionInterfaceTemplate();
 
     public static FluentResourceCollectionInterfaceTemplate getInstance() {
         return INSTANCE;
@@ -34,7 +34,8 @@ public class FluentResourceCollectionInterfaceTemplate implements IJavaTemplate<
         javaFile.publicInterface(collection.getInterfaceType().getName(), interfaceBlock -> {
             // methods
             collection.getMethodsForTemplate().forEach(method -> {
-                ClientMethodTemplate.generateJavadoc(method.getInnerClientMethod(), interfaceBlock, method.getInnerProxyMethod(), true);
+                ClientMethodTemplate.generateJavadoc(method.getInnerClientMethod(), interfaceBlock,
+                    method.getInnerProxyMethod(), true);
 
                 interfaceBlock.publicMethod(method.getMethodSignature());
             });
@@ -50,16 +51,15 @@ public class FluentResourceCollectionInterfaceTemplate implements IJavaTemplate<
 
             // method for define resource
             int resourceCount = collection.getResourceCreates().size();
-            collection.getResourceCreates()
-                    .forEach(rc -> {
-                        FluentDefineMethod defineMethod = rc.getDefineMethod();
-                        if (resourceCount == 1) {
-                            defineMethod.setName("define");
-                        }
+            collection.getResourceCreates().forEach(rc -> {
+                FluentDefineMethod defineMethod = rc.getDefineMethod();
+                if (resourceCount == 1) {
+                    defineMethod.setName("define");
+                }
 
-                        interfaceBlock.javadocComment(defineMethod::writeJavadoc);
-                        interfaceBlock.publicMethod(defineMethod.getInterfaceMethodSignature());
-                    });
+                interfaceBlock.javadocComment(defineMethod::writeJavadoc);
+                interfaceBlock.publicMethod(defineMethod.getInterfaceMethodSignature());
+            });
         });
     }
 }

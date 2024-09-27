@@ -10,7 +10,7 @@ export interface LibraryImportOptions {
 }
 
 export async function importTypeSpecCompiler(
-  config: LibraryImportOptions
+  config: LibraryImportOptions,
 ): Promise<typeof import("@typespec/compiler")> {
   return (await importLibrary("@typespec/compiler", config)) as any;
 }

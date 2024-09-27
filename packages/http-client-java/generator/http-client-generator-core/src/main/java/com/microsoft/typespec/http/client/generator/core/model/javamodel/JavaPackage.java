@@ -40,8 +40,6 @@ import com.microsoft.typespec.http.client.generator.core.template.Templates;
 import com.microsoft.typespec.http.client.generator.core.template.TestProxyAssetsTemplate;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.PossibleCredentialException;
-import org.slf4j.Logger;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,6 +50,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import org.slf4j.Logger;
 
 public class JavaPackage {
     private final Logger logger;
@@ -105,11 +104,12 @@ public class JavaPackage {
         addSyncServiceClient(packageKeyWord, syncClient, false);
     }
 
-    public final void addSyncServiceClient(String packageKeyWord, AsyncSyncClient syncClient, boolean syncClientWrapAsync) {
+    public final void addSyncServiceClient(String packageKeyWord, AsyncSyncClient syncClient,
+        boolean syncClientWrapAsync) {
         JavaFile javaFile = javaFileFactory.createSourceFile(packageKeyWord, syncClient.getClassName());
         ServiceSyncClientTemplate template = syncClientWrapAsync
-                ? Templates.getServiceSyncClientWrapAsyncClientTemplate()
-                : Templates.getServiceSyncClientTemplate();
+            ? Templates.getServiceSyncClientWrapAsyncClientTemplate()
+            : Templates.getServiceSyncClientTemplate();
         template.write(syncClient, javaFile);
         addJavaFile(javaFile);
     }
@@ -224,7 +224,7 @@ public class JavaPackage {
     public final void addJavaFromResources(String packageName, String resourceName, String fileName) {
         JavaFile javaFile = javaFileFactory.createSourceFile(packageName, fileName);
         try (InputStream inputStream = JavaPackage.class.getClassLoader().getResourceAsStream(resourceName + ".java");
-             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream))) {
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream))) {
             Iterator<String> linesIterator = bufferedReader.lines().iterator();
             while (linesIterator.hasNext()) {
                 javaFile.line(linesIterator.next());
@@ -242,14 +242,16 @@ public class JavaPackage {
     }
 
     public void addProtocolExamples(ProtocolExample protocolExample) {
-        JavaFile javaFile = javaFileFactory.createSampleFile(settings.getPackage("generated"), protocolExample.getFilename());
+        JavaFile javaFile
+            = javaFileFactory.createSampleFile(settings.getPackage("generated"), protocolExample.getFilename());
         Templates.getProtocolSampleTemplate().write(protocolExample, javaFile);
         this.checkDuplicateFile(javaFile.getFilePath());
         javaFiles.add(javaFile);
     }
 
     public void addClientMethodExamples(ClientMethodExample clientMethodExample) {
-        JavaFile javaFile = javaFileFactory.createSampleFile(settings.getPackage("generated"), clientMethodExample.getFilename());
+        JavaFile javaFile
+            = javaFileFactory.createSampleFile(settings.getPackage("generated"), clientMethodExample.getFilename());
         Templates.getClientMethodSampleTemplate().write(clientMethodExample, javaFile);
         this.checkDuplicateFile(javaFile.getFilePath());
         javaFiles.add(javaFile);
@@ -263,7 +265,8 @@ public class JavaPackage {
     }
 
     public void addProtocolTestBase(TestContext testContext) {
-        JavaFile javaFile = javaFileFactory.createTestFile(testContext.getPackageName(), testContext.getTestBaseClassName());
+        JavaFile javaFile
+            = javaFileFactory.createTestFile(testContext.getPackageName(), testContext.getTestBaseClassName());
         ProtocolTestBaseTemplate.getInstance().write(testContext, javaFile);
         this.checkDuplicateFile(javaFile.getFilePath());
         javaFiles.add(javaFile);
@@ -288,7 +291,8 @@ public class JavaPackage {
     public void addModelUnitTest(ClientModel model) {
         try {
             String className = model.getName() + "Tests";
-            JavaFile javaFile = javaFileFactory.createTestFile(JavaSettings.getInstance().getPackage("generated"), className);
+            JavaFile javaFile
+                = javaFileFactory.createTestFile(JavaSettings.getInstance().getPackage("generated"), className);
             ModelTestTemplate.getInstance().write(model, javaFile);
             this.checkDuplicateFile(javaFile.getFilePath());
             javaFiles.add(javaFile);
@@ -323,16 +327,20 @@ public class JavaPackage {
     }
 
     public final void addGraalVmConfig(String groupId, String artifactId, GraalVmConfig graalVmConfig) {
-        String metaInfPath = Paths.get("src", "main", "resources", "META-INF", "native-image", groupId, artifactId).toString();
+        String metaInfPath
+            = Paths.get("src", "main", "resources", "META-INF", "native-image", groupId, artifactId).toString();
 
-        TextFile proxyConfigFile = new TextFile(Paths.get(metaInfPath, "proxy-config.json").toString(), graalVmConfig.toProxyConfigJson());
+        TextFile proxyConfigFile
+            = new TextFile(Paths.get(metaInfPath, "proxy-config.json").toString(), graalVmConfig.toProxyConfigJson());
         textFiles.add(proxyConfigFile);
 
-        TextFile reflectConfigFile = new TextFile(Paths.get(metaInfPath, "reflect-config.json").toString(), graalVmConfig.toReflectConfigJson());
+        TextFile reflectConfigFile = new TextFile(Paths.get(metaInfPath, "reflect-config.json").toString(),
+            graalVmConfig.toReflectConfigJson());
         textFiles.add(reflectConfigFile);
 
         if (graalVmConfig.generateResourceConfig()) {
-            TextFile resourceConfigFile = new TextFile(Paths.get(metaInfPath, "resource-config.json").toString(), graalVmConfig.toResourceConfigJson(artifactId));
+            TextFile resourceConfigFile = new TextFile(Paths.get(metaInfPath, "resource-config.json").toString(),
+                graalVmConfig.toResourceConfigJson(artifactId));
             textFiles.add(resourceConfigFile);
         }
     }
@@ -345,7 +353,9 @@ public class JavaPackage {
     }
 
     public void addJsonMergePatchHelper(List<ClientModel> models) {
-        JavaFile javaFile = javaFileFactory.createSourceFile(settings.getPackage(settings.getImplementationSubpackage()), ClientModelUtil.JSON_MERGE_PATCH_HELPER_CLASS_NAME);
+        JavaFile javaFile
+            = javaFileFactory.createSourceFile(settings.getPackage(settings.getImplementationSubpackage()),
+                ClientModelUtil.JSON_MERGE_PATCH_HELPER_CLASS_NAME);
         Templates.getJsonMergePatchHelperTemplate().write(models, javaFile);
         this.checkDuplicateFile(javaFile.getFilePath());
         javaFiles.add(javaFile);

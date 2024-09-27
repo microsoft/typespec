@@ -103,7 +103,7 @@ export type DecoratorRenderOptions = {
 export function renderDecoratorFile(
   renderer: DocusaurusRenderer,
   refDoc: TypeSpecRefDocBase,
-  options?: DecoratorRenderOptions
+  options?: DecoratorRenderOptions,
 ): string | undefined {
   if (!refDoc.namespaces.some((x) => x.decorators.length > 0)) {
     return undefined;
@@ -123,7 +123,7 @@ export function renderDecoratorFile(
 
 function renderInterfacesFile(
   renderer: DocusaurusRenderer,
-  refDoc: TypeSpecRefDoc
+  refDoc: TypeSpecRefDoc,
 ): string | undefined {
   if (!refDoc.namespaces.some((x) => x.operations.length > 0 || x.interfaces.length > 0)) {
     return undefined;
@@ -153,7 +153,7 @@ function renderInterfacesFile(
         }
         return content;
       }),
-    ])
+    ]),
   );
 
   return renderMarkdowDoc(content);
@@ -166,7 +166,7 @@ export type DataTypeRenderOptions = {
 export function renderDataTypes(
   renderer: DocusaurusRenderer,
   refDoc: TypeSpecRefDoc,
-  options?: DataTypeRenderOptions
+  options?: DataTypeRenderOptions,
 ): string | undefined {
   if (!refDoc.namespaces.some((x) => x.models.length > 0)) {
     return undefined;
@@ -206,8 +206,8 @@ export function renderDataTypes(
           content.push(renderer.scalar(scalar), "");
         }
         return content;
-      })
-    )
+      }),
+    ),
   );
 
   return renderMarkdowDoc(content);
@@ -215,7 +215,7 @@ export function renderDataTypes(
 
 function renderEmitter(
   renderer: DocusaurusRenderer,
-  refDoc: TypeSpecLibraryRefDoc
+  refDoc: TypeSpecLibraryRefDoc,
 ): string | undefined {
   if (refDoc.emitter?.options === undefined) {
     return undefined;
@@ -233,7 +233,7 @@ function renderEmitter(
 }
 function renderLinter(
   renderer: DocusaurusRenderer,
-  refDoc: TypeSpecLibraryRefDoc
+  refDoc: TypeSpecLibraryRefDoc,
 ): string | undefined {
   if (refDoc.linter === undefined) {
     return undefined;
@@ -274,7 +274,7 @@ export class DocusaurusRenderer extends MarkdownRenderer {
           label: "In a library",
           content: codeblock(`npm install --save-peer ${refDoc.name}`, "bash"),
         },
-      ])
+      ]),
     );
   }
 

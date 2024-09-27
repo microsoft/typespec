@@ -124,7 +124,7 @@ describe("compiler: emitter-framework: circular references", () => {
     deepStrictEqual(result[0].cycle.containsDeclaration, false);
     deepStrictEqual(
       [...result[0].cycle].map((x) => getTypeName(x.type)),
-      ["Foo", "Foo.foo", "Bar", "Bar.bar"]
+      ["Foo", "Foo.foo", "Bar", "Bar.bar"],
     );
   });
 

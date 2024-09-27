@@ -32,7 +32,7 @@ export const JsonNamespace: string = "System.Text.Json";
 
 export function getEncodingValue(
   program: Program,
-  type: Scalar | ModelProperty
+  type: Scalar | ModelProperty,
 ): string | undefined {
   const value = getEncode(program, type);
   return value ? value.encoding : undefined;
@@ -50,7 +50,7 @@ export function getFormatValue(program: Program, type: Scalar | ModelProperty): 
  */
 export function getEncodedNameAttribute(
   program: Program,
-  type: ModelProperty
+  type: ModelProperty,
 ): Attribute | undefined {
   const encodedName = resolveEncodedName(program, type, "application/json");
   if (encodedName !== type.name) {
@@ -59,7 +59,7 @@ export function getEncodedNameAttribute(
         name: "JsonPropertyName",
         namespace: JsonNamespace,
       }),
-      []
+      [],
     );
 
     attr.parameters.push(
@@ -73,7 +73,7 @@ export function getEncodedNameAttribute(
           isBuiltIn: true,
           isValueType: true,
         }),
-      })
+      }),
     );
 
     return attr;
@@ -136,7 +136,7 @@ function getScalarType(program: Program, property: ModelProperty): ScalarWithEnc
 
 function getScalarEncoding(
   program: Program,
-  scalar: Scalar | ModelProperty
+  scalar: Scalar | ModelProperty,
 ): WireEncoding | undefined {
   const encode = getEncode(program, scalar);
   if (encode === undefined) return undefined;
@@ -174,7 +174,7 @@ function getJsonConverterAttribute(converterType: string): Attribute {
  */
 export function getStringConstraintAttribute(
   program: Program,
-  type: ModelProperty | Scalar
+  type: ModelProperty | Scalar,
 ): Attribute | undefined {
   const constraint = getStringConstraint(program, type);
   if (constraint === undefined) return undefined;
@@ -187,7 +187,7 @@ export function getStringConstraintAttribute(
       name: "StringConstraint",
       namespace: HelperNamespace,
     }),
-    []
+    [],
   );
 
   if (minLength !== undefined) {
@@ -202,7 +202,7 @@ export function getStringConstraintAttribute(
           isBuiltIn: true,
           isValueType: true,
         }),
-      })
+      }),
     );
   }
 
@@ -218,7 +218,7 @@ export function getStringConstraintAttribute(
           isBuiltIn: true,
           isValueType: true,
         }),
-      })
+      }),
     );
   }
 
@@ -234,7 +234,7 @@ export function getStringConstraintAttribute(
           isBuiltIn: true,
           isValueType: true,
         }),
-      })
+      }),
     );
   }
 
@@ -249,7 +249,7 @@ export function getStringConstraintAttribute(
  */
 export function getArrayConstraintAttribute(
   program: Program,
-  type: ModelProperty | Scalar
+  type: ModelProperty | Scalar,
 ): Attribute | undefined {
   if (!isArrayType(program, type)) return undefined;
   const minItems: number | undefined = getMinItems(program, type);
@@ -260,7 +260,7 @@ export function getArrayConstraintAttribute(
       name: "ArrayConstraint",
       namespace: HelperNamespace,
     }),
-    []
+    [],
   );
 
   if (minItems !== undefined) {
@@ -275,7 +275,7 @@ export function getArrayConstraintAttribute(
           isBuiltIn: true,
           isValueType: true,
         }),
-      })
+      }),
     );
   }
 
@@ -291,7 +291,7 @@ export function getArrayConstraintAttribute(
           isBuiltIn: true,
           isValueType: true,
         }),
-      })
+      }),
     );
   }
 
@@ -306,7 +306,7 @@ export function getArrayConstraintAttribute(
  */
 export function getNumericConstraintAttribute(
   program: Program,
-  type: ModelProperty | Scalar
+  type: ModelProperty | Scalar,
 ): Attribute | undefined {
   if (type.kind === "Scalar" || type.type.kind !== "Scalar") return undefined;
   const minValue: number | undefined = getMinValue(program, type);
@@ -327,7 +327,7 @@ export function getNumericConstraintAttribute(
       name: `NumericConstraint<${scalarType.getTypeReference()}>`,
       namespace: HelperNamespace,
     }),
-    []
+    [],
   );
 
   const actualMin = minValue === undefined ? minValueExclusive : minValue;
@@ -338,7 +338,7 @@ export function getNumericConstraintAttribute(
         value: new NumericValue(actualMin),
         optional: true,
         type: scalarType,
-      })
+      }),
     );
   }
 
@@ -350,7 +350,7 @@ export function getNumericConstraintAttribute(
         value: new NumericValue(actualMax),
         optional: true,
         type: scalarType,
-      })
+      }),
     );
   }
 
@@ -366,7 +366,7 @@ export function getNumericConstraintAttribute(
           isBuiltIn: true,
           isValueType: true,
         }),
-      })
+      }),
     );
   }
 
@@ -382,7 +382,7 @@ export function getNumericConstraintAttribute(
           isBuiltIn: true,
           isValueType: true,
         }),
-      })
+      }),
     );
   }
 
@@ -396,7 +396,7 @@ export function getSafeIntAttribute(type: Scalar): Attribute | undefined {
       name: "SafeInt",
       namespace: HelperNamespace,
     }),
-    []
+    [],
   );
 }
 
@@ -406,7 +406,7 @@ function getEnumAttribute(type: Enum, cSharpName?: string): Attribute {
       name: `StringEnumConverter<${cSharpName !== undefined ? cSharpName : getCSharpIdentifier(type.name)}>`,
       namespace: "System.Text.Json",
     }),
-    []
+    [],
   );
 }
 

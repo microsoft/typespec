@@ -196,7 +196,7 @@ await tester
   .expect(
     `        
     model Foo {}
-    `
+    `,
   )
   .applyCodeFix("add-model-suffix").toEqual(`
     model FooModel {}

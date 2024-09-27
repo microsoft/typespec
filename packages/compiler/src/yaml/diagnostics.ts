@@ -6,7 +6,7 @@ import { YamlDiagnosticTargetType, YamlScript } from "./types.js";
 export function getLocationInYamlScript(
   file: YamlScript,
   path: string[],
-  kind: YamlDiagnosticTargetType = "value"
+  kind: YamlDiagnosticTargetType = "value",
 ): SourceLocation {
   const node: Node | undefined = findYamlNode(file, path, kind);
   return {
@@ -19,7 +19,7 @@ export function getLocationInYamlScript(
 function findYamlNode(
   file: YamlScript,
   path: string[],
-  kind: YamlDiagnosticTargetType = "value"
+  kind: YamlDiagnosticTargetType = "value",
 ): Node | undefined {
   let current: Node | null = file.doc.contents;
 

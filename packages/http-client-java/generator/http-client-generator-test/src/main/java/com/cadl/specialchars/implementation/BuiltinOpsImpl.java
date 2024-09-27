@@ -83,15 +83,18 @@ public final class BuiltinOpsImpl {
      * The read operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     aggregate: String (Optional)
@@ -99,7 +102,8 @@ public final class BuiltinOpsImpl {
      *     requestName: String (Optional)
      *     value: Double (Optional)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param readRequest The readRequest parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -121,15 +125,18 @@ public final class BuiltinOpsImpl {
      * The read operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     aggregate: String (Optional)
@@ -137,7 +144,8 @@ public final class BuiltinOpsImpl {
      *     requestName: String (Optional)
      *     value: Double (Optional)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param readRequest The readRequest parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

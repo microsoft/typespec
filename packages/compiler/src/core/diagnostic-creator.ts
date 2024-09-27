@@ -15,14 +15,14 @@ import type {
  */
 export function createDiagnosticCreator<T extends { [code: string]: DiagnosticMessages }>(
   diagnostics: DiagnosticMap<T>,
-  libraryName?: string
+  libraryName?: string,
 ): DiagnosticCreator<T> {
   const errorMessage = libraryName
     ? `It must match one of the code defined in the library '${libraryName}'`
     : "It must match one of the code defined in the compiler.";
 
   function createDiagnostic<C extends keyof T, M extends keyof T[C] = "default">(
-    diagnostic: DiagnosticReport<T, C, M>
+    diagnostic: DiagnosticReport<T, C, M>,
   ): Diagnostic {
     const diagnosticDef = diagnostics[diagnostic.code];
 
@@ -32,7 +32,7 @@ export function createDiagnosticCreator<T extends { [code: string]: DiagnosticMe
         .join("\n");
       const code = String(diagnostic.code);
       throw new Error(
-        `Unexpected diagnostic code '${code}'. ${errorMessage}. Defined codes:\n${codeStr}`
+        `Unexpected diagnostic code '${code}'. ${errorMessage}. Defined codes:\n${codeStr}`,
       );
     }
 
@@ -44,7 +44,7 @@ export function createDiagnosticCreator<T extends { [code: string]: DiagnosticMe
       const messageId = String(diagnostic.messageId);
       const code = String(diagnostic.code);
       throw new Error(
-        `Unexpected message id '${messageId}'. ${errorMessage} for code '${code}'. Defined codes:\n${codeStr}`
+        `Unexpected message id '${messageId}'. ${errorMessage} for code '${code}'. Defined codes:\n${codeStr}`,
       );
     }
 
@@ -64,7 +64,7 @@ export function createDiagnosticCreator<T extends { [code: string]: DiagnosticMe
 
   function reportDiagnostic<C extends keyof T, M extends keyof T[C] = "default">(
     program: Program,
-    diagnostic: DiagnosticReport<T, C, M>
+    diagnostic: DiagnosticReport<T, C, M>,
   ) {
     const diag = createDiagnostic(diagnostic);
     program.reportDiagnostic(diag);

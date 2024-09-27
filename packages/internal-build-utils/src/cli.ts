@@ -17,7 +17,7 @@ async function main() {
       "generate-third-party-notices",
       "Generate the third party notice",
       () => {},
-      () => generateThirdPartyNotice()
+      () => generateThirdPartyNotice(),
     )
     .command(
       "bump-version-preview <workspaceRoots...>",
@@ -28,7 +28,7 @@ async function main() {
           array: true,
           demandOption: true,
         }),
-      (args) => bumpVersionsForPrerelease(args.workspaceRoots)
+      (args) => bumpVersionsForPrerelease(args.workspaceRoots),
     )
     .command(
       "bump-version-pr <workspaceRoot>",
@@ -47,6 +47,6 @@ async function main() {
             type: "string",
             demandOption: true,
           }),
-      (args) => bumpVersionsForPR(args.workspaceRoot, args.pr, args.buildNumber)
+      (args) => bumpVersionsForPR(args.workspaceRoot, args.pr, args.buildNumber),
     ).argv;
 }

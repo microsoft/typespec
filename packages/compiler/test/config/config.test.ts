@@ -11,7 +11,7 @@ import { findTestPackageRoot } from "../../src/testing/test-utils.js";
 
 const scenarioRoot = resolvePath(
   await findTestPackageRoot(import.meta.url),
-  "test/config/scenarios"
+  "test/config/scenarios",
 );
 
 describe("compiler: config file loading", () => {
@@ -19,14 +19,14 @@ describe("compiler: config file loading", () => {
     const loadTestConfig = async (
       path: string,
       lookup: boolean = true,
-      errorIfNotFound: boolean = true
+      errorIfNotFound: boolean = true,
     ) => {
       const fullPath = join(scenarioRoot, path);
       const { filename, projectRoot, file, ...config } = await loadTypeSpecConfigForPath(
         NodeHost,
         fullPath,
         errorIfNotFound,
-        lookup
+        lookup,
       );
       return config;
     };

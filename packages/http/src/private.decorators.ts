@@ -34,7 +34,7 @@ const $plainData: PlainDataDecorator = (context: DecoratorContext, entity: Model
     // Remove the decorators so that they do not run in the future, for example,
     // if this model is later spread into another.
     property.decorators = property.decorators.filter(
-      (d) => !decoratorsToRemove.includes(d.decorator.name)
+      (d) => !decoratorsToRemove.includes(d.decorator.name),
     );
 
     // Remove the impact the decorators already had on this model.

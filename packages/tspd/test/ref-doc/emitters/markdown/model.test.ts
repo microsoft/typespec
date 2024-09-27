@@ -24,7 +24,7 @@ it("render simple model", async () => {
       "",
       "## Properties",
       "None",
-    ].join("\n")
+    ].join("\n"),
   );
 });
 
@@ -45,7 +45,7 @@ it("render deprecation notice", async () => {
       "",
       "## Properties",
       "None",
-    ].join("\n")
+    ].join("\n"),
   );
 });
 
@@ -68,7 +68,7 @@ it("render model with template parameter", async () => {
       "",
       "## Properties",
       "None",
-    ].join("\n")
+    ].join("\n"),
   );
 });
 
@@ -101,7 +101,7 @@ describe("model examples", () => {
         "",
         "## Properties",
         "None",
-      ].join("\n")
+      ].join("\n"),
     );
   });
 
@@ -144,7 +144,7 @@ describe("model examples", () => {
         "",
         "## Properties",
         "None",
-      ].join("\n")
+      ].join("\n"),
     );
   });
 });

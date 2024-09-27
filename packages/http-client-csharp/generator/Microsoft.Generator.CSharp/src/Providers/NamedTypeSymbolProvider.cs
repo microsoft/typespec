@@ -50,6 +50,9 @@ namespace Microsoft.Generator.CSharp.Providers
                         declaredModifiers |= TypeSignatureModifiers.Sealed;
                     }
                     break;
+                case TypeKind.Enum:
+                    declaredModifiers |= TypeSignatureModifiers.Enum;
+                    break;
                 case TypeKind.Struct:
                     declaredModifiers |= TypeSignatureModifiers.Struct;
                     break;
@@ -84,11 +87,15 @@ namespace Microsoft.Generator.CSharp.Providers
                     }
 
                     var fieldProvider = new FieldProvider(
-                    modifiers,
-                    GetCSharpType(fieldSymbol.Type),
-                    fieldSymbol.Name,
-                    this,
-                    GetSymbolXmlDoc(fieldSymbol, "summary"));
+                        modifiers,
+                        GetCSharpType(fieldSymbol.Type),
+                        fieldSymbol.Name,
+                        this,
+                        GetSymbolXmlDoc(fieldSymbol, "summary"))
+                    {
+                        Attributes = fieldSymbol.GetAttributes()
+                    };
+
                     fields.Add(fieldProvider);
                 }
             }
@@ -120,6 +127,9 @@ namespace Microsoft.Generator.CSharp.Providers
             List<ConstructorProvider> constructors = new List<ConstructorProvider>();
             foreach (var constructorSymbol in _namedTypeSymbol.Constructors)
             {
+                if (constructorSymbol.IsImplicitlyDeclared)
+                    continue;
+
                 var signature = new ConstructorSignature(
                     Type,
                     GetSymbolXmlDoc(constructorSymbol, "summary"),
@@ -157,6 +167,12 @@ namespace Microsoft.Generator.CSharp.Providers
             }
             return [.. methods];
         }
+
+        protected override bool GetIsEnum() => _namedTypeSymbol.TypeKind == TypeKind.Enum;
+
+        protected override CSharpType BuildEnumUnderlyingType() => GetIsEnum() ? new CSharpType(typeof(int)) : throw new InvalidOperationException("This type is not an enum");
+
+        internal override IEnumerable<AttributeData> GetAttributes() => _namedTypeSymbol.GetAttributes();
 
         private ParameterProvider ConvertToParameterProvider(IMethodSymbol methodSymbol, IParameterSymbol parameterSymbol)
         {

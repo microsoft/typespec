@@ -340,7 +340,8 @@ public final class LongRunningClientImpl {
      * A remote procedure call (RPC) operation.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     status: String(notStarted/running/Succeeded/Failed/canceled) (Required)
@@ -363,7 +364,8 @@ public final class LongRunningClientImpl {
      *         data: String (Required)
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param id The id parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -384,7 +386,8 @@ public final class LongRunningClientImpl {
      * A remote procedure call (RPC) operation.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     status: String(notStarted/running/Succeeded/Failed/canceled) (Required)
@@ -407,7 +410,8 @@ public final class LongRunningClientImpl {
      *         data: String (Required)
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param id The id parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -437,18 +441,21 @@ public final class LongRunningClientImpl {
      * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     configuration: String (Optional)
      *     nullableFloatDict (Required): {
      *         String: Double (Optional)
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     status: String(notStarted/running/Succeeded/Failed/canceled) (Required)
@@ -468,7 +475,8 @@ public final class LongRunningClientImpl {
      *         }
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param body The body parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -513,18 +521,21 @@ public final class LongRunningClientImpl {
      * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     configuration: String (Optional)
      *     nullableFloatDict (Required): {
      *         String: Double (Optional)
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     status: String(notStarted/running/Succeeded/Failed/canceled) (Required)
@@ -544,7 +555,8 @@ public final class LongRunningClientImpl {
      *         }
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param body The body parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -589,18 +601,21 @@ public final class LongRunningClientImpl {
      * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     configuration: String (Optional)
      *     nullableFloatDict (Required): {
      *         String: Double (Optional)
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     status: String(notStarted/running/Succeeded/Failed/canceled) (Required)
@@ -620,7 +635,8 @@ public final class LongRunningClientImpl {
      *         }
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param body The body parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -657,18 +673,21 @@ public final class LongRunningClientImpl {
      * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     configuration: String (Optional)
      *     nullableFloatDict (Required): {
      *         String: Double (Optional)
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     status: String(notStarted/running/Succeeded/Failed/canceled) (Required)
@@ -688,7 +707,8 @@ public final class LongRunningClientImpl {
      *         }
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param body The body parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -725,18 +745,21 @@ public final class LongRunningClientImpl {
      * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     configuration: String (Optional)
      *     nullableFloatDict (Required): {
      *         String: Double (Optional)
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     status: String(notStarted/running/Succeeded/Failed/canceled) (Required)
@@ -756,7 +779,8 @@ public final class LongRunningClientImpl {
      *         }
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param body The body parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -794,18 +818,21 @@ public final class LongRunningClientImpl {
      * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     configuration: String (Optional)
      *     nullableFloatDict (Required): {
      *         String: Double (Optional)
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     status: String(notStarted/running/Succeeded/Failed/canceled) (Required)
@@ -825,7 +852,8 @@ public final class LongRunningClientImpl {
      *         }
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param body The body parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

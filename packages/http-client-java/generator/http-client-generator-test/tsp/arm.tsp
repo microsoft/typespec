@@ -114,7 +114,7 @@ union DogKind {
   string,
 
   @doc("Species golden")
-  Golden: "golden",
+  Golden: "golden_dog",
 }
 
 @doc("Test extensible enum type for discriminator")

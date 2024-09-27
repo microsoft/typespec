@@ -16,7 +16,7 @@ beforeEach(async () => {
 
 async function compileStringTemplate(
   templateString: string,
-  other?: string
+  other?: string,
 ): Promise<StringTemplate> {
   const { Test } = (await runner.compile(
     `
@@ -25,7 +25,7 @@ async function compileStringTemplate(
       }
 
       ${other ?? ""}
-      `
+      `,
   )) as { Test: Model };
 
   const prop = Test.properties.get("test")!.type;
@@ -81,7 +81,7 @@ it("emit error if interpolating value and types", async () => {
     `
     const str1 = "hi";
     alias str2 = "\${str1} and \${string}";
-    `
+    `,
   );
   expectDiagnostics(diagnostics, {
     code: "mixed-string-template",
