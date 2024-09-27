@@ -1033,8 +1033,6 @@ public final class ProtocolAndConvenienceOpsImpl {
     }
 
     /**
-     * Paging operation
-     * 
      * Get the next page of items.
      * <p><strong>Response Body Schema</strong></p>
      * 
@@ -1068,8 +1066,6 @@ public final class ProtocolAndConvenienceOpsImpl {
     }
 
     /**
-     * Paging operation
-     * 
      * Get the next page of items.
      * <p><strong>Response Body Schema</strong></p>
      * 

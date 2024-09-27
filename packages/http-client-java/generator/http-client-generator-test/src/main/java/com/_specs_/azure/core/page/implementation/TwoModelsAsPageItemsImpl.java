@@ -394,9 +394,6 @@ public final class TwoModelsAsPageItemsImpl {
     }
 
     /**
-     * Two operations with two different page item types should be successfully generated. Should generate model for
-     * FirstItem.
-     * 
      * Get the next page of items.
      * <p><strong>Response Body Schema</strong></p>
      * 
@@ -428,9 +425,6 @@ public final class TwoModelsAsPageItemsImpl {
     }
 
     /**
-     * Two operations with two different page item types should be successfully generated. Should generate model for
-     * FirstItem.
-     * 
      * Get the next page of items.
      * <p><strong>Response Body Schema</strong></p>
      * 
@@ -460,9 +454,6 @@ public final class TwoModelsAsPageItemsImpl {
     }
 
     /**
-     * Two operations with two different page item types should be successfully generated. Should generate model for
-     * SecondItem.
-     * 
      * Get the next page of items.
      * <p><strong>Response Body Schema</strong></p>
      * 
@@ -494,9 +485,6 @@ public final class TwoModelsAsPageItemsImpl {
     }
 
     /**
-     * Two operations with two different page item types should be successfully generated. Should generate model for
-     * SecondItem.
-     * 
      * Get the next page of items.
      * <p><strong>Response Body Schema</strong></p>
      * 
