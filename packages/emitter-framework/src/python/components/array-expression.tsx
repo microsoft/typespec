@@ -4,13 +4,13 @@ import { TypeExpression } from "./type-expression.js";
 
 export interface ArrayExpressionModel {
   /** The element type of the Array. */
-  type: Type;
+  elementType: Type;
 }
 
-export function ArrayExpression({ type }: ArrayExpressionModel) {
+export function ArrayExpression({ elementType }: ArrayExpressionModel) {
   return (
     <>
-      List[<TypeExpression type={type} />]
+      List[<TypeExpression type={elementType} />]
     </>
   );
 }

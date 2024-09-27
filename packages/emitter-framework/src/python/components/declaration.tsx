@@ -7,7 +7,7 @@ import {
 import { createPythonSymbol, PythonOutputScope } from "../symbols/index.js";
 
 export interface DeclarationProps {
-  name: string;
+  name?: string;
   refkey?: Refkey;
   binder?: Binder;
   scope?: PythonOutputScope;
@@ -18,6 +18,9 @@ export interface DeclarationProps {
 export function Declaration(props: DeclarationProps) {
   if (!props.refkey) {
     throw new Error("Declaration requires a refkey");
+  }
+  if (!props.name) {
+    throw new Error("Declaration requires a name");
   }
   const options = {
     name: props.name,

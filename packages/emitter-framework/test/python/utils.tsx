@@ -7,11 +7,11 @@ export async function getEmitOutput(tspCode: string, cb: (program: Program) => C
   const program = await getProgram(tspCode);
   const res = render(
     <Output>
-      <PythonProject name="test_project" version="0.1.0" type={program} children={cb(program)} />
+      <PythonProject name="test_project" version="0.1.0" children={cb(program)} />
     </Output>
   );
   
-  const testFile = findFile(res, "test_project/src/test_package/test.py");
+  const testFile = findFile(res, "test_project/test_package/test.py");
   return testFile.contents;
 }
 

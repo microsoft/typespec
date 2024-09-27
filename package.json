@@ -50,6 +50,7 @@
     "@typescript-eslint/utils": "^8.5.0",
     "@vitest/coverage-v8": "^2.1.0",
     "c8": "^10.1.2",
+    "change-case": "^4.1.2",
     "cspell": "^8.14.2",
     "eslint": "^9.10.0",
     "eslint-plugin-deprecation": "^3.0.0",

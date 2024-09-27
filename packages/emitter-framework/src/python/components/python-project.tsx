@@ -28,7 +28,6 @@ import { Program } from "@typespec/compiler";
  *         |-- {module_name}.py
  */
 export interface PythonProjectProps {
-  type: Program;
   name: string;
   version: string;
   path?: string;
@@ -54,7 +53,6 @@ export function PythonProject(props: PythonProjectProps) {
   const parentDir = useContext(SourceDirectoryContext);
   const projectPath = join((props.path ?? parentDir!.path), props.name);
   const projectContext = createProjectContext(props.name, props.version, projectPath);
-  const globalNamespace = props.type.getGlobalNamespaceType();
   return (
     <PythonProjectContext.Provider value={projectContext}>
       <Scope value={projectContext.scope}>
@@ -63,7 +61,7 @@ export function PythonProject(props: PythonProjectProps) {
           <SetupPyFile />
           <SourceFile path="LICENSE" filetype="plain-text" />
           <SourceFile path="README.md" filetype="markdown" />
-          <PythonPackage type={globalNamespace} parent={projectContext} name={projectContext.name} />
+          <PythonPackage parent={projectContext} name={projectContext.name} />
           {props.children}
         </SourceDirectory>
       </Scope>

@@ -1,16 +1,18 @@
 import { d } from "@alloy-js/core/testing";
 import { expect, it } from "vitest";
-import { ClassDeclaration, PythonModule } from "../../../src/python/index.js";
+import { ClassDeclaration, PythonModule, PythonPackage } from "../../../src/python/index.js";
 import { Model } from "@typespec/compiler";
 import { getEmitOutput } from "../utils.js";
 
-async function getOutput(code: string, name: string): Promise<string | undefined> {
+async function getOutput(code: string, names: string[]): Promise<string | undefined> {
   const output = await getEmitOutput(code, (program) => {
-    const testClass = program.resolveTypeReference(name)[0]! as Model;
+    const classComponents = names.map(name => <ClassDeclaration type={program.resolveTypeReference(name)[0]! as Model} />);
     return (
-      <PythonModule name="test.py">
-        <ClassDeclaration type={testClass} />
-      </PythonModule>
+      <PythonPackage name="test_package">
+        <PythonModule name="test.py">
+          {classComponents}
+        </PythonModule>
+      </PythonPackage>
     )
   });
   if (typeof output === "string") {
@@ -19,40 +21,30 @@ async function getOutput(code: string, name: string): Promise<string | undefined
   return undefined;
 }
 
-it.only("empty class", async () => {
+it("empty class", async () => {
   const code = `
     model TestClass {}
   `;
-  const output = await getOutput(code, "TestClass");
+  const output = await getOutput(code, ["TestClass"]);
   expect(output).toBe(d`
     class TestClass:
       pass
   `);
 });
 
-it("single base class", async () => {
+it.only("single base class", async () => {
   const code = `
     model Foo {}
 
     model TestClass extends Foo {}
   `;
-  const output = await getOutput(code, "TestClass");
+  const output = await getOutput(code, ["Foo", "TestClass"]);
   expect(output).toBe(d`
+    class Foo:
+      pass
+
     class TestClass(Foo):
       pass
-  `);
-});
-
-it("with class variables", async () => {
-  const code = `
-    model TestClass {
-      special: string;
-    }
-  `;
-  const output = await getOutput(code, "TestClass");
-  expect(output).toBe(d`
-    class TestClass:
-      special: str
   `);
 });
 
@@ -63,7 +55,7 @@ it("with instance variables", async () => {
       barVar: int16;
     }
   `;
-  const output = await getOutput(code, "TestClass");
+  const output = await getOutput(code, ["TestClass"]);
   expect(output).toBe(d`
     class TestClass:
       def __init__(self, foo_var: str, bar_var: int):

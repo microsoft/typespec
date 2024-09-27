@@ -8,7 +8,7 @@ export interface ArrayKit {
      *
      * @param type The type to check.
      */
-    is(type: Type): type is Model;
+    is(type: Type): type is Model & {indexer: {key: {name: "integer"}}};
     getElementType(type: Model): Type;
   };
 }

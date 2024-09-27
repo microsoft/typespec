@@ -1,8 +1,10 @@
 import { IntrinsicType, Scalar, Type } from "@typespec/compiler";
 import { Reference } from "./reference.js";
 import { TypeLiteral } from "./type-literal.js";
-import { isDeclaration, isRecord } from "../../core/utils/typeguards.js";
+import { isArray, isDeclaration, isRecord } from "../../core/utils/typeguards.js";
 import { refkey } from "@alloy-js/core";
+import { ArrayExpression, ClassExpression, DictionaryExpression } from "./index.js";
+import { $ } from "@typespec/compiler/typekit";
 
 export interface TypeExpressionProps {
   type: Type;
@@ -15,9 +17,7 @@ export function TypeExpression(props: TypeExpressionProps) {
       return getScalarIntrinsicExpression(props.type);
   }
 
-  // COMMENT: Ideally someone doesn't have to "know" to call these, especially
-  // the "no indexer" aspect. This was something EFv1 kind of handled for you.
-  if (isDeclaration(props.type) && !isRecord(props.type)) {
+  if (isDeclaration(props.type) && !$.record.is(props.type)) {
     const propRefkey = refkey(props.type);
     return <Reference refkey={propRefkey} />;
   }
@@ -48,19 +48,23 @@ export function TypeExpression(props: TypeExpressionProps) {
     //       <Reference builtin={stdlib.typing.Literal} />[{type.enum.name}.{type.name}.value]
     //     </>
     //   );
-    // case "Model":
-    //   if (isArray(type)) {
-    //     const elementType = type.indexer.value;
-    //     return <ArrayExpression elementType={elementType} />;
-    //   }
+    case "Model":
+      if ($.array.is(props.type)) {
+        const elementType = props.type.indexer?.value;
+        if (!elementType) {
+          throw new Error("Array type must have an indexer");
+        }
+        return <ArrayExpression elementType={elementType} />;
+      }
 
-    //   if (isRecord(type)) {
-    //     const elementType = type.indexer.value;
-    //     return <DictionaryExpression elementType={elementType} />;
-    //   }
-
-    //   return <ClassExpression type={type} />;
-
+      if ($.record.is(props.type)) {
+        const elementType = props.type.indexer?.value;
+        if (!elementType) {
+          throw new Error("Record type must have an indexer");
+        }
+        return <DictionaryExpression elementType={elementType} />;
+      }
+      return <ClassExpression type={props.type} />;
     default:
       throw new Error(props.type.kind + " not supported in TypeExpression");
   }

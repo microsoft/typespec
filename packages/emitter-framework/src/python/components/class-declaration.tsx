@@ -1,8 +1,8 @@
-import { Children, Declaration, DeclarationProps, Indent, mapJoin, Scope } from "@alloy-js/core";
+import { Child, Children, DeclarationProps, Indent, mapJoin, refkey, Scope } from "@alloy-js/core";
 import { usePythonNamePolicy } from "../name-policy.js";
-import { Model, Enum, ModelProperty } from "@typespec/compiler";
+import { Model, Enum, ModelProperty, EnumMember } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
-import { ClassVariable, Decorator, DecoratorProps, InitDeclaration, PythonModuleContext, TypeExpression, useModule } from "./index.js";
+import { ClassVariable, Declaration, Decorator, DecoratorProps, InitDeclaration, PythonModuleContext, TypeExpression } from "./index.js";
 
 export enum ClassDeclarationFlags {
   None      = 0,
@@ -13,7 +13,6 @@ export enum ClassDeclarationFlags {
 export interface ClassDeclarationContext {
   parent: PythonModuleContext | ClassDeclarationContext; // TODO: | FunctionDeclarationContext | MethodDeclarationContext;
   flags: ClassDeclarationFlags;
-  scope: Scope;
 }
 
 /**
@@ -31,28 +30,32 @@ export interface ClassDeclarationProps extends DeclarationProps {
 
 export function ClassDeclaration(props: ClassDeclarationProps) {
   const namer = usePythonNamePolicy();
+  const type = props.type;
 
-  const moduleContext = useModule();
-
-  if ($.type.isTemplateDeclaration(props.type)) {
-    return undefined;
-  }
-
-  const name = props.name ?? namer.getName(props.type.name, "class");
-
-  // TODO: Sort the model properties based on presence of decorator to separate class and instance variables.
-  const classProperties: ModelProperty[] = [];
+  let name: string;
   const instanceProperties: ModelProperty[] = [];
-
-  for (const prop of props.type.properties.values()) {
-    // FIXME: This should be triggered based on the presence of the @classVariable decorator.
-    // But I can't get it to work. I suspect something isn't being exported fully, but it's
-    // a distraction right now so I'll just use this wonky magic string for testing.
-    if (prop.name === "special") {
-      classProperties.push(prop);
-    } else {
+  const classProperties: (ModelProperty | EnumMember)[] = [];
+  let baseClassComponent: Child | undefined;
+  if (type?.kind == "Model") {
+    if ($.type.isTemplateDeclaration(type)) {
+      return undefined;
+    }
+    name = props.name ?? namer.getName(type.name, "class");
+    for (const prop of type.properties.values()) {
       instanceProperties.push(prop);
     }
+    const baseClass = type.baseModel;
+    baseClassComponent = baseClass ? <>(<TypeExpression type={baseClass} />)</> : undefined;
+  } else if (type?.kind == "Enum") {
+    name = props.name ?? namer.getName(type.name, "class");
+    for (const member of type.members.values()) {
+      classProperties.push(member);
+    }
+  } else {
+    if (!props.name) {
+      throw new Error("ClassDeclaration must have a name when type is not specified.");
+    }
+    name = props.name;
   }
 
   const classVariableComponents = mapJoin(
@@ -64,8 +67,6 @@ export function ClassDeclaration(props: ClassDeclarationProps) {
 
   // TODO: Implement these
   const methodComponents = undefined;
-  const baseClass = props.type.baseModel;
-  const baseClassComponent = baseClass ? <>(<TypeExpression type={baseClass} />)</> : undefined;
   const decoratorComponents = mapJoin(
     props.decorators ?? [],
     (decorator) => <Decorator {...decorator} />,
@@ -78,6 +79,9 @@ export function ClassDeclaration(props: ClassDeclarationProps) {
     pass = "pass";
   }
 
+  // give props a refkey and ensure the name is reflected since it will be used by Declaration
+  props.refkey = refkey(props.type);
+  props.name = name;
   return (
     <Declaration {...props}>
       {decoratorComponents}class {name}{baseClassComponent}:

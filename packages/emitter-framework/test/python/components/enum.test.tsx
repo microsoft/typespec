@@ -8,11 +8,9 @@ async function getOutput(code: string, name: string): Promise<string | undefined
   const output = await getEmitOutput(code, (program) => {
     const testEnum = program.resolveTypeReference(name)[0]! as Enum;
     return (
-      <PythonPackage name="test_package">
-        <PythonModule name="test">
-          <EnumDeclaration type={testEnum} />
-        </PythonModule>
-      </PythonPackage>
+      <PythonModule name="test">
+        <EnumDeclaration type={testEnum} />
+      </PythonModule>
     )
   });
   if (typeof output === "string") {

@@ -7,7 +7,6 @@ import { PythonMemberScope, PythonOutputScope } from "./index.js";
 export interface PythonOutputSymbol extends OutputSymbol {
   scope: PythonOutputScope;
   export: boolean;
-  memberScope?: PythonMemberScope;
 }
 
 interface CreatePythonSymbolOptions {
