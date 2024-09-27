@@ -42,6 +42,7 @@ function createQueryServerTests(
         },
       },
     ],
+    kind: "MockApiDefinition",
   });
 }
 Scenarios.Encode_Bytes_Query_Default_Server_Test = createQueryServerTests(
@@ -94,6 +95,7 @@ function createPropertyServerTests(uri: string, data: any, value: any) {
         },
       },
     ],
+    kind: "MockApiDefinition",
   });
 }
 Scenarios.Encode_Bytes_Property_Default_Server_Test = createPropertyServerTests(
@@ -146,6 +148,7 @@ function createHeaderServerTests(uri: string, data: any, value: any) {
         },
       },
     ],
+    kind: "MockApiDefinition",
   });
 }
 Scenarios.Encode_Bytes_Header_Default_Server_Test = createHeaderServerTests(
@@ -206,6 +209,7 @@ function createRequestBodyServerTests(
         },
       },
     ],
+    kind: "MockApiDefinition",
   });
 }
 Scenarios.Encode_Bytes_Body_Request_Default_Server_Test = createRequestBodyServerTests(
@@ -283,6 +287,7 @@ function createResponseBodyServerTests(
         },
       },
     ],
+    kind: "MockApiDefinition",
   });
 }
 Scenarios.Encode_Bytes_Body_Response_Default = createResponseBodyServerTests(

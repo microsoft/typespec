@@ -23,6 +23,7 @@ Scenarios.Authentication_Union_Valid_Key = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 
 Scenarios.Authentication_Union_Valid_Token = passOnSuccess({
@@ -49,4 +50,5 @@ Scenarios.Authentication_Union_Valid_Token = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });

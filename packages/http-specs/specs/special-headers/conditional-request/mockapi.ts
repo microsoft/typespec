@@ -25,6 +25,7 @@ Scenarios.SpecialHeaders_ConditionalRequest_IfUnmodifiedSince = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 
 Scenarios.SpecialHeaders_ConditionalRequest_IfModifiedSince = passOnSuccess({
@@ -50,6 +51,7 @@ Scenarios.SpecialHeaders_ConditionalRequest_IfModifiedSince = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 
 Scenarios.Special_Headers_Conditional_Request_If_Match = passOnSuccess({
@@ -75,6 +77,7 @@ Scenarios.Special_Headers_Conditional_Request_If_Match = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 
 Scenarios.Special_Headers_Conditional_Request_If_None_Match = passOnSuccess({
@@ -100,4 +103,5 @@ Scenarios.Special_Headers_Conditional_Request_If_None_Match = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });

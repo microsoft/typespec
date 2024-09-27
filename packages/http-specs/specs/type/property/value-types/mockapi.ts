@@ -44,6 +44,7 @@ function createServerTests(url: string, data: unknown, convertedToFn?: (_: any) 
         },
       },
     ],
+    kind: "MockApiDefinition",
   });
 }
 

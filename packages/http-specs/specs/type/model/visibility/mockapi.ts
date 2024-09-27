@@ -41,6 +41,7 @@ Scenarios.Type_Model_Visibility_ReadOnlyRoundTrip = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 Scenarios.Type_Model_Visibility = passOnSuccess({
   uri: "/type/model/visibility",
@@ -141,4 +142,5 @@ Scenarios.Type_Model_Visibility = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });

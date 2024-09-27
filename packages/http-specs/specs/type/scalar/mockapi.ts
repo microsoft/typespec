@@ -35,6 +35,7 @@ Scenarios.Type_Scalar_String = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 Scenarios.Type_Scalar_Boolean = passOnSuccess({
   uri: "/type/scalar/boolean",
@@ -69,6 +70,7 @@ Scenarios.Type_Scalar_Boolean = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 Scenarios.Type_Scalar_Unknown = passOnSuccess({
   uri: "/type/scalar/unknown",
@@ -103,6 +105,7 @@ Scenarios.Type_Scalar_Unknown = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 Scenarios.Type_Scalar_Decimal_Response_Body = passOnSuccess({
   uri: "/type/scalar/decimal/response_body",
@@ -122,6 +125,7 @@ Scenarios.Type_Scalar_Decimal_Response_Body = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 Scenarios.Type_Scalar_Decimal128_Response_Body = passOnSuccess({
   uri: "/type/scalar/decimal128/response_body",
@@ -141,6 +145,7 @@ Scenarios.Type_Scalar_Decimal128_Response_Body = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 Scenarios.Type_Scalar_Decimal_Request_Body = passOnSuccess({
   uri: "/type/scalar/decimal/resquest_body",
@@ -166,6 +171,7 @@ Scenarios.Type_Scalar_Decimal_Request_Body = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 Scenarios.Type_Scalar_Decimal128_Request_Body = passOnSuccess({
   uri: "/type/scalar/decimal128/resquest_body",
@@ -191,6 +197,7 @@ Scenarios.Type_Scalar_Decimal128_Request_Body = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 Scenarios.Type_Scalar_Decimal_Request_Parameter = passOnSuccess({
   uri: "/type/scalar/decimal/request_parameter",
@@ -213,6 +220,7 @@ Scenarios.Type_Scalar_Decimal_Request_Parameter = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 Scenarios.Type_Scalar_Decimal128_Request_Parameter = passOnSuccess({
   uri: "/type/scalar/decimal128/request_parameter",
@@ -235,6 +243,7 @@ Scenarios.Type_Scalar_Decimal128_Request_Parameter = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 Scenarios.Type_Scalar_Decimal_Prepare_Verify = passOnSuccess({
   uri: "/type/scalar/decimal/prepare_verify",
@@ -254,6 +263,7 @@ Scenarios.Type_Scalar_Decimal_Prepare_Verify = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 Scenarios.Type_Scalar_Decimal128_Prepare_Verify = passOnSuccess({
   uri: "/type/scalar/decimal128/prepare_verify",
@@ -273,6 +283,7 @@ Scenarios.Type_Scalar_Decimal128_Prepare_Verify = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 Scenarios.Type_Scalar_Decimal_Verify = passOnSuccess({
   uri: "/type/scalar/decimal/verify",
@@ -298,6 +309,7 @@ Scenarios.Type_Scalar_Decimal_Verify = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 Scenarios.Type_Scalar_Decimal128_Verify = passOnSuccess({
   uri: "/type/scalar/decimal128/verify",
@@ -323,4 +335,5 @@ Scenarios.Type_Scalar_Decimal128_Verify = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });

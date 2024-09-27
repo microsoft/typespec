@@ -30,6 +30,7 @@ function createBodyServerTests(uri: string, data: any, value: any) {
         },
       },
     ],
+    kind: "MockApiDefinition",
   });
 }
 Scenarios.Encode_Duration_Property_Default = createBodyServerTests(
@@ -102,6 +103,7 @@ function createQueryServerTests(
         },
       },
     ],
+    kind: "MockApiDefinition",
   });
 }
 Scenarios.Encode_Duration_Query_Default = createQueryServerTests(
@@ -170,6 +172,7 @@ function createHeaderServerTests(uri: string, headersData: any, value: any) {
         },
       },
     ],
+    kind: "MockApiDefinition",
   });
 }
 

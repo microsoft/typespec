@@ -53,4 +53,5 @@ Scenarios.Special_Headers_Repeatability_Immediate_Success = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });

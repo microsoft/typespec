@@ -45,4 +45,5 @@ Scenarios.Type_Model_Inheritance_Not_Discriminated_Valid = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });

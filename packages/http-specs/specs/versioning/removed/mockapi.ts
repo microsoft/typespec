@@ -31,4 +31,5 @@ Scenarios.Versioning_Removed_API_Version_V2_V2 = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });

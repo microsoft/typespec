@@ -35,4 +35,5 @@ Scenarios.Versioning_TypeChangedFrom_API_Version_V2_Test = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });

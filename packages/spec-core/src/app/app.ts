@@ -1,4 +1,4 @@
-import { MockApi, MockApiDefinition, RequestExt, ScenarioMockApi } from "@typespec/spec-api";
+import { RequestExt, ScenarioMockApi } from "@typespec/spec-api";
 import { Response, Router } from "express";
 import { getScenarioMetadata } from "../coverage/common.js";
 import { CoverageTracker } from "../coverage/coverage-tracker.js";
@@ -40,37 +40,45 @@ export class MockApiApp {
 
   private registerScenario(name: string, scenario: ScenarioMockApi) {
     if (!Array.isArray(scenario.apis)) return;
-    for (const endpoint of scenario.apis) {
-      if ((endpoint as any as MockApiDefinition).mockMethods === undefined) {
-        const mockApi = endpoint as any as MockApi;
-        this.router.route(endpoint.uri)[mockApi.method]((req: RequestExt, res: Response) => {
-          processRequest(this.coverageTracker, name, endpoint.uri, req, res, mockApi.handler).catch(
-            (e) => {
-              logger.error("Unexpected request error", e);
-              res.status(500).end();
-            },
-          );
-        });
-      } else {
-        for (const method of (endpoint as any as MockApiDefinition).mockMethods) {
-          if (!method.handler) {
-            continue;
-          }
-          this.router.route(endpoint.uri)[method.method]((req: RequestExt, res: Response) => {
+    try {
+      for (const endpoint of scenario.apis) {
+        if (endpoint.kind !== "MockApiDefinition") {
+          this.router.route(endpoint.uri)[endpoint.method]((req: RequestExt, res: Response) => {
             processRequest(
               this.coverageTracker,
               name,
               endpoint.uri,
               req,
               res,
-              method.handler!,
+              endpoint.handler,
             ).catch((e) => {
               logger.error("Unexpected request error", e);
               res.status(500).end();
             });
           });
+        } else {
+          for (const method of endpoint.mockMethods) {
+            if (!method.handler) {
+              continue;
+            }
+            this.router.route(endpoint.uri)[method.method]((req: RequestExt, res: Response) => {
+              processRequest(
+                this.coverageTracker,
+                name,
+                endpoint.uri,
+                req,
+                res,
+                method.handler!,
+              ).catch((e) => {
+                logger.error("Unexpected request error", e);
+                res.status(500).end();
+              });
+            });
+          }
         }
       }
+    } catch (e) {
+      logger.error("Error registering scenario", e);
     }
   }
 }

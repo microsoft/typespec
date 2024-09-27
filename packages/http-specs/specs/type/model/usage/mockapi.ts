@@ -23,6 +23,7 @@ Scenarios.Type_Model_Usage_Input = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 
 Scenarios.Type_Model_Usage_Output = passOnSuccess({
@@ -42,6 +43,7 @@ Scenarios.Type_Model_Usage_Output = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 
 Scenarios.Type_Model_Usage_Input_Output = passOnSuccess({
@@ -66,4 +68,5 @@ Scenarios.Type_Model_Usage_Input_Output = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });

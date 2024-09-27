@@ -95,4 +95,5 @@ Scenarios.Payload_Pageable = passOnSuccess({
       handler: handler,
     },
   ],
+  kind: "MockApiDefinition",
 });

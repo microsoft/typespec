@@ -37,6 +37,7 @@ Scenarios.Versioning_RenamedFrom_API_Version_V2_Test = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 
 Scenarios.Versioning_RenamedFrom_API_Version_V2_Interface_Test = passOnSuccess({
@@ -68,4 +69,5 @@ Scenarios.Versioning_RenamedFrom_API_Version_V2_Interface_Test = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });

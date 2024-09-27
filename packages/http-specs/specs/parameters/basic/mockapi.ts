@@ -21,6 +21,7 @@ function createServerTests(uri: string) {
         },
       },
     ],
+    kind: "MockApiDefinition",
   });
 }
 

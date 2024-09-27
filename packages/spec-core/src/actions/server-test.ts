@@ -1,4 +1,4 @@
-import { MockApiDefinition, MockMethod } from "@typespec/spec-api";
+import { MockMethod } from "@typespec/spec-api";
 import * as fs from "fs";
 import * as path from "path";
 import { logger } from "../logger.js";
@@ -131,12 +131,12 @@ export async function serverTest(
   for (const [name, scenario] of Object.entries(scenarios)) {
     if (!Array.isArray(scenario.apis)) continue;
     for (const api of scenario.apis) {
-      if ((api as any as MockApiDefinition).mockMethods === undefined) continue;
+      if (api.kind === "MockApi") continue;
       if (testCasesToRun.length === 0 || testCasesToRun.includes(name)) {
         const obj: ServerTestsGenerator = new ServerTestsGenerator(
           name,
           api.uri,
-          (api as any as MockApiDefinition).mockMethods,
+          api.mockMethods,
           serverBasePath,
           scenariosPath,
         );

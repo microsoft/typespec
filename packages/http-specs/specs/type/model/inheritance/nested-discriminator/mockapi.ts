@@ -92,6 +92,7 @@ Scenarios.Type_Model_Inheritance_Nested_Discriminator_Model = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 Scenarios.Type_Model_Inheritance_Nested_Discriminator_Recursive_Model = passOnSuccess({
   uri: "/type/model/inheritance/nested-discriminator/recursivemodel",
@@ -121,6 +122,7 @@ Scenarios.Type_Model_Inheritance_Nested_Discriminator_Recursive_Model = passOnSu
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 Scenarios.Type_Model_Inheritance_Nested_Discriminator_Missing_Discriminator = passOnSuccess({
   uri: "/type/model/inheritance/nested-discriminator/missingdiscriminator",
@@ -137,6 +139,7 @@ Scenarios.Type_Model_Inheritance_Nested_Discriminator_Missing_Discriminator = pa
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 Scenarios.Type_Model_Inheritance_Nested_Discriminator_Wrong_Discriminator = passOnSuccess({
   uri: "/type/model/inheritance/nested-discriminator/wrongdiscriminator",
@@ -153,4 +156,5 @@ Scenarios.Type_Model_Inheritance_Nested_Discriminator_Wrong_Discriminator = pass
       },
     },
   ],
+  kind: "MockApiDefinition",
 });

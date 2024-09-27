@@ -121,6 +121,7 @@ Scenarios.Payload_Content_Negotiation_SameBody = passOnSuccess({
       handler: sameBodyHandler,
     },
   ],
+  kind: "MockApiDefinition",
 });
 
 Scenarios.Payload_Content_Negotiation_DifferentBody = passOnSuccess({
@@ -177,4 +178,5 @@ Scenarios.Payload_Content_Negotiation_DifferentBody = passOnSuccess({
       handler: differentBodyHandler,
     },
   ],
+  kind: "MockApiDefinition",
 });

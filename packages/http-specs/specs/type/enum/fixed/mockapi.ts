@@ -35,6 +35,7 @@ Scenarios.Type_Enum_Fixed_String_Known_Value = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 
 Scenarios.Type_Enum_Fixed_String_Unknown_Value = passOnSuccess({
@@ -60,4 +61,5 @@ Scenarios.Type_Enum_Fixed_String_Unknown_Value = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });

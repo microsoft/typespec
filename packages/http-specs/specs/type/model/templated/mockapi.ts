@@ -36,6 +36,7 @@ Scenarios.Type_Model_Templated_numericType = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 
 Scenarios.Type_Model_Templated_float32Type = passOnSuccess({
@@ -72,6 +73,7 @@ Scenarios.Type_Model_Templated_float32Type = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 
 Scenarios.Type_Model_Templated_int32Type = passOnSuccess({
@@ -108,4 +110,5 @@ Scenarios.Type_Model_Templated_int32Type = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });

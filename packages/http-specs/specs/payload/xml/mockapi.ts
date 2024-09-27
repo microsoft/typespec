@@ -163,6 +163,7 @@ function createServerTests(uri: string, data?: any) {
         },
       },
     ],
+    kind: "MockApiDefinition",
   });
 }
 

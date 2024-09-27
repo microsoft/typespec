@@ -26,6 +26,7 @@ function createGetServerTests(uri: string, data: any) {
         },
       },
     ],
+    kind: "MockApiDefinition",
   });
 }
 
@@ -58,6 +59,7 @@ function createGetPutServerTests(uri: string, data: any) {
         },
       },
     ],
+    kind: "MockApiDefinition",
   });
 }
 

@@ -25,6 +25,7 @@ Scenarios.Payload_MediaType_String_Body_SendAsText = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 
 Scenarios.Payload_MediaType_String_Body_GetAsText = passOnSuccess({
@@ -52,6 +53,7 @@ Scenarios.Payload_MediaType_String_Body_GetAsText = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 
 Scenarios.Payload_MediaType_String_Body_SendAsJson = passOnSuccess({
@@ -77,6 +79,7 @@ Scenarios.Payload_MediaType_String_Body_SendAsJson = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 
 Scenarios.Payload_MediaType_String_Body_GetAsJson = passOnSuccess({
@@ -105,4 +108,5 @@ Scenarios.Payload_MediaType_String_Body_GetAsJson = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });

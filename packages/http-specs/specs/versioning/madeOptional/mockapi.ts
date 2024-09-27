@@ -27,4 +27,5 @@ Scenarios.Versioning_MadeOptional_API_Version_V2_Test = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });

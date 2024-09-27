@@ -47,6 +47,7 @@ function createServerTests(url: string, value: unknown, patchNullableProperty?: 
         },
       },
     ],
+    kind: "MockApiDefinition",
   });
 }
 

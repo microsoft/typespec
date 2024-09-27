@@ -31,4 +31,5 @@ Scenarios.Serialization_Encoded_Name_JSON_Property = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });

@@ -21,6 +21,7 @@ Scenarios.Parameters_Spread_Model_Request_Body = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 
 Scenarios.Parameters_Spread_Model_Composite_Request_Only_With_Body = passOnSuccess({
@@ -42,6 +43,7 @@ Scenarios.Parameters_Spread_Model_Composite_Request_Only_With_Body = passOnSucce
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 
 Scenarios.Parameters_Spread_Model_Composite_Request_Without_Body_Foo = passOnSuccess({
@@ -65,6 +67,7 @@ Scenarios.Parameters_Spread_Model_Composite_Request_Without_Body_Foo = passOnSuc
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 
 Scenarios.Parameters_Spread_Model_Composite_Request_Foo = passOnSuccess({
@@ -92,6 +95,7 @@ Scenarios.Parameters_Spread_Model_Composite_Request_Foo = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 
 Scenarios.Parameters_Spread_Model_Composite_Request_Mix_Foo = passOnSuccess({
@@ -119,6 +123,7 @@ Scenarios.Parameters_Spread_Model_Composite_Request_Mix_Foo = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 
 Scenarios.Parameters_Spread_Alias_Request_Body = passOnSuccess({
@@ -140,6 +145,7 @@ Scenarios.Parameters_Spread_Alias_Request_Body = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 
 Scenarios.Parameters_Spread_Alias_Request_Parameter_1 = passOnSuccess({
@@ -167,6 +173,7 @@ Scenarios.Parameters_Spread_Alias_Request_Parameter_1 = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 
 Scenarios.Parameters_Spread_Alias_Multiple_Parameters_1 = passOnSuccess({
@@ -202,6 +209,7 @@ Scenarios.Parameters_Spread_Alias_Multiple_Parameters_1 = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 
 Scenarios.Parameters_Spread_Alias_Inner_Model_Parameter_1 = passOnSuccess({
@@ -229,6 +237,7 @@ Scenarios.Parameters_Spread_Alias_Inner_Model_Parameter_1 = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 
 Scenarios.Parameters_Spread_Alias_Inner_Alias_Parameter_1 = passOnSuccess({
@@ -257,4 +266,5 @@ Scenarios.Parameters_Spread_Alias_Inner_Alias_Parameter_1 = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });

@@ -37,6 +37,7 @@ Scenarios.Versioning_Added_API_Version_V2_V1 = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 
 Scenarios.Versioning_Added_API_Version_V2_V2 = passOnSuccess({
@@ -68,6 +69,7 @@ Scenarios.Versioning_Added_API_Version_V2_V2 = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 
 Scenarios.Versioning_Added_API_Version_V2_Interface_V2_V2 = passOnSuccess({
@@ -99,4 +101,5 @@ Scenarios.Versioning_Added_API_Version_V2_Interface_V2_V2 = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });

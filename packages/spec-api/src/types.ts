@@ -48,11 +48,13 @@ export interface MockApi {
   method: HttpMethod;
   uri: string;
   handler: MockRequestHandler;
+  kind: "MockApi";
 }
 
 export interface MockApiDefinition {
   uri: string;
   mockMethods: MockMethod[];
+  kind: "MockApiDefinition";
 }
 
 export interface MockMethod {

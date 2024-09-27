@@ -26,6 +26,7 @@ Scenarios.Authentication_OAuth2_Valid_Server_Test = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 
 Scenarios.Authentication_OAuth2_Invalid_Server_Test = passOnSuccess({
@@ -54,4 +55,5 @@ Scenarios.Authentication_OAuth2_Invalid_Server_Test = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });

@@ -26,6 +26,7 @@ function createTests(uri: string, value: any) {
         },
       },
     ],
+    kind: "MockApiDefinition",
   });
 }
 Scenarios.Encode_Numeric_Property_Safeint = createTests(

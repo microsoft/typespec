@@ -30,6 +30,7 @@ function createServerTests(uri: string, requestData?: any) {
         },
       },
     ],
+    kind: "MockApiDefinition",
   });
 }
 
@@ -60,4 +61,5 @@ Scenarios.Server_Versions_Not_Versioned_With_Query_API_Version = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });

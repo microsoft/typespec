@@ -133,6 +133,7 @@ function createServerTests(url: string, value: any) {
         },
       },
     ],
+    kind: "MockApiDefinition",
   });
 }
 

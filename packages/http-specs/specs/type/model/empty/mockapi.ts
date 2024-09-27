@@ -32,6 +32,7 @@ Scenarios.Type_Model_Empty_Alone = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 
 Scenarios.Type_Model_Empty_Round_Trip = passOnSuccess({
@@ -52,4 +53,5 @@ Scenarios.Type_Model_Empty_Round_Trip = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });

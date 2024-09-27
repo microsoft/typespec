@@ -16,6 +16,7 @@ Scenarios.Server_Path_Multiple_V10 = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 
 Scenarios.Server_Path_Multiple_V10_Test = passOnSuccess({
@@ -32,4 +33,5 @@ Scenarios.Server_Path_Multiple_V10_Test = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });

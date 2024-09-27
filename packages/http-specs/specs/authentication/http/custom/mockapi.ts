@@ -23,6 +23,7 @@ Scenarios.Authentication_Http_Custom_Valid_Key = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 
 Scenarios.Authentication_Http_Custom_InValid_Key = passOnSuccess({
@@ -54,4 +55,5 @@ Scenarios.Authentication_Http_Custom_InValid_Key = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });

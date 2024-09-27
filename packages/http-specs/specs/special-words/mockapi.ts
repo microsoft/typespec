@@ -23,6 +23,7 @@ Scenarios.Special_Words_Model_Properties_Same_As_Model = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 
 function createModelsTests(uri: string) {
@@ -47,6 +48,7 @@ function createModelsTests(uri: string) {
         },
       },
     ],
+    kind: "MockApiDefinition",
   });
 }
 Scenarios.Special_Words_Models_And = createModelsTests(`/special-words/models/and`);
@@ -100,6 +102,7 @@ function createOperationsTests(uri: string) {
         },
       },
     ],
+    kind: "MockApiDefinition",
   });
 }
 
@@ -177,6 +180,7 @@ function createParametersTests(uri: string, data: any, paramName: string) {
         },
       },
     ],
+    kind: "MockApiDefinition",
   });
 }
 

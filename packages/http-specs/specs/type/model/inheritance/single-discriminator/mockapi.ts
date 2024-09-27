@@ -54,6 +54,7 @@ Scenarios.Type_Model_Inheritance_Single_Discriminator_Model = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 Scenarios.Type_Model_Inheritance_Single_Discriminator_Recursive_Model = passOnSuccess({
   uri: "/type/model/inheritance/single-discriminator/recursivemodel",
@@ -83,6 +84,7 @@ Scenarios.Type_Model_Inheritance_Single_Discriminator_Recursive_Model = passOnSu
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 Scenarios.Type_Model_Inheritance_Single_Discriminator_Missing_Discriminator = passOnSuccess({
   uri: "/type/model/inheritance/single-discriminator/missingdiscriminator",
@@ -99,6 +101,7 @@ Scenarios.Type_Model_Inheritance_Single_Discriminator_Missing_Discriminator = pa
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 Scenarios.Type_Model_Inheritance_Single_Discriminator_Wrong_Discriminator = passOnSuccess({
   uri: "/type/model/inheritance/single-discriminator/wrongdiscriminator",
@@ -115,6 +118,7 @@ Scenarios.Type_Model_Inheritance_Single_Discriminator_Wrong_Discriminator = pass
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 Scenarios.Type_Model_Inheritance_Single_Discriminator_Legacy_Model = passOnSuccess({
   uri: "/type/model/inheritance/single-discriminator/legacy-model",
@@ -131,4 +135,5 @@ Scenarios.Type_Model_Inheritance_Single_Discriminator_Legacy_Model = passOnSucce
       },
     },
   ],
+  kind: "MockApiDefinition",
 });

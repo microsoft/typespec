@@ -46,4 +46,5 @@ Scenarios.Type_Model_Inheritance_Recursive = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });

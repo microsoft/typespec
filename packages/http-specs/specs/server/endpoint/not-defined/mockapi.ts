@@ -16,4 +16,5 @@ Scenarios.Server_Endpoint_Not_Defined_Valid = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });

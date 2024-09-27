@@ -19,6 +19,7 @@ function createServerTests(uri: string, data: any) {
         },
       },
     ],
+    kind: "MockApiDefinition",
   });
 }
 
@@ -51,6 +52,7 @@ Scenarios.Parameters_Body_Optionality_Optional_Explicit_Omit = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 
 Scenarios.Parameters_Body_Optionality_Required_Implicit = createServerTests(

@@ -16,4 +16,5 @@ Scenarios.Server_Path_Single_MyOp = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });

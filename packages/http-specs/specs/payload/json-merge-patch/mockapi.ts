@@ -64,6 +64,7 @@ Scenarios.Payload_JsonMergePatch_Create_Resource = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 
 Scenarios.Payload_JsonMergePatch_Update_Resource = passOnSuccess({
@@ -108,6 +109,7 @@ Scenarios.Payload_JsonMergePatch_Update_Resource = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 
 Scenarios.Payload_JsonMergePatch_Update_Resource_Optional = passOnSuccess({
@@ -152,4 +154,5 @@ Scenarios.Payload_JsonMergePatch_Update_Resource_Optional = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });

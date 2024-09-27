@@ -36,6 +36,7 @@ function createMockServerTests(uri: string, data: any) {
         },
       },
     ],
+    kind: "MockApiDefinition",
   });
 }
 

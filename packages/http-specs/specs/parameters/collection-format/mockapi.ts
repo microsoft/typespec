@@ -25,6 +25,7 @@ Scenarios.Parameters_Collection_Format_Query_Multi = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 
 Scenarios.Parameters_Collection_Format_Query_CSV = passOnSuccess({
@@ -48,6 +49,7 @@ Scenarios.Parameters_Collection_Format_Query_CSV = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 
 Scenarios.Parameters_Collection_Format_Query_SSV = passOnSuccess({
@@ -71,6 +73,7 @@ Scenarios.Parameters_Collection_Format_Query_SSV = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 
 Scenarios.Parameters_Collection_Format_Query_TSV = passOnSuccess({
@@ -94,6 +97,7 @@ Scenarios.Parameters_Collection_Format_Query_TSV = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 
 Scenarios.Parameters_Collection_Format_Query_Pipes = passOnSuccess({
@@ -117,6 +121,7 @@ Scenarios.Parameters_Collection_Format_Query_Pipes = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });
 
 Scenarios.Parameters_Collection_Format_Header_CSV = passOnSuccess({
@@ -140,4 +145,5 @@ Scenarios.Parameters_Collection_Format_Header_CSV = passOnSuccess({
       },
     },
   ],
+  kind: "MockApiDefinition",
 });

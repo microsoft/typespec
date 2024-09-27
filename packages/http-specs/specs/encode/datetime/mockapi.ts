@@ -45,6 +45,7 @@ function createQueryServerTests(
         },
       },
     ],
+    kind: "MockApiDefinition",
   });
 }
 Scenarios.Encode_DateTime_Query_Default_Server_Test = createQueryServerTests(
@@ -121,6 +122,7 @@ function createPropertyServerTests(
         },
       },
     ],
+    kind: "MockApiDefinition",
   });
 }
 Scenarios.Encode_DateTime_Property_Default_Server_Test = createPropertyServerTests(
@@ -197,6 +199,7 @@ function createHeaderServerTests(
         },
       },
     ],
+    kind: "MockApiDefinition",
   });
 }
 Scenarios.Encode_DateTime_Header_Default_Server_Test = createHeaderServerTests(
@@ -258,6 +261,7 @@ function createResponseHeaderServerTests(uri: string, data: any, value: any) {
         },
       },
     ],
+    kind: "MockApiDefinition",
   });
 }
 Scenarios.Encode_DateTime_ResponseHeader_Default_Server_Test = createResponseHeaderServerTests(
