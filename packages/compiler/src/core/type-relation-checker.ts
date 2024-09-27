@@ -24,6 +24,7 @@ import {
   DiagnosticReport,
   Entity,
   Enum,
+  EnumMember,
   IndeterminateEntity,
   MixedParameterConstraint,
   Model,
@@ -518,6 +519,8 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
         return areScalarsRelated(target, checker.getStdType("boolean"));
       case "Scalar":
         return areScalarsRelated(source, target);
+      case "EnumMember":
+        return isEnumMemberAssignableToScalar(source, target);
       case "Union":
         return undefined;
       default:
@@ -534,6 +537,29 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
 
       current = current.baseScalar;
     }
+    return false;
+  }
+
+  function isEnumMemberAssignableToScalar(source: EnumMember, target: Scalar) {
+    if (typeof source.value === "string") {
+      const stringLiteral = program.checker.createType({
+        kind: "String",
+        value: source.value,
+      });
+      return isStringLiteralRelatedTo(stringLiteral, target);
+    }
+
+    if (typeof source.value === "number") {
+      const valueAsString = String(source.value);
+      const numericLiteral = program.checker.createType({
+        kind: "Number",
+        value: source.value,
+        valueAsString,
+        numericValue: Numeric(valueAsString),
+      });
+      return isNumericLiteralRelatedTo(numericLiteral, target);
+    }
+
     return false;
   }
 

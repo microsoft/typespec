@@ -210,6 +210,34 @@ describe("openapi3: models", () => {
     });
   });
 
+  it("specify default value of a compatible enum property on a scalar", async () => {
+    const res = await oapiForModel(
+      "Foo",
+      `
+      model Foo {
+        optionalEnum?: string = MyEnum.a;
+      };
+      
+      enum MyEnum {
+        a: "a-value",
+        b,
+      }
+      `,
+    );
+
+    ok(res.isRef);
+    ok(res.schemas.Foo, "expected definition named Foo");
+    deepStrictEqual(res.schemas.Foo, {
+      type: "object",
+      properties: {
+        optionalEnum: {
+          type: "string",
+          default: "a-value",
+        },
+      },
+    });
+  });
+
   it("specify default value on union with variant", async () => {
     const res = await oapiForModel(
       "Foo",
