@@ -1,19 +1,27 @@
 import { join } from "path";
-import npmPackageProvider, { NpmPackage } from "./npm-package.js";
-import { foreachCurAndParentDirs, isFile } from "./utils.js";
+import { NpmPackage, NpmPackageProvider } from "./npm-package.js";
+import { forCurAndParentDirectories, isFile } from "./utils.js";
 
-export async function listEmitters(tspconfigFolder: string): Promise<Record<string, NpmPackage>> {
-  const isEmitter = async (pkg: NpmPackage) => {
-    const data = await pkg.getPackageJsonData();
-    if (data && data.dependencies && data.dependencies["@typespec/compiler"]) {
-      const exports = await pkg.getModuleExports();
-      return exports && exports.$onEmit;
-    }
-    return false;
+const isEmitter = async (pkg: NpmPackage) => {
+  const data = await pkg.getPackageJsonData();
+  if (!data) return false;
+  const dep = {
+    ...data.dependencies,
+    ...data.devDependencies,
   };
+  if (dep["@typespec/compiler"]) {
+    const exports = await pkg.getModuleExports();
+    return exports && exports.$onEmit;
+  }
+  return false;
+};
 
+export async function listEmitters(
+  tspconfigFileOrFolder: string,
+  npmPackageProvider: NpmPackageProvider,
+): Promise<Record<string, NpmPackage>> {
   const emitters: Record<string, NpmPackage> = {};
-  await foreachCurAndParentDirs(tspconfigFolder, async (dir: string) => {
+  await forCurAndParentDirectories(tspconfigFileOrFolder, async (dir: string) => {
     const packageJsonPath = join(dir, "package.json");
     if (await isFile(packageJsonPath)) {
       const pkg = await npmPackageProvider.get(dir);
@@ -38,4 +46,30 @@ export async function listEmitters(tspconfigFolder: string): Promise<Record<stri
   });
 
   return emitters;
+}
+
+export async function getEmitter(
+  tspconfigFileOrFolder: string,
+  npmPackageProvider: NpmPackageProvider,
+  emitterName: string,
+): Promise<NpmPackage | undefined> {
+  return await forCurAndParentDirectories(tspconfigFileOrFolder, async (dir: string) => {
+    const packageJsonPath = join(dir, "package.json");
+    if (await isFile(packageJsonPath)) {
+      const pkg = await npmPackageProvider.get(dir);
+      if (!pkg) return undefined;
+
+      const data = await pkg.getPackageJsonData();
+      if (!data) return undefined;
+
+      if (data.dependencies && data.dependencies[emitterName]) {
+        const depFolder = join(dir, "node_modules", emitterName);
+        const depPkg = await npmPackageProvider.get(depFolder);
+        if (depPkg && (await isEmitter(depPkg))) {
+          return depPkg;
+        }
+      }
+    }
+    return undefined;
+  });
 }

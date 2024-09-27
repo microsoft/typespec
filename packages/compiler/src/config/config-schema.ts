@@ -79,6 +79,7 @@ export const TypeSpecConfigJsonSchema: JSONSchemaType<TypeSpecRawConfig> = {
     emitters: {
       type: "object",
       nullable: true,
+      deprecated: true,
       required: [],
       additionalProperties: {
         oneOf: [{ type: "boolean" }, emitterOptionsSchema],

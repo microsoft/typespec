@@ -94,13 +94,13 @@ export class NpmPackage {
   }
 
   /**
-   *
-   * @param baseDir the dir containing the package.json file
+   * Create a NpmPackage instance from a folder containing a package.json file. Make sure to dispose the instance when you finish using it.
+   * @param packageFolder the dir containing the package.json file
    * @returns
    */
   public static async createFrom(packageFolder: string): Promise<NpmPackage | undefined> {
     if (!packageFolder) {
-      throw new Error("baseDir is required");
+      throw new Error("packageFolder is required");
     }
     const data = await loadNpmPackage(packageFolder);
     if (!data) {
@@ -109,6 +109,3 @@ export class NpmPackage {
     return new NpmPackage(packageFolder, data);
   }
 }
-
-const npmPackageProvider = new NpmPackageProvider();
-export default npmPackageProvider;

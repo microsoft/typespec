@@ -19,6 +19,15 @@ export async function isFile(path: string) {
   }
 }
 
+export async function isDirectory(path: string) {
+  try {
+    const stats = await stat(path);
+    return stats.isDirectory();
+  } catch {
+    return false;
+  }
+}
+
 // a debounce utility
 export function debounce<T extends (...args: any[]) => any>(fn: T, delayInMs: number): T {
   let timer: NodeJS.Timeout | undefined;
@@ -54,11 +63,20 @@ export function useShellInExec(exe: Executable, win32Only: boolean = true): Exec
 
 /**
  * trigger action for the given curDir and all its parent dirs. return T to stop the loop or undefined to continue
- * @param curDir
+ * @param cur if cur is a directory, the foreach will start from cur, otherwise, it will start from the parent directory of cur (file)
  * @param action
  * @returns
  */
-export function foreachCurAndParentDirs<T>(curDir: string, action: (dir: string) => T | undefined) {
+export async function forCurAndParentDirectories<T>(
+  cur: string,
+  action: (dir: string) => T | undefined,
+) {
+  const stats = await stat(cur);
+  const curDir = stats.isDirectory() ? cur : stats.isFile() ? dirname(cur) : undefined;
+  if (!curDir) {
+    throw new Error("Invalid path: " + cur);
+  }
+
   let lastFolder = "";
   let curFolder = curDir;
   while (curFolder !== lastFolder) {
