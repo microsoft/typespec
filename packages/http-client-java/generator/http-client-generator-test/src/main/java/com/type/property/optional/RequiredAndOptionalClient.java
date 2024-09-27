@@ -40,12 +40,14 @@ public final class RequiredAndOptionalClient {
      * Get models that will return all properties in the model.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     optionalProperty: String (Optional)
      *     requiredProperty: int (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -64,12 +66,14 @@ public final class RequiredAndOptionalClient {
      * Get models that will return only the required properties.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     optionalProperty: String (Optional)
      *     requiredProperty: int (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -88,12 +92,14 @@ public final class RequiredAndOptionalClient {
      * Put a body with all properties present.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     optionalProperty: String (Optional)
      *     requiredProperty: int (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param body The body parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -113,12 +119,14 @@ public final class RequiredAndOptionalClient {
      * Put a body with only required properties.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     optionalProperty: String (Optional)
      *     requiredProperty: int (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param body The body parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

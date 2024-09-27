@@ -4,7 +4,6 @@
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -75,12 +74,14 @@ public class ModelProperty {
         if (property instanceof ClientModelProperty) {
             return ((ClientModelProperty) property).getSerializedName();
         } else if (property instanceof ClientModelPropertyReference) {
-            return ((ClientModelPropertyReference) property).getAllProperties().stream()
-                    .map(ClientModelProperty::getSerializedName)
-                    .map(s -> s.replace(".", "\\\\."))
-                    .collect(Collectors.joining("."));
+            return ((ClientModelPropertyReference) property).getAllProperties()
+                .stream()
+                .map(ClientModelProperty::getSerializedName)
+                .map(s -> s.replace(".", "\\\\."))
+                .collect(Collectors.joining("."));
         } else {
-            throw new IllegalStateException("Unknown subclass of ClientModelPropertyAccess: " + property.getClass().getName());
+            throw new IllegalStateException(
+                "Unknown subclass of ClientModelPropertyAccess: " + property.getClass().getName());
         }
     }
 
@@ -93,18 +94,22 @@ public class ModelProperty {
                 return Collections.singletonList(clientModelProperty.getSerializedName());
             }
         } else if (property instanceof ClientModelPropertyReference) {
-            return ((ClientModelPropertyReference) property).getAllProperties().stream()
-                    .map(ClientModelProperty::getSerializedName)
-                    .collect(Collectors.toList());
+            return ((ClientModelPropertyReference) property).getAllProperties()
+                .stream()
+                .map(ClientModelProperty::getSerializedName)
+                .collect(Collectors.toList());
         } else {
-            throw new IllegalStateException("Unknown subclass of ClientModelPropertyAccess: " + property.getClass().getName());
+            throw new IllegalStateException(
+                "Unknown subclass of ClientModelPropertyAccess: " + property.getClass().getName());
         }
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         ModelProperty that = (ModelProperty) o;
         return Objects.equals(property, that.property);
     }

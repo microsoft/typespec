@@ -18,7 +18,8 @@ public class LocalVariable {
     private boolean initializeRequired = false;
     private String initializeExpression;
 
-    public LocalVariable(String name, IType variableType, RequestParameterLocation parameterLocation, ClientMethodParameter methodParameterReference) {
+    public LocalVariable(String name, IType variableType, RequestParameterLocation parameterLocation,
+        ClientMethodParameter methodParameterReference) {
         this.name = name;
         this.variableType = variableType;
         this.parameterLocation = parameterLocation;
@@ -55,6 +56,7 @@ public class LocalVariable {
     }
 
     public LocalVariable getRenameLocalVariable(String newName) {
-        return new LocalVariable(newName, this.getVariableType(), this.getParameterLocation(), this.getMethodParameterReference());
+        return new LocalVariable(newName, this.getVariableType(), this.getParameterLocation(),
+            this.getMethodParameterReference());
     }
 }

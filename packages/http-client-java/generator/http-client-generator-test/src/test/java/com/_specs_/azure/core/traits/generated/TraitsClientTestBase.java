@@ -10,7 +10,6 @@ package com._specs_.azure.core.traits.generated;
 
 import com._specs_.azure.core.traits.TraitsClient;
 import com._specs_.azure.core.traits.TraitsClientBuilder;
-import com.azure.core.http.HttpClient;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.test.TestMode;
@@ -24,11 +23,9 @@ class TraitsClientTestBase extends TestProxyTestBase {
     protected void beforeTest() {
         TraitsClientBuilder traitsClientbuilder = new TraitsClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            traitsClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             traitsClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         traitsClient = traitsClientbuilder.buildClient();

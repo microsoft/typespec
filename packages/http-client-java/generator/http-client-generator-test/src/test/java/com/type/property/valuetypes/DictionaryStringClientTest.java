@@ -4,11 +4,10 @@
 package com.type.property.valuetypes;
 
 import com.type.property.valuetypes.models.DictionaryStringProperty;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import java.util.HashMap;
 import java.util.Map;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 class DictionaryStringClientTest {
 

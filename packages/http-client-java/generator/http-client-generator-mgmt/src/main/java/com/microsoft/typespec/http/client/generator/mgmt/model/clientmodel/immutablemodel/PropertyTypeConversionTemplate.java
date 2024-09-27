@@ -3,14 +3,13 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.immutablemodel;
 
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentModelProperty;
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.ModelNaming;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelProperty;
-import com.microsoft.typespec.http.client.generator.mgmt.util.TypeConversionUtils;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelProperty;
 import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
-
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentModelProperty;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.ModelNaming;
+import com.microsoft.typespec.http.client.generator.mgmt.util.TypeConversionUtils;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -42,18 +41,21 @@ public class PropertyTypeConversionTemplate implements ImmutableMethod {
         }
 
         conversionMethodTemplate = MethodTemplate.builder()
-                .imports(imports)
-                .methodSignature(fluentProperty.getMethodSignature())
-                .method(block -> {
-                    block.line(String.format("%1$s %2$s = this.%3$s().%4$s();", property.getClientType().toString(), TypeConversionUtils.tempVariableName(), ModelNaming.METHOD_INNER_MODEL, property.getGetterName()));
-                    block.ifBlock(String.format("%1$s != null", TypeConversionUtils.tempVariableName()), ifBlock -> {
-                        String expression = TypeConversionUtils.conversionExpression(property.getClientType(), TypeConversionUtils.tempVariableName());
-                        block.methodReturn(TypeConversionUtils.objectOrUnmodifiableCollection(property.getClientType(), expression));
-                    }).elseBlock(elseBlock -> {
-                        block.methodReturn(TypeConversionUtils.nullOrEmptyCollection(property.getClientType()));
-                    });
-                })
-                .build();
+            .imports(imports)
+            .methodSignature(fluentProperty.getMethodSignature())
+            .method(block -> {
+                block.line(String.format("%1$s %2$s = this.%3$s().%4$s();", property.getClientType().toString(),
+                    TypeConversionUtils.tempVariableName(), ModelNaming.METHOD_INNER_MODEL, property.getGetterName()));
+                block.ifBlock(String.format("%1$s != null", TypeConversionUtils.tempVariableName()), ifBlock -> {
+                    String expression = TypeConversionUtils.conversionExpression(property.getClientType(),
+                        TypeConversionUtils.tempVariableName());
+                    block.methodReturn(
+                        TypeConversionUtils.objectOrUnmodifiableCollection(property.getClientType(), expression));
+                }).elseBlock(elseBlock -> {
+                    block.methodReturn(TypeConversionUtils.nullOrEmptyCollection(property.getClientType()));
+                });
+            })
+            .build();
     }
 
     @Override
