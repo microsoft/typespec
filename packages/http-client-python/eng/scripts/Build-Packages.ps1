@@ -58,8 +58,8 @@ try {
     Invoke-LoggedCommand "npm run build" -GroupOutput
 
     # pack the emitter
-    $file = Invoke-LoggedCommand "npm pack -q"
-    Copy-Item $file -Destination "$outputPath/packages"
+    Invoke-LoggedCommand "npm pack"
+    Copy-Item "typespec-http-client-python-$emitterVersion.tgz" -Destination "$outputPath/packages"
 
     Write-PackageInfo -packageName "typespec-http-client-python" -directoryPath "packages/http-client-python/emitter/src" -version $emitterVersion
 }
