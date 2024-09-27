@@ -34,7 +34,10 @@ export class NpmPackageProvider {
     });
   }
 
-  public dispose() {
+  /**
+   * reset the status of the provider with all the caches properly cleaned up
+   */
+  public reset() {
     this.clearCache();
   }
 }
@@ -109,3 +112,6 @@ export class NpmPackage {
     return new NpmPackage(packageFolder, data);
   }
 }
+
+const npmPackageProvider = new NpmPackageProvider();
+export default npmPackageProvider;

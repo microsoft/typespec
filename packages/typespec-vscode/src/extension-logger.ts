@@ -82,6 +82,27 @@ export class ExtensionLogger {
       vscode.window.showInformationMessage,
     );
   }
+
+  trace(message: string, details?: any[]) {
+    this.logInternal(
+      message,
+      details,
+      { showOutput: false, showPopup: false },
+      (m, d) => this.outputChannel?.trace(m, ...d),
+      undefined,
+    );
+  }
+
+  async traceProfile<T>(actionName: string, action: () => Promise<T>) {
+    const start = Date.now();
+    try {
+      return await action();
+    } finally {
+      const end = Date.now();
+      const elapsed = end - start;
+      this.trace(`${actionName} took ${elapsed}ms`);
+    }
+  }
 }
 
 const logger = new ExtensionLogger();

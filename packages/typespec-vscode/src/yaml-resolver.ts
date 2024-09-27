@@ -42,77 +42,6 @@ interface YamlVisitScalarNode {
   path: readonly YamlNodePathSegment[];
 }
 
-function createYamlPathFromVisitScalarNode(
-  info: YamlVisitScalarNode,
-): YamlScalarTarget | undefined {
-  const { key, n, path: nodePath } = info;
-  if (nodePath.length === 0) {
-    logger.debug(
-      `Unexpected path structure, nodePath is empty while we always expect at least a root doc node`,
-    );
-    return undefined;
-  }
-  const path: string[] = [];
-
-  for (let i = 0; i < nodePath.length; i++) {
-    const seg = nodePath[i];
-    if (isPair<unknown, unknown>(seg)) {
-      path.push((<any>seg.key).source ?? "");
-    } else if (isSeq(seg)) {
-      const next = nodePath.length > i + 1 ? nodePath[i + 1] : n;
-      const index = seg.items.findIndex((item) => item === next);
-      if (index >= 0) {
-        path.push(index.toString());
-      } else {
-        logger.debug(
-          `Unexpected path structure. the next element isn't found in the sequence: ${inspect(next)}`,
-        );
-        return undefined;
-      }
-    }
-  }
-
-  const last = nodePath[nodePath.length - 1];
-  if (isPair(last)) {
-    if (nodePath.length < 2) {
-      logger.debug(
-        `Unexpected path structure, the pair node should have a parent node: ${last.toString()}`,
-      );
-      return undefined;
-    }
-    const parent = nodePath[nodePath.length - 2];
-    const targetSiblings = isMap(parent)
-      ? parent.items.filter((item) => item !== last).map((item) => (item.key as any).source ?? "")
-      : [];
-    return {
-      path: path,
-      type: key === "key" ? "key" : "value",
-      source: n.source ?? "",
-      siblings: targetSiblings,
-    };
-  } else if (isSeq(last)) {
-    return {
-      path: path,
-      type: "value",
-      source: n.source ?? "",
-      siblings: last.items.map((item) => (isScalar(item) ? (item.source ?? "") : "")),
-    };
-  } else {
-    logger.debug(
-      `Unexpected path structure, last element is not pair or seq for scalar node: ${last.toString()}`,
-    );
-    return undefined;
-  }
-}
-
-function isCommentLine(line: vscode.TextLine): boolean {
-  return line.text.trimStart().startsWith("#");
-}
-
-function isArrayItemLine(line: vscode.TextLine): boolean {
-  return line.text.trimStart().startsWith("-");
-}
-
 export function resolveYamlPath(
   document: vscode.TextDocument,
   position: vscode.Position,
@@ -229,6 +158,77 @@ export function resolveYamlPath(
     const yp = createYamlPathFromVisitScalarNode(found);
     return yp;
   }
+}
+
+function createYamlPathFromVisitScalarNode(
+  info: YamlVisitScalarNode,
+): YamlScalarTarget | undefined {
+  const { key, n, path: nodePath } = info;
+  if (nodePath.length === 0) {
+    logger.debug(
+      `Unexpected path structure, nodePath is empty while we always expect at least a root doc node`,
+    );
+    return undefined;
+  }
+  const path: string[] = [];
+
+  for (let i = 0; i < nodePath.length; i++) {
+    const seg = nodePath[i];
+    if (isPair<unknown, unknown>(seg)) {
+      path.push((<any>seg.key).source ?? "");
+    } else if (isSeq(seg)) {
+      const next = nodePath.length > i + 1 ? nodePath[i + 1] : n;
+      const index = seg.items.findIndex((item) => item === next);
+      if (index >= 0) {
+        path.push(index.toString());
+      } else {
+        logger.debug(
+          `Unexpected path structure. the next element isn't found in the sequence: ${inspect(next)}`,
+        );
+        return undefined;
+      }
+    }
+  }
+
+  const last = nodePath[nodePath.length - 1];
+  if (isPair(last)) {
+    if (nodePath.length < 2) {
+      logger.debug(
+        `Unexpected path structure, the pair node should have a parent node: ${last.toString()}`,
+      );
+      return undefined;
+    }
+    const parent = nodePath[nodePath.length - 2];
+    const targetSiblings = isMap(parent)
+      ? parent.items.filter((item) => item !== last).map((item) => (item.key as any).source ?? "")
+      : [];
+    return {
+      path: path,
+      type: key === "key" ? "key" : "value",
+      source: n.source ?? "",
+      siblings: targetSiblings,
+    };
+  } else if (isSeq(last)) {
+    return {
+      path: path,
+      type: "value",
+      source: n.source ?? "",
+      siblings: last.items.map((item) => (isScalar(item) ? (item.source ?? "") : "")),
+    };
+  } else {
+    logger.debug(
+      `Unexpected path structure, last element is not pair or seq for scalar node: ${last.toString()}`,
+    );
+    return undefined;
+  }
+}
+
+function isCommentLine(line: vscode.TextLine): boolean {
+  return line.text.trimStart().startsWith("#");
+}
+
+function isArrayItemLine(line: vscode.TextLine): boolean {
+  return line.text.trimStart().startsWith("-");
 }
 
 function findScalarNode(

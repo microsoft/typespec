@@ -1,6 +1,6 @@
 import { join } from "path";
-import { NpmPackage, NpmPackageProvider } from "./npm-package.js";
-import { forCurAndParentDirectories, isFile } from "./utils.js";
+import { NpmPackage, NpmPackageProvider } from "../npm-package-provider.js";
+import { forCurAndParentDirectories, isFile } from "../utils.js";
 
 const isEmitter = async (pkg: NpmPackage) => {
   const data = await pkg.getPackageJsonData();

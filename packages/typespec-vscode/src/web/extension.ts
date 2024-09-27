@@ -1,6 +1,6 @@
 import type { ExtensionContext } from "vscode";
 import logger from "../extension-logger.js";
-import { TypeSpecLogOutputChannel } from "../typespec-log-output-channel.js";
+import { TypeSpecLogOutputChannel } from "../vscode/typespec-log-output-channel.js";
 
 /**
  * Workaround: LogOutputChannel doesn't work well with LSP RemoteConsole, so having a customized LogOutputChannel to make them work together properly

@@ -104,7 +104,13 @@ export async function loadNpmPackage(baseDir: string): Promise<NodePackage | und
     if (!isFile(packageJsonPath)) {
       return undefined;
     }
-    const content = await readFile(packageJsonPath, "utf-8");
+
+    const content = await logger.traceProfile(
+      `Loading NpmPackage: ${packageJsonPath}`,
+      async () => {
+        return await readFile(packageJsonPath, "utf-8");
+      },
+    );
     const data = JSON.parse(content) as NodePackage;
 
     if (!data || !data.name || !data.version) {
@@ -130,8 +136,10 @@ export async function loadModuleExports(
   };
   try {
     logger.debug(`Try to resolve module ${packageName} from local, baseDir: ${baseDir}`);
-    const module = await resolveModule(host, packageName, {
-      baseDir,
+    const module = await logger.traceProfile(`Resolving module ${packageName}`, async () => {
+      return await resolveModule(host, packageName, {
+        baseDir,
+      });
     });
     const entrypoint = module.type === "file" ? module.path : module.mainFile;
     const path = pathToFileURL(entrypoint).href;
