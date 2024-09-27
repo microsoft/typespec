@@ -39,7 +39,6 @@ describe("@name", () => {
             type: "string",
           },
           xml: {
-            name: "tags",
             wrapped: true,
           },
         },
@@ -177,7 +176,7 @@ describe("@attribute", () => {
     );
     expectDiagnostics(diagnostics, {
       code: "@typespec/openapi3/invalid-property-type",
-      message: `propertie "tags" is not supported in the openapi3 emitter, it will be ignored.`,
+      message: `Propertie 'tags' is not supported in the OpenAPI 3 emitter, it will be ignored.`,
     });
   });
 });
@@ -193,7 +192,7 @@ describe("@unwrapped", () => {
     );
     expectDiagnostics(diagnostics, {
       code: "@typespec/openapi3/invalid-property-type",
-      message: `propertie "id" is not supported in the openapi3 emitter, it will be ignored.`,
+      message: `Propertie 'id' is not supported in the OpenAPI 3 emitter, it will be ignored.`,
     });
   });
 });

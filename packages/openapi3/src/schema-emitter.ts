@@ -697,7 +697,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     // Resolve XML name
     const xmlName = resolveEncodedName(program, prop, "application/xml");
     const jsonName = resolveEncodedName(program, prop, "application/json");
-    if (xmlName && xmlName !== prop.name && xmlName !== jsonName) {
+    if (xmlName !== jsonName) {
       xmlObject.name = xmlName;
     }
 
@@ -743,7 +743,6 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
     if (isXmlModel && isArrayProperty) {
       // update items
-      const xmlName = resolveEncodedName(program, prop, "application/xml");
       if (ref && ref.items) {
         const propValue = (prop.type as ArrayModelType).indexer.value;
         const propXmlName = resolveEncodedName(
@@ -768,7 +767,6 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
           });
         }
 
-        xmlObject.name = xmlName;
         // handel unwrapped decorator
         if (!hasUnwrappedDecorator) {
           xmlObject.wrapped = true;
