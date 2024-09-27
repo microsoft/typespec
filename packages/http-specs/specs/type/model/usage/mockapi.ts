@@ -34,7 +34,7 @@ Scenarios.Type_Model_Usage_Output = passOnSuccess({
       request: {},
       response: {
         status: 200,
-        data: {
+        body: {
           requiredProp: "example-value",
         },
       },
@@ -58,7 +58,7 @@ Scenarios.Type_Model_Usage_Input_Output = passOnSuccess({
       },
       response: {
         status: 200,
-        data: {
+        body: {
           requiredProp: "example-value",
         },
       },

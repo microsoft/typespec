@@ -8,10 +8,8 @@ Scenarios.Authentication_Union_Valid_Key = passOnSuccess({
     {
       method: "get",
       request: {
-        config: {
-          headers: {
-            "x-ms-api-key": "valid-key",
-          },
+        headers: {
+          "x-ms-api-key": "valid-key",
         },
       },
       response: {
@@ -32,10 +30,8 @@ Scenarios.Authentication_Union_Valid_Token = passOnSuccess({
     {
       method: "get",
       request: {
-        config: {
-          headers: {
-            authorization: "Bearer https://security.microsoft.com/.default",
-          },
+        headers: {
+          authorization: "Bearer https://security.microsoft.com/.default",
         },
       },
       response: {

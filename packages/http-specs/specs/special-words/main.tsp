@@ -1,6 +1,5 @@
 import "@typespec/http";
 import "@typespec/spec-lib";
-import "@azure-tools/typespec-client-generator-core";
 import "./dec.js";
 
 using TypeSpec.Http;

@@ -52,10 +52,8 @@ Scenarios.Parameters_Spread_Model_Composite_Request_Without_Body_Foo = passOnSuc
     {
       method: "put",
       request: {
-        config: {
-          headers: {
-            "test-header": "bar",
-          },
+        headers: {
+          "test-header": "bar",
         },
       },
       response: {
@@ -79,10 +77,8 @@ Scenarios.Parameters_Spread_Model_Composite_Request_Foo = passOnSuccess({
         body: {
           name: "foo",
         },
-        config: {
-          headers: {
-            "test-header": "bar",
-          },
+        headers: {
+          "test-header": "bar",
         },
       },
       response: {
@@ -107,10 +103,8 @@ Scenarios.Parameters_Spread_Model_Composite_Request_Mix_Foo = passOnSuccess({
         body: {
           prop: "foo",
         },
-        config: {
-          headers: {
-            "test-header": "bar",
-          },
+        headers: {
+          "test-header": "bar",
         },
       },
       response: {
@@ -157,10 +151,8 @@ Scenarios.Parameters_Spread_Alias_Request_Parameter_1 = passOnSuccess({
         body: {
           name: "foo",
         },
-        config: {
-          headers: {
-            "x-ms-test-header": "bar",
-          },
+        headers: {
+          "x-ms-test-header": "bar",
         },
       },
       response: {
@@ -188,10 +180,8 @@ Scenarios.Parameters_Spread_Alias_Multiple_Parameters_1 = passOnSuccess({
           requiredIntList: [1, 2],
           optionalStringList: ["foo", "bar"],
         },
-        config: {
-          headers: {
-            "x-ms-test-header": "bar",
-          },
+        headers: {
+          "x-ms-test-header": "bar",
         },
       },
       response: {
@@ -221,10 +211,8 @@ Scenarios.Parameters_Spread_Alias_Inner_Model_Parameter_1 = passOnSuccess({
         body: {
           name: "foo",
         },
-        config: {
-          headers: {
-            "x-ms-test-header": "bar",
-          },
+        headers: {
+          "x-ms-test-header": "bar",
         },
       },
       response: {
@@ -250,10 +238,8 @@ Scenarios.Parameters_Spread_Alias_Inner_Alias_Parameter_1 = passOnSuccess({
           name: "foo",
           age: 1,
         },
-        config: {
-          headers: {
-            "x-ms-test-header": "bar",
-          },
+        headers: {
+          "x-ms-test-header": "bar",
         },
       },
       response: {

@@ -10,7 +10,7 @@ Scenarios.Type_Enum_Fixed_String_Known_Value = passOnSuccess({
       request: {},
       response: {
         status: 200,
-        data: "Monday",
+        body: "Monday",
       },
       handler: (req: MockRequest) => {
         return { status: 200, body: json("Monday") };
@@ -20,10 +20,8 @@ Scenarios.Type_Enum_Fixed_String_Known_Value = passOnSuccess({
       method: "put",
       request: {
         body: "Monday",
-        config: {
-          headers: {
-            "Content-Type": "application/json",
-          },
+        headers: {
+          "Content-Type": "application/json",
         },
       },
       response: {
@@ -45,12 +43,10 @@ Scenarios.Type_Enum_Fixed_String_Unknown_Value = passOnSuccess({
       method: "put",
       request: {
         body: "Weekend",
-        config: {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          validStatus: 500,
+        headers: {
+          "Content-Type": "application/json",
         },
+        validStatus: 500,
       },
       response: {
         status: 500,

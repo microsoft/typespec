@@ -26,25 +26,45 @@ class ServerTestsGenerator {
     this.scenariosPath = scenariosPath;
   }
 
+  private getConfigObj(mockMethod: MockMethod) {
+    let config = {};
+    if (mockMethod.request.validStatus) {
+      config = {
+        validateStatus: function (status: number) {
+          return (status >= 200 && status < 300) || status === mockMethod.request.validStatus;
+        },
+      };
+    }
+    if (mockMethod.request.params) {
+      config = {
+        ...config,
+        params: mockMethod.request.params,
+      };
+    }
+    if (mockMethod.request.headers) {
+      config = {
+        ...config,
+        headers: mockMethod.request.headers,
+      };
+    }
+    if (["head", "get", "delete"].includes(mockMethod.method) && mockMethod.request.body) {
+      config = {
+        ...config,
+        data: mockMethod.request.body,
+      };
+    }
+    return config;
+  }
+
   public async executeScenario() {
     if (!this.mockMethods) return;
     for (const mockMethod of this.mockMethods) {
       logger.info(`Executing ${this.name} endpoint - Method: ${mockMethod.method}`);
 
-      if (mockMethod.request.config?.validStatus) {
-        mockMethod.request.config = {
-          ...mockMethod.request.config,
-          validateStatus: function (status: number) {
-            return (
-              (status >= 200 && status < 300) || status === mockMethod.request.config?.validStatus
-            );
-          },
-        };
-      }
-      if (mockMethod.response.data && mockMethod.response.data["nextLink"]) {
-        mockMethod.response.data = {
-          ...mockMethod.response.data,
-          nextLink: `${this.serverBasePath}${mockMethod.response.data["nextLink"]}`,
+      if (mockMethod.response.body && mockMethod.response.body["nextLink"]) {
+        mockMethod.response.body = {
+          ...mockMethod.response.body,
+          nextLink: `${this.serverBasePath}${mockMethod.response.body["nextLink"]}`,
         };
       }
 
@@ -52,7 +72,7 @@ class ServerTestsGenerator {
         endPoint: `${this.serverBasePath}${this.endpoint}`,
         options: {
           requestBody: mockMethod.request.body,
-          config: mockMethod.request.config,
+          config: this.getConfigObj(mockMethod),
         },
       });
       if (mockMethod.response.status !== response.status) {
@@ -60,46 +80,49 @@ class ServerTestsGenerator {
         logger.error(`Expected: ${mockMethod.response.status} - Actual: ${response.status}`);
         throw new Error(`Status code mismatch for ${this.name} endpoint`);
       }
-      if (mockMethod.response.data) {
-        if (mockMethod.response.data["contentType"] === "application/xml") {
+      if (mockMethod.response.body) {
+        if (mockMethod.response.body["contentType"] === "application/xml") {
           if (
-            JSON.stringify(mockMethod.response.data["rawContent"]) !== JSON.stringify(response.data)
+            JSON.stringify(mockMethod.response.body["rawContent"]) !== JSON.stringify(response.data)
           ) {
             logger.error(`Response data mismatch for ${this.name} endpoint`);
             logger.error(
-              `Expected: ${mockMethod.response.data["rawContent"]} - Actual: ${response.data}`,
+              `Expected: ${mockMethod.response.body["rawContent"]} - Actual: ${response.data}`,
             );
             throw new Error(`Response data mismatch for ${this.name} endpoint`);
           }
-        } else if (Buffer.isBuffer(mockMethod.response.data)) {
+        } else if (Buffer.isBuffer(mockMethod.response.body)) {
           if (
-            mockMethod.request.config?.headers &&
-            mockMethod.request.config.headers["accept"] === "application/json"
+            mockMethod.request.headers &&
+            mockMethod.request.headers["accept"] === "application/json"
           ) {
-            if (response.data.content !== mockMethod.response.data.toString("base64")) {
+            if (response.data.content !== mockMethod.response.body.toString("base64")) {
               throw new Error(`Response data mismatch for ${this.name} endpoint`);
             }
           } else {
             if (
-              uint8ArrayToString(response.data, "utf-8") !== mockMethod.response.data.toString()
+              uint8ArrayToString(response.data, "utf-8") !== mockMethod.response.body.toString()
             ) {
               throw new Error(`Response data mismatch for ${this.name} endpoint`);
             }
           }
         } else {
-          if (JSON.stringify(mockMethod.response.data) !== JSON.stringify(response.data)) {
+          if (JSON.stringify(mockMethod.response.body) !== JSON.stringify(response.data)) {
             logger.error(`Response data mismatch for ${this.name} endpoint`);
-            logger.error(`Expected: ${mockMethod.response.data} - Actual: ${response.data}`);
+            logger.error(`Expected: ${mockMethod.response.body} - Actual: ${response.data}`);
             throw new Error(`Response data mismatch for ${this.name} endpoint`);
           }
         }
       }
-      if (mockMethod.response.config?.headers) {
-        if (
-          JSON.stringify(mockMethod.response.config.headers) !==
-          JSON.stringify(response.config.headers)
-        ) {
-          throw new Error(`Response headers mismatch for ${this.name} endpoint`);
+      if (mockMethod.response.headers) {
+        for (const key in mockMethod.response.headers) {
+          if (mockMethod.response.headers[key] !== response.headers[key]) {
+            logger.error(`Response headers mismatch for ${this.name} endpoint`);
+            logger.error(
+              `Expected: ${mockMethod.response.headers[key]} - Actual: ${response.headers[key]}`,
+            );
+            throw new Error(`Response headers mismatch for ${this.name} endpoint`);
+          }
         }
       }
     }

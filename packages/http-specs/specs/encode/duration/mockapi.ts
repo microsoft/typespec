@@ -19,7 +19,7 @@ function createBodyServerTests(uri: string, data: any, value: any) {
         },
         response: {
           status: 200,
-          data: data,
+          body: data,
         },
         handler: (req: MockRequest) => {
           req.expect.coercedBodyEquals({ value: value });
@@ -88,9 +88,7 @@ function createQueryServerTests(
       {
         method: "get",
         request: {
-          config: {
-            params: paramData,
-          },
+          params: paramData,
         },
         response: {
           status: 204,
@@ -157,9 +155,7 @@ function createHeaderServerTests(uri: string, headersData: any, value: any) {
       {
         method: "get",
         request: {
-          config: {
-            headers: headersData,
-          },
+          headers: headersData,
         },
         response: {
           status: 204,

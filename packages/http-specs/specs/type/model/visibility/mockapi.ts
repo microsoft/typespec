@@ -30,7 +30,7 @@ Scenarios.Type_Model_Visibility_ReadOnlyRoundTrip = passOnSuccess({
       request: {},
       response: {
         status: 200,
-        data: {
+        body: {
           optionalNullableIntList: [1, 2, 3],
           optionalStringRecord: { k1: "value1", k2: "value2" },
         },
@@ -49,9 +49,7 @@ Scenarios.Type_Model_Visibility = passOnSuccess({
     {
       method: "head",
       request: {
-        config: {
-          data: { queryProp: 123 },
-        },
+        body: { queryProp: 123 },
       },
       response: {
         status: 200,
@@ -64,13 +62,11 @@ Scenarios.Type_Model_Visibility = passOnSuccess({
     {
       method: "get",
       request: {
-        config: {
-          data: { queryProp: 123 },
-        },
+        body: { queryProp: 123 },
       },
       response: {
         status: 200,
-        data: { readProp: "abc" },
+        body: { readProp: "abc" },
       },
       handler: (req: MockRequest) => {
         req.expect.bodyEquals(genData(["queryProp"]));
@@ -129,9 +125,7 @@ Scenarios.Type_Model_Visibility = passOnSuccess({
     {
       method: "delete",
       request: {
-        config: {
-          data: { deleteProp: true },
-        },
+        body: { deleteProp: true },
       },
       response: {
         status: 204,

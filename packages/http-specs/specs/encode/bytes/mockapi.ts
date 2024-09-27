@@ -27,9 +27,7 @@ function createQueryServerTests(
       {
         method: "get",
         request: {
-          config: {
-            params: data,
-          },
+          params: data,
         },
         response: {
           status: 204,
@@ -133,9 +131,7 @@ function createHeaderServerTests(uri: string, data: any, value: any) {
       {
         method: "get",
         request: {
-          config: {
-            headers: data,
-          },
+          headers: data,
         },
         response: {
           status: 204,
@@ -193,9 +189,7 @@ function createRequestBodyServerTests(
         method: "post",
         request: {
           body: data,
-          config: {
-            headers: headersData,
-          },
+          headers: headersData,
         },
         response: {
           status: 204,
@@ -268,13 +262,11 @@ function createResponseBodyServerTests(
       {
         method: "get",
         request: {
-          config: {
-            headers: headerData,
-          },
+          headers: headerData,
         },
         response: {
           status: 200,
-          data: data,
+          body: data,
         },
         handler(req: MockRequest) {
           return {

@@ -46,10 +46,8 @@ Scenarios.Server_Versions_Not_Versioned_With_Query_API_Version = passOnSuccess({
     {
       method: "head",
       request: {
-        config: {
-          params: {
-            "api-version": "v1.0",
-          },
+        params: {
+          "api-version": "v1.0",
         },
       },
       response: {

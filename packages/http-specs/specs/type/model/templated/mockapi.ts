@@ -16,7 +16,7 @@ Scenarios.Type_Model_Templated_numericType = passOnSuccess({
       },
       response: {
         status: 200,
-        data: {
+        body: {
           kind: "Int32Values",
           values: [1234],
           value: 1234,
@@ -53,7 +53,7 @@ Scenarios.Type_Model_Templated_float32Type = passOnSuccess({
       },
       response: {
         status: 200,
-        data: {
+        body: {
           kind: "Float32Values",
           values: [0.5],
           value: 0.5,
@@ -90,7 +90,7 @@ Scenarios.Type_Model_Templated_int32Type = passOnSuccess({
       },
       response: {
         status: 200,
-        data: {
+        body: {
           kind: "Int32Values",
           values: [1234],
           value: 1234,

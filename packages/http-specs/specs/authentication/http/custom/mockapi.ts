@@ -8,10 +8,8 @@ Scenarios.Authentication_Http_Custom_Valid_Key = passOnSuccess({
     {
       method: "get",
       request: {
-        config: {
-          headers: {
-            authorization: "SharedAccessKey valid-key",
-          },
+        headers: {
+          authorization: "SharedAccessKey valid-key",
         },
       },
       response: {
@@ -32,16 +30,14 @@ Scenarios.Authentication_Http_Custom_InValid_Key = passOnSuccess({
     {
       method: "get",
       request: {
-        config: {
-          headers: {
-            authorization: "SharedAccessKey valid-key",
-          },
-          validStatus: 403,
+        headers: {
+          authorization: "SharedAccessKey valid-key",
         },
+        validStatus: 403,
       },
       response: {
         status: 403,
-        data: {
+        body: {
           error: "invalid-api-key",
         },
       },

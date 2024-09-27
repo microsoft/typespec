@@ -60,13 +60,27 @@ export interface MockApiDefinition {
 export interface MockMethod {
   method: HttpMethod;
   request: ServiceRequest;
-  response: any;
+  response: ServiceResponse;
   handler?: MockRequestHandler;
+}
+
+export interface ServiceResponse {
+  status: number;
+  headers?: {
+    [key: string]: string | null;
+  };
+  body?: any;
 }
 
 export interface ServiceRequest {
   body?: any;
-  config?: any | undefined;
+  validStatus?: number;
+  params?: {
+    [key: string]: any;
+  };
+  headers?: {
+    [key: string]: string | number;
+  };
 }
 
 export const Fail = Symbol.for("Fail");

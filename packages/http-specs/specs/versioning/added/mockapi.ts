@@ -13,15 +13,13 @@ Scenarios.Versioning_Added_API_Version_V2_V1 = passOnSuccess({
           enumProp: "enumMemberV2",
           unionProp: 10,
         },
-        config: {
-          headers: {
-            "header-v2": "bar",
-          },
+        headers: {
+          "header-v2": "bar",
         },
       },
       response: {
         status: 200,
-        data: {
+        body: {
           prop: "foo",
           enumProp: "enumMemberV2",
           unionProp: 10,
@@ -54,7 +52,7 @@ Scenarios.Versioning_Added_API_Version_V2_V2 = passOnSuccess({
       },
       response: {
         status: 200,
-        data: {
+        body: {
           prop: "foo",
           enumProp: "enumMember",
           unionProp: "bar",
@@ -86,7 +84,7 @@ Scenarios.Versioning_Added_API_Version_V2_Interface_V2_V2 = passOnSuccess({
       },
       response: {
         status: 200,
-        data: {
+        body: {
           prop: "foo",
           enumProp: "enumMember",
           unionProp: "bar",

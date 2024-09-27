@@ -23,9 +23,7 @@ function createQueryServerTests(
       {
         method: "get",
         request: {
-          config: {
-            params: paramData,
-          },
+          params: paramData,
         },
         response: {
           status: 204,
@@ -177,9 +175,7 @@ function createHeaderServerTests(
       {
         method: "get",
         request: {
-          config: {
-            headers: data,
-          },
+          headers: data,
         },
         response: {
           status: 204,

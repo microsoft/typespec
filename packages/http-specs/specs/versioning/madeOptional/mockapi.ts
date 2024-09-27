@@ -14,7 +14,7 @@ Scenarios.Versioning_MadeOptional_API_Version_V2_Test = passOnSuccess({
       },
       response: {
         status: 200,
-        data: {
+        body: {
           prop: "foo",
         },
       },

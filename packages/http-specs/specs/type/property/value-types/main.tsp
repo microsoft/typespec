@@ -1,7 +1,5 @@
 import "@typespec/http";
 import "@typespec/spec-lib";
-import "@azure-tools/typespec-client-generator-core";
-import "@azure-tools/typespec-azure-core";
 
 using TypeSpec.Http;
 using Azure.ClientGenerator.Core;

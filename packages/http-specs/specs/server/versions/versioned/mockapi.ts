@@ -58,10 +58,8 @@ function createAPIVersionTests(uri: string, requestData: any, serverData: string
 Scenarios.Server_Versions_Versioned_With_Query_Old_API_Version = createAPIVersionTests(
   "/server/versions/versioned/with-query-old-api-version",
   {
-    config: {
-      params: {
-        "api-version": "2021-01-01-preview",
-      },
+    params: {
+      "api-version": "2021-01-01-preview",
     },
   },
   "2021-01-01-preview",
@@ -70,10 +68,8 @@ Scenarios.Server_Versions_Versioned_With_Query_Old_API_Version = createAPIVersio
 Scenarios.Server_Versions_Versioned_With_Query_API_Version = createAPIVersionTests(
   "/server/versions/versioned/with-query-api-version",
   {
-    config: {
-      params: {
-        "api-version": "2022-12-01-preview",
-      },
+    params: {
+      "api-version": "2022-12-01-preview",
     },
   },
   "2022-12-01-preview",

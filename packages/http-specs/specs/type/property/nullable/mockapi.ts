@@ -11,7 +11,7 @@ function createServerTests(url: string, value: unknown, patchNullableProperty?: 
         request: {},
         response: {
           status: 200,
-          data: value,
+          body: value,
         },
         handler: (req: MockRequest) => {
           return {
@@ -27,10 +27,8 @@ function createServerTests(url: string, value: unknown, patchNullableProperty?: 
             requiredProperty: "foo",
             nullableProperty: patchNullableProperty || null,
           },
-          config: {
-            headers: {
-              "Content-Type": "application/merge-patch+json",
-            },
+          headers: {
+            "Content-Type": "application/merge-patch+json",
           },
         },
         response: {

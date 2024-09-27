@@ -132,7 +132,7 @@ function createServerTests(uri: string, data?: any) {
         request: {},
         response: {
           status: 200,
-          data: xml(data),
+          body: xml(data),
         },
         handler: (req: MockRequest) => {
           return {
@@ -145,10 +145,8 @@ function createServerTests(uri: string, data?: any) {
         method: "put",
         request: {
           body: data,
-          config: {
-            headers: {
-              "content-type": "application/xml",
-            },
+          headers: {
+            "content-type": "application/xml",
           },
         },
         response: {

@@ -8,16 +8,14 @@ Scenarios.Authentication_ApiKey_InValid_Server_Test = passOnSuccess({
     {
       method: `get`,
       request: {
-        config: {
-          headers: {
-            "x-ms-api-key": "valid-key",
-          },
-          validStatus: 403,
+        headers: {
+          "x-ms-api-key": "valid-key",
         },
+        validStatus: 403,
       },
       response: {
         status: 403,
-        data: {
+        body: {
           error: "invalid-api-key",
         },
       },
@@ -40,10 +38,8 @@ Scenarios.Authentication_ApiKey_Valid_Server_Test = passOnSuccess({
     {
       method: `get`,
       request: {
-        config: {
-          headers: {
-            "x-ms-api-key": "valid-key",
-          },
+        headers: {
+          "x-ms-api-key": "valid-key",
         },
       },
       response: {

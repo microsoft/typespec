@@ -38,7 +38,6 @@
     "dotenv": "~16.4.5"
   },
   "devDependencies": {
-    "@azure-tools/typespec-client-generator-core": "0.46.0",
     "@types/node": "~22.7.1",
     "@types/multer": "^1.4.10",
     "@typespec/openapi": "workspace:~",
@@ -48,7 +47,6 @@
   },
   "peerDependencies": {
     "@typespec/spec-lib": "workspace:~",
-    "@azure-tools/typespec-azure-core": "~0.46.0",
     "@typespec/compiler": "workspace:~",
     "@typespec/http": "workspace:~",
     "@typespec/rest": "workspace:~",

@@ -10,9 +10,7 @@ Scenarios.Parameters_Collection_Format_Query_Multi = passOnSuccess({
     {
       method: "get",
       request: {
-        config: {
-          params: { colors: ["blue", "red", "green"] },
-        },
+        params: { colors: ["blue", "red", "green"] },
       },
       response: {
         status: 204,
@@ -34,9 +32,7 @@ Scenarios.Parameters_Collection_Format_Query_CSV = passOnSuccess({
     {
       method: "get",
       request: {
-        config: {
-          params: { colors: colors.join(",") },
-        },
+        params: { colors: colors.join(",") },
       },
       response: {
         status: 204,
@@ -58,9 +54,7 @@ Scenarios.Parameters_Collection_Format_Query_SSV = passOnSuccess({
     {
       method: "get",
       request: {
-        config: {
-          params: { colors: colors.join(" ") },
-        },
+        params: { colors: colors.join(" ") },
       },
       response: {
         status: 204,
@@ -82,9 +76,7 @@ Scenarios.Parameters_Collection_Format_Query_TSV = passOnSuccess({
     {
       method: "get",
       request: {
-        config: {
-          params: { colors: colors.join("\t") },
-        },
+        params: { colors: colors.join("\t") },
       },
       response: {
         status: 204,
@@ -106,9 +98,7 @@ Scenarios.Parameters_Collection_Format_Query_Pipes = passOnSuccess({
     {
       method: "get",
       request: {
-        config: {
-          params: { colors: colors.join("|") },
-        },
+        params: { colors: colors.join("|") },
       },
       response: {
         status: 204,
@@ -130,9 +120,7 @@ Scenarios.Parameters_Collection_Format_Header_CSV = passOnSuccess({
     {
       method: "get",
       request: {
-        config: {
-          headers: { colors: colors.join(",") },
-        },
+        headers: { colors: colors.join(",") },
       },
       response: {
         status: 204,

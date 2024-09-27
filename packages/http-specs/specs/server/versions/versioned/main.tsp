@@ -1,6 +1,5 @@
 import "@typespec/http";
 import "@typespec/spec-lib";
-import "@azure-tools/typespec-azure-core";
 import "@typespec/versioning";
 
 using TypeSpec.Http;

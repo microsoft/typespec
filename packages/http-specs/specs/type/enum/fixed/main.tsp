@@ -1,5 +1,4 @@
 import "@typespec/http";
-import "@azure-tools/typespec-azure-core";
 import "@typespec/spec-lib";
 
 using Azure.Core;

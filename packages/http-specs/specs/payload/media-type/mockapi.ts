@@ -9,10 +9,8 @@ Scenarios.Payload_MediaType_String_Body_SendAsText = passOnSuccess({
       method: "post",
       request: {
         body: "{cat}",
-        config: {
-          headers: {
-            "Content-Type": "text/plain",
-          },
+        headers: {
+          "Content-Type": "text/plain",
         },
       },
       response: {
@@ -34,15 +32,13 @@ Scenarios.Payload_MediaType_String_Body_GetAsText = passOnSuccess({
     {
       method: "get",
       request: {
-        config: {
-          headers: {
-            accept: "text/plain",
-          },
+        headers: {
+          accept: "text/plain",
         },
       },
       response: {
         status: 200,
-        data: "{cat}",
+        body: "{cat}",
       },
       handler: (req: MockRequest) => {
         req.expect.containsHeader("accept", "text/plain");
@@ -63,10 +59,8 @@ Scenarios.Payload_MediaType_String_Body_SendAsJson = passOnSuccess({
       method: "post",
       request: {
         body: "foo",
-        config: {
-          headers: {
-            "Content-Type": "application/json",
-          },
+        headers: {
+          "Content-Type": "application/json",
         },
       },
       response: {
@@ -88,15 +82,13 @@ Scenarios.Payload_MediaType_String_Body_GetAsJson = passOnSuccess({
     {
       method: "get",
       request: {
-        config: {
-          headers: {
-            accept: "application/json",
-          },
+        headers: {
+          accept: "application/json",
         },
       },
       response: {
         status: 200,
-        data: "foo",
+        body: "foo",
       },
       handler: (req: MockRequest) => {
         req.expect.containsHeader("accept", "application/json");

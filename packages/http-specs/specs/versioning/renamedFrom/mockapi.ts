@@ -13,15 +13,13 @@ Scenarios.Versioning_RenamedFrom_API_Version_V2_Test = passOnSuccess({
           enumProp: "newEnumMember",
           unionProp: 10,
         },
-        config: {
-          params: {
-            newQuery: "bar",
-          },
+        params: {
+          newQuery: "bar",
         },
       },
       response: {
         status: 200,
-        data: {
+        body: {
           newProp: "foo",
           enumProp: "newEnumMember",
           unionProp: 10,
@@ -54,7 +52,7 @@ Scenarios.Versioning_RenamedFrom_API_Version_V2_Interface_Test = passOnSuccess({
       },
       response: {
         status: 200,
-        data: {
+        body: {
           newProp: "foo",
           enumProp: "newEnumMember",
           unionProp: 10,

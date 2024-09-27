@@ -10,7 +10,7 @@ Scenarios.Serialization_Encoded_Name_JSON_Property = passOnSuccess({
       request: {},
       response: {
         status: 200,
-        data: { wireName: true },
+        body: { wireName: true },
       },
       handler: (req: MockRequest) => {
         return {

@@ -8,10 +8,8 @@ Scenarios.Versioning_TypeChangedFrom_API_Version_V2_Test = passOnSuccess({
     {
       method: `post`,
       request: {
-        config: {
-          params: {
-            param: "baz",
-          },
+        params: {
+          param: "baz",
         },
         body: {
           prop: "foo",
@@ -20,7 +18,7 @@ Scenarios.Versioning_TypeChangedFrom_API_Version_V2_Test = passOnSuccess({
       },
       response: {
         status: 200,
-        data: {
+        body: {
           prop: "foo",
           changedProp: "bar",
         },

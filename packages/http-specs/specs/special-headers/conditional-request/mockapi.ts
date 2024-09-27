@@ -8,10 +8,8 @@ Scenarios.SpecialHeaders_ConditionalRequest_IfUnmodifiedSince = passOnSuccess({
     {
       method: "post",
       request: {
-        config: {
-          headers: {
-            "if-unmodified-since": "Fri, 26 Aug 2022 14:38:00 GMT",
-          },
+        headers: {
+          "if-unmodified-since": "Fri, 26 Aug 2022 14:38:00 GMT",
         },
       },
       response: {
@@ -34,10 +32,8 @@ Scenarios.SpecialHeaders_ConditionalRequest_IfModifiedSince = passOnSuccess({
     {
       method: "head",
       request: {
-        config: {
-          headers: {
-            "if-modified-since": "Fri, 26 Aug 2022 14:38:00 GMT",
-          },
+        headers: {
+          "if-modified-since": "Fri, 26 Aug 2022 14:38:00 GMT",
         },
       },
       response: {
@@ -60,10 +56,8 @@ Scenarios.Special_Headers_Conditional_Request_If_Match = passOnSuccess({
     {
       method: "post",
       request: {
-        config: {
-          headers: {
-            "if-match": '"valid"',
-          },
+        headers: {
+          "if-match": '"valid"',
         },
       },
       response: {
@@ -86,10 +80,8 @@ Scenarios.Special_Headers_Conditional_Request_If_None_Match = passOnSuccess({
     {
       method: "post",
       request: {
-        config: {
-          headers: {
-            "if-none-match": '"invalid"',
-          },
+        headers: {
+          "if-none-match": '"invalid"',
         },
       },
       response: {

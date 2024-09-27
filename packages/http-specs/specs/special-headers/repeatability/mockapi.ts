@@ -14,11 +14,9 @@ Scenarios.Special_Headers_Repeatability_Immediate_Success = passOnSuccess({
     {
       method: "post",
       request: {
-        config: {
-          headers: {
-            "Repeatability-First-Sent": "Tue, 15 Nov 2022 12:45:26 GMT",
-            "Repeatability-Request-ID": "2378d9bc-1726-11ee-be56-0242ac120002", // fake uuid
-          },
+        headers: {
+          "Repeatability-First-Sent": "Tue, 15 Nov 2022 12:45:26 GMT",
+          "Repeatability-Request-ID": "2378d9bc-1726-11ee-be56-0242ac120002", // fake uuid
         },
       },
       response: {

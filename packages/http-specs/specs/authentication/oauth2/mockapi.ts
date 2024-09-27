@@ -8,10 +8,8 @@ Scenarios.Authentication_OAuth2_Valid_Server_Test = passOnSuccess({
     {
       method: "get",
       request: {
-        config: {
-          headers: {
-            authorization: "Bearer https://security.microsoft.com/.default",
-          },
+        headers: {
+          authorization: "Bearer https://security.microsoft.com/.default",
         },
       },
       response: {
@@ -35,13 +33,11 @@ Scenarios.Authentication_OAuth2_Invalid_Server_Test = passOnSuccess({
     {
       method: "get",
       request: {
-        config: {
-          validStatus: 403,
-        },
+        validStatus: 403,
       },
       response: {
         status: 403,
-        data: {
+        body: {
           error: "invalid-grant",
         },
       },

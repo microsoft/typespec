@@ -16,7 +16,7 @@ Scenarios.Versioning_Removed_API_Version_V2_V2 = passOnSuccess({
       },
       response: {
         status: 200,
-        data: {
+        body: {
           prop: "foo",
           enumProp: "enumMemberV2",
           unionProp: "bar",

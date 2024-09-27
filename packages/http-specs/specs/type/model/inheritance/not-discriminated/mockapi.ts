@@ -12,7 +12,7 @@ Scenarios.Type_Model_Inheritance_Not_Discriminated_Valid = passOnSuccess({
       request: {},
       response: {
         status: 200,
-        data: inheritanceValidBody,
+        body: inheritanceValidBody,
       },
       handler: (req: MockRequest) => {
         return { status: 200, body: json(inheritanceValidBody) };
@@ -25,7 +25,7 @@ Scenarios.Type_Model_Inheritance_Not_Discriminated_Valid = passOnSuccess({
       },
       response: {
         status: 200,
-        data: inheritanceValidBody,
+        body: inheritanceValidBody,
       },
       handler: (req: MockRequest) => {
         return { status: 200, body: json(req.body) };

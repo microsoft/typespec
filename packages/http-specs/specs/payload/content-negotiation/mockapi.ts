@@ -73,14 +73,12 @@ Scenarios.Payload_Content_Negotiation_SameBody = passOnSuccess({
     {
       method: "get",
       request: {
-        config: {
-          headers: {
-            accept: "image/png",
-          },
+        headers: {
+          accept: "image/png",
         },
       },
       response: {
-        data: pngFile,
+        body: pngFile,
         status: 200,
       },
       handler: sameBodyHandler,
@@ -88,14 +86,12 @@ Scenarios.Payload_Content_Negotiation_SameBody = passOnSuccess({
     {
       method: "get",
       request: {
-        config: {
-          headers: {
-            accept: "image/jpeg",
-          },
+        headers: {
+          accept: "image/jpeg",
         },
       },
       response: {
-        data: jpgFile,
+        body: jpgFile,
         status: 200,
       },
       handler: sameBodyHandler,
@@ -103,16 +99,14 @@ Scenarios.Payload_Content_Negotiation_SameBody = passOnSuccess({
     {
       method: "get",
       request: {
-        config: {
-          validStatus: 400,
-          headers: {
-            accept: "wrongAccept",
-          },
+        validStatus: 400,
+        headers: {
+          accept: "wrongAccept",
         },
       },
       response: {
         status: 400,
-        data: {
+        body: {
           message: "Unsupported Accept header",
           expected: `"image/png" | "image/jpeg"`,
           actual: "wrongAccept",
@@ -130,46 +124,40 @@ Scenarios.Payload_Content_Negotiation_DifferentBody = passOnSuccess({
     {
       method: "get",
       request: {
-        config: {
-          headers: {
-            accept: "image/png",
-          },
+        headers: {
+          accept: "image/png",
         },
       },
       response: {
         status: 200,
-        data: pngFile,
+        body: pngFile,
       },
       handler: differentBodyHandler,
     },
     {
       method: "get",
       request: {
-        config: {
-          headers: {
-            accept: "application/json",
-          },
+        headers: {
+          accept: "application/json",
         },
       },
       response: {
         status: 200,
-        data: pngFile,
+        body: pngFile,
       },
       handler: differentBodyHandler,
     },
     {
       method: "get",
       request: {
-        config: {
-          validStatus: 400,
-          headers: {
-            accept: "wrongAccept",
-          },
+        validStatus: 400,
+        headers: {
+          accept: "wrongAccept",
         },
       },
       response: {
         status: 400,
-        data: {
+        body: {
           message: "Unsupported Accept header",
           expected: `"image/png" | "application/json"`,
           actual: "wrongAccept",

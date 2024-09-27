@@ -42,15 +42,13 @@ Scenarios.Payload_Pageable = passOnSuccess({
     {
       method: "get",
       request: {
-        config: {
-          params: {
-            maxpagesize: 3,
-          },
+        params: {
+          maxpagesize: 3,
         },
       },
       response: {
         status: 200,
-        data: {
+        body: {
           value: [{ name: "user5" }, { name: "user6" }, { name: "user7" }],
           nextLink: "/payload/pageable?skipToken=name-user7&maxpagesize=3",
         },
@@ -60,33 +58,29 @@ Scenarios.Payload_Pageable = passOnSuccess({
     {
       method: "get",
       request: {
-        config: {
-          params: {
-            maxpagesize: 3,
-            skipToken: "name-user7",
-          },
+        params: {
+          maxpagesize: 3,
+          skipToken: "name-user7",
         },
       },
       response: {
         status: 200,
-        data: { value: [{ name: "user8" }] },
+        body: { value: [{ name: "user8" }] },
       },
       handler: handler,
     },
     {
       method: "get",
       request: {
-        config: {
-          params: {
-            maxpagesize: 3,
-            skipToken: "name-user10",
-          },
-          validStatus: 400,
+        params: {
+          maxpagesize: 3,
+          skipToken: "name-user10",
         },
+        validStatus: 400,
       },
       response: {
         status: 400,
-        data: {
+        body: {
           message: "Unsupported skipToken query parameter",
           expected: `Not provided for first page, "name-user7" for second page`,
           actual: "name-user10",

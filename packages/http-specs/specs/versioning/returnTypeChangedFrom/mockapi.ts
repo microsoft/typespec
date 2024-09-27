@@ -9,15 +9,13 @@ Scenarios.Versioning_ReturnTypeChangedFrom_API_Version_V2_Test = passOnSuccess({
       method: `post`,
       request: {
         body: "test",
-        config: {
-          headers: {
-            "Content-Type": "text/plain",
-          },
+        headers: {
+          "Content-Type": "text/plain",
         },
       },
       response: {
         status: 200,
-        data: "test",
+        body: "test",
       },
       handler: (req: MockRequest) => {
         req.expect.bodyEquals("test");
