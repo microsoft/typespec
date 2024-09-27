@@ -697,7 +697,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     // Resolve XML name
     const xmlName = resolveEncodedName(program, prop, "application/xml");
     const jsonName = resolveEncodedName(program, prop, "application/json");
-    if (xmlName !== jsonName) {
+    if (xmlName !== prop.name && xmlName !== jsonName) {
       xmlObject.name = xmlName;
     }
 
