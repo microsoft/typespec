@@ -1,4 +1,5 @@
 import {
+  compilerAssert,
   DecoratorContext,
   Diagnostic,
   DiagnosticTarget,
@@ -188,7 +189,7 @@ export const $info: InfoDecorator = (
   if (data === undefined) {
     return;
   }
-  validateObject(context, model);
+  validateAdditionalInfoModel(context, model);
   setInfo(context.program, entity, data);
 };
 
@@ -219,7 +220,7 @@ function omitUndefined<T extends Record<string, unknown>>(data: T): T {
   return Object.fromEntries(Object.entries(data).filter(([k, v]) => v !== undefined)) as any;
 }
 
-function validateObject(context: DecoratorContext, typespecType: TypeSpecValue) {
+function validateAdditionalInfoModel(context: DecoratorContext, typespecType: TypeSpecValue) {
   const propertyModel = context.program.resolveTypeReference(
     "TypeSpec.OpenAPI.AdditionalInfo",
   )[0]! as Model;
@@ -240,28 +241,27 @@ function checkNoAdditionalProperties(
   source: Model,
 ): Diagnostic[] {
   const diagnostics: Diagnostic[] = [];
+  compilerAssert(typespecType.kind === "Model", "Expected type to be a Model.");
 
-  if (typespecType.kind === "Model") {
-    for (const [name, type] of typespecType.properties.entries()) {
-      const sourceProperty = getProperty(source, name);
-      if (sourceProperty) {
-        if (sourceProperty.type.kind === "Model") {
-          const nestedDiagnostics = checkNoAdditionalProperties(
-            type.type,
-            target,
-            sourceProperty.type,
-          );
-          diagnostics.push(...nestedDiagnostics);
-        }
-      } else if (!isOpenAPIExtensionKey(name)) {
-        diagnostics.push(
-          createDiagnostic({
-            code: "invalid-extension-key",
-            format: { value: name },
-            target,
-          }),
+  for (const [name, type] of typespecType.properties.entries()) {
+    const sourceProperty = getProperty(source, name);
+    if (sourceProperty) {
+      if (sourceProperty.type.kind === "Model") {
+        const nestedDiagnostics = checkNoAdditionalProperties(
+          type.type,
+          target,
+          sourceProperty.type,
         );
+        diagnostics.push(...nestedDiagnostics);
       }
+    } else if (!isOpenAPIExtensionKey(name)) {
+      diagnostics.push(
+        createDiagnostic({
+          code: "invalid-extension-key",
+          format: { value: name },
+          target,
+        }),
+      );
     }
   }
 
