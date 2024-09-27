@@ -304,57 +304,7 @@ public class Project {
             Path pomPath = Paths.get(outputFolder, "pom.xml");
 
             if (Files.isReadable(pomPath)) {
-                try {
-                    DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-                    DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-                    Document doc = dBuilder.parse(pomPath.toFile());
-                    NodeList nodeList = (NodeList) XPathFactory.newInstance()
-                        .newXPath()
-                        .compile("dependencies/dependency")
-                        .evaluate(doc, XPathConstants.NODESET);
-                    for (int i = 0; i < nodeList.getLength(); i++) {
-                        Node dependencyNode = nodeList.item(i);
-                        String groupId = null;
-                        String artifactId = null;
-                        String version = null;
-                        String scope = null;
-                        NodeList itemNodeList = dependencyNode.getChildNodes();
-                        for (int k = 0; k < itemNodeList.getLength(); ++k) {
-                            Node itemNode = itemNodeList.item(k);
-                            if (itemNode.getNodeType() == Node.ELEMENT_NODE) {
-                                Element elementItemNode = (Element) itemNode;
-                                switch (elementItemNode.getTagName()) {
-                                    case "groupId":
-                                        groupId = ((Text) elementItemNode.getChildNodes().item(0)).getWholeText();
-                                        break;
-
-                                    case "artifactId":
-                                        artifactId = ((Text) elementItemNode.getChildNodes().item(0)).getWholeText();
-                                        break;
-
-                                    case "version":
-                                        version = ((Text) elementItemNode.getChildNodes().item(0)).getWholeText();
-                                        break;
-
-                                    case "scope":
-                                        scope = ((Text) elementItemNode.getChildNodes().item(0)).getWholeText();
-                                        break;
-                                }
-                            }
-                        }
-
-                        if (groupId != null && artifactId != null && version != null) {
-                            String dependencyIdentifier = groupId + ":" + artifactId + ":" + version;
-                            if (scope != null) {
-                                dependencyIdentifier += ":" + scope;
-                            }
-                            this.pomDependencyIdentifiers.add(dependencyIdentifier);
-                            LOGGER.info("Found dependency identifier '{}' from POM", dependencyIdentifier);
-                        }
-                    }
-                } catch (Exception e) {
-                    LOGGER.warn("Failed to parse 'pom.xml'", e);
-                }
+                this.pomDependencyIdentifiers.addAll(findPomDependencies(pomPath));
             } else {
                 LOGGER.info("'pom.xml' not found or not readable");
             }
@@ -419,5 +369,61 @@ public class Project {
 
     public boolean isGenerateSamples() {
         return JavaSettings.getInstance().isGenerateSamples();
+    }
+
+    static List<String> findPomDependencies(Path pomPath) {
+        List<String> pomDependencyIdentifiers = new ArrayList<>();
+        try {
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(pomPath.toFile());
+            NodeList nodeList = (NodeList) XPathFactory.newInstance()
+                    .newXPath()
+                    .compile("project/dependencies/dependency")
+                    .evaluate(doc, XPathConstants.NODESET);
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                Node dependencyNode = nodeList.item(i);
+                String groupId = null;
+                String artifactId = null;
+                String version = null;
+                String scope = null;
+                NodeList itemNodeList = dependencyNode.getChildNodes();
+                for (int k = 0; k < itemNodeList.getLength(); ++k) {
+                    Node itemNode = itemNodeList.item(k);
+                    if (itemNode.getNodeType() == Node.ELEMENT_NODE) {
+                        Element elementItemNode = (Element) itemNode;
+                        switch (elementItemNode.getTagName()) {
+                            case "groupId":
+                                groupId = ((Text) elementItemNode.getChildNodes().item(0)).getWholeText();
+                                break;
+
+                            case "artifactId":
+                                artifactId = ((Text) elementItemNode.getChildNodes().item(0)).getWholeText();
+                                break;
+
+                            case "version":
+                                version = ((Text) elementItemNode.getChildNodes().item(0)).getWholeText();
+                                break;
+
+                            case "scope":
+                                scope = ((Text) elementItemNode.getChildNodes().item(0)).getWholeText();
+                                break;
+                        }
+                    }
+                }
+
+                if (groupId != null && artifactId != null && version != null) {
+                    String dependencyIdentifier = groupId + ":" + artifactId + ":" + version;
+                    if (scope != null) {
+                        dependencyIdentifier += ":" + scope;
+                    }
+                    pomDependencyIdentifiers.add(dependencyIdentifier);
+                    LOGGER.info("Found dependency identifier '{}' from POM", dependencyIdentifier);
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.warn("Failed to parse 'pom.xml'", e);
+        }
+        return pomDependencyIdentifiers;
     }
 }
