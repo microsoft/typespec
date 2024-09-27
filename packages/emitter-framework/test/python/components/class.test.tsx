@@ -3,10 +3,11 @@ import { expect, it } from "vitest";
 import { ClassDeclaration, PythonModule, PythonPackage } from "../../../src/python/index.js";
 import { Model } from "@typespec/compiler";
 import { getEmitOutput } from "../utils.js";
+import { mapJoin } from "@alloy-js/core";
 
 async function getOutput(code: string, names: string[]): Promise<string | undefined> {
   const output = await getEmitOutput(code, (program) => {
-    const classComponents = names.map(name => <ClassDeclaration type={program.resolveTypeReference(name)[0]! as Model} />);
+    const classComponents = mapJoin(names, (name => <ClassDeclaration type={program.resolveTypeReference(name)[0]! as Model} />), { joiner: "\n\n" });
     return (
       <PythonPackage name="test_package">
         <PythonModule name="test.py">
@@ -32,7 +33,7 @@ it("empty class", async () => {
   `);
 });
 
-it.only("single base class", async () => {
+it("single base class", async () => {
   const code = `
     model Foo {}
 

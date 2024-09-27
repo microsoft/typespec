@@ -29,6 +29,8 @@ export function ref(refkey: Refkey) {
       const syms = (pathDown as PythonMemberScope[]).map((s) => s.owner);
       syms.push(targetDeclaration);
       const memberExpression = buildMemberExpression(syms);
+      // TODO: Remove me once debugging is done...
+      console.log(memberExpression);
       return memberExpression;
     }
   });
