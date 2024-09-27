@@ -1,6 +1,6 @@
 import { d } from "@alloy-js/core/testing";
 import { expect, it } from "vitest";
-import { EnumDeclaration, PythonModule, PythonPackage } from "../../../src/python/index.js";
+import { ClassDeclaration, PythonModule, PythonPackage } from "../../../src/python/index.js";
 import { getEmitOutput } from "../utils.js";
 import { Enum } from "@typespec/compiler";
 
@@ -8,9 +8,11 @@ async function getOutput(code: string, name: string): Promise<string | undefined
   const output = await getEmitOutput(code, (program) => {
     const testEnum = program.resolveTypeReference(name)[0]! as Enum;
     return (
-      <PythonModule name="test">
-        <EnumDeclaration type={testEnum} />
-      </PythonModule>
+      <PythonPackage name="test_package">
+        <PythonModule name="test">
+          <ClassDeclaration type={testEnum} />
+        </PythonModule>
+      </PythonPackage>
     )
   });
   if (typeof output === "string") {
