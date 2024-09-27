@@ -78,7 +78,10 @@ Scenarios.Payload_Content_Negotiation_SameBody = passOnSuccess({
         },
       },
       response: {
-        body: pngFile,
+        body: {
+          contentType: "image/png",
+          rawContent: pngFile,
+        },
         status: 200,
       },
       handler: sameBodyHandler,
@@ -91,7 +94,10 @@ Scenarios.Payload_Content_Negotiation_SameBody = passOnSuccess({
         },
       },
       response: {
-        body: jpgFile,
+        body: {
+          contentType: "image/jpeg",
+          rawContent: jpgFile,
+        },
         status: 200,
       },
       handler: sameBodyHandler,
@@ -106,11 +112,11 @@ Scenarios.Payload_Content_Negotiation_SameBody = passOnSuccess({
       },
       response: {
         status: 400,
-        body: {
+        body: json({
           message: "Unsupported Accept header",
           expected: `"image/png" | "image/jpeg"`,
           actual: "wrongAccept",
-        },
+        }),
       },
       handler: sameBodyHandler,
     },
@@ -130,7 +136,10 @@ Scenarios.Payload_Content_Negotiation_DifferentBody = passOnSuccess({
       },
       response: {
         status: 200,
-        body: pngFile,
+        body: {
+          contentType: "image/png",
+          rawContent: pngFile,
+        },
       },
       handler: differentBodyHandler,
     },
@@ -143,7 +152,9 @@ Scenarios.Payload_Content_Negotiation_DifferentBody = passOnSuccess({
       },
       response: {
         status: 200,
-        body: pngFile,
+        body: json({
+          content: pngFile.toString("base64"),
+        }),
       },
       handler: differentBodyHandler,
     },
@@ -157,11 +168,11 @@ Scenarios.Payload_Content_Negotiation_DifferentBody = passOnSuccess({
       },
       response: {
         status: 400,
-        body: {
+        body: json({
           message: "Unsupported Accept header",
           expected: `"image/png" | "application/json"`,
           actual: "wrongAccept",
-        },
+        }),
       },
       handler: differentBodyHandler,
     },

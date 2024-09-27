@@ -37,9 +37,9 @@ Scenarios.Authentication_OAuth2_Invalid_Server_Test = passOnSuccess({
       },
       response: {
         status: 403,
-        body: {
+        body: json({
           error: "invalid-grant",
-        },
+        }),
       },
       handler: (req: MockRequest) => {
         return {

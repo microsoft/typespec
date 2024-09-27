@@ -19,11 +19,7 @@ Scenarios.Versioning_Added_API_Version_V2_V1 = passOnSuccess({
       },
       response: {
         status: 200,
-        body: {
-          prop: "foo",
-          enumProp: "enumMemberV2",
-          unionProp: 10,
-        },
+        body: json({ prop: "foo", enumProp: "enumMemberV2", unionProp: 10 }),
       },
       handler: (req: MockRequest) => {
         req.expect.bodyEquals({ prop: "foo", enumProp: "enumMemberV2", unionProp: 10 });
@@ -52,11 +48,7 @@ Scenarios.Versioning_Added_API_Version_V2_V2 = passOnSuccess({
       },
       response: {
         status: 200,
-        body: {
-          prop: "foo",
-          enumProp: "enumMember",
-          unionProp: "bar",
-        },
+        body: json({ prop: "foo", enumProp: "enumMember", unionProp: "bar" }),
       },
       handler: (req: MockRequest) => {
         req.expect.bodyEquals({ prop: "foo", enumProp: "enumMember", unionProp: "bar" });
@@ -84,11 +76,7 @@ Scenarios.Versioning_Added_API_Version_V2_Interface_V2_V2 = passOnSuccess({
       },
       response: {
         status: 200,
-        body: {
-          prop: "foo",
-          enumProp: "enumMember",
-          unionProp: "bar",
-        },
+        body: json({ prop: "foo", enumProp: "enumMember", unionProp: "bar" }),
       },
       handler: (req: MockRequest) => {
         req.expect.bodyEquals({ prop: "foo", enumProp: "enumMember", unionProp: "bar" });

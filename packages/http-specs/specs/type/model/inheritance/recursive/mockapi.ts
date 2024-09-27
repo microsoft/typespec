@@ -26,7 +26,7 @@ Scenarios.Type_Model_Inheritance_Recursive = passOnSuccess({
       request: {},
       response: {
         status: 200,
-        body: body,
+        body: json(body),
       },
       handler: (req: MockRequest) => {
         return { status: 200, body: json(body) };

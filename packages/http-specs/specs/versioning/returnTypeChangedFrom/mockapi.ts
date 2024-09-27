@@ -15,7 +15,7 @@ Scenarios.Versioning_ReturnTypeChangedFrom_API_Version_V2_Test = passOnSuccess({
       },
       response: {
         status: 200,
-        body: "test",
+        body: json("test"),
       },
       handler: (req: MockRequest) => {
         req.expect.bodyEquals("test");

@@ -16,11 +16,11 @@ Scenarios.Type_Model_Templated_numericType = passOnSuccess({
       },
       response: {
         status: 200,
-        body: {
+        body: json({
           kind: "Int32Values",
           values: [1234],
           value: 1234,
-        },
+        }),
       },
       handler: (req: MockRequest) => {
         const body = {
@@ -53,11 +53,11 @@ Scenarios.Type_Model_Templated_float32Type = passOnSuccess({
       },
       response: {
         status: 200,
-        body: {
+        body: json({
           kind: "Float32Values",
           values: [0.5],
           value: 0.5,
-        },
+        }),
       },
       handler: (req: MockRequest) => {
         const body = {
@@ -90,11 +90,11 @@ Scenarios.Type_Model_Templated_int32Type = passOnSuccess({
       },
       response: {
         status: 200,
-        body: {
+        body: json({
           kind: "Int32Values",
           values: [1234],
           value: 1234,
-        },
+        }),
       },
       handler: (req: MockRequest) => {
         const body = {

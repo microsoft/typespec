@@ -61,13 +61,6 @@ class ServerTestsGenerator {
     for (const mockMethod of this.mockMethods) {
       logger.info(`Executing ${this.name} endpoint - Method: ${mockMethod.method}`);
 
-      if (mockMethod.response.body && mockMethod.response.body["nextLink"]) {
-        mockMethod.response.body = {
-          ...mockMethod.response.body,
-          nextLink: `${this.serverBasePath}${mockMethod.response.body["nextLink"]}`,
-        };
-      }
-
       const response = await makeServiceCall(mockMethod.method, {
         endPoint: `${this.serverBasePath}${this.endpoint}`,
         options: {
@@ -75,15 +68,16 @@ class ServerTestsGenerator {
           config: this.getConfigObj(mockMethod),
         },
       });
+
       if (mockMethod.response.status !== response.status) {
         logger.error(`Status code mismatch for ${this.name} endpoint`);
         logger.error(`Expected: ${mockMethod.response.status} - Actual: ${response.status}`);
         throw new Error(`Status code mismatch for ${this.name} endpoint`);
       }
       if (mockMethod.response.body) {
-        if (mockMethod.response.body["contentType"] === "application/xml") {
+        if (mockMethod.response.body.contentType === "application/xml") {
           if (
-            JSON.stringify(mockMethod.response.body["rawContent"]) !== JSON.stringify(response.data)
+            JSON.stringify(mockMethod.response.body.rawContent) !== JSON.stringify(response.data)
           ) {
             logger.error(`Response data mismatch for ${this.name} endpoint`);
             logger.error(
@@ -91,23 +85,33 @@ class ServerTestsGenerator {
             );
             throw new Error(`Response data mismatch for ${this.name} endpoint`);
           }
-        } else if (Buffer.isBuffer(mockMethod.response.body)) {
+        } else if (Buffer.isBuffer(mockMethod.response.body.rawContent)) {
           if (
             mockMethod.request.headers &&
             mockMethod.request.headers["accept"] === "application/json"
           ) {
-            if (response.data.content !== mockMethod.response.body.toString("base64")) {
+            if (response.data.content !== mockMethod.response.body.rawContent.toString("base64")) {
               throw new Error(`Response data mismatch for ${this.name} endpoint`);
             }
           } else {
             if (
-              uint8ArrayToString(response.data, "utf-8") !== mockMethod.response.body.toString()
+              uint8ArrayToString(response.data, "utf-8") !==
+              mockMethod.response.body.rawContent.toString()
             ) {
               throw new Error(`Response data mismatch for ${this.name} endpoint`);
             }
           }
+        } else if (mockMethod.response.body.contentType === "text/plain") {
+          if (mockMethod.response.body.rawContent !== response.data) {
+            logger.error(`Response data mismatch for ${this.name} endpoint`);
+            logger.error(`Expected: ${mockMethod.response.body} - Actual: ${response.data}`);
+            throw new Error(`Response data mismatch for ${this.name} endpoint`);
+          }
         } else {
-          if (JSON.stringify(mockMethod.response.body) !== JSON.stringify(response.data)) {
+          const responseData = JSON.stringify(response.data);
+          if (
+            mockMethod.response.body.rawContent !== responseData.replace(this.serverBasePath, "")
+          ) {
             logger.error(`Response data mismatch for ${this.name} endpoint`);
             logger.error(`Expected: ${mockMethod.response.body} - Actual: ${response.data}`);
             throw new Error(`Response data mismatch for ${this.name} endpoint`);

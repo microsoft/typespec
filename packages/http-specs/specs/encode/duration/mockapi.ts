@@ -19,7 +19,7 @@ function createBodyServerTests(uri: string, data: any, value: any) {
         },
         response: {
           status: 200,
-          body: data,
+          body: json(data),
         },
         handler: (req: MockRequest) => {
           req.expect.coercedBodyEquals({ value: value });

@@ -34,9 +34,7 @@ Scenarios.Type_Model_Usage_Output = passOnSuccess({
       request: {},
       response: {
         status: 200,
-        body: {
-          requiredProp: "example-value",
-        },
+        body: json(body),
       },
       handler: (req: MockRequest) => {
         return { status: 200, body: json(body) };
@@ -58,9 +56,7 @@ Scenarios.Type_Model_Usage_Input_Output = passOnSuccess({
       },
       response: {
         status: 200,
-        body: {
-          requiredProp: "example-value",
-        },
+        body: json(body),
       },
       handler: (req: MockRequest) => {
         req.expect.bodyEquals(body);

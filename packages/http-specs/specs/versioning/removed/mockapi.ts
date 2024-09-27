@@ -16,11 +16,7 @@ Scenarios.Versioning_Removed_API_Version_V2_V2 = passOnSuccess({
       },
       response: {
         status: 200,
-        body: {
-          prop: "foo",
-          enumProp: "enumMemberV2",
-          unionProp: "bar",
-        },
+        body: json({ prop: "foo", enumProp: "enumMemberV2", unionProp: "bar" }),
       },
       handler: (req: MockRequest) => {
         req.expect.bodyEquals({ prop: "foo", enumProp: "enumMemberV2", unionProp: "bar" });

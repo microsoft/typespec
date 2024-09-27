@@ -11,7 +11,7 @@ function createServerTests(url: string, value: unknown) {
         request: {},
         response: {
           status: 200,
-          body: value,
+          body: json(value),
         },
         handler: (req: MockRequest) => {
           return {

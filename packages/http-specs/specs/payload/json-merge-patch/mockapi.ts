@@ -53,7 +53,7 @@ Scenarios.Payload_JsonMergePatch_Create_Resource = passOnSuccess({
       },
       response: {
         status: 200,
-        body: expectedCreateBody,
+        body: json(expectedCreateBody),
       },
       handler: (req: MockRequest) => {
         req.expect.coercedBodyEquals(expectedCreateBody);
@@ -77,14 +77,14 @@ Scenarios.Payload_JsonMergePatch_Update_Resource = passOnSuccess({
       },
       response: {
         status: 200,
-        body: {
+        body: json({
           name: "Madge",
           map: {
             key: {
               name: "InnerMadge",
             },
           },
-        },
+        }),
       },
       handler: (req: MockRequest) => {
         req.expect.deepEqual(req.body.description, expectedUpdateBody.description);
@@ -122,14 +122,14 @@ Scenarios.Payload_JsonMergePatch_Update_Resource_Optional = passOnSuccess({
       },
       response: {
         status: 200,
-        body: {
+        body: json({
           name: "Madge",
           map: {
             key: {
               name: "InnerMadge",
             },
           },
-        },
+        }),
       },
       handler: (req: MockRequest) => {
         req.expect.deepEqual(req.body.description, expectedUpdateBody.description);

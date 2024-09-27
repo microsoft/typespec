@@ -30,10 +30,7 @@ Scenarios.Type_Model_Visibility_ReadOnlyRoundTrip = passOnSuccess({
       request: {},
       response: {
         status: 200,
-        body: {
-          optionalNullableIntList: [1, 2, 3],
-          optionalStringRecord: { k1: "value1", k2: "value2" },
-        },
+        body: json(expectBody),
       },
       handler: (req: MockRequest) => {
         req.expect.bodyEquals({});
@@ -66,7 +63,7 @@ Scenarios.Type_Model_Visibility = passOnSuccess({
       },
       response: {
         status: 200,
-        body: { readProp: "abc" },
+        body: json(genData(["readProp"])),
       },
       handler: (req: MockRequest) => {
         req.expect.bodyEquals(genData(["queryProp"]));

@@ -18,7 +18,7 @@ function createServerTests(url: string, data: unknown, convertedToFn?: (_: any) 
         request: {},
         response: {
           status: 200,
-          body: data,
+          body: json(data),
         },
         handler: (req: MockRequest) => {
           return {

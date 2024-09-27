@@ -10,7 +10,7 @@ Scenarios.Type_Scalar_String = passOnSuccess({
       request: {},
       response: {
         status: 200,
-        body: "test",
+        body: json("test"),
       },
       handler: (req: MockRequest) => {
         return { status: 200, body: json("test") };
@@ -43,7 +43,7 @@ Scenarios.Type_Scalar_Boolean = passOnSuccess({
       request: {},
       response: {
         status: 200,
-        body: true,
+        body: json(true),
       },
       handler: (req: MockRequest) => {
         return { status: 200, body: json(true) };
@@ -76,7 +76,7 @@ Scenarios.Type_Scalar_Unknown = passOnSuccess({
       request: {},
       response: {
         status: 200,
-        body: "test",
+        body: json("test"),
       },
       handler: (req: MockRequest) => {
         return { status: 200, body: json("test") };
@@ -109,7 +109,7 @@ Scenarios.Type_Scalar_Decimal_Response_Body = passOnSuccess({
       request: {},
       response: {
         status: 200,
-        body: 0.33333,
+        body: json(0.33333),
       },
       handler: (req: MockRequest) => {
         return {
@@ -129,7 +129,7 @@ Scenarios.Type_Scalar_Decimal128_Response_Body = passOnSuccess({
       request: {},
       response: {
         status: 200,
-        body: 0.33333,
+        body: json(0.33333),
       },
       handler: (req: MockRequest) => {
         return {
@@ -239,7 +239,7 @@ Scenarios.Type_Scalar_Decimal_Prepare_Verify = passOnSuccess({
       request: {},
       response: {
         status: 200,
-        body: [0.1, 0.1, 0.1],
+        body: json([0.1, 0.1, 0.1]),
       },
       handler: (req: MockRequest) => {
         return {
@@ -259,7 +259,7 @@ Scenarios.Type_Scalar_Decimal128_Prepare_Verify = passOnSuccess({
       request: {},
       response: {
         status: 200,
-        body: [0.1, 0.1, 0.1],
+        body: json([0.1, 0.1, 0.1]),
       },
       handler: (req: MockRequest) => {
         return {

@@ -12,7 +12,7 @@ Scenarios.Type_Model_Empty_Alone = passOnSuccess({
       request: {},
       response: {
         status: 200,
-        body: body,
+        body: json(body),
       },
       handler: (req: MockRequest) => {
         return { status: 200, body: json(body) };
@@ -45,7 +45,7 @@ Scenarios.Type_Model_Empty_Round_Trip = passOnSuccess({
       },
       response: {
         status: 200,
-        body: body,
+        body: json(body),
       },
       handler: (req: MockRequest) => {
         req.expect.bodyEquals(body);

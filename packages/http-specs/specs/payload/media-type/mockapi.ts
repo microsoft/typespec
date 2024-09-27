@@ -38,7 +38,7 @@ Scenarios.Payload_MediaType_String_Body_GetAsText = passOnSuccess({
       },
       response: {
         status: 200,
-        body: "{cat}",
+        body: { rawContent: "{cat}", contentType: "text/plain" },
       },
       handler: (req: MockRequest) => {
         req.expect.containsHeader("accept", "text/plain");
@@ -88,7 +88,7 @@ Scenarios.Payload_MediaType_String_Body_GetAsJson = passOnSuccess({
       },
       response: {
         status: 200,
-        body: "foo",
+        body: json("foo"),
       },
       handler: (req: MockRequest) => {
         req.expect.containsHeader("accept", "application/json");

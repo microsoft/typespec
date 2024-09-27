@@ -15,7 +15,7 @@ function createTests(uri: string, value: any) {
         },
         response: {
           status: 200,
-          body: { value },
+          body: json({ value }),
         },
         handler: (req: MockRequest) => {
           req.expect.coercedBodyEquals({ value });

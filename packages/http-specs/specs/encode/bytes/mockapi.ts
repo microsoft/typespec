@@ -266,7 +266,10 @@ function createResponseBodyServerTests(
         },
         response: {
           status: 200,
-          body: data,
+          body: {
+            contentType: contentType,
+            rawContent: data,
+          },
         },
         handler(req: MockRequest) {
           return {
@@ -284,27 +287,27 @@ function createResponseBodyServerTests(
 }
 Scenarios.Encode_Bytes_Body_Response_Default = createResponseBodyServerTests(
   "/encode/bytes/body/response/default",
-  "dGVzdA==",
+  JSON.stringify("dGVzdA=="),
   {
     "Content-Type": "application/json",
   },
-  "dGVzdA==",
+  JSON.stringify("dGVzdA=="),
 );
 Scenarios.Encode_Bytes_Body_Response_Base64 = createResponseBodyServerTests(
   "/encode/bytes/body/response/base64",
-  "dGVzdA==",
+  JSON.stringify("dGVzdA=="),
   {
     "Content-Type": "application/json",
   },
-  "dGVzdA==",
+  JSON.stringify("dGVzdA=="),
 );
 Scenarios.Encode_Bytes_Body_Response_Base64_URL = createResponseBodyServerTests(
   "/encode/bytes/body/response/base64url",
-  "dGVzdA",
+  JSON.stringify("dGVzdA"),
   {
     "Content-Type": "application/json",
   },
-  "dGVzdA",
+  JSON.stringify("dGVzdA"),
 );
 Scenarios.Encode_Bytes_Body_Response_Custom_Content_Type = createResponseBodyServerTests(
   "/encode/bytes/body/response/custom-content-type",

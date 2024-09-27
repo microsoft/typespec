@@ -14,9 +14,7 @@ Scenarios.Versioning_MadeOptional_API_Version_V2_Test = passOnSuccess({
       },
       response: {
         status: 200,
-        body: {
-          prop: "foo",
-        },
+        body: json({ prop: "foo" }),
       },
       handler: (req: MockRequest) => {
         req.expect.bodyEquals({ prop: "foo" });

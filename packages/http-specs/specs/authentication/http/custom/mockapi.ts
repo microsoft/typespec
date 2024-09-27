@@ -37,9 +37,9 @@ Scenarios.Authentication_Http_Custom_InValid_Key = passOnSuccess({
       },
       response: {
         status: 403,
-        body: {
+        body: json({
           error: "invalid-api-key",
-        },
+        }),
       },
       handler: (req: MockRequest) => {
         return {

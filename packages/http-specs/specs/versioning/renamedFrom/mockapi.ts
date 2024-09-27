@@ -19,11 +19,7 @@ Scenarios.Versioning_RenamedFrom_API_Version_V2_Test = passOnSuccess({
       },
       response: {
         status: 200,
-        body: {
-          newProp: "foo",
-          enumProp: "newEnumMember",
-          unionProp: 10,
-        },
+        body: json({ newProp: "foo", enumProp: "newEnumMember", unionProp: 10 }),
       },
       handler: (req: MockRequest) => {
         req.expect.bodyEquals({ newProp: "foo", enumProp: "newEnumMember", unionProp: 10 });
@@ -52,11 +48,7 @@ Scenarios.Versioning_RenamedFrom_API_Version_V2_Interface_Test = passOnSuccess({
       },
       response: {
         status: 200,
-        body: {
-          newProp: "foo",
-          enumProp: "newEnumMember",
-          unionProp: 10,
-        },
+        body: json({ newProp: "foo", enumProp: "newEnumMember", unionProp: 10 }),
       },
       handler: (req: MockRequest) => {
         req.expect.bodyEquals({ newProp: "foo", enumProp: "newEnumMember", unionProp: 10 });

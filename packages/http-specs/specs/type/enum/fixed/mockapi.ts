@@ -10,7 +10,7 @@ Scenarios.Type_Enum_Fixed_String_Known_Value = passOnSuccess({
       request: {},
       response: {
         status: 200,
-        body: "Monday",
+        body: json("Monday"),
       },
       handler: (req: MockRequest) => {
         return { status: 200, body: json("Monday") };

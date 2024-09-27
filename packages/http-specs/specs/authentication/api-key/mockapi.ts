@@ -15,9 +15,9 @@ Scenarios.Authentication_ApiKey_InValid_Server_Test = passOnSuccess({
       },
       response: {
         status: 403,
-        body: {
+        body: json({
           error: "invalid-api-key",
-        },
+        }),
       },
       handler: (req: MockRequest) => {
         return {

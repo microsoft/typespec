@@ -48,10 +48,10 @@ Scenarios.Payload_Pageable = passOnSuccess({
       },
       response: {
         status: 200,
-        body: {
+        body: json({
           value: [{ name: "user5" }, { name: "user6" }, { name: "user7" }],
           nextLink: "/payload/pageable?skipToken=name-user7&maxpagesize=3",
-        },
+        }),
       },
       handler: handler,
     },
@@ -65,7 +65,7 @@ Scenarios.Payload_Pageable = passOnSuccess({
       },
       response: {
         status: 200,
-        body: { value: [{ name: "user8" }] },
+        body: json({ value: [{ name: "user8" }] }),
       },
       handler: handler,
     },
@@ -80,11 +80,11 @@ Scenarios.Payload_Pageable = passOnSuccess({
       },
       response: {
         status: 400,
-        body: {
+        body: json({
           message: "Unsupported skipToken query parameter",
           expected: `Not provided for first page, "name-user7" for second page`,
           actual: "name-user10",
-        },
+        }),
       },
       handler: handler,
     },

@@ -19,7 +19,7 @@ function createGetServerTests(uri: string, data: any) {
         request: {},
         response: {
           status: 200,
-          body: data,
+          body: json(data),
         },
         handler: (req: MockRequest) => {
           return { status: 200, body: json(data) };
@@ -39,7 +39,7 @@ function createGetPutServerTests(uri: string, data: any) {
         request: {},
         response: {
           status: 200,
-          body: data,
+          body: json(data),
         },
         handler: (req: MockRequest) => {
           return { status: 200, body: json(data) };

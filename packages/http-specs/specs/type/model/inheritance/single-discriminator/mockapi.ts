@@ -34,7 +34,7 @@ Scenarios.Type_Model_Inheritance_Single_Discriminator_Model = passOnSuccess({
       request: {},
       response: {
         status: 200,
-        body: validPolymorphicBody,
+        body: json(validPolymorphicBody),
       },
       handler: (req: MockRequest) => {
         return { status: 200, body: json(validPolymorphicBody) };
@@ -64,7 +64,7 @@ Scenarios.Type_Model_Inheritance_Single_Discriminator_Recursive_Model = passOnSu
       request: {},
       response: {
         status: 200,
-        body: validRecursiveBody,
+        body: json(validRecursiveBody),
       },
       handler: (req: MockRequest) => {
         return { status: 200, body: json(validRecursiveBody) };
@@ -94,7 +94,7 @@ Scenarios.Type_Model_Inheritance_Single_Discriminator_Missing_Discriminator = pa
       request: {},
       response: {
         status: 200,
-        body: { wingspan: 1 },
+        body: json({ wingspan: 1 }),
       },
       handler: (req: MockRequest) => {
         return { status: 200, body: json({ wingspan: 1 }) };
@@ -111,7 +111,7 @@ Scenarios.Type_Model_Inheritance_Single_Discriminator_Wrong_Discriminator = pass
       request: {},
       response: {
         status: 200,
-        body: { wingspan: 1, kind: "wrongKind" },
+        body: json({ wingspan: 1, kind: "wrongKind" }),
       },
       handler: (req: MockRequest) => {
         return { status: 200, body: json({ wingspan: 1, kind: "wrongKind" }) };
@@ -128,7 +128,7 @@ Scenarios.Type_Model_Inheritance_Single_Discriminator_Legacy_Model = passOnSucce
       request: {},
       response: {
         status: 200,
-        body: { size: 20, kind: "t-rex" },
+        body: json({ size: 20, kind: "t-rex" }),
       },
       handler: (req: MockRequest) => {
         return { status: 200, body: json({ size: 20, kind: "t-rex" }) };
