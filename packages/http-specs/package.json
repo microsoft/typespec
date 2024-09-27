@@ -8,11 +8,11 @@
     "watch": "tsc -p ./tsconfig.build.json --watch",
     "build": "tsc -p ./tsconfig.build.json",
     "clean": "rimraf dist/ temp/",
-    "validate-scenarios": "spec validate-scenarios ./http",
-    "generate-scenarios-summary": "spec generate-scenarios-summary ./http",
-    "validate-mock-apis": "spec validate-mock-apis ./http",
-    "check-scenario-coverage": "spec check-coverage ./http",
-    "serve": "spec serve ./http",
+    "validate-scenarios": "spec validate-scenarios ./specs",
+    "generate-scenarios-summary": "spec generate-scenarios-summary ./specs",
+    "validate-mock-apis": "spec validate-mock-apis ./specs",
+    "check-scenario-coverage": "spec check-coverage ./specs",
+    "serve": "spec serve ./specs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "engines": {
@@ -32,7 +32,6 @@
     "@typespec/spec": "workspace:*",
     "@typespec/spec-api": "workspace:~",
     "multer": "^1.4.5-lts.1",
-    "axios": "^1.7.5",
     "dotenv": "~16.4.5"
   },
   "devDependencies": {

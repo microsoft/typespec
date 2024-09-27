@@ -23,48 +23,46 @@ function createQueryServerTests(
 ) {
   return passOnSuccess({
     uri,
-    mockMethods: [
-      {
-        method: "get",
-        request: {
-          params: data,
-        },
-        response: {
-          status: 204,
-        },
-        handler: (req: MockRequest) => {
-          req.expect.containsQueryParam("value", value, collectionFormat);
-          return {
-            status: 204,
-          };
-        },
+    mockMethod: {
+      method: "get",
+      request: {
+        params: data,
       },
-    ],
+      response: {
+        status: 204,
+      },
+      handler: (req: MockRequest) => {
+        req.expect.containsQueryParam("value", value, collectionFormat);
+        return {
+          status: 204,
+        };
+      },
+    },
     kind: "MockApiDefinition",
   });
 }
-Scenarios.Encode_Bytes_Query_Default = createQueryServerTests(
+Scenarios.Encode_Bytes_Query_default = createQueryServerTests(
   "/encode/bytes/query/default",
   {
     value: "dGVzdA==",
   },
   "dGVzdA==",
 );
-Scenarios.Encode_Bytes_Query_Base64 = createQueryServerTests(
+Scenarios.Encode_Bytes_Query_base64 = createQueryServerTests(
   "/encode/bytes/query/base64",
   {
     value: "dGVzdA==",
   },
   "dGVzdA==",
 );
-Scenarios.Encode_Bytes_Query_Base64_URL = createQueryServerTests(
+Scenarios.Encode_Bytes_Query_base64url = createQueryServerTests(
   "/encode/bytes/query/base64url",
   {
     value: "dGVzdA",
   },
   "dGVzdA",
 );
-Scenarios.Encode_Bytes_Query_Base64_URL_Array = createQueryServerTests(
+Scenarios.Encode_Bytes_Query_base64urlArray = createQueryServerTests(
   "/encode/bytes/query/base64url-array",
   {
     value: ["dGVzdA", "dGVzdA"].join(","),
@@ -75,49 +73,47 @@ Scenarios.Encode_Bytes_Query_Base64_URL_Array = createQueryServerTests(
 function createPropertyServerTests(uri: string, data: any, value: any) {
   return passOnSuccess({
     uri,
-    mockMethods: [
-      {
-        method: "post",
-        request: {
-          body: data,
-        },
-        response: {
-          status: 200,
-        },
-        handler: (req: MockRequest) => {
-          req.expect.coercedBodyEquals({ value: value });
-          return {
-            status: 200,
-            body: json({ value: value }),
-          };
-        },
+    mockMethod: {
+      method: "post",
+      request: {
+        body: data,
       },
-    ],
+      response: {
+        status: 200,
+      },
+      handler: (req: MockRequest) => {
+        req.expect.coercedBodyEquals({ value: value });
+        return {
+          status: 200,
+          body: json({ value: value }),
+        };
+      },
+    },
     kind: "MockApiDefinition",
   });
 }
-Scenarios.Encode_Bytes_Property_Default = createPropertyServerTests(
+Scenarios.Encode_Bytes_Property_default = createPropertyServerTests(
   "/encode/bytes/property/default",
   {
     value: "dGVzdA==",
   },
   "dGVzdA==",
 );
-Scenarios.Encode_Bytes_Property_Base64 = createPropertyServerTests(
+Scenarios.Encode_Bytes_Property_base64 = createPropertyServerTests(
   "/encode/bytes/property/base64",
   {
     value: "dGVzdA==",
   },
   "dGVzdA==",
 );
-Scenarios.Encode_Bytes_Property_Base64_URL = createPropertyServerTests(
+Scenarios.Encode_Bytes_Property_base64url = createPropertyServerTests(
   "/encode/bytes/property/base64url",
   {
     value: "dGVzdA",
   },
   "dGVzdA",
 );
-Scenarios.Encode_Bytes_Property_Base64_URL_Array = createPropertyServerTests(
+Scenarios.Encode_Bytes_Property_base64urlArray = createPropertyServerTests(
   "/encode/bytes/property/base64url-array",
   {
     value: ["dGVzdA", "dGVzdA"],
@@ -127,48 +123,46 @@ Scenarios.Encode_Bytes_Property_Base64_URL_Array = createPropertyServerTests(
 function createHeaderServerTests(uri: string, data: any, value: any) {
   return passOnSuccess({
     uri,
-    mockMethods: [
-      {
-        method: "get",
-        request: {
-          headers: data,
-        },
-        response: {
-          status: 204,
-        },
-        handler: (req: MockRequest) => {
-          req.expect.containsHeader("value", value);
-          return {
-            status: 204,
-          };
-        },
+    mockMethod: {
+      method: "get",
+      request: {
+        headers: data,
       },
-    ],
+      response: {
+        status: 204,
+      },
+      handler: (req: MockRequest) => {
+        req.expect.containsHeader("value", value);
+        return {
+          status: 204,
+        };
+      },
+    },
     kind: "MockApiDefinition",
   });
 }
-Scenarios.Encode_Bytes_Header_Default = createHeaderServerTests(
+Scenarios.Encode_Bytes_Header_default = createHeaderServerTests(
   "/encode/bytes/header/default",
   {
     value: "dGVzdA==",
   },
   "dGVzdA==",
 );
-Scenarios.Encode_Bytes_Header_Base64 = createHeaderServerTests(
+Scenarios.Encode_Bytes_Header_base64 = createHeaderServerTests(
   "/encode/bytes/header/base64",
   {
     value: "dGVzdA==",
   },
   "dGVzdA==",
 );
-Scenarios.Encode_Bytes_Header_Base64_URL = createHeaderServerTests(
+Scenarios.Encode_Bytes_Header_base64url = createHeaderServerTests(
   "/encode/bytes/header/base64url",
   {
     value: "dGVzdA",
   },
   "dGVzdA",
 );
-Scenarios.Encode_Bytes_Header_Base64_URL_Array = createHeaderServerTests(
+Scenarios.Encode_Bytes_Header_base64urlArray = createHeaderServerTests(
   "/encode/bytes/header/base64url-array",
   {
     value: ["dGVzdA", "dGVzdA"].join(","),
@@ -184,29 +178,27 @@ function createRequestBodyServerTests(
 ) {
   return passOnSuccess({
     uri,
-    mockMethods: [
-      {
-        method: "post",
-        request: {
-          body: data,
-          headers: headersData,
-        },
-        response: {
-          status: 204,
-        },
-        handler(req: MockRequest) {
-          req.expect.containsHeader("content-type", contentType);
-          req.expect.rawBodyEquals(value);
-          return {
-            status: 204,
-          };
-        },
+    mockMethod: {
+      method: "post",
+      request: {
+        body: data,
+        headers: headersData,
       },
-    ],
+      response: {
+        status: 204,
+      },
+      handler(req: MockRequest) {
+        req.expect.containsHeader("content-type", contentType);
+        req.expect.rawBodyEquals(value);
+        return {
+          status: 204,
+        };
+      },
+    },
     kind: "MockApiDefinition",
   });
 }
-Scenarios.Encode_Bytes_Body_Request_Default = createRequestBodyServerTests(
+Scenarios.Encode_Bytes_RequestBody_default = createRequestBodyServerTests(
   "/encode/bytes/body/request/default",
   '"dGVzdA=="',
   {
@@ -214,7 +206,7 @@ Scenarios.Encode_Bytes_Body_Request_Default = createRequestBodyServerTests(
   },
   '"dGVzdA=="',
 );
-Scenarios.Encode_Bytes_Body_Request_Base64 = createRequestBodyServerTests(
+Scenarios.Encode_Bytes_RequestBody_base64 = createRequestBodyServerTests(
   "/encode/bytes/body/request/base64",
   '"dGVzdA=="',
   {
@@ -222,7 +214,7 @@ Scenarios.Encode_Bytes_Body_Request_Base64 = createRequestBodyServerTests(
   },
   '"dGVzdA=="',
 );
-Scenarios.Encode_Bytes_Body_Request_Base64_URL = createRequestBodyServerTests(
+Scenarios.Encode_Bytes_RequestBody_base64url = createRequestBodyServerTests(
   "/encode/bytes/body/request/base64url",
   '"dGVzdA=="',
   {
@@ -231,7 +223,7 @@ Scenarios.Encode_Bytes_Body_Request_Base64_URL = createRequestBodyServerTests(
   '"dGVzdA=="',
 );
 
-Scenarios.Encode_Bytes_Body_Request_Custom_Content_Type = createRequestBodyServerTests(
+Scenarios.Encode_Bytes_RequestBody_customContentType = createRequestBodyServerTests(
   "/encode/bytes/body/request/custom-content-type",
   pngFile,
   {
@@ -240,7 +232,7 @@ Scenarios.Encode_Bytes_Body_Request_Custom_Content_Type = createRequestBodyServe
   pngFile,
   "image/png",
 );
-Scenarios.Encode_Bytes_Body_Request_Octet_Stream = createRequestBodyServerTests(
+Scenarios.Encode_Bytes_RequestBody_octetStream = createRequestBodyServerTests(
   "/encode/bytes/body/request/octet-stream",
   pngFile,
   {
@@ -258,34 +250,32 @@ function createResponseBodyServerTests(
 ) {
   return passOnSuccess({
     uri,
-    mockMethods: [
-      {
-        method: "get",
-        request: {
-          headers: headerData,
+    mockMethod: {
+      method: "get",
+      request: {
+        headers: headerData,
+      },
+      response: {
+        status: 200,
+        body: {
+          contentType: contentType,
+          rawContent: data,
         },
-        response: {
+      },
+      handler(req: MockRequest) {
+        return {
           status: 200,
           body: {
             contentType: contentType,
-            rawContent: data,
+            rawContent: value,
           },
-        },
-        handler(req: MockRequest) {
-          return {
-            status: 200,
-            body: {
-              contentType: contentType,
-              rawContent: value,
-            },
-          };
-        },
+        };
       },
-    ],
+    },
     kind: "MockApiDefinition",
   });
 }
-Scenarios.Encode_Bytes_Body_Response_Default = createResponseBodyServerTests(
+Scenarios.Encode_Bytes_ResponseBody_default = createResponseBodyServerTests(
   "/encode/bytes/body/response/default",
   JSON.stringify("dGVzdA=="),
   {
@@ -293,7 +283,7 @@ Scenarios.Encode_Bytes_Body_Response_Default = createResponseBodyServerTests(
   },
   JSON.stringify("dGVzdA=="),
 );
-Scenarios.Encode_Bytes_Body_Response_Base64 = createResponseBodyServerTests(
+Scenarios.Encode_Bytes_ResponseBody_base64 = createResponseBodyServerTests(
   "/encode/bytes/body/response/base64",
   JSON.stringify("dGVzdA=="),
   {
@@ -301,7 +291,7 @@ Scenarios.Encode_Bytes_Body_Response_Base64 = createResponseBodyServerTests(
   },
   JSON.stringify("dGVzdA=="),
 );
-Scenarios.Encode_Bytes_Body_Response_Base64_URL = createResponseBodyServerTests(
+Scenarios.Encode_Bytes_ResponseBody_base64url = createResponseBodyServerTests(
   "/encode/bytes/body/response/base64url",
   JSON.stringify("dGVzdA"),
   {
@@ -309,7 +299,7 @@ Scenarios.Encode_Bytes_Body_Response_Base64_URL = createResponseBodyServerTests(
   },
   JSON.stringify("dGVzdA"),
 );
-Scenarios.Encode_Bytes_Body_Response_Custom_Content_Type = createResponseBodyServerTests(
+Scenarios.Encode_Bytes_ResponseBody_customContentType = createResponseBodyServerTests(
   "/encode/bytes/body/response/custom-content-type",
   pngFile,
   {
@@ -318,7 +308,7 @@ Scenarios.Encode_Bytes_Body_Response_Custom_Content_Type = createResponseBodySer
   pngFile,
   "image/png",
 );
-Scenarios.Encode_Bytes_Body_Response_Octet_Stream = createResponseBodyServerTests(
+Scenarios.Encode_Bytes_ResponseBody_octetStream = createResponseBodyServerTests(
   "/encode/bytes/body/response/octet-stream",
   pngFile,
   {

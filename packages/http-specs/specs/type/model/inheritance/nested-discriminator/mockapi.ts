@@ -64,97 +64,99 @@ const validRecursiveBody = {
     },
   },
 };
-Scenarios.Type_Model_Inheritance_Nested_Discriminator_Model = passOnSuccess({
+Scenarios.Type_Model_Inheritance_NestedDiscriminator_getModel = passOnSuccess({
   uri: "/type/model/inheritance/nested-discriminator/model",
-  mockMethods: [
-    {
-      method: "get",
-      request: {},
-      response: {
-        status: 200,
-        body: json(validPolymorphicBody),
-      },
-      handler: (req: MockRequest) => {
-        return { status: 200, body: json(validPolymorphicBody) };
-      },
+  mockMethod: {
+    method: "get",
+    request: {},
+    response: {
+      status: 200,
+      body: json(validPolymorphicBody),
     },
-    {
-      method: "put",
-      request: {
-        body: validPolymorphicBody,
-      },
-      response: {
-        status: 204,
-      },
-      handler: (req: MockRequest) => {
-        req.expect.bodyEquals(validPolymorphicBody);
-        return { status: 204 };
-      },
+    handler: (req: MockRequest) => {
+      return { status: 200, body: json(validPolymorphicBody) };
     },
-  ],
+  },
   kind: "MockApiDefinition",
 });
-Scenarios.Type_Model_Inheritance_Nested_Discriminator_Recursive_Model = passOnSuccess({
+Scenarios.Type_Model_Inheritance_NestedDiscriminator_putModel = passOnSuccess({
+  uri: "/type/model/inheritance/nested-discriminator/model",
+  mockMethod: {
+    method: "put",
+    request: {
+      body: validPolymorphicBody,
+    },
+    response: {
+      status: 204,
+    },
+    handler: (req: MockRequest) => {
+      req.expect.bodyEquals(validPolymorphicBody);
+      return { status: 204 };
+    },
+  },
+  kind: "MockApiDefinition",
+});
+
+Scenarios.Type_Model_Inheritance_NestedDiscriminator_getRecursiveModel = passOnSuccess({
   uri: "/type/model/inheritance/nested-discriminator/recursivemodel",
-  mockMethods: [
-    {
-      method: "get",
-      request: {},
-      response: {
-        status: 200,
-        body: json(validRecursiveBody),
-      },
-      handler: (req: MockRequest) => {
-        return { status: 200, body: json(validRecursiveBody) };
-      },
+  mockMethod: {
+    method: "get",
+    request: {},
+    response: {
+      status: 200,
+      body: json(validRecursiveBody),
     },
-    {
-      method: "put",
-      request: {
-        body: validRecursiveBody,
-      },
-      response: {
-        status: 204,
-      },
-      handler: (req: MockRequest) => {
-        req.expect.bodyEquals(validRecursiveBody);
-        return { status: 204 };
-      },
+    handler: (req: MockRequest) => {
+      return { status: 200, body: json(validRecursiveBody) };
     },
-  ],
+  },
   kind: "MockApiDefinition",
 });
-Scenarios.Type_Model_Inheritance_Nested_Discriminator_Missing_Discriminator = passOnSuccess({
+Scenarios.Type_Model_Inheritance_NestedDiscriminator_putRecursiveModel = passOnSuccess({
+  uri: "/type/model/inheritance/nested-discriminator/recursivemodel",
+  mockMethod: {
+    method: "put",
+    request: {
+      body: validRecursiveBody,
+    },
+    response: {
+      status: 204,
+    },
+    handler: (req: MockRequest) => {
+      req.expect.bodyEquals(validRecursiveBody);
+      return { status: 204 };
+    },
+  },
+  kind: "MockApiDefinition",
+});
+
+Scenarios.Type_Model_Inheritance_NestedDiscriminator_getMissingDiscriminator = passOnSuccess({
   uri: "/type/model/inheritance/nested-discriminator/missingdiscriminator",
-  mockMethods: [
-    {
-      method: "get",
-      request: {},
-      response: {
-        status: 200,
-        body: json({ age: 1 }),
-      },
-      handler: (req: MockRequest) => {
-        return { status: 200, body: json({ age: 1 }) };
-      },
+  mockMethod: {
+    method: "get",
+    request: {},
+    response: {
+      status: 200,
+      body: json({ age: 1 }),
     },
-  ],
+    handler: (req: MockRequest) => {
+      return { status: 200, body: json({ age: 1 }) };
+    },
+  },
   kind: "MockApiDefinition",
 });
-Scenarios.Type_Model_Inheritance_Nested_Discriminator_Wrong_Discriminator = passOnSuccess({
+Scenarios.Type_Model_Inheritance_NestedDiscriminator_getWrongDiscriminator = passOnSuccess({
   uri: "/type/model/inheritance/nested-discriminator/wrongdiscriminator",
-  mockMethods: [
-    {
-      method: "get",
-      request: {},
-      response: {
-        status: 200,
-        body: json({ age: 1, kind: "wrongKind" }),
-      },
-      handler: (req: MockRequest) => {
-        return { status: 200, body: json({ age: 1, kind: "wrongKind" }) };
-      },
+  mockMethod: {
+    method: "get",
+    request: {},
+    response: {
+      status: 200,
+      body: json({ age: 1, kind: "wrongKind" }),
     },
-  ],
+    handler: (req: MockRequest) => {
+      return { status: 200, body: json({ age: 1, kind: "wrongKind" }) };
+    },
+  },
   kind: "MockApiDefinition",
 });

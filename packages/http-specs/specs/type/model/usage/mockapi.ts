@@ -4,65 +4,59 @@ export const Scenarios: Record<string, ScenarioMockApi> = {};
 
 const body = { requiredProp: "example-value" };
 
-Scenarios.Type_Model_Usage_Input = passOnSuccess({
+Scenarios.Type_Model_Usage_input = passOnSuccess({
   uri: "/type/model/usage/input",
-  mockMethods: [
-    {
-      method: "post",
-      request: {
-        body: {
-          requiredProp: "example-value",
-        },
-      },
-      response: {
-        status: 204,
-      },
-      handler: (req: MockRequest) => {
-        req.expect.bodyEquals(body);
-        return { status: 204 };
+  mockMethod: {
+    method: "post",
+    request: {
+      body: {
+        requiredProp: "example-value",
       },
     },
-  ],
+    response: {
+      status: 204,
+    },
+    handler: (req: MockRequest) => {
+      req.expect.bodyEquals(body);
+      return { status: 204 };
+    },
+  },
   kind: "MockApiDefinition",
 });
 
-Scenarios.Type_Model_Usage_Output = passOnSuccess({
+Scenarios.Type_Model_Usage_output = passOnSuccess({
   uri: "/type/model/usage/output",
-  mockMethods: [
-    {
-      method: "get",
-      request: {},
-      response: {
-        status: 200,
-        body: json(body),
-      },
-      handler: (req: MockRequest) => {
-        return { status: 200, body: json(body) };
-      },
+  mockMethod: {
+    method: "get",
+    request: {},
+    response: {
+      status: 200,
+      body: json(body),
     },
-  ],
+    handler: (req: MockRequest) => {
+      return { status: 200, body: json(body) };
+    },
+  },
   kind: "MockApiDefinition",
 });
 
-Scenarios.Type_Model_Usage_Input_Output = passOnSuccess({
+Scenarios.Type_Model_Usage_inputAndOutput = passOnSuccess({
   uri: "/type/model/usage/input-output",
-  mockMethods: [
-    {
-      method: "post",
-      request: {
-        body: {
-          requiredProp: "example-value",
-        },
-      },
-      response: {
-        status: 200,
-        body: json(body),
-      },
-      handler: (req: MockRequest) => {
-        req.expect.bodyEquals(body);
-        return { status: 200, body: json(body) };
+  mockMethod: {
+    method: "post",
+    request: {
+      body: {
+        requiredProp: "example-value",
       },
     },
-  ],
+    response: {
+      status: 200,
+      body: json(body),
+    },
+    handler: (req: MockRequest) => {
+      req.expect.bodyEquals(body);
+      return { status: 200, body: json(body) };
+    },
+  },
   kind: "MockApiDefinition",
 });

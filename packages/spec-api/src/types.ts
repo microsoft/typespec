@@ -53,7 +53,7 @@ export interface MockApi {
 
 export interface MockApiDefinition {
   uri: string;
-  mockMethods: MockMethod[];
+  mockMethod: MockMethod;
   kind: "MockApiDefinition";
 }
 

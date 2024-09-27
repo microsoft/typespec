@@ -18,33 +18,35 @@ const body = {
     },
   ],
 };
-Scenarios.Type_Model_Inheritance_Recursive = passOnSuccess({
+Scenarios.Type_Model_Inheritance_Recursive_put = passOnSuccess({
   uri: "/type/model/inheritance/recursive",
-  mockMethods: [
-    {
-      method: "get",
-      request: {},
-      response: {
-        status: 200,
-        body: json(body),
-      },
-      handler: (req: MockRequest) => {
-        return { status: 200, body: json(body) };
-      },
+  mockMethod: {
+    method: "put",
+    request: {
+      body: body,
     },
-    {
-      method: "put",
-      request: {
-        body: body,
-      },
-      response: {
-        status: 204,
-      },
-      handler: (req: MockRequest) => {
-        req.expect.bodyEquals(body);
-        return { status: 204 };
-      },
+    response: {
+      status: 204,
     },
-  ],
+    handler: (req: MockRequest) => {
+      req.expect.bodyEquals(body);
+      return { status: 204 };
+    },
+  },
+  kind: "MockApiDefinition",
+});
+Scenarios.Type_Model_Inheritance_Recursive_get = passOnSuccess({
+  uri: "/type/model/inheritance/recursive",
+  mockMethod: {
+    method: "get",
+    request: {},
+    response: {
+      status: 200,
+      body: json(body),
+    },
+    handler: (req: MockRequest) => {
+      return { status: 200, body: json(body) };
+    },
+  },
   kind: "MockApiDefinition",
 });

@@ -3,10 +3,10 @@ import { json, MockRequest, passOnSuccess, ScenarioMockApi } from "@typespec/spe
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
 function createMockServerTests(uri: string, data: any) {
-  return passOnSuccess({
-    uri,
-    mockMethods: [
-      {
+  return {
+    get: passOnSuccess({
+      uri,
+      mockMethod: {
         method: "get",
         request: {},
         response: {
@@ -17,7 +17,11 @@ function createMockServerTests(uri: string, data: any) {
           return { status: 200, body: json(data) };
         },
       },
-      {
+      kind: "MockApiDefinition",
+    }),
+    put: passOnSuccess({
+      uri,
+      mockMethod: {
         method: "put",
         request: {
           body: data,
@@ -33,17 +37,23 @@ function createMockServerTests(uri: string, data: any) {
           return { status: 204 };
         },
       },
-    ],
-    kind: "MockApiDefinition",
-  });
+      kind: "MockApiDefinition",
+    }),
+  };
 }
 
-Scenarios.Type_Enum_Extensible_String_Known_Value = createMockServerTests(
+const Type_Enum_Extensible_String_Known_Value = createMockServerTests(
   `/type/enum/extensible/string/known-value`,
   "Monday",
 );
+Scenarios.Type_Enum_Extensible_String_getKnownValue = Type_Enum_Extensible_String_Known_Value.get;
+Scenarios.Type_Enum_Extensible_String_putKnownValue = Type_Enum_Extensible_String_Known_Value.put;
 
-Scenarios.Type_Enum_Extensible_String_UnKnown_Value = createMockServerTests(
+const Type_Enum_Extensible_String_UnKnown_Value = createMockServerTests(
   `/type/enum/extensible/string/unknown-value`,
   "Weekend",
 );
+Scenarios.Type_Enum_Extensible_String_getUnknownValue =
+  Type_Enum_Extensible_String_UnKnown_Value.get;
+Scenarios.Type_Enum_Extensible_String_putUnknownValue =
+  Type_Enum_Extensible_String_UnKnown_Value.put;

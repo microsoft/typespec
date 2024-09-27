@@ -19,34 +19,32 @@ function createQueryServerTests(
 ) {
   return passOnSuccess({
     uri,
-    mockMethods: [
-      {
-        method: "get",
-        request: {
-          params: paramData,
-        },
-        response: {
-          status: 204,
-        },
-        handler(req: MockRequest) {
-          if (format) {
-            validateValueFormat(req.query["value"] as string, format);
-            if (Date.parse(req.query["value"] as string) !== Date.parse(value)) {
-              throw new ValidationError(`Wrong value`, value, req.query["value"]);
-            }
-          } else {
-            req.expect.containsQueryParam("value", value, collectionFormat);
-          }
-          return {
-            status: 204,
-          };
-        },
+    mockMethod: {
+      method: "get",
+      request: {
+        params: paramData,
       },
-    ],
+      response: {
+        status: 204,
+      },
+      handler(req: MockRequest) {
+        if (format) {
+          validateValueFormat(req.query["value"] as string, format);
+          if (Date.parse(req.query["value"] as string) !== Date.parse(value)) {
+            throw new ValidationError(`Wrong value`, value, req.query["value"]);
+          }
+        } else {
+          req.expect.containsQueryParam("value", value, collectionFormat);
+        }
+        return {
+          status: 204,
+        };
+      },
+    },
     kind: "MockApiDefinition",
   });
 }
-Scenarios.Encode_DateTime_Query_Default = createQueryServerTests(
+Scenarios.Encode_Datetime_Query_default = createQueryServerTests(
   "/encode/datetime/query/default",
   {
     value: "2022-08-26T18:38:00.000Z",
@@ -54,7 +52,7 @@ Scenarios.Encode_DateTime_Query_Default = createQueryServerTests(
   "rfc3339",
   "2022-08-26T18:38:00.000Z",
 );
-Scenarios.Encode_DateTime_Query_rfc3339 = createQueryServerTests(
+Scenarios.Encode_Datetime_Query_rfc3339 = createQueryServerTests(
   "/encode/datetime/query/rfc3339",
   {
     value: "2022-08-26T18:38:00.000Z",
@@ -62,7 +60,7 @@ Scenarios.Encode_DateTime_Query_rfc3339 = createQueryServerTests(
   "rfc3339",
   "2022-08-26T18:38:00.000Z",
 );
-Scenarios.Encode_DateTime_Query_rfc7231 = createQueryServerTests(
+Scenarios.Encode_Datetime_Query_rfc7231 = createQueryServerTests(
   "/encode/datetime/query/rfc7231",
   {
     value: "Fri, 26 Aug 2022 14:38:00 GMT",
@@ -70,7 +68,7 @@ Scenarios.Encode_DateTime_Query_rfc7231 = createQueryServerTests(
   "rfc7231",
   "Fri, 26 Aug 2022 14:38:00 GMT",
 );
-Scenarios.Encode_DateTime_Query_Unix_Timestamp = createQueryServerTests(
+Scenarios.Encode_Datetime_Query_unixTimestamp = createQueryServerTests(
   "/encode/datetime/query/unix-timestamp",
   {
     value: 1686566864,
@@ -78,7 +76,7 @@ Scenarios.Encode_DateTime_Query_Unix_Timestamp = createQueryServerTests(
   undefined,
   "1686566864",
 );
-Scenarios.Encode_DateTime_Query_Unix_Timestamp_Array = createQueryServerTests(
+Scenarios.Encode_Datetime_Query_unixTimestampArray = createQueryServerTests(
   "/encode/datetime/query/unix-timestamp-array",
   {
     value: [1686566864, 1686734256].join(","),
@@ -95,35 +93,33 @@ function createPropertyServerTests(
 ) {
   return passOnSuccess({
     uri,
-    mockMethods: [
-      {
-        method: "post",
-        request: {
-          body: data,
-        },
-        response: {
-          status: 200,
-        },
-        handler: (req: MockRequest) => {
-          if (format) {
-            validateValueFormat(req.body["value"], format);
-            if (Date.parse(req.body["value"]) !== Date.parse(value)) {
-              throw new ValidationError(`Wrong value`, value, req.body["value"]);
-            }
-          } else {
-            req.expect.coercedBodyEquals({ value: value });
-          }
-          return {
-            status: 200,
-            body: json({ value: value }),
-          };
-        },
+    mockMethod: {
+      method: "post",
+      request: {
+        body: data,
       },
-    ],
+      response: {
+        status: 200,
+      },
+      handler: (req: MockRequest) => {
+        if (format) {
+          validateValueFormat(req.body["value"], format);
+          if (Date.parse(req.body["value"]) !== Date.parse(value)) {
+            throw new ValidationError(`Wrong value`, value, req.body["value"]);
+          }
+        } else {
+          req.expect.coercedBodyEquals({ value: value });
+        }
+        return {
+          status: 200,
+          body: json({ value: value }),
+        };
+      },
+    },
     kind: "MockApiDefinition",
   });
 }
-Scenarios.Encode_DateTime_Property_Default = createPropertyServerTests(
+Scenarios.Encode_Datetime_Property_default = createPropertyServerTests(
   "/encode/datetime/property/default",
   {
     value: "2022-08-26T18:38:00.000Z",
@@ -131,7 +127,7 @@ Scenarios.Encode_DateTime_Property_Default = createPropertyServerTests(
   "rfc3339",
   "2022-08-26T18:38:00.000Z",
 );
-Scenarios.Encode_DateTime_Property_rfc3339 = createPropertyServerTests(
+Scenarios.Encode_Datetime_Property_rfc3339 = createPropertyServerTests(
   "/encode/datetime/property/rfc3339",
   {
     value: "2022-08-26T18:38:00.000Z",
@@ -139,7 +135,7 @@ Scenarios.Encode_DateTime_Property_rfc3339 = createPropertyServerTests(
   "rfc3339",
   "2022-08-26T18:38:00.000Z",
 );
-Scenarios.Encode_DateTime_Property_rfc7231 = createPropertyServerTests(
+Scenarios.Encode_Datetime_Property_rfc7231 = createPropertyServerTests(
   "/encode/datetime/property/rfc7231",
   {
     value: "Fri, 26 Aug 2022 14:38:00 GMT",
@@ -147,7 +143,7 @@ Scenarios.Encode_DateTime_Property_rfc7231 = createPropertyServerTests(
   "rfc7231",
   "Fri, 26 Aug 2022 14:38:00 GMT",
 );
-Scenarios.Encode_DateTime_Property_Unix_Timestamp = createPropertyServerTests(
+Scenarios.Encode_Datetime_Property_unixTimestamp = createPropertyServerTests(
   "/encode/datetime/property/unix-timestamp",
   {
     value: 1686566864,
@@ -155,7 +151,7 @@ Scenarios.Encode_DateTime_Property_Unix_Timestamp = createPropertyServerTests(
   undefined,
   1686566864,
 );
-Scenarios.Encode_DateTime_Property_Unix_Timestamp_Array = createPropertyServerTests(
+Scenarios.Encode_Datetime_Property_unixTimestampArray = createPropertyServerTests(
   "/encode/datetime/property/unix-timestamp-array",
   {
     value: [1686566864, 1686734256],
@@ -171,34 +167,32 @@ function createHeaderServerTests(
 ) {
   return passOnSuccess({
     uri,
-    mockMethods: [
-      {
-        method: "get",
-        request: {
-          headers: data,
-        },
-        response: {
-          status: 204,
-        },
-        handler(req: MockRequest) {
-          if (format) {
-            validateValueFormat(req.headers["value"], format);
-            if (Date.parse(req.headers["value"]) !== Date.parse(value)) {
-              throw new ValidationError(`Wrong value`, value, req.headers["value"]);
-            }
-          } else {
-            req.expect.containsHeader("value", value);
-          }
-          return {
-            status: 204,
-          };
-        },
+    mockMethod: {
+      method: "get",
+      request: {
+        headers: data,
       },
-    ],
+      response: {
+        status: 204,
+      },
+      handler(req: MockRequest) {
+        if (format) {
+          validateValueFormat(req.headers["value"], format);
+          if (Date.parse(req.headers["value"]) !== Date.parse(value)) {
+            throw new ValidationError(`Wrong value`, value, req.headers["value"]);
+          }
+        } else {
+          req.expect.containsHeader("value", value);
+        }
+        return {
+          status: 204,
+        };
+      },
+    },
     kind: "MockApiDefinition",
   });
 }
-Scenarios.Encode_DateTime_Header_Default = createHeaderServerTests(
+Scenarios.Encode_Datetime_Header_default = createHeaderServerTests(
   "/encode/datetime/header/default",
   {
     value: "Fri, 26 Aug 2022 14:38:00 GMT",
@@ -206,7 +200,7 @@ Scenarios.Encode_DateTime_Header_Default = createHeaderServerTests(
   "rfc7231",
   "Fri, 26 Aug 2022 14:38:00 GMT",
 );
-Scenarios.Encode_DateTime_Header_rfc3339 = createHeaderServerTests(
+Scenarios.Encode_Datetime_Header_rfc3339 = createHeaderServerTests(
   "/encode/datetime/header/rfc3339",
   {
     value: "2022-08-26T18:38:00.000Z",
@@ -214,7 +208,7 @@ Scenarios.Encode_DateTime_Header_rfc3339 = createHeaderServerTests(
   "rfc3339",
   "2022-08-26T18:38:00.000Z",
 );
-Scenarios.Encode_DateTime_Header_rfc7231 = createHeaderServerTests(
+Scenarios.Encode_Datetime_Header_rfc7231 = createHeaderServerTests(
   "/encode/datetime/header/rfc7231",
   {
     value: "Fri, 26 Aug 2022 14:38:00 GMT",
@@ -222,7 +216,7 @@ Scenarios.Encode_DateTime_Header_rfc7231 = createHeaderServerTests(
   "rfc7231",
   "Fri, 26 Aug 2022 14:38:00 GMT",
 );
-Scenarios.Encode_DateTime_Header_Unix_Timestamp = createHeaderServerTests(
+Scenarios.Encode_Datetime_Header_unixTimestamp = createHeaderServerTests(
   "/encode/datetime/header/unix-timestamp",
   {
     value: 1686566864,
@@ -230,7 +224,7 @@ Scenarios.Encode_DateTime_Header_Unix_Timestamp = createHeaderServerTests(
   undefined,
   "1686566864",
 );
-Scenarios.Encode_DateTime_Header_Unix_Timestamp_Array = createHeaderServerTests(
+Scenarios.Encode_Datetime_Header_unixTimestampArray = createHeaderServerTests(
   "/encode/datetime/header/unix-timestamp-array",
   {
     value: [1686566864, 1686734256].join(","),
@@ -241,47 +235,45 @@ Scenarios.Encode_DateTime_Header_Unix_Timestamp_Array = createHeaderServerTests(
 function createResponseHeaderServerTests(uri: string, data: any, value: any) {
   return passOnSuccess({
     uri,
-    mockMethods: [
-      {
-        method: "get",
-        request: {},
-        response: {
-          status: 204,
-          headers: data,
-        },
-        handler: (req: MockRequest) => {
-          return {
-            status: 204,
-            headers: { value: value },
-          };
-        },
+    mockMethod: {
+      method: "get",
+      request: {},
+      response: {
+        status: 204,
+        headers: data,
       },
-    ],
+      handler: (req: MockRequest) => {
+        return {
+          status: 204,
+          headers: { value: value },
+        };
+      },
+    },
     kind: "MockApiDefinition",
   });
 }
-Scenarios.Encode_DateTime_ResponseHeader_Default = createResponseHeaderServerTests(
+Scenarios.Encode_Datetime_ResponseHeader_default = createResponseHeaderServerTests(
   "/encode/datetime/responseheader/default",
   {
     value: "Fri, 26 Aug 2022 14:38:00 GMT",
   },
   "Fri, 26 Aug 2022 14:38:00 GMT",
 );
-Scenarios.Encode_DateTime_ResponseHeader_rfc3339 = createResponseHeaderServerTests(
+Scenarios.Encode_Datetime_ResponseHeader_rfc3339 = createResponseHeaderServerTests(
   "/encode/datetime/responseheader/rfc3339",
   {
     value: "2022-08-26T18:38:00.000Z",
   },
   "2022-08-26T18:38:00.000Z",
 );
-Scenarios.Encode_DateTime_ResponseHeader_rfc7231 = createResponseHeaderServerTests(
+Scenarios.Encode_Datetime_ResponseHeader_rfc7231 = createResponseHeaderServerTests(
   "/encode/datetime/responseheader/rfc7231",
   {
     value: "Fri, 26 Aug 2022 14:38:00 GMT",
   },
   "Fri, 26 Aug 2022 14:38:00 GMT",
 );
-Scenarios.Encode_DateTime_ResponseHeader_Unix_Timestamp = createResponseHeaderServerTests(
+Scenarios.Encode_Datetime_ResponseHeader_unixTimestamp = createResponseHeaderServerTests(
   "/encode/datetime/responseheader/unix-timestamp",
   {
     value: "1686566864",

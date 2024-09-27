@@ -124,10 +124,10 @@ export const modelWithEncodedNames = `
 `;
 
 function createServerTests(uri: string, data?: any) {
-  return passOnSuccess({
-    uri,
-    mockMethods: [
-      {
+  return {
+    get: passOnSuccess({
+      uri,
+      mockMethod: {
         method: "get",
         request: {},
         response: {
@@ -141,7 +141,11 @@ function createServerTests(uri: string, data?: any) {
           };
         },
       },
-      {
+      kind: "MockApiDefinition",
+    }),
+    put: passOnSuccess({
+      uri,
+      mockMethod: {
         method: "put",
         request: {
           body: data,
@@ -160,53 +164,85 @@ function createServerTests(uri: string, data?: any) {
           };
         },
       },
-    ],
-    kind: "MockApiDefinition",
-  });
+      kind: "MockApiDefinition",
+    }),
+  };
 }
 
-Scenarios.Payload_Xml_SimpleModel = createServerTests("/payload/xml/simpleModel", simpleModel);
-Scenarios.Payload_Xml_ModelWithSimpleArrays = createServerTests(
+const Payload_Xml_SimpleModel = createServerTests("/payload/xml/simpleModel", simpleModel);
+Scenarios.Payload_Xml_SimpleModelValue_get = Payload_Xml_SimpleModel.get;
+Scenarios.Payload_Xml_SimpleModelValue_put = Payload_Xml_SimpleModel.put;
+
+const Payload_Xml_ModelWithSimpleArrays = createServerTests(
   "/payload/xml/modelWithSimpleArrays",
   modelWithSimpleArrays,
 );
-Scenarios.Payload_Xml_ModelWithArrayOfModel = createServerTests(
+Scenarios.Payload_Xml_ModelWithSimpleArraysValue_get = Payload_Xml_ModelWithSimpleArrays.get;
+Scenarios.Payload_Xml_ModelWithSimpleArraysValue_put = Payload_Xml_ModelWithSimpleArrays.put;
+
+const Payload_Xml_ModelWithArrayOfModel = createServerTests(
   "/payload/xml/modelWithArrayOfModel",
   modelWithArrayOfModel,
 );
-Scenarios.Payload_Xml_ModelWithOptionalField = createServerTests(
+Scenarios.Payload_Xml_ModelWithArrayOfModelValue_get = Payload_Xml_ModelWithArrayOfModel.get;
+Scenarios.Payload_Xml_ModelWithArrayOfModelValue_put = Payload_Xml_ModelWithArrayOfModel.put;
+
+const Payload_Xml_ModelWithOptionalField = createServerTests(
   "/payload/xml/modelWithOptionalField",
   modelWithOptionalField,
 );
-Scenarios.Payload_Xml_ModelWithAttributes = createServerTests(
+Scenarios.Payload_Xml_ModelWithOptionalFieldValue_get = Payload_Xml_ModelWithOptionalField.get;
+Scenarios.Payload_Xml_ModelWithOptionalFieldValue_put = Payload_Xml_ModelWithOptionalField.put;
+
+const Payload_Xml_ModelWithAttributes = createServerTests(
   "/payload/xml/modelWithAttributes",
   modelWithAttributes,
 );
-Scenarios.Payload_Xml_ModelWithUnwrappedArray = createServerTests(
+Scenarios.Payload_Xml_ModelWithAttributesValue_get = Payload_Xml_ModelWithAttributes.get;
+Scenarios.Payload_Xml_ModelWithAttributesValue_put = Payload_Xml_ModelWithAttributes.put;
+
+const Payload_Xml_ModelWithUnwrappedArray = createServerTests(
   "/payload/xml/modelWithUnwrappedArray",
   modelWithUnwrappedArray,
 );
-Scenarios.Payload_Xml_ModelWithRenamedArrays = createServerTests(
+Scenarios.Payload_Xml_ModelWithUnwrappedArrayValue_get = Payload_Xml_ModelWithUnwrappedArray.get;
+Scenarios.Payload_Xml_ModelWithUnwrappedArrayValue_put = Payload_Xml_ModelWithUnwrappedArray.put;
+
+const Payload_Xml_ModelWithRenamedArrays = createServerTests(
   "/payload/xml/modelWithRenamedArrays",
   modelWithRenamedArrays,
 );
-Scenarios.Payload_Xml_ModelWithRenamedFields = createServerTests(
+Scenarios.Payload_Xml_ModelWithRenamedArraysValue_get = Payload_Xml_ModelWithRenamedArrays.get;
+Scenarios.Payload_Xml_ModelWithRenamedArraysValue_put = Payload_Xml_ModelWithRenamedArrays.put;
+
+const Payload_Xml_ModelWithRenamedFields = createServerTests(
   "/payload/xml/modelWithRenamedFields",
   modelWithRenamedFields,
 );
-Scenarios.Payload_Xml_ModelWithEmptyArray = createServerTests(
+Scenarios.Payload_Xml_ModelWithRenamedFieldsValue_get = Payload_Xml_ModelWithRenamedFields.get;
+Scenarios.Payload_Xml_ModelWithRenamedFieldsValue_put = Payload_Xml_ModelWithRenamedFields.put;
+
+const Payload_Xml_ModelWithEmptyArray = createServerTests(
   "/payload/xml/modelWithEmptyArray",
   modelWithEmptyArray,
 );
-Scenarios.Payload_Xml_ModelWithText = createServerTests(
-  "/payload/xml/modelWithText",
-  modelWithText,
-);
-Scenarios.Payload_Xml_ModelWithDictionary = createServerTests(
+Scenarios.Payload_Xml_ModelWithEmptyArrayValue_get = Payload_Xml_ModelWithEmptyArray.get;
+Scenarios.Payload_Xml_ModelWithEmptyArrayValue_put = Payload_Xml_ModelWithEmptyArray.put;
+
+const Payload_Xml_ModelWithText = createServerTests("/payload/xml/modelWithText", modelWithText);
+Scenarios.Payload_Xml_ModelWithTextValue_get = Payload_Xml_ModelWithText.get;
+Scenarios.Payload_Xml_ModelWithTextValue_put = Payload_Xml_ModelWithText.put;
+
+const Payload_Xml_ModelWithDictionary = createServerTests(
   "/payload/xml/modelWithDictionary",
   modelWithDictionary,
 );
-Scenarios.Payload_Xml_ModelWithEncodedNames = createServerTests(
+Scenarios.Payload_Xml_ModelWithDictionaryValue_get = Payload_Xml_ModelWithDictionary.get;
+Scenarios.Payload_Xml_ModelWithDictionaryValue_put = Payload_Xml_ModelWithDictionary.put;
+
+const Payload_Xml_ModelWithEncodedNames = createServerTests(
   "/payload/xml/modelWithEncodedNames",
   modelWithEncodedNames,
 );
+Scenarios.Payload_Xml_ModelWithEncodedNamesValue_get = Payload_Xml_ModelWithEncodedNames.get;
+Scenarios.Payload_Xml_ModelWithEncodedNamesValue_put = Payload_Xml_ModelWithEncodedNames.put;

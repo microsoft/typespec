@@ -2,30 +2,28 @@ import { json, MockRequest, passOnSuccess, ScenarioMockApi } from "@typespec/spe
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
-Scenarios.Versioning_Removed_API_Version_V2_V2 = passOnSuccess({
+Scenarios.Versioning_Removed_v2 = passOnSuccess({
   uri: `/versioning/removed/api-version:v2/v2`,
-  mockMethods: [
-    {
-      method: `post`,
-      request: {
-        body: {
-          prop: "foo",
-          enumProp: "enumMemberV2",
-          unionProp: "bar",
-        },
-      },
-      response: {
-        status: 200,
-        body: json({ prop: "foo", enumProp: "enumMemberV2", unionProp: "bar" }),
-      },
-      handler: (req: MockRequest) => {
-        req.expect.bodyEquals({ prop: "foo", enumProp: "enumMemberV2", unionProp: "bar" });
-        return {
-          status: 200,
-          body: json({ prop: "foo", enumProp: "enumMemberV2", unionProp: "bar" }),
-        };
+  mockMethod: {
+    method: `post`,
+    request: {
+      body: {
+        prop: "foo",
+        enumProp: "enumMemberV2",
+        unionProp: "bar",
       },
     },
-  ],
+    response: {
+      status: 200,
+      body: json({ prop: "foo", enumProp: "enumMemberV2", unionProp: "bar" }),
+    },
+    handler: (req: MockRequest) => {
+      req.expect.bodyEquals({ prop: "foo", enumProp: "enumMemberV2", unionProp: "bar" });
+      return {
+        status: 200,
+        body: json({ prop: "foo", enumProp: "enumMemberV2", unionProp: "bar" }),
+      };
+    },
+  },
   kind: "MockApiDefinition",
 });

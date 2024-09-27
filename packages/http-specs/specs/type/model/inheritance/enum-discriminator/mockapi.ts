@@ -13,28 +13,26 @@ const validFixedEnumBody = {
 function createGetServerTests(uri: string, data: any) {
   return passOnSuccess({
     uri: uri,
-    mockMethods: [
-      {
-        method: "get",
-        request: {},
-        response: {
-          status: 200,
-          body: json(data),
-        },
-        handler: (req: MockRequest) => {
-          return { status: 200, body: json(data) };
-        },
+    mockMethod: {
+      method: "get",
+      request: {},
+      response: {
+        status: 200,
+        body: json(data),
       },
-    ],
+      handler: (req: MockRequest) => {
+        return { status: 200, body: json(data) };
+      },
+    },
     kind: "MockApiDefinition",
   });
 }
 
 function createGetPutServerTests(uri: string, data: any) {
-  return passOnSuccess({
-    uri: uri,
-    mockMethods: [
-      {
+  return {
+    get: passOnSuccess({
+      uri: uri,
+      mockMethod: {
         method: "get",
         request: {},
         response: {
@@ -45,7 +43,11 @@ function createGetPutServerTests(uri: string, data: any) {
           return { status: 200, body: json(data) };
         },
       },
-      {
+      kind: "MockApiDefinition",
+    }),
+    put: passOnSuccess({
+      uri: uri,
+      mockMethod: {
         method: "put",
         request: {
           body: data,
@@ -58,35 +60,45 @@ function createGetPutServerTests(uri: string, data: any) {
           return { status: 204 };
         },
       },
-    ],
-    kind: "MockApiDefinition",
-  });
+      kind: "MockApiDefinition",
+    }),
+  };
 }
 
-Scenarios.Type_Model_Inheritance_Enum_Discriminator_Extensible_Enum = createGetPutServerTests(
+const Type_Model_Inheritance_Enum_Discriminator_Extensible_Enum = createGetPutServerTests(
   "/type/model/inheritance/enum-discriminator/extensible-enum",
   validExtensibleEnumBody,
 );
-Scenarios.Type_Model_Inheritance_Enum_Discriminator_Fixed_Enum = createGetPutServerTests(
+Scenarios.Type_Model_Inheritance_EnumDiscriminator_getExtensibleModel =
+  Type_Model_Inheritance_Enum_Discriminator_Extensible_Enum.get;
+Scenarios.Type_Model_Inheritance_EnumDiscriminator_putExtensibleModel =
+  Type_Model_Inheritance_Enum_Discriminator_Extensible_Enum.put;
+
+const Type_Model_Inheritance_Enum_Discriminator_Fixed_Enum = createGetPutServerTests(
   "/type/model/inheritance/enum-discriminator/fixed-enum",
   validFixedEnumBody,
 );
-Scenarios.Type_Model_Inheritance_Enum_Discriminator_Extensible_Enum_Missing_Discriminator =
+Scenarios.Type_Model_Inheritance_EnumDiscriminator_getFixedModel =
+  Type_Model_Inheritance_Enum_Discriminator_Fixed_Enum.get;
+Scenarios.Type_Model_Inheritance_EnumDiscriminator_putFixedModel =
+  Type_Model_Inheritance_Enum_Discriminator_Fixed_Enum.put;
+
+Scenarios.Type_Model_Inheritance_EnumDiscriminator_getExtensibleModelMissingDiscriminator =
   createGetServerTests(
     "/type/model/inheritance/enum-discriminator/extensible-enum/missingdiscriminator",
     { weight: 10 },
   );
-Scenarios.Type_Model_Inheritance_Enum_Discriminator_Extensible_Enum_Wrong_Discriminator =
+Scenarios.Type_Model_Inheritance_EnumDiscriminator_getExtensibleModelWrongDiscriminator =
   createGetServerTests(
     "/type/model/inheritance/enum-discriminator/extensible-enum/wrongdiscriminator",
     { weight: 8, kind: "wrongKind" },
   );
-Scenarios.Type_Model_Inheritance_Enum_Discriminator_Fixed_Enum_Missing_Discriminator =
+Scenarios.Type_Model_Inheritance_EnumDiscriminator_getFixedModelMissingDiscriminator =
   createGetServerTests(
     "/type/model/inheritance/enum-discriminator/fixed-enum/missingdiscriminator",
     { length: 10 },
   );
-Scenarios.Type_Model_Inheritance_Enum_Discriminator_Fixed_Enum_Wrong_Discriminator =
+Scenarios.Type_Model_Inheritance_EnumDiscriminator_getFixedModelWrongDiscriminator =
   createGetServerTests("/type/model/inheritance/enum-discriminator/fixed-enum/wrongdiscriminator", {
     length: 8,
     kind: "wrongKind",

@@ -4,58 +4,72 @@ export const Scenarios: Record<string, ScenarioMockApi> = {};
 function createServerTests(uri: string, data: any) {
   return passOnSuccess({
     uri,
-    mockMethods: [
-      {
-        method: "post",
-        request: {
-          body: data,
-        },
-        response: {
-          status: 204,
-        },
-        handler: (req: MockRequest) => {
-          req.expect.bodyEquals({ name: "foo" });
-          return { status: 204 };
-        },
+    mockMethod: {
+      method: "post",
+      request: {
+        body: data,
       },
-    ],
+      response: {
+        status: 204,
+      },
+      handler: (req: MockRequest) => {
+        req.expect.bodyEquals({ name: "foo" });
+        return { status: 204 };
+      },
+    },
     kind: "MockApiDefinition",
   });
 }
 
-Scenarios.Parameters_Body_Optionality_Required_Explicit = createServerTests(
+Scenarios.Parameters_BodyOptionality_requiredExplicit = createServerTests(
   "/parameters/body-optionality/required-explicit",
   {
     name: "foo",
   },
 );
 
-Scenarios.Parameters_Body_Optionality_Optional_Explicit_Set = createServerTests(
-  "/parameters/body-optionality/optional-explicit/set",
+Scenarios.Parameters_BodyOptionality_OptionalExplicit = passOnSuccess([
   {
-    name: "foo",
-  },
-);
-
-Scenarios.Parameters_Body_Optionality_Optional_Explicit_Omit = passOnSuccess({
-  uri: "/parameters/body-optionality/optional-explicit/omit",
-  mockMethods: [
-    {
+    uri: "/parameters/body-optionality/optional-explicit/set",
+    mockMethod: {
       method: "post",
-      request: {},
+      request: {
+        body: {
+          name: "foo",
+        },
+      },
       response: {
         status: 204,
       },
       handler: (req: MockRequest) => {
-        req.expect.rawBodyEquals(undefined);
+        req.expect.bodyEquals({ name: "foo" });
         return { status: 204 };
       },
     },
-  ],
-  kind: "MockApiDefinition",
-});
+    kind: "MockApiDefinition",
+  },
+  {
+    uri: "/parameters/body-optionality/optional-explicit/omit",
+    mockMethod: {
+      method: "post",
+      request: {
+        body: {
+          name: "foo",
+        },
+      },
+      response: {
+        status: 204,
+      },
+      handler: (req: MockRequest) => {
+        req.expect.bodyEquals({ name: "foo" });
+        return { status: 204 };
+      },
+    },
+    kind: "MockApiDefinition",
+  },
+]);
 
-Scenarios.Parameters_Body_Optionality_Required_Implicit = createServerTests(
+Scenarios.Parameters_BodyOptionality_requiredImplicit = createServerTests(
   "/parameters/body-optionality/required-implicit",
   {
     name: "foo",

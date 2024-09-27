@@ -12,7 +12,7 @@ import {
  * @param apis Endpoint or List of endpoints for this scenario
  */
 export function passOnSuccess(
-  apis: MockApi | readonly MockApi[] | MockApiDefinition,
+  apis: MockApi | readonly MockApi[] | MockApiDefinition | readonly MockApiDefinition[],
 ): PassOnSuccessScenario {
   return {
     passCondition: "response-success",

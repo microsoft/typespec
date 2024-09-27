@@ -2,54 +2,50 @@ import { json, MockRequest, passOnSuccess, ScenarioMockApi } from "@typespec/spe
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
-Scenarios.Authentication_ApiKey_InValid = passOnSuccess({
+Scenarios.Authentication_ApiKey_invalid = passOnSuccess({
   uri: `/authentication/api-key/invalid`,
-  mockMethods: [
-    {
-      method: `get`,
-      request: {
-        headers: {
-          "x-ms-api-key": "valid-key",
-        },
-        status: 403,
+  mockMethod: {
+    method: `get`,
+    request: {
+      headers: {
+        "x-ms-api-key": "valid-key",
       },
-      response: {
+      status: 403,
+    },
+    response: {
+      status: 403,
+      body: json({
+        error: "invalid-api-key",
+      }),
+    },
+    handler: (req: MockRequest) => {
+      return {
         status: 403,
         body: json({
           error: "invalid-api-key",
         }),
-      },
-      handler: (req: MockRequest) => {
-        return {
-          status: 403,
-          body: json({
-            error: "invalid-api-key",
-          }),
-        };
-      },
+      };
     },
-  ],
+  },
   kind: "MockApiDefinition",
 });
 
-Scenarios.Authentication_ApiKey_Valid = passOnSuccess({
+Scenarios.Authentication_ApiKey_valid = passOnSuccess({
   uri: `/authentication/api-key/valid`,
-  mockMethods: [
-    {
-      method: `get`,
-      request: {
-        headers: {
-          "x-ms-api-key": "valid-key",
-        },
-      },
-      response: {
-        status: 204,
-      },
-      handler: (req: MockRequest) => {
-        req.expect.containsHeader("x-ms-api-key", "valid-key");
-        return { status: 204 };
+  mockMethod: {
+    method: `get`,
+    request: {
+      headers: {
+        "x-ms-api-key": "valid-key",
       },
     },
-  ],
+    response: {
+      status: 204,
+    },
+    handler: (req: MockRequest) => {
+      req.expect.containsHeader("x-ms-api-key", "valid-key");
+      return { status: 204 };
+    },
+  },
   kind: "MockApiDefinition",
 });
