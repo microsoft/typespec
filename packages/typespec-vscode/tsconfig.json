@@ -9,6 +9,8 @@
     "sourceMap": false,
     "resolveJsonModule": true,
     "outDir": "dist",
+    "skipLibCheck": true,
+    "types": ["mocha"],
     "rootDir": "."
   },
   "include": ["rollup.config.ts", "src/**/*.ts", "test/**/*.ts"]

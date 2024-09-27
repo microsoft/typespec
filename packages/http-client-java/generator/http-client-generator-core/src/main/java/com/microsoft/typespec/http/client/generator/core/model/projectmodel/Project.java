@@ -66,15 +66,7 @@ public class Project {
         AZURE_CORE_EXPERIMENTAL("com.azure", "azure-core-experimental", "1.0.0-beta.53"),
 
         CLIENTCORE("io.clientcore", "core", "1.0.0-beta.1"),
-        CLIENTCORE_JSON("io.clientcore", "core-json", "1.0.0-beta.1"),
-
-        // external
-        JUNIT_JUPITER_API("org.junit.jupiter", "junit-jupiter-api", "5.9.3"),
-        JUNIT_JUPITER_ENGINE("org.junit.jupiter", "junit-jupiter-engine", "5.9.3"),
-        MOCKITO_CORE("org.mockito", "mockito-core", "4.11.0"),
-        BYTE_BUDDY("net.bytebuddy", "byte-buddy", "1.14.12"),
-        BYTE_BUDDY_AGENT("net.bytebuddy", "byte-buddy-agent", "1.14.12"),
-        SLF4J_SIMPLE("org.slf4j", "slf4j-simple", "1.7.36");
+        CLIENTCORE_JSON("io.clientcore", "core-json", "1.0.0-beta.1");
 
         private final String groupId;
         private final String artifactId;
@@ -104,7 +96,7 @@ public class Project {
         }
 
         public String getDependencyIdentifier() {
-            return String.format("%s:%s:%s", groupId, artifactId, version);
+            return groupId + ":" + artifactId + ":" + version;
         }
     }
 

@@ -5,12 +5,32 @@ import { dirname, join, relative, resolve } from "path";
 import { fileURLToPath } from "url";
 import { parseArgs, promisify } from "util";
 
+// PARSE INPUT ARGUMENTS
+
+const argv = parseArgs({
+  args: process.argv.slice(2),
+  options: {
+    flavor: { type: "string" },
+    name: { type: "string" },
+    debug: { type: "boolean" },
+    pluginDir: { type: "string" },
+    emitterName: { type: "string" },
+    generatedFolder: { type: "string" },
+  },
+});
+
 // Promisify the exec function
 const exec = promisify(execCallback);
 
 // Get the directory of the current file
-const PLUGIN_DIR = resolve(fileURLToPath(import.meta.url), "../../../../");
+const PLUGIN_DIR = argv.values.pluginDir
+  ? resolve(argv.values.pluginDir)
+  : resolve(fileURLToPath(import.meta.url), "../../../../");
 const CADL_RANCH_DIR = resolve(PLUGIN_DIR, "node_modules/@azure-tools/cadl-ranch-specs/http");
+const GENERATED_FOLDER = argv.values.generatedFolder
+  ? resolve(argv.values.generatedFolder)
+  : resolve(PLUGIN_DIR, "generator");
+
 interface TspCommand {
   outputDir: string;
   command: string;
@@ -240,7 +260,7 @@ function addOptions(
     }
     options["examples-dir"] = toPosix(join(dirname(spec), "examples"));
     const configs = Object.entries(options).flatMap(([k, v]) => {
-      return `--option @typespec/http-client-python.${k}=${v}`;
+      return `--option ${argv.values.emitterName || "@typespec/http-client-python"}.${k}=${v}`;
     });
     emitterConfigs.push({
       optionsStr: configs.join(" "),
@@ -250,7 +270,7 @@ function addOptions(
   return emitterConfigs;
 }
 function _getCmdList(spec: string, flags: RegenerateFlags): TspCommand[] {
-  return addOptions(spec, PLUGIN_DIR, flags).map((option) => {
+  return addOptions(spec, GENERATED_FOLDER, flags).map((option) => {
     return {
       outputDir: option.outputDir,
       command: `tsp compile ${spec} --emit=${toPosix(PLUGIN_DIR)} ${option.optionsStr}`,
@@ -273,17 +293,6 @@ async function regenerate(flags: RegenerateFlagsInput): Promise<void> {
     await Promise.all(PromiseCommands);
   }
 }
-
-// PARSE INPUT ARGUMENTS
-
-const argv = parseArgs({
-  args: process.argv.slice(2),
-  options: {
-    flavor: { type: "string" },
-    name: { type: "string" },
-    debug: { type: "boolean" },
-  },
-});
 
 regenerate(argv.values)
   .then(() => console.log("Regeneration successful"))
