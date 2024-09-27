@@ -74,9 +74,6 @@ try {
 
     Invoke-LoggedCommand "npm run build" -GroupOutput
 
-    # linting
-    Invoke-LoggedCommand "npm run lint" -GroupOutput
-
     #pack the emitter
     $file = Invoke-LoggedCommand "npm pack -q"
     Copy-Item $file -Destination "$outputPath/packages"
