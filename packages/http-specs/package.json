@@ -10,8 +10,6 @@
     "clean": "rimraf dist/ temp/",
     "validate-scenarios": "spec validate-scenarios ./http",
     "generate-scenarios-summary": "spec generate-scenarios-summary ./http",
-    "upload-manifest": "spec upload-manifest ./http --storageAccountName azuresdkcadlranch",
-    "upload-coverage": "spec upload-coverage --storageAccountName azuresdkcadlranch",
     "validate-mock-apis": "spec validate-mock-apis ./http",
     "check-scenario-coverage": "spec check-coverage ./http",
     "serve": "spec serve ./http",

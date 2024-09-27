@@ -240,7 +240,6 @@ words:
   - Hdvcmxk
   - ints
   - myname
-  - azuresdkcadlranch
 ignorePaths:
   - "**/node_modules/**"
   - "**/dist/**"
