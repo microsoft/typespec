@@ -97,12 +97,12 @@ public final class CodeFormatterUtil {
             Process process = new ProcessBuilder(command).redirectErrorStream(true)
                 .redirectOutput(ProcessBuilder.Redirect.to(outputFile))
                 .start();
-            process.waitFor(60, TimeUnit.SECONDS);
+            process.waitFor(300, TimeUnit.SECONDS);
 
             if (process.isAlive() || process.exitValue() != 0) {
                 process.destroyForcibly();
                 throw new RuntimeException(
-                    "Spotless failed to complete within 60 seconds or failed with an error code. "
+                    "Spotless failed to complete within 300 seconds or failed with an error code. "
                         + Files.readString(outputFile.toPath()));
             }
         } catch (IOException | InterruptedException ex) {
