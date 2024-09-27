@@ -33,7 +33,7 @@ Scenarios.Authentication_OAuth2_Invalid = passOnSuccess({
     {
       method: "get",
       request: {
-        validStatus: 403,
+        status: 403,
       },
       response: {
         status: 403,

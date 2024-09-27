@@ -76,7 +76,7 @@ Scenarios.Payload_Pageable = passOnSuccess({
           maxpagesize: 3,
           skipToken: "name-user10",
         },
-        validStatus: 400,
+        status: 400,
       },
       response: {
         status: 400,

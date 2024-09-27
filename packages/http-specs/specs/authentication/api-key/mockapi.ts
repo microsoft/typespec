@@ -11,7 +11,7 @@ Scenarios.Authentication_ApiKey_InValid = passOnSuccess({
         headers: {
           "x-ms-api-key": "valid-key",
         },
-        validStatus: 403,
+        status: 403,
       },
       response: {
         status: 403,

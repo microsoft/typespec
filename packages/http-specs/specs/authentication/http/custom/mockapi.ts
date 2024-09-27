@@ -33,7 +33,7 @@ Scenarios.Authentication_Http_Custom_InValid_Key = passOnSuccess({
         headers: {
           authorization: "SharedAccessKey valid-key",
         },
-        validStatus: 403,
+        status: 403,
       },
       response: {
         status: 403,

@@ -593,9 +593,6 @@ importers:
       '@typespec/xml':
         specifier: workspace:~
         version: link:../xml
-      axios:
-        specifier: ^1.7.5
-        version: 1.7.7
       dotenv:
         specifier: ~16.4.5
         version: 16.4.5

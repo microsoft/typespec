@@ -46,7 +46,7 @@ Scenarios.Type_Enum_Fixed_String_Unknown_Value = passOnSuccess({
         headers: {
           "Content-Type": "application/json",
         },
-        validStatus: 500,
+        status: 500,
       },
       response: {
         status: 500,

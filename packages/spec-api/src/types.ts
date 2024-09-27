@@ -66,13 +66,12 @@ export interface MockMethod {
 
 export interface ServiceRequest {
   body?: any;
-  validStatus?: number;
-  params?: {
-    [key: string]: any;
-  };
-  headers?: {
-    [key: string]: string | number;
-  };
+  status?: number;
+  /**
+   * Query parameters to match to the request.
+   */
+  params?: Record<string, unknown>;
+  headers?: Record<string, unknown>;
 }
 
 export const Fail = Symbol.for("Fail");

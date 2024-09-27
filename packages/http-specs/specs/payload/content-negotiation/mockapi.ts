@@ -105,7 +105,7 @@ Scenarios.Payload_Content_Negotiation_SameBody = passOnSuccess({
     {
       method: "get",
       request: {
-        validStatus: 400,
+        status: 400,
         headers: {
           accept: "wrongAccept",
         },
@@ -161,7 +161,7 @@ Scenarios.Payload_Content_Negotiation_DifferentBody = passOnSuccess({
     {
       method: "get",
       request: {
-        validStatus: 400,
+        status: 400,
         headers: {
           accept: "wrongAccept",
         },

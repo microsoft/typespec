@@ -28,10 +28,10 @@ class ServerTestsGenerator {
 
   private getConfigObj(mockMethod: MockMethod) {
     let config = {};
-    if (mockMethod.request.validStatus) {
+    if (mockMethod.request.status) {
       config = {
         validateStatus: function (status: number) {
-          return (status >= 200 && status < 300) || status === mockMethod.request.validStatus;
+          return (status >= 200 && status < 300) || status === mockMethod.request.status;
         },
       };
     }
