@@ -60,6 +60,8 @@ Pet:
       type: "array"
       items:
         type: string
+        xml:
+          name: string
   xml:
     name: "XmlPet"
 ```
@@ -105,6 +107,8 @@ Pet:
         wrapped: true
       items:
         type: string
+        xml:
+          name: string
   xml:
     name: "XmlPet"
 ```
@@ -146,8 +150,6 @@ Pet:
   properties:
     tags:
       type: "array"
-      xml:
-        name: "ItemsTags"
       items:
         type: string
         xml:
@@ -265,7 +267,10 @@ Pet:
     tags:
       type: "array"
       items:
-        $ref: "#/definitions/Tag"
+        allOf:
+          - $ref: "#/components/schemas/Tag"
+        xml:
+          name: "XmlTag"
   xml:
     name: "XmlPet"
 ```
@@ -280,6 +285,7 @@ Pet:
 ```tsp
 @encodedName("application/xml", "XmlPet")
 model Pet {
+  @encodedName("application/xml", "ItemsTags")
   tags: Tag[];
 }
 
@@ -318,11 +324,14 @@ Pet:
   properties:
     tags:
       type: "array"
+      items:
+        allOf:
+          - $ref: "#/components/schemas/Tag"
+        xml:
+          name: "XmlTag"
       xml:
         name: "ItemsTags"
         wrapped: true
-      items:
-        $ref: "#/definitions/Tag"
   xml:
     name: "XmlPet"
 ```
@@ -353,9 +362,9 @@ model Tag {
 
 ```xml
 <XmlPet>
-  <ItemsTag>
+  <XmlTag>
     <name>string</name>
-  </ItemsTag>
+  </XmlTag>
 </XmlPet>
 ```
 
@@ -375,12 +384,11 @@ Tag:
     properties:
       tags:
         type: "array"
-        xml:
-          name: "ItemsTags"
         items:
-          $ref: "#/definitions/Tag"
+          allOf:
+            - $ref: "#/components/schemas/Tag"
           xml:
-              name: ItemsXMLName
+            name: XmlTag
     xml:
       name: "XmlPet"
 ```
@@ -427,16 +435,21 @@ Tag:
   properties:
     name:
       type: "string"
+  xml:
+    name: "XmlTag"
 Pet:
   type: "object"
   properties:
     tags:
       type: "array"
+      items:
+        allOf:
+          - $ref: "#/components/schemas/Tag"
+        xml:
+          name: XmlTag
       xml:
         name: "ItemsTags"
         wrapped: true
-      items:
-        $ref: "#/definitions/Tag"
   xml:
     name: "XmlPet"
 ```
