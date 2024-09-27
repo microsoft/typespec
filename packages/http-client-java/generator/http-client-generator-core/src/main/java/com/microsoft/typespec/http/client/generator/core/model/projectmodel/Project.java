@@ -378,9 +378,9 @@ public class Project {
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             Document doc = dBuilder.parse(pomPath.toFile());
             NodeList nodeList = (NodeList) XPathFactory.newInstance()
-                    .newXPath()
-                    .compile("project/dependencies/dependency")
-                    .evaluate(doc, XPathConstants.NODESET);
+                .newXPath()
+                .compile("project/dependencies/dependency")
+                .evaluate(doc, XPathConstants.NODESET);
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Node dependencyNode = nodeList.item(i);
                 String groupId = null;
