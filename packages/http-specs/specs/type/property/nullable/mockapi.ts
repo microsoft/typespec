@@ -6,47 +6,43 @@ function createServerTests(url: string, value: unknown, patchNullableProperty?: 
   return {
     get: passOnSuccess({
       uri: url,
-      mockMethod: {
-        method: `get`,
-        request: {},
-        response: {
+      method: `get`,
+      request: {},
+      response: {
+        status: 200,
+        body: json(value),
+      },
+      handler: (req: MockRequest) => {
+        return {
           status: 200,
           body: json(value),
-        },
-        handler: (req: MockRequest) => {
-          return {
-            status: 200,
-            body: json(value),
-          };
-        },
+        };
       },
       kind: "MockApiDefinition",
     }),
     patch: passOnSuccess({
       uri: url,
-      mockMethod: {
-        method: `patch`,
-        request: {
-          body: {
-            requiredProperty: "foo",
-            nullableProperty: patchNullableProperty || null,
-          },
-          headers: {
-            "Content-Type": "application/merge-patch+json",
-          },
+      method: `patch`,
+      request: {
+        body: {
+          requiredProperty: "foo",
+          nullableProperty: patchNullableProperty || null,
         },
-        response: {
+        headers: {
+          "Content-Type": "application/merge-patch+json",
+        },
+      },
+      response: {
+        status: 204,
+      },
+      handler: (req: MockRequest) => {
+        req.expect.bodyEquals({
+          requiredProperty: "foo",
+          nullableProperty: patchNullableProperty || null,
+        });
+        return {
           status: 204,
-        },
-        handler: (req: MockRequest) => {
-          req.expect.bodyEquals({
-            requiredProperty: "foo",
-            nullableProperty: patchNullableProperty || null,
-          });
-          return {
-            status: 204,
-          };
-        },
+        };
       },
       kind: "MockApiDefinition",
     }),

@@ -19,27 +19,25 @@ function createQueryServerTests(
 ) {
   return passOnSuccess({
     uri,
-    mockMethod: {
-      method: "get",
-      request: {
-        params: paramData,
-      },
-      response: {
-        status: 204,
-      },
-      handler(req: MockRequest) {
-        if (format) {
-          validateValueFormat(req.query["value"] as string, format);
-          if (Date.parse(req.query["value"] as string) !== Date.parse(value)) {
-            throw new ValidationError(`Wrong value`, value, req.query["value"]);
-          }
-        } else {
-          req.expect.containsQueryParam("value", value, collectionFormat);
+    method: "get",
+    request: {
+      params: paramData,
+    },
+    response: {
+      status: 204,
+    },
+    handler(req: MockRequest) {
+      if (format) {
+        validateValueFormat(req.query["value"] as string, format);
+        if (Date.parse(req.query["value"] as string) !== Date.parse(value)) {
+          throw new ValidationError(`Wrong value`, value, req.query["value"]);
         }
-        return {
-          status: 204,
-        };
-      },
+      } else {
+        req.expect.containsQueryParam("value", value, collectionFormat);
+      }
+      return {
+        status: 204,
+      };
     },
     kind: "MockApiDefinition",
   });
@@ -93,28 +91,26 @@ function createPropertyServerTests(
 ) {
   return passOnSuccess({
     uri,
-    mockMethod: {
-      method: "post",
-      request: {
-        body: data,
-      },
-      response: {
-        status: 200,
-      },
-      handler: (req: MockRequest) => {
-        if (format) {
-          validateValueFormat(req.body["value"], format);
-          if (Date.parse(req.body["value"]) !== Date.parse(value)) {
-            throw new ValidationError(`Wrong value`, value, req.body["value"]);
-          }
-        } else {
-          req.expect.coercedBodyEquals({ value: value });
+    method: "post",
+    request: {
+      body: data,
+    },
+    response: {
+      status: 200,
+    },
+    handler: (req: MockRequest) => {
+      if (format) {
+        validateValueFormat(req.body["value"], format);
+        if (Date.parse(req.body["value"]) !== Date.parse(value)) {
+          throw new ValidationError(`Wrong value`, value, req.body["value"]);
         }
-        return {
-          status: 200,
-          body: json({ value: value }),
-        };
-      },
+      } else {
+        req.expect.coercedBodyEquals({ value: value });
+      }
+      return {
+        status: 200,
+        body: json({ value: value }),
+      };
     },
     kind: "MockApiDefinition",
   });
@@ -167,27 +163,25 @@ function createHeaderServerTests(
 ) {
   return passOnSuccess({
     uri,
-    mockMethod: {
-      method: "get",
-      request: {
-        headers: data,
-      },
-      response: {
-        status: 204,
-      },
-      handler(req: MockRequest) {
-        if (format) {
-          validateValueFormat(req.headers["value"], format);
-          if (Date.parse(req.headers["value"]) !== Date.parse(value)) {
-            throw new ValidationError(`Wrong value`, value, req.headers["value"]);
-          }
-        } else {
-          req.expect.containsHeader("value", value);
+    method: "get",
+    request: {
+      headers: data,
+    },
+    response: {
+      status: 204,
+    },
+    handler(req: MockRequest) {
+      if (format) {
+        validateValueFormat(req.headers["value"], format);
+        if (Date.parse(req.headers["value"]) !== Date.parse(value)) {
+          throw new ValidationError(`Wrong value`, value, req.headers["value"]);
         }
-        return {
-          status: 204,
-        };
-      },
+      } else {
+        req.expect.containsHeader("value", value);
+      }
+      return {
+        status: 204,
+      };
     },
     kind: "MockApiDefinition",
   });
@@ -235,19 +229,17 @@ Scenarios.Encode_Datetime_Header_unixTimestampArray = createHeaderServerTests(
 function createResponseHeaderServerTests(uri: string, data: any, value: any) {
   return passOnSuccess({
     uri,
-    mockMethod: {
-      method: "get",
-      request: {},
-      response: {
+    method: "get",
+    request: {},
+    response: {
+      status: 204,
+      headers: data,
+    },
+    handler: (req: MockRequest) => {
+      return {
         status: 204,
-        headers: data,
-      },
-      handler: (req: MockRequest) => {
-        return {
-          status: 204,
-          headers: { value: value },
-        };
-      },
+        headers: { value: value },
+      };
     },
     kind: "MockApiDefinition",
   });

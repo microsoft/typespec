@@ -4,22 +4,20 @@ export const Scenarios: Record<string, ScenarioMockApi> = {};
 
 Scenarios.Special_Words_Model_Properties_Same_As_Model = passOnSuccess({
   uri: "/special-words/model-properties/same-as-model",
-  mockMethod: {
-    method: "post",
-    request: {
-      body: {
-        SameAsModel: "ok",
-      },
+  method: "post",
+  request: {
+    body: {
+      SameAsModel: "ok",
     },
-    response: {
+  },
+  response: {
+    status: 204,
+  },
+  handler: (req: MockRequest) => {
+    req.expect.bodyEquals({ ["SameAsModel"]: "ok" });
+    return {
       status: 204,
-    },
-    handler: (req: MockRequest) => {
-      req.expect.bodyEquals({ ["SameAsModel"]: "ok" });
-      return {
-        status: 204,
-      };
-    },
+    };
   },
   kind: "MockApiDefinition",
 });
@@ -27,22 +25,20 @@ Scenarios.Special_Words_Model_Properties_Same_As_Model = passOnSuccess({
 function createModelsTests(uri: string) {
   return passOnSuccess({
     uri,
-    mockMethod: {
-      method: "post",
-      request: {
-        body: {
-          name: "ok",
-        },
+    method: "post",
+    request: {
+      body: {
+        name: "ok",
       },
-      response: {
+    },
+    response: {
+      status: 204,
+    },
+    handler: (req: MockRequest) => {
+      req.expect.bodyEquals({ name: "ok" });
+      return {
         status: 204,
-      },
-      handler: (req: MockRequest) => {
-        req.expect.bodyEquals({ name: "ok" });
-        return {
-          status: 204,
-        };
-      },
+      };
     },
     kind: "MockApiDefinition",
   });
@@ -84,17 +80,15 @@ Scenarios.SpecialWords_Models_yield = createModelsTests(`/special-words/models/y
 function createOperationsTests(uri: string) {
   return passOnSuccess({
     uri,
-    mockMethod: {
-      method: "get",
-      request: {},
-      response: {
+    method: "get",
+    request: {},
+    response: {
+      status: 204,
+    },
+    handler: (req: MockRequest) => {
+      return {
         status: 204,
-      },
-      handler: (req: MockRequest) => {
-        return {
-          status: 204,
-        };
-      },
+      };
     },
     kind: "MockApiDefinition",
   });
@@ -155,20 +149,18 @@ Scenarios.SpecialWords_Operations_yield = createOperationsTests(`/special-words/
 function createParametersTests(uri: string, data: any, paramName: string) {
   return passOnSuccess({
     uri,
-    mockMethod: {
-      method: "get",
-      request: {
-        params: data,
-      },
-      response: {
+    method: "get",
+    request: {
+      params: data,
+    },
+    response: {
+      status: 204,
+    },
+    handler: (req: MockRequest) => {
+      req.expect.containsQueryParam(paramName, "ok");
+      return {
         status: 204,
-      },
-      handler: (req: MockRequest) => {
-        req.expect.containsQueryParam(paramName, "ok");
-        return {
-          status: 204,
-        };
-      },
+      };
     },
     kind: "MockApiDefinition",
   });

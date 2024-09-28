@@ -5,22 +5,20 @@ export const Scenarios: Record<string, ScenarioMockApi> = {};
 function createServerTests(uri: string) {
   return passOnSuccess({
     uri,
-    mockMethod: {
-      method: "head",
-      request: {},
-      response: {
-        status: 200,
-      },
-      handler: (req: MockRequest) => {
-        if (Object.keys(req.query).length > 0) {
-          throw new ValidationError(
-            "Expected no query parameters including api-version",
-            "No query parameters",
-            req.query,
-          );
-        }
-        return { status: 200 };
-      },
+    method: "head",
+    request: {},
+    response: {
+      status: 200,
+    },
+    handler: (req: MockRequest) => {
+      if (Object.keys(req.query).length > 0) {
+        throw new ValidationError(
+          "Expected no query parameters including api-version",
+          "No query parameters",
+          req.query,
+        );
+      }
+      return { status: 200 };
     },
     kind: "MockApiDefinition",
   });
@@ -36,16 +34,14 @@ Scenarios.Server_Versions_Versioned_withPathApiVersion = createServerTests(
 function createAPIVersionTests(uri: string, requestData: any, serverData: string) {
   return passOnSuccess({
     uri,
-    mockMethod: {
-      method: "head",
-      request: requestData,
-      response: {
-        status: 200,
-      },
-      handler: (req: MockRequest) => {
-        req.expect.containsQueryParam("api-version", serverData);
-        return { status: 200 };
-      },
+    method: "head",
+    request: requestData,
+    response: {
+      status: 200,
+    },
+    handler: (req: MockRequest) => {
+      req.expect.containsQueryParam("api-version", serverData);
+      return { status: 200 };
     },
     kind: "MockApiDefinition",
   });

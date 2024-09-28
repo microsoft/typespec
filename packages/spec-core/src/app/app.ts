@@ -55,17 +55,21 @@ export class MockApiApp {
           });
         });
       } else {
-        const method = endpoint.mockMethod;
-        if (!method.handler) {
+        if (!endpoint.handler) {
           continue;
         }
-        this.router.route(endpoint.uri)[method.method]((req: RequestExt, res: Response) => {
-          processRequest(this.coverageTracker, name, endpoint.uri, req, res, method.handler!).catch(
-            (e) => {
-              logger.error("Unexpected request error", e);
-              res.status(500).end();
-            },
-          );
+        this.router.route(endpoint.uri)[endpoint.method]((req: RequestExt, res: Response) => {
+          processRequest(
+            this.coverageTracker,
+            name,
+            endpoint.uri,
+            req,
+            res,
+            endpoint.handler!,
+          ).catch((e) => {
+            logger.error("Unexpected request error", e);
+            res.status(500).end();
+          });
         });
       }
     }

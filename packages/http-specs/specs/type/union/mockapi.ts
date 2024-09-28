@@ -5,16 +5,14 @@ export const Scenarios: Record<string, ScenarioMockApi> = {};
 function createGetServerTests(url: string, value: unknown) {
   return passOnSuccess({
     uri: url,
-    mockMethod: {
-      method: `get`,
-      request: {},
-      response: {
-        status: 200,
-        body: json({ prop: value }),
-      },
-      handler: (req: MockRequest) => {
-        return { status: 200, body: json({ prop: value }) };
-      },
+    method: `get`,
+    request: {},
+    response: {
+      status: 200,
+      body: json({ prop: value }),
+    },
+    handler: (req: MockRequest) => {
+      return { status: 200, body: json({ prop: value }) };
     },
     kind: "MockApiDefinition",
   });
@@ -23,20 +21,18 @@ function createGetServerTests(url: string, value: unknown) {
 function createPostServerTests(url: string, value: unknown) {
   return passOnSuccess({
     uri: url,
-    mockMethod: {
-      method: `post`,
-      request: {
-        body: {
-          prop: value,
-        },
+    method: `post`,
+    request: {
+      body: {
+        prop: value,
       },
-      response: {
-        status: 204,
-      },
-      handler: (req: MockRequest) => {
-        req.expect.bodyEquals({ prop: value });
-        return { status: 204 };
-      },
+    },
+    response: {
+      status: 204,
+    },
+    handler: (req: MockRequest) => {
+      req.expect.bodyEquals({ prop: value });
+      return { status: 204 };
     },
     kind: "MockApiDefinition",
   });

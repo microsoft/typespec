@@ -4,88 +4,80 @@ export const Scenarios: Record<string, ScenarioMockApi> = {};
 
 Scenarios.SpecialHeaders_ConditionalRequest_postIfUnmodifiedSince = passOnSuccess({
   uri: "/special-headers/conditional-request/if-unmodified-since",
-  mockMethod: {
-    method: "post",
-    request: {
-      headers: {
-        "if-unmodified-since": "Fri, 26 Aug 2022 14:38:00 GMT",
-      },
+  method: "post",
+  request: {
+    headers: {
+      "if-unmodified-since": "Fri, 26 Aug 2022 14:38:00 GMT",
     },
-    response: {
+  },
+  response: {
+    status: 204,
+  },
+  handler: (req: MockRequest) => {
+    req.expect.containsHeader("if-unmodified-since", "Fri, 26 Aug 2022 14:38:00 GMT");
+    return {
       status: 204,
-    },
-    handler: (req: MockRequest) => {
-      req.expect.containsHeader("if-unmodified-since", "Fri, 26 Aug 2022 14:38:00 GMT");
-      return {
-        status: 204,
-      };
-    },
+    };
   },
   kind: "MockApiDefinition",
 });
 
 Scenarios.SpecialHeaders_ConditionalRequest_headIfModifiedSince = passOnSuccess({
   uri: "/special-headers/conditional-request/if-modified-since",
-  mockMethod: {
-    method: "head",
-    request: {
-      headers: {
-        "if-modified-since": "Fri, 26 Aug 2022 14:38:00 GMT",
-      },
+  method: "head",
+  request: {
+    headers: {
+      "if-modified-since": "Fri, 26 Aug 2022 14:38:00 GMT",
     },
-    response: {
+  },
+  response: {
+    status: 204,
+  },
+  handler: (req: MockRequest) => {
+    req.expect.containsHeader("if-modified-since", "Fri, 26 Aug 2022 14:38:00 GMT");
+    return {
       status: 204,
-    },
-    handler: (req: MockRequest) => {
-      req.expect.containsHeader("if-modified-since", "Fri, 26 Aug 2022 14:38:00 GMT");
-      return {
-        status: 204,
-      };
-    },
+    };
   },
   kind: "MockApiDefinition",
 });
 
 Scenarios.SpecialHeaders_ConditionalRequest_postIfMatch = passOnSuccess({
   uri: "/special-headers/conditional-request/if-match",
-  mockMethod: {
-    method: "post",
-    request: {
-      headers: {
-        "if-match": '"valid"',
-      },
+  method: "post",
+  request: {
+    headers: {
+      "if-match": '"valid"',
     },
-    response: {
+  },
+  response: {
+    status: 204,
+  },
+  handler: (req: MockRequest) => {
+    req.expect.containsHeader("if-match", '"valid"');
+    return {
       status: 204,
-    },
-    handler: (req: MockRequest) => {
-      req.expect.containsHeader("if-match", '"valid"');
-      return {
-        status: 204,
-      };
-    },
+    };
   },
   kind: "MockApiDefinition",
 });
 
 Scenarios.SpecialHeaders_ConditionalRequest_postIfNoneMatch = passOnSuccess({
   uri: "/special-headers/conditional-request/if-none-match",
-  mockMethod: {
-    method: "post",
-    request: {
-      headers: {
-        "if-none-match": '"invalid"',
-      },
+  method: "post",
+  request: {
+    headers: {
+      "if-none-match": '"invalid"',
     },
-    response: {
+  },
+  response: {
+    status: 204,
+  },
+  handler: (req: MockRequest) => {
+    req.expect.containsHeader("if-none-match", '"invalid"');
+    return {
       status: 204,
-    },
-    handler: (req: MockRequest) => {
-      req.expect.containsHeader("if-none-match", '"invalid"');
-      return {
-        status: 204,
-      };
-    },
+    };
   },
   kind: "MockApiDefinition",
 });

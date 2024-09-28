@@ -24,130 +24,116 @@ const expectBody = {
 };
 Scenarios.Type_Model_Visibility_putReadOnlyModel = passOnSuccess({
   uri: "/type/model/visibility/readonlyroundtrip",
-  mockMethod: {
-    method: "put",
-    request: {},
-    response: {
-      status: 200,
-      body: json(expectBody),
-    },
-    handler: (req: MockRequest) => {
-      req.expect.bodyEquals({});
-      return { status: 200, body: json(expectBody) };
-    },
+  method: "put",
+  request: {},
+  response: {
+    status: 200,
+    body: json(expectBody),
+  },
+  handler: (req: MockRequest) => {
+    req.expect.bodyEquals({});
+    return { status: 200, body: json(expectBody) };
   },
   kind: "MockApiDefinition",
 });
 Scenarios.Type_Model_Visibility_headModel = passOnSuccess({
   uri: "/type/model/visibility",
-  mockMethod: {
-    method: "head",
-    request: {
-      body: { queryProp: 123 },
-    },
-    response: {
-      status: 200,
-    },
-    handler: (req: MockRequest) => {
-      req.expect.bodyEquals(genData(["queryProp"]));
-      return { status: 200 };
-    },
+  method: "head",
+  request: {
+    body: { queryProp: 123 },
+  },
+  response: {
+    status: 200,
+  },
+  handler: (req: MockRequest) => {
+    req.expect.bodyEquals(genData(["queryProp"]));
+    return { status: 200 };
   },
   kind: "MockApiDefinition",
 });
 Scenarios.Type_Model_Visibility_getModel = passOnSuccess({
   uri: "/type/model/visibility",
-  mockMethod: {
-    method: "get",
-    request: {
-      body: { queryProp: 123 },
-    },
-    response: {
+  method: "get",
+  request: {
+    body: { queryProp: 123 },
+  },
+  response: {
+    status: 200,
+    body: json(genData(["readProp"])),
+  },
+  handler: (req: MockRequest) => {
+    req.expect.bodyEquals(genData(["queryProp"]));
+    return {
       status: 200,
       body: json(genData(["readProp"])),
-    },
-    handler: (req: MockRequest) => {
-      req.expect.bodyEquals(genData(["queryProp"]));
-      return {
-        status: 200,
-        body: json(genData(["readProp"])),
-      };
-    },
+    };
   },
   kind: "MockApiDefinition",
 });
 Scenarios.Type_Model_Visibility_putModel = passOnSuccess({
   uri: "/type/model/visibility",
-  mockMethod: {
-    method: "put",
-    request: {
-      body: {
-        createProp: ["foo", "bar"],
-        updateProp: [1, 2],
-      },
+  method: "put",
+  request: {
+    body: {
+      createProp: ["foo", "bar"],
+      updateProp: [1, 2],
     },
-    response: {
-      status: 204,
-    },
-    handler: (req: MockRequest) => {
-      req.expect.bodyEquals(genData(["createProp", "updateProp"]));
-      return { status: 204 };
-    },
+  },
+  response: {
+    status: 204,
+  },
+  handler: (req: MockRequest) => {
+    req.expect.bodyEquals(genData(["createProp", "updateProp"]));
+    return { status: 204 };
   },
   kind: "MockApiDefinition",
 });
 Scenarios.Type_Model_Visibility_patchModel = passOnSuccess({
   uri: "/type/model/visibility",
-  mockMethod: {
-    method: "patch",
-    request: {
-      body: {
-        updateProp: [1, 2],
-      },
+  method: "patch",
+  request: {
+    body: {
+      updateProp: [1, 2],
     },
-    response: {
-      status: 204,
-    },
-    handler: (req: MockRequest) => {
-      req.expect.bodyEquals(genData(["updateProp"]));
-      return { status: 204 };
-    },
+  },
+  response: {
+    status: 204,
+  },
+  handler: (req: MockRequest) => {
+    req.expect.bodyEquals(genData(["updateProp"]));
+    return { status: 204 };
   },
   kind: "MockApiDefinition",
 });
 Scenarios.Type_Model_Visibility_postModel = passOnSuccess({
   uri: "/type/model/visibility",
-  mockMethod: {
-    method: "post",
-    request: {
-      body: {
-        createProp: ["foo", "bar"],
-      },
+  method: "post",
+  request: {
+    body: {
+      createProp: ["foo", "bar"],
     },
-    response: {
-      status: 204,
-    },
-    handler: (req: MockRequest) => {
-      req.expect.bodyEquals(genData(["createProp"]));
-      return { status: 204 };
-    },
+  },
+  response: {
+    status: 204,
+  },
+  handler: (req: MockRequest) => {
+    req.expect.bodyEquals(genData(["createProp"]));
+    return { status: 204 };
   },
   kind: "MockApiDefinition",
 });
 Scenarios.Type_Model_Visibility_deleteModel = passOnSuccess({
   uri: "/type/model/visibility",
-  mockMethod: {
-    method: "delete",
-    request: {
-      body: { deleteProp: true },
-    },
-    response: {
-      status: 204,
-    },
-    handler: (req: MockRequest) => {
-      req.expect.bodyEquals(genData(["deleteProp"]));
-      return { status: 204 };
-    },
+  method: "delete",
+  request: {
+    body: { deleteProp: true },
+  },
+  response: {
+    status: 204,
+  },
+  handler: (req: MockRequest) => {
+    req.expect.bodyEquals(genData(["deleteProp"]));
+    return { status: 204 };
   },
   kind: "MockApiDefinition",
 });

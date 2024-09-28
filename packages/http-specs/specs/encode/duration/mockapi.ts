@@ -11,22 +11,20 @@ export const Scenarios: Record<string, ScenarioMockApi> = {};
 function createBodyServerTests(uri: string, data: any, value: any) {
   return passOnSuccess({
     uri,
-    mockMethod: {
-      method: "post",
-      request: {
-        body: data,
-      },
-      response: {
+    method: "post",
+    request: {
+      body: data,
+    },
+    response: {
+      status: 200,
+      body: json(data),
+    },
+    handler: (req: MockRequest) => {
+      req.expect.coercedBodyEquals({ value: value });
+      return {
         status: 200,
-        body: json(data),
-      },
-      handler: (req: MockRequest) => {
-        req.expect.coercedBodyEquals({ value: value });
-        return {
-          status: 200,
-          body: json({ value: value }),
-        };
-      },
+        body: json({ value: value }),
+      };
     },
     kind: "MockApiDefinition",
   });
@@ -82,20 +80,18 @@ function createQueryServerTests(
 ) {
   return passOnSuccess({
     uri,
-    mockMethod: {
-      method: "get",
-      request: {
-        params: paramData,
-      },
-      response: {
+    method: "get",
+    request: {
+      params: paramData,
+    },
+    response: {
+      status: 204,
+    },
+    handler: (req: MockRequest) => {
+      req.expect.containsQueryParam("input", value, collectionFormat);
+      return {
         status: 204,
-      },
-      handler: (req: MockRequest) => {
-        req.expect.containsQueryParam("input", value, collectionFormat);
-        return {
-          status: 204,
-        };
-      },
+      };
     },
     kind: "MockApiDefinition",
   });
@@ -147,20 +143,18 @@ Scenarios.Encode_Duration_Query_float64Seconds = createQueryServerTests(
 function createHeaderServerTests(uri: string, headersData: any, value: any) {
   return passOnSuccess({
     uri,
-    mockMethod: {
-      method: "get",
-      request: {
-        headers: headersData,
-      },
-      response: {
+    method: "get",
+    request: {
+      headers: headersData,
+    },
+    response: {
+      status: 204,
+    },
+    handler: (req: MockRequest) => {
+      req.expect.containsHeader("duration", value);
+      return {
         status: 204,
-      },
-      handler: (req: MockRequest) => {
-        req.expect.containsHeader("duration", value);
-        return {
-          status: 204,
-        };
-      },
+      };
     },
     kind: "MockApiDefinition",
   });

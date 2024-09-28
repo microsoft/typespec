@@ -26,7 +26,6 @@ export {
   MockApi,
   MockApiDefinition,
   MockApiForHandler,
-  MockMethod,
   MockRequestHandler,
   MockResponse,
   MockResponseBody,

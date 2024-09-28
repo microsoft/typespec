@@ -13,39 +13,35 @@ function createServerTests(url: string, data: unknown, convertedToFn?: (_: any) 
   return {
     get: passOnSuccess({
       uri: url,
-      mockMethod: {
-        method: `get`,
-        request: {},
-        response: {
+      method: `get`,
+      request: {},
+      response: {
+        status: 200,
+        body: json(data),
+      },
+      handler: (req: MockRequest) => {
+        return {
           status: 200,
           body: json(data),
-        },
-        handler: (req: MockRequest) => {
-          return {
-            status: 200,
-            body: json(data),
-          };
-        },
+        };
       },
       kind: "MockApiDefinition",
     }),
     put: passOnSuccess({
       uri: url,
-      mockMethod: {
-        method: `put`,
-        request: {
-          body: property,
-        },
-        response: {
+      method: `put`,
+      request: {
+        body: property,
+      },
+      response: {
+        status: 204,
+      },
+      handler: (req: MockRequest) => {
+        const expectedBody = JSON.parse(JSON.stringify(property));
+        req.expect.coercedBodyEquals(expectedBody);
+        return {
           status: 204,
-        },
-        handler: (req: MockRequest) => {
-          const expectedBody = JSON.parse(JSON.stringify(property));
-          req.expect.coercedBodyEquals(expectedBody);
-          return {
-            status: 204,
-          };
-        },
+        };
       },
       kind: "MockApiDefinition",
     }),

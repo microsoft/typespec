@@ -102,39 +102,35 @@ function createServerTests(url: string, value: any) {
   return {
     get: passOnSuccess({
       uri: url,
-      mockMethod: {
-        method: `get`,
-        request: {},
-        response: {
+      method: `get`,
+      request: {},
+      response: {
+        status: 200,
+        body: json(value),
+      },
+      handler: (req: MockRequest) => {
+        return {
           status: 200,
           body: json(value),
-        },
-        handler: (req: MockRequest) => {
-          return {
-            status: 200,
-            body: json(value),
-          };
-        },
+        };
       },
       kind: "MockApiDefinition",
     }),
     put: passOnSuccess({
       uri: url,
-      mockMethod: {
-        method: `put`,
-        request: {
-          body: value,
-        },
-        response: {
+      method: `put`,
+      request: {
+        body: value,
+      },
+      response: {
+        status: 204,
+      },
+      handler: (req: MockRequest) => {
+        const expectedBody = JSON.parse(JSON.stringify(value));
+        req.expect.coercedBodyEquals(expectedBody);
+        return {
           status: 204,
-        },
-        handler: (req: MockRequest) => {
-          const expectedBody = JSON.parse(JSON.stringify(value));
-          req.expect.coercedBodyEquals(expectedBody);
-          return {
-            status: 204,
-          };
-        },
+        };
       },
       kind: "MockApiDefinition",
     }),

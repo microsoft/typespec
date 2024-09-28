@@ -53,15 +53,11 @@ export interface MockApi {
 
 export interface MockApiDefinition {
   uri: string;
-  mockMethod: MockMethod;
-  kind: "MockApiDefinition";
-}
-
-export interface MockMethod {
   method: HttpMethod;
   request: ServiceRequest;
   response: MockResponse;
   handler?: MockRequestHandler;
+  kind: "MockApiDefinition";
 }
 
 export interface ServiceRequest {

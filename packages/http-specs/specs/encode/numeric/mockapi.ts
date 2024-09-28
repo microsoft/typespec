@@ -5,24 +5,22 @@ export const Scenarios: Record<string, ScenarioMockApi> = {};
 function createTests(uri: string, value: any) {
   return passOnSuccess({
     uri,
-    mockMethod: {
-      method: "post",
-      request: {
-        body: {
-          value,
-        },
+    method: "post",
+    request: {
+      body: {
+        value,
       },
-      response: {
+    },
+    response: {
+      status: 200,
+      body: json({ value }),
+    },
+    handler: (req: MockRequest) => {
+      req.expect.coercedBodyEquals({ value });
+      return {
         status: 200,
         body: json({ value }),
-      },
-      handler: (req: MockRequest) => {
-        req.expect.coercedBodyEquals({ value });
-        return {
-          status: 200,
-          body: json({ value }),
-        };
-      },
+      };
     },
     kind: "MockApiDefinition",
   });

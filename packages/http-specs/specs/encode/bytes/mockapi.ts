@@ -23,20 +23,18 @@ function createQueryServerTests(
 ) {
   return passOnSuccess({
     uri,
-    mockMethod: {
-      method: "get",
-      request: {
-        params: data,
-      },
-      response: {
+    method: "get",
+    request: {
+      params: data,
+    },
+    response: {
+      status: 204,
+    },
+    handler: (req: MockRequest) => {
+      req.expect.containsQueryParam("value", value, collectionFormat);
+      return {
         status: 204,
-      },
-      handler: (req: MockRequest) => {
-        req.expect.containsQueryParam("value", value, collectionFormat);
-        return {
-          status: 204,
-        };
-      },
+      };
     },
     kind: "MockApiDefinition",
   });
@@ -73,21 +71,19 @@ Scenarios.Encode_Bytes_Query_base64urlArray = createQueryServerTests(
 function createPropertyServerTests(uri: string, data: any, value: any) {
   return passOnSuccess({
     uri,
-    mockMethod: {
-      method: "post",
-      request: {
-        body: data,
-      },
-      response: {
+    method: "post",
+    request: {
+      body: data,
+    },
+    response: {
+      status: 200,
+    },
+    handler: (req: MockRequest) => {
+      req.expect.coercedBodyEquals({ value: value });
+      return {
         status: 200,
-      },
-      handler: (req: MockRequest) => {
-        req.expect.coercedBodyEquals({ value: value });
-        return {
-          status: 200,
-          body: json({ value: value }),
-        };
-      },
+        body: json({ value: value }),
+      };
     },
     kind: "MockApiDefinition",
   });
@@ -123,20 +119,18 @@ Scenarios.Encode_Bytes_Property_base64urlArray = createPropertyServerTests(
 function createHeaderServerTests(uri: string, data: any, value: any) {
   return passOnSuccess({
     uri,
-    mockMethod: {
-      method: "get",
-      request: {
-        headers: data,
-      },
-      response: {
+    method: "get",
+    request: {
+      headers: data,
+    },
+    response: {
+      status: 204,
+    },
+    handler: (req: MockRequest) => {
+      req.expect.containsHeader("value", value);
+      return {
         status: 204,
-      },
-      handler: (req: MockRequest) => {
-        req.expect.containsHeader("value", value);
-        return {
-          status: 204,
-        };
-      },
+      };
     },
     kind: "MockApiDefinition",
   });
@@ -178,22 +172,20 @@ function createRequestBodyServerTests(
 ) {
   return passOnSuccess({
     uri,
-    mockMethod: {
-      method: "post",
-      request: {
-        body: data,
-        headers: headersData,
-      },
-      response: {
+    method: "post",
+    request: {
+      body: data,
+      headers: headersData,
+    },
+    response: {
+      status: 204,
+    },
+    handler(req: MockRequest) {
+      req.expect.containsHeader("content-type", contentType);
+      req.expect.rawBodyEquals(value);
+      return {
         status: 204,
-      },
-      handler(req: MockRequest) {
-        req.expect.containsHeader("content-type", contentType);
-        req.expect.rawBodyEquals(value);
-        return {
-          status: 204,
-        };
-      },
+      };
     },
     kind: "MockApiDefinition",
   });
@@ -250,27 +242,25 @@ function createResponseBodyServerTests(
 ) {
   return passOnSuccess({
     uri,
-    mockMethod: {
-      method: "get",
-      request: {
-        headers: headerData,
+    method: "get",
+    request: {
+      headers: headerData,
+    },
+    response: {
+      status: 200,
+      body: {
+        contentType: contentType,
+        rawContent: data,
       },
-      response: {
+    },
+    handler(req: MockRequest) {
+      return {
         status: 200,
         body: {
           contentType: contentType,
-          rawContent: data,
+          rawContent: value,
         },
-      },
-      handler(req: MockRequest) {
-        return {
-          status: 200,
-          body: {
-            contentType: contentType,
-            rawContent: value,
-          },
-        };
-      },
+      };
     },
     kind: "MockApiDefinition",
   });
