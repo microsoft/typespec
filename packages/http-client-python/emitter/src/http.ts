@@ -55,7 +55,7 @@ export function emitBasicHttpMethod(
       abstract: isAbstract(method),
       internal: method.access === "internal",
       name: camelToSnakeCase(method.name),
-      description: method.doc,
+      description: method.doc ?? "",
       summary: method.summary,
     },
   ];
@@ -73,7 +73,7 @@ function emitInitialLroHttpMethod(
     isLroInitialOperation: true,
     wantTracing: false,
     exposeStreamKeyword: false,
-    description: method.doc,
+    description: method.doc ?? "",
     summary: method.summary,
   };
 }
@@ -90,7 +90,7 @@ function addLroInformation(
     discriminator: "lro",
     initialOperation: emitInitialLroHttpMethod(context, rootClient, method, operationGroupName),
     exposeStreamKeyword: false,
-    description: method.doc,
+    description: method.doc ?? "",
     summary: method.summary,
   };
 }
@@ -119,7 +119,7 @@ function addPagingInformation(
     itemName: method.response.resultPath,
     continuationTokenName: method.nextLinkPath,
     itemType,
-    description: method.doc,
+    description: method.doc ?? "",
     summary: method.summary,
   };
 }
