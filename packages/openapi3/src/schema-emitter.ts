@@ -759,7 +759,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
           ref.items = scalarSchema;
         } else {
           ref.items = new ObjectBuilder({
-            allOf: [ref.items],
+            allOf: B.array([ref.items]),
             xml: { name: propXmlName },
           });
         }

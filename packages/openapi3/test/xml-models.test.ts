@@ -685,12 +685,21 @@ describe("Complex array types", () => {
       },
     });
   });
+});
 
+describe("set xml name in items if that object is used in an xml payload.", () => {
   it.each([
-    ["@attributeForProp", "model Author { @attribute id:string; }"],
-    ["@nameForProp", `model Author { @name("xmlId") id:string; }`],
-    ["@nameForModel", `@name("xmlAuthor") model Author { id:string; }`],
-    ["@nameForModel1", `model Author { card: Card[]; } model Card { @attribute id:string;}`],
+    ["@attribute on prop", "model Author { @attribute id:string; }"],
+    ["@name on prop", `model Author { @name("xmlId") id:string; }`],
+    ["@name on model", `@name("xmlAuthor") model Author { id:string; }`],
+    [
+      "@attribute on child model",
+      `model Author { card: Card[]; } model Card { @attribute id:string;}`,
+    ],
+    [
+      "circular reference on prop",
+      `model Author { @attribute id: string; card: Card[]; } model Card { author:Author[];}`,
+    ],
   ])(`%s => %s`, async (_, sub) => {
     const res = await oapiForModel(
       "Book",
@@ -711,6 +720,46 @@ describe("Complex array types", () => {
         },
       },
       required: ["author"],
+    });
+  });
+
+  it("circular reference", async () => {
+    const res = await oapiForModel(
+      "Book",
+      `
+        model Book { author: Author[]; }
+        model Author {  @attribute  id: string;  book?: Book[]; }`,
+    );
+
+    expect(res.schemas.Book).toMatchObject({
+      type: "object",
+      properties: {
+        author: {
+          type: "array",
+          items: {
+            allOf: [{ $ref: "#/components/schemas/Author" }],
+            xml: { name: "Author" },
+          },
+          xml: {
+            wrapped: true,
+          },
+        },
+      },
+    });
+    expect(res.schemas.Author).toMatchObject({
+      type: "object",
+      properties: {
+        book: {
+          type: "array",
+          items: {
+            allOf: [{ $ref: "#/components/schemas/Book" }],
+            xml: { name: "Book" },
+          },
+          xml: {
+            wrapped: true,
+          },
+        },
+      },
     });
   });
 });
