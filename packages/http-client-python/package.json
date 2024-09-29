@@ -29,7 +29,7 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "clean": "rimraf ./dist ./temp ./**/test/**/generated/ ./venv",
+    "clean": "rimraf ./dist ./temp ./generator/test/azure/generated/ ./generator/test/unbranded/generated/ ./venv",
     "build": "tsc -p ./emitter/tsconfig.build.json",
     "watch": "tsc -p ./emitter/tsconfig.build.json --watch",
     "lint": "tsx ./eng/scripts/ci/lint.ts --command eslint",
