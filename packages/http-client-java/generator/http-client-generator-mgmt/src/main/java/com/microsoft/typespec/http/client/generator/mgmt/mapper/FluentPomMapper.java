@@ -27,10 +27,6 @@ public class FluentPomMapper extends PomMapper {
 
         Set<String> addedDependencyPrefixes = new HashSet<>();
         List<String> dependencyIdentifiers = new ArrayList<>();
-        if (JavaSettings.getInstance().isStreamStyleSerialization()) {
-            addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes, Project.Dependency.AZURE_JSON,
-                false);
-        }
         addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes, Project.Dependency.AZURE_CORE, false);
         addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes,
             Project.Dependency.AZURE_CORE_MANAGEMENT, false);
