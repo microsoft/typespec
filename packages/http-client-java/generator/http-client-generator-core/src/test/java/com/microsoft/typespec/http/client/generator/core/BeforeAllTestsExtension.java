@@ -3,11 +3,10 @@
 
 package com.microsoft.typespec.http.client.generator.core;
 
-import org.junit.jupiter.api.extension.BeforeAllCallback;
-import org.junit.jupiter.api.extension.ExtensionContext;
-
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import org.junit.jupiter.api.extension.BeforeAllCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 
 public class BeforeAllTestsExtension implements BeforeAllCallback, ExtensionContext.Store.CloseableResource {
 

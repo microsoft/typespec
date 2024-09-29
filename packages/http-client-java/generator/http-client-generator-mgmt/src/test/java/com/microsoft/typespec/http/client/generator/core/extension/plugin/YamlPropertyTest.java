@@ -32,12 +32,12 @@ public class YamlPropertyTest {
         Constructor constructor = new CodeModelCustomConstructor(loaderOptions);
         Yaml yamlMapper = new Yaml(constructor, representer, new DumperOptions(), loaderOptions);
 
-        TestYamlPropertyBean bean = yamlMapper.loadAs(getClass().getClassLoader().getResourceAsStream("yaml-property.yaml"), TestYamlPropertyBean.class);
+        TestYamlPropertyBean bean = yamlMapper
+            .loadAs(getClass().getClassLoader().getResourceAsStream("yaml-property.yaml"), TestYamlPropertyBean.class);
 
         Assertions.assertTrue(bean.getPropertyToRemap());
         Assertions.assertNotNull(bean.getExtensions());
         Assertions.assertTrue(bean.getExtensions().getXmsExamples());
     }
-
 
 }

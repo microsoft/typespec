@@ -18,7 +18,8 @@ public class CodeNamerTests {
 
         Assertions.assertEquals("CONTENT_TYPE", CodeNamer.getEnumMemberName("content_type"));
 
-        Assertions.assertEquals("MICROSOFT_APP_CONFIGURATION_CONFIGURATION_STORES", CodeNamer.getEnumMemberName("Microsoft.AppConfiguration/configurationStores"));
+        Assertions.assertEquals("MICROSOFT_APP_CONFIGURATION_CONFIGURATION_STORES",
+            CodeNamer.getEnumMemberName("Microsoft.AppConfiguration/configurationStores"));
 
         Assertions.assertEquals("ASTERISK", CodeNamer.getEnumMemberName("*"));
 
@@ -26,7 +27,8 @@ public class CodeNamerTests {
 
         Assertions.assertEquals("ALL", CodeNamer.getEnumMemberName("all*"));
 
-        Assertions.assertEquals("SYSTEM_ASSIGNED_USER_ASSIGNED", CodeNamer.getEnumMemberName("SystemAssigned, UserAssigned"));
+        Assertions.assertEquals("SYSTEM_ASSIGNED_USER_ASSIGNED",
+            CodeNamer.getEnumMemberName("SystemAssigned, UserAssigned"));
 
         Assertions.assertEquals("ONE_ZEROMINUTELY", CodeNamer.getEnumMemberName("_10minutely"));
 

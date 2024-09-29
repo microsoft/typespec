@@ -3,13 +3,12 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.projectmodel;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class ProjectTests {
 
@@ -19,6 +18,7 @@ public class ProjectTests {
 
         List<String> dependencyIdentifiers = Project.findPomDependencies(pomPath);
 
-        Assertions.assertTrue(dependencyIdentifiers.contains("com.azure.resourcemanager:azure-resourcemanager-resources:2.42.0:test"));
+        Assertions.assertTrue(
+            dependencyIdentifiers.contains("com.azure.resourcemanager:azure-resourcemanager-resources:2.42.0:test"));
     }
 }

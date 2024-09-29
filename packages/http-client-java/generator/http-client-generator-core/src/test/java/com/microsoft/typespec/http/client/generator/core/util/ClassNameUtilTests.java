@@ -11,27 +11,20 @@ public class ClassNameUtilTests {
     @Test
     public void testTruncateClassName() {
         // limit class name
-        String name = ClassNameUtil.truncateClassName(
-                "com.azure.resourcemanager.deviceprovisioningservices",
-                "src/samples/java",
-                "com.azure.resourcemanager.deviceprovisioningservices.generated",
-                "IotDpsResourceCheckProvisioningServiceNameAvailabilitySamples");
+        String name = ClassNameUtil.truncateClassName("com.azure.resourcemanager.deviceprovisioningservices",
+            "src/samples/java", "com.azure.resourcemanager.deviceprovisioningservices.generated",
+            "IotDpsResourceCheckProvisioningServiceNameAvailabilitySamples");
         Assertions.assertEquals("IotDpsResourceCheckProvisioningServiceNameAvailabilit", name);
 
         // do nothing as too little remaining length for class name
-        name = ClassNameUtil.truncateClassName(
-                "com.azure.resourcemanager.deviceprovisioningservicespadpadpadpadpadpad",
-                "src/samples/java",
-                "com.azure.resourcemanager.deviceprovisioningservicespadpadpadpadpadpad.generated",
-                "IotDpsResourceCheckProvisioningServiceNameAvailabilitySamples");
+        name = ClassNameUtil.truncateClassName("com.azure.resourcemanager.deviceprovisioningservicespadpadpadpadpadpad",
+            "src/samples/java", "com.azure.resourcemanager.deviceprovisioningservicespadpadpadpadpadpad.generated",
+            "IotDpsResourceCheckProvisioningServiceNameAvailabilitySamples");
         Assertions.assertEquals("IotDpsResourceCheckProvisioningServiceNameAvailabilitySamples", name);
 
         // no change
-        name = ClassNameUtil.truncateClassName(
-                "com.azure.resourcemanager.datafactory",
-                "src/samples/java",
-                "com.azure.resourcemanager.datafactory.generated",
-                "DataFlowDebugSessionAddDataFlowSamples");
+        name = ClassNameUtil.truncateClassName("com.azure.resourcemanager.datafactory", "src/samples/java",
+            "com.azure.resourcemanager.datafactory.generated", "DataFlowDebugSessionAddDataFlowSamples");
         Assertions.assertEquals("DataFlowDebugSessionAddDataFlowSamples", name);
     }
 }

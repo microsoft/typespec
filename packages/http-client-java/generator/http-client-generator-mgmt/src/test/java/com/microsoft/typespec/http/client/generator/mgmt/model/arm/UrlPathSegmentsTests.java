@@ -10,14 +10,16 @@ public class UrlPathSegmentsTests {
 
     @Test
     public void testUrlPathSegments() {
-        UrlPathSegments segments = new UrlPathSegments("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Storage/storageAccounts/{accountName}");
+        UrlPathSegments segments = new UrlPathSegments(
+            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Storage/storageAccounts/{accountName}");
 
         Assertions.assertTrue(segments.hasSubscription());
         Assertions.assertTrue(segments.hasResourceGroup());
         Assertions.assertFalse(segments.hasScope());
         Assertions.assertFalse(segments.isNested());
 
-        segments = new UrlPathSegments("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Storage/storageAccounts/{accountName}/blobServices/default/containers/{containerName}");
+        segments = new UrlPathSegments(
+            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Storage/storageAccounts/{accountName}/blobServices/default/containers/{containerName}");
 
         Assertions.assertTrue(segments.hasSubscription());
         Assertions.assertTrue(segments.hasResourceGroup());
@@ -36,14 +38,16 @@ public class UrlPathSegmentsTests {
         Assertions.assertFalse(segments.hasScope());
         Assertions.assertFalse(segments.isNested());
 
-        segments = new UrlPathSegments("/{scope}/providers/Microsoft.Authorization/roleAssignments/{roleAssignmentName}");
+        segments
+            = new UrlPathSegments("/{scope}/providers/Microsoft.Authorization/roleAssignments/{roleAssignmentName}");
 
         Assertions.assertFalse(segments.hasSubscription());
         Assertions.assertFalse(segments.hasResourceGroup());
         Assertions.assertTrue(segments.hasScope());
         Assertions.assertFalse(segments.isNested());
 
-        segments = new UrlPathSegments("/{resourceUri}/providers/Microsoft.Advisor/recommendations/{recommendationId}/suppressions/{name}");
+        segments = new UrlPathSegments(
+            "/{resourceUri}/providers/Microsoft.Advisor/recommendations/{recommendationId}/suppressions/{name}");
 
         Assertions.assertFalse(segments.hasSubscription());
         Assertions.assertFalse(segments.hasResourceGroup());
@@ -54,7 +58,8 @@ public class UrlPathSegmentsTests {
         Assertions.assertEquals("recommendations", segments.getReverseParameterSegments().get(1).getSegmentName());
         Assertions.assertEquals("", segments.getReverseParameterSegments().get(2).getSegmentName());
 
-        segments = new UrlPathSegments("/subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{parentResourcePath}/{resourceType}/{resourceName}");
+        segments = new UrlPathSegments(
+            "/subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{parentResourcePath}/{resourceType}/{resourceName}");
 
         Assertions.assertTrue(segments.hasSubscription());
         Assertions.assertTrue(segments.hasResourceGroup());

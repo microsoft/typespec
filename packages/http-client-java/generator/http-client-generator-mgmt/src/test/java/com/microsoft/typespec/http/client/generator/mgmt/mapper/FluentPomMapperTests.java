@@ -8,12 +8,11 @@ import com.microsoft.typespec.http.client.generator.mgmt.FluentGen;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentGenAccessor;
 import com.microsoft.typespec.http.client.generator.mgmt.TestUtils;
 import com.microsoft.typespec.http.client.generator.mgmt.model.projectmodel.FluentProject;
+import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
-import java.util.List;
 
 public class FluentPomMapperTests {
 
@@ -40,6 +39,7 @@ public class FluentPomMapperTests {
 
         Pom pom = new FluentPomMapper().map(fluentProject);
 
-        Assertions.assertTrue(pom.getDependencyIdentifiers().stream().anyMatch(p -> p.equals(additionalDependencyIdentifier)));
+        Assertions.assertTrue(
+            pom.getDependencyIdentifiers().stream().anyMatch(p -> p.equals(additionalDependencyIdentifier)));
     }
 }

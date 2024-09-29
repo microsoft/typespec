@@ -4,15 +4,17 @@
 
 package com.microsoft.typespec.http.client.generator.core.partialupdate.util;
 
+import static com.github.javaparser.StaticJavaParser.parse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.github.javaparser.ast.AccessSpecifier;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.InitializerDeclaration;
 import com.github.javaparser.ast.stmt.BlockStmt;
-import com.microsoft.typespec.http.client.generator.core.partialupdate.util.PartialUpdateHandler;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -21,19 +23,20 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static com.github.javaparser.StaticJavaParser.parse;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class PartialUpdateHandlerTest {
 
     @Test
     public void testClassOrInterfaceFileToTestAddMemberToExistingFile() throws IOException, URISyntaxException {
-        String existingFileContent = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("partialupdate/StringOperationWithAddedMemberClient.java").toURI())), StandardCharsets.UTF_8);
-        String generatedFileContent = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("partialupdate/StringOperationGeneratedClient.java").toURI())), StandardCharsets.UTF_8);
+        String existingFileContent = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader()
+            .getResource("partialupdate/StringOperationWithAddedMemberClient.java")
+            .toURI())), StandardCharsets.UTF_8);
+        String generatedFileContent = new String(
+            Files.readAllBytes(Paths.get(
+                getClass().getClassLoader().getResource("partialupdate/StringOperationGeneratedClient.java").toURI())),
+            StandardCharsets.UTF_8);
 
         String output = PartialUpdateHandler.handlePartialUpdateForFile(generatedFileContent, existingFileContent);
 
@@ -51,24 +54,45 @@ public class PartialUpdateHandlerTest {
     }
 
     @Test
-    public void testClassOrInterfaceFileToTestUpdateMethodSignatureToExistingFile() throws URISyntaxException, IOException {
-        String existingFileContent = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("partialupdate/StringOperationWithUpdateMemberClient.java").toURI())), StandardCharsets.UTF_8);
-        String generatedFileContent = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("partialupdate/StringOperationGeneratedClient.java").toURI())), StandardCharsets.UTF_8);
+    public void testClassOrInterfaceFileToTestUpdateMethodSignatureToExistingFile()
+        throws URISyntaxException, IOException {
+        String existingFileContent = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader()
+            .getResource("partialupdate/StringOperationWithUpdateMemberClient.java")
+            .toURI())), StandardCharsets.UTF_8);
+        String generatedFileContent = new String(
+            Files.readAllBytes(Paths.get(
+                getClass().getClassLoader().getResource("partialupdate/StringOperationGeneratedClient.java").toURI())),
+            StandardCharsets.UTF_8);
 
         String output = PartialUpdateHandler.handlePartialUpdateForFile(generatedFileContent, existingFileContent);
 
         CompilationUnit compilationUnit = parse(output);
         assertEquals(1, compilationUnit.getTypes().size());
         assertEquals(1, compilationUnit.getTypes().get(0).getMethodsByName("putNullWithResponse").size());
-        assertEquals(2, compilationUnit.getTypes().get(0).getMethodsByName("putNullWithResponse").get(0).getParameters().size());
-        assertEquals("test", compilationUnit.getTypes().get(0).getMethodsByName("putNullWithResponse").get(0).getParameters().get(1).getName().asString());
-        assertEquals(AccessSpecifier.NONE, compilationUnit.getTypes().get(0).getMethodsByName("putNullWithResponse").get(0).getAccessSpecifier());
+        assertEquals(2,
+            compilationUnit.getTypes().get(0).getMethodsByName("putNullWithResponse").get(0).getParameters().size());
+        assertEquals("test",
+            compilationUnit.getTypes()
+                .get(0)
+                .getMethodsByName("putNullWithResponse")
+                .get(0)
+                .getParameters()
+                .get(1)
+                .getName()
+                .asString());
+        assertEquals(AccessSpecifier.NONE,
+            compilationUnit.getTypes().get(0).getMethodsByName("putNullWithResponse").get(0).getAccessSpecifier());
     }
 
     @Test
     public void testClassOrInterfaceFileToTestRemoveMethodToExistingFile() throws URISyntaxException, IOException {
-        String existingFileContent = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("partialupdate/StringOperationWithRemovedMemberGeneratedClient.java").toURI())), StandardCharsets.UTF_8);
-        String generatedFileContent = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("partialupdate/StringOperationGeneratedClient.java").toURI())), StandardCharsets.UTF_8);
+        String existingFileContent = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader()
+            .getResource("partialupdate/StringOperationWithRemovedMemberGeneratedClient.java")
+            .toURI())), StandardCharsets.UTF_8);
+        String generatedFileContent = new String(
+            Files.readAllBytes(Paths.get(
+                getClass().getClassLoader().getResource("partialupdate/StringOperationGeneratedClient.java").toURI())),
+            StandardCharsets.UTF_8);
 
         String output = PartialUpdateHandler.handlePartialUpdateForFile(generatedFileContent, existingFileContent);
 
@@ -79,11 +103,15 @@ public class PartialUpdateHandlerTest {
         assertEquals(1, compilationUnit.getTypes().get(0).getMethodsByName("putNullWithResponse").size());
     }
 
-
     @Test
     public void testClassOrInterfaceFileToTestSawaggerAddAPI() throws URISyntaxException, IOException {
-        String existingFileContent = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("partialupdate/StringOperationGeneratedClient.java").toURI())), StandardCharsets.UTF_8);
-        String generatedFileContent = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("partialupdate/StringOperationWithAddedMemberGeneratedClient.java").toURI())), StandardCharsets.UTF_8);
+        String existingFileContent = new String(
+            Files.readAllBytes(Paths.get(
+                getClass().getClassLoader().getResource("partialupdate/StringOperationGeneratedClient.java").toURI())),
+            StandardCharsets.UTF_8);
+        String generatedFileContent = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader()
+            .getResource("partialupdate/StringOperationWithAddedMemberGeneratedClient.java")
+            .toURI())), StandardCharsets.UTF_8);
 
         String output = PartialUpdateHandler.handlePartialUpdateForFile(generatedFileContent, existingFileContent);
 
@@ -95,8 +123,13 @@ public class PartialUpdateHandlerTest {
 
     @Test
     public void testClassOrInterfaceFileToTestGeneratedFileRemoveAPI() throws URISyntaxException, IOException {
-        String existingFileContent = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("partialupdate/StringOperationGeneratedClient.java").toURI())), StandardCharsets.UTF_8);
-        String generatedFileContent = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("partialupdate/StringOperationWithRemovedMemberGeneratedClient.java").toURI())), StandardCharsets.UTF_8);
+        String existingFileContent = new String(
+            Files.readAllBytes(Paths.get(
+                getClass().getClassLoader().getResource("partialupdate/StringOperationGeneratedClient.java").toURI())),
+            StandardCharsets.UTF_8);
+        String generatedFileContent = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader()
+            .getResource("partialupdate/StringOperationWithRemovedMemberGeneratedClient.java")
+            .toURI())), StandardCharsets.UTF_8);
 
         String output = PartialUpdateHandler.handlePartialUpdateForFile(generatedFileContent, existingFileContent);
 
@@ -107,8 +140,13 @@ public class PartialUpdateHandlerTest {
 
     @Test
     public void testClassOrInterfaceFileToTestGeneratedFileUpdateAPI() throws URISyntaxException, IOException {
-        String existingFileContent = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("partialupdate/StringOperationGeneratedClient.java").toURI())), StandardCharsets.UTF_8);
-        String generatedFileContent = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("partialupdate/StringOperationWithUpdateMemberGeneratedClient.java").toURI())), StandardCharsets.UTF_8);
+        String existingFileContent = new String(
+            Files.readAllBytes(Paths.get(
+                getClass().getClassLoader().getResource("partialupdate/StringOperationGeneratedClient.java").toURI())),
+            StandardCharsets.UTF_8);
+        String generatedFileContent = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader()
+            .getResource("partialupdate/StringOperationWithUpdateMemberGeneratedClient.java")
+            .toURI())), StandardCharsets.UTF_8);
 
         String output = PartialUpdateHandler.handlePartialUpdateForFile(generatedFileContent, existingFileContent);
 
@@ -116,13 +154,25 @@ public class PartialUpdateHandlerTest {
         assertEquals(1, compilationUnit.getTypes().size());
         assertEquals(1, compilationUnit.getTypes().get(0).getMethods().size());
         assertEquals(1, compilationUnit.getTypes().get(0).getMethodsByName("putNullWithResponse").size());
-        assertEquals("updateParam", compilationUnit.getTypes().get(0).getMethodsByName("putNullWithResponse").get(0).getParameter(1).getName().asString());
+        assertEquals("updateParam",
+            compilationUnit.getTypes()
+                .get(0)
+                .getMethodsByName("putNullWithResponse")
+                .get(0)
+                .getParameter(1)
+                .getName()
+                .asString());
     }
 
     @Test
-    public void testClassOrInterfaceFileToTestGeneratedFileUpdateAPIAndExistingFileUpdateMethod() throws URISyntaxException, IOException {
-        String existingFileContent = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("partialupdate/StringOperationWithUpdateMemberClient.java").toURI())), StandardCharsets.UTF_8);
-        String generatedFileContent = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("partialupdate/StringOperationWithUpdateMemberGeneratedClient.java").toURI())), StandardCharsets.UTF_8);
+    public void testClassOrInterfaceFileToTestGeneratedFileUpdateAPIAndExistingFileUpdateMethod()
+        throws URISyntaxException, IOException {
+        String existingFileContent = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader()
+            .getResource("partialupdate/StringOperationWithUpdateMemberClient.java")
+            .toURI())), StandardCharsets.UTF_8);
+        String generatedFileContent = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader()
+            .getResource("partialupdate/StringOperationWithUpdateMemberGeneratedClient.java")
+            .toURI())), StandardCharsets.UTF_8);
 
         String output = PartialUpdateHandler.handlePartialUpdateForFile(generatedFileContent, existingFileContent);
 
@@ -130,14 +180,27 @@ public class PartialUpdateHandlerTest {
         assertEquals(1, compilationUnit.getTypes().size());
         assertEquals(1, compilationUnit.getTypes().get(0).getMethods().size());
         assertEquals(1, compilationUnit.getTypes().get(0).getMethodsByName("putNullWithResponse").size());
-        assertEquals("test", compilationUnit.getTypes().get(0).getMethodsByName("putNullWithResponse").get(0).getParameter(1).getName().asString());
-        assertEquals(AccessSpecifier.NONE, compilationUnit.getTypes().get(0).getMethodsByName("putNullWithResponse").get(0).getAccessSpecifier());
+        assertEquals("test",
+            compilationUnit.getTypes()
+                .get(0)
+                .getMethodsByName("putNullWithResponse")
+                .get(0)
+                .getParameter(1)
+                .getName()
+                .asString());
+        assertEquals(AccessSpecifier.NONE,
+            compilationUnit.getTypes().get(0).getMethodsByName("putNullWithResponse").get(0).getAccessSpecifier());
     }
 
     @Test
-    public void testClassOrInterfaceFileToTestGeneratedFileRemoveAPIAndExistingFileUpdateMethod() throws URISyntaxException, IOException {
-        String existingFileContent = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("partialupdate/StringOperationWithUpdateMemberClient.java").toURI())), StandardCharsets.UTF_8);
-        String generatedFileContent = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("partialupdate/StringOperationWithRemovedMemberGeneratedClient.java").toURI())), StandardCharsets.UTF_8);
+    public void testClassOrInterfaceFileToTestGeneratedFileRemoveAPIAndExistingFileUpdateMethod()
+        throws URISyntaxException, IOException {
+        String existingFileContent = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader()
+            .getResource("partialupdate/StringOperationWithUpdateMemberClient.java")
+            .toURI())), StandardCharsets.UTF_8);
+        String generatedFileContent = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader()
+            .getResource("partialupdate/StringOperationWithRemovedMemberGeneratedClient.java")
+            .toURI())), StandardCharsets.UTF_8);
 
         String output = PartialUpdateHandler.handlePartialUpdateForFile(generatedFileContent, existingFileContent);
 
@@ -145,13 +208,27 @@ public class PartialUpdateHandlerTest {
         assertEquals(1, compilationUnit.getTypes().size());
         assertEquals(1, compilationUnit.getTypes().get(0).getMethods().size());
         assertEquals(1, compilationUnit.getTypes().get(0).getMethodsByName("putNullWithResponse").size());
-        assertEquals("test", compilationUnit.getTypes().get(0).getMethodsByName("putNullWithResponse").get(0).getParameter(1).getName().asString());
+        assertEquals("test",
+            compilationUnit.getTypes()
+                .get(0)
+                .getMethodsByName("putNullWithResponse")
+                .get(0)
+                .getParameter(1)
+                .getName()
+                .asString());
     }
 
     @Test
-    public void testClassOrInterfaceFileToTestWhenGeneratedFileHasSameNameButDifferentSignatureWithExistingGeneratedMethodToTestThenShouldIncludeThisSameNameMethod() throws URISyntaxException, IOException {
-        String existingFileContent = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("partialupdate/PagedGeneratedAsyncClient.java").toURI())), StandardCharsets.UTF_8);
-        String generatedFileContent = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("partialupdate/PagedGeneratedAsyncClientWithConvenienceMethod.java").toURI())), StandardCharsets.UTF_8);
+    public void
+        testClassOrInterfaceFileToTestWhenGeneratedFileHasSameNameButDifferentSignatureWithExistingGeneratedMethodToTestThenShouldIncludeThisSameNameMethod()
+            throws URISyntaxException, IOException {
+        String existingFileContent = new String(
+            Files.readAllBytes(Paths
+                .get(getClass().getClassLoader().getResource("partialupdate/PagedGeneratedAsyncClient.java").toURI())),
+            StandardCharsets.UTF_8);
+        String generatedFileContent = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader()
+            .getResource("partialupdate/PagedGeneratedAsyncClientWithConvenienceMethod.java")
+            .toURI())), StandardCharsets.UTF_8);
 
         String output = PartialUpdateHandler.handlePartialUpdateForFile(generatedFileContent, existingFileContent);
 
@@ -166,9 +243,14 @@ public class PartialUpdateHandlerTest {
     }
 
     @Test
-    public void testClassOrInterfaceFileToTestWhenNoChangesAreMadeOnNextGenerationToTestThenTheFileShouldStaySame() throws URISyntaxException, IOException {
-        String existingFileContent = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("partialupdate/PagedGeneratedAsyncClientWithConvenienceMethod.java").toURI())), StandardCharsets.UTF_8);
-        String generatedFileContent = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("partialupdate/PagedGeneratedAsyncClientWithConvenienceMethod.java").toURI())), StandardCharsets.UTF_8);
+    public void testClassOrInterfaceFileToTestWhenNoChangesAreMadeOnNextGenerationToTestThenTheFileShouldStaySame()
+        throws URISyntaxException, IOException {
+        String existingFileContent = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader()
+            .getResource("partialupdate/PagedGeneratedAsyncClientWithConvenienceMethod.java")
+            .toURI())), StandardCharsets.UTF_8);
+        String generatedFileContent = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader()
+            .getResource("partialupdate/PagedGeneratedAsyncClientWithConvenienceMethod.java")
+            .toURI())), StandardCharsets.UTF_8);
 
         String output = PartialUpdateHandler.handlePartialUpdateForFile(generatedFileContent, existingFileContent);
 
@@ -183,9 +265,14 @@ public class PartialUpdateHandlerTest {
     }
 
     @Test
-    public void testClassOrInterfaceFileToTestVerifyGeneratedFileShouldNotContainDuplicateMethods() throws URISyntaxException, IOException {
-        String existingFileContent = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("partialupdate/StringOperationWithDuplicateMethodGeneratedClient.java").toURI())), StandardCharsets.UTF_8);
-        String generatedFileContent = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("partialupdate/StringOperationWithDuplicateMethodGeneratedClient.java").toURI())), StandardCharsets.UTF_8);
+    public void testClassOrInterfaceFileToTestVerifyGeneratedFileShouldNotContainDuplicateMethods()
+        throws URISyntaxException, IOException {
+        String existingFileContent = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader()
+            .getResource("partialupdate/StringOperationWithDuplicateMethodGeneratedClient.java")
+            .toURI())), StandardCharsets.UTF_8);
+        String generatedFileContent = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader()
+            .getResource("partialupdate/StringOperationWithDuplicateMethodGeneratedClient.java")
+            .toURI())), StandardCharsets.UTF_8);
 
         Exception exception = assertThrows(RuntimeException.class, () -> {
             PartialUpdateHandler.handlePartialUpdateForFile(generatedFileContent, existingFileContent);
@@ -200,8 +287,13 @@ public class PartialUpdateHandlerTest {
 
     @Test
     public void testClassOrInterfaceFileToTestModelCustomization() throws URISyntaxException, IOException {
-        String existingFileContent = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("partialupdate/Model.java").toURI())), StandardCharsets.UTF_8);
-        String generatedFileContent = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("partialupdate/GeneratedModel.java").toURI())), StandardCharsets.UTF_8);
+        String existingFileContent = new String(
+            Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("partialupdate/Model.java").toURI())),
+            StandardCharsets.UTF_8);
+        String generatedFileContent = new String(
+            Files.readAllBytes(
+                Paths.get(getClass().getClassLoader().getResource("partialupdate/GeneratedModel.java").toURI())),
+            StandardCharsets.UTF_8);
 
         String output = PartialUpdateHandler.handlePartialUpdateForFile(generatedFileContent, existingFileContent);
 
@@ -216,26 +308,14 @@ public class PartialUpdateHandlerTest {
 
     @Test
     public void testModuleInfoFileToTestWhenGeneratedFileEqualsExistingFileToTestThenUseGeneratedFile() {
-        String existingFileContent = "// Copyright (c) Microsoft Corporation. All rights reserved.\n" +
-                "// Licensed under the MIT License.\n" +
-                "// Code generated by Microsoft (R) AutoRest Code Generator.\n" +
-                "\n" +
-                "module com.azure.iot.deviceupdate {\n" +
-                "\n" +
-                "    requires transitive com.azure.core;\n" +
-                "\n" +
-                "    exports com.azure.iot.deviceupdate;\n" +
-                "}\n";
-        String generatedFileContent = "// Copyright (c) Microsoft Corporation. All rights reserved.\n" +
-                "// Licensed under the MIT License.\n" +
-                "// Code generated by Microsoft (R) AutoRest Code Generator.\n" +
-                "\n" +
-                "module com.azure.iot.deviceupdate {\n" +
-                "\n" +
-                "    requires transitive com.azure.core;\n" +
-                "\n" +
-                "    exports com.azure.iot.deviceupdate;\n" +
-                "}\n";
+        String existingFileContent = "// Copyright (c) Microsoft Corporation. All rights reserved.\n"
+            + "// Licensed under the MIT License.\n" + "// Code generated by Microsoft (R) AutoRest Code Generator.\n"
+            + "\n" + "module com.azure.iot.deviceupdate {\n" + "\n" + "    requires transitive com.azure.core;\n" + "\n"
+            + "    exports com.azure.iot.deviceupdate;\n" + "}\n";
+        String generatedFileContent = "// Copyright (c) Microsoft Corporation. All rights reserved.\n"
+            + "// Licensed under the MIT License.\n" + "// Code generated by Microsoft (R) AutoRest Code Generator.\n"
+            + "\n" + "module com.azure.iot.deviceupdate {\n" + "\n" + "    requires transitive com.azure.core;\n" + "\n"
+            + "    exports com.azure.iot.deviceupdate;\n" + "}\n";
 
         String output = PartialUpdateHandler.handlePartialUpdateForFile(generatedFileContent, existingFileContent);
 
@@ -247,27 +327,15 @@ public class PartialUpdateHandlerTest {
 
     @Test
     public void testModuleInfoFileToTestWhenExistingFileHasUpdatesToTestThenUseExistingFile() {
-        String existingFileContent = "// Copyright (c) Microsoft Corporation. All rights reserved.\n" +
-                "// Licensed under the MIT License.\n" +
-                "// Code generated by Microsoft (R) AutoRest Code Generator.\n" +
-                "\n" +
-                "\n" +
-                "module com.azure.messaging.webpubsubnew {\n" +
-                "    requires transitive com.azure.core;\n" +
-                "\n" +
-                "    exports com.azure.messaging.webpubsubnew;\n" +
-                "    exports com.azure.messaging.webpubsubnew.models;\n" +
-                "}";
-        String generatedFileContent = "// Copyright (c) Microsoft Corporation. All rights reserved.\n" +
-                "// Licensed under the MIT License.\n" +
-                "// Code generated by Microsoft (R) AutoRest Code Generator.\n" +
-                "\n" +
-                "\n" +
-                "module com.azure.messaging.webpubsubnew {\n" +
-                "    requires transitive com.azure.core;\n" +
-                "\n" +
-                "    exports com.azure.messaging.webpubsubnew;\n" +
-                "}";
+        String existingFileContent = "// Copyright (c) Microsoft Corporation. All rights reserved.\n"
+            + "// Licensed under the MIT License.\n" + "// Code generated by Microsoft (R) AutoRest Code Generator.\n"
+            + "\n" + "\n" + "module com.azure.messaging.webpubsubnew {\n" + "    requires transitive com.azure.core;\n"
+            + "\n" + "    exports com.azure.messaging.webpubsubnew;\n"
+            + "    exports com.azure.messaging.webpubsubnew.models;\n" + "}";
+        String generatedFileContent = "// Copyright (c) Microsoft Corporation. All rights reserved.\n"
+            + "// Licensed under the MIT License.\n" + "// Code generated by Microsoft (R) AutoRest Code Generator.\n"
+            + "\n" + "\n" + "module com.azure.messaging.webpubsubnew {\n" + "    requires transitive com.azure.core;\n"
+            + "\n" + "    exports com.azure.messaging.webpubsubnew;\n" + "}";
 
         String output = PartialUpdateHandler.handlePartialUpdateForFile(generatedFileContent, existingFileContent);
 
@@ -280,155 +348,263 @@ public class PartialUpdateHandlerTest {
     }
 
     @Test
-    public void testModuleInfoFileToTestMergeExistingFileAndGeneratedFileToTestWhenExistingFileContentHasMoreDirectives() {
-        String existingFileContent = "// Copyright (c) Microsoft Corporation. All rights reserved.\n" +
-                "// Licensed under the MIT License.\n" +
-                "// Code generated by Microsoft (R) AutoRest Code Generator.\n" +
-                "module com.azure.messaging.webpubsubnew {\n" +
-                "    requires transitive com.azure.core;\n" +
-                "\n" +
-                "    exports com.azure.messaging.webpubsubnew;\n" +
-                "    exports com.azure.messaging.webpubsubnew.models;\n" +
-                "}";
-        String generatedFileContent = "// Copyright (c) Microsoft Corporation. All rights reserved.\n" +
-                "// Licensed under the MIT License.\n" +
-                "// Code generated by Microsoft (R) AutoRest Code Generator.\n" +
-                "module com.azure.messaging.webpubsubnew {\n" +
-                "    requires transitive com.azure.core;\n" +
-                "\n" +
-                "    exports com.azure.messaging.webpubsubnew;\n" +
-                "}";
+    public void
+        testModuleInfoFileToTestMergeExistingFileAndGeneratedFileToTestWhenExistingFileContentHasMoreDirectives() {
+        String existingFileContent = "// Copyright (c) Microsoft Corporation. All rights reserved.\n"
+            + "// Licensed under the MIT License.\n" + "// Code generated by Microsoft (R) AutoRest Code Generator.\n"
+            + "module com.azure.messaging.webpubsubnew {\n" + "    requires transitive com.azure.core;\n" + "\n"
+            + "    exports com.azure.messaging.webpubsubnew;\n"
+            + "    exports com.azure.messaging.webpubsubnew.models;\n" + "}";
+        String generatedFileContent = "// Copyright (c) Microsoft Corporation. All rights reserved.\n"
+            + "// Licensed under the MIT License.\n" + "// Code generated by Microsoft (R) AutoRest Code Generator.\n"
+            + "module com.azure.messaging.webpubsubnew {\n" + "    requires transitive com.azure.core;\n" + "\n"
+            + "    exports com.azure.messaging.webpubsubnew;\n" + "}";
         String output = PartialUpdateHandler.handlePartialUpdateForFile(generatedFileContent, existingFileContent);
 
         CompilationUnit compilationUnit = parse(output);
         assertEquals(true, compilationUnit.getModule().isPresent());
         assertEquals("com.azure.messaging.webpubsubnew", compilationUnit.getModule().get().getName().toString());
         assertEquals(3, compilationUnit.getModule().get().getDirectives().size());
-        assertEquals("requires transitive com.azure.core;", compilationUnit.getModule().get().getDirectives().get(0).asModuleRequiresDirective().getTokenRange().get().toString());
-        assertEquals("exports com.azure.messaging.webpubsubnew;", compilationUnit.getModule().get().getDirectives().get(1).asModuleExportsDirective().getTokenRange().get().toString());
-        assertEquals("exports com.azure.messaging.webpubsubnew.models;", compilationUnit.getModule().get().getDirectives().get(2).asModuleExportsDirective().getTokenRange().get().toString());
+        assertEquals("requires transitive com.azure.core;",
+            compilationUnit.getModule()
+                .get()
+                .getDirectives()
+                .get(0)
+                .asModuleRequiresDirective()
+                .getTokenRange()
+                .get()
+                .toString());
+        assertEquals("exports com.azure.messaging.webpubsubnew;",
+            compilationUnit.getModule()
+                .get()
+                .getDirectives()
+                .get(1)
+                .asModuleExportsDirective()
+                .getTokenRange()
+                .get()
+                .toString());
+        assertEquals("exports com.azure.messaging.webpubsubnew.models;",
+            compilationUnit.getModule()
+                .get()
+                .getDirectives()
+                .get(2)
+                .asModuleExportsDirective()
+                .getTokenRange()
+                .get()
+                .toString());
 
     }
 
     @Test
-    public void testModuleInfoFileToTestMergeExistingFileAndGeneratedFileToTestWhenGeneratedFileContentHasMoreDirectives() {
-        String existingFileContent = "module com.azure.communication.phonenumbersdemo {\n" +
-                "    requires transitive com.azure.core;\n" +
-                "\n" +
-                "    exports com.azure.communication.phonenumbersdemo;\n" +
-                "}";
-        String generatedFileContent = "" +
-                "module com.azure.communication.phonenumbersdemo {\n" +
-                "    requires transitive com.azure.core;\n" +
-                "\n" +
-                "    exports com.azure.communication.phonenumbersdemo;\n" +
-                "    exports com.azure.communication.phonenumbersdemo.models;\n" +
-                "\n" +
-                "    opens com.azure.communication.phonenumbersdemo.implementation.models to\n" +
-                "            com.azure.core,\n" +
-                "            com.fasterxml.jackson.databind;\n" +
-                "    opens com.azure.communication.phonenumbersdemo.models to\n" +
-                "            com.azure.core,\n" +
-                "            com.fasterxml.jackson.databind;\n" +
-                "}";
+    public void
+        testModuleInfoFileToTestMergeExistingFileAndGeneratedFileToTestWhenGeneratedFileContentHasMoreDirectives() {
+        String existingFileContent
+            = "module com.azure.communication.phonenumbersdemo {\n" + "    requires transitive com.azure.core;\n" + "\n"
+                + "    exports com.azure.communication.phonenumbersdemo;\n" + "}";
+        String generatedFileContent
+            = "" + "module com.azure.communication.phonenumbersdemo {\n" + "    requires transitive com.azure.core;\n"
+                + "\n" + "    exports com.azure.communication.phonenumbersdemo;\n"
+                + "    exports com.azure.communication.phonenumbersdemo.models;\n" + "\n"
+                + "    opens com.azure.communication.phonenumbersdemo.implementation.models to\n"
+                + "            com.azure.core,\n" + "            com.fasterxml.jackson.databind;\n"
+                + "    opens com.azure.communication.phonenumbersdemo.models to\n" + "            com.azure.core,\n"
+                + "            com.fasterxml.jackson.databind;\n" + "}";
         String output = PartialUpdateHandler.handlePartialUpdateForFile(generatedFileContent, existingFileContent);
 
         CompilationUnit compilationUnit = parse(output);
         assertEquals(true, compilationUnit.getModule().isPresent());
-        assertEquals("com.azure.communication.phonenumbersdemo", compilationUnit.getModule().get().getName().toString());
+        assertEquals("com.azure.communication.phonenumbersdemo",
+            compilationUnit.getModule().get().getName().toString());
         assertEquals(5, compilationUnit.getModule().get().getDirectives().size());
-        assertEquals("requires transitive com.azure.core;", compilationUnit.getModule().get().getDirectives().get(0).asModuleRequiresDirective().getTokenRange().get().toString());
-        assertEquals("exports com.azure.communication.phonenumbersdemo;", compilationUnit.getModule().get().getDirectives().get(1).asModuleExportsDirective().getTokenRange().get().toString());
-        assertEquals("exports com.azure.communication.phonenumbersdemo.models;", compilationUnit.getModule().get().getDirectives().get(2).asModuleExportsDirective().getTokenRange().get().toString());
-        assertEquals("opens com.azure.communication.phonenumbersdemo.implementation.models to com.azure.core, com.fasterxml.jackson.databind;", compilationUnit.getModule().get().getDirectives().get(3).asModuleOpensDirective().getTokenRange().get().toString());
-        assertEquals("opens com.azure.communication.phonenumbersdemo.models to com.azure.core, com.fasterxml.jackson.databind;", compilationUnit.getModule().get().getDirectives().get(4).asModuleOpensDirective().getTokenRange().get().toString());
+        assertEquals("requires transitive com.azure.core;",
+            compilationUnit.getModule()
+                .get()
+                .getDirectives()
+                .get(0)
+                .asModuleRequiresDirective()
+                .getTokenRange()
+                .get()
+                .toString());
+        assertEquals("exports com.azure.communication.phonenumbersdemo;",
+            compilationUnit.getModule()
+                .get()
+                .getDirectives()
+                .get(1)
+                .asModuleExportsDirective()
+                .getTokenRange()
+                .get()
+                .toString());
+        assertEquals("exports com.azure.communication.phonenumbersdemo.models;",
+            compilationUnit.getModule()
+                .get()
+                .getDirectives()
+                .get(2)
+                .asModuleExportsDirective()
+                .getTokenRange()
+                .get()
+                .toString());
+        assertEquals(
+            "opens com.azure.communication.phonenumbersdemo.implementation.models to com.azure.core, com.fasterxml.jackson.databind;",
+            compilationUnit.getModule()
+                .get()
+                .getDirectives()
+                .get(3)
+                .asModuleOpensDirective()
+                .getTokenRange()
+                .get()
+                .toString());
+        assertEquals(
+            "opens com.azure.communication.phonenumbersdemo.models to com.azure.core, com.fasterxml.jackson.databind;",
+            compilationUnit.getModule()
+                .get()
+                .getDirectives()
+                .get(4)
+                .asModuleOpensDirective()
+                .getTokenRange()
+                .get()
+                .toString());
     }
 
     @Test
-    public void testModuleInfoFileToTestMergeExistingFileAndGeneratedFileToTestWhenExistingAndGeneratedFileHasSameContent() {
-        String existingFileContent = "module com.azure.communication.phonenumbersdemo {\n" +
-                "    requires transitive com.azure.core;\n" +
-                "\n" +
-                "    exports com.azure.communication.phonenumbersdemo;\n" +
-                "    exports com.azure.communication.phonenumbersdemo.models;\n" +
-                "\n" +
-                "    opens com.azure.communication.phonenumbersdemo.implementation.models to\n" +
-                "            com.azure.core,\n" +
-                "            com.fasterxml.jackson.databind;\n" +
-                "    opens com.azure.communication.phonenumbersdemo.models to\n" +
-                "            com.azure.core,\n" +
-                "            com.fasterxml.jackson.databind;\n" +
-                "}";
-        String generatedFileContent =
-                "module com.azure.communication.phonenumbersdemo {\n" +
-                        "    requires transitive com.azure.core;\n" +
-                        "\n" +
-                        "    exports com.azure.communication.phonenumbersdemo;\n" +
-                        "    exports com.azure.communication.phonenumbersdemo.models;\n" +
-                        "\n" +
-                        "    opens com.azure.communication.phonenumbersdemo.implementation.models to\n" +
-                        "            com.azure.core,\n" +
-                        "            com.fasterxml.jackson.databind;\n" +
-                        "    opens com.azure.communication.phonenumbersdemo.models to\n" +
-                        "            com.azure.core,\n" +
-                        "            com.fasterxml.jackson.databind;\n" +
-                        "}";
+    public void
+        testModuleInfoFileToTestMergeExistingFileAndGeneratedFileToTestWhenExistingAndGeneratedFileHasSameContent() {
+        String existingFileContent
+            = "module com.azure.communication.phonenumbersdemo {\n" + "    requires transitive com.azure.core;\n" + "\n"
+                + "    exports com.azure.communication.phonenumbersdemo;\n"
+                + "    exports com.azure.communication.phonenumbersdemo.models;\n" + "\n"
+                + "    opens com.azure.communication.phonenumbersdemo.implementation.models to\n"
+                + "            com.azure.core,\n" + "            com.fasterxml.jackson.databind;\n"
+                + "    opens com.azure.communication.phonenumbersdemo.models to\n" + "            com.azure.core,\n"
+                + "            com.fasterxml.jackson.databind;\n" + "}";
+        String generatedFileContent
+            = "module com.azure.communication.phonenumbersdemo {\n" + "    requires transitive com.azure.core;\n" + "\n"
+                + "    exports com.azure.communication.phonenumbersdemo;\n"
+                + "    exports com.azure.communication.phonenumbersdemo.models;\n" + "\n"
+                + "    opens com.azure.communication.phonenumbersdemo.implementation.models to\n"
+                + "            com.azure.core,\n" + "            com.fasterxml.jackson.databind;\n"
+                + "    opens com.azure.communication.phonenumbersdemo.models to\n" + "            com.azure.core,\n"
+                + "            com.fasterxml.jackson.databind;\n" + "}";
         String output = PartialUpdateHandler.handlePartialUpdateForFile(generatedFileContent, existingFileContent);
 
         CompilationUnit compilationUnit = parse(output);
         assertEquals(true, compilationUnit.getModule().isPresent());
-        assertEquals("com.azure.communication.phonenumbersdemo", compilationUnit.getModule().get().getName().toString());
+        assertEquals("com.azure.communication.phonenumbersdemo",
+            compilationUnit.getModule().get().getName().toString());
         assertEquals(5, compilationUnit.getModule().get().getDirectives().size());
-        assertEquals("requires transitive com.azure.core;", compilationUnit.getModule().get().getDirectives().get(0).asModuleRequiresDirective().getTokenRange().get().toString());
-        assertEquals("exports com.azure.communication.phonenumbersdemo;", compilationUnit.getModule().get().getDirectives().get(1).asModuleExportsDirective().getTokenRange().get().toString());
-        assertEquals("exports com.azure.communication.phonenumbersdemo.models;", compilationUnit.getModule().get().getDirectives().get(2).asModuleExportsDirective().getTokenRange().get().toString());
-        assertEquals("opens com.azure.communication.phonenumbersdemo.implementation.models to com.azure.core, com.fasterxml.jackson.databind;", compilationUnit.getModule().get().getDirectives().get(3).asModuleOpensDirective().getTokenRange().get().toString());
-        assertEquals("opens com.azure.communication.phonenumbersdemo.models to com.azure.core, com.fasterxml.jackson.databind;", compilationUnit.getModule().get().getDirectives().get(4).asModuleOpensDirective().getTokenRange().get().toString());
+        assertEquals("requires transitive com.azure.core;",
+            compilationUnit.getModule()
+                .get()
+                .getDirectives()
+                .get(0)
+                .asModuleRequiresDirective()
+                .getTokenRange()
+                .get()
+                .toString());
+        assertEquals("exports com.azure.communication.phonenumbersdemo;",
+            compilationUnit.getModule()
+                .get()
+                .getDirectives()
+                .get(1)
+                .asModuleExportsDirective()
+                .getTokenRange()
+                .get()
+                .toString());
+        assertEquals("exports com.azure.communication.phonenumbersdemo.models;",
+            compilationUnit.getModule()
+                .get()
+                .getDirectives()
+                .get(2)
+                .asModuleExportsDirective()
+                .getTokenRange()
+                .get()
+                .toString());
+        assertEquals(
+            "opens com.azure.communication.phonenumbersdemo.implementation.models to com.azure.core, com.fasterxml.jackson.databind;",
+            compilationUnit.getModule()
+                .get()
+                .getDirectives()
+                .get(3)
+                .asModuleOpensDirective()
+                .getTokenRange()
+                .get()
+                .toString());
+        assertEquals(
+            "opens com.azure.communication.phonenumbersdemo.models to com.azure.core, com.fasterxml.jackson.databind;",
+            compilationUnit.getModule()
+                .get()
+                .getDirectives()
+                .get(4)
+                .asModuleOpensDirective()
+                .getTokenRange()
+                .get()
+                .toString());
     }
 
     @Test
     public void testModuleInfoFileToTestMergeExistingFileAndGeneratedFileToTestIgnoreEmptyLineAndWhiteSpace() {
-        String existingFileContent = "module com.azure.communication.phonenumbersdemo {\n" +
-                "    requires transitive com.azure.core;\n" +
-                "\n" +
-                "\n" +
-                "    exports      com.azure.communication.phonenumbersdemo;     \n" +
-                "    exports com.azure.communication.phonenumbersdemo.models;\n" +
-                "\n" +
-                "}";
-        String generatedFileContent =
-                "module com.azure.communication.phonenumbersdemo {\n" +
-                        "    requires transitive com.azure.core;\n" +
-                        "\n" +
-                        "    exports com.azure.communication.phonenumbersdemo;\n" +
-                        "    exports com.azure.communication.phonenumbersdemo.models;\n" +
-                        "\n" +
-                        "}";
+        String existingFileContent
+            = "module com.azure.communication.phonenumbersdemo {\n" + "    requires transitive com.azure.core;\n" + "\n"
+                + "\n" + "    exports      com.azure.communication.phonenumbersdemo;     \n"
+                + "    exports com.azure.communication.phonenumbersdemo.models;\n" + "\n" + "}";
+        String generatedFileContent
+            = "module com.azure.communication.phonenumbersdemo {\n" + "    requires transitive com.azure.core;\n" + "\n"
+                + "    exports com.azure.communication.phonenumbersdemo;\n"
+                + "    exports com.azure.communication.phonenumbersdemo.models;\n" + "\n" + "}";
         String output = PartialUpdateHandler.handlePartialUpdateForFile(generatedFileContent, existingFileContent);
 
         CompilationUnit compilationUnit = parse(output);
         assertEquals(true, compilationUnit.getModule().isPresent());
-        assertEquals("com.azure.communication.phonenumbersdemo", compilationUnit.getModule().get().getName().toString());
+        assertEquals("com.azure.communication.phonenumbersdemo",
+            compilationUnit.getModule().get().getName().toString());
         assertEquals(3, compilationUnit.getModule().get().getDirectives().size());
-        assertEquals("requires transitive com.azure.core;", compilationUnit.getModule().get().getDirectives().get(0).asModuleRequiresDirective().getTokenRange().get().toString());
-        assertEquals("exports com.azure.communication.phonenumbersdemo;", compilationUnit.getModule().get().getDirectives().get(1).asModuleExportsDirective().getTokenRange().get().toString());
-        assertEquals("exports com.azure.communication.phonenumbersdemo.models;", compilationUnit.getModule().get().getDirectives().get(2).asModuleExportsDirective().getTokenRange().get().toString());
+        assertEquals("requires transitive com.azure.core;",
+            compilationUnit.getModule()
+                .get()
+                .getDirectives()
+                .get(0)
+                .asModuleRequiresDirective()
+                .getTokenRange()
+                .get()
+                .toString());
+        assertEquals("exports com.azure.communication.phonenumbersdemo;",
+            compilationUnit.getModule()
+                .get()
+                .getDirectives()
+                .get(1)
+                .asModuleExportsDirective()
+                .getTokenRange()
+                .get()
+                .toString());
+        assertEquals("exports com.azure.communication.phonenumbersdemo.models;",
+            compilationUnit.getModule()
+                .get()
+                .getDirectives()
+                .get(2)
+                .asModuleExportsDirective()
+                .getTokenRange()
+                .get()
+                .toString());
     }
 
     @Test
     public void testStaticBlockOverride() throws Exception {
-        String existingFileContent = Files.readString(Paths.get(getClass().getClassLoader().getResource("partialupdate/ModelWithStaticBlock.java").toURI()));
-        String generatedFileContent = Files.readString(Paths.get(getClass().getClassLoader().getResource("partialupdate/ModelWithStaticBlockGenerated.java").toURI()));
+        String existingFileContent = Files.readString(
+            Paths.get(getClass().getClassLoader().getResource("partialupdate/ModelWithStaticBlock.java").toURI()));
+        String generatedFileContent = Files.readString(Paths
+            .get(getClass().getClassLoader().getResource("partialupdate/ModelWithStaticBlockGenerated.java").toURI()));
 
         String output = PartialUpdateHandler.handlePartialUpdateForFile(generatedFileContent, existingFileContent);
 
         CompilationUnit compilationUnit = parse(output);
         assertEquals(1, compilationUnit.getTypes().size());
-        List<InitializerDeclaration> staticInitializerDeclaration = compilationUnit.getTypes().get(0).getMembers().stream()
-                .filter(m -> m instanceof InitializerDeclaration)
-                .map(m -> (InitializerDeclaration) m)
-                .filter(InitializerDeclaration::isStatic)
-                .collect(Collectors.toList());
+        List<InitializerDeclaration> staticInitializerDeclaration = compilationUnit.getTypes()
+            .get(0)
+            .getMembers()
+            .stream()
+            .filter(m -> m instanceof InitializerDeclaration)
+            .map(m -> (InitializerDeclaration) m)
+            .filter(InitializerDeclaration::isStatic)
+            .collect(Collectors.toList());
         // verify 1 block
         Assertions.assertEquals(1, staticInitializerDeclaration.size());
         // verify the block is replaced
@@ -437,18 +613,23 @@ public class PartialUpdateHandlerTest {
 
     @Test
     public void testStaticBlockAdd() throws Exception {
-        String existingFileContent = Files.readString(Paths.get(getClass().getClassLoader().getResource("partialupdate/ModelWithoutStaticBlock.java").toURI()));
-        String generatedFileContent = Files.readString(Paths.get(getClass().getClassLoader().getResource("partialupdate/ModelWithStaticBlockGenerated.java").toURI()));
+        String existingFileContent = Files.readString(
+            Paths.get(getClass().getClassLoader().getResource("partialupdate/ModelWithoutStaticBlock.java").toURI()));
+        String generatedFileContent = Files.readString(Paths
+            .get(getClass().getClassLoader().getResource("partialupdate/ModelWithStaticBlockGenerated.java").toURI()));
 
         String output = PartialUpdateHandler.handlePartialUpdateForFile(generatedFileContent, existingFileContent);
 
         CompilationUnit compilationUnit = parse(output);
         assertEquals(1, compilationUnit.getTypes().size());
-        List<InitializerDeclaration> staticInitializerDeclaration = compilationUnit.getTypes().get(0).getMembers().stream()
-                .filter(m -> m instanceof InitializerDeclaration)
-                .map(m -> (InitializerDeclaration) m)
-                .filter(InitializerDeclaration::isStatic)
-                .collect(Collectors.toList());
+        List<InitializerDeclaration> staticInitializerDeclaration = compilationUnit.getTypes()
+            .get(0)
+            .getMembers()
+            .stream()
+            .filter(m -> m instanceof InitializerDeclaration)
+            .map(m -> (InitializerDeclaration) m)
+            .filter(InitializerDeclaration::isStatic)
+            .collect(Collectors.toList());
         // verify 1 block
         Assertions.assertEquals(1, staticInitializerDeclaration.size());
         // also verify a few other methods is added
@@ -457,38 +638,51 @@ public class PartialUpdateHandlerTest {
         Assertions.assertNotNull(compilationUnit.getTypes().get(0).getFieldByName("updatedProperties"));
     }
 
-
     @Test
     public void testStaticBlockRemove() throws Exception {
-        String existingFileContent = Files.readString(Paths.get(getClass().getClassLoader().getResource("partialupdate/ModelWithStaticBlock.java").toURI()));
-        String generatedFileContent = Files.readString(Paths.get(getClass().getClassLoader().getResource("partialupdate/ModelWithoutStaticBlockGenerated.java").toURI()));
+        String existingFileContent = Files.readString(
+            Paths.get(getClass().getClassLoader().getResource("partialupdate/ModelWithStaticBlock.java").toURI()));
+        String generatedFileContent = Files.readString(Paths.get(
+            getClass().getClassLoader().getResource("partialupdate/ModelWithoutStaticBlockGenerated.java").toURI()));
 
         String output = PartialUpdateHandler.handlePartialUpdateForFile(generatedFileContent, existingFileContent);
 
         CompilationUnit compilationUnit = parse(output);
         assertEquals(1, compilationUnit.getTypes().size());
-        List<InitializerDeclaration> staticInitializerDeclaration = compilationUnit.getTypes().get(0).getMembers().stream()
-                .filter(m -> m instanceof InitializerDeclaration)
-                .map(m -> (InitializerDeclaration) m)
-                .filter(InitializerDeclaration::isStatic)
-                .collect(Collectors.toList());
+        List<InitializerDeclaration> staticInitializerDeclaration = compilationUnit.getTypes()
+            .get(0)
+            .getMembers()
+            .stream()
+            .filter(m -> m instanceof InitializerDeclaration)
+            .map(m -> (InitializerDeclaration) m)
+            .filter(InitializerDeclaration::isStatic)
+            .collect(Collectors.toList());
         // verify 0 block
         Assertions.assertEquals(0, staticInitializerDeclaration.size());
     }
 
     @Test
     public void testCodeFormatterOff() throws Exception {
-        String existingFileContent = Files.readString(Paths.get(getClass().getClassLoader().getResource("partialupdate/ModelWithCodeFormatterOff.java").toURI()));
-        String generatedFileContent = Files.readString(Paths.get(getClass().getClassLoader().getResource("partialupdate/GeneratedModel.java").toURI()));
+        String existingFileContent = Files.readString(
+            Paths.get(getClass().getClassLoader().getResource("partialupdate/ModelWithCodeFormatterOff.java").toURI()));
+        String generatedFileContent = Files.readString(
+            Paths.get(getClass().getClassLoader().getResource("partialupdate/GeneratedModel.java").toURI()));
 
         String output = PartialUpdateHandler.handlePartialUpdateForFile(generatedFileContent, existingFileContent);
 
         CompilationUnit compilationUnit = parse(output);
         ConstructorDeclaration constructorDeclaration = compilationUnit.getTypes().get(0).getConstructors().get(1);
-        Assertions.assertTrue(constructorDeclaration.getJavadoc().get().getDescription().toText().contains("<!-- @formatter:off -->"));
-        Assertions.assertTrue(constructorDeclaration.getJavadoc().get().getDescription().toText().contains("<!-- @formatter:on -->"));
-        BlockStmt constructorCodeBlock = (BlockStmt) constructorDeclaration.getChildNodes().stream().filter(node -> node instanceof BlockStmt).findFirst().get();
-        List<String> lines = Arrays.stream(constructorCodeBlock.toString().split("\n")).map(String::trim).collect(Collectors.toList());
+        Assertions.assertTrue(
+            constructorDeclaration.getJavadoc().get().getDescription().toText().contains("<!-- @formatter:off -->"));
+        Assertions.assertTrue(
+            constructorDeclaration.getJavadoc().get().getDescription().toText().contains("<!-- @formatter:on -->"));
+        BlockStmt constructorCodeBlock = (BlockStmt) constructorDeclaration.getChildNodes()
+            .stream()
+            .filter(node -> node instanceof BlockStmt)
+            .findFirst()
+            .get();
+        List<String> lines
+            = Arrays.stream(constructorCodeBlock.toString().split("\n")).map(String::trim).collect(Collectors.toList());
         Assertions.assertTrue(lines.contains("// @formatter:off"));
         Assertions.assertTrue(lines.contains("// @formatter:on"));
     }

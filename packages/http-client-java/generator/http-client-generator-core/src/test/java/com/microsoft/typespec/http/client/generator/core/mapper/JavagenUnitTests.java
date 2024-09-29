@@ -3,9 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
-import com.microsoft.typespec.http.client.generator.core.MockUnitJavagen;
-import org.junit.jupiter.api.Test;
-
 /**
  * unit test entry
  */

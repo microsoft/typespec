@@ -9,12 +9,11 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Relations;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.StringSchema;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class SchemaUtilTests {
     private static final ObjectSchema PET;
@@ -26,7 +25,7 @@ public class SchemaUtilTests {
         PET = new ObjectSchema();
         PET.set$key("pet");
         PET.setChildren(new Relations());
-        
+
         CAT = new ObjectSchema();
         CAT.set$key("cat");
         CAT.setParents(new Relations());
@@ -73,9 +72,11 @@ public class SchemaUtilTests {
     @Test
     public void testAllSchemaFindParent() {
         Assertions.assertTrue(SchemaUtil.getLowestCommonParent(List.of(new ArraySchema(), PET)) instanceof AnySchema);
-        Assertions.assertTrue(SchemaUtil.getLowestCommonParent(List.of(new DictionarySchema(), PET)) instanceof AnySchema);
+        Assertions
+            .assertTrue(SchemaUtil.getLowestCommonParent(List.of(new DictionarySchema(), PET)) instanceof AnySchema);
         StringSchema stringSchema = new StringSchema();
         Assertions.assertTrue(SchemaUtil.getLowestCommonParent(List.of(stringSchema)) instanceof StringSchema);
-        Assertions.assertTrue(SchemaUtil.getLowestCommonParent(List.of(stringSchema, stringSchema)) instanceof StringSchema);
+        Assertions
+            .assertTrue(SchemaUtil.getLowestCommonParent(List.of(stringSchema, stringSchema)) instanceof StringSchema);
     }
 }

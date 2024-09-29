@@ -7,7 +7,6 @@ import com.azure.json.JsonReader;
 import com.azure.json.ReadValueCallback;
 import com.microsoft.typespec.http.client.generator.core.extension.jsonrpc.Connection;
 import com.microsoft.typespec.http.client.generator.core.extension.model.Message;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;

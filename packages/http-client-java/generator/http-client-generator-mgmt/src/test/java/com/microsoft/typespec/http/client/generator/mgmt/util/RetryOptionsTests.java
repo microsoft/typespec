@@ -11,13 +11,12 @@ import com.azure.core.http.policy.FixedDelayOptions;
 import com.azure.core.http.policy.RetryOptions;
 import com.azure.core.http.policy.RetryPolicy;
 import com.azure.core.http.policy.RetryStrategy;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import java.lang.reflect.Field;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class RetryOptionsTests {
 
@@ -70,7 +69,8 @@ public class RetryOptionsTests {
         validateRetryPolicy(configurable.getRetryPolicy(), false);
 
         // configured as FixedDelayOptions
-        configurable = new Configurable().withRetryOptions(new RetryOptions(new FixedDelayOptions(3, Duration.ofSeconds(10))));
+        configurable
+            = new Configurable().withRetryOptions(new RetryOptions(new FixedDelayOptions(3, Duration.ofSeconds(10))));
         validateRetryPolicy(configurable.getRetryPolicy(), true, FixedDelay.class);
 
         // configured as ExponentialBackoffOptions
@@ -78,15 +78,18 @@ public class RetryOptionsTests {
         validateRetryPolicy(configurable.getRetryPolicy(), true);
 
         // RetryPolicy override RetryOptions
-        configurable = new Configurable().withRetryPolicy(new RetryPolicy()).withRetryOptions(new RetryOptions(new FixedDelayOptions(3, Duration.ofSeconds(10))));
+        configurable = new Configurable().withRetryPolicy(new RetryPolicy())
+            .withRetryOptions(new RetryOptions(new FixedDelayOptions(3, Duration.ofSeconds(10))));
         validateRetryPolicy(configurable.getRetryPolicy(), true, ExponentialBackoff.class);
     }
 
-    private static void validateRetryPolicy(RetryPolicy retryPolicy, boolean retryAfterHeaderAsNull) throws NoSuchFieldException, IllegalAccessException {
+    private static void validateRetryPolicy(RetryPolicy retryPolicy, boolean retryAfterHeaderAsNull)
+        throws NoSuchFieldException, IllegalAccessException {
         validateRetryPolicy(retryPolicy, retryAfterHeaderAsNull, null);
     }
 
-    private static void validateRetryPolicy(RetryPolicy retryPolicy, boolean retryAfterHeaderAsNull, Class<?> retryStrategyClass) throws NoSuchFieldException, IllegalAccessException {
+    private static void validateRetryPolicy(RetryPolicy retryPolicy, boolean retryAfterHeaderAsNull,
+        Class<?> retryStrategyClass) throws NoSuchFieldException, IllegalAccessException {
         Assertions.assertNotNull(retryPolicy);
 
         Field retryAfterHeaderField = RetryPolicy.class.getDeclaredField("retryAfterHeader");

@@ -6,10 +6,9 @@ package com.microsoft.typespec.http.client.generator.core.mapper;
 import com.microsoft.typespec.http.client.generator.core.MockUnitJavagen;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Pom;
 import com.microsoft.typespec.http.client.generator.core.model.projectmodel.Project;
+import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.util.List;
 
 public class PomMapperTests {
 
@@ -35,6 +34,10 @@ public class PomMapperTests {
         List<String> dependencies = pom.getDependencyIdentifiers();
         Assertions.assertTrue(dependencies.stream().anyMatch(d -> d.startsWith("com.azure:azure-core:")));
         Assertions.assertTrue(dependencies.stream().anyMatch(d -> d.startsWith("com.azure:azure-core-test:")));
-        Assertions.assertTrue(dependencies.stream().noneMatch(d -> d.startsWith("com.azure:azure-core-test:15.0")));    // it should have higher version
+        Assertions.assertTrue(dependencies.stream().noneMatch(d -> d.startsWith("com.azure:azure-core-test:15.0")));    // it
+                                                                                                                        // should
+                                                                                                                        // have
+                                                                                                                        // higher
+                                                                                                                        // version
     }
 }

@@ -4,8 +4,8 @@
 package com.microsoft.typespec.http.client.generator.mgmt.mapper;
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentClient;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Client;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentClient;
 
 public class FluentMapperAccessor {
 

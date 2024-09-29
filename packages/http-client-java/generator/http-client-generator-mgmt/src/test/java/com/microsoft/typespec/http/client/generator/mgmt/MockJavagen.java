@@ -3,12 +3,11 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt;
 
-import com.microsoft.typespec.http.client.generator.core.extension.model.Message;
 import com.azure.json.JsonReader;
 import com.azure.json.ReadValueCallback;
 import com.microsoft.typespec.http.client.generator.core.Javagen;
 import com.microsoft.typespec.http.client.generator.core.extension.jsonrpc.Connection;
-
+import com.microsoft.typespec.http.client.generator.core.extension.model.Message;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,4 +36,3 @@ public class MockJavagen extends Javagen {
     public void message(Message message) {
     }
 }
-

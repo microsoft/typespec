@@ -3,15 +3,14 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
-import com.microsoft.typespec.http.client.generator.core.MockUnitJavagen;
-import com.microsoft.typespec.http.client.generator.core.model.projectmodel.Project;
 import com.azure.json.JsonProviders;
 import com.azure.json.JsonReader;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
+import com.microsoft.typespec.http.client.generator.core.MockUnitJavagen;
+import com.microsoft.typespec.http.client.generator.core.model.projectmodel.Project;
 import java.io.IOException;
 import java.util.Map;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class TestProxyAssertsTemplateTests {
 
