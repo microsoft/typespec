@@ -72,6 +72,10 @@ parameters:
     type: string
     default: ""
 
+  - name: EnableCadlRanchReport
+    type: boolean
+    default: true
+
 stages:
   # Build stage
   # Responsible for building the autorest generator and typespec emitter packages
@@ -170,6 +174,7 @@ stages:
                   Os: linux
                   EmitArtifacts: true # Emit artifacts only for the first job
                   CadlRanchName: ${{ parameters.CadlRanchName }} # only needed for first job
+                  EnableCadlRanchReport: ${{ parameters.EnableCadlRanchReport }}
               - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
                 parameters:
                   AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}

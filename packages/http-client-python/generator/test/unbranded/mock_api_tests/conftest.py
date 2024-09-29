@@ -12,7 +12,7 @@ from pathlib import Path
 
 
 def start_server_process():
-    path = Path(os.path.dirname(__file__)) / Path("../../../node_modules/@azure-tools/cadl-ranch-specs")
+    path = Path(os.path.dirname(__file__)) / Path("../../../../node_modules/@azure-tools/cadl-ranch-specs")
     os.chdir(path.resolve())
     cmd = "cadl-ranch serve ./http"
     if os.name == "nt":
