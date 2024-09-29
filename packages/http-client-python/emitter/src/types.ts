@@ -135,7 +135,7 @@ function emitMultiPartFile<TServiceOperation extends SdkServiceOperation>(
   }
   return getSimpleTypeResult({
     type: type.kind,
-    description: type.type.description,
+    description: type.type.summary ? type.type.summary : type.type.doc,
   });
 }
 
@@ -239,7 +239,7 @@ function emitProperty<TServiceOperation extends SdkServiceOperation>(
     wireName: property.serializedName,
     type: getType(context, sourceType),
     optional: property.optional,
-    description: property.description,
+    description: property.summary ? property.summary : property.doc,
     addedOn: getAddedOn(context, property),
     visibility: visibilityMapping(property.visibility),
     isDiscriminator: property.discriminator,
@@ -277,7 +277,7 @@ function emitModel<TServiceOperation extends SdkServiceOperation>(
   const newValue = {
     type: type.kind,
     name: type.name,
-    description: type.description,
+    description: type.summary ? type.summary : type.doc,
     parents: parents,
     discriminatorValue: type.discriminatorValue,
     discriminatedSubtypes: {} as Record<string, Record<string, any>>,
@@ -345,7 +345,7 @@ function emitEnum(type: SdkEnumType): Record<string, any> {
   const newValue = {
     name: name,
     snakeCaseName: camelToSnakeCase(name),
-    description: type.description || `Type of ${name}`,
+    description: (type.summary ? type.summary : type.doc) ?? `Type of ${name}`,
     internal: type.access === "internal",
     type: type.kind,
     valueType: emitBuiltInType(type.valueType),
@@ -374,7 +374,7 @@ function emitEnumMember(
   return {
     name: enumName(type.name),
     value: type.value,
-    description: type.description,
+    description: type.summary ? type.summary : type.doc,
     enumType,
     type: type.kind,
     valueType: enumType["valueType"],
