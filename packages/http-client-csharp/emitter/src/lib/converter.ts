@@ -138,11 +138,11 @@ export function fromSdkModelType(
       if (property.kind !== "property") {
         continue;
       }
-      const ourProperties = fromSdkModelProperty(property, {
+      const ourProperty = fromSdkModelProperty(property, {
         ModelName: modelTypeName,
         Usage: modelType.usage,
       } as LiteralTypeContext);
-      propertiesDict.set(property, ourProperties);
+      propertiesDict.set(property, ourProperty);
     }
 
     inputModelType.discriminatorProperty = modelType.discriminatorProperty
