@@ -4,25 +4,13 @@
 package com.microsoft.typespec.http.client.generator.mgmt.mapper;
 
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Pom;
-import com.microsoft.typespec.http.client.generator.mgmt.FluentGen;
-import com.microsoft.typespec.http.client.generator.mgmt.FluentGenAccessor;
-import com.microsoft.typespec.http.client.generator.mgmt.TestUtils;
 import com.microsoft.typespec.http.client.generator.mgmt.model.projectmodel.FluentProject;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 public class FluentPomMapperTests {
-
-    private static FluentGenAccessor fluentgenAccessor;
-
-    @BeforeAll
-    public static void ensurePlugin() {
-        FluentGen fluentgen = new TestUtils.MockFluentGen();
-        fluentgenAccessor = new FluentGenAccessor(fluentgen);
-    }
 
     @Test
     public void testMergeDependencies() {

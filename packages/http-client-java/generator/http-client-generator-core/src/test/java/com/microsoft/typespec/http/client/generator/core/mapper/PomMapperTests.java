@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
-import com.microsoft.typespec.http.client.generator.core.MockUnitJavagen;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Pom;
 import com.microsoft.typespec.http.client.generator.core.model.projectmodel.Project;
 import java.util.List;
@@ -25,7 +24,6 @@ public class PomMapperTests {
 
     @Test
     public void testMergeDependencies() {
-        MockUnitJavagen javagen = new MockUnitJavagen();
         Project mockProject = new MockProject();
         Pom pom = new PomMapper().map(mockProject);
         Assertions.assertEquals("com.azure", pom.getGroupId());
@@ -34,10 +32,7 @@ public class PomMapperTests {
         List<String> dependencies = pom.getDependencyIdentifiers();
         Assertions.assertTrue(dependencies.stream().anyMatch(d -> d.startsWith("com.azure:azure-core:")));
         Assertions.assertTrue(dependencies.stream().anyMatch(d -> d.startsWith("com.azure:azure-core-test:")));
-        Assertions.assertTrue(dependencies.stream().noneMatch(d -> d.startsWith("com.azure:azure-core-test:15.0")));    // it
-                                                                                                                        // should
-                                                                                                                        // have
-                                                                                                                        // higher
-                                                                                                                        // version
+        // it should have higher version
+        Assertions.assertTrue(dependencies.stream().noneMatch(d -> d.startsWith("com.azure:azure-core-test:15.0")));
     }
 }

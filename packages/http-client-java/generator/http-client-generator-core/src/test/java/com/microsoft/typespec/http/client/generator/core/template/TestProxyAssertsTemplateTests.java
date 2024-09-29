@@ -5,7 +5,6 @@ package com.microsoft.typespec.http.client.generator.core.template;
 
 import com.azure.json.JsonProviders;
 import com.azure.json.JsonReader;
-import com.microsoft.typespec.http.client.generator.core.MockUnitJavagen;
 import com.microsoft.typespec.http.client.generator.core.model.projectmodel.Project;
 import java.io.IOException;
 import java.util.Map;
@@ -26,8 +25,6 @@ public class TestProxyAssertsTemplateTests {
 
     @Test
     public void testAssertsTemplateWrite() throws IOException {
-        MockUnitJavagen javagen = new MockUnitJavagen();
-
         Project project = new MockProject();
 
         String output = new TestProxyAssetsTemplate().write(project);

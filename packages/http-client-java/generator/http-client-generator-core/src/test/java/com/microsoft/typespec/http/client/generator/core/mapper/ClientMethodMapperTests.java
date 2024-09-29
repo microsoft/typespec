@@ -4,7 +4,6 @@
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
 import com.azure.core.http.HttpMethod;
-import com.microsoft.typespec.http.client.generator.core.MockUnitJavagen;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Language;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Languages;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
@@ -26,15 +25,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class ClientMethodMapperTests {
-
-    @BeforeAll
-    public static void ensurePlugin() {
-        MockUnitJavagen javagen = new MockUnitJavagen();
-    }
 
     @Test
     public void testOverloadedSignatures() {
