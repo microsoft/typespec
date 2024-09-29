@@ -77,7 +77,7 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
             {
                 InputPrimitiveTypeKind.String => typeof(string),
                 InputPrimitiveTypeKind.Int32 => typeof(int),
-                InputPrimitiveTypeKind.Any => typeof(BinaryData),
+                InputPrimitiveTypeKind.Unknown => typeof(BinaryData),
                 _ => throw new ArgumentException("Unsupported input type.")
             },
             InputArrayType => typeof(IList<string>),

@@ -3,16 +3,16 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.yaml.snakeyaml.introspector.BeanAccess;
 import org.yaml.snakeyaml.introspector.Property;
 import org.yaml.snakeyaml.introspector.PropertyUtils;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 /**
  * PropertyUtils that leverage @YamlProperty annotation on getter methods.
+ * 
  * @see YamlProperty
  */
 public class AnnotatedPropertyUtils extends PropertyUtils {
@@ -30,7 +30,7 @@ public class AnnotatedPropertyUtils extends PropertyUtils {
         if (cachedPropertyMap.get(type) != null) {
             return new LinkedHashMap<>(cachedPropertyMap.get(type));
         }
-        Map<String, Property> propertyMap =  super.getPropertiesMap(type, bAccess);
+        Map<String, Property> propertyMap = super.getPropertiesMap(type, bAccess);
         Map<String, Property> mappedPropertyMap = new HashMap<>();
         for (String propertyName : propertyMap.keySet()) {
             Property property = propertyMap.get(propertyName);

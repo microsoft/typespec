@@ -4,9 +4,6 @@
 package com.microsoft.typespec.http.client.generator.mgmt.template;
 
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
-import com.microsoft.typespec.http.client.generator.mgmt.model.FluentType;
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentStatic;
-import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelPropertyReference;
@@ -15,7 +12,9 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaCla
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaContext;
 import com.microsoft.typespec.http.client.generator.core.template.ModelTemplate;
 import com.microsoft.typespec.http.client.generator.core.util.ModelNamer;
-
+import com.microsoft.typespec.http.client.generator.mgmt.model.FluentType;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentStatic;
+import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -42,18 +41,21 @@ public class FluentModelTemplate extends ModelTemplate {
     }
 
     @Override
-    protected void addFieldAnnotations(ClientModel model, ClientModelProperty property, JavaClass classBlock, JavaSettings settings) {
+    protected void addFieldAnnotations(ClientModel model, ClientModelProperty property, JavaClass classBlock,
+        JavaSettings settings) {
         super.addFieldAnnotations(model, property, classBlock, settings);
 
         // JsonInclude
         if (!property.isAdditionalProperties()) {
             String propertyName = model.getName() + "." + property.getName();
-            Set<String> propertiesAllowNull = FluentStatic.getFluentJavaSettings().getJavaNamesForPropertyIncludeAlways();
+            Set<String> propertiesAllowNull
+                = FluentStatic.getFluentJavaSettings().getJavaNamesForPropertyIncludeAlways();
             final boolean propertyAllowNull = propertiesAllowNull.contains(propertyName);
 
             if (property.getClientType() instanceof MapType) {
                 String value = propertyAllowNull ? "JsonInclude.Include.ALWAYS" : "JsonInclude.Include.NON_NULL";
-                classBlock.annotation(String.format("JsonInclude(value = %1$s, content = JsonInclude.Include.ALWAYS)", value));
+                classBlock.annotation(
+                    String.format("JsonInclude(value = %1$s, content = JsonInclude.Include.ALWAYS)", value));
             } else {
                 if (propertyAllowNull) {
                     classBlock.annotation("JsonInclude(value = JsonInclude.Include.ALWAYS)");
@@ -64,9 +66,7 @@ public class FluentModelTemplate extends ModelTemplate {
 
     @Override
     protected boolean modelHasValidate(String modelName) {
-        return modelName != null
-            && FluentType.nonResourceType(modelName)
-            && FluentType.nonManagementError(modelName);
+        return modelName != null && FluentType.nonResourceType(modelName) && FluentType.nonManagementError(modelName);
     }
 
     @Override
@@ -79,7 +79,9 @@ public class FluentModelTemplate extends ModelTemplate {
             }
             return modelNamer.modelPropertyGetterName(property);
 
-            // disabled for now, as e.g. https://github.com/Azure/azure-rest-api-specs/blob/8fa9b5051129dd4808c9be1f5b753af226b044db/specification/iothub/resource-manager/Microsoft.Devices/stable/2023-06-30/iothub.json#L298-L303 makes it usage=output
+            // disabled for now, as e.g.
+            // https://github.com/Azure/azure-rest-api-specs/blob/8fa9b5051129dd4808c9be1f5b753af226b044db/specification/iothub/resource-manager/Microsoft.Devices/stable/2023-06-30/iothub.json#L298-L303
+            // makes it usage=output
 //            if (model.getImplementationDetails() != null
 //                    && model.getImplementationDetails().isException()
 //                    && !model.getImplementationDetails().isOutput()
@@ -108,14 +110,16 @@ public class FluentModelTemplate extends ModelTemplate {
             ClientModel parentModel = FluentUtils.getClientModel(parentModelName);
             if (parentModel != null) {
                 if (parentModel.getProperties() != null) {
-                    propertyReferences.addAll(parentModel.getProperties().stream()
+                    propertyReferences.addAll(parentModel.getProperties()
+                        .stream()
                         .filter(p -> !p.getClientFlatten() && !p.isAdditionalProperties())
                         .map(ClientModelPropertyReference::ofParentProperty)
                         .collect(Collectors.toList()));
                 }
 
                 if (parentModel.getPropertyReferences() != null) {
-                    propertyReferences.addAll(parentModel.getPropertyReferences().stream()
+                    propertyReferences.addAll(parentModel.getPropertyReferences()
+                        .stream()
                         .filter(ClientModelPropertyReference::isFromFlattenedProperty)
                         .map(ClientModelPropertyReference::ofParentProperty)
                         .collect(Collectors.toList()));

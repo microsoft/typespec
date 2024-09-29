@@ -3,20 +3,21 @@
 
 package com.microsoft.typespec.http.client.generator.fluent;
 
+import com.azure.json.JsonReader;
+import com.azure.json.ReadValueCallback;
 import com.microsoft.typespec.http.client.generator.TypeSpecPlugin;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
-import com.azure.json.JsonReader;
-import com.azure.json.ReadValueCallback;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentNamer;
-
 import java.nio.file.Path;
 import java.util.Map;
 
 public class TypeSpecFluentNamer extends FluentNamer {
     private final Map<String, Object> settingsMap;
     private final CodeModel codeModel;
-    public TypeSpecFluentNamer(NewPlugin plugin, String pluginName, String sessionId, Map<String, Object> settingsMap, CodeModel codeModel) {
+
+    public TypeSpecFluentNamer(NewPlugin plugin, String pluginName, String sessionId, Map<String, Object> settingsMap,
+        CodeModel codeModel) {
         super(plugin, new TypeSpecPlugin.MockConnection(), pluginName, sessionId);
         this.settingsMap = settingsMap;
         this.codeModel = codeModel;

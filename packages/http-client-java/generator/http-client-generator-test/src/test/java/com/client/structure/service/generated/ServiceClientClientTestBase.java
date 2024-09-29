@@ -8,7 +8,6 @@ package com.client.structure.service.generated;
 // If you wish to modify these files, please copy them out of the 'generated' package, and modify there.
 // See https://aka.ms/azsdk/dpg/java/tests for guide on adding a test.
 
-import com.azure.core.http.HttpClient;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.test.TestMode;
@@ -40,11 +39,9 @@ class ServiceClientClientTestBase extends TestProxyTestBase {
         ServiceClientClientBuilder serviceClientClientbuilder = new ServiceClientClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
             .client(Configuration.getGlobalConfiguration().get("CLIENT", "client"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            serviceClientClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             serviceClientClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         serviceClientClient = serviceClientClientbuilder.buildClient();
@@ -52,11 +49,9 @@ class ServiceClientClientTestBase extends TestProxyTestBase {
         ServiceClientClientBuilder bazFooClientbuilder = new ServiceClientClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
             .client(Configuration.getGlobalConfiguration().get("CLIENT", "client"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            bazFooClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             bazFooClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         bazFooClient = bazFooClientbuilder.buildBazFooClient();
@@ -64,11 +59,9 @@ class ServiceClientClientTestBase extends TestProxyTestBase {
         ServiceClientClientBuilder quxClientbuilder = new ServiceClientClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
             .client(Configuration.getGlobalConfiguration().get("CLIENT", "client"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            quxClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             quxClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         quxClient = quxClientbuilder.buildQuxClient();
@@ -76,11 +69,9 @@ class ServiceClientClientTestBase extends TestProxyTestBase {
         ServiceClientClientBuilder quxBarClientbuilder = new ServiceClientClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
             .client(Configuration.getGlobalConfiguration().get("CLIENT", "client"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            quxBarClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             quxBarClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         quxBarClient = quxBarClientbuilder.buildQuxBarClient();
@@ -88,11 +79,9 @@ class ServiceClientClientTestBase extends TestProxyTestBase {
         ServiceClientClientBuilder fooClientbuilder = new ServiceClientClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
             .client(Configuration.getGlobalConfiguration().get("CLIENT", "client"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            fooClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             fooClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         fooClient = fooClientbuilder.buildFooClient();
@@ -100,11 +89,9 @@ class ServiceClientClientTestBase extends TestProxyTestBase {
         ServiceClientClientBuilder barClientbuilder = new ServiceClientClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
             .client(Configuration.getGlobalConfiguration().get("CLIENT", "client"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            barClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             barClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         barClient = barClientbuilder.buildBarClient();

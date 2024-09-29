@@ -4,7 +4,6 @@
 package com.microsoft.typespec.http.client.generator.core.model.javamodel;
 
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
-
 import java.io.File;
 import java.nio.file.Paths;
 
@@ -16,8 +15,13 @@ public class JavaFileFactory {
     }
 
     public final JavaFile createEmptySourceFile(String packageKeyword, String fileNameWithoutExtension) {
-        String folderPath = Paths.get("src", "main", "java", packageKeyword.replace('.', File.separatorChar)).toString();
-        String filePath = Paths.get(folderPath).resolve(String.format("%1$s.java", fileNameWithoutExtension)).toString().replace('\\', '/').replace("//", "/");
+        String folderPath
+            = Paths.get("src", "main", "java", packageKeyword.replace('.', File.separatorChar)).toString();
+        String filePath = Paths.get(folderPath)
+            .resolve(String.format("%1$s.java", fileNameWithoutExtension))
+            .toString()
+            .replace('\\', '/')
+            .replace("//", "/");
         return new JavaFile(filePath);
     }
 
@@ -30,8 +34,13 @@ public class JavaFileFactory {
     }
 
     public final JavaFile createSampleFile(String packageKeyword, String fileNameWithoutExtension) {
-        String folderPath = Paths.get("src", "samples", "java", packageKeyword.replace('.', File.separatorChar)).toString();
-        String filePath = Paths.get(folderPath).resolve(String.format("%1$s.java", fileNameWithoutExtension)).toString().replace('\\', '/').replace("//", "/");
+        String folderPath
+            = Paths.get("src", "samples", "java", packageKeyword.replace('.', File.separatorChar)).toString();
+        String filePath = Paths.get(folderPath)
+            .resolve(String.format("%1$s.java", fileNameWithoutExtension))
+            .toString()
+            .replace('\\', '/')
+            .replace("//", "/");
         JavaFile javaFile = new JavaFile(filePath);
 
         addCommentAndPackage(javaFile, packageKeyword);
@@ -40,8 +49,13 @@ public class JavaFileFactory {
     }
 
     public final JavaFile createTestFile(String packageKeyword, String fileNameWithoutExtension) {
-        String folderPath = Paths.get("src", "test", "java", packageKeyword.replace('.', File.separatorChar)).toString();
-        String filePath = Paths.get(folderPath).resolve(String.format("%1$s.java", fileNameWithoutExtension)).toString().replace('\\', '/').replace("//", "/");
+        String folderPath
+            = Paths.get("src", "test", "java", packageKeyword.replace('.', File.separatorChar)).toString();
+        String filePath = Paths.get(folderPath)
+            .resolve(String.format("%1$s.java", fileNameWithoutExtension))
+            .toString()
+            .replace('\\', '/')
+            .replace("//", "/");
         JavaFile javaFile = new JavaFile(filePath);
 
         addCommentAndPackage(javaFile, packageKeyword);

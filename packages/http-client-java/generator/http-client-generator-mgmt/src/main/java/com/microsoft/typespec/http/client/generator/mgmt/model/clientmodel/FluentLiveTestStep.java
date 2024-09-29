@@ -33,7 +33,7 @@ public abstract class FluentLiveTestStep {
             return getThis();
         }
 
-        public S build(){
+        public S build() {
             return step;
         }
 

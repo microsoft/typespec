@@ -2,26 +2,25 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 import {
-  SdkAnyExample,
-  SdkArrayExample,
-  SdkBooleanExample,
+  SdkArrayExampleValue,
+  SdkBooleanExampleValue,
   SdkContext,
-  SdkDictionaryExample,
+  SdkDictionaryExampleValue,
+  SdkExampleValue,
   SdkHttpOperationExample,
   SdkHttpParameter,
-  SdkHttpParameterExample,
+  SdkHttpParameterExampleValue,
   SdkHttpResponse,
-  SdkHttpResponseExample,
-  SdkModelExample,
-  SdkNullExample,
-  SdkNumberExample,
-  SdkStringExample,
-  SdkTypeExample,
-  SdkUnionExample,
+  SdkHttpResponseExampleValue,
+  SdkModelExampleValue,
+  SdkNullExampleValue,
+  SdkNumberExampleValue,
+  SdkStringExampleValue,
+  SdkUnionExampleValue,
+  SdkUnknownExampleValue,
 } from "@azure-tools/typespec-client-generator-core";
 import { NetEmitterOptions } from "../options.js";
 import {
-  InputAnyExampleValue,
   InputArrayExampleValue,
   InputBooleanExampleValue,
   InputDictionaryExampleValue,
@@ -33,6 +32,7 @@ import {
   InputParameterExampleValue,
   InputStringExampleValue,
   InputUnionExampleValue,
+  InputUnknownExampleValue,
   OperationResponseExample,
 } from "../type/input-examples.js";
 import { InputParameter } from "../type/input-parameter.js";
@@ -68,7 +68,9 @@ export function fromSdkHttpExamples(
     };
   }
 
-  function fromSdkParameterExample(parameter: SdkHttpParameterExample): InputParameterExampleValue {
+  function fromSdkParameterExample(
+    parameter: SdkHttpParameterExampleValue,
+  ): InputParameterExampleValue {
     return {
       parameter: parameterMap.get(parameter.parameter)!,
       value: fromSdkExample(parameter.value),
@@ -76,23 +78,26 @@ export function fromSdkHttpExamples(
   }
 
   function fromSdkOperationResponses(
-    responses: Map<number, SdkHttpResponseExample>,
+    responses: SdkHttpResponseExampleValue[],
   ): OperationResponseExample[] {
     const result: OperationResponseExample[] = [];
-    for (const [_, response] of responses) {
+    for (const response of responses) {
       result.push(fromSdkOperationResponse(response));
     }
     return result;
   }
 
-  function fromSdkOperationResponse(response: SdkHttpResponseExample): OperationResponseExample {
+  function fromSdkOperationResponse(
+    response: SdkHttpResponseExampleValue,
+  ): OperationResponseExample {
     return {
       response: responseMap.get(response.response)!,
+      statusCode: response.statusCode,
       bodyValue: response.bodyValue ? fromSdkExample(response.bodyValue) : undefined,
     };
   }
 
-  function fromSdkExample(example: SdkTypeExample): InputExampleValue {
+  function fromSdkExample(example: SdkExampleValue): InputExampleValue {
     switch (example.kind) {
       case "string":
         return fromSdkStringExample(example);
@@ -108,14 +113,14 @@ export function fromSdkHttpExamples(
         return fromSdkDictionaryExample(example);
       case "model":
         return fromSdkModelExample(example);
-      case "any":
+      case "unknown":
         return fromSdkAnyExample(example);
       case "null":
         return fromSdkNullExample(example);
     }
   }
 
-  function fromSdkStringExample(example: SdkStringExample): InputStringExampleValue {
+  function fromSdkStringExample(example: SdkStringExampleValue): InputStringExampleValue {
     return {
       kind: "string",
       type: fromSdkType(example.type, sdkContext, typeMap),
@@ -123,7 +128,7 @@ export function fromSdkHttpExamples(
     };
   }
 
-  function fromSdkNumberExample(example: SdkNumberExample): InputNumberExampleValue {
+  function fromSdkNumberExample(example: SdkNumberExampleValue): InputNumberExampleValue {
     return {
       kind: "number",
       type: fromSdkType(example.type, sdkContext, typeMap),
@@ -131,7 +136,7 @@ export function fromSdkHttpExamples(
     };
   }
 
-  function fromSdkBooleanExample(example: SdkBooleanExample): InputBooleanExampleValue {
+  function fromSdkBooleanExample(example: SdkBooleanExampleValue): InputBooleanExampleValue {
     return {
       kind: example.kind,
       type: fromSdkType(example.type, sdkContext, typeMap) as InputPrimitiveType,
@@ -139,7 +144,7 @@ export function fromSdkHttpExamples(
     };
   }
 
-  function fromSdkUnionExample(example: SdkUnionExample): InputUnionExampleValue {
+  function fromSdkUnionExample(example: SdkUnionExampleValue): InputUnionExampleValue {
     return {
       kind: example.kind,
       type: fromSdkType(example.type, sdkContext, typeMap) as InputUnionType,
@@ -147,7 +152,7 @@ export function fromSdkHttpExamples(
     };
   }
 
-  function fromSdkArrayExample(example: SdkArrayExample): InputArrayExampleValue {
+  function fromSdkArrayExample(example: SdkArrayExampleValue): InputArrayExampleValue {
     return {
       kind: example.kind,
       type: fromSdkType(example.type, sdkContext, typeMap) as InputArrayType,
@@ -155,7 +160,9 @@ export function fromSdkHttpExamples(
     };
   }
 
-  function fromSdkDictionaryExample(example: SdkDictionaryExample): InputDictionaryExampleValue {
+  function fromSdkDictionaryExample(
+    example: SdkDictionaryExampleValue,
+  ): InputDictionaryExampleValue {
     return {
       kind: example.kind,
       type: fromSdkType(example.type, sdkContext, typeMap) as InputDictionaryType,
@@ -163,7 +170,7 @@ export function fromSdkHttpExamples(
     };
   }
 
-  function fromSdkModelExample(example: SdkModelExample): InputModelExampleValue {
+  function fromSdkModelExample(example: SdkModelExampleValue): InputModelExampleValue {
     return {
       kind: example.kind,
       type: fromSdkType(example.type, sdkContext, typeMap) as InputModelType,
@@ -174,7 +181,7 @@ export function fromSdkHttpExamples(
     };
   }
 
-  function fromSdkAnyExample(example: SdkAnyExample): InputAnyExampleValue {
+  function fromSdkAnyExample(example: SdkUnknownExampleValue): InputUnknownExampleValue {
     return {
       kind: example.kind,
       type: fromSdkType(example.type, sdkContext, typeMap) as InputPrimitiveType,
@@ -182,7 +189,7 @@ export function fromSdkHttpExamples(
     };
   }
 
-  function fromSdkNullExample(example: SdkNullExample): InputNullExampleValue {
+  function fromSdkNullExample(example: SdkNullExampleValue): InputNullExampleValue {
     return {
       kind: example.kind,
       type: fromSdkType(example.type, sdkContext, typeMap) as InputNullableType,
@@ -191,7 +198,7 @@ export function fromSdkHttpExamples(
   }
 
   function fromExampleRecord(
-    value: Record<string, SdkTypeExample>,
+    value: Record<string, SdkExampleValue>,
   ): Record<string, InputExampleValue> {
     return Object.entries(value).reduce(
       (acc, [key, value]) => {

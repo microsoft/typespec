@@ -4,7 +4,6 @@
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
-
 import java.util.function.Consumer;
 
 /**
@@ -20,6 +19,7 @@ public class ClientBuilderTraitMethod {
 
     /**
      * Returns the name of the method defined in the trait interface.
+     * 
      * @return The name of the trait method.
      */
     public String getMethodName() {
@@ -28,7 +28,8 @@ public class ClientBuilderTraitMethod {
 
     /**
      * Sets the name of the method defined in the trait interface.
-     * @param methodName  The method name.
+     * 
+     * @param methodName The method name.
      */
     public void setMethodName(String methodName) {
         this.methodName = methodName;
@@ -36,6 +37,7 @@ public class ClientBuilderTraitMethod {
 
     /**
      * Return the type of the method param.
+     * 
      * @return The type of the method param.
      */
     public ClassType getMethodParamType() {
@@ -44,6 +46,7 @@ public class ClientBuilderTraitMethod {
 
     /**
      * Sets the type of the method param.
+     * 
      * @param methodParamType The type of the method param.
      */
     public void setMethodParamType(ClassType methodParamType) {
@@ -52,6 +55,7 @@ public class ClientBuilderTraitMethod {
 
     /**
      * Returns the name of the method param.
+     * 
      * @return The name of the method param.
      */
     public String getMethodParamName() {
@@ -60,6 +64,7 @@ public class ClientBuilderTraitMethod {
 
     /**
      * Sets the name of the method param.
+     * 
      * @param methodParamName The name of the method param.
      */
     public void setMethodParamName(String methodParamName) {
@@ -68,6 +73,7 @@ public class ClientBuilderTraitMethod {
 
     /**
      * Returns the JavaDoc string for this trait method.
+     * 
      * @return The JavaDoc string for this trait method.
      */
     public String getDocumentation() {
@@ -76,6 +82,7 @@ public class ClientBuilderTraitMethod {
 
     /**
      * Sets the JavaDoc string for this trait method.
+     * 
      * @param documentation The JavaDoc string for this trait method.
      */
     public void setDocumentation(String documentation) {
@@ -84,6 +91,7 @@ public class ClientBuilderTraitMethod {
 
     /**
      * Returns the property this trait method is applicable to.
+     * 
      * @return the property this trait method is applicable to.
      */
     public ServiceClientProperty getProperty() {
@@ -92,7 +100,8 @@ public class ClientBuilderTraitMethod {
 
     /**
      * Set the property this trait method is applicable to.
-     * @param property  the property this trait method is applicable to.
+     * 
+     * @param property the property this trait method is applicable to.
      */
     public void setProperty(ServiceClientProperty property) {
         this.property = property;
@@ -100,6 +109,7 @@ public class ClientBuilderTraitMethod {
 
     /**
      * Returns the callback that provides the implementation of this trait method.
+     * 
      * @return the callback that provides the implementation of this trait method.
      */
     public Consumer<JavaBlock> getMethodImpl() {
@@ -108,7 +118,8 @@ public class ClientBuilderTraitMethod {
 
     /**
      * Sets the callback that provides the implementation of this trait method.
-     * @param methodImpl  the callback that provides the implementation of this trait method.
+     * 
+     * @param methodImpl the callback that provides the implementation of this trait method.
      */
     public void setMethodImpl(Consumer<JavaBlock> methodImpl) {
         this.methodImpl = methodImpl;

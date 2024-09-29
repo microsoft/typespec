@@ -41,13 +41,15 @@ public final class DiscriminatorEdgeCasesClient {
      * The getChildRequiredDiscrim operation.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     discriminator: String (Required)
      *     aProperty: String (Required)
      *     anotherProperty: String (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -66,14 +68,16 @@ public final class DiscriminatorEdgeCasesClient {
      * The getChildNewDiscrim operation.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     discriminator: String (Required)
      *     aProperty: String (Required)
      *     differentDiscriminator: String (Required)
      *     yetAnotherProperty: String (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.

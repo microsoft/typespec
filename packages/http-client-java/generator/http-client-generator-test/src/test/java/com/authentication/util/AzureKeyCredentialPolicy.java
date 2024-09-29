@@ -12,9 +12,8 @@ import com.azure.core.http.HttpPipelineNextSyncPolicy;
 import com.azure.core.http.HttpResponse;
 import com.azure.core.http.policy.HttpPipelinePolicy;
 import com.azure.core.util.logging.ClientLogger;
-import reactor.core.publisher.Mono;
-
 import java.util.Objects;
+import reactor.core.publisher.Mono;
 
 /**
  * Pipeline policy that uses an {@link AzureKeyCredential} to set the authorization key for a request.
@@ -24,7 +23,8 @@ import java.util.Objects;
  */
 public final class AzureKeyCredentialPolicy implements HttpPipelinePolicy {
     // AzureKeyCredentialPolicy can be a commonly used policy, use a static logger.
-    private static final ClientLogger LOGGER = new ClientLogger(com.azure.core.http.policy.AzureKeyCredentialPolicy.class);
+    private static final ClientLogger LOGGER
+        = new ClientLogger(com.azure.core.http.policy.AzureKeyCredentialPolicy.class);
     private final HttpHeaderName name;
     private final AzureKeyCredential credential;
     private final String prefix;
@@ -54,7 +54,8 @@ public final class AzureKeyCredentialPolicy implements HttpPipelinePolicy {
      * @throws IllegalArgumentException If {@code name} is empty.
      */
     public AzureKeyCredentialPolicy(String name, AzureKeyCredential credential, String prefix) {
-        this(HttpHeaderName.fromString(name), Objects.requireNonNull(credential, "'credential' cannot be null."), prefix);
+        this(HttpHeaderName.fromString(name), Objects.requireNonNull(credential, "'credential' cannot be null."),
+            prefix);
     }
 
     AzureKeyCredentialPolicy(HttpHeaderName name, AzureKeyCredential credential, String prefix) {

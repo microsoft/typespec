@@ -15,12 +15,8 @@ public class ProtocolExample {
 
     private final ProxyMethodExample proxyMethodExample;
 
-    public ProtocolExample(
-            ClientMethod clientMethod,
-            AsyncSyncClient client,
-            ClientBuilder clientBuilder,
-            String filename,
-            ProxyMethodExample proxyMethodExample) {
+    public ProtocolExample(ClientMethod clientMethod, AsyncSyncClient client, ClientBuilder clientBuilder,
+        String filename, ProxyMethodExample proxyMethodExample) {
         this.clientMethod = clientMethod;
         this.syncClient = client;
         this.clientBuilder = clientBuilder;

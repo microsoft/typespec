@@ -4,7 +4,6 @@
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +15,7 @@ import java.util.Map;
 public class ClientModels {
     private static final ClientModels INSTANCE = new ClientModels();
     private final Map<String, ClientModel> nameMap = new HashMap<>();
+
 //    private final Map<String, ArrayList<ClientModel>> derivedTypesMap = new HashMap<String, ArrayList<ClientModel>>();
     private ClientModels() {
     }

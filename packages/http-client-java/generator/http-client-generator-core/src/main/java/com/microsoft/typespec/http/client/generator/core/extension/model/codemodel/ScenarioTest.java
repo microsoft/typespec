@@ -3,11 +3,10 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonWriter;
-
+import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +14,8 @@ import java.util.Map;
 /**
  * Represents a scenario test.
  *
- * @see <a href="https://github.com/Azure/azure-rest-api-specs/blob/main/documentation/api-scenario/references/ApiScenarioDefinition.md">
+ * @see <a
+ * href="https://github.com/Azure/azure-rest-api-specs/blob/main/documentation/api-scenario/references/ApiScenarioDefinition.md">
  * Api Scenario Definition Reference
  * </a>
  */

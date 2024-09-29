@@ -14,8 +14,10 @@ public interface NeedsPlainObjectCheck {
      */
     default boolean isPlainObject(ObjectSchema compositeType) {
         return !JavaSettings.getInstance().isDataPlaneClient()
-                && compositeType.getProperties().isEmpty() && compositeType.getDiscriminator() == null
-                && compositeType.getParents() == null && compositeType.getChildren() == null
-                && (compositeType.getExtensions() == null || compositeType.getExtensions().getXmsEnum() == null);
+            && compositeType.getProperties().isEmpty()
+            && compositeType.getDiscriminator() == null
+            && compositeType.getParents() == null
+            && compositeType.getChildren() == null
+            && (compositeType.getExtensions() == null || compositeType.getExtensions().getXmsEnum() == null);
     }
 }
