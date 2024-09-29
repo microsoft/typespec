@@ -1,5 +1,5 @@
 import { parseArgs } from "util";
-import { runCommand } from "./utils.js";
+import { runCommand, executeCommand } from "./utils.js";
 
 // PARSE INPUT ARGUMENTS
 
@@ -8,6 +8,7 @@ const argv = parseArgs({
   options: {
     folderName: { type: "string" },
     command: { type: "string" },
+    skipWarning: { type: "boolean" },
   },
 });
 
@@ -26,14 +27,22 @@ export function pyright() {
   );
 }
 
+export function eslint() {
+  const checkWarning = argv.values.skipWarning ? "" : "--max-warnings=0";
+  executeCommand(`npx eslint . ${checkWarning} `, "eslint");
+}
+
 if (argv.values.command === "pylint") {
   pylint();
 } else if (argv.values.command === "mypy") {
   mypy();
 } else if (argv.values.command === "pyright") {
   pyright();
+} else if (argv.values.command === "eslint") {
+  eslint();
 } else {
   pylint();
   mypy();
   pyright();
+  eslint();
 }

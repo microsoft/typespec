@@ -32,7 +32,7 @@
     "clean": "rimraf ./dist ./temp ./**/test/**/generated/ ./venv",
     "build": "tsc -p ./emitter/tsconfig.build.json",
     "watch": "tsc -p ./emitter/tsconfig.build.json --watch",
-    "lint": "eslint . --max-warnings=0",
+    "lint": "tsx ./eng/scripts/ci/lint.ts --command eslint",
     "lint:py": "tsx ./eng/scripts/ci/lint.ts --folderName generator",
     "format": "pnpm -w format:dir packages/http-client-python && tsx ./eng/scripts/ci/format.ts",
     "install": "tsx ./eng/scripts/setup/run-python3.ts ./eng/scripts/setup/install.py",
