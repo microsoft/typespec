@@ -29,3 +29,4 @@ extends:
           StagePrefix: "Python"
           LanguageShortName: "python"
           CadlRanchName: "@typespec/http-client-python"
+          EnableCadlRanchReport: false
