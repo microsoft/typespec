@@ -237,7 +237,6 @@ function validateIsUri(context: DecoratorContext, url: string, propertyName: str
     });
     return false;
   }
-
 }
 
 function validateAdditionalInfoModel(context: DecoratorContext, typespecType: TypeSpecValue) {
@@ -286,4 +285,4 @@ function checkNoAdditionalProperties(
   }
 
   return diagnostics;
- }
+}
