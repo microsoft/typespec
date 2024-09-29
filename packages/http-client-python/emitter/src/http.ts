@@ -3,6 +3,7 @@ import {
   SdkBodyParameter,
   SdkClientType,
   SdkHeaderParameter,
+  SdkHttpErrorResponse,
   SdkHttpOperation,
   SdkHttpOperationExample,
   SdkHttpResponse,
@@ -23,7 +24,6 @@ import {
   emitParamBase,
   getAddedOn,
   getDelimiterAndExplode,
-  getDescriptionAndSummary,
   getImplementation,
   isAbstract,
   isAzureCoreErrorResponse,
@@ -55,8 +55,8 @@ export function emitBasicHttpMethod(
       abstract: isAbstract(method),
       internal: method.access === "internal",
       name: camelToSnakeCase(method.name),
-      description: getDescriptionAndSummary(method).description,
-      summary: getDescriptionAndSummary(method).summary,
+      description: method.doc,
+      summary: method.summary,
     },
   ];
 }
@@ -73,8 +73,8 @@ function emitInitialLroHttpMethod(
     isLroInitialOperation: true,
     wantTracing: false,
     exposeStreamKeyword: false,
-    description: getDescriptionAndSummary(method).description,
-    summary: getDescriptionAndSummary(method).summary,
+    description: method.doc,
+    summary: method.summary,
   };
 }
 
@@ -90,8 +90,8 @@ function addLroInformation(
     discriminator: "lro",
     initialOperation: emitInitialLroHttpMethod(context, rootClient, method, operationGroupName),
     exposeStreamKeyword: false,
-    description: getDescriptionAndSummary(method).description,
-    summary: getDescriptionAndSummary(method).summary,
+    description: method.doc,
+    summary: method.summary,
   };
 }
 
@@ -119,8 +119,8 @@ function addPagingInformation(
     itemName: method.response.resultPath,
     continuationTokenName: method.nextLinkPath,
     itemType,
-    description: getDescriptionAndSummary(method).description,
-    summary: getDescriptionAndSummary(method).summary,
+    description: method.doc,
+    summary: method.summary,
   };
 }
 
@@ -338,7 +338,7 @@ function emitHttpBodyParameter(
 function emitHttpResponse(
   context: PythonSdkContext<SdkHttpOperation>,
   statusCodes: HttpStatusCodeRange | number | "*",
-  response: SdkHttpResponse,
+  response: SdkHttpResponse | SdkHttpErrorResponse,
   method?: SdkServiceMethod<SdkHttpOperation>,
   isException = false,
 ): Record<string, any> | undefined {

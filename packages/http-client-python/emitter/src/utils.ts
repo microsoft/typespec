@@ -79,10 +79,10 @@ function normalize(
   }
   return typeof identifier === "string"
     ? normalize(
-        deconstruct(identifier, maxUppercasePreserve),
-        removeDuplicates,
-        maxUppercasePreserve,
-      )
+      deconstruct(identifier, maxUppercasePreserve),
+      removeDuplicates,
+      maxUppercasePreserve,
+    )
     : removeDuplicates
       ? removeSequentialDuplicates(identifier)
       : identifier;
@@ -175,7 +175,7 @@ export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
   }
   return {
     optional: parameter.optional,
-    description: parameter.description || "",
+    description: parameter.summary ? parameter.summary : parameter.doc ?? "",
     addedOn: getAddedOn(context, parameter),
     clientName: camelToSnakeCase(parameter.name),
     inOverload: false,
@@ -194,20 +194,6 @@ export function isAzureCoreErrorResponse(t: SdkType | undefined): boolean {
     ["Azure.Core", "Azure.Core.Foundations"].includes(getNamespaceFullName(tspType.namespace)) &&
     tspType.name === "ErrorResponse"
   );
-}
-
-export function getDescriptionAndSummary<TServiceOperation extends SdkServiceOperation>(
-  method: SdkMethod<TServiceOperation>,
-): { description?: string; summary?: string } {
-  if (method.details) {
-    return {
-      description: method.details,
-      summary: method.description,
-    };
-  }
-  return {
-    description: method.description ?? "",
-  };
 }
 
 export function capitalize(name: string): string {
