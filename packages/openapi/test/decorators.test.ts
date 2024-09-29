@@ -152,6 +152,7 @@ describe("openapi: decorators", () => {
   });
 
   describe("@info", () => {
+
     describe("emit diagnostics when passing extension key not starting with `x-` in additionalInfo", () => {
       it.each([
         ["root", `{ foo:"Bar" }`],
@@ -194,6 +195,16 @@ describe("openapi: decorators", () => {
             message: `OpenAPI extension must start with 'x-' but was 'foo3'`,
           },
         ]);
+
+    it("emit diagnostic if termsOfService is not a valid url", async () => {
+      const diagnostics = await runner.diagnose(`
+        @info({termsOfService:"notvalidurl"})
+        @test namespace Service {}
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/openapi/not-url",
+        message: "TermsOfService: notvalidurl is not a valid URL.",
       });
     });
 
