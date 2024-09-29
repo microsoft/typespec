@@ -345,7 +345,7 @@ function emitEnum(type: SdkEnumType): Record<string, any> {
   const newValue = {
     name: name,
     snakeCaseName: camelToSnakeCase(name),
-    description: type.summary ? type.summary : type.doc ?? `Type of ${name}`,
+    description: (type.summary ? type.summary : type.doc) ?? `Type of ${name}`,
     internal: type.access === "internal",
     type: type.kind,
     valueType: emitBuiltInType(type.valueType),

@@ -216,7 +216,7 @@ function emitClient<TServiceOperation extends SdkServiceOperation>(
   }
   return {
     name: client.name,
-    description: client.summary ? client.summary : client.doc ?? "",
+    description: (client.summary ? client.summary : client.doc) ?? "",
     parameters,
     operationGroups,
     url,
