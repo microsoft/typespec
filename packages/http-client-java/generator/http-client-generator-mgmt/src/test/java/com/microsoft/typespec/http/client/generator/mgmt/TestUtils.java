@@ -9,9 +9,6 @@ import com.microsoft.typespec.http.client.generator.core.Javagen;
 import com.microsoft.typespec.http.client.generator.core.extension.jsonrpc.Connection;
 import com.microsoft.typespec.http.client.generator.core.extension.model.Message;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettingsAccessor;
-import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaClass;
-import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
-import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentStatic;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentJavaSettings;
 import java.util.HashMap;
@@ -76,11 +73,5 @@ public class TestUtils {
         @Override
         public void writeFile(String fileName, String content, List<Object> sourceMap) {
         }
-    }
-
-    public static String getMethodTemplateContent(MethodTemplate methodTemplate) {
-        JavaFile javaFile = new JavaFile("dummy");
-        methodTemplate.writeMethod(new JavaClass(javaFile.getContents()));
-        return javaFile.getContents().toString();
     }
 }
