@@ -795,21 +795,20 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
     if (model.kind !== "ModelProperty") {
       for (const prop of model.properties.values()) {
-        if (this.#isXmlModelChecker(program, prop, checked)) {
+        if (
+          isAttribute(program, prop) ||
+          isUnwrapped(program, prop) ||
+          this.#isXmlModelChecker(program, prop, checked)
+        ) {
           return true;
         }
-        if (isAttribute(program, prop)) {
-          return true;
-        }
-        if (isUnwrapped(program, prop)) {
-          return true;
-        }
+
         if (prop.type?.kind === "Model" && isArrayModelType(program, prop.type)) {
           const propValue = (prop.type as ArrayModelType).indexer.value;
-          const propTypeName = (propValue as Model).name;
-          if (propValue.kind !== "Scalar" && !checked.includes(propTypeName)) {
-            checked.push(propTypeName);
-            if (this.#isXmlModelChecker(program, propValue as Model, checked)) {
+          const propModel = propValue as Model;
+          if (propModel && propValue.kind !== "Scalar" && !checked.includes(propModel.name)) {
+            checked.push(propModel.name);
+            if (this.#isXmlModelChecker(program, propModel, checked)) {
               return true;
             }
           }
