@@ -14,7 +14,7 @@ using System.ClientModel.Primitives;
 
 namespace TestProjects.CadlRanch.Tests.Http.Parameters.Spread
 {
-    public class SpreadTests: CadlRanchTestBase
+    public class SpreadTests : CadlRanchTestBase
     {
         [Test]
         public void VerifySpreadParameterWithInnerModelMethod()
