@@ -11,7 +11,7 @@
   <artifactId>http-client-generator-mgmt</artifactId>
   <packaging>jar</packaging>
 
-  <name>http-client-generator-fluent</name>
+  <name>http-client-generator-mgmt</name>
   <url>http://maven.apache.org</url>
 
   <properties>
