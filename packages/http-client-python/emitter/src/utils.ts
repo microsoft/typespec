@@ -175,7 +175,7 @@ export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
   }
   return {
     optional: parameter.optional,
-    description: parameter.summary ? parameter.summary : (parameter.doc ?? ""),
+    description: (parameter.summary ? parameter.summary : parameter.doc) ?? "",
     addedOn: getAddedOn(context, parameter),
     clientName: camelToSnakeCase(parameter.name),
     inOverload: false,
