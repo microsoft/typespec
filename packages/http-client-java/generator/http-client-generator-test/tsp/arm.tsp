@@ -147,7 +147,6 @@ model CustomTemplateResourceProperties {
   dog: Dog;
   namedEmptyModel: EmptyModel;
   anonymousEmptyModel: {};
-
   priority: PriorityModel;
 }
 
