@@ -694,6 +694,11 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
   ) {
     const xmlObject: OpenAPI3XmlSchema = {};
 
+    const isXmlModel = this.#isXmlModelChecker(program, prop.model!, []);
+    if (!isXmlModel) {
+      return;
+    }
+
     // Resolve XML name
     const xmlName = resolveEncodedName(program, prop, "application/xml");
     const jsonName = resolveEncodedName(program, prop, "application/json");
@@ -732,16 +737,8 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       });
     }
 
-    let isXmlModel = false;
-    if (prop.model) {
-      const xmlNameForModel = resolveEncodedName(program, prop.model, "application/xml");
-
-      if (xmlNameForModel && xmlNameForModel !== prop.model.name) {
-        isXmlModel = true;
-      }
-    }
-
-    if (isXmlModel && isArrayProperty) {
+    // check is xml model
+    if (isArrayProperty) {
       // update items
       if (ref && ref.items) {
         const propValue = (prop.type as ArrayModelType).indexer.value;
@@ -774,7 +771,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       }
     }
 
-    if (isXmlModel && isArrayProperty && hasUnwrappedDecorator) {
+    if (isArrayProperty && hasUnwrappedDecorator) {
       // if wrapped is false, xml.name of the wrapping element is ignored.
       delete xmlObject.name;
     }
@@ -783,6 +780,44 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     if (Object.keys(xmlObject).length !== 0) {
       emitObject.xml = xmlObject;
     }
+  }
+
+  #isXmlModelChecker(program: Program, model: Model | ModelProperty, checked: string[]): boolean {
+    const xmlName = resolveEncodedName(program, model, "application/xml");
+    if (xmlName && xmlName !== model.name) {
+      return true;
+    }
+
+    const currNs = getNs(program, model);
+    if (currNs) {
+      return true;
+    }
+
+    if (model.kind !== "ModelProperty") {
+      for (const prop of model.properties.values()) {
+        if (this.#isXmlModelChecker(program, prop, checked)) {
+          return true;
+        }
+        if (isAttribute(program, prop)) {
+          return true;
+        }
+        if (isUnwrapped(program, prop)) {
+          return true;
+        }
+        if (prop.type?.kind === "Model" && isArrayModelType(program, prop.type)) {
+          const propValue = (prop.type as ArrayModelType).indexer.value;
+          const propTypeName = (propValue as Model).name;
+          if (propValue.kind !== "Scalar" && !checked.includes(propTypeName)) {
+            checked.push(propTypeName);
+            if (this.#isXmlModelChecker(program, propValue as Model, checked)) {
+              return true;
+            }
+          }
+        }
+      }
+    }
+
+    return false;
   }
 
   reference(

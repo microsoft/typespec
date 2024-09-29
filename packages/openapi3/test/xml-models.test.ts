@@ -685,4 +685,32 @@ describe("Complex array types", () => {
       },
     });
   });
+
+  it.each([
+    ["@attributeForProp", "model Author { @attribute id:string; }"],
+    ["@nameForProp", `model Author { @name("xmlId") id:string; }`],
+    ["@nameForModel", `@name("xmlAuthor") model Author { id:string; }`],
+    ["@nameForModel1", `model Author { card: Card[]; } model Card { @attribute id:string;}`],
+  ])(`%s => %s`, async (_, sub) => {
+    const res = await oapiForModel(
+      "Book",
+      `model Book {
+        author: Author[];
+      };
+      ${sub}`,
+    );
+
+    expect(res.schemas.Book).toMatchObject({
+      type: "object",
+      properties: {
+        author: {
+          type: "array",
+          items: {
+            allOf: [{ $ref: "#/components/schemas/Author" }],
+          },
+        },
+      },
+      required: ["author"],
+    });
+  });
 });
