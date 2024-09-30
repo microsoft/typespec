@@ -32,9 +32,9 @@ As in Json we have some [default handling](https://typespec.io/docs/libraries/ht
 <td>
 
 ```tsp
-@encodedName("application/xml", "XmlPet")
+@Xml.name("XmlPet")
 model Pet {
-  @xml.unwrapped
+  @Xml.unwrapped
   tags: string[];
 }
 ```
@@ -74,9 +74,9 @@ Pet:
 <td>
 
 ```tsp
-@encodedName("application/xml", "XmlPet")
+@Xml.name("XmlPet")
 model Pet {
-  @encodedName("application/xml", "ItemsTags")
+  @Xml.name("ItemsTags")
   tags: string[];
 }
 ```
@@ -121,12 +121,12 @@ Pet:
 <td>
 
 ```tsp
-@encodedName("application/xml", "ItemsName")
+@Xml.name("ItemsName")
 scalar tag extends string;
 
-@encodedName("application/xml", "XmlPet")
+@Xml.name("XmlPet")
 model Pet {
-  @xml.unwrapped
+  @Xml.unwrapped
   tags: tag[];
 }
 ```
@@ -166,12 +166,12 @@ Pet:
 <td>
 
 ```tsp
-@encodedName("application/xml", "ItemsName")
+@Xml.name("ItemsName")
 scalar tag extends string;
 
-@encodedName("application/xml", "XmlPet")
+@Xml.name("XmlPet")
 model Pet {
-  @encodedName("application/xml", "ItemsTags")
+  @Xml.name("ItemsTags")
   tags: tag[];
 }
 ```
@@ -227,13 +227,13 @@ Pet:
 <td>
 
 ```tsp
-@encodedName("application/xml", "XmlPet")
+@Xml.name("XmlPet")
 model Pet {
-  @xml.unwrapped
+  @Xml.unwrapped
   tags: Tag[];
 }
 
-@encodedName("application/xml", "XmlTag")
+@Xml.name("XmlTag")
 model Tag {
   name: string;
 }
@@ -283,13 +283,12 @@ Pet:
 <td>
 
 ```tsp
-@encodedName("application/xml", "XmlPet")
+@Xml.name("XmlPet")
 model Pet {
-  @encodedName("application/xml", "ItemsTags")
   tags: Tag[];
 }
 
-@encodedName("application/xml", "XmlTag")
+@Xml.name("XmlTag")
 model Tag {
   name: string;
 }
@@ -300,11 +299,9 @@ model Tag {
 
 ```xml
 <XmlPet>
-  <ItemsTags>
-    <XmlTag>
-      <name>string</name>
-    </XmlTag>
-  </ItemsTags>
+  <XmlTag>
+    <name>string</name>
+  </XmlTag>
 </XmlPet>
 ```
 
@@ -330,7 +327,6 @@ Pet:
         xml:
           name: "XmlTag"
       xml:
-        name: "ItemsTags"
         wrapped: true
   xml:
     name: "XmlPet"
@@ -344,14 +340,14 @@ Pet:
 <td>
 
 ```tsp
-@encodedName("application/xml", "XmlPet")
+@Xml.name("XmlPet")
 model Pet {
-  @encodedName("application/xml", "ItemsTags")
-  @xml.unwrapped
+  @Xml.name("ItemsTags")
+  @Xml.unwrapped
   tags: Tag[];
 }
 
-@encodedName("application/xml", "XmlTag")
+@Xml.name("XmlTag")
 model Tag {
   name: string;
 }
@@ -401,13 +397,13 @@ Tag:
 <td>
 
 ```tsp
-@encodedName("application/xml", "XmlPet")
+@Xml.name("XmlPet")
 model Pet {
-  @encodedName("application/xml", "ItemsTags")
+  @Xml.name("ItemsTags")
   tags: Tag[];
 }
 
-@encodedName("application/xml", "XmlTag")
+@Xml.name("XmlTag")
 model Tag {
   name: string;
 }
@@ -522,7 +518,7 @@ model Book {
   author: Author;
 }
 
-@encodedName("application/xml", "XmlAuthor")
+@Xml.name("XmlAuthor")
 model Author {
   name: string;
 }
@@ -569,7 +565,7 @@ Author:
 
 ```tsp
 model Book {
-  @encodedName("application/xml", "xml-author")
+  @Xml.name("xml-author")
   author: Author;
 }
 
@@ -686,9 +682,9 @@ Book:
 <td>
 
 ```tsp
-@Xml.ns("smp", "http://example.com/schema")
+@Xml.ns("http://example.com/schema", "smp")
 model Book {
-  id: string;
+  id: integer;
   title: string;
   author: string;
 }
@@ -731,14 +727,14 @@ Book:
 <td>
 
 ```tsp
-@Xml.ns("smp", "http://example.com/schema")
+@Xml.ns("http://example.com/schema", "smp")
 model Book {
-  id: string;
+  id: integer;
 
-  @Xml.ns("smp", "http://example.com/schema")
+  @Xml.ns("http://example.com/schema", "smp")
   title: string;
 
-  @Xml.ns("ns2", "http://example.com/ns2")
+  @Xml.ns("http://example.com/ns2", "ns2")
   author: string;
 }
 ```
@@ -806,7 +802,7 @@ enum Namespaces {
 
 @Xml.ns(Namespaces.smp)
 model Book {
-  id: string;
+  id: integer;
   title: string;
   author: string;
 }
@@ -857,7 +853,7 @@ enum Namespaces {
 
 @Xml.ns(Namespaces.smp)
 model Book {
-  id: string;
+  id: integer;
 
   @Xml.ns(Namespaces.smp)
   title: string;
@@ -947,6 +943,8 @@ Book:
   properties:
     language:
       type: string
+      xml:
+        attribute: true
     content:
       type: string
       xml:

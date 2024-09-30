@@ -737,38 +737,40 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       });
     }
 
-    // check is xml model
-    if (isArrayProperty) {
-      // update items
-      if (ref && ref.items) {
-        const propValue = (prop.type as ArrayModelType).indexer.value;
-        const propXmlName = resolveEncodedName(
-          program,
-          propValue as Scalar | Model,
-          "application/xml",
-        );
-        if (propValue.kind === "Scalar") {
-          let scalarSchema: OpenAPI3Schema = {};
-          const isStd = this.#isStdType(propValue);
-          if (isStd) {
-            scalarSchema = this.#getSchemaForStdScalars(propValue);
-          } else if (propValue.baseScalar) {
-            scalarSchema = this.#getSchemaForScalar(propValue.baseScalar);
-          }
-          scalarSchema.xml = { name: propXmlName };
-          ref.items = scalarSchema;
-        } else {
-          ref.items = new ObjectBuilder({
-            allOf: B.array([ref.items]),
-            xml: { name: propXmlName },
-          });
-        }
+    if (isArrayProperty && ref && ref.items) {
+      const propValue = (prop.type as ArrayModelType).indexer.value;
+      const propXmlName = resolveEncodedName(
+        program,
+        propValue as Scalar | Model,
+        "application/xml",
+      );
 
-        // handel unwrapped decorator
-        if (!hasUnwrappedDecorator) {
-          xmlObject.wrapped = true;
+      const itemsSchema: OpenAPI3Schema = {
+        allOf: B.array([ref.items]),
+        xml: { name: propXmlName },
+      };
+
+      if (propValue.kind === "Scalar") {
+        let scalarSchema: OpenAPI3Schema = {};
+        const isStd = this.#isStdType(propValue);
+        if (isStd) {
+          scalarSchema = this.#getSchemaForStdScalars(propValue);
+        } else if (propValue.baseScalar) {
+          scalarSchema = this.#getSchemaForScalar(propValue.baseScalar);
         }
+        itemsSchema.type = scalarSchema.type;
       }
+
+      ref.items = itemsSchema;
+      // handel unwrapped decorator
+      if (!hasUnwrappedDecorator) {
+        xmlObject.wrapped = true;
+      }
+    }
+
+    if (!isArrayProperty && ref && ref.$ref) {
+      emitObject.allOf = B.array([ref]);
+      xmlObject.name = xmlName;
     }
 
     if (isArrayProperty && hasUnwrappedDecorator) {
@@ -782,7 +784,11 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     }
   }
 
-  #isXmlModelChecker(program: Program, model: Model | ModelProperty, checked: string[]): boolean {
+  #isXmlModelChecker(
+    program: Program,
+    model: Scalar | Model | ModelProperty,
+    checked: string[],
+  ): boolean {
     const xmlName = resolveEncodedName(program, model, "application/xml");
     if (xmlName && xmlName !== model.name) {
       return true;
@@ -793,7 +799,17 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       return true;
     }
 
-    if (model.kind !== "ModelProperty") {
+    if (model.kind === "ModelProperty") {
+      const propModel = model.type as Scalar | Model;
+      if (propModel && !checked.includes(propModel.name)) {
+        checked.push(propModel.name);
+        if (this.#isXmlModelChecker(program, propModel, checked)) {
+          return true;
+        }
+      }
+    }
+
+    if (model.kind === "Model") {
       for (const prop of model.properties.values()) {
         if (
           isAttribute(program, prop) ||
@@ -806,7 +822,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
         if (prop.type?.kind === "Model" && isArrayModelType(program, prop.type)) {
           const propValue = (prop.type as ArrayModelType).indexer.value;
           const propModel = propValue as Model;
-          if (propModel && propValue.kind !== "Scalar" && !checked.includes(propModel.name)) {
+          if (propModel && !checked.includes(propModel.name)) {
             checked.push(propModel.name);
             if (this.#isXmlModelChecker(program, propModel, checked)) {
               return true;
