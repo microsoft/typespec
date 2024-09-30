@@ -4,12 +4,12 @@
 
 using System;
 using System.ClientModel.Primitives;
-using Client.Structure.Service.renamed.operation.Models;
+using Client.Structure.Service.multi.client.Models;
 
-namespace Client.Structure.Service.renamed.operation
+namespace Client.Structure.Service.multi.client
 {
     /// <summary></summary>
-    public partial class RenamedOperationClient
+    public partial class ClientBClient
     {
         private static PipelineMessageClassifier _pipelineMessageClassifier200;
         private static PipelineMessageClassifier _pipelineMessageClassifier204;
@@ -21,7 +21,7 @@ namespace Client.Structure.Service.renamed.operation
 
         private static Classifier2xxAnd4xx PipelineMessageClassifier2xxAnd4xx => _pipelineMessageClassifier2xxAnd4xx ??= new Classifier2xxAnd4xx();
 
-        internal PipelineMessage CreateRenamedOneRequest(RequestOptions options)
+        internal PipelineMessage CreateRenamedTwoRequest(RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier204;
@@ -31,13 +31,13 @@ namespace Client.Structure.Service.renamed.operation
             uri.Reset(_endpoint);
             uri.AppendPath("/client/structure/", false);
             uri.AppendPath(_client.ToSerialString().ToString(), true);
-            uri.AppendPath("/one", false);
+            uri.AppendPath("/two", false);
             request.Uri = uri.ToUri();
             message.Apply(options);
             return message;
         }
 
-        internal PipelineMessage CreateRenamedThreeRequest(RequestOptions options)
+        internal PipelineMessage CreateRenamedFourRequest(RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier204;
@@ -47,13 +47,13 @@ namespace Client.Structure.Service.renamed.operation
             uri.Reset(_endpoint);
             uri.AppendPath("/client/structure/", false);
             uri.AppendPath(_client.ToSerialString().ToString(), true);
-            uri.AppendPath("/three", false);
+            uri.AppendPath("/four", false);
             request.Uri = uri.ToUri();
             message.Apply(options);
             return message;
         }
 
-        internal PipelineMessage CreateRenamedFiveRequest(RequestOptions options)
+        internal PipelineMessage CreateRenamedSixRequest(RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier204;
@@ -63,7 +63,7 @@ namespace Client.Structure.Service.renamed.operation
             uri.Reset(_endpoint);
             uri.AppendPath("/client/structure/", false);
             uri.AppendPath(_client.ToSerialString().ToString(), true);
-            uri.AppendPath("/five", false);
+            uri.AppendPath("/six", false);
             request.Uri = uri.ToUri();
             message.Apply(options);
             return message;

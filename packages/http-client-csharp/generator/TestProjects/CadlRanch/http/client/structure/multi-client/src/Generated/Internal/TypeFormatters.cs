@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Xml;
 
-namespace Client.Structure.Service.renamed.operation
+namespace Client.Structure.Service.multi.client
 {
     internal static partial class TypeFormatters
     {

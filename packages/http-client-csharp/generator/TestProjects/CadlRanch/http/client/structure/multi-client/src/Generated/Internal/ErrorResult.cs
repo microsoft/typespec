@@ -5,7 +5,7 @@
 using System.ClientModel;
 using System.ClientModel.Primitives;
 
-namespace Client.Structure.Service.renamed.operation
+namespace Client.Structure.Service.multi.client
 {
     internal partial class ErrorResult<T> : ClientResult<T>
     {

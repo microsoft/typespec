@@ -4,8 +4,9 @@
 
 using System.ClientModel.Primitives;
 
-namespace Client.Structure.Service
+namespace Client.Structure.Service.multi.client
 {
+    /// <summary> Client options for <see cref="ClientBClient"/>. </summary>
     public partial class ClientBClientOptions : ClientPipelineOptions
     {
     }

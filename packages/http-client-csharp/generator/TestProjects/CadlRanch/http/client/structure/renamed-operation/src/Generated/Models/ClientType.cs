@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace Client.Structure.Service.rename.operation.Models
+namespace Client.Structure.Service.renamed.operation.Models
 {
     /// <summary></summary>
     public enum ClientType

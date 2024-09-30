@@ -4,12 +4,12 @@
 
 using System;
 using System.ClientModel.Primitives;
-using Client.Structure.Service.renamed.operation.Models;
+using Client.Structure.Service.multi.client.Models;
 
-namespace Client.Structure.Service.renamed.operation
+namespace Client.Structure.Service.multi.client
 {
     /// <summary></summary>
-    public partial class RenamedOperationClient
+    public partial class ClientAClient
     {
         private static PipelineMessageClassifier _pipelineMessageClassifier200;
         private static PipelineMessageClassifier _pipelineMessageClassifier204;
