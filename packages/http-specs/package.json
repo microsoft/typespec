@@ -14,7 +14,7 @@
     "generate-scenarios-summary": "spec-core generate-scenarios-summary ./specs",
     "validate-mock-apis": "spec-core validate-mock-apis ./specs",
     "check-scenario-coverage": "spec-core check-coverage ./specs",
-    "validate-client-server": "concurrently \"pnpm serve\" \"pnpm client\" --kill-others",
+    "validate-client-server": "concurrently \"npm run serve\" \"npm run client\" --kill-others",
     "client": "spec-core server-test ./specs",
     "serve": "spec-core serve ./specs",
     "test": "echo \"Error: no test specified\" && exit 1"
