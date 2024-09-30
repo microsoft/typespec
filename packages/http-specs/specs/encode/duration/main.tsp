@@ -1,15 +1,14 @@
 import "@typespec/http";
 import "@typespec/spec-lib";
 
-using TypeSpec.Http;
-using Azure.ClientGenerator.Core;
+using Http;
+using SpecLib;
 
 @doc("Test for encode decorator on duration.")
 @supportedBy("dpg")
 @scenarioService("/encode/duration")
 namespace Encode.Duration;
 
-@operationGroup
 @route("/query")
 namespace Query {
   @route("/default")
@@ -89,7 +88,6 @@ namespace Query {
   ): NoContentResponse;
 }
 
-@operationGroup
 @route("/property")
 namespace Property {
   model DefaultDurationProperty {
@@ -242,7 +240,6 @@ namespace Property {
   ): FloatSecondsDurationArrayProperty;
 }
 
-@operationGroup
 @route("/header")
 namespace Header {
   @route("/default")

@@ -1,8 +1,8 @@
 import "@typespec/http";
 import "@typespec/spec-lib";
 
-using TypeSpec.Http;
-using Azure.ClientGenerator.Core;
+using Http;
+using SpecLib;
 
 /**
  * Illustrates the model templated cases. There is a base templated type and an instantiated type extending from it.

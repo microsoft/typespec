@@ -1,13 +1,12 @@
 import "@typespec/http";
 import "@typespec/spec-lib";
 
-using TypeSpec.Http;
-using Azure.ClientGenerator.Core;
+using Http;
+using SpecLib;
 
 @scenarioService("/type/scalar")
 namespace Type.Scalar;
 
-@operationGroup
 @route("/string")
 interface String {
   #suppress "@azure-tools/typespec-azure-core/use-standard-operations" "For testing"
@@ -25,7 +24,6 @@ interface String {
   put(@body @doc("_") body: string): void;
 }
 
-@operationGroup
 @route("/boolean")
 interface Boolean {
   #suppress "@azure-tools/typespec-azure-core/use-standard-operations" "For testing"
@@ -43,7 +41,6 @@ interface Boolean {
   put(@body @doc("_") body: boolean): void;
 }
 
-@operationGroup
 @route("/unknown")
 interface Unknown {
   #suppress "@azure-tools/typespec-azure-core/use-standard-operations" "For testing"
@@ -112,12 +109,10 @@ interface ScalarTypesOperations<T, TDoc extends string> {
 
 @doc("Decimal type")
 @route("/decimal")
-@operationGroup
 interface DecimalType extends ScalarTypesOperations<decimal, "0.33333"> {}
 
 @doc("Decimal128 type")
 @route("/decimal128")
-@operationGroup
 interface Decimal128Type extends ScalarTypesOperations<decimal128, "0.33333"> {}
 
 @doc("Template to verify number types")
@@ -155,10 +150,8 @@ interface NumberTypesVerifyOperations<T, VerifyValues extends string, ResultValu
 
 @doc("Decimal type verification")
 @route("/decimal")
-@operationGroup
 interface DecimalVerify extends NumberTypesVerifyOperations<decimal, "[0.1, 0.1, 0.1]", "0.3"> {}
 
 @doc("Decimal128 type verification")
 @route("/decimal128")
-@operationGroup
 interface Decimal128Verify extends NumberTypesVerifyOperations<decimal, "[0.1, 0.1, 0.1]", "0.3"> {}

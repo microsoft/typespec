@@ -1,8 +1,8 @@
 import "@typespec/http";
 import "@typespec/spec-lib";
 
-using TypeSpec.Http;
-using Azure.ClientGenerator.Core;
+using Http;
+using SpecLib;
 
 @doc("Test for collectionFormat.")
 @supportedBy("dpg")
@@ -10,7 +10,6 @@ using Azure.ClientGenerator.Core;
 namespace Parameters.CollectionFormat;
 
 @route("/query")
-@operationGroup
 namespace Query {
   @scenario
   @scenarioDoc("""
@@ -78,7 +77,6 @@ namespace Query {
 }
 
 @route("/header")
-@operationGroup
 namespace Header {
   @scenario
   @scenarioDoc("""

@@ -1,7 +1,8 @@
 import "@typespec/http";
 import "@typespec/spec-lib";
 
-using TypeSpec.Http;
+using Http;
+using SpecLib;
 
 /**
  * Illustrates not-versioned server.

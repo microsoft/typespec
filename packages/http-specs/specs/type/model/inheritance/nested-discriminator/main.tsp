@@ -1,7 +1,8 @@
 import "@typespec/http";
 import "@typespec/spec-lib";
 
-using TypeSpec.Http;
+using Http;
+using SpecLib;
 
 @doc("Illustrates multiple level inheritance with multiple discriminators.")
 @scenarioService("/type/model/inheritance/nested-discriminator")

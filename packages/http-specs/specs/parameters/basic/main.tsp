@@ -1,8 +1,8 @@
 import "@typespec/http";
 import "@typespec/spec-lib";
 
-using TypeSpec.Http;
-using Azure.ClientGenerator.Core;
+using Http;
+using SpecLib;
 
 @doc("Test for basic parameters cases.")
 @supportedBy("dpg")
@@ -10,7 +10,6 @@ using Azure.ClientGenerator.Core;
 namespace Parameters.Basic;
 
 @route("/explicit-body")
-@operationGroup
 namespace ExplicitBody {
   @doc("This is a simple model.")
   model User {
@@ -39,7 +38,6 @@ namespace ExplicitBody {
 }
 
 @route("/implicit-body")
-@operationGroup
 namespace ImplicitBody {
   @scenario
   @scenarioDoc("""

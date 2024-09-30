@@ -1,7 +1,5 @@
 import "./main.tsp";
 
-using Azure.ClientGenerator.Core;
-
 @@convenientAPI(Type.Property.Nullable.String.patchNonNull, false, "csharp");
 @@convenientAPI(Type.Property.Nullable.String.patchNull, false, "csharp");
 

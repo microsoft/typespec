@@ -1,7 +1,8 @@
 import "@typespec/http";
 import "@typespec/spec-lib";
 
-using TypeSpec.Http;
+using Http;
+using SpecLib;
 using Azure.Core;
 
 @doc("Illustrates inheritance with enum discriminator.")

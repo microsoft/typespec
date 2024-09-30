@@ -2,9 +2,9 @@ import "@typespec/http";
 import "@typespec/xml";
 import "@typespec/spec-lib";
 
-using TypeSpec.Http;
+using Http;
+using SpecLib;
 using TypeSpec.Xml;
-using Azure.ClientGenerator.Core;
 
 @doc("Sends and receives bodies in XML format.")
 @scenarioService("/payload/xml")

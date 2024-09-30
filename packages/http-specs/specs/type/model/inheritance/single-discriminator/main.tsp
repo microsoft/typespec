@@ -1,7 +1,8 @@
 import "@typespec/http";
 import "@typespec/spec-lib";
 
-using TypeSpec.Http;
+using Http;
+using SpecLib;
 
 @doc("Illustrates inheritance with single discriminator.")
 @scenarioService("/type/model/inheritance/single-discriminator")

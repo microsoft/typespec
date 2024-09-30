@@ -1,8 +1,8 @@
 import "@typespec/http";
 import "@typespec/spec-lib";
 
-using TypeSpec.Http;
-using Azure.ClientGenerator.Core;
+using Http;
+using SpecLib;
 
 @doc("Tests for additional properties of models")
 @scenarioService("/type/property/additionalProperties")
@@ -55,7 +55,6 @@ model ExtendsUnknownAdditionalProperties extends Record<unknown> {
 }
 
 @route("/extendsRecordUnknown")
-@operationGroup
 interface ExtendsUnknown
   extends ModelOperations<
       ExtendsUnknownAdditionalProperties,
@@ -72,7 +71,6 @@ model ExtendsUnknownAdditionalPropertiesDerived extends ExtendsUnknownAdditional
 }
 
 @route("/extendsRecordUnknownDerived")
-@operationGroup
 interface ExtendsUnknownDerived
   extends ModelOperations<
       ExtendsUnknownAdditionalPropertiesDerived,
@@ -102,7 +100,6 @@ model ExtendsUnknownAdditionalPropertiesDiscriminatedDerived
 }
 
 @route("/extendsUnknownDiscriminated")
-@operationGroup
 interface ExtendsUnknownDiscriminated
   extends ModelOperations<
       ExtendsUnknownAdditionalPropertiesDiscriminated,
@@ -117,7 +114,6 @@ model IsUnknownAdditionalProperties is Record<unknown> {
 }
 
 @route("/isRecordUnknown")
-@operationGroup
 interface IsUnknown
   extends ModelOperations<
       IsUnknownAdditionalProperties,
@@ -134,7 +130,6 @@ model IsUnknownAdditionalPropertiesDerived extends IsUnknownAdditionalProperties
 }
 
 @route("/isRecordUnknownDerived")
-@operationGroup
 interface IsUnknownDerived
   extends ModelOperations<
       IsUnknownAdditionalPropertiesDerived,
@@ -164,7 +159,6 @@ model IsUnknownAdditionalPropertiesDiscriminatedDerived
 }
 
 @route("/isUnknownDiscriminated")
-@operationGroup
 interface IsUnknownDiscriminated
   extends ModelOperations<
       IsUnknownAdditionalPropertiesDiscriminated,
@@ -181,7 +175,6 @@ model ExtendsStringAdditionalProperties extends Record<string> {
 }
 
 @route("/extendsRecordString")
-@operationGroup
 interface ExtendsString
   extends ModelOperations<
       ExtendsStringAdditionalProperties,
@@ -196,7 +189,6 @@ model IsStringAdditionalProperties is Record<string> {
 }
 
 @route("/isRecordstring")
-@operationGroup
 interface IsString
   extends ModelOperations<
       IsStringAdditionalProperties,
@@ -212,7 +204,6 @@ model SpreadStringRecord {
 }
 
 @route("/spreadRecordString")
-@operationGroup
 interface SpreadString
   extends ModelOperations<SpreadStringRecord, "{'name': 'SpreadSpringRecord', 'prop': 'abc'}"> {}
 
@@ -225,7 +216,6 @@ model ExtendsFloatAdditionalProperties extends Record<float32> {
 }
 
 @route("/extendsRecordFloat")
-@operationGroup
 interface ExtendsFloat
   extends ModelOperations<ExtendsFloatAdditionalProperties, "{'id': 43.125, 'prop': 43.125}"> {}
 
@@ -237,7 +227,6 @@ model IsFloatAdditionalProperties is Record<float32> {
 }
 
 @route("/isRecordFloat")
-@operationGroup
 interface IsFloat
   extends ModelOperations<IsFloatAdditionalProperties, "{'id': 43.125, 'prop': 43.125}"> {}
 
@@ -250,7 +239,6 @@ model SpreadFloatRecord {
 }
 
 @route("/spreadRecordFloat")
-@operationGroup
 interface SpreadFloat
   extends ModelOperations<SpreadFloatRecord, "{'id': 43.125, 'prop': 43.125}"> {}
 
@@ -268,7 +256,6 @@ model ExtendsModelAdditionalProperties extends Record<ModelForRecord> {
 }
 
 @route("/extendsRecordModel")
-@operationGroup
 interface ExtendsModel
   extends ModelOperations<
       ExtendsModelAdditionalProperties,
@@ -282,7 +269,6 @@ model IsModelAdditionalProperties is Record<ModelForRecord> {
 }
 
 @route("/isRecordModel")
-@operationGroup
 interface IsModel
   extends ModelOperations<
       IsModelAdditionalProperties,
@@ -296,7 +282,6 @@ model SpreadModelRecord {
 }
 
 @route("/spreadRecordModel")
-@operationGroup
 interface SpreadModel
   extends ModelOperations<
       SpreadModelRecord,
@@ -311,7 +296,6 @@ model ExtendsModelArrayAdditionalProperties extends Record<ModelForRecord[]> {
 }
 
 @route("/extendsRecordModelArray")
-@operationGroup
 interface ExtendsModelArray
   extends ModelOperations<
       ExtendsModelArrayAdditionalProperties,
@@ -325,7 +309,6 @@ model IsModelArrayAdditionalProperties is Record<ModelForRecord[]> {
 }
 
 @route("/isRecordModelArray")
-@operationGroup
 interface IsModelArray
   extends ModelOperations<
       IsModelArrayAdditionalProperties,
@@ -338,7 +321,6 @@ model SpreadModelArrayRecord {
 }
 
 @route("/spreadRecordModelArray")
-@operationGroup
 interface SpreadModelArray
   extends ModelOperations<
       SpreadModelArrayRecord,
@@ -356,7 +338,6 @@ model DifferentSpreadStringRecord {
 }
 
 @route("/spreadDifferentRecordString")
-@operationGroup
 interface SpreadDifferentString
   extends ModelOperations<DifferentSpreadStringRecord, "{'id': 43.125, 'prop': 'abc'}"> {}
 
@@ -370,7 +351,6 @@ model DifferentSpreadFloatRecord {
 }
 
 @route("/spreadDifferentRecordFloat")
-@operationGroup
 interface SpreadDifferentFloat
   extends ModelOperations<DifferentSpreadFloatRecord, "{'name': 'abc', 'prop': 43.125}"> {}
 
@@ -382,7 +362,6 @@ model DifferentSpreadModelRecord {
 }
 
 @route("/spreadDifferentRecordModel")
-@operationGroup
 interface SpreadDifferentModel
   extends ModelOperations<
       DifferentSpreadModelRecord,
@@ -397,7 +376,6 @@ model DifferentSpreadModelArrayRecord {
 }
 
 @route("/spreadDifferentRecordModelArray")
-@operationGroup
 interface SpreadDifferentModelArray
   extends ModelOperations<
       DifferentSpreadModelArrayRecord,
@@ -412,7 +390,6 @@ model DifferentSpreadStringDerived extends DifferentSpreadStringRecord {
 }
 
 @route("/extendsDifferentSpreadString")
-@operationGroup
 interface ExtendsDifferentSpreadString
   extends ModelOperations<
       DifferentSpreadStringDerived,
@@ -427,7 +404,6 @@ model DifferentSpreadFloatDerived extends DifferentSpreadFloatRecord {
 }
 
 @route("/extendsDifferentSpreadFloat")
-@operationGroup
 interface ExtendsDifferentSpreadFloat
   extends ModelOperations<
       DifferentSpreadFloatDerived,
@@ -443,7 +419,6 @@ model DifferentSpreadModelDerived extends DifferentSpreadModelRecord {
 }
 
 @route("/extendsDifferentSpreadModel")
-@operationGroup
 interface ExtendsDifferentSpreadModel
   extends ModelOperations<
       DifferentSpreadModelDerived,
@@ -458,7 +433,6 @@ model DifferentSpreadModelArrayDerived extends DifferentSpreadModelArrayRecord {
 }
 
 @route("/extendsDifferentSpreadModelArray")
-@operationGroup
 interface ExtendsDifferentSpreadModelArray
   extends ModelOperations<
       DifferentSpreadModelArrayDerived,
@@ -476,7 +450,6 @@ model MultipleSpreadRecord {
 }
 
 @route("/multipleSpreadRecord")
-@operationGroup
 interface MultipleSpread
   extends ModelOperations<
       MultipleSpreadRecord,
@@ -493,7 +466,6 @@ model SpreadRecordForUnion {
 }
 
 @route("/spreadRecordUnion")
-@operationGroup
 interface SpreadRecordUnion
   extends ModelOperations<
       SpreadRecordForUnion,
@@ -532,7 +504,6 @@ model SpreadRecordForDiscriminatedUnion {
 }
 
 @route("/spreadRecordDiscriminatedUnion")
-@operationGroup
 interface SpreadRecordDiscriminatedUnion
   extends ModelOperations<
       SpreadRecordForDiscriminatedUnion,
@@ -549,7 +520,6 @@ model SpreadRecordForNonDiscriminatedUnion {
 }
 
 @route("/spreadRecordNonDiscriminatedUnion")
-@operationGroup
 interface SpreadRecordNonDiscriminatedUnion
   extends ModelOperations<
       SpreadRecordForNonDiscriminatedUnion,
@@ -566,7 +536,6 @@ model SpreadRecordForNonDiscriminatedUnion2 {
 }
 
 @route("/spreadRecordNonDiscriminatedUnion2")
-@operationGroup
 interface SpreadRecordNonDiscriminatedUnion2
   extends ModelOperations<
       SpreadRecordForNonDiscriminatedUnion2,
@@ -583,7 +552,6 @@ model SpreadRecordForNonDiscriminatedUnion3 {
 }
 
 @route("/spreadRecordNonDiscriminatedUnion3")
-@operationGroup
 interface SpreadRecordNonDiscriminatedUnion3
   extends ModelOperations<
       SpreadRecordForNonDiscriminatedUnion3,

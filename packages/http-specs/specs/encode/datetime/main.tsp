@@ -1,8 +1,8 @@
 import "@typespec/http";
 import "@typespec/spec-lib";
 
-using TypeSpec.Http;
-using Azure.ClientGenerator.Core;
+using Http;
+using SpecLib;
 
 @doc("Test for encode decorator on datetime.")
 @supportedBy("dpg")
@@ -12,7 +12,6 @@ namespace Encode.Datetime;
 @encode(DateTimeKnownEncoding.unixTimestamp, int64)
 scalar unixTimestampDatetime extends utcDateTime;
 
-@operationGroup
 @route("/query")
 namespace Query {
   @route("/default")
@@ -105,7 +104,6 @@ model UnixTimestampArrayDatetimeProperty {
   value: unixTimestampDatetime[];
 }
 
-@operationGroup
 @route("/property")
 namespace Property {
   @route("/default")
@@ -211,7 +209,6 @@ namespace Property {
   ): UnixTimestampArrayDatetimeProperty;
 }
 
-@operationGroup
 @route("/header")
 namespace Header {
   @route("/default")
@@ -303,7 +300,6 @@ model UnixTimestampDatetimeHeader {
   value: utcDateTime;
 }
 
-@operationGroup
 @route("/responseheader")
 namespace ResponseHeader {
   @route("/default")

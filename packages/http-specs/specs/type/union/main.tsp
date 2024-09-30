@@ -1,8 +1,8 @@
 import "@typespec/http";
 import "@typespec/spec-lib";
 
-using TypeSpec.Http;
-using Azure.ClientGenerator.Core;
+using Http;
+using SpecLib;
 
 /**
  * Describe scenarios for various combinations of unions.
@@ -32,14 +32,12 @@ enum UD {
  * Describe union of string "a" | "b" | "c"
  */
 @route("/strings-only")
-@operationGroup
 interface StringsOnly extends GetAndSend<"a" | "b" | "c", "\"b\""> {}
 
 /**
  * Describe union of string string | "b" | "c"
  */
 @route("/string-extensible")
-@operationGroup
 interface StringExtensible extends GetAndSend<string | "b" | "c", "\"custom\""> {}
 
 union StringExtensibleNamedUnion {
@@ -51,28 +49,24 @@ union StringExtensibleNamedUnion {
  * Describe union of string string | "b" | "c" but where the union is named and some of the variants are named
  */
 @route("/string-extensible-named")
-@operationGroup
 interface StringExtensibleNamed extends GetAndSend<StringExtensibleNamedUnion, "\"custom\""> {}
 
 /**
  * Describe union of integer 1 | 2 | 3
  */
 @route("/ints-only")
-@operationGroup
 interface IntsOnly extends GetAndSend<1 | 2 | 3, "2"> {}
 
 /**
  * Describe union of floats 1.1 | 2.2 | 3.3
  */
 @route("/floats-only")
-@operationGroup
 interface FloatsOnly extends GetAndSend<1.1 | 2.2 | 3.3, "2.2"> {}
 
 /**
  * Describe union of models
  */
 @route("/models-only")
-@operationGroup
 interface ModelsOnly
   extends GetAndSend<
       Cat | Dog,
@@ -95,7 +89,6 @@ model EnumsOnlyCases {
  * Describe union of 2 different enums
  */
 @route("/enums-only")
-@operationGroup
 interface EnumsOnly
   extends GetAndSend<
       LR | UD,
@@ -120,7 +113,6 @@ model StringAndArrayCases {
  * Describe union of a string and an array of strings
  */
 @route("/string-and-array")
-@operationGroup
 interface StringAndArray
   extends GetAndSend<
       string | string[],
@@ -152,7 +144,6 @@ model MixedLiteralsCases {
  * Describe union of floats "a" | 2 | 3.3
  */
 @route("/mixed-literals")
-@operationGroup
 interface MixedLiterals
   extends GetAndSend<
       MixedLiteralsUnion,
@@ -189,7 +180,6 @@ model MixedTypesCases {
  * Describe union of floats "a" | 2 | 3.3
  */
 @route("/mixed-types")
-@operationGroup
 interface MixedTypes
   extends GetAndSend<
       MixedTypesUnion,
