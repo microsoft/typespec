@@ -614,7 +614,7 @@ const diagnostics = {
   "config-invalid-name": {
     severity: "error",
     messages: {
-      default: paramMessage`The configuration name "${"name"}" is invalid because it contains a dot ("."). Configuration names should not include dots to avoid potential conflicts and parsing issues.`,
+      default: paramMessage`The configuration name "${"name"}" is invalid because it contains a dot ("."). Using a dot will conflict with using nested configuration values.`,
     },
   },
   "path-unix-style": {
