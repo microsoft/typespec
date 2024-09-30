@@ -1,7 +1,7 @@
 import "@typespec/http";
 import "@typespec/spec-lib";
 
-using Http;
+using TypeSpec.Http;
 using SpecLib;
 
 @scenarioService("/authentication/http/custom")
