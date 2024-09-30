@@ -19,7 +19,7 @@ async function main() {
     .scriptName("spec")
     .strict()
     .help()
-    // .strict()
+    .strict()
     .parserConfiguration({
       "greedy-arrays": false,
       "boolean-negation": false,
@@ -158,24 +158,23 @@ async function main() {
             type: "string",
             demandOption: true,
           })
-          .positional("serverBasePath", {
+          .option("baseUrl", {
             description: "Path to the server",
             type: "string",
-            demandOption: true,
           })
-          .positional("runSingleScenario", {
+          .option("runSingleScenario", {
             description: "Single Scenario Case to run",
             type: "string",
-            demandOption: false,
           })
-          .positional("runScenariosFromFile", {
+          .option("runScenariosFromFile", {
             description: "File that has the Scenarios to run",
             type: "string",
-            demandOption: false,
-          });
+          })
+          .demandOption("scenariosPath", "serverBasePath");
       },
       async (args) => {
-        await serverTest(args.scenariosPath, args.serverBasePath, {
+        await serverTest(args.scenariosPath, {
+          baseUrl: args.baseUrl,
           runSingleScenario: args.runSingleScenario,
           runScenariosFromFile: args.runScenariosFromFile,
         });
@@ -321,7 +320,7 @@ main().catch((error) => {
   process.exit(1);
 });
 
-process.on("SIGTERM", () => process.exit(2));
+process.on("SIGTERM", () => process.exit(0));
 process.on("SIGINT", () => process.exit(2));
 process.on("SIGUSR1", () => process.exit(2));
 process.on("SIGUSR2", () => process.exit(2));
