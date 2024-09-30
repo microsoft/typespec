@@ -74,6 +74,8 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.NamedTypeSymbolProviders
         [TestCase(typeof(IList<string>))]
         [TestCase(typeof(IList<string?>))]
         [TestCase(typeof(IList<PropertyType>))]
+        [TestCase(typeof(ReadOnlyMemory<byte>?))]
+        [TestCase(typeof(ReadOnlyMemory<byte>))]
         public void ValidatePropertyTypes(Type propertyType)
         {
             // setup
@@ -91,12 +93,26 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.NamedTypeSymbolProviders
 
             bool isNullable = Nullable.GetUnderlyingType(propertyType) != null;
             var expectedType = new CSharpType(propertyType, isNullable);
+            var propertyCSharpType = property!.Type;
 
-            Assert.AreEqual(expectedType.Name, property!.Type.Name);
-            Assert.AreEqual(expectedType.IsNullable, property.Type.IsNullable);
+            Assert.AreEqual(expectedType.Name, propertyCSharpType.Name);
+            Assert.AreEqual(expectedType.IsNullable, propertyCSharpType.IsNullable);
+            Assert.AreEqual(expectedType.IsList, propertyCSharpType.IsList);
+            Assert.AreEqual(expectedType.Arguments.Count, expectedType.Arguments.Count);
 
-            bool isList = propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(IList<>);
-            Assert.AreEqual(isList, property.Type.IsList);
+            for (var i = 0; i < expectedType.Arguments.Count; i++)
+            {
+                Assert.AreEqual(expectedType.Arguments[i].Name, propertyCSharpType.Arguments[i].Name);
+                Assert.AreEqual(expectedType.Arguments[i].IsNullable, propertyCSharpType.Arguments[i].IsNullable);
+            }
+
+            // validate the underlying types aren't nullable
+            if (isNullable && expectedType.IsFrameworkType)
+            {
+                var underlyingType = propertyCSharpType.FrameworkType;
+                Assert.IsTrue(Nullable.GetUnderlyingType(underlyingType) == null);
+            }
+
         }
 
         [Test]

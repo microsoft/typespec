@@ -14,6 +14,7 @@ namespace Microsoft.Generator.CSharp.Providers
 {
     internal sealed class NamedTypeSymbolProvider : TypeProvider
     {
+        private const string GlobalPrefix = "global::";
         private INamedTypeSymbol _namedTypeSymbol;
 
         public NamedTypeSymbolProvider(INamedTypeSymbol namedTypeSymbol)
@@ -370,14 +371,13 @@ namespace Microsoft.Generator.CSharp.Providers
             // Handle array types
             if (typeSymbol is IArrayTypeSymbol arrayTypeSymbol)
             {
-                var elementType = GetFullyQualifiedName(arrayTypeSymbol.ElementType);
-                return elementType + "[]";
+                return GetFullyQualifiedName(arrayTypeSymbol.ElementType) + "[]";
             }
 
             // Handle generic types
             if (typeSymbol is INamedTypeSymbol namedTypeSymbol && namedTypeSymbol.IsGenericType)
             {
-                // handle nullable types
+                // Handle nullable types
                 if (typeSymbol.NullableAnnotation == NullableAnnotation.Annotated && !IsCollectionType(namedTypeSymbol))
                 {
                     const string nullableTypeName = "System.Nullable";
@@ -390,10 +390,15 @@ namespace Microsoft.Generator.CSharp.Providers
                             return GetFullyQualifiedName(argTypeSymbol);
                         }
 
-                        string[] typeArguments = [.. namedTypeSymbol.TypeArguments.Select(GetFullyQualifiedName)];
+                        string[] typeArguments = [.. namedTypeSymbol.TypeArguments.Select(arg => "[" + GetFullyQualifiedName(arg) + "]")];
                         return $"{nullableTypeName}`{namedTypeSymbol.TypeArguments.Length}[{string.Join(", ", typeArguments)}]";
                     }
                 }
+                else if (namedTypeSymbol.TypeArguments.Length > 0 && !IsCollectionType(namedTypeSymbol))
+                {
+                    return GetNonNullableGenericTypeName(namedTypeSymbol);
+                }
+
                 var typeNameSpan = namedTypeSymbol.ConstructedFrom.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat).AsSpan();
                 var start = typeNameSpan.IndexOf(':') + 2;
                 var end = typeNameSpan.IndexOf('<');
@@ -403,6 +408,24 @@ namespace Microsoft.Generator.CSharp.Providers
 
             // Default to fully qualified name
             return GetFullyQualifiedNameFromDisplayString(typeSymbol);
+        }
+
+        private static string GetNonNullableGenericTypeName(INamedTypeSymbol namedTypeSymbol)
+        {
+            string[] typeArguments = [.. namedTypeSymbol.TypeArguments.Select(GetFullyQualifiedName)];
+            var fullName = namedTypeSymbol.ConstructedFrom.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+
+            // Remove the type arguments from the fully qualified name
+            var typeArgumentStartIndex = fullName.IndexOf('<');
+            var genericTypeName = typeArgumentStartIndex >= 0 ? fullName.Substring(0, typeArgumentStartIndex) : fullName;
+
+            // Remove global:: prefix
+            if (genericTypeName.StartsWith(GlobalPrefix, StringComparison.Ordinal))
+            {
+                genericTypeName = genericTypeName.Substring(GlobalPrefix.Length);
+            }
+
+            return $"{genericTypeName}`{namedTypeSymbol.TypeArguments.Length}[{string.Join(", ", typeArguments)}]";
         }
 
         private static bool IsCollectionType(INamedTypeSymbol typeSymbol)
@@ -416,9 +439,8 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private static string GetFullyQualifiedNameFromDisplayString(ISymbol typeSymbol)
         {
-            const string globalPrefix = "global::";
             var fullyQualifiedName = typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            return fullyQualifiedName.StartsWith(globalPrefix, StringComparison.Ordinal) ? fullyQualifiedName.Substring(globalPrefix.Length) : fullyQualifiedName;
+            return fullyQualifiedName.StartsWith(GlobalPrefix, StringComparison.Ordinal) ? fullyQualifiedName.Substring(GlobalPrefix.Length) : fullyQualifiedName;
         }
     }
 }
