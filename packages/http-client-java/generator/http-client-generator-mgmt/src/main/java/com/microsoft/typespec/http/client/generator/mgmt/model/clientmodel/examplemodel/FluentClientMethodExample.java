@@ -103,6 +103,8 @@ public class FluentClientMethodExample implements FluentMethodExample {
                 serviceClientReference = "resourceChangeClient()";
             } else if (tag.contains("deploymentstacks")) {
                 serviceClientReference = "deploymentStackClient()";
+            } else if (tag.contains("databoundaries")) {
+                serviceClientReference = "dataBoundaryClient()";
             }
         }
 
