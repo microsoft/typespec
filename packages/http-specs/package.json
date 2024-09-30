@@ -9,7 +9,7 @@
     "build": "tsc -p ./tsconfig.build.json",
     "clean": "rimraf dist/ temp/",
     "validate-scenarios": "spec-core validate-scenarios ./specs",
-    "generate-scenarios-summary": "spec generate-scenarios-summary ./specs",
+    "generate-scenarios-summary": "spec-core generate-scenarios-summary ./specs",
     "validate-mock-apis": "spec-core validate-mock-apis ./specs",
     "check-scenario-coverage": "spec check-coverage ./specs",
     "serve": "spec serve ./specs",
