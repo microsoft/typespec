@@ -703,7 +703,6 @@ describe("set xml name in items if that object is used in an xml payload.", () =
       `model Author { @attribute id: string; card: Card[]; } model Card { author:Author[];}`,
     ],
     ["circular reference root", true, `model Author {  @attribute  id: string;  book?: Book[]; }`],
-    ["scalar", true, `@name("XmlAuthor") scalar Author extends string;`],
     ["@name model", false, `@name("XmlAuthor") model Author { name: string; }`],
     ["@name", false, `model Author { @name("xmlId") name: string; }`],
     ["@attribute", false, "model Author { @attribute name: string; }"],

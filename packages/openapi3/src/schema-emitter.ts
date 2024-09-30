@@ -744,12 +744,6 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
         propValue as Scalar | Model,
         "application/xml",
       );
-
-      const itemsSchema: OpenAPI3Schema = {
-        allOf: B.array([ref.items]),
-        xml: { name: propXmlName },
-      };
-
       if (propValue.kind === "Scalar") {
         let scalarSchema: OpenAPI3Schema = {};
         const isStd = this.#isStdType(propValue);
@@ -758,10 +752,15 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
         } else if (propValue.baseScalar) {
           scalarSchema = this.#getSchemaForScalar(propValue.baseScalar);
         }
-        itemsSchema.type = scalarSchema.type;
+        scalarSchema.xml = { name: propXmlName };
+        ref.items = scalarSchema;
+      } else {
+        ref.items = new ObjectBuilder({
+          allOf: B.array([ref.items]),
+          xml: { name: propXmlName },
+        });
       }
 
-      ref.items = itemsSchema;
       // handel unwrapped decorator
       if (!hasUnwrappedDecorator) {
         xmlObject.wrapped = true;
