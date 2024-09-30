@@ -9,34 +9,24 @@ using SpecLib;
 namespace Type.Dictionary;
 
 @doc("Template to have dictionary operations")
-interface DictionaryOperations<TDict, TDoc extends string> {
+interface DictionaryOperations<TDict, TDoc extends valueof string> {
   @scenario
-  @scenarioDoc(
-    """
-      Expected dictionary response body:
-      ```json
-      {doc}
-      ```
-      """,
-    {
-      doc: TDoc,
-    }
-  )
+  @scenarioDoc("""
+    Expected dictionary response body:
+    ```json
+    ${TDoc}
+    ```
+    """)
   @get
   get(): TDict;
 
   @scenario
-  @scenarioDoc(
-    """
-      Expected dictionary input body:
-      ```json
-      {doc}
-      ```
-      """,
-    {
-      doc: TDoc,
-    }
-  )
+  @scenarioDoc("""
+    Expected dictionary input body:
+    ```json
+    ${TDoc}
+    ```
+    """)
   @put
   put(@body body: TDict): void;
 }

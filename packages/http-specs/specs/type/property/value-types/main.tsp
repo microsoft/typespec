@@ -16,37 +16,27 @@ model ModelTemplate<TProperty> {
 }
 
 @doc("Template to have models operations")
-interface ModelOperations<TModel, TDoc extends string> {
+interface ModelOperations<TModel, TDoc extends valueof string> {
   #suppress "@azure-tools/typespec-azure-core/use-standard-operations" "For testing"
   @scenario
-  @scenarioDoc(
-    """
-      Expected response body:
-      ```json
-      {"property": {doc}}
-      ```
-      """,
-    {
-      doc: TDoc,
-    }
-  )
+  @scenarioDoc("""
+    Expected response body:
+    ```json
+    {"property": ${TDoc}}
+    ```
+    """)
   @get
   @doc("Get call")
   get(): TModel;
 
   #suppress "@azure-tools/typespec-azure-core/use-standard-operations" "For testing"
   @scenario
-  @scenarioDoc(
-    """
-      Expected input body:
-      ```json
-      {"property": {doc}}
-      ```
-      """,
-    {
-      doc: TDoc,
-    }
-  )
+  @scenarioDoc("""
+    Expected input body:
+    ```json
+    {"property": ${TDoc}}
+    ```
+    """)
   @put
   @doc("Put operation")
   put(@body @doc("body") body: TModel): void;
@@ -118,9 +108,7 @@ union InnerEnum {
   ValueTwo: "ValueTwo",
 }
 
-#suppress "@azure-tools/typespec-azure-core/use-extensible-enum" "For testing"
 @doc("Enum that will be used as a property for model EnumProperty. Non-extensible.")
-@Azure.Core.fixed
 enum FixedInnerEnum {
   @doc("First value.")
   ValueOne,

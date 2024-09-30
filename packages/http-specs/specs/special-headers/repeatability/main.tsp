@@ -7,7 +7,6 @@ using SpecLib;
 using TypeSpec.Versioning;
 
 @doc("Illustrates OASIS repeatability headers")
-@supportedBy("dpg")
 @scenarioService("/special-headers/repeatability")
 namespace SpecialHeaders.Repeatability;
 

@@ -7,7 +7,6 @@ using SpecLib;
 /**
  * Describe scenarios for various combinations of unions.
  */
-@supportedBy("dpg")
 @scenarioService("/type/union")
 namespace Type.Union;
 
@@ -207,7 +206,7 @@ interface MixedTypes
 /**
  * Helper interface to describe a test involving getting and sending a specific data
  */
-interface GetAndSend<Union, Payload extends string, Cases = Union> {
+interface GetAndSend<Union, Payload extends valueof string, Cases = Union> {
   @scenario
   @scenarioDoc(
     """
@@ -218,12 +217,11 @@ interface GetAndSend<Union, Payload extends string, Cases = Union> {
       
       Expected response body:
       ```json
-      { "prop": {value}}
+      { "prop": ${Payload}}
       ```
       """,
     {
       type: Union,
-      value: Payload,
     }
   )
   get(): {
@@ -240,12 +238,11 @@ interface GetAndSend<Union, Payload extends string, Cases = Union> {
       
       Expected request to send body:
       ```json
-      { "prop": {value}}
+      { "prop": ${Payload}}
       ```
       """,
     {
       type: Union,
-      value: Payload,
     }
   )
   send(prop: Cases): void;

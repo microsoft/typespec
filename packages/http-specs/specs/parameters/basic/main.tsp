@@ -5,7 +5,6 @@ using Http;
 using SpecLib;
 
 @doc("Test for basic parameters cases.")
-@supportedBy("dpg")
 @scenarioService("/parameters/basic")
 namespace Parameters.Basic;
 

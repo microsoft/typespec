@@ -5,7 +5,6 @@ using Http;
 using SpecLib;
 
 @doc("Test for encode decorator on integer.")
-@supportedBy("dpg")
 @scenarioService("/encode/numeric")
 namespace Encode.Numeric;
 

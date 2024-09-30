@@ -9,20 +9,15 @@ using SpecLib;
 namespace Type.Property.AdditionalProperties;
 
 @doc("Template to have models operations")
-interface ModelOperations<TModel, TDoc extends string> {
+interface ModelOperations<TModel, TDoc extends valueof string> {
   #suppress "@azure-tools/typespec-azure-core/use-standard-operations" "For testing"
   @scenario
-  @scenarioDoc(
-    """
-      Expected response body:
-      ```json
-      {doc}
-      ```
-      """,
-    {
-      doc: TDoc,
-    }
-  )
+  @scenarioDoc("""
+    Expected response body:
+    ```json
+    ${TDoc}
+    ```
+    """)
   @get
   @doc("Get call")
   get(): TModel;
@@ -30,17 +25,12 @@ interface ModelOperations<TModel, TDoc extends string> {
   #suppress "@azure-tools/typespec-azure-core/use-standard-operations" "For testing"
   #suppress "@azure-tools/typespec-azure-core/bad-record-type" "For testing"
   @scenario
-  @scenarioDoc(
-    """
-      Expected input body:
-      ```json
-      {doc}
-      ```
-      """,
-    {
-      doc: TDoc,
-    }
-  )
+  @scenarioDoc("""
+    Expected input body:
+    ```json
+    ${TDoc}
+    ```
+    """)
   @put
   @doc("Put operation")
   put(@body @doc("body") body: TModel): void;

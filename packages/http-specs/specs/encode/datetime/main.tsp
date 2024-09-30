@@ -5,7 +5,6 @@ using Http;
 using SpecLib;
 
 @doc("Test for encode decorator on datetime.")
-@supportedBy("dpg")
 @scenarioService("/encode/datetime")
 namespace Encode.Datetime;
 

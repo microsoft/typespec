@@ -5,7 +5,6 @@ using Http;
 using SpecLib;
 
 @doc("Projection")
-@supportedBy("dpg")
 @scenarioService("/serialization/encoded-name/json")
 namespace Serialization.EncodedName.Json;
 

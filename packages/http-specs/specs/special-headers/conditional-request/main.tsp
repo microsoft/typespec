@@ -7,7 +7,6 @@ using SpecLib;
 using TypeSpec.Versioning;
 
 @doc("Illustrates conditional request headers")
-@supportedBy("dpg")
 @scenarioService("/special-headers/conditional-request")
 namespace SpecialHeaders.ConditionalRequest;
 

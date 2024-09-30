@@ -15,71 +15,55 @@ model ModelTemplate<TProperty> {
 }
 
 @doc("Operations associated with getting and putting models with optional properties.")
-interface OperationsTemplate<TModel, TDoc extends string, TDefaultDoc extends string = "{}"> {
+interface OperationsTemplate<
+  TModel,
+  TDoc extends valueof string,
+  TDefaultDoc extends valueof string = "{}"
+> {
   @doc("Get models that will return all properties in the model")
   @scenario
-  @scenarioDoc(
-    """
-      Expected response body:
-      ```json
-      {"property": {allDoc}}
-      ```
-      """,
-    {
-      allDoc: TDoc,
-    }
-  )
+  @scenarioDoc("""
+    Expected response body:
+    ```json
+    {"property": ${TDoc}}
+    ```
+    """)
   @route("/all")
   @get
   getAll(): TModel;
 
   @doc("Get models that will return the default object")
   @scenario
-  @scenarioDoc(
-    """
-      Expected response body:
-      ```json
-      {defaultDoc}
-      ```
-      """,
-    {
-      defaultDoc: TDefaultDoc,
-    }
-  )
+  @scenarioDoc("""
+    Expected response body:
+    ```json
+    ${TDefaultDoc}
+    ```
+    """)
   @route("/default")
   @get
   getDefault(): TModel;
 
   @doc("Put a body with all properties present.")
   @scenario
-  @scenarioDoc(
-    """
-      Expected request body:
-      ```json
-      {"property": {allDoc}}
-      ```
-      """,
-    {
-      allDoc: TDoc,
-    }
-  )
+  @scenarioDoc("""
+    Expected request body:
+    ```json
+    {"property": ${TDoc}}
+    ```
+    """)
   @route("/all")
   @put
   putAll(@body body: TModel): void;
 
   @doc("Put a body with default properties.")
   @scenario
-  @scenarioDoc(
-    """
-      Expected request body:
-      ```json
-      {defaultDoc}
-      ```
-      """,
-    {
-      defaultDoc: TDefaultDoc,
-    }
-  )
+  @scenarioDoc("""
+    Expected request body:
+    ```json
+    ${TDefaultDoc}
+    ```
+    """)
   @route("/default")
   @put
   putDefault(@body body: TModel): void;

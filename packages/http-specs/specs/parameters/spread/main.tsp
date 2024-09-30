@@ -5,7 +5,6 @@ using Http;
 using SpecLib;
 
 @doc("Test for the spread operator.")
-@supportedBy("dpg")
 @scenarioService("/parameters/spread")
 namespace Parameters.Spread;
 

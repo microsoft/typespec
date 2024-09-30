@@ -9,34 +9,24 @@ using SpecLib;
 namespace Type.Array;
 
 @doc("Template to have Array operations")
-interface ArrayOperations<TArr, TDoc extends string> {
+interface ArrayOperations<TArr, TDoc extends valueof string> {
   @scenario
-  @scenarioDoc(
-    """
-      Expected Array response body:
-      ```json
-      {doc}
-      ```
-      """,
-    {
-      doc: TDoc,
-    }
-  )
+  @scenarioDoc("""
+    Expected Array response body:
+    ```json
+    ${TDoc}
+    ```
+    """)
   @get
   get(): TArr;
 
   @scenario
-  @scenarioDoc(
-    """
-      Expected Array input body:
-      ```json
-      {doc}
-      ```
-      """,
-    {
-      doc: TDoc,
-    }
-  )
+  @scenarioDoc("""
+    Expected Array input body:
+    ```json
+    ${TDoc}
+    ```
+    """)
   @put
   put(@body body: TArr): void;
 }

@@ -59,49 +59,34 @@ interface Unknown {
 }
 
 @doc("Template to have scalar types operations")
-interface ScalarTypesOperations<T, TDoc extends string> {
+interface ScalarTypesOperations<T, TDoc extends valueof string> {
   @scenario
-  @scenarioDoc(
-    """
-      Expected response body:
-      ```json
-      {doc}
-      ```
-      """,
-    {
-      doc: TDoc,
-    }
-  )
+  @scenarioDoc("""
+    Expected response body:
+    ```json
+    ${TDoc}
+    ```
+    """)
   @get
   @route("/response_body")
   responseBody(): T;
 
   @scenario
-  @scenarioDoc(
-    """
-      Expected input body:
-      ```json
-      {doc}
-      ```
-      """,
-    {
-      doc: TDoc,
-    }
-  )
+  @scenarioDoc("""
+    Expected input body:
+    ```json
+    ${TDoc}
+    ```
+    """)
   @put
   @route("/resquest_body")
   requestBody(@body body: T): void;
 
   @scenario
-  @scenarioDoc(
-    """
-      Expected request parameter:
-      value={doc}
-      """,
-    {
-      doc: TDoc,
-    }
-  )
+  @scenarioDoc("""
+    Expected request parameter:
+    value=${TDoc}
+    """)
   @get
   @route("/request_parameter")
   requestParameter(@query value: T): void;
@@ -116,33 +101,27 @@ interface DecimalType extends ScalarTypesOperations<decimal, "0.33333"> {}
 interface Decimal128Type extends ScalarTypesOperations<decimal128, "0.33333"> {}
 
 @doc("Template to verify number types")
-interface NumberTypesVerifyOperations<T, VerifyValues extends string, ResultValue extends string> {
+interface NumberTypesVerifyOperations<
+  T,
+  VerifyValues extends valueof string,
+  ResultValue extends valueof string
+> {
   @scenario
-  @scenarioDoc(
-    """
-      Get verify values:
-      {doc}
-      """,
-    {
-      doc: VerifyValues,
-    }
-  )
+  @scenarioDoc("""
+    Get verify values:
+    ${VerifyValues}
+    """)
   @get
   @route("/prepare_verify")
   prepareVerify(): T[];
 
   @scenario
-  @scenarioDoc(
-    """
-      Expected input body:
-      ```json
-      {doc}
-      ```
-      """,
-    {
-      doc: ResultValue,
-    }
-  )
+  @scenarioDoc("""
+    Expected input body:
+    ```json
+    ${ResultValue}
+    ```
+    """)
   @post
   @route("/verify")
   verify(@body body: T): void;

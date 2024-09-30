@@ -18,54 +18,43 @@ model ModelTemplate<TProperty> {
 }
 
 @doc("Operations associated with getting and putting models with nullable properties.")
-interface OperationsTemplate<TModel, TDoc extends string, TDefaultDoc extends string = "null"> {
+interface OperationsTemplate<
+  TModel,
+  TDoc extends valueof string,
+  TDefaultDoc extends valueof string = "null"
+> {
   @doc("Get models that will return all properties in the model")
   @scenario
-  @scenarioDoc(
-    """
-      Expected response body:
-      ```json
-      { "requiredProperty": "foo", "nullableProperty": {allDoc}}
-      ```
-      """,
-    {
-      allDoc: TDoc,
-    }
-  )
+  @scenarioDoc("""
+    Expected response body:
+    ```json
+    { "requiredProperty": "foo", "nullableProperty": ${TDoc}}
+    ```
+    """)
   @route("/non-null")
   @get
   getNonNull(): TModel;
 
   @doc("Get models that will return the default object")
   @scenario
-  @scenarioDoc(
-    """
-      Expected response body:
-      ```json
-      { "requiredProperty": "foo", "nullableProperty": {defaultDoc}}
-      ```
-      """,
-    {
-      defaultDoc: TDefaultDoc,
-    }
-  )
+  @scenarioDoc("""
+    Expected response body:
+    ```json
+    { "requiredProperty": "foo", "nullableProperty": ${TDefaultDoc}}
+    ```
+    """)
   @route("/null")
   @get
   getNull(): TModel;
 
   @doc("Put a body with all properties present.")
   @scenario
-  @scenarioDoc(
-    """
-      Expected request body:
-      ```json
-      { "requiredProperty": "foo", "nullableProperty": {allDoc}}
-      ```
-      """,
-    {
-      allDoc: TDoc,
-    }
-  )
+  @scenarioDoc("""
+    Expected request body:
+    ```json
+    { "requiredProperty": "foo", "nullableProperty": ${TDoc}}
+    ```
+    """)
   @route("/non-null")
   @patch
   patchNonNull(
@@ -78,17 +67,12 @@ interface OperationsTemplate<TModel, TDoc extends string, TDefaultDoc extends st
 
   @doc("Put a body with default properties.")
   @scenario
-  @scenarioDoc(
-    """
-      Expected request body:
-      ```json
-      { "requiredProperty": "foo", "nullableProperty": {defaultDoc}}
-      ```
-      """,
-    {
-      defaultDoc: TDefaultDoc,
-    }
-  )
+  @scenarioDoc("""
+    Expected request body:
+    ```json
+    { "requiredProperty": "foo", "nullableProperty": ${TDefaultDoc}}
+    ```
+    """)
   @route("/null")
   @patch
   patchNull(

@@ -83,19 +83,14 @@ model ModelWithEncodedNames {
 }
 
 @doc("Template for XML operations")
-interface XmlOperations<TModel, TDoc extends string> {
+interface XmlOperations<TModel, TDoc extends valueof string> {
   @scenario
-  @scenarioDoc(
-    """
-      Expected response body:
-      ```xml
-      {doc}
-      ```
-      """,
-    {
-      doc: TDoc,
-    }
-  )
+  @scenarioDoc("""
+    Expected response body:
+    ```xml
+    ${TDoc}
+    ```
+    """)
   @get
   get(): {
     @header("content-type") contentType: "application/xml";
@@ -103,17 +98,12 @@ interface XmlOperations<TModel, TDoc extends string> {
   };
 
   @scenario
-  @scenarioDoc(
-    """
-      Expected request body:
-      ```xml
-      {doc}
-      ```
-      """,
-    {
-      doc: TDoc,
-    }
-  )
+  @scenarioDoc("""
+    Expected request body:
+    ```xml
+    ${TDoc}
+    ```
+    """)
   @put
   put(@header("content-type") contentType: "application/xml", @body input: TModel): void;
 }

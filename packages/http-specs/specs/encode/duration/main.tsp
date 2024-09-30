@@ -5,7 +5,6 @@ using Http;
 using SpecLib;
 
 @doc("Test for encode decorator on duration.")
-@supportedBy("dpg")
 @scenarioService("/encode/duration")
 namespace Encode.Duration;
 

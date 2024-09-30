@@ -5,7 +5,6 @@ using Http;
 using SpecLib;
 
 @doc("Test for encode decorator on bytes.")
-@supportedBy("dpg")
 @scenarioService("/encode/bytes")
 namespace Encode.Bytes;
 

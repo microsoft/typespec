@@ -5,7 +5,6 @@ using Http;
 using SpecLib;
 
 @doc("Test for collectionFormat.")
-@supportedBy("dpg")
 @scenarioService("/parameters/collection-format")
 namespace Parameters.CollectionFormat;
 

@@ -5,7 +5,6 @@ using Http;
 using SpecLib;
 
 @doc("Test describing optionality of the request body.")
-@supportedBy("dpg")
 @scenarioService("/parameters/body-optionality")
 namespace Parameters.BodyOptionality;
 

@@ -7,7 +7,6 @@ using SpecLib;
 /**
  * Test the payload with different media types and different types of the payload itself.
  */
-@supportedBy("dpg")
 @scenarioService("/payload/media-type")
 namespace Payload.MediaType;
 

@@ -16,14 +16,14 @@ alias ScenarioServiceOptions = {
  */
 extern dec scenarioService(
   target: Namespace,
-  route: string,
+  route: valueof string,
   options?: valueof ScenarioServiceOptions
 );
 
 /**
  * Mark an operation, interface or namespace as a scenario. All containing operations will be part of the same scenario.
  */
-extern dec scenario(target: Namespace | Interface | Operation, name?: string);
+extern dec scenario(target: Namespace | Interface | Operation, name?: valueof string);
 
 /**
  * Specify documentation on how to implement this scenario.
@@ -32,6 +32,6 @@ extern dec scenario(target: Namespace | Interface | Operation, name?: string);
  */
 extern dec scenarioDoc(
   target: Namespace | Interface | Operation,
-  doc: string,
-  formatArgs?: valueof Record<string>
+  doc: valueof string,
+  formatArgs?: Model
 );

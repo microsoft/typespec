@@ -1,7 +1,6 @@
 import "@typespec/http";
 import "@typespec/spec-lib";
 
-using Azure.Core;
 using Http;
 using SpecLib;
 
