@@ -12,8 +12,8 @@
     "validate-scenarios": "spec-core validate-scenarios ./specs",
     "generate-scenarios-summary": "spec-core generate-scenarios-summary ./specs",
     "validate-mock-apis": "spec-core validate-mock-apis ./specs",
-    "check-scenario-coverage": "spec check-coverage ./specs",
-    "serve": "spec serve ./specs",
+    "check-scenario-coverage": "spec-core check-coverage ./specs",
+    "serve": "spec-core serve ./specs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "engines": {
