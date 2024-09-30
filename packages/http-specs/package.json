@@ -33,9 +33,7 @@
   "homepage": "https://github.com/microsoft/typespec#readme",
   "dependencies": {
     "@typespec/spec-api": "workspace:~",
-    "@typespec/spec-core": "workspace:~",
-    "dotenv": "~16.4.5",
-    "multer": "^1.4.5-lts.1"
+    "@typespec/spec-core": "workspace:~"
   },
   "devDependencies": {
     "@types/multer": "^1.4.10",

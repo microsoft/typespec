@@ -593,12 +593,6 @@ importers:
       '@typespec/xml':
         specifier: workspace:~
         version: link:../xml
-      dotenv:
-        specifier: ~16.4.5
-        version: 16.4.5
-      multer:
-        specifier: ^1.4.5-lts.1
-        version: 1.4.5-lts.1
     devDependencies:
       '@types/multer':
         specifier: ^1.4.10
