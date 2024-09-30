@@ -4,4 +4,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-Support variable-based nested config in tspconfig.yaml
+Support nested emitter options
