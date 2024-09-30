@@ -76,6 +76,13 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.NamedTypeSymbolProviders
         [TestCase(typeof(IList<PropertyType>))]
         [TestCase(typeof(ReadOnlyMemory<byte>?))]
         [TestCase(typeof(ReadOnlyMemory<byte>))]
+        [TestCase(typeof(ReadOnlyMemory<object>))]
+        [TestCase(typeof(IEnumerable<PropertyType>))]
+        [TestCase(typeof(IEnumerable<PropertyType?>))]
+        [TestCase(typeof(IEnumerable<TimeSpan>))]
+        [TestCase(typeof(string[]))]
+        [TestCase(typeof(IDictionary<int, int>))]
+        [TestCase(typeof(BinaryData))]
         public void ValidatePropertyTypes(Type propertyType)
         {
             // setup
@@ -98,7 +105,8 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.NamedTypeSymbolProviders
             Assert.AreEqual(expectedType.Name, propertyCSharpType.Name);
             Assert.AreEqual(expectedType.IsNullable, propertyCSharpType.IsNullable);
             Assert.AreEqual(expectedType.IsList, propertyCSharpType.IsList);
-            Assert.AreEqual(expectedType.Arguments.Count, expectedType.Arguments.Count);
+            Assert.AreEqual(expectedType.Arguments.Count, propertyCSharpType.Arguments.Count);
+            Assert.AreEqual(expectedType.IsCollection, propertyCSharpType.IsCollection);
 
             for (var i = 0; i < expectedType.Arguments.Count; i++)
             {
