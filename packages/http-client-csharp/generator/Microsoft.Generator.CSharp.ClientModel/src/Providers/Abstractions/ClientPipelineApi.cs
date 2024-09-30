@@ -23,6 +23,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         public abstract ValueExpression Create(ValueExpression options, ValueExpression perRetryPolicies);
 
-        public abstract ValueExpression PerRetryPolicty(params ValueExpression[] arguments);
+        public abstract ValueExpression PerRetryPolicy(params ValueExpression[] arguments);
     }
 }

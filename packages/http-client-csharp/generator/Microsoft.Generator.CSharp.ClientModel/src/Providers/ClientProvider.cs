@@ -291,7 +291,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 ValueExpression[] perRetryPolicyArgs = _authorizationApiKeyPrefixConstant != null
                     ? [_apiKeyAuthField, _authorizationHeaderConstant, _authorizationApiKeyPrefixConstant]
                     : [_apiKeyAuthField, _authorizationHeaderConstant];
-                perRetryPolicies = New.Array(ClientModelPlugin.Instance.TypeFactory.PipelinePolicyType, isInline: true, This.ToApi<ClientPipelineApi>().PerRetryPolicty(perRetryPolicyArgs));
+                perRetryPolicies = New.Array(ClientModelPlugin.Instance.TypeFactory.PipelinePolicyType, isInline: true, This.ToApi<ClientPipelineApi>().PerRetryPolicy(perRetryPolicyArgs));
             }
 
             body.Add(PipelineProperty.Assign(This.ToApi<ClientPipelineApi>().Create(ClientOptionsParameter, perRetryPolicies)).Terminate());

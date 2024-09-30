@@ -22,7 +22,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         public override ValueExpression CreateMessage(HttpRequestOptionsApi requestOptions, ValueExpression responseClassifier)
             => Original.Invoke(nameof(ClientPipeline.CreateMessage), requestOptions, responseClassifier).As<PipelineMessage>();
 
-        public override ValueExpression PerRetryPolicty(params ValueExpression[] arguments)
+        public override ValueExpression PerRetryPolicy(params ValueExpression[] arguments)
             => Static<ApiKeyAuthenticationPolicy>().Invoke(nameof(ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy), arguments).As<ApiKeyAuthenticationPolicy>();
 
         public override InvokeMethodExpression Send(HttpMessageApi message)
