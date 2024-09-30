@@ -1,8 +1,10 @@
 import {
   KeyedMockApi,
+  KeyedMockApiDefinition,
   MockApi,
   MockApiDefinition,
   PassByKeyScenario,
+  PassByServiceKeyScenario,
   PassOnCodeScenario,
   PassOnSuccessScenario,
 } from "./types.js";
@@ -50,6 +52,24 @@ export function withKeys<const K extends string>(keys: K[]): WithKeysScenarioExp
         passCondition: "by-key",
         keys,
         apis: [api],
+      };
+    },
+  };
+}
+
+export interface WithServiceKeysScenarioExpect<K extends string> {
+  pass(api: KeyedMockApiDefinition<K> | KeyedMockApiDefinition<K>[]): PassByServiceKeyScenario<K>;
+}
+
+export function withServiceKeys<const K extends string>(
+  keys: K[],
+): WithServiceKeysScenarioExpect<K> {
+  return {
+    pass: (api: KeyedMockApiDefinition<K> | KeyedMockApiDefinition<K>[]) => {
+      return {
+        passCondition: "by-key",
+        keys,
+        apis: Array.isArray(api) ? api : [api],
       };
     },
   };
