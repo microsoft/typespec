@@ -32,9 +32,37 @@ namespace Microsoft.Generator.CSharp.ClientModel
 
         public virtual CSharpType HttpResponseType => typeof(PipelineResponse);
 
+        public virtual CSharpType HttpRequestOptionsType => typeof(RequestOptions);
+
+        public virtual CSharpType HttpMessageType => typeof(PipelineMessage);
+
+        public virtual CSharpType ClientPipelineType => typeof(ClientPipeline);
+
+        public virtual CSharpType ClientPipelineOptionsType => typeof(ClientPipelineOptions);
+
+        public virtual CSharpType PipelinePolicyType => typeof(PipelinePolicy);
+
+        public virtual CSharpType ResponseClassifierType => typeof(PipelineMessageClassifier);
+
+        public virtual CSharpType RequestContentType => typeof(BinaryContent);
+
+        public virtual CSharpType? ClientUriBuilderBaseType => null;
+
         public virtual ClientResponseApi CreateClientResponse(ValueExpression original) => new ClientResultProvider(original.As<ClientResult>());
 
         public virtual HttpResponseApi CreateHttpResponse(ValueExpression original) => new PipelineResponseProvider(original.As<PipelineResponse>());
+
+        public virtual HttpMessageApi CreateHttpMessage(ValueExpression original) => new PipelineMessageProvider(original.As<PipelineMessage>());
+
+        public virtual HttpRequestOptionsApi CreateHttpRequestOptions(ValueExpression original) => new RequestOptionsProvider(original.As<RequestOptions>());
+
+        public virtual HttpRequestApi CreateHttpRequest(ValueExpression original) => new PipelineRequestProvider(original.As<PipelineRequest>());
+
+        public virtual ClientPipelineApi CreateClientPipeline(ValueExpression original) => new ClientPipelineProvider(original.As<ClientPipeline>());
+
+        public virtual StatusCodeClassifierApi CreateStatusCodeClassifier(ValueExpression original) => new PipelineMessageClassifierProvider(original.As<PipelineMessageClassifier>());
+
+        public virtual RequestContentApi CreateRequestContent(ValueExpression original) => new BinaryContentProvider(original.As<BinaryContent>());
 
         /// <summary>
         /// Returns the serialization type providers for the given input type.

@@ -14,8 +14,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidati
     {
         protected override string JsonPayload => File.ReadAllText(ModelTestHelper.GetLocation("TestData/ModelWithRequiredNullable/Model.json"));
         protected override string WirePayload => File.ReadAllText(ModelTestHelper.GetLocation("TestData/ModelWithRequiredNullable/ModelWireFormat.json"));
-        protected override ModelWithRequiredNullableProperties ToModel(ClientResult result) => (ModelWithRequiredNullableProperties)result;
-        protected override BinaryContent ToBinaryContent(ModelWithRequiredNullableProperties model) => model;
+        protected override ModelWithRequiredNullableProperties ToModel(ClientResult result) => CastHelpers.FromResponse<ModelWithRequiredNullableProperties>(result);
+        protected override BinaryContent ToBinaryContent(ModelWithRequiredNullableProperties model) => CastHelpers.ToRequestContent(model);
 
         protected override void CompareModels(ModelWithRequiredNullableProperties model, ModelWithRequiredNullableProperties model2, string format)
         {

@@ -2,9 +2,12 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Generator.CSharp.ClientModel.Primitives;
@@ -99,7 +102,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     .. GetStackVariablesForProtocolParamConversion(ConvenienceMethodParameters, out var paramDeclarations),
                     Declare("result", This.Invoke(protocolMethod.Signature, [.. GetParamConversions(ConvenienceMethodParameters, paramDeclarations), Null], isAsync).ToApi<ClientResponseApi>(), out ClientResponseApi result),
                     .. GetStackVariablesForReturnValueConversion(result, responseBodyType, isAsync, out var resultDeclarations),
-                    Return(result.FromValue(GetResultConversion(result, responseBodyType, resultDeclarations), result)),
+                    Return(result.FromValue(GetResultConversion(result, result.GetRawResponse(), responseBodyType, resultDeclarations), result.GetRawResponse())),
                 ];
             }
 
@@ -147,6 +150,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         statements.Add(UsingDeclare("content", BinaryContentHelperSnippets.FromObject(parameter), out var content));
                         declarations["content"] = content;
                     }
+                    else
+                    {
+                        statements.Add(UsingDeclare("content", ClientModelPlugin.Instance.TypeFactory.RequestContentType, parameter.Invoke(nameof(RequestContentApi.ToRquestContent)), out var content));
+                        declarations["content"] = content;
+                    }
                 }
             }
 
@@ -155,7 +163,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             if (spreadSource is not null)
             {
                 statements.Add(Declare("spreadModel", New.Instance(spreadSource.Type, [.. GetSpreadConversion(spreadSource)]).As(spreadSource.Type), out var spread));
+                statements.Add(UsingDeclare("content", ClientModelPlugin.Instance.TypeFactory.RequestContentType, spread.Invoke(nameof(RequestContentApi.ToRquestContent)), out var content));
                 declarations["spread"] = spread;
+                declarations["content"] = content;
             }
 
             return statements;
@@ -273,11 +283,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return scopedApi.Add(element);
         }
 
-        private ValueExpression GetResultConversion(ClientResponseApi result, CSharpType responseBodyType, Dictionary<string, ValueExpression> declarations)
+        private ValueExpression GetResultConversion(ClientResponseApi result, HttpResponseApi response, CSharpType responseBodyType, Dictionary<string, ValueExpression> declarations)
         {
             if (responseBodyType.Equals(typeof(BinaryData)))
             {
-                return result.GetRawResponse().Content();
+                return response.Content();
             }
             if (responseBodyType.IsList)
             {
@@ -287,7 +297,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 }
                 else
                 {
-                    return result.GetRawResponse().Content().ToObjectFromJson(responseBodyType);
+                    return response.Content().ToObjectFromJson(responseBodyType);
                 }
             }
             if (responseBodyType.IsDictionary)
@@ -298,22 +308,22 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 }
                 else
                 {
-                    return result.GetRawResponse().Content().ToObjectFromJson(responseBodyType);
+                    return response.Content().ToObjectFromJson(responseBodyType);
                 }
             }
             if (responseBodyType.Equals(typeof(string)) && Operation.RequestMediaTypes?.Contains("text/plain") == true)
             {
-                return result.GetRawResponse().Content().InvokeToString();
+                return response.Content().InvokeToString();
             }
             if (responseBodyType.IsFrameworkType)
             {
-                return result.GetRawResponse().Content().ToObjectFromJson(responseBodyType);
+                return response.Content().ToObjectFromJson(responseBodyType);
             }
             if (responseBodyType.IsEnum)
             {
-                return responseBodyType.ToEnum(result.GetRawResponse().Content().ToObjectFromJson(responseBodyType.UnderlyingEnumType));
+                return responseBodyType.ToEnum(response.Content().ToObjectFromJson(responseBodyType.UnderlyingEnumType));
             }
-            return result.CastTo(responseBodyType);
+            return Static(responseBodyType).Invoke("FromResponse", result);
         }
 
         private IReadOnlyList<ValueExpression> GetParamConversions(IReadOnlyList<ParameterProvider> convenienceMethodParameters, Dictionary<string, ValueExpression> declarations)
@@ -326,7 +336,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 {
                     if (!addedSpreadSource)
                     {
-                        conversions.Add(declarations["spread"]);
+                        conversions.Add(declarations["content"]);
                         addedSpreadSource = true;
                     }
                 }
@@ -344,7 +354,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     {
                         conversions.Add(BinaryContentSnippets.Create(param));
                     }
-                    else if (param.Type.IsFrameworkType)
+                    else if (declarations.ContainsKey("content"))
                     {
                         conversions.Add(declarations["content"]);
                     }
@@ -394,7 +404,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             MethodBodyStatement[] methodBody =
             [
-                UsingDeclare("message", typeof(PipelineMessage), This.Invoke(createRequestMethod.Signature, [.. MethodParameters]), out var message),
+                UsingDeclare("message", ClientModelPlugin.Instance.TypeFactory.HttpMessageType, This.Invoke(createRequestMethod.Signature, [.. MethodParameters]), out var message),
                 Return(This.ToApi<ClientResponseApi>().FromResponse(client.PipelineProperty.Invoke(processMessageName, [message, ScmKnownParameters.RequestOptions], isAsync, true))),
             ];
 

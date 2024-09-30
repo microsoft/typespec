@@ -17,26 +17,21 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
     internal class ClientPipelineExtensionsDefinition : TypeProvider
     {
-        private const string _processMessageAsync = "ProcessMessageAsync";
-        private const string _processMessage = "ProcessMessage";
-        private const string _processHeadAsBoolMessageAsync = "ProcessHeadAsBoolMessageAsync";
-        private const string _processHeadAsBoolMessage = "ProcessHeadAsBoolMessage";
-
         private ParameterProvider _pipelineParam;
         private ParameterProvider _messageParam;
         private ParameterProvider _requestOptionsParam;
-        private ScopedApi<ClientPipeline> _pipeline;
-        private ScopedApi<PipelineMessage> _message;
-        private ScopedApi<RequestOptions> _options;
+        private ClientPipelineApi _pipeline;
+        private HttpMessageApi _message;
+        private HttpRequestOptionsApi _options;
 
         public ClientPipelineExtensionsDefinition()
         {
-            _pipelineParam = new ParameterProvider("pipeline", FormattableStringHelpers.Empty, typeof(ClientPipeline));
-            _messageParam = new ParameterProvider("message", FormattableStringHelpers.Empty, typeof(PipelineMessage));
-            _requestOptionsParam = new ParameterProvider("options", FormattableStringHelpers.Empty, typeof(RequestOptions));
-            _pipeline = _pipelineParam.As<ClientPipeline>();
-            _message = _messageParam.As<PipelineMessage>();
-            _options = _requestOptionsParam.As<RequestOptions>();
+            _pipelineParam = new ParameterProvider("pipeline", FormattableStringHelpers.Empty, ClientModelPlugin.Instance.TypeFactory.ClientPipelineType);
+            _messageParam = new ParameterProvider("message", FormattableStringHelpers.Empty, ClientModelPlugin.Instance.TypeFactory.HttpMessageType);
+            _requestOptionsParam = new ParameterProvider("options", FormattableStringHelpers.Empty, ClientModelPlugin.Instance.TypeFactory.HttpRequestOptionsType);
+            _pipeline = _pipelineParam.AsExpression.ToApi<ClientPipelineApi>();
+            _message = _messageParam.AsExpression.ToApi<HttpMessageApi>();
+            _options = _requestOptionsParam.AsExpression.ToApi<HttpRequestOptionsApi>();
         }
 
         protected override TypeSignatureModifiers GetDeclarationModifiers()
@@ -55,7 +50,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 BuildProcessMessageAsync(),
                 BuildProcessMessage(),
                 ProcessHeadAsBoolMessageAsync(),
-                ProcessHeadAsBoolMessage()
+                ProcessHeadAsBoolMessage(),
+                BuildExtractResponseContent()
             ];
         }
 
@@ -125,19 +121,27 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             MethodSignature signature = GetProcessMessageSignature(false);
 
-            var clientErrorNoThrow = FrameworkEnumValue(ClientErrorBehaviors.NoThrow);
+            var clientErrorNoThrow = _options.NoThrow();
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                _pipeline.Invoke(nameof(ClientPipeline.Send), [_message]).Terminate(),
+                _pipeline.Send(_message).Terminate(),
                 MethodBodyStatement.EmptyLine,
                 new IfStatement(_message.Response().IsError().And(new BinaryOperatorExpression("&", _options.NullConditional().Property("ErrorOptions"), clientErrorNoThrow).NotEqual(clientErrorNoThrow)))
                 {
                     Throw(New.Instance(ClientModelPlugin.Instance.TypeFactory.ClientResponseExceptionType, _message.Response()))
                 },
                 MethodBodyStatement.EmptyLine,
-                Declare("response", ClientModelPlugin.Instance.TypeFactory.HttpResponseType, new TernaryConditionalExpression(_message.BufferResponse(), _message.Response(), _message.ExtractResponse()), out var response),
+                Declare("response", ClientModelPlugin.Instance.TypeFactory.HttpResponseType, new TernaryConditionalExpression(_message.BufferResponse(), _message.Response(), Static().Invoke(ExtractResponseContentMethodName, [_messageParam])), out var response),
                 Return(response)
             }, this);
+        }
+
+        private const string ExtractResponseContentMethodName = "ExtractResponseContent";
+        private MethodProvider BuildExtractResponseContent()
+        {
+            var signature = new MethodSignature(ExtractResponseContentMethodName, null, MethodSignatureModifiers.Private | MethodSignatureModifiers.Static, ClientModelPlugin.Instance.TypeFactory.HttpResponseType, null, [_messageParam]);
+            var body = _message.ExtractResponse();
+            return new MethodProvider(signature, body, this);
         }
 
         private MethodSignature GetProcessMessageSignature(bool isAsync)
@@ -160,17 +164,17 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             MethodSignature signature = GetProcessMessageSignature(true);
 
-            var clientErrorNoThrow = FrameworkEnumValue(ClientErrorBehaviors.NoThrow);
+            var clientErrorNoThrow = _options.NoThrow();
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                _pipeline.Invoke(nameof(ClientPipeline.SendAsync), [_message], true).Terminate(),
+                _pipeline.SendAsync(_message).Terminate(),
                 MethodBodyStatement.EmptyLine,
                 new IfStatement(_message.Response().IsError().And(new BinaryOperatorExpression("&", _options.NullConditional().Property("ErrorOptions"), clientErrorNoThrow).NotEqual(clientErrorNoThrow)))
                 {
                     Throw(This.ToApi<ClientResponseApi>().CreateAsync(_message.Response()))
                 },
                 MethodBodyStatement.EmptyLine,
-                Declare("response", typeof(PipelineResponse), new TernaryConditionalExpression(_message.BufferResponse(), _message.Response(), _message.ExtractResponse()), out var response),
+                Declare("response", ClientModelPlugin.Instance.TypeFactory.HttpResponseType, new TernaryConditionalExpression(_message.BufferResponse(), _message.Response(), Static().Invoke(ExtractResponseContentMethodName, [_messageParam])), out var response),
                 Return(response)
             }, this);
         }

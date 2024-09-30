@@ -16,7 +16,7 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
-    internal class Utf8JsonBinaryContentDefinition : TypeProvider
+    public class Utf8JsonBinaryContentDefinition : TypeProvider
     {
         private const string _jsonWriterName = "JsonWriter";
 
@@ -35,7 +35,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 enclosingType: this);
             _contentField = new FieldProvider(
                 modifiers: FieldModifiers.Private | FieldModifiers.ReadOnly,
-                type: typeof(BinaryContent),
+                type: ClientModelPlugin.Instance.TypeFactory.RequestContentType,
                 name: "_content",
                 enclosingType: this);
             _writerProperty = new PropertyProvider(
@@ -54,7 +54,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
-        protected override CSharpType? GetBaseType() => typeof(BinaryContent);
+        protected override CSharpType? GetBaseType() => ClientModelPlugin.Instance.TypeFactory.RequestContentType;
 
         protected override FieldProvider[] BuildFields()
         {

@@ -31,6 +31,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _exception = new VariableExpression(_exceptionField.Type, _exceptionField.Declaration);
         }
 
+        private bool IsClientResult => ClientModelPlugin.Instance.TypeFactory.ClientResponseOfTType.FrameworkType == typeof(ClientResult<>);
+
         protected override TypeSignatureModifiers GetDeclarationModifiers()
         {
             return TypeSignatureModifiers.Internal;
@@ -64,7 +66,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             var response = new ParameterProvider("response", FormattableStringHelpers.Empty, ClientModelPlugin.Instance.TypeFactory.HttpResponseType);
             var exception = new ParameterProvider("exception", FormattableStringHelpers.Empty, ClientModelPlugin.Instance.TypeFactory.ClientResponseExceptionType);
-            var baseInitializer = new ConstructorInitializer(true, new List<ValueExpression> { Default, response });
+            var baseInitializer = IsClientResult
+                ? new ConstructorInitializer(true, new List<ValueExpression> { Default, response })
+                : new ConstructorInitializer(true, new List<ValueExpression>());
             var signature = new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, [response, exception], Initializer: baseInitializer);
             return new ConstructorProvider(signature, new MethodBodyStatement[]
             {
@@ -83,6 +87,27 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return new PropertyProvider(null, MethodSignatureModifiers.Public | MethodSignatureModifiers.Override, _t, "Value", new ExpressionPropertyBody(
                 ThrowExpression(_exception)),
                 this);
+        }
+
+        protected override MethodProvider[] BuildMethods()
+        {
+            return IsClientResult ? [] : [BuildGetRawResponse()];
+        }
+
+        private MethodProvider BuildGetRawResponse()
+        {
+            var signature = new MethodSignature(
+                "GetRawResponse",
+                FormattableStringHelpers.Empty,
+                MethodSignatureModifiers.Public | MethodSignatureModifiers.Override,
+                ClientModelPlugin.Instance.TypeFactory.HttpResponseType,
+                null,
+                []
+            );
+            return new MethodProvider(signature, new MethodBodyStatement[]
+            {
+                Return(_response)
+            }, this);
         }
     }
 }

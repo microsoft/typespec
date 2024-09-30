@@ -13,8 +13,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidati
     {
         protected override string JsonPayload => File.ReadAllText(ModelTestHelper.GetLocation("TestData/ReturnsAnonymousModelResp/Model.json"));
         protected override string WirePayload => "{}";
-        protected override ReturnsAnonymousModelResponse ToModel(ClientResult result) => (ReturnsAnonymousModelResponse)result;
-        protected override BinaryContent ToBinaryContent(ReturnsAnonymousModelResponse model) => model;
+        protected override ReturnsAnonymousModelResponse ToModel(ClientResult result) => CastHelpers.FromResponse<ReturnsAnonymousModelResponse>(result);
+        protected override BinaryContent ToBinaryContent(ReturnsAnonymousModelResponse model) => CastHelpers.ToRequestContent(model);
 
         protected override void CompareModels(ReturnsAnonymousModelResponse model, ReturnsAnonymousModelResponse model2, string format)
         {

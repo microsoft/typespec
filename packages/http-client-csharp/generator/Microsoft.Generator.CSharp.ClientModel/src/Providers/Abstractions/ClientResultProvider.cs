@@ -21,8 +21,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         public override ValueExpression FromResponse(ValueExpression valueExpression)
             => Static(ClientModelPlugin.Instance.TypeFactory.ClientResponseType).Invoke(nameof(FromResponse), [valueExpression]);
 
-        public override ValueExpression FromValue(ValueExpression valueExpression, ClientResponseApi response)
-            => Static(ClientModelPlugin.Instance.TypeFactory.ClientResponseType).Invoke(nameof(FromValue), [valueExpression, response.GetRawResponse()]);
+        public override ValueExpression FromValue(ValueExpression valueExpression, HttpResponseApi response)
+            => Static(ClientModelPlugin.Instance.TypeFactory.ClientResponseType).Invoke(nameof(FromValue), [valueExpression, response]);
 
         public override ValueExpression FromValue<ValueType>(ValueExpression valueExpression, HttpResponseApi response)
             => Static(ClientModelPlugin.Instance.TypeFactory.ClientResponseType).Invoke(nameof(FromValue), [valueExpression, response], [typeof(ValueType)], false);

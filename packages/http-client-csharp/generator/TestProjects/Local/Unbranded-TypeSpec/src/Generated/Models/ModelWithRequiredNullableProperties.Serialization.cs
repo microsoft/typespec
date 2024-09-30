@@ -179,14 +179,12 @@ namespace UnbrandedTypeSpec.Models
 
         string IPersistableModel<ModelWithRequiredNullableProperties>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
 
-        /// <param name="modelWithRequiredNullableProperties"> The <see cref="ModelWithRequiredNullableProperties"/> to serialize into <see cref="BinaryContent"/>. </param>
-        public static implicit operator BinaryContent(ModelWithRequiredNullableProperties modelWithRequiredNullableProperties)
+        internal BinaryContent ToRquestContent()
         {
-            return BinaryContent.Create(modelWithRequiredNullableProperties, ModelSerializationExtensions.WireOptions);
+            return BinaryContent.Create(this, ModelSerializationExtensions.WireOptions);
         }
 
-        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="ModelWithRequiredNullableProperties"/> from. </param>
-        public static explicit operator ModelWithRequiredNullableProperties(ClientResult result)
+        internal static ModelWithRequiredNullableProperties FromResponse(ClientResult result)
         {
             using PipelineResponse response = result.GetRawResponse();
             using JsonDocument document = JsonDocument.Parse(response.Content);

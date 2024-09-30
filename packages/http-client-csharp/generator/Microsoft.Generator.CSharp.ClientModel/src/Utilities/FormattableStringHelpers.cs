@@ -8,7 +8,7 @@ using Microsoft.Generator.CSharp.Input;
 
 namespace Microsoft.Generator.CSharp.ClientModel
 {
-    internal static class FormattableStringHelpers
+    public static class FormattableStringHelpers
     {
         private static readonly Regex ContentTypeRegex = new Regex(@"(application|audio|font|example|image|message|model|multipart|text|video|x-(?:[0-9A-Za-z!#$%&'*+.^_`|~-]+))\/([0-9A-Za-z!#$%&'*.^_`|~-]+)\s*(?:\+([0-9A-Za-z!#$%&'*.^_`|~-]+))?\s*(?:;.\s*(\S*))?", RegexOptions.Compiled);
 

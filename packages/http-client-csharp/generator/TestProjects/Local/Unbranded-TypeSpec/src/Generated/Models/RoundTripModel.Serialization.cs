@@ -640,14 +640,12 @@ namespace UnbrandedTypeSpec.Models
 
         string IPersistableModel<RoundTripModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
 
-        /// <param name="roundTripModel"> The <see cref="RoundTripModel"/> to serialize into <see cref="BinaryContent"/>. </param>
-        public static implicit operator BinaryContent(RoundTripModel roundTripModel)
+        internal BinaryContent ToRquestContent()
         {
-            return BinaryContent.Create(roundTripModel, ModelSerializationExtensions.WireOptions);
+            return BinaryContent.Create(this, ModelSerializationExtensions.WireOptions);
         }
 
-        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="RoundTripModel"/> from. </param>
-        public static explicit operator RoundTripModel(ClientResult result)
+        internal static RoundTripModel FromResponse(ClientResult result)
         {
             using PipelineResponse response = result.GetRawResponse();
             using JsonDocument document = JsonDocument.Parse(response.Content);

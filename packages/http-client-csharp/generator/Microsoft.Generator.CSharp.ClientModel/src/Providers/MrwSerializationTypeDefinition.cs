@@ -150,8 +150,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             if (!_inputModel.IsUnknownDiscriminatorModel)
             {
                 //cast operators
-                methods.Add(BuildImplicitToBinaryContent());
-                methods.Add(BuildExplicitFromClientResponse());
+                methods.Add(BuildToRequestContent());
+                methods.Add(BuildFromClientResponse());
             }
 
             if (_isStruct)
@@ -166,10 +166,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return [.. methods];
         }
 
-        private MethodProvider BuildExplicitFromClientResponse()
+        private MethodProvider BuildFromClientResponse()
         {
             var result = new ParameterProvider("result", $"The {ClientModelPlugin.Instance.TypeFactory.ClientResponseType:C} to deserialize the {Type:C} from.", ClientModelPlugin.Instance.TypeFactory.ClientResponseType);
-            var modifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Explicit | MethodSignatureModifiers.Operator;
+            var modifiers = MethodSignatureModifiers.Internal | MethodSignatureModifiers.Static;
             // using PipelineResponse response = result.GetRawResponse();
             var responseDeclaration = UsingDeclare<HttpResponseApi>("response", ClientModelPlugin.Instance.TypeFactory.HttpResponseType, result.AsExpression.ToApi<ClientResponseApi>().GetRawResponse(), out var response);
             // using JsonDocument document = JsonDocument.Parse(response.Content);
@@ -187,20 +187,17 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 deserialize
             };
             return new MethodProvider(
-                new MethodSignature(Type.Name, null, modifiers, null, null, [result]),
+                new MethodSignature("FromResponse", null, modifiers, Type, null, [result]),
                 methodBody,
                 this);
         }
 
-        private MethodProvider BuildImplicitToBinaryContent()
+        private MethodProvider BuildToRequestContent()
         {
-            var model = new ParameterProvider(Type.Name.ToVariableName(), $"The {Type:C} to serialize into {typeof(BinaryContent):C}", Type);
-            var modifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Implicit | MethodSignatureModifiers.Operator;
-            // return BinaryContent.Create(model, ModelSerializationExtensions.WireOptions);
-            var binaryContentMethod = Static(typeof(BinaryContent)).Invoke(nameof(BinaryContent.Create), [model, ModelSerializationExtensionsSnippets.Wire]);
+            var modifiers = MethodSignatureModifiers.Internal;
             return new MethodProvider(
-                new MethodSignature(nameof(BinaryContent), null, modifiers, null, null, [model]),
-                Return(binaryContentMethod),
+                new MethodSignature(nameof(RequestContentApi.ToRquestContent), null, modifiers, ClientModelPlugin.Instance.TypeFactory.RequestContentType, null, []),
+                This.ToApi<RequestContentApi>().ToRquestContent(),
                 this);
         }
 

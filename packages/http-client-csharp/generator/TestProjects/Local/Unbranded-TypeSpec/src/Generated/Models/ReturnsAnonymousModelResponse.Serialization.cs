@@ -115,14 +115,12 @@ namespace UnbrandedTypeSpec.Models
 
         string IPersistableModel<ReturnsAnonymousModelResponse>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
 
-        /// <param name="returnsAnonymousModelResponse"> The <see cref="ReturnsAnonymousModelResponse"/> to serialize into <see cref="BinaryContent"/>. </param>
-        public static implicit operator BinaryContent(ReturnsAnonymousModelResponse returnsAnonymousModelResponse)
+        internal BinaryContent ToRquestContent()
         {
-            return BinaryContent.Create(returnsAnonymousModelResponse, ModelSerializationExtensions.WireOptions);
+            return BinaryContent.Create(this, ModelSerializationExtensions.WireOptions);
         }
 
-        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="ReturnsAnonymousModelResponse"/> from. </param>
-        public static explicit operator ReturnsAnonymousModelResponse(ClientResult result)
+        internal static ReturnsAnonymousModelResponse FromResponse(ClientResult result)
         {
             using PipelineResponse response = result.GetRawResponse();
             using JsonDocument document = JsonDocument.Parse(response.Content);

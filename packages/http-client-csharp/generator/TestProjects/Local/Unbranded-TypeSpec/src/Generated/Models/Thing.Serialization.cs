@@ -322,14 +322,12 @@ namespace UnbrandedTypeSpec.Models
 
         string IPersistableModel<Thing>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
 
-        /// <param name="thing"> The <see cref="Thing"/> to serialize into <see cref="BinaryContent"/>. </param>
-        public static implicit operator BinaryContent(Thing thing)
+        internal BinaryContent ToRquestContent()
         {
-            return BinaryContent.Create(thing, ModelSerializationExtensions.WireOptions);
+            return BinaryContent.Create(this, ModelSerializationExtensions.WireOptions);
         }
 
-        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="Thing"/> from. </param>
-        public static explicit operator Thing(ClientResult result)
+        internal static Thing FromResponse(ClientResult result)
         {
             using PipelineResponse response = result.GetRawResponse();
             using JsonDocument document = JsonDocument.Parse(response.Content);

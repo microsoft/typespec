@@ -14,8 +14,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidati
     {
         protected override string JsonPayload => File.ReadAllText(ModelTestHelper.GetLocation("TestData/RoundTripModel/RoundTripModel.json"));
         protected override string WirePayload => File.ReadAllText(ModelTestHelper.GetLocation("TestData/RoundTripModel/RoundTripModelWireFormat.json"));
-        protected override RoundTripModel ToModel(ClientResult result) => (RoundTripModel)result;
-        protected override BinaryContent ToBinaryContent(RoundTripModel model) => model;
+        protected override RoundTripModel ToModel(ClientResult result) => CastHelpers.FromResponse<RoundTripModel>(result);
+        protected override BinaryContent ToBinaryContent(RoundTripModel model) => CastHelpers.ToRequestContent(model);
 
         protected override void CompareModels(RoundTripModel model, RoundTripModel model2, string format)
         {

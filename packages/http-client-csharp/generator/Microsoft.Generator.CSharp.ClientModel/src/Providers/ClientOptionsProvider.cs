@@ -65,7 +65,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override CSharpType[] BuildImplements()
         {
-            return [typeof(ClientPipelineOptions)];
+            return [ClientModelPlugin.Instance.TypeFactory.ClientPipelineOptionsType];
         }
 
         protected override FieldProvider[] BuildFields()
