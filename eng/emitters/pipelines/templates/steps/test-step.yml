@@ -37,6 +37,10 @@ parameters:
     type: string
     default: ""
 
+  - name: EnableCadlRanchReport
+    type: boolean
+    default: true
+
 steps:
   - checkout: self
 
@@ -62,7 +66,7 @@ steps:
       arguments: ${{ parameters.TestArgs }}
       workingDirectory: $(selfRepositoryPath)
 
-  - ${{ if eq(variables['System.TeamProject'], 'internal') }}:
+  - ${{ if and(eq(variables['System.TeamProject'], 'internal'), eq(parameters.EnableCadlRanchReport, true)) }}:
       - task: AzureCLI@2
         displayName: "Upload Cadl Ranch Standard Coverage Report"
         condition: and(ne(variables['Build.Reason'], 'PullRequest'), eq(variables['System.TeamProject'], 'internal'), eq('${{ parameters.EmitArtifacts }}', true))

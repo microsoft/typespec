@@ -56,7 +56,6 @@ $failingSpecs = @(
     Join-Path 'http' 'encode' 'numeric'
     Join-Path 'http' 'parameters' 'body-optionality'
     Join-Path 'http' 'parameters' 'collection-format'
-    Join-Path 'http' 'parameters' 'spread'
     Join-Path 'http' 'payload' 'content-negotiation'
     Join-Path 'http' 'payload' 'json-merge-patch'
     Join-Path 'http' 'payload' 'pageable'
