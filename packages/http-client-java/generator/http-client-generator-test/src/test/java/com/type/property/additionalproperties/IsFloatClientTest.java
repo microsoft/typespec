@@ -4,18 +4,17 @@
 package com.type.property.additionalproperties;
 
 import com.type.property.additionalproperties.models.IsFloatAdditionalProperties;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class IsFloatClientTest {
     private final IsFloatClient client = new AdditionalPropertiesClientBuilder().buildIsFloatClient();
 
     @Test
     public void testPullAndGet() {
-        IsFloatAdditionalProperties body = new IsFloatAdditionalProperties( 43.125);
+        IsFloatAdditionalProperties body = new IsFloatAdditionalProperties(43.125);
         Map<String, Double> propertyMap = new LinkedHashMap<>();
         propertyMap.put("prop", 43.125);
         body.setAdditionalProperties(propertyMap);

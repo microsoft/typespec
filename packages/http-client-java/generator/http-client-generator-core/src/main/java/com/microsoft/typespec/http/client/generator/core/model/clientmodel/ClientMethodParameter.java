@@ -4,7 +4,6 @@
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -15,8 +14,8 @@ import java.util.stream.Collectors;
  */
 public class ClientMethodParameter extends MethodParameter {
 
-    public static final ClientMethodParameter CONTEXT_PARAMETER = new ClientMethodParameter.Builder()
-            .description("The context to associate with this operation.")
+    public static final ClientMethodParameter CONTEXT_PARAMETER
+        = new ClientMethodParameter.Builder().description("The context to associate with this operation.")
             .wireType(ClassType.CONTEXT)
             .name("context")
             .requestParameterLocation(RequestParameterLocation.NONE)
@@ -28,8 +27,8 @@ public class ClientMethodParameter extends MethodParameter {
             .required(false)
             .build();
 
-    public static final ClientMethodParameter HTTP_REQUEST_PARAMETER = new ClientMethodParameter.Builder()
-            .description("The HTTP request to send.")
+    public static final ClientMethodParameter HTTP_REQUEST_PARAMETER
+        = new ClientMethodParameter.Builder().description("The HTTP request to send.")
             .wireType(ClassType.HTTP_REQUEST)
             .name("httpRequest")
             .requestParameterLocation(RequestParameterLocation.NONE)
@@ -42,15 +41,15 @@ public class ClientMethodParameter extends MethodParameter {
             .build();
 
     public static final ClientMethodParameter REQUEST_OPTIONS_PARAMETER = new ClientMethodParameter.Builder()
-            .description("The options to configure the HTTP request before HTTP client sends it.")
-            .wireType(ClassType.REQUEST_OPTIONS)
-            .name("requestOptions")
-            .requestParameterLocation(RequestParameterLocation.NONE)
-            .constant(false)
-            .required(false)
-            .fromClient(false)
-            .annotations(Collections.emptyList())
-            .build();
+        .description("The options to configure the HTTP request before HTTP client sends it.")
+        .wireType(ClassType.REQUEST_OPTIONS)
+        .name("requestOptions")
+        .requestParameterLocation(RequestParameterLocation.NONE)
+        .constant(false)
+        .required(false)
+        .fromClient(false)
+        .annotations(Collections.emptyList())
+        .build();
 
     /**
      * Whether this parameter is final.
@@ -65,6 +64,7 @@ public class ClientMethodParameter extends MethodParameter {
 
     /**
      * Create a new Parameter with the provided properties.
+     * 
      * @param description The description of this parameter.
      * @param isFinal Whether this parameter is final.
      * @param wireType The type of this parameter.
@@ -99,6 +99,7 @@ public class ClientMethodParameter extends MethodParameter {
 
     /**
      * Creates a builder that is initialized with all the builder properties set to current values of this instance.
+     * 
      * @return A new builder instance initialized with properties values of this instance.
      */
     public ClientMethodParameter.Builder newBuilder() {
@@ -115,8 +116,10 @@ public class ClientMethodParameter extends MethodParameter {
 
     /**
      * Add this parameter's imports to the provided set of imports.
+     * 
      * @param imports The set of imports to add to.
-     * @param includeImplementationImports Whether to include imports that are only necessary for method implementations.
+     * @param includeImplementationImports Whether to include imports that are only necessary for method
+     * implementations.
      */
     public void addImportsTo(Set<String> imports, boolean includeImplementationImports) {
         for (ClassType annotation : getAnnotations()) {
@@ -144,6 +147,7 @@ public class ClientMethodParameter extends MethodParameter {
 
         /**
          * Sets the description of this parameter.
+         * 
          * @param description the description of this parameter
          * @return the Builder itself
          */
@@ -154,6 +158,7 @@ public class ClientMethodParameter extends MethodParameter {
 
         /**
          * Sets whether this parameter is final.
+         * 
          * @param isFinal whether this parameter is final
          * @return the Builder itself
          */
@@ -164,6 +169,7 @@ public class ClientMethodParameter extends MethodParameter {
 
         /**
          * Sets the type of this parameter.
+         * 
          * @param wireType the type of this parameter
          * @return the Builder itself
          */
@@ -174,6 +180,7 @@ public class ClientMethodParameter extends MethodParameter {
 
         /**
          * Sets the raw type of this parameter. Result of SchemaMapper.
+         * 
          * @param rawType the raw type of this parameter
          * @return the Builder itself
          */
@@ -184,6 +191,7 @@ public class ClientMethodParameter extends MethodParameter {
 
         /**
          * Sets the name of this parameter.
+         * 
          * @param name the name of this parameter
          * @return the Builder itself
          */
@@ -194,6 +202,7 @@ public class ClientMethodParameter extends MethodParameter {
 
         /**
          * Sets whether this parameter is required.
+         * 
          * @param isRequired whether this parameter is required
          * @return the Builder itself
          */
@@ -204,6 +213,7 @@ public class ClientMethodParameter extends MethodParameter {
 
         /**
          * Sets whether this parameter has a constant value.
+         * 
          * @param isConstant whether this parameter has a constant value
          * @return the Builder itself
          */
@@ -214,6 +224,7 @@ public class ClientMethodParameter extends MethodParameter {
 
         /**
          * Sets whether this parameter is from a client property.
+         * 
          * @param fromClient whether this parameter is from a client property
          * @return the Builder itself
          */
@@ -224,6 +235,7 @@ public class ClientMethodParameter extends MethodParameter {
 
         /**
          * Sets the default value for the parameter.
+         * 
          * @param defaultValue the default value for the parameter
          * @return the Builder itself
          */
@@ -234,6 +246,7 @@ public class ClientMethodParameter extends MethodParameter {
 
         /**
          * Sets the annotations that should be part of this Parameter's declaration.
+         * 
          * @param annotations the annotations that should be part of this Parameter's declaration
          * @return the Builder itself
          */
@@ -244,6 +257,7 @@ public class ClientMethodParameter extends MethodParameter {
 
         /**
          * Sets the location of the parameter.
+         * 
          * @param requestParameterLocation the location of the parameter
          * @return the Builder itself
          */
@@ -279,18 +293,8 @@ public class ClientMethodParameter extends MethodParameter {
         }
 
         public ClientMethodParameter build() {
-            return new ClientMethodParameter(description,
-                    isFinal,
-                    wireType,
-                    rawType,
-                    name,
-                    isRequired,
-                    isConstant,
-                    fromClient,
-                    defaultValue,
-                    annotations,
-                    requestParameterLocation,
-                    versioning);
+            return new ClientMethodParameter(description, isFinal, wireType, rawType, name, isRequired, isConstant,
+                fromClient, defaultValue, annotations, requestParameterLocation, versioning);
         }
     }
 }

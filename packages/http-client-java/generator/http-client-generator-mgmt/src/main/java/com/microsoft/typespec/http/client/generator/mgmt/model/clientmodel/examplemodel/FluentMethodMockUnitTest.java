@@ -3,11 +3,11 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.examplemodel;
 
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentCollectionMethod;
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceCollection;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodExample;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.ExampleNode;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentCollectionMethod;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceCollection;
 
 public class FluentMethodMockUnitTest {
 
@@ -25,11 +25,10 @@ public class FluentMethodMockUnitTest {
     private final String responseVerificationVariableName;
     private final ExampleNode responseVerificationNode;
 
-    public FluentMethodMockUnitTest(
-            FluentMethodExample fluentMethodExample,
-            FluentResourceCollection resourceCollection, FluentCollectionMethod fluentCollectionMethod,
-            IType fluentReturnType, ProxyMethodExample.Response response,
-            String responseVerificationVariableName, ExampleNode responseVerificationNode) {
+    public FluentMethodMockUnitTest(FluentMethodExample fluentMethodExample,
+        FluentResourceCollection resourceCollection, FluentCollectionMethod fluentCollectionMethod,
+        IType fluentReturnType, ProxyMethodExample.Response response, String responseVerificationVariableName,
+        ExampleNode responseVerificationNode) {
 
         this.fluentMethodExample = fluentMethodExample;
         this.fluentResourceCreateExample = null;
@@ -41,11 +40,10 @@ public class FluentMethodMockUnitTest {
         this.responseVerificationNode = responseVerificationNode;
     }
 
-    public FluentMethodMockUnitTest(
-            FluentResourceCreateExample fluentResourceCreateExample,
-            FluentResourceCollection resourceCollection, FluentCollectionMethod collectionMethod,
-            IType fluentReturnType, ProxyMethodExample.Response response,
-            String responseVerificationVariableName, ExampleNode responseVerificationNode) {
+    public FluentMethodMockUnitTest(FluentResourceCreateExample fluentResourceCreateExample,
+        FluentResourceCollection resourceCollection, FluentCollectionMethod collectionMethod, IType fluentReturnType,
+        ProxyMethodExample.Response response, String responseVerificationVariableName,
+        ExampleNode responseVerificationNode) {
 
         this.fluentMethodExample = null;
         this.fluentResourceCreateExample = fluentResourceCreateExample;

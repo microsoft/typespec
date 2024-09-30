@@ -40,7 +40,7 @@ import { getExternalDocs, getOperationId } from "./decorators.js";
 import { fromSdkHttpExamples } from "./example-converter.js";
 import { Logger } from "./logger.js";
 import { getInputType } from "./model.js";
-import { isSdkPathParameter } from "./utils.js";
+import { capitalize, isSdkPathParameter } from "./utils.js";
 
 export function fromSdkServiceMethod(
   method: SdkServiceMethod<SdkHttpOperation>,
@@ -210,7 +210,17 @@ function loadLongRunningOperation(
   if (method.kind !== "lro") {
     return undefined;
   }
-
+  /* Remove this workaround when https://github.com/Azure/typespec-azure/issues/1538 is resolved */
+  if (
+    method.__raw_lro_metadata.finalEnvelopeResult &&
+    method.__raw_lro_metadata.finalEnvelopeResult !== "void" &&
+    method.__raw_lro_metadata.finalEnvelopeResult.name === ""
+  ) {
+    method.__raw_lro_metadata.finalEnvelopeResult = {
+      ...method.__raw_lro_metadata.finalEnvelopeResult,
+      name: capitalize(`${method.name}Response`),
+    };
+  }
   return {
     FinalStateVia: convertLroFinalStateVia(method.__raw_lro_metadata.finalStateVia),
     FinalResponse: {
@@ -234,12 +244,13 @@ function loadLongRunningOperation(
 }
 
 function fromSdkHttpOperationResponses(
-  operationResponses: Map<HttpStatusCodeRange | number, SdkHttpResponse>,
+  operationResponses: SdkHttpResponse[],
   sdkContext: SdkContext<NetEmitterOptions>,
   typeMap: SdkTypeMap,
 ): Map<SdkHttpResponse, OperationResponse> {
   const responses = new Map<SdkHttpResponse, OperationResponse>();
-  for (const [range, r] of operationResponses) {
+  for (const r of operationResponses) {
+    const range = r.statusCodes;
     responses.set(r, {
       StatusCodes: toStatusCodesArray(range),
       BodyType: r.type ? fromSdkType(r.type, sdkContext, typeMap) : undefined,
@@ -309,7 +320,7 @@ function getMediaTypes(type: SdkType): string[] {
     return [type.value as string];
   } else if (type.kind === "union") {
     const mediaTypes: string[] = [];
-    for (const unionItem of type.values) {
+    for (const unionItem of type.variantTypes) {
       if (unionItem.kind === "constant" && unionItem.valueType.kind === "string") {
         mediaTypes.push(unionItem.value as string);
       } else {

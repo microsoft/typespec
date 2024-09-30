@@ -60,7 +60,8 @@ public final class OptionalClient {
      * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     boolean: Boolean (Optional)
      *     booleanNullable: Boolean (Optional)
@@ -86,11 +87,13 @@ public final class OptionalClient {
      *     epochDateTimeRequiredNullable: Long (Required)
      *     epochDateTimeNullable: Long (Optional)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     boolean: Boolean (Optional)
      *     booleanNullable: Boolean (Optional)
@@ -120,7 +123,8 @@ public final class OptionalClient {
      *         stringReadOnlyOptional: String (Optional)
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param requestHeaderRequired The requestHeaderRequired parameter.
      * @param booleanRequired The booleanRequired parameter.

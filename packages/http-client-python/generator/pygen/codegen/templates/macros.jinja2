@@ -1,0 +1,12 @@
+{% macro wrap_model_string(doc_string, wrap_string, suffix_string="") %}
+{% set original_result = doc_string | wordwrap(width=95, break_long_words=False, break_on_hyphens=False, wrapstring=wrap_string) %}
+{% set list_result = original_result.split('\n') %}
+{% for line in list_result %}
+    {% set suffix = suffix_string if list_result | length == loop.index %}
+    {% if line | length > 120 %}
+{{ line + "  # pylint: disable=line-too-long" }}{{ suffix }}
+    {% else %}
+{{ line }}{{ suffix }}
+    {% endif %}
+{% endfor %}
+{% endmacro %}

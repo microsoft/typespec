@@ -7,17 +7,17 @@ import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.http.rest.PagedIterable;
 import com.payload.pageable.models.User;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import java.util.Arrays;
 import java.util.HashSet;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class PageableTests {
 
     private final PageableClient client = new PageableClientBuilder()
-            .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BODY_AND_HEADERS).setAllowedQueryParamNames(new HashSet<>(Arrays.asList("maxpagesize", "skipToken"))))
-            .buildClient();
+        .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BODY_AND_HEADERS)
+            .setAllowedQueryParamNames(new HashSet<>(Arrays.asList("maxpagesize", "skipToken"))))
+        .buildClient();
 
     @Test
     public void testPageable() {

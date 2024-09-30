@@ -6,7 +6,6 @@ package com.microsoft.typespec.http.client.generator.core.mapper;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.DictionarySchema;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 

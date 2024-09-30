@@ -7,7 +7,6 @@ import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
 import com.azure.json.JsonWriter;
-
 import java.io.IOException;
 import java.util.List;
 
@@ -43,9 +42,7 @@ public class SmartLocation implements JsonSerializable<SourceLocation> {
 
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return jsonWriter.writeStartObject()
-            .writeArrayField("path", path, JsonWriter::writeUntyped)
-            .writeEndObject();
+        return jsonWriter.writeStartObject().writeArrayField("path", path, JsonWriter::writeUntyped).writeEndObject();
     }
 
     /**

@@ -119,7 +119,7 @@ export function getDefaultValue(value: Value | undefined): any {
   return undefined;
 }
 
-export function getDurationFormatFromSdkType(type: SdkDurationType): DurationSchema["format"] {
+export function getDurationFormat(type: SdkDurationType): DurationSchema["format"] {
   let format: DurationSchema["format"] = "duration-rfc3339";
   // duration encoded as seconds
   if (type.encode === "seconds") {

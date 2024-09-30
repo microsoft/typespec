@@ -3,8 +3,11 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.template;
 
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.examplemodel.FluentMethodMockUnitTest;
-import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
+import com.azure.core.credential.AccessToken;
+import com.azure.core.http.HttpResponse;
+import com.azure.core.management.profile.AzureProfile;
+import com.azure.json.JsonProviders;
+import com.azure.json.JsonWriter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
@@ -14,14 +17,8 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFil
 import com.microsoft.typespec.http.client.generator.core.template.IJavaTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.example.ModelExampleWriter;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
-import com.azure.core.credential.AccessToken;
-import com.azure.core.http.HttpResponse;
-import com.azure.core.management.profile.AzureProfile;
-import com.azure.json.JsonProviders;
-import com.azure.json.JsonWriter;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.examplemodel.FluentMethodMockUnitTest;
+import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -30,6 +27,8 @@ import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 public class FluentMethodMockTestTemplate
     implements IJavaTemplate<FluentMethodMockTestTemplate.ClientMethodInfo, JavaFile> {
@@ -56,8 +55,8 @@ public class FluentMethodMockTestTemplate
 
     @Override
     public void write(ClientMethodInfo info, JavaFile javaFile) {
-        Set<String> imports = new HashSet<>(
-            Arrays.asList(AccessToken.class.getName(), ClassType.HTTP_CLIENT.getFullName(),
+        Set<String> imports
+            = new HashSet<>(Arrays.asList(AccessToken.class.getName(), ClassType.HTTP_CLIENT.getFullName(),
                 ClassType.HTTP_HEADERS.getFullName(), ClassType.HTTP_REQUEST.getFullName(),
                 HttpResponse.class.getName(), "com.azure.core.test.http.MockHttpResponse",
                 ClassType.AZURE_ENVIRONMENT.getFullName(), AzureProfile.class.getName(), "org.junit.jupiter.api.Test",
@@ -90,9 +89,8 @@ public class FluentMethodMockTestTemplate
         if (hasReturnValue) {
             // hack on replaceResponseForValue, as in "update" case, "exampleMethod.getMethodContent()" would be a code
             // block, not a single line of code invocation.
-            clientMethodInvocationWithResponse = fluentReturnType + " response = " + (isResponseType
-                ? replaceResponseForValue(clientMethodInvocation)
-                : clientMethodInvocation);
+            clientMethodInvocationWithResponse = fluentReturnType + " response = "
+                + (isResponseType ? replaceResponseForValue(clientMethodInvocation) : clientMethodInvocation);
         } else {
             clientMethodInvocationWithResponse = clientMethodInvocation;
         }
@@ -129,16 +127,14 @@ public class FluentMethodMockTestTemplate
         javaFile.publicFinalClass(className, classBlock -> {
             classBlock.annotation("Test");
             classBlock.publicMethod(
-                "void test" + CodeNamer.toPascalCase(clientMethod.getName()) + "() throws Exception",
-                methodBlock -> {
+                "void test" + CodeNamer.toPascalCase(clientMethod.getName()) + "() throws Exception", methodBlock -> {
                     // response
                     methodBlock.line("String responseStr = " + ClassType.STRING.defaultValueExpression(jsonStr) + ";");
                     methodBlock.line();
 
                     // prepare mock class
-                    methodBlock.line(
-                        "HttpClient httpClient = response -> Mono.just(new MockHttpResponse(response, " + statusCode
-                            + ", responseStr.getBytes(StandardCharsets.UTF_8)));");
+                    methodBlock.line("HttpClient httpClient = response -> Mono.just(new MockHttpResponse(response, "
+                        + statusCode + ", responseStr.getBytes(StandardCharsets.UTF_8)));");
 
                     // initialize manager
                     String exampleMethodName = exampleMethod.getExample().getEntryType().getName();

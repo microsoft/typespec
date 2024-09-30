@@ -3,14 +3,13 @@
 
 package com.type.property.nullable;
 
-import com.type.property.nullable.models.CollectionsModelProperty;
-import com.type.property.nullable.models.InnerModel;
-import org.junit.jupiter.api.Test;
-
-import java.util.Arrays;
-
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+
+import com.type.property.nullable.models.CollectionsModelProperty;
+import com.type.property.nullable.models.InnerModel;
+import java.util.Arrays;
+import org.junit.jupiter.api.Test;
 
 class CollectionsModelClientTest {
 
@@ -18,7 +17,9 @@ class CollectionsModelClientTest {
 
     @Test
     void patchNonNullWithResponse() {
-        CollectionsModelProperty property = new CollectionsModelProperty().setRequiredProperty("foo").setNullableProperty(Arrays.asList(new InnerModel().setProperty("hello"), new InnerModel().setProperty("world")));
+        CollectionsModelProperty property = new CollectionsModelProperty().setRequiredProperty("foo")
+            .setNullableProperty(
+                Arrays.asList(new InnerModel().setProperty("hello"), new InnerModel().setProperty("world")));
         client.patchNonNull(property);
     }
 

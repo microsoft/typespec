@@ -3,15 +3,14 @@
 
 package com.type.property.nullable;
 
-import com.type.property.nullable.models.CollectionsStringProperty;
-import org.junit.jupiter.api.Test;
-
-import java.util.Arrays;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+
+import com.type.property.nullable.models.CollectionsStringProperty;
+import java.util.Arrays;
+import org.junit.jupiter.api.Test;
 
 public class CollectionsStringClientTest {
 
@@ -19,7 +18,8 @@ public class CollectionsStringClientTest {
 
     @Test
     public void patchNonNull() {
-        CollectionsStringProperty property = new CollectionsStringProperty().setRequiredProperty("foo").setNullableProperty(Arrays.asList("hello","world"));
+        CollectionsStringProperty property = new CollectionsStringProperty().setRequiredProperty("foo")
+            .setNullableProperty(Arrays.asList("hello", "world"));
         client.patchNonNull(property);
     }
 

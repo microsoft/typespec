@@ -26,10 +26,6 @@ import com.payload.multipart.models.MultiPartRequest;
 import com.payload.multipart.models.PictureFileDetails;
 import com.payload.multipart.models.PicturesFileDetails;
 import com.payload.multipart.models.ProfileImageFileDetails;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import reactor.core.publisher.Mono;
-
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -37,21 +33,21 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import reactor.core.publisher.Mono;
 
 public class MultipartTests {
 
     private final MultipartFilenameValidationPolicy validationPolicy = new MultipartFilenameValidationPolicy();
 
-    private final FormDataClient client = new MultiPartClientBuilder()
-            .addPolicy(validationPolicy)
-            .buildFormDataClient();
-    private final FormDataAsyncClient asyncClient = new MultiPartClientBuilder()
-            .addPolicy(validationPolicy)
-            .buildFormDataAsyncClient();
+    private final FormDataClient client
+        = new MultiPartClientBuilder().addPolicy(validationPolicy).buildFormDataClient();
+    private final FormDataAsyncClient asyncClient
+        = new MultiPartClientBuilder().addPolicy(validationPolicy).buildFormDataAsyncClient();
 
-    private final FormDataHttpPartsContentTypeClient httpPartContentTypeClient = new MultiPartClientBuilder()
-            .addPolicy(validationPolicy)
-            .buildFormDataHttpPartsContentTypeClient();
+    private final FormDataHttpPartsContentTypeClient httpPartContentTypeClient
+        = new MultiPartClientBuilder().addPolicy(validationPolicy).buildFormDataHttpPartsContentTypeClient();
 
     private static final Path FILE = FileUtils.getJpgFile();
 
@@ -70,7 +66,7 @@ public class MultipartTests {
             int j = 0;
 
             for (int i = start; i < stop; i++) {
-                while (j > 0 && ( pattern[j] != '*' && pattern[j] != data[i])) {
+                while (j > 0 && (pattern[j] != '*' && pattern[j] != data[i])) {
                     j = failure[j - 1];
                 }
                 if (pattern[j] == '*' || pattern[j] == data[i]) {
@@ -168,9 +164,8 @@ public class MultipartTests {
 
     @Test
     public void testBasic() {
-        MultiPartRequest request = new MultiPartRequest(
-                "123",
-                new ProfileImageFileDetails(BinaryData.fromFile(FILE)).setFilename("image.jpg"));
+        MultiPartRequest request = new MultiPartRequest("123",
+            new ProfileImageFileDetails(BinaryData.fromFile(FILE)).setFilename("image.jpg"));
 
         client.basic(request);
         asyncClient.basic(request).block();
@@ -178,9 +173,8 @@ public class MultipartTests {
 
     @Test
     public void testJson() {
-        client.jsonPart(new JsonPartRequest(
-                new Address("X"),
-                new ProfileImageFileDetails(BinaryData.fromFile(FILE)).setFilename("image.jpg")));
+        client.jsonPart(new JsonPartRequest(new Address("X"),
+            new ProfileImageFileDetails(BinaryData.fromFile(FILE)).setFilename("image.jpg")));
     }
 
     // JSON array removed from cadl-ranch
@@ -193,56 +187,50 @@ public class MultipartTests {
 
     @Test
     public void testMultipleFiles() {
-        client.multiBinaryParts(new MultiBinaryPartsRequest(
-                new ProfileImageFileDetails(BinaryData.fromFile(FILE)).setFilename("image.jpg"))
-                .setPicture(new PictureFileDetails(BinaryData.fromFile(FileUtils.getPngFile())).setFilename("image.png")));
+        client.multiBinaryParts(
+            new MultiBinaryPartsRequest(new ProfileImageFileDetails(BinaryData.fromFile(FILE)).setFilename("image.jpg"))
+                .setPicture(
+                    new PictureFileDetails(BinaryData.fromFile(FileUtils.getPngFile())).setFilename("image.png")));
 
         validationPolicy.validateFilenames("image.jpg", "image.png");
 
         // "picture" be optional
         asyncClient.multiBinaryParts(new MultiBinaryPartsRequest(
-                new ProfileImageFileDetails(BinaryData.fromFile(FILE)).setFilename("image.jpg"))).block();
+            new ProfileImageFileDetails(BinaryData.fromFile(FILE)).setFilename("image.jpg"))).block();
     }
 
     @Test
     public void testFileArray() {
-        client.binaryArrayParts(new BinaryArrayPartsRequest(
-                "123",
-                Arrays.asList(
-                        new PicturesFileDetails(BinaryData.fromFile(PNG_FILE)).setFilename("image1.png"),
-                        new PicturesFileDetails(BinaryData.fromFile(PNG_FILE)).setFilename("image2.png")
-                )));
+        client.binaryArrayParts(new BinaryArrayPartsRequest("123",
+            Arrays.asList(new PicturesFileDetails(BinaryData.fromFile(PNG_FILE)).setFilename("image1.png"),
+                new PicturesFileDetails(BinaryData.fromFile(PNG_FILE)).setFilename("image2.png"))));
 
         validationPolicy.validateContentTypes("application/octet-stream", "application/octet-stream");
 
         // filename contains non-ASCII
-        asyncClient.binaryArrayParts(new BinaryArrayPartsRequest(
-                "123",
-                Arrays.asList(
-                        new PicturesFileDetails(BinaryData.fromFile(PNG_FILE)).setFilename("voilà.png"),
-                        new PicturesFileDetails(BinaryData.fromFile(PNG_FILE)).setFilename("ima\"\n\rge2.png")
-                ))).block();
+        asyncClient
+            .binaryArrayParts(
+                new BinaryArrayPartsRequest("123",
+                    Arrays.asList(new PicturesFileDetails(BinaryData.fromFile(PNG_FILE)).setFilename("voilà.png"),
+                        new PicturesFileDetails(BinaryData.fromFile(PNG_FILE)).setFilename("ima\"\n\rge2.png"))))
+            .block();
 
         validationPolicy.validateFilenames("voilà.png", "ima%22%0A%0Dge2.png");
     }
 
     @Test
     public void testFilenameAndContentType() {
-        client.checkFileNameAndContentType(new MultiPartRequest(
-                "123",
-                new ProfileImageFileDetails(BinaryData.fromFile(FILE)).setFilename("hello.jpg").setContentType("image/jpg")));
+        client.checkFileNameAndContentType(
+            new MultiPartRequest("123", new ProfileImageFileDetails(BinaryData.fromFile(FILE)).setFilename("hello.jpg")
+                .setContentType("image/jpg")));
     }
 
     @Test
     public void testComplex() {
-        client.fileArrayAndBasic(new ComplexPartsRequest(
-                "123",
-                new Address("X"),
-                new ProfileImageFileDetails(BinaryData.fromFile(FILE)).setFilename("image.jpg"),
-                Arrays.asList(
-                        new PicturesFileDetails(BinaryData.fromFile(PNG_FILE)).setFilename("image1.png"),
-                        new PicturesFileDetails(BinaryData.fromFile(PNG_FILE)).setFilename("image2.png")
-                )));
+        client.fileArrayAndBasic(new ComplexPartsRequest("123", new Address("X"),
+            new ProfileImageFileDetails(BinaryData.fromFile(FILE)).setFilename("image.jpg"),
+            Arrays.asList(new PicturesFileDetails(BinaryData.fromFile(PNG_FILE)).setFilename("image1.png"),
+                new PicturesFileDetails(BinaryData.fromFile(PNG_FILE)).setFilename("image2.png"))));
 
         validationPolicy.validateFilenames("image.jpg", "image1.png", "image2.png");
     }
@@ -255,41 +243,37 @@ public class MultipartTests {
     @Test
     public void testFileWithHttpPartSpecificContentType() {
         httpPartContentTypeClient.imageJpegContentType(new FileWithHttpPartSpecificContentTypeRequest(
-                new FileSpecificContentType(BinaryData.fromFile(FILE), "hello.jpg")));
+            new FileSpecificContentType(BinaryData.fromFile(FILE), "hello.jpg")));
     }
 
     @Test
     public void testFileWithHttpPartRequiredContentType() {
         httpPartContentTypeClient.requiredContentType(new FileWithHttpPartRequiredContentTypeRequest(
-                new FileRequiredMetaData(BinaryData.fromFile(FILE), FILENAME, "application/octet-stream")));
+            new FileRequiredMetaData(BinaryData.fromFile(FILE), FILENAME, "application/octet-stream")));
     }
 
     @Test
     public void testFileWithHttpPartOptionalContentType() {
         httpPartContentTypeClient.optionalContentType(new FileWithHttpPartOptionalContentTypeRequest(
-                new FileOptionalContentType(BinaryData.fromFile(FILE), FILENAME).setContentType(FILE_CONTENT_TYPE)));
+            new FileOptionalContentType(BinaryData.fromFile(FILE), FILENAME).setContentType(FILE_CONTENT_TYPE)));
     }
 
     @Test
     public void testComplexWithHttpPart() {
-        FormDataHttpPartsClient client = new MultiPartClientBuilder()
-                .addPolicy(validationPolicy)
-                .buildFormDataHttpPartsClient();
+        FormDataHttpPartsClient client
+            = new MultiPartClientBuilder().addPolicy(validationPolicy).buildFormDataHttpPartsClient();
 
-        client.jsonArrayAndFileArray(new ComplexHttpPartsModelRequest(
-                "123",
-                new Address("X"),
-                new FileRequiredMetaData(BinaryData.fromFile(FILE), FILENAME, FILE_CONTENT_TYPE),
-                List.of(new Address("Y"), new Address("Z")),
-                List.of(new FileRequiredMetaData(BinaryData.fromFile(PNG_FILE), FILENAME + "1", FILE_CONTENT_TYPE), new FileRequiredMetaData(BinaryData.fromFile(PNG_FILE), FILENAME + "2", FILE_CONTENT_TYPE))
-        ));
+        client.jsonArrayAndFileArray(new ComplexHttpPartsModelRequest("123", new Address("X"),
+            new FileRequiredMetaData(BinaryData.fromFile(FILE), FILENAME, FILE_CONTENT_TYPE),
+            List.of(new Address("Y"), new Address("Z")),
+            List.of(new FileRequiredMetaData(BinaryData.fromFile(PNG_FILE), FILENAME + "1", FILE_CONTENT_TYPE),
+                new FileRequiredMetaData(BinaryData.fromFile(PNG_FILE), FILENAME + "2", FILE_CONTENT_TYPE))));
     }
 
     @Test
     public void testNonStringHttpPart() {
-        FormDataHttpPartsNonStringClient client = new MultiPartClientBuilder()
-                .addPolicy(validationPolicy)
-                .buildFormDataHttpPartsNonStringClient();
+        FormDataHttpPartsNonStringClient client
+            = new MultiPartClientBuilder().addPolicy(validationPolicy).buildFormDataHttpPartsNonStringClient();
 
         client.floatMethod(new FloatRequest(0.5));
     }

@@ -30,8 +30,8 @@ public class MethodPageDetails {
     // This intermediate type is the type of pagination response (the type with values and nextLink).
     private final IType lroIntermediateType;
 
-    public MethodPageDetails(String nextLinkName, IType nextLinkType, String itemName, ClientMethod nextMethod, IType lroIntermediateType,
-                             String serializedNextLinkName, String serializedItemName) {
+    public MethodPageDetails(String nextLinkName, IType nextLinkType, String itemName, ClientMethod nextMethod,
+        IType lroIntermediateType, String serializedNextLinkName, String serializedItemName) {
         this.nextLinkName = nextLinkName;
         this.nextLinkType = nextLinkType;
         this.itemName = itemName;

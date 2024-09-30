@@ -3,10 +3,9 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonWriter;
-
+import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import java.io.IOException;
 import java.util.Objects;
 
@@ -158,8 +157,12 @@ public class XmlSerializationFormat extends SerializationFormat {
             return false;
         }
         XmlSerializationFormat rhs = ((XmlSerializationFormat) other);
-        return Objects.equals(name, rhs.name) && Objects.equals(namespace, rhs.namespace) && attribute == rhs.attribute
-            && wrapped == rhs.wrapped && Objects.equals(prefix, rhs.prefix) && text == rhs.text;
+        return Objects.equals(name, rhs.name)
+            && Objects.equals(namespace, rhs.namespace)
+            && attribute == rhs.attribute
+            && wrapped == rhs.wrapped
+            && Objects.equals(prefix, rhs.prefix)
+            && text == rhs.text;
     }
 
     @Override

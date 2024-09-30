@@ -8,6 +8,7 @@ import com.microsoft.typespec.http.client.generator.mgmt.mapper.FluentObjectMapp
 
 public class TypeSpecFluentObjectMapper extends FluentObjectMapper {
     private static final TypeSpecFluentObjectMapper INSTANCE = new TypeSpecFluentObjectMapper();
+
     public static TypeSpecFluentObjectMapper getInstance() {
         return INSTANCE;
     }

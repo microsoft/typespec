@@ -3,10 +3,9 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel;
 
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelProperty;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentMethod;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;

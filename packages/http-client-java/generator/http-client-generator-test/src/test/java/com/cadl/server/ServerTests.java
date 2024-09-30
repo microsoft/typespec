@@ -13,10 +13,7 @@ public class ServerTests {
     @Disabled("test calls httpbin.org")
     @Test
     public void serverTests() {
-        HttpbinClient client = new HttpbinClientBuilder()
-                .domain("httpbin")
-                .tld("org")
-                .buildClient();
+        HttpbinClient client = new HttpbinClientBuilder().domain("httpbin").tld("org").buildClient();
         Assertions.assertEquals(204, client.statusWithResponse(204, new RequestOptions()).getStatusCode());
     }
 }

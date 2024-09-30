@@ -377,7 +377,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     // Apply decorators on the property to the type's schema
     const additionalProps: Partial<OpenAPI3Schema> = this.#applyConstraints(prop, {});
     if (prop.defaultValue) {
-      additionalProps.default = getDefaultValue(program, prop.defaultValue);
+      additionalProps.default = getDefaultValue(program, prop.defaultValue, prop);
     }
 
     if (isReadonlyProperty(program, prop)) {
@@ -922,27 +922,12 @@ const B = {
   },
 } as const;
 
-export function getDefaultValue(program: Program, defaultType: Value): any {
-  switch (defaultType.valueKind) {
-    case "StringValue":
-      return defaultType.value;
-    case "NumericValue":
-      return defaultType.value.asNumber() ?? undefined;
-    case "BooleanValue":
-      return defaultType.value;
-    case "ArrayValue":
-      return defaultType.values.map((x) => getDefaultValue(program, x));
-    case "NullValue":
-      return null;
-    case "EnumValue":
-      return defaultType.value.value ?? defaultType.value.name;
-    default:
-      reportDiagnostic(program, {
-        code: "invalid-default",
-        format: { type: defaultType.valueKind },
-        target: defaultType,
-      });
-  }
+export function getDefaultValue(
+  program: Program,
+  defaultType: Value,
+  modelProperty: ModelProperty,
+): any {
+  return serializeValueAsJson(program, defaultType, modelProperty);
 }
 
 export function isBytesKeptRaw(program: Program, type: Type) {
