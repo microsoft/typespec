@@ -5,11 +5,11 @@ using Http;
 using SpecLib;
 
 @doc("Test describing optionality of the request body.")
-@SpecLib.scenarioService("/content-negotiation")
+@scenarioService("/content-negotiation")
 namespace Payload.ContentNegotiation;
 
-@SpecLib.scenario
-@SpecLib.scenarioDoc("""
+@scenario
+@scenarioDoc("""
   Scenario that returns a different file encoding depending on the accept header.
   
   - image/png return a png image
@@ -34,8 +34,8 @@ namespace SameBody {
   op getAvatarAsJpeg(@header accept: "image/jpeg"): JpegImage;
 }
 
-@SpecLib.scenario
-@SpecLib.scenarioDoc("""
+@scenario
+@scenarioDoc("""
   Scenario that a different payload depending on the accept header.
   
   - application/json return a png image in a Json object
