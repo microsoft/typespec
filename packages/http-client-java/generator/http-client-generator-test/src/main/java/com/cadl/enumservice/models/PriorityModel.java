@@ -82,7 +82,7 @@ public final class PriorityModel implements ExpandableEnum<Integer> {
     @Generated
     @Override
     public boolean equals(Object obj) {
-        return Objects.equals(this.value, PriorityModel);
+        return Objects.equals(this.value, obj);
     }
 
     @Generated
