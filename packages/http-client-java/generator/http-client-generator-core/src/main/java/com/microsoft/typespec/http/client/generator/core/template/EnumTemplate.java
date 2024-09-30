@@ -150,7 +150,7 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
                 addGeneratedAnnotation(classBlock);
                 classBlock.annotation("Override");
                 classBlock.method(JavaVisibility.Public, null, "boolean equals(Object obj)",
-                    function -> function.methodReturn(String.format("Objects.equals(this.value, %s)", enumName)));
+                    function -> function.methodReturn("Objects.equals(this.value, obj)"));
 
                 // hashcode
                 addGeneratedAnnotation(classBlock);
