@@ -1006,10 +1006,6 @@ export class CodeModelBuilder {
           this.trackSchemaUsage(pollingSchema, {
             usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
           });
-        } else {
-          trackSchemaUsage(pollingSchema, {
-            usage: [SchemaContext.None]
-          });
         }
       }
       if (finalSchema) {
@@ -1017,10 +1013,6 @@ export class CodeModelBuilder {
         if (trackConvenienceApi) {
           this.trackSchemaUsage(finalSchema, {
             usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
-          });
-        } else { // overwrite the schema usage set by tcgc
-          trackSchemaUsage(finalSchema, {
-            usage: [SchemaContext.None]
           });
         }
       }
@@ -1203,13 +1195,13 @@ export class CodeModelBuilder {
         clientContext.addGlobalParameter(parameter);
       }
 
-      this.trackSchemaUsage(schema, { usage: [SchemaContext.Input] });
+      // this.trackSchemaUsage(schema, { usage: [SchemaContext.Input] });
 
-      if (op.convenienceApi) {
-        this.trackSchemaUsage(schema, {
-          usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
-        });
-      }
+      // if (op.convenienceApi) {
+      //   this.trackSchemaUsage(schema, {
+      //     usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
+      //   });
+      // }
     }
   }
 
@@ -1310,12 +1302,12 @@ export class CodeModelBuilder {
           },
         );
 
-        this.trackSchemaUsage(requestConditionsSchema, { usage: [SchemaContext.Input] });
-        if (op.convenienceApi) {
-          this.trackSchemaUsage(requestConditionsSchema, {
-            usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
-          });
-        }
+        // this.trackSchemaUsage(requestConditionsSchema, { usage: [SchemaContext.Input] });
+        // if (op.convenienceApi) {
+        //   this.trackSchemaUsage(requestConditionsSchema, {
+        //     usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
+        //   });
+        // }
 
         // update group schema for properties
         for (const parameter of request.parameters) {
@@ -1392,7 +1384,7 @@ export class CodeModelBuilder {
     //   schema instanceof ObjectSchema &&
     //   (schema as SchemaUsage).usage?.includes(SchemaContext.Public);
 
-    this.trackSchemaUsage(schema, { usage: [SchemaContext.Input] });
+    // this.trackSchemaUsage(schema, { usage: [SchemaContext.Input] });
 
     // if (op.convenienceApi) {
     //   // model/schema does not need to be Public or Internal, if it is not to be used in convenience API
@@ -1638,10 +1630,10 @@ export class CodeModelBuilder {
     if (sdkResponse.headers) {
       for (const header of sdkResponse.headers) {
         const schema = this.processSchema(header.type, header.serializedName);
-        // TODO haoling: why header schema do not need usage tracking? no usage tracking for header schema?
-        trackSchemaUsage(schema, {
-          usage: [SchemaContext.None]
-        });
+        // // TODO haoling: why header schema do not need usage tracking? no usage tracking for header schema?
+        // trackSchemaUsage(schema, {
+        //   usage: [SchemaContext.None]
+        // });
         headers.push(
           new HttpHeader(header.serializedName, schema, {
             language: {
@@ -1746,11 +1738,7 @@ export class CodeModelBuilder {
           this.trackSchemaUsage(response.schema, {
             usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
           });
-        } else {
-          trackSchemaUsage(response.schema, {
-            usage: [SchemaContext.None]
-          });
-        }
+        } 
       }
     }
   }
@@ -2746,10 +2734,10 @@ export class CodeModelBuilder {
         // remove internal
           usages.splice(usages.indexOf(SchemaContext.Internal), 1);
       }
-      if (usages && usages.includes(SchemaContext.None)) {
-        // no usage
-        (schema as SchemaUsage).usage = [];
-      }
+      // if (usages && usages.includes(SchemaContext.None)) {
+      //   // no usage
+      //   (schema as SchemaUsage).usage = [];
+      // }
     };
     this.codeModel.schemas.choices?.forEach(innerProcessUsage);
     this.codeModel.schemas.objects?.forEach(innerProcessUsage);
