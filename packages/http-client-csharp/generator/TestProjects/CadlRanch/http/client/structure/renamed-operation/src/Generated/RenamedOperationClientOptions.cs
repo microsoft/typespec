@@ -4,8 +4,9 @@
 
 using System.ClientModel.Primitives;
 
-namespace Client.Structure.Service
+namespace Client.Structure.Service.rename.operation
 {
+    /// <summary> Client options for <see cref="RenamedOperationClient"/>. </summary>
     public partial class RenamedOperationClientOptions : ClientPipelineOptions
     {
     }

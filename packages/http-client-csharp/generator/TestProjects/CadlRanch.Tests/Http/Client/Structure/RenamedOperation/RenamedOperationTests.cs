@@ -3,8 +3,8 @@
 
 using System.Linq;
 using System.Threading.Tasks;
-using Client.Structure.Service;
-using Client.Structure.Service.Models;
+using Client.Structure.Service.rename.operation;
+using Client.Structure.Service.rename.operation.Models;
 using NUnit.Framework;
 
 namespace TestProjects.CadlRanch.Tests.Http.Client.Structure.RenamedOperation
@@ -27,21 +27,21 @@ namespace TestProjects.CadlRanch.Tests.Http.Client.Structure.RenamedOperation
         [CadlRanchTest]
         public Task RenamedOne() => Test(async (host) =>
         {
-            var response = await new RenamedOperationClient(host, ClientType.RenamedOperationClient, null).RenamedOneAsync();
+            var response = await new RenamedOperationClient(host, ClientType.RenamedOperation, null).RenamedOneAsync();
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
         [CadlRanchTest]
         public Task RenamedThree() => Test(async (host) =>
         {
-            var response = await new RenamedOperationClient(host, ClientType.RenamedOperationClient, null).RenamedThreeAsync();
+            var response = await new RenamedOperationClient(host, ClientType.RenamedOperation, null).RenamedThreeAsync();
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
         [CadlRanchTest]
         public Task RenamedFive() => Test(async (host) =>
         {
-            var response = await new RenamedOperationClient(host, ClientType.RenamedOperationClient, null).RenamedFiveAsync();
+            var response = await new RenamedOperationClient(host, ClientType.RenamedOperation, null).RenamedFiveAsync();
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
@@ -49,7 +49,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Client.Structure.RenamedOperation
         [CadlRanchTest]
         public Task RenamedTwo() => Test(async (host) =>
         {
-            var response = await new ClientBClient(host, ClientType.RenamedOperationClient.Group, null).RenamedTwoAsync();
+            var response = await new RenamedOperationClient(host, ClientType.RenamedOperation, null).GetGroupClient().RenamedTwoAsync();
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
