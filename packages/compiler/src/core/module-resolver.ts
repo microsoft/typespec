@@ -158,12 +158,16 @@ export async function resolveModule(
   async function findAsNodeModule(
     name: string,
     baseDir: string,
-  ): Promise<ResolvedModule | undefined> {
+  ): Promise<ResolvedModule | ResolvedFile | undefined> {
     const dirs = getPackageCandidates(name, baseDir);
     for (const { type, path } of dirs) {
       if (type === "node_modules") {
         if (await isDirectory(host, path)) {
           const n = await loadAsDirectory(path, true);
+          if (n) return n;
+        }
+        if (await isFile(host, path)) {
+          const n = await loadAsFile(path);
           if (n) return n;
         }
       } else if (type === "self") {

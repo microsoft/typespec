@@ -142,6 +142,41 @@ describe("compiler: imports", () => {
     ok(file, "File exists");
   });
 
+  it("import specific file from library", async () => {
+    host.addTypeSpecFile(
+      "main.tsp",
+      `
+      import "my-lib/lib/lib1.tsp";
+
+      model A { x: C }
+      `,
+    );
+    host.addTypeSpecFile(
+      "node_modules/my-lib/package.json",
+      JSON.stringify({
+        name: "my-lib",
+        tspMain: "./main.tsp",
+      }),
+    );
+    host.addTypeSpecFile(
+      "node_modules/my-lib/main.tsp",
+      `
+      import "./lib/lib1.tsp"
+      `,
+    );
+    host.addTypeSpecFile(
+      "node_modules/my-lib/lib/lib1.tsp",
+      `
+      model C { }
+      `,
+    );
+
+    await host.compile("main.tsp");
+    expectFileLoaded({ typespec: ["main.tsp", "node_modules/my-lib/lib/lib1.tsp"] });
+    const file = host.program.sourceFiles.get(resolveVirtualPath("node_modules/my-lib/lib/lib1.tsp"));
+    ok(file, "File exists");
+  });
+
   it("emit diagnostic when trying to load invalid relative file", async () => {
     host.addTypeSpecFile(
       "main.tsp",

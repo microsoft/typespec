@@ -70,4 +70,29 @@ describe("go to imports", () => {
       },
     ]);
   });
+
+  it("go to a specific file from library", async () => {
+    const locations = await goToDefinitionAtCursor(
+      `
+    import "┆test-lib/lib/lib1.tsp";
+  `,
+      {
+        "node_modules/test-lib/package.json": JSON.stringify({
+          name: "test-lib",
+          tspMain: "./main.tsp",
+        }),
+        "node_modules/test-lib/main.tsp": `import "./lib/lib1.tsp";`,
+        "node_modules/test-lib/lib/lib1.tsp": "model Other1 {}",
+      },
+    );
+    expect(locations).toEqual([
+      {
+        range: {
+          end: { character: 0, line: 0 },
+          start: { character: 0, line: 0 },
+        },
+        uri: resolveVirtualPathUri("node_modules/test-lib/lib/lib1.tsp"),
+      },
+    ]);
+  });
 });
