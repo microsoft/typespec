@@ -9,6 +9,7 @@ import com.azure.core.util.ExpandableEnum;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -43,9 +44,7 @@ public final class OlympicRecordModel implements ExpandableEnum<Double> {
      */
     @Generated
     public static OlympicRecordModel fromValue(Double value) {
-        if (value == null) {
-            throw new IllegalArgumentException("value can't be null");
-        }
+        Objects.requireNonNull(value, "'value' cannot be null.");
         OlympicRecordModel member = VALUES.get(value);
         if (member != null) {
             return member;
@@ -77,18 +76,18 @@ public final class OlympicRecordModel implements ExpandableEnum<Double> {
     @Generated
     @Override
     public String toString() {
-        return getValue().toString();
+        return Objects.toString(this.value);
     }
 
     @Generated
     @Override
     public boolean equals(Object obj) {
-        return (obj instanceof OlympicRecordModel) && ((OlympicRecordModel) obj).getValue().equals(getValue());
+        return Objects.equals(this.value, OlympicRecordModel);
     }
 
     @Generated
     @Override
     public int hashCode() {
-        return getValue().hashCode();
+        return Objects.hashCode(this.value);
     }
 }
