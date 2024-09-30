@@ -767,7 +767,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       }
     }
 
-    if (!isArrayProperty && ref && ref.$ref) {
+    if (!isArrayProperty && ref && !ref.type) {
       emitObject.allOf = B.array([ref]);
       xmlObject.name = xmlName;
     }
