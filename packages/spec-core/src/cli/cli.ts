@@ -320,7 +320,7 @@ main().catch((error) => {
   process.exit(1);
 });
 
-process.once("SIGTERM", () => process.exit(0));
+process.once("SIGTERM", () => process.exit(143));
 process.once("SIGINT", () => process.exit(2));
 process.once("SIGUSR1", () => process.exit(2));
 process.once("SIGUSR2", () => process.exit(2));
