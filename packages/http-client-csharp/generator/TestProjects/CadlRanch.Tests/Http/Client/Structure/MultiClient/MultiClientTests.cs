@@ -3,8 +3,8 @@
 
 using System.Linq;
 using System.Threading.Tasks;
-using Client.Structure.Service;
-using Client.Structure.Service.Models;
+using Client.Structure.Service.multi.client;
+using Client.Structure.Service.multi.client.Models;
 using NUnit.Framework;
 
 namespace TestProjects.CadlRanch.Tests.Http.Client.Structure.MultiClient
