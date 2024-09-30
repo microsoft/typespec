@@ -10,7 +10,7 @@ import {
   type Type,
   type Value,
 } from "../core/types.js";
-import { getEncode, type EncodeData } from "./decorators.js";
+import { getEncode, resolveEncodedName, type EncodeData } from "./decorators.js";
 
 /**
  * Serialize the given TypeSpec value as a JSON object using the given type and its encoding annotations.
@@ -99,7 +99,11 @@ function serializeObjectValueAsJson(
   for (const propValue of value.properties.values()) {
     const definition = getPropertyOfType(type, propValue.name);
     if (definition) {
-      obj[propValue.name] = serializeValueAsJson(program, propValue.value, definition);
+      const name =
+        definition.kind === "ModelProperty"
+          ? resolveEncodedName(program, definition, "application/json")
+          : propValue.name;
+      obj[name] = serializeValueAsJson(program, propValue.value, definition);
     }
   }
   return obj;
