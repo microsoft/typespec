@@ -52,8 +52,7 @@ namespace Microsoft.Generator.CSharp.Input
 
             if (!Enum.TryParse<InputPrimitiveTypeKind>(kind, true, out var primitiveTypeKind))
             {
-                //throw new JsonException($"Unknown primitive type kind: {kind}");
-                primitiveTypeKind = InputPrimitiveTypeKind.Unknown;
+                throw new JsonException($"Unknown primitive type kind: {kind}");
             }
 
             var primitiveType = new InputPrimitiveType(primitiveTypeKind, name, crossLanguageDefinitionId, encode, baseType)

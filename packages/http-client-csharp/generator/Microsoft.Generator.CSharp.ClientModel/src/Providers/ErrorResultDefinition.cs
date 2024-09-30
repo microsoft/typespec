@@ -13,7 +13,7 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
-    public class ErrorResultDefinition : TypeProvider
+    internal class ErrorResultDefinition : TypeProvider
     {
         private class ErrorResultTemplate<T> { }
 
