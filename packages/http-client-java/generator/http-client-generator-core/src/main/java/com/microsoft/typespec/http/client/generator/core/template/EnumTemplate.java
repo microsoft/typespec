@@ -65,6 +65,7 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
             imports.add("java.util.Map");
             imports.add("java.util.concurrent.ConcurrentHashMap");
             imports.add("java.util.ArrayList");
+            imports.add("java.util.Objects");
             imports.add(ClassType.EXPANDABLE_ENUM.getFullName());
             if (!settings.isStreamStyleSerialization()) {
                 imports.add("com.fasterxml.jackson.annotation.JsonCreator");
@@ -113,12 +114,9 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
 
                 classBlock.publicStaticMethod(String.format("%1$s fromValue(%2$s value)", enumName, pascalTypeName),
                     function -> {
-                        function.ifBlock("value == null",
-                            ifAction -> ifAction.line("throw new IllegalArgumentException(\"value can't be null\");"));
+                        function.line("Objects.requireNonNull(value, \"'value' cannot be null.\");");
                         function.line(enumName + " member = VALUES.get(value);");
-                        function.ifBlock("member != null", ifAction -> {
-                            ifAction.line("return member;");
-                        });
+                        function.ifBlock("member != null", ifAction -> ifAction.line("return member;"));
                         function.methodReturn("VALUES.computeIfAbsent(value, key -> new " + enumName + "(key))");
                     });
 
@@ -146,20 +144,19 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
                 addGeneratedAnnotation(classBlock);
                 classBlock.annotation("Override");
                 classBlock.method(JavaVisibility.Public, null, "String toString()",
-                    function -> function.methodReturn("getValue().toString()"));
+                    function -> function.methodReturn("Objects.toString(this.value)"));
 
                 // equals
                 addGeneratedAnnotation(classBlock);
                 classBlock.annotation("Override");
                 classBlock.method(JavaVisibility.Public, null, "boolean equals(Object obj)",
-                    function -> function.methodReturn(String
-                        .format("(obj instanceof %1$s) && ((%1$s) obj).getValue().equals(getValue())", enumName)));
+                    function -> function.methodReturn(String.format("Objects.equals(this.value, %s)", enumName)));
 
                 // hashcode
                 addGeneratedAnnotation(classBlock);
                 classBlock.annotation("Override");
                 classBlock.method(JavaVisibility.Public, null, "int hashCode()",
-                    function -> function.methodReturn("getValue().hashCode()"));
+                    function -> function.methodReturn("Objects.hashCode(this.value)"));
             });
         }
     }
