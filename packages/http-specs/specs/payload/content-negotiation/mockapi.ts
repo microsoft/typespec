@@ -67,122 +67,122 @@ function differentBodyHandler(req: MockRequest) {
   }
 }
 
-Scenarios.Payload_ContentNegotiation_SameBody = withServiceKeys(["image/png", "image/jpeg"]).pass([
-  {
-    uri: "/content-negotiation/same-body",
-    method: "get",
-    request: {
-      headers: {
-        accept: "image/png",
+Scenarios.Payload_ContentNegotiation_SameBody = withServiceKeys(["image/png", "image/jpeg"]).pass(
+  [
+    {
+      uri: "/content-negotiation/same-body",
+      method: "get",
+      request: {
+        headers: {
+          accept: "image/png",
+        },
       },
-    },
-    response: {
-      body: {
-        contentType: "image/png",
-        rawContent: pngFile,
+      response: {
+        body: {
+          contentType: "image/png",
+          rawContent: pngFile,
+        },
+        status: 200,
       },
-      status: 200,
+      kind: "MockApiDefinition",
     },
-    handler: (req) => sameBodyHandler(req),
-    kind: "MockApiDefinition",
-  },
-  {
-    uri: "/content-negotiation/same-body",
-    method: "get",
-    request: {
-      headers: {
-        accept: "image/jpeg",
+    {
+      uri: "/content-negotiation/same-body",
+      method: "get",
+      request: {
+        headers: {
+          accept: "image/jpeg",
+        },
       },
-    },
-    response: {
-      body: {
-        contentType: "image/jpeg",
-        rawContent: jpgFile,
+      response: {
+        body: {
+          contentType: "image/jpeg",
+          rawContent: jpgFile,
+        },
+        status: 200,
       },
-      status: 200,
+      kind: "MockApiDefinition",
     },
-    handler: (req) => sameBodyHandler(req),
-    kind: "MockApiDefinition",
-  },
-  {
-    uri: "/content-negotiation/same-body",
-    method: "get",
-    request: {
-      status: 400,
-      headers: {
-        accept: "wrongAccept",
+    {
+      uri: "/content-negotiation/same-body",
+      method: "get",
+      request: {
+        status: 400,
+        headers: {
+          accept: "wrongAccept",
+        },
       },
+      response: {
+        status: 400,
+        body: json({
+          message: "Unsupported Accept header",
+          expected: `"image/png" | "image/jpeg"`,
+          actual: "wrongAccept",
+        }),
+      },
+      kind: "MockApiDefinition",
     },
-    response: {
-      status: 400,
-      body: json({
-        message: "Unsupported Accept header",
-        expected: `"image/png" | "image/jpeg"`,
-        actual: "wrongAccept",
-      }),
-    },
-    handler: sameBodyHandler,
-    kind: "MockApiDefinition",
-  },
-]);
+  ],
+  sameBodyHandler,
+);
 
 Scenarios.Payload_ContentNegotiation_DifferentBody = withServiceKeys([
   "image/png",
   "application/json",
-]).pass([
-  {
-    uri: "/content-negotiation/different-body",
-    method: "get",
-    request: {
-      headers: {
-        accept: "image/png",
+]).pass(
+  [
+    {
+      uri: "/content-negotiation/different-body",
+      method: "get",
+      request: {
+        headers: {
+          accept: "image/png",
+        },
       },
-    },
-    response: {
-      status: 200,
-      body: {
-        contentType: "image/png",
-        rawContent: pngFile,
+      response: {
+        status: 200,
+        body: {
+          contentType: "image/png",
+          rawContent: pngFile,
+        },
       },
+      kind: "MockApiDefinition",
     },
-    handler: differentBodyHandler,
-    kind: "MockApiDefinition",
-  },
-  {
-    uri: "/content-negotiation/different-body",
-    method: "get",
-    request: {
-      headers: {
-        accept: "application/json",
+    {
+      uri: "/content-negotiation/different-body",
+      method: "get",
+      request: {
+        headers: {
+          accept: "application/json",
+        },
       },
-    },
-    response: {
-      status: 200,
-      body: json({
-        content: pngFile.toString("base64"),
-      }),
-    },
-    handler: differentBodyHandler,
-    kind: "MockApiDefinition",
-  },
-  {
-    uri: "/content-negotiation/different-body",
-    method: "get",
-    request: {
-      status: 400,
-      headers: {
-        accept: "wrongAccept",
+      response: {
+        status: 200,
+        body: json({
+          content: pngFile.toString("base64"),
+        }),
       },
+      kind: "MockApiDefinition",
     },
-    response: {
-      status: 400,
-      body: json({
-        message: "Unsupported Accept header",
-        expected: `"image/png" | "application/json"`,
-        actual: "wrongAccept",
-      }),
+    {
+      uri: "/content-negotiation/different-body",
+      method: "get",
+      request: {
+        status: 400,
+        headers: {
+          accept: "wrongAccept",
+        },
+      },
+      response: {
+        status: 400,
+        body: json({
+          message: "Unsupported Accept header",
+          expected: `"image/png" | "application/json"`,
+          actual: "wrongAccept",
+        }),
+      },
+      kind: "MockApiDefinition",
     },
-    handler: differentBodyHandler,
-    kind: "MockApiDefinition",
-  },
-]);
+  ],
+  differentBodyHandler,
+);

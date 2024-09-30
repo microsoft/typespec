@@ -87,7 +87,7 @@ export interface KeyedMockApi<K extends string> extends MockApi {
   handler: KeyedMockRequestHandler<K>;
 }
 export interface KeyedMockApiDefinition<K extends string> extends MockApiDefinition {
-  handler: KeyedMockRequestHandler<K>;
+  handler?: KeyedMockRequestHandler<K>;
 }
 
 export interface MockResponse {

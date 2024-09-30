@@ -1,6 +1,7 @@
 import {
   KeyedMockApi,
   KeyedMockApiDefinition,
+  KeyedMockRequestHandler,
   MockApi,
   MockApiDefinition,
   PassByKeyScenario,
@@ -58,14 +59,25 @@ export function withKeys<const K extends string>(keys: K[]): WithKeysScenarioExp
 }
 
 export interface WithServiceKeysScenarioExpect<K extends string> {
-  pass(api: KeyedMockApiDefinition<K> | KeyedMockApiDefinition<K>[]): PassByServiceKeyScenario<K>;
+  pass(
+    api: KeyedMockApiDefinition<K> | KeyedMockApiDefinition<K>[],
+    handler?: KeyedMockRequestHandler<K>,
+  ): PassByServiceKeyScenario<K>;
 }
 
 export function withServiceKeys<const K extends string>(
   keys: K[],
 ): WithServiceKeysScenarioExpect<K> {
   return {
-    pass: (api: KeyedMockApiDefinition<K> | KeyedMockApiDefinition<K>[]) => {
+    pass: (
+      api: KeyedMockApiDefinition<K> | KeyedMockApiDefinition<K>[],
+      handler?: KeyedMockRequestHandler<K>,
+    ) => {
+      if (handler && Array.isArray(api)) {
+        api.forEach((a) => {
+          a.handler = handler;
+        });
+      }
       return {
         passCondition: "by-key",
         keys,
