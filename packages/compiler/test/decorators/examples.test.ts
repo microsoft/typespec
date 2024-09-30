@@ -111,6 +111,16 @@ describe("@example", () => {
       expect(serializeValueAsJson(program, examples[0].value, target)).toEqual("11:32");
     });
 
+    it("use const with type of scalar", async () => {
+      const { program, examples, target } = await getExamplesFor(`
+        const example: test = test.fromISO("11:32");
+        @example(example)
+        @test scalar test extends utcDateTime;
+      `);
+      expect(examples).toHaveLength(1);
+      expect(serializeValueAsJson(program, examples[0].value, target)).toEqual("11:32");
+    });
+
     it("emit diagnostic for unassignable value", async () => {
       const diagnostics = await diagnoseCode(`
         @example("11:32")
