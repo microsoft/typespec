@@ -1,5 +1,6 @@
 {
   "name": "@typespec/http-specs",
+  "private": true,
   "version": "0.37.2",
   "description": "Spec scenarios and mock apis",
   "main": "dist/index.js",
