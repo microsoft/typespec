@@ -43,6 +43,13 @@ Scenarios.Encode_Duration_Property_default = createBodyServerTests(
   },
   35.625,
 );
+Scenarios.Encode_Duration_Property_floatSeconds = createBodyServerTests(
+  "/encode/duration/property/float-seconds",
+  {
+    value: 35.625,
+  },
+  35.625,
+);
 Scenarios.Encode_Duration_Property_float64Seconds = createBodyServerTests(
   "/encode/duration/property/float64-seconds",
   {
@@ -189,6 +196,13 @@ Scenarios.Encode_Duration_Header_floatSeconds = createHeaderServerTests(
   "35.625",
 );
 Scenarios.Encode_Duration_Header_floatSeconds = createHeaderServerTests(
+  "/encode/duration/header/float64-seconds",
+  {
+    duration: 35.625,
+  },
+  "35.625",
+);
+Scenarios.Encode_Duration_Header_float64Seconds = createHeaderServerTests(
   "/encode/duration/header/float64-seconds",
   {
     duration: 35.625,

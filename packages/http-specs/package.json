@@ -8,7 +8,7 @@
     "watch": "tsc -p ./tsconfig.build.json --watch",
     "build": "tsc -p ./tsconfig.build.json",
     "clean": "rimraf dist/ temp/",
-    "test:e2e": "pnpm validate-scenarios",
+    "test:e2e": "pnpm validate-scenarios  && pnpm validate-mock-apis",
     "validate-scenarios": "spec-core validate-scenarios ./specs",
     "generate-scenarios-summary": "spec-core generate-scenarios-summary ./specs",
     "validate-mock-apis": "spec-core validate-mock-apis ./specs",
