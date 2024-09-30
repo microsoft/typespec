@@ -18,13 +18,13 @@ export type ScenarioPassCondition = "response-success" | "status-code";
 
 export interface PassOnSuccessScenario {
   passCondition: "response-success";
-  apis: MockApi[];
+  apis: MockApi[] | MockApiDefinition[];
 }
 
 export interface PassOnCodeScenario {
   passCondition: "status-code";
   code: number;
-  apis: MockApi[];
+  apis: MockApi[] | MockApiDefinition[];
 }
 export interface PassByKeyScenario<K extends string = string> {
   passCondition: "by-key";
@@ -48,6 +48,26 @@ export interface MockApi {
   method: HttpMethod;
   uri: string;
   handler: MockRequestHandler;
+  kind: "MockApi";
+}
+
+export interface MockApiDefinition {
+  uri: string;
+  method: HttpMethod;
+  request: ServiceRequest;
+  response: MockResponse;
+  handler?: MockRequestHandler;
+  kind: "MockApiDefinition";
+}
+
+export interface ServiceRequest {
+  body?: any;
+  status?: number;
+  /**
+   * Query parameters to match to the request.
+   */
+  params?: Record<string, unknown>;
+  headers?: Record<string, unknown>;
 }
 
 export const Fail = Symbol.for("Fail");
