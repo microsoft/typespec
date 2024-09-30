@@ -3,7 +3,6 @@
 #nullable disable
 
 using System;
-using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
@@ -28,9 +27,5 @@ namespace _Type.Model.Inheritance.SingleDiscriminator.Models
         protected override Bird PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
         string IPersistableModel<SeaGull>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(SeaGull seaGull) => throw null;
-
-        public static explicit operator SeaGull(ClientResult result) => throw null;
     }
 }

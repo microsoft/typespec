@@ -3,7 +3,6 @@
 #nullable disable
 
 using System;
-using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
@@ -28,9 +27,5 @@ namespace _Type.Property.AdditionalProperties.Models
         protected override DifferentSpreadModelArrayRecord PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
         string IPersistableModel<DifferentSpreadModelArrayDerived>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(DifferentSpreadModelArrayDerived differentSpreadModelArrayDerived) => throw null;
-
-        public static explicit operator DifferentSpreadModelArrayDerived(ClientResult result) => throw null;
     }
 }

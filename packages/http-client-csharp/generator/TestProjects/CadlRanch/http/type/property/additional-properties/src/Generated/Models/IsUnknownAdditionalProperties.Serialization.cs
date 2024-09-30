@@ -3,7 +3,6 @@
 #nullable disable
 
 using System;
-using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
@@ -28,9 +27,5 @@ namespace _Type.Property.AdditionalProperties.Models
         protected virtual IsUnknownAdditionalProperties PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
         string IPersistableModel<IsUnknownAdditionalProperties>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(IsUnknownAdditionalProperties isUnknownAdditionalProperties) => throw null;
-
-        public static explicit operator IsUnknownAdditionalProperties(ClientResult result) => throw null;
     }
 }

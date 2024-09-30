@@ -3,7 +3,6 @@
 #nullable disable
 
 using System;
-using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
@@ -28,9 +27,5 @@ namespace _Type.Property.ValueTypes.Models
         protected virtual CollectionsIntProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
         string IPersistableModel<CollectionsIntProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(CollectionsIntProperty collectionsIntProperty) => throw null;
-
-        public static explicit operator CollectionsIntProperty(ClientResult result) => throw null;
     }
 }

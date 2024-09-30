@@ -3,7 +3,6 @@
 #nullable disable
 
 using System;
-using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
@@ -28,9 +27,5 @@ namespace Encode.Datetime.Models
         protected virtual UnixTimestampDatetimeProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
         string IPersistableModel<UnixTimestampDatetimeProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(UnixTimestampDatetimeProperty unixTimestampDatetimeProperty) => throw null;
-
-        public static explicit operator UnixTimestampDatetimeProperty(ClientResult result) => throw null;
     }
 }

@@ -3,7 +3,6 @@
 #nullable disable
 
 using System;
-using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
@@ -28,9 +27,5 @@ namespace Encode.Bytes.Models
         protected virtual Base64urlArrayBytesProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
         string IPersistableModel<Base64urlArrayBytesProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(Base64urlArrayBytesProperty base64urlArrayBytesProperty) => throw null;
-
-        public static explicit operator Base64urlArrayBytesProperty(ClientResult result) => throw null;
     }
 }

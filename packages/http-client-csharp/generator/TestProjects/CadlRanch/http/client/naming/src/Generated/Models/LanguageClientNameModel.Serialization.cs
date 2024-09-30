@@ -3,7 +3,6 @@
 #nullable disable
 
 using System;
-using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
@@ -28,9 +27,5 @@ namespace Client.Naming.Models
         protected virtual LanguageClientNameModel PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
         string IPersistableModel<LanguageClientNameModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(LanguageClientNameModel languageClientNameModel) => throw null;
-
-        public static explicit operator LanguageClientNameModel(ClientResult result) => throw null;
     }
 }

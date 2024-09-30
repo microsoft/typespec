@@ -3,7 +3,6 @@
 #nullable disable
 
 using System;
-using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
@@ -28,9 +27,5 @@ namespace Payload.Xml.Models
         protected virtual ModelWithRenamedFields PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
         string IPersistableModel<ModelWithRenamedFields>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(ModelWithRenamedFields modelWithRenamedFields) => throw null;
-
-        public static explicit operator ModelWithRenamedFields(ClientResult result) => throw null;
     }
 }
