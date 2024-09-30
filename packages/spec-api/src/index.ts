@@ -24,6 +24,7 @@ export {
   KeyedMockRequestHandler,
   KeyedMockResponse,
   MockApi,
+  MockApiDefinition,
   MockApiForHandler,
   MockRequestHandler,
   MockResponse,

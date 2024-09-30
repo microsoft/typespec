@@ -5,6 +5,7 @@ import { checkCoverage } from "../actions/check-coverage.js";
 import { generateScenarioSummary } from "../actions/generate-scenario-summary.js";
 import { validateScenarios } from "../actions/index.js";
 import { serve, startInBackground, stop } from "../actions/serve.js";
+import { serverTest } from "../actions/server-test.js";
 import { uploadCoverageReport } from "../actions/upload-coverage-report.js";
 import { uploadScenarioManifest } from "../actions/upload-scenario-manifest.js";
 import { validateMockApis } from "../actions/validate-mock-apis.js";
@@ -144,6 +145,39 @@ async function main() {
           scenariosPath: resolve(process.cwd(), args.scenariosPath),
           port: args.port,
           coverageFile: args.coverageFile,
+        });
+      },
+    )
+    .command(
+      "server-test <scenariosPath>",
+      "Executes the test cases against the service",
+      (cmd) => {
+        return cmd
+          .positional("scenariosPath", {
+            description: "Path to the scenarios and mock apis",
+            type: "string",
+            demandOption: true,
+          })
+          .positional("serverBasePath", {
+            description: "Path to the server",
+            type: "string",
+            demandOption: true,
+          })
+          .positional("runSingleScenario", {
+            description: "Single Scenario Case to run",
+            type: "string",
+            demandOption: false,
+          })
+          .positional("runScenariosFromFile", {
+            description: "File that has the Scenarios to run",
+            type: "string",
+            demandOption: false,
+          });
+      },
+      async (args) => {
+        await serverTest(args.scenariosPath, args.serverBasePath, {
+          runSingleScenario: args.runSingleScenario,
+          runScenariosFromFile: args.runScenariosFromFile,
         });
       },
     )
