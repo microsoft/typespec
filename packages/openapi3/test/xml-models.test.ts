@@ -689,26 +689,38 @@ describe("Complex array types", () => {
 
 describe("set xml name in items if that object is used in an xml payload.", () => {
   it.each([
-    ["@name model", true, `@name("xmlAuthor") model Author { id:string; }`],
-    ["@name", true, `model Author { @name("xmlId") id:string; }`],
-    ["@attribute", true, "model Author { @attribute id:string; }"],
+    ["@name model", true, `@name("xmlAuthor") model Author { id:string; }`, "xmlAuthor"],
+    ["@name", true, `model Author { @name("xmlId") id:string; }`, "Author"],
+    ["@attribute", true, "model Author { @attribute id:string; }", "Author"],
     [
       "@attribute deeply",
       true,
       `model Author { card: Card[]; } model Card { @attribute id:string;}`,
+      "Author",
     ],
     [
       "circular reference child",
       true,
       `model Author { @attribute id: string; card: Card[]; } model Card { author:Author[];}`,
+      "Author",
     ],
-    ["circular reference root", true, `model Author {  @attribute  id: string;  book?: Book[]; }`],
-    ["@name model", false, `@name("XmlAuthor") model Author { name: string; }`],
-    ["@name", false, `model Author { @name("xmlId") name: string; }`],
-    ["@attribute", false, "model Author { @attribute name: string; }"],
-    ["circular reference root", false, `model Author {  @attribute  id: string;  book?: Book; }`],
-    ["scalar", false, `@name("XmlAuthor") scalar Author extends string;`],
-  ])(`%s, is array: %s`, async (_, isArray, refModel) => {
+    [
+      "circular reference root",
+      true,
+      `model Author {  @attribute  id: string;  book?: Book[]; }`,
+      "Author",
+    ],
+    ["@name model", false, `@name("XmlAuthor") model Author { name: string; }`, ""],
+    ["@name", false, `model Author { @name("xmlId") name: string; }`, ""],
+    ["@attribute", false, "model Author { @attribute name: string; }", ""],
+    [
+      "circular reference root",
+      false,
+      `model Author {  @attribute  id: string;  book?: Book; }`,
+      "",
+    ],
+    ["scalar", false, `@name("XmlAuthor") scalar Author extends string;`, ""],
+  ])(`%s, is array: %s`, async (_, isArray, refModel, xmlName) => {
     const mainModel = isArray
       ? "model Book { author: Author[]; }"
       : "model Book { author: Author; }";
@@ -717,6 +729,7 @@ describe("set xml name in items if that object is used in an xml payload.", () =
           type: "array",
           items: {
             allOf: [{ $ref: "#/components/schemas/Author" }],
+            xml: { name: `${xmlName}` },
           },
           xml: {
             wrapped: true,
