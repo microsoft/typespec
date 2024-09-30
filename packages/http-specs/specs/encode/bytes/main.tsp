@@ -1,18 +1,16 @@
 import "@typespec/http";
 import "@typespec/spec-lib";
 
-using TypeSpec.Http;
-using Azure.ClientGenerator.Core;
+using Http;
+using SpecLib;
 
 @doc("Test for encode decorator on bytes.")
-@supportedBy("dpg")
 @scenarioService("/encode/bytes")
 namespace Encode.Bytes;
 
 @encode(BytesKnownEncoding.base64url)
 scalar base64urlBytes extends bytes;
 
-@operationGroup
 @route("/query")
 namespace Query {
   @route("/default")
@@ -87,7 +85,6 @@ model Base64urlArrayBytesProperty {
   value: base64urlBytes[];
 }
 
-@operationGroup
 @route("/property")
 namespace Property {
   @route("/default")
@@ -171,7 +168,6 @@ namespace Property {
   op base64urlArray(@body body: Base64urlArrayBytesProperty): Base64urlArrayBytesProperty;
 }
 
-@operationGroup
 @route("/header")
 namespace Header {
   @route("/default")
@@ -227,7 +223,6 @@ namespace Header {
   ): NoContentResponse;
 }
 
-@operationGroup
 @route("/body/request")
 namespace RequestBody {
   @route("/default")
@@ -302,7 +297,6 @@ namespace RequestBody {
   ): NoContentResponse;
 }
 
-@operationGroup
 @route("/body/response")
 namespace ResponseBody {
   @route("/default")

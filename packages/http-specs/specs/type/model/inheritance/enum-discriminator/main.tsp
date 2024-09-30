@@ -1,8 +1,8 @@
 import "@typespec/http";
 import "@typespec/spec-lib";
 
-using TypeSpec.Http;
-using Azure.Core;
+using Http;
+using SpecLib;
 
 @doc("Illustrates inheritance with enum discriminator.")
 @scenarioService("/type/model/inheritance/enum-discriminator")

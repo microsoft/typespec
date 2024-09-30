@@ -2,7 +2,8 @@ import "@typespec/http";
 import "@typespec/spec-lib";
 import "@typespec/versioning";
 
-using TypeSpec.Http;
+using Http;
+using SpecLib;
 using TypeSpec.Versioning;
 
 /**
@@ -30,13 +31,11 @@ enum Versions {
   /**
    * The version 2022-12-01-preview.
    */
-  @useDependency(global.Azure.Core.Versions.v1_0_Preview_2)
   v2021_01_01_preview: "2021-01-01-preview",
 
   /**
    * The version 2022-12-01-preview.
    */
-  @useDependency(global.Azure.Core.Versions.v1_0_Preview_2)
   v2022_12_01_preview: "2022-12-01-preview",
 }
 

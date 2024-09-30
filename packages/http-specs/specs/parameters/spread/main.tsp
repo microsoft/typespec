@@ -1,16 +1,14 @@
 import "@typespec/http";
 import "@typespec/spec-lib";
 
-using TypeSpec.Http;
-using Azure.ClientGenerator.Core;
+using Http;
+using SpecLib;
 
 @doc("Test for the spread operator.")
-@supportedBy("dpg")
 @scenarioService("/parameters/spread")
 namespace Parameters.Spread;
 
 @route("/model")
-@operationGroup
 namespace Model {
   @doc("This is a simple model.")
   model BodyParameter {
@@ -159,7 +157,6 @@ namespace Model {
 }
 
 @route("/alias")
-@operationGroup
 namespace Alias {
   alias BodyParameter = {
     name: string;

@@ -2,7 +2,8 @@ import "@typespec/rest";
 import "@typespec/spec-lib";
 import "@typespec/versioning";
 
-using TypeSpec.Http;
+using Http;
+using SpecLib;
 using TypeSpec.Versioning;
 using TypeSpec.Rest;
 

@@ -1,15 +1,13 @@
 import "@typespec/http";
 import "@typespec/spec-lib";
 
-using TypeSpec.Http;
-using Azure.ClientGenerator.Core;
+using Http;
+using SpecLib;
 
 @doc("Test for encode decorator on integer.")
-@supportedBy("dpg")
 @scenarioService("/encode/numeric")
 namespace Encode.Numeric;
 
-@operationGroup
 @route("/property")
 namespace Property {
   alias SendSafeIntAsString = SendIntAsString<safeint, "10000000000", SafeintAsStringProperty>;

@@ -1,8 +1,8 @@
 import "@typespec/http";
 import "@typespec/spec-lib";
 
-using Azure.Core;
-using TypeSpec.Http;
+using Http;
+using SpecLib;
 
 @scenarioService("/type/enum/fixed")
 namespace Type.Enum.Fixed;
