@@ -15,6 +15,7 @@
     { "path": "packages/openapi3/tsconfig.json" },
     { "path": "packages/monarch/tsconfig.json" },
     { "path": "packages/bundler/tsconfig.json" },
+    { "path": "packages/importer/tsconfig.json" },
     { "path": "packages/tspd/tsconfig.json" },
     { "path": "packages/samples/tsconfig.json" },
     { "path": "packages/json-schema/tsconfig.json" },
