@@ -361,10 +361,42 @@ namespace Microsoft.Generator.CSharp.Providers
                 }
             }
 
-            if (customPropertyReplacements.TryGetValue(property.Name, out PropertyProvider? customProp))
+            var customPropertySerializationNames = new Dictionary<string, string>();
+            foreach (var attribute in GetCodeGenSerializationAttributes())
+            {
+                if (CodeGenAttributes.TryGetCodeGenSerializationAttributeValue(
+                    attribute,
+                    out var propertyName,
+                    out IReadOnlyList<string>? serializationNames,
+                    out _,
+                    out _,
+                    out _) && serializationNames?.Count > 0)
+                {
+                    customPropertySerializationNames.Add(propertyName, serializationNames[0]);
+                }
+            }
+
+            var customPropReplacementExists = customPropertyReplacements.TryGetValue(property.Name, out PropertyProvider? customProp);
+
+            if (property.WireInfo != null)
+            {
+                // replace original property serialization name. Otherwise try replacing custom property serialization name
+                if (customPropertySerializationNames.TryGetValue(property.Name, out var serializedName) && serializedName != null)
+                {
+                    property.WireInfo.SerializedName = serializedName;
+                }
+                else if (customPropReplacementExists && customProp != null
+                    && customPropertySerializationNames.TryGetValue(customProp.Name, out serializedName) && serializedName != null)
+                {
+                    customProp.WireInfo = property.WireInfo;
+                    customProp.WireInfo.SerializedName = serializedName;
+                }
+            }
+
+            if (customProp != null)
             {
                 // Store the wire info on the custom property so that we can use it for serialization.
-                customProp.WireInfo = property.WireInfo;
+                customProp.WireInfo ??= property.WireInfo;
                 customProp.BaseProperty = property.BaseProperty;
                 return false;
             }
@@ -495,5 +527,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private IEnumerable<AttributeData> GetMemberSuppressionAttributes()
             => CustomCodeView?.GetAttributes()?.Where(a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenSuppressAttributeName) ?? [];
+        private IEnumerable<AttributeData> GetCodeGenSerializationAttributes()
+            => CustomCodeView?.GetAttributes()?.Where(a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenSerializationAttributeName) ?? [];
     }
 }
