@@ -234,6 +234,12 @@ words:
   - xplat
   - xxsubtype
   - yamls
+  - arraya
+  - primitivea
+  - recorda
+  - Hdvcmxk
+  - ints
+  - myname
 ignorePaths:
   - "**/node_modules/**"
   - "**/dist/**"
