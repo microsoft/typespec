@@ -1388,10 +1388,34 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             ScopedApi array,
             SerializationFormat serializationFormat)
         {
+            // Handle ReadOnlyMemory<byte> serialization
+            if (array.Type.ElementType.IsFrameworkType && array.Type.ElementType.FrameworkType == typeof(ReadOnlySpan<>))
+            {
+                return CreateSerializationStatementForReadOnlyMemory(array, serializationFormat);
+            }
+
             return new[]
             {
                 _utf8JsonWriterSnippet.WriteStartArray(),
                 new ForeachStatement("item", array, out VariableExpression item)
+                {
+                    TypeRequiresNullCheckInSerialization(item.Type) ?
+                    new IfStatement(item.Equal(Null)) { _utf8JsonWriterSnippet.WriteNullValue(), Continue } : MethodBodyStatement.Empty,
+                    CreateSerializationStatement(item.Type, item, serializationFormat)
+                },
+                _utf8JsonWriterSnippet.WriteEndArray()
+            };
+        }
+
+        private MethodBodyStatement CreateSerializationStatementForReadOnlyMemory(ScopedApi array, SerializationFormat serializationFormat)
+        {
+            CSharpType spanElementType = array.Type.ElementType.Arguments[0];
+            var propertyRef = array.NullableStructValue(array.Type.ElementType).Property(nameof(ReadOnlyMemory<byte>.Span));
+
+            return new[]
+            {
+                _utf8JsonWriterSnippet.WriteStartArray(),
+                new ForeachStatement(spanElementType, "item", propertyRef, false, out VariableExpression item)
                 {
                     TypeRequiresNullCheckInSerialization(item.Type) ?
                     new IfStatement(item.Equal(Null)) { _utf8JsonWriterSnippet.WriteNullValue(), Continue } : MethodBodyStatement.Empty,
@@ -1583,8 +1607,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private static ScopedApi GetEnumerableExpression(ValueExpression expression, CSharpType enumerableType)
         {
-            CSharpType itemType = enumerableType.IsReadOnlyMemory ? new CSharpType(typeof(ReadOnlySpan<>), enumerableType.Arguments[0]) :
-                enumerableType.ElementType;
+            CSharpType itemType = enumerableType.ElementType;
+
+            if (enumerableType.IsReadOnlyMemory)
+            {
+                itemType = new CSharpType(typeof(ReadOnlySpan<>), enumerableType.IsNullable, enumerableType.Arguments[0]);
+            }
 
             return expression.As(new CSharpType(typeof(IEnumerable<>), itemType));
         }
