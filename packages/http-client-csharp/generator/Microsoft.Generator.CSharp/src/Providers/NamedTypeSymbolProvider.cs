@@ -303,12 +303,21 @@ namespace Microsoft.Generator.CSharp.Providers
             string fullyQualifiedName,
             INamedTypeSymbol? namedTypeSymbol)
         {
+            var typeArg = namedTypeSymbol?.TypeArguments.FirstOrDefault();
             bool isValueType = typeSymbol.IsValueType;
             bool isEnum = typeSymbol.TypeKind == TypeKind.Enum;
             bool isNullable = typeSymbol.NullableAnnotation == NullableAnnotation.Annotated;
-            bool isNullableUnknownType = isNullable && namedTypeSymbol?.TypeArguments.FirstOrDefault()?.TypeKind == TypeKind.Error;
+            bool isNullableUnknownType = isNullable && typeArg?.TypeKind == TypeKind.Error;
             string name = isNullableUnknownType ? fullyQualifiedName : typeSymbol.Name;
-            var pieces = fullyQualifiedName.Split('.');
+            string[] pieces = fullyQualifiedName.Split('.');
+
+            // handle nullables
+            if (isNullable)
+            {
+                // System.Nullable`1[T] -> T
+                name = typeArg != null ? GetFullyQualifiedName(typeArg) : fullyQualifiedName;
+                pieces = name.Split('.');
+            }
 
             return new CSharpType(
                 name,
