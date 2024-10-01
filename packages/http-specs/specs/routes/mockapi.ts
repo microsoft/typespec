@@ -2,9 +2,10 @@ import { MockRequest, passOnSuccess, ScenarioMockApi, ValidationError } from "@t
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
-function createTests(uri: string, serverUri?: string, params?: Record<string, any>) {
+function createTests(uri: string, params?: Record<string, any>) {
+  const url = new URL("http://example.com" + uri);
   return passOnSuccess({
-    uri: uri,
+    uri: url.pathname,
     method: "get",
     request: {
       params: params,
@@ -13,7 +14,6 @@ function createTests(uri: string, serverUri?: string, params?: Record<string, an
       status: 204,
     },
     handler: (req: MockRequest) => {
-      const url = new URL("http://example.com" + serverUri);
       for (const [key, value] of url.searchParams.entries()) {
         req.expect.containsQueryParam(key, value);
       }
@@ -122,22 +122,13 @@ Scenarios.Routes_PathParameters_MatrixExpansion_Explode_record = createTests(
   "/routes/matrix/standard/record;a=1;b=2",
 );
 
-Scenarios.Routes_QueryParameters_templateOnly = createTests(
-  "/routes/query/template-only",
-  "/routes/query/template-only?param=a",
-  {
-    param: "a",
-  },
-);
-Scenarios.Routes_QueryParameters_explicit = createTests(
-  "/routes/query/explicit",
-  "/routes/query/explicit?param=a",
-  {
-    param: "a",
-  },
-);
+Scenarios.Routes_QueryParameters_templateOnly = createTests("/routes/query/template-only?param=a", {
+  param: "a",
+});
+Scenarios.Routes_QueryParameters_explicit = createTests("/routes/query/explicit?param=a", {
+  param: "a",
+});
 Scenarios.Routes_QueryParameters_annotationOnly = createTests(
-  "/routes/query/annotation-only",
   "/routes/query/annotation-only?param=a",
   {
     param: "a",
@@ -145,42 +136,36 @@ Scenarios.Routes_QueryParameters_annotationOnly = createTests(
 );
 
 Scenarios.Routes_QueryParameters_QueryExpansion_Standard_primitive = createTests(
-  "/routes/query/query-expansion/standard/primitive",
   "/routes/query/query-expansion/standard/primitive?param=a",
   {
     param: "a",
   },
 );
 Scenarios.Routes_QueryParameters_QueryExpansion_Standard_array = createTests(
-  "/routes/query/query-expansion/standard/array",
   "/routes/query/query-expansion/standard/array?param=a,b",
   {
     param: "a,b",
   },
 );
 Scenarios.Routes_QueryParameters_QueryExpansion_Standard_record = createTests(
-  "/routes/query/query-expansion/standard/record",
   "/routes/query/query-expansion/standard/record?param=a,1,b,2",
   {
     param: "a,1,b,2",
   },
 );
 Scenarios.Routes_QueryParameters_QueryExpansion_Explode_primitive = createTests(
-  "/routes/query/query-expansion/explode/primitive",
   "/routes/query/query-expansion/explode/primitive?param=a",
   {
     param: "a",
   },
 );
 Scenarios.Routes_QueryParameters_QueryExpansion_Explode_array = createTests(
-  "/routes/query/query-expansion/explode/array",
   "/routes/query/query-expansion/explode/array?param=a,b",
   {
     param: "a,b",
   },
 );
 Scenarios.Routes_QueryParameters_QueryExpansion_Explode_record = createTests(
-  "/routes/query/query-expansion/explode/record",
   "/routes/query/query-expansion/explode/record?a=1&b=2",
   {
     a: "1",
@@ -189,7 +174,6 @@ Scenarios.Routes_QueryParameters_QueryExpansion_Explode_record = createTests(
 );
 
 Scenarios.Routes_QueryParameters_QueryContinuation_Standard_primitive = createTests(
-  "/routes/query/query-continuation/standard/primitive",
   "/routes/query/query-continuation/standard/primitive?fixed=true&param=a",
   {
     fixed: true,
@@ -197,7 +181,6 @@ Scenarios.Routes_QueryParameters_QueryContinuation_Standard_primitive = createTe
   },
 );
 Scenarios.Routes_QueryParameters_QueryContinuation_Standard_array = createTests(
-  "/routes/query/query-continuation/standard/array",
   "/routes/query/query-continuation/standard/array?fixed=true&param=a,b",
   {
     fixed: true,
@@ -205,7 +188,6 @@ Scenarios.Routes_QueryParameters_QueryContinuation_Standard_array = createTests(
   },
 );
 Scenarios.Routes_QueryParameters_QueryContinuation_Standard_record = createTests(
-  "/routes/query/query-continuation/standard/record",
   "/routes/query/query-continuation/standard/record?fixed=true&param=a,1,b,2",
   {
     fixed: true,
@@ -213,7 +195,6 @@ Scenarios.Routes_QueryParameters_QueryContinuation_Standard_record = createTests
   },
 );
 Scenarios.Routes_QueryParameters_QueryContinuation_Explode_primitive = createTests(
-  "/routes/query/query-continuation/explode/primitive",
   "/routes/query/query-continuation/explode/primitive?fixed=true&param=a",
   {
     fixed: true,
@@ -221,7 +202,6 @@ Scenarios.Routes_QueryParameters_QueryContinuation_Explode_primitive = createTes
   },
 );
 Scenarios.Routes_QueryParameters_QueryContinuation_Explode_array = createTests(
-  "/routes/query/query-continuation/explode/array",
   "/routes/query/query-continuation/explode/array?fixed=true&param=a,b",
   {
     fixed: true,
@@ -229,7 +209,6 @@ Scenarios.Routes_QueryParameters_QueryContinuation_Explode_array = createTests(
   },
 );
 Scenarios.Routes_QueryParameters_QueryContinuation_Explode_record = createTests(
-  "/routes/query/query-continuation/explode/record",
   "/routes/query/query-continuation/explode/record?fixed=true&a=1&b=2",
   {
     fixed: true,
