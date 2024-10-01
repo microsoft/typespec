@@ -6,7 +6,9 @@ export interface TabsProps {
 }
 
 export const Tabs = ({ children }) => {
-  const [selected, setSelected] = useState();
+  const tabs = children;
+
+  const [selected, setSelected] = useState(tabs[0].props.value);
 
   const handleTabSelection = useCallback(
     (event: SelectTabEvent, data: SelectTabData) => {
@@ -15,16 +17,19 @@ export const Tabs = ({ children }) => {
     [setSelected],
   );
 
-  const tabs = children;
-  const content = tabs.find((tab) => tab.value === selected)?.content;
+  const content = tabs.find((tab) => tab.props.value === selected)?.props.children;
+  console.log(
+    "Tabs",
+    tabs.find((tab) => tab.props.value === selected),
+  );
 
   return (
     <div>
       <TabList selectedValue={selected} onTabSelect={handleTabSelection}>
         {tabs.map((tab) => {
           return (
-            <Tab key={tab.value} value={tab.value}>
-              {tab.value}
+            <Tab key={tab.props.value} value={tab.props.value}>
+              {tab.props.value}
             </Tab>
           );
         })}
