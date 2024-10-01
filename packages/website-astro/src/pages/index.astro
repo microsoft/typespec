@@ -1,9 +1,8 @@
 ---
 import { HomeContent } from "../components/homepage/homepage.js";
-import { ShowcaseLayout } from "../components/layouts/fluent-layout.js";
-import BaseLayout from "@site/src/layouts/base-layout.astro";
+import ShowcaseLayout from "@site/src/layouts/showcase.astro";
 ---
 
-<BaseLayout>
-  <HomeContent client:load />
-</BaseLayout>
+<ShowcaseLayout>
+  <HomeContent />
+</ShowcaseLayout>
