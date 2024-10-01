@@ -173,7 +173,9 @@ describe("compiler: imports", () => {
 
     await host.compile("main.tsp");
     expectFileLoaded({ typespec: ["main.tsp", "node_modules/my-lib/lib/lib1.tsp"] });
-    const file = host.program.sourceFiles.get(resolveVirtualPath("node_modules/my-lib/lib/lib1.tsp"));
+    const file = host.program.sourceFiles.get(
+      resolveVirtualPath("node_modules/my-lib/lib/lib1.tsp"),
+    );
     ok(file, "File exists");
   });
 
