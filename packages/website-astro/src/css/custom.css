@@ -177,6 +177,8 @@
 
   /* Header color */
   --ifm-navbar-background-color: var(--colorNeutralBackground3);
+
+  --header-height: 50px;
 }
 
 [data-theme="light"] {

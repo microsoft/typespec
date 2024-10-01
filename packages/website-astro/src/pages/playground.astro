@@ -1,10 +1,26 @@
 ---
 import { AsyncPlayground } from "../components/react-pages/playground";
 import FluentUILayout from "@site/src/layouts/fluentui.astro";
+import packageJson from "../../../compiler/package.json";
+
+function getMajorMinorVersion(): string {
+  const version = packageJson.version;
+  const [major, minor] = version.split(".");
+  return `${major}.${minor}.x`;
+}
+
+const latestVersion = getMajorMinorVersion();
 ---
 
+<script type="module" async src="./node_modules/es-module-shims"></script>
+<script
+  type="esms-options"
+  set:html={JSON.stringify({
+    shimMode: true,
+  })}
+></script>
 <FluentUILayout>
-  <div style={{ height: "calc(100vh - var(--ifm-navbar-height))", width: "100%" }}>
-    <AsyncPlayground client:only="react" />
+  <div style={{ height: "calc(100vh - var(--header-height))", width: "100%" }}>
+    <AsyncPlayground client:only="react" latestVersion={latestVersion} />
   </div>
 </FluentUILayout>

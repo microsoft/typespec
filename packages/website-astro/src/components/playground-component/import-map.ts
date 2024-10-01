@@ -4,12 +4,11 @@ export interface VersionData {
   resolved: string;
 }
 
-export async function loadImportMap() {
+export async function loadImportMap({ latestVersion }: { latestVersion: string }) {
   const optionsScript = document.querySelector("script[type=playground-options]");
   if (optionsScript === undefined) {
     throw new Error("Could not find script[type=playground-options] script");
   }
-  const { latestVersion } = JSON.parse(optionsScript.innerHTML);
   if (latestVersion === undefined) {
     throw new Error("script[type=playground-options] missing latestVersion property.");
   }
