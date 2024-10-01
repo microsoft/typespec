@@ -1,0 +1,10 @@
+---
+import { AsyncPlayground } from "../components/react-pages/playground";
+import FluentUILayout from "@site/src/layouts/fluentui.astro";
+---
+
+<FluentUILayout>
+  <div style={{ height: "calc(100vh - var(--ifm-navbar-height))", width: "100%" }}>
+    <AsyncPlayground client:only="react" />
+  </div>
+</FluentUILayout>

@@ -1,19 +1,10 @@
-import { CodeBlock } from "../components/code-block/code-block";
-import { ShowcaseLayout } from "../components/layouts/fluent-layout";
-import { Section } from "../components/section/section";
-import { SectionedLayout } from "../components/sectioned-layout/sectioned-layout";
-import { UseCaseOverview } from "../components/use-case-overview/use-case-overview";
+import { CodeBlock } from "../prism-code-block/prism-code-block";
+import { Section } from "../section/section";
+import { SectionedLayout } from "../sectioned-layout/sectioned-layout";
+import { UseCaseOverview } from "../use-case-overview/use-case-overview";
 import style from "./tooling.module.css";
 
-export default function Home() {
-  return (
-    <ShowcaseLayout>
-      <DataValidationContent />
-    </ShowcaseLayout>
-  );
-}
-
-const DataValidationContent = () => {
+export const ToolingContent = () => {
   return (
     <div>
       <UseCaseOverview
@@ -74,12 +65,12 @@ const DataValidationContent = () => {
   );
 };
 
-import notFormattedTsp from "!!raw-loader!@site/static/tsp-samples/tooling/formatter/file.noformat.tsp";
-import formattedTsp from "!!raw-loader!@site/static/tsp-samples/tooling/formatter/formatted.tsp";
 import useBaseUrl from "@docusaurus/useBaseUrl";
-import { LearnMoreCard } from "../components/learn-more-card/learn-more-card";
-import { LightDarkImg } from "../components/light-dark-img/light-dark-img";
-import { Links } from "../constants";
+import notFormattedTsp from "@site/src/assets/tsp-samples/tooling/formatter/file.noformat.tsp?raw";
+import formattedTsp from "@site/src/assets/tsp-samples/tooling/formatter/formatted.tsp?raw";
+import { Links } from "../../constants";
+import { LearnMoreCard } from "../learn-more-card/learn-more-card";
+import { LightDarkImg } from "../light-dark-img/light-dark-img";
 
 const FormatterIllustration = () => {
   return (
