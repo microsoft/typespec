@@ -284,7 +284,8 @@ public final class FlattenClientImpl {
      * The send operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     endpoint: String (Required)
      *     user (Optional): {
@@ -294,7 +295,8 @@ public final class FlattenClientImpl {
      *     constant: String (Required)
      *     requiredInt: int (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param id The id parameter.
      * @param sendRequest The sendRequest parameter.
@@ -318,7 +320,8 @@ public final class FlattenClientImpl {
      * The send operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     endpoint: String (Required)
      *     user (Optional): {
@@ -328,7 +331,8 @@ public final class FlattenClientImpl {
      *     constant: String (Required)
      *     requiredInt: int (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param id The id parameter.
      * @param sendRequest The sendRequest parameter.
@@ -351,11 +355,13 @@ public final class FlattenClientImpl {
      * The sendProjectedName operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     file_id: String (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param id The id parameter.
      * @param sendProjectedNameRequest The sendProjectedNameRequest parameter.
@@ -378,11 +384,13 @@ public final class FlattenClientImpl {
      * The sendProjectedName operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     file_id: String (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param id The id parameter.
      * @param sendProjectedNameRequest The sendProjectedNameRequest parameter.
@@ -412,7 +420,8 @@ public final class FlattenClientImpl {
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     user (Optional): {
      *         user: String (Required)
@@ -429,7 +438,8 @@ public final class FlattenClientImpl {
      *     _dummy: String (Optional)
      *     constant: String (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param name The name parameter.
      * @param sendLongRequest The sendLongRequest parameter.
@@ -459,7 +469,8 @@ public final class FlattenClientImpl {
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     user (Optional): {
      *         user: String (Required)
@@ -476,7 +487,8 @@ public final class FlattenClientImpl {
      *     _dummy: String (Optional)
      *     constant: String (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param name The name parameter.
      * @param sendLongRequest The sendLongRequest parameter.
@@ -498,7 +510,8 @@ public final class FlattenClientImpl {
      * The update operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     patch (Optional, Required on create): {
      *         title: String (Optional)
@@ -506,11 +519,13 @@ public final class FlattenClientImpl {
      *         status: String(NotStarted/InProgress/Completed) (Optional)
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: long (Required)
      *     title: String (Required)
@@ -521,7 +536,8 @@ public final class FlattenClientImpl {
      *     completedAt: OffsetDateTime (Optional)
      *     _dummy: String (Optional)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param id The id parameter.
      * @param updateRequest The updateRequest parameter.
@@ -545,7 +561,8 @@ public final class FlattenClientImpl {
      * The update operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     patch (Optional, Required on create): {
      *         title: String (Optional)
@@ -553,11 +570,13 @@ public final class FlattenClientImpl {
      *         status: String(NotStarted/InProgress/Completed) (Optional)
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: long (Required)
      *     title: String (Required)
@@ -568,7 +587,8 @@ public final class FlattenClientImpl {
      *     completedAt: OffsetDateTime (Optional)
      *     _dummy: String (Optional)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param id The id parameter.
      * @param updateRequest The updateRequest parameter.

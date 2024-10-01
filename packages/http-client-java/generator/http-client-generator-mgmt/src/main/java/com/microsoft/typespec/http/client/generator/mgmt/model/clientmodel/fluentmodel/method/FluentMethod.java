@@ -3,13 +3,12 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method;
 
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceModel;
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.immutablemodel.ImmutableMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ReturnValue;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJavadocComment;
 import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
-
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceModel;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.immutablemodel.ImmutableMethod;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -34,11 +33,13 @@ public abstract class FluentMethod implements ImmutableMethod {
     }
 
     public String getInterfaceMethodSignature() {
-        return String.format("%1$s %2$s", this.interfaceReturnValue.getType().toString(), this.getBaseMethodSignature());
+        return String.format("%1$s %2$s", this.interfaceReturnValue.getType().toString(),
+            this.getBaseMethodSignature());
     }
 
     public String getImplementationMethodSignature() {
-        return String.format("%1$s %2$s", this.implementationReturnValue.getType().toString(), this.getBaseMethodSignature());
+        return String.format("%1$s %2$s", this.implementationReturnValue.getType().toString(),
+            this.getBaseMethodSignature());
     }
 
     protected abstract String getBaseMethodSignature();

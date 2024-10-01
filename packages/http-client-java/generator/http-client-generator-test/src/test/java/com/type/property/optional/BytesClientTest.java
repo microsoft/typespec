@@ -20,10 +20,9 @@ class BytesClientTest {
     @Test
     void putAll() {
         BytesProperty bytesProperty = new BytesProperty();
-        bytesProperty.setProperty(new byte[]{104, 101, 108, 108, 111, 44, 32, 119, 111, 114, 108, 100, 33});
+        bytesProperty.setProperty(new byte[] { 104, 101, 108, 108, 111, 44, 32, 119, 111, 114, 108, 100, 33 });
         bytesClient.putAll(bytesProperty);
     }
-
 
     @Test
     void getDefault() {

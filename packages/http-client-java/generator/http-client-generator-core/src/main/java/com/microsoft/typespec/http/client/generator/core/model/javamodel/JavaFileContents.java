@@ -4,7 +4,6 @@
 package com.microsoft.typespec.http.client.generator.core.model.javamodel;
 
 import com.azure.core.util.CoreUtils;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -218,7 +217,8 @@ public class JavaFileContents {
         line("};");
     }
 
-    public void anonymousClass(String anonymousClassDeclaration, String instanceName, Consumer<JavaClass> anonymousClassBlock) {
+    public void anonymousClass(String anonymousClassDeclaration, String instanceName,
+        Consumer<JavaClass> anonymousClassBlock) {
         line(anonymousClassDeclaration + " " + instanceName + " = new " + anonymousClassDeclaration + "() {");
         indent(() -> {
             JavaClass javaClass = new JavaClass(this);
@@ -277,7 +277,8 @@ public class JavaFileContents {
         });
     }
 
-    public void interfaceBlock(JavaVisibility visibility, String interfaceSignature, Consumer<JavaInterface> interfaceAction) {
+    public void interfaceBlock(JavaVisibility visibility, String interfaceSignature,
+        Consumer<JavaInterface> interfaceAction) {
         line(visibility + " interface " + interfaceSignature + " {");
         indent(() -> interfaceAction.accept(new JavaInterface(this)));
         line("}");
@@ -342,8 +343,6 @@ public class JavaFileContents {
     }
 
     private enum CurrentLineType {
-        Empty,
-        AfterIf,
-        Text
+        Empty, AfterIf, Text
     }
 }

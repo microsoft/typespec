@@ -13,9 +13,9 @@ import java.util.Collection;
  */
 public final class DogKind extends ExpandableStringEnum<DogKind> {
     /**
-     * Static value golden for DogKind.
+     * Species golden.
      */
-    public static final DogKind GOLDEN = fromString("golden");
+    public static final DogKind GOLDEN = fromString("golden_dog");
 
     /**
      * Creates a new instance of DogKind value.

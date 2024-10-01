@@ -1,14 +1,14 @@
 import { readdir, readFile, stat, writeFile } from "fs/promises";
 import { basename, dirname, join, resolve } from "path";
 
-const skipDirs = new Set(["node_modules", "dist-dev"]);
+const skipDirs = new Set(["node_modules", "dist-dev", "test"]);
 
 export async function generateThirdPartyNotice() {
   const root = resolve("./");
   const rootName = basename(root);
   const packages = await findThirdPartyPackages();
   const packageRoots = [...packages.keys()].sort((a, b) =>
-    packages.get(a).name.localeCompare(packages.get(b).name)
+    packages.get(a).name.localeCompare(packages.get(b).name),
   );
   let text = `${rootName}
 

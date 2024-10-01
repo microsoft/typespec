@@ -47,11 +47,13 @@ public final class AliasAsyncClient {
      * The spreadAsRequestBody operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     name: String (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param spreadAsRequestBodyRequest The spreadAsRequestBodyRequest parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -72,11 +74,13 @@ public final class AliasAsyncClient {
      * The spreadParameterWithInnerModel operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     name: String (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param id The id parameter.
      * @param xMsTestHeader The xMsTestHeader parameter.
@@ -100,11 +104,13 @@ public final class AliasAsyncClient {
      * The spreadAsRequestParameter operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     name: String (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param id The id parameter.
      * @param xMsTestHeader The xMsTestHeader parameter.
@@ -128,7 +134,8 @@ public final class AliasAsyncClient {
      * The spreadWithMultipleParameters operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     requiredString: String (Required)
      *     optionalInt: Integer (Optional)
@@ -139,7 +146,8 @@ public final class AliasAsyncClient {
      *         String (Optional)
      *     ]
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param id The id parameter.
      * @param xMsTestHeader The xMsTestHeader parameter.
@@ -163,12 +171,14 @@ public final class AliasAsyncClient {
      * spread an alias with contains another alias property as body.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     name: String (Required)
      *     age: int (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param id The id parameter.
      * @param xMsTestHeader The xMsTestHeader parameter.

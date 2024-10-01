@@ -45,7 +45,7 @@ export class CodeModel extends Metadata implements CodeModel {
 
   getOperationGroup(group: string) {
     let result = this.operationGroups.find(
-      (each) => group.toLowerCase() === each.$key.toLowerCase()
+      (each) => group.toLowerCase() === each.$key.toLowerCase(),
     );
     if (!result) {
       result = new OperationGroup(group);
@@ -62,7 +62,7 @@ export class CodeModel extends Metadata implements CodeModel {
   addGlobalParameter(find: (value: Parameter) => boolean, create: () => Parameter): Parameter;
   addGlobalParameter(
     predicateOrParameter: Parameter | ((value: Parameter) => boolean),
-    create: ValueOrFactory<Parameter> = <any>undefined
+    create: ValueOrFactory<Parameter> = <any>undefined,
   ): Parameter {
     try {
       if (typeof predicateOrParameter !== "function") {
@@ -81,7 +81,7 @@ export class CodeModel extends Metadata implements CodeModel {
     } finally {
       this.globalParameters = sortAscendingInvalidLast(
         this.globals,
-        (each) => each.extensions?.["x-ms-priority"]
+        (each) => each.extensions?.["x-ms-priority"],
       );
     }
   }
@@ -95,7 +95,7 @@ function realize<T>(f: ValueOrFactory<T>): T {
 
 function sortAscendingInvalidLast<T>(
   input: Array<T>,
-  accessor: (each: T) => number | undefined
+  accessor: (each: T) => number | undefined,
 ): Array<T> {
   return input.sort((a, b) => {
     const pA = accessor(a) ?? Number.MAX_VALUE;

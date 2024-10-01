@@ -43,7 +43,7 @@ export function run(command, args, options) {
   } else if (options.throwOnNonZeroExit && proc.status !== undefined && proc.status !== 0) {
     throw new CommandFailedError(
       `Command \`${command} ${args.join(" ")}\` failed with exit code ${proc.status}`,
-      proc
+      proc,
     );
   }
 

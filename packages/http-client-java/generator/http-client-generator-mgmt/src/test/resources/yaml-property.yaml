@@ -1,0 +1,3 @@
+extensions:
+  x-ms-examples: true
+property-to-remap: true

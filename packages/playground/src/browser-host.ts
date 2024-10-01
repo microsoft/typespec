@@ -36,9 +36,9 @@ export function createBrowserHostInternal(options: BrowserHostCreateOptions): Br
     JSON.stringify({
       name: "playground-pkg",
       dependencies: Object.fromEntries(
-        Object.values(libraries).map((x) => [x.name, x.packageJson.version])
+        Object.values(libraries).map((x) => [x.name, x.packageJson.version]),
       ),
-    })
+    }),
   );
 
   function addJsImport(path: string, value: any) {
@@ -178,13 +178,13 @@ export function createBrowserHostInternal(options: BrowserHostCreateOptions): Br
  */
 export async function createBrowserHost(
   libsToLoad: readonly string[],
-  importOptions: LibraryImportOptions = {}
+  importOptions: LibraryImportOptions = {},
 ): Promise<BrowserHost> {
   const libraries: Record<string, PlaygroundTspLibrary & { _TypeSpecLibrary_: any }> = {};
   for (const libName of libsToLoad) {
     const { _TypeSpecLibrary_, $lib, $linter } = (await importLibrary(
       libName,
-      importOptions
+      importOptions,
     )) as any;
     libraries[libName] = {
       name: libName,

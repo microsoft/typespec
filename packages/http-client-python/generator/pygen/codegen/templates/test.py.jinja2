@@ -1,0 +1,50 @@
+{% set prefix_lower = test.prefix|lower %}
+{% set client_var = "self.client" if code_model.options["azure_arm"] else "client" %}
+{% set async = "async " if test.is_async else "" %}
+{% set async_suffix = "_async" if test.is_async else "" %}
+# coding=utf-8
+{{ code_model.options['license_header'] }}
+import pytest
+{{ imports }}
+
+{% if code_model.options["azure_arm"] %}
+AZURE_LOCATION = "eastus"
+{% endif %}
+
+@pytest.mark.skip("you may need to update the auto-generated test case before run it")
+class {{ test.test_class_name }}({{ test.base_test_class_name }}):
+{% if code_model.options["azure_arm"] %}
+    def setup_method(self, method):
+        {% if test.is_async %}
+        self.client = self.create_mgmt_client({{ test.client_name }}, is_async=True)
+        {% else %}
+        self.client = self.create_mgmt_client({{ test.client_name }})
+        {% endif %}
+{% endif %}
+{% for testcase in test.testcases %}
+    {% if code_model.options["azure_arm"] %}
+    @{{ test.preparer_name }}(location=AZURE_LOCATION)
+    {% else %}
+    @{{ test.preparer_name }}()
+    {% endif %}
+    @recorded_by_proxy{{ async_suffix }}
+    {% if code_model.options["azure_arm"] %}
+    {{ async }}def test_{{ testcase.name }}(self, resource_group):
+    {% else %}
+    {{ async }}def test_{{ testcase.name }}(self, {{ prefix_lower }}_endpoint):
+        {{ client_var }} = self.{{ test.create_client_name }}(endpoint={{ prefix_lower }}_endpoint)
+    {% endif %}
+        {{testcase.response }}{{ client_var }}{{ testcase.operation_group_prefix }}.{{ testcase.operation.name }}(
+            {% for key, value in testcase.params.items() %}
+            {% if code_model.options["azure_arm"] and key == "resource_group_name" %}
+            {{ key }}=resource_group.name,
+            {% else %}
+            {{ key }}={{ value|indent(12) }},
+            {% endif %}
+            {% endfor %}
+        ){{ testcase.operation_suffix }}
+        {{ testcase.extra_operation }}
+        # please add some check logic here by yourself
+        # ...
+
+{% endfor %}

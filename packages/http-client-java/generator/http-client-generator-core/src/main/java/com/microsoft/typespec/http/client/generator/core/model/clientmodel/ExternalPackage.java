@@ -13,10 +13,8 @@ public class ExternalPackage {
     public static final String AZURE_CORE_PACKAGE_NAME = "com.azure.core";
     public static final String AZURE_JSON_PACKAGE_NAME = "com.azure.json";
 
-    public static final ExternalPackage CORE = new Builder().packageName(CLIENTCORE_PACKAGE_NAME)
-        .groupId("io.clientcore")
-        .artifactId("core")
-        .build();
+    public static final ExternalPackage CORE
+        = new Builder().packageName(CLIENTCORE_PACKAGE_NAME).groupId("io.clientcore").artifactId("core").build();
 
     public static final ExternalPackage JSON = new Builder().packageName(CLIENTCORE_JSON_PACKAGE_NAME)
         .groupId("io.clientcore")

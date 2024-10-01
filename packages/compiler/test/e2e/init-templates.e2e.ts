@@ -16,7 +16,7 @@ const snapshotFolder = resolve(__dirname, "../../templates/__snapshots__");
 async function execAsync(
   command: string,
   args: string[] = [],
-  options: SpawnOptions = {}
+  options: SpawnOptions = {},
 ): Promise<{ exitCode: number; stdio: string; stdout: string; stderr: string; proc: any }> {
   const child = spawn(command, args, options);
 
@@ -54,7 +54,7 @@ interface ScaffoldedTemplateFixture {
   readonly checkCommand: (
     command: string,
     args?: string[],
-    options?: SpawnOptions
+    options?: SpawnOptions,
   ) => Promise<void>;
 }
 
@@ -73,7 +73,7 @@ describe("Init templates e2e tests", () => {
         folderName: name,
         directory: targetFolder,
         baseUri: TypeSpecCoreTemplates.baseUri,
-      })
+      }),
     );
   }
   async function scaffoldTemplateSnapshot(name: string): Promise<void> {
@@ -99,7 +99,7 @@ describe("Init templates e2e tests", () => {
             "-".repeat(100),
             result.stdio,
             "-".repeat(100),
-          ].join("\n")
+          ].join("\n"),
         );
       },
     };

@@ -27,7 +27,7 @@ describe("compiler: checker: augment decorators", () => {
       @test model Foo { };
 
       @@blue(Foo);
-      `
+      `,
     );
 
     const { Foo } = await testHost.compile("test.tsp");
@@ -51,7 +51,7 @@ describe("compiler: checker: augment decorators", () => {
       model Foo { };
 
       @@customName(Foo, "FooCustom");
-      `
+      `,
     );
 
     await testHost.compile("test.tsp");
@@ -79,7 +79,7 @@ describe("compiler: checker: augment decorators", () => {
         @test model Foo { };
   
         @@blue(Foo);
-        `
+        `,
       );
 
       const { Foo } = await testHost.compile("test.tsp");
@@ -97,7 +97,7 @@ describe("compiler: checker: augment decorators", () => {
         @test model Foo { };
   
         @@blue(Foo);
-        `
+        `,
       );
 
       const { Foo } = await testHost.compile("test.tsp");
@@ -115,7 +115,7 @@ describe("compiler: checker: augment decorators", () => {
           
           @@blue(Foo);
         }
-        `
+        `,
       );
 
       const { Foo } = await testHost.compile("test.tsp");
@@ -145,7 +145,7 @@ describe("compiler: checker: augment decorators", () => {
 
         @@doc(Foo, "This doc");
         @@blue(Foo);
-        `
+        `,
       );
 
       const { Foo } = await testHost.compile("test.tsp");
@@ -173,7 +173,7 @@ describe("compiler: checker: augment decorators", () => {
       ${code}
 
       @@customName(${reference}, "FooCustom");
-      `
+      `,
       );
 
       const [result, diagnostics] = await testHost.compileAndDiagnose("test.tsp");
@@ -193,7 +193,7 @@ describe("compiler: checker: augment decorators", () => {
         `model Foo { 
           @test("target") name: string
         }`,
-        "Foo.name"
+        "Foo.name",
       ));
     it("enum", () => expectTarget(`@test("target") enum Foo { a, b }`, "Foo"));
     it("enum member", () => expectTarget(`enum Foo { @test("target") a, b }`, "Foo.a"));
@@ -229,7 +229,7 @@ describe("compiler: checker: augment decorators", () => {
   
           @@customName(Foo, "Some foo thing");
           @@customName(Foo.testProp, "Some test prop");
-          `
+          `,
       );
       const [results, diagnostics] = await testHost.compileAndDiagnose("test.tsp");
       expectDiagnosticEmpty(diagnostics);
@@ -279,7 +279,7 @@ describe("compiler: checker: augment decorators", () => {
 
         @@customName(Foo<string>, "A string Foo");
         @@customName(StringFoo, "A string Foo");
-        `
+        `,
       );
       const diagnostics = await testHost.diagnose("test.tsp");
       strictEqual(diagnostics.length, 2);
@@ -306,7 +306,7 @@ describe("compiler: checker: augment decorators", () => {
             import "./test.js";
 
             ${code}
-      `
+      `,
         );
 
         const { target } = await testHost.compile("test.tsp");
@@ -365,7 +365,7 @@ describe("compiler: checker: augment decorators", () => {
       import "./test.js";
 
       ${code}
-      `
+      `,
         );
 
         const { target } = await testHost.compile("test.tsp");

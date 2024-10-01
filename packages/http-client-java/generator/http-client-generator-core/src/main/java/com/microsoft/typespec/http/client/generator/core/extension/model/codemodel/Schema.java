@@ -3,10 +3,9 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonWriter;
-
+import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -279,14 +278,14 @@ public class Schema extends Metadata {
     }
 
     JsonWriter writeParentProperties(JsonWriter jsonWriter) throws IOException {
-        return super.writeParentProperties(jsonWriter)
-            .writeStringField("type", type == null ? null : type.toString())
+        return super.writeParentProperties(jsonWriter).writeStringField("type", type == null ? null : type.toString())
             .writeStringField("summary", summary)
             .writeUntypedField("example", example)
             .writeUntypedField("defaultValue", defaultValue)
             .writeJsonField("serialization", serialization)
             .writeArrayField("serializationFormats", serializationFormats, JsonWriter::writeString)
-            .writeArrayField("usage", usage, (writer, element) -> writer.writeString(element == null ? null : element.toString()))
+            .writeArrayField("usage", usage,
+                (writer, element) -> writer.writeString(element == null ? null : element.toString()))
             .writeStringField("uid", uid)
             .writeStringField("$key", $key)
             .writeStringField("description", description)
@@ -522,6 +521,7 @@ public class Schema extends Metadata {
          * Represents XOR logic.
          */
         XOR("xor");
+
         private final String value;
         private final static Map<String, Schema.AllSchemaTypes> CONSTANTS = new HashMap<>();
 

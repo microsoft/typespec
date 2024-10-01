@@ -3,15 +3,14 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel.android;
 
+import com.azure.core.http.HttpMethod;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodExample;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
-import com.azure.core.http.HttpMethod;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -127,8 +126,8 @@ public class AndroidProxyMethod extends ProxyMethod {
 
         @Override
         public ProxyMethod build() {
-            if (unexpectedResponseExceptionTypes != null && unexpectedResponseExceptionTypes.containsKey(
-                unexpectedResponseExceptionType)) {
+            if (unexpectedResponseExceptionTypes != null
+                && unexpectedResponseExceptionTypes.containsKey(unexpectedResponseExceptionType)) {
                 unexpectedResponseExceptionType = null;
             }
             return new AndroidProxyMethod(requestContentType, returnType, httpMethod, baseUrl, urlPath,

@@ -10,7 +10,6 @@ package com.authentication.union.generated;
 
 import com.authentication.union.UnionClient;
 import com.authentication.union.UnionClientBuilder;
-import com.azure.core.http.HttpClient;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.test.TestMode;
@@ -26,10 +25,10 @@ class UnionClientTestBase extends TestProxyTestBase {
     protected void beforeTest() {
         UnionClientBuilder unionClientbuilder = new UnionClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.PLAYBACK) {
-            unionClientbuilder.httpClient(interceptorManager.getPlaybackClient()).credential(new MockTokenCredential());
+            unionClientbuilder.credential(new MockTokenCredential());
         } else if (getTestMode() == TestMode.RECORD) {
             unionClientbuilder.addPolicy(interceptorManager.getRecordPolicy())
                 .credential(new DefaultAzureCredentialBuilder().build());

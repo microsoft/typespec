@@ -7,7 +7,7 @@ import { OpenAPI3StatusCode } from "./types.js";
 export function getOpenAPI3StatusCodes(
   program: Program,
   statusCodes: HttpStatusCodesEntry,
-  response: Type
+  response: Type,
 ): [OpenAPI3StatusCode[], readonly Diagnostic[]] {
   if (isDefaultResponse(program, response) || statusCodes === "*") {
     return [["default"], []];
@@ -20,7 +20,7 @@ export function getOpenAPI3StatusCodes(
 
 function rangeToOpenAPI(
   range: HttpStatusCodeRange,
-  diagnosticTarget: DiagnosticTarget
+  diagnosticTarget: DiagnosticTarget,
 ): [OpenAPI3StatusCode[], readonly Diagnostic[]] {
   const diagnostics: Diagnostic[] = [];
   const reportInvalid = () =>
@@ -29,7 +29,7 @@ function rangeToOpenAPI(
         code: "unsupported-status-code-range",
         format: { start: String(range.start), end: String(range.end) },
         target: diagnosticTarget,
-      })
+      }),
     );
 
   const codes: OpenAPI3StatusCode[] = [];

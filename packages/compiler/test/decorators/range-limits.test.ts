@@ -23,7 +23,7 @@ describe("compiler: range limiting decorators", () => {
       `
       @test model A { @minValue(15) foo: int32; @maxValue(55) boo: float32; }
       @test model B { @maxValue(20) bar: int64; @minValue(23) car: float64; }
-      `
+      `,
     )) as { A: Model; B: Model };
 
     strictEqual(getMinValue(runner.program, A.properties.get("foo")!), 15);

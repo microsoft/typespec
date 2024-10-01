@@ -9,7 +9,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelPropertyReference;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
-
 import java.util.List;
 import java.util.Set;
 

@@ -14,7 +14,7 @@ it("it change tuple to a array value", async () => {
     (node) => {
       strictEqual(node.kind, SyntaxKind.TupleExpression);
       return createTupleToArrayValueCodeFix(node);
-    }
+    },
   ).toChangeTo(`
       model Foo {
         a: string[] = #["abc"];

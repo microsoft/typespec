@@ -23,7 +23,7 @@ it("can get openapi as an object", async () => {
 
     model Item { x: true }
     model Bar { }; // unreachable
-   `
+   `,
   );
   await host.compile("main.tsp");
   const output = await getOpenAPI3(host.program, { "omit-unreachable-types": false });
@@ -48,7 +48,7 @@ it("has diagnostics", async () => {
     namespace Foo;
     
     op read(): {@minValue(455) @maxValue(495) @statusCode _: int32, content: string};
-   `
+   `,
   );
   await host.compile("main.tsp");
   const output = await getOpenAPI3(host.program, { "omit-unreachable-types": false });

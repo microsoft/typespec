@@ -73,7 +73,7 @@ export async function createTypeSpecBundle(libraryPath: string): Promise<TypeSpe
 
 export async function watchTypeSpecBundle(
   libraryPath: string,
-  onBundle: (bundle: TypeSpecBundle) => void
+  onBundle: (bundle: TypeSpecBundle) => void,
 ) {
   const definition = await resolveTypeSpecBundleDefinition(libraryPath);
   const rollupOptions = await createRollupConfig(definition);
@@ -115,14 +115,14 @@ export async function bundleTypeSpecLibrary(libraryPath: string, outputDir: stri
 }
 
 async function resolveTypeSpecBundleDefinition(
-  libraryPath: string
+  libraryPath: string,
 ): Promise<TypeSpecBundleDefinition> {
   libraryPath = normalizePath(await realpath(libraryPath));
   const pkg = await readLibraryPackageJson(libraryPath);
 
   const exports = pkg.exports
     ? Object.fromEntries(
-        Object.entries(pkg.exports).filter(([k, v]) => k !== "." && k !== "./testing")
+        Object.entries(pkg.exports).filter(([k, v]) => k !== "." && k !== "./testing"),
       )
     : {};
 
@@ -165,7 +165,7 @@ async function createRollupConfig(definition: TypeSpecBundleDefinition): Promise
         key.replace("./", ""),
         normalizePath(resolve(libraryPath, getExportEntryPoint(value))),
       ];
-    })
+    }),
   );
   return {
     input: {
@@ -200,7 +200,7 @@ async function createRollupConfig(definition: TypeSpecBundleDefinition): Promise
 
 async function generateTypeSpecBundle(
   definition: TypeSpecBundleDefinition,
-  bundle: RollupBuild
+  bundle: RollupBuild,
 ): Promise<TypeSpecBundle> {
   const { output } = await bundle.generate({
     dir: "virtual",
