@@ -10,6 +10,9 @@
     "preview": "astro preview",
     "astro": "astro"
   },
+  "imports": {
+    "@theme/TabItem": "./src/components/docusaurus/tab-item.ts"
+  },
   "dependencies": {
     "@astrojs/starlight": "^0.27.1",
     "astro": "^4.15.3",
