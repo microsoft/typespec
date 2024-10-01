@@ -2,6 +2,7 @@ import "@typespec/http";
 import "@typespec/spec-lib";
 
 using TypeSpec.Http;
+using SpecLib;
 
 @scenarioService("/authentication/http/custom")
 @doc("Illustrates clients generated with generic HTTP auth.")

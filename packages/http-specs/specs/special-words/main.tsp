@@ -2,8 +2,8 @@ import "@typespec/http";
 import "@typespec/spec-lib";
 import "./dec.js";
 
-using TypeSpec.Http;
-using Azure.ClientGenerator.Core;
+using Http;
+using SpecLib;
 
 /**
  * Scenarios to verify that reserved words can be used in service and generators will handle it appropriately.
@@ -52,7 +52,6 @@ namespace SpecialWords;
  * Test reserved words as operation name.
  */
 @route("/operations")
-@operationGroup
 interface Operations {
   @opNameScenario("and") and(): void;
   @opNameScenario("as") as(): void;
@@ -93,7 +92,6 @@ interface Operations {
  * Verify reserved words as parameter name.
  */
 @route("/parameters")
-@operationGroup
 interface Parameters {
   @paramNameScenario("and") withAnd(@query and: string): void;
   @paramNameScenario("as") withAs(@query as: string): void;
@@ -139,7 +137,6 @@ interface Parameters {
  * Verify model names
  */
 @route("/models")
-@operationGroup
 namespace Models {
   model Base {
     name: string;
@@ -217,7 +214,6 @@ namespace Models {
  * Verify model names
  */
 @route("/model-properties")
-@operationGroup
 namespace ModelProperties {
   model SameAsModel {
     SameAsModel: string;

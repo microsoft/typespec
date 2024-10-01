@@ -2,11 +2,11 @@ import "@typespec/http";
 import "@typespec/versioning";
 import "@typespec/spec-lib";
 
-using TypeSpec.Http;
+using Http;
+using SpecLib;
 using TypeSpec.Versioning;
 
 @doc("Illustrates OASIS repeatability headers")
-@supportedBy("dpg")
 @scenarioService("/special-headers/repeatability")
 namespace SpecialHeaders.Repeatability;
 

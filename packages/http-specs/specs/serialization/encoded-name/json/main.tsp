@@ -1,10 +1,10 @@
 import "@typespec/http";
 import "@typespec/spec-lib";
 
-using TypeSpec.Http;
+using Http;
+using SpecLib;
 
 @doc("Projection")
-@supportedBy("dpg")
 @scenarioService("/serialization/encoded-name/json")
 namespace Serialization.EncodedName.Json;
 

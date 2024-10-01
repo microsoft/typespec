@@ -1,7 +1,8 @@
 import "@typespec/http";
 import "@typespec/spec-lib";
 
-using TypeSpec.Http;
+using Http;
+using SpecLib;
 
 @doc("Illustrates usage of empty model used in operation's parameters and responses.")
 @scenarioService("/type/model/empty")

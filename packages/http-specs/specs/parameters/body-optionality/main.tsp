@@ -1,11 +1,10 @@
 import "@typespec/http";
 import "@typespec/spec-lib";
 
-using TypeSpec.Http;
-using Azure.ClientGenerator.Core;
+using Http;
+using SpecLib;
 
 @doc("Test describing optionality of the request body.")
-@supportedBy("dpg")
 @scenarioService("/parameters/body-optionality")
 namespace Parameters.BodyOptionality;
 
@@ -37,7 +36,6 @@ op requiredExplicit(@body body: BodyModel): NoContentResponse;
   
   Expected no request body for `omit`
   """)
-@operationGroup
 @route("/optional-explicit")
 namespace OptionalExplicit {
   @route("/set")

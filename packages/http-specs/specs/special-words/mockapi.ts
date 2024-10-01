@@ -2,7 +2,7 @@ import { MockRequest, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api"
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
-Scenarios.Special_Words_Model_Properties_Same_As_Model = passOnSuccess({
+Scenarios.SpecialWords_ModelProperties_sameAsModel = passOnSuccess({
   uri: "/special-words/model-properties/same-as-model",
   method: "post",
   request: {

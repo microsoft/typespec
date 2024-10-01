@@ -1,13 +1,12 @@
 import "@typespec/http";
 import "@typespec/spec-lib";
 
-using TypeSpec.Http;
-using Azure.ClientGenerator.Core;
+using Http;
+using SpecLib;
 
 @scenarioService("/type/scalar")
 namespace Type.Scalar;
 
-@operationGroup
 @route("/string")
 interface String {
   #suppress "@azure-tools/typespec-azure-core/use-standard-operations" "For testing"
@@ -25,7 +24,6 @@ interface String {
   put(@body @doc("_") body: string): void;
 }
 
-@operationGroup
 @route("/boolean")
 interface Boolean {
   #suppress "@azure-tools/typespec-azure-core/use-standard-operations" "For testing"
@@ -43,7 +41,6 @@ interface Boolean {
   put(@body @doc("_") body: boolean): void;
 }
 
-@operationGroup
 @route("/unknown")
 interface Unknown {
   #suppress "@azure-tools/typespec-azure-core/use-standard-operations" "For testing"
@@ -62,49 +59,34 @@ interface Unknown {
 }
 
 @doc("Template to have scalar types operations")
-interface ScalarTypesOperations<T, TDoc extends string> {
+interface ScalarTypesOperations<T, TDoc extends valueof string> {
   @scenario
-  @scenarioDoc(
-    """
-      Expected response body:
-      ```json
-      {doc}
-      ```
-      """,
-    {
-      doc: TDoc,
-    }
-  )
+  @scenarioDoc("""
+    Expected response body:
+    ```json
+    ${TDoc}
+    ```
+    """)
   @get
   @route("/response_body")
   responseBody(): T;
 
   @scenario
-  @scenarioDoc(
-    """
-      Expected input body:
-      ```json
-      {doc}
-      ```
-      """,
-    {
-      doc: TDoc,
-    }
-  )
+  @scenarioDoc("""
+    Expected input body:
+    ```json
+    ${TDoc}
+    ```
+    """)
   @put
   @route("/resquest_body")
   requestBody(@body body: T): void;
 
   @scenario
-  @scenarioDoc(
-    """
-      Expected request parameter:
-      value={doc}
-      """,
-    {
-      doc: TDoc,
-    }
-  )
+  @scenarioDoc("""
+    Expected request parameter:
+    value=${TDoc}
+    """)
   @get
   @route("/request_parameter")
   requestParameter(@query value: T): void;
@@ -112,42 +94,34 @@ interface ScalarTypesOperations<T, TDoc extends string> {
 
 @doc("Decimal type")
 @route("/decimal")
-@operationGroup
 interface DecimalType extends ScalarTypesOperations<decimal, "0.33333"> {}
 
 @doc("Decimal128 type")
 @route("/decimal128")
-@operationGroup
 interface Decimal128Type extends ScalarTypesOperations<decimal128, "0.33333"> {}
 
 @doc("Template to verify number types")
-interface NumberTypesVerifyOperations<T, VerifyValues extends string, ResultValue extends string> {
+interface NumberTypesVerifyOperations<
+  T,
+  VerifyValues extends valueof string,
+  ResultValue extends valueof string
+> {
   @scenario
-  @scenarioDoc(
-    """
-      Get verify values:
-      {doc}
-      """,
-    {
-      doc: VerifyValues,
-    }
-  )
+  @scenarioDoc("""
+    Get verify values:
+    ${VerifyValues}
+    """)
   @get
   @route("/prepare_verify")
   prepareVerify(): T[];
 
   @scenario
-  @scenarioDoc(
-    """
-      Expected input body:
-      ```json
-      {doc}
-      ```
-      """,
-    {
-      doc: ResultValue,
-    }
-  )
+  @scenarioDoc("""
+    Expected input body:
+    ```json
+    ${ResultValue}
+    ```
+    """)
   @post
   @route("/verify")
   verify(@body body: T): void;
@@ -155,10 +129,8 @@ interface NumberTypesVerifyOperations<T, VerifyValues extends string, ResultValu
 
 @doc("Decimal type verification")
 @route("/decimal")
-@operationGroup
 interface DecimalVerify extends NumberTypesVerifyOperations<decimal, "[0.1, 0.1, 0.1]", "0.3"> {}
 
 @doc("Decimal128 type verification")
 @route("/decimal128")
-@operationGroup
 interface Decimal128Verify extends NumberTypesVerifyOperations<decimal, "[0.1, 0.1, 0.1]", "0.3"> {}

@@ -31,12 +31,24 @@ export interface PassByKeyScenario<K extends string = string> {
   keys: K[];
   apis: KeyedMockApi<K>[];
 }
+export interface PassByServiceKeyScenario<K extends string = string> {
+  passCondition: "by-key";
+  keys: K[];
+  apis: KeyedMockApiDefinition<K>[];
+}
 
-export type ScenarioMockApi = PassOnSuccessScenario | PassOnCodeScenario | PassByKeyScenario;
+export type ScenarioMockApi =
+  | PassOnSuccessScenario
+  | PassOnCodeScenario
+  | PassByKeyScenario
+  | PassByServiceKeyScenario;
 export type MockRequestHandler = SimpleMockRequestHandler | KeyedMockRequestHandler;
 export type SimpleMockRequestHandler = (req: MockRequest) => MockResponse | Promise<MockResponse>;
 export type KeyedMockRequestHandler<T extends string = string> = (
   req: MockRequest,
+) => KeyedMockResponse<T> | Promise<KeyedMockResponse<T>>;
+export type KeyedServiceRequestHandler<T extends string = string> = (
+  req: ServiceRequest,
 ) => KeyedMockResponse<T> | Promise<KeyedMockResponse<T>>;
 
 export type HttpMethod = "get" | "post" | "put" | "patch" | "delete" | "head" | "options";
@@ -72,6 +84,9 @@ export interface ServiceRequest {
 
 export const Fail = Symbol.for("Fail");
 export interface KeyedMockApi<K extends string> extends MockApi {
+  handler: KeyedMockRequestHandler<K>;
+}
+export interface KeyedMockApiDefinition<K extends string> extends MockApiDefinition {
   handler: KeyedMockRequestHandler<K>;
 }
 

@@ -1,17 +1,15 @@
 import "@typespec/http";
 import "@typespec/spec-lib";
 
-using TypeSpec.Http;
-using Azure.ClientGenerator.Core;
+using Http;
+using SpecLib;
 
 /**
  * Test the payload with different media types and different types of the payload itself.
  */
-@supportedBy("dpg")
 @scenarioService("/payload/media-type")
 namespace Payload.MediaType;
 
-@operationGroup
 @route("/string-body")
 namespace StringBody {
   @scenario

@@ -1,7 +1,8 @@
 import "@typespec/http";
 import "@typespec/spec-lib";
 
-using TypeSpec.Http;
+using Http;
+using SpecLib;
 
 @scenarioService("/authentication/oauth2")
 @doc("Illustrates clients generated with OAuth2 authentication.")
