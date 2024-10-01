@@ -2,8 +2,11 @@
   "extends": "astro/tsconfigs/strict",
   "compilerOptions": {
     "baseUrl": "./",
+    "noImplicitAny": false,
     "paths": {
-      "@theme/*": ["src/components/docusaurus/*"]
+      "@site/*": ["*"],
+      "@docusaurus/*": ["src/components/docusaurus/core/*"],
+      "@theme/*": ["src/components/docusaurus/theme/*"]
     }
   }
 }

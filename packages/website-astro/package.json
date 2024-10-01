@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
-    "copy": "cp -r ../../docs ./src/content/docs/current",
+    "copy": "cp -r ../../docs ./src/content/docs/current && cp -r ../website/static ./src/assets",
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro check && astro build",
@@ -14,10 +14,19 @@
     "@theme/TabItem": "./src/components/docusaurus/tab-item.ts"
   },
   "dependencies": {
-    "@astrojs/starlight": "^0.27.1",
-    "astro": "^4.15.3",
-    "sharp": "^0.32.5",
     "@astrojs/check": "^0.9.3",
+    "@astrojs/starlight": "^0.27.1",
+    "@fluentui/react-components": "~9.54.16",
+    "@fluentui/react-icons": "^2.0.258",
+    "@typespec/playground": "workspace:~",
+    "@typespec/playground-website": "workspace:~",
+    "astro": "^4.15.3",
+    "clsx": "^2.1.1",
+    "react": "~18.3.1",
+    "sharp": "^0.32.5",
     "typescript": "^5.6.2"
+  },
+  "devDependencies": {
+    "@types/react": "~18.3.9"
   }
 }
