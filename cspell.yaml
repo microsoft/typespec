@@ -185,6 +185,7 @@ words:
   - segmentof
   - serde
   - sfixed
+  - shiki
   - sint
   - snakeyaml
   - srnagar
