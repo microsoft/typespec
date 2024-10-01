@@ -171,7 +171,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override FieldProvider[] BuildFields()
         {
-            List<FieldProvider> fields = [EndpointField];
+            HashSet<FieldProvider> fields = [EndpointField];
 
             if (_apiKeyAuthField != null && _authorizationHeaderConstant != null)
             {
