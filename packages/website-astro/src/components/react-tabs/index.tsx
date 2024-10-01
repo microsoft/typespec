@@ -11,18 +11,18 @@ export const Tabs = ({ children }) => {
   const [selected, setSelected] = useState(tabs[0].props.value);
 
   const handleTabSelection = useCallback(
-    (event: SelectTabEvent, data: SelectTabData) => {
+    (_: SelectTabEvent, data: SelectTabData) => {
       setSelected(data.value as any);
     },
     [setSelected],
   );
 
-  const content = tabs.find((tab) => tab.props.value === selected)?.props.children;
+  const content = tabs.find((tab: any) => tab.props.value === selected)?.props.children;
 
   return (
     <div>
       <TabList selectedValue={selected} onTabSelect={handleTabSelection}>
-        {tabs.map((tab) => {
+        {tabs.map((tab: any) => {
           return (
             <Tab key={tab.props.value} value={tab.props.value}>
               {tab.props.value}
@@ -40,6 +40,6 @@ export interface TabItemProps {
   children: ReactNode;
 }
 
-export const TabItem = ({ value, children }) => {
+export const TabItem = ({ children }: { value: any; children: any }) => {
   return children;
 };

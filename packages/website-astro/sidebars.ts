@@ -42,6 +42,5 @@ async function processSidebar(
       result.push(item);
     }
   }
-  console.log("Result", result);
   return result;
 }

@@ -16,7 +16,7 @@ export const WindowCarousel = ({ defaultValue, children }: WindowCarouselProps) 
   const [value, setValue] = useState(defaultValue ?? items[0].value);
 
   const handleTabChange = useCallback(
-    (_, data) => {
+    (_: any, data: any) => {
       setValue(data.value);
     },
     [setValue],

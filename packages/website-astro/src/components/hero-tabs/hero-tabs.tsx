@@ -13,7 +13,7 @@ interface HeroTab {
 export const HeroTabs = ({ tabs }: HeroProps) => {
   const [selected, setSelected] = useState<string>(tabs[0].value);
   const handleTabSelection = useCallback(
-    (event: SelectTabEvent, data: SelectTabData) => {
+    (_: SelectTabEvent, data: SelectTabData) => {
       setSelected(data.value as any);
     },
     [setSelected],

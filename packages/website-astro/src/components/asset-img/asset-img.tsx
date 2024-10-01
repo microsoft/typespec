@@ -3,6 +3,7 @@ import style from "./asset-img.module.css";
 
 export interface AssetImgProps {
   src: string;
+  alt?: string;
   className?: string;
 }
 

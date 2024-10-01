@@ -21,7 +21,6 @@ export const Section = ({
   children,
   layout,
   illustration,
-  itemStyle: itemsCard,
 }: SectionProps) => {
   const heading =
     header || title || description ? (

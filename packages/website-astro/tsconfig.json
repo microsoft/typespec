@@ -16,5 +16,6 @@
     },
     "jsx": "react-jsx",
     "jsxImportSource": "react"
-  }
+  },
+  "exclude": ["src/assets/1ds-init.js", "dist", "src/assets"]
 }

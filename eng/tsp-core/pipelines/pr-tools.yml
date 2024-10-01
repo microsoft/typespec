@@ -61,7 +61,7 @@ extends:
                       --destination \$web \
                       --account-name "tspwebsitepr" \
                       --destination-path $(TYPESPEC_WEBSITE_BASE_PATH) \
-                      --source "./packages/website/build/" \
+                      --source "./packages/website-astro/dist/" \
                       --overwrite
 
               - script: npx tsx eng/tsp-core/scripts/create-tryit-comment.ts
