@@ -8,6 +8,7 @@ import { FeatureList } from "../feature-list/feature-list";
 import { LearnMoreCard } from "../learn-more-card/learn-more-card";
 import { LightDarkImg } from "../light-dark-img/light-dark-img";
 import { Section } from "../section/section";
+import { SectionedLayout } from "../sectioned-layout/sectioned-layout";
 import { DescriptionText, PrimaryText } from "../text/text";
 import style from "./homepage.module.css";
 import { OverviewIllustration } from "./overview-illustration/overview-illustration";
@@ -16,7 +17,7 @@ export const HomeContent = () => {
   return (
     <>
       <Hero />
-      {/* <div className={style["hero-divider"]}></div>
+      <div className={style["hero-divider"]}></div>
       <SectionedLayout>
         <Overview />
         <OpenAPISection />
@@ -24,7 +25,7 @@ export const HomeContent = () => {
         <EditorSection />
         <ExtensibilitySection />
         <Closing />
-      </SectionedLayout> */}
+      </SectionedLayout>
     </>
   );
 };
