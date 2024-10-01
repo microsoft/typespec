@@ -1,5 +1,5 @@
-import { useColorMode } from "@docusaurus/theme-common";
 import useBaseUrl from "@docusaurus/useBaseUrl";
+import { useColorMode } from "@site/src/components/docusaurus/core/theme-common";
 
 export interface FluentImgProps {
   name: FluentImageName;

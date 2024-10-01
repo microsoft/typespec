@@ -1,5 +1,5 @@
-import { useColorMode } from "@docusaurus/theme-common";
 import versions from "@site/playground-versions.json" assert { type: "json" };
+import { useColorMode } from "@site/src/components/docusaurus/core/theme-common";
 import { ImportToolbarButton, TypeSpecPlaygroundConfig } from "@typespec/playground-website";
 import {
   Footer,

@@ -1,9 +1,7 @@
 ---
 import "@site/src/css/custom.css";
 import { ViewTransitions } from "astro:transitions";
-
-import Footer from "@astrojs/starlight/components/Footer.astro";
-import Header from "@astrojs/starlight/components/Header.astro";
+import Header from "@site/src/components/header/header.astro";
 
 const { title } = Astro.props;
 ---
@@ -13,10 +11,15 @@ const { title } = Astro.props;
     <meta charset="utf-8" />
     <ViewTransitions />
   </head>
-  <body class="relative overflow-x-hidden bg-base-1 font-sans">
+  <body class="body">
+    <Header />
     <!-- pt is set according to the height of the header -->
     <main class="pt-[4.5rem] tablet:pt-24">
       <slot />
     </main>
-  </body>
+  </body><style>
+    body {
+      margin: 0;
+    }
+  </style>
 </html>

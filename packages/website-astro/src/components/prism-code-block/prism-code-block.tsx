@@ -20,7 +20,7 @@ export const CodeBlock = (props: any) => {
   return (
     <Highlight {...props} theme={theme} code={props.children}>
       {({ className, style, tokens, getLineProps, getTokenProps }) => (
-        <div className={clsx(className, styles.codeblockContainer, props.className)}>
+        <div className={clsx(className, styles["codeblock-container"], props.className)}>
           {title && <div className={styles["codeblock-title"]}>{title}</div>}
           <pre className={clsx(className, styles.codeblock)} style={style}>
             {tokens.map((line, i) => (
