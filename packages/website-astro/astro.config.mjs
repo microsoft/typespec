@@ -14,6 +14,16 @@ export default defineConfig({
       components: {
         Header: "./src/components/header/header.astro",
       },
+      head: [
+        {
+          tag: "script",
+          attrs: {
+            type: "module",
+            async: true,
+            src: "1ds-init.js",
+          },
+        },
+      ],
     }),
     react(),
   ],
