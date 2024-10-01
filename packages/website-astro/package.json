@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
-    "copy": "cp -r ../../docs ./src/content/docs/current && cp -r ../website/static ./src/assets",
+    "copy": "cp -r ../../docs/. ./src/content/docs/current && cp -r ../website/static/. ./src/assets  && cp -r ../website/static/img/. ./public/img",
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro check && astro build",
