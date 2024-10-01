@@ -7,11 +7,11 @@ import jsonSchemaOutput from "@site/src/assets/tsp-samples/homepage/hero/json-sc
 import protobufTsp from "@site/src/assets/tsp-samples/protobuf/hero/main.tsp?raw";
 import protobufOutput from "@site/src/assets/tsp-samples/protobuf/hero/out/addressbook.proto?raw";
 
-import CodeBlock from "@theme/CodeBlock";
 import { HeroTabs } from "../../hero-tabs/hero-tabs";
 import { Window } from "../../window/window";
 
 import clsx from "clsx";
+import { CodeBlock } from "../../prism-code-block/prism-code-block";
 import style from "./hero-illustration.module.css";
 
 export const HeroIllustration = () => {

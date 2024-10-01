@@ -122,9 +122,9 @@ const JsonSchemaExtensionsIllustration = () => {
 };
 
 import validationDecoratorsTsp from "@site/src/assets/tsp-samples/data-validation/validation-decorators.tsp?raw";
-import { CodeBlock } from "../code-block/code-block";
 import { IllustrationCard } from "../illustration-card/illustration-card";
 import { LearnMoreCard } from "../learn-more-card/learn-more-card";
+import { CodeBlock } from "../prism-code-block/prism-code-block";
 
 const ValidationDecoratorsIllustration = () => {
   return (

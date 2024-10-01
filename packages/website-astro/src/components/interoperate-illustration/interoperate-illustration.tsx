@@ -4,7 +4,7 @@ import interoperateSpectral from "@site/src/assets/tsp-samples/openapi3/interope
 import { Painter } from "@site/src/components/painter/painter";
 import { Terminal } from "@site/src/components/terminal/terminal";
 import { AssetImg } from "../asset-img/asset-img";
-import { CodeBlock } from "../code-block/code-block";
+import { CodeBlock } from "../prism-code-block/prism-code-block";
 import { WindowCarousel, WindowCarouselItem } from "../window-carousel/window-carousel";
 import style from "./interoperate-illustration.module.css";
 

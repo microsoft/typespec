@@ -3,10 +3,10 @@ import { DataValidationHeroIllustration } from "@site/src/components/react-pages
 import { OpenAPI3HeroIllustration } from "@site/src/components/react-pages/openapi";
 import { Links } from "@site/src/constants";
 import { Button } from "../button/button";
-import { CodeBlock } from "../code-block/code-block";
 import { FeatureList } from "../feature-list/feature-list";
 import { LearnMoreCard } from "../learn-more-card/learn-more-card";
 import { LightDarkImg } from "../light-dark-img/light-dark-img";
+import { CodeBlock } from "../prism-code-block/prism-code-block";
 import { Section } from "../section/section";
 import { SectionedLayout } from "../sectioned-layout/sectioned-layout";
 import { DescriptionText, PrimaryText } from "../text/text";
