@@ -1,13 +1,14 @@
 import useBaseUrl from "@docusaurus/useBaseUrl";
+import { DataValidationHeroIllustration } from "@site/src/components/react-pages/data-validation";
+import { OpenAPI3HeroIllustration } from "@site/src/components/react-pages/openapi";
 import { Links } from "@site/src/constants";
-// import { DataValidationHeroIllustration } from "@site/src/pages/data-validation";
-// import { OpenAPI3HeroIllustration } from "@site/src/pages/openapi";
 import { Button } from "../button/button";
 import { CodeBlock } from "../code-block/code-block";
 import { FeatureList } from "../feature-list/feature-list";
 import { LearnMoreCard } from "../learn-more-card/learn-more-card";
 import { LightDarkImg } from "../light-dark-img/light-dark-img";
 import { Section } from "../section/section";
+import { SectionedLayout } from "../sectioned-layout/sectioned-layout";
 import { DescriptionText, PrimaryText } from "../text/text";
 import style from "./homepage.module.css";
 import { OverviewIllustration } from "./overview-illustration/overview-illustration";
@@ -15,7 +16,16 @@ import { OverviewIllustration } from "./overview-illustration/overview-illustrat
 export const HomeContent = () => {
   return (
     <>
-      <Overview />
+      <Hero />
+      <div className={style["hero-divider"]}></div>
+      <SectionedLayout>
+        <Overview />
+        <OpenAPISection />
+        <DataValidationSection />
+        <EditorSection />
+        <ExtensibilitySection />
+        <Closing />
+      </SectionedLayout>
     </>
   );
 };
@@ -97,8 +107,7 @@ const OpenAPISection = () => {
       header="Productivity"
       title="Streamline your OpenAPI workflow"
       description="Benefit from a huge ecosystem of OpenAPI tools for configuring API gateways, generating code, and validating your data."
-      // illustration={<OpenAPI3HeroIllustration />}
-      illustration={<>TODO: here</>}
+      illustration={<OpenAPI3HeroIllustration />}
     >
       <LearnMoreCard
         title="Generate OpenAPI from TypeSpec"
@@ -115,8 +124,7 @@ const DataValidationSection = () => {
       header="Ecosystem"
       title="Ensure data consistency"
       description="Define common models to use across your APIs, use the JSON schema emitter to get the JSON schema for your types and use them to validate your data."
-      // illustration={<DataValidationHeroIllustration />}
-      illustration={<>TODO: here</>}
+      illustration={<DataValidationHeroIllustration />}
     >
       <LearnMoreCard
         title="JSON schema emitter reference"

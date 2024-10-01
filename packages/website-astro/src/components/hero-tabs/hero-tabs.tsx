@@ -1,8 +1,6 @@
-import fluentui, { type SelectTabData, type SelectTabEvent } from "@fluentui/react-components";
+import { type SelectTabData, type SelectTabEvent, Tab, TabList } from "@fluentui/react-components";
 import { type ReactNode, useCallback, useState } from "react";
 import style from "./hero-tabs.module.css";
-
-const { Tab, TabList } = fluentui;
 
 export interface HeroProps {
   tabs: HeroTab[];

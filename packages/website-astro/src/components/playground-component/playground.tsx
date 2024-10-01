@@ -1,7 +1,5 @@
 import { useColorMode } from "@docusaurus/theme-common";
-import fluentui from "@fluentui/react-components";
 import versions from "@site/playground-versions.json" assert { type: "json" };
-import Layout from "@theme/Layout";
 import { ImportToolbarButton, TypeSpecPlaygroundConfig } from "@typespec/playground-website";
 import {
   Footer,
@@ -17,26 +15,6 @@ import { LoadingSpinner } from "./loading-spinner";
 
 import "@typespec/playground-website/style.css";
 import "@typespec/playground/styles.css";
-
-export const FluentLayout = ({ children }) => {
-  return (
-    <Layout>
-      <FluentWrapper>{children}</FluentWrapper>
-    </Layout>
-  );
-};
-
-const FluentWrapper = ({ children }) => {
-  const { colorMode } = useColorMode();
-
-  return (
-    <fluentui.FluentProvider
-      theme={colorMode === "dark" ? fluentui.webDarkTheme : fluentui.webLightTheme}
-    >
-      {children}
-    </fluentui.FluentProvider>
-  );
-};
 
 export interface WebsitePlaygroundProps {
   versionData: VersionData;

@@ -1,12 +1,10 @@
 ---
-import fluentui from "@fluentui/react-components";
+import { FluentLayout } from "../components/layouts/fluent-layout";
 import BaseLayout from "./base-layout.astro";
-
-let theme = fluentui.webLightTheme;
 ---
 
 <BaseLayout>
-  <fluentui.FluentProvider theme={theme} client:load>
+  <FluentLayout client:only="react">
     <slot />
-  </fluentui.FluentProvider>
+  </FluentLayout>
 </BaseLayout>

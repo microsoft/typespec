@@ -1,6 +1,6 @@
 // import BrowserOnly from "@docusaurus/BrowserOnly";
 // import { useColorMode } from "@docusaurus/theme-common";
-import fluentui from "@fluentui/react-components";
+import { FluentProvider, webDarkTheme, webLightTheme } from "@fluentui/react-components";
 import style from "./layouts.module.css";
 
 export const FluentLayout = ({ children }) => {
@@ -20,10 +20,8 @@ const FluentWrapper = ({ children }) => {
   // const { colorMode } = useColorMode();
   const colorMode: string = "light"; // TODO: FIX THIS
   return (
-    <fluentui.FluentProvider
-      theme={colorMode === "dark" ? fluentui.webDarkTheme : fluentui.webLightTheme}
-    >
+    <FluentProvider theme={colorMode === "dark" ? webDarkTheme : webLightTheme}>
       {children}
-    </fluentui.FluentProvider>
+    </FluentProvider>
   );
 };

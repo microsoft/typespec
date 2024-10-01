@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { FluentImageName, FluentImg } from "../fluent-img";
+import { type FluentImageName, FluentImg } from "../fluent-img";
 import { Link } from "../link/link";
 import { DescriptionText, NeutralText, Text } from "../text/text";
 import style from "./feature-list.module.css";

@@ -3,6 +3,7 @@ import useBaseUrl from "@docusaurus/useBaseUrl";
 
 export interface FluentImgProps {
   name: FluentImageName;
+  alt?: string;
   className?: string;
 }
 

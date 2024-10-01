@@ -1,8 +1,9 @@
 ---
-import { HomeContent } from "../components/homepage/homepage.js";
+import { HomeContent } from "../components/homepage/homepage.tsx";
 import ShowcaseLayout from "@site/src/layouts/showcase.astro";
+import { Link } from "../components/link/link";
 ---
 
 <ShowcaseLayout>
-  <HomeContent />
+  <HomeContent client:only="react" />
 </ShowcaseLayout>

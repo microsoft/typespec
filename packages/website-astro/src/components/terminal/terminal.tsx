@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { Window, WindowProps } from "../window/window";
+import { Window, type WindowProps } from "../window/window";
 import style from "./terminal.module.css";
 
 export interface TerminalProps extends WindowProps {}

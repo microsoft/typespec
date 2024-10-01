@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { Card, CardProps } from "../card/card";
+import { Card, type CardProps } from "../card/card";
 import style from "./illustration-card.module.css";
 
 export interface IllustrationCardProps extends CardProps {}

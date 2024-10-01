@@ -1,11 +1,9 @@
-import fluentui from "@fluentui/react-components";
+import { Tab, TabList } from "@fluentui/react-components";
 import { Window } from "@site/src/components/window/window";
 import clsx from "clsx";
 import { type ReactNode, useCallback, useState } from "react";
 import { useCarousel } from "./use-carousel";
 import style from "./window-carousel.module.css";
-
-const { Tab, TabList } = fluentui;
 
 export interface WindowCarouselProps {
   defaultValue?: string;
