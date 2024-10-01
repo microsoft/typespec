@@ -18,6 +18,12 @@ export default defineConfig({
         {
           tag: "script",
           attrs: {
+            src: "https://consentdeliveryfd.azurefd.net/mscc/lib/v2/wcp-consent.js",
+          },
+        },
+        {
+          tag: "script",
+          attrs: {
             type: "module",
             async: true,
             src: "1ds-init.js",
