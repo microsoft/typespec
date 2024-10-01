@@ -1,5 +1,4 @@
 ---
-id: aliases
 title: Aliases
 ---
 

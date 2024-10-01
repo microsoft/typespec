@@ -1,7 +1,6 @@
 ---
 id: installation
 title: Installation
-slug: /
 ---
 
 # Installation
