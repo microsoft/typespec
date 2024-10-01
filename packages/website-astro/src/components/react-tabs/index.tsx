@@ -18,10 +18,6 @@ export const Tabs = ({ children }) => {
   );
 
   const content = tabs.find((tab) => tab.props.value === selected)?.props.children;
-  console.log(
-    "Tabs",
-    tabs.find((tab) => tab.props.value === selected),
-  );
 
   return (
     <div>
