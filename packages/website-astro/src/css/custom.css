@@ -229,3 +229,8 @@ html {
     "Segoe UI Emoji",
     "Segoe UI Symbol";
 }
+
+header.header {
+  padding: 0;
+  padding-inline-end: unset !important;
+}
