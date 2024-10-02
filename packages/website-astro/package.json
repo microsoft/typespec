@@ -41,6 +41,7 @@
     "@types/remark-heading-id": "^1.0.0",
     "@typespec/playground-website": "workspace:*",
     "@typespec/website": "workspace:*",
+    "rehype-mermaid": "^2.1.0",
     "remark-heading-id": "^1.0.1",
     "rimraf": "~6.0.1"
   }

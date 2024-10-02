@@ -172,6 +172,7 @@ words:
   - recase
   - recorda
   - regen
+  - rehype
   - repr
   - respecify
   - rjust

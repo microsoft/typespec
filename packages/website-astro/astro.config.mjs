@@ -4,6 +4,7 @@ import starlight from "@astrojs/starlight";
 import { defineConfig } from "astro/config";
 import { readFile } from "fs/promises";
 import { resolve } from "path";
+import rehypeMermaid from "rehype-mermaid";
 import remarkHeadingID from "remark-heading-id";
 import { resolveSideBars } from "./sidebars";
 import tspTryitCode from "./src/plugins/tsp-tryit-code";
@@ -69,6 +70,7 @@ export default defineConfig({
   markdown: {
     // @ts-expect-error wrong type
     remarkPlugins: [remarkHeadingID],
+    rehypePlugins: [rehypeMermaid],
     shikiConfig: {
       langs: [typespecLang],
     },
