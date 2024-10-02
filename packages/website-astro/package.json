@@ -20,9 +20,7 @@
     "@astrojs/starlight": "^0.27.1",
     "@fluentui/react-components": "~9.54.16",
     "@fluentui/react-icons": "^2.0.258",
-    "@types/react-dom": "^18.3.0",
     "@typespec/playground": "workspace:~",
-    "@typespec/playground-website": "workspace:~",
     "astro": "^4.15.3",
     "clsx": "^2.1.1",
     "es-module-shims": "~1.10.0",
@@ -34,7 +32,9 @@
   },
   "devDependencies": {
     "@types/react": "~18.3.9",
-    "@typespec/website": "workspace:~",
+    "@types/react-dom": "~18.3.0",
+    "@typespec/website": "workspace:*",
+    "@typespec/playground-website": "workspace:*",
     "remark-heading-id": "^1.0.1"
   }
 }

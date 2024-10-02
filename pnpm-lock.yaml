@@ -1918,15 +1918,9 @@ importers:
       '@fluentui/react-icons':
         specifier: ^2.0.258
         version: 2.0.258(react@18.3.1)
-      '@types/react-dom':
-        specifier: ^18.3.0
-        version: 18.3.0
       '@typespec/playground':
         specifier: workspace:~
         version: link:../playground
-      '@typespec/playground-website':
-        specifier: workspace:~
-        version: link:../playground-website
       astro:
         specifier: ^4.15.3
         version: 4.15.5(@types/node@22.7.4)(rollup@4.22.5)(terser@5.30.0)(typescript@5.6.2)
@@ -1955,8 +1949,14 @@ importers:
       '@types/react':
         specifier: ~18.3.9
         version: 18.3.10
+      '@types/react-dom':
+        specifier: ~18.3.0
+        version: 18.3.0
+      '@typespec/playground-website':
+        specifier: workspace:*
+        version: link:../playground-website
       '@typespec/website':
-        specifier: workspace:~
+        specifier: workspace:*
         version: link:../website
       remark-heading-id:
         specifier: ^1.0.1
