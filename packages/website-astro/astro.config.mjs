@@ -32,6 +32,14 @@ export default defineConfig({
       components: {
         Header: "./src/components/header/header.astro",
       },
+      expressiveCode: {
+        themes: ["one-light", "one-dark-pro"],
+        styleOverrides: {
+          frames: {
+            frameBoxShadowCssValue: "",
+          },
+        },
+      },
       head: [
         {
           tag: "script",
