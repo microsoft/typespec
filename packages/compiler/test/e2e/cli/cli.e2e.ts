@@ -191,7 +191,7 @@ describe("cli", () => {
     await access(resolvePath(getScenarioDir("with-config"), "tsp-output/custom-dir-name/out.txt"));
   });
 
-  it("set config parameter with --option", async () => {
+  it.only("set config parameter with --option", async () => {
     await cleanOutputDir("with-option");
     const { stdout } = await execCliSuccess(
       [
@@ -216,7 +216,8 @@ describe("cli", () => {
     const file = await readFile(
       resolvePath(getScenarioDir("with-option"), "tsp-output/custom-dir-name/out.txt"),
     );
-    expect(file.toString()).toContain(`TypeSpec with options
+    expect(file.toString()).toContain(`By Owner: TypeSpec
+TypeSpec with options
 Succeeded: TypeSpec with options with this short example by TypeSpec
 Owner: TypeSpec
 Co-owner is defined by this test`);

@@ -11,6 +11,7 @@ parameters:
 
 options:
   description:
+    header: "By {description.by.owners.primary}"
     name: "Testing name: {metadata.name}"
     details: "Succeeded: {name} with {metadata.description} by {metadata.owner}"
     by:
