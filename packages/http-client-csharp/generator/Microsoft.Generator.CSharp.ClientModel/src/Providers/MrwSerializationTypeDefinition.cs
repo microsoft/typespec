@@ -1388,16 +1388,17 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             ScopedApi array,
             SerializationFormat serializationFormat)
         {
-            // Handle ReadOnlyMemory<byte> serialization
-            if (array.Type.ElementType.IsFrameworkType && array.Type.ElementType.FrameworkType == typeof(ReadOnlySpan<>))
-            {
-                return CreateSerializationStatementForReadOnlyMemory(array, serializationFormat);
-            }
+            // Handle ReadOnlyMemory<T> serialization
+            bool isReadOnlySpan = array.Type.ElementType.IsFrameworkType && array.Type.ElementType.FrameworkType == typeof(ReadOnlySpan<>);
+            CSharpType itemType = isReadOnlySpan ? array.Type.ElementType.Arguments[0] : array.Type.Arguments[0];
+            var collection = isReadOnlySpan
+                ? array.NullableStructValue(array.Type.ElementType).Property(nameof(ReadOnlyMemory<byte>.Span))
+                : array;
 
             return new[]
             {
                 _utf8JsonWriterSnippet.WriteStartArray(),
-                new ForeachStatement("item", array, out VariableExpression item)
+                new ForeachStatement(itemType, "item", collection, false, out VariableExpression item)
                 {
                     TypeRequiresNullCheckInSerialization(item.Type) ?
                     new IfStatement(item.Equal(Null)) { _utf8JsonWriterSnippet.WriteNullValue(), Continue } : MethodBodyStatement.Empty,

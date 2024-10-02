@@ -34,7 +34,7 @@ namespace Sample.Models
             {
                 writer.WritePropertyName("prop1"u8);
                 writer.WriteStartArray();
-                foreach (var item in Prop2)
+                foreach (string item in Prop2)
                 {
                     if ((item == null))
                     {
