@@ -40,6 +40,10 @@ function update() {
   }
 }
 
+export function getColorMode(): ColorMode {
+  return colorMode;
+}
+
 export function setColorMode(newColorMode: ColorMode) {
   colorMode = newColorMode;
   localStorage.setItem("theme", newColorMode);

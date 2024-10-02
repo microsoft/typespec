@@ -1,5 +1,5 @@
 ---
-import { ThemePicker } from "../theme-picker/theme-picker";
+import ThemePicker from "../theme-picker/theme-picker.astro";
 import { HeaderMenu } from "./menu";
 import Link from "./link.astro";
 import { Icon } from "@astrojs/starlight/components";
@@ -101,7 +101,7 @@ import { Icon } from "@astrojs/starlight/components";
           label: "Tooling support",
           to: "/tooling",
         },
-      ]}><span class="use-case-menu-btn">Use cases <Icon name="down-caret"  /></span></HeaderMenu
+      ]}><span class="use-case-menu-btn">Use cases <Icon name="down-caret" /></span></HeaderMenu
     >
     <Link class="item link" href="/docs">Docs</Link>
     <Link class="item link" href="/playground">Playground</Link>
@@ -122,6 +122,6 @@ import { Icon } from "@astrojs/starlight/components";
       target="_blank"
       rel="noopener noreferrer"
     />
-    <ThemePicker client:only="react" />
+    <ThemePicker />
   </div>
 </nav>
