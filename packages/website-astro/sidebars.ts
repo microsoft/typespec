@@ -55,21 +55,16 @@ async function processSidebar(
     const result: NonNullable<StarlightSidebarUserConfig> = [];
 
     for (const item of items) {
-      const parsed = parse(item);
-      if (parsed.ext !== ".mdx" && parsed.ext !== ".md") {
-        continue;
-      }
-      if (item === "_category_.json") {
-        continue;
-      }
-
       if (await isDirectory(resolve(base, directory, item))) {
         result.push({
           label: humanize(item),
           items: await autogenerate(join(directory, item), order),
         });
       } else {
-        result.push(getSlugFromPath(directory, item));
+        const parsed = parse(item);
+        if (parsed.ext === ".mdx" || parsed.ext === ".md") {
+          result.push(getSlugFromPath(directory, item));
+        }
       }
     }
 
@@ -133,7 +128,7 @@ async function processSidebar(
 function humanize(str: string) {
   return str
     .replace(/^[\s_]+|[\s_]+$/g, "")
-    .replace(/[_\s]+/g, " ")
+    .replace(/[(-_\s]+/g, " ")
     .replace(/^[a-z]/, function (m) {
       return m.toUpperCase();
     });
