@@ -1772,7 +1772,7 @@ importers:
         version: 3.5.2(@mdx-js/react@3.0.1(@types/react@18.3.10)(react@18.3.1))(@swc/core@1.7.28(@swc/helpers@0.5.8))(eslint@9.11.1(jiti@1.21.0))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.2)(vue-template-compiler@2.7.16)
       '@docusaurus/preset-classic':
         specifier: ^3.5.2
-        version: 3.5.2(@algolia/client-search@4.23.2)(@mdx-js/react@3.0.1(@types/react@18.3.10)(react@18.3.1))(@swc/core@1.7.28(@swc/helpers@0.5.8))(@types/react@18.3.10)(eslint@9.11.1(jiti@1.21.0))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.13.0)(typescript@5.6.2)(vue-template-compiler@2.7.16)
+        version: 3.5.2(@mdx-js/react@3.0.1(@types/react@18.3.10)(react@18.3.1))(@swc/core@1.7.28(@swc/helpers@0.5.8))(@types/react@18.3.10)(eslint@9.11.1(jiti@1.21.0))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.13.0)(typescript@5.6.2)(vue-template-compiler@2.7.16)
       '@docusaurus/theme-classic':
         specifier: ~3.5.2
         version: 3.5.2(@swc/core@1.7.28(@swc/helpers@0.5.8))(@types/react@18.3.10)(eslint@9.11.1(jiti@1.21.0))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.2)(vue-template-compiler@2.7.16)
@@ -1912,6 +1912,15 @@ importers:
       '@astrojs/starlight':
         specifier: ^0.27.1
         version: 0.27.1(astro@4.15.5(@types/node@22.7.4)(rollup@4.22.5)(terser@5.30.0)(typescript@5.6.2))
+      '@astrojs/starlight-docsearch':
+        specifier: ^0.2.0
+        version: 0.2.0(@algolia/client-search@4.23.2)(@astrojs/starlight@0.27.1(astro@4.15.5(@types/node@22.7.4)(rollup@4.22.5)(terser@5.30.0)(typescript@5.6.2)))(@types/react@18.3.10)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.13.0)
+      '@docsearch/css':
+        specifier: ^3.6.2
+        version: 3.6.2
+      '@docsearch/js':
+        specifier: ^3.6.2
+        version: 3.6.2(@algolia/client-search@4.23.2)(@types/react@18.3.10)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.13.0)
       '@fluentui/react-components':
         specifier: ~9.54.16
         version: 9.54.17(@types/react-dom@18.3.0)(@types/react@18.3.10)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)
@@ -2136,6 +2145,11 @@ packages:
 
   '@astrojs/sitemap@3.1.6':
     resolution: {integrity: sha512-1Qp2NvAzVImqA6y+LubKi1DVhve/hXXgFvB0szxiipzh7BvtuKe4oJJ9dXSqaubaTkt4nMa6dv6RCCAYeB6xaQ==}
+
+  '@astrojs/starlight-docsearch@0.2.0':
+    resolution: {integrity: sha512-jeZuJrcy0IX9qz7m4Emy/Vfr3hurjBByUFvcpqmvH7x48PCVYozCxEnLdDJzXU3vHWhvodtRCt51wcugCTGB5g==}
+    peerDependencies:
+      '@astrojs/starlight': '>=0.28.0'
 
   '@astrojs/starlight@0.27.1':
     resolution: {integrity: sha512-L2hEgN/Tk7tfBDeaqUOgOpey5NcUL78FuQa06iNxyZ6RjyYyuXSniOoFxZYIo5PpY9O1dLdK22PkZyCDpO729g==}
@@ -3227,11 +3241,14 @@ packages:
     resolution: {integrity: sha512-dBVuXR082gk3jsFp7Rd/JI4kytwGHecnCoTtXFb7DB6CNHp4rg5k1bhg0nWdLGLnOV71lmDzGQaLMy8iPLY0pw==}
     engines: {node: '>=10.0.0'}
 
-  '@docsearch/css@3.6.0':
-    resolution: {integrity: sha512-+sbxb71sWre+PwDK7X2T8+bhS6clcVMLwBPznX45Qu6opJcgRjAp7gYSDzVFp187J+feSj5dNBN1mJoi6ckkUQ==}
+  '@docsearch/css@3.6.2':
+    resolution: {integrity: sha512-vKNZepO2j7MrYBTZIGXvlUOIR+v9KRf70FApRgovWrj3GTs1EITz/Xb0AOlm1xsQBp16clVZj1SY/qaOJbQtZw==}
 
-  '@docsearch/react@3.6.0':
-    resolution: {integrity: sha512-HUFut4ztcVNmqy9gp/wxNbC7pTOHhgVVkHVGCACTuLhUKUhKAF9KYHJtMiLUJxEqiFLQiuri1fWF8zqwM/cu1w==}
+  '@docsearch/js@3.6.2':
+    resolution: {integrity: sha512-pS4YZF+VzUogYrkblCucQ0Oy2m8Wggk8Kk7lECmZM60hTbaydSIhJTTiCrmoxtBqV8wxORnOqcqqOfbmkkQEcA==}
+
+  '@docsearch/react@3.6.2':
+    resolution: {integrity: sha512-rtZce46OOkVflCQH71IdbXSFK+S8iJZlUF56XBW5rIgx/eG5qoomC7Ag3anZson1bBac/JFQn7XOBfved/IMRA==}
     peerDependencies:
       '@types/react': '>= 16.8.0 < 19.0.0'
       react: '>= 16.8.0 < 19.0.0'
@@ -10995,6 +11012,9 @@ packages:
     resolution: {integrity: sha512-7KTLTdzdZZYscUc65XmjFiB73vBhBfbPztCYdUNvlaso9PrzjzcmjqBPR0lNGkcVlcO4BjiO5rK/qNz+XAen1Q==}
     engines: {node: ^10 || ^12 || >=14}
 
+  preact@10.24.1:
+    resolution: {integrity: sha512-PnBAwFI3Yjxxcxw75n6VId/5TFxNW/81zexzWD9jn1+eSrOP84NdsS38H5IkF/UH3frqRPT+MvuCoVHjTDTnDw==}
+
   prebuild-install@7.1.2:
     resolution: {integrity: sha512-UnNke3IQb6sgarcZIDU3gbMeTp/9SSU1DAIkil7PrqG1vZlBtY5msYccSKSHDqa3hNg436IXK+SNImReuA1wEQ==}
     engines: {node: '>=10'}
@@ -13521,6 +13541,18 @@ snapshots:
       stream-replace-string: 2.0.0
       zod: 3.23.8
 
+  '@astrojs/starlight-docsearch@0.2.0(@algolia/client-search@4.23.2)(@astrojs/starlight@0.27.1(astro@4.15.5(@types/node@22.7.4)(rollup@4.22.5)(terser@5.30.0)(typescript@5.6.2)))(@types/react@18.3.10)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.13.0)':
+    dependencies:
+      '@astrojs/starlight': 0.27.1(astro@4.15.5(@types/node@22.7.4)(rollup@4.22.5)(terser@5.30.0)(typescript@5.6.2))
+      '@docsearch/css': 3.6.2
+      '@docsearch/js': 3.6.2(@algolia/client-search@4.23.2)(@types/react@18.3.10)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.13.0)
+    transitivePeerDependencies:
+      - '@algolia/client-search'
+      - '@types/react'
+      - react
+      - react-dom
+      - search-insights
+
   '@astrojs/starlight@0.27.1(astro@4.15.5(@types/node@22.7.4)(rollup@4.22.5)(terser@5.30.0)(typescript@5.6.2))':
     dependencies:
       '@astrojs/mdx': 3.1.6(astro@4.15.5(@types/node@22.7.4)(rollup@4.22.5)(terser@5.30.0)(typescript@5.6.2))
@@ -14896,13 +14928,24 @@ snapshots:
 
   '@discoveryjs/json-ext@0.5.7': {}
 
-  '@docsearch/css@3.6.0': {}
+  '@docsearch/css@3.6.2': {}
 
-  '@docsearch/react@3.6.0(@algolia/client-search@4.23.2)(@types/react@18.3.10)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.13.0)':
+  '@docsearch/js@3.6.2(@algolia/client-search@4.23.2)(@types/react@18.3.10)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.13.0)':
+    dependencies:
+      '@docsearch/react': 3.6.2(@algolia/client-search@4.23.2)(@types/react@18.3.10)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.13.0)
+      preact: 10.24.1
+    transitivePeerDependencies:
+      - '@algolia/client-search'
+      - '@types/react'
+      - react
+      - react-dom
+      - search-insights
+
+  '@docsearch/react@3.6.2(@algolia/client-search@4.23.2)(@types/react@18.3.10)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.13.0)':
     dependencies:
       '@algolia/autocomplete-core': 1.9.3(@algolia/client-search@4.23.2)(algoliasearch@4.23.2)(search-insights@2.13.0)
       '@algolia/autocomplete-preset-algolia': 1.9.3(@algolia/client-search@4.23.2)(algoliasearch@4.23.2)
-      '@docsearch/css': 3.6.0
+      '@docsearch/css': 3.6.2
       algoliasearch: 4.23.2
     optionalDependencies:
       '@types/react': 18.3.10
@@ -15327,7 +15370,7 @@ snapshots:
       - vue-template-compiler
       - webpack-cli
 
-  '@docusaurus/preset-classic@3.5.2(@algolia/client-search@4.23.2)(@mdx-js/react@3.0.1(@types/react@18.3.10)(react@18.3.1))(@swc/core@1.7.28(@swc/helpers@0.5.8))(@types/react@18.3.10)(eslint@9.11.1(jiti@1.21.0))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.13.0)(typescript@5.6.2)(vue-template-compiler@2.7.16)':
+  '@docusaurus/preset-classic@3.5.2(@mdx-js/react@3.0.1(@types/react@18.3.10)(react@18.3.1))(@swc/core@1.7.28(@swc/helpers@0.5.8))(@types/react@18.3.10)(eslint@9.11.1(jiti@1.21.0))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.13.0)(typescript@5.6.2)(vue-template-compiler@2.7.16)':
     dependencies:
       '@docusaurus/core': 3.5.2(@docusaurus/types@3.5.2(@swc/core@1.7.28(@swc/helpers@0.5.8))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mdx-js/react@3.0.1(@types/react@18.3.10)(react@18.3.1))(@swc/core@1.7.28(@swc/helpers@0.5.8))(eslint@9.11.1(jiti@1.21.0))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.2)(vue-template-compiler@2.7.16)
       '@docusaurus/plugin-content-blog': 3.5.2(@docusaurus/plugin-content-docs@3.5.2(@mdx-js/react@3.0.1(@types/react@18.3.10)(react@18.3.1))(@swc/core@1.7.28(@swc/helpers@0.5.8))(eslint@9.11.1(jiti@1.21.0))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.2)(vue-template-compiler@2.7.16))(@mdx-js/react@3.0.1(@types/react@18.3.10)(react@18.3.1))(@swc/core@1.7.28(@swc/helpers@0.5.8))(eslint@9.11.1(jiti@1.21.0))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.2)(vue-template-compiler@2.7.16)
@@ -15340,7 +15383,7 @@ snapshots:
       '@docusaurus/plugin-sitemap': 3.5.2(@mdx-js/react@3.0.1(@types/react@18.3.10)(react@18.3.1))(@swc/core@1.7.28(@swc/helpers@0.5.8))(eslint@9.11.1(jiti@1.21.0))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.2)(vue-template-compiler@2.7.16)
       '@docusaurus/theme-classic': 3.5.2(@swc/core@1.7.28(@swc/helpers@0.5.8))(@types/react@18.3.10)(eslint@9.11.1(jiti@1.21.0))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.2)(vue-template-compiler@2.7.16)
       '@docusaurus/theme-common': 3.5.2(@docusaurus/plugin-content-docs@3.5.2(@mdx-js/react@3.0.1(@types/react@18.3.10)(react@18.3.1))(@swc/core@1.7.28(@swc/helpers@0.5.8))(eslint@9.11.1(jiti@1.21.0))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.2)(vue-template-compiler@2.7.16))(@docusaurus/types@3.5.2(@swc/core@1.7.28(@swc/helpers@0.5.8))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@swc/core@1.7.28(@swc/helpers@0.5.8))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.2)
-      '@docusaurus/theme-search-algolia': 3.5.2(@algolia/client-search@4.23.2)(@docusaurus/types@3.5.2(@swc/core@1.7.28(@swc/helpers@0.5.8))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mdx-js/react@3.0.1(@types/react@18.3.10)(react@18.3.1))(@swc/core@1.7.28(@swc/helpers@0.5.8))(@types/react@18.3.10)(eslint@9.11.1(jiti@1.21.0))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.13.0)(typescript@5.6.2)(vue-template-compiler@2.7.16)
+      '@docusaurus/theme-search-algolia': 3.5.2(@docusaurus/types@3.5.2(@swc/core@1.7.28(@swc/helpers@0.5.8))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mdx-js/react@3.0.1(@types/react@18.3.10)(react@18.3.1))(@swc/core@1.7.28(@swc/helpers@0.5.8))(@types/react@18.3.10)(eslint@9.11.1(jiti@1.21.0))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.13.0)(typescript@5.6.2)(vue-template-compiler@2.7.16)
       '@docusaurus/types': 3.5.2(@swc/core@1.7.28(@swc/helpers@0.5.8))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
@@ -15476,9 +15519,9 @@ snapshots:
       - vue-template-compiler
       - webpack-cli
 
-  '@docusaurus/theme-search-algolia@3.5.2(@algolia/client-search@4.23.2)(@docusaurus/types@3.5.2(@swc/core@1.7.28(@swc/helpers@0.5.8))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mdx-js/react@3.0.1(@types/react@18.3.10)(react@18.3.1))(@swc/core@1.7.28(@swc/helpers@0.5.8))(@types/react@18.3.10)(eslint@9.11.1(jiti@1.21.0))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.13.0)(typescript@5.6.2)(vue-template-compiler@2.7.16)':
+  '@docusaurus/theme-search-algolia@3.5.2(@docusaurus/types@3.5.2(@swc/core@1.7.28(@swc/helpers@0.5.8))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mdx-js/react@3.0.1(@types/react@18.3.10)(react@18.3.1))(@swc/core@1.7.28(@swc/helpers@0.5.8))(@types/react@18.3.10)(eslint@9.11.1(jiti@1.21.0))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.13.0)(typescript@5.6.2)(vue-template-compiler@2.7.16)':
     dependencies:
-      '@docsearch/react': 3.6.0(@algolia/client-search@4.23.2)(@types/react@18.3.10)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.13.0)
+      '@docsearch/react': 3.6.2(@algolia/client-search@4.23.2)(@types/react@18.3.10)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.13.0)
       '@docusaurus/core': 3.5.2(@docusaurus/types@3.5.2(@swc/core@1.7.28(@swc/helpers@0.5.8))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mdx-js/react@3.0.1(@types/react@18.3.10)(react@18.3.1))(@swc/core@1.7.28(@swc/helpers@0.5.8))(eslint@9.11.1(jiti@1.21.0))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.2)(vue-template-compiler@2.7.16)
       '@docusaurus/logger': 3.5.2
       '@docusaurus/plugin-content-docs': 3.5.2(@mdx-js/react@3.0.1(@types/react@18.3.10)(react@18.3.1))(@swc/core@1.7.28(@swc/helpers@0.5.8))(eslint@9.11.1(jiti@1.21.0))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.2)(vue-template-compiler@2.7.16)
@@ -25486,6 +25529,8 @@ snapshots:
       nanoid: 3.3.7
       picocolors: 1.1.0
       source-map-js: 1.2.0
+
+  preact@10.24.1: {}
 
   prebuild-install@7.1.2:
     dependencies:
