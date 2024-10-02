@@ -1590,12 +1590,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private static ScopedApi GetEnumerableExpression(ValueExpression expression, CSharpType enumerableType)
         {
-            CSharpType itemType = enumerableType.ElementType;
-
-            if (enumerableType.IsReadOnlyMemory)
-            {
-                itemType = new CSharpType(typeof(ReadOnlySpan<>), enumerableType.IsNullable, enumerableType.Arguments[0]);
-            }
+            CSharpType itemType = enumerableType.IsReadOnlyMemory
+                ? new CSharpType(typeof(ReadOnlySpan<>), enumerableType.IsNullable, enumerableType.Arguments[0])
+                : enumerableType.ElementType;
 
             return expression.As(new CSharpType(typeof(IEnumerable<>), itemType));
         }
