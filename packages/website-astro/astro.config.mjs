@@ -2,6 +2,7 @@
 import react from "@astrojs/react";
 import starlight from "@astrojs/starlight";
 import { defineConfig } from "astro/config";
+import remarkHeadingID from "remark-heading-id";
 import { resolveSideBars } from "./sidebars";
 
 const base = process.env.TYPESPEC_WEBSITE_BASE_PATH ?? "/";
@@ -38,6 +39,9 @@ export default defineConfig({
     react(),
   ],
   redirects: {
-    "/docs": base + "current/introduction/installation/",
+    "/docs": base + "docs/introduction/installation/",
+  },
+  markdown: {
+    remarkPlugins: [remarkHeadingID],
   },
 });

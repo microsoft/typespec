@@ -1,10 +1,10 @@
-import type { StarlightSidebarUserConfig } from "@site/sidebars";
+import type { SidebarItem } from "@site/sidebars";
 
 function createLibraryReferenceStructure(
   libDir: string,
   labelName: string,
   hasLinterRules: boolean,
-  extra: NonNullable<StarlightSidebarUserConfig>,
+  extra: SidebarItem[],
 ): any {
   const rules = {
     label: "Rules",
@@ -12,10 +12,10 @@ function createLibraryReferenceStructure(
   };
   return {
     label: labelName,
+    index: `${libDir}/reference`,
     items: [
       ...(hasLinterRules ? [rules] : []),
       {
-        label: "Reference",
         autogenerate: { directory: `${libDir}/reference` },
       },
       ...(extra ?? []),
@@ -23,7 +23,7 @@ function createLibraryReferenceStructure(
   };
 }
 
-const sidebar: NonNullable<StarlightSidebarUserConfig> = [
+const sidebar: SidebarItem[] = [
   {
     label: "Getting started",
     items: [
@@ -91,7 +91,6 @@ const sidebar: NonNullable<StarlightSidebarUserConfig> = [
       "standard-library/built-in-decorators",
       "standard-library/built-in-data-types",
       {
-        label: "Reference",
         autogenerate: { directory: "standard-library/reference" },
       },
       "standard-library/encoded-names",
@@ -152,8 +151,8 @@ const sidebar: NonNullable<StarlightSidebarUserConfig> = [
   },
   {
     label: "🚀 Release Notes",
-    collapsed: true,
     autogenerate: {
+      order: "desc",
       directory: "release-notes",
     },
   },

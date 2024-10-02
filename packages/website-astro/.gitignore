@@ -1,6 +1,6 @@
 # Temporary to help with migration
-src/content/docs/current/
-src/content/docs/latest/
+src/content/docs/docs/
+src/content/docs/docs/next/
 src/assets/
 public/
 

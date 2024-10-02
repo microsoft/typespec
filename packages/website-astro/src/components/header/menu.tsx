@@ -18,7 +18,6 @@ export const HeaderMenu = ({ children, className, links }: HeaderMenuProps) => {
       <MenuPopover>
         <MenuList>
           {links.map((item) => (
-            // eslint-disable-next-line react-hooks/rules-of-hooks
             <MenuItemLink key={item.to} href={link(item.to)}>
               {item.label}
             </MenuItemLink>

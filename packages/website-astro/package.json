@@ -4,7 +4,7 @@
   "private": true,
   "version": "0.0.1",
   "scripts": {
-    "copy": "cp -r ../../docs/. ./src/content/docs/current && cp -r ../website/static/. ./src/assets  && cp -r ../website/static/img/. ./public/img  && cp ../website/static/1ds-init.js ./public/1ds-init.js",
+    "copy": "cp -r ../../docs/. ./src/content/docs/docs && cp -r ../website/static/. ./src/assets  && cp -r ../website/static/img/. ./public/img  && cp ../website/static/1ds-init.js ./public/1ds-init.js",
     "dev": "astro dev",
     "start": "astro dev",
     "build": "pnpm copy && astro check && astro build",
@@ -34,6 +34,7 @@
   },
   "devDependencies": {
     "@types/react": "~18.3.9",
-    "@typespec/website": "workspace:~"
+    "@typespec/website": "workspace:~",
+    "remark-heading-id": "^1.0.1"
   }
 }
