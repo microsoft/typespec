@@ -4,8 +4,11 @@ import starlight from "@astrojs/starlight";
 import { defineConfig } from "astro/config";
 import { resolveSideBars } from "./sidebars";
 
+const base = process.env.TYPESPEC_WEBSITE_BASE_PATH ?? "/";
+
 // https://astro.build/config
 export default defineConfig({
+  base,
   integrations: [
     starlight({
       title: "TypeSpec",
