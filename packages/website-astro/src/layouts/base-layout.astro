@@ -1,6 +1,7 @@
 ---
 import "@site/src/css/custom.css";
 import Header from "@site/src/components/header/header.astro";
+import Footer from "@site/src/components/footer/footer.astro";
 ---
 
 <html lang="en">
@@ -13,12 +14,25 @@ import Header from "@site/src/components/header/header.astro";
   <body class="body">
     <Header />
     <!-- pt is set according to the height of the header -->
-    <main class="pt-[4.5rem] tablet:pt-24">
+    <main class="pt-[4.5rem] tablet:pt-24 main">
       <slot />
     </main>
-  </body><style>
+    <Footer class="footer"/>
+  </body>
+  <style>
     body {
       margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .main {
+      flex: 1;
+    }
+
+    .footer {
+      flex: 0 0 auto;
     }
   </style>
 </html>
