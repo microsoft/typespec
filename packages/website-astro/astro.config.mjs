@@ -41,7 +41,6 @@ export default defineConfig({
             frameBoxShadowCssValue: "",
           },
         },
-        // @ts-expect-error type mismatch
         plugins: [tspTryitCode(base + "playground/")],
       },
       head: [
