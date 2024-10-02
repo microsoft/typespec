@@ -5,6 +5,7 @@ import { Icon } from "@astrojs/starlight/components";
 <style>
   #theme-picker {
     display: flex;
+    cursor: pointer;
     align-items: flex-start;
     padding: 4px 6px;
     gap: 6px;
@@ -13,7 +14,6 @@ import { Icon } from "@astrojs/starlight/components";
   }
 
   .theme-option {
-    cursor: pointer;
     display: flex;
     padding: 2px;
     justify-content: center;
@@ -32,7 +32,7 @@ import { Icon } from "@astrojs/starlight/components";
     border-radius: 50%;
   }
 
-  [data-theme="light"] .selected {
+  :global(html[data-theme="light"]) .light {
     color: var(--colorNeutralStroke1);
   }
 </style>
