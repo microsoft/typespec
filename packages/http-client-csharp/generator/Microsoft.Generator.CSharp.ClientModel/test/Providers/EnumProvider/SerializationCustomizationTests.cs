@@ -37,5 +37,37 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.EnumProvider
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
+
+        [Test]
+        public async Task CanReplaceMethod()
+        {
+            var enumValues = new[]
+            {
+                InputFactory.EnumMember.Int32("Red", 1),
+                InputFactory.EnumMember.Int32("Green", 2),
+                InputFactory.EnumMember.Int32("Blue", 3)
+            };
+            var inputEnum = InputFactory.Enum("mockInputModel", underlyingType: InputPrimitiveType.String, values: enumValues);
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+               inputEnums: () => [inputEnum],
+               compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var enumProvider = plugin.Object.OutputLibrary.TypeProviders.FirstOrDefault(t => t.IsEnum);
+            Assert.IsNotNull(enumProvider);
+
+            var serializationProvider = enumProvider!.SerializationProviders.FirstOrDefault();
+            Assert.IsNotNull(serializationProvider);
+
+            var serializationProviderMethods = serializationProvider!.Methods;
+            Assert.AreEqual(1, serializationProviderMethods.Count);
+            Assert.IsFalse(serializationProviderMethods.Any(m => m.Signature.Name == "ToSerialString"));
+
+            //The custom code view should contain the method
+            var customCodeView = serializationProvider.CustomCodeView;
+            Assert.IsNotNull(customCodeView);
+            var customMethods = customCodeView!.Methods;
+            Assert.AreEqual(1, customMethods.Count);
+            Assert.AreEqual("ToSerialString", customMethods[0].Signature.Name);
+        }
     }
 }
