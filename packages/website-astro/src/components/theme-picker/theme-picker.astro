@@ -3,7 +3,7 @@ import { Icon } from "@astrojs/starlight/components";
 ---
 
 <style>
-  #theme-picker {
+  .theme-picker {
     display: flex;
     cursor: pointer;
     align-items: flex-start;
@@ -45,10 +45,11 @@ import { Icon } from "@astrojs/starlight/components";
     setTheme(next);
   };
 
-  document.getElementById("theme-picker")!.addEventListener("click", handleToggleClick);
+  const themePickers = document.querySelectorAll(".theme-picker");
+  themePickers.forEach((x) => x.addEventListener("click", handleToggleClick));
 </script>
 
-<div id="theme-picker" aria-label="Toggle Light/Dark theme" tabindex="0">
+<div class="theme-picker" aria-label="Toggle Light/Dark theme" tabindex="0">
   <div title="Light mode" class="theme-option light">
     <Icon name="sun" />
   </div>
