@@ -17,7 +17,6 @@ export const ShowcaseLayout = ({ children }) => {
 
 const FluentWrapper = ({ children }) => {
   const { colorMode } = useColorMode();
-  console.log("COlor mode change", colorMode);
   return (
     <FluentProvider theme={colorMode === "dark" ? webDarkTheme : webLightTheme}>
       {children}

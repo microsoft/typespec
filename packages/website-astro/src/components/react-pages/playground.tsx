@@ -15,6 +15,7 @@ export const AsyncPlayground = ({ latestVersion }: { latestVersion: string }) =>
       .catch((e) => {
         throw e;
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return mod ? (

@@ -50,7 +50,6 @@ export function useColorMode(): ContextValue {
   const [current, setCurrent] = useState<ColorMode>(colorMode);
   useEffect(() => {
     const handleThemeChange = () => {
-      console.log("Set current", current, document.documentElement.dataset.theme);
       setCurrent(document.documentElement.dataset.theme as any);
     };
 
@@ -63,6 +62,5 @@ export function useColorMode(): ContextValue {
     return () => observer.disconnect();
   }, []);
 
-  console.log("Current", current);
   return { colorMode: current, setColorMode };
 }

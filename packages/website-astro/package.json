@@ -33,6 +33,7 @@
     "typescript": "~5.6.2"
   },
   "devDependencies": {
-    "@types/react": "~18.3.10"
+    "@types/react": "~18.3.10",
+    "@typespec/website": "workspace:~"
   }
 }

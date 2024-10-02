@@ -1955,6 +1955,9 @@ importers:
       '@types/react':
         specifier: ~18.3.10
         version: 18.3.10
+      '@typespec/website':
+        specifier: workspace:~
+        version: link:../website
 
   packages/xml:
     devDependencies:
