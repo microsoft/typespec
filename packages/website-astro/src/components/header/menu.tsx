@@ -3,15 +3,15 @@ import type { ReactNode } from "react";
 
 export interface HeaderMenuProps {
   className?: string;
-  label: string | ReactNode;
+  children: ReactNode;
   links: { label: string; to: string }[];
 }
 
-export const HeaderMenu = ({ label, className, links }: HeaderMenuProps) => {
+export const HeaderMenu = ({ children, className, links }: HeaderMenuProps) => {
   return (
     <Menu>
       <MenuTrigger disableButtonEnhancement>
-        <a className={className}>{label}</a>
+        <a className={className}>{children}</a>
       </MenuTrigger>
 
       <MenuPopover>

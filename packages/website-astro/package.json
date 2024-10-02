@@ -4,7 +4,7 @@
   "private": true,
   "version": "0.0.1",
   "scripts": {
-    "copy": "cp -r ../../docs/. ./src/content/docs/current && cp -r ../website/static/. ./src/assets  && cp -r ../website/static/img/. ./public/img",
+    "copy": "cp -r ../../docs/. ./src/content/docs/current && cp -r ../website/static/. ./src/assets  && cp -r ../website/static/img/. ./public/img  && cp ../website/static/1ds-init.js ./public/1ds-init.js",
     "dev": "astro dev",
     "start": "astro dev",
     "build": "pnpm copy && astro check && astro build",
@@ -28,12 +28,12 @@
     "es-module-shims": "~1.10.0",
     "prism-react-renderer": "^2.4.0",
     "react": "~18.3.1",
-    "react-dom": "^18.3.1",
+    "react-dom": "~18.3.1",
     "sharp": "^0.32.5",
     "typescript": "~5.6.2"
   },
   "devDependencies": {
-    "@types/react": "~18.3.10",
+    "@types/react": "~18.3.9",
     "@typespec/website": "workspace:~"
   }
 }

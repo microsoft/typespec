@@ -9,6 +9,7 @@ const base = process.env.TYPESPEC_WEBSITE_BASE_PATH ?? "/";
 // https://astro.build/config
 export default defineConfig({
   base,
+  trailingSlash: "always",
   integrations: [
     starlight({
       title: "TypeSpec",
