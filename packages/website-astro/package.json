@@ -21,8 +21,10 @@
     "@astrojs/starlight": "^0.28.2",
     "@docsearch/css": "^3.6.2",
     "@docsearch/js": "^3.6.2",
+    "@expressive-code/core": "^0.37.0",
     "@fluentui/react-components": "~9.54.16",
     "@fluentui/react-icons": "^2.0.258",
+    "@typespec/compiler": "^0.60.1",
     "@typespec/playground": "workspace:~",
     "astro": "^4.15.10",
     "clsx": "^2.1.1",
@@ -36,6 +38,7 @@
   "devDependencies": {
     "@types/react": "~18.3.9",
     "@types/react-dom": "~18.3.0",
+    "@types/remark-heading-id": "^1.0.0",
     "@typespec/playground-website": "workspace:*",
     "@typespec/website": "workspace:*",
     "remark-heading-id": "^1.0.1",

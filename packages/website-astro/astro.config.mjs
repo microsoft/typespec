@@ -6,6 +6,7 @@ import { readFile } from "fs/promises";
 import { resolve } from "path";
 import remarkHeadingID from "remark-heading-id";
 import { resolveSideBars } from "./sidebars";
+import tspTryitCode from "./src/plugins/tsp-tryit-code";
 
 const base = process.env.TYPESPEC_WEBSITE_BASE_PATH ?? "/";
 
@@ -39,6 +40,8 @@ export default defineConfig({
             frameBoxShadowCssValue: "",
           },
         },
+        // @ts-expect-error type mismatch
+        plugins: [tspTryitCode(base + "playground/")],
       },
       head: [
         {
@@ -64,6 +67,7 @@ export default defineConfig({
     "/docs": base + "docs/introduction/installation/",
   },
   markdown: {
+    // @ts-expect-error wrong type
     remarkPlugins: [remarkHeadingID],
     shikiConfig: {
       langs: [typespecLang],
