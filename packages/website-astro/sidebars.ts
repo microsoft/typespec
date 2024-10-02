@@ -1,9 +1,8 @@
-import type { StarlightPlugin } from "@astrojs/starlight/types";
+import type { StarlightUserConfig } from "@astrojs/starlight/types";
 import { readdir, stat } from "fs/promises";
 import { join, parse, resolve } from "path/posix";
 import current from "./src/content/current-sidebar";
 
-export type StarlightUserConfig = Parameters<StarlightPlugin["hooks"]["setup"]>["0"]["config"];
 export type StarlightSidebarUserConfig = StarlightUserConfig["sidebar"];
 
 export interface AutoGenerateItem {
