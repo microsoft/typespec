@@ -1912,9 +1912,6 @@ importers:
       '@astrojs/starlight':
         specifier: ^0.27.1
         version: 0.27.1(astro@4.15.5(@types/node@22.7.4)(rollup@4.22.5)(terser@5.30.0)(typescript@5.6.2))
-      '@astrojs/starlight-docsearch':
-        specifier: ^0.2.0
-        version: 0.2.0(@algolia/client-search@4.23.2)(@astrojs/starlight@0.27.1(astro@4.15.5(@types/node@22.7.4)(rollup@4.22.5)(terser@5.30.0)(typescript@5.6.2)))(@types/react@18.3.10)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.13.0)
       '@docsearch/css':
         specifier: ^3.6.2
         version: 3.6.2
@@ -2145,11 +2142,6 @@ packages:
 
   '@astrojs/sitemap@3.1.6':
     resolution: {integrity: sha512-1Qp2NvAzVImqA6y+LubKi1DVhve/hXXgFvB0szxiipzh7BvtuKe4oJJ9dXSqaubaTkt4nMa6dv6RCCAYeB6xaQ==}
-
-  '@astrojs/starlight-docsearch@0.2.0':
-    resolution: {integrity: sha512-jeZuJrcy0IX9qz7m4Emy/Vfr3hurjBByUFvcpqmvH7x48PCVYozCxEnLdDJzXU3vHWhvodtRCt51wcugCTGB5g==}
-    peerDependencies:
-      '@astrojs/starlight': '>=0.28.0'
 
   '@astrojs/starlight@0.27.1':
     resolution: {integrity: sha512-L2hEgN/Tk7tfBDeaqUOgOpey5NcUL78FuQa06iNxyZ6RjyYyuXSniOoFxZYIo5PpY9O1dLdK22PkZyCDpO729g==}
@@ -13540,18 +13532,6 @@ snapshots:
       sitemap: 7.1.2
       stream-replace-string: 2.0.0
       zod: 3.23.8
-
-  '@astrojs/starlight-docsearch@0.2.0(@algolia/client-search@4.23.2)(@astrojs/starlight@0.27.1(astro@4.15.5(@types/node@22.7.4)(rollup@4.22.5)(terser@5.30.0)(typescript@5.6.2)))(@types/react@18.3.10)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.13.0)':
-    dependencies:
-      '@astrojs/starlight': 0.27.1(astro@4.15.5(@types/node@22.7.4)(rollup@4.22.5)(terser@5.30.0)(typescript@5.6.2))
-      '@docsearch/css': 3.6.2
-      '@docsearch/js': 3.6.2(@algolia/client-search@4.23.2)(@types/react@18.3.10)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.13.0)
-    transitivePeerDependencies:
-      - '@algolia/client-search'
-      - '@types/react'
-      - react
-      - react-dom
-      - search-insights
 
   '@astrojs/starlight@0.27.1(astro@4.15.5(@types/node@22.7.4)(rollup@4.22.5)(terser@5.30.0)(typescript@5.6.2))':
     dependencies:

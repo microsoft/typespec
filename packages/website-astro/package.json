@@ -19,7 +19,6 @@
     "@astrojs/check": "^0.9.3",
     "@astrojs/react": "^3.6.2",
     "@astrojs/starlight": "^0.27.1",
-    "@astrojs/starlight-docsearch": "^0.2.0",
     "@docsearch/css": "^3.6.2",
     "@docsearch/js": "^3.6.2",
     "@fluentui/react-components": "~9.54.16",
