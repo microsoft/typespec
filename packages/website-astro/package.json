@@ -5,6 +5,7 @@
   "version": "0.0.1",
   "scripts": {
     "copy": "cp -r ../../docs/. ./src/content/docs/docs && cp -r ../website/static/. ./src/assets  && cp -r ../website/static/img/. ./public/img  && cp ../website/static/1ds-init.js ./public/1ds-init.js",
+    "clean": "rimraf ./dist ./temp ./.astro",
     "dev": "astro dev",
     "start": "astro dev",
     "build": "pnpm copy && astro check && astro build",
@@ -33,8 +34,9 @@
   "devDependencies": {
     "@types/react": "~18.3.9",
     "@types/react-dom": "~18.3.0",
-    "@typespec/website": "workspace:*",
     "@typespec/playground-website": "workspace:*",
-    "remark-heading-id": "^1.0.1"
+    "@typespec/website": "workspace:*",
+    "remark-heading-id": "^1.0.1",
+    "rimraf": "~6.0.1"
   }
 }
