@@ -5,6 +5,8 @@ import { logger } from "../logger.js";
 import { loadScenarioMockApis } from "../scenarios-resolver.js";
 import { makeServiceCall, uint8ArrayToString } from "./helper.js";
 
+const DEFAULT_BASE_URL = "http://localhost:3000";
+
 class ServerTestsGenerator {
   private name: string = "";
   private mockApiDefinition: MockApiDefinition;
@@ -137,20 +139,42 @@ class ServerTestsGenerator {
   }
 }
 
-export async function serverTest(
-  scenariosPath: string,
-  serverBasePath: string,
-  scenariosConfig: {
-    runSingleScenario: string | undefined;
-    runScenariosFromFile: string | undefined;
-  },
-) {
+export interface ServerTestOptions {
+  baseUrl?: string;
+  runSingleScenario?: string;
+  runScenariosFromFile?: string;
+}
+
+async function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function waitForServer(baseUrl: string) {
+  logger.info(`Executing server tests with base URL: ${baseUrl}`);
+  let retry = 0;
+
+  while (retry < 3) {
+    try {
+      await fetch(baseUrl);
+      break;
+    } catch (e) {
+      retry++;
+      logger.info("Retrying...");
+      await delay(retry * 1000);
+    }
+  }
+  logger.info(`  ${baseUrl} is ready!`);
+}
+
+export async function serverTest(scenariosPath: string, options: ServerTestOptions = {}) {
+  const baseUrl = options.baseUrl ?? DEFAULT_BASE_URL;
+  await waitForServer(baseUrl);
   // 1. Get Testcases to run
   const testCasesToRun: string[] = [];
-  if (scenariosConfig.runSingleScenario) {
-    testCasesToRun.push(scenariosConfig.runSingleScenario);
-  } else if (scenariosConfig.runScenariosFromFile) {
-    const data = fs.readFileSync(path.resolve(scenariosConfig.runScenariosFromFile), "utf8");
+  if (options.runSingleScenario) {
+    testCasesToRun.push(options.runSingleScenario);
+  } else if (options.runScenariosFromFile) {
+    const data = fs.readFileSync(path.resolve(options.runScenariosFromFile), "utf8");
     const lines = data.split("\n");
     lines.forEach((line) => {
       testCasesToRun.push(line.trim());
@@ -164,7 +188,7 @@ export async function serverTest(
     for (const api of scenario.apis) {
       if (api.kind !== "MockApiDefinition") continue;
       if (testCasesToRun.length === 0 || testCasesToRun.includes(name)) {
-        const obj: ServerTestsGenerator = new ServerTestsGenerator(name, api, serverBasePath);
+        const obj: ServerTestsGenerator = new ServerTestsGenerator(name, api, baseUrl);
         await obj.executeScenario();
       }
     }

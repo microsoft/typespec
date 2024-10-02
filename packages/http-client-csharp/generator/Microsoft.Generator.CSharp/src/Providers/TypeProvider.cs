@@ -424,7 +424,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private static bool IsMatch(MethodSignatureBase customMethod, MethodSignatureBase method)
         {
-            if (customMethod.Parameters.Count != method.Parameters.Count)
+            if (customMethod.Parameters.Count != method.Parameters.Count || !customMethod.Name.EndsWith(method.Name))
             {
                 return false;
             }

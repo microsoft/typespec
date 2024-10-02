@@ -1,5 +1,6 @@
 {
   "name": "@typespec/http-specs",
+  "private": true,
   "version": "0.37.2",
   "description": "Spec scenarios and mock apis",
   "main": "dist/index.js",
@@ -8,11 +9,13 @@
     "watch": "tsc -p ./tsconfig.build.json --watch",
     "build": "tsc -p ./tsconfig.build.json",
     "clean": "rimraf dist/ temp/",
-    "test:e2e": "pnpm validate-scenarios  && pnpm validate-mock-apis",
+    "test:e2e": "pnpm validate-scenarios  && pnpm validate-mock-apis && pnpm validate-client-server",
     "validate-scenarios": "spec-core validate-scenarios ./specs",
     "generate-scenarios-summary": "spec-core generate-scenarios-summary ./specs",
     "validate-mock-apis": "spec-core validate-mock-apis ./specs",
     "check-scenario-coverage": "spec-core check-coverage ./specs",
+    "validate-client-server": "concurrently \"spec-core server start ./specs\" \"npm run client\" && spec-core server stop",
+    "client": "spec-core server-test ./specs",
     "serve": "spec-core serve ./specs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -30,24 +33,23 @@
   },
   "homepage": "https://github.com/microsoft/typespec#readme",
   "dependencies": {
-    "@typespec/spec-core": "workspace:~",
     "@typespec/spec-api": "workspace:~",
-    "multer": "^1.4.5-lts.1",
-    "dotenv": "~16.4.5"
+    "@typespec/spec-core": "workspace:~"
   },
   "devDependencies": {
-    "@types/node": "~22.7.1",
     "@types/multer": "^1.4.10",
+    "@types/node": "~22.7.1",
     "@typespec/openapi": "workspace:~",
     "@typespec/openapi3": "workspace:~",
+    "concurrently": "^9.0.1",
     "rimraf": "~6.0.1",
     "typescript": "~5.6.2"
   },
   "peerDependencies": {
-    "@typespec/spec-lib": "workspace:~",
     "@typespec/compiler": "workspace:~",
     "@typespec/http": "workspace:~",
     "@typespec/rest": "workspace:~",
+    "@typespec/spec-lib": "workspace:~",
     "@typespec/versioning": "workspace:~",
     "@typespec/xml": "workspace:~"
   }

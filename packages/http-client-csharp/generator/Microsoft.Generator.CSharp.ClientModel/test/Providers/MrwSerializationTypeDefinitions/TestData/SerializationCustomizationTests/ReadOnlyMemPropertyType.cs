@@ -30,18 +30,20 @@ namespace Sample.Models
             {
                 throw new global::System.FormatException($"The model {nameof(global::Sample.Models.Model)} does not support writing '{format}' format.");
             }
-            if (global::Sample.Optional.IsDefined(Prop2))
+            writer.WritePropertyName("prop1"u8);
+            writer.WriteStartArray();
+            foreach (byte item in NewProp1.Span)
             {
-                writer.WritePropertyName("prop1"u8);
+                writer.WriteNumberValue(item);
+            }
+            writer.WriteEndArray();
+            if (global::Sample.Optional.IsDefined(NewProp2))
+            {
+                writer.WritePropertyName("prop2"u8);
                 writer.WriteStartArray();
-                foreach (string item in Prop2)
+                foreach (byte item in NewProp2.Value.Span)
                 {
-                    if ((item == null))
-                    {
-                        writer.WriteNullValue();
-                        continue;
-                    }
-                    writer.WriteStringValue(item);
+                    writer.WriteNumberValue(item);
                 }
                 writer.WriteEndArray();
             }
@@ -83,7 +85,8 @@ namespace Sample.Models
             {
                 return null;
             }
-            global::System.String[] prop2 = default;
+            global::System.ReadOnlyMemory<byte> newProp1 = default;
+            global::System.ReadOnlyMemory<byte>? newProp2 = default;
             global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new global::Sample.ChangeTrackingDictionary<string, global::System.BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
@@ -93,19 +96,26 @@ namespace Sample.Models
                     {
                         continue;
                     }
-                    global::System.Collections.Generic.List<string> array = new global::System.Collections.Generic.List<string>();
+                    global::System.Collections.Generic.List<byte> array = new global::System.Collections.Generic.List<byte>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
-                        if ((item.ValueKind == global::System.Text.Json.JsonValueKind.Null))
-                        {
-                            array.Add(null);
-                        }
-                        else
-                        {
-                            array.Add(item.GetString());
-                        }
+                        array.Add(item.GetByte());
                     }
-                    prop2 = array;
+                    newProp1 = array;
+                    continue;
+                }
+                if (prop.NameEquals("prop2"u8))
+                {
+                    if ((prop.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
+                    {
+                        continue;
+                    }
+                    global::System.Collections.Generic.List<byte> array = new global::System.Collections.Generic.List<byte>();
+                    foreach (var item in prop.Value.EnumerateArray())
+                    {
+                        array.Add(item.GetByte());
+                    }
+                    newProp2 = array;
                     continue;
                 }
                 if ((options.Format != "W"))
@@ -113,7 +123,7 @@ namespace Sample.Models
                     additionalBinaryDataProperties.Add(prop.Name, global::System.BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
-            return new global::Sample.Models.Model(prop2, additionalBinaryDataProperties);
+            return new global::Sample.Models.Model(newProp1, newProp2, additionalBinaryDataProperties);
         }
 
         global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.Model>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
