@@ -1408,24 +1408,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             };
         }
 
-        private MethodBodyStatement CreateSerializationStatementForReadOnlyMemory(ScopedApi array, SerializationFormat serializationFormat)
-        {
-            CSharpType spanElementType = array.Type.ElementType.Arguments[0];
-            var propertyRef = array.NullableStructValue(array.Type.ElementType).Property(nameof(ReadOnlyMemory<byte>.Span));
-
-            return new[]
-            {
-                _utf8JsonWriterSnippet.WriteStartArray(),
-                new ForeachStatement(spanElementType, "item", propertyRef, false, out VariableExpression item)
-                {
-                    TypeRequiresNullCheckInSerialization(item.Type) ?
-                    new IfStatement(item.Equal(Null)) { _utf8JsonWriterSnippet.WriteNullValue(), Continue } : MethodBodyStatement.Empty,
-                    CreateSerializationStatement(item.Type, item, serializationFormat)
-                },
-                _utf8JsonWriterSnippet.WriteEndArray()
-            };
-        }
-
         private MethodBodyStatement CreateValueSerializationStatement(
             CSharpType type,
             SerializationFormat serializationFormat,
