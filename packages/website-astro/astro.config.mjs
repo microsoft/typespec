@@ -2,10 +2,23 @@
 import react from "@astrojs/react";
 import starlight from "@astrojs/starlight";
 import { defineConfig } from "astro/config";
+import { readFile } from "fs/promises";
+import { resolve } from "path";
 import remarkHeadingID from "remark-heading-id";
 import { resolveSideBars } from "./sidebars";
 
 const base = process.env.TYPESPEC_WEBSITE_BASE_PATH ?? "/";
+
+const grammarPath = resolve(import.meta.dirname, "../../grammars/typespec.json");
+const tspGrammar = JSON.parse((await readFile(grammarPath)).toString());
+
+const typespecLang = {
+  ...tspGrammar,
+  id: "typespec",
+  scopeName: "source.tsp",
+  path: grammarPath,
+  aliases: ["typespec", "tsp"],
+};
 
 // https://astro.build/config
 export default defineConfig({
@@ -44,5 +57,8 @@ export default defineConfig({
   },
   markdown: {
     remarkPlugins: [remarkHeadingID],
+    shikiConfig: {
+      langs: [typespecLang],
+    },
   },
 });
