@@ -38,6 +38,6 @@ export default defineConfig({
     react(),
   ],
   redirects: {
-    "/docs": "/current/introduction/installation",
+    "/docs": "/current/introduction/installation/",
   },
 });

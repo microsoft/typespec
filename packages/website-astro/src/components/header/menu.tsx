@@ -1,5 +1,6 @@
 import { Menu, MenuItemLink, MenuList, MenuPopover, MenuTrigger } from "@fluentui/react-components";
 import type { ReactNode } from "react";
+import useBaseUrl from "../docusaurus/core/useBaseUrl";
 
 export interface HeaderMenuProps {
   className?: string;
@@ -17,7 +18,8 @@ export const HeaderMenu = ({ children, className, links }: HeaderMenuProps) => {
       <MenuPopover>
         <MenuList>
           {links.map((link) => (
-            <MenuItemLink key={link.to} href={link.to}>
+            // eslint-disable-next-line react-hooks/rules-of-hooks
+            <MenuItemLink key={link.to} href={useBaseUrl(link.to)}>
               {link.label}
             </MenuItemLink>
           ))}
