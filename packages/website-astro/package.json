@@ -7,7 +7,7 @@
     "copy": "cp -r ../../docs/. ./src/content/docs/current && cp -r ../website/static/. ./src/assets  && cp -r ../website/static/img/. ./public/img",
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "astro check && astro build",
+    "build": "pnpm copy && astro check && astro build",
     "preview": "astro preview",
     "astro": "astro"
   },
