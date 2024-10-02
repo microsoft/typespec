@@ -12,7 +12,9 @@ function getMajorMinorVersion(): string {
 const latestVersion = getMajorMinorVersion();
 ---
 
-<script type="module" async src="./node_modules/es-module-shims" is:inline></script>
+<script>
+  import "es-module-shims";
+</script>
 <!-- cspell:ignore esms -->
 <script
   is:inline
