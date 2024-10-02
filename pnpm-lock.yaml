@@ -1943,7 +1943,7 @@ importers:
         specifier: ~18.3.1
         version: 18.3.1
       react-dom:
-        specifier: ^18.3.1
+        specifier: ~18.3.1
         version: 18.3.1(react@18.3.1)
       sharp:
         specifier: ^0.32.5
@@ -1953,7 +1953,7 @@ importers:
         version: 5.6.2
     devDependencies:
       '@types/react':
-        specifier: ~18.3.10
+        specifier: ~18.3.9
         version: 18.3.10
       '@typespec/website':
         specifier: workspace:~
