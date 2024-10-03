@@ -72,6 +72,13 @@ export interface MockApiDefinition {
   kind: "MockApiDefinition";
 }
 
+export interface ServiceRequestFile {
+  fieldname: string;
+  originalname: string;
+  buffer: Buffer;
+  mimetype: string;
+}
+
 export interface ServiceRequest {
   body?: any;
   status?: number;
@@ -80,6 +87,7 @@ export interface ServiceRequest {
    */
   params?: Record<string, unknown>;
   headers?: Record<string, unknown>;
+  files?: ServiceRequestFile[];
 }
 
 export const Fail = Symbol.for("Fail");
