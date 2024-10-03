@@ -10,7 +10,7 @@ using Microsoft.Generator.CSharp.Customization;
 
 namespace Microsoft.Generator.CSharp.SourceInput
 {
-    internal static class CodeGenAttributes
+    public static class CodeGenAttributes
     {
         public const string CodeGenSuppressAttributeName = "CodeGenSuppressAttribute";
 

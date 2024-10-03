@@ -12,7 +12,7 @@ using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
-    internal sealed class NamedTypeSymbolProvider : TypeProvider
+    public sealed class NamedTypeSymbolProvider : TypeProvider
     {
         private const string GlobalPrefix = "global::";
         private INamedTypeSymbol _namedTypeSymbol;
@@ -22,13 +22,15 @@ namespace Microsoft.Generator.CSharp.Providers
             _namedTypeSymbol = namedTypeSymbol;
         }
 
-        private protected sealed override TypeProvider? GetCustomCodeView() => null;
+        private protected sealed override NamedTypeSymbolProvider? GetCustomCodeView() => null;
 
         protected override string BuildRelativeFilePath() => throw new InvalidOperationException("This type should not be writing in generation");
 
         protected override string BuildName() => _namedTypeSymbol.Name;
 
         protected override string GetNamespace() => GetFullyQualifiedNameFromDisplayString(_namedTypeSymbol.ContainingNamespace);
+
+        public IEnumerable<AttributeData> GetAttributes() => _namedTypeSymbol.GetAttributes();
 
         protected override TypeSignatureModifiers GetDeclarationModifiers()
         {
@@ -171,8 +173,6 @@ namespace Microsoft.Generator.CSharp.Providers
         protected override bool GetIsEnum() => _namedTypeSymbol.TypeKind == TypeKind.Enum;
 
         protected override CSharpType BuildEnumUnderlyingType() => GetIsEnum() ? new CSharpType(typeof(int)) : throw new InvalidOperationException("This type is not an enum");
-
-        internal override IEnumerable<AttributeData> GetAttributes() => _namedTypeSymbol.GetAttributes();
 
         private ParameterProvider ConvertToParameterProvider(IMethodSymbol methodSymbol, IParameterSymbol parameterSymbol)
         {

@@ -15,19 +15,17 @@ namespace Microsoft.Generator.CSharp.Providers
 {
     public abstract class TypeProvider
     {
-        private Lazy<TypeProvider?> _customCodeView;
+        private Lazy<NamedTypeSymbolProvider?> _customCodeView;
 
         protected TypeProvider()
         {
             _customCodeView = new(GetCustomCodeView);
         }
 
-        private protected virtual TypeProvider? GetCustomCodeView()
+        private protected virtual NamedTypeSymbolProvider? GetCustomCodeView()
             => CodeModelPlugin.Instance.SourceInputModel.FindForType(GetNamespace(), BuildName());
 
-        public TypeProvider? CustomCodeView => _customCodeView.Value;
-
-        internal virtual IEnumerable<AttributeData>? GetAttributes() => null;
+        public NamedTypeSymbolProvider? CustomCodeView => _customCodeView.Value;
 
         protected string? _deprecated;
 
