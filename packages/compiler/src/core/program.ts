@@ -541,7 +541,7 @@ export async function compile(
   function computeModuleMetadata(module: ResolvedModule): ModuleLibraryMetadata {
     const metadata: ModuleLibraryMetadata = {
       type: "module",
-      name: module.manifest.name ?? module.path,
+      name: module.manifest.name,
     };
 
     if (module.manifest.homepage) {
