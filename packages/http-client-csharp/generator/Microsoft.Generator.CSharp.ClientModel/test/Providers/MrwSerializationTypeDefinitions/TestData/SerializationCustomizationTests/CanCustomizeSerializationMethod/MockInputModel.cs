@@ -11,7 +11,7 @@ namespace Sample.Models
         private void SerializationMethod(Utf8JsonWriter writer, ModelReaderWriterOptions options)
             => writer.WriteObjectValue(Prop1, options);
 
-        private void DeserializationMethod(JsonProperty property, ref string fieldValue)
+        private static void DeserializationMethod(JsonProperty property, ref string fieldValue)
             => fieldValue = property.Value.GetString();
     }
 }
