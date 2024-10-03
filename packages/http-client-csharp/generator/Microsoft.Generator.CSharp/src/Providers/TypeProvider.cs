@@ -425,7 +425,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
             for (int i = 0; i < customMethod.Parameters.Count; i++)
             {
-                if (customMethod.Parameters[i].Type.Name != method.Parameters[i].Type.Name)
+                if (!customMethod.Parameters[i].Type.Name.EndsWith(method.Parameters[i].Type.Name))
                 {
                     return false;
                 }
