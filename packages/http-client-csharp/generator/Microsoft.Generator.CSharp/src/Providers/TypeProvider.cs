@@ -161,9 +161,9 @@ namespace Microsoft.Generator.CSharp.Providers
                 customProperties.Add(customProperty.Name, customProperty);
                 foreach (var attribute in customProperty.Attributes ?? [])
                 {
-                    if (CodeGenAttributes.TryGetCodeGenMemberAttributeValue(attribute, out var name))
+                    if (CodeGenAttributes.TryGetCodeGenMemberAttributeValue(attribute, out var originalName))
                     {
-                        renamedProperties.Add(name, customProperty);
+                        renamedProperties.Add(originalName, customProperty);
                     }
                 }
             }
