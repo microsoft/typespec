@@ -1,10 +1,10 @@
+import { PackageJson } from "../types/package-json.js";
 import { deepEquals, doIO, resolveTspMain } from "../utils/misc.js";
 import { compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
 import { resolveTypeSpecEntrypointForDir } from "./entrypoint-resolution.js";
 import { createDiagnostic } from "./messages.js";
 import {
   ModuleResolutionResult,
-  NodePackage,
   ResolvedModule,
   resolveModule,
   ResolveModuleHost,
@@ -43,7 +43,7 @@ export interface SourceResolution {
 
 interface TypeSpecLibraryReference {
   path: string;
-  manifest: NodePackage;
+  manifest: PackageJson;
 }
 
 export interface LoadSourceOptions {
