@@ -16,6 +16,7 @@ using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
+using Microsoft.Generator.CSharp.SourceInput;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
@@ -1010,12 +1011,35 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             var serializationFormat = property.WireInfo?.SerializationFormat ?? SerializationFormat.Default;
             var propertyVarReference = property.AsVariableExpression;
+            var deserializationStatements = new MethodBodyStatement[2]
+            {
+                DeserializeValue(property.Type, jsonProperty.Value(), serializationFormat, out ValueExpression value),
+                propertyVarReference.Assign(value).Terminate()
+            };
+
+            foreach (var attribute in _model.CustomCodeView?.GetAttributes()
+                         .Where(a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenSerializationAttributeName) ?? [])
+            {
+                if (CodeGenAttributes.TryGetCodeGenSerializationAttributeValue(
+                        attribute,
+                        out var name,
+                        out _,
+                        out _,
+                        out var deserializationHook,
+                        out _) && name == property.Name && deserializationHook != null)
+                {
+                    deserializationStatements =
+                        [Static().Invoke(
+                            deserializationHook,
+                            jsonProperty,
+                            ByRef(propertyVarReference)).Terminate()];
+                }
+            }
 
             return
             [
                 DeserializationPropertyNullCheckStatement(property, jsonProperty, propertyVarReference),
-                DeserializeValue(property.Type, jsonProperty.Value(), serializationFormat, out ValueExpression value),
-                propertyVarReference.Assign(value).Terminate(),
+                deserializationStatements,
                 Continue
             ];
         }
@@ -1036,7 +1060,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             CSharpType serializedType = property.Type;
             var propertyIsRequired = property.WireInfo?.IsRequired ?? false;
 
-            if (serializedType.IsNullable)
+            if (serializedType.IsNullable || !propertyIsRequired)
             {
                 if (!serializedType.IsCollection)
                 {
@@ -1257,10 +1281,32 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 var propertyIsNullable = wireInfo.IsNullable;
 
                 // Generate the serialization statements for the property
+                var serializationStatement = CreateSerializationStatement(property.Type, property, propertySerializationFormat);
+
+                // Check for custom serialization hooks
+                foreach (var attribute in _model.CustomCodeView?.GetAttributes()
+                             .Where(a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenSerializationAttributeName) ?? [])
+                {
+                    if (CodeGenAttributes.TryGetCodeGenSerializationAttributeValue(
+                            attribute,
+                            out var name,
+                            out _,
+                            out var serializationHook,
+                            out _,
+                            out _) && name == property.Name && serializationHook != null)
+                    {
+                        serializationStatement = This.Invoke(
+                                serializationHook,
+                                _utf8JsonWriterSnippet,
+                                _serializationOptionsParameter)
+                            .Terminate();
+                    }
+                }
+
                 var writePropertySerializationStatements = new MethodBodyStatement[]
                 {
                     _utf8JsonWriterSnippet.WritePropertyName(propertySerializationName),
-                    CreateSerializationStatement(property.Type, property, propertySerializationFormat)
+                    serializationStatement
                 };
 
                 // Wrap the serialization statement in a check for whether the property is defined
@@ -1360,10 +1406,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         value.AsDictionary(serializationType),
                         serializationFormat),
                 { IsList: true } or { IsArray: true } =>
-                    CreateListSerializationStatement(GetEnumerableExpression(value, serializationType), serializationFormat),
+                    CreateListSerializationStatement(GetEnumerableExpression(value, serializationType),
+                        serializationFormat),
                 { IsCollection: false } =>
                     CreateValueSerializationStatement(serializationType, serializationFormat, value),
-                _ => throw new NotSupportedException($"Serialization of type {serializationType.Name} is not supported.")
+                _ => throw new NotSupportedException(
+                    $"Serialization of type {serializationType.Name} is not supported.")
             };
 
         private MethodBodyStatement CreateDictionarySerializationStatement(
