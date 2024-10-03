@@ -1,3 +1,4 @@
+import { ResolveModuleHost } from "@typespec/compiler/module-resolver";
 import { readFile, realpath, stat } from "fs/promises";
 import { dirname, isAbsolute, join, resolve } from "path";
 import vscode, { ExtensionContext, commands, workspace } from "vscode";
@@ -7,7 +8,6 @@ import {
   LanguageClient,
   LanguageClientOptions,
 } from "vscode-languageclient/node.js";
-import { ResolveModuleHost } from "../../compiler/dist/src/module-resolver/module-resolver.js";
 import logger from "./extension-logger.js";
 import { TypeSpecLogOutputChannel } from "./typespec-log-output-channel.js";
 import { normalizeSlash, useShellInExec } from "./utils.js";
@@ -312,9 +312,7 @@ async function resolveTypeSpecServer(context: ExtensionContext): Promise<Executa
 async function resolveLocalCompiler(baseDir: string): Promise<string | undefined> {
   // dynamic import required when unbundled as this module is CommonJS for
   // VS Code and the module-resolver is an ES module.
-  const { resolveModule } = await import(
-    "../../compiler/dist/src/module-resolver/module-resolver.js"
-  );
+  const { resolveModule } = await import("@typespec/compiler/module-resolver");
 
   const host: ResolveModuleHost = {
     realpath,
