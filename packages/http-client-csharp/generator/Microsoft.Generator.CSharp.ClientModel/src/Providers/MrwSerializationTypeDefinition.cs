@@ -1060,7 +1060,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             CSharpType serializedType = property.Type;
             var propertyIsRequired = property.WireInfo?.IsRequired ?? false;
 
-            if (property.WireInfo!.IsNullable)
+            if (serializedType.IsNullable || !propertyIsRequired)
             {
                 if (!serializedType.IsCollection)
                 {
