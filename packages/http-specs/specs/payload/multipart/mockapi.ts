@@ -134,6 +134,53 @@ function createHandler(req: MockRequest, checkList: ((req: MockRequest) => void)
   }
   return { status: 204 };
 }
+
+function createMultiBinaryPartsHandler(req: MockRequest) {
+  if (req.files instanceof Array) {
+    switch (req.files.length) {
+      case 1:
+        checkJpgFile(req, req.files[0]);
+        return { pass: "profileImage", status: 204 } as const;
+      case 2:
+        let profileImage = false;
+        let picture = false;
+        for (const file of req.files) {
+          if (file.fieldname === "profileImage") {
+            checkJpgFile(req, file);
+            profileImage = true;
+          } else if (file.fieldname === "picture") {
+            checkPngFile(req, file, "picture");
+            picture = true;
+          } else {
+            throw new ValidationError(
+              "unexpected fieldname",
+              "profileImage or picture",
+              file.fieldname,
+            );
+          }
+        }
+        if (!profileImage) {
+          throw new ValidationError("No profileImage found", "jpg file is expected", req.body);
+        } else if (!picture) {
+          throw new ValidationError("No picture found", "png file are expected", req.body);
+        }
+        return { pass: "profileImage,picture", status: 204 } as const;
+      default:
+        throw new ValidationError(
+          "number of files is incorrect",
+          "1 or 2 files are expected",
+          req.body,
+        );
+    }
+  } else {
+    throw new ValidationError(
+      "Can't parse files from request",
+      "jpg/png files are expected",
+      req.body,
+    );
+  }
+}
+
 Scenarios.Payload_MultiPart_FormData_basic = passOnSuccess({
   uri: "/multipart/form-data/mixed-parts",
   method: "post",
@@ -204,51 +251,7 @@ Scenarios.Payload_MultiPart_FormData_multiBinaryParts = withServiceKeys([
       files: [files[0]],
     },
     response: { status: 204 },
-    handler: (req: MockRequest) => {
-      if (req.files instanceof Array) {
-        switch (req.files.length) {
-          case 1:
-            checkJpgFile(req, req.files[0]);
-            return { pass: "profileImage", status: 204 } as const;
-          case 2:
-            let profileImage = false;
-            let picture = false;
-            for (const file of req.files) {
-              if (file.fieldname === "profileImage") {
-                checkJpgFile(req, file);
-                profileImage = true;
-              } else if (file.fieldname === "picture") {
-                checkPngFile(req, file, "picture");
-                picture = true;
-              } else {
-                throw new ValidationError(
-                  "unexpected fieldname",
-                  "profileImage or picture",
-                  file.fieldname,
-                );
-              }
-            }
-            if (!profileImage) {
-              throw new ValidationError("No profileImage found", "jpg file is expected", req.body);
-            } else if (!picture) {
-              throw new ValidationError("No picture found", "png file are expected", req.body);
-            }
-            return { pass: "profileImage,picture", status: 204 } as const;
-          default:
-            throw new ValidationError(
-              "number of files is incorrect",
-              "1 or 2 files are expected",
-              req.body,
-            );
-        }
-      } else {
-        throw new ValidationError(
-          "Can't parse files from request",
-          "jpg/png files are expected",
-          req.body,
-        );
-      }
-    },
+    handler: createMultiBinaryPartsHandler,
     kind: "MockApiDefinition",
   },
   {
@@ -261,51 +264,7 @@ Scenarios.Payload_MultiPart_FormData_multiBinaryParts = withServiceKeys([
       files: [files[0], { ...files[1], fieldname: "picture" }],
     },
     response: { status: 204 },
-    handler: (req: MockRequest) => {
-      if (req.files instanceof Array) {
-        switch (req.files.length) {
-          case 1:
-            checkJpgFile(req, req.files[0]);
-            return { pass: "profileImage", status: 204 } as const;
-          case 2:
-            let profileImage = false;
-            let picture = false;
-            for (const file of req.files) {
-              if (file.fieldname === "profileImage") {
-                checkJpgFile(req, file);
-                profileImage = true;
-              } else if (file.fieldname === "picture") {
-                checkPngFile(req, file, "picture");
-                picture = true;
-              } else {
-                throw new ValidationError(
-                  "unexpected fieldname",
-                  "profileImage or picture",
-                  file.fieldname,
-                );
-              }
-            }
-            if (!profileImage) {
-              throw new ValidationError("No profileImage found", "jpg file is expected", req.body);
-            } else if (!picture) {
-              throw new ValidationError("No picture found", "png file are expected", req.body);
-            }
-            return { pass: "profileImage,picture", status: 204 } as const;
-          default:
-            throw new ValidationError(
-              "number of files is incorrect",
-              "1 or 2 files are expected",
-              req.body,
-            );
-        }
-      } else {
-        throw new ValidationError(
-          "Can't parse files from request",
-          "jpg/png files are expected",
-          req.body,
-        );
-      }
-    },
+    handler: createMultiBinaryPartsHandler,
     kind: "MockApiDefinition",
   },
 ]);
