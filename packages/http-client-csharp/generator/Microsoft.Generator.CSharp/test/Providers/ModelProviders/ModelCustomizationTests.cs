@@ -83,6 +83,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.IsNotNull(wireInfo);
             Assert.AreEqual( "prop1", wireInfo!.SerializedName);
             Assert.AreEqual("Prop1", modelTypeProvider.CustomCodeView.Properties[1].Name);
+            Assert.IsNull(modelTypeProvider.CustomCodeView.Properties[1].WireInfo);
 
             Assert.AreEqual(0, modelTypeProvider.Properties.Count);
         }
@@ -130,6 +131,12 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.AreEqual(1, modelTypeProvider.CustomCodeView!.Properties.Count);
             // the property accessibility should be changed
             Assert.IsTrue(modelTypeProvider.CustomCodeView.Properties[0].Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+            // the wire info should be stored on the custom property
+            Assert.IsNotNull(modelTypeProvider.CustomCodeView.Properties[0].WireInfo);
+
+            var fullCtor = modelTypeProvider.Constructors.Last();
+            Assert.IsTrue(fullCtor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+            Assert.AreEqual(2, fullCtor.Signature.Parameters.Count);
         }
 
         private static void AssertCommon(TypeProvider typeProvider, string expectedNamespace, string expectedName)
