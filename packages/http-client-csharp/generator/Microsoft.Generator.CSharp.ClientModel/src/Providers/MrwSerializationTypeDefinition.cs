@@ -735,9 +735,22 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     CreateDeserializeAdditionalPropsValueKindCheck(jsonProperty, additionalPropsValueKindBodyStatements));
             }
 
-            // deserialize the raw binary data for the model
-            var rawBinaryData = _rawDataField
-                ?? _model.BaseModelProvider?.Fields.FirstOrDefault(f => f.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
+            // deserialize the raw binary data for the model by searching for the raw binary data field in the model and any base models.
+            var rawBinaryData = _rawDataField;
+            if (rawBinaryData == null)
+            {
+                var baseModelProvider = _model.BaseModelProvider;
+                while (baseModelProvider != null)
+                {
+                    var field = baseModelProvider.Fields.FirstOrDefault(f => f.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
+                    if (field != null)
+                    {
+                        rawBinaryData = field;
+                        break;
+                    }
+                    baseModelProvider = baseModelProvider.BaseModelProvider;
+                }
+            }
 
             if (_additionalBinaryDataProperty != null)
             {
