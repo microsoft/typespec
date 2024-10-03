@@ -1281,10 +1281,32 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 var propertyIsNullable = wireInfo.IsNullable;
 
                 // Generate the serialization statements for the property
+                var serializationStatement = CreateSerializationStatement(property.Type, property, propertySerializationFormat, property.Name);
+
+                // Check for custom serialization hooks
+                foreach (var attribute in _model.CustomCodeView?.GetAttributes()
+                             .Where(a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenSerializationAttributeName) ?? [])
+                {
+                    if (CodeGenAttributes.TryGetCodeGenSerializationAttributeValue(
+                            attribute,
+                            out var name,
+                            out _,
+                            out var serializationHook,
+                            out _,
+                            out _) && name == property.Name && serializationHook != null)
+                    {
+                        serializationStatement = This.Invoke(
+                                serializationHook,
+                                _utf8JsonWriterSnippet,
+                                _serializationOptionsParameter)
+                            .Terminate();
+                    }
+                }
+
                 var writePropertySerializationStatements = new MethodBodyStatement[]
                 {
                     _utf8JsonWriterSnippet.WritePropertyName(propertySerializationName),
-                    CreateSerializationStatement(property.Type, property, propertySerializationFormat, property.Name)
+                    serializationStatement
                 };
 
                 // Wrap the serialization statement in a check for whether the property is defined
