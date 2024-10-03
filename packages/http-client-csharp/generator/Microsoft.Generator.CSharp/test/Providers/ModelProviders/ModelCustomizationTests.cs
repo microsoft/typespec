@@ -322,23 +322,30 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
         [Test]
         public async Task CanReplaceConstructor()
         {
+            var subModel = InputFactory.Model(
+                "subModel",
+                usage: InputModelTypeUsage.Input,
+                properties: new[] { InputFactory.Property("SubProperty", InputPrimitiveType.Int32) });
+
             var plugin = await MockHelpers.LoadMockPluginAsync(
                 inputModelTypes: new[] {
                     InputFactory.Model(
                         "mockInputModel",
                         // use Input so that we generate a public ctor
                         usage: InputModelTypeUsage.Input,
-                        properties: new[] { InputFactory.Property("Prop1", InputPrimitiveType.String) })
+                        properties: new[]
+                        {
+                            InputFactory.Property("Prop1", InputPrimitiveType.String),
+                            InputFactory.Property("SubModel", subModel)
+                        })
                 },
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
             var csharpGen = new CSharpGen();
 
             await csharpGen.ExecuteAsync();
 
-            // The generated code should only contain the single internal ctor containing the properties
-            var ctor = plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel").Constructors.Single();
-            Assert.IsTrue(ctor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
-            Assert.AreEqual("prop1", ctor.Signature.Parameters.First().Name);
+            // The generated code should not contain any ctors
+            Assert.IsEmpty(plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel").Constructors);
         }
 
         [Test]
