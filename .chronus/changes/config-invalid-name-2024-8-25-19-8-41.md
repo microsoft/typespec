@@ -4,5 +4,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-Introducing a new rule: `config-valid-name`
-This rule prevents the use of configuration names with dots (e.g., test.name), as dots can cause conflicts with nested configuration values.
+Config parameters and emitters options cannot contains `.`. This conflict with newly added support for nested options.
