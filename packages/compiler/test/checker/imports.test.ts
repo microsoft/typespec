@@ -4,7 +4,6 @@ import {
   LibraryLocationContext,
   LocationContext,
   ModuleLibraryMetadata,
-  NodePackage,
   ProjectLocationContext,
 } from "../../src/core/index.js";
 import {
@@ -13,6 +12,7 @@ import {
   expectDiagnostics,
   resolveVirtualPath,
 } from "../../src/testing/index.js";
+import { PackageJson } from "../../src/types/package-json.js";
 
 describe("compiler: imports", () => {
   let host: TestHost;
@@ -183,7 +183,7 @@ describe("compiler: imports", () => {
 
     interface Structure {
       [key: TspFile]: string[];
-      [key: PkgJson]: Partial<NodePackage>;
+      [key: PkgJson]: Partial<PackageJson>;
     }
 
     interface ScopeExpectation<T extends Structure> {

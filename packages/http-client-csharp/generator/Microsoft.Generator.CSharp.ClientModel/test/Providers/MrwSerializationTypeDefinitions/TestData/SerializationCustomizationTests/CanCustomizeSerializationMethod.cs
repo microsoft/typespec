@@ -30,20 +30,22 @@ namespace Sample.Models
             {
                 throw new global::System.FormatException($"The model {nameof(global::Sample.Models.MockInputModel)} does not support writing '{format}' format.");
             }
-            if (global::Sample.Optional.IsDefined(Name))
+            if (global::Sample.Optional.IsDefined(Prop1))
             {
-                writer.WritePropertyName("customName"u8);
-                writer.WriteStringValue(Name);
+                writer.WritePropertyName("prop1"u8);
+                this.SerializationMethod(writer, options);
             }
-            if (global::Sample.Optional.IsDefined(Flavor))
+            if (global::Sample.Optional.IsDefined(Prop2))
             {
-                writer.WritePropertyName("flavor"u8);
-                writer.WriteStringValue(Flavor);
-            }
-            if (global::Sample.Optional.IsDefined(CustomColor))
-            {
-                writer.WritePropertyName("customColor2"u8);
-                writer.WriteStringValue(CustomColor);
+                if ((Prop2 != null))
+                {
+                    writer.WritePropertyName("prop2"u8);
+                    this.SerializationMethod(writer, options);
+                }
+                else
+                {
+                    writer.WriteNull("prop2"u8);
+                }
             }
             if (((options.Format != "W") && (_additionalBinaryDataProperties != null)))
             {
@@ -83,40 +85,29 @@ namespace Sample.Models
             {
                 return null;
             }
-            string name = default;
-            string flavor = default;
-            string customColor = default;
+            string prop1 = default;
+            string prop2 = default;
             global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new global::Sample.ChangeTrackingDictionary<string, global::System.BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
-                if (prop.NameEquals("customName"u8))
+                if (prop.NameEquals("prop1"u8))
                 {
                     if ((prop.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
                     {
-                        name = null;
+                        prop1 = null;
                         continue;
                     }
-                    name = prop.Value.GetString();
+                    DeserializationMethod(prop, ref prop1);
                     continue;
                 }
-                if (prop.NameEquals("flavor"u8))
+                if (prop.NameEquals("prop2"u8))
                 {
                     if ((prop.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
                     {
-                        flavor = null;
+                        prop2 = null;
                         continue;
                     }
-                    flavor = prop.Value.GetString();
-                    continue;
-                }
-                if (prop.NameEquals("customColor2"u8))
-                {
-                    if ((prop.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
-                    {
-                        customColor = null;
-                        continue;
-                    }
-                    customColor = prop.Value.GetString();
+                    DeserializationMethod(prop, ref prop2);
                     continue;
                 }
                 if ((options.Format != "W"))
@@ -124,7 +115,7 @@ namespace Sample.Models
                     additionalBinaryDataProperties.Add(prop.Name, global::System.BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
-            return new global::Sample.Models.MockInputModel(name, flavor, customColor, additionalBinaryDataProperties);
+            return new global::Sample.Models.MockInputModel(prop1, prop2, additionalBinaryDataProperties);
         }
 
         global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.MockInputModel>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);

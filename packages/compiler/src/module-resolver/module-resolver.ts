@@ -1,5 +1,5 @@
-import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
-
+import { getDirectoryPath, joinPaths, resolvePath } from "../core/path-utils.js";
+import { PackageJson } from "../types/package-json.js";
 export interface ResolveModuleOptions {
   baseDir: string;
 
@@ -31,27 +31,6 @@ export interface ResolveModuleHost {
    * Read a utf-8 encoded file.
    */
   readFile(path: string): Promise<string>;
-}
-
-/**
- * Type for package.json https://docs.npmjs.com/cli/v8/configuring-npm/package-json
- */
-export interface NodePackage {
-  name: string;
-  description?: string;
-  type?: "module" | "commonjs";
-  main?: string;
-  version: string;
-  tspMain?: string;
-  homepage?: string;
-  bugs?: {
-    url?: string;
-    email?: string;
-  };
-  private?: boolean;
-  dependencies?: Record<string, string>;
-  peerDependencies?: Record<string, string>;
-  devDependencies?: Record<string, string>;
 }
 
 type ResolveModuleErrorCode = "MODULE_NOT_FOUND" | "INVALID_MAIN";
@@ -89,7 +68,7 @@ export interface ResolvedModule {
   /**
    * Value of package.json.
    */
-  manifest: NodePackage;
+  manifest: PackageJson;
 }
 
 /**
@@ -210,7 +189,7 @@ export async function resolveModule(
 
   async function loadPackage(
     directory: string,
-    pkg: NodePackage,
+    pkg: PackageJson,
   ): Promise<ResolvedModule | undefined> {
     const mainFile = options.resolveMain ? options.resolveMain(pkg) : pkg.main;
     if (typeof mainFile !== "string") {
@@ -265,7 +244,7 @@ export async function resolveModule(
   }
 }
 
-async function readPackage(host: ResolveModuleHost, pkgfile: string): Promise<NodePackage> {
+async function readPackage(host: ResolveModuleHost, pkgfile: string): Promise<PackageJson> {
   const content = await host.readFile(pkgfile);
   return JSON.parse(content);
 }

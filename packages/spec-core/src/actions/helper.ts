@@ -1,18 +1,45 @@
-import { HttpMethod } from "@typespec/spec-api";
+import { HttpMethod, ServiceRequestFile } from "@typespec/spec-api";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
+import FormData from "form-data";
 
 export interface ServiceRequest {
   endPoint: string;
   options?: {
     requestBody?: any;
+    files?: ServiceRequestFile[];
     config?: AxiosRequestConfig<any> | undefined;
   };
+}
+
+function checkAndAddFormDataIfRequired(request: ServiceRequest) {
+  if (request.options?.config?.headers?.["Content-Type"] === "multipart/form-data") {
+    const formData = new FormData();
+    if (request.options?.requestBody) {
+      for (const key in request.options.requestBody) {
+        formData.append(key, JSON.stringify(request.options.requestBody[key]));
+      }
+    }
+    if (request.options.files) {
+      request.options.files.forEach((file) => {
+        formData.append(`${file.fieldname}`, file.buffer, {
+          filename: file.originalname,
+          contentType: file.mimetype,
+        });
+      });
+    }
+    request.options.requestBody = formData;
+    request.options.config = {
+      ...request.options.config,
+      headers: formData.getHeaders(),
+    };
+  }
 }
 
 export async function makeServiceCall(
   serviceCallType: HttpMethod,
   request: ServiceRequest,
 ): Promise<AxiosResponse<any, any>> {
+  checkAndAddFormDataIfRequired(request);
   if (serviceCallType === "put") {
     return await makePutCall(request);
   }
