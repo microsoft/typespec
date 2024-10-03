@@ -1281,7 +1281,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 var propertyIsNullable = wireInfo.IsNullable;
 
                 // Generate the serialization statements for the property
-                var serializationStatement = CreateSerializationStatement(property.Type, property, propertySerializationFormat, property.Name);
+                var serializationStatement = CreateSerializationStatement(property.Type, property, propertySerializationFormat);
 
                 // Check for custom serialization hooks
                 foreach (var attribute in _model.CustomCodeView?.GetAttributes()
@@ -1394,38 +1394,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         /// <param name="serializationType">The type being serialized.</param>
         /// <param name="value">The value to be serialized.</param>
         /// <param name="serializationFormat">The serialization format.</param>
-        /// <param name="property"></param>
         /// <returns>The serialization statement.</returns>
         /// <exception cref="NotSupportedException">Thrown when the serialization type is not supported.</exception>
         private MethodBodyStatement CreateSerializationStatement(
             CSharpType serializationType,
             ValueExpression value,
-            SerializationFormat serializationFormat,
-            string? propertyName = default)
-        {
-            if (propertyName != null)
-            {
-                foreach (var attribute in _model.CustomCodeView?.GetAttributes()
-                             .Where(a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenSerializationAttributeName) ?? [])
-                {
-                    if (CodeGenAttributes.TryGetCodeGenSerializationAttributeValue(
-                            attribute,
-                            out var name,
-                            out _,
-                            out var serializationHook,
-                            out _,
-                            out _) && name == propertyName && serializationHook != null)
-                    {
-                        return This.Invoke(
-                            serializationHook,
-                            _utf8JsonWriterSnippet,
-                            _serializationOptionsParameter)
-                            .Terminate();
-                    }
-                }
-            }
-
-            return serializationType switch
+            SerializationFormat serializationFormat) => serializationType switch
             {
                 { IsDictionary: true } =>
                     CreateDictionarySerializationStatement(
@@ -1439,7 +1413,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 _ => throw new NotSupportedException(
                     $"Serialization of type {serializationType.Name} is not supported.")
             };
-        }
 
         private MethodBodyStatement CreateDictionarySerializationStatement(
             DictionaryExpression dictionary,
