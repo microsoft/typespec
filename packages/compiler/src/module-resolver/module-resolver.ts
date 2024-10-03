@@ -1,5 +1,5 @@
+import { getDirectoryPath, joinPaths, resolvePath } from "../core/path-utils.js";
 import { PackageJson } from "../types/package-json.js";
-import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
 export interface ResolveModuleOptions {
   baseDir: string;
 

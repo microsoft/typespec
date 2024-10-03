@@ -1,14 +1,14 @@
-import { PackageJson } from "../types/package-json.js";
-import { deepEquals, doIO, resolveTspMain } from "../utils/misc.js";
-import { compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
-import { resolveTypeSpecEntrypointForDir } from "./entrypoint-resolution.js";
-import { createDiagnostic } from "./messages.js";
 import {
   ModuleResolutionResult,
   ResolvedModule,
   resolveModule,
   ResolveModuleHost,
-} from "./module-resolver.js";
+} from "../module-resolver/module-resolver.js";
+import { PackageJson } from "../types/package-json.js";
+import { deepEquals, doIO, resolveTspMain } from "../utils/misc.js";
+import { compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
+import { resolveTypeSpecEntrypointForDir } from "./entrypoint-resolution.js";
+import { createDiagnostic } from "./messages.js";
 import { isImportStatement, parse } from "./parser.js";
 import { getDirectoryPath } from "./path-utils.js";
 import { createSourceFile } from "./source-file.js";

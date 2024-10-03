@@ -3,6 +3,12 @@ import { createAssetEmitter } from "../emitter-framework/asset-emitter.js";
 import { setCurrentProgram } from "../experimental/typekit/define-kit.js";
 import { validateEncodedNamesConflicts } from "../lib/encoded-names.js";
 import { MANIFEST } from "../manifest.js";
+import {
+  ModuleResolutionResult,
+  ResolveModuleHost,
+  ResolvedModule,
+  resolveModule,
+} from "../module-resolver/module-resolver.js";
 import { PackageJson } from "../types/package-json.js";
 import { deepEquals, findProjectRoot, isDefined, mapEquals, mutate } from "../utils/misc.js";
 import { createBinder } from "./binder.js";
@@ -16,12 +22,6 @@ import { createLinter, resolveLinterDefinition } from "./linter.js";
 import { createLogger } from "./logger/index.js";
 import { createTracer } from "./logger/tracer.js";
 import { createDiagnostic } from "./messages.js";
-import {
-  ModuleResolutionResult,
-  ResolveModuleHost,
-  ResolvedModule,
-  resolveModule,
-} from "./module-resolver.js";
 import { CompilerOptions } from "./options.js";
 import { parse, parseStandaloneTypeReference } from "./parser.js";
 import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
