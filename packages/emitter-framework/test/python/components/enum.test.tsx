@@ -36,7 +36,8 @@ it("with values", async () => {
   const code = `
     enum TestEnum {
       Foo,
-      Bar
+      Bar,
+      FooBar
     }
   `;
   const output = await getOutput(code, "TestEnum");
@@ -44,6 +45,7 @@ it("with values", async () => {
     class TestEnum(Enum):
       FOO = "Foo"
       BAR = "Bar"
+      FOO_BAR = "FooBar"
   `);
 });
 
@@ -51,7 +53,8 @@ it("with raw values", async () => {
   const code = `
     enum TestEnum {
       Foo: "foo",
-      Bar: "bar"
+      Bar: "bar",
+      FooBar: "foobar"
     }
   `;
   const output = await getOutput(code, "TestEnum");
@@ -59,6 +62,32 @@ it("with raw values", async () => {
     class TestEnum(Enum):
       FOO = "foo"
       BAR = "bar"
+      FOO_BAR = "foobar"
+  `);
+});
+
+it("with spread", async () => {
+  const code = `
+    enum Quadrilaterals {
+      Square,
+      Rectangle,
+      Rhombus
+    }
+
+    enum Shapes {
+      ...Quadrilaterals,
+      Circle,
+      Triangle
+    }
+  `;
+  const output = await getOutput(code, "Shapes");
+  expect(output).toBe(d`
+    class Shapes(Enum):
+      SQUARE = "Square"
+      RECTANGLE = "Rectangle"
+      RHOMBUS = "Rhombus"
+      CIRCLE = "Circle"
+      TRIANGLE = "Triangle"
   `);
 });
 

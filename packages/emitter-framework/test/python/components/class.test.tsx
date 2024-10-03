@@ -64,3 +64,26 @@ it("with instance variables", async () => {
         self.bar_var = bar_var
   `);
 });
+
+it("with docs", async () => {
+  const code = `
+    @doc("Some test class")
+    model TestClass {
+      /** The name */
+      name: string;
+    }
+  `;
+  const output = await getOutput(code, ["TestClass"]);
+  expect(output).toBe(d`
+    class TestClass:
+      """Some test class"""
+
+      def __init__(self, name: str):
+        """
+        Initializes a new instance of TestClass.
+
+        :param name: The name
+        """
+        self.name = name
+  `);
+});
