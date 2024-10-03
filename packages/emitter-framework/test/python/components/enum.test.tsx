@@ -42,8 +42,8 @@ it("with values", async () => {
   const output = await getOutput(code, "TestEnum");
   expect(output).toBe(d`
     class TestEnum(Enum):
-      foo = "FOO"
-      bar = "BAR"
+      FOO = "Foo"
+      BAR = "Bar"
   `);
 });
 
@@ -57,8 +57,8 @@ it("with raw values", async () => {
   const output = await getOutput(code, "TestEnum");
   expect(output).toBe(d`
     class TestEnum(Enum):
-      foo = "foo"
-      bar = "bar"
+      FOO = "foo"
+      BAR = "bar"
   `);
 });
 

@@ -1,8 +1,8 @@
-import { Child, Children, DeclarationProps, Indent, mapJoin, refkey, Scope } from "@alloy-js/core";
+import { Child, Children, createContext, DeclarationProps, Indent, mapJoin, refkey, Scope, useContext } from "@alloy-js/core";
 import { usePythonNamePolicy } from "../name-policy.js";
 import { Model, Enum, ModelProperty, EnumMember } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
-import { ClassVariable, Declaration, Decorator, DecoratorProps, InitDeclaration, PythonModuleContext, TypeExpression } from "./index.js";
+import { ClassVariable, ConstantDeclaration, Declaration, Decorator, DecoratorProps, InitDeclaration, PythonModuleContext, TypeExpression, useModule } from "./index.js";
 
 export enum ClassDeclarationFlags {
   None      = 0,
@@ -13,6 +13,12 @@ export enum ClassDeclarationFlags {
 export interface ClassDeclarationContext {
   parent: PythonModuleContext | ClassDeclarationContext; // TODO: | FunctionDeclarationContext | MethodDeclarationContext;
   flags: ClassDeclarationFlags;
+}
+
+export const ClassDeclarationContext = createContext<ClassDeclarationContext>();
+
+export function useClass() {
+  return useContext(ClassDeclarationContext);
 }
 
 /**
@@ -28,13 +34,26 @@ export interface ClassDeclarationProps extends DeclarationProps {
   children?: Children;
 }
 
+
+
 export function ClassDeclaration(props: ClassDeclarationProps) {
   const namer = usePythonNamePolicy();
   const type = props.type;
 
+  const parentContext = useClass() ?? useModule();
+  if (!parentContext) {
+    throw new Error("ClassDeclaration must be a child of a PythonModuleContext or ClassDeclarationContext.");
+  }
+
+  const context: ClassDeclarationContext = {
+    parent: parentContext,
+    flags: ClassDeclarationFlags.None,
+  };
+
   let name: string;
   const instanceProperties: ModelProperty[] = [];
-  const classProperties: (ModelProperty | EnumMember)[] = [];
+  const classProperties: ModelProperty[] = [];
+  let enumMemberComponents: any[] = [];
   let baseClassComponent: Child | undefined;
   if (type?.kind == "Model") {
     if ($.type.isTemplateDeclaration(type)) {
@@ -44,13 +63,25 @@ export function ClassDeclaration(props: ClassDeclarationProps) {
     for (const prop of type.properties.values()) {
       instanceProperties.push(prop);
     }
+    // TODO: Should this honor extends?
     const baseClass = type.baseModel;
     baseClassComponent = baseClass ? <>(<TypeExpression type={baseClass} />)</> : undefined;
   } else if (type?.kind == "Enum") {
+    enumMemberComponents = mapJoin(
+      [...type.members.values()],
+      (member) => {
+        const value = member.value ?? member.name;
+        return <ConstantDeclaration name={member.name} value={value} />;
+      },
+      { ender: "\n" }
+    );
+    context.flags = ClassDeclarationFlags.Enum;
     name = props.name ?? namer.getName(type.name, "class");
-    for (const member of type.members.values()) {
-      classProperties.push(member);
+    const baseClasses = props.extends ?? [];
+    if (!baseClasses.includes("Enum")) {
+      baseClasses.push("Enum");
     }
+    baseClassComponent = <>({baseClasses.join(", ")})</>;
   } else {
     if (!props.name) {
       throw new Error("ClassDeclaration must have a name when type is not specified.");
@@ -75,7 +106,7 @@ export function ClassDeclaration(props: ClassDeclarationProps) {
 
   // if the class has no contents (no variables, no methods), then we can just pass
   let pass: string | undefined = undefined;
-  if (!classVariableComponents?.length && !initializerComponents && !methodComponents && !props.children) {
+  if (!classVariableComponents?.length && !initializerComponents && !methodComponents && !props.children && !enumMemberComponents?.length) {
     pass = "pass";
   }
 
@@ -87,7 +118,7 @@ export function ClassDeclaration(props: ClassDeclarationProps) {
       {decoratorComponents}class {name}{baseClassComponent}:
       <Indent>
         <Scope name={name} kind="class">
-          {classVariableComponents}{initializerComponents}{methodComponents}{props.children}{pass}
+          {enumMemberComponents}{classVariableComponents}{initializerComponents}{methodComponents}{props.children}{pass}
         </Scope>
       </Indent>
     </Declaration>
