@@ -1029,7 +1029,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         out _) && name == property.Name && deserializationHook != null)
                 {
                     deserializationStatements =
-                        [This.Invoke(
+                        [Static().Invoke(
                             deserializationHook,
                             jsonProperty,
                             ByRef(propertyVarReference)).Terminate()];

@@ -35,6 +35,18 @@ namespace Sample.Models
                 writer.WritePropertyName("prop1"u8);
                 this.SerializationMethod(writer, options);
             }
+            if (global::Sample.Optional.IsDefined(Prop3))
+            {
+                if ((Prop3 != null))
+                {
+                    writer.WritePropertyName("prop2"u8);
+                    this.SerializationMethod(writer, options);
+                }
+                else
+                {
+                    writer.WriteNull("prop2"u8);
+                }
+            }
             if (((options.Format != "W") && (_additionalBinaryDataProperties != null)))
             {
                 foreach (var item in _additionalBinaryDataProperties)
@@ -74,12 +86,23 @@ namespace Sample.Models
                 return null;
             }
             string prop1 = default;
+            string prop3 = default;
             global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new global::Sample.ChangeTrackingDictionary<string, global::System.BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("prop1"u8))
                 {
-                    this.DeserializationMethod(prop, ref prop1);
+                    DeserializationMethod(prop, ref prop1);
+                    continue;
+                }
+                if (prop.NameEquals("prop2"u8))
+                {
+                    if ((prop.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
+                    {
+                        prop3 = null;
+                        continue;
+                    }
+                    DeserializationMethod(prop, ref prop3);
                     continue;
                 }
                 if ((options.Format != "W"))
@@ -87,7 +110,7 @@ namespace Sample.Models
                     additionalBinaryDataProperties.Add(prop.Name, global::System.BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
-            return new global::Sample.Models.MockInputModel(prop1, additionalBinaryDataProperties);
+            return new global::Sample.Models.MockInputModel(prop1, prop3, additionalBinaryDataProperties);
         }
 
         global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.MockInputModel>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);

@@ -92,7 +92,7 @@ namespace Sample.Models
             {
                 if (prop.NameEquals("prop1"u8))
                 {
-                    this.DeserializationMethod(prop, ref prop1);
+                    DeserializationMethod(prop, ref prop1);
                     continue;
                 }
                 if (prop.NameEquals("prop2"u8))
@@ -102,7 +102,7 @@ namespace Sample.Models
                         prop2 = null;
                         continue;
                     }
-                    this.DeserializationMethod(prop, ref prop2);
+                    DeserializationMethod(prop, ref prop2);
                     continue;
                 }
                 if ((options.Format != "W"))
