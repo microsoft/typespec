@@ -75,7 +75,19 @@ Your package.json needs to refer to two main files: your Node module main file, 
 
 ```jsonc
   "main": "dist/src/index.js",
-  "tspMain": "lib/main.tsp"
+  "exports": {
+    ".": {
+      "typespec": "./lib/main.tsp"
+    },
+    // Additional named export are possible
+    "./experimental": {
+      "typespec": "./lib/experimental.tsp"
+    },
+    // Wildcard export as well
+    "./lib/*": {
+      "typespec": "./lib/*.tsp"
+    }
+  }
 ```
 
 ### d. Install and initialize TypeScript
