@@ -8,13 +8,13 @@ Over last few years, we've been hard at work on https://typespec.io/, a modern A
 
 TypeSpec is more than just a new language; it's a platform that enables abstraction, encourages code reuse, and leverages modern tooling for rapid development. Meeting these needs requires a blend of innovative technology and fresh processes that place the API as the fundamental truth on which we build our sophisticated abstractions.
 
+<!-- truncate -->
+
 TypeSpec describes APIs using any protocol or serialization format with concise, familiar syntax and great editor tooling for Visual Studio and VS Code. It can encapsulate common data types, API patterns, and API guidelines into high level, reusable components that can be shared across teams or ecosystems. It can compile to standards compliant OpenAPI, JSON Schema, or Protobuf (or even all three at the same time).
 
 We believe this new technology unlocks new ways for developers to build APIs and the applications around them in a more productive and higher quality way than in the past.
 
 ![hero](./hero.png)
-
-<!-- truncate -->
 
 ## Key Features
 
