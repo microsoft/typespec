@@ -1,5 +1,11 @@
-import { getDirectoryPath, joinPaths, resolvePath } from "../core/path-utils.js";
+import { fileURLToPath, pathToFileURL } from "url";
+import { getDirectoryPath, joinPaths, normalizePath, resolvePath } from "../core/path-utils.js";
 import { PackageJson } from "../types/package-json.js";
+import { resolvePackageExports } from "./esm/resolve-package-exports.js";
+import { parseNodeModuleImport } from "./esm/utils.js";
+
+// Resolve algorithm of node https://nodejs.org/api/modules.html#modules_all_together
+
 export interface ResolveModuleOptions {
   baseDir: string;
 
@@ -83,7 +89,7 @@ export async function resolveModule(
   name: string,
   options: ResolveModuleOptions,
 ): Promise<ModuleResolutionResult> {
-  const realpath = async (x: string) => resolvePath(await host.realpath(x));
+  const realpath = async (x: string) => normalizePath(await host.realpath(x));
 
   const { baseDir } = options;
   const absoluteStart = baseDir === "" ? "." : await realpath(resolvePath(baseDir));
@@ -112,7 +118,7 @@ export async function resolveModule(
   /**
    * Returns a list of all the parent directory and the given one.
    */
-  function listAllParentDirs(baseDir: string): string[] {
+  function listNodeModulesPath(baseDir: string): string[] {
     const paths = [baseDir];
     let current = getDirectoryPath(baseDir);
     while (current !== paths[paths.length - 1]) {
@@ -123,59 +129,88 @@ export async function resolveModule(
     return paths;
   }
 
-  function getPackageCandidates(
-    name: string,
-    baseDir: string,
-  ): Array<{ path: string; type: "node_modules" | "self" }> {
-    const dirs = listAllParentDirs(baseDir);
-    return dirs.flatMap((x) => [
-      { path: x, type: "self" },
-      { path: joinPaths(x, "node_modules", name), type: "node_modules" },
-    ]);
-  }
-
   async function findAsNodeModule(
     name: string,
     baseDir: string,
   ): Promise<ResolvedModule | undefined> {
-    const dirs = getPackageCandidates(name, baseDir);
-    for (const { type, path } of dirs) {
-      if (type === "node_modules") {
-        if (await isDirectory(host, path)) {
-          const n = await loadAsDirectory(path, true);
-          if (n) return n;
-        }
-      } else if (type === "self") {
-        const pkgFile = resolvePath(path, "package.json");
+    const dirs = listNodeModulesPath(baseDir);
+    for (const path of dirs) {
+      const e = await resolvePackageExport(name, path);
+      if (e) return e;
+      const n = await loadPackageAtPath(path);
+      if (n) return n;
+    }
+    return undefined;
+  }
 
-        if (await isFile(host, pkgFile)) {
-          const pkg = await readPackage(host, pkgFile);
-          if (pkg.name === name) {
-            const n = await loadPackage(path, pkg);
-            if (n) return n;
-          }
-        }
+  async function loadPackageAtPath(
+    path: string,
+    name?: string,
+  ): Promise<ResolvedModule | undefined> {
+    const pkgFile = resolvePath(path, "package.json");
+
+    if (await isFile(host, pkgFile)) {
+      const pkg = await readPackage(host, pkgFile);
+      if (name && pkg.name === name) {
+        const n = await loadPackage(path, pkg);
+        if (n) return n;
       }
     }
     return undefined;
   }
 
-  async function loadAsDirectory(directory: string): Promise<ModuleResolutionResult | undefined>;
-  async function loadAsDirectory(
+  /**
+   * Try to load using package.json exports.
+   * @param importSpecifier A combination of the package name and exports entry.
+   * @param directory `node_modules` directory.
+   */
+  async function resolvePackageExport(
+    importSpecifier: string,
     directory: string,
-    mustBePackage: true,
-  ): Promise<ResolvedModule | undefined>;
-  async function loadAsDirectory(
-    directory: string,
-    mustBePackage?: boolean,
-  ): Promise<ModuleResolutionResult | undefined> {
-    const pkgFile = resolvePath(directory, "package.json");
-    if (await isFile(host, pkgFile)) {
-      const pkg = await readPackage(host, pkgFile);
-      return loadPackage(directory, pkg);
+  ): Promise<ResolvedModule | undefined> {
+    const module = parseNodeModuleImport(importSpecifier);
+    if (module === null) return undefined;
+    const pkgDir = resolvePath(directory, module.packageName);
+    const pkgFile = resolvePath(pkgDir, "package.json");
+    if (!(await isFile(host, pkgFile))) return undefined;
+    const pkg = await readPackage(host, pkgFile);
+    if (!pkg.exports) return undefined;
+    const match = await resolvePackageExports(
+      {
+        packageUrl: pathToFileURL(pkgDir),
+        importSpecifier,
+        pkgJsonPath: pkgFile,
+        moduleDirs: ["node_modules"],
+        conditions: [],
+        resolveId: function (id: string, baseDir: string) {
+          throw new Error("Function not implemented.");
+        },
+      },
+      "./" + module.subPath,
+      pkg.exports,
+    );
+    if (!match) return undefined;
+    const resolved = await resolveEsmMatch(match);
+    return {
+      type: "module",
+      mainFile: resolved,
+      manifest: pkg,
+      path: pkgDir,
+    };
+  }
+
+  async function resolveEsmMatch(match: string | URL) {
+    const resolved = fileURLToPath(match);
+    if (await isFile(host, resolved)) {
+      return resolved;
     }
-    if (mustBePackage) {
-      return undefined;
+    throw new Error(`resolved ${resolved}`);
+  }
+
+  async function loadAsDirectory(directory: string): Promise<ModuleResolutionResult | undefined> {
+    const pkg = loadPackageAtPath(directory);
+    if (pkg) {
+      return pkg;
     }
 
     for (const file of options.directoryIndexFiles ?? defaultDirectoryIndexFiles) {
