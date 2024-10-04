@@ -24,6 +24,9 @@ export async function resolvePackageExports(
     }
 
     if (mainExport) {
+      if (context.ignoreDefaultCondition && typeof mainExport === "string") {
+        return undefined;
+      }
       const resolved = await resolvePackageTarget(context, {
         target: mainExport,
         isImports: false,

@@ -292,7 +292,7 @@ describe("packages", () => {
             });
           });
 
-          it("fallback to main if default is set ", async () => {
+          it("fallback to main if default is set", async () => {
             const { host } = mkFs({
               "/ws/proj/node_modules/test-lib/package.json": JSON.stringify({
                 main: "main.js",
@@ -300,6 +300,29 @@ describe("packages", () => {
                   ".": {
                     default: "./index.js",
                   },
+                },
+              }),
+              "/ws/proj/node_modules/test-lib/main.js": "",
+              "/ws/proj/node_modules/test-lib/index.js": "",
+            });
+
+            const resolved = await resolveModule(host, "test-lib", {
+              baseDir: "/ws/proj",
+              conditions: ["typespec"],
+              fallbackOnMissingCondition: true,
+            });
+
+            expect(resolved).toMatchObject({
+              mainFile: "/ws/proj/node_modules/test-lib/main.js",
+            });
+          });
+
+          it("fallback to main if using no condition", async () => {
+            const { host } = mkFs({
+              "/ws/proj/node_modules/test-lib/package.json": JSON.stringify({
+                main: "main.js",
+                exports: {
+                  ".": "./index.js",
                 },
               }),
               "/ws/proj/node_modules/test-lib/main.js": "",
