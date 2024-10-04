@@ -218,7 +218,7 @@ export async function resolveModule(
   ): Promise<ResolvedModule | undefined> {
     if (!pkg.exports) return undefined;
 
-    let match;
+    let match: string | undefined | null;
     try {
       match = await resolvePackageExports(
         {
@@ -260,7 +260,7 @@ export async function resolveModule(
     };
   }
 
-  async function resolveEsmMatch(match: string | URL) {
+  async function resolveEsmMatch(match: string) {
     const resolved = await realpath(fileURLToPath(match));
     if (await isFile(host, resolved)) {
       return resolved;
@@ -385,8 +385,7 @@ function pathToFileURL(path: string): string {
   return `file://${path}`;
 }
 
-function fileURLToPath(url: string | URL) {
-  if (!(typeof url === "string")) url = url.href;
+function fileURLToPath(url: string) {
   if (!url.startsWith("file://")) throw new Error("Cannot convert non file: URL to path");
 
   const pathname = url.slice("file://".length);
