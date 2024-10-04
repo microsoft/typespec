@@ -381,15 +381,15 @@ async function isFile(host: ResolveModuleHost, path: string) {
     throw e;
   }
 }
-function pathToFileURL(path: string): URL {
-  return new URL(`file://${path}`);
+function pathToFileURL(path: string): string {
+  return `file://${path}`;
 }
 
 function fileURLToPath(url: string | URL) {
-  if (typeof url === "string") url = new URL(url);
-  if (url.protocol !== "file:") throw new Error("Cannot convert non file: URL to path");
+  if (!(typeof url === "string")) url = url.href;
+  if (!url.startsWith("file://")) throw new Error("Cannot convert non file: URL to path");
 
-  const pathname = url.pathname;
+  const pathname = url.slice("file://".length);
 
   for (let n = 0; n < pathname.length; n++) {
     if (pathname[n] === "%") {

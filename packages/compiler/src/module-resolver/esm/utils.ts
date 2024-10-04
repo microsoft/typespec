@@ -3,7 +3,7 @@ export interface EsmResolutionContext {
   readonly specifier: string;
 
   /** URL of the current package */
-  readonly packageUrl: URL;
+  readonly packageUrl: string;
 
   /**
    * List of condition to match

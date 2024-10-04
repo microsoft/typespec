@@ -4,7 +4,7 @@ import { EsmResolutionContext } from "../../../src/module-resolver/esm/utils.js"
 
 const context: EsmResolutionContext = {
   specifier: "test-lib",
-  packageUrl: new URL("file:///test/node_modules/test-lib/"),
+  packageUrl: "file:///test/node_modules/test-lib/",
   moduleDirs: ["node_modules"],
   conditions: ["import"],
   resolveId: () => {},

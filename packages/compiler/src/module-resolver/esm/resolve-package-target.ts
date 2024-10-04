@@ -1,3 +1,4 @@
+import { resolvePath } from "../../core/path-utils.js";
 import { Exports } from "../../types/package-json.js";
 import {
   EsmResolutionContext,
@@ -18,9 +19,7 @@ export async function resolvePackageTarget(
   { target, patternMatch, isImports }: ResolvePackageTargetOptions,
 ): Promise<null | undefined | string> {
   const { packageUrl } = context;
-  const packageUrlWithTrailingSlash = packageUrl.href.endsWith("/")
-    ? packageUrl
-    : new URL(`${packageUrl.href}/`);
+  const packageUrlWithTrailingSlash = packageUrl.endsWith("/") ? packageUrl : `${packageUrl}/`;
   // 1. If target is a String, then
   if (typeof target === "string") {
     // 1.i If target does not start with "./", then
@@ -49,19 +48,19 @@ export async function resolvePackageTarget(
 
     // 1.iii Let resolvedTarget be the URL resolution of the concatenation of packageURL and target.
 
-    const resolvedTarget = new URL(target, packageUrlWithTrailingSlash);
+    const resolvedTarget = resolvePath(packageUrlWithTrailingSlash, target);
     // 1.iv Assert: resolvedTarget is contained in packageURL.
-    if (!resolvedTarget.href.startsWith(packageUrl.href)) {
+    if (!resolvedTarget.startsWith(packageUrl)) {
       throw new InvalidPackageTargetError(
         context,
-        `Resolved to ${resolvedTarget.href} which is outside package ${packageUrl.href}`,
+        `Resolved to ${resolvedTarget} which is outside package ${packageUrl}`,
       );
     }
 
     // 1.v If patternMatch is null, then
     if (!patternMatch) {
       // Return resolvedTarget.
-      return resolvedTarget.href;
+      return resolvedTarget;
     }
 
     // 1.vi If patternMatch split on "/" or "\" contains invalid segments
@@ -71,7 +70,7 @@ export async function resolvePackageTarget(
     }
 
     // 1.vii Return the URL resolution of resolvedTarget with every instance of "*" replaced with patternMatch.
-    return resolvedTarget.href.replace(/\*/g, patternMatch);
+    return resolvedTarget.replace(/\*/g, patternMatch);
   }
 
   // 3. Otherwise, if target is an Array, then
