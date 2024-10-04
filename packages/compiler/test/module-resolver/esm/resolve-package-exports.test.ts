@@ -38,6 +38,21 @@ describe("exports is an object", () => {
     expect(result).toBe("file:///test/node_modules/test-lib/foo.js");
   });
 
+  describe("wildcard", () => {
+    it("resolve file at the root", async () => {
+      const result = await resolvePackageExports(context, "./lib/foo.js", {
+        "./lib/*": "./dist/*",
+      });
+      expect(result).toBe("file:///test/node_modules/test-lib/dist/foo.js");
+    });
+    it("resolve file nested", async () => {
+      const result = await resolvePackageExports(context, "./lib/sub/folder/foo.js", {
+        "./lib/*": "./dist/*",
+      });
+      expect(result).toBe("file:///test/node_modules/test-lib/dist/sub/folder/foo.js");
+    });
+  });
+
   it("throws error when export is missing mapping", async () => {
     await expect(
       resolvePackageExports(context, "./bar", {

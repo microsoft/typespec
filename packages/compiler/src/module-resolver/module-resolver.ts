@@ -22,7 +22,7 @@ export interface ResolveModuleOptions {
 
   /**
    * When resolution reach a directory without package.json look for those files to load in order.
-   * @default ["index.mjs", "index.js"]
+   * @default `["index.mjs", "index.js"]`
    */
   directoryIndexFiles?: string[];
 
