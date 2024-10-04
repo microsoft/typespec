@@ -369,7 +369,6 @@ export function moduleResolutionErrorToDiagnostic(
   specifier: string,
   target: DiagnosticTarget | typeof NoTarget,
 ): Diagnostic {
-  console.log("Error", e);
   switch (e.code) {
     case "MODULE_NOT_FOUND":
       return createDiagnostic({ code: "import-not-found", format: { path: specifier }, target });
