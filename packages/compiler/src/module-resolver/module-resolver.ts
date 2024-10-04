@@ -254,7 +254,7 @@ export async function resolveModule(
     const resolved = await resolveEsmMatch(match);
     return {
       type: "module",
-      mainFile: resolved,
+      mainFile: await realpath(resolved),
       manifest: pkg,
       path: pkgDir,
     };
