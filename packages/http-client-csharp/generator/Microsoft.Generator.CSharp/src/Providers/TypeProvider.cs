@@ -358,45 +358,42 @@ namespace Microsoft.Generator.CSharp.Providers
                 }
             }
 
-            var customPropertySerializationNames = new Dictionary<string, string>();
-            foreach (var attribute in GetCodeGenSerializationAttributes())
-            {
-                if (CodeGenAttributes.TryGetCodeGenSerializationAttributeValue(
-                    attribute,
-                    out var propertyName,
-                    out IReadOnlyList<string>? serializationNames,
-                    out _,
-                    out _,
-                    out _) && serializationNames?.Count > 0)
-                {
-                    customPropertySerializationNames.Add(propertyName, serializationNames[0]);
-                }
-            }
-
-            var propertyWasRenamed = renamedProperties.TryGetValue(property.Name, out PropertyProvider? customProp);
-
+            string? serializedName = null;
             if (property.WireInfo != null)
             {
-                // replace original property serialization name. Otherwise try replacing custom property serialization name
-                if (customPropertySerializationNames.TryGetValue(property.Name, out var serializedName) && serializedName != null)
+                bool containsRenamedProperty = renamedProperties.TryGetValue(property.Name, out PropertyProvider? renamedProp);
+                foreach (var attribute in GetCodeGenSerializationAttributes())
+                {
+                    if (CodeGenAttributes.TryGetCodeGenSerializationAttributeValue(
+                        attribute,
+                        out var propertyName,
+                        out string? serializationName,
+                        out _,
+                        out _,
+                        out _) && serializationName != null)
+                    {
+                        if (propertyName == property.Name
+                            || (containsRenamedProperty && renamedProp != null && propertyName == renamedProp.Name))
+                        {
+                            serializedName = serializationName;
+                            break;
+                        }
+                    }
+                }
+
+                // replace original property serialization name.
+                if (serializedName != null)
                 {
                     property.WireInfo.SerializedName = serializedName;
                 }
-                else if (propertyWasRenamed && customProp != null
-                    && customPropertySerializationNames.TryGetValue(customProp.Name, out serializedName) && serializedName != null)
-                {
-                    customProp.WireInfo = property.WireInfo;
-                    customProp.WireInfo.SerializedName = serializedName;
-                }
             }
 
-            if (customProp != null ||
-                renamedProperties.TryGetValue(property.Name, out customProp) ||
+            if (renamedProperties.TryGetValue(property.Name, out PropertyProvider? customProp) ||
                 customProperties.TryGetValue(property.Name, out customProp))
             {
                 // Store the wire info on the custom property so that we can use it for serialization.
                 // The custom property that has the CodeGenMemberAttribute stored in renamedProperties should take precedence.
-                customProp.WireInfo ??= property.WireInfo;
+                customProp.WireInfo = property.WireInfo;
                 customProp.BaseProperty = property.BaseProperty;
                 return false;
             }
