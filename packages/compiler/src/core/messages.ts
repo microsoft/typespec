@@ -653,7 +653,6 @@ const diagnostics = {
   "library-invalid": {
     severity: "error",
     messages: {
-      tspMain: paramMessage`Library "${"path"}" has an invalid tspMain file.`,
       default: paramMessage`Library "${"path"}" is invalid: ${"message"}`,
     },
   },

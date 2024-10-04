@@ -382,8 +382,7 @@ export function moduleResolutionErrorToDiagnostic(
     case "INVALID_MAIN":
       return createDiagnostic({
         code: "library-invalid",
-        format: { path: specifier },
-        messageId: "tspMain",
+        format: { path: specifier, message: e.message },
         target,
       });
     default:

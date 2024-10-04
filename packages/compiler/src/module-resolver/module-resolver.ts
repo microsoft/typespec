@@ -328,7 +328,7 @@ export async function resolveModule(
     } else {
       throw new ResolveModuleError(
         "INVALID_MAIN",
-        `Package ${pkg.name} main file "${mainFile}" is invalid.`,
+        `Package ${pkg.name} main file "${mainFile}" is not pointing to a valid file or directory.`,
       );
     }
   }
