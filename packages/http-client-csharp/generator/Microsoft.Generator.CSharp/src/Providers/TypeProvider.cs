@@ -82,7 +82,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected virtual TypeSignatureModifiers GetDeclarationModifiers() => TypeSignatureModifiers.None;
 
-        internal TypeSignatureModifiers GetCustomCodeModifiers() => CustomCodeView?.DeclarationModifiers ?? TypeSignatureModifiers.None;
+        protected TypeSignatureModifiers GetCustomCodeModifiers() => CustomCodeView?.DeclarationModifiers ?? TypeSignatureModifiers.None;
 
         private TypeSignatureModifiers GetDeclarationModifiersInternal()
         {
