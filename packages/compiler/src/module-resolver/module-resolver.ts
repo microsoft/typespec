@@ -97,6 +97,10 @@ export async function resolveModule(
   if (!(await isDirectory(host, absoluteStart))) {
     throw new TypeError(`Provided basedir '${baseDir}'is not a directory.`);
   }
+  console.log("Trying to resolve as node_module3", {
+    name,
+    matchRelative: /^(?:\.\.?(?:\/|$)|\/|([A-Za-z]:)?[/\\])/.test(name),
+  });
 
   // Check if the module name is referencing a path(./foo, /foo, file:/foo)
   if (/^(?:\.\.?(?:\/|$)|\/|([A-Za-z]:)?[/\\])/.test(name)) {
@@ -163,6 +167,7 @@ export async function resolveModule(
       const nodeModulesDir = joinPaths(dir, "node_modules");
       try {
         const e = await resolvePackageExport(name, nodeModulesDir);
+
         if (e) return e;
       } catch (error) {
         if (error instanceof InvalidModuleSpecifierError) {
@@ -182,10 +187,8 @@ export async function resolveModule(
 
     if (await isFile(host, pkgFile)) {
       const pkg = await readPackage(host, pkgFile);
-      if (name && pkg.name === name) {
-        const n = await loadPackage(path, pkg);
-        if (n) return n;
-      }
+      const n = await loadPackage(path, pkg);
+      if (n) return n;
     }
     return undefined;
   }
@@ -239,7 +242,7 @@ export async function resolveModule(
   }
 
   async function loadAsDirectory(directory: string): Promise<ModuleResolutionResult | undefined> {
-    const pkg = loadPackageAtPath(directory);
+    const pkg = await loadPackageAtPath(directory);
     if (pkg) {
       return pkg;
     }
