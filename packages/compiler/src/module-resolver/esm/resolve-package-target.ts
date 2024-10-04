@@ -3,9 +3,9 @@ import { Exports } from "../../types/package-json.js";
 import { Context, InvalidModuleSpecifierError, InvalidPackageTargetError, isUrl } from "./utils.js";
 
 export interface ResolvePackageTargetOptions {
-  target: Exports;
-  patternMatch?: string;
-  isImports?: boolean;
+  readonly target: Exports;
+  readonly patternMatch?: string;
+  readonly isImports?: boolean;
 }
 
 /** Implementation of PACKAGE_TARGET_RESOLVE https://github.com/nodejs/node/blob/main/doc/api/esm.md */
@@ -115,7 +115,10 @@ export async function resolvePackageTarget(
     // 2.ii For each property of target
     for (const [key, value] of Object.entries(target)) {
       // 2.ii.a If key equals "default" or conditions contains an entry for the key, then
-      if (key === "default" || context.conditions.includes(key)) {
+      if (
+        (key === "default" && !context.ignoreDefaultCondition) ||
+        context.conditions.includes(key)
+      ) {
         // Let targetValue be the value of the property in target.
         // Let resolved be the result of PACKAGE_TARGET_RESOLVE of the targetValue
         const resolved = await resolvePackageTarget(context, {

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   resolveModule,
+  ResolveModuleError,
   type ResolveModuleHost,
 } from "../../src/module-resolver/module-resolver.js";
 import { TestHostError } from "../../src/testing/types.js";
@@ -214,6 +215,137 @@ describe("packages", () => {
           type: "module",
           path: "/ws/proj/node_modules/test-lib",
           mainFile: "/ws/proj/node_modules/test-lib/entry.js",
+        });
+      });
+    });
+
+    describe("invalid exports", () => {
+      it("throws error if export path point to invalid file", async () => {
+        const { host } = mkFs({
+          "/ws/proj/node_modules/test-lib/package.json": JSON.stringify({
+            exports: { ".": "./missing.js" },
+          }),
+        });
+        await expect(resolveModule(host, "test-lib", { baseDir: "/ws/proj" })).rejects.toThrowError(
+          new ResolveModuleError(
+            "INVALID_MODULE_EXPORT_TARGET",
+            `Import "test-lib" resolving to "/ws/proj/node_modules/test-lib/missing.js" is not a file.`,
+          ),
+        );
+      });
+      it("throws error if export path is not starting with ./", async () => {
+        const { host } = mkFs({
+          "/ws/proj/node_modules/test-lib/package.json": JSON.stringify({
+            exports: { ".": "index.js" },
+          }),
+          "/ws/proj/node_modules/test-lib/index.js": "",
+        });
+        await expect(resolveModule(host, "test-lib", { baseDir: "/ws/proj" })).rejects.toThrowError(
+          new ResolveModuleError(
+            "INVALID_MODULE_EXPORT_TARGET",
+            `Could not resolve import "test-lib"  using exports defined in /ws/proj/node_modules/test-lib/package.json. Invalid mapping: "index.js".`,
+          ),
+        );
+      });
+
+      it("throws error if export is missing", async () => {
+        const { host } = mkFs({
+          "/ws/proj/node_modules/test-lib/package.json": JSON.stringify({
+            exports: { ".": "index.js" },
+          }),
+          "/ws/proj/node_modules/test-lib/index.js": "",
+        });
+        await expect(
+          resolveModule(host, "test-lib/named", { baseDir: "/ws/proj" }),
+        ).rejects.toThrowError(
+          new ResolveModuleError(
+            "MODULE_NOT_FOUND",
+            `Could not resolve import "test-lib/named"  using exports defined in /ws/proj/node_modules/test-lib/package.json.`,
+          ),
+        );
+      });
+
+      describe("missing condition with fallbackOnMissingCondition", () => {
+        describe("for . export", () => {
+          it("fallback to main if default is not set", async () => {
+            const { host } = mkFs({
+              "/ws/proj/node_modules/test-lib/package.json": JSON.stringify({
+                main: "main.js",
+                exports: {
+                  ".": {
+                    import: "./index.js",
+                  },
+                },
+              }),
+              "/ws/proj/node_modules/test-lib/main.js": "",
+              "/ws/proj/node_modules/test-lib/index.js": "",
+            });
+
+            const resolved = await resolveModule(host, "test-lib", {
+              baseDir: "/ws/proj",
+              conditions: ["typespec"],
+              fallbackOnMissingCondition: true,
+            });
+
+            expect(resolved).toMatchObject({
+              mainFile: "/ws/proj/node_modules/test-lib/main.js",
+            });
+          });
+
+          it("fallback to main if default is set ", async () => {
+            const { host } = mkFs({
+              "/ws/proj/node_modules/test-lib/package.json": JSON.stringify({
+                main: "main.js",
+                exports: {
+                  ".": {
+                    default: "./index.js",
+                  },
+                },
+              }),
+              "/ws/proj/node_modules/test-lib/main.js": "",
+              "/ws/proj/node_modules/test-lib/index.js": "",
+            });
+
+            const resolved = await resolveModule(host, "test-lib", {
+              baseDir: "/ws/proj",
+              conditions: ["typespec"],
+              fallbackOnMissingCondition: true,
+            });
+
+            expect(resolved).toMatchObject({
+              mainFile: "/ws/proj/node_modules/test-lib/main.js",
+            });
+          });
+        });
+
+        describe("for named export", () => {
+          it("throws an error for named path", async () => {
+            const { host } = mkFs({
+              "/ws/proj/node_modules/test-lib/package.json": JSON.stringify({
+                main: "main.js",
+                exports: {
+                  "./named": {
+                    import: "./index.js",
+                  },
+                },
+              }),
+              "/ws/proj/node_modules/test-lib/main.js": "",
+              "/ws/proj/node_modules/test-lib/index.js": "",
+            });
+
+            await expect(
+              resolveModule(host, "test-lib/named", {
+                baseDir: "/ws/proj",
+                conditions: ["typespec"],
+                fallbackOnMissingCondition: true,
+              }),
+            ).rejects.toThrowError(
+              new ResolveModuleError(
+                "MODULE_NOT_FOUND",
+                `Could not resolve import "test-lib/named"  using exports defined in /ws/proj/node_modules/test-lib/package.json.`,
+              ),
+            );
+          });
         });
       });
     });

@@ -4,6 +4,9 @@ export interface Context {
   readonly packageUrl: URL;
   readonly moduleDirs: readonly string[];
   readonly conditions: readonly string[];
+
+  /** Non standard option. Do not respect the default condition. */
+  readonly ignoreDefaultCondition?: boolean;
   resolveId(id: string, baseDir: string | URL): any;
 }
 
@@ -37,6 +40,13 @@ export class InvalidPackageTargetError extends ResolveError {
     super(createErrorMsg(context, reason));
   }
 }
+
+export class NoMatchingConditionsError extends InvalidPackageTargetError {
+  constructor(context: Context) {
+    super(context, `No conditions matched`);
+  }
+}
+
 export function isUrl(str: string) {
   try {
     return !!new URL(str);

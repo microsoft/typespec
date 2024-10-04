@@ -649,7 +649,7 @@ export async function compile(
           [
             createDiagnostic({
               code: "library-invalid",
-              format: { path: specifier },
+              format: { path: specifier, message: e.message },
               target: NoTarget,
             }),
           ],

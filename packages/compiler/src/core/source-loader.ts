@@ -2,6 +2,7 @@ import {
   ModuleResolutionResult,
   ResolvedModule,
   resolveModule,
+  ResolveModuleError,
   ResolveModuleHost,
 } from "../module-resolver/module-resolver.js";
 import { PackageJson } from "../types/package-json.js";
@@ -251,26 +252,43 @@ export async function createSourceLoader(
           // but using tspMain instead of main.
           return resolveTspMain(pkg) ?? pkg.main;
         },
+        conditions: ["typespec"],
+        fallbackOnMissingCondition: true,
       });
     } catch (e: any) {
-      if (e.code === "MODULE_NOT_FOUND") {
-        diagnostics.add(
-          createDiagnostic({ code: "import-not-found", format: { path: specifier }, target }),
-        );
-        return undefined;
-      } else if (e.code === "INVALID_MAIN") {
-        diagnostics.add(
-          createDiagnostic({
-            code: "library-invalid",
-            format: { path: specifier },
-            messageId: "tspMain",
-            target,
-          }),
-        );
+      if (e instanceof ResolveModuleError) {
+        diagnostics.add(moduleResolutionErrorToDiagnostic(e, specifier, target));
         return undefined;
       } else {
         throw e;
       }
+    }
+  }
+
+  function moduleResolutionErrorToDiagnostic(
+    e: ResolveModuleError,
+    specifier: string,
+    target: DiagnosticTarget | typeof NoTarget,
+  ): Diagnostic {
+    switch (e.code) {
+      case "MODULE_NOT_FOUND":
+        return createDiagnostic({ code: "import-not-found", format: { path: specifier }, target });
+      case "INVALID_MODULE":
+      case "INVALID_MODULE_EXPORT_TARGET":
+        return createDiagnostic({
+          code: "library-invalid",
+          format: { path: specifier, message: e.message },
+          target,
+        });
+      case "INVALID_MAIN":
+        return createDiagnostic({
+          code: "library-invalid",
+          format: { path: specifier },
+          messageId: "tspMain",
+          target,
+        });
+      default:
+        return createDiagnostic({ code: "import-not-found", format: { path: specifier }, target });
     }
   }
 

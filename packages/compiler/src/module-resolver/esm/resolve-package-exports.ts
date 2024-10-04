@@ -1,7 +1,7 @@
 import { Exports } from "../../types/package-json.js";
 import { resolvePackageImportsExports } from "../esm/resolve-package-imports-exports.js";
 import { resolvePackageTarget } from "../esm/resolve-package-target.js";
-import { Context, InvalidModuleSpecifierError } from "./utils.js";
+import { Context, InvalidModuleSpecifierError, NoMatchingConditionsError } from "./utils.js";
 
 /** Implementation of PACKAGE_EXPORTS_RESOLVE https://github.com/nodejs/node/blob/main/doc/api/esm.md */
 export async function resolvePackageExports(
@@ -28,6 +28,8 @@ export async function resolvePackageExports(
       // If resolved is not null or undefined, return resolved.
       if (resolved) {
         return resolved;
+      } else {
+        throw new NoMatchingConditionsError(context);
       }
     }
   } else if (isMappings(exports)) {
