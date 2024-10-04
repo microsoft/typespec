@@ -2,7 +2,8 @@ import { fileURLToPath, pathToFileURL } from "url";
 import { getDirectoryPath, joinPaths, normalizePath, resolvePath } from "../core/path-utils.js";
 import { PackageJson } from "../types/package-json.js";
 import { resolvePackageExports } from "./esm/resolve-package-exports.js";
-import { InvalidModuleSpecifierError, parseNodeModuleImport } from "./esm/utils.js";
+import { InvalidModuleSpecifierError } from "./esm/utils.js";
+import { parseNodeModuleImport } from "./utils.js";
 
 // Resolve algorithm of node https://nodejs.org/api/modules.html#modules_all_together
 
@@ -97,10 +98,6 @@ export async function resolveModule(
   if (!(await isDirectory(host, absoluteStart))) {
     throw new TypeError(`Provided basedir '${baseDir}'is not a directory.`);
   }
-  console.log("Trying to resolve as node_module3", {
-    name,
-    matchRelative: /^(?:\.\.?(?:\/|$)|\/|([A-Za-z]:)?[/\\])/.test(name),
-  });
 
   // Check if the module name is referencing a path(./foo, /foo, file:/foo)
   if (/^(?:\.\.?(?:\/|$)|\/|([A-Za-z]:)?[/\\])/.test(name)) {
@@ -159,37 +156,31 @@ export async function resolveModule(
    * Cannot load any random file under the load path(only packages).
    */
   async function resolveAsNodeModule(
-    name: string,
+    importSpecifier: string,
     baseDir: string,
   ): Promise<ResolvedModule | undefined> {
+    const module = parseNodeModuleImport(importSpecifier);
+    if (module === null) return undefined;
     const dirs = listDirHierarchy(baseDir);
+
     for (const dir of dirs) {
       const nodeModulesDir = joinPaths(dir, "node_modules");
-      try {
-        const e = await resolvePackageExport(name, nodeModulesDir);
-
-        if (e) return e;
-      } catch (error) {
-        if (error instanceof InvalidModuleSpecifierError) {
-          // TODO: warn for backcompat
-        } else {
-          throw error; // TODO: convert to standard error
-        }
-      }
-      const n = await loadPackageAtPath(joinPaths(nodeModulesDir, name));
+      const n = await loadPackageAtPath(joinPaths(nodeModulesDir, importSpecifier), module.subPath);
       if (n) return n;
     }
     return undefined;
   }
 
-  async function loadPackageAtPath(path: string): Promise<ResolvedModule | undefined> {
+  async function loadPackageAtPath(
+    path: string,
+    subPath?: string,
+  ): Promise<ResolvedModule | undefined> {
     const pkgFile = resolvePath(path, "package.json");
+    if (!(await isFile(host, pkgFile))) return undefined;
 
-    if (await isFile(host, pkgFile)) {
-      const pkg = await readPackage(host, pkgFile);
-      const n = await loadPackage(path, pkg);
-      if (n) return n;
-    }
+    const pkg = await readPackage(host, pkgFile);
+    const n = await loadPackage(path, pkg, subPath);
+    if (n) return n;
     return undefined;
   }
 
@@ -199,28 +190,25 @@ export async function resolveModule(
    * @param directory `node_modules` directory.
    */
   async function resolvePackageExport(
-    importSpecifier: string,
-    directory: string,
+    pkgName: string,
+    subPath: string,
+    pkg: PackageJson,
+    pkgDir: string,
   ): Promise<ResolvedModule | undefined> {
-    const module = parseNodeModuleImport(importSpecifier);
-    if (module === null) return undefined;
-    const pkgDir = resolvePath(directory, module.packageName);
-    const pkgFile = resolvePath(pkgDir, "package.json");
-    if (!(await isFile(host, pkgFile))) return undefined;
-    const pkg = await readPackage(host, pkgFile);
     if (!pkg.exports) return undefined;
     const match = await resolvePackageExports(
       {
+        // TODO: review those options shouldn't some of those.
         packageUrl: pathToFileURL(pkgDir),
-        importSpecifier,
-        pkgJsonPath: pkgFile,
+        importSpecifier: subPath ? `${pkgName}/${subPath}` : pkgName,
+        pkgJsonPath: joinPaths(pkgDir, "package.json"),
         moduleDirs: ["node_modules"],
         conditions: [],
         resolveId: function (id: string, baseDir: string) {
           throw new Error("Function not implemented.");
         },
       },
-      "./" + module.subPath,
+      "./" + subPath,
       pkg.exports,
     );
     if (!match) return undefined;
@@ -256,7 +244,24 @@ export async function resolveModule(
     return undefined;
   }
 
-  async function loadPackage(
+  async function loadPackage(directory: string, pkg: PackageJson, subPath?: string) {
+    try {
+      const e = await resolvePackageExport(pkg.name, subPath ?? "", pkg, directory);
+      if (e) return e;
+    } catch (error) {
+      if (error instanceof InvalidModuleSpecifierError) {
+        // TODO: warn for backcompat
+      } else {
+        throw error; // TODO: convert to standard error
+      }
+    }
+    if (subPath !== undefined && subPath !== "") {
+      return undefined;
+    }
+    return loadPackageLegacy(directory, pkg);
+  }
+
+  async function loadPackageLegacy(
     directory: string,
     pkg: PackageJson,
   ): Promise<ResolvedModule | undefined> {
