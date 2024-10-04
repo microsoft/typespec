@@ -14,6 +14,9 @@ export async function resolvePackageTarget(
   { target, patternMatch, isImports }: ResolvePackageTargetOptions,
 ): Promise<null | undefined | string> {
   const { packageUrl } = context;
+  const packageUrlWithTrailingSlash = packageUrl.href.endsWith("/")
+    ? packageUrl
+    : new URL(`${packageUrl.href}/`);
   // 1. If target is a String, then
   if (typeof target === "string") {
     // 1.i If target does not start with "./", then
@@ -27,12 +30,15 @@ export async function resolvePackageTarget(
       // 1.i.b If patternMatch is a String, then
       if (typeof patternMatch === "string") {
         // 1.i.b.a Return PACKAGE_RESOLVE(target with every instance of "*" replaced by patternMatch, packageURL + "/")
-        const result = await context.resolveId(target.replace(/\*/g, patternMatch), packageUrl);
+        const result = await context.resolveId(
+          target.replace(/\*/g, patternMatch),
+          packageUrlWithTrailingSlash,
+        );
         return result ? pathToFileURL(result.location).href : null;
       }
 
       // 1.i.c Return PACKAGE_RESOLVE(target, packageURL + "/").
-      const result = await context.resolveId(target, packageUrl);
+      const result = await context.resolveId(target, packageUrlWithTrailingSlash);
       return result ? pathToFileURL(result.location).href : null;
     }
 
@@ -40,7 +46,8 @@ export async function resolvePackageTarget(
     checkInvalidSegment(context, target);
 
     // 1.iii Let resolvedTarget be the URL resolution of the concatenation of packageURL and target.
-    const resolvedTarget = new URL(target, packageUrl);
+
+    const resolvedTarget = new URL(target, packageUrlWithTrailingSlash);
     // 1.iv Assert: resolvedTarget is contained in packageURL.
     if (!resolvedTarget.href.startsWith(packageUrl.href)) {
       throw new InvalidPackageTargetError(

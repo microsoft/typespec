@@ -58,3 +58,13 @@ describe("object value", () => {
     expect(result).toBe("file:///test/node_modules/test-lib/dev.js");
   });
 });
+
+it("package url doesn't need trailing /", async () => {
+  const result = await resolvePackageTarget(
+    { ...context, packageUrl: new URL("file:///test/node_modules/test-lib") },
+    {
+      target: "./foo.js",
+    },
+  );
+  expect(result).toBe("file:///test/node_modules/test-lib/foo.js");
+});

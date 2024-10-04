@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { parseNodeModuleImport } from "../../src/module-resolver/utils.js";
+import { parseNodeModuleSpecifier } from "../../src/module-resolver/utils.js";
 
 describe("parseNodeModuleImport()", () => {
   it("returns null for relative imports ./", () => {
-    expect(parseNodeModuleImport("./foo")).toBeNull();
-    expect(parseNodeModuleImport("./foo.js")).toBeNull();
+    expect(parseNodeModuleSpecifier("./foo")).toBeNull();
+    expect(parseNodeModuleSpecifier("./foo.js")).toBeNull();
   });
   it("returns null for relative imports ../", () => {
-    expect(parseNodeModuleImport("../foo")).toBeNull();
-    expect(parseNodeModuleImport("../foo.js")).toBeNull();
+    expect(parseNodeModuleSpecifier("../foo")).toBeNull();
+    expect(parseNodeModuleSpecifier("../foo.js")).toBeNull();
   });
 
   it.each([
@@ -20,7 +20,7 @@ describe("parseNodeModuleImport()", () => {
     ["@scope/pkg/export", "@scope/pkg", "export"],
     ["@scope/pkg/nested/export", "@scope/pkg", "nested/export"],
   ])("%s => pkg: %s, subPath: %s", (input, expectedPkg, expectedSubPath) => {
-    const result = parseNodeModuleImport(input);
+    const result = parseNodeModuleSpecifier(input);
     expect(result).toEqual({ packageName: expectedPkg, subPath: expectedSubPath });
   });
 });

@@ -20,7 +20,7 @@ export async function resolvePackageExports(
     }
 
     if (mainExport) {
-      const resolved = resolvePackageTarget(context, {
+      const resolved = await resolvePackageTarget(context, {
         target: mainExport,
         isImports: false,
       });

@@ -1,9 +1,9 @@
-export interface ParsedNodeModuleImport {
+export interface NodeModuleSpecifier {
   readonly packageName: string;
   readonly subPath: string;
 }
 // returns the imported package name for bare module imports
-export function parseNodeModuleImport(id: string): ParsedNodeModuleImport | null {
+export function parseNodeModuleSpecifier(id: string): NodeModuleSpecifier | null {
   if (id.startsWith(".") || id.startsWith("/")) {
     return null;
   }
