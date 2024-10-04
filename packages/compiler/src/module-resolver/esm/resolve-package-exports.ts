@@ -3,7 +3,7 @@ import { resolvePackageImportsExports } from "../esm/resolve-package-imports-exp
 import { resolvePackageTarget } from "../esm/resolve-package-target.js";
 import { Context, InvalidModuleSpecifierError } from "./utils.js";
 
-/** Impleementation of PACKAGE_EXPORTS_RESOLVE https://github.com/nodejs/node/blob/main/doc/api/esm.md */
+/** Implementation of PACKAGE_EXPORTS_RESOLVE https://github.com/nodejs/node/blob/main/doc/api/esm.md */
 export async function resolvePackageExports(
   context: Context,
   subpath: string,
