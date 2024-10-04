@@ -17,7 +17,7 @@ extends:
         parameters:
           BuildPrereleaseVersion: true
           UseTypeSpecNext: false
-          Publish: "internal"
+          Publish: "public"
           PublishDependsOnTest: true
           PackagePath: /packages/http-client-python
           EmitterPackageJsonPath: packages/http-client-python/package.json
@@ -28,5 +28,5 @@ extends:
           UnitTestArgs: -UnitTests
           StagePrefix: "Python"
           LanguageShortName: "python"
-          HasNugetPackages: true
           CadlRanchName: "@typespec/http-client-python"
+          EnableCadlRanchReport: false

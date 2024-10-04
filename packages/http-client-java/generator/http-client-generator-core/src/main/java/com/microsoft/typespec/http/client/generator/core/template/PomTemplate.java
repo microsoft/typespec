@@ -3,13 +3,12 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
+import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Pom;
 import com.microsoft.typespec.http.client.generator.core.model.projectmodel.Project;
 import com.microsoft.typespec.http.client.generator.core.model.xmlmodel.XmlBlock;
 import com.microsoft.typespec.http.client.generator.core.model.xmlmodel.XmlFile;
-import com.azure.core.util.CoreUtils;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,19 +33,16 @@ public class PomTemplate implements IXmlTemplate<Pom, XmlFile> {
 
         // copyright
         xmlFile.blockComment(xmlLineComment -> {
-            xmlLineComment.line(
-                    Arrays.stream(settings
-                            .getFileHeaderText()
-                            .split(System.lineSeparator()))
-                            .map(line -> " ~ " + line)
-                            .collect(Collectors.joining(System.lineSeparator()))
-            );
+            xmlLineComment.line(Arrays.stream(settings.getFileHeaderText().split(System.lineSeparator()))
+                .map(line -> " ~ " + line)
+                .collect(Collectors.joining(System.lineSeparator())));
         });
 
         Map<String, String> projectAnnotations = new HashMap<>();
         projectAnnotations.put("xmlns", "http://maven.apache.org/POM/4.0.0");
         projectAnnotations.put("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
-        projectAnnotations.put("xsi:schemaLocation", "http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd");
+        projectAnnotations.put("xsi:schemaLocation",
+            "http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd");
 
         xmlFile.block("project", projectAnnotations, projectBlock -> {
             projectBlock.tag("modelVersion", "4.0.0");
@@ -59,7 +55,7 @@ public class PomTemplate implements IXmlTemplate<Pom, XmlFile> {
                     parentBlock.tag("groupId", parentGroupId);
                     parentBlock.tag("artifactId", parentArtifactId);
                     parentBlock.tagWithInlineComment("version", parentVersion,
-                            "{x-version-update;com.azure:azure-client-sdk-parent;current}");
+                        "{x-version-update;com.azure:azure-client-sdk-parent;current}");
                     parentBlock.tag("relativePath", pom.getParentRelativePath());
                 });
             }
@@ -69,7 +65,7 @@ public class PomTemplate implements IXmlTemplate<Pom, XmlFile> {
             projectBlock.tag("groupId", pom.getGroupId());
             projectBlock.tag("artifactId", pom.getArtifactId());
             projectBlock.tagWithInlineComment("version", pom.getVersion(),
-                    String.format("{x-version-update;%1$s:%2$s;current}", pom.getGroupId(), pom.getArtifactId()));
+                String.format("{x-version-update;%1$s:%2$s;current}", pom.getGroupId(), pom.getArtifactId()));
             projectBlock.tag("packaging", "jar");
 
             projectBlock.line();
@@ -123,6 +119,7 @@ public class PomTemplate implements IXmlTemplate<Pom, XmlFile> {
                 propertiesBlock.tag("project.build.sourceEncoding", "UTF-8");
                 writeJacoco(propertiesBlock);
                 writeRevapi(propertiesBlock, pom);
+                writeSpotless(propertiesBlock);
             });
 
             if (!CoreUtils.isNullOrEmpty(pom.getDependencyIdentifiers())) {
@@ -149,9 +146,9 @@ public class PomTemplate implements IXmlTemplate<Pom, XmlFile> {
                             dependenciesBlock.tag("artifactId", artifactId);
                             if (version != null) {
                                 dependencyBlock.tagWithInlineComment("version", version,
-                                        String.format("{x-version-update;%1$s;%2$s}",
-                                                Project.getVersionUpdateTag(groupId, artifactId),
-                                                externalDependency ? "external_dependency" : "dependency"));
+                                    String.format("{x-version-update;%1$s;%2$s}",
+                                        Project.getVersionUpdateTag(groupId, artifactId),
+                                        externalDependency ? "external_dependency" : "dependency"));
                             }
                             if (scope != null) {
                                 dependenciesBlock.tag("scope", scope);
@@ -181,6 +178,16 @@ public class PomTemplate implements IXmlTemplate<Pom, XmlFile> {
      */
     protected void writeRevapi(XmlBlock propertiesBlock, Pom pom) {
         // NOOP for data-plane
+    }
+
+    /**
+     * Extension for writing Spotless configuration.
+     *
+     * @param propertiesBlock The {@code <properties></properties>} XML block within the {@code pom.xml}.
+     */
+    protected void writeSpotless(XmlBlock propertiesBlock) {
+        // For now all generation will enable Spotless running.
+        propertiesBlock.tag("spotless.skip", "false");
     }
 
     /**

@@ -7,11 +7,10 @@ import com.azure.core.annotation.Immutable;
 import com.azure.core.util.BinaryData;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.type.property.valuetypes.models.DecimalProperty;
+import java.math.BigDecimal;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-
-import java.math.BigDecimal;
 
 public class DecimalTests {
 
@@ -30,7 +29,7 @@ public class DecimalTests {
     }
 
     @ParameterizedTest
-    @ValueSource(classes = {DecimalProperty.class, DecimalJackson.class})
+    @ValueSource(classes = { DecimalProperty.class, DecimalJackson.class })
     public <T> void testBigDecimal(Class<T> clazz) {
         // precision larger than double
         BigDecimal value = new BigDecimal("12345678901234567890.1234567890");

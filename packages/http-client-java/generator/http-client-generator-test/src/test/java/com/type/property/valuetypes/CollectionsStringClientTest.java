@@ -4,10 +4,9 @@
 package com.type.property.valuetypes;
 
 import com.type.property.valuetypes.models.CollectionsStringProperty;
+import java.util.Arrays;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.util.Arrays;
 
 class CollectionsStringClientTest {
 
@@ -23,7 +22,8 @@ class CollectionsStringClientTest {
 
     @Test
     void put() {
-        CollectionsStringProperty collectionsStringProperty = new CollectionsStringProperty(Arrays.asList("hello", "world"));
+        CollectionsStringProperty collectionsStringProperty
+            = new CollectionsStringProperty(Arrays.asList("hello", "world"));
         client.put(collectionsStringProperty);
     }
 }

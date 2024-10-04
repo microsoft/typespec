@@ -7,7 +7,6 @@ import com.azure.json.JsonReader;
 import com.azure.json.JsonToken;
 import com.azure.json.JsonWriter;
 import com.azure.xml.XmlWriter;
-
 import java.util.Set;
 
 /**
@@ -102,10 +101,10 @@ public interface IType {
      * <p>
      * The following table shows what will be returned:
      * <ul>
-     *     <li>String, String-based object - JsonToken.STRING</li>
-     *     <li>Primitive number, boxed number - JsonToken.NUMBER</li>
-     *     <li>Complex object, Map - JsonToken.START_OBJECT</li>
-     *     <li>Array, Collection - JsonToken.START_ARRAY</li>
+     * <li>String, String-based object - JsonToken.STRING</li>
+     * <li>Primitive number, boxed number - JsonToken.NUMBER</li>
+     * <li>Complex object, Map - JsonToken.START_OBJECT</li>
+     * <li>Array, Collection - JsonToken.START_ARRAY</li>
      * </ul>
      *
      * All other types will return null, such as Enums which don't have a specific type. In the case of Enums the value

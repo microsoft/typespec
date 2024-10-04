@@ -50,11 +50,13 @@ public class JavaFile implements JavaContext {
         publicClass(Collections.singletonList(JavaModifier.Final), classDeclaration, classAction);
     }
 
-    public final void publicClass(List<JavaModifier> modifiers, String classDeclaration, Consumer<JavaClass> classAction) {
+    public final void publicClass(List<JavaModifier> modifiers, String classDeclaration,
+        Consumer<JavaClass> classAction) {
         classBlock(JavaVisibility.Public, modifiers, classDeclaration, classAction);
     }
 
-    public final void classBlock(JavaVisibility visibility, List<JavaModifier> modifiers, String classDeclaration, Consumer<JavaClass> classAction) {
+    public final void classBlock(JavaVisibility visibility, List<JavaModifier> modifiers, String classDeclaration,
+        Consumer<JavaClass> classAction) {
         getContents().classBlock(visibility, modifiers, classDeclaration, classAction);
     }
 
@@ -84,9 +86,9 @@ public class JavaFile implements JavaContext {
             // Only import paths that don't start with this file's package, or if they do start
             // with this file's package, then they must exist within a subpackage.
             imports = imports.stream()
-                    .filter(importKeyword -> !importKeyword.startsWith(packageKeyword)
-                            || importKeyword.indexOf('.', packageWithPeriodLength) != -1)
-                    .collect(Collectors.toList());
+                .filter(importKeyword -> !importKeyword.startsWith(packageKeyword)
+                    || importKeyword.indexOf('.', packageWithPeriodLength) != -1)
+                .collect(Collectors.toList());
         }
         getContents().declareImport(imports);
     }
@@ -115,7 +117,8 @@ public class JavaFile implements JavaContext {
         interfaceBlock(JavaVisibility.Public, interfaceName, interfaceAction);
     }
 
-    public final void interfaceBlock(JavaVisibility visibility, String interfaceName, Consumer<JavaInterface> interfaceAction) {
+    public final void interfaceBlock(JavaVisibility visibility, String interfaceName,
+        Consumer<JavaInterface> interfaceAction) {
         getContents().interfaceBlock(visibility, interfaceName, interfaceAction);
     }
 }

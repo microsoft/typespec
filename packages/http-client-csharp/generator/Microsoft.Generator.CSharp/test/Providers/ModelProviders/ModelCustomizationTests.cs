@@ -51,6 +51,41 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             // the property should be added to the custom code view
             Assert.AreEqual(1, modelTypeProvider.CustomCodeView!.Properties.Count);
             Assert.AreEqual("Prop2", modelTypeProvider.CustomCodeView.Properties[0].Name);
+            var wireInfo = modelTypeProvider.CustomCodeView.Properties[0].WireInfo;
+            Assert.IsNotNull(wireInfo);
+            Assert.AreEqual( "prop1", wireInfo!.SerializedName);
+
+            Assert.AreEqual(0, modelTypeProvider.Properties.Count);
+        }
+
+        [Test]
+        public async Task CanChangePropertyNameAndRedefineOriginal()
+        {
+            var props = new[]
+            {
+                InputFactory.Property("Prop1", InputFactory.Array(InputPrimitiveType.String))
+            };
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
+
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModelTypes: new[] { inputModel },
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelTypeProvider = plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+
+            AssertCommon(modelTypeProvider, "Sample.Models", "MockInputModel");
+
+            // the properties should be added to the custom code view
+            Assert.AreEqual(2, modelTypeProvider.CustomCodeView!.Properties.Count);
+            Assert.AreEqual("Prop2", modelTypeProvider.CustomCodeView.Properties[0].Name);
+            var wireInfo = modelTypeProvider.CustomCodeView.Properties[0].WireInfo;
+            Assert.IsNotNull(wireInfo);
+            Assert.AreEqual( "prop1", wireInfo!.SerializedName);
+            Assert.AreEqual("Prop1", modelTypeProvider.CustomCodeView.Properties[1].Name);
+            Assert.IsNull(modelTypeProvider.CustomCodeView.Properties[1].WireInfo);
+
+            Assert.AreEqual(0, modelTypeProvider.Properties.Count);
         }
 
         [Test]
@@ -96,6 +131,12 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.AreEqual(1, modelTypeProvider.CustomCodeView!.Properties.Count);
             // the property accessibility should be changed
             Assert.IsTrue(modelTypeProvider.CustomCodeView.Properties[0].Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+            // the wire info should be stored on the custom property
+            Assert.IsNotNull(modelTypeProvider.CustomCodeView.Properties[0].WireInfo);
+
+            var fullCtor = modelTypeProvider.Constructors.Last();
+            Assert.IsTrue(fullCtor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+            Assert.AreEqual(2, fullCtor.Signature.Parameters.Count);
         }
 
         private static void AssertCommon(TypeProvider typeProvider, string expectedNamespace, string expectedName)
@@ -288,23 +329,30 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
         [Test]
         public async Task CanReplaceConstructor()
         {
+            var subModel = InputFactory.Model(
+                "subModel",
+                usage: InputModelTypeUsage.Input,
+                properties: new[] { InputFactory.Property("SubProperty", InputPrimitiveType.Int32) });
+
             var plugin = await MockHelpers.LoadMockPluginAsync(
                 inputModelTypes: new[] {
                     InputFactory.Model(
                         "mockInputModel",
                         // use Input so that we generate a public ctor
                         usage: InputModelTypeUsage.Input,
-                        properties: new[] { InputFactory.Property("Prop1", InputPrimitiveType.String) })
+                        properties: new[]
+                        {
+                            InputFactory.Property("Prop1", InputPrimitiveType.String),
+                            InputFactory.Property("SubModel", subModel)
+                        })
                 },
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
             var csharpGen = new CSharpGen();
 
             await csharpGen.ExecuteAsync();
 
-            // The generated code should only contain the single internal ctor containing the properties
-            var ctor = plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel").Constructors.Single();
-            Assert.IsTrue(ctor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
-            Assert.AreEqual("prop1", ctor.Signature.Parameters.First().Name);
+            // The generated code should not contain any ctors
+            Assert.IsEmpty(plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel").Constructors);
         }
 
         [Test]

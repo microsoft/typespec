@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
+import com.azure.core.util.serializer.CollectionFormat;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.AnySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ArraySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ConstantSchema;
@@ -18,7 +19,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Primi
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
-import com.azure.core.util.serializer.CollectionFormat;
 
 public class CustomProxyParameterMapper implements IMapper<Parameter, ProxyMethodParameter> {
 
@@ -31,23 +31,21 @@ public class CustomProxyParameterMapper implements IMapper<Parameter, ProxyMetho
         return INSTANCE;
     }
 
-
     @Override
     public ProxyMethodParameter map(Parameter parameter) {
         JavaSettings settings = JavaSettings.getInstance();
 
         ProxyMethodParameter.Builder builder = new ProxyMethodParameter.Builder()
-                .requestParameterName(parameter.getLanguage().getDefault().getSerializedName())
-                .name(parameter.getLanguage().getJava().getName())
-                .required(parameter.isRequired())
-                .nullable(parameter.isNullable());
+            .requestParameterName(parameter.getLanguage().getDefault().getSerializedName())
+            .name(parameter.getLanguage().getJava().getName())
+            .required(parameter.isRequired())
+            .nullable(parameter.isNullable());
 
         String headerCollectionPrefix = null;
         if (parameter.getExtensions() != null && parameter.getExtensions().getXmsHeaderCollectionPrefix() != null) {
             headerCollectionPrefix = parameter.getExtensions().getXmsHeaderCollectionPrefix();
         }
         builder.headerCollectionPrefix(headerCollectionPrefix);
-
 
         Schema parameterJvWireType = parameter.getSchema();
 
@@ -69,26 +67,34 @@ public class CustomProxyParameterMapper implements IMapper<Parameter, ProxyMetho
         RequestParameterLocation parameterRequestLocation = parameter.getProtocol().getHttp().getIn();
         builder.requestParameterLocation(parameterRequestLocation);
 
-        boolean parameterIsServiceClientProperty = parameter.getImplementation() == Parameter.ImplementationLocation.CLIENT;
+        boolean parameterIsServiceClientProperty
+            = parameter.getImplementation() == Parameter.ImplementationLocation.CLIENT;
         builder.fromClient(parameterIsServiceClientProperty);
 
-        if (wireType instanceof ListType && SchemaUtil.treatAsXml(parameterJvWireType)
+        if (wireType instanceof ListType
+            && SchemaUtil.treatAsXml(parameterJvWireType)
             && parameterRequestLocation == RequestParameterLocation.BODY) {
-            String modelTypeName = ((ArraySchema) parameterJvWireType).getElementType().getLanguage().getJava().getName();
+            String modelTypeName
+                = ((ArraySchema) parameterJvWireType).getElementType().getLanguage().getJava().getName();
             boolean isCustomType = settings.isCustomType(CodeNamer.toPascalCase(modelTypeName + "Wrapper"));
             String packageName = isCustomType
                 ? settings.getPackage(settings.getCustomTypesSubpackage())
                 : settings.getPackage(settings.getImplementationSubpackage() + ".models");
-            wireType = new ClassType.Builder()
-                .packageName(packageName)
+            wireType = new ClassType.Builder().packageName(packageName)
                 .name(modelTypeName + "Wrapper")
                 .usedInXml(true)
                 .build();
         } else if (wireType == ArrayType.BYTE_ARRAY) {
-            if (parameterRequestLocation != RequestParameterLocation.BODY /*&& parameterRequestLocation != RequestParameterLocation.FormData*/) {
+            if (parameterRequestLocation
+                != RequestParameterLocation.BODY /* && parameterRequestLocation != RequestParameterLocation.FormData */) {
                 wireType = ClassType.STRING;
             }
-        } else if (wireType instanceof ListType && parameter.getProtocol().getHttp().getIn() != RequestParameterLocation.BODY /*&& parameter.getProtocol().getHttp().getIn() != RequestParameterLocation.FormData*/) {
+        } else if (wireType instanceof ListType
+            && parameter.getProtocol().getHttp().getIn()
+                != RequestParameterLocation.BODY /*
+                                                  * && parameter.getProtocol().getHttp().getIn() !=
+                                                  * RequestParameterLocation.FormData
+                                                  */) {
             if (parameter.getProtocol().getHttp().getExplode()) {
                 wireType = new ListType(ClassType.STRING);
             } else {
@@ -112,7 +118,7 @@ public class CustomProxyParameterMapper implements IMapper<Parameter, ProxyMetho
             builder.alreadyEncoded(parameter.getExtensions().isXmsSkipUrlEncoding());
         }
 
-        if (parameter.getSchema() instanceof ConstantSchema){
+        if (parameter.getSchema() instanceof ConstantSchema) {
             builder.constant(true);
             Object objValue = ((ConstantSchema) parameter.getSchema()).getValue().getValue();
             builder.defaultValue(objValue == null ? null : String.valueOf(objValue));
@@ -144,21 +150,24 @@ public class CustomProxyParameterMapper implements IMapper<Parameter, ProxyMetho
                 case SIMPLE:
                     collectionFormat = CollectionFormat.CSV;
                     break;
+
                 case SPACE_DELIMITED:
                     collectionFormat = CollectionFormat.SSV;
                     break;
+
                 case PIPE_DELIMITED:
                     collectionFormat = CollectionFormat.PIPES;
                     break;
+
                 case TAB_DELIMITED:
                     collectionFormat = CollectionFormat.TSV;
                     break;
+
                 default:
                     collectionFormat = CollectionFormat.CSV;
             }
         }
-        if (collectionFormat == null && clientType instanceof ListType
-                && ClassType.STRING == wireType) {
+        if (collectionFormat == null && clientType instanceof ListType && ClassType.STRING == wireType) {
             collectionFormat = CollectionFormat.CSV;
         }
         builder.collectionFormat(collectionFormat);

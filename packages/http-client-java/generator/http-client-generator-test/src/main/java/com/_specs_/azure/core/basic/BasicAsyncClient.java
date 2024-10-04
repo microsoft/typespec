@@ -52,7 +52,8 @@ public final class BasicAsyncClient {
      * Creates or updates a User.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: int (Required)
      *     name: String (Optional, Required on create)
@@ -65,11 +66,13 @@ public final class BasicAsyncClient {
      *     ]
      *     etag: String (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: int (Required)
      *     name: String (Optional, Required on create)
@@ -82,7 +85,8 @@ public final class BasicAsyncClient {
      *     ]
      *     etag: String (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param id The user's id.
      * @param resource The resource instance.
@@ -106,7 +110,8 @@ public final class BasicAsyncClient {
      * Creates or replaces a User.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: int (Required)
      *     name: String (Optional, Required on create)
@@ -119,11 +124,13 @@ public final class BasicAsyncClient {
      *     ]
      *     etag: String (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: int (Required)
      *     name: String (Optional, Required on create)
@@ -136,7 +143,8 @@ public final class BasicAsyncClient {
      *     ]
      *     etag: String (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param id The user's id.
      * @param resource The resource instance.
@@ -160,7 +168,8 @@ public final class BasicAsyncClient {
      * Gets a User.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: int (Required)
      *     name: String (Optional, Required on create)
@@ -173,7 +182,8 @@ public final class BasicAsyncClient {
      *     ]
      *     etag: String (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param id The user's id.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -213,7 +223,8 @@ public final class BasicAsyncClient {
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: int (Required)
      *     name: String (Optional, Required on create)
@@ -226,7 +237,8 @@ public final class BasicAsyncClient {
      *     ]
      *     etag: String (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -266,7 +278,8 @@ public final class BasicAsyncClient {
      * Exports a User.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: int (Required)
      *     name: String (Optional, Required on create)
@@ -279,7 +292,8 @@ public final class BasicAsyncClient {
      *     ]
      *     etag: String (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param id The user's id.
      * @param format The format of the data.
@@ -302,7 +316,8 @@ public final class BasicAsyncClient {
      * Exports all users.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     users (Required): [
      *          (Required){
@@ -319,7 +334,8 @@ public final class BasicAsyncClient {
      *         }
      *     ]
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param format The format of the data.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

@@ -3,10 +3,9 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel;
 
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
-
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelProperty;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,7 +16,8 @@ public class ClientModelNode extends ExampleNode {
 
     private ClientModel model;
 
-    // modelProperties can contain more properties than in the model, as it includes those properties from the superclass of the model
+    // modelProperties can contain more properties than in the model, as it includes those properties from the
+    // superclass of the model
     private final Map<ExampleNode, ModelProperty> modelProperties = new HashMap<>();
 
     public ClientModelNode(IType clientType, Object objectValue) {

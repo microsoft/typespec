@@ -7,7 +7,6 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlo
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaClass;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.template.ServiceClientTemplate;
-
 import java.util.Set;
 
 public class AndroidServiceClientTemplate extends ServiceClientTemplate {

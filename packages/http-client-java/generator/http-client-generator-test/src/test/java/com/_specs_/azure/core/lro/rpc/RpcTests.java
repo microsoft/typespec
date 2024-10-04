@@ -16,13 +16,14 @@ import org.junit.jupiter.api.Test;
 
 public class RpcTests {
 
-    private final RpcClient client = new RpcClientBuilder()
-            .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BODY_AND_HEADERS))
+    private final RpcClient client
+        = new RpcClientBuilder().httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BODY_AND_HEADERS))
             .buildClient();
 
     @Test
     public void testRpc() {
-        SyncPoller<PollOperationDetails, GenerationResult> poller = client.beginLongRunningRpc(new GenerationOptions("text"));
+        SyncPoller<PollOperationDetails, GenerationResult> poller
+            = client.beginLongRunningRpc(new GenerationOptions("text"));
 
         PollResponse<PollOperationDetails> response = poller.waitForCompletion();
 

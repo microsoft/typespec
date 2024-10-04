@@ -1,0 +1,17 @@
+# Change Log - @typespec/http-client-python
+
+## 0.2.0
+
+### Bug Fixes
+
+- Fix lint issues
+
+### Features
+
+- Removed usage for some deprecated function of `@azure-tools/typespec-client-generator-core`
+
+## 0.1.0
+
+### Features
+
+- Initial release

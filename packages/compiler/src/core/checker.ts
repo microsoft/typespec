@@ -3862,7 +3862,6 @@ export function createChecker(program: Program): Checker {
         type.indexer = isBase.indexer;
       }
     }
-    decorators.push(...checkDecorators(type, node, mapper));
 
     if (isBase) {
       for (const prop of isBase.properties.values()) {
@@ -3897,6 +3896,8 @@ export function createChecker(program: Program): Checker {
 
     // Evaluate the properties after
     checkModelProperties(node, type.properties, type, mapper);
+
+    decorators.push(...checkDecorators(type, node, mapper));
 
     linkMapper(type, mapper);
 

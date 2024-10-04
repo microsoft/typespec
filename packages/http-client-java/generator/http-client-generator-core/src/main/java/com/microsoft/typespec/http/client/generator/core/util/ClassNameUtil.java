@@ -16,10 +16,9 @@ public final class ClassNameUtil {
      * @param className the name of the class
      * @return the truncated class name
      */
-    public static String truncateClassName(
-            String namespace, String directory,
-            String packageName, String className) {
-        // see https://github.com/Azure/azure-sdk-for-java/blob/main/eng/common/pipelines/templates/steps/verify-path-length.yml
+    public static String truncateClassName(String namespace, String directory, String packageName, String className) {
+        // see
+        // https://github.com/Azure/azure-sdk-for-java/blob/main/eng/common/pipelines/templates/steps/verify-path-length.yml
         final int maxPathLength = 260;
         final int basePathLength = 38;
 
@@ -36,7 +35,8 @@ public final class ClassNameUtil {
 
         final int minRemainLength = 5;
 
-        final int remainLength = maxPathLength - basePathLength - groupLength - artifactLength - directoryLength - packageLength - extraLength;
+        final int remainLength = maxPathLength - basePathLength - groupLength - artifactLength - directoryLength
+            - packageLength - extraLength;
 
         if (remainLength < className.length() && remainLength >= minRemainLength) {
             className = className.substring(0, remainLength - 1);

@@ -3,11 +3,10 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonWriter;
-
+import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import java.io.IOException;
 import java.util.Objects;
 
@@ -101,7 +100,8 @@ public class ConstantValue implements JsonSerializable<ConstantValue> {
         }
 
         ConstantValue rhs = ((ConstantValue) other);
-        return Objects.equals(language, rhs.language) && Objects.equals(extensions, rhs.extensions)
+        return Objects.equals(language, rhs.language)
+            && Objects.equals(extensions, rhs.extensions)
             && Objects.equals(value, rhs.value);
     }
 

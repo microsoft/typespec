@@ -3,13 +3,12 @@
 
 package com.type.property.nullable;
 
-import com.type.property.nullable.models.DatetimeProperty;
-import org.junit.jupiter.api.Test;
-
-import java.time.OffsetDateTime;
-
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+
+import com.type.property.nullable.models.DatetimeProperty;
+import java.time.OffsetDateTime;
+import org.junit.jupiter.api.Test;
 
 class DatetimeOperationClientTest {
 
@@ -18,7 +17,8 @@ class DatetimeOperationClientTest {
     @Test
     void patchNonNullWithResponse() {
         OffsetDateTime offsetDateTime = OffsetDateTime.parse("2022-08-26T18:38:00Z");
-        DatetimeProperty datetimeProperty = new DatetimeProperty().setRequiredProperty("foo").setNullableProperty(offsetDateTime);
+        DatetimeProperty datetimeProperty
+            = new DatetimeProperty().setRequiredProperty("foo").setNullableProperty(offsetDateTime);
         client.patchNonNull(datetimeProperty);
     }
 

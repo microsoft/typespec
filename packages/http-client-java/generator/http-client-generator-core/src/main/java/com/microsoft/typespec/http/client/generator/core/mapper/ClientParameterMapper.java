@@ -12,7 +12,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Versi
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
-
 import java.util.ArrayList;
 
 /**
@@ -46,15 +45,20 @@ public class ClientParameterMapper implements IMapper<Parameter, ClientMethodPar
      * @return The {@link ClientMethodParameter}.
      */
     public ClientMethodParameter map(Parameter parameter, boolean isProtocolMethod) {
-        String name = parameter.getOriginalParameter() != null && parameter.getLanguage().getJava().getName().equals(parameter.getOriginalParameter().getLanguage().getJava().getName())
-                ? CodeNamer.toCamelCase(parameter.getOriginalParameter().getSchema().getLanguage().getJava().getName()) + CodeNamer.toPascalCase(parameter.getLanguage().getJava().getName())
-                : parameter.getLanguage().getJava().getName();
+        String name = parameter.getOriginalParameter() != null
+            && parameter.getLanguage()
+                .getJava()
+                .getName()
+                .equals(parameter.getOriginalParameter().getLanguage().getJava().getName())
+                    ? CodeNamer
+                        .toCamelCase(parameter.getOriginalParameter().getSchema().getLanguage().getJava().getName())
+                        + CodeNamer.toPascalCase(parameter.getLanguage().getJava().getName())
+                    : parameter.getLanguage().getJava().getName();
         name = CodeNamer.getEscapedReservedClientMethodParameterName(name);
 
-        ClientMethodParameter.Builder builder = new ClientMethodParameter.Builder()
-                .name(name)
-                .required(parameter.isRequired())
-                .fromClient(parameter.getImplementation() == Parameter.ImplementationLocation.CLIENT);
+        ClientMethodParameter.Builder builder = new ClientMethodParameter.Builder().name(name)
+            .required(parameter.isRequired())
+            .fromClient(parameter.getImplementation() == Parameter.ImplementationLocation.CLIENT);
         if (parameter.getProtocol() != null && parameter.getProtocol().getHttp() != null) {
             builder.requestParameterLocation(parameter.getProtocol().getHttp().getIn());
         }
@@ -69,8 +73,7 @@ public class ClientParameterMapper implements IMapper<Parameter, ClientMethodPar
             wireType = SchemaUtil.removeModelFromParameter(parameter.getProtocol().getHttp().getIn(), wireType);
         }
 
-        builder.wireType(wireType)
-            .annotations(new ArrayList<>());
+        builder.wireType(wireType).annotations(new ArrayList<>());
 
         boolean isConstant = false;
         String defaultValue = null;
@@ -85,9 +88,8 @@ public class ClientParameterMapper implements IMapper<Parameter, ClientMethodPar
 
         if (parameter.getExtensions() != null) {
             if (parameter.getExtensions().getXmsVersioningAdded() != null) {
-                builder.versioning(new Versioning.Builder()
-                        .added(parameter.getExtensions().getXmsVersioningAdded())
-                        .build());
+                builder.versioning(
+                    new Versioning.Builder().added(parameter.getExtensions().getXmsVersioningAdded()).build());
             }
         }
 

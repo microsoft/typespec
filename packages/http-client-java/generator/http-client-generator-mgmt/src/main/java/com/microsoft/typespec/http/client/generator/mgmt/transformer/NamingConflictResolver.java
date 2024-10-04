@@ -8,28 +8,30 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ValueSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
+import com.microsoft.typespec.http.client.generator.core.preprocessor.namer.CodeNamer;
+import com.microsoft.typespec.http.client.generator.mgmt.FluentNamer;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Constants;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
-import com.microsoft.typespec.http.client.generator.mgmt.FluentNamer;
-import com.microsoft.typespec.http.client.generator.core.preprocessor.namer.CodeNamer;
-import org.slf4j.Logger;
-
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
 
 public class NamingConflictResolver {
 
-    private static final Logger LOGGER = new PluginLogger(FluentNamer.getPluginInstance(), NamingConflictResolver.class);
+    private static final Logger LOGGER
+        = new PluginLogger(FluentNamer.getPluginInstance(), NamingConflictResolver.class);
 
     public CodeModel process(CodeModel codeModel) {
         // conform to lowercase, to avoid problem on Windows system, where file name is case-insensitive
         Set<String> methodGroupNamesLowerCase = new HashSet<>();
-        Set<String> objectNamesLowerCase = codeModel.getSchemas().getObjects().stream()
-                .map(Utils::getJavaName)
-                .map(n -> n.toLowerCase(Locale.ROOT))
-                .collect(Collectors.toSet());
+        Set<String> objectNamesLowerCase = codeModel.getSchemas()
+            .getObjects()
+            .stream()
+            .map(Utils::getJavaName)
+            .map(n -> n.toLowerCase(Locale.ROOT))
+            .collect(Collectors.toSet());
         codeModel.getOperationGroups().forEach(og -> {
             String methodGroupName = CodeNamer.getPlural(Utils.getJavaName(og));
             String newMethodGroupName = methodGroupName;
@@ -50,7 +52,8 @@ public class NamingConflictResolver {
         });
 
         String clientNameLowerCase = Utils.getJavaName(codeModel).toLowerCase(Locale.ROOT);
-        if (methodGroupNamesLowerCase.contains(clientNameLowerCase) || objectNamesLowerCase.contains(clientNameLowerCase)) {
+        if (methodGroupNamesLowerCase.contains(clientNameLowerCase)
+            || objectNamesLowerCase.contains(clientNameLowerCase)) {
             String name = Utils.getJavaName(codeModel);
             String newName;
 
@@ -59,7 +62,8 @@ public class NamingConflictResolver {
             if (name.endsWith(keywordClient) && !name.endsWith(keywordManagementClient)) {
                 newName = name.substring(0, name.length() - keywordClient.length()) + keywordManagementClient;
             } else if (name.endsWith(keywordManagementClient)) {
-                newName = name.substring(0, name.length() - keywordManagementClient.length()) + "Main" + keywordManagementClient;
+                newName = name.substring(0, name.length() - keywordManagementClient.length()) + "Main"
+                    + keywordManagementClient;
             } else {
                 newName = name + keywordManagementClient;
             }

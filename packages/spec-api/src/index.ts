@@ -15,7 +15,13 @@ export {
 } from "./request-validations.js";
 export { json, xml } from "./response-utils.js";
 export { mockapi } from "./routes.js";
-export { WithKeysScenarioExpect, passOnCode, passOnSuccess, withKeys } from "./scenarios.js";
+export {
+  WithKeysScenarioExpect,
+  passOnCode,
+  passOnSuccess,
+  withKeys,
+  withServiceKeys,
+} from "./scenarios.js";
 export {
   CollectionFormat,
   Fail,
@@ -24,16 +30,19 @@ export {
   KeyedMockRequestHandler,
   KeyedMockResponse,
   MockApi,
+  MockApiDefinition,
   MockApiForHandler,
   MockRequestHandler,
   MockResponse,
   MockResponseBody,
   PassByKeyScenario,
+  PassByServiceKeyScenario,
   PassOnCodeScenario,
   PassOnSuccessScenario,
   RequestExt,
   ScenarioMockApi,
   ScenarioPassCondition,
+  ServiceRequestFile,
   SimpleMockRequestHandler,
 } from "./types.js";
 export { ValidationError } from "./validation-error.js";

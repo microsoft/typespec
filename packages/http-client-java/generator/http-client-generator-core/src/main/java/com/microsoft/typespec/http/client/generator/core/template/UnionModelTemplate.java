@@ -3,6 +3,8 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
+import com.azure.core.annotation.Immutable;
+import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.UnionModel;
@@ -10,9 +12,6 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFil
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJavadocComment;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaModifier;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
-import com.azure.core.annotation.Immutable;
-import com.azure.core.util.CoreUtils;
-
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -45,7 +44,8 @@ public class UnionModelTemplate implements IJavaTemplate<UnionModel, JavaFile> {
 
         javaFile.declareImport(imports);
 
-        List<JavaModifier> modifiers = Collections.singletonList(isAbstractClass ? JavaModifier.Abstract : JavaModifier.Final);
+        List<JavaModifier> modifiers
+            = Collections.singletonList(isAbstractClass ? JavaModifier.Abstract : JavaModifier.Final);
         String classDeclaration = isAbstractClass ? model.getName() : (model.getName() + " extends " + superClassName);
         javaFile.javadocComment(comment -> comment.description(model.getDescription()));
         if (!isAbstractClass) {
@@ -59,15 +59,15 @@ public class UnionModelTemplate implements IJavaTemplate<UnionModel, JavaFile> {
 
             // constructor
             if (isAbstractClass) {
-                classBlock.javadocComment(comment ->
-                        comment.description("Creates an instance of " + model.getName() + " class."));
+                classBlock.javadocComment(
+                    comment -> comment.description("Creates an instance of " + model.getName() + " class."));
                 classBlock.constructor(JavaVisibility.Protected, model.getName() + "()", constructor -> {
                 });
             } else {
                 StringBuilder constructorProperties = new StringBuilder();
 
-                Consumer<JavaJavadocComment> javadocCommentConsumer = comment ->
-                        comment.description("Creates an instance of " + model.getName() + " class.");
+                Consumer<JavaJavadocComment> javadocCommentConsumer
+                    = comment -> comment.description("Creates an instance of " + model.getName() + " class.");
 
                 for (ClientModelProperty property : model.getProperties()) {
                     javadocCommentConsumer = javadocCommentConsumer.andThen(comment -> {
@@ -81,12 +81,13 @@ public class UnionModelTemplate implements IJavaTemplate<UnionModel, JavaFile> {
                 }
 
                 classBlock.javadocComment(javadocCommentConsumer);
-                classBlock.publicConstructor(String.format("%1$s(%2$s)", model.getName(), constructorProperties), constructor -> {
-                    for (ClientModelProperty property : model.getProperties()) {
-                        constructor.line("this." + property.getName() + " = " +
-                                property.getWireType().convertFromClientType(property.getName()) + ";");
-                    }
-                });
+                classBlock.publicConstructor(String.format("%1$s(%2$s)", model.getName(), constructorProperties),
+                    constructor -> {
+                        for (ClientModelProperty property : model.getProperties()) {
+                            constructor.line("this." + property.getName() + " = "
+                                + property.getWireType().convertFromClientType(property.getName()) + ";");
+                        }
+                    });
             }
 
             // getter/setters

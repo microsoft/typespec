@@ -15,7 +15,7 @@ public class FluentExampleLiveTestStep extends FluentLiveTestStep {
 
     public static class Builder extends FluentLiveTestStep.Builder<FluentExampleLiveTestStep, Builder> {
 
-        private Builder(){
+        private Builder() {
             super(new FluentExampleLiveTestStep());
         }
 
