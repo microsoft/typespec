@@ -358,6 +358,36 @@ namespace Microsoft.Generator.CSharp.Providers
                 }
             }
 
+            string? serializedName = null;
+            if (property.WireInfo != null)
+            {
+                bool containsRenamedProperty = renamedProperties.TryGetValue(property.Name, out PropertyProvider? renamedProp);
+                foreach (var attribute in GetCodeGenSerializationAttributes())
+                {
+                    if (CodeGenAttributes.TryGetCodeGenSerializationAttributeValue(
+                        attribute,
+                        out var propertyName,
+                        out string? serializationName,
+                        out _,
+                        out _,
+                        out _) && serializationName != null)
+                    {
+                        if (propertyName == property.Name
+                            || (containsRenamedProperty && renamedProp != null && propertyName == renamedProp.Name))
+                        {
+                            serializedName = serializationName;
+                            break;
+                        }
+                    }
+                }
+
+                // replace original property serialization name.
+                if (serializedName != null)
+                {
+                    property.WireInfo.SerializedName = serializedName;
+                }
+            }
+
             if (renamedProperties.TryGetValue(property.Name, out PropertyProvider? customProp) ||
                 customProperties.TryGetValue(property.Name, out customProp))
             {
@@ -489,5 +519,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private IEnumerable<AttributeData> GetMemberSuppressionAttributes()
             => CustomCodeView?.GetAttributes()?.Where(a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenSuppressAttributeName) ?? [];
+        private IEnumerable<AttributeData> GetCodeGenSerializationAttributes()
+            => CustomCodeView?.GetAttributes()?.Where(a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenSerializationAttributeName) ?? [];
     }
 }
