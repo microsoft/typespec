@@ -4,12 +4,16 @@ import { resolvePackageTarget } from "../esm/resolve-package-target.js";
 import { Context, InvalidModuleSpecifierError } from "./utils.js";
 
 /** Impleementation of PACKAGE_EXPORTS_RESOLVE https://github.com/nodejs/node/blob/main/doc/api/esm.md */
-export async function resolvePackageExports(context: Context, subpath: string, exports: Exports) {
+export async function resolvePackageExports(
+  context: Context,
+  subpath: string,
+  exports: Exports,
+): Promise<string | null | undefined> {
   if (exports === null) return undefined;
 
   if (subpath === ".") {
-    let mainExport;
-    if (typeof exports === "string" || Array.isArray(exports) || "." in exports) {
+    let mainExport: Exports | undefined;
+    if (typeof exports === "string" || Array.isArray(exports) || isConditions(exports)) {
       mainExport = exports;
     } else if (exports["."]) {
       mainExport = exports["."];
@@ -42,4 +46,9 @@ export async function resolvePackageExports(context: Context, subpath: string, e
 
   // 4. Throw a Package Path Not Exported error.
   throw new InvalidModuleSpecifierError(context);
+}
+
+/** Conditions is an export object where all keys are conditions(not a path starting with .). E.g. import, default, types, etc. */
+function isConditions(item: Record<string, Exports>) {
+  return typeof item === "object" && Object.keys(item).every((k) => !k.startsWith("."));
 }
