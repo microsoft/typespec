@@ -1,6 +1,7 @@
 import { createDiagnosticCollector, getDirectoryPath, normalizePath } from "../core/index.js";
+import { createDiagnostic } from "../core/messages.js";
 import { CompilerOptions } from "../core/options.js";
-import { CompilerHost, Diagnostic } from "../core/types.js";
+import { CompilerHost, Diagnostic, NoTarget } from "../core/types.js";
 import { deepClone, doIO, omitUndefined } from "../utils/misc.js";
 import { expandConfigVariables } from "./config-interpolation.js";
 import { loadTypeSpecConfigForPath, validateConfigPathsAbsolute } from "./config-loader.js";
@@ -76,6 +77,7 @@ export function resolveOptionsFromConfig(config: TypeSpecConfig, options: Config
   const cwd = normalizePath(options.cwd);
   const diagnostics = createDiagnosticCollector();
 
+  validateConfigNames(config).forEach((x) => diagnostics.add(x));
   const configWithOverrides: TypeSpecConfig = {
     ...config,
     ...options.overrides,
@@ -105,18 +107,67 @@ export function resolveOptionsFromConfig(config: TypeSpecConfig, options: Config
   return diagnostics.wrap(resolvedOptions);
 }
 
+export function validateConfigNames(config: TypeSpecConfig): readonly Diagnostic[] {
+  const diagnostics: Diagnostic[] = [];
+  function checkName(name: string) {
+    if (name.includes(".")) {
+      diagnostics.push(
+        createDiagnostic({
+          code: "config-invalid-name",
+          format: { name },
+          target: NoTarget,
+        }),
+      );
+    }
+  }
+
+  function validateNamesRecursively(obj: any) {
+    for (const [key, value] of Object.entries(obj ?? {})) {
+      checkName(key);
+      if (hasNestedObjects(value)) {
+        validateNamesRecursively(value);
+      }
+    }
+  }
+
+  validateNamesRecursively(config.options);
+  validateNamesRecursively(config.parameters);
+  return diagnostics;
+}
+
 function mergeOptions(
   base: Record<string, Record<string, unknown>> | undefined,
   overrides: Record<string, Record<string, unknown>> | undefined,
 ): Record<string, EmitterOptions> {
   const configuredEmitters: Record<string, Record<string, unknown>> = deepClone(base ?? {});
+  function deepMerge(emitter: any, options: any, name: string): any {
+    if (typeof emitter !== "object") {
+      return emitter;
+    }
+    for (const key of Object.keys(emitter)) {
+      if (hasNestedObjects(emitter[key])) {
+        emitter[key] = deepMerge(emitter[key], options, `${name}.${key}`);
+      } else if (typeof options[name] === "object") {
+        emitter[key] = options[name][key] ?? emitter[key];
+      }
+    }
+    return emitter;
+  }
 
   for (const [emitterName, cliOptionOverride] of Object.entries(overrides ?? {})) {
-    configuredEmitters[emitterName] = {
-      ...(configuredEmitters[emitterName] ?? {}),
-      ...cliOptionOverride,
-    };
+    configuredEmitters[emitterName] = deepMerge(
+      {
+        ...(configuredEmitters[emitterName] ?? {}),
+        ...cliOptionOverride,
+      },
+      overrides,
+      emitterName,
+    );
   }
 
   return configuredEmitters;
+}
+
+function hasNestedObjects(value: any): boolean {
+  return value && typeof value === "object" && !Array.isArray(value);
 }

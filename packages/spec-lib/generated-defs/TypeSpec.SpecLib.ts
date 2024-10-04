@@ -2,12 +2,10 @@ import type {
   DecoratorContext,
   EnumValue,
   Interface,
+  Model,
   Namespace,
   Operation,
-  Type,
 } from "@typespec/compiler";
-
-export interface Record {}
 
 /**
  * Setup the boilerplate for a scenario service(server endpoint, etc.)
@@ -15,7 +13,7 @@ export interface Record {}
 export type ScenarioServiceDecorator = (
   context: DecoratorContext,
   target: Namespace,
-  route: Type,
+  route: string,
   options?: { readonly versioned?: EnumValue },
 ) => void;
 
@@ -25,7 +23,7 @@ export type ScenarioServiceDecorator = (
 export type ScenarioDecorator = (
   context: DecoratorContext,
   target: Namespace | Interface | Operation,
-  name?: Type,
+  name?: string,
 ) => void;
 
 /**
@@ -37,8 +35,8 @@ export type ScenarioDecorator = (
 export type ScenarioDocDecorator = (
   context: DecoratorContext,
   target: Namespace | Interface | Operation,
-  doc: Type,
-  formatArgs?: Record,
+  doc: string,
+  formatArgs?: Model,
 ) => void;
 
 export type TypeSpecSpecLibDecorators = {

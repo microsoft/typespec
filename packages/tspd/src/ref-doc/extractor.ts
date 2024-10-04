@@ -27,7 +27,6 @@ import {
   navigateProgram,
   navigateTypesInNamespace,
   NodeHost,
-  NodePackage,
   NoTarget,
   Operation,
   Program,
@@ -39,6 +38,7 @@ import {
   Type,
   TypeSpecLibrary,
   Union,
+  type PackageJson,
 } from "@typespec/compiler";
 import { readFile } from "fs/promises";
 import { pathToFileURL } from "url";
@@ -122,7 +122,7 @@ export async function extractLibraryRefDocs(
   return diagnostics.wrap(refDoc);
 }
 
-async function readPackageJson(libraryPath: string): Promise<NodePackage> {
+async function readPackageJson(libraryPath: string): Promise<PackageJson> {
   const buffer = await readFile(joinPaths(libraryPath, "package.json"));
   return JSON.parse(buffer.toString());
 }
