@@ -14,7 +14,7 @@ it("it change model expression to an object value", async () => {
     (node) => {
       strictEqual(node.kind, SyntaxKind.ModelExpression);
       return createModelToObjectValueCodeFix(node);
-    }
+    },
   ).toChangeTo(`
       model Foo {
         a: string[] = #{foo: "abc"};

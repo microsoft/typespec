@@ -1,6 +1,10 @@
 import {
+  compilerAssert,
   DecoratorContext,
+  Diagnostic,
+  DiagnosticTarget,
   getDoc,
+  getProperty,
   getService,
   getSummary,
   Model,
@@ -19,7 +23,7 @@ import {
   InfoDecorator,
   OperationIdDecorator,
 } from "../generated-defs/TypeSpec.OpenAPI.js";
-import { createStateSymbol, reportDiagnostic } from "./lib.js";
+import { createDiagnostic, createStateSymbol, reportDiagnostic } from "./lib.js";
 import { AdditionalInfo, ExtensionKey, ExternalDocs } from "./types.js";
 
 const operationIdsKey = createStateSymbol("operationIds");
@@ -32,7 +36,7 @@ const operationIdsKey = createStateSymbol("operationIds");
 export const $operationId: OperationIdDecorator = (
   context: DecoratorContext,
   entity: Operation,
-  opId: string
+  opId: string,
 ) => {
   context.program.stateMap(operationIdsKey).set(entity, opId);
 };
@@ -51,7 +55,7 @@ export const $extension: ExtensionDecorator = (
   context: DecoratorContext,
   entity: Type,
   extensionName: string,
-  value: TypeSpecValue
+  value: TypeSpecValue,
 ) => {
   if (!isOpenAPIExtensionKey(extensionName)) {
     reportDiagnostic(context.program, {
@@ -77,7 +81,7 @@ export const $extension: ExtensionDecorator = (
 export function setInfo(
   program: Program,
   entity: Namespace,
-  data: AdditionalInfo & Record<ExtensionKey, unknown>
+  data: AdditionalInfo & Record<ExtensionKey, unknown>,
 ) {
   program.stateMap(infoKey).set(entity, data);
 }
@@ -93,7 +97,7 @@ export function setExtension(
   program: Program,
   entity: Type,
   extensionName: ExtensionKey,
-  data: unknown
+  data: unknown,
 ) {
   const openApiExtensions = program.stateMap(openApiExtensionKey);
   const typeExtensions = openApiExtensions.get(entity) ?? new Map<string, any>();
@@ -123,7 +127,7 @@ const defaultResponseKey = createStateSymbol("defaultResponse");
 /** {@inheritdoc DefaultResponseDecorator} */
 export const $defaultResponse: DefaultResponseDecorator = (
   context: DecoratorContext,
-  entity: Model
+  entity: Model,
 ) => {
   // eslint-disable-next-line @typescript-eslint/no-deprecated
   setStatusCode(context.program, entity, ["*"]);
@@ -151,7 +155,7 @@ export const $externalDocs: ExternalDocsDecorator = (
   context: DecoratorContext,
   target: Type,
   url: string,
-  description?: string
+  description?: string,
 ) => {
   const doc: ExternalDocs = { url };
   if (description) {
@@ -175,15 +179,21 @@ const infoKey = createStateSymbol("info");
 export const $info: InfoDecorator = (
   context: DecoratorContext,
   entity: Namespace,
-  model: TypeSpecValue
+  model: TypeSpecValue,
 ) => {
   const [data, diagnostics] = typespecTypeToJson<AdditionalInfo & Record<ExtensionKey, unknown>>(
     model,
-    context.getArgumentTarget(0)!
+    context.getArgumentTarget(0)!,
   );
   context.program.reportDiagnostics(diagnostics);
   if (data === undefined) {
     return;
+  }
+  validateAdditionalInfoModel(context, model);
+  if (data.termsOfService) {
+    if (!validateIsUri(context, data.termsOfService, "TermsOfService")) {
+      return;
+    }
   }
   setInfo(context.program, entity, data);
 };
@@ -213,4 +223,66 @@ export function resolveInfo(program: Program, entity: Namespace): AdditionalInfo
 
 function omitUndefined<T extends Record<string, unknown>>(data: T): T {
   return Object.fromEntries(Object.entries(data).filter(([k, v]) => v !== undefined)) as any;
+}
+
+function validateIsUri(context: DecoratorContext, url: string, propertyName: string) {
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    reportDiagnostic(context.program, {
+      code: "not-url",
+      target: context.getArgumentTarget(0)!,
+      format: { property: propertyName, value: url },
+    });
+    return false;
+  }
+}
+
+function validateAdditionalInfoModel(context: DecoratorContext, typespecType: TypeSpecValue) {
+  const propertyModel = context.program.resolveTypeReference(
+    "TypeSpec.OpenAPI.AdditionalInfo",
+  )[0]! as Model;
+
+  if (typeof typespecType === "object" && propertyModel) {
+    const diagnostics = checkNoAdditionalProperties(
+      typespecType,
+      context.getArgumentTarget(0)!,
+      propertyModel,
+    );
+    context.program.reportDiagnostics(diagnostics);
+  }
+}
+
+function checkNoAdditionalProperties(
+  typespecType: Type,
+  target: DiagnosticTarget,
+  source: Model,
+): Diagnostic[] {
+  const diagnostics: Diagnostic[] = [];
+  compilerAssert(typespecType.kind === "Model", "Expected type to be a Model.");
+
+  for (const [name, type] of typespecType.properties.entries()) {
+    const sourceProperty = getProperty(source, name);
+    if (sourceProperty) {
+      if (sourceProperty.type.kind === "Model") {
+        const nestedDiagnostics = checkNoAdditionalProperties(
+          type.type,
+          target,
+          sourceProperty.type,
+        );
+        diagnostics.push(...nestedDiagnostics);
+      }
+    } else if (!isOpenAPIExtensionKey(name)) {
+      diagnostics.push(
+        createDiagnostic({
+          code: "invalid-extension-key",
+          format: { value: name },
+          target,
+        }),
+      );
+    }
+  }
+
+  return diagnostics;
 }

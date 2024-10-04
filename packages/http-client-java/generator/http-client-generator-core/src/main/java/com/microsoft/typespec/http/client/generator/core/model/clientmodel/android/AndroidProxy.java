@@ -6,7 +6,6 @@ package com.microsoft.typespec.http.client.generator.core.model.clientmodel.andr
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Proxy;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
-
 import java.util.List;
 import java.util.Set;
 

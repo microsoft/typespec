@@ -3,15 +3,13 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.template;
 
-import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
-import com.microsoft.typespec.http.client.generator.mgmt.model.arm.ErrorClientModel;
-import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
+import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelPropertyReference;
 import com.microsoft.typespec.http.client.generator.core.template.StreamSerializationModelTemplate;
-import com.azure.core.util.CoreUtils;
-
+import com.microsoft.typespec.http.client.generator.mgmt.model.arm.ErrorClientModel;
+import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import java.util.List;
 
 public class FluentStreamStyleSerializationModelTemplate extends StreamSerializationModelTemplate {
@@ -27,8 +25,8 @@ public class FluentStreamStyleSerializationModelTemplate extends StreamSerializa
     }
 
     @Override
-    protected boolean parentModelHasValidate(String parentModelName) {
-        return FLUENT_MODEL_TEMPLATE.parentModelHasValidate(parentModelName);
+    protected boolean modelHasValidate(String modelName) {
+        return FLUENT_MODEL_TEMPLATE.modelHasValidate(modelName);
     }
 
     @Override

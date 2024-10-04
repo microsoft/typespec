@@ -10,7 +10,7 @@ import {
 } from "vscode-languageclient/node.js";
 import logger from "./extension-logger.js";
 import { TypeSpecLogOutputChannel } from "./typespec-log-output-channel.js";
-import { normalizeSlash } from "./utils.js";
+import { normalizeSlash, useShellInExec } from "./utils.js";
 
 let client: LanguageClient | undefined;
 /**
@@ -26,11 +26,11 @@ export async function activate(context: ExtensionContext) {
   context.subscriptions.push(
     commands.registerCommand("typespec.showOutputChannel", () => {
       outputChannel.show(true /*preserveFocus*/);
-    })
+    }),
   );
 
   context.subscriptions.push(
-    commands.registerCommand("typespec.restartServer", restartTypeSpecServer)
+    commands.registerCommand("typespec.restartServer", restartTypeSpecServer),
   );
 
   return await vscode.window.withProgress(
@@ -38,7 +38,7 @@ export async function activate(context: ExtensionContext) {
       title: "Launching TypeSpec language service...",
       location: vscode.ProgressLocation.Notification,
     },
-    async () => launchLanguageClient(context)
+    async () => launchLanguageClient(context),
   );
 }
 
@@ -51,7 +51,7 @@ function createTaskProvider() {
         .then((uris) =>
           uris
             .filter((uri) => uri.scheme === "file" && !uri.fsPath.includes("node_modules"))
-            .map((uri) => normalizeSlash(uri.fsPath))
+            .map((uri) => normalizeSlash(uri.fsPath)),
         );
       logger.info(`Found ${targetPathes.length} main.tsp files`);
       const tasks: vscode.Task[] = [];
@@ -83,7 +83,7 @@ function getTaskPath(targetPath: string): { absoluteTargetPath: string; workspac
   if (!workspaceFolder) {
     workspaceFolder = workspace.workspaceFolders?.[0]?.uri.fsPath ?? "";
     logger.warning(
-      `Can't resolve workspace folder from given file ${targetPath}. Try to use the first workspace folder ${workspaceFolder}.`
+      `Can't resolve workspace folder from given file ${targetPath}. Try to use the first workspace folder ${workspaceFolder}.`,
     );
   }
   const variableResolver = new VSCodeVariableResolver({
@@ -101,7 +101,7 @@ function createTaskInternal(
   absoluteTargetPath: string,
   args: string,
   cli: Executable,
-  workspaceFolder: string
+  workspaceFolder: string,
 ) {
   let cmd = `${cli.command} ${cli.args?.join(" ") ?? ""} compile "${absoluteTargetPath}" ${args}`;
   const variableResolver = new VSCodeVariableResolver({
@@ -110,7 +110,7 @@ function createTaskInternal(
   });
   cmd = variableResolver.resolve(cmd);
   logger.debug(
-    `Command of tsp compile task "${name}" is resolved to: ${cmd} with cwd "${workspaceFolder}"`
+    `Command of tsp compile task "${name}" is resolved to: ${cmd} with cwd "${workspaceFolder}"`,
   );
   return new vscode.Task(
     {
@@ -123,7 +123,7 @@ function createTaskInternal(
     "tsp",
     workspaceFolder
       ? new vscode.ShellExecution(cmd, { cwd: workspaceFolder })
-      : new vscode.ShellExecution(cmd)
+      : new vscode.ShellExecution(cmd),
   );
 }
 
@@ -198,7 +198,7 @@ async function launchLanguageClient(context: ExtensionContext) {
           " - TypeSpec server path is configured with https://github.com/microsoft/typespec#installing-vs-code-extension.",
         ].join("\n"),
         [],
-        { showOutput: false, showPopup: true }
+        { showOutput: false, showPopup: true },
       );
       logger.error("Error detail", [e]);
       throw `TypeSpec server executable was not found: '${exe.command}' is not found.`;
@@ -231,9 +231,9 @@ async function resolveTypeSpecCli(absoluteTargetPath: string): Promise<Executabl
   if (!compilerPath || compilerPath.length === 0) {
     const executable = process.platform === "win32" ? `tsp.cmd` : "tsp";
     logger.debug(
-      `Can't resolve compiler path for tsp task, try to use default value ${executable}.`
+      `Can't resolve compiler path for tsp task, try to use default value ${executable}.`,
     );
-    return { command: executable, args: [], options };
+    return useShellInExec({ command: executable, args: [], options });
   } else {
     logger.debug(`Compiler path resolved as: ${compilerPath}`);
     const jsPath = join(compilerPath, "cmd/tsp.js");
@@ -281,7 +281,7 @@ async function resolveTypeSpecServer(context: ExtensionContext): Promise<Executa
   if (!serverPath) {
     const executable = process.platform === "win32" ? "tsp-server.cmd" : "tsp-server";
     logger.debug(`Can't resolve server path, try to use default value ${executable}.`);
-    return { command: executable, args, options };
+    return useShellInExec({ command: executable, args, options });
   }
   const variableResolver = new VSCodeVariableResolver({
     workspaceFolder,
@@ -297,9 +297,9 @@ async function resolveTypeSpecServer(context: ExtensionContext): Promise<Executa
       const command =
         process.platform === "win32" && !serverPath.endsWith(".cmd")
           ? `${serverPath}.cmd`
-          : "tsp-server";
+          : serverPath;
 
-      return { command, args, options };
+      return useShellInExec({ command, args, options });
     } else {
       serverPath = join(serverPath, "cmd/tsp-server.js");
     }
@@ -329,7 +329,7 @@ async function resolveLocalCompiler(baseDir: string): Promise<string | undefined
       return executable.path;
     } else {
       logger.debug(
-        `Failed to resolve compiler from local. Unexpected executable type: ${executable.type}`
+        `Failed to resolve compiler from local. Unexpected executable type: ${executable.type}`,
       );
     }
   } catch (e) {
@@ -367,7 +367,7 @@ class VSCodeVariableResolver {
       VSCodeVariableResolver.VARIABLE_REGEXP,
       (match: string, variable: string) => {
         return this.variables[variable] ?? match;
-      }
+      },
     );
 
     return replaced;

@@ -7,5 +7,5 @@ export default mergeConfig(
     test: {
       environment: "happy-dom",
     },
-  })
+  }),
 );

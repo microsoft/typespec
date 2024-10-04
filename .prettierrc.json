@@ -1,6 +1,5 @@
 {
   "arrowParens": "always",
-  "trailingComma": "es5",
   "bracketSpacing": true,
   "endOfLine": "lf",
   "printWidth": 100,

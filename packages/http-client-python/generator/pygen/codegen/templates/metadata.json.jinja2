@@ -1,0 +1,167 @@
+{% import 'operation_tools.jinja2' as op_tools %}
+{% import 'keywords.jinja2' as keywords %}
+{
+    "chosen_version": {{ chosen_version | tojson }},
+    "total_api_version_list": {{ total_api_version_list | tojson }},
+    "client": {
+        "name": {{ client.name | tojson }},
+        "filename": {{ ("_" + client.legacy_filename) | tojson }},
+        "description": {{ client.description | tojson }},
+        "host_value": {{ (client.parameters.host.client_default_value_declaration if not client.has_parameterized_host else None) | tojson }},
+        "parameterized_host_template": {{ (keywords.escape_str(client.url) if client.has_parameterized_host else None) | tojson }},
+        "azure_arm": {{ client.code_model.options["azure_arm"]  | tojson }},
+        "has_public_lro_operations": {{ client.has_public_lro_operations | tojson }},
+        "client_side_validation": {{ client.code_model.options["client_side_validation"] | tojson }},
+        "sync_imports": {{ sync_client_imports | tojson }},
+        "async_imports": {{ async_client_imports | tojson }}
+    },
+    "global_parameters": {
+        "sync": {
+            {% for gp in global_parameters.method | rejectattr("client_name", "equalto", "api_version") | rejectattr("is_host") %}
+            {{ gp.client_name | tojson }}: {
+                "signature": {{ gp.method_signature(async_mode=False) | tojson }},
+                "description": {{ gp.description | tojson }},
+                "docstring_type": {{ gp.docstring_type(async_mode=False) | tojson }},
+                "required": {{ (not gp.optional) | tojson }},
+                "method_location": {{ gp.method_location | tojson }}
+            }{{ "," if not loop.last else "" }}
+            {% endfor %}
+        },
+        "async": {
+            {% for gp in global_parameters.method | rejectattr("client_name", "equalto", "api_version") | rejectattr("is_host") %}
+            {{ gp.client_name | tojson }}: {
+                "signature": {{ (gp.method_signature(async_mode=True)) | tojson }},
+                "description": {{ gp.description | tojson }},
+                "docstring_type": {{ gp.docstring_type(async_mode=True) | tojson }},
+                "required": {{ (not gp.optional) | tojson }}
+            }{{ "," if not loop.last else "" }}
+            {% endfor %}
+        },
+        "constant": {
+            {% for gp in client.parameters.constant | rejectattr("client_name", "equalto", "api_version") %}
+            {{ gp.client_name | tojson }}: {{ gp.constant_declaration | tojson }}{{ "," if not loop.last else "" }}
+            {% endfor %}
+        },
+        "call": {{ client.parameters.method | rejectattr("client_name", "equalto", "api_version") | rejectattr("is_host") | map(attribute="client_name") | join(', ') | tojson }},
+        "service_client_specific": {
+            "sync": {
+                "api_version": {
+                    "signature": "api_version: Optional[str]=None,",
+                    "description": "API version to use if no profile is provided, or if missing in profile.",
+                    "docstring_type": "str",
+                    "required": false,
+                    "method_location": "positional"
+                },
+                {% if not client.has_parameterized_host %}
+                "base_url": {
+                    "signature": {{ client.parameters.host.method_signature(async_mode=False) | tojson }},
+                    "description": "Service URL",
+                    "docstring_type": "str",
+                    "required": false,
+                    "method_location": "positional"
+                },
+                {% endif %}
+                "profile": {
+                    "signature": "profile: KnownProfiles=KnownProfiles.default,",
+                    "description": "A profile definition, from KnownProfiles to dict.",
+                    "docstring_type": "azure.profiles.KnownProfiles",
+                    "required": false,
+                    "method_location": "positional"
+                }
+            },
+            "async": {
+                "api_version": {
+                    "signature": "api_version: Optional[str] = None,",
+                    "description": "API version to use if no profile is provided, or if missing in profile.",
+                    "docstring_type": "str",
+                    "required": false,
+                    "method_location": "positional"
+                },
+                {% if not client.has_parameterized_host %}
+                "base_url": {
+                    "signature": {{ client.parameters.host.method_signature(async_mode=True) | tojson }},
+                    "description": "Service URL",
+                    "docstring_type": "str",
+                    "required": false,
+                    "method_location": "positional"
+                },
+                {% endif %}
+                "profile": {
+                    "signature": "profile: KnownProfiles = KnownProfiles.default,",
+                    "description": "A profile definition, from KnownProfiles to dict.",
+                    "docstring_type": "azure.profiles.KnownProfiles",
+                    "required": false,
+                    "method_location": "positional"
+                }
+            }
+        }
+    },
+    "config": {
+        "credential": {{ has_credential | tojson }},
+        "credential_scopes": {{ (client.credential.type.policy.credential_scopes if has_credential and client.credential.type.policy.credential_scopes is defined else None)| tojson}},
+        "credential_call_sync": {{ (client.credential.type.policy.call(async_mode=False) if has_credential else None) | tojson }},
+        "credential_call_async": {{ (client.credential.type.policy.call(async_mode=True) if has_credential else None) | tojson }},
+        "sync_imports": {{ sync_config_imports | tojson }},
+        "async_imports": {{ async_config_imports | tojson }}
+    },
+    "operation_groups": {
+        {% for operation_group in client.operation_groups | rejectattr('is_mixin') %}
+        {{ operation_group.property_name | tojson }}: {{ operation_group.class_name | tojson }}{{ "," if not loop.last else "" }}
+        {% endfor %}
+    }{{ "," if mixin_operations }}
+    {% if mixin_operations %}
+    "operation_mixins": {
+        "sync_imports": {{ str(sync_mixin_imports) | tojson }},
+        "async_imports": {{ str(async_mixin_imports) | tojson }},
+        "sync_mixin_typing_definitions": {{ str(sync_mixin_typing_definitions) | tojson }},
+        "async_mixin_typing_definitions": {{ str(async_mixin_typing_definitions) | tojson }},
+        "operations": {
+            {% for operation in mixin_operations %}
+            {{ operation.name | tojson }} : {
+                {% set request_builder = operation.request_builder %}
+                "sync": {
+                    {% set operation_serializer = get_sync_operation_serializer(operation) %}
+                    {% if is_lro(operation) and is_paging(operation) %}
+                        {% from "lro_paging_operation.py.jinja2" import operation_docstring with context %}
+                        {% set sync_return_type_wrapper = [operation.get_poller(async_mode=False), operation.get_pager(async_mode=False)] %}
+                    {% elif is_lro(operation) %}
+                        {% from "lro_operation.py.jinja2" import operation_docstring with context %}
+                        {% set sync_return_type_wrapper = [operation.get_poller(async_mode=False)] %}
+                    {% elif is_paging(operation) %}
+                        {% from "paging_operation.py.jinja2" import operation_docstring with context %}
+                        {% set sync_return_type_wrapper = [operation.get_pager(async_mode=False)] %}
+                    {% else %}
+                        {% from "operation.py.jinja2" import operation_docstring with context %}
+                        {% set sync_return_type_wrapper = "" %}
+                    {% endif %}
+                    "signature": {{ (operation_serializer.method_signature_and_response_type_annotation(operation, want_decorators=False) + "\n") | tojson }},
+                    "doc": {{ op_tools.description(operation, operation_serializer).rstrip("\n") | tojson }},
+                    "call": {{ operation.parameters.call | join(', ') | tojson }}
+                },
+                "async": {
+                    {% set coroutine = False if (is_paging(operation) and not is_lro(operation)) else True %}
+                    {% set operation_serializer = get_async_operation_serializer(operation) %}
+                    "coroutine": {{ coroutine | tojson }},
+                    {% if is_lro(operation) and is_paging(operation) %}
+                        {% from "lro_paging_operation.py.jinja2" import operation_docstring with context %}
+                        {% set async_return_type_wrapper = [operation.get_poller(async_mode=True), operation.get_pager(async_mode=True)] %}
+                    {% elif is_lro(operation) %}
+                        {% from "lro_operation.py.jinja2" import operation_docstring with context %}
+                        {% set async_return_type_wrapper = [operation.get_poller(async_mode=True)] %}
+                    {% elif is_paging(operation) %}
+                        {% from "paging_operation.py.jinja2" import operation_docstring with context %}
+                        {% set async_return_type_wrapper = [operation.get_pager(async_mode=True)] %}
+                    {% else %}
+                        {% from "operation.py.jinja2" import operation_docstring with context %}
+                        {% set async_return_type_wrapper = "" %}
+                    {% endif %}
+                    "signature": {{ (operation_serializer.method_signature_and_response_type_annotation(operation, want_decorators=False) + "\n") | tojson }},
+                    "doc": {{ op_tools.description(operation, operation_serializer).rstrip("\n") | tojson }},
+                    "call": {{ operation.parameters.call | join(', ') | tojson }}
+                }
+            }{{ "," if not loop.last else "" }}
+            {% endfor %}
+        }
+    }
+    {% endif %}
+}

@@ -107,7 +107,7 @@ function getRoutes(): [Route, readonly Diagnostic] {
     createDiagnostic(program, {
       code: "no-array",
       target: diagnosticTarget,
-    })
+    }),
   );
   const result = diagnostic.pipe(getParameters()); // to pipe diagnostics returned by `getParameters`
   return diagnostics.wrap(routes);
@@ -125,7 +125,7 @@ function getRoutes(): [Route, readonly Diagnostic] {
     createDiagnostic(program, {
       code: "no-array",
       target: diagnosticTarget,
-    })
+    }),
   );
   return [routes, diagnostics];
 }

@@ -5,7 +5,7 @@ import { extractRefDocs } from "../src/ref-doc/extractor.js";
 import { TypeSpecRefDocBase } from "../src/ref-doc/types.js";
 
 export async function extractTestRefDoc(
-  code: string
+  code: string,
 ): Promise<[TypeSpecRefDocBase, readonly Diagnostic[]]> {
   const host = await createTestHost();
   host.addTypeSpecFile("main.tsp", code);

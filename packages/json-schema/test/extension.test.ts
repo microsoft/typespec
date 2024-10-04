@@ -202,7 +202,7 @@ describe("setExtension", () => {
             setExtension(context.program, target, key, value);
           },
         },
-      }
+      },
     );
 
     const Foo = schemas["Foo.json"];

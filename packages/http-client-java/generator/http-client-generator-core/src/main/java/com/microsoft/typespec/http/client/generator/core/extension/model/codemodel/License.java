@@ -3,11 +3,10 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonWriter;
-
+import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import java.io.IOException;
 import java.util.Objects;
 
@@ -102,7 +101,8 @@ public class License implements JsonSerializable<License> {
         }
 
         License rhs = ((License) other);
-        return Objects.equals(name, rhs.name) && Objects.equals(url, rhs.url)
+        return Objects.equals(name, rhs.name)
+            && Objects.equals(url, rhs.url)
             && Objects.equals(extensions, rhs.extensions);
     }
 

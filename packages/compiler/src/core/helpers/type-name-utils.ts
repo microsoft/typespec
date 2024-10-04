@@ -149,7 +149,7 @@ function getEnumName(e: Enum, options: TypeNameOptions | undefined): string {
 function getScalarName(scalar: Scalar, options: TypeNameOptions | undefined): string {
   return `${getNamespacePrefix(scalar.namespace, options)}${getIdentifierName(
     scalar.name,
-    options
+    options,
   )}`;
 }
 
@@ -178,7 +178,7 @@ function getModelName(model: Model, options: TypeNameOptions | undefined) {
   } else if ((model.node as ModelStatementNode)?.templateParameters?.length > 0) {
     // template
     const params = (model.node as ModelStatementNode).templateParameters.map((t) =>
-      getIdentifierName(t.id.sv, options)
+      getIdentifierName(t.id.sv, options),
     );
     return `${modelName}<${params.join(", ")}>`;
   } else {
@@ -199,7 +199,7 @@ function getUnionName(type: Union, options: TypeNameOptions | undefined): string
  * Check if the given namespace is the standard library `TypeSpec` namespace.
  */
 function isTypeSpecNamespace(
-  namespace: Namespace
+  namespace: Namespace,
 ): namespace is Namespace & { name: "TypeSpec"; namespace: Namespace } {
   return namespace.name === "TypeSpec" && namespace.namespace?.name === "";
 }

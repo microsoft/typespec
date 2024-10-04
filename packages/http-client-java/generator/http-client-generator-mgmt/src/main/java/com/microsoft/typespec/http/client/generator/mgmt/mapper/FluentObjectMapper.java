@@ -4,11 +4,10 @@
 package com.microsoft.typespec.http.client.generator.mgmt.mapper;
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
-import com.microsoft.typespec.http.client.generator.mgmt.model.FluentType;
-import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
 import com.microsoft.typespec.http.client.generator.core.mapper.ObjectMapper;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
-
+import com.microsoft.typespec.http.client.generator.mgmt.model.FluentType;
+import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -69,8 +68,8 @@ public class FluentObjectMapper extends ObjectMapper {
      */
     public void removeInnerModels(Set<String> javaNames) {
         Set<ObjectSchema> compositeTypesToRemove = innerModels.stream()
-                .filter(type -> javaNames.contains(Utils.getJavaName(type)))
-                .collect(Collectors.toSet());
+            .filter(type -> javaNames.contains(Utils.getJavaName(type)))
+            .collect(Collectors.toSet());
         innerModels.removeAll(compositeTypesToRemove);
     }
 }

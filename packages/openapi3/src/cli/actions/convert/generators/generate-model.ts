@@ -88,11 +88,11 @@ function generateUnion(union: TypeSpecUnion, context: Context): string {
     definitions.push(...schema.enum.map((e) => `${JSON.stringify(e)},`));
   } else if (schema.oneOf) {
     definitions.push(
-      ...schema.oneOf.map((member) => context.generateTypeFromRefableSchema(member, union.scope))
+      ...schema.oneOf.map((member) => context.generateTypeFromRefableSchema(member, union.scope)),
     );
   } else if (schema.anyOf) {
     definitions.push(
-      ...schema.anyOf.map((member) => context.generateTypeFromRefableSchema(member, union.scope))
+      ...schema.anyOf.map((member) => context.generateTypeFromRefableSchema(member, union.scope)),
     );
   } else {
     // check if it's a primitive type
@@ -138,12 +138,12 @@ function generateModel(model: TypeSpecModel, context: Context): string {
       const doc = prop.doc ? generateDocs(prop.doc) : "";
 
       return `${doc}${decorators} ${prop.name}${prop.isOptional ? "?" : ""}: ${context.generateTypeFromRefableSchema(prop.schema, model.scope)};`;
-    })
+    }),
   );
 
   if (model.additionalProperties) {
     definitions.push(
-      `...Record<${context.generateTypeFromRefableSchema(model.additionalProperties, model.scope)}>;`
+      `...Record<${context.generateTypeFromRefableSchema(model.additionalProperties, model.scope)}>;`,
     );
   }
 

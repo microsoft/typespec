@@ -19,7 +19,7 @@ export const SashContent: React.FunctionComponent<SashContentProps> = ({
       className={mergeClasses(
         style["sash-content"],
         dragging && style["sash-content-dragging"],
-        className
+        className,
       )}
       {...others}
     >

@@ -255,6 +255,20 @@ describe("json serialization of examples", () => {
     return serializeValueAsJson(program, examples[0].value, target);
   }
 
+  it("respect json encodedName", async () => {
+    const result = await getJsonValueOfExample(`
+      @example(#{
+        expireIn: 1
+      })
+      @test model test {
+        @encodedName("application/json", "exp")
+        expireIn: int32
+      }
+    `);
+
+    expect(result).toEqual({ exp: 1 });
+  });
+
   describe("scalar encoding", () => {
     const allCases: [
       string,
@@ -356,7 +370,7 @@ describe("json serialization of examples", () => {
           } else {
             expect(result).toEqual(expected);
           }
-        }
+        },
       );
     });
   });

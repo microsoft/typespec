@@ -22,7 +22,7 @@ export class ExtensionLogger {
     details?: any[],
     options?: LogOptions,
     logAction?: (msg: string, ...args: any[]) => void,
-    popupAction?: (msg: string, ...items: string[]) => Thenable<string>
+    popupAction?: (msg: string, ...items: string[]) => Thenable<string>,
   ) {
     const VIEW_DETAIL_IN_OUTPUT = "View details in Output";
     const { showOutput, showPopup, progress } = options ?? { showOutput: false, showPopup: false };
@@ -49,7 +49,7 @@ export class ExtensionLogger {
       details,
       options,
       (m, d) => this.outputChannel?.info(m, ...d),
-      vscode.window.showInformationMessage
+      vscode.window.showInformationMessage,
     );
   }
 
@@ -59,7 +59,7 @@ export class ExtensionLogger {
       details,
       options,
       (m, d) => this.outputChannel?.warn(m, ...d),
-      vscode.window.showWarningMessage
+      vscode.window.showWarningMessage,
     );
   }
 
@@ -69,7 +69,7 @@ export class ExtensionLogger {
       details,
       options,
       (m, d) => this.outputChannel?.error(m, ...d),
-      vscode.window.showErrorMessage
+      vscode.window.showErrorMessage,
     );
   }
 
@@ -79,7 +79,7 @@ export class ExtensionLogger {
       details,
       options,
       (m, d) => this.outputChannel?.debug(m, ...d),
-      vscode.window.showInformationMessage
+      vscode.window.showInformationMessage,
     );
   }
 }

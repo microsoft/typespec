@@ -129,7 +129,7 @@ function arrayToVisibility(array: readonly string[] | undefined): Visibility | u
  *  */
 export function getVisibilitySuffix(
   visibility: Visibility,
-  canonicalVisibility: Visibility | undefined = Visibility.None
+  canonicalVisibility: Visibility | undefined = Visibility.None,
 ) {
   let suffix = "";
 
@@ -204,7 +204,7 @@ export function getRequestVisibility(verb: HttpVerb): Visibility {
 export function resolveRequestVisibility(
   program: Program,
   operation: Operation,
-  verb: HttpVerb
+  verb: HttpVerb,
 ): Visibility {
   const parameterVisibility = arrayToVisibility(getParameterVisibility(program, operation));
   const defaultVisibility = getDefaultVisibilityForVerb(verb);
@@ -251,7 +251,7 @@ export function isApplicableMetadata(
   program: Program,
   property: ModelProperty,
   visibility: Visibility,
-  isMetadataCallback = isMetadata
+  isMetadataCallback = isMetadata,
 ) {
   return isApplicableMetadataCore(program, property, visibility, false, isMetadataCallback);
 }
@@ -264,7 +264,7 @@ export function isApplicableMetadataOrBody(
   program: Program,
   property: ModelProperty,
   visibility: Visibility,
-  isMetadataCallback = isMetadata
+  isMetadataCallback = isMetadata,
 ) {
   return isApplicableMetadataCore(program, property, visibility, true, isMetadataCallback);
 }
@@ -274,7 +274,7 @@ function isApplicableMetadataCore(
   property: ModelProperty,
   visibility: Visibility,
   treatBodyAsMetadata: boolean,
-  isMetadataCallback: (program: Program, property: ModelProperty) => boolean
+  isMetadataCallback: (program: Program, property: ModelProperty) => boolean,
 ) {
   if (visibility & Visibility.Item) {
     return false; // no metadata is applicable to collection items
@@ -339,7 +339,7 @@ export interface MetadataInfo {
   isPayloadProperty(
     property: ModelProperty,
     visibility: Visibility,
-    inExplicitBody?: boolean
+    inExplicitBody?: boolean,
   ): boolean;
 
   /**
@@ -423,7 +423,7 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
       type,
       visibility,
       () => computeState(type, visibility),
-      State.ComputationInProgress
+      State.ComputationInProgress,
     );
   }
 
@@ -508,7 +508,7 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
     property: ModelProperty,
     visibility: Visibility,
     inExplicitBody?: boolean,
-    keepShareableProperties?: boolean
+    keepShareableProperties?: boolean,
   ): boolean {
     if (
       !inExplicitBody &&
@@ -544,7 +544,7 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
   function getEffectivePayloadType(type: Type, visibility: Visibility): Type {
     if (type.kind === "Model" && !type.name) {
       const effective = getEffectiveModelType(program, type, (p) =>
-        isPayloadProperty(p, visibility, undefined, /* keep shared */ false)
+        isPayloadProperty(p, visibility, undefined, /* keep shared */ false),
       );
       if (effective.name) {
         return effective;

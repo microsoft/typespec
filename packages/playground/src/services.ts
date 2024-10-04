@@ -12,7 +12,7 @@ import { LspToMonaco } from "./lsp/lsp-to-monaco.js";
 import type { BrowserHost } from "./types.js";
 
 function getIndentAction(
-  value: "none" | "indent" | "indentOutdent" | "outdent"
+  value: "none" | "indent" | "indentOutdent" | "outdent",
 ): monaco.languages.IndentAction {
   switch (value) {
     case "none":
@@ -45,12 +45,14 @@ function getTypeSpecLanguageConfiguration(): monaco.languages.LanguageConfigurat
 }
 
 export async function registerMonacoLanguage(host: BrowserHost) {
-  if (monaco.languages.getLanguages().some((x) => x.id === "typespec")) {
-    return;
-  }
   monaco.languages.register({ id: "typespec", extensions: [".tsp"] });
   monaco.languages.setLanguageConfiguration("typespec", getTypeSpecLanguageConfiguration());
 
+  if ((window as any).registeredServices) {
+    return;
+  }
+
+  (window as any).registeredServices = true;
   const serverHost: ServerHost = {
     compilerHost: host,
     getOpenDocumentByURL(url: string) {
@@ -103,7 +105,7 @@ export async function registerMonacoLanguage(host: BrowserHost) {
       model.uri.toString(),
       "typespec",
       model.getVersionId(),
-      model.getValue()
+      model.getValue(),
     );
   }
 
@@ -139,7 +141,7 @@ export async function registerMonacoLanguage(host: BrowserHost) {
   }
 
   function monacoDocumentHighlight(
-    highlight: lsp.DocumentHighlight
+    highlight: lsp.DocumentHighlight,
   ): monaco.languages.DocumentHighlight {
     return {
       range: LspToMonaco.range(highlight.range),
@@ -367,7 +369,7 @@ export async function registerMonacoLanguage(host: BrowserHost) {
 
 export function getMonacoRange(
   typespecCompiler: typeof import("@typespec/compiler"),
-  target: DiagnosticTarget | typeof NoTarget
+  target: DiagnosticTarget | typeof NoTarget,
 ): monaco.IRange {
   const loc = typespecCompiler.getSourceLocation(target);
   if (loc === undefined || loc.file.path !== "/test/main.tsp") {

@@ -42,7 +42,7 @@ export function fromSdkType(
   sdkType: SdkType,
   context: SdkContext,
   typeMap: SdkTypeMap,
-  literalTypeContext?: LiteralTypeContext
+  literalTypeContext?: LiteralTypeContext,
 ): InputType {
   if (typeMap.types.has(sdkType)) {
     return typeMap.types.get(sdkType)!;
@@ -107,7 +107,7 @@ export function fromSdkType(
 export function fromSdkModelType(
   modelType: SdkModelType,
   context: SdkContext,
-  typeMap: SdkTypeMap
+  typeMap: SdkTypeMap,
 ): InputModelType {
   const modelTypeName = modelType.name;
   let inputModelType = typeMap.models.get(modelTypeName);
@@ -118,7 +118,7 @@ export function fromSdkModelType(
       crossLanguageDefinitionId: modelType.crossLanguageDefinitionId,
       access: getAccessOverride(
         context,
-        modelType.__raw as Model
+        modelType.__raw as Model,
       ) /* when tcgc provide a way to identify if the access is override or not, we can get the accessibility from the modelType.access */,
       usage: modelType.usage,
       deprecation: modelType.deprecation,
@@ -144,7 +144,7 @@ export function fromSdkModelType(
           ModelName: modelTypeName,
           Usage: modelType.usage,
         } as LiteralTypeContext,
-        []
+        [],
       );
       propertiesDict.set(property, ourProperties);
     }
@@ -174,7 +174,7 @@ export function fromSdkModelType(
   function fromSdkModelProperty(
     property: SdkBodyModelPropertyType,
     literalTypeContext: LiteralTypeContext,
-    flattenedNamePrefixes: string[]
+    flattenedNamePrefixes: string[],
   ): InputModelProperty[] {
     // TODO -- we should consolidate the flatten somewhere else
     if (!property.flatten) {
@@ -197,7 +197,7 @@ export function fromSdkModelType(
           targetType,
           context,
           typeMap,
-          property.discriminator ? undefined : literalTypeContext // this is a workaround because the type of discriminator property in derived models is always literal and we wrap literal into enums, which leads to a lot of extra enum types, adding this check to avoid them
+          property.discriminator ? undefined : literalTypeContext, // this is a workaround because the type of discriminator property in derived models is always literal and we wrap literal into enums, which leads to a lot of extra enum types, adding this check to avoid them
         ),
         optional: property.optional,
         readOnly: isReadOnly(property), // TODO -- we might pass the visibility through and then check if there is only read to know if this is readonly
@@ -219,7 +219,7 @@ export function fromSdkModelType(
     for (const childProperty of childPropertiesToFlatten) {
       if (childProperty.kind !== "property") continue;
       flattenedProperties.push(
-        ...fromSdkModelProperty(childProperty, literalTypeContext, newFlattenedNamePrefixes)
+        ...fromSdkModelProperty(childProperty, literalTypeContext, newFlattenedNamePrefixes),
       );
     }
 
@@ -231,7 +231,7 @@ export function fromSdkEnumType(
   enumType: SdkEnumType,
   context: SdkContext,
   typeMap: SdkTypeMap,
-  addToCollection: boolean = true
+  addToCollection: boolean = true,
 ): InputEnumType {
   const enumName = enumType.name;
   let inputEnumType = typeMap.enums.get(enumName);
@@ -245,7 +245,7 @@ export function fromSdkEnumType(
       values: values,
       access: getAccessOverride(
         context,
-        enumType.__raw as any
+        enumType.__raw as any,
       ) /* when tcgc provide a way to identify if the access is override or not, we can get the accessibility from the enumType.access,*/,
       deprecation: enumType.deprecation,
       description: enumType.description,
@@ -290,7 +290,7 @@ function fromSdkDurationType(durationType: SdkDurationType): InputDurationType {
 // TODO: tuple is not officially supported
 function fromTupleType(tupleType: SdkTupleType): InputType {
   return {
-    kind: "any",
+    kind: "unknown",
     name: "tuple",
     crossLanguageDefinitionId: "",
     decorators: tupleType.decorators,
@@ -311,10 +311,10 @@ function fromSdkBuiltInType(builtInType: SdkBuiltInType): InputPrimitiveType {
 function fromUnionType(
   union: SdkUnionType,
   context: SdkContext,
-  typeMap: SdkTypeMap
+  typeMap: SdkTypeMap,
 ): InputUnionType {
   const variantTypes: InputType[] = [];
-  for (const value of union.values) {
+  for (const value of union.variantTypes) {
     const variantType = fromSdkType(value, context, typeMap);
     variantTypes.push(variantType);
   }
@@ -330,7 +330,7 @@ function fromUnionType(
 function fromSdkConstantType(
   constantType: SdkConstantType,
   typeMap: SdkTypeMap,
-  literalTypeContext?: LiteralTypeContext
+  literalTypeContext?: LiteralTypeContext,
 ): InputLiteralType {
   return {
     kind: constantType.kind,
@@ -346,7 +346,7 @@ function fromSdkConstantType(
 
   function convertConstantToEnum(
     constantType: SdkConstantType,
-    literalTypeContext: LiteralTypeContext
+    literalTypeContext: LiteralTypeContext,
   ) {
     // otherwise we need to wrap this into an extensible enum
     // we use the model name followed by the property name as the enum name to ensure it is unique
@@ -385,7 +385,7 @@ function fromSdkEnumValueTypeToConstantType(
   enumValueType: SdkEnumValueType,
   context: SdkContext,
   typeMap: SdkTypeMap,
-  literalTypeContext?: LiteralTypeContext
+  literalTypeContext?: LiteralTypeContext,
 ): InputLiteralType {
   return {
     kind: "constant",
@@ -401,7 +401,7 @@ function fromSdkEnumValueTypeToConstantType(
 function fromSdkEnumValueType(
   enumValueType: SdkEnumValueType,
   context: SdkContext,
-  typeMap: SdkTypeMap
+  typeMap: SdkTypeMap,
 ): InputEnumTypeValue {
   return {
     kind: "enumvalue",
@@ -417,7 +417,7 @@ function fromSdkEnumValueType(
 function fromSdkDictionaryType(
   dictionaryType: SdkDictionaryType,
   context: SdkContext,
-  typeMap: SdkTypeMap
+  typeMap: SdkTypeMap,
 ): InputDictionaryType {
   return {
     kind: "dict",
@@ -430,7 +430,7 @@ function fromSdkDictionaryType(
 function fromSdkArrayType(
   arrayType: SdkArrayType,
   context: SdkContext,
-  typeMap: SdkTypeMap
+  typeMap: SdkTypeMap,
 ): InputArrayType {
   return {
     kind: "array",

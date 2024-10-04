@@ -8,7 +8,7 @@ describe("openapi3: Array", () => {
       "Pet",
       `
       model Pet { names: string[] };
-      `
+      `,
     );
 
     ok(res.isRef);
@@ -35,7 +35,7 @@ describe("openapi3: Array", () => {
         @OpenAPI.extension("x-someFieldAttr", true)
         parents?: Parent[];
       }
-      `
+      `,
     );
 
     deepStrictEqual(res.components.schemas.Parent.properties.children, {
@@ -56,7 +56,7 @@ describe("openapi3: Array", () => {
       `
       model PetNames is string[] {}
       model Pet { names: PetNames };
-      `
+      `,
     );
 
     ok(res.isRef);
@@ -75,7 +75,7 @@ describe("openapi3: Array", () => {
       @doc("This is a doc for PetNames")
       model PetNames is string[] {}
       model Pet { names: PetNames };
-      `
+      `,
     );
     deepStrictEqual(res.schemas.PetNames.description, "This is a doc for PetNames");
   });
@@ -88,7 +88,7 @@ describe("openapi3: Array", () => {
         @minItems(1)
         names: string[]
       };
-      `
+      `,
     );
 
     ok(res.schemas.Pet, "expected definition named Pet");
@@ -107,7 +107,7 @@ describe("openapi3: Array", () => {
         @maxItems(3)
         names: string[]
       };
-      `
+      `,
     );
 
     ok(res.schemas.Pet, "expected definition named Pet");
@@ -124,7 +124,7 @@ describe("openapi3: Array", () => {
       `
       @minItems(1)
       model Names is string[];
-      `
+      `,
     );
 
     deepStrictEqual(res.schemas.Names, {
@@ -140,7 +140,7 @@ describe("openapi3: Array", () => {
       `
       @maxItems(3)
       model Names is string[];
-      `
+      `,
     );
 
     deepStrictEqual(res.schemas.Names, {
@@ -159,7 +159,7 @@ describe("openapi3: Array", () => {
         decimals: decimal[] = #[123, 456.7];
         decimal128s: decimal128[] = #[123, 456.7];
       };
-      `
+      `,
     );
 
     deepStrictEqual(res.schemas.Pet.properties.names, {
@@ -193,7 +193,7 @@ describe("openapi3: Array", () => {
         #suppress "deprecated" "for testing"
         decimal128s: decimal128[] = [123, 456.7];
       };
-      `
+      `,
     );
 
     deepStrictEqual(res.schemas.Pet.properties.names, {
@@ -221,7 +221,7 @@ describe("openapi3: Array", () => {
       `
       @summary("FooArray")
       model Foo is string[];
-      `
+      `,
     );
 
     strictEqual(res.schemas.Foo.title, "FooArray");
@@ -236,7 +236,7 @@ describe("openapi3: Array", () => {
         decimals: [string, decimal] = #["hi", 456.7];
         decimal128s: [string, decimal128] = #["hi", 456.7];
       };
-      `
+      `,
     );
 
     deepStrictEqual(res.schemas.Pet.properties.names, {

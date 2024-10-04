@@ -25,7 +25,7 @@ describe("Test emitting decorator list", () => {
       }
       `,
       runner,
-      { IsTCGCNeeded: true, IsXmlNeeded: true }
+      { IsTCGCNeeded: true, IsXmlNeeded: true },
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context, {
@@ -54,7 +54,7 @@ describe("Test emitting decorator list", () => {
       op test(): Book;
       `,
       runner,
-      { IsTCGCNeeded: true, IsXmlNeeded: true }
+      { IsTCGCNeeded: true, IsXmlNeeded: true },
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context, {
@@ -84,7 +84,7 @@ describe("Test emitting decorator list", () => {
       op test(): Book;
       `,
       runner,
-      { IsTCGCNeeded: true, IsXmlNeeded: true }
+      { IsTCGCNeeded: true, IsXmlNeeded: true },
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context, {
@@ -114,7 +114,7 @@ describe("Test emitting decorator list", () => {
       op test(): Book;
       `,
       runner,
-      { IsTCGCNeeded: true, IsXmlNeeded: true }
+      { IsTCGCNeeded: true, IsXmlNeeded: true },
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context, {
@@ -140,7 +140,7 @@ describe("Test emitting decorator list", () => {
       op test(@clientName("ClientId") @header id: string): void;
       `,
       runner,
-      { IsTCGCNeeded: true, IsXmlNeeded: true }
+      { IsTCGCNeeded: true, IsXmlNeeded: true },
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context, {

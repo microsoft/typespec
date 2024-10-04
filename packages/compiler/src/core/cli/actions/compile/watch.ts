@@ -16,7 +16,7 @@ export interface WatchHost extends CompilerHost {
 }
 
 export function createWatcher(
-  onFileChanged: (event: WatchEventType, name: string) => void
+  onFileChanged: (event: WatchEventType, name: string) => void,
 ): ProjectWatcher {
   const current = new Map<string, FSWatcher>();
   const dupFilter = createDupsFilter();
@@ -27,7 +27,7 @@ export function createWatcher(
       file,
       dupFilter((event: WatchEventType, _name: string | null) => {
         onFileChanged(event, file);
-      })
+      }),
     );
     return watcher;
   }

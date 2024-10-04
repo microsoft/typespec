@@ -29,7 +29,7 @@ export function TreeViewRow({ id, row, active, focussed, activate, icon: Icon }:
       className={mergeClasses(
         style["tree-row"],
         active && style["active"],
-        focussed && style["focus"]
+        focussed && style["focus"],
       )}
       aria-selected={active}
       aria-expanded={row.expanded}
@@ -58,7 +58,7 @@ export const Caret = ({ row }: { row: TreeRow<any> }) => {
       evt.stopPropagation();
       row.toggleExpand();
     },
-    [row]
+    [row],
   );
   if (row.hasChildren) {
     return row.expanded ? (

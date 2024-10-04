@@ -1,0 +1,17 @@
+# This has comments
+emit:
+  - openapi
+parameters:
+  service-name:
+    default: "Sphere"
+  metadata:
+    bar: "Bar"
+    Owner: "Microsoft"
+    default: "Metadata default"
+options:
+  description:
+    name: "Testing name: {service-name}"
+    details:
+      one: "Type: {metadata.bar}"
+      two:
+        two-one: "Default: {metadata.default}"

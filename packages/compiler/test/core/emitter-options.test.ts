@@ -21,7 +21,7 @@ const fakeEmitter = createTypeSpecLibrary({
 
 describe("compiler: emitter options", () => {
   async function runWithEmitterOptions(
-    options: Record<string, unknown>
+    options: Record<string, unknown>,
   ): Promise<[EmitContext | undefined, readonly Diagnostic[]]> {
     let emitContext: EmitContext | undefined;
     const host = await createTestHost();
@@ -30,7 +30,7 @@ describe("compiler: emitter options", () => {
       "node_modules/fake-emitter/package.json",
       JSON.stringify({
         main: "index.js",
-      })
+      }),
     );
     host.addJsFile("node_modules/fake-emitter/index.js", {
       $lib: fakeEmitter,
@@ -49,7 +49,7 @@ describe("compiler: emitter options", () => {
   }
 
   async function diagnoseEmitterOptions(
-    options: Record<string, unknown>
+    options: Record<string, unknown>,
   ): Promise<readonly Diagnostic[]> {
     const [_, diagnostics] = await runWithEmitterOptions(options);
     return diagnostics;

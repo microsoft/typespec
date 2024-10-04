@@ -25,14 +25,14 @@ export const defaultConfig = deepFreeze({
 export async function findTypeSpecConfigPath(
   host: CompilerHost,
   path: string,
-  lookup: boolean = true
+  lookup: boolean = true,
 ): Promise<string | undefined> {
   // if the path is a file, return immediately
   const stats = await doIO(
     () => host.stat(path),
     path,
     () => {},
-    { allowFileNotFound: true }
+    { allowFileNotFound: true },
   );
   if (!stats) {
     return undefined;
@@ -49,7 +49,7 @@ export async function findTypeSpecConfigPath(
       () => host.stat(current),
       current,
       () => {},
-      { allowFileNotFound: true }
+      { allowFileNotFound: true },
     );
     if (stats?.isFile()) {
       return current;
@@ -83,7 +83,7 @@ export async function loadTypeSpecConfigForPath(
   host: CompilerHost,
   path: string,
   errorIfNotFound: boolean = false,
-  lookup: boolean = true
+  lookup: boolean = true,
 ): Promise<TypeSpecConfig> {
   const typespecConfigPath = await findTypeSpecConfigPath(host, path, lookup);
   if (typespecConfigPath === undefined) {
@@ -97,7 +97,7 @@ export async function loadTypeSpecConfigForPath(
             path: path,
           },
           target: NoTarget,
-        })
+        }),
       );
     }
     return tsConfig;
@@ -113,7 +113,7 @@ export async function loadTypeSpecConfigForPath(
           message: "`cadl-project.yaml` is deprecated. Please rename to `tspconfig.yaml`.",
         },
         target: NoTarget,
-      })
+      }),
     );
   }
   return tsConfig;
@@ -124,7 +124,7 @@ export async function loadTypeSpecConfigForPath(
  */
 export async function loadTypeSpecConfigFile(
   host: CompilerHost,
-  filePath: string
+  filePath: string,
 ): Promise<TypeSpecConfig> {
   const config = await loadConfigFile(host, filePath, parseYaml);
   if (config.diagnostics.length === 0 && config.extends) {
@@ -140,7 +140,7 @@ export async function loadTypeSpecConfigFile(
             message: "`cadl-project.yaml` is deprecated. Please rename to `tspconfig.yaml`.",
           },
           target: NoTarget,
-        })
+        }),
       );
     }
 
@@ -168,13 +168,13 @@ const configValidator = createJSONSchemaValidator(TypeSpecConfigJsonSchema);
 async function searchConfigFile(
   host: CompilerHost,
   path: string,
-  filename: string
+  filename: string,
 ): Promise<string | undefined> {
   const pkgPath = joinPaths(path, filename);
   const stat = await doIO(
     () => host.stat(pkgPath),
     pkgPath,
-    () => {}
+    () => {},
   );
 
   return stat?.isFile() === true ? pkgPath : undefined;
@@ -183,7 +183,7 @@ async function searchConfigFile(
 async function loadConfigFile(
   host: CompilerHost,
   filename: string,
-  loadData: (content: SourceFile) => [YamlScript, readonly Diagnostic[]]
+  loadData: (content: SourceFile) => [YamlScript, readonly Diagnostic[]],
 ): Promise<TypeSpecConfig> {
   let diagnostics: Diagnostic[] = [];
   const reportDiagnostic = (d: Diagnostic) => diagnostics.push(d);
@@ -235,7 +235,7 @@ export function validateConfigPathsAbsolute(config: TypeSpecConfig): readonly Di
     }
     const diagnostic = validatePathAbsolute(
       value,
-      config.file ? { file: config.file, path } : NoTarget
+      config.file ? { file: config.file, path } : NoTarget,
     );
     if (diagnostic) {
       diagnostics.push(diagnostic);
@@ -251,7 +251,7 @@ export function validateConfigPathsAbsolute(config: TypeSpecConfig): readonly Di
 
 function validatePathAbsolute(
   path: string,
-  target: { file: YamlScript; path: string[] } | typeof NoTarget
+  target: { file: YamlScript; path: string[] } | typeof NoTarget,
 ): Diagnostic | undefined {
   if (path.startsWith(".") || !isPathAbsolute(path)) {
     return createDiagnostic({
