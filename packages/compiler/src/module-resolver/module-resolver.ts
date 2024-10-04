@@ -98,28 +98,28 @@ export interface ResolvedModule {
 /**
  * Resolve a module
  * @param host
- * @param name
+ * @param specifier
  * @param options
  * @returns
  * @throws {ResolveModuleError} When the module cannot be resolved.
  */
 export async function resolveModule(
   host: ResolveModuleHost,
-  name: string,
+  specifier: string,
   options: ResolveModuleOptions,
 ): Promise<ModuleResolutionResult> {
   const realpath = async (x: string) => normalizePath(await host.realpath(x));
 
   const { baseDir } = options;
-  const absoluteStart = baseDir === "" ? "." : await realpath(resolvePath(baseDir));
+  const absoluteStart = await realpath(resolvePath(baseDir));
 
   if (!(await isDirectory(host, absoluteStart))) {
     throw new TypeError(`Provided basedir '${baseDir}'is not a directory.`);
   }
 
   // Check if the module name is referencing a path(./foo, /foo, file:/foo)
-  if (/^(?:\.\.?(?:\/|$)|\/|([A-Za-z]:)?[/\\])/.test(name)) {
-    const res = resolvePath(absoluteStart, name);
+  if (/^(?:\.\.?(?:\/|$)|\/|([A-Za-z]:)?[/\\])/.test(specifier)) {
+    const res = resolvePath(absoluteStart, specifier);
     const m = (await loadAsFile(res)) || (await loadAsDirectory(res));
     if (m) {
       return m;
@@ -127,16 +127,16 @@ export async function resolveModule(
   }
 
   // Try to resolve package itself.
-  const self = await resolveSelf(name, absoluteStart);
+  const self = await resolveSelf(specifier, absoluteStart);
   if (self) return self;
 
   // Try to resolve as a node_module package.
-  const module = await resolveAsNodeModule(name, absoluteStart);
+  const module = await resolveAsNodeModule(specifier, absoluteStart);
   if (module) return module;
 
   throw new ResolveModuleError(
     "MODULE_NOT_FOUND",
-    `Cannot find module '${name}' from '${baseDir}'`,
+    `Cannot find module '${specifier}' from '${baseDir}'`,
   );
 
   /**
@@ -184,9 +184,8 @@ export async function resolveModule(
     const dirs = listDirHierarchy(baseDir);
 
     for (const dir of dirs) {
-      const nodeModulesDir = joinPaths(dir, "node_modules");
       const n = await loadPackageAtPath(
-        joinPaths(nodeModulesDir, module.packageName),
+        joinPaths(dir, "node_modules", module.packageName),
         module.subPath,
       );
       if (n) return n;
@@ -213,7 +212,6 @@ export async function resolveModule(
    * @param directory `node_modules` directory.
    */
   async function resolveNodePackageExports(
-    pkgName: string,
     subPath: string,
     pkg: PackageJson,
     pkgDir: string,
@@ -225,7 +223,7 @@ export async function resolveModule(
       match = await resolvePackageExports(
         {
           packageUrl: pathToFileURL(pkgDir),
-          specifier: name,
+          specifier: specifier,
           moduleDirs: ["node_modules"],
           conditions: options.conditions ?? [],
           ignoreDefaultCondition: options.fallbackOnMissingCondition,
@@ -269,7 +267,7 @@ export async function resolveModule(
     }
     throw new ResolveModuleError(
       "INVALID_MODULE_EXPORT_TARGET",
-      `Import "${name}" resolving to "${resolved}" is not a file.`,
+      `Import "${specifier}" resolving to "${resolved}" is not a file.`,
     );
   }
 
@@ -289,7 +287,7 @@ export async function resolveModule(
   }
 
   async function loadPackage(directory: string, pkg: PackageJson, subPath?: string) {
-    const e = await resolveNodePackageExports(pkg.name, subPath ?? "", pkg, directory);
+    const e = await resolveNodePackageExports(subPath ?? "", pkg, directory);
     if (e) return e;
 
     if (subPath !== undefined && subPath !== "") {

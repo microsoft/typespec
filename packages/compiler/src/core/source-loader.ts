@@ -265,33 +265,6 @@ export async function createSourceLoader(
     }
   }
 
-  function moduleResolutionErrorToDiagnostic(
-    e: ResolveModuleError,
-    specifier: string,
-    target: DiagnosticTarget | typeof NoTarget,
-  ): Diagnostic {
-    switch (e.code) {
-      case "MODULE_NOT_FOUND":
-        return createDiagnostic({ code: "import-not-found", format: { path: specifier }, target });
-      case "INVALID_MODULE":
-      case "INVALID_MODULE_EXPORT_TARGET":
-        return createDiagnostic({
-          code: "library-invalid",
-          format: { path: specifier, message: e.message },
-          target,
-        });
-      case "INVALID_MAIN":
-        return createDiagnostic({
-          code: "library-invalid",
-          format: { path: specifier },
-          messageId: "tspMain",
-          target,
-        });
-      default:
-        return createDiagnostic({ code: "import-not-found", format: { path: specifier }, target });
-    }
-  }
-
   async function loadDirectory(
     dir: string,
     locationContext: LocationContext,
@@ -389,4 +362,31 @@ export async function loadJsFile(
     flags: NodeFlags.None,
   };
   return [node, diagnostics];
+}
+
+export function moduleResolutionErrorToDiagnostic(
+  e: ResolveModuleError,
+  specifier: string,
+  target: DiagnosticTarget | typeof NoTarget,
+): Diagnostic {
+  switch (e.code) {
+    case "MODULE_NOT_FOUND":
+      return createDiagnostic({ code: "import-not-found", format: { path: specifier }, target });
+    case "INVALID_MODULE":
+    case "INVALID_MODULE_EXPORT_TARGET":
+      return createDiagnostic({
+        code: "library-invalid",
+        format: { path: specifier, message: e.message },
+        target,
+      });
+    case "INVALID_MAIN":
+      return createDiagnostic({
+        code: "library-invalid",
+        format: { path: specifier },
+        messageId: "tspMain",
+        target,
+      });
+    default:
+      return createDiagnostic({ code: "import-not-found", format: { path: specifier }, target });
+  }
 }
