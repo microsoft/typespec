@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
+import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.OrSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Property;
@@ -13,8 +14,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Imple
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.UnionModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.UnionModels;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
-import com.azure.core.util.CoreUtils;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -46,12 +45,10 @@ public class UnionModelMapper implements IMapper<OrSchema, List<UnionModel>> {
             models = new ArrayList<>();
 
             // superclass
-            UnionModel.Builder builder = new UnionModel.Builder()
-                    .name(baseModelName)
-                    .packageName(baseModelType.getPackage())
-                    .implementationDetails(new ImplementationDetails.Builder()
-                            .usages(SchemaUtil.mapSchemaContext(type.getUsage()))
-                            .build());
+            UnionModel.Builder builder = new UnionModel.Builder().name(baseModelName)
+                .packageName(baseModelType.getPackage())
+                .implementationDetails(
+                    new ImplementationDetails.Builder().usages(SchemaUtil.mapSchemaContext(type.getUsage())).build());
             processDescription(builder, type);
 
             models.add(builder.build());
@@ -59,8 +56,7 @@ public class UnionModelMapper implements IMapper<OrSchema, List<UnionModel>> {
             // subclasses
             for (ObjectSchema subtype : type.getAnyOf()) {
                 String name = subtype.getLanguage().getJava().getName();
-                builder.name(name)
-                        .parentModelName(baseModelName);
+                builder.name(name).parentModelName(baseModelName);
                 processDescription(builder, subtype);
 
                 // import
@@ -86,7 +82,8 @@ public class UnionModelMapper implements IMapper<OrSchema, List<UnionModel>> {
 
     private static void processDescription(UnionModel.Builder builder, Schema type) {
         String summary = type.getSummary();
-        String description = type.getLanguage().getJava() == null ? null : type.getLanguage().getJava().getDescription();
+        String description
+            = type.getLanguage().getJava() == null ? null : type.getLanguage().getJava().getDescription();
         if (CoreUtils.isNullOrEmpty(summary) && CoreUtils.isNullOrEmpty(description)) {
             builder.description(String.format("The %s model.", type.getLanguage().getJava().getName()));
         } else {

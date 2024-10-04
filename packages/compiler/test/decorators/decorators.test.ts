@@ -569,6 +569,17 @@ describe("compiler: built-in decorators", () => {
       strictEqual(getKeyName(runner.program, prop), "alternateName");
     });
 
+    it("getKeyName returns undefined if used on property not annotated with @key", async () => {
+      const { prop } = await runner.compile(
+        `model M {
+          @test prop: string;
+        }`,
+      );
+
+      strictEqual(prop.kind, "ModelProperty" as const);
+      strictEqual(getKeyName(runner.program, prop), undefined);
+    });
+
     it("emits diagnostic when key property is marked as optional", async () => {
       const diagnostics = await runner.diagnose(
         `model M {

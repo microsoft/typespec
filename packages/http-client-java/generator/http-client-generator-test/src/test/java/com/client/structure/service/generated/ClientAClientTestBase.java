@@ -8,7 +8,6 @@ package com.client.structure.service.generated;
 // If you wish to modify these files, please copy them out of the 'generated' package, and modify there.
 // See https://aka.ms/azsdk/dpg/java/tests for guide on adding a test.
 
-import com.azure.core.http.HttpClient;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.test.TestMode;
@@ -29,11 +28,9 @@ class ClientAClientTestBase extends TestProxyTestBase {
         ClientAClientBuilder clientAClientbuilder
             = new ClientAClientBuilder().endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
                 .client(Configuration.getGlobalConfiguration().get("CLIENT", "client"))
-                .httpClient(HttpClient.createDefault())
+                .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
                 .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            clientAClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             clientAClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         clientAClient = clientAClientbuilder.buildClient();
@@ -41,11 +38,9 @@ class ClientAClientTestBase extends TestProxyTestBase {
         ClientBClientBuilder clientBClientbuilder
             = new ClientBClientBuilder().endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
                 .client(Configuration.getGlobalConfiguration().get("CLIENT", "client"))
-                .httpClient(HttpClient.createDefault())
+                .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
                 .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            clientBClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             clientBClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         clientBClient = clientBClientbuilder.buildClient();

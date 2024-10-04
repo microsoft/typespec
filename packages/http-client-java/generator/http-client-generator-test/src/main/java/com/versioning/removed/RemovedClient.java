@@ -17,6 +17,7 @@ import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import com.versioning.removed.implementation.RemovedClientImpl;
 import com.versioning.removed.models.ModelV2;
+import com.versioning.removed.models.ModelV3;
 
 /**
  * Initializes a new instance of the synchronous RemovedClient type.
@@ -40,23 +41,27 @@ public final class RemovedClient {
      * The v2 operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     prop: String (Required)
      *     enumProp: String(enumMemberV2) (Required)
      *     unionProp: BinaryData (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     prop: String (Required)
      *     enumProp: String(enumMemberV2) (Required)
      *     unionProp: BinaryData (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param body The body parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -70,6 +75,45 @@ public final class RemovedClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> v2WithResponse(BinaryData body, RequestOptions requestOptions) {
         return this.serviceClient.v2WithResponse(body, requestOptions);
+    }
+
+    /**
+     * This operation should be generated with the signatures of both the latest and the original versions, rather than
+     * preview version.
+     * <p><strong>Request Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     id: String (Required)
+     *     enumProp: String(enumMemberV1/enumMemberV2Preview) (Required)
+     * }
+     * }
+     * </pre>
+     * 
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     id: String (Required)
+     *     enumProp: String(enumMemberV1/enumMemberV2Preview) (Required)
+     * }
+     * }
+     * </pre>
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the response body along with {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BinaryData> modelV3WithResponse(BinaryData body, RequestOptions requestOptions) {
+        return this.serviceClient.modelV3WithResponse(body, requestOptions);
     }
 
     /**
@@ -90,5 +134,26 @@ public final class RemovedClient {
         // Generated convenience method for v2WithResponse
         RequestOptions requestOptions = new RequestOptions();
         return v2WithResponse(BinaryData.fromObject(body), requestOptions).getValue().toObject(ModelV2.class);
+    }
+
+    /**
+     * This operation should be generated with the signatures of both the latest and the original versions, rather than
+     * preview version.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public ModelV3 modelV3(ModelV3 body) {
+        // Generated convenience method for modelV3WithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return modelV3WithResponse(BinaryData.fromObject(body), requestOptions).getValue().toObject(ModelV3.class);
     }
 }

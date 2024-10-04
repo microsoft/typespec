@@ -1,0 +1,18 @@
+[tool.black]
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | .*venv.*
+  | _build
+  | buck-out
+  | build
+  | dist
+  | node_modules
+  | Expected/AcceptanceTests
+  | generated/
+)/
+'''
+line-length = 120

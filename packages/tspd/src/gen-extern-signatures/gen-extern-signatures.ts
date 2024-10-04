@@ -2,7 +2,6 @@ import {
   CompilerHost,
   Decorator,
   Diagnostic,
-  NodePackage,
   Program,
   compile,
   createDiagnosticCollector,
@@ -11,6 +10,7 @@ import {
   joinPaths,
   navigateProgram,
   resolvePath,
+  type PackageJson,
 } from "@typespec/compiler";
 import prettier from "prettier";
 import { generateSignatureTests, generateSignatures } from "./decorators-signatures.js";
@@ -45,7 +45,7 @@ export async function generateExternSignatures(
   return diagnostics.diagnostics;
 }
 
-async function readPackageJson(host: CompilerHost, libraryPath: string): Promise<NodePackage> {
+async function readPackageJson(host: CompilerHost, libraryPath: string): Promise<PackageJson> {
   const file = await host.readFile(joinPaths(libraryPath, "package.json"));
   return JSON.parse(file.text);
 }

@@ -77,7 +77,8 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(ManagementException.class)
         Mono<Response<ChildExtensionResourceInner>> get(@HostParam("endpoint") String endpoint,
-            @QueryParam("api-version") String apiVersion, @PathParam("resourceUri") String resourceUri,
+            @QueryParam("api-version") String apiVersion,
+            @PathParam(value = "resourceUri", encoded = true) String resourceUri,
             @PathParam("topLevelArmResourceName") String topLevelArmResourceName,
             @PathParam("childExtensionResourceName") String childExtensionResourceName,
             @HeaderParam("Accept") String accept, Context context);
@@ -86,7 +87,8 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
         @ExpectedResponses({ 200, 201 })
         @UnexpectedResponseExceptionType(ManagementException.class)
         Mono<Response<Flux<ByteBuffer>>> createOrUpdate(@HostParam("endpoint") String endpoint,
-            @QueryParam("api-version") String apiVersion, @PathParam("resourceUri") String resourceUri,
+            @QueryParam("api-version") String apiVersion,
+            @PathParam(value = "resourceUri", encoded = true) String resourceUri,
             @PathParam("topLevelArmResourceName") String topLevelArmResourceName,
             @PathParam("childExtensionResourceName") String childExtensionResourceName,
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
@@ -96,7 +98,8 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(ManagementException.class)
         Mono<Response<ChildExtensionResourceInner>> update(@HostParam("endpoint") String endpoint,
-            @QueryParam("api-version") String apiVersion, @PathParam("resourceUri") String resourceUri,
+            @QueryParam("api-version") String apiVersion,
+            @PathParam(value = "resourceUri", encoded = true) String resourceUri,
             @PathParam("topLevelArmResourceName") String topLevelArmResourceName,
             @PathParam("childExtensionResourceName") String childExtensionResourceName,
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
@@ -107,7 +110,8 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
         @ExpectedResponses({ 200, 202, 204 })
         @UnexpectedResponseExceptionType(ManagementException.class)
         Mono<Response<Flux<ByteBuffer>>> delete(@HostParam("endpoint") String endpoint,
-            @QueryParam("api-version") String apiVersion, @PathParam("resourceUri") String resourceUri,
+            @QueryParam("api-version") String apiVersion,
+            @PathParam(value = "resourceUri", encoded = true) String resourceUri,
             @PathParam("topLevelArmResourceName") String topLevelArmResourceName,
             @PathParam("childExtensionResourceName") String childExtensionResourceName,
             @HeaderParam("Accept") String accept, Context context);
@@ -118,7 +122,7 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
         @UnexpectedResponseExceptionType(ManagementException.class)
         Mono<Response<ChildExtensionResourceListResult>> listByTopLevelArmResource(
             @HostParam("endpoint") String endpoint, @QueryParam("api-version") String apiVersion,
-            @PathParam("resourceUri") String resourceUri,
+            @PathParam(value = "resourceUri", encoded = true) String resourceUri,
             @PathParam("topLevelArmResourceName") String topLevelArmResourceName, @HeaderParam("Accept") String accept,
             Context context);
 
@@ -1021,8 +1025,6 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
     }
 
     /**
-     * List ChildExtensionResource resources by TopLevelArmResource
-     * 
      * Get the next page of items.
      * 
      * @param nextLink The URL to get the next list of items.
@@ -1052,8 +1054,6 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
     }
 
     /**
-     * List ChildExtensionResource resources by TopLevelArmResource
-     * 
      * Get the next page of items.
      * 
      * @param nextLink The URL to get the next list of items.

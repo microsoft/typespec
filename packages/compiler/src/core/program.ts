@@ -1,7 +1,15 @@
 import { EmitterOptions } from "../config/types.js";
 import { createAssetEmitter } from "../emitter-framework/asset-emitter.js";
+import { setCurrentProgram } from "../experimental/typekit/define-kit.js";
 import { validateEncodedNamesConflicts } from "../lib/encoded-names.js";
 import { MANIFEST } from "../manifest.js";
+import {
+  ModuleResolutionResult,
+  ResolveModuleHost,
+  ResolvedModule,
+  resolveModule,
+} from "../module-resolver/module-resolver.js";
+import { PackageJson } from "../types/package-json.js";
 import { deepEquals, findProjectRoot, isDefined, mapEquals, mutate } from "../utils/misc.js";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
@@ -14,13 +22,6 @@ import { createLinter, resolveLinterDefinition } from "./linter.js";
 import { createLogger } from "./logger/index.js";
 import { createTracer } from "./logger/tracer.js";
 import { createDiagnostic } from "./messages.js";
-import {
-  ModuleResolutionResult,
-  NodePackage,
-  ResolveModuleHost,
-  ResolvedModule,
-  resolveModule,
-} from "./module-resolver.js";
 import { CompilerOptions } from "./options.js";
 import { parse, parseStandaloneTypeReference } from "./parser.js";
 import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
@@ -124,7 +125,7 @@ interface Validator {
 
 interface TypeSpecLibraryReference {
   path: string;
-  manifest: NodePackage;
+  manifest: PackageJson;
 }
 
 export async function compile(
@@ -216,6 +217,7 @@ export async function compile(
 
   // let GC reclaim old program, we do not reuse it beyond this point.
   oldProgram = undefined;
+  setCurrentProgram(program);
 
   const linter = createLinter(program, (name) => loadLibrary(basedir, name));
   if (options.linterRuleSet) {
@@ -267,17 +269,18 @@ export async function compile(
     for (const root of loadedRoots) {
       const packageJsonPath = joinPaths(root, "package.json");
       try {
-        const packageJson: NodePackage = JSON.parse((await host.readFile(packageJsonPath)).text);
-        const found = libraries.get(packageJson.name);
-        if (found && found.path !== root && found.manifest.version !== packageJson.version) {
-          let incompatibleIndex: TypeSpecLibraryReference[] | undefined = incompatibleLibraries.get(
-            packageJson.name,
-          );
-          if (incompatibleIndex === undefined) {
-            incompatibleIndex = [found];
-            incompatibleLibraries.set(packageJson.name, incompatibleIndex);
+        const packageJson: PackageJson = JSON.parse((await host.readFile(packageJsonPath)).text);
+        if (packageJson.name) {
+          const found = libraries.get(packageJson.name);
+          if (found && found.path !== root && found.manifest.version !== packageJson.version) {
+            let incompatibleIndex: TypeSpecLibraryReference[] | undefined =
+              incompatibleLibraries.get(packageJson.name);
+            if (incompatibleIndex === undefined) {
+              incompatibleIndex = [found];
+              incompatibleLibraries.set(packageJson.name, incompatibleIndex);
+            }
+            incompatibleIndex.push({ path: root, manifest: packageJson });
           }
-          incompatibleIndex.push({ path: root, manifest: packageJson });
         }
       } catch {}
     }

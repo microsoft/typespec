@@ -9,7 +9,6 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -42,13 +41,13 @@ public class UnionMapper implements IMapper<OrSchema, IType> {
             ? settings.getPackage(settings.getCustomTypesSubpackage())
             : settings.getPackage(settings.getModelsSubpackage());
 
-        if (settings.isDataPlaneClient() && (compositeType.getUsage() != null && compositeType.getUsage().contains(SchemaContext.INTERNAL))) {
+        if (settings.isDataPlaneClient()
+            && (compositeType.getUsage() != null && compositeType.getUsage().contains(SchemaContext.INTERNAL))) {
             // internal type, which is not exposed to user
             classPackage = settings.getPackage(settings.getImplementationSubpackage(), settings.getModelsSubpackage());
         }
 
-        return new ClassType.Builder()
-            .packageName(classPackage)
+        return new ClassType.Builder().packageName(classPackage)
             .name(className)
             .extensions(compositeType.getExtensions())
             .usedInXml(SchemaUtil.treatAsXml(compositeType))

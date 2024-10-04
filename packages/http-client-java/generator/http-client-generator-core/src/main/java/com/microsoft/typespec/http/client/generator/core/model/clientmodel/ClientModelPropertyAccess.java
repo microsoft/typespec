@@ -29,6 +29,7 @@ public interface ClientModelPropertyAccess {
     boolean isReadOnlyForUpdate();
 
     boolean isRequired();
+
     boolean isRequiredForCreate();
 
     boolean isConstant();

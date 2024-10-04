@@ -16,7 +16,13 @@ export const $lib = createTypeSpecLibrary({
         parameter: paramMessage`Duplicate parameter key: '${"value"}'. Check @friendlyName decorators and overlap with types in TypeSpec or service namespace.`,
       },
     },
+    "not-url": {
+      severity: "error",
+      messages: {
+        default: paramMessage`${"property"}: ${"value"} is not a valid URL.`,
+      },
+    },
   },
 });
 
-export const { reportDiagnostic, createStateSymbol } = $lib;
+export const { createDiagnostic, reportDiagnostic, createStateSymbol } = $lib;

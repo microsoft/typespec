@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core;
 
+import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.jsonrpc.Connection;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ApiVersion;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
@@ -41,7 +42,10 @@ import com.microsoft.typespec.http.client.generator.core.template.Templates;
 import com.microsoft.typespec.http.client.generator.core.template.android.AndroidTemplateFactory;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
-import com.azure.core.util.CoreUtils;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
@@ -52,11 +56,6 @@ import org.yaml.snakeyaml.introspector.Property;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Representer;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class Javagen extends NewPlugin {
     private final Logger logger = new PluginLogger(this, Javagen.class);
@@ -82,8 +81,7 @@ public class Javagen extends NewPlugin {
     private boolean generateJava(JavaSettings settings) {
         try {
             // Step 1: Parse input yaml as CodeModel
-            CodeModel codeModel = new Preprocessor(this, connection, pluginName, sessionId)
-                .processCodeModel();
+            CodeModel codeModel = new Preprocessor(this, connection, pluginName, sessionId).processCodeModel();
 
             // Step 2: Map
             Client client = Mappers.getClientMapper().map(codeModel);
@@ -91,10 +89,11 @@ public class Javagen extends NewPlugin {
             // Step 3: Write to templates
             JavaPackage javaPackage = writeToTemplates(codeModel, client, settings, true);
 
-            //Step 4: Print to files
+            // Step 4: Print to files
             // Then for each formatted file write the file. This is done synchronously as there is potential race
             // conditions that can lead to deadlocking.
-            new Postprocessor(this).postProcess(javaPackage.getJavaFiles().stream()
+            new Postprocessor(this).postProcess(javaPackage.getJavaFiles()
+                .stream()
                 .collect(Collectors.toMap(JavaFile::getFilePath, file -> file.getContents().toString())));
 
             for (XmlFile xmlFile : javaPackage.getXmlFiles()) {
@@ -119,8 +118,7 @@ public class Javagen extends NewPlugin {
     private boolean generateAndroid(JavaSettings settings) {
         try {
             // Step 1: Parse input yaml as CodeModel
-            CodeModel codeModel = new Preprocessor(this, connection, pluginName, sessionId)
-                    .processCodeModel();
+            CodeModel codeModel = new Preprocessor(this, connection, pluginName, sessionId).processCodeModel();
 
             // Step 2: Map
             Mappers.setFactory(new AndroidMapperFactory());
@@ -130,13 +128,12 @@ public class Javagen extends NewPlugin {
             Templates.setFactory(new AndroidTemplateFactory());
             JavaPackage javaPackage = new JavaPackage(this);
             // Service client
-            javaPackage
-                    .addServiceClient(client.getServiceClient().getPackage(), client.getServiceClient().getClassName(),
-                            client.getServiceClient());
+            javaPackage.addServiceClient(client.getServiceClient().getPackage(),
+                client.getServiceClient().getClassName(), client.getServiceClient());
 
             if (JavaSettings.getInstance().isGenerateClientInterfaces()) {
-                javaPackage
-                        .addServiceClientInterface(client.getServiceClient().getInterfaceName(), client.getServiceClient());
+                javaPackage.addServiceClientInterface(client.getServiceClient().getInterfaceName(),
+                    client.getServiceClient());
             }
 
             // Async/sync service clients
@@ -156,7 +153,7 @@ public class Javagen extends NewPlugin {
             // Method group
             for (MethodGroupClient methodGroupClient : client.getServiceClient().getMethodGroupClients()) {
                 javaPackage.addMethodGroup(methodGroupClient.getPackage(), methodGroupClient.getClassName(),
-                        methodGroupClient);
+                    methodGroupClient);
                 if (JavaSettings.getInstance().isGenerateClientInterfaces()) {
                     javaPackage.addMethodGroupInterface(methodGroupClient.getInterfaceName(), methodGroupClient);
                 }
@@ -185,7 +182,7 @@ public class Javagen extends NewPlugin {
             // XML sequence wrapper
             for (XmlSequenceWrapper xmlSequenceWrapper : client.getXmlSequenceWrappers()) {
                 javaPackage.addXmlSequenceWrapper(xmlSequenceWrapper.getPackage(),
-                        xmlSequenceWrapper.getWrapperClassName(), xmlSequenceWrapper);
+                    xmlSequenceWrapper.getWrapperClassName(), xmlSequenceWrapper);
             }
 
             // Package-info
@@ -194,14 +191,15 @@ public class Javagen extends NewPlugin {
             }
 
             // TODO: POM, Manager
-            //Step 4: Print to files
-            new Postprocessor(this).postProcess(javaPackage.getJavaFiles().stream()
-                    .collect(Collectors.toMap(JavaFile::getFilePath, file -> file.getContents().toString())));
+            // Step 4: Print to files
+            new Postprocessor(this).postProcess(javaPackage.getJavaFiles()
+                .stream()
+                .collect(Collectors.toMap(JavaFile::getFilePath, file -> file.getContents().toString())));
 
             String artifactId = JavaSettings.getInstance().getArtifactId();
             if (!(artifactId == null || artifactId.isEmpty())) {
                 writeFile("src/main/resources/" + artifactId + ".properties",
-                        "name=${project.artifactId}\nversion=${project.version}\n", null);
+                    "name=${project.artifactId}\nversion=${project.version}\n", null);
             }
         } catch (Exception ex) {
             logger.error("Failed to generate code.", ex);
@@ -235,23 +233,24 @@ public class Javagen extends NewPlugin {
     }
 
     protected JavaPackage writeToTemplates(CodeModel codeModel, Client client, JavaSettings settings,
-                                           boolean generateSwaggerMarkdown) {
+        boolean generateSwaggerMarkdown) {
         JavaPackage javaPackage = new JavaPackage(this);
         if (client.getServiceClient() != null || !CoreUtils.isNullOrEmpty(client.getServiceClients())) {
             // Service client
             if (CoreUtils.isNullOrEmpty(client.getServiceClients())) {
                 javaPackage.addServiceClient(client.getServiceClient().getPackage(),
-                        client.getServiceClient().getClassName(), client.getServiceClient());
+                    client.getServiceClient().getClassName(), client.getServiceClient());
             } else {
                 // multi-client from TypeSpec
                 for (ServiceClient serviceClient : client.getServiceClients()) {
-                    javaPackage.addServiceClient(serviceClient.getPackage(), serviceClient.getClassName(), serviceClient);
+                    javaPackage.addServiceClient(serviceClient.getPackage(), serviceClient.getClassName(),
+                        serviceClient);
                 }
             }
 
             if (settings.isGenerateClientInterfaces()) {
                 javaPackage.addServiceClientInterface(client.getServiceClient().getInterfaceName(),
-                        client.getServiceClient());
+                    client.getServiceClient());
             }
 
             // Async/sync service clients
@@ -260,10 +259,10 @@ public class Javagen extends NewPlugin {
             }
             for (AsyncSyncClient syncClient : client.getSyncClients()) {
                 boolean syncClientWrapAsync = settings.isSyncClientWrapAsyncClient()
-                        // HLC could have sync method that is harder to convert, e.g. Flux<ByteBuffer> -> InputStream
-                        && settings.isDataPlaneClient()
-                        // 1-1 match of SyncClient and AsyncClient
-                        && client.getAsyncClients().size() == client.getSyncClients().size();
+                    // HLC could have sync method that is harder to convert, e.g. Flux<ByteBuffer> -> InputStream
+                    && settings.isDataPlaneClient()
+                    // 1-1 match of SyncClient and AsyncClient
+                    && client.getAsyncClients().size() == client.getSyncClients().size();
                 javaPackage.addSyncServiceClient(syncClient.getPackageName(), syncClient, syncClientWrapAsync);
             }
 
@@ -294,7 +293,8 @@ public class Javagen extends NewPlugin {
 
             // Test
             if (settings.isDataPlaneClient() && settings.isGenerateTests()) {
-                if (!client.getSyncClients().isEmpty() && client.getSyncClients().iterator().next().getClientBuilder() != null) {
+                if (!client.getSyncClients().isEmpty()
+                    && client.getSyncClients().iterator().next().getClientBuilder() != null) {
                     List<ServiceClient> serviceClients = client.getServiceClients();
                     if (CoreUtils.isNullOrEmpty(serviceClients)) {
                         serviceClients = Collections.singletonList(client.getServiceClient());
@@ -306,10 +306,14 @@ public class Javagen extends NewPlugin {
 
                     // test cases as Disabled
                     if (!client.getProtocolExamples().isEmpty()) {
-                        client.getProtocolExamples().forEach(protocolExample -> javaPackage.addProtocolTest(new TestContext<>(testContext, protocolExample)));
+                        client.getProtocolExamples()
+                            .forEach(protocolExample -> javaPackage
+                                .addProtocolTest(new TestContext<>(testContext, protocolExample)));
                     }
                     if (!client.getClientMethodExamples().isEmpty()) {
-                        client.getClientMethodExamples().forEach(clientMethodExample -> javaPackage.addClientMethodTest(new TestContext<>(testContext, clientMethodExample)));
+                        client.getClientMethodExamples()
+                            .forEach(clientMethodExample -> javaPackage
+                                .addClientMethodTest(new TestContext<>(testContext, clientMethodExample)));
                     }
                 }
             }
@@ -324,7 +328,8 @@ public class Javagen extends NewPlugin {
                         if (!CoreUtils.isNullOrEmpty(apiVersions)) {
                             serviceVersions = apiVersions;
                         } else {
-                            throw new IllegalArgumentException("'api-version' not found. Please configure 'serviceVersions' option.");
+                            throw new IllegalArgumentException(
+                                "'api-version' not found. Please configure 'serviceVersions' option.");
                         }
                     }
 
@@ -334,17 +339,22 @@ public class Javagen extends NewPlugin {
                     } else {
                         serviceName = settings.getServiceName();
                     }
-                    String className = ClientModelUtil.getServiceVersionClassName(ClientModelUtil.getClientInterfaceName(codeModel));
-                    javaPackage.addServiceVersion(packageName, new ServiceVersion(className, serviceName, serviceVersions));
+                    String className
+                        = ClientModelUtil.getServiceVersionClassName(ClientModelUtil.getClientInterfaceName(codeModel));
+                    javaPackage.addServiceVersion(packageName,
+                        new ServiceVersion(className, serviceName, serviceVersions));
                 } else {
                     // multi-client from TypeSpec
-                    for (com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client client1 : codeModel.getClients()) {
+                    for (com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client client1 : codeModel
+                        .getClients()) {
                         if (client1.getServiceVersion() != null) {
                             javaPackage.addServiceVersion(packageName,
-                                    new ServiceVersion(
-                                            SchemaUtil.getJavaName(client1.getServiceVersion()),
-                                            client1.getServiceVersion().getLanguage().getDefault().getDescription(),
-                                            client1.getApiVersions().stream().map(ApiVersion::getVersion).collect(Collectors.toList())));
+                                new ServiceVersion(SchemaUtil.getJavaName(client1.getServiceVersion()),
+                                    client1.getServiceVersion().getLanguage().getDefault().getDescription(),
+                                    client1.getApiVersions()
+                                        .stream()
+                                        .map(ApiVersion::getVersion)
+                                        .collect(Collectors.toList())));
                         }
                     }
                 }
@@ -353,7 +363,8 @@ public class Javagen extends NewPlugin {
 
         // GraalVM config
         if (settings.isGenerateGraalVmConfig()) {
-            javaPackage.addGraalVmConfig(Project.AZURE_GROUP_ID, ClientModelUtil.getArtifactId(), client.getGraalVmConfig());
+            javaPackage.addGraalVmConfig(Project.AZURE_GROUP_ID, ClientModelUtil.getArtifactId(),
+                client.getGraalVmConfig());
         }
 
         writeClientModels(client, javaPackage, settings);
@@ -380,7 +391,8 @@ public class Javagen extends NewPlugin {
                 project.integrateWithSdk();
             }
 
-            Set<String> externalPackageNames = ClientModelUtil.getExternalPackageNamesUsedInClient(client.getModels(), codeModel);
+            Set<String> externalPackageNames
+                = ClientModelUtil.getExternalPackageNamesUsedInClient(client.getModels(), codeModel);
             client.getModuleInfo().checkForAdditionalDependencies(externalPackageNames);
             project.checkForAdditionalDependencies(externalPackageNames);
 
@@ -436,17 +448,20 @@ public class Javagen extends NewPlugin {
             // XML sequence wrapper
             for (XmlSequenceWrapper xmlSequenceWrapper : client.getXmlSequenceWrappers()) {
                 javaPackage.addXmlSequenceWrapper(xmlSequenceWrapper.getPackage(),
-                        xmlSequenceWrapper.getWrapperClassName(), xmlSequenceWrapper);
+                    xmlSequenceWrapper.getWrapperClassName(), xmlSequenceWrapper);
             }
         }
     }
 
-    protected void writeHelperClasses(Client client, CodeModel codeModel, JavaPackage javaPackage, JavaSettings settings) {
+    protected void writeHelperClasses(Client client, CodeModel codeModel, JavaPackage javaPackage,
+        JavaSettings settings) {
     }
 
-    private static void writeMethodGroupClient(JavaPackage javaPackage, ServiceClient serviceClient, JavaSettings settings) {
+    private static void writeMethodGroupClient(JavaPackage javaPackage, ServiceClient serviceClient,
+        JavaSettings settings) {
         for (MethodGroupClient methodGroupClient : serviceClient.getMethodGroupClients()) {
-            javaPackage.addMethodGroup(methodGroupClient.getPackage(), methodGroupClient.getClassName(), methodGroupClient);
+            javaPackage.addMethodGroup(methodGroupClient.getPackage(), methodGroupClient.getClassName(),
+                methodGroupClient);
             if (settings.isGenerateClientInterfaces()) {
                 javaPackage.addMethodGroupInterface(methodGroupClient.getInterfaceName(), methodGroupClient);
             }

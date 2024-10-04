@@ -395,7 +395,7 @@ function createOAPIEmitter(
         }
 
         const variable: OpenAPI3ServerVariable = {
-          default: prop.defaultValue ? getDefaultValue(program, prop.defaultValue) : "",
+          default: prop.defaultValue ? getDefaultValue(program, prop.defaultValue, prop) : "",
           description: getDoc(program, prop),
         };
 
@@ -1371,7 +1371,7 @@ function createOAPIEmitter(
       options,
     );
     if (param.defaultValue) {
-      schema.default = getDefaultValue(program, param.defaultValue);
+      schema.default = getDefaultValue(program, param.defaultValue, param);
     }
     // Description is already provided in the parameter itself.
     delete schema.description;

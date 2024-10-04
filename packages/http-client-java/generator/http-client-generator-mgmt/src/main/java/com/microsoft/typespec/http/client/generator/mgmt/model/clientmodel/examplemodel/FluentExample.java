@@ -5,7 +5,6 @@ package com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.exam
 
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentManager;
-
 import java.util.List;
 
 /**

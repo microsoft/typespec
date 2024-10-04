@@ -10,7 +10,9 @@ import java.nio.file.Paths;
 
 public class FileUtil {
 
-    private FileUtil() {}
+    private FileUtil() {
+    }
+
     /**
      * Write given content to the given file under given path.
      *

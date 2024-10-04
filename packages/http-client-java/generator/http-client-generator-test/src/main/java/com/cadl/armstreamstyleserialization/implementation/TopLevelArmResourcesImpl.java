@@ -9,8 +9,8 @@ import com.azure.core.util.logging.ClientLogger;
 import com.cadl.armstreamstyleserialization.fluent.TopLevelArmResourcesClient;
 import com.cadl.armstreamstyleserialization.fluent.models.TopLevelArmResourceInner;
 import com.cadl.armstreamstyleserialization.models.TopLevelArmResource;
-import com.cadl.armstreamstyleserialization.models.TopLevelArmResources;
 import com.cadl.armstreamstyleserialization.models.TopLevelArmResourceTagsUpdate;
+import com.cadl.armstreamstyleserialization.models.TopLevelArmResources;
 
 public final class TopLevelArmResourcesImpl implements TopLevelArmResources {
     private static final ClientLogger LOGGER = new ClientLogger(TopLevelArmResourcesImpl.class);

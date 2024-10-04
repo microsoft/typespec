@@ -1,8 +1,8 @@
 import type { JSONSchemaType as AjvJSONSchemaType } from "ajv";
 import type { TypeEmitter } from "../emitter-framework/type-emitter.js";
 import type { AssetEmitter } from "../emitter-framework/types.js";
+import type { ModuleResolutionResult } from "../module-resolver/module-resolver.js";
 import type { YamlPathTarget, YamlScript } from "../yaml/types.js";
-import type { ModuleResolutionResult } from "./module-resolver.js";
 import type { Numeric } from "./numeric.js";
 import type { Program } from "./program.js";
 import type { TokenFlags } from "./scanner.js";
