@@ -1,4 +1,3 @@
-import { fileURLToPath, pathToFileURL } from "url";
 import { getDirectoryPath, joinPaths, normalizePath, resolvePath } from "../core/path-utils.js";
 import type { PackageJson } from "../types/package-json.js";
 import { resolvePackageExports } from "./esm/resolve-package-exports.js";
@@ -383,4 +382,26 @@ async function isFile(host: ResolveModuleHost, path: string) {
     }
     throw e;
   }
+}
+function pathToFileURL(path: string): URL {
+  return new URL(`file://${path}`);
+}
+
+function fileURLToPath(url: string | URL) {
+  if (typeof url === "string") url = new URL(url);
+  if (url.protocol !== "file:") throw new Error("Cannot convert non file: URL to path");
+
+  const pathname = url.pathname;
+
+  for (let n = 0; n < pathname.length; n++) {
+    if (pathname[n] === "%") {
+      const third = pathname.codePointAt(n + 2)! | 0x20;
+
+      if (pathname[n + 1] === "2" && third === 102) {
+        throw new Error("Invalid url to path: must not include encoded / characters");
+      }
+    }
+  }
+
+  return decodeURIComponent(pathname);
 }

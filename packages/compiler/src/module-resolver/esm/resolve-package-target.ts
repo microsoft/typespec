@@ -1,4 +1,3 @@
-import { pathToFileURL } from "url";
 import { Exports } from "../../types/package-json.js";
 import {
   EsmResolutionContext,
@@ -35,16 +34,14 @@ export async function resolvePackageTarget(
       // 1.i.b If patternMatch is a String, then
       if (typeof patternMatch === "string") {
         // 1.i.b.a Return PACKAGE_RESOLVE(target with every instance of "*" replaced by patternMatch, packageURL + "/")
-        const result = await context.resolveId(
+        return await context.resolveId(
           target.replace(/\*/g, patternMatch),
           packageUrlWithTrailingSlash,
         );
-        return result ? pathToFileURL(result.location).href : null;
       }
 
       // 1.i.c Return PACKAGE_RESOLVE(target, packageURL + "/").
-      const result = await context.resolveId(target, packageUrlWithTrailingSlash);
-      return result ? pathToFileURL(result.location).href : null;
+      return await context.resolveId(target, packageUrlWithTrailingSlash);
     }
 
     // 1.ii If target split on "/" or "\"
