@@ -2,7 +2,7 @@ import { fileURLToPath, pathToFileURL } from "url";
 import { getDirectoryPath, joinPaths, normalizePath, resolvePath } from "../core/path-utils.js";
 import { PackageJson } from "../types/package-json.js";
 import { resolvePackageExports } from "./esm/resolve-package-exports.js";
-import { parseNodeModuleImport } from "./esm/utils.js";
+import { InvalidModuleSpecifierError, parseNodeModuleImport } from "./esm/utils.js";
 
 // Resolve algorithm of node https://nodejs.org/api/modules.html#modules_all_together
 
@@ -107,7 +107,10 @@ export async function resolveModule(
     }
   }
 
-  const module = await findAsNodeModule(name, absoluteStart);
+  const self = await resolveSelf(name, absoluteStart);
+  if (self) return self;
+
+  const module = await resolveAsNodeModule(name, absoluteStart);
   if (module) return module;
 
   throw new ResolveModuleError(
@@ -118,7 +121,7 @@ export async function resolveModule(
   /**
    * Returns a list of all the parent directory and the given one.
    */
-  function listNodeModulesPath(baseDir: string): string[] {
+  function listDirHierarchy(baseDir: string): string[] {
     const paths = [baseDir];
     let current = getDirectoryPath(baseDir);
     while (current !== paths[paths.length - 1]) {
@@ -129,24 +132,52 @@ export async function resolveModule(
     return paths;
   }
 
-  async function findAsNodeModule(
+  /**
+   * Equivalent implementation to node LOAD_PACKAGE_SELF
+   * Resolve if the import is importing the current package.
+   */
+  async function resolveSelf(name: string, baseDir: string): Promise<ResolvedModule | undefined> {
+    for (const dir of listDirHierarchy(baseDir)) {
+      const pkgFile = resolvePath(dir, "package.json");
+      if (!(await isFile(host, pkgFile))) continue;
+      const pkg = await readPackage(host, pkgFile);
+      if (pkg.name === name) {
+        return loadPackage(dir, pkg);
+      } else {
+        return undefined;
+      }
+    }
+    return undefined;
+  }
+
+  /**
+   * Equivalent implementation to node LOAD_NODE_MODULES with a few non supported features.
+   * Cannot load any random file under the load path(only packages).
+   */
+  async function resolveAsNodeModule(
     name: string,
     baseDir: string,
   ): Promise<ResolvedModule | undefined> {
-    const dirs = listNodeModulesPath(baseDir);
-    for (const path of dirs) {
-      const e = await resolvePackageExport(name, path);
-      if (e) return e;
-      const n = await loadPackageAtPath(path);
+    const dirs = listDirHierarchy(baseDir);
+    for (const dir of dirs) {
+      const nodeModulesDir = joinPaths(dir, "node_modules");
+      try {
+        const e = await resolvePackageExport(name, nodeModulesDir);
+        if (e) return e;
+      } catch (error) {
+        if (error instanceof InvalidModuleSpecifierError) {
+          // TODO: warn for backcompat
+        } else {
+          throw error; // TODO: convert to standard error
+        }
+      }
+      const n = await loadPackageAtPath(joinPaths(nodeModulesDir, name));
       if (n) return n;
     }
     return undefined;
   }
 
-  async function loadPackageAtPath(
-    path: string,
-    name?: string,
-  ): Promise<ResolvedModule | undefined> {
+  async function loadPackageAtPath(path: string): Promise<ResolvedModule | undefined> {
     const pkgFile = resolvePath(path, "package.json");
 
     if (await isFile(host, pkgFile)) {
