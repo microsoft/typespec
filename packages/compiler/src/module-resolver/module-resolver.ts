@@ -1,5 +1,15 @@
-import { getDirectoryPath, joinPaths, resolvePath } from "../core/path-utils.js";
-import { PackageJson } from "../types/package-json.js";
+import { getDirectoryPath, joinPaths, normalizePath, resolvePath } from "../core/path-utils.js";
+import type { PackageJson } from "../types/package-json.js";
+import { resolvePackageExports } from "./esm/resolve-package-exports.js";
+import {
+  EsmResolveError,
+  InvalidPackageTargetError,
+  NoMatchingConditionsError,
+} from "./esm/utils.js";
+import { parseNodeModuleSpecifier } from "./utils.js";
+
+// Resolve algorithm of node https://nodejs.org/api/modules.html#modules_all_together
+
 export interface ResolveModuleOptions {
   baseDir: string;
 
@@ -11,9 +21,18 @@ export interface ResolveModuleOptions {
 
   /**
    * When resolution reach a directory without package.json look for those files to load in order.
-   * @default ["index.mjs", "index.js"]
+   * @default `["index.mjs", "index.js"]`
    */
   directoryIndexFiles?: string[];
+
+  /** List of conditions to match in package exports */
+  readonly conditions?: string[];
+
+  /**
+   * If exports is defined ignore if the none of the given condition is found and fallback to using main field resolution.
+   * By default it will throw an error.
+   */
+  readonly fallbackOnMissingCondition?: boolean;
 }
 
 export interface ResolveModuleHost {
@@ -33,7 +52,12 @@ export interface ResolveModuleHost {
   readFile(path: string): Promise<string>;
 }
 
-type ResolveModuleErrorCode = "MODULE_NOT_FOUND" | "INVALID_MAIN";
+type ResolveModuleErrorCode =
+  | "MODULE_NOT_FOUND"
+  | "INVALID_MAIN"
+  | "INVALID_MODULE"
+  /** When an exports points to an invalid file. */
+  | "INVALID_MODULE_EXPORT_TARGET";
 export class ResolveModuleError extends Error {
   public constructor(
     public code: ResolveModuleErrorCode,
@@ -74,45 +98,51 @@ export interface ResolvedModule {
 /**
  * Resolve a module
  * @param host
- * @param name
+ * @param specifier
  * @param options
  * @returns
+ * @throws {ResolveModuleError} When the module cannot be resolved.
  */
 export async function resolveModule(
   host: ResolveModuleHost,
-  name: string,
+  specifier: string,
   options: ResolveModuleOptions,
 ): Promise<ModuleResolutionResult> {
-  const realpath = async (x: string) => resolvePath(await host.realpath(x));
+  const realpath = async (x: string) => normalizePath(await host.realpath(x));
 
   const { baseDir } = options;
-  const absoluteStart = baseDir === "" ? "." : await realpath(resolvePath(baseDir));
+  const absoluteStart = await realpath(resolvePath(baseDir));
 
   if (!(await isDirectory(host, absoluteStart))) {
     throw new TypeError(`Provided basedir '${baseDir}'is not a directory.`);
   }
 
   // Check if the module name is referencing a path(./foo, /foo, file:/foo)
-  if (/^(?:\.\.?(?:\/|$)|\/|([A-Za-z]:)?[/\\])/.test(name)) {
-    const res = resolvePath(absoluteStart, name);
+  if (/^(?:\.\.?(?:\/|$)|\/|([A-Za-z]:)?[/\\])/.test(specifier)) {
+    const res = resolvePath(absoluteStart, specifier);
     const m = (await loadAsFile(res)) || (await loadAsDirectory(res));
     if (m) {
       return m;
     }
   }
 
-  const module = await findAsNodeModule(name, absoluteStart);
+  // Try to resolve package itself.
+  const self = await resolveSelf(specifier, absoluteStart);
+  if (self) return self;
+
+  // Try to resolve as a node_module package.
+  const module = await resolveAsNodeModule(specifier, absoluteStart);
   if (module) return module;
 
   throw new ResolveModuleError(
     "MODULE_NOT_FOUND",
-    `Cannot find module '${name}' from '${baseDir}'`,
+    `Cannot find module '${specifier}' from '${baseDir}'`,
   );
 
   /**
    * Returns a list of all the parent directory and the given one.
    */
-  function listAllParentDirs(baseDir: string): string[] {
+  function listDirHierarchy(baseDir: string): string[] {
     const paths = [baseDir];
     let current = getDirectoryPath(baseDir);
     while (current !== paths[paths.length - 1]) {
@@ -123,59 +153,128 @@ export async function resolveModule(
     return paths;
   }
 
-  function getPackageCandidates(
-    name: string,
-    baseDir: string,
-  ): Array<{ path: string; type: "node_modules" | "self" }> {
-    const dirs = listAllParentDirs(baseDir);
-    return dirs.flatMap((x) => [
-      { path: x, type: "self" },
-      { path: joinPaths(x, "node_modules", name), type: "node_modules" },
-    ]);
-  }
-
-  async function findAsNodeModule(
-    name: string,
-    baseDir: string,
-  ): Promise<ResolvedModule | undefined> {
-    const dirs = getPackageCandidates(name, baseDir);
-    for (const { type, path } of dirs) {
-      if (type === "node_modules") {
-        if (await isDirectory(host, path)) {
-          const n = await loadAsDirectory(path, true);
-          if (n) return n;
-        }
-      } else if (type === "self") {
-        const pkgFile = resolvePath(path, "package.json");
-
-        if (await isFile(host, pkgFile)) {
-          const pkg = await readPackage(host, pkgFile);
-          if (pkg.name === name) {
-            const n = await loadPackage(path, pkg);
-            if (n) return n;
-          }
-        }
+  /**
+   * Equivalent implementation to node LOAD_PACKAGE_SELF
+   * Resolve if the import is importing the current package.
+   */
+  async function resolveSelf(name: string, baseDir: string): Promise<ResolvedModule | undefined> {
+    for (const dir of listDirHierarchy(baseDir)) {
+      const pkgFile = resolvePath(dir, "package.json");
+      if (!(await isFile(host, pkgFile))) continue;
+      const pkg = await readPackage(host, pkgFile);
+      if (pkg.name === name) {
+        return loadPackage(dir, pkg);
+      } else {
+        return undefined;
       }
     }
     return undefined;
   }
 
-  async function loadAsDirectory(directory: string): Promise<ModuleResolutionResult | undefined>;
-  async function loadAsDirectory(
-    directory: string,
-    mustBePackage: true,
-  ): Promise<ResolvedModule | undefined>;
-  async function loadAsDirectory(
-    directory: string,
-    mustBePackage?: boolean,
-  ): Promise<ModuleResolutionResult | undefined> {
-    const pkgFile = resolvePath(directory, "package.json");
-    if (await isFile(host, pkgFile)) {
-      const pkg = await readPackage(host, pkgFile);
-      return loadPackage(directory, pkg);
+  /**
+   * Equivalent implementation to node LOAD_NODE_MODULES with a few non supported features.
+   * Cannot load any random file under the load path(only packages).
+   */
+  async function resolveAsNodeModule(
+    importSpecifier: string,
+    baseDir: string,
+  ): Promise<ResolvedModule | undefined> {
+    const module = parseNodeModuleSpecifier(importSpecifier);
+    if (module === null) return undefined;
+    const dirs = listDirHierarchy(baseDir);
+
+    for (const dir of dirs) {
+      const n = await loadPackageAtPath(
+        joinPaths(dir, "node_modules", module.packageName),
+        module.subPath,
+      );
+      if (n) return n;
     }
-    if (mustBePackage) {
-      return undefined;
+    return undefined;
+  }
+
+  async function loadPackageAtPath(
+    path: string,
+    subPath?: string,
+  ): Promise<ResolvedModule | undefined> {
+    const pkgFile = resolvePath(path, "package.json");
+    if (!(await isFile(host, pkgFile))) return undefined;
+
+    const pkg = await readPackage(host, pkgFile);
+    const n = await loadPackage(path, pkg, subPath);
+    if (n) return n;
+    return undefined;
+  }
+
+  /**
+   * Try to load using package.json exports.
+   * @param importSpecifier A combination of the package name and exports entry.
+   * @param directory `node_modules` directory.
+   */
+  async function resolveNodePackageExports(
+    subPath: string,
+    pkg: PackageJson,
+    pkgDir: string,
+  ): Promise<ResolvedModule | undefined> {
+    if (!pkg.exports) return undefined;
+
+    let match: string | undefined | null;
+    try {
+      match = await resolvePackageExports(
+        {
+          packageUrl: pathToFileURL(pkgDir),
+          specifier: specifier,
+          moduleDirs: ["node_modules"],
+          conditions: options.conditions ?? [],
+          ignoreDefaultCondition: options.fallbackOnMissingCondition,
+          resolveId: (id: string, baseDir: string) => {
+            throw new ResolveModuleError("INVALID_MODULE", "Not supported");
+          },
+        },
+        subPath === "" ? "." : `./${subPath}`,
+        pkg.exports,
+      );
+    } catch (error) {
+      if (error instanceof NoMatchingConditionsError) {
+        // For back compat we allow to fallback to main field for the `.` entry.
+        if (subPath === "") {
+          return;
+        } else {
+          throw new ResolveModuleError("INVALID_MODULE", error.message);
+        }
+      } else if (error instanceof InvalidPackageTargetError) {
+        throw new ResolveModuleError("INVALID_MODULE_EXPORT_TARGET", error.message);
+      } else if (error instanceof EsmResolveError) {
+        throw new ResolveModuleError("INVALID_MODULE", error.message);
+      } else {
+        throw error;
+      }
+    }
+    if (!match) return undefined;
+    const resolved = await resolveEsmMatch(match);
+    return {
+      type: "module",
+      mainFile: resolved,
+      manifest: pkg,
+      path: pkgDir,
+    };
+  }
+
+  async function resolveEsmMatch(match: string) {
+    const resolved = await realpath(fileURLToPath(match));
+    if (await isFile(host, resolved)) {
+      return resolved;
+    }
+    throw new ResolveModuleError(
+      "INVALID_MODULE_EXPORT_TARGET",
+      `Import "${specifier}" resolving to "${resolved}" is not a file.`,
+    );
+  }
+
+  async function loadAsDirectory(directory: string): Promise<ModuleResolutionResult | undefined> {
+    const pkg = await loadPackageAtPath(directory);
+    if (pkg) {
+      return pkg;
     }
 
     for (const file of options.directoryIndexFiles ?? defaultDirectoryIndexFiles) {
@@ -187,7 +286,17 @@ export async function resolveModule(
     return undefined;
   }
 
-  async function loadPackage(
+  async function loadPackage(directory: string, pkg: PackageJson, subPath?: string) {
+    const e = await resolveNodePackageExports(subPath ?? "", pkg, directory);
+    if (e) return e;
+
+    if (subPath !== undefined && subPath !== "") {
+      return undefined;
+    }
+    return loadPackageLegacy(directory, pkg);
+  }
+
+  async function loadPackageLegacy(
     directory: string,
     pkg: PackageJson,
   ): Promise<ResolvedModule | undefined> {
@@ -219,7 +328,7 @@ export async function resolveModule(
     } else {
       throw new ResolveModuleError(
         "INVALID_MAIN",
-        `Package ${pkg.name} main file "${mainFile}" is invalid.`,
+        `Package ${pkg.name} main file "${mainFile}" is not pointing to a valid file or directory.`,
       );
     }
   }
@@ -271,4 +380,25 @@ async function isFile(host: ResolveModuleHost, path: string) {
     }
     throw e;
   }
+}
+function pathToFileURL(path: string): string {
+  return `file://${path}`;
+}
+
+function fileURLToPath(url: string) {
+  if (!url.startsWith("file://")) throw new Error("Cannot convert non file: URL to path");
+
+  const pathname = url.slice("file://".length);
+
+  for (let n = 0; n < pathname.length; n++) {
+    if (pathname[n] === "%") {
+      const third = pathname.codePointAt(n + 2)! | 0x20;
+
+      if (pathname[n + 1] === "2" && third === 102) {
+        throw new Error("Invalid url to path: must not include encoded / characters");
+      }
+    }
+  }
+
+  return decodeURIComponent(pathname);
 }
