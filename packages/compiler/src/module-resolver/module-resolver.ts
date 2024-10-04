@@ -254,14 +254,14 @@ export async function resolveModule(
     const resolved = await resolveEsmMatch(match);
     return {
       type: "module",
-      mainFile: await realpath(resolved),
+      mainFile: resolved,
       manifest: pkg,
       path: pkgDir,
     };
   }
 
   async function resolveEsmMatch(match: string | URL) {
-    const resolved = fileURLToPath(match);
+    const resolved = await realpath(fileURLToPath(match));
     if (await isFile(host, resolved)) {
       return resolved;
     }
