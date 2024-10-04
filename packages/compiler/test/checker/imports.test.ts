@@ -113,7 +113,36 @@ describe("compiler: imports", () => {
     expectFileLoaded({ typespec: ["main.tsp", "test/main.tsp"] });
   });
 
-  it("import library", async () => {
+  it("import library with typespec exports", async () => {
+    host.addTypeSpecFile(
+      "main.tsp",
+      `
+      import "my-lib";
+
+      model A { x: C }
+      `,
+    );
+    host.addTypeSpecFile(
+      "node_modules/my-lib/package.json",
+      JSON.stringify({
+        name: "my-test-lib",
+        exports: { ".": { typespec: "./main.tsp" } },
+      }),
+    );
+    host.addTypeSpecFile(
+      "node_modules/my-lib/main.tsp",
+      `
+      model C { }
+      `,
+    );
+
+    await host.compile("main.tsp");
+    expectFileLoaded({ typespec: ["main.tsp", "node_modules/my-lib/main.tsp"] });
+    const file = host.program.sourceFiles.get(resolveVirtualPath("node_modules/my-lib/main.tsp"));
+    ok(file, "File exists");
+  });
+
+  it("import library(with tspmain)", async () => {
     host.addTypeSpecFile(
       "main.tsp",
       `
