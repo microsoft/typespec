@@ -128,6 +128,7 @@ Example:
 ### Configuration options convention
 
 - Name options `kebab-case`. So it can be inline with the rest of the cli
+- Name options should not contain dots (`.`). Using a dot will conflict with using nested configuration values.
 - An option called `output-dir` can be created and should override the compiler `output-dir`
 
 #### Emitter options vs. decorators
