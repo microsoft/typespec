@@ -89,10 +89,9 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
                 Assert.IsNotNull(method);
                 foreach (var property in model!.Properties.Where(p => p.Type.IsEnum))
                 {
+                    // enum discriminator properties are not included in the factory method
                     var parameter = method!.Signature.Parameters.FirstOrDefault(p => p.Name == property.Name.ToVariableName());
-                    Assert.IsNotNull(parameter);
-                    Assert.IsTrue(parameter!.Type.IsFrameworkType);
-                    Assert.AreEqual(typeof(int), parameter!.Type.FrameworkType);
+                    Assert.IsNull(parameter);
                 }
             }
         }
