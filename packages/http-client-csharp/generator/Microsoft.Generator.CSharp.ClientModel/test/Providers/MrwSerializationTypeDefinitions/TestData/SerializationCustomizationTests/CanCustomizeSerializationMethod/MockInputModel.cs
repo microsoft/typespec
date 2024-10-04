@@ -1,4 +1,3 @@
-#nullable disable
 
 using Microsoft.Generator.CSharp.Customization;
 
