@@ -1,11 +1,15 @@
 import { Exports } from "../../types/package-json.js";
 import { resolvePackageImportsExports } from "../esm/resolve-package-imports-exports.js";
 import { resolvePackageTarget } from "../esm/resolve-package-target.js";
-import { Context, InvalidModuleSpecifierError, NoMatchingConditionsError } from "./utils.js";
+import {
+  EsmResolutionContext,
+  InvalidModuleSpecifierError,
+  NoMatchingConditionsError,
+} from "./utils.js";
 
 /** Implementation of PACKAGE_EXPORTS_RESOLVE https://github.com/nodejs/node/blob/main/doc/api/esm.md */
 export async function resolvePackageExports(
-  context: Context,
+  context: EsmResolutionContext,
   subpath: string,
   exports: Exports,
 ): Promise<string | null | undefined> {

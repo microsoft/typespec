@@ -1,10 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { resolvePackageTarget } from "../../../src/module-resolver/esm/resolve-package-target.js";
-import { Context } from "../../../src/module-resolver/esm/utils.js";
+import { EsmResolutionContext } from "../../../src/module-resolver/esm/utils.js";
 
-const context: Context = {
-  importSpecifier: "test-lib",
-  pkgJsonPath: "<dummy>",
+const context: EsmResolutionContext = {
+  specifier: "test-lib",
   packageUrl: new URL("file:///test/node_modules/test-lib/"),
   moduleDirs: ["node_modules"],
   conditions: ["import"],

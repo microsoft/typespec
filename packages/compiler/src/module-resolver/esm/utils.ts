@@ -1,48 +1,61 @@
-export interface Context {
-  readonly importSpecifier: string;
-  readonly pkgJsonPath: string;
+export interface EsmResolutionContext {
+  /** Original import specifier */
+  readonly specifier: string;
+
+  /** URL of the current package */
   readonly packageUrl: URL;
-  readonly moduleDirs: readonly string[];
+
+  /**
+   * List of condition to match
+   * @example `["import", "require"]`
+   */
   readonly conditions: readonly string[];
+
+  /**
+   * Folders where modules exist that are banned from being used in exports.
+   * @example `["node_modules"]`
+   */
+  readonly moduleDirs: readonly string[];
+
+  resolveId(id: string, baseDir: string | URL): any;
 
   /** Non standard option. Do not respect the default condition. */
   readonly ignoreDefaultCondition?: boolean;
-  resolveId(id: string, baseDir: string | URL): any;
 }
 
 function createBaseErrorMsg(importSpecifier: string) {
   return `Could not resolve import "${importSpecifier}" `;
 }
 
-function createErrorMsg(context: Context, reason?: string, isImports?: boolean) {
-  const { importSpecifier, pkgJsonPath } = context;
-  const base = createBaseErrorMsg(importSpecifier);
+function createErrorMsg(context: EsmResolutionContext, reason?: string, isImports?: boolean) {
+  const { specifier, packageUrl } = context;
+  const base = createBaseErrorMsg(specifier);
   const field = isImports ? "imports" : "exports";
-  return `${base} using ${field} defined in ${pkgJsonPath}.${reason ? ` ${reason}` : ""}`;
+  return `${base} using ${field} defined in ${packageUrl}.${reason ? ` ${reason}` : ""}`;
 }
 
-export class ResolveError extends Error {}
+export class EsmResolveError extends Error {}
 
-export class InvalidConfigurationError extends ResolveError {
-  constructor(context: Context, reason?: string) {
+export class InvalidConfigurationError extends EsmResolveError {
+  constructor(context: EsmResolutionContext, reason?: string) {
     super(createErrorMsg(context, `Invalid "exports" field. ${reason}`));
   }
 }
 
-export class InvalidModuleSpecifierError extends ResolveError {
-  constructor(context: Context, isImports?: boolean, reason?: string) {
+export class InvalidModuleSpecifierError extends EsmResolveError {
+  constructor(context: EsmResolutionContext, isImports?: boolean, reason?: string) {
     super(createErrorMsg(context, reason, isImports));
   }
 }
 
-export class InvalidPackageTargetError extends ResolveError {
-  constructor(context: Context, reason?: string) {
+export class InvalidPackageTargetError extends EsmResolveError {
+  constructor(context: EsmResolutionContext, reason?: string) {
     super(createErrorMsg(context, reason));
   }
 }
 
 export class NoMatchingConditionsError extends InvalidPackageTargetError {
-  constructor(context: Context) {
+  constructor(context: EsmResolutionContext) {
     super(context, `No conditions matched`);
   }
 }

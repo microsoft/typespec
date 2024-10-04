@@ -2,7 +2,11 @@ import { fileURLToPath, pathToFileURL } from "url";
 import { getDirectoryPath, joinPaths, normalizePath, resolvePath } from "../core/path-utils.js";
 import type { PackageJson } from "../types/package-json.js";
 import { resolvePackageExports } from "./esm/resolve-package-exports.js";
-import { InvalidPackageTargetError, NoMatchingConditionsError, ResolveError } from "./esm/utils.js";
+import {
+  EsmResolveError,
+  InvalidPackageTargetError,
+  NoMatchingConditionsError,
+} from "./esm/utils.js";
 import { parseNodeModuleSpecifier } from "./utils.js";
 
 // Resolve algorithm of node https://nodejs.org/api/modules.html#modules_all_together
@@ -221,10 +225,8 @@ export async function resolveModule(
     try {
       match = await resolvePackageExports(
         {
-          // TODO: review those options shouldn't some of those.
           packageUrl: pathToFileURL(pkgDir),
-          importSpecifier: name,
-          pkgJsonPath: joinPaths(pkgDir, "package.json"),
+          specifier: name,
           moduleDirs: ["node_modules"],
           conditions: options.conditions ?? [],
           ignoreDefaultCondition: options.fallbackOnMissingCondition,
@@ -245,7 +247,7 @@ export async function resolveModule(
         }
       } else if (error instanceof InvalidPackageTargetError) {
         throw new ResolveModuleError("INVALID_MODULE_EXPORT_TARGET", error.message);
-      } else if (error instanceof ResolveError) {
+      } else if (error instanceof EsmResolveError) {
         throw new ResolveModuleError("INVALID_MODULE", error.message);
       } else {
         throw error;

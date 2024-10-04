@@ -1,6 +1,11 @@
 import { pathToFileURL } from "url";
 import { Exports } from "../../types/package-json.js";
-import { Context, InvalidModuleSpecifierError, InvalidPackageTargetError, isUrl } from "./utils.js";
+import {
+  EsmResolutionContext,
+  InvalidModuleSpecifierError,
+  InvalidPackageTargetError,
+  isUrl,
+} from "./utils.js";
 
 export interface ResolvePackageTargetOptions {
   readonly target: Exports;
@@ -10,7 +15,7 @@ export interface ResolvePackageTargetOptions {
 
 /** Implementation of PACKAGE_TARGET_RESOLVE https://github.com/nodejs/node/blob/main/doc/api/esm.md */
 export async function resolvePackageTarget(
-  context: Context,
+  context: EsmResolutionContext,
   { target, patternMatch, isImports }: ResolvePackageTargetOptions,
 ): Promise<null | undefined | string> {
   const { packageUrl } = context;
@@ -158,7 +163,7 @@ function includesInvalidSegments(pathSegments: readonly string[], moduleDirs: re
   );
 }
 
-function checkInvalidSegment(context: Context, target: string) {
+function checkInvalidSegment(context: EsmResolutionContext, target: string) {
   const pathSegments = target.split(/\/|\\/);
   // after the first "." segment
   const firstDot = pathSegments.indexOf(".");

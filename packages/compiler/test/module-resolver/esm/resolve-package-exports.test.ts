@@ -1,10 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { resolvePackageExports } from "../../../src/module-resolver/esm/resolve-package-exports.js";
-import { Context } from "../../../src/module-resolver/esm/utils.js";
+import { EsmResolutionContext } from "../../../src/module-resolver/esm/utils.js";
 
-const context: Context = {
-  importSpecifier: "test-lib",
-  pkgJsonPath: "<dummy>",
+const context: EsmResolutionContext = {
+  specifier: "test-lib",
   packageUrl: new URL("file:///test/node_modules/test-lib/"),
   moduleDirs: ["node_modules"],
   conditions: ["import"],
@@ -45,6 +44,8 @@ describe("exports is an object", () => {
         ".": "./root.js",
         "./foo": "./foo.js",
       }),
-    ).rejects.toThrowError(); // TODO: validate specific error?
+    ).rejects.toThrowError(
+      `Could not resolve import "test-lib"  using exports defined in file:///test/node_modules/test-lib/.`,
+    );
   });
 });

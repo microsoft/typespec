@@ -1,7 +1,7 @@
 import { Exports } from "../../types/package-json.js";
 import { resolvePackageTarget } from "./resolve-package-target.js";
 
-import { Context, InvalidModuleSpecifierError } from "./utils.js";
+import { EsmResolutionContext, InvalidModuleSpecifierError } from "./utils.js";
 
 interface ResolvePackageImportsExportsOptions {
   matchKey: string;
@@ -9,7 +9,7 @@ interface ResolvePackageImportsExportsOptions {
   isImports?: boolean;
 }
 export async function resolvePackageImportsExports(
-  context: Context,
+  context: EsmResolutionContext,
   { matchKey, matchObj, isImports }: ResolvePackageImportsExportsOptions,
 ) {
   // If matchKey is a key of matchObj and does not contain "*", then

@@ -243,7 +243,7 @@ describe("packages", () => {
         await expect(resolveModule(host, "test-lib", { baseDir: "/ws/proj" })).rejects.toThrowError(
           new ResolveModuleError(
             "INVALID_MODULE_EXPORT_TARGET",
-            `Could not resolve import "test-lib"  using exports defined in /ws/proj/node_modules/test-lib/package.json. Invalid mapping: "index.js".`,
+            `Could not resolve import "test-lib"  using exports defined in file:///ws/proj/node_modules/test-lib. Invalid mapping: "index.js".`,
           ),
         );
       });
@@ -260,7 +260,7 @@ describe("packages", () => {
         ).rejects.toThrowError(
           new ResolveModuleError(
             "MODULE_NOT_FOUND",
-            `Could not resolve import "test-lib/named"  using exports defined in /ws/proj/node_modules/test-lib/package.json.`,
+            `Could not resolve import "test-lib/named"  using exports defined in file:///ws/proj/node_modules/test-lib.`,
           ),
         );
       });
@@ -342,7 +342,7 @@ describe("packages", () => {
             ).rejects.toThrowError(
               new ResolveModuleError(
                 "MODULE_NOT_FOUND",
-                `Could not resolve import "test-lib/named"  using exports defined in /ws/proj/node_modules/test-lib/package.json.`,
+                `Could not resolve import "test-lib/named"  using exports defined in file:///ws/proj/node_modules/test-lib.`,
               ),
             );
           });
