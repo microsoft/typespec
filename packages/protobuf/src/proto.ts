@@ -130,7 +130,6 @@ export const $reserve: ReserveDecorator = (
   target: Type,
   ...reservations: readonly (unknown | number | string)[]
 ) => {
-  console.log("Reserve", reservations);
   const finalReservations = reservations.filter((v) => v != null);
   ctx.program.stateMap(state.reserve).set(target, finalReservations);
 };
