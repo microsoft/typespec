@@ -1,10 +1,11 @@
+import { Exports } from "../../types/package-json.js";
 import { resolvePackageTarget } from "./resolve-package-target.js";
 
 import { Context, InvalidModuleSpecifierError } from "./utils.js";
 
 interface ResolvePackageImportsExportsOptions {
   matchKey: string;
-  matchObj: Record<string, string>;
+  matchObj: Record<string, Exports>;
   isImports?: boolean;
 }
 export async function resolvePackageImportsExports(

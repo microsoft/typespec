@@ -30,11 +30,11 @@ export async function resolvePackageExports(
         return resolved;
       }
     }
-  } else {
+  } else if (isMappings(exports)) {
     // Let resolved be the result of PACKAGE_IMPORTS_EXPORTS_RESOLVE
     const resolvedMatch = await resolvePackageImportsExports(context, {
       matchKey: subpath,
-      matchObj: exports as any,
+      matchObj: exports,
       isImports: false,
     });
 
@@ -49,6 +49,12 @@ export async function resolvePackageExports(
 }
 
 /** Conditions is an export object where all keys are conditions(not a path starting with .). E.g. import, default, types, etc. */
-function isConditions(item: Record<string, Exports>) {
+function isConditions(item: Exports) {
   return typeof item === "object" && Object.keys(item).every((k) => !k.startsWith("."));
+}
+/**
+ * Mappings is an export object where all keys start with '.
+ */
+export function isMappings(exports: Exports): exports is Record<string, Exports> {
+  return typeof exports === "object" && !isConditions(exports);
 }
