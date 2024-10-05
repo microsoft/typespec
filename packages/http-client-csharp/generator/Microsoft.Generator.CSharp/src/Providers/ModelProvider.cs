@@ -9,7 +9,6 @@ using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Snippets;
-using Microsoft.Generator.CSharp.SourceInput;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
@@ -331,12 +330,12 @@ namespace Microsoft.Generator.CSharp.Providers
             var properties = new List<PropertyProvider>(propertiesCount + 1);
 
             Dictionary<string, InputModelProperty> baseProperties = _inputModel.BaseModel?.Properties.ToDictionary(p => p.Name) ?? [];
-
+            var baseModelDiscriminator = _inputModel.BaseModel?.DiscriminatorProperty;
             for (int i = 0; i < propertiesCount; i++)
             {
                 var property = _inputModel.Properties[i];
 
-                if (property.IsDiscriminator && Type.BaseType is not null)
+                if (property.IsDiscriminator && property.Name == baseModelDiscriminator?.Name)
                     continue;
 
                 var outputProperty = CodeModelPlugin.Instance.TypeFactory.CreateProperty(property, this);
@@ -458,9 +457,8 @@ namespace Microsoft.Generator.CSharp.Providers
 
             if (isPrimaryConstructor)
             {
-                baseProperties = _inputModel.GetAllBaseModels()
-                    .Reverse()
-                    .SelectMany(model => CodeModelPlugin.Instance.TypeFactory.CreateModel(model)?.Properties ?? []);
+                // the primary ctor should only include the properties of the direct base model
+                baseProperties = BaseModelProvider?.Properties ?? [];
             }
             else if (BaseModelProvider?.FullConstructor.Signature != null)
             {
@@ -515,24 +513,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     var type = discriminator.Type;
                     if (IsUnknownDiscriminatorModel)
                     {
-                        var discriminatorExpression = discriminator.AsParameter.AsExpression;
-                        if (!type.IsFrameworkType && type.IsEnum)
-                        {
-                            if (type.IsStruct)
-                            {
-                                /* kind != default ? kind : "unknown" */
-                                return new TernaryConditionalExpression(discriminatorExpression.NotEqual(Default), discriminatorExpression, Literal(_inputModel.DiscriminatorValue));
-                            }
-                            else
-                            {
-                                return discriminatorExpression;
-                            }
-                        }
-                        else
-                        {
-                            /* kind ?? "unknown" */
-                            return discriminatorExpression.NullCoalesce(Literal(_inputModel.DiscriminatorValue));
-                        }
+                        return GetUnknownDiscriminatorExpression(discriminator);
                     }
                     else
                     {
@@ -558,15 +539,50 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private ValueExpression GetExpressionForCtor(ParameterProvider parameter, HashSet<PropertyProvider> overriddenProperties, bool isPrimaryConstructor)
         {
-            if (parameter.Property is not null && parameter.Property.IsDiscriminator && _inputModel.DiscriminatorValue != null &&
-                (isPrimaryConstructor || !isPrimaryConstructor && IsUnknownDiscriminatorModel))
+            if (parameter.Property is not null && parameter.Property.IsDiscriminator && _inputModel.DiscriminatorValue != null)
             {
-                return DiscriminatorValueExpression ?? throw new InvalidOperationException($"invalid discriminator {_inputModel.DiscriminatorValue}");
+                if (isPrimaryConstructor)
+                {
+                    return DiscriminatorValueExpression ?? throw new InvalidOperationException($"invalid discriminator {_inputModel.DiscriminatorValue} for property {parameter.Property.Name}");
+                }
+                else if (IsUnknownDiscriminatorModel)
+                {
+                    return GetUnknownDiscriminatorExpression(parameter.Property) ?? throw new InvalidOperationException($"invalid discriminator {_inputModel.DiscriminatorValue} for property {parameter.Property.Name}");
+                }
             }
 
             var paramToUse = parameter.Property is not null && overriddenProperties.Contains(parameter.Property) ? Properties.First(p => p.Name == parameter.Property.Name).AsParameter : parameter;
 
             return paramToUse.Property is not null ? GetConversion(paramToUse.Property) : paramToUse;
+        }
+
+        private ValueExpression? GetUnknownDiscriminatorExpression(PropertyProvider property)
+        {
+            if (!property.IsDiscriminator || _inputModel.DiscriminatorValue == null)
+            {
+                return null;
+            }
+
+            var discriminatorExpression = property.AsParameter.AsExpression;
+            var type = property.Type;
+
+            if (!type.IsFrameworkType && type.IsEnum)
+            {
+                if (type.IsStruct)
+                {
+                    /* kind != default ? kind : "unknown" */
+                    return new TernaryConditionalExpression(discriminatorExpression.NotEqual(Default), discriminatorExpression, Literal(_inputModel.DiscriminatorValue));
+                }
+                else
+                {
+                    return discriminatorExpression;
+                }
+            }
+            else
+            {
+                /* kind ?? "unknown" */
+                return discriminatorExpression.NullCoalesce(Literal(_inputModel.DiscriminatorValue));
+            }
         }
 
         private static void AddInitializationParameterForCtor(
@@ -697,10 +713,15 @@ namespace Microsoft.Generator.CSharp.Providers
         /// <returns>The constructed <see cref="FieldProvider"/> if the model should generate the field.</returns>
         private FieldProvider? BuildRawDataField()
         {
-            // check if there is a raw data field on my base, if so, we do not have to have one here
-            if (BaseModelProvider?.RawDataField != null)
+            // check if there is a raw data field on any of the base models, if so, we do not have to have one here.
+            var baseModelProvider = BaseModelProvider;
+            while (baseModelProvider != null)
             {
-                return null;
+                if (baseModelProvider.RawDataField != null)
+                {
+                    return null;
+                }
+                baseModelProvider = baseModelProvider.BaseModelProvider;
             }
 
             var modifiers = FieldModifiers.Private;

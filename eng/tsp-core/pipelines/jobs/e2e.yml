@@ -25,3 +25,6 @@ jobs:
           artifact: "uitestresults-${{ parameters.os }}-node-${{ parameters.nodeVersion }}"
         displayName: Publish UI tests artifacts
         condition: ne(variables['Agent.OS'], 'Windows_NT')
+
+      - script: node eng/common/scripts/check-for-changed-files.js
+        displayName: Check Git Status For Changed Files

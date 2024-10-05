@@ -1,8 +1,8 @@
 import type { JSONSchemaType as AjvJSONSchemaType } from "ajv";
 import type { TypeEmitter } from "../emitter-framework/type-emitter.js";
 import type { AssetEmitter } from "../emitter-framework/types.js";
+import type { ModuleResolutionResult } from "../module-resolver/module-resolver.js";
 import type { YamlPathTarget, YamlScript } from "../yaml/types.js";
-import type { ModuleResolutionResult } from "./module-resolver.js";
 import type { Numeric } from "./numeric.js";
 import type { Program } from "./program.js";
 import type { TokenFlags } from "./scanner.js";
@@ -2352,9 +2352,35 @@ export type DiagnosticFormat<
     ? { format: Record<A[number], string> }
     : Record<string, unknown>;
 
+/**
+ * Declare a diagnostic that can be reported by the library.
+ *
+ * @example
+ *
+ * ```ts
+ * unterminated: {
+ *   severity: "error",
+ *   description: "Unterminated token.",
+ *   url: "https://example.com/docs/diags/unterminated",
+ *   messages: {
+ *     default: paramMessage`Unterminated ${"token"}.`,
+ *   },
+ * },
+ * ```
+ */
 export interface DiagnosticDefinition<M extends DiagnosticMessages> {
+  /**
+   * Diagnostic severity.
+   * - `warning` - Suppressable, should be used to represent potential issues but not blocking.
+   * - `error` - Non-suppressable, should be used to represent failure to move forward.
+   */
   readonly severity: "warning" | "error";
+  /** Messages that can be reported with the diagnostic. */
   readonly messages: M;
+  /** Short description of the diagnostic */
+  readonly description?: string;
+  /** Specifies the URL at which the full documentation can be accessed. */
+  readonly url?: string;
 }
 
 export interface DiagnosticMessages {

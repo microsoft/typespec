@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import { cleanupBody } from "./body-utils.js";
 
 describe("BodyUtils", () => {

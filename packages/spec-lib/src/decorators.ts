@@ -31,9 +31,7 @@ export const $scenario: ScenarioDecorator = (context, target, name?) => {
 };
 
 export const $scenarioDoc: ScenarioDocDecorator = (context, target, doc, formatArgs?) => {
-  const formattedDoc = formatArgs
-    ? replaceTemplatedStringFromProperties(doc as unknown as string, formatArgs as Model)
-    : doc;
+  const formattedDoc = formatArgs ? replaceTemplatedStringFromProperties(doc, formatArgs) : doc;
   context.program.stateMap(SpecLibStateKeys.ScenarioDoc).set(target, formattedDoc);
 };
 
@@ -58,7 +56,7 @@ export const $scenarioService: ScenarioServiceDecorator = (context, target, rout
     projectionsByName: [],
   } as any);
   context.call($server, target, "http://localhost:3000", "TestServer endpoint");
-  context.call($route, target, route as unknown as string);
+  context.call($route, target, route);
 };
 
 export function getScenarioDoc(

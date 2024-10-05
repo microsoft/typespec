@@ -413,6 +413,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return [.. methods];
         }
 
+        protected override TypeSignatureModifiers GetDeclarationModifiers() => GetCustomCodeModifiers();
+
         private ParameterProvider BuildClientEndpointParameter()
         {
             var endpointParam = _inputClient.Parameters.FirstOrDefault(p => p.IsEndpoint);

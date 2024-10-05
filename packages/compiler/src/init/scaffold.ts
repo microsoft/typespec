@@ -1,9 +1,9 @@
 import { stringify } from "yaml";
 import { TypeSpecConfigFilename } from "../config/config-loader.js";
 import { formatTypeSpec } from "../core/formatter.js";
-import { NodePackage } from "../core/module-resolver.js";
 import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
 import { CompilerHost } from "../core/types.js";
+import { PackageJson } from "../types/package-json.js";
 import { readUrlOrPath, resolveRelativeUrlOrPath } from "../utils/misc.js";
 import { FileTemplatingContext, createFileTemplatingContext, render } from "./file-templating.js";
 import {
@@ -117,7 +117,7 @@ async function writePackageJson(host: CompilerHost, config: ScaffoldingConfig) {
     devDependencies[library.name] = await getLibraryVersion(library);
   }
 
-  const packageJson: NodePackage = {
+  const packageJson: PackageJson = {
     name: config.name,
     version: "0.1.0",
     type: "module",
