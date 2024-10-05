@@ -55,7 +55,8 @@
     "@typespec/rest": "workspace:~",
     "@typespec/sse": "workspace:~",
     "@typespec/streams": "workspace:~",
-    "@typespec/versioning": "workspace:~"
+    "@typespec/versioning": "workspace:~",
+    "@typespec/protobuf": "workspace:~"
   },
   "devDependencies": {
     "@types/node": "~22.7.1",

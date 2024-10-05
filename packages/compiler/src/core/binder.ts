@@ -1,5 +1,5 @@
 import { mutate } from "../utils/misc.js";
-import { compilerAssert } from "./diagnostics.js";
+import { compilerAssert, reportDeprecated } from "./diagnostics.js";
 import { getLocationContext } from "./helpers/location-context.js";
 import { visitChildren } from "./parser.js";
 import type { Program } from "./program.js";
@@ -137,6 +137,16 @@ export function createBinder(program: Program): Binder {
         const context = getLocationContext(program, sourceFile);
         if (context.type === "library" || context.type === "project") {
           mutate(context).flags = member as any;
+          if ((member as any).decoratorArgMarshalling === "legacy") {
+            reportDeprecated(
+              program,
+              [
+                `decoratorArgMarshalling: "legacy" flag is deprecated and will be removed in a future release.`,
+                'Change value to "new" or remove the flag to use the current default behavior.',
+              ].join("\n"),
+              sourceFile,
+            );
+          }
         }
       } else if (key === "$decorators") {
         const value: DecoratorImplementations = member as any;

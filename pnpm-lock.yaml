@@ -1343,6 +1343,9 @@ importers:
       '@typespec/openapi3':
         specifier: workspace:~
         version: link:../openapi3
+      '@typespec/protobuf':
+        specifier: workspace:~
+        version: link:../protobuf
       '@typespec/rest':
         specifier: workspace:~
         version: link:../rest

@@ -2501,18 +2501,18 @@ export interface DecoratorImplementations {
 export interface PackageFlags {
   /**
    * Decorator arg marshalling algorithm. Specify how TypeSpec values are marshalled to decorator arguments.
-   * - `lossless` - New recommended behavior
+   * - `new` - New recommended behavior
    *  - string value -> `string`
    *  - numeric value -> `number` if the constraint can be represented as a JS number, Numeric otherwise(e.g. for types int64, decimal128, numeric, etc.)
    *  - boolean value -> `boolean`
    *  - null value -> `null`
    *
-   * - `legacy` Behavior before version 0.56.0.
+   * - `legacy` - DEPRECATED -  Behavior before version 0.56.0.
    *  - string value -> `string`
    *  - numeric value -> `number`
    *  - boolean value -> `boolean`
    *  - null value -> `NullType`
-   * @default legacy
+   * @default new
    */
   readonly decoratorArgMarshalling?: "legacy" | "new";
 }
