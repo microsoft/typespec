@@ -52,7 +52,8 @@
     "@typespec/openapi": "workspace:~",
     "@typespec/openapi3": "workspace:~",
     "@typespec/rest": "workspace:~",
-    "@typespec/versioning": "workspace:~"
+    "@typespec/versioning": "workspace:~",
+    "@typespec/protobuf": "workspace:~"
   },
   "devDependencies": {
     "@types/node": "~22.7.1",

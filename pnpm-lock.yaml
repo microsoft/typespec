@@ -330,7 +330,7 @@ importers:
         version: link:../tmlanguage-generator
       ts-node:
         specifier: ~10.9.2
-        version: 10.9.2(@swc/core@1.7.28(@swc/helpers@0.5.8))(@types/node@22.7.3)(typescript@5.6.2)
+        version: 10.9.2(@swc/core@1.7.28)(@types/node@22.7.3)(typescript@5.6.2)
       typescript:
         specifier: ~5.6.2
         version: 5.6.2
@@ -1301,6 +1301,9 @@ importers:
       '@typespec/openapi3':
         specifier: workspace:~
         version: link:../openapi3
+      '@typespec/protobuf':
+        specifier: workspace:~
+        version: link:../protobuf
       '@typespec/rest':
         specifier: workspace:~
         version: link:../rest
@@ -25514,7 +25517,7 @@ snapshots:
 
   ts-dedent@2.2.0: {}
 
-  ts-node@10.9.2(@swc/core@1.7.28(@swc/helpers@0.5.8))(@types/node@22.7.3)(typescript@5.6.2):
+  ts-node@10.9.2(@swc/core@1.7.28)(@types/node@22.7.3)(typescript@5.6.2):
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
       '@tsconfig/node10': 1.0.11
