@@ -1,6 +1,6 @@
-import "@typespec/http";
+import "@typespec/http/streams";
 
-using Http;
+using Http.Streams;
 
 namespace TypeSpec.SSE;
 

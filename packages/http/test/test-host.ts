@@ -6,7 +6,6 @@ import {
   expectDiagnosticEmpty,
   TestHost,
 } from "@typespec/compiler/testing";
-import { StreamsTestLibrary } from "@typespec/streams/testing";
 import {
   getAllHttpServices,
   HttpOperation,
@@ -18,7 +17,7 @@ import { HttpTestLibrary } from "../src/testing/index.js";
 
 export async function createHttpTestHost(): Promise<TestHost> {
   return createTestHost({
-    libraries: [StreamsTestLibrary, HttpTestLibrary],
+    libraries: [HttpTestLibrary],
   });
 }
 export async function createHttpTestRunner(): Promise<BasicTestRunner> {

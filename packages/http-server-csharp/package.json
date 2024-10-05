@@ -66,7 +66,6 @@
     "@typespec/library-linter": "workspace:~",
     "@typespec/openapi": "workspace:~",
     "@typespec/rest": "workspace:~",
-    "@typespec/streams": "workspace:~",
     "@typespec/tspd": "workspace:~",
     "@vitest/coverage-v8": "^2.1.1",
     "@vitest/ui": "^2.1.1",

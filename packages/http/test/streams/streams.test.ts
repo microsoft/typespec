@@ -1,13 +1,24 @@
-import type { BasicTestRunner } from "@typespec/compiler/testing";
+import {
+  createTestHost,
+  createTestWrapper,
+  type BasicTestRunner,
+} from "@typespec/compiler/testing";
 import { getStreamOf } from "@typespec/streams";
+import { StreamsTestLibrary } from "@typespec/streams/testing";
 import { assert, beforeEach, describe, expect, it } from "vitest";
-import { getContentTypes } from "../src/content-types.js";
-import { createHttpTestRunner } from "./test-host.js";
+import { getContentTypes } from "../../src/content-types.js";
+import { HttpTestLibrary } from "../../src/testing/index.js";
 
 let runner: BasicTestRunner;
 
 beforeEach(async () => {
-  runner = await createHttpTestRunner();
+  const host = await createTestHost({
+    libraries: [StreamsTestLibrary, HttpTestLibrary],
+  });
+  runner = createTestWrapper(host, {
+    autoImports: [`@typespec/http/streams`],
+    autoUsings: ["TypeSpec.Http.Streams"],
+  });
 });
 
 describe("HttpStream", () => {

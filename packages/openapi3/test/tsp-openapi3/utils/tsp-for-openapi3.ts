@@ -1,7 +1,6 @@
 import { createTestHost } from "@typespec/compiler/testing";
 import { HttpTestLibrary } from "@typespec/http/testing";
 import { OpenAPITestLibrary } from "@typespec/openapi/testing";
-import { StreamsTestLibrary } from "@typespec/streams/testing";
 import assert from "node:assert";
 import { convertOpenAPI3Document } from "../../../src/index.js";
 import { OpenAPI3TestLibrary } from "../../../src/testing/index.js";
@@ -44,7 +43,7 @@ export async function tspForOpenAPI3({ parameters, schemas }: OpenAPI3Options) {
   const code = await convertOpenAPI3Document(openApi3Doc);
   const testableCode = wrapCodeInTest(code);
   const host = await createTestHost({
-    libraries: [StreamsTestLibrary, HttpTestLibrary, OpenAPITestLibrary, OpenAPI3TestLibrary],
+    libraries: [HttpTestLibrary, OpenAPITestLibrary, OpenAPI3TestLibrary],
   });
   host.addTypeSpecFile("main.tsp", testableCode);
 

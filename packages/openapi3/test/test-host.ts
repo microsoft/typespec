@@ -8,7 +8,6 @@ import {
 import { HttpTestLibrary } from "@typespec/http/testing";
 import { OpenAPITestLibrary } from "@typespec/openapi/testing";
 import { RestTestLibrary } from "@typespec/rest/testing";
-import { StreamsTestLibrary } from "@typespec/streams/testing";
 import { VersioningTestLibrary } from "@typespec/versioning/testing";
 import { ok } from "assert";
 import { OpenAPI3EmitterOptions } from "../src/lib.js";
@@ -18,7 +17,6 @@ import { OpenAPI3Document } from "../src/types.js";
 export async function createOpenAPITestHost() {
   return createTestHost({
     libraries: [
-      StreamsTestLibrary,
       HttpTestLibrary,
       RestTestLibrary,
       VersioningTestLibrary,
