@@ -81,11 +81,6 @@ export function canNumericConstraintBeJsNumber(type: Type | undefined): boolean 
   if (type === undefined) return true;
   switch (type.kind) {
     case "Scalar":
-      console.log(
-        "Scalar",
-        type.name,
-        numericRanges[type.name as keyof typeof numericRanges]?.[2].isJsNumber,
-      );
       if (isNumericScalar(type)) {
         return numericRanges[type.name as keyof typeof numericRanges]?.[2].isJsNumber;
       } else {
