@@ -13,6 +13,7 @@ import {
   type ReactNode,
 } from "react";
 import { CompletionItemTag } from "vscode-languageserver";
+import { resolveVirtualPath } from "../browser-host.js";
 import { EditorCommandBar } from "../editor-command-bar/editor-command-bar.js";
 import { getMonacoRange } from "../services.js";
 import type { BrowserHost, PlaygroundSample } from "../types.js";
@@ -343,7 +344,7 @@ async function compile(
   await emptyOutputDir(host);
   try {
     const typespecCompiler = host.compiler;
-    const program = await typespecCompiler.compile(host, "main.tsp", {
+    const program = await typespecCompiler.compile(host, resolveVirtualPath("main.tsp"), {
       ...options,
       options: {
         ...options.options,

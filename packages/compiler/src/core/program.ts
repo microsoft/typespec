@@ -5,6 +5,7 @@ import { validateEncodedNamesConflicts } from "../lib/encoded-names.js";
 import { MANIFEST } from "../manifest.js";
 import {
   ModuleResolutionResult,
+  ResolveModuleError,
   ResolveModuleHost,
   ResolvedModule,
   resolveModule,
@@ -26,7 +27,13 @@ import { CompilerOptions } from "./options.js";
 import { parse, parseStandaloneTypeReference } from "./parser.js";
 import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
 import { createProjector } from "./projector.js";
-import { SourceLoader, SourceResolution, createSourceLoader, loadJsFile } from "./source-loader.js";
+import {
+  SourceLoader,
+  SourceResolution,
+  createSourceLoader,
+  loadJsFile,
+  moduleResolutionErrorToDiagnostic,
+} from "./source-loader.js";
 import { StateMap, StateSet, createStateAccessors } from "./state-accessors.js";
 import {
   CompilerHost,
@@ -148,7 +155,6 @@ export async function compile(
   const logger = createLogger({ sink: host.logSink });
   const tracer = createTracer(logger, { filter: options.trace });
   const resolvedMain = await resolveTypeSpecEntrypoint(host, mainFile, reportDiagnostic);
-
   const program: Program = {
     checker: undefined!,
     compilerOptions: resolveOptions(options),
@@ -190,11 +196,10 @@ export async function compile(
   if (resolvedMain === undefined) {
     return program;
   }
-  await checkForCompilerVersionMismatch(resolvedMain);
+  const basedir = getDirectoryPath(resolvedMain) || "/";
+  await checkForCompilerVersionMismatch(basedir);
 
   await loadSources(resolvedMain);
-
-  const basedir = getDirectoryPath(resolvedMain);
 
   let emit = options.emit;
   let emitterOptions = options.options;
@@ -632,28 +637,8 @@ export async function compile(
     try {
       return [await resolveModule(getResolveModuleHost(), specifier, { baseDir }), []];
     } catch (e: any) {
-      if (e.code === "MODULE_NOT_FOUND") {
-        return [
-          undefined,
-          [
-            createDiagnostic({
-              code: "import-not-found",
-              format: { path: specifier },
-              target: NoTarget,
-            }),
-          ],
-        ];
-      } else if (e.code === "INVALID_MAIN") {
-        return [
-          undefined,
-          [
-            createDiagnostic({
-              code: "library-invalid",
-              format: { path: specifier },
-              target: NoTarget,
-            }),
-          ],
-        ];
+      if (e instanceof ResolveModuleError) {
+        return [undefined, [moduleResolutionErrorToDiagnostic(e, specifier, NoTarget)]];
       } else {
         throw e;
       }
@@ -677,8 +662,7 @@ export async function compile(
   // different version of TypeSpec than the current one. Abort the compilation
   // with an error if the TypeSpec entry point resolves to a different local
   // compiler.
-  async function checkForCompilerVersionMismatch(mainPath: string): Promise<boolean> {
-    const baseDir = getDirectoryPath(mainPath);
+  async function checkForCompilerVersionMismatch(baseDir: string): Promise<boolean> {
     let actual: ResolvedModule;
     try {
       const resolved = await resolveModule(
