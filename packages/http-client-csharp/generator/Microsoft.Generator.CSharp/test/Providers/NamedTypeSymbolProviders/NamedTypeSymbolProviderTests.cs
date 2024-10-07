@@ -99,7 +99,9 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.NamedTypeSymbolProviders
             Assert.IsNotNull(property);
 
             bool isNullable = Nullable.GetUnderlyingType(propertyType) != null;
-            var expectedType = new CSharpType(propertyType, isNullable);
+            var expectedType = propertyType.FullName!.StartsWith("System") ? new CSharpType(propertyType, isNullable) :
+                new CSharpType(propertyType.Name, propertyType.Namespace!, false, isNullable, null, [], false, false);
+
             var propertyCSharpType = property!.Type;
 
             Assert.AreEqual(expectedType.Name, propertyCSharpType.Name);
@@ -107,6 +109,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.NamedTypeSymbolProviders
             Assert.AreEqual(expectedType.IsList, propertyCSharpType.IsList);
             Assert.AreEqual(expectedType.Arguments.Count, propertyCSharpType.Arguments.Count);
             Assert.AreEqual(expectedType.IsCollection, propertyCSharpType.IsCollection);
+            Assert.AreEqual(expectedType.IsFrameworkType, propertyCSharpType.IsFrameworkType);
 
             for (var i = 0; i < expectedType.Arguments.Count; i++)
             {
