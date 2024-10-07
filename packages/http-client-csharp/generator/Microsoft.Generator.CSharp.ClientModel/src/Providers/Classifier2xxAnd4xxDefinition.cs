@@ -17,14 +17,16 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
     internal class Classifier2xxAnd4xxDefinition : TypeProvider
     {
+        private readonly TypeProvider _declaringTypeProvider;
         public Classifier2xxAnd4xxDefinition(TypeProvider declaringType)
         {
-            DeclaringTypeProvider = declaringType;
+            _declaringTypeProvider = declaringType;
+            DeclaringTypeProvider = _declaringTypeProvider;
         }
 
         protected override string BuildName() => "Classifier2xxAnd4xx";
 
-        protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{DeclaringTypeProvider!.Name}.RestClient.cs");
+        protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{_declaringTypeProvider.Name}.RestClient.cs");
 
         protected override TypeSignatureModifiers GetDeclarationModifiers()
             => TypeSignatureModifiers.Private | TypeSignatureModifiers.Class;
@@ -33,6 +35,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             return [BuildTryClassifyErrorMethod(), BuildTryClassifyRetryMethod()];
         }
+
+        protected override string GetNamespace() => _declaringTypeProvider.Type.Namespace;
 
         protected override CSharpType[] BuildImplements()
         {
