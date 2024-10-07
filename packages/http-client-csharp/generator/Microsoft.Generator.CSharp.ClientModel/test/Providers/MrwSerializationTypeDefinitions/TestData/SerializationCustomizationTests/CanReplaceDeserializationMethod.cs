@@ -20,6 +20,49 @@ namespace Sample.Models
             writer.WriteEndObject();
         }
 
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        {
+            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.MockInputModel>)this).GetFormatFromOptions(options) : options.Format;
+            if ((format != "J"))
+            {
+                throw new global::System.FormatException($"The model {nameof(global::Sample.Models.MockInputModel)} does not support writing '{format}' format.");
+            }
+            if (global::Sample.Optional.IsDefined(Prop1))
+            {
+                writer.WritePropertyName("prop1"u8);
+                writer.WriteStringValue(Prop1);
+            }
+            if (global::Sample.Optional.IsDefined(Prop2))
+            {
+                if ((Prop2 != null))
+                {
+                    writer.WritePropertyName("prop2"u8);
+                    writer.WriteStringValue(Prop2);
+                }
+                else
+                {
+                    writer.WriteNull("prop2"u8);
+                }
+            }
+            if (((options.Format != "W") && (_additionalBinaryDataProperties != null)))
+            {
+                foreach (var item in _additionalBinaryDataProperties)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(item.Value))
+                    {
+                        global::System.Text.Json.JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
+            }
+        }
+
         global::Sample.Models.MockInputModel global::System.ClientModel.Primitives.IJsonModel<global::Sample.Models.MockInputModel>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => ((global::Sample.Models.MockInputModel)this.JsonModelCreateCore(ref reader, options));
 
         /// <param name="reader"> The JSON reader. </param>

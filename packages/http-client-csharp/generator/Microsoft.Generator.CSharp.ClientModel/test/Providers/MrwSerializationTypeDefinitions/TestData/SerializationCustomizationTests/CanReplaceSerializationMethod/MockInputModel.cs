@@ -21,10 +21,10 @@ namespace Sample.Models
             {
                 throw new FormatException($"The model {nameof(MockInputModel)} does not support writing '{format}' format.");
             }
-            if (Sample.Optional.IsDefined(Prop1))
+            if (Optional.IsDefined(Prop1))
             {
                 writer.WritePropertyName("prop1"u8);
-                this.SerializationMethod(writer, options);
+                writer.WriteStringValue(Prop1);
             }
             // customization: remove Prop2 serialization
             if (((options.Format != "W") && (_additionalBinaryDataProperties != null)))
@@ -42,36 +42,6 @@ namespace Sample.Models
 #endif
                 }
             }
-        }
-
-        internal static MockInputModel DeserializeMockInputModel(JsonElement element, ModelReaderWriterOptions options)
-        {
-            if ((element.ValueKind == JsonValueKind.Null))
-            {
-                return null;
-            }
-            string prop1 = default;
-            string prop2 = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
-            foreach (var prop in element.EnumerateObject())
-            {
-                if (prop.NameEquals("prop1"u8))
-                {
-                    if ((prop.Value.ValueKind == JsonValueKind.Null))
-                    {
-                        prop1 = null;
-                        continue;
-                    }
-                    prop1 = prop.Value.GetString();
-                    continue;
-                }
-                // customization: remove Prop2 deserialization
-                if ((options.Format != "W"))
-                {
-                    additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
-                }
-            }
-            return new MockInputModel(prop1, prop2, additionalBinaryDataProperties);
         }
     }
 }
