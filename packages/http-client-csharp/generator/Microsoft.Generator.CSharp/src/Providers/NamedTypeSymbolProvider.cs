@@ -277,13 +277,8 @@ namespace Microsoft.Generator.CSharp.Providers
             var fullyQualifiedName = GetFullyQualifiedName(typeSymbol);
             var namedTypeSymbol = typeSymbol as INamedTypeSymbol;
 
-            //if fully qualified name is in the namespace of the library being emitted find it from the outputlibrary
-            if (fullyQualifiedName.StartsWith(CodeModelPlugin.Instance.Configuration.RootNamespace, StringComparison.Ordinal))
-            {
-                return ConstructCSharpTypeFromSymbol(typeSymbol, fullyQualifiedName, namedTypeSymbol);
-            }
+            Type? type = LoadFrameworkType(fullyQualifiedName);
 
-            Type? type = System.Type.GetType(fullyQualifiedName);
             if (type is null)
             {
                 return ConstructCSharpTypeFromSymbol(typeSymbol, fullyQualifiedName, namedTypeSymbol);
@@ -296,6 +291,16 @@ namespace Microsoft.Generator.CSharp.Providers
             }
 
             return result;
+        }
+
+        private static Type? LoadFrameworkType(string fullyQualifiedName)
+        {
+            return fullyQualifiedName switch
+            {
+                // Special case for types that would not be defined in corlib, but should still be considered framework types.
+                "System.BinaryData" => typeof(BinaryData),
+                _ => System.Type.GetType(fullyQualifiedName)
+            };
         }
 
         private CSharpType ConstructCSharpTypeFromSymbol(
