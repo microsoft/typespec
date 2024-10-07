@@ -1,10 +1,9 @@
 {
-  "name": "@typespec/http",
+  "name": "@typespec/streams",
   "version": "0.60.0",
   "author": "Microsoft Corporation",
-  "description": "TypeSpec HTTP protocol binding",
-  "homepage": "https://github.com/microsoft/typespec",
-  "docusaurusWebsite": "https://typespec.io/docs",
+  "description": "TypeSpec library providing stream bindings",
+  "homepage": "https://typespec.io",
   "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
   "license": "MIT",
   "repository": {
@@ -19,7 +18,7 @@
   ],
   "type": "module",
   "main": "dist/src/index.js",
-  "tspMain": "lib/http.tsp",
+  "tspMain": "lib/main.tsp",
   "exports": {
     ".": {
       "types": "./dist/src/index.d.ts",
@@ -28,11 +27,6 @@
     "./testing": {
       "types": "./dist/src/testing/index.d.ts",
       "default": "./dist/src/testing/index.js"
-    },
-    "./streams": {
-      "typespec": "./lib/streams/main.tsp",
-      "types": "./dist/src/streams/index.d.ts",
-      "default": "./dist/src/streams/index.js"
     }
   },
   "engines": {
@@ -47,30 +41,23 @@
     "test": "vitest run",
     "test:watch": "vitest -w",
     "test:ui": "vitest --ui",
-    "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
-    "lint": "eslint . --max-warnings=0",
-    "lint:fix": "eslint . --fix",
-    "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../docs/libraries/http/reference"
+    "test-official": "vitest run --coverage --reporter=junit --reporter=default --no-file-parallelism",
+    "lint": "eslint . --ext .ts --max-warnings=0",
+    "lint:fix": "eslint . --fix --ext .ts",
+    "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../docs/libraries/streams/reference"
   },
   "files": [
-    "lib/**/*.tsp",
+    "lib/*.tsp",
     "dist/**",
     "!dist/test/**"
   ],
   "peerDependencies": {
-    "@typespec/compiler": "workspace:~",
-    "@typespec/streams": "workspace:~"
-  },
-  "peerDependenciesMeta": {
-    "@typespec/streams": {
-      "optional": true
-    }
+    "@typespec/compiler": "workspace:~"
   },
   "devDependencies": {
     "@types/node": "~22.7.1",
     "@typespec/compiler": "workspace:~",
     "@typespec/library-linter": "workspace:~",
-    "@typespec/streams": "workspace:~",
     "@typespec/tspd": "workspace:~",
     "@vitest/coverage-v8": "^2.1.1",
     "@vitest/ui": "^2.1.1",
