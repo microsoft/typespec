@@ -103,13 +103,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             // validate other optional parameters as fields
             if (containsAdditionalOptionalParams)
             {
-                var optionalParam2Field = fields.FirstOrDefault(f => f.Name == "_optionalParam2");
-                Assert.IsNotNull(optionalParam2Field);
-                Assert.AreEqual(new CSharpType(typeof(string)), optionalParam2Field?.Type);
-
                 var optionalParamField = fields.FirstOrDefault(f => f.Name == "_optionalParam");
                 Assert.IsNotNull(optionalParamField);
                 Assert.AreEqual(new CSharpType(typeof(string)), optionalParamField?.Type);
+
+                var optionalParam2Field = fields.FirstOrDefault(f => f.Name == "_optionalParam2");
+                Assert.IsNotNull(optionalParam2Field);
+                Assert.AreEqual(new CSharpType(typeof(string)), optionalParam2Field?.Type);
 
                 var optionalParam3Field = fields.FirstOrDefault(f => f.Name == "_optionalParam3");
                 Assert.IsNotNull(optionalParam3Field);
