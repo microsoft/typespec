@@ -437,7 +437,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
             for (int i = 0; i < parameterTypes.Length; i++)
             {
-                var parameterType = NamedTypeSymbolProvider.GetCSharpType((ITypeSymbol)parameterTypes[i]!);
+                var parameterType = ((ITypeSymbol)parameterTypes[i]!).GetCSharpType();
                 if (parameterType.Name != signature.Parameters[i].Type.Name || parameterType.IsNullable != signature.Parameters[i].Type.IsNullable)
                 {
                     return false;
