@@ -40,6 +40,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private ParameterProvider? _clientOptionsParameter;
         private ClientOptionsProvider? _clientOptions;
         private RestClientProvider? _restClient;
+        private readonly InputParameter[] _allClientParameters;
 
         private ParameterProvider? ClientOptionsParameter => _clientOptionsParameter ??= ClientOptions != null
             ? ScmKnownParameters.ClientOptions(ClientOptions.Type)
@@ -106,6 +107,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             _endpointParameterName = new(GetEndpointParameterName);
+
+            _allClientParameters = _inputClient.Parameters.Concat(_inputClient.Operations.SelectMany(op => op.Parameters).Where(p => p.Kind == InputOperationParameterKind.Client)).DistinctBy(p => p.Name).ToArray();
         }
 
         private List<ParameterProvider>? _uriParameters;
@@ -161,9 +164,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 }
             }
 
-            // Add optional client parameters and onClient: true parameter from operations as fields
-            var allParameters = _inputClient.Parameters.Concat(_inputClient.Operations.SelectMany(op => op.Parameters).Where(p => p.Kind == InputOperationParameterKind.Client)).DistinctBy(p => p.Name);
-            foreach (var p in allParameters)
+            foreach (var p in _allClientParameters)
             {
                 if (!p.IsEndpoint)
                 {
@@ -248,8 +249,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _uriParameters = [];
 
             ParameterProvider? currentParam = null;
-            var allParameters = _inputClient.Parameters.Concat(_inputClient.Operations.SelectMany(op => op.Parameters).Where(p => p.Kind == InputOperationParameterKind.Client)).DistinctBy(p => p.Name);
-            foreach (var parameter in allParameters)
+            foreach (var parameter in _allClientParameters)
             {
                 if (parameter.IsRequired && !parameter.IsEndpoint && !parameter.IsApiVersion)
                 {
