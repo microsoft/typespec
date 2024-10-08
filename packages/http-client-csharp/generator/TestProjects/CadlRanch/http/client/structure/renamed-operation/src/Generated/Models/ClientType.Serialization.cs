@@ -4,7 +4,7 @@
 
 using System;
 
-namespace Client.Structure.Service.renamed.operation.Models
+namespace Client.Structure.Service.Models
 {
     internal static partial class ClientTypeExtensions
     {

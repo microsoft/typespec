@@ -7,9 +7,9 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using Client.Structure.Service.renamed.operation.Models;
+using Client.Structure.Service.Models;
 
-namespace Client.Structure.Service.renamed.operation
+namespace Client.Structure.Service
 {
     /// <summary></summary>
     public partial class RenamedOperationClient

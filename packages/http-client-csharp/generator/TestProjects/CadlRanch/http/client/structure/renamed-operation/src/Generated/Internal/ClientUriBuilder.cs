@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Client.Structure.Service.renamed.operation
+namespace Client.Structure.Service
 {
     internal partial class ClientUriBuilder
     {

@@ -6,7 +6,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading.Tasks;
 
-namespace Client.Structure.Service.renamed.operation
+namespace Client.Structure.Service
 {
     internal static partial class ClientPipelineExtensions
     {

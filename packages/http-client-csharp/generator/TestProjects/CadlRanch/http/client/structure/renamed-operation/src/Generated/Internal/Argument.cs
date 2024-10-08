@@ -6,7 +6,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Client.Structure.Service.renamed.operation
+namespace Client.Structure.Service
 {
     internal static partial class Argument
     {

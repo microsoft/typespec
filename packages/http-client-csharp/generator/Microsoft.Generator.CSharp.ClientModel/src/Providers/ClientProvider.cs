@@ -472,7 +472,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         // TODO: Update method to be more efficient
         private ClientProvider? GetParent()
         {
-            var parentClient = ClientModelPlugin.Instance.InputLibrary.InputNamespace.Clients.Where(iclient => iclient.Name == _inputClient.Parent).FirstOrDefault();
+            var parentClient = ClientModelPlugin.Instance.InputLibrary.InputNamespace.Clients.Where(inputclient => inputclient.Name == _inputClient.Parent).FirstOrDefault();
             if (parentClient is not null)
                 return ClientModelPlugin.Instance.TypeFactory.CreateClient(parentClient!); // do null check
             return null;
