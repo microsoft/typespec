@@ -76,12 +76,54 @@ it("with docs", async () => {
   const output = await getOutput(code, ["TestClass"]);
   expect(output).toBe(d`
     class TestClass:
-      """Some test class"""
+      """
+      Some test class
+      """
 
       def __init__(self, name: str):
         """
         Initializes a new instance of TestClass.
 
+        :param name: The name
+        """
+        self.name = name
+  `);
+});
+
+it.only("with template and AND expression", async () => {
+  const code = `
+    model NotModifiedResponse {
+      status_code: 304;
+    }
+
+    model Pet {
+      /** The name */
+      name: string;
+    }
+
+    op test(): (NotModifiedResponse & Pet);
+  `;
+  const output = await getEmitOutput(code, (program) => {
+    const testItem = program.getGlobalNamespaceType().operations.get("test")!.returnType;
+    const classComponent = <ClassDeclaration type={testItem as Model} />;
+    return (
+      <PythonPackage name="test_package">
+        <PythonModule name="test.py">
+          {classComponent}
+        </PythonModule>
+      </PythonPackage>
+    )
+  });
+  if (typeof output === "string") {
+    output.trim();
+  }
+  expect(output).toBe(d`
+    class NotModifiedResponsePet:
+      STATUS_CODE = 304
+      def __init__(self, name: str):
+        """
+        Initializes an instance of NotModifiedResponsePet.
+        
         :param name: The name
         """
         self.name = name

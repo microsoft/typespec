@@ -8,6 +8,7 @@ export * from "./constant-declaration.jsx";
 export * from "./declaration.jsx";
 export * from "./decorator.jsx";
 export * from "./dictionary-expression.jsx";
+export * from "./docstring.jsx";
 export * from "./function-declaration.jsx";
 export * from "./import-statement.jsx";
 export * from "./init-declaration.jsx";
