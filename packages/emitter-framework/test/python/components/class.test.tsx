@@ -53,13 +53,21 @@ it("with instance variables", async () => {
   const code = `
     model TestClass {
       fooVar: string;
-      barVar: int16;
+      barVar?: int16;
     }
   `;
   const output = await getOutput(code, ["TestClass"]);
   expect(output).toBe(d`
     class TestClass:
-      def __init__(self, foo_var: str, bar_var: int):
+      def __init__(self, foo_var: str, bar_var: Optional[int]):
+        """
+        Initializes an instance of TestClass.
+        
+        :param foo_var:
+        :type foo_var: str
+        :param bar_var:
+        :type bar_var: Optional[int]
+        """
         self.foo_var = foo_var
         self.bar_var = bar_var
   `);
@@ -79,18 +87,18 @@ it("with docs", async () => {
       """
       Some test class
       """
-
       def __init__(self, name: str):
         """
-        Initializes a new instance of TestClass.
-
+        Initializes an instance of TestClass.
+        
         :param name: The name
+        :type name: str
         """
         self.name = name
   `);
 });
 
-it.only("with template and AND expression", async () => {
+it("with anonymous model from intersection", async () => {
   const code = `
     model NotModifiedResponse {
       status_code: 304;
@@ -125,6 +133,7 @@ it.only("with template and AND expression", async () => {
         Initializes an instance of NotModifiedResponsePet.
         
         :param name: The name
+        :type name: str
         """
         self.name = name
   `);

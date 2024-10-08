@@ -70,9 +70,6 @@ export function TypeExpression(props: TypeExpressionProps) {
   }
 }
 
-// COMMENT: Since every language is going to have its own intrinsic types,
-// I wonder if there's a way to make the outline of this solution generic,
-// like namePolicy.
 const intrinsicNameToPythonType = new Map<string, string>([
   ["unknown", "Any"],
   ["string", "str"],

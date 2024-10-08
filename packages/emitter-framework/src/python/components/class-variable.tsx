@@ -8,8 +8,6 @@ export interface ClassVariableProps {
 export function ClassVariable(props: ClassVariableProps) {
   const name = usePythonNamePolicy().getName(props.type.name, "classMember");
   const varType = props.type.kind === "ModelProperty" ? props.type.type : "string";
-  // TODO: Some way to configure whether you actually want types
-  // Python doesn't require them.
   return (
     <>
       {name}: {varType}

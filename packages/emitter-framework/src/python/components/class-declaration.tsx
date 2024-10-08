@@ -4,7 +4,6 @@ import { Model, Enum, ModelProperty, Type, EnumMember } from "@typespec/compiler
 import { $ } from "@typespec/compiler/typekit";
 import { ClassVariable, ConstantDeclaration, Declaration, Decorator, DecoratorProps, InitDeclaration, PythonModuleContext, TypeExpression, useModule } from "./index.js";
 import { Docstring } from "./docstring.jsx";
-import { N } from "vitest/dist/chunks/reporters.WnPwkmgA.js";
 
 export enum ClassDeclarationFlags {
   None      = 0,
@@ -71,7 +70,6 @@ export function ClassDeclaration(props: ClassDeclarationProps) {
         instanceProperties.push(prop);
       }
     }
-    // TODO: Should this honor extends?
     const baseClass = type.baseModel;
     baseClassComponent = baseClass ? <>(<TypeExpression type={baseClass} />)</> : undefined;
     initializerComponent = instanceProperties.length === 0 ? undefined : <InitDeclaration type={type}/>;

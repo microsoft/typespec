@@ -1,8 +1,9 @@
-import { Children, Declaration, DeclarationProps, mapJoin, Scope } from "@alloy-js/core";
+import { Children, Declaration, DeclarationProps, mapJoin, Output, render, Scope } from "@alloy-js/core";
 import { usePythonNamePolicy } from "../name-policy.js";
 import { Model, ModelProperty } from "@typespec/compiler";
 import { Docstring, TypeExpression, useClass } from "./index.js";
 import { $ } from "@typespec/compiler/typekit";
+import { renderToString } from "@alloy-js/core/testing";
 
 export interface InitDeclarationProps extends Omit<DeclarationProps, "name"> {
   type?: Model;
@@ -20,7 +21,12 @@ export function InitDeclaration(props: InitDeclarationProps) {
   const args = [...(props.type?.properties.values() ?? [])].filter((prop) => !$.literal.is(prop.type));
   const argsClause = mapJoin(args, (arg) => {
     const pythonName = namer.getName(arg.name, "parameter");
-    return <>{pythonName}: <TypeExpression type={arg.type}/></>;
+    if (arg.optional) {
+      // TODO: Ensure that Optional is imported from typing
+      return <>{pythonName}: Optional[<TypeExpression type={arg.type}/>]</>;
+    } else {
+      return <>{pythonName}: <TypeExpression type={arg.type}/></>;
+    }
   },
   {joiner: ", "});
 
@@ -41,8 +47,11 @@ export function InitDeclaration(props: InitDeclarationProps) {
   if (args) {
     docstring += "\n";
     for (const arg of args) {
-      const argDoc = $.type.getDoc(arg);
-      docstring += `\n:param ${arg.name}: ${argDoc}`;
+      const argType = arg.optional ? `Optional[${renderToString(<TypeExpression type={arg.type} />)}]` : renderToString(<TypeExpression type={arg.type} />);
+      const argName = namer.getName(arg.name, "parameter");
+      const argDoc = $.type.getDoc(arg) ?? "";
+      docstring += `\n:param ${argName}: ${argDoc}`.trimEnd();
+      docstring += `\n:type ${argName}: ${argType}`.trimEnd();
     }
   }
   return (
