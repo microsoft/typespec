@@ -39,6 +39,23 @@ describe("compiler: resolve compiler options", () => {
       });
     });
 
+    it("loads config with nested parameters", async () => {
+      const [options, diagnostics] = await resolveOptions("custom/myConfigNested.yaml");
+      expectDiagnosticEmpty(diagnostics);
+
+      deepStrictEqual(options, {
+        config: resolvePath(scenarioRoot, "custom/myConfigNested.yaml"),
+        emit: ["openapi"],
+        options: {
+          description: {
+            name: "Testing name: Sphere",
+            details: { one: "Type: Bar", two: { "two-one": "Default: Metadata default" } },
+          },
+        },
+        outputDir: tspOutputPath,
+      });
+    });
+
     it("emit diagnostics", async () => {
       const [_, diagnostics] = await resolveOptions("not-found.yaml");
       expectDiagnostics(diagnostics, {
