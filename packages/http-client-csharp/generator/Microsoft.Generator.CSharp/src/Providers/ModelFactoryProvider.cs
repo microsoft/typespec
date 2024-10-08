@@ -52,7 +52,12 @@ namespace Microsoft.Generator.CSharp.Providers
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
         protected override TypeSignatureModifiers GetDeclarationModifiers()
-            => TypeSignatureModifiers.Static | TypeSignatureModifiers.Public | TypeSignatureModifiers.Class | TypeSignatureModifiers.Partial;
+        {
+            var customModifiers = GetCustomCodeModifiers();
+            return customModifiers != TypeSignatureModifiers.None
+                ? customModifiers
+                : TypeSignatureModifiers.Static | TypeSignatureModifiers.Public | TypeSignatureModifiers.Class | TypeSignatureModifiers.Partial;
+        }
 
         protected override string GetNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
 
