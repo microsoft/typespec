@@ -13,9 +13,7 @@ async function generateDecoratorSignatures(code: string) {
     ${code}`,
   );
   host.addJsFile("lib.js", {
-    $flags: definePackageFlags({
-      decoratorArgMarshalling: "new",
-    }),
+    $flags: definePackageFlags({}),
   });
   await host.diagnose("main.tsp", {
     parseOptions: { comments: true, docs: true },

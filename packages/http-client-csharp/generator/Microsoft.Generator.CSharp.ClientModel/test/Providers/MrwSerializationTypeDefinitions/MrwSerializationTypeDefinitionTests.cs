@@ -532,6 +532,40 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         }
 
         [Test]
+        public void TestBuildDeserializationMethodNestedSARD()
+        {
+            var baseModel = InputFactory.Model("BaseModel");
+            var nestedModel = InputFactory.Model("NestedModel", baseModel: baseModel);
+            var inputModel = InputFactory.Model("mockInputModel", baseModel: nestedModel);
+            var (baseModelProvider, baseSerialization) = CreateModelAndSerialization(baseModel);
+            var (nestedModelProvider, nestedSerialization) = CreateModelAndSerialization(nestedModel);
+            var (model, serialization) = CreateModelAndSerialization(inputModel);
+
+            Assert.AreEqual(0, model.Fields.Count);
+            Assert.AreEqual(0, nestedModelProvider.Fields.Count);
+            Assert.AreEqual(1, baseModelProvider.Fields.Count);
+
+            var deserializationMethod = serialization.BuildDeserializationMethod();
+            Assert.IsNotNull(deserializationMethod);
+
+            var signature = deserializationMethod?.Signature;
+            Assert.IsNotNull(signature);
+            Assert.AreEqual($"Deserialize{model.Name}", signature?.Name);
+            Assert.AreEqual(2, signature?.Parameters.Count);
+            Assert.AreEqual(new CSharpType(typeof(JsonElement)), signature?.Parameters[0].Type);
+            Assert.AreEqual(new CSharpType(typeof(ModelReaderWriterOptions)), signature?.Parameters[1].Type);
+            Assert.AreEqual(model.Type, signature?.ReturnType);
+            Assert.AreEqual(MethodSignatureModifiers.Internal | MethodSignatureModifiers.Static, signature?.Modifiers);
+
+            var methodBody = deserializationMethod?.BodyStatements;
+            Assert.IsNotNull(methodBody);
+            // validate that only one SARD variable is created.
+            var methodBodyString = methodBody!.ToDisplayString();
+            var sardDeclaration = "global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties";
+            Assert.AreEqual(1, methodBodyString.Split(sardDeclaration).Length - 1);
+        }
+
+        [Test]
         public void TestBuildImplicitToBinaryContent()
         {
             var inputModel = InputFactory.Model("mockInputModel");

@@ -10,7 +10,7 @@ using Microsoft.Generator.CSharp.Customization;
 
 namespace Microsoft.Generator.CSharp.SourceInput
 {
-    internal static class CodeGenAttributes
+    public static class CodeGenAttributes
     {
         public const string CodeGenSuppressAttributeName = "CodeGenSuppressAttribute";
 
@@ -34,10 +34,10 @@ namespace Microsoft.Generator.CSharp.SourceInput
             return name != null;
         }
 
-        public static bool TryGetCodeGenSerializationAttributeValue(AttributeData attributeData, [MaybeNullWhen(false)] out string propertyName, out IReadOnlyList<string>? serializationNames, out string? serializationHook, out string? deserializationHook, out string? bicepSerializationHook)
+        public static bool TryGetCodeGenSerializationAttributeValue(AttributeData attributeData, [MaybeNullWhen(false)] out string propertyName, out string? serializationName, out string? serializationHook, out string? deserializationHook, out string? bicepSerializationHook)
         {
             propertyName = null;
-            serializationNames = null;
+            serializationName = null;
             serializationHook = null;
             deserializationHook = null;
             bicepSerializationHook = null;
@@ -53,11 +53,10 @@ namespace Microsoft.Generator.CSharp.SourceInput
             if (ctorArgs.Length > 1)
             {
                 var namesArg = ctorArgs[1];
-                serializationNames = namesArg.Kind switch
+                serializationName = namesArg.Kind switch
                 {
-                    TypedConstantKind.Array => ToStringArray(namesArg.Values),
                     _ when namesArg.IsNull => null,
-                    _ => new string[] { namesArg.Value?.ToString()! }
+                    _ => namesArg.Value?.ToString()!
                 };
             }
 
@@ -65,8 +64,8 @@ namespace Microsoft.Generator.CSharp.SourceInput
             {
                 switch (key)
                 {
-                    case nameof(CodeGenSerializationAttribute.SerializationPath):
-                        serializationNames = ToStringArray(namedArgument.Values);
+                    case nameof(CodeGenSerializationAttribute.PropertySerializationName):
+                        serializationName = namedArgument.Value as string;
                         break;
                     case nameof(CodeGenSerializationAttribute.SerializationValueHook):
                         serializationHook = namedArgument.Value as string;
@@ -77,7 +76,7 @@ namespace Microsoft.Generator.CSharp.SourceInput
                 }
             }
 
-            return propertyName != null && (serializationNames != null || serializationHook != null || deserializationHook != null || bicepSerializationHook != null);
+            return propertyName != null && (serializationName != null || serializationHook != null || deserializationHook != null || bicepSerializationHook != null);
         }
 
         public static bool TryGetCodeGenModelAttributeValue(AttributeData attributeData, out string[]? usage, out string[]? formats)
