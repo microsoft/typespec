@@ -1,3 +1,4 @@
+import { $ } from "@typespec/compiler/typekit";
 import { usePythonNamePolicy } from "../name-policy.js";
 
 export interface ConstantDeclarationProps {
@@ -10,6 +11,7 @@ export function ConstantDeclaration({ name, value }: ConstantDeclarationProps) {
   // TODO: Should convert to snake_case, uppercase
   const namer = usePythonNamePolicy();
   const constantName = namer.getName(name, "constant");
+  
   let valExpression = "";
   if (typeof value === "string") {
     valExpression = ` = "${value}"`;

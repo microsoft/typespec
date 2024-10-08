@@ -94,17 +94,32 @@ export function ClassDeclaration(props: ClassDeclarationProps) {
     (member) => {
       if (member.kind === "EnumMember") {
         const value = member.value ?? member.name;
-        return <ConstantDeclaration name={member.name} value={value} />;
+        return (
+          <>
+            <ConstantDeclaration name={member.name} value={value} />
+            <Docstring type={member} />
+          </>
+        );
       } else if (member.kind === "ModelProperty") {
         const value = (member.type as any).value;
-        return <ConstantDeclaration name={member.name} value={value} />;
+        return (
+          <>
+            <ConstantDeclaration name={member.name} value={value} />
+            <Docstring type={member} />
+          </>
+        );
       }
     },
     { ender: "\n" }
   );
   const classVariableComponents = mapJoin(
     classProperties,
-    (prop) => <ClassVariable type={prop} />,
+    (prop) => (
+      <>
+        <ClassVariable type={prop} />
+        <Docstring type={prop.type} />
+      </>
+    ),
     { ender: "\n" } 
   );
 

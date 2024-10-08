@@ -54,12 +54,13 @@ it("with instance variables", async () => {
     model TestClass {
       fooVar: string;
       barVar?: int16;
+      varList: string[];
     }
   `;
   const output = await getOutput(code, ["TestClass"]);
   expect(output).toBe(d`
     class TestClass:
-      def __init__(self, foo_var: str, bar_var: Optional[int]):
+      def __init__(self, foo_var: str, bar_var: Optional[int], var_list: List[str]):
         """
         Initializes an instance of TestClass.
         
@@ -67,9 +68,12 @@ it("with instance variables", async () => {
         :type foo_var: str
         :param bar_var:
         :type bar_var: Optional[int]
+        :param var_list:
+        :type var_list: List[str]
         """
         self.foo_var = foo_var
         self.bar_var = bar_var
+        self.var_list = var_list
   `);
 });
 
@@ -79,6 +83,8 @@ it("with docs", async () => {
     model TestClass {
       /** The name */
       name: string;
+      /** Some constant */
+      someConst: 42;
     }
   `;
   const output = await getOutput(code, ["TestClass"]);
@@ -87,6 +93,11 @@ it("with docs", async () => {
       """
       Some test class
       """
+      SOME_CONST = 42
+      """
+      Some constant
+      """
+      
       def __init__(self, name: str):
         """
         Initializes an instance of TestClass.
@@ -128,6 +139,7 @@ it("with anonymous model from intersection", async () => {
   expect(output).toBe(d`
     class NotModifiedResponsePet:
       STATUS_CODE = 304
+      
       def __init__(self, name: str):
         """
         Initializes an instance of NotModifiedResponsePet.
