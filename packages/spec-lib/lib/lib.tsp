@@ -17,7 +17,7 @@ alias ScenarioServiceOptions = {
 extern dec scenarioService(
   target: Namespace,
   route: valueof string,
-  options?: valueof ScenarioServiceOptions
+  options?: ScenarioServiceOptions
 );
 
 /**
@@ -35,3 +35,8 @@ extern dec scenarioDoc(
   doc: valueof string,
   formatArgs?: Model
 );
+
+/**
+ * Specify which workflow this scenario is meant to be supported by
+ */
+extern dec supportedBy(target: Namespace, value: valueof string);

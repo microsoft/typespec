@@ -1,10 +1,10 @@
 import type {
   DecoratorContext,
-  EnumValue,
   Interface,
   Model,
   Namespace,
   Operation,
+  Type,
 } from "@typespec/compiler";
 
 /**
@@ -14,7 +14,7 @@ export type ScenarioServiceDecorator = (
   context: DecoratorContext,
   target: Namespace,
   route: string,
-  options?: { readonly versioned?: EnumValue },
+  options?: Type,
 ) => void;
 
 /**
@@ -39,8 +39,18 @@ export type ScenarioDocDecorator = (
   formatArgs?: Model,
 ) => void;
 
+/**
+ * Specify which workflow this scenario is meant to be supported by
+ */
+export type SupportedByDecorator = (
+  context: DecoratorContext,
+  target: Namespace,
+  value: string,
+) => void;
+
 export type TypeSpecSpecLibDecorators = {
   scenarioService: ScenarioServiceDecorator;
   scenario: ScenarioDecorator;
   scenarioDoc: ScenarioDocDecorator;
+  supportedBy: SupportedByDecorator;
 };
