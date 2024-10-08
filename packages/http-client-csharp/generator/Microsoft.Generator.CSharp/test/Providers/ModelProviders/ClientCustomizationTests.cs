@@ -46,7 +46,17 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
                         [
                             new ParameterProvider("param1", $"", typeof(string)),
                             new ParameterProvider("param2", $"", typeof(int))]),
-                    Snippet.ThrowExpression(Snippet.Null), client)
+                    Snippet.ThrowExpression(Snippet.Null), client),
+                new MethodProvider(new MethodSignature(
+                        "Method4",
+                        $"",
+                        MethodSignatureModifiers.Public,
+                        null,
+                        $"",
+                        [
+                            new ParameterProvider("param1", $"", typeof(string)),
+                            new ParameterProvider("param2", $"", typeof(int?))]),
+                    Snippet.ThrowExpression(Snippet.Null), client),
 
             };
             client.MethodProviders = methods;
@@ -97,6 +107,17 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
                         [
                             new ParameterProvider("param1", $"", typeof(string)),
                             new ParameterProvider("param2", $"", typeof(int))]),
+                    Snippet.ThrowExpression(Snippet.Null), client),
+                // Nullability of one of the parameters doesn't match
+                new MethodProvider(new MethodSignature(
+                        "Method4",
+                        $"",
+                        MethodSignatureModifiers.Public,
+                        null,
+                        $"",
+                        [
+                            new ParameterProvider("param1", $"", typeof(string)),
+                            new ParameterProvider("param2", $"", typeof(int?))]),
                     Snippet.ThrowExpression(Snippet.Null), client)
 
             };
@@ -109,7 +130,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             var csharpGen = new CSharpGen();
             await csharpGen.ExecuteAsync();
 
-            Assert.AreEqual(3, plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputClient").Methods.Count);
+            Assert.AreEqual(4, plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputClient").Methods.Count);
         }
 
         [Test]

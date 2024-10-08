@@ -272,7 +272,7 @@ namespace Microsoft.Generator.CSharp.Providers
             return GetCSharpType(typeSymbol);
         }
 
-        private CSharpType GetCSharpType(ITypeSymbol typeSymbol)
+        internal static CSharpType GetCSharpType(ITypeSymbol typeSymbol)
         {
             var fullyQualifiedName = GetFullyQualifiedName(typeSymbol);
             var namedTypeSymbol = typeSymbol as INamedTypeSymbol;
@@ -303,7 +303,7 @@ namespace Microsoft.Generator.CSharp.Providers
             };
         }
 
-        private CSharpType ConstructCSharpTypeFromSymbol(
+        private static CSharpType ConstructCSharpTypeFromSymbol(
             ITypeSymbol typeSymbol,
             string fullyQualifiedName,
             INamedTypeSymbol? namedTypeSymbol)
