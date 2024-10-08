@@ -12,6 +12,7 @@ export const TypeSpecPlaygroundConfig = {
     "@typespec/json-schema",
     "@typespec/protobuf",
     "@typespec/xml",
+    "@typespec/streams",
   ],
   samples,
 } as const;
