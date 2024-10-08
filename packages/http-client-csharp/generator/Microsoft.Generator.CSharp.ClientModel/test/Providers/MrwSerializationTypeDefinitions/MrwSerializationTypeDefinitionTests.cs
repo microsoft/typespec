@@ -75,13 +75,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             Assert.IsNull(methodSignature?.ReturnType);
 
             // Check method modifiers
+            MethodSignatureModifiers expectedModifiers;
             if (isStruct)
             {
-                Assert.AreEqual(MethodSignatureModifiers.Private, methodSignature?.Modifiers, "Method modifiers do not match the expected value.");
+                expectedModifiers = MethodSignatureModifiers.Private;
             }
             else
             {
-                var expectedModifiers = MethodSignatureModifiers.Protected;
+                expectedModifiers = MethodSignatureModifiers.Protected;
                 if (model.Type.BaseType != null)
                 {
                     expectedModifiers |= MethodSignatureModifiers.Override;
@@ -90,9 +91,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 {
                     expectedModifiers |= MethodSignatureModifiers.Virtual;
                 }
-                Assert.AreEqual(expectedModifiers, methodSignature?.Modifiers, "Method modifiers do not match the expected value.");
             }
 
+            Assert.AreEqual(expectedModifiers, methodSignature?.Modifiers, "Method modifiers do not match the expected value.");
 
             // Validate body
             var methodBody = method?.BodyStatements;
@@ -172,13 +173,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             Assert.AreEqual(model.Type, methodSignature?.ReturnType);
 
             // Check method modifiers
+            MethodSignatureModifiers expectedModifiers;
             if (isStruct)
             {
-                Assert.AreEqual(MethodSignatureModifiers.Private, methodSignature?.Modifiers, "Method modifiers do not match the expected value.");
+                expectedModifiers = MethodSignatureModifiers.Private;
             }
             else
             {
-                var expectedModifiers = MethodSignatureModifiers.Protected;
+                expectedModifiers = MethodSignatureModifiers.Protected;
                 if (model.Type.BaseType != null)
                 {
                     expectedModifiers |= MethodSignatureModifiers.Override;
@@ -187,9 +189,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 {
                     expectedModifiers |= MethodSignatureModifiers.Virtual;
                 }
-                Assert.AreEqual(expectedModifiers, methodSignature?.Modifiers, "Method modifiers do not match the expected value.");
             }
 
+            Assert.AreEqual(expectedModifiers, methodSignature?.Modifiers, "Method modifiers do not match the expected value.");
 
             // Validate body
             var methodBody = method?.BodyStatements;
@@ -270,13 +272,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             Assert.AreEqual(new CSharpType(typeof(BinaryData)), methodSignature?.ReturnType);
 
             // Check method modifiers
+            // Check method modifiers
+            MethodSignatureModifiers expectedModifiers;
             if (isStruct)
             {
-                Assert.AreEqual(MethodSignatureModifiers.Private, methodSignature?.Modifiers, "Method modifiers do not match the expected value.");
+                expectedModifiers = MethodSignatureModifiers.Private;
             }
             else
             {
-                var expectedModifiers = MethodSignatureModifiers.Protected;
+                expectedModifiers = MethodSignatureModifiers.Protected;
                 if (model.Type.BaseType != null)
                 {
                     expectedModifiers |= MethodSignatureModifiers.Override;
@@ -285,9 +289,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 {
                     expectedModifiers |= MethodSignatureModifiers.Virtual;
                 }
-                Assert.AreEqual(expectedModifiers, methodSignature?.Modifiers, "Method modifiers do not match the expected value.");
             }
 
+            Assert.AreEqual(expectedModifiers, methodSignature?.Modifiers, "Method modifiers do not match the expected value.");
 
             // Validate body
             var methodBody = method?.BodyStatements;
@@ -380,13 +384,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             Assert.AreEqual(model.Type, methodSignature?.ReturnType);
 
             // Check method modifiers
+            MethodSignatureModifiers expectedModifiers;
             if (isStruct)
             {
-                Assert.AreEqual(MethodSignatureModifiers.Private, methodSignature?.Modifiers, "Method modifiers do not match the expected value.");
+                expectedModifiers = MethodSignatureModifiers.Private;
             }
             else
             {
-                var expectedModifiers = MethodSignatureModifiers.Protected;
+                expectedModifiers = MethodSignatureModifiers.Protected;
                 if (model.Type.BaseType != null)
                 {
                     expectedModifiers |= MethodSignatureModifiers.Override;
@@ -395,8 +400,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 {
                     expectedModifiers |= MethodSignatureModifiers.Virtual;
                 }
-                Assert.AreEqual(expectedModifiers, methodSignature?.Modifiers, "Method modifiers do not match the expected value.");
             }
+
+            Assert.AreEqual(expectedModifiers, methodSignature?.Modifiers, "Method modifiers do not match the expected value.");
 
             // Validate body
             var methodBody = method?.BodyStatements;
