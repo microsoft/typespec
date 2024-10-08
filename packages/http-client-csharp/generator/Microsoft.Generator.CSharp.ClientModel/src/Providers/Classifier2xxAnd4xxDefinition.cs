@@ -34,6 +34,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return [BuildTryClassifyErrorMethod(), BuildTryClassifyRetryMethod()];
         }
 
+        protected override string GetNamespace() => DeclaringTypeProvider!.Type.Namespace;
+
         protected override CSharpType[] BuildImplements()
         {
             return [typeof(PipelineMessageClassifier)];

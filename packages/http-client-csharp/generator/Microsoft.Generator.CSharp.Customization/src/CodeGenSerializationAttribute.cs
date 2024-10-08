@@ -17,7 +17,7 @@ namespace Microsoft.Generator.CSharp.Customization
         /// <summary>
         /// Gets or sets the serialization name of the property.
         /// </summary>
-        public string? PropertySerializationName { get; }
+        public string? PropertySerializationName { get; set; }
         /// <summary>
         /// Gets or sets the method name to use when serializing the property value (property name excluded)
         /// The signature of the serialization hook method must be or compatible with when invoking:

@@ -153,7 +153,88 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             // validate the serialization provider uses the custom property name
             var writer = new TypeProviderWriter(serializationProvider);
             var file = writer.Write();
-            var expected = Helpers.GetExpectedFromFile();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task CanChangeDictionaryToBinaryData()
+        {
+            var props = new[]
+            {
+                // generated type is a dictionary of string to BinaryData
+                InputFactory.Property("Prop1", InputFactory.Dictionary(InputPrimitiveType.Any))
+            };
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: props, usage: InputModelTypeUsage.Json);
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModels: () => [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = plugin.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            Assert.IsNotNull(serializationProvider);
+            Assert.AreEqual(0, serializationProvider!.Fields.Count);
+
+            var writer = new TypeProviderWriter(serializationProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task CanReplaceSerializationMethod()
+        {
+            var props = new[]
+            {
+                InputFactory.Property("Prop1", InputPrimitiveType.String),
+                InputFactory.Property("Prop2", new InputNullableType(InputPrimitiveType.String))
+            };
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: props, usage: InputModelTypeUsage.Json);
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModels: () => [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = plugin.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            Assert.IsNotNull(serializationProvider);
+
+            var methods = serializationProvider!.Methods;
+            Assert.AreEqual(11, methods.Count);
+
+            // validate the serialization method doesn't exist in the serialization provider
+            Assert.IsNull(methods.FirstOrDefault(m => m.Signature.Name == "JsonModelWriteCore"));
+
+            var writer = new TypeProviderWriter(serializationProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task CanReplaceDeserializationMethod()
+        {
+            var props = new[]
+            {
+                InputFactory.Property("Prop1", InputPrimitiveType.String),
+                InputFactory.Property("Prop2", new InputNullableType(InputPrimitiveType.String))
+            };
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: props, usage: InputModelTypeUsage.Json);
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModels: () => [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = plugin.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            Assert.IsNotNull(serializationProvider);
+
+            var methods = serializationProvider!.Methods;
+            Assert.AreEqual(11, methods.Count);
+
+            // validate the deserialization method doesn't exist in the serialization provider
+            Assert.IsNull(methods.FirstOrDefault(m => m.Signature.Name == "DeserializeMockInputModel"));
+
+            var writer = new TypeProviderWriter(serializationProvider);
+            var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
     }

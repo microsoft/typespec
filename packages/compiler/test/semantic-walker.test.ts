@@ -8,6 +8,7 @@ import {
   Namespace,
   Operation,
   SemanticNodeListener,
+  Tuple,
   Union,
   UnionVariant,
   getNamespaceFullName,
@@ -38,6 +39,8 @@ describe("compiler: semantic walker", () => {
       interfaces: [] as Interface[],
       unions: [] as Union[],
       unionVariants: [] as UnionVariant[],
+      tuples: [] as Tuple[],
+      exitTuples: [] as Tuple[],
     };
 
     const listener: SemanticNodeListener = {
@@ -80,6 +83,14 @@ describe("compiler: semantic walker", () => {
       unionVariant: (x) => {
         result.unionVariants.push(x);
         return customListener?.unionVariant?.(x);
+      },
+      tuple: (x) => {
+        result.tuples.push(x);
+        return customListener?.tuple?.(x);
+      },
+      exitTuple: (x) => {
+        result.exitTuples.push(x);
+        return customListener?.exitTuple?.(x);
       },
     };
     return [result, listener] as const;
@@ -236,6 +247,28 @@ describe("compiler: semantic walker", () => {
     strictEqual(result.unions[0].name!, "A");
     strictEqual(result.unionVariants.length, 1);
     strictEqual(result.unionVariants[0].name!, "x");
+  });
+
+  it("finds tuples", async () => {
+    const result = await runNavigator(`
+      model ContainsTuple {
+        tuple: [string];
+      }
+    `);
+
+    strictEqual(result.tuples.length, 1);
+    strictEqual(result.tuples[0].values.length, 1);
+  });
+
+  it("finds exit tuples", async () => {
+    const result = await runNavigator(`
+      model ContainsTuple {
+        tuple: [string];
+      }
+    `);
+
+    strictEqual(result.exitTuples.length, 1);
+    strictEqual(result.exitTuples[0].values.length, 1);
   });
 
   it("finds interfaces", async () => {
