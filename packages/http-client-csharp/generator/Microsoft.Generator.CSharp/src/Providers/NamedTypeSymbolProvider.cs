@@ -12,7 +12,7 @@ using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
-    internal sealed class NamedTypeSymbolProvider : TypeProvider
+    public sealed class NamedTypeSymbolProvider : TypeProvider
     {
         private const string GlobalPrefix = "global::";
         private INamedTypeSymbol _namedTypeSymbol;
@@ -22,13 +22,15 @@ namespace Microsoft.Generator.CSharp.Providers
             _namedTypeSymbol = namedTypeSymbol;
         }
 
-        private protected sealed override TypeProvider? GetCustomCodeView() => null;
+        private protected sealed override NamedTypeSymbolProvider? GetCustomCodeView() => null;
 
         protected override string BuildRelativeFilePath() => throw new InvalidOperationException("This type should not be writing in generation");
 
         protected override string BuildName() => _namedTypeSymbol.Name;
 
         protected override string GetNamespace() => GetFullyQualifiedNameFromDisplayString(_namedTypeSymbol.ContainingNamespace);
+
+        public IEnumerable<AttributeData> GetAttributes() => _namedTypeSymbol.GetAttributes();
 
         protected override TypeSignatureModifiers GetDeclarationModifiers()
         {
@@ -172,8 +174,6 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override CSharpType BuildEnumUnderlyingType() => GetIsEnum() ? new CSharpType(typeof(int)) : throw new InvalidOperationException("This type is not an enum");
 
-        internal override IEnumerable<AttributeData> GetAttributes() => _namedTypeSymbol.GetAttributes();
-
         private ParameterProvider ConvertToParameterProvider(IMethodSymbol methodSymbol, IParameterSymbol parameterSymbol)
         {
             return new ParameterProvider(
@@ -277,13 +277,8 @@ namespace Microsoft.Generator.CSharp.Providers
             var fullyQualifiedName = GetFullyQualifiedName(typeSymbol);
             var namedTypeSymbol = typeSymbol as INamedTypeSymbol;
 
-            //if fully qualified name is in the namespace of the library being emitted find it from the outputlibrary
-            if (fullyQualifiedName.StartsWith(CodeModelPlugin.Instance.Configuration.RootNamespace, StringComparison.Ordinal))
-            {
-                return ConstructCSharpTypeFromSymbol(typeSymbol, fullyQualifiedName, namedTypeSymbol);
-            }
+            Type? type = LoadFrameworkType(fullyQualifiedName);
 
-            Type? type = System.Type.GetType(fullyQualifiedName);
             if (type is null)
             {
                 return ConstructCSharpTypeFromSymbol(typeSymbol, fullyQualifiedName, namedTypeSymbol);
@@ -296,6 +291,16 @@ namespace Microsoft.Generator.CSharp.Providers
             }
 
             return result;
+        }
+
+        private static Type? LoadFrameworkType(string fullyQualifiedName)
+        {
+            return fullyQualifiedName switch
+            {
+                // Special case for types that would not be defined in corlib, but should still be considered framework types.
+                "System.BinaryData" => typeof(BinaryData),
+                _ => System.Type.GetType(fullyQualifiedName)
+            };
         }
 
         private CSharpType ConstructCSharpTypeFromSymbol(

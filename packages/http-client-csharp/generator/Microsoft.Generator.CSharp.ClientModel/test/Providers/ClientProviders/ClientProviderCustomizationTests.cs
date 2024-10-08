@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using System.ClientModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 
@@ -191,6 +191,77 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             Assert.AreEqual("MyStruct", customMethodParams[0].Type.Name);
             Assert.IsTrue(customMethodParams[0].Type.IsStruct);
             Assert.IsTrue(customMethodParams[0].Type.IsNullable);
+        }
+
+        [Test]
+        public async Task CanChangeClientAccessibility()
+        {
+            var inputOperation = InputFactory.Operation("HelloAgain", parameters:
+            [
+                InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
+            ]);
+            var inputClient = InputFactory.Client("TestClient", operations: [inputOperation]);
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                clients: () => [inputClient],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Find the client provider
+            var clientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider);
+            Assert.IsNotNull(clientProvider);
+            Assert.IsTrue(clientProvider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+
+            // Find the REST client provider
+            var restClientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is RestClientProvider);
+            Assert.IsNotNull(restClientProvider);
+            Assert.IsTrue(restClientProvider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+
+            // Find the client options provider
+            var clientOptionsProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientOptionsProvider);
+            Assert.IsNotNull(clientOptionsProvider);
+            // The client options were not customized
+            Assert.IsTrue(clientOptionsProvider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+
+            // The docs should not be generated for the methods as the client is internal
+            foreach (var method in clientProvider.Methods)
+            {
+                Assert.IsNull(method.XmlDocs);
+            }
+        }
+
+        [Test]
+        public async Task CanChangeClientOptionsAccessibility()
+        {
+            var inputOperation = InputFactory.Operation("HelloAgain", parameters:
+            [
+                InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
+            ]);
+            var inputClient = InputFactory.Client("TestClient", operations: [inputOperation]);
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                clients: () => [inputClient],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Find the client provider - we customize both to be internal because otherwise the build would fail as the client options
+            // would be less accessible than the client
+            var clientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider);
+            Assert.IsNotNull(clientProvider);
+            Assert.IsTrue(clientProvider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+
+            // Find the REST client provider
+            var restClientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is RestClientProvider);
+            Assert.IsNotNull(restClientProvider);
+            Assert.IsTrue(restClientProvider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+
+            // Find the client options provider
+            var clientOptionsProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientOptionsProvider);
+            Assert.IsNotNull(clientOptionsProvider);
+            // The client options were not customized
+            Assert.IsTrue(clientOptionsProvider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+
+            // The docs should not be generated for the methods as the client is internal
+            foreach (var method in clientProvider.Methods)
+            {
+                Assert.IsNull(method.XmlDocs);
+            }
         }
     }
 }

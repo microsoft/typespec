@@ -60,6 +60,7 @@ class ServerTestsGenerator {
       endPoint: `${this.serverBasePath}${this.mockApiDefinition.uri}`,
       options: {
         requestBody: this.mockApiDefinition.request.body,
+        files: this.mockApiDefinition.request.files,
         config: this.getConfigObj(),
       },
     });

@@ -4,7 +4,6 @@ import {
   LibraryLocationContext,
   LocationContext,
   ModuleLibraryMetadata,
-  NodePackage,
   ProjectLocationContext,
 } from "../../src/core/index.js";
 import {
@@ -13,6 +12,7 @@ import {
   expectDiagnostics,
   resolveVirtualPath,
 } from "../../src/testing/index.js";
+import { PackageJson } from "../../src/types/package-json.js";
 
 describe("compiler: imports", () => {
   let host: TestHost;
@@ -113,7 +113,36 @@ describe("compiler: imports", () => {
     expectFileLoaded({ typespec: ["main.tsp", "test/main.tsp"] });
   });
 
-  it("import library", async () => {
+  it("import library with typespec exports", async () => {
+    host.addTypeSpecFile(
+      "main.tsp",
+      `
+      import "my-lib";
+
+      model A { x: C }
+      `,
+    );
+    host.addTypeSpecFile(
+      "node_modules/my-lib/package.json",
+      JSON.stringify({
+        name: "my-test-lib",
+        exports: { ".": { typespec: "./main.tsp" } },
+      }),
+    );
+    host.addTypeSpecFile(
+      "node_modules/my-lib/main.tsp",
+      `
+      model C { }
+      `,
+    );
+
+    await host.compile("main.tsp");
+    expectFileLoaded({ typespec: ["main.tsp", "node_modules/my-lib/main.tsp"] });
+    const file = host.program.sourceFiles.get(resolveVirtualPath("node_modules/my-lib/main.tsp"));
+    ok(file, "File exists");
+  });
+
+  it("import library(with tspmain)", async () => {
     host.addTypeSpecFile(
       "main.tsp",
       `
@@ -183,7 +212,7 @@ describe("compiler: imports", () => {
 
     interface Structure {
       [key: TspFile]: string[];
-      [key: PkgJson]: Partial<NodePackage>;
+      [key: PkgJson]: Partial<PackageJson>;
     }
 
     interface ScopeExpectation<T extends Structure> {

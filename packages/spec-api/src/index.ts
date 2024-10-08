@@ -42,6 +42,7 @@ export {
   RequestExt,
   ScenarioMockApi,
   ScenarioPassCondition,
+  ServiceRequestFile,
   SimpleMockRequestHandler,
 } from "./types.js";
 export { ValidationError } from "./validation-error.js";

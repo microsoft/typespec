@@ -6,6 +6,8 @@ import { resolvePath } from "../../../path-utils.js";
 import { CompilerHost, Diagnostic } from "../../../types.js";
 
 export interface CompileCliArgs {
+  path?: string;
+  pretty?: boolean;
   "output-dir"?: string;
   "output-path"?: string;
   nostdlib?: boolean;

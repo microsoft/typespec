@@ -15,19 +15,17 @@ namespace Microsoft.Generator.CSharp.Providers
 {
     public abstract class TypeProvider
     {
-        private Lazy<TypeProvider?> _customCodeView;
+        private Lazy<NamedTypeSymbolProvider?> _customCodeView;
 
         protected TypeProvider()
         {
             _customCodeView = new(GetCustomCodeView);
         }
 
-        private protected virtual TypeProvider? GetCustomCodeView()
+        private protected virtual NamedTypeSymbolProvider? GetCustomCodeView()
             => CodeModelPlugin.Instance.SourceInputModel.FindForType(GetNamespace(), BuildName());
 
-        public TypeProvider? CustomCodeView => _customCodeView.Value;
-
-        internal virtual IEnumerable<AttributeData>? GetAttributes() => null;
+        public NamedTypeSymbolProvider? CustomCodeView => _customCodeView.Value;
 
         protected string? _deprecated;
 
@@ -84,7 +82,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected virtual TypeSignatureModifiers GetDeclarationModifiers() => TypeSignatureModifiers.None;
 
-        internal TypeSignatureModifiers GetCustomCodeModifiers() => CustomCodeView?.DeclarationModifiers ?? TypeSignatureModifiers.None;
+        protected TypeSignatureModifiers GetCustomCodeModifiers() => CustomCodeView?.DeclarationModifiers ?? TypeSignatureModifiers.None;
 
         private TypeSignatureModifiers GetDeclarationModifiersInternal()
         {
@@ -156,9 +154,22 @@ namespace Microsoft.Generator.CSharp.Providers
         private PropertyProvider[] BuildPropertiesInternal()
         {
             var properties = new List<PropertyProvider>();
+            var customProperties = new Dictionary<string, PropertyProvider>();
+            var renamedProperties = new Dictionary<string, PropertyProvider>();
+            foreach (var customProperty in CustomCodeView?.Properties ?? [])
+            {
+                customProperties.Add(customProperty.Name, customProperty);
+                foreach (var attribute in customProperty.Attributes ?? [])
+                {
+                    if (CodeGenAttributes.TryGetCodeGenMemberAttributeValue(attribute, out var originalName))
+                    {
+                        renamedProperties.Add(originalName, customProperty);
+                    }
+                }
+            }
             foreach (var property in BuildProperties())
             {
-                if (ShouldGenerate(property))
+                if (ShouldGenerate(property, customProperties, renamedProperties))
                 {
                     properties.Add(property);
                 }
@@ -337,7 +348,7 @@ namespace Microsoft.Generator.CSharp.Providers
             return true;
         }
 
-        private bool ShouldGenerate(PropertyProvider property)
+        private bool ShouldGenerate(PropertyProvider property, IDictionary<string, PropertyProvider> customProperties, IDictionary<string, PropertyProvider> renamedProperties)
         {
             foreach (var attribute in GetMemberSuppressionAttributes())
             {
@@ -347,30 +358,43 @@ namespace Microsoft.Generator.CSharp.Providers
                 }
             }
 
-            var customPropertyReplacements = new Dictionary<string, PropertyProvider>();
-            var customPropertyNames = new HashSet<string>();
-            foreach (var customProperty in CustomCodeView?.Properties ?? [])
+            string? serializedName = null;
+            if (property.WireInfo != null)
             {
-                customPropertyNames.Add(customProperty.Name);
-                foreach (var attribute in customProperty.Attributes ?? [])
+                bool containsRenamedProperty = renamedProperties.TryGetValue(property.Name, out PropertyProvider? renamedProp);
+                foreach (var attribute in GetCodeGenSerializationAttributes())
                 {
-                    if (CodeGenAttributes.TryGetCodeGenMemberAttributeValue(attribute, out var name))
+                    if (CodeGenAttributes.TryGetCodeGenSerializationAttributeValue(
+                        attribute,
+                        out var propertyName,
+                        out string? serializationName,
+                        out _,
+                        out _,
+                        out _) && serializationName != null)
                     {
-                        customPropertyReplacements.Add(name, customProperty);
+                        if (propertyName == property.Name
+                            || (containsRenamedProperty && renamedProp != null && propertyName == renamedProp.Name))
+                        {
+                            serializedName = serializationName;
+                            break;
+                        }
                     }
+                }
+
+                // replace original property serialization name.
+                if (serializedName != null)
+                {
+                    property.WireInfo.SerializedName = serializedName;
                 }
             }
 
-            if (customPropertyReplacements.TryGetValue(property.Name, out PropertyProvider? customProp))
+            if (renamedProperties.TryGetValue(property.Name, out PropertyProvider? customProp) ||
+                customProperties.TryGetValue(property.Name, out customProp))
             {
                 // Store the wire info on the custom property so that we can use it for serialization.
+                // The custom property that has the CodeGenMemberAttribute stored in renamedProperties should take precedence.
                 customProp.WireInfo = property.WireInfo;
                 customProp.BaseProperty = property.BaseProperty;
-                return false;
-            }
-
-            if (customPropertyNames.Contains(property.Name))
-            {
                 return false;
             }
 
@@ -431,7 +455,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
             for (int i = 0; i < customMethod.Parameters.Count; i++)
             {
-                if (customMethod.Parameters[i].Type.Name != method.Parameters[i].Type.Name)
+                if (!customMethod.Parameters[i].Type.Name.EndsWith(method.Parameters[i].Type.Name))
                 {
                     return false;
                 }
@@ -495,5 +519,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private IEnumerable<AttributeData> GetMemberSuppressionAttributes()
             => CustomCodeView?.GetAttributes()?.Where(a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenSuppressAttributeName) ?? [];
+        private IEnumerable<AttributeData> GetCodeGenSerializationAttributes()
+            => CustomCodeView?.GetAttributes()?.Where(a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenSerializationAttributeName) ?? [];
     }
 }
