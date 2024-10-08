@@ -474,7 +474,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             var parentClient = ClientModelPlugin.Instance.InputLibrary.InputNamespace.Clients.Where(inputclient => inputclient.Name == _inputClient.Parent).FirstOrDefault();
             if (parentClient is not null)
-                return ClientModelPlugin.Instance.TypeFactory.CreateClient(parentClient!); // do null check
+                return ClientModelPlugin.Instance.TypeFactory.CreateClient(parentClient!);
             return null;
         }
     }
