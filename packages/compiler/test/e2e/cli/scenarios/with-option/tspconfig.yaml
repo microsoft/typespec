@@ -1,0 +1,25 @@
+parameters:
+  custom-dir:
+    default: default-value
+  service-name:
+    default: "TypeSpec"
+  metadata:
+    name: "Bar"
+    owner: "None"
+    description: "this short example"
+    default: "Metadata default"
+
+options:
+  description:
+    header: "By {description.by.owners.primary}"
+    name: "Testing name: {metadata.name}"
+    details: "Succeeded: {name} with {metadata.description} by {metadata.owner}"
+    by:
+      owners:
+        primary: "Owner: {metadata.owner}"
+        secondary: "Undefined secondary owner"
+
+emit:
+  - ./emitter.js
+
+output-dir: "{project-root}/tsp-output/{custom-dir}"

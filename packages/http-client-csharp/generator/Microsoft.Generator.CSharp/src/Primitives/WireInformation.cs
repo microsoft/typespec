@@ -8,7 +8,7 @@ namespace Microsoft.Generator.CSharp.Primitives
     public class WireInformation
     {
         public SerializationFormat SerializationFormat { get; }
-        public string SerializedName { get; }
+        public string SerializedName { get; internal set; }
 
         public WireInformation(SerializationFormat serializationFormat, string serializedName)
         {

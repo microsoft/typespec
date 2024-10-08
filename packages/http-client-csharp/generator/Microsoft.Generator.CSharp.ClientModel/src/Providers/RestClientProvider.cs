@@ -121,6 +121,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return [.. methods];
         }
 
+        protected override TypeSignatureModifiers GetDeclarationModifiers() => GetCustomCodeModifiers();
+
         private bool IsCreateRequest(MethodProvider method)
         {
             var span = method.Signature.Name.AsSpan();

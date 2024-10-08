@@ -327,6 +327,7 @@ function navigateTupleType(type: Tuple, context: NavigationContext) {
   for (const value of type.values) {
     navigateTypeInternal(value, context);
   }
+  context.emit("exitTuple", type);
 }
 function navigateStringTemplate(type: StringTemplate, context: NavigationContext) {
   if (checkVisited(context.visited, type)) {

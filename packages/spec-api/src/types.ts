@@ -18,25 +18,37 @@ export type ScenarioPassCondition = "response-success" | "status-code";
 
 export interface PassOnSuccessScenario {
   passCondition: "response-success";
-  apis: MockApi[];
+  apis: MockApi[] | MockApiDefinition[];
 }
 
 export interface PassOnCodeScenario {
   passCondition: "status-code";
   code: number;
-  apis: MockApi[];
+  apis: MockApi[] | MockApiDefinition[];
 }
 export interface PassByKeyScenario<K extends string = string> {
   passCondition: "by-key";
   keys: K[];
   apis: KeyedMockApi<K>[];
 }
+export interface PassByServiceKeyScenario<K extends string = string> {
+  passCondition: "by-key";
+  keys: K[];
+  apis: KeyedMockApiDefinition<K>[];
+}
 
-export type ScenarioMockApi = PassOnSuccessScenario | PassOnCodeScenario | PassByKeyScenario;
+export type ScenarioMockApi =
+  | PassOnSuccessScenario
+  | PassOnCodeScenario
+  | PassByKeyScenario
+  | PassByServiceKeyScenario;
 export type MockRequestHandler = SimpleMockRequestHandler | KeyedMockRequestHandler;
 export type SimpleMockRequestHandler = (req: MockRequest) => MockResponse | Promise<MockResponse>;
 export type KeyedMockRequestHandler<T extends string = string> = (
   req: MockRequest,
+) => KeyedMockResponse<T> | Promise<KeyedMockResponse<T>>;
+export type KeyedServiceRequestHandler<T extends string = string> = (
+  req: ServiceRequest,
 ) => KeyedMockResponse<T> | Promise<KeyedMockResponse<T>>;
 
 export type HttpMethod = "get" | "post" | "put" | "patch" | "delete" | "head" | "options";
@@ -48,10 +60,41 @@ export interface MockApi {
   method: HttpMethod;
   uri: string;
   handler: MockRequestHandler;
+  kind: "MockApi";
+}
+
+export interface MockApiDefinition {
+  uri: string;
+  method: HttpMethod;
+  request: ServiceRequest;
+  response: MockResponse;
+  handler?: MockRequestHandler;
+  kind: "MockApiDefinition";
+}
+
+export interface ServiceRequestFile {
+  fieldname: string;
+  originalname: string;
+  buffer: Buffer;
+  mimetype: string;
+}
+
+export interface ServiceRequest {
+  body?: any;
+  status?: number;
+  /**
+   * Query parameters to match to the request.
+   */
+  params?: Record<string, unknown>;
+  headers?: Record<string, unknown>;
+  files?: ServiceRequestFile[];
 }
 
 export const Fail = Symbol.for("Fail");
 export interface KeyedMockApi<K extends string> extends MockApi {
+  handler: KeyedMockRequestHandler<K>;
+}
+export interface KeyedMockApiDefinition<K extends string> extends MockApiDefinition {
   handler: KeyedMockRequestHandler<K>;
 }
 

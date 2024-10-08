@@ -88,6 +88,8 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static MethodBodyStatement Return() => new KeywordExpression("return", null).Terminate();
         public static MethodBodyStatement Throw(ValueExpression? expression = default) => new KeywordExpression("throw", expression).Terminate();
 
+        public static ValueExpression ByRef(ValueExpression expression) => new KeywordExpression("ref", expression);
+
         public static ValueExpression ArrayEmpty(CSharpType arrayItemType)
             => Static<Array>().Invoke(nameof(Array.Empty), [], [arrayItemType], false);
 
