@@ -65,6 +65,32 @@ This decorator will force the emitter to check and emit a model.
 
 None
 
+### `@optional` {#@TypeSpec.Protobuf.optional}
+
+Decorate a model property with an optional keyword. This will emit the "optional" keyword for the decorated field.
+Doesn't have affect on arrays.
+
+```typespec
+@TypeSpec.Protobuf.optional
+```
+
+#### Target
+
+`ModelProperty`
+
+#### Parameters
+
+None
+
+#### Examples
+
+```typespec
+model Example {
+  @optional
+  property: string;
+}
+```
+
 ### `@package` {#@TypeSpec.Protobuf.package}
 
 Declares that a TypeSpec namespace constitutes a Protobuf package. The contents of the namespace will be emitted to a

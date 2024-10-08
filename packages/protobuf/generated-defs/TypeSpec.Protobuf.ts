@@ -127,6 +127,20 @@ export type PackageDecorator = (
  */
 export type StreamDecorator = (context: DecoratorContext, target: Operation, mode: Type) => void;
 
+/**
+ * Decorate a model property with an optional keyword. This will emit the "optional" keyword for the decorated field.
+ * Doesn't have affect on arrays.
+ *
+ * @example
+ * ```typespec
+ * model Example {
+ *   @optional
+ *   property: string;
+ * }
+ * ```
+ */
+export type OptionalDecorator = (context: DecoratorContext, target: ModelProperty) => void;
+
 export type TypeSpecProtobufDecorators = {
   message: MessageDecorator;
   field: FieldDecorator;
@@ -134,4 +148,5 @@ export type TypeSpecProtobufDecorators = {
   service: ServiceDecorator;
   package: PackageDecorator;
   stream: StreamDecorator;
+  optional: OptionalDecorator;
 };

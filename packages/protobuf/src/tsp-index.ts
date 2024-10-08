@@ -9,6 +9,7 @@ import {
   $reserve,
   $service,
   $stream,
+  $optional
 } from "./proto.js";
 
 export { TypeSpecProtobufLibrary as $lib } from "./lib.js";
@@ -21,6 +22,7 @@ export const $decorators = {
     service: $service,
     package: $package,
     stream: $stream,
+    optional: $optional,
   } satisfies TypeSpecProtobufDecorators,
   "TypeSpec.Protobuf.Private": {
     externRef: $externRef,

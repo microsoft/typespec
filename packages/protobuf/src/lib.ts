@@ -222,6 +222,7 @@ const keys = [
   "stream",
   "reserve",
   "message",
+  "optional",
   "_map",
 ] as const;
 
