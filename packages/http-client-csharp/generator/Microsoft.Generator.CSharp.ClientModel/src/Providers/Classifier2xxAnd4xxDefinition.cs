@@ -37,6 +37,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 : [];
         }
 
+        protected override string GetNamespace() => DeclaringTypeProvider!.Type.Namespace;
+
         protected override CSharpType[] BuildImplements()
         {
             return [ClientModelPlugin.Instance.TypeFactory.ResponseClassifierType];

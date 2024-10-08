@@ -64,6 +64,9 @@ const diagnostics = {
 
   "triple-quote-indent": {
     severity: "error",
+    description:
+      "Report when a triple-quoted string has lines with less indentation as the closing triple quotes.",
+    url: "https://typespec.io/docs/standard-library/diags/triple-quote-indent",
     messages: {
       default:
         "All lines in triple-quoted string lines must have the same indentation as closing triple quotes.",
@@ -611,6 +614,12 @@ const diagnostics = {
       default: paramMessage`Path "${"path"}" cannot be relative. Use {cwd} or {project-root} to specify what the path should be relative to.`,
     },
   },
+  "config-invalid-name": {
+    severity: "error",
+    messages: {
+      default: paramMessage`The configuration name "${"name"}" is invalid because it contains a dot ("."). Using a dot will conflict with using nested configuration values.`,
+    },
+  },
   "path-unix-style": {
     severity: "warning",
     messages: {
@@ -653,8 +662,7 @@ const diagnostics = {
   "library-invalid": {
     severity: "error",
     messages: {
-      tspMain: paramMessage`Library "${"path"}" has an invalid tspMain file.`,
-      default: paramMessage`Library "${"path"}" has an invalid main file.`,
+      default: paramMessage`Library "${"path"}" is invalid: ${"message"}`,
     },
   },
   "incompatible-library": {

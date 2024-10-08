@@ -1,12 +1,11 @@
-#nullable disable
 
 using Microsoft.Generator.CSharp.Customization;
+using System;
 
 namespace Sample.Models
 {
     public partial class MockInputModel
     {
-        [CodeGenMember("Prop1")]
-        public string[] Prop2 { get; set; }
+        public BinaryData Prop1 { get; set; }
     }
 }

@@ -5,6 +5,7 @@ import { checkCoverage } from "../actions/check-coverage.js";
 import { generateScenarioSummary } from "../actions/generate-scenario-summary.js";
 import { validateScenarios } from "../actions/index.js";
 import { serve, startInBackground, stop } from "../actions/serve.js";
+import { serverTest } from "../actions/server-test.js";
 import { uploadCoverageReport } from "../actions/upload-coverage-report.js";
 import { uploadScenarioManifest } from "../actions/upload-scenario-manifest.js";
 import { validateMockApis } from "../actions/validate-mock-apis.js";
@@ -18,7 +19,7 @@ async function main() {
     .scriptName("spec")
     .strict()
     .help()
-    // .strict()
+    .strict()
     .parserConfiguration({
       "greedy-arrays": false,
       "boolean-negation": false,
@@ -144,6 +145,38 @@ async function main() {
           scenariosPath: resolve(process.cwd(), args.scenariosPath),
           port: args.port,
           coverageFile: args.coverageFile,
+        });
+      },
+    )
+    .command(
+      "server-test <scenariosPath>",
+      "Executes the test cases against the service",
+      (cmd) => {
+        return cmd
+          .positional("scenariosPath", {
+            description: "Path to the scenarios and mock apis",
+            type: "string",
+            demandOption: true,
+          })
+          .option("baseUrl", {
+            description: "Path to the server",
+            type: "string",
+          })
+          .option("runSingleScenario", {
+            description: "Single Scenario Case to run",
+            type: "string",
+          })
+          .option("runScenariosFromFile", {
+            description: "File that has the Scenarios to run",
+            type: "string",
+          })
+          .demandOption("scenariosPath", "serverBasePath");
+      },
+      async (args) => {
+        await serverTest(args.scenariosPath, {
+          baseUrl: args.baseUrl,
+          runSingleScenario: args.runSingleScenario,
+          runScenariosFromFile: args.runScenariosFromFile,
         });
       },
     )
@@ -287,7 +320,7 @@ main().catch((error) => {
   process.exit(1);
 });
 
-process.on("SIGTERM", () => process.exit(2));
-process.on("SIGINT", () => process.exit(2));
-process.on("SIGUSR1", () => process.exit(2));
-process.on("SIGUSR2", () => process.exit(2));
+process.once("SIGTERM", () => process.exit(143));
+process.once("SIGINT", () => process.exit(2));
+process.once("SIGUSR1", () => process.exit(2));
+process.once("SIGUSR2", () => process.exit(2));

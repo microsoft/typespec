@@ -107,7 +107,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             var convenienceMethod = new ScmMethodProvider(methodSignature, methodBody, EnclosingType);
-            convenienceMethod.XmlDocs!.Exceptions.Add(new(ClientModelPlugin.Instance.TypeFactory.ClientResponseExceptionType.FrameworkType, "Service returned a non-success status code.", []));
+            // XmlDocs will be null if the method isn't public
+            convenienceMethod.XmlDocs?.Exceptions.Add(new(ClientModelPlugin.Instance.TypeFactory.ClientResponseExceptionType.FrameworkType, "Service returned a non-success status code.", []));
             return convenienceMethod;
         }
 
@@ -410,13 +411,19 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             var protocolMethod =
                 new ScmMethodProvider(methodSignature, methodBody, EnclosingType) { IsServiceCall = true };
-            protocolMethod.XmlDocs!.Exceptions.Add(new(ClientModelPlugin.Instance.TypeFactory.ClientResponseExceptionType.FrameworkType, "Service returned a non-success status code.", []));
-            List<XmlDocStatement> listItems =
-            [
-                new XmlDocStatement("item", [], new XmlDocStatement("description", [$"This <see href=\"https://aka.ms/azsdk/net/protocol-methods\">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios."]))
-            ];
-            XmlDocStatement listXmlDoc = new XmlDocStatement("<list type=\"bullet\">", "</list>", [], innerStatements: [.. listItems]);
-            protocolMethod.XmlDocs.Summary = new XmlDocSummaryStatement([$"[Protocol Method] {Operation.Description}"], listXmlDoc);
+
+            // XmlDocs will be null if the method isn't public
+            if (protocolMethod.XmlDocs != null)
+            {
+                protocolMethod.XmlDocs?.Exceptions.Add(
+                    new(ClientModelPlugin.Instance.TypeFactory.ClientResponseExceptionType.FrameworkType, "Service returned a non-success status code.", []));
+                List<XmlDocStatement> listItems =
+                [
+                    new XmlDocStatement("item", [], new XmlDocStatement("description", [$"This <see href=\"https://aka.ms/azsdk/net/protocol-methods\">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios."]))
+                ];
+                XmlDocStatement listXmlDoc = new XmlDocStatement("<list type=\"bullet\">", "</list>", [], innerStatements: [.. listItems]);
+                protocolMethod.XmlDocs!.Summary = new XmlDocSummaryStatement([$"[Protocol Method] {Operation.Description}"], listXmlDoc);
+            }
             return protocolMethod;
         }
 
