@@ -103,17 +103,17 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             // validate other optional parameters as fields
             if (containsAdditionalOptionalParams)
             {
-                var optionalParamField = fields.FirstOrDefault(f => f.Name == "_optionalParam");
+                var optionalParamField = fields.FirstOrDefault(f => f.Name == "_optionalNullableParam");
                 Assert.IsNotNull(optionalParamField);
-                Assert.AreEqual(new CSharpType(typeof(string)), optionalParamField?.Type);
+                Assert.AreEqual(new CSharpType(typeof(string), isNullable: true), optionalParamField?.Type);
 
                 var optionalParam2Field = fields.FirstOrDefault(f => f.Name == "_optionalParam2");
                 Assert.IsNotNull(optionalParam2Field);
-                Assert.AreEqual(new CSharpType(typeof(string)), optionalParam2Field?.Type);
+                Assert.AreEqual(new CSharpType(typeof(string), isNullable: false), optionalParam2Field?.Type);
 
                 var optionalParam3Field = fields.FirstOrDefault(f => f.Name == "_optionalParam3");
                 Assert.IsNotNull(optionalParam3Field);
-                Assert.AreEqual(new CSharpType(typeof(long)), optionalParam3Field?.Type);
+                Assert.AreEqual(new CSharpType(typeof(long), isNullable: false), optionalParam3Field?.Type);
             }
         }
 
@@ -466,24 +466,25 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 }, false);
                 yield return new TestCaseData(new List<InputParameter>
                 {
+                    // have to explicitly set isRequired because we now call CreateParameter in buildFields
                     InputFactory.Parameter(
-                        "optionalParam",
+                        "optionalNullableParam",
                         InputPrimitiveType.String,
                         location: RequestLocation.None,
                         defaultValue: InputFactory.Constant.String("someValue"),
-                        kind: InputOperationParameterKind.Client),
+                        kind: InputOperationParameterKind.Client, isRequired: false),
                     InputFactory.Parameter(
                         "optionalParam2",
                         InputPrimitiveType.String,
                         location: RequestLocation.None,
                         defaultValue: InputFactory.Constant.String("someValue"),
-                        kind: InputOperationParameterKind.Client),
+                        kind: InputOperationParameterKind.Client, isRequired: true),
                     InputFactory.Parameter(
                         "optionalParam3",
                         InputPrimitiveType.Int64,
                         location: RequestLocation.None,
                         defaultValue: InputFactory.Constant.Int64(2),
-                        kind: InputOperationParameterKind.Client),
+                        kind: InputOperationParameterKind.Client, isRequired: true),
                     InputFactory.Parameter(
                         KnownParameters.Endpoint.Name,
                         InputPrimitiveType.String,
