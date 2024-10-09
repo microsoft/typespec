@@ -40,14 +40,38 @@ export class MockApiApp {
 
   private registerScenario(name: string, scenario: ScenarioMockApi) {
     for (const endpoint of scenario.apis) {
-      this.router.route(endpoint.uri)[endpoint.method]((req: RequestExt, res: Response) => {
-        processRequest(this.coverageTracker, name, endpoint.uri, req, res, endpoint.handler).catch(
-          (e) => {
+      if (endpoint.kind !== "MockApiDefinition") {
+        this.router.route(endpoint.uri)[endpoint.method]((req: RequestExt, res: Response) => {
+          processRequest(
+            this.coverageTracker,
+            name,
+            endpoint.uri,
+            req,
+            res,
+            endpoint.handler,
+          ).catch((e) => {
             logger.error("Unexpected request error", e);
             res.status(500).end();
-          },
-        );
-      });
+          });
+        });
+      } else {
+        if (!endpoint.handler) {
+          continue;
+        }
+        this.router.route(endpoint.uri)[endpoint.method]((req: RequestExt, res: Response) => {
+          processRequest(
+            this.coverageTracker,
+            name,
+            endpoint.uri,
+            req,
+            res,
+            endpoint.handler!,
+          ).catch((e) => {
+            logger.error("Unexpected request error", e);
+            res.status(500).end();
+          });
+        });
+      }
     }
   }
 }

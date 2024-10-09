@@ -40,7 +40,7 @@ namespace UnbrandedTypeSpec.Models
             writer.WriteStringValue(RequiredInt.ToString());
             writer.WritePropertyName("requiredCollection"u8);
             writer.WriteStartArray();
-            foreach (var item in RequiredCollection)
+            foreach (StringFixedEnum item in RequiredCollection)
             {
                 writer.WriteStringValue(item.ToSerialString());
             }
@@ -64,7 +64,7 @@ namespace UnbrandedTypeSpec.Models
             {
                 writer.WritePropertyName("intExtensibleEnumCollection"u8);
                 writer.WriteStartArray();
-                foreach (var item in IntExtensibleEnumCollection)
+                foreach (IntExtensibleEnum item in IntExtensibleEnumCollection)
                 {
                     writer.WriteNumberValue(item.ToSerialInt32());
                 }
@@ -84,7 +84,7 @@ namespace UnbrandedTypeSpec.Models
             {
                 writer.WritePropertyName("floatExtensibleEnumCollection"u8);
                 writer.WriteStartArray();
-                foreach (var item in FloatExtensibleEnumCollection)
+                foreach (FloatExtensibleEnum item in FloatExtensibleEnumCollection)
                 {
                     writer.WriteNumberValue(item.ToSerialSingle());
                 }
@@ -104,7 +104,7 @@ namespace UnbrandedTypeSpec.Models
             {
                 writer.WritePropertyName("floatFixedEnumCollection"u8);
                 writer.WriteStartArray();
-                foreach (var item in FloatFixedEnumCollection)
+                foreach (FloatFixedEnum item in FloatFixedEnumCollection)
                 {
                     writer.WriteNumberValue(item.ToSerialSingle());
                 }
@@ -119,7 +119,7 @@ namespace UnbrandedTypeSpec.Models
             {
                 writer.WritePropertyName("intFixedEnumCollection"u8);
                 writer.WriteStartArray();
-                foreach (var item in IntFixedEnumCollection)
+                foreach (IntFixedEnum item in IntFixedEnumCollection)
                 {
                     writer.WriteNumberValue((int)item);
                 }

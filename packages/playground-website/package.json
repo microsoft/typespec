@@ -64,6 +64,7 @@
     "@typespec/playground": "workspace:~",
     "@typespec/protobuf": "workspace:~",
     "@typespec/rest": "workspace:~",
+    "@typespec/streams": "workspace:~",
     "@typespec/versioning": "workspace:~",
     "es-module-shims": "~1.10.0",
     "react": "~18.3.1",
