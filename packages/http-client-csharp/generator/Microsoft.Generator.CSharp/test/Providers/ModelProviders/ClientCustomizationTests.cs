@@ -17,6 +17,11 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
         public async Task CanRemoveMethods()
         {
             var client = new ClientTypeProvider();
+            var outputLibrary = new ClientOutputLibrary(client);
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                createOutputLibrary: () => outputLibrary,
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
             var methods = new[]
             {
                 new MethodProvider(new MethodSignature(
@@ -60,11 +65,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
 
             };
             client.MethodProviders = methods;
-            var outputLibrary = new ClientOutputLibrary(client);
 
-            var plugin = await MockHelpers.LoadMockPluginAsync(
-                createOutputLibrary: () => outputLibrary,
-                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
             var csharpGen = new CSharpGen();
             await csharpGen.ExecuteAsync();
 
@@ -75,6 +76,11 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
         public async Task DoesNotRemoveMethodsThatDoNotMatch()
         {
             var client = new ClientTypeProvider();
+            var outputLibrary = new ClientOutputLibrary(client);
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                createOutputLibrary: () => outputLibrary,
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
             var methods = new[]
             {
                 // Method name doesn't match
@@ -122,11 +128,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
 
             };
             client.MethodProviders = methods;
-            var outputLibrary = new ClientOutputLibrary(client);
 
-            var plugin = await MockHelpers.LoadMockPluginAsync(
-                createOutputLibrary: () => outputLibrary,
-                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
             var csharpGen = new CSharpGen();
             await csharpGen.ExecuteAsync();
 

@@ -82,11 +82,14 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected virtual TypeSignatureModifiers GetDeclarationModifiers() => TypeSignatureModifiers.None;
 
-        protected TypeSignatureModifiers GetCustomCodeModifiers() => CustomCodeView?.DeclarationModifiers ?? TypeSignatureModifiers.None;
-
         private TypeSignatureModifiers GetDeclarationModifiersInternal()
         {
             var modifiers = GetDeclarationModifiers();
+            var customModifiers = CustomCodeView?.DeclarationModifiers ?? TypeSignatureModifiers.None;
+            if (customModifiers != TypeSignatureModifiers.None)
+            {
+                modifiers |= customModifiers;
+            }
             // we default to public when no accessibility modifier is provided
             if (!modifiers.HasFlag(TypeSignatureModifiers.Internal) && !modifiers.HasFlag(TypeSignatureModifiers.Public) && !modifiers.HasFlag(TypeSignatureModifiers.Private))
             {
