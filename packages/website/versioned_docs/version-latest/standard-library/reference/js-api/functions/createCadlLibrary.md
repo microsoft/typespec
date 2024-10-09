@@ -25,6 +25,25 @@ function createCadlLibrary<T, E, State>(lib): TypeSpecLibrary<T, E, State>
 
 [`TypeSpecLibrary`](../interfaces/TypeSpecLibrary.md)<`T`, `E`, `State`\>
 
+Library with utility functions.
+
 ## Deprecated
 
 use createTypeSpecLibrary
+
+## Tutorial
+
+Create the lib object with `as const` to get the full typing.
+
+## Example
+
+```ts
+const libDef = {
+  name: "myLib",
+  diagnostics: {
+   "my-code": {serverity: "error", messages: {default: "Foo bar"}}
+  },
+} as const;
+
+const lib = createTypeSpecLibrary(libDef);
+```
