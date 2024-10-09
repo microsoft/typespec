@@ -9,7 +9,6 @@ import {
   Namespace,
   Operation,
   Program,
-  StringLiteral,
 } from "@typespec/compiler";
 import {
   $route,
@@ -24,39 +23,24 @@ import {
   ScenarioDecorator,
   ScenarioDocDecorator,
   ScenarioServiceDecorator,
-  SupportedByDecorator,
 } from "../generated-defs/TypeSpec.SpecLib.js";
-import { reportDiagnostic, SpecLibStateKeys } from "./lib.js";
-
-// Allow transition for breaking change https://github.com/microsoft/typespec/pull/1877
-function unifyString(type: string | StringLiteral) {
-  return typeof type === "string" ? type : type.value;
-}
+import { SpecLibStateKeys } from "./lib.js";
 
 export const $scenario: ScenarioDecorator = (context, target, name?) => {
   context.program.stateMap(SpecLibStateKeys.Scenario).set(target, name ?? target.name);
 };
 
-const ScenarioDocKey = Symbol("ScenarioDoc");
-export const $scenarioDoc: ScenarioDocDecorator = (context, target, docType, formatArgs?) => {
-  const doc = unifyString(docType);
+export const $scenarioDoc: ScenarioDocDecorator = (context, target, doc, formatArgs?) => {
   const formattedDoc = formatArgs ? replaceTemplatedStringFromProperties(doc, formatArgs) : doc;
-  context.program.stateMap(ScenarioDocKey).set(target, formattedDoc);
+  context.program.stateMap(SpecLibStateKeys.ScenarioDoc).set(target, formattedDoc);
 };
 
-const ScenarioServiceKey = Symbol("ScenarioService");
-export const $scenarioService: ScenarioServiceDecorator = (
-  context,
-  target,
-  routeType,
-  options?,
-) => {
-  const route = unifyString(routeType);
+export const $scenarioService: ScenarioServiceDecorator = (context, target, route, options?) => {
   const properties = new Map().set("title", {
     type: { kind: "String", value: getNamespaceFullName(target).replace(/\./g, "") },
   });
 
-  context.program.stateSet(ScenarioServiceKey).add(target);
+  context.program.stateSet(SpecLibStateKeys.ScenarioService).add(target);
 
   const versions = options ? (options as Model).properties.get("versioned")?.type : null;
   if (versions) {
@@ -79,7 +63,7 @@ export function getScenarioDoc(
   program: Program,
   target: Operation | Interface | Namespace,
 ): string | undefined {
-  return program.stateMap(ScenarioDocKey).get(target);
+  return program.stateMap(SpecLibStateKeys.ScenarioDoc).get(target);
 }
 
 function replaceTemplatedStringFromProperties(formatString: string, formatArgs: Model) {
@@ -225,37 +209,17 @@ function resolveScenarioName(target: Operation | Interface | Namespace, name: st
   return names.join("_");
 }
 
-const ScenarioKey = Symbol("Scenario");
 export function isScenario(program: Program, target: Operation | Interface | Namespace): boolean {
-  return program.stateMap(ScenarioKey).has(target);
+  return program.stateMap(SpecLibStateKeys.Scenario).has(target);
 }
 
 export function getScenarioName(
   program: Program,
   target: Operation | Interface | Namespace,
 ): string | undefined {
-  const name = program.stateMap(ScenarioKey).get(target);
+  const name = program.stateMap(SpecLibStateKeys.Scenario).get(target);
   if (name === undefined) {
     return undefined;
   }
   return resolveScenarioName(target, name);
-}
-
-const SupportedBy = Symbol("SupportedBy");
-const SupportedByOptions: Set<string> = new Set(["arm", "dpg"]);
-export const $supportedBy: SupportedByDecorator = (context, target, catgoryType) => {
-  const category = unifyString(catgoryType);
-  if (!SupportedByOptions.has(category)) {
-    reportDiagnostic(context.program, {
-      code: "category-invalid",
-      format: { category, allowed: [...SupportedByOptions].join(", ") },
-      target: context.getArgumentTarget(0)!,
-    });
-  }
-  context.program.stateMap(SupportedBy).set(target, category);
-};
-
-export type SupportedBy = "arm" | "dpg";
-export function getSupportedBy(program: Program, target: Namespace): SupportedBy | undefined {
-  return program.stateMap(SupportedBy).get(target);
 }

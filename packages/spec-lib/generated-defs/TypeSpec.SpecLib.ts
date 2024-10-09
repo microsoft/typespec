@@ -39,18 +39,8 @@ export type ScenarioDocDecorator = (
   formatArgs?: Model,
 ) => void;
 
-/**
- * Specify which workflow this scenario is meant to be supported by
- */
-export type SupportedByDecorator = (
-  context: DecoratorContext,
-  target: Namespace,
-  value: string,
-) => void;
-
 export type TypeSpecSpecLibDecorators = {
   scenarioService: ScenarioServiceDecorator;
   scenario: ScenarioDecorator;
   scenarioDoc: ScenarioDocDecorator;
-  supportedBy: SupportedByDecorator;
 };
