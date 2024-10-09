@@ -72,7 +72,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _rawDataField = _model.Fields.FirstOrDefault(f => f.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
             _additionalBinaryDataProperty = GetAdditionalBinaryDataPropertiesProp();
             _additionalProperties = new([.. _model.Properties.Where(p => p.IsAdditionalProperties)]);
-            _shouldOverrideMethods = _model.Type.BaseType != null && _model.Type.BaseType is { IsFrameworkType: false };
+            _shouldOverrideMethods = _model.Type.BaseType != null && !_isStruct && _model.Type.BaseType is { IsFrameworkType: false };
             _utf8JsonWriterSnippet = _utf8JsonWriterParameter.As<Utf8JsonWriter>();
             _mrwOptionsParameterSnippet = _serializationOptionsParameter.As<ModelReaderWriterOptions>();
             _jsonElementParameterSnippet = _jsonElementDeserializationParam.As<JsonElement>();
@@ -304,7 +304,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         /// </summary>
         internal MethodProvider BuildJsonModelWriteCoreMethod()
         {
-            MethodSignatureModifiers modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
+            MethodSignatureModifiers modifiers = _isStruct
+                ? MethodSignatureModifiers.Private
+                : MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
             if (_shouldOverrideMethods)
             {
                 modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
@@ -323,7 +325,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         /// </summary>
         internal MethodProvider BuildPersistableModelWriteCoreMethod()
         {
-            MethodSignatureModifiers modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
+            MethodSignatureModifiers modifiers = _isStruct
+                ? MethodSignatureModifiers.Private
+                : MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
+
             if (_shouldOverrideMethods)
             {
                 modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
@@ -344,7 +349,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         /// </summary>
         internal MethodProvider BuildPersistableModelCreateCoreMethod()
         {
-            MethodSignatureModifiers modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
+            MethodSignatureModifiers modifiers = _isStruct
+                ? MethodSignatureModifiers.Private
+                : MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
+
             if (_shouldOverrideMethods)
             {
                 modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
@@ -378,7 +386,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         /// </summary>
         internal MethodProvider BuildJsonModelCreateCoreMethod()
         {
-            MethodSignatureModifiers modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
+            MethodSignatureModifiers modifiers = _isStruct
+                ? MethodSignatureModifiers.Private
+                : MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
+
             if (_shouldOverrideMethods)
             {
                 modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
@@ -545,9 +556,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 BuildDeserializePropertiesStatements(prop.As<JsonProperty>())
             };
 
+            var valueKindEqualsNullReturn = _isStruct ? Return(Default) : Return(Null);
+
             return
             [
-                new IfStatement(_jsonElementParameterSnippet.ValueKindEqualsNull()) { Return(Null) },
+                new IfStatement(_jsonElementParameterSnippet.ValueKindEqualsNull()) { valueKindEqualsNullReturn },
                 GetPropertyVariableDeclarations(),
                 deserializePropertiesForEachStatement,
                 Return(New.Instance(_model.Type, GetSerializationCtorParameterValues()))
