@@ -2,7 +2,7 @@ import { Operation } from "@typespec/compiler";
 import { isSharedRoute } from "@typespec/http";
 import { ScenarioMockApi } from "@typespec/spec-api";
 import { Scenario } from "@typespec/spec-lib";
-import path, { dirname, join, relative, resolve } from "path";
+import { dirname, join, relative, resolve } from "path";
 import pc from "picocolors";
 import { pathToFileURL } from "url";
 import { logger } from "./logger.js";
@@ -34,16 +34,14 @@ export async function findScenarioSpecFiles(scenariosPath: string): Promise<Spec
     `${normalizedScenarioPath}/**/main.tsp`,
   ];
   logger.debug(`Looking for scenarios in ${pattern}`);
-  const fullScenarios = (await findFilesFromPattern(pattern)).map((scenario) =>
-    path.normalize(scenario),
-  );
+  const fullScenarios = await findFilesFromPattern(pattern);
   logger.info(`Found ${fullScenarios.length} full scenarios.`);
   const scenarioSet = new Set(fullScenarios);
   const scenarios = fullScenarios.filter((scenario) => {
     // Exclude main.tsp that have a client.tsp next to it, we should use that instead
     return !(
       normalizePath(scenario).endsWith("/main.tsp") &&
-      scenarioSet.has(join(dirname(scenario), "client.tsp"))
+      scenarioSet.has(normalizePath(join(dirname(scenario), "client.tsp")))
     );
   });
 
