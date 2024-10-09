@@ -27,12 +27,7 @@ namespace Microsoft.Generator.CSharp.Providers
             // fixed enums are implemented by enum in C#
             _modifiers = TypeSignatureModifiers.Enum;
 
-            var customCodeModifiers = GetCustomCodeModifiers();
-            if (customCodeModifiers != TypeSignatureModifiers.None)
-            {
-                _modifiers |= customCodeModifiers;
-            }
-            else if (input.Accessibility == "internal")
+            if (input.Accessibility == "internal")
             {
                 _modifiers |= TypeSignatureModifiers.Internal;
             }

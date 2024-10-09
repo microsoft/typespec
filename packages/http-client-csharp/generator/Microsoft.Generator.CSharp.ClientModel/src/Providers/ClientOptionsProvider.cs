@@ -145,7 +145,5 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             return [.. properties];
         }
-
-        protected override TypeSignatureModifiers GetDeclarationModifiers() => GetCustomCodeModifiers();
     }
 }
