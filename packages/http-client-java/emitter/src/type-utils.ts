@@ -346,6 +346,10 @@ export function processSchemaUsageFromSdkType(sdkType: SdkModelType | SdkEnumTyp
     usage = [SchemaContext.Exception];
     return usage;
   }
+  if (usageFlags & UsageFlags.ApiVersionEnum) {
+    usage = [];
+    return usage;
+  }
   if (usageFlags & UsageFlags.Input) 
     usage = pushDistinct(usage, SchemaContext.Input);
   if (usageFlags & UsageFlags.Output) 
