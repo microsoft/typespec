@@ -4,7 +4,6 @@
 
 namespace Client.Structure.Service.multi.client.Models
 {
-    /// <summary></summary>
     public enum ClientType
     {
         /// <summary> Default. </summary>
