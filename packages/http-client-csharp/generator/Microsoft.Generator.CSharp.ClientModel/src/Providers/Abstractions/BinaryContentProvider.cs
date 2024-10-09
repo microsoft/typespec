@@ -29,7 +29,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         public override RequestContentApi ToExpression() => this;
 
-        public override MethodBodyStatement[] ToRquestContent()
-            => [Return(Static(typeof(BinaryContent)).Invoke(nameof(BinaryContent.Create), [This, ModelSerializationExtensionsSnippets.Wire]))];
+        public override MethodBodyStatement[] Create(ValueExpression argument)
+            => [Return(Static(typeof(BinaryContent)).Invoke(nameof(BinaryContent.Create), [argument, ModelSerializationExtensionsSnippets.Wire]))];
     }
 }

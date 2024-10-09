@@ -127,12 +127,14 @@ namespace UnbrandedTypeSpec.Models
 
         string IPersistableModel<ProjectedModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
 
-        internal BinaryContent ToRquestContent()
+        /// <param name="projectedModel"> The <see cref="ProjectedModel"/> to serialize into <see cref="BinaryContent"/>. </param>
+        public static implicit operator BinaryContent(ProjectedModel projectedModel)
         {
-            return BinaryContent.Create(this, ModelSerializationExtensions.WireOptions);
+            return BinaryContent.Create(projectedModel, ModelSerializationExtensions.WireOptions);
         }
 
-        internal static ProjectedModel FromResponse(ClientResult result)
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="ProjectedModel"/> from. </param>
+        public static explicit operator ProjectedModel(ClientResult result)
         {
             using PipelineResponse response = result.GetRawResponse();
             using JsonDocument document = JsonDocument.Parse(response.Content);

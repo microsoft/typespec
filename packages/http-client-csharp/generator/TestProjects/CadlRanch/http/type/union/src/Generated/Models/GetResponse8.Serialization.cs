@@ -3,6 +3,7 @@
 #nullable disable
 
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
@@ -27,5 +28,9 @@ namespace _Type.Union.Models
         protected virtual GetResponse8 PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
         string IPersistableModel<GetResponse8>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+
+        public static implicit operator BinaryContent(GetResponse8 getResponse8) => throw null;
+
+        public static explicit operator GetResponse8(ClientResult result) => throw null;
     }
 }

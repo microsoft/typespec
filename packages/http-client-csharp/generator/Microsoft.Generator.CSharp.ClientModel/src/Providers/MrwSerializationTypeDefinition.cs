@@ -72,7 +72,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _rawDataField = _model.Fields.FirstOrDefault(f => f.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
             _additionalBinaryDataProperty = GetAdditionalBinaryDataPropertiesProp();
             _additionalProperties = new([.. _model.Properties.Where(p => p.IsAdditionalProperties)]);
-            _shouldOverrideMethods = _model.Type.BaseType != null && _model.Type.BaseType is { IsFrameworkType: false };
+            _shouldOverrideMethods = _model.Type.BaseType != null && !_isStruct && _model.Type.BaseType is { IsFrameworkType: false };
             _utf8JsonWriterSnippet = _utf8JsonWriterParameter.As<Utf8JsonWriter>();
             _mrwOptionsParameterSnippet = _serializationOptionsParameter.As<ModelReaderWriterOptions>();
             _jsonElementParameterSnippet = _jsonElementDeserializationParam.As<JsonElement>();
@@ -151,8 +151,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             if (!_inputModel.IsUnknownDiscriminatorModel)
             {
                 //cast operators
-                methods.Add(BuildToRequestContent());
-                methods.Add(BuildFromClientResponse());
+                methods.Add(BuildImplicitToBinaryContent());
+                methods.Add(BuildExplicitFromClientResult());
             }
 
             if (_isStruct)
@@ -167,12 +167,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return [.. methods];
         }
 
-        private MethodProvider BuildFromClientResponse()
+        private MethodProvider BuildExplicitFromClientResult()
         {
             var result = new ParameterProvider("result", $"The {ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseType:C} to deserialize the {Type:C} from.", ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseType);
-            var modifiers = MethodSignatureModifiers.Internal | MethodSignatureModifiers.Static;
+            var modifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Explicit | MethodSignatureModifiers.Operator;
             // using PipelineResponse response = result.GetRawResponse();
-            var responseDeclaration = UsingDeclare<HttpResponseApi>("response", ClientModelPlugin.Instance.TypeFactory.HttpResponseApi.HttpResponseType, result.AsExpression.ToApi<ClientResponseApi>().GetRawResponse(), out var response);
+            var responseDeclaration = UsingDeclare("response", ClientModelPlugin.Instance.TypeFactory.HttpResponseApi.HttpResponseType, result.AsExpression.ToApi<ClientResponseApi>().GetRawResponse(), out var response);
             // using JsonDocument document = JsonDocument.Parse(response.Content);
             var document = UsingDeclare(
                 "document",
@@ -188,17 +188,19 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 deserialize
             };
             return new MethodProvider(
-                new MethodSignature("FromResponse", null, modifiers, Type, null, [result]),
+                new MethodSignature(Type.Name, null, modifiers, null, null, [result]),
                 methodBody,
                 this);
         }
 
-        private MethodProvider BuildToRequestContent()
+        private MethodProvider BuildImplicitToBinaryContent()
         {
-            var modifiers = MethodSignatureModifiers.Internal;
+            var model = new ParameterProvider(Type.Name.ToVariableName(), $"The {Type:C} to serialize into {ClientModelPlugin.Instance.TypeFactory.RequestContentApi.RequestContentType:C}", Type);
+            var modifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Implicit | MethodSignatureModifiers.Operator;
+            // return BinaryContent.Create(model, ModelSerializationExtensions.WireOptions);
             return new MethodProvider(
-                new MethodSignature(nameof(RequestContentApi.ToRquestContent), null, modifiers, ClientModelPlugin.Instance.TypeFactory.RequestContentApi.RequestContentType, null, []),
-                This.ToApi<RequestContentApi>().ToRquestContent(),
+                new MethodSignature(nameof(BinaryContent), null, modifiers, null, null, [model]),
+                ClientModelPlugin.Instance.TypeFactory.RequestContentApi.ToExpression().Create(model),
                 this);
         }
 
@@ -301,7 +303,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         /// </summary>
         internal MethodProvider BuildJsonModelWriteCoreMethod()
         {
-            MethodSignatureModifiers modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
+            MethodSignatureModifiers modifiers = _isStruct
+                ? MethodSignatureModifiers.Private
+                : MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
             if (_shouldOverrideMethods)
             {
                 modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
@@ -320,7 +324,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         /// </summary>
         internal MethodProvider BuildPersistableModelWriteCoreMethod()
         {
-            MethodSignatureModifiers modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
+            MethodSignatureModifiers modifiers = _isStruct
+                ? MethodSignatureModifiers.Private
+                : MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
+
             if (_shouldOverrideMethods)
             {
                 modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
@@ -341,7 +348,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         /// </summary>
         internal MethodProvider BuildPersistableModelCreateCoreMethod()
         {
-            MethodSignatureModifiers modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
+            MethodSignatureModifiers modifiers = _isStruct
+                ? MethodSignatureModifiers.Private
+                : MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
+
             if (_shouldOverrideMethods)
             {
                 modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
@@ -375,7 +385,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         /// </summary>
         internal MethodProvider BuildJsonModelCreateCoreMethod()
         {
-            MethodSignatureModifiers modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
+            MethodSignatureModifiers modifiers = _isStruct
+                ? MethodSignatureModifiers.Private
+                : MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
+
             if (_shouldOverrideMethods)
             {
                 modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
@@ -542,9 +555,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 BuildDeserializePropertiesStatements(prop.As<JsonProperty>())
             };
 
+            var valueKindEqualsNullReturn = _isStruct ? Return(Default) : Return(Null);
+
             return
             [
-                new IfStatement(_jsonElementParameterSnippet.ValueKindEqualsNull()) { Return(Null) },
+                new IfStatement(_jsonElementParameterSnippet.ValueKindEqualsNull()) { valueKindEqualsNullReturn },
                 GetPropertyVariableDeclarations(),
                 deserializePropertiesForEachStatement,
                 Return(New.Instance(_model.Type, GetSerializationCtorParameterValues()))

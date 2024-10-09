@@ -3,6 +3,7 @@
 #nullable disable
 
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
@@ -27,5 +28,9 @@ namespace Encode.Datetime.Models
         protected virtual Rfc7231DatetimeProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
         string IPersistableModel<Rfc7231DatetimeProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+
+        public static implicit operator BinaryContent(Rfc7231DatetimeProperty rfc7231DatetimeProperty) => throw null;
+
+        public static explicit operator Rfc7231DatetimeProperty(ClientResult result) => throw null;
     }
 }

@@ -3,6 +3,7 @@
 #nullable disable
 
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
@@ -27,5 +28,9 @@ namespace _Type.Property.ValueTypes.Models
         protected virtual DecimalProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
         string IPersistableModel<DecimalProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+
+        public static implicit operator BinaryContent(DecimalProperty decimalProperty) => throw null;
+
+        public static explicit operator DecimalProperty(ClientResult result) => throw null;
     }
 }

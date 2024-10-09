@@ -3,6 +3,7 @@
 #nullable disable
 
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
@@ -27,5 +28,9 @@ namespace Encode.Duration.Models
         protected virtual ISO8601DurationProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
         string IPersistableModel<ISO8601DurationProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+
+        public static implicit operator BinaryContent(ISO8601DurationProperty isO8601DurationProperty) => throw null;
+
+        public static explicit operator ISO8601DurationProperty(ClientResult result) => throw null;
     }
 }

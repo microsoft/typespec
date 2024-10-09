@@ -3,6 +3,7 @@
 #nullable disable
 
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
@@ -27,5 +28,9 @@ namespace Encode.Duration.Models
         protected virtual Int32SecondsDurationProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
         string IPersistableModel<Int32SecondsDurationProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+
+        public static implicit operator BinaryContent(Int32SecondsDurationProperty int32SecondsDurationProperty) => throw null;
+
+        public static explicit operator Int32SecondsDurationProperty(ClientResult result) => throw null;
     }
 }

@@ -147,11 +147,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         statements.Add(UsingDeclare("content", BinaryContentHelperSnippets.FromObject(parameter), out var content));
                         declarations["content"] = content;
                     }
-                    else
-                    {
-                        statements.Add(UsingDeclare("content", ClientModelPlugin.Instance.TypeFactory.RequestContentApi.RequestContentType, parameter.Invoke(nameof(RequestContentApi.ToRquestContent)), out var content));
-                        declarations["content"] = content;
-                    }
                 }
             }
 
@@ -160,9 +155,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             if (spreadSource is not null)
             {
                 statements.Add(Declare("spreadModel", New.Instance(spreadSource.Type, [.. GetSpreadConversion(spreadSource)]).As(spreadSource.Type), out var spread));
-                statements.Add(UsingDeclare("content", ClientModelPlugin.Instance.TypeFactory.RequestContentApi.RequestContentType, spread.Invoke(nameof(RequestContentApi.ToRquestContent)), out var content));
                 declarations["spread"] = spread;
-                declarations["content"] = content;
             }
 
             return statements;
@@ -320,7 +313,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 return responseBodyType.ToEnum(response.Content().ToObjectFromJson(responseBodyType.UnderlyingEnumType));
             }
-            return Static(responseBodyType).Invoke("FromResponse", result);
+            return result.CastTo(responseBodyType);
         }
 
         private IReadOnlyList<ValueExpression> GetParamConversions(IReadOnlyList<ParameterProvider> convenienceMethodParameters, Dictionary<string, ValueExpression> declarations)
@@ -333,7 +326,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 {
                     if (!addedSpreadSource)
                     {
-                        conversions.Add(declarations["content"]);
+                        conversions.Add(declarations["spread"]);
                         addedSpreadSource = true;
                     }
                 }
@@ -351,7 +344,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     {
                         conversions.Add(BinaryContentSnippets.Create(param));
                     }
-                    else if (declarations.ContainsKey("content"))
+                    else if (param.Type.IsFrameworkType)
                     {
                         conversions.Add(declarations["content"]);
                     }

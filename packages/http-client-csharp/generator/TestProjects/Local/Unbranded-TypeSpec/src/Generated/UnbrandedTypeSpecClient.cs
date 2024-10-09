@@ -113,7 +113,7 @@ namespace UnbrandedTypeSpec
             Argument.AssertNotNull(queryParameter, nameof(queryParameter));
 
             ClientResult result = SayHi(headParameter, queryParameter, optionalQuery, null);
-            return ClientResult.FromValue(Thing.FromResponse(result), result.GetRawResponse());
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary> Return hi. </summary>
@@ -128,7 +128,7 @@ namespace UnbrandedTypeSpec
             Argument.AssertNotNull(queryParameter, nameof(queryParameter));
 
             ClientResult result = await SayHiAsync(headParameter, queryParameter, optionalQuery, null).ConfigureAwait(false);
-            return ClientResult.FromValue(Thing.FromResponse(result), result.GetRawResponse());
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary>
@@ -193,9 +193,8 @@ namespace UnbrandedTypeSpec
             Argument.AssertNotNull(p1, nameof(p1));
             Argument.AssertNotNull(action, nameof(action));
 
-            using BinaryContent content = action.ToRquestContent();
-            ClientResult result = HelloAgain(p2, p1, content, null);
-            return ClientResult.FromValue(RoundTripModel.FromResponse(result), result.GetRawResponse());
+            ClientResult result = HelloAgain(p2, p1, action, null);
+            return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
         }
 
         /// <summary> Return hi again. </summary>
@@ -210,9 +209,8 @@ namespace UnbrandedTypeSpec
             Argument.AssertNotNull(p1, nameof(p1));
             Argument.AssertNotNull(action, nameof(action));
 
-            using BinaryContent content = action.ToRquestContent();
-            ClientResult result = await HelloAgainAsync(p2, p1, content, null).ConfigureAwait(false);
-            return ClientResult.FromValue(RoundTripModel.FromResponse(result), result.GetRawResponse());
+            ClientResult result = await HelloAgainAsync(p2, p1, action, null).ConfigureAwait(false);
+            return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
         }
 
         /// <summary>
@@ -304,7 +302,7 @@ namespace UnbrandedTypeSpec
         public virtual ClientResult<Thing> HelloDemo2()
         {
             ClientResult result = HelloDemo2(null);
-            return ClientResult.FromValue(Thing.FromResponse(result), result.GetRawResponse());
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary> Return hi in demo2. </summary>
@@ -312,7 +310,7 @@ namespace UnbrandedTypeSpec
         public virtual async Task<ClientResult<Thing>> HelloDemo2Async()
         {
             ClientResult result = await HelloDemo2Async(null).ConfigureAwait(false);
-            return ClientResult.FromValue(Thing.FromResponse(result), result.GetRawResponse());
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary>
@@ -365,9 +363,8 @@ namespace UnbrandedTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using BinaryContent content = body.ToRquestContent();
-            ClientResult result = CreateLiteral(content, null);
-            return ClientResult.FromValue(Thing.FromResponse(result), result.GetRawResponse());
+            ClientResult result = CreateLiteral(body, null);
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary> Create with literal value. </summary>
@@ -378,9 +375,8 @@ namespace UnbrandedTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using BinaryContent content = body.ToRquestContent();
-            ClientResult result = await CreateLiteralAsync(content, null).ConfigureAwait(false);
-            return ClientResult.FromValue(Thing.FromResponse(result), result.GetRawResponse());
+            ClientResult result = await CreateLiteralAsync(body, null).ConfigureAwait(false);
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary>
@@ -422,7 +418,7 @@ namespace UnbrandedTypeSpec
         public virtual ClientResult<Thing> HelloLiteral()
         {
             ClientResult result = HelloLiteral(null);
-            return ClientResult.FromValue(Thing.FromResponse(result), result.GetRawResponse());
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary> Send literal parameters. </summary>
@@ -430,7 +426,7 @@ namespace UnbrandedTypeSpec
         public virtual async Task<ClientResult<Thing>> HelloLiteralAsync()
         {
             ClientResult result = await HelloLiteralAsync(null).ConfigureAwait(false);
-            return ClientResult.FromValue(Thing.FromResponse(result), result.GetRawResponse());
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary>
@@ -475,7 +471,7 @@ namespace UnbrandedTypeSpec
         public virtual ClientResult<Thing> TopAction(DateTimeOffset action)
         {
             ClientResult result = TopAction(action, null);
-            return ClientResult.FromValue(Thing.FromResponse(result), result.GetRawResponse());
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary> top level method. </summary>
@@ -484,7 +480,7 @@ namespace UnbrandedTypeSpec
         public virtual async Task<ClientResult<Thing>> TopActionAsync(DateTimeOffset action)
         {
             ClientResult result = await TopActionAsync(action, null).ConfigureAwait(false);
-            return ClientResult.FromValue(Thing.FromResponse(result), result.GetRawResponse());
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary>
@@ -642,9 +638,8 @@ namespace UnbrandedTypeSpec
                 optionalNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
                 requiredNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
                 null);
-            using BinaryContent content = spreadModel.ToRquestContent();
-            ClientResult result = AnonymousBody(content, null);
-            return ClientResult.FromValue(Thing.FromResponse(result), result.GetRawResponse());
+            ClientResult result = AnonymousBody(spreadModel, null);
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary> body parameter without body decorator. </summary>
@@ -684,9 +679,8 @@ namespace UnbrandedTypeSpec
                 optionalNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
                 requiredNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
                 null);
-            using BinaryContent content = spreadModel.ToRquestContent();
-            ClientResult result = await AnonymousBodyAsync(content, null).ConfigureAwait(false);
-            return ClientResult.FromValue(Thing.FromResponse(result), result.GetRawResponse());
+            ClientResult result = await AnonymousBodyAsync(spreadModel, null).ConfigureAwait(false);
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary>
@@ -740,9 +734,8 @@ namespace UnbrandedTypeSpec
             Argument.AssertNotNull(name, nameof(name));
 
             Friend spreadModel = new Friend(name, null);
-            using BinaryContent content = spreadModel.ToRquestContent();
-            ClientResult result = FriendlyModel(content, null);
-            return ClientResult.FromValue(Friend.FromResponse(result), result.GetRawResponse());
+            ClientResult result = FriendlyModel(spreadModel, null);
+            return ClientResult.FromValue((Friend)result, result.GetRawResponse());
         }
 
         /// <summary> Model can have its friendly name. </summary>
@@ -754,9 +747,8 @@ namespace UnbrandedTypeSpec
             Argument.AssertNotNull(name, nameof(name));
 
             Friend spreadModel = new Friend(name, null);
-            using BinaryContent content = spreadModel.ToRquestContent();
-            ClientResult result = await FriendlyModelAsync(content, null).ConfigureAwait(false);
-            return ClientResult.FromValue(Friend.FromResponse(result), result.GetRawResponse());
+            ClientResult result = await FriendlyModelAsync(spreadModel, null).ConfigureAwait(false);
+            return ClientResult.FromValue((Friend)result, result.GetRawResponse());
         }
 
         /// <summary>
@@ -858,9 +850,8 @@ namespace UnbrandedTypeSpec
             Argument.AssertNotNull(name, nameof(name));
 
             ProjectedModel spreadModel = new ProjectedModel(name, null);
-            using BinaryContent content = spreadModel.ToRquestContent();
-            ClientResult result = ProjectedNameModel(content, null);
-            return ClientResult.FromValue(ProjectedModel.FromResponse(result), result.GetRawResponse());
+            ClientResult result = ProjectedNameModel(spreadModel, null);
+            return ClientResult.FromValue((ProjectedModel)result, result.GetRawResponse());
         }
 
         /// <summary> Model can have its projected name. </summary>
@@ -872,9 +863,8 @@ namespace UnbrandedTypeSpec
             Argument.AssertNotNull(name, nameof(name));
 
             ProjectedModel spreadModel = new ProjectedModel(name, null);
-            using BinaryContent content = spreadModel.ToRquestContent();
-            ClientResult result = await ProjectedNameModelAsync(content, null).ConfigureAwait(false);
-            return ClientResult.FromValue(ProjectedModel.FromResponse(result), result.GetRawResponse());
+            ClientResult result = await ProjectedNameModelAsync(spreadModel, null).ConfigureAwait(false);
+            return ClientResult.FromValue((ProjectedModel)result, result.GetRawResponse());
         }
 
         /// <summary>
@@ -916,7 +906,7 @@ namespace UnbrandedTypeSpec
         public virtual ClientResult<ReturnsAnonymousModelResponse> ReturnsAnonymousModel()
         {
             ClientResult result = ReturnsAnonymousModel(null);
-            return ClientResult.FromValue(ReturnsAnonymousModelResponse.FromResponse(result), result.GetRawResponse());
+            return ClientResult.FromValue((ReturnsAnonymousModelResponse)result, result.GetRawResponse());
         }
 
         /// <summary> return anonymous model. </summary>
@@ -924,7 +914,7 @@ namespace UnbrandedTypeSpec
         public virtual async Task<ClientResult<ReturnsAnonymousModelResponse>> ReturnsAnonymousModelAsync()
         {
             ClientResult result = await ReturnsAnonymousModelAsync(null).ConfigureAwait(false);
-            return ClientResult.FromValue(ReturnsAnonymousModelResponse.FromResponse(result), result.GetRawResponse());
+            return ClientResult.FromValue((ReturnsAnonymousModelResponse)result, result.GetRawResponse());
         }
 
         /// <summary>
@@ -1043,9 +1033,8 @@ namespace UnbrandedTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using BinaryContent content = body.ToRquestContent();
-            ClientResult result = InternalProtocol(content, null);
-            return ClientResult.FromValue(Thing.FromResponse(result), result.GetRawResponse());
+            ClientResult result = InternalProtocol(body, null);
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary> When set protocol false and convenient true, then the protocol method should be internal. </summary>
@@ -1056,9 +1045,8 @@ namespace UnbrandedTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using BinaryContent content = body.ToRquestContent();
-            ClientResult result = await InternalProtocolAsync(content, null).ConfigureAwait(false);
-            return ClientResult.FromValue(Thing.FromResponse(result), result.GetRawResponse());
+            ClientResult result = await InternalProtocolAsync(body, null).ConfigureAwait(false);
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary>
