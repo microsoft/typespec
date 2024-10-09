@@ -332,7 +332,7 @@ const verticalPaneSizesConst = {
   collapsed: [undefined, 30],
   expanded: [undefined, 200],
 };
-const outputDir = "./tsp-output";
+const outputDir = resolveVirtualPath("tsp-output");
 
 async function compile(
   host: BrowserHost,
@@ -350,10 +350,10 @@ async function compile(
         ...options.options,
         [selectedEmitter]: {
           ...options.options?.[selectedEmitter],
-          "emitter-output-dir": resolveVirtualPath("tsp-output"),
+          "emitter-output-dir": outputDir,
         },
       },
-      outputDir: resolveVirtualPath("tsp-output"),
+      outputDir,
       emit: selectedEmitter ? [selectedEmitter] : [],
     });
     const outputFiles = await findOutputFiles(host);
