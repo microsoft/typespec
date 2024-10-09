@@ -65,6 +65,18 @@ model Pet {
 }
 ```
 
+### Define typed examples using `const`
+
+```tsp
+const petExample: Pet = #{ name: "Max", age: 3 };
+
+@example(petExample)
+model Pet {
+  name: string;
+  age: int32;
+}
+```
+
 ## Operation examples
 
 Operation example are provided with the `@opExample` decorator. Similar to the `@example` decorator the first argument is the example value however it takes both the `parameters` and `returnType` example.

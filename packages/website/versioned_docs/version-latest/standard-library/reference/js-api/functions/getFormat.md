@@ -4,7 +4,7 @@ title: "[F] getFormat"
 
 ---
 ```ts
-function getFormat(program, target): string | undefined
+function getFormat(program, type): undefined | string
 ```
 
 ## Parameters
@@ -12,8 +12,8 @@ function getFormat(program, target): string | undefined
 | Parameter | Type |
 | ------ | ------ |
 | `program` | [`Program`](../interfaces/Program.md) |
-| `target` | [`Type`](../type-aliases/Type.md) |
+| `type` | [`Type`](../type-aliases/Type.md) |
 
 ## Returns
 
-`string` \| `undefined`
+`undefined` \| `string`

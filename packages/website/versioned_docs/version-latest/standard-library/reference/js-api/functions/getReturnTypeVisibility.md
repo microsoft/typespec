@@ -4,22 +4,16 @@ title: "[F] getReturnTypeVisibility"
 
 ---
 ```ts
-function getReturnTypeVisibility(program, entity): string[] | undefined
+function getReturnTypeVisibility(program, type): undefined | string[]
 ```
-
-Returns the visibilities of the return type of the given operation, if provided with `@returnTypeVisibility`.
 
 ## Parameters
 
 | Parameter | Type |
 | ------ | ------ |
 | `program` | [`Program`](../interfaces/Program.md) |
-| `entity` | [`Operation`](../interfaces/Operation.md) |
+| `type` | [`Type`](../type-aliases/Type.md) |
 
 ## Returns
 
-`string`[] \| `undefined`
-
-## See
-
-[$returnTypeVisibility]($returnTypeVisibility.md)
+`undefined` \| `string`[]
