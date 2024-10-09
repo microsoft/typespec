@@ -4,20 +4,16 @@ title: "[F] getOverloadedOperation"
 
 ---
 ```ts
-function getOverloadedOperation(program, operation): Operation | undefined
+function getOverloadedOperation(program, type): undefined | Operation
 ```
-
-If the given operation overloads another operation, return that operation.
 
 ## Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `program` | [`Program`](../interfaces/Program.md) | Program |
-| `operation` | [`Operation`](../interfaces/Operation.md) | The operation to check for an overload target. |
+| Parameter | Type |
+| ------ | ------ |
+| `program` | [`Program`](../interfaces/Program.md) |
+| `type` | [`Operation`](../interfaces/Operation.md) |
 
 ## Returns
 
-[`Operation`](../interfaces/Operation.md) \| `undefined`
-
-The operation this operation overloads, if any.
+`undefined` \| [`Operation`](../interfaces/Operation.md)
