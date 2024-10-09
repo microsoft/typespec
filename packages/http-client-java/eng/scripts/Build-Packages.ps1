@@ -78,11 +78,15 @@ try {
     $file = Invoke-LoggedCommand "npm pack -q"
     Copy-Item $file -Destination "$outputPath/packages"
 
-    & "$packageRoot/../../eng/emitters/scripts/Generate-APIView-CodeFile.ps1" -ArtifactPath "$outputPath/packages" || & { "ignore failure"; $global:LASTEXITCODE = 0 }
+    Write-Host $global:LASTEXITCODE
 
-    Write-Host "Write-PackageInfo"
+    & "$packageRoot/../../eng/emitters/scripts/Generate-APIView-CodeFile.ps1" -ArtifactPath "$outputPath/packages"
+
+    Write-Host $global:LASTEXITCODE
 
     Write-PackageInfo -packageName "typespec-http-client-java" -directoryPath "packages/http-client-java/emitter/src" -version $emitterVersion
+
+    Write-Host $global:LASTEXITCODE
 }
 finally {
     Pop-Location
@@ -104,8 +108,8 @@ $packageMatrix = [ordered]@{
     "emitter" = $emitterVersion
 }
 
-$packageMatrix | Format-Table -AutoSize
+Write-Host $global:LASTEXITCODE
 
 $packageMatrix | ConvertTo-Json | Set-Content "$outputPath/package-versions.json"
 
-Write-Host "after packageMatrix $($packageMatrix)"
+Write-Host $global:LASTEXITCODE
