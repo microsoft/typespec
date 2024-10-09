@@ -76,7 +76,7 @@ namespace Microsoft.Generator.CSharp
             _visitors.Add(visitor);
         }
 
-        public void AddMetadataReferences(MetadataReference reference)
+        public void AddMetadataReference(MetadataReference reference)
         {
             _additionalMetadataReferences.Add(reference);
         }

@@ -33,9 +33,9 @@ namespace Microsoft.Generator.CSharp.ClientModel
         public override void Configure()
         {
             AddVisitor(new DefaultScmLibraryVisitor());
-            AddMetadataReferences(MetadataReference.CreateFromFile(typeof(ClientResult).Assembly.Location));
-            AddMetadataReferences(MetadataReference.CreateFromFile(typeof(BinaryData).Assembly.Location));
-            AddMetadataReferences(MetadataReference.CreateFromFile(typeof(JsonSerializer).Assembly.Location));
+            AddMetadataReference(MetadataReference.CreateFromFile(typeof(ClientResult).Assembly.Location));
+            AddMetadataReference(MetadataReference.CreateFromFile(typeof(BinaryData).Assembly.Location));
+            AddMetadataReference(MetadataReference.CreateFromFile(typeof(JsonSerializer).Assembly.Location));
         }
     }
 }
