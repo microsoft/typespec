@@ -78,7 +78,7 @@ try {
     $file = Invoke-LoggedCommand "npm pack -q"
     Copy-Item $file -Destination "$outputPath/packages"
 
-    & "$packageRoot/../../eng/emitters/scripts/Generate-APIView-CodeFile.ps1" -ArtifactPath "$outputPath/packages"
+    & "$packageRoot/../../eng/emitters/scripts/Generate-APIView-CodeFile.ps1" -ArtifactPath "$outputPath/packages" || & { "ignore failure"; $global:LASTEXITCODE = 0 }
 
     Write-Host "Write-PackageInfo"
 
