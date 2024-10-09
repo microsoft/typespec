@@ -442,7 +442,7 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 var parameterType = ((ITypeSymbol)parameterTypes[i]!).GetCSharpType();
                 // we ignore nullability for reference types as these are generated the same regardless of nullability
-                if (!parameterType.Equals(signature.Parameters[i].Type, !parameterType.IsValueType))
+                if (!parameterType.Equals(signature.Parameters[i].Type, ignoreNullable: !parameterType.IsValueType))
                 {
                     return false;
                 }
