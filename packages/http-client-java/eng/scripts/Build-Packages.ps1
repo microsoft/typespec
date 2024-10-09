@@ -104,6 +104,8 @@ $packageMatrix = [ordered]@{
     "emitter" = $emitterVersion
 }
 
-Write-Host "packageMatrix $($packageMatrix)"
+$packageMatrix | Format-Table -AutoSize
 
 $packageMatrix | ConvertTo-Json | Set-Content "$outputPath/package-versions.json"
+
+Write-Host "after packageMatrix $($packageMatrix)"
