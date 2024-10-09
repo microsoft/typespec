@@ -56,7 +56,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var customModifiers = GetCustomCodeModifiers();
             return customModifiers != TypeSignatureModifiers.None
                 ? customModifiers
-                : TypeSignatureModifiers.Static | TypeSignatureModifiers.Public | TypeSignatureModifiers.Class | TypeSignatureModifiers.Partial;
+                : TypeSignatureModifiers.Public | TypeSignatureModifiers.Static | TypeSignatureModifiers.Class | TypeSignatureModifiers.Partial;
         }
 
         protected override string GetNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
