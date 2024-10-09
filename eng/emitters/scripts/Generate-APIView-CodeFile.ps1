@@ -36,10 +36,13 @@ if (!(Test-Path -Path $installedPath))
 Write-Host "Setting working directory to $($installedPath)"
 Push-Location $installedPath
 try {
+    Write-Host $global:LASTEXITCODE
     npm install
+    Write-Host $global:LASTEXITCODE
     npm run-script build
+    Write-Host $global:LASTEXITCODE
     $apiFiles = @(Get-ChildItem -Path $ArtifactPath -Recurse -Filter "*.api.json")
-    Write-Host "api-extractor files $($apiFiles)"
+    Write-Host $global:LASTEXITCODE
     foreach ($apiPkgFile in $apiFiles)
     {
         $apiFilePath = $apiPkgFile.FullName
@@ -50,7 +53,7 @@ try {
         Write-Host "Converting api-extractor file $($apiFilePath) to APIview code file $($OutFilePath)"
         node ./export.js $apiFilePath $OutFilePath
     }
-    Write-Host "after api-extractor files $($apiFiles)"
+    Write-Host $global:LASTEXITCODE
 }
 finally
 {
