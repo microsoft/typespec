@@ -55,13 +55,14 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Compile Scratch",
+      "name": "Emit PetStore",
       "program": "${workspaceFolder}/packages/compiler/entrypoints/cli.js",
       "args": [
         "compile",
-        "../samples/scratch",
-        "--output-dir=${workspaceFolder}/packages/efnext-pydantic-sketch/scratch-output",
-        "--emit=@typespec/efnext-pydantic-sketch"
+        "../samples/specs/petstore",
+        "--output-dir=${workspaceFolder}/petstore-output",
+        //"--emit=@typespec/efnext-pydantic-sketch"
+        "--emit=@typspec/http-client-python"
       ],
       "smartStep": true,
       "sourceMaps": true,

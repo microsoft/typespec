@@ -11,9 +11,8 @@
     "sourceMap": true,
     "declarationMap": true,
     "jsx": "preserve",
-    "emitDeclarationOnly": true,
     "outDir": "dist",
   },
-  "include": [ "src/**/*.ts", "src/**/*.tsx", "test/**/*.ts", "test/**/*.tsx", "tsp-output/**/*.ts", "../emitter-framework/src/python/name-policy.ts"],
+  "include": [ "src/**/*.ts", "src/**/*.tsx", "test/**/*.ts", "test/**/*.tsx"],
   "exclude": ["node_modules", "dist"]
 }
