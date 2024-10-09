@@ -441,7 +441,10 @@ namespace Microsoft.Generator.CSharp.Providers
             for (int i = 0; i < parameterTypes.Length; i++)
             {
                 var parameterType = ((ITypeSymbol)parameterTypes[i]!).GetCSharpType();
-                if (parameterType.Name != signature.Parameters[i].Type.Name || parameterType.IsNullable != signature.Parameters[i].Type.IsNullable)
+                // we ignore nullability for reference types as these are generated the same regardless of nullability
+                // TODO - switch to using CSharpType.Equals once https://github.com/microsoft/typespec/issues/4624 is fixed.
+                if (parameterType.Name != signature.Parameters[i].Type.Name ||
+                    (parameterType.IsValueType && parameterType.IsNullable != signature.Parameters[i].Type.IsNullable))
                 {
                     return false;
                 }
