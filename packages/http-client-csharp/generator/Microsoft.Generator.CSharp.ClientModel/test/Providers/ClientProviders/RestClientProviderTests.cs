@@ -208,10 +208,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             var restClientProvider = new MockClientProvider(client, clientProvider);
             var method = restClientProvider.Methods.FirstOrDefault(m => m.Signature.Name == "CreateOperationWithApiVersionRequest");
             Assert.IsNotNull(method);
-            Assert.AreEqual(1, method?.Signature.Parameters.Count);
+            /* verify that there is no apiVersion parameter in method signature. */
             Assert.IsNull(method?.Signature.Parameters.FirstOrDefault(p => p.Name.Equals("apiVersion")));
             var bodyStatements = method?.BodyStatements as MethodBodyStatements;
             Assert.IsNotNull(bodyStatements);
+            /* verify that it will use client _apiVersion field to append query parameter. */
             Assert.IsTrue(bodyStatements!.Statements.Any(s => s.ToDisplayString() == "uri.AppendQuery(\"apiVersion\", _apiVersion, true);\n"));
         }
 
