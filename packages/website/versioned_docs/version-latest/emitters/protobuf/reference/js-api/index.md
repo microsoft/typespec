@@ -14,8 +14,8 @@ title: "[P] JS API"
 ## Variables
 
 - [$lib](variables/$lib.md)
-- [PROTO\_FULL\_IDENT](variables/PROTO_FULL_IDENT.md)
 - [namespace](variables/namespace.md)
+- [PROTO\_FULL\_IDENT](variables/PROTO_FULL_IDENT.md)
 
 ## Functions
 

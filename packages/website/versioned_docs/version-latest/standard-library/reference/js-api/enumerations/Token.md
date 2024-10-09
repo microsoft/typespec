@@ -63,10 +63,10 @@ title: "[E] Token"
 | `NewLine` | `11` |
 | `None` | `0` |
 | `NumericLiteral` | `4` |
-| `OpKeyword` | `57` |
 | `OpenBrace` | `17` |
 | `OpenBracket` | `21` |
 | `OpenParen` | `19` |
+| `OpKeyword` | `57` |
 | `Plus` | `42` |
 | `ProjectionKeyword` | `63` |
 | `Question` | `32` |
