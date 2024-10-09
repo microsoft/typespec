@@ -17,7 +17,7 @@ alias ScenarioServiceOptions = {
 extern dec scenarioService(
   target: Namespace,
   route: valueof string,
-  options?: valueof ScenarioServiceOptions
+  options?: ScenarioServiceOptions
 );
 
 /**

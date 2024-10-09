@@ -36,13 +36,6 @@ Scenarios.Encode_Duration_Property_default = createBodyServerTests(
   },
   "P40D",
 );
-Scenarios.Encode_Duration_Property_default = createBodyServerTests(
-  "/encode/duration/property/float-seconds",
-  {
-    value: 35.625,
-  },
-  35.625,
-);
 Scenarios.Encode_Duration_Property_floatSeconds = createBodyServerTests(
   "/encode/duration/property/float-seconds",
   {
