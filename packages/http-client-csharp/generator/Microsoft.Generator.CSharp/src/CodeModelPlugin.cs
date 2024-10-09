@@ -76,9 +76,9 @@ namespace Microsoft.Generator.CSharp
             _visitors.Add(visitor);
         }
 
-        public void AddMetadataReferences(params MetadataReference[] references)
+        public void AddMetadataReferences(MetadataReference reference)
         {
-            _additionalMetadataReferences.AddRange(references);
+            _additionalMetadataReferences.Add(reference);
         }
 
         private SourceInputModel? _sourceInputModel;
