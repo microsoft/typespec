@@ -80,6 +80,8 @@ try {
 
     & "$packageRoot/../../eng/emitters/scripts/Generate-APIView-CodeFile.ps1" -ArtifactPath "$outputPath/packages"
 
+    Write-Host "Write-PackageInfo"
+
     Write-PackageInfo -packageName "typespec-http-client-java" -directoryPath "packages/http-client-java/emitter/src" -version $emitterVersion
 }
 finally {
@@ -101,5 +103,7 @@ $overrides | ConvertTo-Json | Set-Content "$outputPath/overrides.json"
 $packageMatrix = [ordered]@{
     "emitter" = $emitterVersion
 }
+
+Write-Host "packageMatrix $($packageMatrix)"
 
 $packageMatrix | ConvertTo-Json | Set-Content "$outputPath/package-versions.json"

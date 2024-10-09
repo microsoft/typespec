@@ -50,6 +50,7 @@ try {
         Write-Host "Converting api-extractor file $($apiFilePath) to APIview code file $($OutFilePath)"
         node ./export.js $apiFilePath $OutFilePath
     }
+    Write-Host "after api-extractor files $($apiFiles)"
 }
 finally
 {
