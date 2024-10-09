@@ -39,6 +39,7 @@ try {
     npm install
     npm run-script build
     $apiFiles = @(Get-ChildItem -Path $ArtifactPath -Recurse -Filter "*.api.json")
+    Write-Host "api-extractor files $($apiFiles)"
     foreach ($apiPkgFile in $apiFiles)
     {
         $apiFilePath = $apiPkgFile.FullName
