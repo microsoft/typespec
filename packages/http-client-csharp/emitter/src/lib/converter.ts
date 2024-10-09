@@ -133,24 +133,20 @@ export function fromSdkModelType(
       ? fromSdkType(modelType.additionalProperties, context, typeMap)
       : undefined;
 
-    const propertiesDict = new Map<SdkModelPropertyType, InputModelProperty[]>();
+    const propertiesDict = new Map<SdkModelPropertyType, InputModelProperty>();
     for (const property of modelType.properties) {
       if (property.kind !== "property") {
         continue;
       }
-      const ourProperties = fromSdkModelProperty(
-        property,
-        {
-          ModelName: modelTypeName,
-          Usage: modelType.usage,
-        } as LiteralTypeContext,
-        [],
-      );
-      propertiesDict.set(property, ourProperties);
+      const ourProperty = fromSdkModelProperty(property, {
+        ModelName: modelTypeName,
+        Usage: modelType.usage,
+      } as LiteralTypeContext);
+      propertiesDict.set(property, ourProperty);
     }
 
     inputModelType.discriminatorProperty = modelType.discriminatorProperty
-      ? propertiesDict.get(modelType.discriminatorProperty)![0]
+      ? propertiesDict.get(modelType.discriminatorProperty)
       : undefined;
 
     inputModelType.baseModel = modelType.baseModel
@@ -174,56 +170,37 @@ export function fromSdkModelType(
   function fromSdkModelProperty(
     property: SdkBodyModelPropertyType,
     literalTypeContext: LiteralTypeContext,
-    flattenedNamePrefixes: string[],
-  ): InputModelProperty[] {
-    // TODO -- we should consolidate the flatten somewhere else
-    if (!property.flatten) {
-      /* remove this when https://github.com/Azure/typespec-azure/issues/1483 and https://github.com/Azure/typespec-azure/issues/1488 are resolved. */
-      let targetType = property.type;
-      if (targetType.kind === "model") {
-        const body = targetType.properties.find((x) => x.kind === "body");
-        if (body) targetType = body.type;
-      }
-
-      const serializedName = property.serializedName;
-      literalTypeContext.PropertyName = serializedName;
-
-      const modelProperty: InputModelProperty = {
-        kind: property.kind,
-        name: property.name,
-        serializedName: serializedName,
-        description: property.description,
-        type: fromSdkType(
-          targetType,
-          context,
-          typeMap,
-          property.discriminator ? undefined : literalTypeContext, // this is a workaround because the type of discriminator property in derived models is always literal and we wrap literal into enums, which leads to a lot of extra enum types, adding this check to avoid them
-        ),
-        optional: property.optional,
-        readOnly: isReadOnly(property), // TODO -- we might pass the visibility through and then check if there is only read to know if this is readonly
-        discriminator: property.discriminator,
-        flattenedNames:
-          flattenedNamePrefixes.length > 0
-            ? flattenedNamePrefixes.concat(property.name)
-            : undefined,
-        decorators: property.decorators,
-        crossLanguageDefinitionId: property.crossLanguageDefinitionId,
-      };
-
-      return [modelProperty];
+  ): InputModelProperty {
+    /* remove this when https://github.com/Azure/typespec-azure/issues/1483 and https://github.com/Azure/typespec-azure/issues/1488 are resolved. */
+    let targetType = property.type;
+    if (targetType.kind === "model") {
+      const body = targetType.properties.find((x) => x.kind === "body");
+      if (body) targetType = body.type;
     }
 
-    const flattenedProperties: InputModelProperty[] = [];
-    const childPropertiesToFlatten = (property.type as SdkModelType).properties;
-    const newFlattenedNamePrefixes = flattenedNamePrefixes.concat(property.serializedName);
-    for (const childProperty of childPropertiesToFlatten) {
-      if (childProperty.kind !== "property") continue;
-      flattenedProperties.push(
-        ...fromSdkModelProperty(childProperty, literalTypeContext, newFlattenedNamePrefixes),
-      );
-    }
+    const serializedName = property.serializedName;
+    literalTypeContext.PropertyName = serializedName;
 
-    return flattenedProperties;
+    const modelProperty: InputModelProperty = {
+      kind: property.kind,
+      name: property.name,
+      serializedName: serializedName,
+      description: property.description,
+      type: fromSdkType(
+        targetType,
+        context,
+        typeMap,
+        property.discriminator ? undefined : literalTypeContext, // this is a workaround because the type of discriminator property in derived models is always literal and we wrap literal into enums, which leads to a lot of extra enum types, adding this check to avoid them
+      ),
+      optional: property.optional,
+      readOnly: isReadOnly(property), // TODO -- we might pass the visibility through and then check if there is only read to know if this is readonly
+      discriminator: property.discriminator,
+      flatten: property.flatten,
+      decorators: property.decorators,
+      crossLanguageDefinitionId: property.crossLanguageDefinitionId,
+    };
+
+    return modelProperty;
   }
 }
 
