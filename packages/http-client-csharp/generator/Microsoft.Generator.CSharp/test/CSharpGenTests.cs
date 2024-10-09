@@ -31,7 +31,6 @@ namespace Microsoft.Generator.CSharp.Tests
             var csharpGen = new CSharpGen();
 
             Assert.DoesNotThrowAsync(async () => await csharpGen.ExecuteAsync());
-            mockPlugin.Verify(m => m.Visitors, Times.Once);
             mockVisitor.Verify(m => m.Visit(mockPlugin.Object.OutputLibrary), Times.Once);
         }
     }

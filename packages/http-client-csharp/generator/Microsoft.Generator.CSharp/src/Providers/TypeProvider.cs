@@ -82,11 +82,14 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected virtual TypeSignatureModifiers GetDeclarationModifiers() => TypeSignatureModifiers.None;
 
-        protected TypeSignatureModifiers GetCustomCodeModifiers() => CustomCodeView?.DeclarationModifiers ?? TypeSignatureModifiers.None;
-
         private TypeSignatureModifiers GetDeclarationModifiersInternal()
         {
             var modifiers = GetDeclarationModifiers();
+            var customModifiers = CustomCodeView?.DeclarationModifiers ?? TypeSignatureModifiers.None;
+            if (customModifiers != TypeSignatureModifiers.None)
+            {
+                modifiers |= customModifiers;
+            }
             // we default to public when no accessibility modifier is provided
             if (!modifiers.HasFlag(TypeSignatureModifiers.Internal) && !modifiers.HasFlag(TypeSignatureModifiers.Public) && !modifiers.HasFlag(TypeSignatureModifiers.Private))
             {
@@ -424,7 +427,7 @@ namespace Microsoft.Generator.CSharp.Providers
             }
             else if (attribute.ConstructorArguments[1].Kind != TypedConstantKind.Array)
             {
-                parameterTypes = [(ISymbol?) attribute.ConstructorArguments[1].Value];
+                parameterTypes = attribute.ConstructorArguments[1..].Select(a => (ISymbol?) a.Value).ToArray();
             }
             else
             {
@@ -437,7 +440,8 @@ namespace Microsoft.Generator.CSharp.Providers
 
             for (int i = 0; i < parameterTypes.Length; i++)
             {
-                if (parameterTypes[i]?.Name != signature.Parameters[i].Type.Name)
+                var parameterType = ((ITypeSymbol)parameterTypes[i]!).GetCSharpType();
+                if (parameterType.Name != signature.Parameters[i].Type.Name || parameterType.IsNullable != signature.Parameters[i].Type.IsNullable)
                 {
                     return false;
                 }

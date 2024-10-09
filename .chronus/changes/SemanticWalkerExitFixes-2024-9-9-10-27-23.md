@@ -4,4 +4,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-Fix #4588
+[API] Add missing exit callback
