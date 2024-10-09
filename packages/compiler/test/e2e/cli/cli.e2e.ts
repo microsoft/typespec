@@ -190,4 +190,36 @@ describe("cli", () => {
     expect(stdout).toContain("Compilation completed successfully.");
     await access(resolvePath(getScenarioDir("with-config"), "tsp-output/custom-dir-name/out.txt"));
   });
+
+  it("set config parameter with --option", async () => {
+    await cleanOutputDir("with-option");
+    const { stdout } = await execCliSuccess(
+      [
+        "compile",
+        ".",
+        "--emit",
+        "./emitter.js",
+        "--arg",
+        "custom-dir=custom-dir-name",
+        "--arg",
+        "metadata.owner=TypeSpec",
+        "--option",
+        "description.name=TypeSpec with options",
+        "--option",
+        "description.by.owners.secondary=Co-owner is defined by this test",
+      ],
+      {
+        cwd: getScenarioDir("with-option"),
+      },
+    );
+    expect(stdout).toContain("Compilation completed successfully.");
+    const file = await readFile(
+      resolvePath(getScenarioDir("with-option"), "tsp-output/custom-dir-name/out.txt"),
+    );
+    expect(file.toString()).toContain(`By Owner: TypeSpec
+TypeSpec with options
+Succeeded: TypeSpec with options with this short example by TypeSpec
+Owner: TypeSpec
+Co-owner is defined by this test`);
+  });
 });

@@ -30,7 +30,7 @@ function hyperlink(text: string, url: string | undefined, options: FormatLogOpti
 }
 
 export function formatLog(log: ProcessedLog, options: FormatLogOptions): string {
-  const code = log.code ? hyperlink(color(options, ` ${log.code}`, pc.gray), log.url, options) : "";
+  const code = log.code ? ` ${hyperlink(color(options, log.code, pc.gray), log.url, options)}` : "";
   const level = formatLevel(options, log.level);
   const content = `${level}${code}: ${log.message}`;
   const location = log.sourceLocation;

@@ -81,7 +81,7 @@ namespace UnbrandedTypeSpec.Models
                 {
                     writer.WritePropertyName("optionalNullableList"u8);
                     writer.WriteStartArray();
-                    foreach (var item in OptionalNullableList)
+                    foreach (int item in OptionalNullableList)
                     {
                         writer.WriteNumberValue(item);
                     }
@@ -96,7 +96,7 @@ namespace UnbrandedTypeSpec.Models
             {
                 writer.WritePropertyName("requiredNullableList"u8);
                 writer.WriteStartArray();
-                foreach (var item in RequiredNullableList)
+                foreach (int item in RequiredNullableList)
                 {
                     writer.WriteNumberValue(item);
                 }

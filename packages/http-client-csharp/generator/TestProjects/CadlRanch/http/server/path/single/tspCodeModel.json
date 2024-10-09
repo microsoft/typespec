@@ -1,0 +1,74 @@
+{
+ "$id": "1",
+ "Name": "Server.Path.Single",
+ "ApiVersions": [],
+ "Enums": [],
+ "Models": [],
+ "Clients": [
+  {
+   "$id": "2",
+   "Name": "SingleClient",
+   "Description": "Illustrates server with a single path parameter @server",
+   "Operations": [
+    {
+     "$id": "3",
+     "Name": "myOp",
+     "ResourceName": "Single",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$id": "4",
+       "Name": "endpoint",
+       "NameInRequest": "endpoint",
+       "Description": "Need to be set as 'http://localhost:3000' in client.",
+       "Type": {
+        "$id": "5",
+        "kind": "url",
+        "name": "url",
+        "crossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client"
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "6",
+       "StatusCodes": [
+        200
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "HEAD",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/server/path/single/myOp",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Server.Path.Single.myOp",
+     "Decorators": []
+    }
+   ],
+   "Protocol": {
+    "$id": "7"
+   },
+   "Parameters": [
+    {
+     "$ref": "4"
+    }
+   ],
+   "Decorators": []
+  }
+ ]
+}

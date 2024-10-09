@@ -74,11 +74,10 @@ function resolveUnions(program: Program, value: ObjectValue, type: Type): Type |
   }
   for (const variant of type.variants.values()) {
     if (
-      variant.type.kind === "Model" &&
       ignoreDiagnostics(
         program.checker.isTypeAssignableTo(
-          value,
-          { entityKind: "MixedParameterConstraint", valueType: variant.type },
+          value.type.projectionBase ?? value.type,
+          variant.type.projectionBase ?? variant.type,
           value,
         ),
       )

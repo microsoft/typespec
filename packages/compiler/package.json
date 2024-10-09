@@ -34,8 +34,8 @@
       "default": "./dist/src/testing/index.js"
     },
     "./module-resolver": {
-      "types": "./dist/src/core/module-resolver.d.ts",
-      "default": "./dist/src/core/module-resolver.js"
+      "types": "./dist/module-resolver/module-resolver.d.ts",
+      "default": "./dist/src/module-resolver/module-resolver.js"
     },
     "./emitter-framework": {
       "types": "./dist/src/emitter-framework/index.d.ts",

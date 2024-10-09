@@ -22,3 +22,6 @@ export const CadlPrettierPlugin = TypeSpecPrettierPlugin;
 
 /** @internal for Typespec compiler */
 export { $decorators } from "./lib/tsp-index.js";
+export { PackageJson } from "./types/package-json.js";
+/** @deprecated use `PackageJson` */
+export { PackageJson as NodePackage } from "./types/package-json.js";

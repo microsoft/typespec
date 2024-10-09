@@ -12,7 +12,6 @@ import {
   IdentifierNode,
   Node,
   NodeFlags,
-  NodePackage,
   PositionDetail,
   Program,
   StringLiteralNode,
@@ -32,6 +31,7 @@ import {
   hasTrailingDirectorySeparator,
   resolvePath,
 } from "../core/path-utils.js";
+import { PackageJson } from "../types/package-json.js";
 import { findProjectRoot, loadFile, resolveTspMain } from "../utils/misc.js";
 import { getSymbolDetails } from "./type-details.js";
 
@@ -250,7 +250,7 @@ function addKeywordCompletion(area: keyof KeywordArea, completions: CompletionLi
   }
 }
 
-async function loadPackageJson(host: CompilerHost, path: string): Promise<NodePackage> {
+async function loadPackageJson(host: CompilerHost, path: string): Promise<PackageJson> {
   const [libPackageJson] = await loadFile(host, path, JSON.parse, () => {});
   return libPackageJson;
 }
