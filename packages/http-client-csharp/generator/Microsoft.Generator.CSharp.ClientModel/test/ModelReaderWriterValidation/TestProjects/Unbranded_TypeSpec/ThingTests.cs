@@ -14,8 +14,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidati
     {
         protected override string JsonPayload => File.ReadAllText(ModelTestHelper.GetLocation("TestData/Thing/Thing.json"));
         protected override string WirePayload => File.ReadAllText(ModelTestHelper.GetLocation("TestData/Thing/ThingWireFormat.json"));
-        protected override Thing ToModel(ClientResult result) => CastHelpers.FromResponse<Thing>(result);
-        protected override BinaryContent ToBinaryContent(Thing model) => CastHelpers.ToRequestContent(model);
+        protected override Thing ToModel(ClientResult result) => (Thing)result;
+        protected override BinaryContent ToBinaryContent(Thing model) => model;
 
         protected override void CompareModels(Thing model, Thing model2, string format)
         {
