@@ -1963,6 +1963,9 @@ importers:
       '@typespec/compiler':
         specifier: workspace:~
         version: link:../compiler
+      '@typespec/events':
+        specifier: workspace:~
+        version: link:../events
       '@typespec/http':
         specifier: workspace:~
         version: link:../http
@@ -1990,6 +1993,12 @@ importers:
       '@typespec/spec':
         specifier: workspace:*
         version: link:../spec
+      '@typespec/sse':
+        specifier: workspace:~
+        version: link:../sse
+      '@typespec/streams':
+        specifier: workspace:~
+        version: link:../streams
       '@typespec/tspd':
         specifier: workspace:~
         version: link:../tspd
