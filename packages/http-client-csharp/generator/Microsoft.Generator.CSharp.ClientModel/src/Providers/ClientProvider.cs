@@ -2,10 +2,12 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection.PortableExecutable;
 using System.Threading;
 using Microsoft.Generator.CSharp.ClientModel.Primitives;
 using Microsoft.Generator.CSharp.ClientModel.Snippets;
@@ -16,6 +18,7 @@ using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
+using static Microsoft.Generator.CSharp.StringExtensions.GetPathPartsEnumerator;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
@@ -112,7 +115,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             if (_inputClient.Parent != null)
             {
                 // _clientCachingField will only have subClients (children)
-                // Allows parent to access fields from sublients
+                // Allows parent to access fields from subClients
                 _clientCachingField = new FieldProvider(
                     FieldModifiers.Private,
                     Type,
