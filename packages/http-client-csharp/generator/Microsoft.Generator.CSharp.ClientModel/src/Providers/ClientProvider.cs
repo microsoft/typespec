@@ -101,7 +101,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 var parameterProvider = ClientModelPlugin.Instance.TypeFactory.CreateParameter(p);
                 if (!p.IsEndpoint && parameterProvider != PipelineProperty.AsParameter && parameterProvider != _apiKeyAuthField?.AsParameter)
                 {
-                    //InputParameter? clientParam = inputClient.Parameters.FirstOrDefault(param => param.Name == "client");
                     _subClientInternalConstructorParamsInternal.Add(parameterProvider);
                     FieldProvider field = new(
                             FieldModifiers.Private | FieldModifiers.ReadOnly,
@@ -470,7 +469,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         // TODO: Update method to be more efficient
         private ClientProvider? GetParent()
         {
-            var parentClient = ClientModelPlugin.Instance.InputLibrary.InputNamespace.Clients.Where(inputclient => inputclient.Name == _inputClient.Parent).FirstOrDefault();
+            var parentClient = ClientModelPlugin.Instance.InputLibrary.InputNamespace.Clients.Where(inputclient => inputclient.Name == _inputClient.Parent).SingleOrDefault();
             if (parentClient is not null)
                 return ClientModelPlugin.Instance.TypeFactory.CreateClient(parentClient);
             return null;
