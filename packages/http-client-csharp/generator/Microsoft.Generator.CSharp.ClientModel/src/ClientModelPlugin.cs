@@ -22,13 +22,6 @@ namespace Microsoft.Generator.CSharp.ClientModel
 
         public override ScmTypeFactory TypeFactory { get; }
 
-        public override IReadOnlyList<MetadataReference> AdditionalMetadataReferences =>
-        [
-            MetadataReference.CreateFromFile(typeof(ClientResult).Assembly.Location),
-            MetadataReference.CreateFromFile(typeof(BinaryData).Assembly.Location),
-            MetadataReference.CreateFromFile(typeof(JsonSerializer).Assembly.Location)
-        ];
-
         [ImportingConstructor]
         public ClientModelPlugin(GeneratorContext context)
             : base(context)
@@ -40,6 +33,10 @@ namespace Microsoft.Generator.CSharp.ClientModel
         public override void Configure()
         {
             AddVisitor(new DefaultScmLibraryVisitor());
+            AddMetadataReferences(
+                MetadataReference.CreateFromFile(typeof(ClientResult).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(BinaryData).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(JsonSerializer).Assembly.Location));
         }
     }
 }

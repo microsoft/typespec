@@ -22,6 +22,7 @@ namespace Microsoft.Generator.CSharp
     public abstract class CodeModelPlugin
     {
         private List<LibraryVisitor> _visitors = [];
+        private List<MetadataReference> _additionalMetadataReferences = [];
         private static CodeModelPlugin? _instance;
         internal static CodeModelPlugin Instance
         {
@@ -37,7 +38,7 @@ namespace Microsoft.Generator.CSharp
 
         public Configuration Configuration { get; }
 
-        public virtual IReadOnlyList<LibraryVisitor> Visitors => _visitors;
+        public IReadOnlyList<LibraryVisitor> Visitors => _visitors;
 
         [ImportingConstructor]
         public CodeModelPlugin(GeneratorContext context)
@@ -64,15 +65,20 @@ namespace Microsoft.Generator.CSharp
         public virtual OutputLibrary OutputLibrary { get; } = new();
         public virtual InputLibrary InputLibrary => _inputLibrary.Value;
         public virtual TypeProviderWriter GetWriter(TypeProvider provider) => new(provider);
-        public virtual IReadOnlyList<MetadataReference> AdditionalMetadataReferences => [];
+        public IReadOnlyList<MetadataReference> AdditionalMetadataReferences => _additionalMetadataReferences;
 
         public virtual void Configure()
         {
         }
 
-        public virtual void AddVisitor(LibraryVisitor visitor)
+        public void AddVisitor(LibraryVisitor visitor)
         {
             _visitors.Add(visitor);
+        }
+
+        public void AddMetadataReferences(params MetadataReference[] references)
+        {
+            _additionalMetadataReferences.AddRange(references);
         }
 
         private SourceInputModel? _sourceInputModel;
