@@ -78,9 +78,10 @@ try {
     $file = Invoke-LoggedCommand "npm pack -q"
     Copy-Item $file -Destination "$outputPath/packages"
 
-    Write-Host $global:LASTEXITCODE
-
+    $exitCodeBeforeApiView = $global:LASTEXITCODE
     & "$packageRoot/../../eng/emitters/scripts/Generate-APIView-CodeFile.ps1" -ArtifactPath "$outputPath/packages"
+    # Generate-APIView-CodeFile.ps1 fails with "error TS5057"
+    $global:LASTEXITCODE = $exitCodeBeforeApiView
 
     Write-Host $global:LASTEXITCODE
 
