@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
@@ -34,7 +33,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private readonly FieldProvider? _apiKeyAuthField;
         private readonly FieldProvider? _authorizationHeaderConstant;
         private readonly FieldProvider? _authorizationApiKeyPrefixConstant;
-        private readonly IReadOnlyList<ParameterProvider> _subClientInternalConstructorParams;
+        private readonly List<ParameterProvider> _subClientInternalConstructorParams;
         private IReadOnlyList<Lazy<ClientProvider>>? _subClients;
         private ParameterProvider? _clientOptionsParameter;
         private ClientOptionsProvider? _clientOptions;
@@ -92,7 +91,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 body: new AutoPropertyBody(false),
                 enclosingType: this);
 
-            List<ParameterProvider> _subClientInternalConstructorParamsInternal = _apiKeyAuthField != null
+            _subClientInternalConstructorParams = _apiKeyAuthField != null
                 ? [PipelineProperty.AsParameter, _apiKeyAuthField.AsParameter, _endpointParameter]
                 : [PipelineProperty.AsParameter, _endpointParameter];
 
@@ -101,7 +100,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 var parameterProvider = ClientModelPlugin.Instance.TypeFactory.CreateParameter(p);
                 if (!p.IsEndpoint && parameterProvider != PipelineProperty.AsParameter && parameterProvider != _apiKeyAuthField?.AsParameter)
                 {
-                    _subClientInternalConstructorParamsInternal.Add(parameterProvider);
+                    _subClientInternalConstructorParams.Add(parameterProvider);
                     FieldProvider field = new(
                             FieldModifiers.Private | FieldModifiers.ReadOnly,
                             parameterProvider.Type,
@@ -110,10 +109,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     parameterProvider.Field = field;
                 }
             }
-            _subClientInternalConstructorParams = _subClientInternalConstructorParamsInternal;
             if (_inputClient.Parent != null)
             {
-                // Represents the cached children
+                // _clientCachingField will only have subClients (children)
+                // Allows parent to access fields from sublients
                 _clientCachingField = new FieldProvider(
                     FieldModifiers.Private,
                     Type,
