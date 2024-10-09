@@ -146,8 +146,7 @@ namespace Microsoft.Generator.CSharp.Tests.Common
                 type,
                 isRequired,
                 isReadOnly,
-                isDiscriminator,
-                false);
+                isDiscriminator);
         }
 
         public static InputModelType Model(
