@@ -1,0 +1,2 @@
+# not ignore node_modules here which is for testing
+!node_modules/

@@ -1,8 +1,11 @@
 import vscode, { commands, ExtensionContext, workspace } from "vscode";
 import { LanguageClient, LanguageClientOptions } from "vscode-languageclient/node.js";
-import logger from "./extension-logger.js";
+import { TextDocument } from "vscode-languageserver-textdocument";
+import { ExtensionLogListener } from "./log/extension-log-listener.js";
+import logger from "./log/logger.js";
 import npmPackageProvider from "./npm-package-provider.js";
 import { resolveTypeSpecServer } from "./typespec/compiler.js";
+import schemaProvider from "./typespec/schema-provider.js";
 import { provideTspconfigCompletionItems } from "./vscode/completion-item-provider.js";
 import { createTaskProvider } from "./vscode/task-provider.js";
 import { TypeSpecLogOutputChannel } from "./vscode/typespec-log-output-channel.js";
@@ -13,7 +16,7 @@ let client: LanguageClient | undefined;
  * More detail can be found at https://github.com/microsoft/vscode-discussions/discussions/1149
  */
 const outputChannel = new TypeSpecLogOutputChannel("TypeSpec");
-logger.outputChannel = outputChannel;
+logger.registerLogListener("extension-log", new ExtensionLogListener(outputChannel));
 
 export async function activate(context: ExtensionContext) {
   context.subscriptions.push(createTaskProvider());
@@ -33,7 +36,33 @@ export async function activate(context: ExtensionContext) {
       { language: "yaml", scheme: "file", pattern: "**/tspconfig.yaml" },
       {
         async provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-          return await provideTspconfigCompletionItems(document, position, client);
+          const doc: TextDocument = TextDocument.create(
+            document.uri.toString(),
+            document.languageId,
+            document.version,
+            document.getText(),
+          );
+          const items = await provideTspconfigCompletionItems(doc, position);
+          return items.map((item) => {
+            const r = new vscode.CompletionItem(item.label);
+            switch (item.kind) {
+              case "field":
+                r.kind = vscode.CompletionItemKind.Field;
+                break;
+              case "value":
+                r.kind = vscode.CompletionItemKind.Value;
+                break;
+              default:
+                logger.debug(`Unknown kind of completion item: ${item.kind}`);
+                r.kind = vscode.CompletionItemKind.Text;
+            }
+            // TODO: double check how to determine the documentation is markdown or not
+            r.documentation = item.documentation?.includes("```")
+              ? new vscode.MarkdownString(item.documentation)
+              : item.documentation;
+            r.insertText = item.insertText;
+            return r;
+          });
         },
       },
     ),
@@ -94,6 +123,7 @@ async function launchLanguageClient(context: ExtensionContext) {
     client = new LanguageClient(id, name, { run: exe, debug: exe }, options);
     await client.start();
     logger.debug("TypeSpec server started");
+    schemaProvider.init(client);
   } catch (e) {
     if (typeof e === "string" && e.startsWith("Launching server using command")) {
       const workspaceFolder = workspace.workspaceFolders?.[0]?.uri?.fsPath ?? "";

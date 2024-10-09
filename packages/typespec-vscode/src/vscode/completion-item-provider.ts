@@ -1,36 +1,33 @@
-import type { JSONSchemaType } from "@typespec/compiler";
-import vscode from "vscode";
-import { LanguageClient } from "vscode-languageclient/node.js";
-import npmPackageProvider from "../npm-package-provider.js";
-import { getEmitter, listEmitters } from "../typespec/emitter.js";
-import {
-  getTypeSpecConfigJsonSchema,
-  getTypeSpecEmitterConfigJsonSchema,
-} from "../typespec/schema.js";
-import { resolveYamlPath, YamlScalarTarget } from "../yaml-resolver.js";
+import { Position, TextDocument } from "vscode-languageserver-textdocument";
+import emitterProvider from "../typespec/emitter-provider.js";
+import schemaProvider, { ObjectJSONSchemaType } from "../typespec/schema-provider.js";
+import { resolveYamlScalarTarget, YamlScalarTarget } from "../yaml-resolver.js";
+
+interface CompletionItem {
+  label: string;
+  kind: "field" | "value";
+  documentation?: string;
+  insertText?: string;
+}
 
 export async function provideTspconfigCompletionItems(
-  document: vscode.TextDocument,
-  position: vscode.Position,
-  client: LanguageClient | undefined,
-) {
-  if (!client) {
-    return [];
-  }
-  const path = resolveYamlPath(document, position);
-  if (path === undefined) {
+  tspConfigDoc: TextDocument,
+  tspConfigPosition: Position,
+  packageJsonFolder?: string,
+): Promise<CompletionItem[]> {
+  const target = resolveYamlScalarTarget(tspConfigDoc, tspConfigPosition);
+  if (target === undefined) {
     return [];
   }
   // TODO: filter items based on last
-  const items = resolveTspConfigCompleteItems(document.uri.fsPath, path, client);
+  const items = resolveTspConfigCompleteItems(packageJsonFolder ?? tspConfigDoc.uri, target);
   return items;
 }
 
 async function resolveTspConfigCompleteItems(
   tspConfigFile: string,
   target: YamlScalarTarget,
-  client: LanguageClient,
-) {
+): Promise<CompletionItem[]> {
   const { path: nodePath, type: targetType, siblings } = target;
   const CONFIG_PATH_LENGTH_FOR_EMITTER_LIST = 2;
   if (
@@ -41,15 +38,17 @@ async function resolveTspConfigCompleteItems(
       nodePath[0] === "emit" &&
       targetType === "value")
   ) {
-    const emitters = await listEmitters(tspConfigFile, npmPackageProvider);
+    const emitters = await emitterProvider.listEmitters(tspConfigFile);
 
-    const items = [];
+    const items: CompletionItem[] = [];
     for (const [name, pkg] of Object.entries(emitters)) {
       if (!siblings.includes(name)) {
-        const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.Field);
-        item.documentation =
-          (await pkg.getPackageJsonData())?.description ?? `emitter from ${name}`;
-        item.insertText = `"${name}"`;
+        const item: CompletionItem = {
+          label: name,
+          kind: "field",
+          documentation: (await pkg.getPackageJsonData())?.description ?? `emitter from ${name}`,
+          insertText: `"${name}"`,
+        };
         items.push(item);
       }
     }
@@ -57,7 +56,7 @@ async function resolveTspConfigCompleteItems(
   } else if (nodePath.length > 1 && nodePath[0] === "options") {
     const EMITTER_CONFIG_SCHEMA_START_INDEX = 2;
     const emitterName = nodePath[1];
-    const emitter = await getEmitter(tspConfigFile, npmPackageProvider, emitterName);
+    const emitter = await emitterProvider.getEmitter(tspConfigFile, emitterName);
     if (!emitter) {
       return [];
     }
@@ -66,7 +65,7 @@ async function resolveTspConfigCompleteItems(
       return [];
     }
 
-    const builtInEmitterSchema = await getTypeSpecEmitterConfigJsonSchema(client);
+    const builtInEmitterSchema = await schemaProvider.getTypeSpecEmitterConfigJsonSchema();
 
     const items1 = builtInEmitterSchema
       ? resolveCompleteItems(builtInEmitterSchema, {
@@ -81,19 +80,22 @@ async function resolveTspConfigCompleteItems(
     });
     return [...items1, ...items2];
   } else {
-    const schema = await getTypeSpecConfigJsonSchema(client);
+    const schema = await schemaProvider.getTypeSpecConfigJsonSchema();
     return schema ? resolveCompleteItems(schema, target) : [];
   }
 }
 
-function resolveCompleteItems(schema: JSONSchemaType<unknown>, target: YamlScalarTarget) {
+function resolveCompleteItems(
+  schema: ObjectJSONSchemaType,
+  target: YamlScalarTarget,
+): CompletionItem[] {
   let cur = schema;
   const { path: nodePath, type: targetType } = target;
   const path = targetType === "key" ? nodePath.slice(0, -1) : nodePath;
   for (const key of path) {
     // DOUBLE CHECK THE PATH
     if (cur.type === "array") {
-      cur = cur.items as JSONSchemaType<unknown>;
+      cur = cur.items;
       //TODO: double check the key should be an array index? seems not necessary
       continue;
     } else if (cur.type === "object") {
@@ -107,31 +109,42 @@ function resolveCompleteItems(schema: JSONSchemaType<unknown>, target: YamlScala
     }
   }
 
-  if (targetType === "value") {
-    if (cur.type === "boolean") {
-      return ["true", "false"].map((value) => {
-        const item = new vscode.CompletionItem(value, vscode.CompletionItemKind.Value);
-        item.documentation = cur.description;
-        return item;
-      });
-    } else if (cur.type === "string" && cur.enum) {
-      return cur.enum.map((value: string) => {
-        const item = new vscode.CompletionItem(value, vscode.CompletionItemKind.Value);
-        item.documentation = cur.description;
-        item.insertText = `"${value}"`;
-        return item;
-      });
-    }
-  } else if (targetType === "key") {
+  // when user is just add the first key of an object, it will be treated as value (PLAIN text) instead of key by yaml.parse
+  if (targetType === "key") {
     if (cur.type === "object") {
       return Object.keys(cur.properties ?? {})
         .filter((key) => !target.siblings.includes(key) && cur.properties[key].deprecated !== true)
         .map((key) => {
-          const item = new vscode.CompletionItem(key, vscode.CompletionItemKind.Field);
-          item.documentation = cur.properties[key].description;
+          const item: CompletionItem = {
+            label: key,
+            kind: "field",
+            documentation: cur.properties[key].description,
+          };
           return item;
         });
     }
+  } else if (targetType === "value") {
+    if (cur.type === "boolean") {
+      return ["true", "false"].map((value) => {
+        const item: CompletionItem = {
+          label: value,
+          kind: "value",
+          documentation: cur.description,
+        };
+        return item;
+      });
+    } else if (cur.type === "string" && cur.enum) {
+      return cur.enum.map((value: string) => {
+        const item: CompletionItem = {
+          label: value,
+          kind: "value",
+          documentation: cur.description,
+          insertText: `"${value}"`,
+        };
+        return item;
+      });
+    }
   }
+
   return [];
 }

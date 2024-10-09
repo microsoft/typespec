@@ -3,7 +3,7 @@ import { readFile, realpath, stat } from "fs/promises";
 import { dirname, join } from "path";
 import { pathToFileURL } from "url";
 import { Executable } from "vscode-languageclient/node.js";
-import logger from "./extension-logger.js";
+import logger from "./log/logger.js";
 
 /** normalize / and \\ to / */
 export function normalizeSlash(str: string): string {
@@ -90,12 +90,27 @@ export async function forCurAndParentDirectories<T>(
   return undefined;
 }
 
+export function isWhitespaceString(str: string | undefined): boolean {
+  return !str || str.trim().length === 0;
+}
+
+export function firstNonWhitespaceCharacterIndex(line: string): number {
+  // TODO: is the list enough?
+  const whiteChars = [" ", "\t", "\r", "\n"];
+  for (let i = 0; i < line.length; i++) {
+    if (!whiteChars.includes(line[i])) {
+      return i;
+    }
+  }
+  return line.length;
+}
+
 /**
  *
  * @param baseDir the dir containing the package.json file
  * @returns
  */
-export async function loadNpmPackage(baseDir: string): Promise<NodePackage | undefined> {
+export async function loadNodePackage(baseDir: string): Promise<NodePackage | undefined> {
   if (!baseDir) {
     throw new Error("baseDir is required");
   }
@@ -105,15 +120,15 @@ export async function loadNpmPackage(baseDir: string): Promise<NodePackage | und
       return undefined;
     }
 
-    const content = await logger.traceProfile(
-      `Loading NpmPackage: ${packageJsonPath}`,
-      async () => {
-        return await readFile(packageJsonPath, "utf-8");
-      },
-    );
+    const content = await logger.profile(`Loading NpmPackage: ${packageJsonPath}`, async () => {
+      return await readFile(packageJsonPath, "utf-8");
+    });
     const data = JSON.parse(content) as NodePackage;
 
     if (!data || !data.name || !data.version) {
+      logger.debug(
+        `Invalid package.json file: ${packageJsonPath}. Failed to parse it as json or missing name or version.`,
+      );
       return undefined;
     }
     return data;
@@ -136,7 +151,7 @@ export async function loadModuleExports(
   };
   try {
     logger.debug(`Try to resolve module ${packageName} from local, baseDir: ${baseDir}`);
-    const module = await logger.traceProfile(`Resolving module ${packageName}`, async () => {
+    const module = await logger.profile(`Resolving module ${packageName}`, async () => {
       return await resolveModule(host, packageName, {
         baseDir,
       });

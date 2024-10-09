@@ -1,7 +1,8 @@
 import { inspect } from "util";
-import vscode from "vscode";
+import { Position, TextDocument } from "vscode-languageserver-textdocument";
 import {
   Document,
+  isDocument,
   isMap,
   isPair,
   isScalar,
@@ -12,7 +13,8 @@ import {
   Scalar,
   visit,
 } from "yaml";
-import logger from "./extension-logger.js";
+import logger from "./log/logger.js";
+import { firstNonWhitespaceCharacterIndex, isWhitespaceString } from "./utils.js";
 
 type YamlNodePathSegment = Document<Node, true> | Node | Pair;
 export interface YamlScalarTarget {
@@ -42,12 +44,13 @@ interface YamlVisitScalarNode {
   path: readonly YamlNodePathSegment[];
 }
 
-export function resolveYamlPath(
-  document: vscode.TextDocument,
-  position: vscode.Position,
+export function resolveYamlScalarTarget(
+  document: TextDocument,
+  position: Position,
 ): YamlScalarTarget | undefined {
   const pos = document.offsetAt(position);
-  const line = document.lineAt(position);
+  const lines = document.getText().split("\n");
+  const targetLine = lines[position.line];
   const content = document.getText();
   const yamlDoc = parseDocument(content, {
     keepSourceTokens: true,
@@ -58,14 +61,18 @@ export function resolveYamlPath(
   }
 
   // TODO: double check the comment scenario
-  if (isCommentLine(line)) {
+  if (isCommentLine(targetLine)) {
     return undefined;
   }
 
-  if (line.isEmptyOrWhitespace) {
+  if (isWhitespaceString(targetLine)) {
     const indent = position.character;
-    const root = isMap(yamlDoc.contents) ? yamlDoc.contents : undefined;
-    const rootProperties = root ? root.items.map((item) => (item.key as any).source ?? "") : [];
+    const rootProperties: string[] = [];
+    if (isMap(yamlDoc.contents)) {
+      rootProperties.push(...yamlDoc.contents.items.map((item) => (item.key as any).source ?? ""));
+    } else if (isScalar(yamlDoc.contents) && !isWhitespaceString(yamlDoc.contents.source)) {
+      rootProperties.push(yamlDoc.contents.source);
+    }
     if (indent === 0) {
       return {
         path: [""],
@@ -74,12 +81,13 @@ export function resolveYamlPath(
         siblings: rootProperties,
       };
     }
-    for (let i = line.lineNumber - 1; i >= 0; i--) {
-      const preLine = document.lineAt(i);
-      if (preLine.isEmptyOrWhitespace || isCommentLine(preLine)) {
+    for (let i = position.line - 1; i >= 0; i--) {
+      const preLine = lines[i];
+      if (isWhitespaceString(preLine) || isCommentLine(preLine)) {
         continue;
       }
-      if (preLine.firstNonWhitespaceCharacterIndex === indent) {
+      const preIndent = firstNonWhitespaceCharacterIndex(preLine);
+      if (preIndent === indent) {
         // we found the previous line which should be the sibling of the current line
         if (isArrayItemLine(preLine)) {
           // no worry about the array which should be handled after user input "-"
@@ -87,13 +95,14 @@ export function resolveYamlPath(
         }
         const found = findScalarNode(
           yamlDoc,
-          document.offsetAt(
-            new vscode.Position(preLine.lineNumber, preLine.firstNonWhitespaceCharacterIndex),
-          ),
+          document.offsetAt({
+            line: i,
+            character: preIndent,
+          }),
         );
         if (!found) {
           logger.debug(
-            `Failed to find the scalar node in the found previous sibling line of empty line. curLine: ${line.text}, preLine: ${preLine.text}`,
+            `Failed to find the scalar node in the found previous sibling line of empty line. curLine: ${targetLine}, preLine: ${preLine}`,
           );
           return undefined;
         }
@@ -111,23 +120,29 @@ export function resolveYamlPath(
           siblings: [...yp.siblings, yp.source],
         };
         break;
-      } else if (preLine.firstNonWhitespaceCharacterIndex < indent) {
+      } else if (preIndent < indent) {
         // we found the previous line which should be the parent of the current line
         const found = findScalarNode(
           yamlDoc,
-          document.offsetAt(
-            new vscode.Position(preLine.lineNumber, preLine.firstNonWhitespaceCharacterIndex),
-          ),
+          document.offsetAt({
+            line: i,
+            character: preIndent,
+          }),
         );
         if (!found) {
           logger.debug(
-            `Failed to find the scalar node in the found previous parent line of empty line. curLine: ${line.text}, preLine: ${preLine.text}`,
+            `Failed to find the scalar node in the found previous parent line of empty line. curLine: ${targetLine}, preLine: ${preLine}`,
           );
           return undefined;
         }
         // the parent should be a map or null
         const last = found.path[found.path.length - 1];
-        if (isPair(last) && (last.value === null || isMap(last.value))) {
+        if (
+          isPair(last) &&
+          (last.value === null ||
+            isMap(last.value) ||
+            (isScalar(last.value) && isWhitespaceString(last.value.source)))
+        ) {
           const yp = createYamlPathFromVisitScalarNode(found);
           if (!yp || yp.path.length === 0) {
             logger.debug(
@@ -139,10 +154,11 @@ export function resolveYamlPath(
             path: [...yp.path, ""],
             type: "key",
             source: "",
-            siblings:
-              last.value?.items
-                .filter((item) => item !== last)
-                .map((item) => (item.key as any).source ?? "") ?? [],
+            siblings: isMap(last.value)
+              ? (last.value?.items
+                  .filter((item) => item !== last)
+                  .map((item) => (item.key as any).source ?? "") ?? [])
+              : [],
           };
         }
         break;
@@ -191,23 +207,43 @@ function createYamlPathFromVisitScalarNode(
   }
 
   const last = nodePath[nodePath.length - 1];
-  if (isPair(last)) {
+  if (isDocument(last)) {
+    // we are at the root and the content is a pure text (otherwise there should be a Map under document node first)
+    return {
+      path: [],
+      type: key === null ? "key" : "value",
+      source: n.source ?? "",
+      siblings: [],
+    };
+  } else if (isPair(last)) {
     if (nodePath.length < 2) {
       logger.debug(
         `Unexpected path structure, the pair node should have a parent node: ${last.toString()}`,
       );
       return undefined;
     }
-    const parent = nodePath[nodePath.length - 2];
-    const targetSiblings = isMap(parent)
-      ? parent.items.filter((item) => item !== last).map((item) => (item.key as any).source ?? "")
-      : [];
-    return {
-      path: path,
-      type: key === "key" ? "key" : "value",
-      source: n.source ?? "",
-      siblings: targetSiblings,
-    };
+    if (key === "value" && last.srcToken?.sep?.some((t) => t.type === "newline")) {
+      // if the scalar node is marked as value but separated by newline from the key, it's more likely that the user is inputting the first property of an object
+      // so build the target as an object key
+      path.push(n.source ?? "");
+      return {
+        path,
+        type: "key",
+        source: n.source ?? "",
+        siblings: [],
+      };
+    } else {
+      const parent = nodePath[nodePath.length - 2];
+      const targetSiblings = isMap(parent)
+        ? parent.items.filter((item) => item !== last).map((item) => (item.key as any).source ?? "")
+        : [];
+      return {
+        path: path,
+        type: key === "key" ? "key" : "value",
+        source: n.source ?? "",
+        siblings: targetSiblings,
+      };
+    }
   } else if (isSeq(last)) {
     return {
       path: path,
@@ -223,12 +259,12 @@ function createYamlPathFromVisitScalarNode(
   }
 }
 
-function isCommentLine(line: vscode.TextLine): boolean {
-  return line.text.trimStart().startsWith("#");
+function isCommentLine(line: string): boolean {
+  return line.trimStart().startsWith("#");
 }
 
-function isArrayItemLine(line: vscode.TextLine): boolean {
-  return line.text.trimStart().startsWith("-");
+function isArrayItemLine(line: string): boolean {
+  return line.trimStart().startsWith("-");
 }
 
 function findScalarNode(

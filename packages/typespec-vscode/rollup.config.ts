@@ -53,14 +53,14 @@ export default defineConfig([
   },
   {
     ...baseConfig,
-    input: "test/suite.ts",
+    input: "test/web/suite.ts",
     output: {
-      file: "dist/test/suite.js", // VSCode web will add extra .js if you use .cjs
+      file: "dist/test/web/suite.js", // VSCode web will add extra .js if you use .cjs
       format: "commonjs",
       sourcemap: true,
       inlineDynamicImports: true,
     },
-    plugins: [...plugins, ts("dist/test")],
+    plugins: [...plugins, ts("dist/test/web")],
   },
 ]);
 

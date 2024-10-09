@@ -1,7 +1,7 @@
 import { resolve } from "path";
 import vscode, { workspace } from "vscode";
 import { Executable } from "vscode-languageclient/node.js";
-import logger from "../extension-logger.js";
+import logger from "../log/logger.js";
 import { resolveTypeSpecCli } from "../typespec/compiler.js";
 import { normalizeSlash } from "../utils.js";
 import { VSCodeVariableResolver } from "./vscode-variable-resolver.js";

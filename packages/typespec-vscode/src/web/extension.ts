@@ -1,5 +1,6 @@
 import type { ExtensionContext } from "vscode";
-import logger from "../extension-logger.js";
+import { ExtensionLogListener } from "../log/extension-log-listener.js";
+import logger from "../log/logger.js";
 import { TypeSpecLogOutputChannel } from "../vscode/typespec-log-output-channel.js";
 
 /**
@@ -7,7 +8,7 @@ import { TypeSpecLogOutputChannel } from "../vscode/typespec-log-output-channel.
  * More detail can be found at https://github.com/microsoft/vscode-discussions/discussions/1149
  */
 const outputChannel = new TypeSpecLogOutputChannel("TypeSpec");
-logger.outputChannel = outputChannel;
+logger.registerLogListener("extension log", new ExtensionLogListener(outputChannel));
 
 export async function activate(context: ExtensionContext) {
   logger.info("Activated TypeSpec Web Extension.");

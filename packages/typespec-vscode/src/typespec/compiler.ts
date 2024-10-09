@@ -3,7 +3,7 @@ import { readFile, realpath, stat } from "fs/promises";
 import { dirname, isAbsolute, join } from "path";
 import { ExtensionContext, workspace } from "vscode";
 import { Executable, ExecutableOptions } from "vscode-languageclient/node.js";
-import logger from "../extension-logger.js";
+import logger from "../log/logger.js";
 import { isFile, useShellInExec } from "../utils.js";
 import { VSCodeVariableResolver } from "../vscode/vscode-variable-resolver.js";
 
