@@ -2341,7 +2341,7 @@ export class CodeModelBuilder {
           : this.namespace;
       return new ArraySchema(
         property.name,
-        property.details ?? "",
+        property.doc ?? "",
         getFileDetailsSchema(
           property,
           namespace,

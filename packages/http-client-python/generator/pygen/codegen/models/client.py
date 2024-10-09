@@ -156,6 +156,8 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
             retval = add_to_pylint_disable(retval, "client-accepts-api-version-keyword")
         if len(self.operation_groups) > 6:
             retval = add_to_pylint_disable(retval, "too-many-instance-attributes")
+        if len(self.name) > NAME_LENGTH_LIMIT:
+            retval = add_to_pylint_disable(retval, "name-too-long")
         return retval
 
     @property

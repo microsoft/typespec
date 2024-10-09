@@ -311,7 +311,7 @@ async function createTestHostInternal(): Promise<TestHost> {
       // default for tests is noEmit
       options = { ...options, noEmit: true };
     }
-    const p = await compileProgram(fileSystem.compilerHost, mainFile, options);
+    const p = await compileProgram(fileSystem.compilerHost, resolveVirtualPath(mainFile), options);
     program = p;
     logVerboseTestOutput((log) =>
       logDiagnostics(p.diagnostics, createLogger({ sink: fileSystem.compilerHost.logSink })),
