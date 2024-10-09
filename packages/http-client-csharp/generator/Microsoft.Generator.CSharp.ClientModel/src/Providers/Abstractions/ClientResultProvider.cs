@@ -6,6 +6,7 @@ using System.ClientModel;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Snippets;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
+using Microsoft.Generator.CSharp.Primitives;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
@@ -15,17 +16,35 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
         }
 
+        private static ClientResponseApi? _instance;
+        internal static ClientResponseApi Instance => _instance ??= new ClientResultProvider();
+
+        private ClientResultProvider() : base(typeof(ClientResult), Empty)
+        {
+        }
+
+        public override CSharpType ClientResponseType => typeof(ClientResult);
+
+        public override CSharpType ClientResponseOfTType => typeof(ClientResult<>);
+
+        public override CSharpType ClientResponseExceptionType => typeof(ClientResultException);
+
         public override ValueExpression CreateAsync(HttpResponseApi response)
-            => Static(ClientModelPlugin.Instance.TypeFactory.ClientResponseExceptionType).Invoke(nameof(CreateAsync), [response], true);
+            => Static(ClientResponseExceptionType).Invoke(nameof(CreateAsync), [response], true);
+
+        public override ClientResponseApi FromExpression(ValueExpression original)
+            => new ClientResultProvider(original.As<ClientResult>());
+
+        public override ClientResponseApi ToExpression() => this;
 
         public override ValueExpression FromResponse(ValueExpression valueExpression)
-            => Static(ClientModelPlugin.Instance.TypeFactory.ClientResponseType).Invoke(nameof(FromResponse), [valueExpression]);
+            => Static(ClientResponseType).Invoke(nameof(FromResponse), [valueExpression]);
 
         public override ValueExpression FromValue(ValueExpression valueExpression, HttpResponseApi response)
-            => Static(ClientModelPlugin.Instance.TypeFactory.ClientResponseType).Invoke(nameof(FromValue), [valueExpression, response]);
+            => Static(ClientResponseType).Invoke(nameof(FromValue), [valueExpression, response]);
 
         public override ValueExpression FromValue<ValueType>(ValueExpression valueExpression, HttpResponseApi response)
-            => Static(ClientModelPlugin.Instance.TypeFactory.ClientResponseType).Invoke(nameof(FromValue), [valueExpression, response], [typeof(ValueType)], false);
+            => Static(ClientResponseType).Invoke(nameof(FromValue), [valueExpression, response], [typeof(ValueType)], false);
 
         public override HttpResponseApi GetRawResponse()
             => new PipelineResponseProvider(GetRawResponseExpression());

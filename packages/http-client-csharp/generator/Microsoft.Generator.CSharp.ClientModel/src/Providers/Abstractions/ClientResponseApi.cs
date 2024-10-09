@@ -3,11 +3,12 @@
 
 using System;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
-    public abstract record ClientResponseApi : ScopedApi
+    public abstract record ClientResponseApi : ScopedApi, IClientResponseApi
     {
         protected ClientResponseApi(Type type, ValueExpression original) : base(type, original)
         {
@@ -22,5 +23,28 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         public abstract ValueExpression FromResponse(ValueExpression valueExpression);
 
         public abstract ValueExpression CreateAsync(HttpResponseApi response);
+
+        public abstract ClientResponseApi FromExpression(ValueExpression original);
+
+        public abstract ClientResponseApi ToExpression();
+
+        public abstract CSharpType ClientResponseType { get; }
+
+        public abstract CSharpType ClientResponseOfTType { get; }
+
+        public abstract CSharpType ClientResponseExceptionType { get; }
+    }
+
+    public interface IClientResponseApi
+    {
+        CSharpType ClientResponseExceptionType { get; }
+
+        CSharpType ClientResponseType { get; }
+
+        CSharpType ClientResponseOfTType { get; }
+
+        ClientResponseApi FromExpression(ValueExpression original);
+
+        ClientResponseApi ToExpression();
     }
 }

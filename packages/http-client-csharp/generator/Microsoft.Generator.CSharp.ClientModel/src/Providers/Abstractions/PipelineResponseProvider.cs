@@ -5,6 +5,7 @@ using System;
 using System.ClientModel.Primitives;
 using System.IO;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
@@ -12,6 +13,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
     internal record PipelineResponseProvider : HttpResponseApi
     {
         public PipelineResponseProvider(ValueExpression pipelineResponse) : base(typeof(PipelineResponse), pipelineResponse)
+        {
+        }
+
+        private static HttpResponseApi? _instance;
+        internal static HttpResponseApi Instance => _instance ??= new PipelineResponseProvider();
+
+        private PipelineResponseProvider() : base(typeof(PipelineResponse), Empty)
         {
         }
 
@@ -23,5 +31,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         public override ScopedApi<bool> IsError()
             => Original.Property(nameof(PipelineResponse.IsError)).As<bool>();
+
+        public override HttpResponseApi FromExpression(ValueExpression original)
+            => new PipelineResponseProvider(original);
+
+        public override HttpResponseApi ToExpression()
+            => this;
+
+        public override CSharpType HttpResponseType => typeof(PipelineResponse);
     }
 }

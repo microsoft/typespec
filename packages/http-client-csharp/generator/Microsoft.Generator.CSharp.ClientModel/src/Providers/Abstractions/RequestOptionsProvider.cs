@@ -4,6 +4,7 @@
 using System;
 using System.ClientModel.Primitives;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Primitives;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
@@ -14,10 +15,23 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
         }
 
+        private static HttpRequestOptionsApi? _instance;
+        internal static HttpRequestOptionsApi Instance => _instance ??= new RequestOptionsProvider();
+        private RequestOptionsProvider() : base(typeof(RequestOptions), Empty)
+        {
+        }
+
+        public override CSharpType HttpRequestOptionsType => typeof(RequestOptions);
+
         public override ValueExpression ErrorOptions()
             => Original.NullConditional().Property(nameof(RequestOptions.ErrorOptions));
 
+        public override HttpRequestOptionsApi FromExpression(ValueExpression original)
+            => new RequestOptionsProvider(original);
+
         public override ValueExpression NoThrow()
             => FrameworkEnumValue(ClientErrorBehaviors.NoThrow);
+
+        public override HttpRequestOptionsApi ToExpression() => this;
     }
 }

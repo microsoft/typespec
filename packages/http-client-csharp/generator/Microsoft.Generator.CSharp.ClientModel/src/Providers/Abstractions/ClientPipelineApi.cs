@@ -3,12 +3,17 @@
 
 using System;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
-    public abstract record ClientPipelineApi : ScopedApi
+    public abstract record ClientPipelineApi : ScopedApi, IClientPipelineApi
     {
+        public abstract CSharpType ClientPipelineType { get; }
+        public abstract CSharpType ClientPipelineOptionsType { get; }
+        public abstract CSharpType PipelinePolicyType { get; }
+
         protected ClientPipelineApi(Type type, ValueExpression original) : base(type, original)
         {
         }
@@ -24,5 +29,16 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         public abstract ValueExpression Create(ValueExpression options, ValueExpression perRetryPolicies);
 
         public abstract ValueExpression PerRetryPolicy(params ValueExpression[] arguments);
+        public abstract ClientPipelineApi FromExpression(ValueExpression expression);
+        public abstract ClientPipelineApi ToExpression();
+    }
+
+    public interface IClientPipelineApi
+    {
+        CSharpType ClientPipelineType { get; }
+        CSharpType ClientPipelineOptionsType { get; }
+        CSharpType PipelinePolicyType { get; }
+        ClientPipelineApi FromExpression(ValueExpression expression);
+        ClientPipelineApi ToExpression();
     }
 }

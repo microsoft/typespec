@@ -15,8 +15,17 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
         }
 
+        private static HttpRequestApi? _instance;
+        internal static HttpRequestApi Instance => _instance ??= new PipelineRequestProvider();
+        private PipelineRequestProvider() : base(typeof(PipelineRequest), Empty)
+        {
+        }
+
         public override ValueExpression Content()
             => Original.Property(nameof(PipelineRequest.Content));
+
+        public override HttpRequestApi FromExpression(ValueExpression original)
+            => new PipelineRequestProvider(original);
 
         public override InvokeMethodExpression SetHeaders(IReadOnlyList<ValueExpression> arguments)
             => Original.Property(nameof(PipelineRequest.Headers)).Invoke(nameof(PipelineRequestHeaders.Set), arguments);
@@ -26,5 +35,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         public override AssignmentExpression SetUri(ValueExpression value)
             => Original.Property("Uri").Assign(value.As<ClientUriBuilderDefinition>().ToUri());
+
+        public override HttpRequestApi ToExpression() => this;
     }
 }

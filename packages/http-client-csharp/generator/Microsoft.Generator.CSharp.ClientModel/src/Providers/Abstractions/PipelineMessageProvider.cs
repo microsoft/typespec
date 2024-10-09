@@ -3,6 +3,7 @@
 
 using System.ClientModel.Primitives;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
@@ -11,6 +12,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
     internal record PipelineMessageProvider : HttpMessageApi
     {
         public PipelineMessageProvider(ValueExpression original) : base(typeof(PipelineMessage), original)
+        {
+        }
+
+        private static HttpMessageApi? _instance;
+        internal static HttpMessageApi Instance => _instance ??= new PipelineMessageProvider();
+
+        private PipelineMessageProvider() : base(typeof(PipelineMessage), Empty)
         {
         }
 
@@ -31,5 +39,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         public override MethodBodyStatement[] ExtractResponse()
             => [Return(Original.Invoke(nameof(PipelineMessage.ExtractResponse)))];
+
+        public override HttpMessageApi FromExpression(ValueExpression original)
+            => new PipelineMessageProvider(original);
+
+        public override HttpMessageApi ToExpression()
+            => this;
+
+        public override CSharpType HttpMessageType => typeof(PipelineMessage);
     }
 }

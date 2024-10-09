@@ -3,12 +3,13 @@
 
 using System;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
-    public abstract record HttpMessageApi : ScopedApi
+    public abstract record HttpMessageApi : ScopedApi, IHttpMessageApi
     {
         protected HttpMessageApi(Type type, ValueExpression original) : base(type, original)
         {
@@ -25,5 +26,18 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         public abstract MethodBodyStatement Apply(ValueExpression options);
 
         public abstract MethodBodyStatement[] ExtractResponse();
+
+        public abstract HttpMessageApi FromExpression(ValueExpression original);
+
+        public abstract HttpMessageApi ToExpression();
+
+        public abstract CSharpType HttpMessageType { get; }
+    }
+
+    public interface IHttpMessageApi
+    {
+        CSharpType HttpMessageType { get; }
+        HttpMessageApi FromExpression(ValueExpression original);
+        HttpMessageApi ToExpression();
     }
 }

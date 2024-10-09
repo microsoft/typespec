@@ -13,7 +13,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
     internal static class BinaryContentSnippets
     {
         public static ScopedApi<BinaryContent> Create(ValueExpression serializable)
-            => Static(ClientModelPlugin.Instance.TypeFactory.RequestContentType).Invoke(nameof(BinaryContent.Create), serializable).As<BinaryContent>();
+            => Static(ClientModelPlugin.Instance.TypeFactory.RequestContentApi.RequestContentType).Invoke(nameof(BinaryContent.Create), serializable).As<BinaryContent>();
 
         public static ScopedApi<BinaryContent> Create(ValueExpression serializable, ScopedApi<ModelReaderWriterOptions> options, CSharpType? typeArgument = null)
             => Static<BinaryContent>().Invoke(nameof(BinaryContent.Create), [serializable, options], typeArgument != null ? [typeArgument] : null, false).As<BinaryContent>();

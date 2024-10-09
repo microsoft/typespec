@@ -86,7 +86,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             PipelineProperty = new(
                 description: $"The HTTP pipeline for sending and receiving REST requests and responses.",
                 modifiers: MethodSignatureModifiers.Public,
-                type: ClientModelPlugin.Instance.TypeFactory.ClientPipelineType,
+                type: ClientModelPlugin.Instance.TypeFactory.ClientPipelineApi.ClientPipelineType,
                 name: "Pipeline",
                 body: new AutoPropertyBody(false),
                 enclosingType: this);
@@ -284,14 +284,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             // handle pipeline property
-            ValueExpression perRetryPolicies = New.Array(ClientModelPlugin.Instance.TypeFactory.PipelinePolicyType);
+            ValueExpression perRetryPolicies = New.Array(ClientModelPlugin.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType);
             if (_authorizationHeaderConstant != null && _apiKeyAuthField != null)
             {
                 // new PipelinePolicy[] { ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(_keyCredential, AuthorizationHeader) }
                 ValueExpression[] perRetryPolicyArgs = _authorizationApiKeyPrefixConstant != null
                     ? [_apiKeyAuthField, _authorizationHeaderConstant, _authorizationApiKeyPrefixConstant]
                     : [_apiKeyAuthField, _authorizationHeaderConstant];
-                perRetryPolicies = New.Array(ClientModelPlugin.Instance.TypeFactory.PipelinePolicyType, isInline: true, This.ToApi<ClientPipelineApi>().PerRetryPolicy(perRetryPolicyArgs));
+                perRetryPolicies = New.Array(ClientModelPlugin.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType, isInline: true, This.ToApi<ClientPipelineApi>().PerRetryPolicy(perRetryPolicyArgs));
             }
 
             body.Add(PipelineProperty.Assign(This.ToApi<ClientPipelineApi>().Create(ClientOptionsParameter, perRetryPolicies)).Terminate());

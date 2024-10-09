@@ -35,7 +35,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 enclosingType: this);
             _contentField = new FieldProvider(
                 modifiers: FieldModifiers.Private | FieldModifiers.ReadOnly,
-                type: ClientModelPlugin.Instance.TypeFactory.RequestContentType,
+                type: ClientModelPlugin.Instance.TypeFactory.RequestContentApi.RequestContentType,
                 name: "_content",
                 enclosingType: this);
             _writerProperty = new PropertyProvider(
@@ -54,7 +54,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
-        protected override CSharpType? GetBaseType() => ClientModelPlugin.Instance.TypeFactory.RequestContentType;
+        protected override CSharpType? GetBaseType() => ClientModelPlugin.Instance.TypeFactory.RequestContentApi.RequestContentType;
 
         protected override FieldProvider[] BuildFields()
         {

@@ -3,16 +3,28 @@
 
 using System;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
-    public abstract record StatusCodeClassifierApi : ScopedApi
+    public abstract record StatusCodeClassifierApi : ScopedApi, IStatusCodeClassifierApi
     {
         public StatusCodeClassifierApi(Type type, ValueExpression original) : base(type, original)
         {
         }
 
+        public abstract CSharpType ResponseClassifierType { get; }
+
         public abstract ValueExpression Create(int code);
+        public abstract StatusCodeClassifierApi FromExpression(ValueExpression original);
+        public abstract StatusCodeClassifierApi ToExpression();
+    }
+
+    public interface IStatusCodeClassifierApi
+    {
+        CSharpType ResponseClassifierType { get; }
+        StatusCodeClassifierApi FromExpression(ValueExpression original);
+        StatusCodeClassifierApi ToExpression();
     }
 }

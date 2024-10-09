@@ -32,7 +32,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         protected override MethodProvider[] BuildMethods()
         {
             // TODO: Is there a better way to implement the methods?
-            return ClientModelPlugin.Instance.TypeFactory.ResponseClassifierType.FrameworkType == typeof(PipelineMessageClassifier)
+            return ClientModelPlugin.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType.FrameworkType == typeof(PipelineMessageClassifier)
                 ? [BuildTryClassifyErrorMethod(), BuildTryClassifyRetryMethod()]
                 : [];
         }
@@ -41,7 +41,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override CSharpType[] BuildImplements()
         {
-            return [ClientModelPlugin.Instance.TypeFactory.ResponseClassifierType];
+            return [ClientModelPlugin.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType];
         }
 
         private MethodProvider BuildTryClassifyRetryMethod()

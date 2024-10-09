@@ -169,10 +169,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private MethodProvider BuildFromClientResponse()
         {
-            var result = new ParameterProvider("result", $"The {ClientModelPlugin.Instance.TypeFactory.ClientResponseType:C} to deserialize the {Type:C} from.", ClientModelPlugin.Instance.TypeFactory.ClientResponseType);
+            var result = new ParameterProvider("result", $"The {ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseType:C} to deserialize the {Type:C} from.", ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseType);
             var modifiers = MethodSignatureModifiers.Internal | MethodSignatureModifiers.Static;
             // using PipelineResponse response = result.GetRawResponse();
-            var responseDeclaration = UsingDeclare<HttpResponseApi>("response", ClientModelPlugin.Instance.TypeFactory.HttpResponseType, result.AsExpression.ToApi<ClientResponseApi>().GetRawResponse(), out var response);
+            var responseDeclaration = UsingDeclare<HttpResponseApi>("response", ClientModelPlugin.Instance.TypeFactory.HttpResponseApi.HttpResponseType, result.AsExpression.ToApi<ClientResponseApi>().GetRawResponse(), out var response);
             // using JsonDocument document = JsonDocument.Parse(response.Content);
             var document = UsingDeclare(
                 "document",
@@ -197,7 +197,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             var modifiers = MethodSignatureModifiers.Internal;
             return new MethodProvider(
-                new MethodSignature(nameof(RequestContentApi.ToRquestContent), null, modifiers, ClientModelPlugin.Instance.TypeFactory.RequestContentType, null, []),
+                new MethodSignature(nameof(RequestContentApi.ToRquestContent), null, modifiers, ClientModelPlugin.Instance.TypeFactory.RequestContentApi.RequestContentType, null, []),
                 This.ToApi<RequestContentApi>().ToRquestContent(),
                 this);
         }

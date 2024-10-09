@@ -2,12 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
-using System.ClientModel;
-using System.ClientModel.Primitives;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Linq;
-using System.Reflection.Metadata;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Generator.CSharp.ClientModel.Primitives;
@@ -108,7 +104,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             var convenienceMethod = new ScmMethodProvider(methodSignature, methodBody, EnclosingType);
             // XmlDocs will be null if the method isn't public
-            convenienceMethod.XmlDocs?.Exceptions.Add(new(ClientModelPlugin.Instance.TypeFactory.ClientResponseExceptionType.FrameworkType, "Service returned a non-success status code.", []));
+            convenienceMethod.XmlDocs?.Exceptions.Add(new(ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType.FrameworkType, "Service returned a non-success status code.", []));
             return convenienceMethod;
         }
 
@@ -153,7 +149,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     }
                     else
                     {
-                        statements.Add(UsingDeclare("content", ClientModelPlugin.Instance.TypeFactory.RequestContentType, parameter.Invoke(nameof(RequestContentApi.ToRquestContent)), out var content));
+                        statements.Add(UsingDeclare("content", ClientModelPlugin.Instance.TypeFactory.RequestContentApi.RequestContentType, parameter.Invoke(nameof(RequestContentApi.ToRquestContent)), out var content));
                         declarations["content"] = content;
                     }
                 }
@@ -164,7 +160,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             if (spreadSource is not null)
             {
                 statements.Add(Declare("spreadModel", New.Instance(spreadSource.Type, [.. GetSpreadConversion(spreadSource)]).As(spreadSource.Type), out var spread));
-                statements.Add(UsingDeclare("content", ClientModelPlugin.Instance.TypeFactory.RequestContentType, spread.Invoke(nameof(RequestContentApi.ToRquestContent)), out var content));
+                statements.Add(UsingDeclare("content", ClientModelPlugin.Instance.TypeFactory.RequestContentApi.RequestContentType, spread.Invoke(nameof(RequestContentApi.ToRquestContent)), out var content));
                 declarations["spread"] = spread;
                 declarations["content"] = content;
             }
@@ -405,8 +401,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             MethodBodyStatement[] methodBody =
             [
-                UsingDeclare("message", ClientModelPlugin.Instance.TypeFactory.HttpMessageType, This.Invoke(createRequestMethod.Signature, [.. MethodParameters]), out var message),
-                Return(This.ToApi<ClientResponseApi>().FromResponse(client.PipelineProperty.Invoke(processMessageName, [message, ScmKnownParameters.RequestOptions], isAsync, true))),
+                UsingDeclare("message", ClientModelPlugin.Instance.TypeFactory.HttpMessageApi.HttpMessageType, This.Invoke(createRequestMethod.Signature, [.. MethodParameters]), out var message),
+                Return(ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(client.PipelineProperty.Invoke(processMessageName, [message, ScmKnownParameters.RequestOptions], isAsync, true))),
             ];
 
             var protocolMethod =
@@ -416,7 +412,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             if (protocolMethod.XmlDocs != null)
             {
                 protocolMethod.XmlDocs?.Exceptions.Add(
-                    new(ClientModelPlugin.Instance.TypeFactory.ClientResponseExceptionType.FrameworkType, "Service returned a non-success status code.", []));
+                    new(ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType.FrameworkType, "Service returned a non-success status code.", []));
                 List<XmlDocStatement> listItems =
                 [
                     new XmlDocStatement("item", [], new XmlDocStatement("description", [$"This <see href=\"https://aka.ms/azsdk/net/protocol-methods\">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios."]))
@@ -430,7 +426,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private static CSharpType? GetResponseType(IReadOnlyList<OperationResponse> responses, bool isConvenience, bool isAsync, out CSharpType? responseBodyType)
         {
             responseBodyType = null;
-            var returnType = isConvenience ? GetConvenienceReturnType(responses, out responseBodyType) : ClientModelPlugin.Instance.TypeFactory.ClientResponseType;
+            var returnType = isConvenience ? GetConvenienceReturnType(responses, out responseBodyType) : ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseType;
             return isAsync ? new CSharpType(typeof(Task<>), returnType) : returnType;
         }
 
@@ -439,8 +435,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var response = responses.FirstOrDefault(r => !r.IsErrorResponse);
             responseBodyType = response?.BodyType is null ? null : ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(response.BodyType);
             return response is null || responseBodyType is null
-                ? ClientModelPlugin.Instance.TypeFactory.ClientResponseType
-                : new CSharpType(ClientModelPlugin.Instance.TypeFactory.ClientResponseOfTType.FrameworkType, responseBodyType);
+                ? ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseType
+                : new CSharpType(ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseOfTType.FrameworkType, responseBodyType);
         }
     }
 }

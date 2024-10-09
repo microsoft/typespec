@@ -7,7 +7,7 @@ using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
-    public abstract record HttpRequestOptionsApi : ScopedApi
+    public abstract record HttpRequestOptionsApi : ScopedApi, IHttpRequestOptionsApi
     {
         public HttpRequestOptionsApi(CSharpType type, ValueExpression original) : base(type, original)
         {
@@ -15,6 +15,19 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         public abstract ValueExpression ErrorOptions();
 
+        public abstract HttpRequestOptionsApi FromExpression(ValueExpression original);
+
         public abstract ValueExpression NoThrow();
+
+        public abstract HttpRequestOptionsApi ToExpression();
+
+        public abstract CSharpType HttpRequestOptionsType { get; }
+    }
+
+    public interface IHttpRequestOptionsApi
+    {
+        CSharpType HttpRequestOptionsType { get; }
+        HttpRequestOptionsApi FromExpression(ValueExpression original);
+        HttpRequestOptionsApi ToExpression();
     }
 }

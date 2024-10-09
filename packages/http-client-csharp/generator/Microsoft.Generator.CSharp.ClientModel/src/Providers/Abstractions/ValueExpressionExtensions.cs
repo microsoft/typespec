@@ -15,21 +15,21 @@ namespace Microsoft.Generator.CSharp.ClientModel
             switch (typeof(T).Name)
             {
                 case nameof(ClientResponseApi):
-                    return (T)(object)ClientModelPlugin.Instance.TypeFactory.CreateClientResponse(valueExpression);
+                    return (T)(object)ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.FromExpression(valueExpression);
                 case nameof(HttpResponseApi):
-                    return (T)(object)ClientModelPlugin.Instance.TypeFactory.CreateHttpResponse(valueExpression);
+                    return (T)(object)ClientModelPlugin.Instance.TypeFactory.HttpResponseApi.FromExpression(valueExpression);
                 case nameof(HttpRequestOptionsApi):
-                    return (T)(object)ClientModelPlugin.Instance.TypeFactory.CreateHttpRequestOptions(valueExpression);
+                    return (T)(object)ClientModelPlugin.Instance.TypeFactory.HttpRequestOptionsApi.FromExpression(valueExpression);
                 case nameof(HttpMessageApi):
-                    return (T)(object)ClientModelPlugin.Instance.TypeFactory.CreateHttpMessage(valueExpression);
+                    return (T)(object)ClientModelPlugin.Instance.TypeFactory.HttpMessageApi.FromExpression(valueExpression);
                 case nameof(HttpRequestApi):
-                    return (T)(object)ClientModelPlugin.Instance.TypeFactory.CreateHttpRequest(valueExpression);
+                    return (T)(object)ClientModelPlugin.Instance.TypeFactory.HttpRequestApi.FromExpression(valueExpression);
                 case nameof(ClientPipelineApi):
-                    return (T)(object)ClientModelPlugin.Instance.TypeFactory.CreateClientPipeline(valueExpression);
+                    return (T)(object)ClientModelPlugin.Instance.TypeFactory.ClientPipelineApi.FromExpression(valueExpression);
                 case nameof(StatusCodeClassifierApi):
-                    return (T)(object)ClientModelPlugin.Instance.TypeFactory.CreateStatusCodeClassifier(valueExpression);
+                    return (T)(object)ClientModelPlugin.Instance.TypeFactory.StatusCodeClassifierApi.FromExpression(valueExpression);
                 case nameof(RequestContentApi):
-                    return (T)(object)ClientModelPlugin.Instance.TypeFactory.CreateRequestContent(valueExpression);
+                    return (T)(object)ClientModelPlugin.Instance.TypeFactory.RequestContentApi.FromExpression(valueExpression);
                 default:
                     throw new InvalidOperationException($"Invalid type {typeof(T)}");
             }

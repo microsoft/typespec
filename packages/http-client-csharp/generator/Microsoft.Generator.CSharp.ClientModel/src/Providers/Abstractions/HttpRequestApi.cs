@@ -9,7 +9,7 @@ using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
-    public abstract record HttpRequestApi : ScopedApi
+    public abstract record HttpRequestApi : ScopedApi, IHttpRequestApi
     {
         protected HttpRequestApi(CSharpType type, ValueExpression original) : base(type, original)
         {
@@ -22,5 +22,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         public abstract InvokeMethodExpression SetHeaders(IReadOnlyList<ValueExpression> arguments);
 
         public abstract ValueExpression Content();
+        public abstract HttpRequestApi FromExpression(ValueExpression original);
+        public abstract HttpRequestApi ToExpression();
+    }
+
+    public interface IHttpRequestApi
+    {
+        HttpRequestApi FromExpression(ValueExpression original);
+        HttpRequestApi ToExpression();
     }
 }

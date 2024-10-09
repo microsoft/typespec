@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.ClientModel.Primitives;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Generator.CSharp.ClientModel.Snippets;
@@ -26,9 +25,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         public ClientPipelineExtensionsDefinition()
         {
-            _pipelineParam = new ParameterProvider("pipeline", FormattableStringHelpers.Empty, ClientModelPlugin.Instance.TypeFactory.ClientPipelineType);
-            _messageParam = new ParameterProvider("message", FormattableStringHelpers.Empty, ClientModelPlugin.Instance.TypeFactory.HttpMessageType);
-            _requestOptionsParam = new ParameterProvider("options", FormattableStringHelpers.Empty, ClientModelPlugin.Instance.TypeFactory.HttpRequestOptionsType);
+            _pipelineParam = new ParameterProvider("pipeline", FormattableStringHelpers.Empty, ClientModelPlugin.Instance.TypeFactory.ClientPipelineApi.ClientPipelineType);
+            _messageParam = new ParameterProvider("message", FormattableStringHelpers.Empty, ClientModelPlugin.Instance.TypeFactory.HttpMessageApi.HttpMessageType);
+            _requestOptionsParam = new ParameterProvider("options", FormattableStringHelpers.Empty, ClientModelPlugin.Instance.TypeFactory.HttpRequestOptionsApi.HttpRequestOptionsType);
             _pipeline = _pipelineParam.AsExpression.ToApi<ClientPipelineApi>();
             _message = _messageParam.AsExpression.ToApi<HttpMessageApi>();
             _options = _requestOptionsParam.AsExpression.ToApi<HttpRequestOptionsApi>();
@@ -58,7 +57,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private MethodProvider ProcessHeadAsBoolMessage()
         {
             MethodSignature signature = GetProcessHeadAsBoolMessageSignature(false);
-            var responseVariable = new VariableExpression(ClientModelPlugin.Instance.TypeFactory.HttpResponseType, "response");
+            var responseVariable = new VariableExpression(ClientModelPlugin.Instance.TypeFactory.HttpResponseApi.HttpResponseType, "response");
             var response = responseVariable.ToApi<HttpResponseApi>();
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
@@ -70,7 +69,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private MethodProvider ProcessHeadAsBoolMessageAsync()
         {
             MethodSignature signature = GetProcessHeadAsBoolMessageSignature(true);
-            var responseVariable = new VariableExpression(ClientModelPlugin.Instance.TypeFactory.HttpResponseType, "response");
+            var responseVariable = new VariableExpression(ClientModelPlugin.Instance.TypeFactory.HttpResponseApi.HttpResponseType, "response");
             var response = responseVariable.ToApi<HttpResponseApi>();
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
@@ -87,15 +86,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 [
                     new SwitchCaseStatement(ValueExpression.Empty.GreaterThanOrEqual(Literal(200)).AndExpr(ValueExpression.Empty.LessThan(Literal(300))), new MethodBodyStatement[]
                     {
-                        Return(This.ToApi<ClientResponseApi>().FromValue<bool>(True, response))
+                        Return(ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ToExpression().FromValue<bool>(True, response))
                     }),
                     new SwitchCaseStatement(ValueExpression.Empty.GreaterThanOrEqual(Literal(400)).AndExpr(ValueExpression.Empty.LessThan(Literal(500))), new MethodBodyStatement[]
                     {
-                        Return(This.ToApi<ClientResponseApi>().FromValue<bool>(False, response))
+                        Return(ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ToExpression().FromValue<bool>(False, response))
                     }),
                     new SwitchCaseStatement(Array.Empty<ValueExpression>(), new MethodBodyStatement[]
                     {
-                        Return(new NewInstanceExpression(ErrorResultSnippets.ErrorResultType.MakeGenericType([typeof(bool)]), [response, new NewInstanceExpression(ClientModelPlugin.Instance.TypeFactory.ClientResponseExceptionType, [response])]))
+                        Return(new NewInstanceExpression(ErrorResultSnippets.ErrorResultType.MakeGenericType([typeof(bool)]), [response, new NewInstanceExpression(ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType, [response])]))
                     })
                 ]),
             };
@@ -108,11 +107,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 modifiers |= MethodSignatureModifiers.Async;
             }
+            var clientResultType = new CSharpType(ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseOfTType.FrameworkType, typeof(bool));
             return new MethodSignature(
                 isAsync ? "ProcessHeadAsBoolMessageAsync" : "ProcessHeadAsBoolMessage",
                 null,
                 modifiers,
-                isAsync ? new CSharpType(typeof(ValueTask<>), new CSharpType(ClientModelPlugin.Instance.TypeFactory.ClientResponseOfTType.FrameworkType, typeof(bool))) : new CSharpType(ClientModelPlugin.Instance.TypeFactory.ClientResponseOfTType.FrameworkType, typeof(bool)),
+                isAsync ? new CSharpType(typeof(ValueTask<>), clientResultType) : clientResultType,
                 null,
                 [_pipelineParam, _messageParam, _requestOptionsParam]);
         }
@@ -128,10 +128,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 MethodBodyStatement.EmptyLine,
                 new IfStatement(_message.Response().IsError().And(new BinaryOperatorExpression("&", _options.NullConditional().Property("ErrorOptions"), clientErrorNoThrow).NotEqual(clientErrorNoThrow)))
                 {
-                    Throw(New.Instance(ClientModelPlugin.Instance.TypeFactory.ClientResponseExceptionType, _message.Response()))
+                    Throw(New.Instance(ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType, _message.Response()))
                 },
                 MethodBodyStatement.EmptyLine,
-                Declare("response", ClientModelPlugin.Instance.TypeFactory.HttpResponseType, new TernaryConditionalExpression(_message.BufferResponse(), _message.Response(), Static().Invoke(ExtractResponseContentMethodName, [_messageParam])), out var response),
+                Declare("response", ClientModelPlugin.Instance.TypeFactory.HttpResponseApi.HttpResponseType, new TernaryConditionalExpression(_message.BufferResponse(), _message.Response(), Static().Invoke(ExtractResponseContentMethodName, [_messageParam])), out var response),
                 Return(response)
             }, this);
         }
@@ -139,7 +139,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private const string ExtractResponseContentMethodName = "ExtractResponseContent";
         private MethodProvider BuildExtractResponseContent()
         {
-            var signature = new MethodSignature(ExtractResponseContentMethodName, null, MethodSignatureModifiers.Private | MethodSignatureModifiers.Static, ClientModelPlugin.Instance.TypeFactory.HttpResponseType, null, [_messageParam]);
+            var signature = new MethodSignature(ExtractResponseContentMethodName, null, MethodSignatureModifiers.Private | MethodSignatureModifiers.Static, ClientModelPlugin.Instance.TypeFactory.HttpResponseApi.HttpResponseType, null, [_messageParam]);
             var body = _message.ExtractResponse();
             return new MethodProvider(signature, body, this);
         }
@@ -155,7 +155,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 isAsync ? "ProcessMessageAsync" : "ProcessMessage",
                 null,
                 modifiers,
-                isAsync ? new CSharpType(typeof(ValueTask<>), ClientModelPlugin.Instance.TypeFactory.HttpResponseType) : ClientModelPlugin.Instance.TypeFactory.HttpResponseType,
+                isAsync ? new CSharpType(typeof(ValueTask<>), ClientModelPlugin.Instance.TypeFactory.HttpResponseApi.HttpResponseType) : ClientModelPlugin.Instance.TypeFactory.HttpResponseApi.HttpResponseType,
                 null,
                 [_pipelineParam, _messageParam, _requestOptionsParam]);
         }
@@ -171,10 +171,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 MethodBodyStatement.EmptyLine,
                 new IfStatement(_message.Response().IsError().And(new BinaryOperatorExpression("&", _options.NullConditional().Property("ErrorOptions"), clientErrorNoThrow).NotEqual(clientErrorNoThrow)))
                 {
-                    Throw(This.ToApi<ClientResponseApi>().CreateAsync(_message.Response()))
+                    Throw(ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ToExpression().CreateAsync(_message.Response()))
                 },
                 MethodBodyStatement.EmptyLine,
-                Declare("response", ClientModelPlugin.Instance.TypeFactory.HttpResponseType, new TernaryConditionalExpression(_message.BufferResponse(), _message.Response(), Static().Invoke(ExtractResponseContentMethodName, [_messageParam])), out var response),
+                Declare("response", ClientModelPlugin.Instance.TypeFactory.HttpResponseApi.HttpResponseType, new TernaryConditionalExpression(_message.BufferResponse(), _message.Response(), Static().Invoke(ExtractResponseContentMethodName, [_messageParam])), out var response),
                 Return(response)
             }, this);
         }

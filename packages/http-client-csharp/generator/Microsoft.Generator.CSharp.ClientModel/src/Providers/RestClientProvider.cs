@@ -49,8 +49,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             _inputClient = inputClient;
             ClientProvider = clientProvider;
-            _pipelineMessageClassifier200 = new FieldProvider(FieldModifiers.Private | FieldModifiers.Static, ClientModelPlugin.Instance.TypeFactory.ResponseClassifierType, "_pipelineMessageClassifier200", this);
-            _pipelineMessageClassifier204 = new FieldProvider(FieldModifiers.Private | FieldModifiers.Static, ClientModelPlugin.Instance.TypeFactory.ResponseClassifierType, "_pipelineMessageClassifier204", this);
+            _pipelineMessageClassifier200 = new FieldProvider(FieldModifiers.Private | FieldModifiers.Static, ClientModelPlugin.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType, "_pipelineMessageClassifier200", this);
+            _pipelineMessageClassifier204 = new FieldProvider(FieldModifiers.Private | FieldModifiers.Static, ClientModelPlugin.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType, "_pipelineMessageClassifier204", this);
             _classifier2xxAnd4xxDefinition = new Classifier2xxAnd4xxDefinition(this);
             _pipelineMessageClassifier2xxAnd4xx = new FieldProvider(FieldModifiers.Private | FieldModifiers.Static, _classifier2xxAnd4xxDefinition.Type, "_pipelineMessageClassifier2xxAnd4xx", this);
             _classifier200Property = GetResponseClassifierProperty(_pipelineMessageClassifier200, 200);
@@ -83,7 +83,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return new PropertyProvider(
                     null,
                     MethodSignatureModifiers.Private | MethodSignatureModifiers.Static,
-                    ClientModelPlugin.Instance.TypeFactory.ResponseClassifierType,
+                    ClientModelPlugin.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType,
                     pipelineMessageClassifier.Name.Substring(1).ToCleanName(),
                     new ExpressionPropertyBody(
                         pipelineMessageClassifier.Assign(This.ToApi<StatusCodeClassifierApi>().Create(code))),
@@ -136,7 +136,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 $"Create{operation.Name.ToCleanName()}Request",
                 null,
                 MethodSignatureModifiers.Internal,
-                ClientModelPlugin.Instance.TypeFactory.HttpMessageType,
+                ClientModelPlugin.Instance.TypeFactory.HttpMessageApi.HttpMessageType,
                 null,
                 [.. GetMethodParameters(operation, true), options]);
             var paramMap = new Dictionary<string, ParameterProvider>(signature.Parameters.ToDictionary(p => p.Name));
