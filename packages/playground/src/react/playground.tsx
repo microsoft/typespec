@@ -350,10 +350,10 @@ async function compile(
         ...options.options,
         [selectedEmitter]: {
           ...options.options?.[selectedEmitter],
-          "emitter-output-dir": "tsp-output",
+          "emitter-output-dir": resolveVirtualPath("tsp-output"),
         },
       },
-      outputDir: "tsp-output",
+      outputDir: resolveVirtualPath("tsp-output"),
       emit: selectedEmitter ? [selectedEmitter] : [],
     });
     const outputFiles = await findOutputFiles(host);
