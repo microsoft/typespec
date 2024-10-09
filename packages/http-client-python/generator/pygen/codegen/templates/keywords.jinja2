@@ -4,7 +4,7 @@
 {% set async_class = "Async" if async_mode else "" %}
 {% macro escape_str(s) %}'{{ s|replace("'", "\\'") }}'{% endmacro %}
 {% set kwargs_declaration = "**kwargs: Any" %}
-{% set extend_all = "__all__.extend([p for p in _patch_all if p not in __all__])" %}
+{% set extend_all = "__all__.extend([p for p in _patch_all if p not in __all__]) # pyright: ignore" %}
 {% macro patch_imports(try_except=False) %}
 {% set indentation = "    " if try_except else "" %}
 {% if try_except %}
