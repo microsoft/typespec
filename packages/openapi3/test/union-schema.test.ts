@@ -527,4 +527,30 @@ describe("openapi3: union type", () => {
       strictEqual(variant.description, undefined);
     }
   });
+
+  it("type property should always be set when nullable property is present", async () => {
+    const openApi = await openApiFor(`
+      scalar MyStr extends string;
+      model Foo {};
+      model A {
+        x: MyStr |Foo| null;
+      }
+      `);
+    deepStrictEqual(openApi.components.schemas.A.properties, {
+      x: {
+        anyOf: [
+          {
+            type: "object",
+            allOf: [{ $ref: "#/components/schemas/MyStr" }],
+            nullable: true,
+          },
+          {
+            type: "object",
+            allOf: [{ $ref: "#/components/schemas/Foo" }],
+            nullable: true,
+          },
+        ],
+      },
+    });
+  });
 });
