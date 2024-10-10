@@ -305,7 +305,7 @@ export class CodeModelBuilder {
     return hostParameters;
   }
 
-  private processAuth(auth: Authentication) {{
+  private processAuth(auth: Authentication) {
     const securitySchemes: SecurityScheme[] = [];
     for (const option of auth.options) {
       for (const scheme of option.schemes) {
@@ -496,7 +496,7 @@ export class CodeModelBuilder {
         javaNamespace = this.getJavaNamespace(this.namespace + "." + clientSubNamespace);
       }
 
-      const codeModelClient = new CodeModelClient(clientName, client.doc ?? "", {
+      const codeModelClient = new CodeModelClient(clientName, client.details ?? "", {
         summary: client.summary,
         language: {
           default: {
