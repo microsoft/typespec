@@ -23,6 +23,10 @@
       "types": "./dist/src/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./state-storage": {
+      "types": "./dist/src/state-storage.d.ts",
+      "default": "./dist/state-storage.js"
+    },
     "./vite": {
       "types": "./dist/src/vite/index.d.ts",
       "default": "./dist/vite/index.js"

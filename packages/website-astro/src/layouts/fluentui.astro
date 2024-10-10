@@ -1,0 +1,10 @@
+---
+import { FluentLayout } from "../components/layouts/fluent-layout";
+import BaseLayout from "./base-layout.astro";
+---
+
+<BaseLayout>
+  <FluentLayout client:only="react">
+    <slot />
+  </FluentLayout>
+</BaseLayout>

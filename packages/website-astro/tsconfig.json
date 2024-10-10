@@ -1,0 +1,15 @@
+{
+  "extends": "astro/tsconfigs/strict",
+  "compilerOptions": {
+    "baseUrl": "./",
+    "noImplicitAny": false,
+    "paths": {
+      "@site/*": ["*"],
+      "@docusaurus/*": ["src/components/docusaurus/core/*"],
+      "@theme/*": ["src/components/docusaurus/theme/*"]
+    },
+    "jsx": "react-jsx",
+    "jsxImportSource": "react"
+  },
+  "exclude": ["public/1ds-init.js", "dist", "src/assets"]
+}

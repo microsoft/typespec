@@ -1,0 +1,15 @@
+---
+import type { HTMLAttributes } from "astro/types";
+
+type Props = HTMLAttributes<"a">;
+
+const { href: rawHref, ...props } = Astro.props as Props;
+let hrefStr = (rawHref instanceof URL ? rawHref.toString() : rawHref) ?? "";
+
+const href = hrefStr[0] === "/" ? import.meta.env.BASE_URL + hrefStr.slice(1) : hrefStr;
+const hrefWithTrailingSlash = href[href.length - 1] === "/" ? href : href + "/";
+---
+
+<a href={hrefWithTrailingSlash} {...props}>
+  <slot />
+</a>

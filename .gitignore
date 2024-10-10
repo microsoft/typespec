@@ -199,9 +199,13 @@ developer/
 *.vsix
 *.zip
 
+# Astro
+.astro/
+
 # Api extractor
 packages/*/etc/
 docs/**/js-api/
+packages/website-astro/src/content/docs/current/**/js-api/
 
 # VS Code test web temp files
 .vscode-test-web/
