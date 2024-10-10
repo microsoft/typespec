@@ -2,8 +2,6 @@
 title: Tracing
 ---
 
-# Tracing
-
 The TypeSpec Compiler, by default, builds without any debug information. The standard output is minimal, only including any `warning` or `error` diagnostics that occur during the compilation process.
 
 However, the compiler does collect additional information that can be accessed using the `--trace` command-line interface (CLI) flag.

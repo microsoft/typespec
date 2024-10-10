@@ -3,8 +3,6 @@ id: intersections
 title: Intersections
 ---
 
-# Intersections
-
 Intersections in programming define a type that must encompass all the constituents of the intersection. You can declare an intersection using the `&` operator.
 
 ```typespec
