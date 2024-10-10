@@ -20,3 +20,14 @@ Invoke-LoggedCommand "git -c core.safecrlf=false diff --ignore-space-at-eol --ex
 if($LastExitCode -ne 0) {
     throw "Changes detected"
 }
+
+# Get the current branch name
+$currentBranch = git rev-parse --abbrev-ref HEAD
+
+# Check if the branch name starts with publish/, dependabot/, or backmerge/
+if ($currentBranch -notmatch '^(publish/|dependabot/|backmerge/)') {
+    Invoke-LoggedCommand "pnpm change verify"
+    if ($LastExitCode -ne 0) {
+        throw "Changelog verification failed"
+    }
+}
