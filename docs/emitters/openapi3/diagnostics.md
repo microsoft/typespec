@@ -2,8 +2,6 @@
 title: Diagnostics
 ---
 
-# Diagnostics
-
 The OpenAPI emitter may produce any of the following diagnostic messages.
 
 <!-- Topics within this section should be ordered alphabetically for easy lookup -->

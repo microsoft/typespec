@@ -3,8 +3,6 @@ id: emitter-metadata-handling
 title: Managing metadata and visibility in REST API emitters
 ---
 
-# Managing metadata and visibility in REST API emitters
-
 Ensuring consistent handling of [automatic visibility](../libraries/http/operations.md#automatic-visibility) and [metadata](../libraries/http/operations.md#metadata) by all REST API emitters is crucial. To understand how these features work, please refer to the TypeSpec-author documentation. This guide will help you integrate these features into your own emitter correctly.
 
 The standard `/rest` library offers a JavaScript API for emitters to interpret APIs written using its decorators. We will focus on the APIs that are specifically relevant to these features.
