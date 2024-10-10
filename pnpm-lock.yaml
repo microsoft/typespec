@@ -2115,7 +2115,7 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0
       '@typespec/internal-build-utils':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../internal-build-utils
       '@typespec/playground-website':
         specifier: workspace:*
