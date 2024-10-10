@@ -496,7 +496,7 @@ export class CodeModelBuilder {
         javaNamespace = this.getJavaNamespace(this.namespace + "." + clientSubNamespace);
       }
 
-      const codeModelClient = new CodeModelClient(clientName, client.doc ?? "", {
+      const codeModelClient = new CodeModelClient(clientName, client.details ?? "", {
         summary: client.summary,
         language: {
           default: {
