@@ -11,4 +11,4 @@ type SemanticNodeListener: object & TypeListeners;
 
 | Name | Type |
 | ------ | ------ |
-| `root` | (`context`) => `void` \| `undefined` |
+| `root`? | (`context`) => `void` \| `undefined` |

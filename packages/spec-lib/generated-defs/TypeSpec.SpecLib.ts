@@ -1,10 +1,10 @@
 import type {
   DecoratorContext,
-  EnumValue,
   Interface,
   Model,
   Namespace,
   Operation,
+  Type,
 } from "@typespec/compiler";
 
 /**
@@ -14,7 +14,7 @@ export type ScenarioServiceDecorator = (
   context: DecoratorContext,
   target: Namespace,
   route: string,
-  options?: { readonly versioned?: EnumValue },
+  options?: Type,
 ) => void;
 
 /**

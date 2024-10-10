@@ -4,7 +4,7 @@ title: "[F] isSecret"
 
 ---
 ```ts
-function isSecret(program, target): boolean | undefined
+function isSecret(program, type): boolean
 ```
 
 ## Parameters
@@ -12,8 +12,8 @@ function isSecret(program, target): boolean | undefined
 | Parameter | Type |
 | ------ | ------ |
 | `program` | [`Program`](../interfaces/Program.md) |
-| `target` | [`Type`](../type-aliases/Type.md) |
+| `type` | [`Type`](../type-aliases/Type.md) |
 
 ## Returns
 
-`boolean` \| `undefined`
+`boolean`

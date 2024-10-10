@@ -104,7 +104,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override TypeSignatureModifiers GetDeclarationModifiers()
         {
-            var customCodeModifiers = GetCustomCodeModifiers();
+            var customCodeModifiers = CustomCodeView?.DeclarationModifiers ?? TypeSignatureModifiers.None;
             var isStruct = false;
             // the information of if this model should be a struct comes from two sources:
             // 1. the customied code
