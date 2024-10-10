@@ -1,4 +1,6 @@
 import type {
+  DefaultVisibilityDecorator,
+  VisibilityFilter as GeneratedVisibilityFilter,
   InvisibleDecorator,
   ParameterVisibilityDecorator,
   ReturnTypeVisibilityDecorator,
@@ -6,6 +8,7 @@ import type {
   WithDefaultKeyVisibilityDecorator,
   WithUpdateablePropertiesDecorator,
   WithVisibilityDecorator,
+  WithVisibilityFilterDecorator,
 } from "../../generated-defs/TypeSpec.js";
 import { validateDecoratorTarget, validateDecoratorUniqueOnNode } from "../core/decorator-utils.js";
 import {
@@ -14,6 +17,7 @@ import {
   getVisibility,
   isVisible,
   Program,
+  setDefaultModifierSetForVisibilityClass,
   setLegacyVisibility,
   splitLegacyVisibility,
   VisibilityFilter,
@@ -22,6 +26,7 @@ import { reportDiagnostic } from "../core/messages.js";
 import {
   DecoratorContext,
   Enum,
+  EnumMember,
   EnumValue,
   Model,
   ModelProperty,
@@ -44,6 +49,7 @@ export const $withDefaultKeyVisibility: WithDefaultKeyVisibilityDecorator = (
   const keyProperties: ModelProperty[] = [];
   entity.properties.forEach((prop: ModelProperty) => {
     // Keep track of any key property without a visibility
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     if (isKey(context.program, prop) && !getVisibility(context.program, prop)) {
       keyProperties.push(prop);
     }
@@ -144,6 +150,8 @@ export const $visibility: VisibilityDecorator = (
   }
 };
 
+// -- @invisible decorator ---------------------
+
 export const $invisible: InvisibleDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
@@ -151,6 +159,33 @@ export const $invisible: InvisibleDecorator = (
 ) => {
   clearVisibilityModifiersForClass(context.program, target, visibilityClass);
 };
+
+// -- @defaultVisibility decorator ------------------
+
+export const $defaultVisibility: DefaultVisibilityDecorator = (
+  context: DecoratorContext,
+  target: Enum,
+  ...visibilities: EnumValue[]
+) => {
+  validateDecoratorUniqueOnNode(context, target, $defaultVisibility);
+
+  const modifierSet = new Set<EnumMember>();
+
+  for (const visibility of visibilities) {
+    if (visibility.value.enum !== target) {
+      reportDiagnostic(context.program, {
+        code: "default-visibility-not-member",
+        target: context.decoratorTarget,
+      });
+    } else {
+      modifierSet.add(visibility.value);
+    }
+  }
+
+  setDefaultModifierSetForVisibilityClass(target, modifierSet);
+};
+
+// -- @withVisibility decorator ---------------------
 
 export const $withVisibility: WithVisibilityDecorator = (
   context: DecoratorContext,
@@ -202,6 +237,20 @@ export const $withVisibility: WithVisibilityDecorator = (
 
 // -- @withUpdateableProperties decorator ----------------------
 
+const UPDATE_VISIBILITY_MODIFIERS = new WeakMap<Program, EnumMember>();
+
+function getUpdateVisibilityModifier(program: Program): EnumMember {
+  let modifier = UPDATE_VISIBILITY_MODIFIERS.get(program);
+
+  if (!modifier) {
+    const lifecycle = getLifecycleVisibilityEnum(program);
+    modifier = lifecycle.members.get("Update")!;
+    UPDATE_VISIBILITY_MODIFIERS.set(program, modifier);
+  }
+
+  return modifier;
+}
+
 export const $withUpdateableProperties: WithUpdateablePropertiesDecorator = (
   context: DecoratorContext,
   target: Type,
@@ -210,7 +259,24 @@ export const $withUpdateableProperties: WithUpdateablePropertiesDecorator = (
     return;
   }
 
-  filterModelPropertiesInPlace(target, (p) => isVisible(context.program, p, ["update"]));
+  const filter: VisibilityFilter = {
+    all: new Set([getUpdateVisibilityModifier(context.program)]),
+  };
+
+  filterModelPropertiesInPlace(target, (p) => isVisible(context.program, p, filter));
+};
+
+// -- @withVisibilityFilter decorator ----------------------
+
+export const $withVisibilityFilter: WithVisibilityFilterDecorator = (
+  context: DecoratorContext,
+  target: Model,
+  _filter: GeneratedVisibilityFilter,
+) => {
+  const filter = VisibilityFilter.fromDecoratorArgument(_filter);
+
+  // TODO
+  throw new Error("Not implemented.");
 };
 
 // #endregion

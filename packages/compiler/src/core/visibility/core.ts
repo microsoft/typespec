@@ -24,6 +24,8 @@ import {
   normalizeLegacyLifecycleVisibilityString,
 } from "./lifecycle.js";
 
+import { VisibilityFilter as GeneratedVisibilityFilter } from "../../../generated-defs/TypeSpec.js";
+
 /**
  * A set of active visibility modifiers per visibility class.
  */
@@ -121,6 +123,24 @@ function getDefaultModifierSetForClass(visibilityClass: Enum): Set<EnumMember> {
   DEFAULT_MODIFIER_SET_CACHE.set(visibilityClass, defaultModifierSet);
 
   return defaultModifierSet;
+}
+
+/**
+ * Set the default visibility modifier set for a visibility class.
+ *
+ * This function may only be called ONCE per visibility class and must be called
+ * before the default modifier set is used by any operation.
+ */
+export function setDefaultModifierSetForVisibilityClass(
+  visibilityClass: Enum,
+  defaultSet: Set<EnumMember>,
+) {
+  compilerAssert(
+    !DEFAULT_MODIFIER_SET_CACHE.has(visibilityClass),
+    "The default modifier set for a visibility class may only be set once.",
+  );
+
+  DEFAULT_MODIFIER_SET_CACHE.set(visibilityClass, defaultSet);
 }
 
 /**
@@ -489,6 +509,16 @@ export interface VisibilityFilter {
   none?: Set<EnumMember>;
 }
 
+export const VisibilityFilter = {
+  fromDecoratorArgument(filter: GeneratedVisibilityFilter): VisibilityFilter {
+    return {
+      all: filter.all && new Set(filter.all.map((v) => v.value)),
+      any: filter.any && new Set(filter.any.map((v) => v.value)),
+      none: filter.none && new Set(filter.none.map((v) => v.value)),
+    };
+  },
+};
+
 /**
  * Determines if a property is visible according to the given visibility filter.
  *
@@ -528,10 +558,12 @@ export function isVisible(
   filter.any ??= new Set();
   filter.none ??= new Set();
 
+  // Validate that property has ALL of the required visibilities of filter.all
   for (const modifier of filter.all) {
     if (!hasVisibility(program, property, modifier)) return false;
   }
 
+  // Validate that property has ANY of the required visibilities of filter.any
   outer: while (filter.any.size > 0) {
     for (const modifier of filter.any) {
       if (hasVisibility(program, property, modifier)) break outer;
@@ -540,6 +572,7 @@ export function isVisible(
     return false;
   }
 
+  // Validate that property has NONE of the excluded visibilities of filter.none
   for (const modifier of filter.none) {
     if (hasVisibility(program, property, modifier)) return false;
   }
@@ -547,7 +580,7 @@ export function isVisible(
   return true;
 
   function isVisibleLegacy(visibilities: readonly string[]) {
-    // eslint-disable-next-line deprecation/deprecation
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     const propertyVisibilities = getVisibility(program, property);
     return !propertyVisibilities || propertyVisibilities.some((v) => visibilities.includes(v));
   }

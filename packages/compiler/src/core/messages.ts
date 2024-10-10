@@ -1001,6 +1001,12 @@ const diagnostics = {
         "Cannot apply both string (legacy) visibility modifiers and enum-based visibility modifiers to a property.",
     },
   },
+  "default-visibility-not-member": {
+    severity: "error",
+    messages: {
+      default: "The default visibility modifiers of a class must be members of the class enum.",
+    },
+  },
   // #endregion
 
   // #region CLI

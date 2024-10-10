@@ -41,6 +41,22 @@ namespace TypeSpec;
  */
 extern dec visibility(target: ModelProperty, ...visibilities: valueof (string | EnumMember)[]);
 
+/**
+ * Indicates that a property is not visible in the given visibility class.
+ *
+ * This decorator removes all active visibility modifiers from the property within
+ * the given visibility class.
+ *
+ * @param visibilityClass The visibility class to make the property invisible within.
+ *
+ * @example
+ * ```typespec
+ * model Example {
+ *   @invisible(Lifecycle)
+ *   hidden_property: string;
+ * }
+ * ```
+ */
 extern dec invisible(target: ModelProperty, visibilityClass: Enum);
 
 /**
@@ -113,6 +129,14 @@ extern dec returnTypeVisibility(
 extern dec withUpdateableProperties(target: Model);
 
 /**
+ * Declares the default visibility modifiers for a visibility class.
+ *
+ * The default modifiers are used when a property does not have any visibility decorators
+ * applied to it.
+ */
+extern dec defaultVisibility(target: Enum, ...visibilities: valueof EnumMember[]);
+
+/**
  * A visibility class for resource lifecycle phases.
  *
  * These visibilities control whether a property is visible during the create, read, and update phases of a resource's
@@ -137,4 +161,53 @@ enum Lifecycle {
   Create,
   Read,
   Update,
+}
+
+/**
+ * A visibility filter, used to specify which properties should be included when
+ * using the `withVisibilityFilter` decorator.
+ *
+ * The filter matches any property with ALL of the following:
+ * - If the `any` key is present, the property must have at least one of the specified visibilities.
+ * - If the `all` key is present, the property must have all of the specified visibilities.
+ * - If the `none` key is present, the property must have none of the specified visibilities.
+ */
+model VisibilityFilter {
+  any?: EnumMember[];
+  all?: EnumMember[];
+  none?: EnumMember[];
+}
+
+/**
+ * Applies the given visibility filter to the properties of the target model.
+ *
+ * The transformation is recursive
+ */
+extern dec withVisibilityFilter(target: Model, filter: valueof VisibilityFilter);
+
+@friendlyName(NameTemplate, T)
+@withVisibilityFilter(#{ all: #[Lifecycle.Create] })
+model Create<T extends Reflection.Model, NameTemplate extends valueof string = "Create{name}"> {
+  ...T;
+}
+
+@friendlyName(NameTemplate, T)
+@withVisibilityFilter(#{ all: #[Lifecycle.Read] })
+model Read<T extends Reflection.Model, NameTemplate extends valueof string = "Read{name}"> {
+  ...T;
+}
+
+@friendlyName(NameTemplate, T)
+@withVisibilityFilter(#{ all: #[Lifecycle.Update] })
+model Update<T extends Reflection.Model, NameTemplate extends valueof string = "Update{name}"> {
+  ...T;
+}
+
+@friendlyName(NameTemplate, T)
+@withVisibilityFilter(#{ any: #[Lifecycle.Create, Lifecycle.Update] })
+model CreateOrUpdate<
+  T extends Reflection.Model,
+  NameTemplate extends valueof string = "CreateOrUpdate{name}"
+> {
+  ...T;
 }

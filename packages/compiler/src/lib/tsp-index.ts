@@ -38,6 +38,7 @@ import {
   $withoutOmittedProperties,
 } from "./decorators.js";
 import {
+  $defaultVisibility,
   $invisible,
   $parameterVisibility,
   $returnTypeVisibility,
@@ -45,6 +46,7 @@ import {
   $withDefaultKeyVisibility,
   $withUpdateableProperties,
   $withVisibility,
+  $withVisibilityFilter,
 } from "./visibility.js";
 
 /** @internal */
@@ -89,7 +91,9 @@ export const $decorators = {
     inspectTypeName: $inspectTypeName,
     visibility: $visibility,
     invisible: $invisible,
+    defaultVisibility: $defaultVisibility,
     withVisibility: $withVisibility,
+    withVisibilityFilter: $withVisibilityFilter,
     withDefaultKeyVisibility: $withDefaultKeyVisibility,
     parameterVisibility: $parameterVisibility,
     returnTypeVisibility: $returnTypeVisibility,

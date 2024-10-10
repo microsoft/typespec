@@ -25,7 +25,7 @@ export function getLifecycleVisibilityEnum(program: Program): Enum {
 
   compilerAssert(
     diagnostics.length === 0,
-    "Encountered diagnostics when resolving the `TypeSpec.Lifecycle` visibility class enum"
+    "Encountered diagnostics when resolving the `TypeSpec.Lifecycle` visibility class enum",
   );
 
   compilerAssert(type!.kind === "Enum", "Expected `TypeSpec.Visibility.Lifecycle` to be an enum");
@@ -35,9 +35,35 @@ export function getLifecycleVisibilityEnum(program: Program): Enum {
   return type;
 }
 
+// interface LifecycleVisibilityEnumMembers {
+//   Create: EnumMember;
+//   Read: EnumMember;
+//   Update: EnumMember;
+// }
+
+// const LIFECYCLE_ENUM_MEMBERS_CACHE = new WeakMap<Program, LifecycleVisibilityEnumMembers>();
+
+// function getLifecycleVisibilityEnumMembers(program: Program): LifecycleVisibilityEnumMembers {
+//   const cached = LIFECYCLE_ENUM_MEMBERS_CACHE.get(program);
+
+//   if (cached) return cached;
+
+//   const lifecycle = getLifecycleVisibilityEnum(program);
+
+//   const members: LifecycleVisibilityEnumMembers = {
+//     Create: lifecycle.members.get("Create")!,
+//     Read: lifecycle.members.get("Read")!,
+//     Update: lifecycle.members.get("Update")!,
+//   };
+
+//   LIFECYCLE_ENUM_MEMBERS_CACHE.set(program, members);
+
+//   return members;
+// }
+
 export function normalizeLegacyLifecycleVisibilityString(
   program: Program,
-  visibility: string
+  visibility: string,
 ): EnumMember | undefined {
   const lifecycle = getLifecycleVisibilityEnum(program);
   switch (visibility) {
