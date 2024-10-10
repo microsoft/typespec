@@ -161,42 +161,12 @@
   --shadow64Brand: 0 0 8px rgba(0, 0, 0, 0.3), 0 32px 64px rgba(0, 0, 0, 0.25);
 }
 
-/* You can override the default Infima variables here. */
-:root {
-  /* Change docusaurus Colors */
-  --ifm-color-primary: #0f6cbd;
-  --ifm-color-primary-dark: #0d61aa;
-  --ifm-color-primary-darker: #0d5ca1;
-  --ifm-color-primary-darkest: #0a4c84;
-  --ifm-color-primary-light: #1077d0;
-  --ifm-color-primary-lighter: #117cd9;
-  --ifm-color-primary-lightest: #1c8ced;
-
-  --ifm-code-font-size: 95%;
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
-
-  /* Header color */
-  --ifm-navbar-background-color: var(--colorNeutralBackground3);
-
-  --header-height: 50px;
-}
-
-[data-theme="light"] {
-  --docsearch-muted-color: #6c727e !important;
+:root[data-theme="light"] {
+  --sl-color-text-accent: var(--colorBrandForeground1);
 }
 /* For readability concerns, you should choose a lighter palette in dark mode. */
-[data-theme="dark"] {
-  /* Change docusaurus Colors */
-  --ifm-color-primary: #0f6cbd;
-  --ifm-color-primary: #479ef5;
-  --ifm-color-primary-dark: #298ef3;
-  --ifm-color-primary-darker: #1a86f3;
-  --ifm-color-primary-darkest: #0b6fd2;
-  --ifm-color-primary-light: #65aef7;
-  --ifm-color-primary-lighter: #74b6f7;
-  --ifm-color-primary-lightest: #a1cdfa;
-
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+:root[data-theme="dark"] {
+  --sl-color-text-accent: var(--colorBrandForeground1);
 }
 
 .DocSearch-Button {
