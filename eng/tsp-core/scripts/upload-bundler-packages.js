@@ -21,6 +21,6 @@ await bundleAndUploadPackages({
     "@typespec/streams",
     "@typespec/events",
     "@typespec/sse",
-    "@typespec/xml"
+    "@typespec/xml",
   ],
 });
