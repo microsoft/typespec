@@ -5,6 +5,8 @@ title: Documentation
 
 Documentation is a vital aspect of any API. TypeSpec offers several ways to document your API, including doc comments and decorators.
 
+## Approaches to documenting APIs
+
 TypeSpec provides two primary methods for documenting your API:
 
 - `@doc` decorator
@@ -72,6 +74,8 @@ As shown in the previous example, doc comments can use certain tags to document 
 | `@returns`              | Documents the operation response. | `@returns The widget.`                              |
 | `@template`             | Document a template parameter     | `@template T the resource type`                     |
 | `@example` (unofficial) | Show examples                     | `@example \`model Foo {}\` `                        |
+
+## Comments
 
 TypeSpec supports both single-line and multi-line comments. Single-line comments start with `//` and continue until the end of the line. Multi-line comments start with `/*` and continue until the closing `*/` is encountered.
 

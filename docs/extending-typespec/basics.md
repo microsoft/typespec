@@ -16,10 +16,10 @@ You'll need to have both Node and npm installed. If you're planning to develop m
 You can use the following templates:
 
 ```bash
-
+# Create a TypeSpec library (Decorators & Linters) with TypeScript enabled.
 tsp init --template library-ts
 
-
+# Create a TypeSpec emitter with TypeScript enabled.
 tsp init --template emitter-ts
 ```
 

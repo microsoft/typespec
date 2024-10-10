@@ -217,10 +217,10 @@ See [output directory configuration for mode details](#configuring-output-direct
 Configure what area to trace. See [tracing docs](./tracing.md)
 
 ```yaml
-
+# Trace all.
 trace: *
 
-
+# or specific areas
 trace:
   - import-resolution
   - projection
