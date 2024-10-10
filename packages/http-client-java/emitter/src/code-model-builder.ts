@@ -305,7 +305,7 @@ export class CodeModelBuilder {
     return hostParameters;
   }
 
-  private processAuth(auth: Authentication) {
+  private processAuth(auth: Authentication) {{
     const securitySchemes: SecurityScheme[] = [];
     for (const option of auth.options) {
       for (const scheme of option.schemes) {
