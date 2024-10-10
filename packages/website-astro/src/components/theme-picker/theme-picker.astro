@@ -38,7 +38,7 @@ import { Icon } from "@astrojs/starlight/components";
 </style>
 
 <script>
-  import { getTheme, setTheme } from "@site/src/utils";
+  import { getTheme, setTheme } from "@site/src/utils/theme";
   const handleToggleClick = () => {
     const current = getTheme();
     const next = current === "dark" ? "light" : "dark";
