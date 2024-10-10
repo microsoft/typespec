@@ -58,5 +58,5 @@ if __name__ == "__main__":
     if os.name == "nt":
         # Before https://github.com/microsoft/typespec/issues/4667 fixed, skip running PyRight on Windows
         logging.info("Skip running PyRight on Windows for now")
-    else:
-        run_check("pyright", _single_dir_pyright, "PyRight")
+        sys.exit(0)
+    run_check("pyright", _single_dir_pyright, "PyRight")
