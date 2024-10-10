@@ -14,7 +14,7 @@
       "default": "./dist/src/testing/index.js"
     }
   },
-  "dependencies": {
+  "peerDependencies": {
     "@typespec/compiler": "latest"
   },
   "devDependencies": {
