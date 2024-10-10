@@ -44,11 +44,13 @@ public final class UsageAsyncClient {
      * The input operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     requiredProp: String (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -68,11 +70,13 @@ public final class UsageAsyncClient {
      * The output operation.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     requiredProp: String (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -92,19 +96,23 @@ public final class UsageAsyncClient {
      * The inputAndOutput operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     requiredProp: String (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     requiredProp: String (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param body The body parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

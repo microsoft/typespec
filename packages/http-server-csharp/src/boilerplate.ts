@@ -2,7 +2,7 @@ import { AssetEmitter } from "@typespec/compiler/emitter-framework";
 import { LibrarySourceFile } from "./interfaces.js";
 
 export function getSerializationSourceFiles(
-  emitter: AssetEmitter<string, Record<string, never>>
+  emitter: AssetEmitter<string, Record<string, never>>,
 ): LibrarySourceFile[] {
   const sourceFiles: LibrarySourceFile[] = [];
   sourceFiles.push(
@@ -50,7 +50,7 @@ export function getSerializationSourceFiles(
       filename: "NumericArrayConstraintAttribute.cs",
       emitter: emitter,
       getContents: getNumericArrayConstraintConverter,
-    })
+    }),
   );
   return sourceFiles;
 }

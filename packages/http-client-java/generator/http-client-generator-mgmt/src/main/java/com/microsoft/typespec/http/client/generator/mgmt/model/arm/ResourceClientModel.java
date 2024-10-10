@@ -3,12 +3,11 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.model.arm;
 
-import com.microsoft.typespec.http.client.generator.mgmt.model.ResourceTypeName;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
-
+import com.microsoft.typespec.http.client.generator.mgmt.model.ResourceTypeName;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
@@ -19,78 +18,70 @@ public class ResourceClientModel {
 
     }
 
-    private static final ClientModel MODEL_SUB_RESOURCE = new ClientModel.Builder()
-            .name(ResourceTypeName.SUB_RESOURCE)
-            .packageName("com.azure.core.management")
-            .properties(Collections.singletonList(
-                    new ClientModelProperty.Builder()
-                            .name(ResourceTypeName.FIELD_ID)
-                            .serializedName(ResourceTypeName.FIELD_ID)
-                            .description("Fully qualified resource Id for the resource.")
-                            .wireType(ClassType.STRING)
-                            .clientType(ClassType.STRING)
-                            .build()
-            ))
-            .build();
-    private static final ClientModel MODEL_PROXY_RESOURCE = new ClientModel.Builder()
-            .name(ResourceTypeName.PROXY_RESOURCE)
+    private static final ClientModel MODEL_SUB_RESOURCE = new ClientModel.Builder().name(ResourceTypeName.SUB_RESOURCE)
+        .packageName("com.azure.core.management")
+        .properties(Collections.singletonList(new ClientModelProperty.Builder().name(ResourceTypeName.FIELD_ID)
+            .serializedName(ResourceTypeName.FIELD_ID)
+            .description("Fully qualified resource Id for the resource.")
+            .wireType(ClassType.STRING)
+            .clientType(ClassType.STRING)
+            .build()))
+        .build();
+    private static final ClientModel MODEL_PROXY_RESOURCE
+        = new ClientModel.Builder().name(ResourceTypeName.PROXY_RESOURCE)
             .packageName("com.azure.core.management")
             .properties(Arrays.asList(
-                    new ClientModelProperty.Builder()
-                            .name(ResourceTypeName.FIELD_ID)
-                            .serializedName(ResourceTypeName.FIELD_ID)
-                            .description("Fully qualified resource Id for the resource.")
-                            .required(true)
-                            .readOnly(true)
-                            .wireType(ClassType.STRING)
-                            .clientType(ClassType.STRING)
-                            .build(),
-                    new ClientModelProperty.Builder()
-                            .name(ResourceTypeName.FIELD_NAME)
-                            .serializedName(ResourceTypeName.FIELD_NAME)
-                            .description("The name of the resource.")
-                            .required(true)
-                            .readOnly(true)
-                            .wireType(ClassType.STRING)
-                            .clientType(ClassType.STRING)
-                            .build(),
-                    new ClientModelProperty.Builder()
-                            .name(ResourceTypeName.FIELD_TYPE)
-                            .serializedName(ResourceTypeName.FIELD_TYPE)
-                            .description("The type of the resource.")
-                            .required(true)
-                            .readOnly(true)
-                            .wireType(ClassType.STRING)
-                            .clientType(ClassType.STRING)
-                            .build()
-            ))
+                new ClientModelProperty.Builder().name(ResourceTypeName.FIELD_ID)
+                    .serializedName(ResourceTypeName.FIELD_ID)
+                    .description("Fully qualified resource Id for the resource.")
+                    .required(true)
+                    .readOnly(true)
+                    .wireType(ClassType.STRING)
+                    .clientType(ClassType.STRING)
+                    .build(),
+                new ClientModelProperty.Builder().name(ResourceTypeName.FIELD_NAME)
+                    .serializedName(ResourceTypeName.FIELD_NAME)
+                    .description("The name of the resource.")
+                    .required(true)
+                    .readOnly(true)
+                    .wireType(ClassType.STRING)
+                    .clientType(ClassType.STRING)
+                    .build(),
+                new ClientModelProperty.Builder().name(ResourceTypeName.FIELD_TYPE)
+                    .serializedName(ResourceTypeName.FIELD_TYPE)
+                    .description("The type of the resource.")
+                    .required(true)
+                    .readOnly(true)
+                    .wireType(ClassType.STRING)
+                    .clientType(ClassType.STRING)
+                    .build()))
             .build();
 
-    private static final ClientModel MODEL_RESOURCE = new ClientModel.Builder()
-            .name(ResourceTypeName.RESOURCE)
+    private static final ClientModel MODEL_RESOURCE
+        = new ClientModel.Builder().name(ResourceTypeName.RESOURCE)
             .packageName("com.azure.core.management")
             .parentModelName(ResourceTypeName.PROXY_RESOURCE)
-            .properties(Arrays.asList(
-                    new ClientModelProperty.Builder()
-                            .name(ResourceTypeName.FIELD_LOCATION)
+            .properties(
+                Arrays
+                    .asList(
+                        new ClientModelProperty.Builder().name(ResourceTypeName.FIELD_LOCATION)
                             .serializedName(ResourceTypeName.FIELD_LOCATION)
                             .description("The geo-location where the resource lives.")
                             .required(true)
                             .readOnly(false)
                             .wireType(ClassType.STRING)
                             .clientType(ClassType.STRING)
-                            .mutabilities(Arrays.asList(ClientModelProperty.Mutability.CREATE, ClientModelProperty.Mutability.READ))
+                            .mutabilities(Arrays.asList(ClientModelProperty.Mutability.CREATE,
+                                ClientModelProperty.Mutability.READ))
                             .build(),
-                    new ClientModelProperty.Builder()
-                            .name(ResourceTypeName.FIELD_TAGS)
+                        new ClientModelProperty.Builder().name(ResourceTypeName.FIELD_TAGS)
                             .serializedName(ResourceTypeName.FIELD_TAGS)
                             .description("Resource tags.")
                             .required(false)
                             .readOnly(false)
                             .wireType(new MapType(ClassType.STRING))
                             .clientType(new MapType(ClassType.STRING))
-                            .build()
-            ))
+                            .build()))
             .build();
 
     public static Optional<ClientModel> getResourceClientModel(String modelName) {

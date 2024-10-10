@@ -114,6 +114,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 field: Field)
             {
                 Validation = Validation,
+                _asVariable = AsExpression,
             };
         }
 
@@ -162,7 +163,7 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             if (parameter._asVariable == null)
             {
-                parameter._asVariable = new VariableExpression(parameter.Type, parameter.Name, parameter.IsRef);
+                parameter._asVariable = new VariableExpression(parameter.Type, parameter.Name.ToVariableName(), parameter.IsRef);
             }
 
             return parameter._asVariable;

@@ -64,7 +64,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
                 Assert.IsNotNull(model, "Null ModelProvider found");
                 var method = modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == model!.Name);
                 Assert.IsNotNull(method);
-                foreach (var property in model!.Properties.Where(p => p.Type.IsDictionary))
+                foreach (var property in model!.Properties.Where(p => p.Type.IsDictionary && !p.Name.StartsWith("Additional")))
                 {
                     var parameter = method!.Signature.Parameters.FirstOrDefault(p => p.Name == property.Name.ToVariableName());
                     Assert.IsNotNull(parameter);
@@ -89,10 +89,33 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
                 Assert.IsNotNull(method);
                 foreach (var property in model!.Properties.Where(p => p.Type.IsEnum))
                 {
+                    // enum discriminator properties are not included in the factory method
                     var parameter = method!.Signature.Parameters.FirstOrDefault(p => p.Name == property.Name.ToVariableName());
+                    Assert.IsNull(parameter);
+                }
+            }
+        }
+
+        [Test]
+        public void AdditionalPropertiesParamShape()
+        {
+            var modelFactory = ModelFactoryProvider.FromInputLibrary();
+            var models = ModelList.Select(CodeModelPlugin.Instance.TypeFactory.CreateModel);
+            foreach (var model in models)
+            {
+                if (!model!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
+                    continue; //skip internal models
+
+                Assert.IsNotNull(model, "Null ModelProvider found");
+                var method = modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == model!.Name);
+                Assert.IsNotNull(method);
+                foreach (var _ in model!.Properties.Where(p => p.Type.IsDictionary && p.Name.StartsWith("Additional")))
+                {
+                    var parameter = method!.Signature.Parameters.FirstOrDefault(p => p.Name == "additionalProperties");
                     Assert.IsNotNull(parameter);
                     Assert.IsTrue(parameter!.Type.IsFrameworkType);
-                    Assert.AreEqual(typeof(int), parameter!.Type.FrameworkType);
+                    Assert.AreEqual(typeof(IDictionary<,>), parameter!.Type.FrameworkType);
+                    Assert.IsTrue(parameter.Type.ContainsBinaryData);
                 }
             }
         }
@@ -106,6 +129,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
 
         private static InputModelType[] GetTestModels()
         {
+            InputType additionalPropertiesUnknown = InputPrimitiveType.Any;
             InputModelProperty[] properties =
             [
                 InputFactory.Property("StringProp", InputPrimitiveType.String),
@@ -127,6 +151,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
                 InputFactory.Model("PublicModel2", properties: properties),
                 derivedModel,
                 InputFactory.Model("BaseModel", properties: properties, derivedModels: [derivedModel]),
+                InputFactory.Model("ModelWithUnknownAdditionalProperties", properties: properties, additionalProperties: additionalPropertiesUnknown),
             ];
         }
     }

@@ -7,6 +7,7 @@ import type {
   MarshalledValue,
   NumericValue,
   ObjectValue,
+  Scalar,
   Type,
   Value,
 } from "./types.js";
@@ -20,7 +21,7 @@ import type {
  */
 export function legacyMarshallTypeForJS(
   checker: Checker,
-  value: Value
+  value: Value,
 ): Type | Value | Record<string, unknown> | unknown[] | string | number | boolean {
   switch (value.valueKind) {
     case "BooleanValue":
@@ -43,7 +44,7 @@ export function legacyMarshallTypeForJS(
 
 export function marshallTypeForJS<T extends Value>(
   value: T,
-  valueConstraint: Type | undefined
+  valueConstraint: Type | undefined,
 ): MarshalledValue<T> {
   switch (value.valueKind) {
     case "BooleanValue":
@@ -64,11 +65,27 @@ export function marshallTypeForJS<T extends Value>(
   }
 }
 
+function isNumericScalar(scalar: Scalar) {
+  let current: Scalar | undefined = scalar;
+
+  while (current) {
+    if (current.name === "numeric" && current.namespace?.name === "TypeSpec") {
+      return true;
+    }
+    current = current.baseScalar;
+  }
+  return false;
+}
+
 export function canNumericConstraintBeJsNumber(type: Type | undefined): boolean {
   if (type === undefined) return true;
   switch (type.kind) {
     case "Scalar":
-      return numericRanges[type.name as keyof typeof numericRanges]?.[2].isJsNumber;
+      if (isNumericScalar(type)) {
+        return numericRanges[type.name as keyof typeof numericRanges]?.[2].isJsNumber;
+      } else {
+        return true;
+      }
     case "Union":
       return [...type.variants.values()].every((x) => canNumericConstraintBeJsNumber(x.type));
     default:
@@ -82,7 +99,7 @@ function numericValueToJs(type: NumericValue, valueConstraint: Type | undefined)
     const asNumber = type.value.asNumber();
     compilerAssert(
       asNumber !== null,
-      `Numeric value '${type.value.toString()}' is not a able to convert to a number without loosing precision.`
+      `Numeric value '${type.value.toString()}' is not a able to convert to a number without loosing precision.`,
     );
     return asNumber;
   }

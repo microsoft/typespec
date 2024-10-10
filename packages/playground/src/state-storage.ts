@@ -29,7 +29,7 @@ export interface UrlStorageItem {
  * @returns
  */
 export function createUrlStateStorage<const T extends object>(
-  schema: UrlStorageSchema<T>
+  schema: UrlStorageSchema<T>,
 ): UrlStateStorage<T> {
   return { load, save, resolveSearchParams };
 
@@ -55,7 +55,7 @@ export function createUrlStateStorage<const T extends object>(
         // eslint-disable-next-line no-console
         console.error(
           `Error decompressing query parameter ${item.queryParam} with content:`,
-          value
+          value,
         );
         return undefined;
       }
@@ -72,7 +72,7 @@ export function createUrlStateStorage<const T extends object>(
         // eslint-disable-next-line no-console
         console.error(
           `Error decompressing query parameter ${item.queryParam} with content:`,
-          value
+          value,
         );
         return undefined;
       }

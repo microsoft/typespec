@@ -8,7 +8,6 @@ package com.specialwords.generated;
 // If you wish to modify these files, please copy them out of the 'generated' package, and modify there.
 // See https://aka.ms/azsdk/dpg/java/tests for guide on adding a test.
 
-import com.azure.core.http.HttpClient;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.test.TestMode;
@@ -33,44 +32,36 @@ class SpecialWordsClientTestBase extends TestProxyTestBase {
     protected void beforeTest() {
         SpecialWordsClientBuilder modelsClientbuilder = new SpecialWordsClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            modelsClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             modelsClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         modelsClient = modelsClientbuilder.buildModelsClient();
 
         SpecialWordsClientBuilder modelPropertiesClientbuilder = new SpecialWordsClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            modelPropertiesClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             modelPropertiesClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         modelPropertiesClient = modelPropertiesClientbuilder.buildModelPropertiesClient();
 
         SpecialWordsClientBuilder operationsClientbuilder = new SpecialWordsClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            operationsClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             operationsClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         operationsClient = operationsClientbuilder.buildOperationsClient();
 
         SpecialWordsClientBuilder parametersClientbuilder = new SpecialWordsClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            parametersClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             parametersClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         parametersClient = parametersClientbuilder.buildParametersClient();

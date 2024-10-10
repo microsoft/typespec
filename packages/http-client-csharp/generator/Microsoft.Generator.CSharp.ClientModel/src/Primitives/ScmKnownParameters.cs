@@ -30,8 +30,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Primitives
         public static readonly ParameterProvider Data = new("data", FormattableStringHelpers.Empty, typeof(BinaryData));
         public static ParameterProvider ClientOptions(CSharpType clientOptionsType)
             => new("options", $"The options for configuring the client.", clientOptionsType.WithNullable(true), initializationValue: New.Instance(clientOptionsType.WithNullable(true)));
-        public static readonly ParameterProvider TokenAuth = new("tokenCredential", $"The token credential to copy", ClientModelPlugin.Instance.TypeFactory.TokenCredentialType());
-        public static readonly ParameterProvider MatchConditionsParameter = new("matchConditions", $"The content to send as the request conditions of the request.", ClientModelPlugin.Instance.TypeFactory.MatchConditionsType(), DefaultOf(ClientModelPlugin.Instance.TypeFactory.MatchConditionsType()));
+        public static readonly ParameterProvider KeyAuth = new("keyCredential", $"The token credential to copy", ClientModelPlugin.Instance.TypeFactory.KeyCredentialType);
+        public static readonly ParameterProvider MatchConditionsParameter = new("matchConditions", $"The content to send as the request conditions of the request.", ClientModelPlugin.Instance.TypeFactory.MatchConditionsType, DefaultOf(ClientModelPlugin.Instance.TypeFactory.MatchConditionsType));
         public static readonly ParameterProvider RequestOptions = new("options", $"The request options, which can override default behaviors of the client pipeline on a per-call basis.", typeof(RequestOptions));
         public static readonly ParameterProvider BinaryContent = new("content", $"The content to send as the body of the request.", typeof(BinaryContent), location: ParameterLocation.Body) { Validation = ParameterValidationType.AssertNotNull };
 
@@ -44,5 +44,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Primitives
         {
             DefaultValue = Static(typeof(DateTimeOffset)).Property(nameof(DateTimeOffset.Now))
         };
+
+        public static readonly ParameterProvider ContentType = new("contentType", $"The contentType to use which has the multipart/form-data boundary.", typeof(string));
     }
 }

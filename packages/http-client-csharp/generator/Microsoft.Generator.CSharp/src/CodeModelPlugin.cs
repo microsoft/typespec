@@ -21,7 +21,8 @@ namespace Microsoft.Generator.CSharp
     [ExportMetadata("PluginName", nameof(CodeModelPlugin))]
     public abstract class CodeModelPlugin
     {
-        private List<LibraryVisitor> _visitors = new();
+        private List<LibraryVisitor> _visitors = [];
+        private List<MetadataReference> _additionalMetadataReferences = [];
         private static CodeModelPlugin? _instance;
         internal static CodeModelPlugin Instance
         {
@@ -37,7 +38,7 @@ namespace Microsoft.Generator.CSharp
 
         public Configuration Configuration { get; }
 
-        public virtual IReadOnlyList<LibraryVisitor> Visitors => _visitors;
+        public IReadOnlyList<LibraryVisitor> Visitors => _visitors;
 
         [ImportingConstructor]
         public CodeModelPlugin(GeneratorContext context)
@@ -64,22 +65,35 @@ namespace Microsoft.Generator.CSharp
         public virtual OutputLibrary OutputLibrary { get; } = new();
         public virtual InputLibrary InputLibrary => _inputLibrary.Value;
         public virtual TypeProviderWriter GetWriter(TypeProvider provider) => new(provider);
-        public virtual IReadOnlyList<MetadataReference> AdditionalMetadataReferences => [];
+        public IReadOnlyList<MetadataReference> AdditionalMetadataReferences => _additionalMetadataReferences;
 
         public virtual void Configure()
         {
         }
 
-        public virtual void AddVisitor(LibraryVisitor visitor)
+        public void AddVisitor(LibraryVisitor visitor)
         {
             _visitors.Add(visitor);
+        }
+
+        public void AddMetadataReference(MetadataReference reference)
+        {
+            _additionalMetadataReferences.Add(reference);
         }
 
         private SourceInputModel? _sourceInputModel;
         internal async Task InitializeSourceInputModelAsync()
         {
-            GeneratedCodeWorkspace existingCode = GeneratedCodeWorkspace.CreateExistingCodeProject(Instance.Configuration.ProjectDirectory, Instance.Configuration.ProjectGeneratedDirectory);
+            GeneratedCodeWorkspace existingCode = GeneratedCodeWorkspace.CreateExistingCodeProject([Instance.Configuration.ProjectDirectory], Instance.Configuration.ProjectGeneratedDirectory);
             _sourceInputModel =  new SourceInputModel(await existingCode.GetCompilationAsync());
+        }
+
+        internal HashSet<string> TypesToKeep { get; } = new();
+        //TODO consider using TypeProvider so we can have a fully qualified name to filter on
+        //https://github.com/microsoft/typespec/issues/4418
+        public void AddTypeToKeep(string typeName)
+        {
+            TypesToKeep.Add(typeName);
         }
     }
 }

@@ -110,7 +110,7 @@ export async function $onEmit(context: EmitContext<JsEmitterOptions>) {
       jsCtx,
       context.emitterOutputDir,
       rootModule,
-      !context.options["no-format"]
+      !context.options["no-format"],
     );
   }
 }

@@ -4,7 +4,7 @@ title: "[F] getEncode"
 
 ---
 ```ts
-function getEncode(program, target): EncodeData | undefined
+function getEncode(program, type): undefined | EncodeData
 ```
 
 ## Parameters
@@ -12,8 +12,8 @@ function getEncode(program, target): EncodeData | undefined
 | Parameter | Type |
 | ------ | ------ |
 | `program` | [`Program`](../interfaces/Program.md) |
-| `target` | [`ModelProperty`](../interfaces/ModelProperty.md) \| [`Scalar`](../interfaces/Scalar.md) |
+| `type` | [`ModelProperty`](../interfaces/ModelProperty.md) \| [`Scalar`](../interfaces/Scalar.md) |
 
 ## Returns
 
-[`EncodeData`](../interfaces/EncodeData.md) \| `undefined`
+`undefined` \| [`EncodeData`](../interfaces/EncodeData.md)

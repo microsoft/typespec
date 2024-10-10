@@ -35,7 +35,7 @@ export function* cat<T>(...iterables: Iterable<T>[]): Iterable<T> {
 
 export function categorize<T, K extends string>(
   values: Iterable<T>,
-  categorize: (o: T) => K
+  categorize: (o: T) => K,
 ): Partial<Record<K, T[]>> {
   const result: Record<K, T[]> = {} as any;
 

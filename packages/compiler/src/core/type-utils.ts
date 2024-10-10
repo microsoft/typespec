@@ -91,7 +91,7 @@ export function getParentTemplateNode(node: Node): (Node & TemplateDeclarationNo
  * Check the given type is a finished template instance.
  */
 export function isTemplateInstance(
-  type: Type
+  type: Type,
 ): type is TemplatedType & { templateArguments: Type[]; templateMapper: TypeMapper } {
   const maybeTemplateType = type as TemplatedType;
   return (
@@ -120,7 +120,7 @@ export function isDeclaredType(type: Type): boolean {
  * Resolve if the type is a template type declaration(Non initialized template type).
  */
 export function isTemplateDeclaration(
-  type: TemplatedType
+  type: TemplatedType,
 ): type is TemplatedType & { node: TemplateDeclarationNode } {
   if (type.node === undefined) {
     return false;
@@ -152,7 +152,7 @@ export function isTemplateDeclarationOrInstance(type: TemplatedType): boolean {
  */
 export function isGlobalNamespace(
   program: Program,
-  namespace: Namespace
+  namespace: Namespace,
 ): namespace is Namespace & { name: ""; namespace: undefined } {
   return program.getGlobalNamespaceType() === namespace;
 }
@@ -166,7 +166,7 @@ export function isGlobalNamespace(
 export function isDeclaredInNamespace(
   type: Model | Operation | Interface | Namespace | Enum,
   namespace: Namespace,
-  options: { recursive?: boolean } = { recursive: true }
+  options: { recursive?: boolean } = { recursive: true },
 ) {
   let candidateNs = type.namespace;
   while (candidateNs) {
@@ -189,7 +189,7 @@ export function isDeclaredInNamespace(
 
 export function getFullyQualifiedSymbolName(
   sym: Sym | undefined,
-  options?: { useGlobalPrefixAtTopLevel?: boolean }
+  options?: { useGlobalPrefixAtTopLevel?: boolean },
 ): string {
   if (!sym) return "";
   if (sym.symbolSource) sym = sym.symbolSource;

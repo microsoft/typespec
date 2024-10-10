@@ -37,14 +37,14 @@ function sanitizeTabsChildren(children: ReactNode) {
       throw new Error(
         `Docusaurus error: Bad <WindowCarousel> child <${
           typeof child.type === "string" ? child.type : child.type.name
-        }>: all children of the <WindowCarousel> component should be <WindowCarouselItem>, and every <WindowCarouselItem> should have a unique "value" prop.`
+        }>: all children of the <WindowCarousel> component should be <WindowCarouselItem>, and every <WindowCarouselItem> should have a unique "value" prop.`,
       );
     })
     ?.filter(Boolean) ?? []) as ReactElement<WindowCarouselItemProps>[];
 }
 
 function isCarouselItem(
-  comp: ReactElement<unknown>
+  comp: ReactElement<unknown>,
 ): comp is ReactElement<WindowCarouselItemProps> {
   const { props } = comp;
   return !!props && typeof props === "object" && "value" in props;

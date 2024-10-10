@@ -14,6 +14,7 @@ import {
   TestHost,
   createTestHost,
   createTestWrapper,
+  expectDiagnosticEmpty,
   expectDiagnostics,
 } from "../../src/testing/index.js";
 import { mutate } from "../../src/utils/misc.js";
@@ -139,20 +140,6 @@ describe("compiler: checker: decorators", () => {
         code: "missing-implementation",
         message: "Extern declaration must have an implementation in JS file.",
       });
-    });
-
-    describe("emit deprecated warning if decorator is expecting valueof", () => {
-      it.each(["numeric", "int64", "uint64", "integer", "float", "decimal", "decimal128", "null"])(
-        "%s",
-        async (type) => {
-          const diagnostics = await runner.diagnose(`
-          extern dec testDec(target: unknown, value: valueof ${type});
-        `);
-          expectDiagnostics(diagnostics, {
-            code: "deprecated",
-          });
-        }
-      );
     });
   });
 
@@ -364,9 +351,8 @@ describe("compiler: checker: decorators", () => {
       async function testCallDecorator(
         type: string,
         value: string,
-        suppress?: boolean
+        suppress?: boolean,
       ): Promise<any> {
-        mutate($flags).decoratorArgMarshalling = "new";
         await runner.compile(`
           extern dec testDec(target: unknown, arg1: ${type});
           
@@ -394,7 +380,7 @@ describe("compiler: checker: decorators", () => {
         it("`: valueof string` cast the value to a JS string", async () => {
           const arg = await testCallDecorator(
             "valueof string",
-            '"Start ${"one"} middle ${"two"} end"'
+            '"Start ${"one"} middle ${"two"} end"',
           );
           strictEqual(arg, "Start one middle two end");
         });
@@ -447,7 +433,7 @@ describe("compiler: checker: decorators", () => {
             } else {
               deepStrictEqual(arg, Numeric("123"));
             }
-          }
+          },
         );
       });
 
@@ -474,7 +460,7 @@ describe("compiler: checker: decorators", () => {
         it("valueof model cast the value recursively to a JS object", async () => {
           const arg = await testCallDecorator(
             "valueof {name: unknown}",
-            `#{name: #{other: "foo"}}`
+            `#{name: #{other: "foo"}}`,
           );
           deepStrictEqual(arg, { name: { other: "foo" } });
         });
@@ -505,7 +491,7 @@ describe("compiler: checker: decorators", () => {
             const arg = await testCallDecorator(
               "valueof {name: unknown}",
               `{name: {other: "foo"}}`,
-              true
+              true,
             );
             deepStrictEqual(arg, { name: { other: "foo" } });
           });
@@ -529,12 +515,11 @@ describe("compiler: checker: decorators", () => {
       async function testCallDecorator(
         type: string,
         value: string,
-        suppress?: boolean
+        suppress?: boolean,
       ): Promise<any> {
         // Default so shouldn't be needed
-        // mutate($flags).decoratorArgMarshalling = "legacy";
-        await runner.compile(`
-          #suppress "deprecated" "for testing"
+        mutate($flags).decoratorArgMarshalling = "legacy";
+        const diagnostics = await runner.diagnose(`
           extern dec testDec(target: unknown, arg1: ${type});
           
           ${suppress ? `#suppress "deprecated" "for testing"` : ""}
@@ -542,6 +527,7 @@ describe("compiler: checker: decorators", () => {
           @test
           model Foo {}
         `);
+        expectDiagnosticEmpty(diagnostics.filter((x) => x.code !== "deprecated"));
         return calledArgs![2];
       }
 
@@ -561,7 +547,7 @@ describe("compiler: checker: decorators", () => {
         it("`: valueof string` cast the value to a JS string", async () => {
           const arg = await testCallDecorator(
             "valueof string",
-            '"Start ${"one"} middle ${"two"} end"'
+            '"Start ${"one"} middle ${"two"} end"',
           );
           strictEqual(arg, "Start one middle two end");
         });
@@ -610,7 +596,7 @@ describe("compiler: checker: decorators", () => {
           async (type, expectedKind, cstr) => {
             const arg = await testCallDecorator(`valueof ${type}`, cstr ?? `123`);
             strictEqual(arg, 123);
-          }
+          },
         );
       });
 
@@ -637,7 +623,7 @@ describe("compiler: checker: decorators", () => {
         it("valueof model cast the value recursively to a JS object", async () => {
           const arg = await testCallDecorator(
             "valueof {name: unknown}",
-            `#{name: #{other: "foo"}}`
+            `#{name: #{other: "foo"}}`,
           );
           deepStrictEqual(arg, { name: { other: "foo" } });
         });
@@ -672,7 +658,7 @@ describe("compiler: checker: decorators", () => {
       model foo { };
       @foo()
       model MyFoo { };
-      `
+      `,
     );
 
     await testHost.compile("test.tsp");
@@ -692,7 +678,7 @@ describe("compiler: checker: decorators", () => {
       model foo { }
       @foo(foo)
       model Bar { }
-      `
+      `,
     );
 
     await testHost.diagnose("test.tsp");
@@ -719,7 +705,7 @@ describe("compiler: checker: decorators", () => {
       @isBlue
       @blue
       model Foo { };
-      `
+      `,
     );
 
     await testHost.diagnose("test.tsp");

@@ -93,7 +93,7 @@ export type EqualityComparer<T> = (x: T, y: T) => boolean;
 export function arrayEquals<T>(
   left: T[],
   right: T[],
-  equals: EqualityComparer<T> = (x, y) => x === y
+  equals: EqualityComparer<T> = (x, y) => x === y,
 ): boolean {
   if (left === right) {
     return true;
@@ -119,7 +119,7 @@ export function arrayEquals<T>(
 export function mapEquals<K, V>(
   left: Map<K, V>,
   right: Map<K, V>,
-  equals: EqualityComparer<V> = (x, y) => x === y
+  equals: EqualityComparer<V> = (x, y) => x === y,
 ): boolean {
   if (left === right) {
     return true;
@@ -157,7 +157,7 @@ export async function doIO<T>(
   action: (path: string) => Promise<T>,
   path: string,
   reportDiagnostic: DiagnosticHandler,
-  options?: FileHandlingOptions
+  options?: FileHandlingOptions,
 ): Promise<T | undefined> {
   let result;
   try {
@@ -199,7 +199,7 @@ export async function loadFile<T>(
   path: string,
   load: (contents: string) => T,
   reportDiagnostic: DiagnosticHandler,
-  options?: FileHandlingOptions
+  options?: FileHandlingOptions,
 ): Promise<[T | undefined, SourceFile]> {
   const file = await doIO(host.readFile, path, reportDiagnostic, options);
   if (!file) {
@@ -244,8 +244,7 @@ export function resolveRelativeUrlOrPath(base: string, relativeOrAbsolute: strin
  * A specially typed version of `Array.isArray` to work around [this issue](https://github.com/microsoft/TypeScript/issues/17002).
  */
 export function isArray<T>(
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  arg: T | {}
+  arg: T | {},
 ): arg is T extends readonly any[] ? (unknown extends T ? never : readonly any[]) : any[] {
   return Array.isArray(arg);
 }
@@ -271,7 +270,7 @@ export function omitUndefined<T extends Record<string, unknown>>(data: T): T {
  */
 export async function findProjectRoot(
   statFn: CompilerHost["stat"],
-  path: string
+  path: string,
 ): Promise<string | undefined> {
   let current = path;
   while (true) {
@@ -279,7 +278,7 @@ export async function findProjectRoot(
     const stat = await doIO(
       () => statFn(pkgPath),
       pkgPath,
-      () => {}
+      () => {},
     );
     if (stat?.isFile()) {
       return current;

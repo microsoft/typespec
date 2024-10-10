@@ -18,7 +18,7 @@ export function scopeChain<T>(scope: Scope<T> | null) {
  */
 export function resolveDeclarationReferenceScope<T>(
   target: Declaration<T>,
-  currentScope: Scope<T>
+  currentScope: Scope<T>,
 ) {
   const targetScope = target.scope;
   const targetChain = scopeChain(targetScope);

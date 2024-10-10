@@ -29,6 +29,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Dictionary.InnerModel.property"
     },
@@ -55,6 +56,7 @@
      "optional": true,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Dictionary.InnerModel.children"
     }
@@ -1756,7 +1758,7 @@
         },
         "valueType": {
          "$id": "191",
-         "kind": "any",
+         "kind": "unknown",
          "name": "unknown",
          "crossLanguageDefinitionId": "",
          "decorators": []
@@ -1834,7 +1836,7 @@
         },
         "valueType": {
          "$id": "199",
-         "kind": "any",
+         "kind": "unknown",
          "name": "unknown",
          "crossLanguageDefinitionId": "",
          "decorators": []

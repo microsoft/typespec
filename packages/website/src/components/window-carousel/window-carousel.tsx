@@ -19,7 +19,7 @@ export const WindowCarousel = ({ defaultValue, children }: WindowCarouselProps) 
     (_, data) => {
       setValue(data.value);
     },
-    [setValue]
+    [setValue],
   );
   return (
     <div>

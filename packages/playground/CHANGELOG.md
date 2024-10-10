@@ -1,5 +1,28 @@
 # Change Log - @typespec/playground
 
+## 0.5.0
+
+### Bug Fixes
+
+- [#4606](https://github.com/microsoft/typespec/pull/4606) Do not treat path as relative internally
+
+### Bump dependencies
+
+- [#4424](https://github.com/microsoft/typespec/pull/4424) Bump dependencies
+
+### Features
+
+- [#4538](https://github.com/microsoft/typespec/pull/4538) Upgrade to latest monaco-editor
+
+
+## 0.4.2
+
+### Bug Fixes
+
+- [#4276](https://github.com/microsoft/typespec/pull/4276) Accessibility, increase footer contrast
+- [#4081](https://github.com/microsoft/typespec/pull/4081) Fix: Reloading the playground will not register the typespec language server
+
+
 ## 0.4.1
 
 ### Bump dependencies

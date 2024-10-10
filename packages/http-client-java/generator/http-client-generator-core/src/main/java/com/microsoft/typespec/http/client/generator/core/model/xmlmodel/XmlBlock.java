@@ -4,7 +4,6 @@
 package com.microsoft.typespec.http.client.generator.core.model.xmlmodel;
 
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
-
 import java.util.function.Consumer;
 
 public class XmlBlock {
@@ -47,10 +46,12 @@ public class XmlBlock {
     }
 
     public final void tagWithInlineComment(String tag, String value, String comment) {
-        contents.line("<%1$s>%2$s</%1$s> <!-- %3$s -->", tag, CodeNamer.escapeXmlComment(value), CodeNamer.escapeXmlComment(comment));
+        String escapedValue = CodeNamer.escapeXmlComment(value);
+        String escapedComment = CodeNamer.escapeXmlComment(comment);
+        contents.line("<" + tag + ">" + escapedValue + "</" + tag + "> <!-- " + escapedComment + " -->");
     }
 
     public final void tagCData(String tag, String value) {
-        contents.line("<%1$s><![CDATA[%2$s]]></%1$s>", tag, value);
+        contents.line("<" + tag + "><![CDATA[" + value + "]]></" + tag + ">");
     }
 }

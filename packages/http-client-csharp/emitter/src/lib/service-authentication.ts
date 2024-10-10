@@ -12,7 +12,7 @@ import { InputAuth } from "../type/input-auth.js";
 import { Logger } from "./logger.js";
 
 export function processServiceAuthentication(
-  sdkPackage: SdkPackage<SdkHttpOperation>
+  sdkPackage: SdkPackage<SdkHttpOperation>,
 ): InputAuth | undefined {
   let authClientParameter: SdkCredentialParameter | undefined = undefined;
   for (const client of sdkPackage.clients) {
@@ -31,9 +31,8 @@ export function processServiceAuthentication(
     return processAuthType(authClientParameter.type);
   }
   const inputAuth: InputAuth = {};
-  for (const authType of authClientParameter.type.values) {
-    // TODO: TCGC might change to []SdkCredentialType
-    const auth = processAuthType(authType as SdkCredentialType);
+  for (const authType of authClientParameter.type.variantTypes) {
+    const auth = processAuthType(authType);
     if (auth?.ApiKey) {
       inputAuth.ApiKey = auth.ApiKey;
     }
@@ -57,7 +56,7 @@ function processAuthType(credentialType: SdkCredentialType): InputAuth | undefin
         switch (schemeOrApiKeyPrefix) {
           case "basic":
             Logger.getInstance().warn(
-              `${schemeOrApiKeyPrefix} auth method is currently not supported.`
+              `${schemeOrApiKeyPrefix} auth method is currently not supported.`,
             );
             return undefined;
           case "bearer":

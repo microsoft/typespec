@@ -139,7 +139,9 @@ namespace Microsoft.Generator.CSharp.Primitives
             : this(
                   implementation.Name,
                   providerNamespace,
-                  implementation is EnumProvider || implementation.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct),
+                  implementation is EnumProvider ||
+                  implementation.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct) ||
+                  implementation.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Enum),
                   false,
                   implementation.DeclaringTypeProvider?.Type,
                   arguments,
@@ -456,8 +458,37 @@ namespace Microsoft.Generator.CSharp.Primitives
             return obj is CSharpType csType && Equals(csType, ignoreNullable: false);
         }
 
-        public bool Equals(Type type) =>
-            IsFrameworkType && (type.IsGenericType ? type.GetGenericTypeDefinition() == FrameworkType && AreArgumentsEqual(type.GetGenericArguments()) : type == FrameworkType);
+        public bool Equals(Type type)
+        {
+            if (IsFrameworkType)
+            {
+                return type.IsGenericType
+                    ? type.GetGenericTypeDefinition() == FrameworkType && AreArgumentsEqual(type.GetGenericArguments())
+                    : type == FrameworkType;
+            }
+
+            return Name == type.Name && Namespace == type.Namespace && IsValueType == type.IsValueType && AreArgumentsEqual(Arguments, type.GetGenericArguments())
+                && IsEnum == type.IsEnum && IsStruct == type.IsValueType && IsPublic == type.IsPublic
+                && ((type.IsEnum && _underlyingType! == type.GetEnumUnderlyingType()) || !type.IsEnum);
+        }
+
+        private static bool AreArgumentsEqual(IReadOnlyList<CSharpType> arguments, IReadOnlyList<Type> genericArguments)
+        {
+            if (arguments.Count != genericArguments.Count)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < arguments.Count; i++)
+            {
+                if (!arguments[i].Equals(genericArguments[i]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public sealed override int GetHashCode()

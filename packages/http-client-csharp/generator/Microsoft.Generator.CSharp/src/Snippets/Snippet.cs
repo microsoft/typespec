@@ -24,6 +24,7 @@ namespace Microsoft.Generator.CSharp.Snippets
 
         public static DictionaryExpression AsDictionary(this FieldProvider field, CSharpType keyType, CSharpType valueType) => new(new KeyValuePairType(keyType, valueType), field);
         public static DictionaryExpression AsDictionary(this ParameterProvider parameter, CSharpType keyType, CSharpType valueType) => new(new KeyValuePairType(keyType, valueType), parameter);
+        public static DictionaryExpression AsDictionary(this PropertyProvider property, CSharpType keyType, CSharpType valueType) => new(new KeyValuePairType(keyType, valueType), property);
 
         public static TypeOfExpression TypeOf(CSharpType type) => new TypeOfExpression(type);
 
@@ -72,6 +73,10 @@ namespace Microsoft.Generator.CSharp.Snippets
 
         public static ValueExpression Literal(object? value) => new LiteralExpression(value);
 
+        public static ScopedApi<char> Literal(char value) => new LiteralExpression(value).As<char>();
+
+        public static ScopedApi<int> Literal(int value) => new LiteralExpression(value).As<int>();
+
         public static ScopedApi<string> Literal(string? value) => (value is null ? Null : new LiteralExpression(value)).As<string>();
         public static ScopedApi<string> LiteralU8(string value) => new UnaryOperatorExpression("u8", new LiteralExpression(value), true).As<string>();
 
@@ -82,6 +87,8 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static MethodBodyStatement Return(ValueExpression expression) => new KeywordExpression("return", expression).Terminate();
         public static MethodBodyStatement Return() => new KeywordExpression("return", null).Terminate();
         public static MethodBodyStatement Throw(ValueExpression? expression = default) => new KeywordExpression("throw", expression).Terminate();
+
+        public static ValueExpression ByRef(ValueExpression expression) => new KeywordExpression("ref", expression);
 
         public static ValueExpression ArrayEmpty(CSharpType arrayItemType)
             => Static<Array>().Invoke(nameof(Array.Empty), [], [arrayItemType], false);
@@ -107,6 +114,9 @@ namespace Microsoft.Generator.CSharp.Snippets
 
         public static ValueExpression Property(this ParameterProvider parameter, string propertyName, bool nullConditional = false)
             => new MemberExpression(nullConditional ? new NullConditionalExpression(parameter) : parameter, propertyName);
+
+        public static InvokeMethodExpression Invoke(this FieldProvider field, string methodName, IEnumerable<ValueExpression> parameters)
+            => field.Invoke(methodName, parameters, false, false);
 
         public static InvokeMethodExpression Invoke(this FieldProvider field,
             string methodName,

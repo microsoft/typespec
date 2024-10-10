@@ -60,7 +60,7 @@ export function resolvePathAndParameters(
   program: Program,
   operation: Operation,
   overloadBase: HttpOperation | undefined,
-  options: RouteResolutionOptions
+  options: RouteResolutionOptions,
 ): DiagnosticResult<{
   readonly uriTemplate: string;
   path: string;
@@ -68,7 +68,7 @@ export function resolvePathAndParameters(
 }> {
   const diagnostics = createDiagnosticCollector();
   const { uriTemplate, parameters } = diagnostics.pipe(
-    getUriTemplateAndParameters(program, operation, overloadBase, options)
+    getUriTemplateAndParameters(program, operation, overloadBase, options),
   );
 
   const parsedUriTemplate = parseUriTemplate(uriTemplate);
@@ -77,7 +77,7 @@ export function resolvePathAndParameters(
   const paramByName = new Set(
     parameters.parameters
       .filter(({ type }) => type === "path" || type === "query")
-      .map((x) => x.name)
+      .map((x) => x.name),
   );
 
   // Ensure that all of the parameters defined in the route are accounted for in
@@ -90,7 +90,7 @@ export function resolvePathAndParameters(
           code: "missing-uri-param",
           format: { param: routeParam.name },
           target: operation,
-        })
+        }),
       );
     }
   }
@@ -119,7 +119,7 @@ function produceLegacyPathFromUriTemplate(uriTemplate: UriTemplate) {
 
 function collectSegmentsAndOptions(
   program: Program,
-  source: Interface | Namespace | undefined
+  source: Interface | Namespace | undefined,
 ): [string[], RouteOptions] {
   if (source === undefined) return [[], {}];
 
@@ -136,11 +136,11 @@ function getUriTemplateAndParameters(
   program: Program,
   operation: Operation,
   overloadBase: HttpOperation | undefined,
-  options: RouteResolutionOptions
+  options: RouteResolutionOptions,
 ): DiagnosticResult<RouteProducerResult> {
   const [parentSegments, parentOptions] = collectSegmentsAndOptions(
     program,
-    operation.interface ?? operation.namespace
+    operation.interface ?? operation.namespace,
   );
 
   const routeProducer = getRouteProducer(program, operation) ?? DefaultRouteProducer;
@@ -164,7 +164,7 @@ function getUriTemplateAndParameters(
 export function includeInterfaceRoutesInNamespace(
   program: Program,
   target: Namespace,
-  sourceInterface: string
+  sourceInterface: string,
 ) {
   let array = program.stateMap(HttpStateKeys.externalInterfaces).get(target);
   if (array === undefined) {
@@ -180,7 +180,7 @@ export function DefaultRouteProducer(
   operation: Operation,
   parentSegments: string[],
   overloadBase: HttpOperation | undefined,
-  options: RouteOptions
+  options: RouteOptions,
 ): DiagnosticResult<RouteProducerResult> {
   const diagnostics = createDiagnosticCollector();
   const routePath = getRoutePath(program, operation)?.path;
@@ -192,14 +192,14 @@ export function DefaultRouteProducer(
   const parsedUriTemplate = parseUriTemplate(uriTemplate);
 
   const parameters: HttpOperationParameters = diagnostics.pipe(
-    getOperationParameters(program, operation, uriTemplate, overloadBase, options.paramOptions)
+    getOperationParameters(program, operation, uriTemplate, overloadBase, options.paramOptions),
   );
 
   // Pull out path parameters to verify what's in the path string
   const unreferencedPathParamNames = new Map(
     parameters.parameters
       .filter(({ type }) => type === "path" || type === "query")
-      .map((x) => [x.name, x])
+      .map((x) => [x.name, x]),
   );
 
   // Compile the list of all route params that aren't represented in the route
@@ -255,7 +255,7 @@ function escapeUriTemplateParamName(name: string) {
 export function setRouteProducer(
   program: Program,
   operation: Operation,
-  routeProducer: RouteProducer
+  routeProducer: RouteProducer,
 ): void {
   program.stateMap(HttpStateKeys.routeProducer).set(operation, routeProducer);
 }
@@ -300,7 +300,7 @@ export function isSharedRoute(program: Program, operation: Operation): boolean {
 
 export function getRoutePath(
   program: Program,
-  entity: Namespace | Interface | Operation
+  entity: Namespace | Interface | Operation,
 ): RoutePath | undefined {
   const path = program.stateMap(HttpStateKeys.routes).get(entity);
   return path
@@ -314,14 +314,14 @@ export function getRoutePath(
 export function setRouteOptionsForNamespace(
   program: Program,
   namespace: Namespace,
-  options: RouteOptions
+  options: RouteOptions,
 ) {
   program.stateMap(HttpStateKeys.routeOptions).set(namespace, options);
 }
 
 export function getRouteOptionsForNamespace(
   program: Program,
-  namespace: Namespace
+  namespace: Namespace,
 ): RouteOptions | undefined {
   return program.stateMap(HttpStateKeys.routeOptions).get(namespace);
 }

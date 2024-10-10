@@ -21,7 +21,7 @@ describe("Test string format", () => {
       `
             op test(@path sourceUrl: url): void;
       `,
-      runner
+      runner,
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
@@ -41,7 +41,7 @@ describe("Test string format", () => {
 
             op test(@body foo: Foo): void;
       `,
-      runner
+      runner,
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);

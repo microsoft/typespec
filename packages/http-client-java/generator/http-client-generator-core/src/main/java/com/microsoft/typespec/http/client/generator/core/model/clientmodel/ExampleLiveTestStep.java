@@ -3,18 +3,18 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
-public class ExampleLiveTestStep extends LiveTestStep{
+public class ExampleLiveTestStep extends LiveTestStep {
 
     private String operationId;
     private ProxyMethodExample example;
 
-    public static ExampleLiveTestStep.Builder newBuilder(){
+    public static ExampleLiveTestStep.Builder newBuilder() {
         return new ExampleLiveTestStep.Builder();
     }
 
-    public static class Builder extends LiveTestStep.Builder<ExampleLiveTestStep, Builder>{
+    public static class Builder extends LiveTestStep.Builder<ExampleLiveTestStep, Builder> {
 
-        private Builder(){
+        private Builder() {
             super(new ExampleLiveTestStep());
         }
 

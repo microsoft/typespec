@@ -125,8 +125,8 @@ export class VersioningTimeline {
         compilerAssert(
           false,
           `Version "${version?.name}" from ${getTypeName(
-            version.namespace
-          )} should have been resolved. ${this.prettySerialize()}`
+            version.namespace,
+          )} should have been resolved. ${this.prettySerialize()}`,
         );
       }
     }
@@ -177,7 +177,7 @@ export class TimelineMoment {
 
   public constructor(versionMap: Map<Namespace, Version>) {
     this.#versionMap = versionMap;
-    this.name = versionMap.values().next().value ?? "";
+    this.name = versionMap.values().next().value?.name ?? "";
   }
 
   getVersion(namespace: Namespace): Version | undefined {

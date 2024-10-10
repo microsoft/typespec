@@ -1,5 +1,24 @@
 # Change Log - @typespec/openapi
 
+## 0.61.0
+
+### Bug Fixes
+
+- [#4505](https://github.com/microsoft/typespec/pull/4505) `@info` decorator validate no extra properties not starting with `x-` are provided.
+- [#4483](https://github.com/microsoft/typespec/pull/4483) `@info` decorator validate `termsOfService` is a valid url
+
+### Bump dependencies
+
+- [#4424](https://github.com/microsoft/typespec/pull/4424) Bump dependencies
+
+
+## 0.60.0
+
+### Features
+
+- [#4139](https://github.com/microsoft/typespec/pull/4139) Internals: Migrate to new api for declaring decorator implementation
+
+
 ## 0.59.0
 
 ### Bump dependencies

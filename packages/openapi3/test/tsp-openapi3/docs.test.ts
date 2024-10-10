@@ -14,7 +14,7 @@ it("returns single line doc", () => {
 /**
 * Hello, World!
 */
-`.trim()
+`.trim(),
   );
 });
 
@@ -25,7 +25,7 @@ it("returns multi-line doc", () => {
 /**
 * Hello,
 * World!
-*/`.trim()
+*/`.trim(),
   );
 });
 
@@ -36,7 +36,7 @@ it("returns multi-line docs when they contain newline characters", () => {
 /**
 * Hello,
 * World!
-*/`.trim()
+*/`.trim(),
   );
 });
 
@@ -47,7 +47,7 @@ it("does not automatically apply line-wrapping for very long lines", () => {
     `
 /**
 * ${longLine}
-*/`.trim()
+*/`.trim(),
   );
 });
 
@@ -61,7 +61,7 @@ it("handles different newline breaks", () => {
 /**
 * Hello,
 * World!
-*/`.trim()
+*/`.trim(),
     );
   }
 });
@@ -79,6 +79,6 @@ it("supports multi-line with decorator", () => {
 @doc("""
 Hello,
 @World!
-""")`.trim()
+""")`.trim(),
   );
 });

@@ -21,6 +21,7 @@ import {
   getDeprecated,
   getDirectoryPath,
   getDoc,
+  getExamples,
   getFormat,
   getMaxItems,
   getMaxLength,
@@ -37,6 +38,7 @@ import {
   isNullType,
   isType,
   joinPaths,
+  serializeValueAsJson,
 } from "@typespec/compiler";
 import {
   ArrayBuilder,
@@ -77,7 +79,6 @@ import { JSONSchemaEmitterOptions, reportDiagnostic } from "./lib.js";
 export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSchemaEmitterOptions> {
   #idDuplicateTracker = new DuplicateTracker<string, DiagnosticTarget>();
   #typeForSourceFile = new Map<SourceFile<any>, JsonSchemaDeclaration>();
-  #refToDecl = new Map<string, Declaration<Record<string, unknown>>>();
 
   modelDeclaration(model: Model, name: string): EmitterOutput<object> {
     const schema = this.#initializeSchema(model, name, {
@@ -169,9 +170,9 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
     const result = new ObjectBuilder(propertyType.value);
 
-    // eslint-disable-next-line deprecation/deprecation
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     if (property.default) {
-      // eslint-disable-next-line deprecation/deprecation
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
       result.default = this.#getDefaultValue(property.type, property.default);
     }
 
@@ -198,16 +199,16 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       case "Tuple":
         compilerAssert(
           type.kind === "Tuple" || (type.kind === "Model" && isArrayModelType(program, type)),
-          "setting tuple default to non-tuple value"
+          "setting tuple default to non-tuple value",
         );
 
         if (type.kind === "Tuple") {
           return defaultType.values.map((defaultTupleValue, index) =>
-            this.#getDefaultValue(type.values[index], defaultTupleValue)
+            this.#getDefaultValue(type.values[index], defaultTupleValue),
           );
         } else {
           return defaultType.values.map((defaultTuplevalue) =>
-            this.#getDefaultValue(type.indexer!.value, defaultTuplevalue)
+            this.#getDefaultValue(type.indexer!.value, defaultTuplevalue),
           );
         }
 
@@ -355,7 +356,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     targetDeclaration: Declaration<Record<string, unknown>>,
     pathUp: Scope<Record<string, unknown>>[],
     pathDown: Scope<Record<string, unknown>>[],
-    commonScope: Scope<Record<string, unknown>> | null
+    commonScope: Scope<Record<string, unknown>> | null,
   ): object | EmitEntity<Record<string, unknown>> {
     if (targetDeclaration.value instanceof Placeholder) {
       // I don't think this is possible, confirm.
@@ -388,7 +389,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
         const resolved = getRelativePathFromDirectory(
           getDirectoryPath(currentSfScope!.sourceFile.path),
           targetSfScope!.sourceFile.path,
-          false
+          false,
         );
         return { $ref: resolved };
       }
@@ -409,7 +410,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
   scalarInstantiation(
     scalar: Scalar,
-    name: string | undefined
+    name: string | undefined,
   ): EmitterOutput<Record<string, any>> {
     if (!name) {
       return this.#getSchemaForScalar(scalar);
@@ -539,9 +540,23 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     }
   }
 
+  #applySchemaExamples(
+    type: Model | Scalar | Union | Enum | ModelProperty,
+    target: ObjectBuilder<unknown>,
+  ) {
+    const program = this.emitter.getProgram();
+    const examples = getExamples(program, type);
+    if (examples.length > 0) {
+      target.set(
+        "examples",
+        examples.map((x) => serializeValueAsJson(program, x.value, type)),
+      );
+    }
+  }
+
   #applyConstraints(
     type: Scalar | Model | ModelProperty | Union | UnionVariant | Enum,
-    schema: ObjectBuilder<unknown>
+    schema: ObjectBuilder<unknown>,
   ) {
     const applyConstraint = (fn: (p: Program, t: Type) => any, key: string) => {
       const value = fn(this.emitter.getProgram(), type);
@@ -558,7 +573,9 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
         schema.set(key, ref.value);
       }
     };
-
+    if (type.kind !== "UnionVariant") {
+      this.#applySchemaExamples(type, schema);
+    }
     applyConstraint(getMinLength, "minLength");
     applyConstraint(getMaxLength, "maxLength");
     applyConstraint(getMinValue, "minimum");
@@ -589,7 +606,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     applyConstraint(getSummary, "title");
     applyConstraint(
       (p: Program, t: Type) => (getDeprecated(p, t) !== undefined ? true : undefined),
-      "deprecated"
+      "deprecated",
     );
 
     const prefixItems = getPrefixItems(this.emitter.getProgram(), type);
@@ -625,7 +642,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   #initializeSchema(
     type: JsonSchemaDeclaration,
     name: string,
-    props: Record<string, unknown>
+    props: Record<string, unknown>,
   ): ObjectBuilder<unknown> {
     const rootSchemaProps = this.#shouldEmitRootSchema(type)
       ? this.#getRootSchemaProps(type, name)
@@ -857,7 +874,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
   #newFileScope(type: JsonSchemaDeclaration) {
     const sourceFile = this.emitter.createSourceFile(
-      `${this.declarationName(type)}.${this.#fileExtension()}`
+      `${this.declarationName(type)}.${this.#fileExtension()}`,
     );
 
     sourceFile.meta.shouldEmit = true;

@@ -7,6 +7,7 @@ using System.Linq;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.Statements;
 using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 
@@ -138,7 +139,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             {
                 InputPrimitiveTypeKind.String => typeof(string),
                 InputPrimitiveTypeKind.Int32 => typeof(int),
-                InputPrimitiveTypeKind.Any => typeof(BinaryData),
+                InputPrimitiveTypeKind.Unknown => typeof(BinaryData),
                 _ => throw new ArgumentException("Unsupported input type.")
             },
             InputArrayType => typeof(IList<string>),
@@ -255,7 +256,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.AreEqual(new CSharpType(typeof(string), true), secondaryCtorParameters[1].Type);
             Assert.AreEqual("additionalProperties", secondaryCtorParameters[2].Name);
             Assert.AreEqual(new CSharpType(typeof(IDictionary<string, string>)), secondaryCtorParameters[2].Type);
-            Assert.AreEqual("serializedAdditionalRawData", secondaryCtorParameters[3].Name);
+            Assert.AreEqual("additionalBinaryDataProperties", secondaryCtorParameters[3].Name);
             Assert.AreEqual(new CSharpType(typeof(IDictionary<string, BinaryData>)), secondaryCtorParameters[3].Type);
             // validate derived secondary constructor
             Assert.AreEqual(6, derivedSecondaryCtorParams.Count); // all base props + 2 properties + 1 additionalRawData + additional props
@@ -269,7 +270,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.AreEqual(new CSharpType(typeof(string), true), derivedSecondaryCtorParams[3].Type);
             Assert.AreEqual("additionalProperties", derivedSecondaryCtorParams[4].Name);
             Assert.AreEqual(new CSharpType(typeof(IDictionary<string, string>)), derivedSecondaryCtorParams[4].Type);
-            Assert.AreEqual("serializedAdditionalRawData", derivedSecondaryCtorParams[5].Name);
+            Assert.AreEqual("additionalBinaryDataProperties", derivedSecondaryCtorParams[5].Name);
             Assert.AreEqual(new CSharpType(typeof(IDictionary<string, BinaryData>)), derivedSecondaryCtorParams[5].Type);
         }
 
@@ -295,14 +296,14 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
                 Assert.AreEqual(new CSharpType(typeof(IDictionary<string, long>)), additionalPropertiesParam?.Type);
                 var rawDataParam = constructorSignature?.Parameters[1];
                 Assert.IsNotNull(rawDataParam);
-                Assert.AreEqual("serializedAdditionalRawData", rawDataParam?.Name);
+                Assert.AreEqual("additionalBinaryDataProperties", rawDataParam?.Name);
             }
             else
             {
                 Assert.AreEqual(1, constructorSignature?.Parameters.Count);
                 var param = constructorSignature?.Parameters[0];
                 Assert.IsNotNull(param);
-                Assert.AreEqual("serializedAdditionalRawData", param?.Name);
+                Assert.AreEqual("additionalBinaryDataProperties", param?.Name);
             }
         }
 
@@ -349,44 +350,119 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
 
         [TestCase(true)]
         [TestCase(false)]
-        public void TestBuildFields(bool containsUnknownAdditionalProp)
+        public void TestBuildFields(bool containsMixedAdditionalProperties)
         {
-            InputType? additionalProperties = containsUnknownAdditionalProp ? InputPrimitiveType.Any : null;
+            InputType? additionalProperties = containsMixedAdditionalProperties
+                ? InputFactory.Union([InputPrimitiveType.Float64, InputPrimitiveType.Int64, InputPrimitiveType.String])
+                : null;
             var inputModel = InputFactory.Model("TestModel", properties: [], additionalProperties: additionalProperties);
             var modelTypeProvider = new ModelProvider(inputModel);
             var fields = modelTypeProvider.Fields;
 
-            // Assert
             Assert.IsNotNull(fields);
-            if (containsUnknownAdditionalProp)
+
+            if (containsMixedAdditionalProperties)
             {
-                Assert.AreEqual(0, fields.Count);
+                Assert.AreEqual(4, fields.Count);
+                Assert.AreEqual("_additionalBinaryDataProperties", fields[0].Name);
+                Assert.AreEqual(new CSharpType(typeof(IDictionary<string, BinaryData>)), fields[0].Type);
+                Assert.AreEqual("_additionalDoubleProperties", fields[1].Name);
+                Assert.AreEqual(new CSharpType(typeof(IDictionary<string, double>)), fields[1].Type);
+                Assert.AreEqual("_additionalInt64Properties", fields[2].Name);
+                Assert.AreEqual(new CSharpType(typeof(IDictionary<string, long>)), fields[2].Type);
+                Assert.AreEqual("_additionalStringProperties", fields[3].Name);
+                Assert.AreEqual(new CSharpType(typeof(IDictionary<string, string>)), fields[3].Type);
             }
             else
             {
                 Assert.AreEqual(1, fields.Count);
-                Assert.AreEqual("_serializedAdditionalRawData", fields[0].Name);
-                var type = fields[0].Type;
-                Assert.IsTrue(type.IsCollection);
+                Assert.AreEqual("_additionalBinaryDataProperties", fields[0].Name);
+                Assert.AreEqual(new CSharpType(typeof(IDictionary<string, BinaryData>)), fields[0].Type);
             }
         }
 
         [TestCaseSource(nameof(BuildAdditionalPropertiesTestCases))]
-        public void TestBuildAdditionalProperties(InputType additionalProperties, bool isUnverifiableType)
+        public void TestBuildAdditionalProperties(
+            InputModelType inputModel,
+            bool isUnverifiableType,
+            int expectedPropertyCount)
         {
-            var inputModel = InputFactory.Model("TestModel", properties: [], additionalProperties: additionalProperties);
             var modelTypeProvider = new ModelProvider(inputModel);
 
-            var additionalPropertiesProp = modelTypeProvider.Properties.FirstOrDefault(f => f.Name == "AdditionalProperties");
-            Assert.IsNotNull(additionalPropertiesProp);
+            var additionalPropertiesProps = modelTypeProvider.Properties.Where(f => f.Name.StartsWith("Additional")).ToList();
+            Assert.AreEqual(expectedPropertyCount, additionalPropertiesProps.Count);
 
-            var additionalPropertiesType = additionalPropertiesProp!.Type;
-            Assert.IsTrue(additionalPropertiesType.IsDictionary);
-
-            if (isUnverifiableType)
+            foreach (var additionalPropertiesProp in additionalPropertiesProps)
             {
-                Assert.AreEqual(new CSharpType(typeof(IDictionary<string, BinaryData>)), additionalPropertiesType);
+                var additionalPropertiesType = additionalPropertiesProp!.Type;
+                Assert.IsTrue(additionalPropertiesType.IsDictionary);
+
+                if (isUnverifiableType)
+                {
+                    Assert.AreEqual(new CSharpType(typeof(IDictionary<string, BinaryData>)), additionalPropertiesType);
+                }
+                if (!inputModel.Usage.HasFlag(InputModelTypeUsage.Input))
+                {
+                    Assert.IsTrue(additionalPropertiesType.IsReadOnlyDictionary);
+                    // validate the assignment
+                    var body = additionalPropertiesProp.Body as ExpressionPropertyBody;
+                    Assert.NotNull(body);
+                    Assert.IsTrue(body!.Getter.ToDisplayString().StartsWith(
+                        "new global::System.Collections.ObjectModel.ReadOnlyDictionary<string,"));
+                }
             }
+        }
+
+        [Test]
+        public void TestAdditionalPropertiesPropertyNamesAndAccessors()
+        {
+            // model with multiple additional properties
+            var inputModelWithMultipleAp = InputFactory.Model(
+                "TestModel",
+                properties: [],
+                additionalProperties: InputFactory.Union([InputPrimitiveType.String, InputPrimitiveType.Int32]));
+            var modelWithMultipleAp = new ModelProvider(inputModelWithMultipleAp);
+            var additionalProperties1 = modelWithMultipleAp.Properties.Where(f => f.Name.StartsWith("Additional")).ToList();
+
+            Assert.AreEqual(2, additionalProperties1.Count);
+            // validate modifiers
+            Assert.IsTrue(additionalProperties1[0]!.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsTrue(additionalProperties1[1]!.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            // validate names
+            Assert.AreEqual("AdditionalProperties", additionalProperties1[0].Name);
+            Assert.AreEqual("AdditionalInt32Properties", additionalProperties1[1].Name);
+            // validate getters
+            var stringAdditionalPropertyGetter = additionalProperties1[0]!.Body as ExpressionPropertyBody;
+            Assert.NotNull(stringAdditionalPropertyGetter);
+            Assert.IsTrue(stringAdditionalPropertyGetter!.Getter.ToDisplayString().Equals("_additionalStringProperties"));
+            var int32AdditionalPropertyGetter = additionalProperties1[1]!.Body as ExpressionPropertyBody;
+            Assert.NotNull(int32AdditionalPropertyGetter);
+            Assert.IsTrue(int32AdditionalPropertyGetter!.Getter.ToDisplayString().Equals("_additionalInt32Properties"));
+
+            // model with single additional property
+            var inputModelWithSingleAp = InputFactory.Model(
+                "TestModel",
+                properties: [],
+                additionalProperties: InputPrimitiveType.String);
+            var modelWithSingleAp = new ModelProvider(inputModelWithSingleAp);
+            var additionalProperties2 = modelWithSingleAp.Properties.Where(f => f.Name.StartsWith("Additional")).ToList();
+
+            Assert.AreEqual(1, additionalProperties2.Count);
+            // validate modifiers
+            Assert.IsTrue(additionalProperties2[0]!.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            // validate names
+            Assert.AreEqual("AdditionalProperties", additionalProperties2[0].Name);
+            // validate getters
+            var singleAdditionalPropertyGetter = additionalProperties2[0]!.Body as ExpressionPropertyBody;
+            Assert.NotNull(singleAdditionalPropertyGetter);
+            Assert.IsTrue(singleAdditionalPropertyGetter!.Getter.ToDisplayString().Equals("_additionalStringProperties"));
+
+            // model with no additional properties
+            var inputModelWithNoAp = InputFactory.Model("TestModel", properties: []);
+            var modelWithNoAp = new ModelProvider(inputModelWithNoAp);
+            var additionalProperties3 = modelWithNoAp.Properties.Where(f => f.Name.StartsWith("Additional")).ToList();
+            Assert.AreEqual(0, additionalProperties3.Count);
+
         }
 
         public static IEnumerable<TestCaseData> BuildAdditionalPropertiesTestCases
@@ -394,13 +470,17 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             get
             {
                 // verifiable type
-                yield return new TestCaseData(InputPrimitiveType.String, false);
-                yield return new TestCaseData(InputFactory.Array(InputPrimitiveType.String), false);
-                yield return new TestCaseData(InputFactory.Dictionary(InputPrimitiveType.String), false);
+                yield return new TestCaseData(InputFactory.Model("TestModel", properties: [], additionalProperties: InputPrimitiveType.String), false, 1);
+                yield return new TestCaseData(InputFactory.Model("TestModel", properties: [], additionalProperties: InputFactory.Array(InputPrimitiveType.String)), false, 1);
+                yield return new TestCaseData(InputFactory.Model("TestModel", properties: [], additionalProperties: InputFactory.Dictionary(InputPrimitiveType.String)), false, 1);
+                yield return new TestCaseData(InputFactory.Model("TestModel", properties: [], additionalProperties: InputFactory.Union([InputPrimitiveType.String, InputPrimitiveType.Int32])), false, 2);
+                yield return new TestCaseData(InputFactory.Model("TestModel", properties: [], additionalProperties: InputFactory.Union([InputPrimitiveType.String, InputPrimitiveType.Int32, InputFactory.Model("foo")])), false, 3);
+                // output model
+                yield return new TestCaseData(InputFactory.Model("TestModel", usage: InputModelTypeUsage.Output, properties: [], additionalProperties: InputPrimitiveType.String), false, 1);
 
                 // non-verifiable type
-                yield return new TestCaseData(InputPrimitiveType.Any, true);
-                yield return new TestCaseData(InputFactory.Model("foo"), true);
+                yield return new TestCaseData(InputFactory.Model("TestModel", properties: [], additionalProperties: InputPrimitiveType.Any), true, 1);
+                yield return new TestCaseData(InputFactory.Model("TestModel", properties: [], additionalProperties: InputFactory.Model("foo")), true, 1);
             }
         }
 
@@ -539,6 +619,181 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.IsTrue(expressionBody!.Getter.ToDisplayString().Contains("_prop1 ?? default"));
             Assert.IsFalse(expressionBody.HasSetter);
             Assert.IsNull(expressionBody.Setter);
+        }
+
+        [Test]
+        public void InitCtorShouldAssignBaseFieldDerivedRequired()
+        {
+            MockHelpers.LoadMockPlugin();
+            var enumType = InputFactory.Enum("enumType", InputPrimitiveType.String, values: [InputFactory.EnumMember.String("value1", "value1")]);
+            var derivedInputModel = InputFactory.Model("derivedModel", properties: [InputFactory.Property("prop1", enumType, isRequired: true)]);
+            var baseInputModel = InputFactory.Model("baseModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String)], derivedModels: [derivedInputModel]);
+            var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(derivedInputModel);
+            var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(baseInputModel);
+
+            Assert.IsNotNull(derivedModel);
+            Assert.IsNotNull(baseModel);
+
+            var derivedCtor = derivedModel!.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsNotNull(derivedCtor);
+            var baseField = baseModel!.Fields.FirstOrDefault(f => f.Name == "_prop1");
+            Assert.IsNotNull(baseField);
+            Assert.AreEqual(new CSharpType(typeof(string)), baseField!.Type);
+            Assert.AreEqual(FieldModifiers.Private | FieldModifiers.Protected, baseField.Modifiers);
+            var statements = derivedCtor!.BodyStatements as MethodBodyStatements;
+            Assert.IsNotNull(statements);
+            Assert.IsTrue(statements!.Statements.Any(s => s.ToDisplayString().Contains("_prop1 =")));
+            var initializer = derivedCtor.Signature.Initializer;
+            Assert.IsNotNull(initializer);
+            Assert.IsTrue(initializer!.IsBase);
+            foreach (var arg in initializer.Arguments)
+            {
+                Assert.IsFalse(arg.ToDisplayString().Contains("prop1"));
+            }
+        }
+
+        [Test]
+        public void SerializationCtorShouldNotAssignBaseFieldDerivedRequired()
+        {
+            MockHelpers.LoadMockPlugin();
+            var enumType = InputFactory.Enum("enumType", InputPrimitiveType.String, values: [InputFactory.EnumMember.String("value1", "value1")]);
+            var derivedInputModel = InputFactory.Model("derivedModel", properties: [InputFactory.Property("prop1", enumType, isRequired: true)]);
+            var baseInputModel = InputFactory.Model("baseModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String)], derivedModels: [derivedInputModel]);
+            var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(derivedInputModel);
+            var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(baseInputModel);
+
+            Assert.IsNotNull(derivedModel);
+            Assert.IsNotNull(baseModel);
+
+            var serializationCtor = derivedModel!.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+            Assert.IsNotNull(serializationCtor);
+            var baseField = baseModel!.Fields.FirstOrDefault(f => f.Name == "_prop1");
+            Assert.IsNotNull(baseField);
+            Assert.AreEqual(new CSharpType(typeof(string)), baseField!.Type);
+            Assert.AreEqual(FieldModifiers.Private | FieldModifiers.Protected, baseField.Modifiers);
+            var statements = serializationCtor!.BodyStatements as MethodBodyStatements;
+            Assert.IsNotNull(statements);
+            Assert.IsFalse(statements!.Statements.Any(s => s.ToDisplayString().Contains("_prop1 =")));
+            var initializer = serializationCtor.Signature.Initializer;
+            Assert.IsNotNull(initializer);
+            Assert.IsTrue(initializer!.IsBase);
+            Assert.AreEqual("prop1.ToSerialString()", initializer.Arguments[0].ToDisplayString());
+        }
+
+        [Test]
+        public void InitCtorShouldNotAssignBaseFieldBothRequired()
+        {
+            MockHelpers.LoadMockPlugin();
+            var enumType = InputFactory.Enum("enumType", InputPrimitiveType.String, values: [InputFactory.EnumMember.String("value1", "value1")]);
+            var derivedInputModel = InputFactory.Model("derivedModel", properties: [InputFactory.Property("prop1", enumType, isRequired: true)]);
+            var baseInputModel = InputFactory.Model("baseModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String, isRequired: true)], derivedModels: [derivedInputModel]);
+            var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(derivedInputModel);
+            var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(baseInputModel);
+
+            Assert.IsNotNull(derivedModel);
+            Assert.IsNotNull(baseModel);
+
+            var derivedCtor = derivedModel!.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsNotNull(derivedCtor);
+            var baseField = baseModel!.Fields.FirstOrDefault(f => f.Name == "_prop1");
+            Assert.IsNotNull(baseField);
+            Assert.AreEqual(new CSharpType(typeof(string)), baseField!.Type);
+            Assert.AreEqual(FieldModifiers.Private | FieldModifiers.Protected, baseField.Modifiers);
+            var statements = derivedCtor!.BodyStatements as MethodBodyStatements;
+            Assert.IsNotNull(statements);
+            Assert.IsFalse(statements!.Statements.Any(s => s.ToDisplayString().Contains("_prop1 =")));
+        }
+
+
+        [Test]
+        public void SerializationCtorShouldNotAssignBaseField()
+        {
+            MockHelpers.LoadMockPlugin();
+            var enumType = InputFactory.Enum("enumType", InputPrimitiveType.String, values: [InputFactory.EnumMember.String("value1", "value1")]);
+            var derivedInputModel = InputFactory.Model("derivedModel", properties: [InputFactory.Property("prop1", enumType)]);
+            var baseInputModel = InputFactory.Model("baseModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String)], derivedModels: [derivedInputModel]);
+            var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(derivedInputModel);
+            var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(baseInputModel);
+
+            Assert.IsNotNull(derivedModel);
+            Assert.IsNotNull(baseModel);
+
+            var derivedCtor = derivedModel!.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+            Assert.IsNotNull(derivedCtor);
+            var baseField = baseModel!.Fields.FirstOrDefault(f => f.Name == "_prop1");
+            Assert.IsNotNull(baseField);
+            Assert.AreEqual(new CSharpType(typeof(string)), baseField!.Type);
+            Assert.AreEqual(FieldModifiers.Private | FieldModifiers.Protected, baseField.Modifiers);
+            var statements = derivedCtor!.BodyStatements as MethodBodyStatements;
+            Assert.IsNotNull(statements);
+            Assert.IsFalse(statements!.Statements.Any(s => s.ToDisplayString().Contains("_prop1 =")));
+        }
+
+        [Test]
+        public void SerializationCtorShouldNotDuplicateBaseProperties()
+        {
+            MockHelpers.LoadMockPlugin();
+            var enumType = InputFactory.Enum("enumType", InputPrimitiveType.String, values: [InputFactory.EnumMember.String("value1", "value1")]);
+            var derivedInputModel = InputFactory.Model("derivedModel", properties: [InputFactory.Property("prop1", enumType)]);
+            var baseInputModel = InputFactory.Model("baseModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String)], derivedModels: [derivedInputModel]);
+            var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(derivedInputModel);
+            var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(baseInputModel);
+
+            Assert.IsNotNull(derivedModel);
+            Assert.IsNotNull(baseModel);
+
+            var serializationCtor = derivedModel!.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+            Assert.IsNotNull(serializationCtor);
+            Assert.AreEqual(2, serializationCtor!.Signature.Parameters.Count);
+        }
+
+        [Test]
+        public void SerializationCtorInitializerHasToStringForEnumParam()
+        {
+            MockHelpers.LoadMockPlugin();
+            var enumType = InputFactory.Enum("enumType", InputPrimitiveType.String, isExtensible: true, values: [InputFactory.EnumMember.String("value1", "value1")]);
+            var derivedInputModel = InputFactory.Model("derivedModel", properties: [InputFactory.Property("prop1", enumType)]);
+            var baseInputModel = InputFactory.Model("baseModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String)], derivedModels: [derivedInputModel]);
+            var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(derivedInputModel);
+            var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(baseInputModel);
+
+            Assert.IsNotNull(derivedModel);
+            Assert.IsNotNull(baseModel);
+
+            var serializationCtor = derivedModel!.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+            Assert.IsNotNull(serializationCtor);
+            var initializer = serializationCtor!.Signature.Initializer;
+            Assert.IsNotNull(initializer);
+            Assert.IsTrue(initializer!.IsBase);
+            Assert.AreEqual("prop1.ToString()", initializer.Arguments[0].ToDisplayString());
+        }
+
+        [Test]
+        public void InitCtorInitializerShouldHaveCorrectParamName()
+        {
+            MockHelpers.LoadMockPlugin();
+            var derivedInputModel = InputFactory.Model("derivedModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.Int32, isRequired: true)]);
+            var baseInputModel = InputFactory.Model(
+                "baseModel",
+                properties:
+                [
+                    InputFactory.Property("baseOnlyProp", InputPrimitiveType.Any, isRequired: true),
+                    InputFactory.Property("prop1", InputPrimitiveType.Int64)
+                ],
+                derivedModels: [derivedInputModel]);
+            var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(derivedInputModel);
+            var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(baseInputModel);
+
+            Assert.IsNotNull(derivedModel);
+            Assert.IsNotNull(baseModel);
+
+            var derivedCtor = derivedModel!.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsNotNull(derivedCtor);
+            Assert.AreEqual(2, derivedCtor!.Signature.Parameters.Count);
+            var initializer = derivedCtor.Signature.Initializer;
+            Assert.IsNotNull(initializer);
+            Assert.IsTrue(initializer!.IsBase);
+            Assert.AreEqual("baseOnlyProp", initializer.Arguments[0].ToDisplayString());
         }
     }
 }

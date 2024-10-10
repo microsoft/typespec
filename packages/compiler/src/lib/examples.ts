@@ -10,7 +10,7 @@ import {
   type Type,
   type Value,
 } from "../core/types.js";
-import { getEncode, type EncodeData } from "./decorators.js";
+import { getEncode, resolveEncodedName, type EncodeData } from "./decorators.js";
 
 /**
  * Serialize the given TypeSpec value as a JSON object using the given type and its encoding annotations.
@@ -20,7 +20,7 @@ export function serializeValueAsJson(
   program: Program,
   value: Value,
   type: Type,
-  encodeAs?: EncodeData
+  encodeAs?: EncodeData,
 ): unknown {
   if (type.kind === "ModelProperty") {
     return serializeValueAsJson(program, value, type.type, encodeAs ?? getEncode(program, type));
@@ -42,8 +42,8 @@ export function serializeValueAsJson(
           v,
           type.kind === "Model" && isArrayModelType(program, type)
             ? type.indexer.value
-            : program.checker.anyType
-        )
+            : program.checker.anyType,
+        ),
       );
     case "ObjectValue":
       return serializeObjectValueAsJson(program, value, type);
@@ -74,13 +74,12 @@ function resolveUnions(program: Program, value: ObjectValue, type: Type): Type |
   }
   for (const variant of type.variants.values()) {
     if (
-      variant.type.kind === "Model" &&
       ignoreDiagnostics(
         program.checker.isTypeAssignableTo(
+          value.type.projectionBase ?? value.type,
+          variant.type.projectionBase ?? variant.type,
           value,
-          { entityKind: "MixedParameterConstraint", valueType: variant.type },
-          value
-        )
+        ),
       )
     ) {
       return variant.type;
@@ -92,14 +91,18 @@ function resolveUnions(program: Program, value: ObjectValue, type: Type): Type |
 function serializeObjectValueAsJson(
   program: Program,
   value: ObjectValue,
-  type: Type
+  type: Type,
 ): Record<string, unknown> {
   type = resolveUnions(program, value, type) ?? type;
   const obj: Record<string, unknown> = {};
   for (const propValue of value.properties.values()) {
     const definition = getPropertyOfType(type, propValue.name);
     if (definition) {
-      obj[propValue.name] = serializeValueAsJson(program, propValue.value, definition);
+      const name =
+        definition.kind === "ModelProperty"
+          ? resolveEncodedName(program, definition, "application/json")
+          : propValue.name;
+      obj[name] = serializeValueAsJson(program, propValue.value, definition);
     }
   }
   return obj;
@@ -107,7 +110,7 @@ function serializeObjectValueAsJson(
 
 function resolveKnownScalar(
   program: Program,
-  scalar: Scalar
+  scalar: Scalar,
 ):
   | {
       scalar: Scalar & {
@@ -141,7 +144,7 @@ function serializeScalarValueAsJson(
   program: Program,
   value: ScalarValue,
   type: Type,
-  encodeAs: EncodeData | undefined
+  encodeAs: EncodeData | undefined,
 ): unknown {
   const result = resolveKnownScalar(program, value.scalar);
   if (result === undefined) {

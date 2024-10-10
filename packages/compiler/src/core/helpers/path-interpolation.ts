@@ -8,7 +8,7 @@ const VariableInterpolationRegex = /{([a-zA-Z-_.]+)}(\/|\.?)/g;
  */
 export function interpolatePath(
   pathTemplate: string,
-  predefinedVariables: Record<string, string | undefined>
+  predefinedVariables: Record<string, string | undefined>,
 ): string {
   return pathTemplate.replace(VariableInterpolationRegex, (match, expression, suffix) => {
     const isPathSegment = suffix === "/" || suffix === ".";
@@ -22,7 +22,7 @@ export function interpolatePath(
 
 function resolveExpression(
   predefinedVariables: Record<string, string | undefined>,
-  expression: string
+  expression: string,
 ): string | undefined {
   const segments = expression.split(".");
   let resolved: any = predefinedVariables;

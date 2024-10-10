@@ -13,7 +13,7 @@ export interface DiscriminatedUnion {
 
 export function getDiscriminatedUnion(
   type: Model | Union,
-  discriminator: Discriminator
+  discriminator: Discriminator,
 ): [DiscriminatedUnion, readonly Diagnostic[]] {
   switch (type.kind) {
     case "Model":
@@ -39,7 +39,7 @@ export function validateInheritanceDiscriminatedUnions(program: Program) {
 
 function getDiscriminatedUnionForUnion(
   type: Union,
-  discriminator: Discriminator
+  discriminator: Discriminator,
 ): [DiscriminatedUnion, readonly Diagnostic[]] {
   const variants = new Map<string, Model>();
   const diagnostics: Diagnostic[] = [];
@@ -52,7 +52,7 @@ function getDiscriminatedUnionForUnion(
           code: "invalid-discriminated-union-variant",
           format: { name: variant.name.toString() },
           target: variant,
-        })
+        }),
       );
       continue;
     }
@@ -65,7 +65,7 @@ function getDiscriminatedUnionForUnion(
           messageId: "noDiscriminant",
           format: { name: variant.name.toString(), discriminant: discriminator.propertyName },
           target: variant,
-        })
+        }),
       );
       continue;
     }
@@ -81,7 +81,7 @@ function getDiscriminatedUnionForUnion(
           messageId: "wrongDiscriminantType",
           format: { name: variant.name.toString(), discriminant: discriminator.propertyName },
           target: variant.type,
-        })
+        }),
       );
     }
   }
@@ -96,7 +96,7 @@ function getDiscriminatedUnionForUnion(
 
 function getDiscriminatedUnionForModel(
   type: Model,
-  discriminator: Discriminator
+  discriminator: Discriminator,
 ): [DiscriminatedUnion, readonly Diagnostic[]] {
   const variants = new Map<string, Model>();
   const diagnostics: Diagnostic[] = [];
@@ -115,7 +115,7 @@ function getDiscriminatedUnionForModel(
               code: "missing-discriminator-property",
               format: { discriminator: discriminator.propertyName },
               target: derivedModel,
-            })
+            }),
           );
         } else {
           checkForVariantsIn(derivedModel);
@@ -141,7 +141,7 @@ function getDiscriminatedUnionForModel(
 
 function reportDuplicateDiscriminatorValues(
   duplicates: DuplicateTracker<string, Model>,
-  diagnostics: Diagnostic[]
+  diagnostics: Diagnostic[],
 ) {
   for (const [duplicateKey, models] of duplicates.entries()) {
     for (const model of models) {
@@ -151,7 +151,7 @@ function reportDuplicateDiscriminatorValues(
           messageId: "duplicate",
           format: { discriminator: duplicateKey },
           target: model,
-        })
+        }),
       );
     }
   }
@@ -160,7 +160,7 @@ function reportDuplicateDiscriminatorValues(
 function getDiscriminatorProperty(
   model: Model,
   discriminator: Discriminator,
-  diagnostics: Diagnostic[]
+  diagnostics: Diagnostic[],
 ) {
   const prop = model.properties.get(discriminator.propertyName);
   if (prop && prop.optional) {
@@ -169,7 +169,7 @@ function getDiscriminatorProperty(
         code: "invalid-discriminator-value",
         messageId: "required",
         target: prop,
-      })
+      }),
     );
   }
   return prop;
@@ -178,7 +178,7 @@ function getDiscriminatorProperty(
 function getDiscriminatorValues(
   model: Model,
   discriminator: Discriminator,
-  diagnostics: Diagnostic[]
+  diagnostics: Diagnostic[],
 ): string[] | undefined {
   const prop = getDiscriminatorProperty(model, discriminator, diagnostics);
   if (!prop) return undefined;
@@ -190,7 +190,7 @@ function getDiscriminatorValues(
         code: "invalid-discriminator-value",
         format: { kind: prop.type.kind },
         target: prop,
-      })
+      }),
     );
   }
   return keys;

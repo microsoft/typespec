@@ -4,7 +4,6 @@ import {
   LibraryLocationContext,
   LocationContext,
   ModuleLibraryMetadata,
-  NodePackage,
   ProjectLocationContext,
 } from "../../src/core/index.js";
 import {
@@ -13,6 +12,7 @@ import {
   expectDiagnostics,
   resolveVirtualPath,
 } from "../../src/testing/index.js";
+import { PackageJson } from "../../src/types/package-json.js";
 
 describe("compiler: imports", () => {
   let host: TestHost;
@@ -29,7 +29,7 @@ describe("compiler: imports", () => {
         [
           `Expected ${vFile} to have been loaded but not present in:`,
           ...[...map.keys()].map((x) => ` - ${x}`),
-        ].join("\n")
+        ].join("\n"),
       );
     };
     if (files.typespec) {
@@ -51,13 +51,13 @@ describe("compiler: imports", () => {
       `
       import "./b.tsp";
       model A extends B { }
-      `
+      `,
     );
     host.addTypeSpecFile(
       "b.tsp",
       `
       model B { }
-      `
+      `,
     );
     await host.compile("main.tsp");
     expectFileLoaded({ typespec: ["main.tsp", "b.tsp"] });
@@ -72,7 +72,7 @@ describe("compiler: imports", () => {
 
       @blue
       model A  {}
-      `
+      `,
     );
     await host.compile("main.tsp");
     expectFileLoaded({ typespec: ["main.tsp"], js: ["blue.js"] });
@@ -87,7 +87,7 @@ describe("compiler: imports", () => {
 
       @blue
       model A  {}
-      `
+      `,
     );
     await host.compile("proj/main.tsp");
     expectFileLoaded({ typespec: ["proj/main.tsp"], js: ["blue.js"] });
@@ -100,40 +100,69 @@ describe("compiler: imports", () => {
       import "./test";
 
       model A { x: C }
-      `
+      `,
     );
     host.addTypeSpecFile(
       "test/main.tsp",
       `
       model C { }
-      `
+      `,
     );
 
     await host.compile("main.tsp");
     expectFileLoaded({ typespec: ["main.tsp", "test/main.tsp"] });
   });
 
-  it("import library", async () => {
+  it("import library with typespec exports", async () => {
     host.addTypeSpecFile(
       "main.tsp",
       `
       import "my-lib";
 
       model A { x: C }
+      `,
+    );
+    host.addTypeSpecFile(
+      "node_modules/my-lib/package.json",
+      JSON.stringify({
+        name: "my-test-lib",
+        exports: { ".": { typespec: "./main.tsp" } },
+      }),
+    );
+    host.addTypeSpecFile(
+      "node_modules/my-lib/main.tsp",
       `
+      model C { }
+      `,
+    );
+
+    await host.compile("main.tsp");
+    expectFileLoaded({ typespec: ["main.tsp", "node_modules/my-lib/main.tsp"] });
+    const file = host.program.sourceFiles.get(resolveVirtualPath("node_modules/my-lib/main.tsp"));
+    ok(file, "File exists");
+  });
+
+  it("import library(with tspmain)", async () => {
+    host.addTypeSpecFile(
+      "main.tsp",
+      `
+      import "my-lib";
+
+      model A { x: C }
+      `,
     );
     host.addTypeSpecFile(
       "node_modules/my-lib/package.json",
       JSON.stringify({
         name: "my-test-lib",
         tspMain: "./main.tsp",
-      })
+      }),
     );
     host.addTypeSpecFile(
       "node_modules/my-lib/main.tsp",
       `
       model C { }
-      `
+      `,
     );
 
     await host.compile("main.tsp");
@@ -147,7 +176,7 @@ describe("compiler: imports", () => {
       "main.tsp",
       `
       import "./doesnotexists";
-      `
+      `,
     );
 
     const diagnostics = await host.diagnose("main.tsp");
@@ -162,7 +191,7 @@ describe("compiler: imports", () => {
       "main.tsp",
       `
       import "@typespec/doesnotexists";
-      `
+      `,
     );
 
     const diagnostics = await host.diagnose("main.tsp");
@@ -183,7 +212,7 @@ describe("compiler: imports", () => {
 
     interface Structure {
       [key: TspFile]: string[];
-      [key: PkgJson]: Partial<NodePackage>;
+      [key: PkgJson]: Partial<PackageJson>;
     }
 
     interface ScopeExpectation<T extends Structure> {
@@ -197,7 +226,7 @@ describe("compiler: imports", () => {
             if (filename.endsWith(".tsp")) {
               host.addTypeSpecFile(
                 filename,
-                (fileConfig as string[]).map((x) => `import "${x}";`).join("\n")
+                (fileConfig as string[]).map((x) => `import "${x}";`).join("\n"),
               );
             } else {
               host.addTypeSpecFile(filename, JSON.stringify(fileConfig, null, 2));

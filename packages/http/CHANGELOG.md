@@ -1,5 +1,27 @@
 # Change Log - @typespec/http
 
+## 0.61.0
+
+### Bump dependencies
+
+- [#4424](https://github.com/microsoft/typespec/pull/4424) Bump dependencies
+
+### Features
+
+- [#4513](https://github.com/microsoft/typespec/pull/4513) Adds HttpStream and JsonlStream models to to support streaming use-cases.
+
+
+## 0.60.0
+
+### Bug Fixes
+
+- [#4322](https://github.com/microsoft/typespec/pull/4322) Use user provided description of model if model has a status code property(detect it as an response envelope)
+
+### Features
+
+- [#4139](https://github.com/microsoft/typespec/pull/4139) Internals: Migrate to new api for declaring decorator implementation
+
+
 ## 0.59.1
 
 ### Bug Fixes

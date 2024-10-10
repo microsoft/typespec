@@ -2,7 +2,6 @@ import {
   CompilerHost,
   Decorator,
   Diagnostic,
-  NodePackage,
   Program,
   compile,
   createDiagnosticCollector,
@@ -11,6 +10,7 @@ import {
   joinPaths,
   navigateProgram,
   resolvePath,
+  type PackageJson,
 } from "@typespec/compiler";
 import prettier from "prettier";
 import { generateSignatureTests, generateSignatures } from "./decorators-signatures.js";
@@ -18,7 +18,7 @@ import { DecoratorSignature } from "./types.js";
 
 export async function generateExternSignatures(
   host: CompilerHost,
-  libraryPath: string
+  libraryPath: string,
 ): Promise<readonly Diagnostic[]> {
   const diagnostics = createDiagnosticCollector();
   const pkgJson = await readPackageJson(host, libraryPath);
@@ -45,7 +45,7 @@ export async function generateExternSignatures(
   return diagnostics.diagnostics;
 }
 
-async function readPackageJson(host: CompilerHost, libraryPath: string): Promise<NodePackage> {
+async function readPackageJson(host: CompilerHost, libraryPath: string): Promise<PackageJson> {
   const file = await host.readFile(joinPaths(libraryPath, "package.json"));
   return JSON.parse(file.text);
 }
@@ -53,7 +53,7 @@ async function readPackageJson(host: CompilerHost, libraryPath: string): Promise
 export async function generateExternDecorators(
   program: Program,
   packageName: string,
-  prettierConfig?: prettier.Options
+  prettierConfig?: prettier.Options,
 ): Promise<Record<string, string>> {
   const decorators = new Map<string, DecoratorSignature[]>();
 
@@ -96,7 +96,7 @@ export async function generateExternDecorators(
     files[file] = await format(generateSignatures(program, nsDecorators, ns));
     if (!ns.includes(".Private")) {
       files[`${base}.ts-test.ts`] = await format(
-        generateSignatureTests(ns, packageName, `./${base}.js`, nsDecorators)
+        generateSignatureTests(ns, packageName, `./${base}.js`, nsDecorators),
       );
     }
   }

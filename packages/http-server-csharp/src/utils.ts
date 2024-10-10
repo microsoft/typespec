@@ -68,7 +68,7 @@ export const UnknownType: CSharpType = new CSharpType({
 export function getCSharpType(
   program: Program,
   type: Type,
-  namespace: string
+  namespace: string,
 ): { type: CSharpType; value?: CSharpValue } | undefined {
   const known = getKnownType(program, type);
   if (known !== undefined) return { type: known };
@@ -109,7 +109,7 @@ export function getCSharpType(
       return coalesceTypes(
         program,
         [...type.variants.values()].map((v) => v.type),
-        namespace
+        namespace,
       );
     case "Interface":
       return {
@@ -146,7 +146,7 @@ export function getCSharpType(
       }
       let name: string = type.name;
       if (isTemplateInstance(type)) {
-        name = getFriendlyName(program, type);
+        name = getFriendlyName(program, type)!;
       }
       return {
         type: new CSharpType({
@@ -164,7 +164,7 @@ export function getCSharpType(
 export function coalesceTypes(
   program: Program,
   types: Type[],
-  namespace: string
+  namespace: string,
 ): { type: CSharpType; value?: CSharpValue } {
   const visited = new Map<Type, { type: CSharpType; value?: CSharpValue }>();
   let candidateType: CSharpType | undefined = undefined;
@@ -194,7 +194,7 @@ export function getKnownType(program: Program, type: Type): CSharpType | undefin
 
 export function getCSharpTypeForIntrinsic(
   program: Program,
-  type: IntrinsicType
+  type: IntrinsicType,
 ): { type: CSharpType; value?: CSharpValue } | undefined {
   switch (type.name) {
     case "unknown":
@@ -358,7 +358,7 @@ const standardScalars: Map<ExtendedIntrinsicScalarName, CSharpType> = new Map<
 ]);
 export function getCSharpTypeForStdScalars(
   program: Program,
-  scalar: Scalar & { name: ExtendedIntrinsicScalarName }
+  scalar: Scalar & { name: ExtendedIntrinsicScalarName },
 ): CSharpType {
   const builtIn: CSharpType | undefined = standardScalars.get(scalar.name);
   if (builtIn !== undefined) {
@@ -395,7 +395,7 @@ export function isValueType(program: Program, type: Type): boolean {
 export function formatComment(
   text: string,
   lineLength: number = 76,
-  lineEnd: string = "\n"
+  lineEnd: string = "\n",
 ): string {
   function getNextLine(target: string): string {
     for (let i = lineLength - 1; i > 0; i--) {
@@ -421,7 +421,7 @@ export function formatComment(
 
 export function getCSharpIdentifier(
   name: string,
-  context: NameCasingType = NameCasingType.Class
+  context: NameCasingType = NameCasingType.Class,
 ): string {
   if (name === undefined) return "Placeholder";
   switch (context) {
@@ -443,7 +443,7 @@ export function ensureCSharpIdentifier(
   program: Program,
   target: Type,
   name: string,
-  context: NameCasingType = NameCasingType.Class
+  context: NameCasingType = NameCasingType.Class,
 ): string {
   let location = "";
   switch (target.kind) {
@@ -531,14 +531,14 @@ export function ensureCSharpIdentifier(
 export function getModelAttributes(
   program: Program,
   entity: Type,
-  csharpName?: string
+  csharpName?: string,
 ): Attribute[] {
   return getAttributes(program, entity);
 }
 
 export function getModelInstantiationName(program: Program, model: Model, name: string): string {
   const friendlyName = getFriendlyName(program, model);
-  if (friendlyName?.length > 0) return friendlyName;
+  if (friendlyName && friendlyName.length > 0) return friendlyName;
   if (name === undefined || name.length < 1)
     name = ensureCSharpIdentifier(program, model, "", NameCasingType.Class);
   const names: string[] = [name];
@@ -554,7 +554,7 @@ export function getModelInstantiationName(program: Program, model: Model, name: 
           case "Scalar":
           case "Union":
             names.push(
-              getCSharpIdentifier(paramType?.name ?? paramType.kind, NameCasingType.Class)
+              getCSharpIdentifier(paramType?.name ?? paramType.kind, NameCasingType.Class),
             );
             break;
           default:
@@ -586,7 +586,7 @@ export class ModelInfo {
   filterAllProperties(
     program: Program,
     model: Model,
-    filter: (p: ModelProperty) => boolean
+    filter: (p: ModelProperty) => boolean,
   ): ModelProperty | undefined {
     if (this.visited.includes(model)) return undefined;
     this.visited.push(model);
@@ -637,7 +637,7 @@ export class HttpMetadata {
         const bodyProp = new ModelInfo().filterAllProperties(
           program,
           responseType,
-          (p: ModelProperty) => isBody(program, p) || isBodyRoot(program, p)
+          (p: ModelProperty) => isBody(program, p) || isBodyRoot(program, p),
         );
         if (bodyProp !== undefined)
           return metaInfo.getEffectivePayloadType(bodyProp.type, Visibility.Read);
@@ -645,7 +645,7 @@ export class HttpMetadata {
         const anyProp = new ModelInfo().filterAllProperties(
           program,
           responseType,
-          (p: ModelProperty) => !isMetadata(program, p) && !isStatusCode(program, p)
+          (p: ModelProperty) => !isMetadata(program, p) && !isStatusCode(program, p),
         );
 
         if (anyProp === undefined) return program.checker.voidType;

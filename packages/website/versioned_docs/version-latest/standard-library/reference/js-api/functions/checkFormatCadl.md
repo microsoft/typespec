@@ -18,6 +18,8 @@ function checkFormatCadl(code, prettierConfig?): Promise<boolean>
 
 `Promise`<`boolean`\>
 
+true if code is formatted correctly.
+
 ## Deprecated
 
 use checkFormatTypeSpec

@@ -28,6 +28,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Encode.Bytes.DefaultBytesProperty.value"
     }
@@ -57,6 +58,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Encode.Bytes.Base64BytesProperty.value"
     }
@@ -86,6 +88,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Encode.Bytes.Base64urlBytesProperty.value"
     }
@@ -130,6 +133,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Encode.Bytes.Base64urlArrayBytesProperty.value"
     }
@@ -1371,7 +1375,6 @@
         "$id": "129",
         "kind": "bytes",
         "name": "bytes",
-        "encode": "base64",
         "crossLanguageDefinitionId": "TypeSpec.bytes",
         "decorators": []
        },
@@ -1454,7 +1457,6 @@
         "$id": "136",
         "kind": "bytes",
         "name": "bytes",
-        "encode": "base64",
         "crossLanguageDefinitionId": "TypeSpec.bytes",
         "decorators": []
        },

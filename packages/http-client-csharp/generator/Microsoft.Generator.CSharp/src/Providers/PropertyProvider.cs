@@ -28,8 +28,12 @@ namespace Microsoft.Generator.CSharp.Providers
         public PropertyBody Body { get; internal set; }
         public CSharpType? ExplicitInterface { get; }
         public XmlDocProvider XmlDocs { get; private set; }
-        public PropertyWireInformation? WireInfo { get; }
+        public PropertyWireInformation? WireInfo { get; internal set; }
         public bool IsDiscriminator { get; }
+        public bool IsAdditionalProperties { get; init; }
+
+        public FieldProvider? BackingField { get; set; }
+        public PropertyProvider? BaseProperty { get; set; }
 
         /// <summary>
         /// Converts this property to a parameter.

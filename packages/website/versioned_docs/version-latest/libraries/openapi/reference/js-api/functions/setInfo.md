@@ -10,13 +10,15 @@ function setInfo(
    data): void
 ```
 
+Set the OpenAPI info node on for the given service namespace.
+
 ## Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `program` | `Program` |
-| `entity` | `Namespace` |
-| `data` | [`AdditionalInfo`](../interfaces/AdditionalInfo.md) & `Record`<\`x-$\{string\}\`, `unknown`\> |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `program` | `Program` | Program |
+| `entity` | `Namespace` | Service namespace |
+| `data` | [`AdditionalInfo`](../interfaces/AdditionalInfo.md) & `Record`<\`x-$\{string\}\`, `unknown`\> | OpenAPI Info object |
 
 ## Returns
 

@@ -8,8 +8,7 @@ import org.junit.jupiter.api.Test;
 
 public class MediaTypeTests {
 
-    private final MediaTypeClient client = new MediaTypeClientBuilder()
-            .buildClient();
+    private final MediaTypeClient client = new MediaTypeClientBuilder().buildClient();
 
     @Test
     public void test() {

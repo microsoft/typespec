@@ -32,7 +32,7 @@ export interface TestHostOptions {
 function createTestCompilerHost(
   virtualFs: Map<string, string>,
   jsImports: Map<string, Record<string, any>>,
-  options?: TestHostOptions
+  options?: TestHostOptions,
 ): CompilerHost {
   const libDirs = [resolveVirtualPath(".tsp/lib/std")];
   if (!options?.excludeTestLib) {
@@ -286,7 +286,7 @@ async function createTestHostInternal(): Promise<TestHost> {
     get program() {
       assert(
         program,
-        "Program cannot be accessed without calling compile, diagnose, or compileAndDiagnose."
+        "Program cannot be accessed without calling compile, diagnose, or compileAndDiagnose.",
       );
       return program;
     },
@@ -305,16 +305,16 @@ async function createTestHostInternal(): Promise<TestHost> {
 
   async function compileAndDiagnose(
     mainFile: string,
-    options: CompilerOptions = {}
+    options: CompilerOptions = {},
   ): Promise<[Record<string, Type>, readonly Diagnostic[]]> {
     if (options.noEmit === undefined) {
       // default for tests is noEmit
       options = { ...options, noEmit: true };
     }
-    const p = await compileProgram(fileSystem.compilerHost, mainFile, options);
+    const p = await compileProgram(fileSystem.compilerHost, resolveVirtualPath(mainFile), options);
     program = p;
     logVerboseTestOutput((log) =>
-      logDiagnostics(p.diagnostics, createLogger({ sink: fileSystem.compilerHost.logSink }))
+      logDiagnostics(p.diagnostics, createLogger({ sink: fileSystem.compilerHost.logSink })),
     );
     return [testTypes, p.diagnostics];
   }

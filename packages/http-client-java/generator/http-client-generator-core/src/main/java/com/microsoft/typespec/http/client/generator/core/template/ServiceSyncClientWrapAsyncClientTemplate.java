@@ -10,7 +10,6 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlo
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaClass;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,10 +37,11 @@ public class ServiceSyncClientWrapAsyncClientTemplate extends ServiceSyncClientT
             comment.param(ASYNC_CLIENT_VAR_NAME, "the async client.");
         });
         addGeneratedAnnotation(classBlock);
-        classBlock.constructor(constructorVisibility, String.format("%1$s(%2$s %3$s)", syncClient.getClassName(),
-                asyncClassName, ASYNC_CLIENT_VAR_NAME), constructorBlock -> {
-            constructorBlock.line(String.format("this.%1$s = %1$s;", ASYNC_CLIENT_VAR_NAME));
-        });
+        classBlock.constructor(constructorVisibility,
+            String.format("%1$s(%2$s %3$s)", syncClient.getClassName(), asyncClassName, ASYNC_CLIENT_VAR_NAME),
+            constructorBlock -> {
+                constructorBlock.line(String.format("this.%1$s = %1$s;", ASYNC_CLIENT_VAR_NAME));
+            });
 
         // methods
         writeMethods(syncClient, classBlock);
@@ -66,11 +66,13 @@ public class ServiceSyncClientWrapAsyncClientTemplate extends ServiceSyncClientT
 
         @Override
         protected void writeMethodInvocation(ClientMethod clientMethod, JavaBlock function, boolean shouldReturn) {
-            List<String> parameterNames = clientMethod.getMethodInputParameters().stream()
-                    .map(ClientMethodParameter::getName).collect(Collectors.toList());
+            List<String> parameterNames = clientMethod.getMethodInputParameters()
+                .stream()
+                .map(ClientMethodParameter::getName)
+                .collect(Collectors.toList());
 
-            String methodInvoke = String.format("%1$s.%2$s(%3$s)",
-                    this.clientReference(), clientMethod.getName(), String.join(", ", parameterNames));
+            String methodInvoke = String.format("%1$s.%2$s(%3$s)", this.clientReference(), clientMethod.getName(),
+                String.join(", ", parameterNames));
             switch (clientMethod.getType()) {
                 case PagingSync:
                     methodInvoke = "new PagedIterable<>(" + methodInvoke + ")";
@@ -82,9 +84,10 @@ public class ServiceSyncClientWrapAsyncClientTemplate extends ServiceSyncClientT
 
                 case SendRequestSync:
                     parameterNames.remove("context");
-                    methodInvoke = String.format("%1$s.%2$s(%3$s)",
-                            this.clientReference(), clientMethod.getName(), String.join(", ", parameterNames));
-                    methodInvoke = methodInvoke + ".contextWrite(c -> c.putAll(FluxUtil.toReactorContext(context).readOnly())).block()";
+                    methodInvoke = String.format("%1$s.%2$s(%3$s)", this.clientReference(), clientMethod.getName(),
+                        String.join(", ", parameterNames));
+                    methodInvoke = methodInvoke
+                        + ".contextWrite(c -> c.putAll(FluxUtil.toReactorContext(context).readOnly())).block()";
                     break;
 
                 default:

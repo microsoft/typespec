@@ -10,7 +10,6 @@ import com.client.naming.models.ClientNameModel;
 import com.client.naming.models.ExtensibleEnum;
 import com.client.naming.models.JavaModel;
 import com.client.naming.models.LanguageClientNameModel;
-import org.eclipse.jetty.io.ssl.ALPNProcessor;
 import org.junit.jupiter.api.Test;
 
 public class NamingTests {

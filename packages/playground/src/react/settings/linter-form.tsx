@@ -15,7 +15,7 @@ export const LinterForm: FunctionComponent<LinterFormProps> = ({
   onLinterRuleSetChanged,
 }) => {
   const rulesets = Object.values(libraries).flatMap((lib) => {
-    // eslint-disable-next-line deprecation/deprecation
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     const linter = lib.linter ?? lib.definition?.linter;
     return Object.keys(linter?.ruleSets ?? {}).map((x) => `${lib.name}/${x}`) as RuleRef[];
   });
@@ -60,7 +60,7 @@ const RuleSetCheckbox = ({ ruleSet, checked, onChange }: RuleSetCheckbox) => {
     (_: any, data: CheckboxOnChangeData) => {
       onChange(ruleSet, !!data.checked);
     },
-    [ruleSet, onChange]
+    [ruleSet, onChange],
   );
   return <Checkbox label={ruleSet} checked={checked} onChange={handleChange} />;
 };

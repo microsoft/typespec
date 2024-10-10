@@ -101,7 +101,7 @@ export class NumericValue extends CSharpValue {
     this.value = value;
   }
   public emitValue(scope?: Scope<string> | undefined): string {
-    return `${this.value}` ?? "0";
+    return `${this.value ?? 0}`;
   }
 }
 
@@ -112,7 +112,7 @@ export class BooleanValue extends CSharpValue {
     this.value = value;
   }
   public emitValue(scope?: Scope<string> | undefined): string {
-    return `${this.value}` ?? false;
+    return `${this.value}`;
   }
 }
 
@@ -207,7 +207,7 @@ export class CSharpModel extends CSharpDeclaration {
   constructor(
     modelName: string,
     modelNamespace: string,
-    emitter: AssetEmitter<string, Record<string, never>>
+    emitter: AssetEmitter<string, Record<string, never>>,
   ) {
     super(
       new CSharpType({
@@ -216,7 +216,7 @@ export class CSharpModel extends CSharpDeclaration {
         isBuiltIn: false,
         isValueType: false,
       }),
-      emitter
+      emitter,
     );
   }
   properties: Parameter[] = [];

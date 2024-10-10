@@ -23,7 +23,7 @@ export interface TypeSpecServer {
 export function resolveServers(
   context: SdkContext<NetEmitterOptions>,
   servers: HttpServer[],
-  typeMap: SdkTypeMap
+  typeMap: SdkTypeMap,
 ): TypeSpecServer[] {
   return servers.map((server) => {
     const parameters: InputParameter[] = [];

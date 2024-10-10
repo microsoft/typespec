@@ -1,5 +1,19 @@
 # Change Log - @typespec/bundler
 
+## 0.1.8
+
+### Bump dependencies
+
+- [#4424](https://github.com/microsoft/typespec/pull/4424) Bump dependencies
+
+
+## 0.1.7
+
+### Bug Fixes
+
+- [#4139](https://github.com/microsoft/typespec/pull/4139) Allow bundling libraries that don't import their `main` file from the TypeSpec
+
+
 ## 0.1.6
 
 ### Bump dependencies

@@ -4,6 +4,7 @@
 using System.IO;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Statements;
+using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
