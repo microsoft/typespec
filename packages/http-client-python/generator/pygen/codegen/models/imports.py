@@ -182,7 +182,7 @@ class FileImport:
         self.add_mutable_mapping_import()
         self.define_mypy_type(
             "JSON",
-            "MutableMapping[str, Any] # pylint: disable=unsubscriptable-object",
+            "MutableMapping[str, Any]",
         )
         self.add_submodule_import("typing", "Any", ImportType.STDLIB)
 
