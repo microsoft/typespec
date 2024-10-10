@@ -7,6 +7,7 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection.PortableExecutable;
 using System.Threading;
 using Microsoft.Generator.CSharp.ClientModel.Primitives;
 using Microsoft.Generator.CSharp.ClientModel.Snippets;
@@ -17,6 +18,7 @@ using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
+using static Microsoft.Generator.CSharp.StringExtensions.GetPathPartsEnumerator;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
@@ -34,11 +36,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private readonly FieldProvider? _apiKeyAuthField;
         private readonly FieldProvider? _authorizationHeaderConstant;
         private readonly FieldProvider? _authorizationApiKeyPrefixConstant;
-        private readonly ParameterProvider[] _subClientInternalConstructorParams;
+        private readonly List<ParameterProvider> _subClientInternalConstructorParams;
         private IReadOnlyList<Lazy<ClientProvider>>? _subClients;
         private ParameterProvider? _clientOptionsParameter;
         private ClientOptionsProvider? _clientOptions;
         private RestClientProvider? _restClient;
+        private Lazy<ClientProvider?> _parent;
 
         private ParameterProvider? ClientOptionsParameter => _clientOptionsParameter ??= ClientOptions != null
             ? ScmKnownParameters.ClientOptions(ClientOptions.Type)
@@ -95,15 +98,31 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 ? [PipelineProperty.AsParameter, _apiKeyAuthField.AsParameter, _endpointParameter]
                 : [PipelineProperty.AsParameter, _endpointParameter];
 
+            foreach (InputParameter p in inputClient.Parameters)
+            {
+                var parameterProvider = ClientModelPlugin.Instance.TypeFactory.CreateParameter(p);
+                if (!p.IsEndpoint && parameterProvider != PipelineProperty.AsParameter && parameterProvider != _apiKeyAuthField?.AsParameter)
+                {
+                    _subClientInternalConstructorParams.Add(parameterProvider);
+                    FieldProvider field = new(
+                            FieldModifiers.Private | FieldModifiers.ReadOnly,
+                            parameterProvider.Type,
+                            "_" + parameterProvider.Name,
+                            this);
+                    parameterProvider.Field = field;
+                }
+            }
             if (_inputClient.Parent != null)
             {
+                // _clientCachingField will only have subClients (children)
+                // Allows parent to access fields from subClients
                 _clientCachingField = new FieldProvider(
                     FieldModifiers.Private,
                     Type,
                     $"_cached{Name}",
                     this);
             }
-
+            _parent = new Lazy<ClientProvider?>(GetParent);
             _endpointParameterName = new(GetEndpointParameterName);
         }
 
@@ -113,6 +132,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             if (_uriParameters is null)
             {
                 _ = Constructors;
+                if (_parent.Value is not null)
+                {
+                    var combined = new HashSet<ParameterProvider>(_uriParameters ?? []);
+                    combined.UnionWith(_parent.Value.GetUriParameters());
+                    _uriParameters = combined.ToList();
+                }
             }
             return _uriParameters ?? [];
         }
@@ -147,7 +172,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override FieldProvider[] BuildFields()
         {
-            List<FieldProvider> fields = [EndpointField];
+            HashSet<FieldProvider> fields = [EndpointField];
 
             if (_apiKeyAuthField != null && _authorizationHeaderConstant != null)
             {
@@ -161,19 +186,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             // Add optional client parameters as fields
-            foreach (var p in _inputClient.Parameters)
+            foreach (var p in _subClientInternalConstructorParams)
             {
-                if (!p.IsEndpoint)
+                if (p.Field != null)
                 {
-                    var type = ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(p.Type);
-                    if (type != null)
-                    {
-                        fields.Add(new(
-                            FieldModifiers.Private | FieldModifiers.ReadOnly,
-                            type,
-                            "_" + p.Name.ToVariableName(),
-                            this));
-                    }
+                    fields.Add(p.Field);
                 }
             }
 
@@ -433,6 +450,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             };
         }
 
+        // TODO: Update method to be more efficient
         private IReadOnlyList<Lazy<ClientProvider>> GetSubClients()
         {
             var inputClients = ClientModelPlugin.Instance.InputLibrary.InputNamespace.Clients;
@@ -448,6 +466,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             return subClients;
+        }
+
+        // TODO: Update method to be more efficient
+        private ClientProvider? GetParent()
+        {
+            var parentClient = ClientModelPlugin.Instance.InputLibrary.InputNamespace.Clients.Where(inputclient => inputclient.Name == _inputClient.Parent).SingleOrDefault();
+            if (parentClient is not null)
+                return ClientModelPlugin.Instance.TypeFactory.CreateClient(parentClient);
+            return null;
         }
     }
 }

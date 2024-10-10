@@ -2,21 +2,15 @@
 
 #nullable disable
 
-using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading.Tasks;
-using Client.Structure.Service.multi.client.Models;
 
-namespace Client.Structure.Service.multi.client
+namespace Client.Structure.Service
 {
-    public partial class ClientBClient
+    public partial class Group
     {
-        protected ClientBClient() => throw null;
-
-        public ClientBClient(Uri endpoint, ClientType client) : this(endpoint, client, new ClientBClientOptions()) => throw null;
-
-        public ClientBClient(Uri endpoint, ClientType client, ClientBClientOptions options) => throw null;
+        protected Group() => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
