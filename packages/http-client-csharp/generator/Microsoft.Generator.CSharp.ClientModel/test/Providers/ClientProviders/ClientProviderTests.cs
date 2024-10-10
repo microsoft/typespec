@@ -400,6 +400,26 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
 
         }
 
+        [Test]
+        public void TestApiVersionOfClient()
+        {
+            var client = InputFactory.Client(TestClientName,
+                operations: [
+                    InputFactory.Operation("OperationWithApiVersion",
+                            parameters: [InputFactory.Parameter("apiVersion", InputPrimitiveType.String, isRequired: true, location: RequestLocation.Query, kind: InputOperationParameterKind.Client)])
+                    ]);
+            var clientProvider = new ClientProvider(client);
+            Assert.IsNotNull(clientProvider);
+
+            /* verify that the client has apiVersion field */
+            Assert.IsNotNull(clientProvider.Fields.FirstOrDefault(f => f.Name.Equals("_apiVersion")));
+
+            var method = clientProvider.Methods.FirstOrDefault(m => m.Signature.Name.Equals("OperationWithApiVersion"));
+            Assert.IsNotNull(method);
+            /* verify that the method does not have apiVersion parameter */
+            Assert.IsNull(method?.Signature.Parameters.FirstOrDefault(p => p.Name.Equals("apiVersion")));
+        }
+
         private static InputClient GetEnumQueryParamClient()
             => InputFactory.Client(
                 TestClientName,
