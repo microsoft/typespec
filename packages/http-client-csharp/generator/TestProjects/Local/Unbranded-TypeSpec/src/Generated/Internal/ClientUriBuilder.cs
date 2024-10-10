@@ -103,18 +103,6 @@ namespace UnbrandedTypeSpec
 
         public void AppendQuery(string name, Guid value, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
 
-        public void AppendQueryDelimited<T>(string name, IEnumerable<T> value, string delimiter, bool escape = true)
-        {
-            IEnumerable<string> stringValues = value.Select(v => TypeFormatters.ConvertToString(v));
-            AppendQuery(name, string.Join(delimiter, stringValues), escape);
-        }
-
-        public void AppendQueryDelimited<T>(string name, IEnumerable<T> value, string delimiter, string format, bool escape = true)
-        {
-            IEnumerable<string> stringValues = value.Select(v => TypeFormatters.ConvertToString(v, format));
-            AppendQuery(name, string.Join(delimiter, stringValues), escape);
-        }
-
         public Uri ToUri()
         {
             if (_pathBuilder != null)
@@ -126,6 +114,18 @@ namespace UnbrandedTypeSpec
                 UriBuilder.Query = _queryBuilder.ToString();
             }
             return UriBuilder.Uri;
+        }
+
+        public void AppendQueryDelimited<T>(string name, IEnumerable<T> value, string delimiter, bool escape = true)
+        {
+            IEnumerable<string> stringValues = value.Select(v => TypeFormatters.ConvertToString(v));
+            AppendQuery(name, string.Join(delimiter, stringValues), escape);
+        }
+
+        public void AppendQueryDelimited<T>(string name, IEnumerable<T> value, string delimiter, string format, bool escape = true)
+        {
+            IEnumerable<string> stringValues = value.Select(v => TypeFormatters.ConvertToString(v, format));
+            AppendQuery(name, string.Join(delimiter, stringValues), escape);
         }
     }
 }
