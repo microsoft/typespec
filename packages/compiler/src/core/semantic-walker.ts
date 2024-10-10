@@ -194,6 +194,8 @@ function navigateNamespaceType(namespace: Namespace, context: NavigationContext)
   for (const decorator of namespace.decoratorDeclarations.values()) {
     navigateDecoratorDeclaration(decorator, context);
   }
+
+  context.emit("exitNamespace", namespace);
 }
 
 function checkVisited(visited: Set<any>, item: Type) {
@@ -288,6 +290,8 @@ function navigateInterfaceType(type: Interface, context: NavigationContext) {
   for (const op of type.operations.values()) {
     navigateOperationType(op, context);
   }
+
+  context.emit("exitInterface", type);
 }
 
 function navigateEnumType(type: Enum, context: NavigationContext) {
@@ -296,6 +300,11 @@ function navigateEnumType(type: Enum, context: NavigationContext) {
   }
 
   context.emit("enum", type);
+  for (const member of type.members.values()) {
+    navigateTypeInternal(member, context);
+  }
+
+  context.emit("exitEnum", type);
 }
 
 function navigateUnionType(type: Union, context: NavigationContext) {
@@ -309,6 +318,8 @@ function navigateUnionType(type: Union, context: NavigationContext) {
   for (const variant of type.variants.values()) {
     navigateUnionTypeVariant(variant, context);
   }
+
+  context.emit("exitUnion", type);
 }
 
 function navigateUnionTypeVariant(type: UnionVariant, context: NavigationContext) {
@@ -317,6 +328,8 @@ function navigateUnionTypeVariant(type: UnionVariant, context: NavigationContext
   }
   if (context.emit("unionVariant", type) === ListenerFlow.NoRecursion) return;
   navigateTypeInternal(type.type, context);
+
+  context.emit("exitUnionVariant", type);
 }
 
 function navigateTupleType(type: Tuple, context: NavigationContext) {
@@ -327,6 +340,8 @@ function navigateTupleType(type: Tuple, context: NavigationContext) {
   for (const value of type.values) {
     navigateTypeInternal(value, context);
   }
+
+  context.emit("exitTuple", type);
 }
 function navigateStringTemplate(type: StringTemplate, context: NavigationContext) {
   if (checkVisited(context.visited, type)) {

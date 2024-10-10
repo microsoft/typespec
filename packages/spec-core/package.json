@@ -52,7 +52,8 @@
     "winston": "^3.8.2",
     "xml2js": "^0.6.2",
     "yargs": "~17.7.2",
-    "axios": "^1.7.5"
+    "axios": "^1.7.5",
+    "form-data": "^3.0.1"
   },
   "devDependencies": {
     "@types/body-parser": "^1.19.2",

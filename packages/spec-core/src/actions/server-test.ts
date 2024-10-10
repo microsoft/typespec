@@ -53,13 +53,13 @@ class ServerTestsGenerator {
   }
 
   public async executeScenario() {
-    // for (const mockMethod of this.mockMethods) {
     logger.info(`Executing ${this.name} endpoint - Method: ${this.mockApiDefinition.method}`);
 
     const response = await makeServiceCall(this.mockApiDefinition.method, {
       endPoint: `${this.serverBasePath}${this.mockApiDefinition.uri}`,
       options: {
         requestBody: this.mockApiDefinition.request.body,
+        files: this.mockApiDefinition.request.files,
         config: this.getConfigObj(),
       },
     });
@@ -126,7 +126,10 @@ class ServerTestsGenerator {
     }
     if (this.mockApiDefinition.response.headers) {
       for (const key in this.mockApiDefinition.response.headers) {
-        if (this.mockApiDefinition.response.headers[key] !== response.headers[key]) {
+        if (
+          this.mockApiDefinition.response.headers[key] !==
+          response.headers[key].replace(this.serverBasePath, "")
+        ) {
           logger.error(`Response headers mismatch for ${this.name} endpoint`);
           logger.error(
             `Expected: ${this.mockApiDefinition.response.headers[key]} - Actual: ${response.headers[key]}`,
@@ -135,7 +138,6 @@ class ServerTestsGenerator {
         }
       }
     }
-    // }
   }
 }
 

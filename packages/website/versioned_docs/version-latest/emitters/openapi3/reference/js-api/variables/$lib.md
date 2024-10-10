@@ -23,8 +23,6 @@ const $lib: TypeSpecLibrary<object, OpenAPI3EmitterOptions, never>;
 | `inconsistent-shared-route-request-visibility.default` | "All operations with \`@sharedRoutes\` must have the same \`@requestVisibility\`." | "All operations with \`@sharedRoutes\` must have the same \`@requestVisibility\`." |
 | `inline-cycle` | `object` | - |
 | `inline-cycle.default` | `CallableMessage`<[`"type"`]\> | - |
-| `invalid-default` | `object` | - |
-| `invalid-default.default` | `CallableMessage`<[`"type"`]\> | - |
 | `invalid-format` | `object` | - |
 | `invalid-format.default` | `CallableMessage`<[`"value"`, `"paramType"`]\> | - |
 | `invalid-model-property` | `object` | - |

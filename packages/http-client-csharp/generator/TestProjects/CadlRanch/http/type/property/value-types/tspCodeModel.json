@@ -438,6 +438,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionEnumValueProperty.property"
     }
@@ -464,6 +465,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionFloatLiteralProperty.property"
     }
@@ -490,6 +492,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionIntLiteralProperty.property"
     }
@@ -516,6 +519,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionStringLiteralProperty.property"
     }
@@ -552,6 +556,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.BooleanLiteralProperty.property"
     }
@@ -584,6 +589,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.FloatLiteralProperty.property"
     }
@@ -616,6 +622,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.IntLiteralProperty.property"
     }
@@ -648,6 +655,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.StringLiteralProperty.property"
     }
@@ -678,6 +686,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownArrayProperty.property"
     }
@@ -708,6 +717,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownDictProperty.property"
     }
@@ -738,6 +748,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownIntProperty.property"
     }
@@ -768,6 +779,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownStringProperty.property"
     }
@@ -820,6 +832,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.DictionaryStringProperty.property"
     }
@@ -869,6 +882,7 @@
          "optional": false,
          "readOnly": false,
          "discriminator": false,
+         "flatten": false,
          "decorators": [],
          "crossLanguageDefinitionId": "Type.Property.ValueTypes.InnerModel.property"
         }
@@ -880,6 +894,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsModelProperty.property"
     }
@@ -920,6 +935,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsIntProperty.property"
     }
@@ -957,6 +973,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsStringProperty.property"
     }
@@ -983,6 +1000,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.ModelProperty.property"
     }
@@ -1009,6 +1027,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.ExtensibleEnumProperty.property"
     }
@@ -1035,6 +1054,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.EnumProperty.property"
     }
@@ -1073,6 +1093,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.DurationProperty.property"
     }
@@ -1111,6 +1132,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.DatetimeProperty.property"
     }
@@ -1141,6 +1163,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal128Property.property"
     }
@@ -1171,6 +1194,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.DecimalProperty.property"
     }
@@ -1201,6 +1225,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.FloatProperty.property"
     }
@@ -1231,6 +1256,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.IntProperty.property"
     }
@@ -1262,6 +1288,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.BytesProperty.property"
     }
@@ -1292,6 +1319,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.StringProperty.property"
     }
@@ -1322,6 +1350,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.BooleanProperty.property"
     }

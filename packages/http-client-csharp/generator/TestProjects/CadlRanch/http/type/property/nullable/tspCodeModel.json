@@ -29,6 +29,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsStringProperty.requiredProperty"
     },
@@ -59,6 +60,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsStringProperty.nullableProperty"
     }
@@ -89,6 +91,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsModelProperty.requiredProperty"
     },
@@ -130,6 +133,7 @@
           "optional": false,
           "readOnly": false,
           "discriminator": false,
+          "flatten": false,
           "decorators": [],
           "crossLanguageDefinitionId": "Type.Property.Nullable.InnerModel.property"
          }
@@ -142,6 +146,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsModelProperty.nullableProperty"
     }
@@ -175,6 +180,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsByteProperty.requiredProperty"
     },
@@ -206,6 +212,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsByteProperty.nullableProperty"
     }
@@ -236,6 +243,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.Nullable.DurationProperty.requiredProperty"
     },
@@ -267,6 +275,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.Nullable.DurationProperty.nullableProperty"
     }
@@ -297,6 +306,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.Nullable.DatetimeProperty.requiredProperty"
     },
@@ -328,6 +338,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.Nullable.DatetimeProperty.nullableProperty"
     }
@@ -358,6 +369,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.Nullable.BytesProperty.requiredProperty"
     },
@@ -382,6 +394,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.Nullable.BytesProperty.nullableProperty"
     }
@@ -412,6 +425,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.Nullable.StringProperty.requiredProperty"
     },
@@ -435,6 +449,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.Nullable.StringProperty.nullableProperty"
     }
