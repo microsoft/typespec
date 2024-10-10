@@ -199,7 +199,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var modifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Implicit | MethodSignatureModifiers.Operator;
             // return BinaryContent.Create(model, ModelSerializationExtensions.WireOptions);
             return new MethodProvider(
-                new MethodSignature(nameof(BinaryContent), null, modifiers, null, null, [model]),
+                new MethodSignature(ClientModelPlugin.Instance.TypeFactory.RequestContentApi.RequestContentType.FrameworkType.Name, null, modifiers, null, null, [model]),
                 ClientModelPlugin.Instance.TypeFactory.RequestContentApi.ToExpression().Create(model),
                 this);
         }
