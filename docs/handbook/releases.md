@@ -3,8 +3,6 @@ id: releases
 title: Releases
 ---
 
-# Releases
-
 ## Versioning strategy for packages
 
 TypeSpec is currently in its development phase, and all packages are released with a `0.` major version. Each minor version may introduce some breaking changes to the TypeSpec language, library API, or both. These changes are documented [here](../release-notes).

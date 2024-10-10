@@ -2,8 +2,6 @@
 title: Configuration
 ---
 
-# Compiler and library configurations
-
 The TypeSpec compiler and libraries can be configured either via a [configuration file](#configuration-file) or command line flags.
 
 ## Configuration file
@@ -219,10 +217,10 @@ See [output directory configuration for mode details](#configuring-output-direct
 Configure what area to trace. See [tracing docs](./tracing.md)
 
 ```yaml
-# Trace all.
+
 trace: *
 
-# or specific areas
+
 trace:
   - import-resolution
   - projection
