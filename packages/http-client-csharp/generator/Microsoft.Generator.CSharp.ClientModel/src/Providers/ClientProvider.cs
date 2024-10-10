@@ -42,6 +42,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private RestClientProvider? _restClient;
         private readonly InputParameter[] _allClientParameters;
 
+        private readonly CSharpType _keyCredentialType = ClientModelPlugin.Instance.TypeFactory.HttpPipelineApi.CredentialApi.KeyCredentialType;
+        private readonly CSharpType _pipelineType = ClientModelPlugin.Instance.TypeFactory.HttpPipelineApi.PipelineType;
+        private readonly CSharpType _pipelinePolicyType = ClientModelPlugin.Instance.TypeFactory.HttpPipelineApi.PipelinePolicyType;
+
         private ParameterProvider? ClientOptionsParameter => _clientOptionsParameter ??= ClientOptions != null
             ? ScmKnownParameters.ClientOptions(ClientOptions.Type)
             : null;
@@ -64,7 +68,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var apiKey = _inputAuth?.ApiKey;
             _apiKeyAuthField = apiKey != null ? new FieldProvider(
                 FieldModifiers.Private | FieldModifiers.ReadOnly,
-                ClientModelPlugin.Instance.TypeFactory.KeyCredentialType,
+                _keyCredentialType,
                 ApiKeyCredentialFieldName,
                 this,
                 description: $"A credential used to authenticate to the service.") : null;
@@ -88,7 +92,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             PipelineProperty = new(
                 description: $"The HTTP pipeline for sending and receiving REST requests and responses.",
                 modifiers: MethodSignatureModifiers.Public,
-                type: typeof(ClientPipeline),
+                type: _pipelineType,
                 name: "Pipeline",
                 body: new AutoPropertyBody(false),
                 enclosingType: this);
@@ -292,20 +296,19 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             // handle pipeline property
-            ValueExpression perRetryPolicies = New.Array(typeof(PipelinePolicy));
+            ValueExpression perRetryPolicies = New.Array(_pipelinePolicyType);
             if (_authorizationHeaderConstant != null && _apiKeyAuthField != null)
             {
                 // new PipelinePolicy[] { ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(_keyCredential, AuthorizationHeader) }
                 ValueExpression[] perRetryPolicyArgs = _authorizationApiKeyPrefixConstant != null
                     ? [_apiKeyAuthField, _authorizationHeaderConstant, _authorizationApiKeyPrefixConstant]
                     : [_apiKeyAuthField, _authorizationHeaderConstant];
-                var perRetryPolicy = Static<ApiKeyAuthenticationPolicy>().Invoke(
-                    nameof(ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy), perRetryPolicyArgs).As<ApiKeyAuthenticationPolicy>();
-                perRetryPolicies = New.Array(typeof(PipelinePolicy), isInline: true, perRetryPolicy);
+                var perRetryPolicy = ClientModelPlugin.Instance.TypeFactory.HttpPipelineApi.CredentialApi.CreateKeyCredentialPolicy(perRetryPolicyArgs);
+                perRetryPolicies = New.Array(_pipelinePolicyType, isInline: true, perRetryPolicy);
             }
 
-            body.Add(PipelineProperty.Assign(ClientPipelineSnippets.Create(
-                ClientOptionsParameter, New.Array(typeof(PipelinePolicy)), perRetryPolicies, New.Array(typeof(PipelinePolicy)))).Terminate());
+            body.Add(PipelineProperty.Assign(ClientModelPlugin.Instance.TypeFactory.HttpPipelineApi.Create(
+                ClientOptionsParameter, New.Array(_pipelinePolicyType), perRetryPolicies, New.Array(_pipelinePolicyType))).Terminate());
 
             var clientOptionsPropertyDict = ClientOptions.Properties.ToDictionary(p => p.Name.ToCleanName());
             foreach (var f in Fields)
