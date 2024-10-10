@@ -56,6 +56,7 @@
     "@fluentui/react-components": "~9.55.0",
     "@fluentui/react-icons": "^2.0.260",
     "@typespec/compiler": "workspace:~",
+    "@typespec/events": "workspace:~",
     "@typespec/html-program-viewer": "workspace:~",
     "@typespec/http": "workspace:~",
     "@typespec/json-schema": "workspace:~",
@@ -64,8 +65,10 @@
     "@typespec/playground": "workspace:~",
     "@typespec/protobuf": "workspace:~",
     "@typespec/rest": "workspace:~",
+    "@typespec/sse": "workspace:~",
     "@typespec/streams": "workspace:~",
     "@typespec/versioning": "workspace:~",
+    "@typespec/xml": "workspace:~",
     "es-module-shims": "~1.10.0",
     "react": "~18.3.1",
     "react-dom": "~18.3.1"
