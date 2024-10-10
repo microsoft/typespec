@@ -5,53 +5,89 @@
 package com.cadl.enumservice.models;
 
 import com.azure.core.annotation.Generated;
-import com.azure.core.util.ExpandableStringEnum;
+import com.azure.core.util.ExpandableEnum;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Defines values for PriorityModel.
  */
-public final class PriorityModel extends ExpandableStringEnum<PriorityModel> {
+public final class PriorityModel implements ExpandableEnum<Integer> {
+    private static final Map<Integer, PriorityModel> VALUES = new ConcurrentHashMap<>();
+
     /**
      * Static value 100 for PriorityModel.
      */
     @Generated
-    public static final PriorityModel HIGH = fromInt(100);
+    public static final PriorityModel HIGH = fromValue(100);
 
     /**
      * Static value 0 for PriorityModel.
      */
     @Generated
-    public static final PriorityModel LOW = fromInt(0);
+    public static final PriorityModel LOW = fromValue(0);
 
-    /**
-     * Creates a new instance of PriorityModel value.
-     * 
-     * @deprecated Use the {@link #fromInt(int)} factory method.
-     */
-    @Generated
-    @Deprecated
-    public PriorityModel() {
+    private final Integer value;
+
+    private PriorityModel(Integer value) {
+        this.value = value;
     }
 
     /**
-     * Creates or finds a PriorityModel from its string representation.
+     * Creates or finds a PriorityModel.
      * 
-     * @param name a name to look for.
+     * @param value a value to look for.
      * @return the corresponding PriorityModel.
      */
     @Generated
-    public static PriorityModel fromInt(int name) {
-        return fromString(String.valueOf(name), PriorityModel.class);
+    public static PriorityModel fromValue(Integer value) {
+        Objects.requireNonNull(value, "'value' cannot be null.");
+        PriorityModel member = VALUES.get(value);
+        if (member != null) {
+            return member;
+        }
+        return VALUES.computeIfAbsent(value, key -> new PriorityModel(key));
     }
 
     /**
      * Gets known PriorityModel values.
      * 
-     * @return known PriorityModel values.
+     * @return Known PriorityModel values.
      */
     @Generated
     public static Collection<PriorityModel> values() {
-        return values(PriorityModel.class);
+        return new ArrayList<>(VALUES.values());
+    }
+
+    /**
+     * Gets the value of the PriorityModel instance.
+     * 
+     * @return the value of the PriorityModel instance.
+     */
+    @Generated
+    @Override
+    public Integer getValue() {
+        return this.value;
+    }
+
+    @Generated
+    @Override
+    public String toString() {
+        return Objects.toString(this.value);
+    }
+
+    @Generated
+    @Override
+    public boolean equals(Object obj) {
+        return Objects.equals(this.value, obj);
+    }
+
+    @Generated
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this.value);
     }
 }

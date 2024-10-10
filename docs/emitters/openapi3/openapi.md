@@ -2,8 +2,6 @@
 title: Emitter operation
 ---
 
-# Exploring the Functionality of the OpenAPI Emitter
-
 The OpenAPI emitter is designed to translate TypeSpec language elements into their corresponding OpenAPI expressions. Here's how it works:
 
 ## Server Details

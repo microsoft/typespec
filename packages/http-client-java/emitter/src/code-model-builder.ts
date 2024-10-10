@@ -2111,7 +2111,7 @@ export class CodeModelBuilder {
           name: "string",
           crossLanguageDefinitionId: type.crossLanguageDefinitionId,
         },
-        description: type.doc,
+        doc: type.doc,
         valueType: type.additionalProperties,
         decorators: [],
       };

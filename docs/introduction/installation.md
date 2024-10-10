@@ -4,8 +4,6 @@ title: Installation
 slug: /
 ---
 
-# Installation
-
 ## Requirements
 
 Install [Node.js 20 LTS](https://nodejs.org/en/download/) and ensure you can run the `npm` command in a command prompt:

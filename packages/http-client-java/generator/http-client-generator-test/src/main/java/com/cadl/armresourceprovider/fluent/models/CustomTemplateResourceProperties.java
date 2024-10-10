@@ -9,6 +9,7 @@ import com.azure.core.util.logging.ClientLogger;
 import com.cadl.armresourceprovider.models.CustomTemplateResourcePropertiesAnonymousEmptyModel;
 import com.cadl.armresourceprovider.models.Dog;
 import com.cadl.armresourceprovider.models.EmptyModel;
+import com.cadl.armresourceprovider.models.PriorityModel;
 import com.cadl.armresourceprovider.models.ProvisioningState;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -40,6 +41,12 @@ public final class CustomTemplateResourceProperties {
      */
     @JsonProperty(value = "anonymousEmptyModel", required = true)
     private CustomTemplateResourcePropertiesAnonymousEmptyModel anonymousEmptyModel;
+
+    /*
+     * The priority property.
+     */
+    @JsonProperty(value = "priority", required = true)
+    private PriorityModel priority;
 
     /**
      * Creates an instance of CustomTemplateResourceProperties class.
@@ -118,6 +125,26 @@ public final class CustomTemplateResourceProperties {
     }
 
     /**
+     * Get the priority property: The priority property.
+     * 
+     * @return the priority value.
+     */
+    public PriorityModel priority() {
+        return this.priority;
+    }
+
+    /**
+     * Set the priority property: The priority property.
+     * 
+     * @param priority the priority value to set.
+     * @return the CustomTemplateResourceProperties object itself.
+     */
+    public CustomTemplateResourceProperties withPriority(PriorityModel priority) {
+        this.priority = priority;
+        return this;
+    }
+
+    /**
      * Validates the instance.
      * 
      * @throws IllegalArgumentException thrown if the instance is not valid.
@@ -143,6 +170,11 @@ public final class CustomTemplateResourceProperties {
                     "Missing required property anonymousEmptyModel in model CustomTemplateResourceProperties"));
         } else {
             anonymousEmptyModel().validate();
+        }
+        if (priority() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Missing required property priority in model CustomTemplateResourceProperties"));
         }
     }
 

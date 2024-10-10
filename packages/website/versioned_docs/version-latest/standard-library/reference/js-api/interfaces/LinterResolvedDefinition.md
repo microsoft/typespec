@@ -7,5 +7,5 @@ title: "[I] LinterResolvedDefinition"
 
 | Property | Modifier | Type |
 | ------ | ------ | ------ |
-| `ruleSets` | `readonly` | `object` |
 | `rules` | `readonly` | [`LinterRule`](LinterRule.md)<`string`, [`DiagnosticMessages`](DiagnosticMessages.md)\>[] |
+| `ruleSets` | `readonly` | `object` |

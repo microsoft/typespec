@@ -36,11 +36,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private readonly FieldProvider? _apiKeyAuthField;
         private readonly FieldProvider? _authorizationHeaderConstant;
         private readonly FieldProvider? _authorizationApiKeyPrefixConstant;
-        private readonly List<ParameterProvider> _subClientInternalConstructorParams;
+        private FieldProvider? _apiVersionField;
+        private readonly ParameterProvider[] _subClientInternalConstructorParams;
         private IReadOnlyList<Lazy<ClientProvider>>? _subClients;
         private ParameterProvider? _clientOptionsParameter;
         private ClientOptionsProvider? _clientOptions;
         private RestClientProvider? _restClient;
+        private readonly InputParameter[] _allClientParameters;
         private Lazy<ClientProvider?> _parent;
 
         private ParameterProvider? ClientOptionsParameter => _clientOptionsParameter ??= ClientOptions != null
@@ -124,6 +126,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
             _parent = new Lazy<ClientProvider?>(GetParent);
             _endpointParameterName = new(GetEndpointParameterName);
+
+            _allClientParameters = _inputClient.Parameters.Concat(_inputClient.Operations.SelectMany(op => op.Parameters).Where(p => p.Kind == InputOperationParameterKind.Client)).DistinctBy(p => p.Name).ToArray();
         }
 
         private List<ParameterProvider>? _uriParameters;
@@ -186,11 +190,19 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             // Add optional client parameters as fields
-            foreach (var p in _subClientInternalConstructorParams)
+            foreach (var p in _inputClient.Parameters)
             {
-                if (p.Field != null)
+                if (!p.IsEndpoint)
                 {
-                    fields.Add(p.Field);
+                    var type = ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(p.Type);
+                    if (type != null)
+                    {
+                        fields.Add(new(
+                            FieldModifiers.Private | FieldModifiers.ReadOnly,
+                            type,
+                            "_" + p.Name.ToVariableName(),
+                            this));
+                    }
                 }
             }
 
@@ -258,9 +270,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _uriParameters = [];
 
             ParameterProvider? currentParam = null;
-            foreach (var parameter in _inputClient.Parameters)
+            foreach (var parameter in _allClientParameters)
             {
-                if (parameter.IsRequired && !parameter.IsEndpoint)
+                if (parameter.IsRequired && !parameter.IsEndpoint && !parameter.IsApiVersion)
                 {
                     currentParam = ClientModelPlugin.Instance.TypeFactory.CreateParameter(parameter);
                     currentParam.Field = Fields.FirstOrDefault(f => f.Name == "_" + parameter.Name);
@@ -321,10 +333,16 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 if (f != _apiKeyAuthField
                     && f != EndpointField
-                    && !f.Modifiers.HasFlag(FieldModifiers.Const)
-                    && clientOptionsPropertyDict.TryGetValue(f.Name.ToCleanName(), out var optionsProperty))
+                    && !f.Modifiers.HasFlag(FieldModifiers.Const))
                 {
-                    body.Add(f.Assign(ClientOptionsParameter.Property(optionsProperty.Name)).Terminate());
+                    if (f == _apiVersionField && ClientOptions.VersionProperty != null)
+                    {
+                        body.Add(f.Assign(ClientOptionsParameter.Property(ClientOptions.VersionProperty.Name)).Terminate());
+                    }
+                    else if (clientOptionsPropertyDict.TryGetValue(f.Name.ToCleanName(), out var optionsProperty))
+                    {
+                        clientOptionsPropertyDict.TryGetValue(f.Name.ToCleanName(), out optionsProperty);
+                    }
                 }
             }
 

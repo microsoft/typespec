@@ -1,5 +1,16 @@
 # Change Log - @typespec/internal-build-utils
 
+## 0.61.0
+
+### Bug Fixes
+
+- [#4498](https://github.com/microsoft/typespec/pull/4498) Ignore test from third party notice generation
+
+### Bump dependencies
+
+- [#4424](https://github.com/microsoft/typespec/pull/4424) Bump dependencies
+
+
 ## 0.60.0
 
 No changes, version bump only.
