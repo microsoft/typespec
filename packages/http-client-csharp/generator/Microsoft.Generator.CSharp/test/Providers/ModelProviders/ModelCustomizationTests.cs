@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Generator.CSharp.Input;
@@ -324,6 +325,102 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.AreEqual("Red", customCodeView?.Fields[0].Name);
             Assert.AreEqual("Green", customCodeView?.Fields[1].Name);
             Assert.AreEqual("SkyBlue", customCodeView?.Fields[2].Name);
+        }
+
+        // Validates that if a spec property is customized, then the property is not generated and the custom property
+        // is used instead
+        [Test]
+        public async Task DoesNotGenerateExistingProperty()
+        {
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModelTypes: [
+                    InputFactory.Model(
+                        "mockInputModel",
+                        // use Input so that we generate a public ctor
+                        usage: InputModelTypeUsage.Input,
+                        properties:
+                        [
+                            InputFactory.Property("Prop1", InputFactory.Array(InputPrimitiveType.String), isRequired: true),
+                        ])
+                ],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var csharpGen = new CSharpGen();
+            await csharpGen.ExecuteAsync();
+
+            var modelTypeProvider = plugin.Object.OutputLibrary.TypeProviders.FirstOrDefault(t => t is ModelProvider);
+            Assert.IsNotNull(modelTypeProvider);
+            var customCodeView = modelTypeProvider!.CustomCodeView;
+
+            AssertCommon(modelTypeProvider, "Sample.Models", "MockInputModel");
+
+            // the custom property shouldn't be added to the model provider
+            Assert.AreEqual(0, modelTypeProvider.Properties.Count);
+
+            // the custom property should still be parameters of the model's ctor
+            var modelCtors = modelTypeProvider.Constructors;
+            foreach (var ctor in modelCtors)
+            {
+                Assert.IsTrue(ctor.Signature.Parameters.Any(p => p.Name == "prop1"));
+            }
+
+            // the custom property should be added to the custom code view
+            Assert.AreEqual(1, customCodeView!.Properties.Count);
+            Assert.AreEqual("Prop1", customCodeView.Properties[0].Name);
+            Assert.AreEqual(new CSharpType(typeof(IList<string>)), customCodeView.Properties[0].Type);
+            Assert.AreEqual(MethodSignatureModifiers.Internal, customCodeView.Properties[0].Modifiers);
+            Assert.IsTrue(customCodeView.Properties[0].Body.HasSetter);
+        }
+
+        // Validates that if a custom property is added to the base model, and a property with the same name exists in the derived model,
+        // then the derived model property is not generated and the custom property is used instead.
+        [Test]
+        public async Task DoesNotGenerateCustomPropertyFromBase()
+        {
+            var baseModel = InputFactory.Model(
+                "baseModel",
+                usage: InputModelTypeUsage.Input,
+                properties: [InputFactory.Property("BaseProp", InputPrimitiveType.Int32, isRequired: true)]);
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModelTypes: [
+                    InputFactory.Model(
+                        "mockInputModel",
+                        // use Input so that we generate a public ctor
+                        usage: InputModelTypeUsage.Input,
+                        properties:
+                        [
+                            InputFactory.Property("Prop1", InputPrimitiveType.Int32, isRequired: true),
+                        ],
+                        baseModel: baseModel),
+                ],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var csharpGen = new CSharpGen();
+            await csharpGen.ExecuteAsync();
+
+            var modelTypeProvider = plugin.Object.OutputLibrary.TypeProviders.FirstOrDefault(t => t is ModelProvider && t.Name == "MockInputModel");
+            Assert.IsNotNull(modelTypeProvider);
+
+            var baseModelTypeProvider = (modelTypeProvider as ModelProvider)?.BaseModelProvider;
+            Assert.IsNotNull(baseModelTypeProvider);
+            var customCodeView = baseModelTypeProvider!.CustomCodeView;
+            Assert.IsNotNull(customCodeView);
+            Assert.IsNull(modelTypeProvider!.CustomCodeView);
+
+            AssertCommon(baseModelTypeProvider, "Sample.Models", "BaseModel");
+
+            Assert.AreEqual(1, baseModelTypeProvider!.Properties.Count);
+            Assert.AreEqual("BaseProp", baseModelTypeProvider.Properties[0].Name);
+            Assert.AreEqual(new CSharpType(typeof(int)), baseModelTypeProvider.Properties[0].Type);
+            Assert.AreEqual(1, customCodeView!.Properties.Count);
+            Assert.AreEqual("Prop1", customCodeView.Properties[0].Name);
+            // the spec property shouldn't be added to the model provider since a custom property with the same name exists
+            Assert.AreEqual(0, modelTypeProvider.Properties.Count);
+
+            // the custom property should not be parameters of the model's ctor
+            var modelCtors = modelTypeProvider.Constructors;
+            foreach (var ctor in modelCtors)
+            {
+                Assert.IsFalse(ctor.Signature.Parameters.Any(p => p.Name == "prop1"));
+            }
         }
 
         [Test]
