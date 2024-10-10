@@ -180,6 +180,10 @@
   box-sizing: border-box;
 }
 
+img {
+  max-width: 100%;
+}
+
 a {
   color: var(--colorBrandForeground1);
   text-decoration: var(--ifm-link-decoration);
