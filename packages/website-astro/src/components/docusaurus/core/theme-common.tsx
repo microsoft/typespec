@@ -1,4 +1,4 @@
-import { getTheme, setTheme, type Theme } from "@site/src/utils";
+import { getTheme, setTheme, type Theme } from "@site/src/utils/theme";
 import { useEffect, useState } from "react";
 
 type ContextValue = {

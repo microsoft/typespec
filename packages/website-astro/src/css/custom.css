@@ -176,6 +176,10 @@
   background: var(--colorNeutralBackground1) !important;
 }
 
+* {
+  box-sizing: border-box;
+}
+
 a {
   color: var(--colorBrandForeground1);
   text-decoration: var(--ifm-link-decoration);
