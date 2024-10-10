@@ -64,9 +64,6 @@ export default defineConfig({
     }),
     react(),
   ],
-  // redirects: {
-  //   "/docs": base + "docs/introduction/installation/",
-  // },
   markdown: {
     // @ts-expect-error wrong type
     remarkPlugins: [remarkHeadingID],
