@@ -2,8 +2,6 @@
 title: Common Parameters
 ---
 
-# Reusing Common Parameters
-
 ## Introduction
 
 In this section, we'll focus on reusing common parameters in your REST API. Common parameters are parameters that are used across multiple operations. By defining these parameters once and reusing them, we can make our API more consistent, easier to read, and easier to maintain.

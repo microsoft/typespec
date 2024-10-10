@@ -3,8 +3,6 @@ id: built-in-types
 title: Built-in types
 ---
 
-# Built-in types
-
 TypeSpec Standard Library provide some built-in types that can be used to build more complex types.
 
 Built in types are related to each other according to the rules described in [type relations](../language-basics/type-relations.md).

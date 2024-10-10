@@ -19,8 +19,25 @@ function createTests(uri: string) {
       status: 204,
     },
     handler: (req: MockRequest) => {
+      const queryMap = new Map<string, string | string[]>();
       for (const [key, value] of url.searchParams.entries()) {
-        req.expect.containsQueryParam(key, value);
+        if (queryMap.has(key)) {
+          const existing = queryMap.get(key)!;
+          if (Array.isArray(existing)) {
+            existing.push(value);
+          } else {
+            queryMap.set(key, [existing, value]);
+          }
+        } else {
+          queryMap.set(key, value);
+        }
+      }
+      for (const [key, value] of queryMap.entries()) {
+        if (Array.isArray(value)) {
+          req.expect.containsQueryParam(key, value, "multi");
+        } else {
+          req.expect.containsQueryParam(key, value);
+        }
       }
       for (const param of Object.keys(req.query)) {
         if (!url.searchParams.has(param)) {
