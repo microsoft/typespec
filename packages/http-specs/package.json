@@ -38,12 +38,12 @@
   },
   "devDependencies": {
     "@types/multer": "^1.4.10",
-    "@types/node": "~22.7.1",
+    "@types/node": "~22.7.5",
     "@typespec/openapi": "workspace:~",
     "@typespec/openapi3": "workspace:~",
     "concurrently": "^9.0.1",
     "rimraf": "~6.0.1",
-    "typescript": "~5.6.2"
+    "typescript": "~5.6.3"
   },
   "peerDependencies": {
     "@typespec/compiler": "workspace:~",

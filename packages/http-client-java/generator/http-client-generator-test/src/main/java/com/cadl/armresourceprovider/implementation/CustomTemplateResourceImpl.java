@@ -14,6 +14,7 @@ import com.cadl.armresourceprovider.models.CustomTemplateResourcePropertiesAnony
 import com.cadl.armresourceprovider.models.Dog;
 import com.cadl.armresourceprovider.models.EmptyModel;
 import com.cadl.armresourceprovider.models.ManagedServiceIdentity;
+import com.cadl.armresourceprovider.models.PriorityModel;
 import com.cadl.armresourceprovider.models.ProvisioningState;
 import java.util.Collections;
 import java.util.Map;
@@ -71,6 +72,10 @@ public final class CustomTemplateResourceImpl
 
     public CustomTemplateResourcePropertiesAnonymousEmptyModel anonymousEmptyModel() {
         return this.innerModel().anonymousEmptyModel();
+    }
+
+    public PriorityModel priority() {
+        return this.innerModel().priority();
     }
 
     public Region region() {
@@ -198,6 +203,11 @@ public final class CustomTemplateResourceImpl
     public CustomTemplateResourceImpl
         withAnonymousEmptyModel(CustomTemplateResourcePropertiesAnonymousEmptyModel anonymousEmptyModel) {
         this.innerModel().withAnonymousEmptyModel(anonymousEmptyModel);
+        return this;
+    }
+
+    public CustomTemplateResourceImpl withPriority(PriorityModel priority) {
+        this.innerModel().withPriority(priority);
         return this;
     }
 

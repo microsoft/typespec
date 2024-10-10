@@ -36,7 +36,11 @@ public class SealedChoiceMapper implements IMapper<SealedChoiceSchema, IType> {
         return sealedChoiceType;
     }
 
+    protected boolean useCodeModelNameForEnumMember() {
+        return true;
+    }
+
     private IType createSealedChoiceType(SealedChoiceSchema enumType) {
-        return MapperUtils.createEnumType(enumType, false, true);
+        return MapperUtils.createEnumType(enumType, false, useCodeModelNameForEnumMember());
     }
 }

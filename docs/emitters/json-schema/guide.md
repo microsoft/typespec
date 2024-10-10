@@ -2,8 +2,6 @@
 title: Guide
 ---
 
-# JSON Schema files and references
-
 When a TypeSpec data type has the `@jsonSchema` decorator or is declared inside a namespace with that decorator, it is considered a _JSON Schema type_.
 
 By default, this emitter will produce one JSON Schema file per JSON Schema type. The file defines an `$id` metadata keyword based on the TypeSpec type name and the file format of the schema (for example, `Widget.yaml`). The `$id` can be overridden by using the `@id` decorator.

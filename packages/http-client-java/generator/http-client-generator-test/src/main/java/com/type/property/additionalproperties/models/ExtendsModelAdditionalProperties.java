@@ -26,7 +26,7 @@ public final class ExtendsModelAdditionalProperties implements JsonSerializable<
     private final ModelForRecord knownProp;
 
     /*
-     * Additional properties
+     * The model extends from Record<ModelForRecord> type.
      */
     @Generated
     private Map<String, ModelForRecord> additionalProperties;
@@ -52,7 +52,7 @@ public final class ExtendsModelAdditionalProperties implements JsonSerializable<
     }
 
     /**
-     * Get the additionalProperties property: Additional properties.
+     * Get the additionalProperties property: The model extends from Record&lt;ModelForRecord&gt; type.
      * 
      * @return the additionalProperties value.
      */
@@ -62,7 +62,7 @@ public final class ExtendsModelAdditionalProperties implements JsonSerializable<
     }
 
     /**
-     * Set the additionalProperties property: Additional properties.
+     * Set the additionalProperties property: The model extends from Record&lt;ModelForRecord&gt; type.
      * 
      * @param additionalProperties the additionalProperties value to set.
      * @return the ExtendsModelAdditionalProperties object itself.

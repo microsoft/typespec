@@ -3,8 +3,6 @@ id: emitter-framework
 title: Emitter framework
 ---
 
-# Emitter framework
-
 :::warning
 The emitter framework has many issues in its current form and a V2 using a completely different approach is in the works. Use with caution.
 :::
