@@ -44,6 +44,7 @@
     "com.cadl.specialheaders.SkipSpecialHeadersClient.deleteWithSpecialHeaders": "Cadl.SpecialHeaders.SkipSpecialHeaders.deleteWithSpecialHeaders",
     "com.cadl.specialheaders.SkipSpecialHeadersClient.deleteWithSpecialHeadersWithResponse": "Cadl.SpecialHeaders.SkipSpecialHeaders.deleteWithSpecialHeaders",
     "com.cadl.specialheaders.SpecialHeadersClientBuilder": "Cadl.SpecialHeaders",
+    "com.cadl.specialheaders.models.RepeatabilityResult": "Azure.Core.RepeatabilityResult",
     "com.cadl.specialheaders.models.Resource": "Cadl.SpecialHeaders.Resource"
   }
 }

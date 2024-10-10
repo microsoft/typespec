@@ -4,8 +4,8 @@
 
 package com.cadl.builtin.models;
 
-import com.azure.core.annotation.Fluent;
 import com.azure.core.annotation.Generated;
+import com.azure.core.annotation.Immutable;
 import com.azure.core.util.Base64Url;
 import com.azure.core.util.CoreUtils;
 import com.azure.core.util.DateTimeRfc1123;
@@ -24,7 +24,7 @@ import java.util.Objects;
 /**
  * The Encoded model.
  */
-@Fluent
+@Immutable
 public final class Encoded implements JsonSerializable<Encoded> {
     /*
      * The timeInSeconds property.
@@ -72,7 +72,7 @@ public final class Encoded implements JsonSerializable<Encoded> {
      * Creates an instance of Encoded class.
      */
     @Generated
-    public Encoded() {
+    private Encoded() {
     }
 
     /**
@@ -89,22 +89,6 @@ public final class Encoded implements JsonSerializable<Encoded> {
     }
 
     /**
-     * Set the timeInSeconds property: The timeInSeconds property.
-     * 
-     * @param timeInSeconds the timeInSeconds value to set.
-     * @return the Encoded object itself.
-     */
-    @Generated
-    public Encoded setTimeInSeconds(Duration timeInSeconds) {
-        if (timeInSeconds == null) {
-            this.timeInSeconds = null;
-        } else {
-            this.timeInSeconds = timeInSeconds.getSeconds();
-        }
-        return this;
-    }
-
-    /**
      * Get the timeInSecondsFraction property: The timeInSecondsFraction property.
      * 
      * @return the timeInSecondsFraction value.
@@ -118,22 +102,6 @@ public final class Encoded implements JsonSerializable<Encoded> {
     }
 
     /**
-     * Set the timeInSecondsFraction property: The timeInSecondsFraction property.
-     * 
-     * @param timeInSecondsFraction the timeInSecondsFraction value to set.
-     * @return the Encoded object itself.
-     */
-    @Generated
-    public Encoded setTimeInSecondsFraction(Duration timeInSecondsFraction) {
-        if (timeInSecondsFraction == null) {
-            this.timeInSecondsFraction = null;
-        } else {
-            this.timeInSecondsFraction = (double) timeInSecondsFraction.toNanos() / 1000_000_000L;
-        }
-        return this;
-    }
-
-    /**
      * Get the dateTime property: The dateTime property.
      * 
      * @return the dateTime value.
@@ -141,18 +109,6 @@ public final class Encoded implements JsonSerializable<Encoded> {
     @Generated
     public OffsetDateTime getDateTime() {
         return this.dateTime;
-    }
-
-    /**
-     * Set the dateTime property: The dateTime property.
-     * 
-     * @param dateTime the dateTime value to set.
-     * @return the Encoded object itself.
-     */
-    @Generated
-    public Encoded setDateTime(OffsetDateTime dateTime) {
-        this.dateTime = dateTime;
-        return this;
     }
 
     /**
@@ -169,22 +125,6 @@ public final class Encoded implements JsonSerializable<Encoded> {
     }
 
     /**
-     * Set the dateTimeRfc7231 property: The dateTimeRfc7231 property.
-     * 
-     * @param dateTimeRfc7231 the dateTimeRfc7231 value to set.
-     * @return the Encoded object itself.
-     */
-    @Generated
-    public Encoded setDateTimeRfc7231(OffsetDateTime dateTimeRfc7231) {
-        if (dateTimeRfc7231 == null) {
-            this.dateTimeRfc7231 = null;
-        } else {
-            this.dateTimeRfc7231 = new DateTimeRfc1123(dateTimeRfc7231);
-        }
-        return this;
-    }
-
-    /**
      * Get the unixTimestamp property: The unixTimestamp property.
      * 
      * @return the unixTimestamp value.
@@ -198,22 +138,6 @@ public final class Encoded implements JsonSerializable<Encoded> {
     }
 
     /**
-     * Set the unixTimestamp property: The unixTimestamp property.
-     * 
-     * @param unixTimestamp the unixTimestamp value to set.
-     * @return the Encoded object itself.
-     */
-    @Generated
-    public Encoded setUnixTimestamp(OffsetDateTime unixTimestamp) {
-        if (unixTimestamp == null) {
-            this.unixTimestamp = null;
-        } else {
-            this.unixTimestamp = unixTimestamp.toEpochSecond();
-        }
-        return this;
-    }
-
-    /**
      * Get the base64 property: The base64 property.
      * 
      * @return the base64 value.
@@ -221,18 +145,6 @@ public final class Encoded implements JsonSerializable<Encoded> {
     @Generated
     public byte[] getBase64() {
         return CoreUtils.clone(this.base64);
-    }
-
-    /**
-     * Set the base64 property: The base64 property.
-     * 
-     * @param base64 the base64 value to set.
-     * @return the Encoded object itself.
-     */
-    @Generated
-    public Encoded setBase64(byte[] base64) {
-        this.base64 = CoreUtils.clone(base64);
-        return this;
     }
 
     /**
@@ -246,22 +158,6 @@ public final class Encoded implements JsonSerializable<Encoded> {
             return null;
         }
         return this.base64url.decodedBytes();
-    }
-
-    /**
-     * Set the base64url property: The base64url property.
-     * 
-     * @param base64url the base64url value to set.
-     * @return the Encoded object itself.
-     */
-    @Generated
-    public Encoded setBase64url(byte[] base64url) {
-        if (base64url == null) {
-            this.base64url = null;
-        } else {
-            this.base64url = Base64Url.encode(CoreUtils.clone(base64url));
-        }
-        return this;
     }
 
     /**

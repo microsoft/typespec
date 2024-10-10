@@ -20,6 +20,10 @@
     "com.cadl.multicontenttypes.SingleContentTypeClient.downloadImageForSingleContentTypeWithResponse": "Cadl.MultiContentTypes.SingleContentType.downloadImageForSingleContentType",
     "com.cadl.multicontenttypes.SingleContentTypeClient.uploadImageForSingleContentType": "Cadl.MultiContentTypes.SingleContentType.uploadImageForSingleContentType",
     "com.cadl.multicontenttypes.SingleContentTypeClient.uploadImageForSingleContentTypeWithResponse": "Cadl.MultiContentTypes.SingleContentType.uploadImageForSingleContentType",
-    "com.cadl.multicontenttypes.models.Resource": "Cadl.MultiContentTypes.Resource"
+    "com.cadl.multicontenttypes.models.Resource": "Cadl.MultiContentTypes.Resource",
+    "com.cadl.multicontenttypes.models.UploadBytesWithMultiBodyTypesForMultiContentTypesRequestContentType": "uploadBytesWithMultiBodyTypesForMultiContentTypes.RequestContentType.anonymous",
+    "com.cadl.multicontenttypes.models.UploadBytesWithSingleBodyTypeForMultiContentTypesRequestContentType": "uploadBytesWithSingleBodyTypeForMultiContentTypes.RequestContentType.anonymous",
+    "com.cadl.multicontenttypes.models.UploadJsonOrBytesWithMultiBodyTypesForMultiContentTypesRequestContentType": "uploadJsonOrBytesWithMultiBodyTypesForMultiContentTypes.RequestContentType.anonymous",
+    "com.cadl.multicontenttypes.models.UploadWithOverloadRequestContentType": "uploadWithOverload.RequestContentType.anonymous"
   }
 }

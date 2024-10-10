@@ -150,7 +150,7 @@ public final class Builtin implements JsonSerializable<Builtin> {
      * @param encoded the encoded value to set.
      */
     @Generated
-    public Builtin(boolean booleanProperty, String string, byte[] bytes, int intProperty, long safeint,
+    private Builtin(boolean booleanProperty, String string, byte[] bytes, int intProperty, long safeint,
         BigDecimal decimal, long longProperty, double floatProperty, double doubleProperty, Duration duration,
         LocalDate date, OffsetDateTime dateTime, List<String> stringList, Map<String, byte[]> bytesDict, String url,
         Map<String, Double> nullableFloatDict, Encoded encoded) {

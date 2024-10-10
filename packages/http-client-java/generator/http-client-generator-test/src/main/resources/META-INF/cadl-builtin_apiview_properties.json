@@ -4,9 +4,13 @@
     "com.cadl.builtin.BuiltinAsyncClient": "null",
     "com.cadl.builtin.BuiltinAsyncClient.read": "Cadl.Builtin.BuiltinOp.read",
     "com.cadl.builtin.BuiltinAsyncClient.readWithResponse": "Cadl.Builtin.BuiltinOp.read",
+    "com.cadl.builtin.BuiltinAsyncClient.write": "Cadl.Builtin.BuiltinOp.write",
+    "com.cadl.builtin.BuiltinAsyncClient.writeWithResponse": "Cadl.Builtin.BuiltinOp.write",
     "com.cadl.builtin.BuiltinClient": "null",
     "com.cadl.builtin.BuiltinClient.read": "Cadl.Builtin.BuiltinOp.read",
     "com.cadl.builtin.BuiltinClient.readWithResponse": "Cadl.Builtin.BuiltinOp.read",
+    "com.cadl.builtin.BuiltinClient.write": "Cadl.Builtin.BuiltinOp.write",
+    "com.cadl.builtin.BuiltinClient.writeWithResponse": "Cadl.Builtin.BuiltinOp.write",
     "com.cadl.builtin.BuiltinClientBuilder": "Cadl.Builtin",
     "com.cadl.builtin.models.Builtin": "Cadl.Builtin.Builtin",
     "com.cadl.builtin.models.Encoded": "Cadl.Builtin.Encoded"

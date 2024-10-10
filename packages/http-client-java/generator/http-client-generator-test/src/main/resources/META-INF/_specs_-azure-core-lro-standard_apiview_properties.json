@@ -17,6 +17,9 @@
     "com._specs_.azure.core.lro.standard.StandardClient.beginExportWithModel": "_Specs_.Azure.Core.Lro.Standard.export",
     "com._specs_.azure.core.lro.standard.StandardClientBuilder": "_Specs_.Azure.Core.Lro.Standard",
     "com._specs_.azure.core.lro.standard.models.ExportedUser": "_Specs_.Azure.Core.Lro.Standard.ExportedUser",
+    "com._specs_.azure.core.lro.standard.models.OperationState": "Azure.Core.Foundations.OperationState",
+    "com._specs_.azure.core.lro.standard.models.OperationStatusError": "Azure.Core.Foundations.OperationStatus",
+    "com._specs_.azure.core.lro.standard.models.ResourceOperationStatusUserExportedUserError": "Azure.Core.ResourceOperationStatus",
     "com._specs_.azure.core.lro.standard.models.User": "_Specs_.Azure.Core.Lro.Standard.User"
   }
 }

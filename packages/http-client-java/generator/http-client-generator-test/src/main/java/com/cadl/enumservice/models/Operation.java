@@ -4,8 +4,8 @@
 
 package com.cadl.enumservice.models;
 
-import com.azure.core.annotation.Fluent;
 import com.azure.core.annotation.Generated;
+import com.azure.core.annotation.Immutable;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
@@ -15,7 +15,7 @@ import java.io.IOException;
 /**
  * The Operation model.
  */
-@Fluent
+@Immutable
 public final class Operation implements JsonSerializable<Operation> {
     /*
      * The name property.
@@ -86,7 +86,7 @@ public final class Operation implements JsonSerializable<Operation> {
      * @param unit the unit value to set.
      */
     @Generated
-    public Operation(OperationName name, Priority priority, ColorModel color, Unit unit) {
+    private Operation(OperationName name, Priority priority, ColorModel color, Unit unit) {
         this.name = name;
         this.priority = priority;
         this.color = color;
@@ -191,18 +191,6 @@ public final class Operation implements JsonSerializable<Operation> {
     @Generated
     public Unit getUnitValue() {
         return this.unitValue;
-    }
-
-    /**
-     * Set the unitValue property: The unitValue property.
-     * 
-     * @param unitValue the unitValue value to set.
-     * @return the Operation object itself.
-     */
-    @Generated
-    public Operation setUnitValue(Unit unitValue) {
-        this.unitValue = unitValue;
-        return this;
     }
 
     /**
