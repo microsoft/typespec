@@ -12,6 +12,7 @@ using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 using Microsoft.Generator.CSharp.Snippets;
+using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
 {
@@ -193,6 +194,26 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             var writer = new TypeProviderWriter(restClientProvider);
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void ValidateClientWithApiVersion()
+        {
+            var client = InputFactory.Client("TestClient",
+                operations: [
+                    InputFactory.Operation("OperationWithApiVersion",
+                            parameters: [InputFactory.Parameter("apiVersion", InputPrimitiveType.String, isRequired: true, location: RequestLocation.Query, kind: InputOperationParameterKind.Client)])
+                    ]);
+            var clientProvider = new ClientProvider(client);
+            var restClientProvider = new MockClientProvider(client, clientProvider);
+            var method = restClientProvider.Methods.FirstOrDefault(m => m.Signature.Name == "CreateOperationWithApiVersionRequest");
+            Assert.IsNotNull(method);
+            /* verify that there is no apiVersion parameter in method signature. */
+            Assert.IsNull(method?.Signature.Parameters.FirstOrDefault(p => p.Name.Equals("apiVersion")));
+            var bodyStatements = method?.BodyStatements as MethodBodyStatements;
+            Assert.IsNotNull(bodyStatements);
+            /* verify that it will use client _apiVersion field to append query parameter. */
+            Assert.IsTrue(bodyStatements!.Statements.Any(s => s.ToDisplayString() == "uri.AppendQuery(\"apiVersion\", _apiVersion, true);\n"));
         }
 
         private readonly static InputOperation BasicOperation = InputFactory.Operation(

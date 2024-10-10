@@ -35,10 +35,20 @@ function checkAndAddFormDataIfRequired(request: ServiceRequest) {
   }
 }
 
+function checkAndUpdateEndpoint(request: ServiceRequest) {
+  if (request.options?.config?.params) {
+    for (const key in request.options.config.params) {
+      request.endPoint = request.endPoint.replace(`:${key}`, request.options.config.params[key]);
+    }
+  }
+  request.endPoint = request.endPoint.replace(/\[:\]/g, ":");
+}
+
 export async function makeServiceCall(
   serviceCallType: HttpMethod,
   request: ServiceRequest,
 ): Promise<AxiosResponse<any, any>> {
+  checkAndUpdateEndpoint(request);
   checkAndAddFormDataIfRequired(request);
   if (serviceCallType === "put") {
     return await makePutCall(request);

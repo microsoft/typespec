@@ -19,8 +19,8 @@ title: "[I] ProjectedProgram"
 | `jsSourceFiles` | `public` | `Map`<`string`, [`JsSourceFileNode`](JsSourceFileNode.md)\> | - | [`Program`](Program.md).`jsSourceFiles` |
 | `literalTypes` | `public` | `Map`<`string` \| `number` \| `boolean`, [`LiteralType`](../type-aliases/LiteralType.md)\> | - | [`Program`](Program.md).`literalTypes` |
 | `mainFile?` | `public` | [`TypeSpecScriptNode`](TypeSpecScriptNode.md) | - | [`Program`](Program.md).`mainFile` |
-| `projectRoot` | `readonly` | `string` | Project root. If a tsconfig was found/specified this is the directory for the tsconfig.json. Otherwise directory where the entrypoint is located. | [`Program`](Program.md).`projectRoot` |
 | `projector` | `public` | [`Projector`](Projector.md) | - | - |
+| `projectRoot` | `readonly` | `string` | Project root. If a tsconfig was found/specified this is the directory for the tsconfig.json. Otherwise directory where the entrypoint is located. | [`Program`](Program.md).`projectRoot` |
 | `sourceFiles` | `public` | `Map`<`string`, [`TypeSpecScriptNode`](TypeSpecScriptNode.md)\> | All source files in the program, keyed by their file path. | [`Program`](Program.md).`sourceFiles` |
 | `stateMaps` | `public` | `Map`<`symbol`, `StateMap`\> | - | [`Program`](Program.md).`stateMaps` |
 | `stateSets` | `public` | `Map`<`symbol`, `StateSet`\> | - | [`Program`](Program.md).`stateSets` |
