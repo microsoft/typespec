@@ -10,13 +10,13 @@
     "build": "tsc -p ./tsconfig.build.json",
     "clean": "rimraf dist/ temp/",
     "test:e2e": "pnpm validate-scenarios  && pnpm validate-mock-apis && pnpm validate-client-server",
-    "validate-scenarios": "spec-core validate-scenarios ./specs",
-    "generate-scenarios-summary": "spec-core generate-scenarios-summary ./specs",
-    "validate-mock-apis": "spec-core validate-mock-apis ./specs",
-    "check-scenario-coverage": "spec-core check-coverage ./specs",
-    "validate-client-server": "concurrently \"spec-core server start ./specs\" \"npm run client\" && spec-core server stop",
-    "client": "spec-core server-test ./specs",
-    "serve": "spec-core serve ./specs",
+    "validate-scenarios": "tsp-spector validate-scenarios ./specs",
+    "generate-scenarios-summary": "tsp-spector generate-scenarios-summary ./specs",
+    "validate-mock-apis": "tsp-spector validate-mock-apis ./specs",
+    "check-scenario-coverage": "tsp-spector check-coverage ./specs",
+    "validate-client-server": "concurrently \"tsp-spector server start ./specs\" \"npm run client\" && spector server stop",
+    "client": "tsp-spector server-test ./specs",
+    "serve": "tsp-spector serve ./specs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "engines": {
@@ -34,7 +34,7 @@
   "homepage": "https://github.com/microsoft/typespec#readme",
   "dependencies": {
     "@typespec/spec-api": "workspace:~",
-    "@typespec/spec-core": "workspace:~"
+    "@typespec/spector": "workspace:~"
   },
   "devDependencies": {
     "@types/multer": "^1.4.10",
