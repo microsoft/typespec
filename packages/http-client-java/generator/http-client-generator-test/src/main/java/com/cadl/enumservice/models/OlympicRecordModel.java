@@ -13,63 +13,63 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Defines values for PriorityModel.
+ * Defines values for OlympicRecordModel.
  */
-public final class PriorityModel implements ExpandableEnum<Integer> {
-    private static final Map<Integer, PriorityModel> VALUES = new ConcurrentHashMap<>();
+public final class OlympicRecordModel implements ExpandableEnum<Double> {
+    private static final Map<Double, OlympicRecordModel> VALUES = new ConcurrentHashMap<>();
 
     /**
-     * Static value 100 for PriorityModel.
+     * Static value 9.58 for OlympicRecordModel.
      */
     @Generated
-    public static final PriorityModel HIGH = fromValue(100);
+    public static final OlympicRecordModel OLYMPIC_100_METERS = fromValue(9.58);
 
     /**
-     * Static value 0 for PriorityModel.
+     * Static value 19.3 for OlympicRecordModel.
      */
     @Generated
-    public static final PriorityModel LOW = fromValue(0);
+    public static final OlympicRecordModel OLYMPIC_200_METERS = fromValue(19.3);
 
-    private final Integer value;
+    private final Double value;
 
-    private PriorityModel(Integer value) {
+    private OlympicRecordModel(Double value) {
         this.value = value;
     }
 
     /**
-     * Creates or finds a PriorityModel.
+     * Creates or finds a OlympicRecordModel.
      * 
      * @param value a value to look for.
-     * @return the corresponding PriorityModel.
+     * @return the corresponding OlympicRecordModel.
      */
     @Generated
-    public static PriorityModel fromValue(Integer value) {
+    public static OlympicRecordModel fromValue(Double value) {
         Objects.requireNonNull(value, "'value' cannot be null.");
-        PriorityModel member = VALUES.get(value);
+        OlympicRecordModel member = VALUES.get(value);
         if (member != null) {
             return member;
         }
-        return VALUES.computeIfAbsent(value, key -> new PriorityModel(key));
+        return VALUES.computeIfAbsent(value, key -> new OlympicRecordModel(key));
     }
 
     /**
-     * Gets known PriorityModel values.
+     * Gets known OlympicRecordModel values.
      * 
-     * @return Known PriorityModel values.
+     * @return Known OlympicRecordModel values.
      */
     @Generated
-    public static Collection<PriorityModel> values() {
+    public static Collection<OlympicRecordModel> values() {
         return new ArrayList<>(VALUES.values());
     }
 
     /**
-     * Gets the value of the PriorityModel instance.
+     * Gets the value of the OlympicRecordModel instance.
      * 
-     * @return the value of the PriorityModel instance.
+     * @return the value of the OlympicRecordModel instance.
      */
     @Generated
     @Override
-    public Integer getValue() {
+    public Double getValue() {
         return this.value;
     }
 

@@ -37,6 +37,12 @@ union PriorityModel {
   Low: 0,
 }
 
+union OlympicRecordModel {
+  float32,
+  Olympic_100_Meters: 9.58,
+  Olympic_200_Meters: 19.30,
+}
+
 #suppress "@azure-tools/typespec-azure-core/use-extensible-enum" "For testing"
 enum Priority {
   High: 100,
@@ -69,6 +75,8 @@ model Operation {
   colorValue: Color.Green;
   colorModelValue: ColorModel.Blue;
   unitValue?: Unit.Milligram;
+  olympicRecord?: OlympicRecordModel;
+  olympicRecordValue?: OlympicRecordModel.Olympic_100_Meters;
 }
 
 @client({

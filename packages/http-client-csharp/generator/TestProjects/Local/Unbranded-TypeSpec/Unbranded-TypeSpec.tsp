@@ -367,3 +367,9 @@ op stillConvenient(): void;
 @head
 @convenientAPI(true)
 op headAsBoolean(@path id: string): void;
+
+@route("/WithApiVersion")
+@doc("Return hi again")
+@get
+@convenientAPI(true)
+op WithApiVersion(@header p1: string, @query apiVersion: string): void;
