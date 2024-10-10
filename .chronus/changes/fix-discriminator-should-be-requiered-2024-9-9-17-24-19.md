@@ -4,4 +4,4 @@ packages:
   - "@typespec/openapi3"
 ---
 
-Introducing a fix so that all discriminator properties are marked as required.
+Discriminator properties are marked as required regardless if they are in TypeSpec to match OpenAPI3 spec.
