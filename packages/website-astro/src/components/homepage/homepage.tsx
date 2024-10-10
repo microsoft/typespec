@@ -1,4 +1,3 @@
-import useBaseUrl from "@docusaurus/useBaseUrl";
 import { DataValidationHeroIllustration } from "@site/src/components/react-pages/data-validation";
 import { OpenAPI3HeroIllustration } from "@site/src/components/react-pages/openapi";
 import { Links } from "@site/src/constants";
@@ -42,10 +41,10 @@ const Hero = () => {
             code, docs, and more.
           </DescriptionText>
           <div className={style["hero-buttons"]}>
-            <Button as="a" appearance="primary" href={useBaseUrl(Links.docs)}>
+            <Button as="a" appearance="primary" href={link(Links.docs)}>
               Get Started
             </Button>
-            <Button as="a" appearance="outline" href={useBaseUrl(Links.playground)}>
+            <Button as="a" appearance="outline" href={link(Links.playground)}>
               Try it out
             </Button>
           </div>
@@ -171,6 +170,7 @@ const ExtensibilitySection = () => {
 
 import extensibilityTs from "@site/src/assets/tsp-samples/extensibility/custom-lib.ts?raw";
 import extensibilityTsp from "@site/src/assets/tsp-samples/extensibility/custom-lib.tsp?raw";
+import { link } from "@site/src/utils";
 import { HeroIllustration } from "./hero-illustration/hero-illustration";
 
 const ExtensibilityIllustration = () => {
@@ -195,10 +195,10 @@ const Closing = () => {
         Install the TypeSpec CLI or check out the playground to get started.
       </DescriptionText>
       <div className={style["closing-buttons"]}>
-        <Button as="a" appearance="primary" href={useBaseUrl(Links.docs)}>
+        <Button as="a" appearance="primary" href={link(Links.docs)}>
           Get Started
         </Button>
-        <Button as="a" appearance="outline" href={useBaseUrl(Links.playground)}>
+        <Button as="a" appearance="outline" href={link(Links.playground)}>
           Try it out
         </Button>
       </div>
