@@ -49,10 +49,10 @@ public class SchemaMapper implements IMapper<Schema, IType> {
     private IType createSchemaType(Schema value) {
         if (value instanceof PrimitiveSchema) {
             return Mappers.getPrimitiveMapper().map((PrimitiveSchema) value);
-        } else if (value instanceof ChoiceSchema) {
-            return Mappers.getChoiceMapper().map((ChoiceSchema) value);
         } else if (value instanceof SealedChoiceSchema) {
             return Mappers.getSealedChoiceMapper().map((SealedChoiceSchema) value);
+        } else if (value instanceof ChoiceSchema) {
+            return Mappers.getChoiceMapper().map((ChoiceSchema) value);
         } else if (value instanceof ArraySchema) {
             return Mappers.getArrayMapper().map((ArraySchema) value);
         } else if (value instanceof DictionarySchema) {
