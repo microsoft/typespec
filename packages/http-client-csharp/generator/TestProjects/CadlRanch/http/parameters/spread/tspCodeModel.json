@@ -27,6 +27,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Parameters.Spread.Alias.spreadAsRequestBody.Request.anonymous.name"
     }
@@ -55,6 +56,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "spreadParameterWithInnerModel.Request.anonymous.name"
     }
@@ -83,6 +85,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "spreadAsRequestParameter.Request.anonymous.name"
     }
@@ -112,6 +115,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "spreadWithMultipleParameters.Request.anonymous.requiredString"
     },
@@ -131,6 +135,7 @@
      "optional": true,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "spreadWithMultipleParameters.Request.anonymous.optionalInt"
     },
@@ -157,6 +162,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "spreadWithMultipleParameters.Request.anonymous.requiredIntList"
     },
@@ -183,6 +189,7 @@
      "optional": true,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "spreadWithMultipleParameters.Request.anonymous.optionalStringList"
     }
@@ -212,6 +219,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "spreadParameterWithInnerAlias.Request.anonymous.name"
     },
@@ -231,6 +239,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "spreadParameterWithInnerAlias.Request.anonymous.age"
     }
@@ -260,6 +269,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Parameters.Spread.Model.BodyParameter.name"
     }
@@ -288,6 +298,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "spreadCompositeRequestMix.Request.anonymous.prop"
     }
