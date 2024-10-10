@@ -26,7 +26,7 @@ public class DifferentSpreadFloatRecord implements JsonSerializable<DifferentSpr
     private final String name;
 
     /*
-     * Additional properties
+     * The model spread Record<float32> with the different known property type
      */
     @Generated
     private Map<String, Double> additionalProperties;
@@ -52,7 +52,8 @@ public class DifferentSpreadFloatRecord implements JsonSerializable<DifferentSpr
     }
 
     /**
-     * Get the additionalProperties property: Additional properties.
+     * Get the additionalProperties property: The model spread Record&lt;float32&gt; with the different known property
+     * type.
      * 
      * @return the additionalProperties value.
      */
@@ -62,7 +63,8 @@ public class DifferentSpreadFloatRecord implements JsonSerializable<DifferentSpr
     }
 
     /**
-     * Set the additionalProperties property: Additional properties.
+     * Set the additionalProperties property: The model spread Record&lt;float32&gt; with the different known property
+     * type.
      * 
      * @param additionalProperties the additionalProperties value to set.
      * @return the DifferentSpreadFloatRecord object itself.

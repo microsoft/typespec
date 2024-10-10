@@ -26,7 +26,7 @@ public final class ExtendsStringAdditionalProperties implements JsonSerializable
     private final String name;
 
     /*
-     * Additional properties
+     * The model extends from Record<string> type.
      */
     @Generated
     private Map<String, String> additionalProperties;
@@ -52,7 +52,7 @@ public final class ExtendsStringAdditionalProperties implements JsonSerializable
     }
 
     /**
-     * Get the additionalProperties property: Additional properties.
+     * Get the additionalProperties property: The model extends from Record&lt;string&gt; type.
      * 
      * @return the additionalProperties value.
      */
@@ -62,7 +62,7 @@ public final class ExtendsStringAdditionalProperties implements JsonSerializable
     }
 
     /**
-     * Set the additionalProperties property: Additional properties.
+     * Set the additionalProperties property: The model extends from Record&lt;string&gt; type.
      * 
      * @param additionalProperties the additionalProperties value to set.
      * @return the ExtendsStringAdditionalProperties object itself.
