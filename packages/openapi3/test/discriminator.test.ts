@@ -349,7 +349,9 @@ describe("openapi3: polymorphic model inheritance with discriminator", () => {
     const openApi = await openApiFor(`
      @discriminator("kind")
      model Animal {
-     id: string;}`);
+      id: string;
+      kind?: string;
+     }`);
 
     deepStrictEqual(openApi.components.schemas.Animal.required, ["id", "kind"]);
     deepStrictEqual(openApi.components.schemas.Animal.discriminator, {
