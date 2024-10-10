@@ -27,7 +27,7 @@ const sidebar: SidebarItem[] = [
   {
     label: "Getting started",
     items: [
-      "introduction/installation",
+      "",
       {
         label: "Editor",
         items: ["introduction/editor/vscode", "introduction/editor/vs"],

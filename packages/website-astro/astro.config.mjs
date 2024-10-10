@@ -41,6 +41,7 @@ export default defineConfig({
             frameBoxShadowCssValue: "",
           },
         },
+        // @ts-expect-error version mismatch
         plugins: [tspTryitCode(base + "playground/")],
       },
       head: [
@@ -63,9 +64,9 @@ export default defineConfig({
     }),
     react(),
   ],
-  redirects: {
-    "/docs": base + "docs/introduction/installation/",
-  },
+  // redirects: {
+  //   "/docs": base + "docs/introduction/installation/",
+  // },
   markdown: {
     // @ts-expect-error wrong type
     remarkPlugins: [remarkHeadingID],

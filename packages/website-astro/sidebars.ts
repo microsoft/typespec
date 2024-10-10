@@ -35,6 +35,9 @@ async function processSidebar(
   items: SidebarItem[],
 ): Promise<NonNullable<StarlightSidebarUserConfig>> {
   function prefix(name: string) {
+    if (name === "") {
+      return directory;
+    }
     return `${directory}/${name}`;
   }
 

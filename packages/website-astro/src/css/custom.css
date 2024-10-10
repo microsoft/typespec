@@ -161,6 +161,10 @@
   --shadow64Brand: 0 0 8px rgba(0, 0, 0, 0.3), 0 32px 64px rgba(0, 0, 0, 0.25);
 }
 
+:root {
+  --header-height: 50px;
+}
+
 :root[data-theme="light"] {
   --sl-color-text-accent: var(--colorBrandForeground1);
 }
