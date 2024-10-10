@@ -105,6 +105,14 @@ export function firstNonWhitespaceCharacterIndex(line: string): number {
   return line.length;
 }
 
+export function distinctArray<T, P>(arr: T[], keySelector: (item: T) => P): T[] {
+  const map = new Map<P, T>();
+  for (const item of arr) {
+    map.set(keySelector(item), item);
+  }
+  return Array.from(map.values());
+}
+
 /**
  *
  * @param baseDir the dir containing the package.json file

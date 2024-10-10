@@ -60,12 +60,14 @@ export function resolveYamlScalarTarget(
     return undefined;
   }
 
-  // TODO: double check the comment scenario
-  if (isCommentLine(targetLine)) {
+  if (
+    isCommentLine(targetLine) &&
+    position.character > firstNonWhitespaceCharacterIndex(targetLine)
+  ) {
     return undefined;
   }
 
-  if (isWhitespaceString(targetLine)) {
+  if (isWhitespaceString(targetLine) || isCommentLine(targetLine)) {
     const indent = position.character;
     const rootProperties: string[] = [];
     if (isMap(yamlDoc.contents)) {
@@ -278,7 +280,7 @@ function findScalarNode(
         const [start, endValue, endNode] = n.range ?? [];
         if (start === undefined || endValue === undefined || endNode === undefined)
           return undefined;
-        if (start <= pos && pos <= endNode) {
+        if (start <= pos && pos <= endValue) {
           found = { key, n, path };
           return visit.BREAK;
         }
