@@ -19,5 +19,8 @@ await bundleAndUploadPackages({
     "@typespec/json-schema",
     "@typespec/protobuf",
     "@typespec/streams",
+    "@typespec/events",
+    "@typespec/sse",
+    "@typespec/xml"
   ],
 });
