@@ -32,9 +32,9 @@ As in Json we have some [default handling](https://typespec.io/docs/libraries/ht
 <td>
 
 ```tsp
-@encodedName("application/xml", "XmlPet")
+@Xml.name("XmlPet")
 model Pet {
-  @xml.unwrapped
+  @Xml.unwrapped
   tags: string[];
 }
 ```
@@ -60,6 +60,8 @@ Pet:
       type: "array"
       items:
         type: string
+        xml:
+          name: string
   xml:
     name: "XmlPet"
 ```
@@ -72,9 +74,9 @@ Pet:
 <td>
 
 ```tsp
-@encodedName("application/xml", "XmlPet")
+@Xml.name("XmlPet")
 model Pet {
-  @encodedName("application/xml", "ItemsTags")
+  @Xml.name("ItemsTags")
   tags: string[];
 }
 ```
@@ -105,6 +107,8 @@ Pet:
         wrapped: true
       items:
         type: string
+        xml:
+          name: string
   xml:
     name: "XmlPet"
 ```
@@ -117,12 +121,12 @@ Pet:
 <td>
 
 ```tsp
-@encodedName("application/xml", "ItemsName")
+@Xml.name("ItemsName")
 scalar tag extends string;
 
-@encodedName("application/xml", "XmlPet")
+@Xml.name("XmlPet")
 model Pet {
-  @xml.unwrapped
+  @Xml.unwrapped
   tags: tag[];
 }
 ```
@@ -146,8 +150,6 @@ Pet:
   properties:
     tags:
       type: "array"
-      xml:
-        name: "ItemsTags"
       items:
         type: string
         xml:
@@ -164,12 +166,12 @@ Pet:
 <td>
 
 ```tsp
-@encodedName("application/xml", "ItemsName")
+@Xml.name("ItemsName")
 scalar tag extends string;
 
-@encodedName("application/xml", "XmlPet")
+@Xml.name("XmlPet")
 model Pet {
-  @encodedName("application/xml", "ItemsTags")
+  @Xml.name("ItemsTags")
   tags: tag[];
 }
 ```
@@ -225,13 +227,13 @@ Pet:
 <td>
 
 ```tsp
-@encodedName("application/xml", "XmlPet")
+@Xml.name("XmlPet")
 model Pet {
-  @xml.unwrapped
+  @Xml.unwrapped
   tags: Tag[];
 }
 
-@encodedName("application/xml", "XmlTag")
+@Xml.name("XmlTag")
 model Tag {
   name: string;
 }
@@ -265,7 +267,10 @@ Pet:
     tags:
       type: "array"
       items:
-        $ref: "#/definitions/Tag"
+        allOf:
+          - $ref: "#/components/schemas/Tag"
+        xml:
+          name: "XmlTag"
   xml:
     name: "XmlPet"
 ```
@@ -278,12 +283,127 @@ Pet:
 <td>
 
 ```tsp
-@encodedName("application/xml", "XmlPet")
+@Xml.name("XmlPet")
 model Pet {
   tags: Tag[];
 }
 
-@encodedName("application/xml", "XmlTag")
+@Xml.name("XmlTag")
+model Tag {
+  name: string;
+}
+```
+
+</td>
+<td>
+
+```xml
+<XmlPet>
+  <XmlTag>
+    <name>string</name>
+  </XmlTag>
+</XmlPet>
+```
+
+</td>
+<td>
+
+```yaml
+Tag:
+  type: "object"
+  properties:
+    name:
+      type: "string"
+  xml:
+    name: "XmlTag"
+Pet:
+  type: "object"
+  properties:
+    tags:
+      type: "array"
+      items:
+        allOf:
+          - $ref: "#/components/schemas/Tag"
+        xml:
+          name: "XmlTag"
+      xml:
+        wrapped: true
+  xml:
+    name: "XmlPet"
+```
+
+</td>
+</tr>
+
+<!-- ----------------------------------------------------  SCENARIO 2.3 ---------------------------------------------------------- -->
+<tr>
+<td>
+
+```tsp
+@Xml.name("XmlPet")
+model Pet {
+  @Xml.name("ItemsTags")
+  @Xml.unwrapped
+  tags: Tag[];
+}
+
+@Xml.name("XmlTag")
+model Tag {
+  name: string;
+}
+```
+
+</td>
+<td>
+
+```xml
+<XmlPet>
+  <XmlTag>
+    <name>string</name>
+  </XmlTag>
+</XmlPet>
+```
+
+</td>
+<td>
+
+```yaml
+Tag:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+    xml:
+      name: "XmlTag"
+  Pet:
+    type: "object"
+    properties:
+      tags:
+        type: "array"
+        items:
+          allOf:
+            - $ref: "#/components/schemas/Tag"
+          xml:
+            name: XmlTag
+    xml:
+      name: "XmlPet"
+```
+
+</td>
+</tr>
+
+<!-- ----------------------------------------------------  SCENARIO 2.4 ---------------------------------------------------------- -->
+<tr>
+<td>
+
+```tsp
+@Xml.name("XmlPet")
+model Pet {
+  @Xml.name("ItemsTags")
+  tags: Tag[];
+}
+
+@Xml.name("XmlTag")
 model Tag {
   name: string;
 }
@@ -318,125 +438,14 @@ Pet:
   properties:
     tags:
       type: "array"
-      xml:
-        name: "ItemsTags"
-        wrapped: true
       items:
-        $ref: "#/definitions/Tag"
-  xml:
-    name: "XmlPet"
-```
-
-</td>
-</tr>
-
-<!-- ----------------------------------------------------  SCENARIO 2.3 ---------------------------------------------------------- -->
-<tr>
-<td>
-
-```tsp
-@encodedName("application/xml", "XmlPet")
-model Pet {
-  @encodedName("application/xml", "ItemsTags")
-  @xml.unwrapped
-  tags: Tag[];
-}
-
-@encodedName("application/xml", "XmlTag")
-model Tag {
-  name: string;
-}
-```
-
-</td>
-<td>
-
-```xml
-<XmlPet>
-  <ItemsTag>
-    <name>string</name>
-  </ItemsTag>
-</XmlPet>
-```
-
-</td>
-<td>
-
-```yaml
-Tag:
-    type: "object"
-    properties:
-      name:
-        type: "string"
-    xml:
-      name: "XmlTag"
-  Pet:
-    type: "object"
-    properties:
-      tags:
-        type: "array"
+        allOf:
+          - $ref: "#/components/schemas/Tag"
         xml:
-          name: "ItemsTags"
-        items:
-          $ref: "#/definitions/Tag"
-          xml:
-              name: ItemsXMLName
-    xml:
-      name: "XmlPet"
-```
-
-</td>
-</tr>
-
-<!-- ----------------------------------------------------  SCENARIO 2.4 ---------------------------------------------------------- -->
-<tr>
-<td>
-
-```tsp
-@encodedName("application/xml", "XmlPet")
-model Pet {
-  @encodedName("application/xml", "ItemsTags")
-  tags: Tag[];
-}
-
-@encodedName("application/xml", "XmlTag")
-model Tag {
-  name: string;
-}
-```
-
-</td>
-<td>
-
-```xml
-<XmlPet>
-  <ItemsTags>
-    <XmlTag>
-      <name>string</name>
-    </XmlTag>
-  </ItemsTags>
-</XmlPet>
-```
-
-</td>
-<td>
-
-```yaml
-Tag:
-  type: "object"
-  properties:
-    name:
-      type: "string"
-Pet:
-  type: "object"
-  properties:
-    tags:
-      type: "array"
+          name: XmlTag
       xml:
         name: "ItemsTags"
         wrapped: true
-      items:
-        $ref: "#/definitions/Tag"
   xml:
     name: "XmlPet"
 ```
@@ -509,7 +518,7 @@ model Book {
   author: Author;
 }
 
-@encodedName("application/xml", "XmlAuthor")
+@Xml.name("XmlAuthor")
 model Author {
   name: string;
 }
@@ -556,7 +565,7 @@ Author:
 
 ```tsp
 model Book {
-  @encodedName("application/xml", "xml-author")
+  @Xml.name("xml-author")
   author: Author;
 }
 
@@ -673,9 +682,9 @@ Book:
 <td>
 
 ```tsp
-@Xml.ns("smp", "http://example.com/schema")
+@Xml.ns("http://example.com/schema", "smp")
 model Book {
-  id: string;
+  id: integer;
   title: string;
   author: string;
 }
@@ -718,14 +727,14 @@ Book:
 <td>
 
 ```tsp
-@Xml.ns("smp", "http://example.com/schema")
+@Xml.ns("http://example.com/schema", "smp")
 model Book {
-  id: string;
+  id: integer;
 
-  @Xml.ns("smp", "http://example.com/schema")
+  @Xml.ns("http://example.com/schema", "smp")
   title: string;
 
-  @Xml.ns("ns2", "http://example.com/ns2")
+  @Xml.ns("http://example.com/ns2", "ns2")
   author: string;
 }
 ```
@@ -793,7 +802,7 @@ enum Namespaces {
 
 @Xml.ns(Namespaces.smp)
 model Book {
-  id: string;
+  id: integer;
   title: string;
   author: string;
 }
@@ -844,7 +853,7 @@ enum Namespaces {
 
 @Xml.ns(Namespaces.smp)
 model Book {
-  id: string;
+  id: integer;
 
   @Xml.ns(Namespaces.smp)
   title: string;
@@ -934,6 +943,8 @@ Book:
   properties:
     language:
       type: string
+      xml:
+        attribute: true
     content:
       type: string
       xml:
