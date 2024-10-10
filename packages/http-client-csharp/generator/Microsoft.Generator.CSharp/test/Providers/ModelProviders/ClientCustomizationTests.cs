@@ -17,6 +17,11 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
         public async Task CanRemoveMethods()
         {
             var client = new ClientTypeProvider();
+            var outputLibrary = new ClientOutputLibrary(client);
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                createOutputLibrary: () => outputLibrary,
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
             var methods = new[]
             {
                 new MethodProvider(new MethodSignature(
@@ -46,15 +51,32 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
                         [
                             new ParameterProvider("param1", $"", typeof(string)),
                             new ParameterProvider("param2", $"", typeof(int))]),
-                    Snippet.ThrowExpression(Snippet.Null), client)
+                    Snippet.ThrowExpression(Snippet.Null), client),
+                new MethodProvider(new MethodSignature(
+                        "Method4",
+                        $"",
+                        MethodSignatureModifiers.Public,
+                        null,
+                        $"",
+                        [
+                            new ParameterProvider("param1", $"", typeof(string)),
+                            new ParameterProvider("param2", $"", typeof(int?))]),
+                    Snippet.ThrowExpression(Snippet.Null), client),
+                new MethodProvider(new MethodSignature(
+                        "Method5",
+                        $"",
+                        MethodSignatureModifiers.Public,
+                        null,
+                        $"",
+                        [
+                            // nullability should be ignored for reference types
+                            new ParameterProvider("param1", $"", new CSharpType(typeof(string), isNullable: true))
+                        ]),
+                    Snippet.ThrowExpression(Snippet.Null), client),
 
             };
             client.MethodProviders = methods;
-            var outputLibrary = new ClientOutputLibrary(client);
 
-            var plugin = await MockHelpers.LoadMockPluginAsync(
-                createOutputLibrary: () => outputLibrary,
-                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
             var csharpGen = new CSharpGen();
             await csharpGen.ExecuteAsync();
 
@@ -65,6 +87,11 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
         public async Task DoesNotRemoveMethodsThatDoNotMatch()
         {
             var client = new ClientTypeProvider();
+            var outputLibrary = new ClientOutputLibrary(client);
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                createOutputLibrary: () => outputLibrary,
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
             var methods = new[]
             {
                 // Method name doesn't match
@@ -97,19 +124,26 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
                         [
                             new ParameterProvider("param1", $"", typeof(string)),
                             new ParameterProvider("param2", $"", typeof(int))]),
+                    Snippet.ThrowExpression(Snippet.Null), client),
+                // Nullability of one of the parameters doesn't match
+                new MethodProvider(new MethodSignature(
+                        "Method4",
+                        $"",
+                        MethodSignatureModifiers.Public,
+                        null,
+                        $"",
+                        [
+                            new ParameterProvider("param1", $"", typeof(string)),
+                            new ParameterProvider("param2", $"", typeof(int?))]),
                     Snippet.ThrowExpression(Snippet.Null), client)
 
             };
             client.MethodProviders = methods;
-            var outputLibrary = new ClientOutputLibrary(client);
 
-            var plugin = await MockHelpers.LoadMockPluginAsync(
-                createOutputLibrary: () => outputLibrary,
-                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
             var csharpGen = new CSharpGen();
             await csharpGen.ExecuteAsync();
 
-            Assert.AreEqual(3, plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputClient").Methods.Count);
+            Assert.AreEqual(4, plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputClient").Methods.Count);
         }
 
         [Test]
