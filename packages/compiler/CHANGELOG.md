@@ -1,5 +1,12 @@
 # Change Log - @typespec/compiler
 
+## 0.61.2
+
+### Bug Fixes
+
+- [#4704](https://github.com/microsoft/typespec/pull/4704) Fix order of resolution from node_modules and parent package
+
+
 ## 0.61.1
 
 ### Bug Fixes
