@@ -1,7 +1,7 @@
 import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 
 export const $lib = createTypeSpecLibrary({
-  name: "@typespec/spec-lib",
+  name: "@typespec/spector",
   diagnostics: {
     "category-invalid": {
       severity: "error",

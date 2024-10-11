@@ -1,4 +1,4 @@
-import "../dist/src/tsp-index.js";
+import "../dist/src/lib/tsp-index.js";
 
 using TypeSpec.Reflection;
 

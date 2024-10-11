@@ -1,5 +1,5 @@
 import "@typespec/rest";
-import "@typespec/spec-lib";
+import "@typespec/spector";
 import "@typespec/versioning";
 
 using Http;

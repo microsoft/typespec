@@ -1,6 +1,6 @@
 import "@typespec/http";
 import "@typespec/xml";
-import "@typespec/spec-lib";
+import "@typespec/spector";
 
 using Http;
 using SpecLib;

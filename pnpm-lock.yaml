@@ -620,9 +620,6 @@ importers:
       '@typespec/spector':
         specifier: workspace:~
         version: link:../spector
-      '@typespec/spec-lib':
-        specifier: workspace:~
-        version: link:../spec-lib
       '@typespec/versioning':
         specifier: workspace:~
         version: link:../versioning
@@ -1484,6 +1481,25 @@ importers:
         specifier: ^2.1.2
         version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@19.0.0)(terser@5.30.0)
 
+  packages/spec-coverage-sdk:
+    dependencies:
+      '@azure/identity':
+        specifier: ~4.4.1
+        version: 4.4.1
+      '@azure/storage-blob':
+        specifier: ~12.25.0
+        version: 12.25.0
+      '@types/node':
+        specifier: ~22.7.5
+        version: 22.7.5
+    devDependencies:
+      rimraf:
+        specifier: ~6.0.1
+        version: 6.0.1
+      typescript:
+        specifier: ~5.6.3
+        version: 5.6.3
+
   packages/spector:
     dependencies:
       '@azure/identity':
@@ -1507,9 +1523,9 @@ importers:
       '@typespec/spec-coverage-sdk':
         specifier: workspace:~
         version: link:../spec-coverage-sdk
-      '@typespec/spec-lib':
+      '@typespec/versioning':
         specifier: workspace:~
-        version: link:../spec-lib
+        version: link:../versioning
       ajv:
         specifier: ~8.17.1
         version: 8.17.1
@@ -1592,50 +1608,6 @@ importers:
       '@types/yargs':
         specifier: ~17.0.33
         version: 17.0.33
-      rimraf:
-        specifier: ~6.0.1
-        version: 6.0.1
-      typescript:
-        specifier: ~5.6.3
-        version: 5.6.3
-
-  packages/spec-coverage-sdk:
-    dependencies:
-      '@azure/identity':
-        specifier: ~4.4.1
-        version: 4.4.1
-      '@azure/storage-blob':
-        specifier: ~12.25.0
-        version: 12.25.0
-      '@types/node':
-        specifier: ~22.7.5
-        version: 22.7.5
-    devDependencies:
-      rimraf:
-        specifier: ~6.0.1
-        version: 6.0.1
-      typescript:
-        specifier: ~5.6.3
-        version: 5.6.3
-
-  packages/spec-lib:
-    dependencies:
-      '@typespec/compiler':
-        specifier: workspace:~
-        version: link:../compiler
-      '@typespec/http':
-        specifier: workspace:~
-        version: link:../http
-      '@typespec/rest':
-        specifier: workspace:~
-        version: link:../rest
-      '@typespec/versioning':
-        specifier: workspace:~
-        version: link:../versioning
-    devDependencies:
-      '@types/node':
-        specifier: ~22.7.5
-        version: 22.7.5
       '@typespec/tspd':
         specifier: workspace:~
         version: link:../tspd

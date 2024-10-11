@@ -1,4 +1,4 @@
-import type { TypeSpecSpecLibDecorators } from "../generated-defs/TypeSpec.SpecLib.js";
+import { TypeSpecSpecLibDecorators } from "../../generated-defs/TypeSpec.SpecLib.js";
 import { $scenario, $scenarioDoc, $scenarioService } from "./decorators.js";
 export { $lib } from "./lib.js";
 

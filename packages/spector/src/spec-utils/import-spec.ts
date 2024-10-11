@@ -9,8 +9,8 @@ export async function importTypeSpec(
 }
 export async function importSpecExpect(
   baseDir: string,
-): Promise<typeof import("@typespec/spec-lib")> {
-  return importTypeSpecLibrary("@typespec/spec-lib", baseDir);
+): Promise<typeof import("@typespec/spector")> {
+  return importTypeSpecLibrary("@typespec/spector", baseDir);
 }
 export async function importTypeSpecRest(
   baseDir: string,

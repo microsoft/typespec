@@ -1,5 +1,5 @@
 import "@typespec/http";
-import "@typespec/spec-lib";
+import "@typespec/spector";
 
 using TypeSpec.Http;
 using SpecLib;
