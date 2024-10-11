@@ -162,11 +162,9 @@ export async function resolveModule(
       const pkgFile = resolvePath(dir, "package.json");
       if (!(await isFile(host, pkgFile))) continue;
       const pkg = await readPackage(host, pkgFile);
-      if (pkg.name === name) {
-        return loadPackage(dir, pkg);
-      } else {
-        return undefined;
-      }
+      // Node Spec says that you shouldn't lookup past the first package.json. However we used to support that so keeping this.
+      if (pkg.name !== name) continue;
+      return loadPackage(dir, pkg);
     }
     return undefined;
   }
