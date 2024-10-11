@@ -2,8 +2,6 @@
 title: Scaffolding templates
 ---
 
-# Creating a scaffolding template
-
 TypeSpec offers a scaffolding feature through the `tsp init` command.
 
 ```bash

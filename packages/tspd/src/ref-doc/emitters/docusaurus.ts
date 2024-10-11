@@ -65,35 +65,33 @@ function renderIndexFile(renderer: DocusaurusRenderer, refDoc: TypeSpecLibraryRe
     "import TabItem from '@theme/TabItem';",
     "",
 
-    section("Overview", [
-      refDoc.description ?? [],
-      renderer.install(refDoc),
-      refDoc.emitter?.options ? section("Emitter usage", `[See documentation](./emitter.md)`) : [],
+    refDoc.description ?? [],
+    renderer.install(refDoc),
+    refDoc.emitter?.options ? section("Emitter usage", `[See documentation](./emitter.md)`) : [],
 
-      groupByNamespace(refDoc.namespaces, (namespace) => {
-        const content = [];
+    groupByNamespace(refDoc.namespaces, (namespace) => {
+      const content = [];
 
-        if (namespace.decorators.length > 0) {
-          content.push(section("Decorators", renderer.toc(namespace.decorators)));
-        }
+      if (namespace.decorators.length > 0) {
+        content.push(section("Decorators", renderer.toc(namespace.decorators)));
+      }
 
-        if (namespace.interfaces.length > 0) {
-          content.push(section("Interfaces", renderer.toc(namespace.interfaces)));
-        }
+      if (namespace.interfaces.length > 0) {
+        content.push(section("Interfaces", renderer.toc(namespace.interfaces)));
+      }
 
-        if (namespace.operations.length > 0) {
-          content.push(section("Operations", renderer.toc(namespace.operations)));
-        }
+      if (namespace.operations.length > 0) {
+        content.push(section("Operations", renderer.toc(namespace.operations)));
+      }
 
-        if (namespace.models.length > 0) {
-          content.push(section("Models", renderer.toc(namespace.models)));
-        }
-        return content;
-      }),
-    ]),
+      if (namespace.models.length > 0) {
+        content.push(section("Models", renderer.toc(namespace.models)));
+      }
+      return content;
+    }),
   ];
 
-  return renderMarkdowDoc(content);
+  return renderMarkdowDoc(content, 2);
 }
 
 export type DecoratorRenderOptions = {
@@ -117,8 +115,8 @@ export function renderDecoratorFile(
     "---",
   ];
 
-  content.push(section(title, renderer.decoratorsSection(refDoc)));
-  return renderMarkdowDoc(content);
+  content.push(renderer.decoratorsSection(refDoc));
+  return renderMarkdowDoc(content, 2);
 }
 
 function renderInterfacesFile(
@@ -137,26 +135,24 @@ function renderInterfacesFile(
   ];
 
   content.push(
-    section("Interfaces and Operations", [
-      groupByNamespace(refDoc.namespaces, (namespace) => {
-        if (namespace.operations.length === 0 && namespace.interfaces.length === 0) {
-          return undefined;
-        }
+    groupByNamespace(refDoc.namespaces, (namespace) => {
+      if (namespace.operations.length === 0 && namespace.interfaces.length === 0) {
+        return undefined;
+      }
 
-        const content: MarkdownDoc = [];
-        for (const iface of namespace.interfaces) {
-          content.push(renderer.interface(iface), "");
-        }
+      const content: MarkdownDoc = [];
+      for (const iface of namespace.interfaces) {
+        content.push(renderer.interface(iface), "");
+      }
 
-        for (const operation of namespace.operations) {
-          content.push(renderer.operation(operation), "");
-        }
-        return content;
-      }),
-    ]),
+      for (const operation of namespace.operations) {
+        content.push(renderer.operation(operation), "");
+      }
+      return content;
+    }),
   );
 
-  return renderMarkdowDoc(content);
+  return renderMarkdowDoc(content, 2);
 }
 
 export type DataTypeRenderOptions = {
@@ -181,36 +177,33 @@ export function renderDataTypes(
   ];
 
   content.push(
-    section(
-      "Data types",
-      groupByNamespace(refDoc.namespaces, (namespace) => {
-        const modelCount =
-          namespace.models.length +
-          namespace.enums.length +
-          namespace.unions.length +
-          namespace.scalars.length;
-        if (modelCount === 0) {
-          return undefined;
-        }
-        const content: MarkdownDoc = [];
-        for (const model of namespace.models) {
-          content.push(renderer.model(model), "");
-        }
-        for (const e of namespace.enums) {
-          content.push(renderer.enum(e), "");
-        }
-        for (const union of namespace.unions) {
-          content.push(renderer.union(union), "");
-        }
-        for (const scalar of namespace.scalars) {
-          content.push(renderer.scalar(scalar), "");
-        }
-        return content;
-      }),
-    ),
+    groupByNamespace(refDoc.namespaces, (namespace) => {
+      const modelCount =
+        namespace.models.length +
+        namespace.enums.length +
+        namespace.unions.length +
+        namespace.scalars.length;
+      if (modelCount === 0) {
+        return undefined;
+      }
+      const content: MarkdownDoc = [];
+      for (const model of namespace.models) {
+        content.push(renderer.model(model), "");
+      }
+      for (const e of namespace.enums) {
+        content.push(renderer.enum(e), "");
+      }
+      for (const union of namespace.unions) {
+        content.push(renderer.union(union), "");
+      }
+      for (const scalar of namespace.scalars) {
+        content.push(renderer.scalar(scalar), "");
+      }
+      return content;
+    }),
   );
 
-  return renderMarkdowDoc(content);
+  return renderMarkdowDoc(content, 2);
 }
 
 function renderEmitter(
@@ -229,7 +222,7 @@ function renderEmitter(
     renderer.emitterUsage(refDoc),
   ];
 
-  return renderMarkdowDoc(content);
+  return renderMarkdowDoc(content, 2);
 }
 function renderLinter(
   renderer: DocusaurusRenderer,
@@ -247,7 +240,7 @@ function renderLinter(
     renderer.linterUsage(refDoc),
   ];
 
-  return renderMarkdowDoc(content);
+  return renderMarkdowDoc(content, 2);
 }
 
 export class DocusaurusRenderer extends MarkdownRenderer {

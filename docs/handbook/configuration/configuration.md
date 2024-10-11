@@ -2,8 +2,6 @@
 title: Configuration
 ---
 
-# Compiler and library configurations
-
 The TypeSpec compiler and libraries can be configured either via a [configuration file](#configuration-file) or command line flags.
 
 ## Configuration file

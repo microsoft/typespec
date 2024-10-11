@@ -2,8 +2,6 @@
 title: Examples
 ---
 
-# Examples
-
 TypeSpec provide 2 decorators `@example` and `@opExample` to provide some examples for the types and operations.
 With those decorators the examples must be provided as TypeSpec values that should be assignable to the type or operation parameter/return types.
 

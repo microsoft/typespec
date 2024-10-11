@@ -1,5 +1,3 @@
-# Microsoft Generator CSharp Usage & Options
-
 The command line usage of the generator is comprised of the following:
 
 > `mgc.exe [DIRECTORY] [additional options]`
