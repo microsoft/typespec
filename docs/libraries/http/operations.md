@@ -2,8 +2,6 @@
 title: Operations
 ---
 
-# Http Operations
-
 ## Operation verb
 
 **Default behavior:**

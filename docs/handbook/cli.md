@@ -3,8 +3,6 @@ id: cli
 title: Cli usage
 ---
 
-# Usage
-
 See full usage documentation by typing `tsp --help`:
 
 ```bash

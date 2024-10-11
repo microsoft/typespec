@@ -2,8 +2,6 @@
 title: Custom Response Models
 ---
 
-# Custom Response Models
-
 ## Introduction
 
 In this section, we'll focus on creating custom response models and demonstrate how to use them in your API operations. We'll also incorporate predefined response models from the TypeSpec HTTP library.
