@@ -3,8 +3,6 @@ id: 02-operations-responses
 title: Operations and Responses
 ---
 
-# Operations and Responses
-
 ## Introduction
 
 In this section, we'll build upon the basics we covered in the previous section. We'll define CRUD operations (Create, Read, Update, Delete) for our Pet Store API and discuss the benefits of using nested namespaces.

@@ -26,7 +26,7 @@ public final class IsModelAdditionalProperties implements JsonSerializable<IsMod
     private final ModelForRecord knownProp;
 
     /*
-     * Additional properties
+     * The model is from Record<ModelForRecord> type.
      */
     @Generated
     private Map<String, ModelForRecord> additionalProperties;
@@ -52,7 +52,7 @@ public final class IsModelAdditionalProperties implements JsonSerializable<IsMod
     }
 
     /**
-     * Get the additionalProperties property: Additional properties.
+     * Get the additionalProperties property: The model is from Record&lt;ModelForRecord&gt; type.
      * 
      * @return the additionalProperties value.
      */
@@ -62,7 +62,7 @@ public final class IsModelAdditionalProperties implements JsonSerializable<IsMod
     }
 
     /**
-     * Set the additionalProperties property: Additional properties.
+     * Set the additionalProperties property: The model is from Record&lt;ModelForRecord&gt; type.
      * 
      * @param additionalProperties the additionalProperties value to set.
      * @return the IsModelAdditionalProperties object itself.

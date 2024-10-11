@@ -4,8 +4,6 @@ title: Getting Started with TypeSpec For REST APIs
 pagination_next: getting-started/getting-started-rest/02-operations-responses # Explicitly needed as its also being the category page https://github.com/facebook/docusaurus/issues/6183
 ---
 
-# Getting Started with TypeSpec for REST APIs
-
 ## Introduction
 
 Welcome to our tutorial on using TypeSpec to define REST APIs with HTTP. In this section, we'll introduce you to TypeSpec, help you set up your environment, and cover the basic syntax and structure of TypeSpec. By the end of this section, you'll have a solid foundation to build upon in the subsequent sections.
