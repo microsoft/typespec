@@ -374,3 +374,29 @@ describe("packages", () => {
     });
   });
 });
+
+describe("resolve self", () => {
+  const { host } = mkFs({
+    "/ws/proj/package.json": JSON.stringify({ name: "@scope/proj", main: "entry.js" }),
+    "/ws/proj/entry.js": "",
+    "/ws/proj/nested/index.js": "",
+    "/ws/proj/node_modules/test-lib/package.json": JSON.stringify({ main: "entry.js" }),
+    "/ws/proj/node_modules/test-lib/entry.js": "",
+    "/ws/proj/node_modules/test-lib/nested/index.js": "",
+  });
+
+  it.each([
+    ["at the same level", "/ws/proj"],
+    ["nested", "/ws/proj/nested"],
+    ["lookup parent package.json", "/ws/proj/node_modules/test-lib/nested"],
+  ])("%s", async (_, baseDir) => {
+    const resolved = await resolveModule(host, "@scope/proj", {
+      baseDir,
+    });
+    expect(resolved).toMatchObject({
+      type: "module",
+      path: "/ws/proj",
+      mainFile: "/ws/proj/entry.js",
+    });
+  });
+});
