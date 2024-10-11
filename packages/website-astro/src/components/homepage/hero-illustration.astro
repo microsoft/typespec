@@ -1,6 +1,6 @@
 ---
 import { Code, TabItem, Tabs } from "@astrojs/starlight/components";
-import { Window } from "../window/window";
+import Window from "../window.astro";
 import openapiTsp from "@site/src/assets/tsp-samples/homepage/hero/http/main.tsp?raw";
 import openapiYaml from "@site/src/assets/tsp-samples/homepage/hero/http/out/openapi.yaml?raw";
 import jsonSchemaTsp from "@site/src/assets/tsp-samples/homepage/hero/json-schema/main.tsp?raw";
@@ -61,7 +61,7 @@ import clsx from "clsx";
 <div class="hero-illustration">
   <Tabs>
     <TabItem label="Http">
-      <Window className="hero-illustration" client:only="react">
+      <Window class="hero-illustration">
         <div class="split-windows">
           <Code class="split-window" lang="tsp" title="main.tsp" code={openapiTsp} />
           <Code
@@ -74,7 +74,7 @@ import clsx from "clsx";
       </Window>
     </TabItem>
     <TabItem label="Json Schema">
-      <Window className="hero-illustration">
+      <Window class="hero-illustration">
         <div class="split-windows">
           <Code class="split-window" lang="tsp" title="main.tsp" code={jsonSchemaTsp} />
           <Code
@@ -87,7 +87,7 @@ import clsx from "clsx";
       </Window>
     </TabItem>
     <TabItem label="Protobuf">
-      <Window className="hero-illustration">
+      <Window class="hero-illustration">
         <div class="split-windows">
           <Code class="split-window" lang="tsp" title="main.tsp" code={protobufTsp} />
           <Code
