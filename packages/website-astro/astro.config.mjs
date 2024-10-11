@@ -23,25 +23,12 @@ const typespecLang = {
   aliases: ["typespec", "tsp"],
 };
 
-/** @type {import("astro-expressive-code").AstroExpressiveCodeOptions} */
-const expressiveCodeOptions = {
-  themes: ["one-light", "one-dark-pro"],
-  styleOverrides: {
-    borderWidth: "0px",
-    borderRadius: "0px",
-    frames: {
-      frameBoxShadowCssValue: "",
-      editorTabBarBorderColor: "transpartent",
-    },
-  },
-};
-
 // https://astro.build/config
 export default defineConfig({
   base,
   trailingSlash: "always",
   integrations: [
-    astroExpressiveCode(expressiveCodeOptions),
+    astroExpressiveCode(),
     starlight({
       title: "TypeSpec",
       sidebar: await resolveSideBars(),
