@@ -100,7 +100,7 @@ export interface Server {
   getTypeSpecConfigJsonSchema(): Promise<JSONSchemaType<TypeSpecRawConfig>>;
 }
 
-export type ServerOnRequestMethodName = "typespec/getTypespecConfigSchema";
+export type ServerOnRequestMethodName = "typespec/getTypeSpecConfigJsonSchema";
 
 export interface ServerSourceFile extends SourceFile {
   // Keep track of the open document (if any) associated with a source file.

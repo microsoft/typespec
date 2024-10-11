@@ -20,7 +20,6 @@ export async function provideTspconfigCompletionItems(
   if (target === undefined) {
     return [];
   }
-  // TODO: filter items based on last
   const items = resolveTspConfigCompleteItems(packageJsonFolder ?? tspConfigDoc.uri, target);
   return items;
 }
@@ -53,9 +52,8 @@ async function resolveTspConfigCompleteItems(
       }
     }
     return items;
-  } else if (nodePath.length > 1 && nodePath[0] === "options") {
-    const EMITTER_CONFIG_SCHEMA_START_INDEX = 2;
-    const emitterName = nodePath[1];
+  } else if (nodePath.length > CONFIG_PATH_LENGTH_FOR_EMITTER_LIST && nodePath[0] === "options") {
+    const emitterName = nodePath[CONFIG_PATH_LENGTH_FOR_EMITTER_LIST - 1];
     const emitter = await emitterProvider.getEmitter(tspConfigFile, emitterName);
     if (!emitter) {
       return [];
@@ -67,37 +65,47 @@ async function resolveTspConfigCompleteItems(
 
     const builtInEmitterSchema = await schemaProvider.getTypeSpecEmitterConfigJsonSchema();
 
-    const items1 = builtInEmitterSchema
+    const itemsFromBuiltIn = builtInEmitterSchema
       ? resolveCompleteItems(builtInEmitterSchema, {
           ...target,
-          path: nodePath.slice(EMITTER_CONFIG_SCHEMA_START_INDEX),
+          path: nodePath.slice(CONFIG_PATH_LENGTH_FOR_EMITTER_LIST),
         })
       : [];
 
-    const items2 = resolveCompleteItems(exports.$lib.emitter.options, {
+    const itemsFromEmitter = resolveCompleteItems(exports.$lib.emitter.options, {
       ...target,
-      path: nodePath.slice(EMITTER_CONFIG_SCHEMA_START_INDEX),
+      path: nodePath.slice(CONFIG_PATH_LENGTH_FOR_EMITTER_LIST),
     });
-    return [...items1, ...items2];
+    return [...itemsFromBuiltIn, ...itemsFromEmitter];
   } else {
     const schema = await schemaProvider.getTypeSpecConfigJsonSchema();
     return schema ? resolveCompleteItems(schema, target) : [];
   }
 }
 
+/**
+ *
+ * @param schema
+ * @param path
+ * @param curIndex
+ * @param track track the schema we have processed so that we won't have problem for circle reference
+ * @returns
+ */
 function findSchemaByPath(
   schema: ObjectJSONSchemaType,
   path: readonly string[],
   curIndex: number,
+  track: Set<ObjectJSONSchemaType> = new Set<ObjectJSONSchemaType>(),
 ): ObjectJSONSchemaType[] {
   if (curIndex >= path.length) {
     return [schema];
   }
+  if (track.has(schema)) {
+    return [];
+  }
   const key = path[curIndex];
   const result = [];
   if (schema.type === "array") {
-    schema = schema.items;
-    //TODO: double check the key should be an array index? seems not necessary
     return findSchemaByPath(schema.items, path, curIndex + 1);
   } else {
     if (schema.type === "object") {
@@ -113,23 +121,30 @@ function findSchemaByPath(
     }
     if (schema.oneOf || schema.anyOf || schema.allOf) {
       const choices = [...(schema.anyOf ?? []), ...(schema.oneOf ?? []), ...(schema.allOf ?? [])];
-      const founds = choices
-        .map((choice) => {
-          return findSchemaByPath(choice, path, curIndex);
-        })
-        .flat();
+      const founds = choices.flatMap((choice) => findSchemaByPath(choice, path, curIndex), track);
       result.push(...founds);
     }
     return result;
   }
 }
 
-function expandPossibleSchema(schema: ObjectJSONSchemaType): ObjectJSONSchemaType[] {
+/**
+ *
+ * @param schema
+ * @param track a set to track all the processed schema so that we won't have problem for circle reference
+ * @returns
+ */
+function expandPossibleSchema(
+  schema: ObjectJSONSchemaType,
+  track: Set<ObjectJSONSchemaType> = new Set<ObjectJSONSchemaType>(),
+): ObjectJSONSchemaType[] {
+  if (track.has(schema)) return [];
   const result = [schema];
   const choices = [...(schema.anyOf ?? []), ...(schema.oneOf ?? []), ...(schema.allOf ?? [])];
   for (const choice of choices) {
-    result.push(...expandPossibleSchema(choice));
+    result.push(...expandPossibleSchema(choice, track));
   }
+  result.forEach((s) => track.add(s));
   return result;
 }
 
@@ -145,7 +160,6 @@ function resolveCompleteItems(
   foundSchemas
     .flatMap((s) => expandPossibleSchema(s))
     .forEach((cur) => {
-      // when user is just add the first key of an object, it will be treated as value (PLAIN text) instead of key by yaml.parse
       if (targetType === "key") {
         if (cur.type === "object") {
           const props = Object.keys(cur.properties ?? {})

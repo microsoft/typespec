@@ -130,7 +130,7 @@ function main() {
   connection.languages.semanticTokens.on(profile(s.buildSemanticTokens));
 
   const getTypespecConfigSchemaMethodName: ServerOnRequestMethodName =
-    "typespec/getTypespecConfigSchema";
+    "typespec/getTypeSpecConfigJsonSchema";
   connection.onRequest(getTypespecConfigSchemaMethodName, s.getTypeSpecConfigJsonSchema);
 
   documents.onDidChangeContent(profile(s.checkChange));

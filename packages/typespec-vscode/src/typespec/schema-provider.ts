@@ -8,6 +8,49 @@ class SchemaProvider {
   private typeSpecConfigJsonSchema: ObjectJSONSchemaType | undefined;
   private client: LanguageClient | undefined;
 
+  constructor() {}
+
+  init(client: LanguageClient) {
+    this.client = client;
+  }
+
+  async getTypeSpecConfigJsonSchema(): Promise<ObjectJSONSchemaType | undefined> {
+    if (!this.typeSpecConfigJsonSchema) {
+      if (!this.client) {
+        logger.debug("Try to use default TypeSpecConfigJsonSchema when LSP client is undefined");
+        return this.defaultTypeSpecConfigJsonSchema;
+      } else {
+        const getSchemaMethod: ServerOnRequestMethodName = "typespec/getTypeSpecConfigJsonSchema";
+        try {
+          this.typeSpecConfigJsonSchema = await this.client.sendRequest(getSchemaMethod);
+        } catch (e) {
+          logger.debug(
+            "Unexpected exception when sendRequest to LSP to get schema, try to use default TypeSpecConfigJsonSchema",
+            [e],
+          );
+          return this.defaultTypeSpecConfigJsonSchema;
+        }
+        if (!this.typeSpecConfigJsonSchema) {
+          logger.debug(
+            "Try to use default TypeSpecConfigJsonSchema when failing to get TypeSpec config schema from server",
+          );
+          return this.defaultTypeSpecConfigJsonSchema;
+        }
+        // the emitters field has been deprecated but not marked in compiler yet
+        // so we mark it here to avoid showing it in the completion list when user's using older compiler
+        if (this.typeSpecConfigJsonSchema.properties?.emitters) {
+          this.typeSpecConfigJsonSchema.properties.emitters.deprecated = true;
+        }
+      }
+    }
+    return this.typeSpecConfigJsonSchema;
+  }
+
+  async getTypeSpecEmitterConfigJsonSchema(): Promise<ObjectJSONSchemaType | undefined> {
+    const schema = await this.getTypeSpecConfigJsonSchema();
+    return schema?.properties?.options?.additionalProperties;
+  }
+
   // copied from packages/compiler/src/config/config-schema.ts to provide "default" emitter config schema when the compiler is too old to provide schema through LSP
   private defaultEmitterOptionsSchema: JSONSchemaType<object> = {
     type: "object",
@@ -122,45 +165,6 @@ class SchemaProvider {
       } as any, // ajv type system doesn't like the string templates
     },
   };
-
-  constructor() {}
-
-  init(client: LanguageClient) {
-    this.client = client;
-  }
-
-  async getTypeSpecConfigJsonSchema(): Promise<ObjectJSONSchemaType | undefined> {
-    if (!this.typeSpecConfigJsonSchema) {
-      if (!this.client) {
-        logger.debug("Try to use default TypeSpecConfigJsonSchema when LSP client is undefined");
-        return this.defaultTypeSpecConfigJsonSchema;
-      } else {
-        const getSchemaMethod: ServerOnRequestMethodName = "typespec/getTypespecConfigSchema";
-        this.typeSpecConfigJsonSchema = await this.client.sendRequest(getSchemaMethod);
-        if (!this.typeSpecConfigJsonSchema) {
-          logger.debug(
-            "Try to use default TypeSpecConfigJsonSchema when failing to get TypeSpec config schema from server",
-          );
-          return this.defaultTypeSpecConfigJsonSchema;
-        }
-        // the emitters field has been deprecated but not marked in compiler yet
-        // so we mark it here to avoid showing it in the completion list when user using older compiler
-        if (this.typeSpecConfigJsonSchema.properties?.emitters) {
-          this.typeSpecConfigJsonSchema.properties.emitters.deprecated = true;
-        }
-      }
-    }
-    return this.typeSpecConfigJsonSchema;
-  }
-
-  setTypeSpecConfigJsonSchema(schema: ObjectJSONSchemaType) {
-    this.typeSpecConfigJsonSchema = schema;
-  }
-
-  async getTypeSpecEmitterConfigJsonSchema(): Promise<ObjectJSONSchemaType | undefined> {
-    const schema = await this.getTypeSpecConfigJsonSchema();
-    return schema?.properties?.options?.additionalProperties;
-  }
 }
 
 const schemaProvider = new SchemaProvider();

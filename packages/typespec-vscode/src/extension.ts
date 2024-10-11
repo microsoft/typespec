@@ -56,10 +56,7 @@ export async function activate(context: ExtensionContext) {
                 logger.debug(`Unknown kind of completion item: ${item.kind}`);
                 r.kind = vscode.CompletionItemKind.Text;
             }
-            // TODO: double check how to determine the documentation is markdown or not
-            r.documentation = item.documentation?.includes("```")
-              ? new vscode.MarkdownString(item.documentation)
-              : item.documentation;
+            r.documentation = item.documentation;
             r.insertText = item.insertText;
             return r;
           });

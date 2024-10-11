@@ -62,6 +62,10 @@ describe("Test completion for tspconfig", () => {
         expected: rootOptions.filter((o) => o !== "warn-as-error"),
       },
       {
+        config: `warn-as-error: true\n┆`,
+        expected: rootOptions.filter((o) => o !== "warn-as-error"),
+      },
+      {
         config: `trace:\n  - "verbose"\nop┆tions`,
         expected: rootOptions.filter((o) => o !== "trace"),
       },
@@ -159,6 +163,10 @@ describe("Test completion for tspconfig", () => {
       {
         config: `parameters:\n  p:"value"\n\nwarn-as-error: f┆`,
         expected: ["true", "false"],
+      },
+      {
+        config: `warn-as-error: true\n  ┆`,
+        expected: [],
       },
     ])("#%# Test wae: $config", async ({ config, expected }) => {
       await checkCompletionItems(config, join(__dirname, "./workspace"), expected);

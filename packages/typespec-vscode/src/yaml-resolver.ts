@@ -49,9 +49,9 @@ export function resolveYamlScalarTarget(
   position: Position,
 ): YamlScalarTarget | undefined {
   const pos = document.offsetAt(position);
-  const lines = document.getText().split("\n");
-  const targetLine = lines[position.line];
   const content = document.getText();
+  const lines = content.split("\n");
+  const targetLine = lines[position.line];
   const yamlDoc = parseDocument(content, {
     keepSourceTokens: true,
   });
@@ -69,13 +69,15 @@ export function resolveYamlScalarTarget(
 
   if (isWhitespaceString(targetLine) || isCommentLine(targetLine)) {
     const indent = position.character;
-    const rootProperties: string[] = [];
-    if (isMap(yamlDoc.contents)) {
-      rootProperties.push(...yamlDoc.contents.items.map((item) => (item.key as any).source ?? ""));
-    } else if (isScalar(yamlDoc.contents) && !isWhitespaceString(yamlDoc.contents.source)) {
-      rootProperties.push(yamlDoc.contents.source);
-    }
     if (indent === 0) {
+      const rootProperties: string[] = [];
+      if (isMap(yamlDoc.contents)) {
+        rootProperties.push(
+          ...yamlDoc.contents.items.map((item) => (item.key as any).source ?? ""),
+        );
+      } else if (isScalar(yamlDoc.contents) && !isWhitespaceString(yamlDoc.contents.source)) {
+        rootProperties.push(yamlDoc.contents.source);
+      }
       return {
         path: [""],
         type: "key",
@@ -115,6 +117,7 @@ export function resolveYamlScalarTarget(
           );
           return undefined;
         }
+        // adjust path and sibling for the whitespace line
         return {
           path: [...yp.path.slice(0, yp.path.length - 1), ""],
           type: "key",
@@ -137,7 +140,7 @@ export function resolveYamlScalarTarget(
           );
           return undefined;
         }
-        // the parent should be a map or null
+        // the parent should be a map or null (potential a map)
         const last = found.path[found.path.length - 1];
         if (
           isPair(last) &&
@@ -152,14 +155,13 @@ export function resolveYamlScalarTarget(
             );
             return undefined;
           }
+          // adjust path and sibling for the whitespace line
           return {
             path: [...yp.path, ""],
             type: "key",
             source: "",
             siblings: isMap(last.value)
-              ? (last.value?.items
-                  .filter((item) => item !== last)
-                  .map((item) => (item.key as any).source ?? "") ?? [])
+              ? (last.value?.items.map((item) => (item.key as any).source ?? "") ?? [])
               : [],
           };
         }
@@ -277,9 +279,8 @@ function findScalarNode(
   visit(document, {
     Node: (key, n, path) => {
       if (isScalar(n)) {
-        const [start, endValue, endNode] = n.range ?? [];
-        if (start === undefined || endValue === undefined || endNode === undefined)
-          return undefined;
+        const [start, endValue, _endNode] = n.range ?? [];
+        if (start === undefined || endValue === undefined) return undefined;
         if (start <= pos && pos <= endValue) {
           found = { key, n, path };
           return visit.BREAK;

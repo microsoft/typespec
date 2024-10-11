@@ -39,8 +39,11 @@ class EmitterProvider {
     if (!data) return {};
 
     const emitters: Record<string, NpmPackage> = {};
-    // shall we consider devDependencies?
-    for (const dep of Object.keys(data.dependencies ?? {})) {
+    const allDep = {
+      ...(data.dependencies ?? {}),
+      ...(data.devDependencies ?? {}),
+    };
+    for (const dep of Object.keys(allDep)) {
       const depPkg = await EmitterProvider.getEmitterFromDep(packageJsonFolder, dep);
       if (depPkg) {
         emitters[dep] = depPkg;
@@ -57,18 +60,10 @@ class EmitterProvider {
    */
   async getEmitter(startFolder: string, emitterName: string): Promise<NpmPackage | undefined> {
     const packageJsonFolder = await npmPackageProvider.getPackageJsonFolder(startFolder);
-    if (!packageJsonFolder) return undefined;
-
-    const pkg = await npmPackageProvider.get(packageJsonFolder);
-    const data = await pkg?.getPackageJsonData();
-    if (!data) return undefined;
-
-    // TODO: supports extends scenario when needed
-    // shall we consider devDependencies?
-    if (data.dependencies && data.dependencies[emitterName]) {
-      return EmitterProvider.getEmitterFromDep(packageJsonFolder, emitterName);
+    if (!packageJsonFolder) {
+      return undefined;
     }
-    return undefined;
+    return EmitterProvider.getEmitterFromDep(packageJsonFolder, emitterName);
   }
 }
 

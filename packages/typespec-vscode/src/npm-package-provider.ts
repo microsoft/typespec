@@ -24,14 +24,15 @@ export class NpmPackageProvider {
     if (isWhitespaceString(startFolder)) {
       return undefined;
     }
-    const cache = this.packageJsonFolderCache.get(startFolder);
+    const key = normalizePath(startFolder);
+    const cache = this.packageJsonFolderCache.get(key);
     if (cache) {
       return cache;
     }
     return await forCurAndParentDirectories(startFolder, async (dir: string) => {
       const packageJsonPath = join(dir, "package.json");
       if (await isFile(packageJsonPath)) {
-        this.packageJsonFolderCache.set(startFolder, dir);
+        this.packageJsonFolderCache.set(key, dir);
         return dir;
       }
       return undefined;
@@ -45,7 +46,7 @@ export class NpmPackageProvider {
    * @returns the NpmPackage instance or undefined if no proper package.json file found
    */
   public async get(packageJsonFolder: string): Promise<NpmPackage | undefined> {
-    const key = this.getCacheKey(packageJsonFolder);
+    const key = normalizePath(packageJsonFolder);
     const r = this.pkgCache.get(key);
     if (r) {
       return r;
@@ -58,10 +59,6 @@ export class NpmPackageProvider {
         return undefined;
       }
     }
-  }
-
-  private getCacheKey(packageJsonFolder: string) {
-    return normalizePath(packageJsonFolder);
   }
 
   private clearCache() {
@@ -84,7 +81,7 @@ export class NpmPackageProvider {
 export class NpmPackage {
   private constructor(packageJsonFolder: string, packageJsonData: NodePackage | undefined) {
     this.packageJsonFolder = packageJsonFolder;
-    this._packageJsonData = packageJsonData;
+    this.packageJsonData = packageJsonData;
 
     const onPackageJsonChange: WatchListener<string> = debounce(
       (eventType: WatchEventType, filename: string | null) => {
@@ -106,27 +103,27 @@ export class NpmPackage {
     return join(this.packageJsonFolder, "package.json");
   }
 
-  private _packageJsonData: NodePackage | undefined;
+  private packageJsonData: NodePackage | undefined;
   async getPackageJsonData(): Promise<NodePackage | undefined> {
-    if (!this._packageJsonData) {
-      this._packageJsonData = await loadNodePackage(this.packageJsonFolder);
+    if (!this.packageJsonData) {
+      this.packageJsonData = await loadNodePackage(this.packageJsonFolder);
     }
-    return this._packageJsonData;
+    return this.packageJsonData;
   }
 
-  private _packageModule: Record<string, any> | undefined;
+  private packageModule: Record<string, any> | undefined;
   async getModuleExports(): Promise<Record<string, any> | undefined> {
-    if (!this._packageModule) {
+    if (!this.packageModule) {
       const data = await this.getPackageJsonData();
       if (!data) return undefined;
-      this._packageModule = await loadModuleExports(this.packageJsonFolder, data.name);
+      this.packageModule = await loadModuleExports(this.packageJsonFolder, data.name);
     }
-    return this._packageModule;
+    return this.packageModule;
   }
 
   private clearCache() {
-    this._packageJsonData = undefined;
-    this._packageModule = undefined;
+    this.packageJsonData = undefined;
+    this.packageModule = undefined;
   }
 
   dispose() {

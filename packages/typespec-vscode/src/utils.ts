@@ -35,7 +35,6 @@ export async function isDirectory(path: string) {
   }
 }
 
-// a debounce utility
 export function debounce<T extends (...args: any[]) => any>(fn: T, delayInMs: number): T {
   let timer: NodeJS.Timeout | undefined;
   return function (this: any, ...args: Parameters<T>) {
@@ -109,7 +108,7 @@ export function isWhitespaceString(str: string | undefined): boolean {
 }
 
 export function firstNonWhitespaceCharacterIndex(line: string): number {
-  // TODO: is the list enough?
+  // TODO: add more white chars if needed
   const whiteChars = [" ", "\t", "\r", "\n"];
   for (let i = 0; i < line.length; i++) {
     if (!whiteChars.includes(line[i])) {
@@ -148,14 +147,14 @@ export async function loadNodePackage(baseDir: string): Promise<NodePackage | un
     const data = JSON.parse(content) as NodePackage;
 
     if (!data || !data.name || !data.version) {
-      logger.debug(
+      logger.error(
         `Invalid package.json file: ${packageJsonPath}. Failed to parse it as json or missing name or version.`,
       );
       return undefined;
     }
     return data;
   } catch (e) {
-    logger.debug(`Exception when loading package.json from ${baseDir}`, [e]);
+    logger.error(`Exception when loading package.json from ${baseDir}`, [e]);
     return undefined;
   }
 }
