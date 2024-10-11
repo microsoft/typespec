@@ -1,6 +1,6 @@
-import type { NodePackage, ResolveModuleHost } from "@typespec/compiler";
+import type { ModuleResolutionResult, NodePackage, ResolveModuleHost } from "@typespec/compiler";
 import { readFile, realpath, stat } from "fs/promises";
-import { dirname, join } from "path";
+import { dirname, join, normalize, resolve } from "path";
 import { pathToFileURL } from "url";
 import { Executable } from "vscode-languageclient/node.js";
 import logger from "./log/logger.js";
@@ -8,6 +8,13 @@ import logger from "./log/logger.js";
 /** normalize / and \\ to / */
 export function normalizeSlash(str: string): string {
   return str.replaceAll(/\\/g, "/");
+}
+
+export function normalizePath(path: string): string {
+  const normalized = normalize(path);
+  const resolved = resolve(normalized);
+  const result = normalizeSlash(resolved);
+  return result;
 }
 
 export async function isFile(path: string) {
@@ -71,10 +78,17 @@ export async function forCurAndParentDirectories<T>(
   cur: string,
   action: (dir: string) => T | undefined,
 ) {
-  const stats = await stat(cur);
-  const curDir = stats.isDirectory() ? cur : stats.isFile() ? dirname(cur) : undefined;
+  let curDir = undefined;
+  try {
+    const stats = await stat(cur);
+    curDir = stats.isDirectory() ? cur : stats.isFile() ? dirname(cur) : undefined;
+  } catch (e) {
+    logger.error("Unexpected exception when checking whether cur is a file or directory");
+    return undefined;
+  }
   if (!curDir) {
-    throw new Error("Invalid path: " + cur);
+    logger.error("Unexpected error, given cur is not a file or folder: " + cur);
+    return undefined;
   }
 
   let lastFolder = "";
@@ -146,10 +160,10 @@ export async function loadNodePackage(baseDir: string): Promise<NodePackage | un
   }
 }
 
-export async function loadModuleExports(
+export async function loadModule(
   baseDir: string,
   packageName: string,
-): Promise<object | undefined> {
+): Promise<ModuleResolutionResult | undefined> {
   const { resolveModule } = await import("@typespec/compiler/module-resolver");
 
   const host: ResolveModuleHost = {
@@ -164,6 +178,22 @@ export async function loadModuleExports(
         baseDir,
       });
     });
+    return module;
+  } catch (e) {
+    logger.debug(`Exception when resolving module for ${packageName} from ${baseDir}`, [e]);
+    return undefined;
+  }
+}
+
+export async function loadModuleExports(
+  baseDir: string,
+  packageName: string,
+): Promise<object | undefined> {
+  try {
+    const module = await loadModule(baseDir, packageName);
+    if (!module) {
+      return undefined;
+    }
     const entrypoint = module.type === "file" ? module.path : module.mainFile;
     const path = pathToFileURL(entrypoint).href;
     const exports = await import(path);

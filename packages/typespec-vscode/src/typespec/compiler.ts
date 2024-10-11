@@ -1,10 +1,8 @@
-import { ResolveModuleHost } from "@typespec/compiler/module-resolver";
-import { readFile, realpath, stat } from "fs/promises";
 import { dirname, isAbsolute, join } from "path";
 import { ExtensionContext, workspace } from "vscode";
 import { Executable, ExecutableOptions } from "vscode-languageclient/node.js";
 import logger from "../log/logger.js";
-import { isFile, useShellInExec } from "../utils.js";
+import { isFile, loadModule, useShellInExec } from "../utils.js";
 import { VSCodeVariableResolver } from "../vscode/vscode-variable-resolver.js";
 
 /**
@@ -110,21 +108,12 @@ export async function resolveTypeSpecServer(context: ExtensionContext): Promise<
   return { command: "node", args: [serverPath, ...args], options };
 }
 
-export async function resolveLocalCompiler(baseDir: string): Promise<string | undefined> {
-  // dynamic import required when unbundled as this module is CommonJS for
-  // VS Code and the module-resolver is an ES module.
-  const { resolveModule } = await import("@typespec/compiler/module-resolver");
-
-  const host: ResolveModuleHost = {
-    realpath,
-    readFile: (path: string) => readFile(path, "utf-8"),
-    stat,
-  };
+async function resolveLocalCompiler(baseDir: string): Promise<string | undefined> {
   try {
-    logger.debug(`Try to resolve compiler from local, baseDir: ${baseDir}`);
-    const executable = await resolveModule(host, "@typespec/compiler", {
-      baseDir,
-    });
+    const executable = await loadModule(baseDir, "@typespec/compiler");
+    if (!executable) {
+      return undefined;
+    }
     if (executable.type === "module") {
       logger.debug(`Resolved compiler from local: ${executable.path}`);
       return executable.path;

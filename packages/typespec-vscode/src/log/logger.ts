@@ -1,4 +1,4 @@
-type LogLevel = "info" | "warn" | "error" | "debug" | "trace";
+export type LogLevel = "info" | "warn" | "error" | "debug" | "trace";
 
 export interface LogOptions {
   /** show the Output window in vscode */
@@ -35,24 +35,28 @@ export class Logger {
     this._listeners.delete(name);
   }
 
+  log(level: LogLevel, message: string, details?: any[], options?: LogOptions): void {
+    this.logInternal({ message, level, details, options });
+  }
+
   error(message: string, details?: any[], options?: LogOptions): void {
     this.logInternal({ message, level: "error", details, options });
   }
 
-  trace(message: string, details?: any[], options?: LogOptions): void {
-    this.logInternal({ message, level: "trace", details, options });
-  }
-
-  debug(message: string, details?: any[], options?: LogOptions): void {
-    this.logInternal({ message, level: "debug", details, options });
+  warning(message: string, details?: any[], options?: LogOptions): void {
+    this.logInternal({ message, level: "warn", details, options });
   }
 
   info(message: string, details?: any[], options?: LogOptions): void {
     this.logInternal({ message, level: "info", details, options });
   }
 
-  warning(message: string, details?: any[], options?: LogOptions): void {
-    this.logInternal({ message, level: "warn", details, options });
+  debug(message: string, details?: any[], options?: LogOptions): void {
+    this.logInternal({ message, level: "debug", details, options });
+  }
+
+  trace(message: string, details?: any[], options?: LogOptions): void {
+    this.logInternal({ message, level: "trace", details, options });
   }
 
   async profile<T>(actionName: string, action: () => Promise<T>) {

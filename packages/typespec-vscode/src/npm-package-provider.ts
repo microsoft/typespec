@@ -8,7 +8,7 @@ import {
   isWhitespaceString,
   loadModuleExports,
   loadNodePackage,
-  normalizeSlash,
+  normalizePath,
 } from "./utils.js";
 
 export class NpmPackageProvider {
@@ -61,7 +61,7 @@ export class NpmPackageProvider {
   }
 
   private getCacheKey(packageJsonFolder: string) {
-    return normalizeSlash(packageJsonFolder);
+    return normalizePath(packageJsonFolder);
   }
 
   private clearCache() {

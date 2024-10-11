@@ -2,8 +2,6 @@ import { join } from "path";
 import npmPackageProvider, { NpmPackage } from "../npm-package-provider.js";
 
 class EmitterProvider {
-  private packageJsonFolderCache = new Map<string, string>();
-
   private static async isEmitter(pkg: NpmPackage) {
     const data = await pkg.getPackageJsonData();
     if (!data) return false;
