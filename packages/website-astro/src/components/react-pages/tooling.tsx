@@ -1,6 +1,6 @@
+import SectionedLayout from "@site/src/components/sectioned-layout.astro";
 import { CodeBlock } from "../prism-code-block/prism-code-block";
 import { Section } from "../section/section";
-import { SectionedLayout } from "../sectioned-layout/sectioned-layout";
 import { UseCaseOverview } from "../use-case-overview/use-case-overview";
 import style from "./tooling.module.css";
 

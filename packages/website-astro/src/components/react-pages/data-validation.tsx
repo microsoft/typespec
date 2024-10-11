@@ -1,5 +1,5 @@
 import { Section } from "@site/src/components/section/section";
-import { SectionedLayout } from "@site/src/components/sectioned-layout/sectioned-layout";
+import SectionedLayout from "@site/src/components/sectioned-layout.astro";
 import { UseCaseOverview } from "@site/src/components/use-case-overview/use-case-overview";
 import { Links } from "@site/src/constants";
 import { TabItem, Tabs } from "../react-tabs";

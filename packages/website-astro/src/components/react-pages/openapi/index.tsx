@@ -1,6 +1,7 @@
 import abstractionCode from "@site/src/assets/tsp-samples/openapi3/abstraction.tsp?raw";
 import heroMainTsp from "@site/src/assets/tsp-samples/openapi3/hero/main.tsp?raw";
 import heroOpenAPIYaml from "@site/src/assets/tsp-samples/openapi3/hero/out/openapi.yaml?raw";
+import SectionedLayout from "@site/src/components/sectioned-layout.astro";
 import { Links } from "@site/src/constants";
 import { IllustrationCard } from "../../illustration-card/illustration-card";
 import { OpenAPI3InteroperateIllustration } from "../../interoperate-illustration/interoperate-illustration";
@@ -8,7 +9,6 @@ import { LearnMoreCard } from "../../learn-more-card/learn-more-card";
 import { CodeBlock } from "../../prism-code-block/prism-code-block";
 import { TabItem, Tabs } from "../../react-tabs";
 import { Section } from "../../section/section";
-import { SectionedLayout } from "../../sectioned-layout/sectioned-layout";
 import { UseCaseOverview } from "../../use-case-overview/use-case-overview";
 import style from "./openapi.module.css";
 
