@@ -399,4 +399,31 @@ describe("resolve self", () => {
       mainFile: "/ws/proj/entry.js",
     });
   });
+
+  it("prioritize local node_modules over self from multiple parent up", async () => {
+    const { host } = mkFs({
+      "/ws/proj/package.json": JSON.stringify({ name: "@scope/proj", main: "entry.js" }),
+      "/ws/proj/entry.js": "",
+      "/ws/proj/nested/index.js": "",
+      "/ws/proj/node_modules/test-lib/package.json": JSON.stringify({ main: "entry.js" }),
+      "/ws/proj/node_modules/test-lib/entry.js": "",
+      "/ws/proj/node_modules/test-lib/nested/index.js": "",
+      // @scope/proj installed locally
+      "/ws/proj/node_modules/test-lib/node_modules/@scope/proj/package.json": JSON.stringify({
+        name: "@scope/proj",
+        main: "entry.js",
+      }),
+      "/ws/proj/node_modules/test-lib/node_modules/@scope/proj/entry.js": "",
+    });
+
+    const resolved = await resolveModule(host, "@scope/proj", {
+      baseDir: "/ws/proj/node_modules/test-lib/nested",
+    });
+    const path = "/ws/proj/node_modules/test-lib/node_modules/@scope/proj";
+    expect(resolved).toMatchObject({
+      type: "module",
+      path,
+      mainFile: `${path}/entry.js`,
+    });
+  });
 });
