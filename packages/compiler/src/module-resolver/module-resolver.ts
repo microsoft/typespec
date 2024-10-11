@@ -162,11 +162,8 @@ export async function resolveModule(
       const pkgFile = resolvePath(dir, "package.json");
       if (!(await isFile(host, pkgFile))) continue;
       const pkg = await readPackage(host, pkgFile);
-      if (pkg.name === name) {
-        return loadPackage(dir, pkg);
-      } else {
-        continue;
-      }
+      if (pkg.name !== name) continue;
+      return loadPackage(dir, pkg);
     }
     return undefined;
   }
