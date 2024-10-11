@@ -74,6 +74,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.NamedTypeSymbolProviders
         [TestCase(typeof(IList<string>))]
         [TestCase(typeof(IList<string?>))]
         [TestCase(typeof(IList<PropertyType>))]
+        [TestCase(typeof(IList<SomeEnum>))]
         [TestCase(typeof(ReadOnlyMemory<byte>?))]
         [TestCase(typeof(ReadOnlyMemory<byte>))]
         [TestCase(typeof(ReadOnlyMemory<object>))]
@@ -83,7 +84,10 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.NamedTypeSymbolProviders
         [TestCase(typeof(string[]))]
         [TestCase(typeof(IDictionary<int, int>))]
         [TestCase(typeof(BinaryData))]
-        public void ValidatePropertyTypes(Type propertyType)
+        [TestCase(typeof(SomeEnum), true)]
+        [TestCase(typeof(SomeEnum?), true)]
+        [TestCase(typeof(IDictionary<string, SomeEnum>))]
+        public void ValidatePropertyTypes(Type propertyType, bool isEnum = false)
         {
             // setup
             var namedSymbol = new NamedSymbol(propertyType);
@@ -99,8 +103,9 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.NamedTypeSymbolProviders
             Assert.IsNotNull(property);
 
             bool isNullable = Nullable.GetUnderlyingType(propertyType) != null;
-            var expectedType = propertyType.FullName!.StartsWith("System") ? new CSharpType(propertyType, isNullable) :
-                new CSharpType(propertyType.Name, propertyType.Namespace!, false, isNullable, null, [], false, false);
+            var expectedType = propertyType.FullName!.StartsWith("System")
+                ? new CSharpType(propertyType, isNullable)
+                : new CSharpType(propertyType.Name, propertyType.Namespace!, false, isNullable, null, [], false, false);
 
             var propertyCSharpType = property!.Type;
 
@@ -109,7 +114,9 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.NamedTypeSymbolProviders
             Assert.AreEqual(expectedType.IsList, propertyCSharpType.IsList);
             Assert.AreEqual(expectedType.Arguments.Count, propertyCSharpType.Arguments.Count);
             Assert.AreEqual(expectedType.IsCollection, propertyCSharpType.IsCollection);
-            Assert.AreEqual(expectedType.IsFrameworkType, propertyCSharpType.IsFrameworkType);
+
+            var isFrameworkType = !isEnum && expectedType.IsFrameworkType;
+            Assert.AreEqual(isFrameworkType, propertyCSharpType.IsFrameworkType);
 
             for (var i = 0; i < expectedType.Arguments.Count; i++)
             {
@@ -118,7 +125,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.NamedTypeSymbolProviders
             }
 
             // validate the underlying types aren't nullable
-            if (isNullable && expectedType.IsFrameworkType)
+            if (isNullable && isFrameworkType)
             {
                 var underlyingType = propertyCSharpType.FrameworkType;
                 Assert.IsTrue(Nullable.GetUnderlyingType(underlyingType) == null);
@@ -276,6 +283,11 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.NamedTypeSymbolProviders
             protected override string BuildRelativeFilePath() => ".";
 
             protected override string BuildName() => "PropertyType";
+        }
+
+        private enum SomeEnum
+        {
+            Foo
         }
 
         internal static INamedTypeSymbol? GetSymbol(INamespaceSymbol namespaceSymbol, string name)
