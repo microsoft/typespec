@@ -17,7 +17,7 @@ extends:
         parameters:
           BuildPrereleaseVersion: true
           UseTypeSpecNext: false
-          Publish: ${{replace(replace('True',ne(variables['Build.Reason'], 'PullRequest'), 'public'),'True','internal')}}
+          Publish: ${{replace(replace('True',ne(variables['Build.Reason'], 'Manual'), 'public'),'True','internal')}}
           PublishDependsOnTest: true
           PackagePath: /packages/http-client-csharp
           EmitterPackageJsonPath: packages/http-client-csharp/package.json
