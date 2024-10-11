@@ -859,11 +859,8 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
     const shouldAddSuffix = usage !== undefined && usage.size > 1;
     const visibility = this.#getVisibilityContext();
-    let fullName = name + (shouldAddSuffix ? getVisibilitySuffix(visibility, Visibility.Read) : "");
-
-    if (isForceRef && type.kind === "Model") {
-      fullName = type.name;
-    }
+    const fullName =
+      name + (shouldAddSuffix ? getVisibilitySuffix(visibility, Visibility.Read) : "");
 
     const decl = this.emitter.result.declaration(fullName, schema);
 
@@ -873,6 +870,11 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       fullName,
       Object.fromEntries(decl.scope.declarations.map((x) => [x.name, true])),
     );
+
+    if (isForceRef && type.kind === "Model") {
+      return this.emitter.result.declaration(type.name, schema);
+    }
+
     return decl;
   }
 
