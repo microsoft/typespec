@@ -29,6 +29,7 @@ export function transformPaths(
   const operations: TypeSpecOperation[] = [];
 
   for (const route of Object.keys(paths)) {
+    const routeParameters = paths[route].parameters?.map(transformOperationParameter) ?? [];
     const path = paths[route];
     for (const verb of supportedHttpMethods) {
       const operation = path[verb];
@@ -48,7 +49,7 @@ export function transformPaths(
           { name: "route", args: [route] },
           { name: verb, args: [] },
         ],
-        parameters,
+        parameters: [...routeParameters, ...parameters],
         doc: operation.description,
         operationId: operation.operationId,
         requestBodies: transformRequestBodies(operation.requestBody),
