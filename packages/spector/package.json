@@ -2,8 +2,6 @@
   "name": "@typespec/spector",
   "version": "0.1.0",
   "description": "Typespec Core Tool to validate, run mock api, collect coverage.",
-  "main": "./dist/src/index.js",
-  "tspMain": "./lib/main.tsp",
   "exports": {
     ".": {
       "import": "./dist/src/index.js",
