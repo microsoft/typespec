@@ -617,9 +617,9 @@ importers:
       '@typespec/spec-api':
         specifier: workspace:~
         version: link:../spec-api
-      '@typespec/spec-core':
+      '@typespec/spector':
         specifier: workspace:~
-        version: link:../spec-core
+        version: link:../spector
       '@typespec/spec-lib':
         specifier: workspace:~
         version: link:../spec-lib
@@ -1484,7 +1484,7 @@ importers:
         specifier: ^2.1.2
         version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@19.0.0)(terser@5.30.0)
 
-  packages/spec-core:
+  packages/spector:
     dependencies:
       '@azure/identity':
         specifier: ~4.4.1
