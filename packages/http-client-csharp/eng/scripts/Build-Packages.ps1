@@ -90,7 +90,6 @@ $mgcCustomizationVersion = Get-CsprojVersion -csprojFilePath "$packageRoot/gener
 
 if ($BuildNumber) {
     # set package versions
-    # For PR trigger, publish type is internal, the version tag is -dev
     $versionTag = $Prerelease ? ($PublishType -eq 'public' ? "-alpha" : '-dev') : "-beta"
 
     $mgcVersion = "$mgcVersion$versionTag.$BuildNumber"
