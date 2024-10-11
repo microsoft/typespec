@@ -77,7 +77,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var body = new MethodBodyStatement[]
             {
                 _streamField.Assign(New.Instance(typeof(MemoryStream))).Terminate(),
-                _contentField.Assign(BinaryContentSnippets.Create(_streamField)).Terminate(),
+                _contentField.Assign(RequestContentApiSnippets.Create(_streamField)).Terminate(),
                 _writerProperty.Assign(New.Instance(typeof(Utf8JsonWriter), _streamField)).Terminate()
             };
             return [new ConstructorProvider(signature, body, this)];

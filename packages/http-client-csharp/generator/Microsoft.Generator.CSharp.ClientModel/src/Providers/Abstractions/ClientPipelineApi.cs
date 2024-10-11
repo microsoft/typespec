@@ -32,13 +32,4 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         public abstract ClientPipelineApi FromExpression(ValueExpression expression);
         public abstract ClientPipelineApi ToExpression();
     }
-
-    public interface IClientPipelineApi
-    {
-        CSharpType ClientPipelineType { get; }
-        CSharpType ClientPipelineOptionsType { get; }
-        CSharpType PipelinePolicyType { get; }
-        ClientPipelineApi FromExpression(ValueExpression expression);
-        ClientPipelineApi ToExpression();
-    }
 }

@@ -33,11 +33,4 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         public abstract CSharpType HttpMessageType { get; }
     }
-
-    public interface IHttpMessageApi
-    {
-        CSharpType HttpMessageType { get; }
-        HttpMessageApi FromExpression(ValueExpression original);
-        HttpMessageApi ToExpression();
-    }
 }

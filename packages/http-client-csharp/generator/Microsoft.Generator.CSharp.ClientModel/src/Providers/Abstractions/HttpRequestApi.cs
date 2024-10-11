@@ -25,10 +25,4 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         public abstract HttpRequestApi FromExpression(ValueExpression original);
         public abstract HttpRequestApi ToExpression();
     }
-
-    public interface IHttpRequestApi
-    {
-        HttpRequestApi FromExpression(ValueExpression original);
-        HttpRequestApi ToExpression();
-    }
 }

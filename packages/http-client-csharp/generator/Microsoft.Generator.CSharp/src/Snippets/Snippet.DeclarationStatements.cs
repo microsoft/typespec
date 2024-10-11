@@ -10,14 +10,6 @@ namespace Microsoft.Generator.CSharp.Snippets
 {
     public static partial class Snippet
     {
-        public static MethodBodyStatement UsingDeclare<T>(string name, CSharpType type, ValueExpression value, out T variable) where T: ScopedApi
-        {
-            var declaration = new CodeWriterDeclaration(name);
-            var valueExpression = new VariableExpression(type, declaration);
-            variable = (T)Activator.CreateInstance(value.GetType(), valueExpression)!;
-            return UsingDeclare(valueExpression, value);
-        }
-
         public static MethodBodyStatement UsingDeclare(string name, CSharpType type, ValueExpression value, out VariableExpression variable)
         {
             var declaration = new CodeWriterDeclaration(name);
@@ -58,6 +50,16 @@ namespace Microsoft.Generator.CSharp.Snippets
             var declaration = new CodeWriterDeclaration(name);
             var variableExpression = new VariableExpression(TypeReferenceExpression.GetTypeFromDefinition(value.Type)!, declaration);
             variable = variableExpression.As<T>();
+            return UsingDeclare(variableExpression, value);
+        }
+
+        public static MethodBodyStatement UsingDeclare<T>(string name, T value, out T variable) where T : ScopedApi
+        {
+            var declaration = new CodeWriterDeclaration(name);
+            var variableExpression = new VariableExpression(TypeReferenceExpression.GetTypeFromDefinition(value.Type)!, declaration);
+
+            // TODO: need to constraint that subtype should have the corresponding constructor
+            variable = (T)Activator.CreateInstance(value.GetType(), variableExpression)!;
             return UsingDeclare(variableExpression, value);
         }
 

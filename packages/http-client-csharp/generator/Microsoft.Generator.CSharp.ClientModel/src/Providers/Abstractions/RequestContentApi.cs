@@ -21,11 +21,4 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         public abstract RequestContentApi ToExpression();
         public abstract MethodBodyStatement[] Create(ValueExpression argument);
     }
-
-    public interface IRequestContentApi
-    {
-        CSharpType RequestContentType { get; }
-        RequestContentApi FromExpression(ValueExpression original);
-        RequestContentApi ToExpression();
-    }
 }

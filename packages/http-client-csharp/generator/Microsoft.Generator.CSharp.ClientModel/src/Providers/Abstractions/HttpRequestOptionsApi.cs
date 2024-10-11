@@ -23,11 +23,4 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         public abstract CSharpType HttpRequestOptionsType { get; }
     }
-
-    public interface IHttpRequestOptionsApi
-    {
-        CSharpType HttpRequestOptionsType { get; }
-        HttpRequestOptionsApi FromExpression(ValueExpression original);
-        HttpRequestOptionsApi ToExpression();
-    }
 }

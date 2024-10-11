@@ -34,17 +34,4 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         public abstract CSharpType ClientResponseExceptionType { get; }
     }
-
-    public interface IClientResponseApi
-    {
-        CSharpType ClientResponseExceptionType { get; }
-
-        CSharpType ClientResponseType { get; }
-
-        CSharpType ClientResponseOfTType { get; }
-
-        ClientResponseApi FromExpression(ValueExpression original);
-
-        ClientResponseApi ToExpression();
-    }
 }

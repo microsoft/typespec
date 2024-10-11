@@ -139,7 +139,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         var bdExpression = Operation.RequestMediaTypes?.Contains("application/json") == true
                             ? BinaryDataSnippets.FromObjectAsJson(parameter)
                             : BinaryDataSnippets.FromString(parameter);
-                        statements.Add(UsingDeclare("content", BinaryContentSnippets.Create(bdExpression), out var content));
+                        statements.Add(UsingDeclare("content", RequestContentApiSnippets.Create(bdExpression), out var content));
                         declarations["content"] = content;
                     }
                     else if (parameter.Type.IsFrameworkType && !parameter.Type.Equals(typeof(BinaryData)))
@@ -338,11 +338,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     }
                     else if (param.Type.IsEnum)
                     {
-                        conversions.Add(BinaryContentSnippets.Create(BinaryDataSnippets.FromObjectAsJson(param.Type.ToSerial(param))));
+                        conversions.Add(RequestContentApiSnippets.Create(BinaryDataSnippets.FromObjectAsJson(param.Type.ToSerial(param))));
                     }
                     else if (param.Type.Equals(typeof(BinaryData)))
                     {
-                        conversions.Add(BinaryContentSnippets.Create(param));
+                        conversions.Add(RequestContentApiSnippets.Create(param));
                     }
                     else if (param.Type.IsFrameworkType)
                     {

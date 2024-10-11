@@ -27,13 +27,4 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         public abstract HttpResponseApi ToExpression();
     }
-
-    public interface IHttpResponseApi
-    {
-        CSharpType HttpResponseType { get; }
-
-        HttpResponseApi FromExpression(ValueExpression original);
-
-        HttpResponseApi ToExpression();
-    }
 }

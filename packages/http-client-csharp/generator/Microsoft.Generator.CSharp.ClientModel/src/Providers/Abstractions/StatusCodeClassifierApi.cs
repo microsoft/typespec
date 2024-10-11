@@ -20,11 +20,4 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         public abstract StatusCodeClassifierApi FromExpression(ValueExpression original);
         public abstract StatusCodeClassifierApi ToExpression();
     }
-
-    public interface IStatusCodeClassifierApi
-    {
-        CSharpType ResponseClassifierType { get; }
-        StatusCodeClassifierApi FromExpression(ValueExpression original);
-        StatusCodeClassifierApi ToExpression();
-    }
 }
