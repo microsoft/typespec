@@ -2,8 +2,6 @@
 title: Examples
 ---
 
-# Http Examples
-
 See [examples docs](../../standard-library/examples.md) for general information about examples.
 
 ## Multiple responses

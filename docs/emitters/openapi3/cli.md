@@ -2,8 +2,6 @@
 title: OpenAPI3 to TypeSpec
 ---
 
-# tsp-openapi3 CLI
-
 :::warning
 The OpenAPI3 to TypeSpec conversion purpose is a one time conversion to help you get started with TypeSpec.
 The output can change in future versions of TypeSpec without being considered a breaking change.
