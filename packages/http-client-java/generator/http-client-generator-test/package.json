@@ -24,7 +24,7 @@
     "@typespec/openapi": "~0.61.0",
     "@typespec/xml": "~0.61.0",
     "@azure-tools/typespec-azure-core": "~0.47.0",
-    "@azure-tools/typespec-client-generator-core": "~0.47.0",
+    "@azure-tools/typespec-client-generator-core": "~0.47.1",
     "@azure-tools/typespec-azure-resource-manager": "~0.47.0",
     "@azure-tools/typespec-autorest": "~0.47.0"
   },
