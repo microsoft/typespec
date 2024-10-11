@@ -11,6 +11,7 @@ import com.cadl.armresourceprovider.models.CustomTemplateResourcePropertiesAnony
 import com.cadl.armresourceprovider.models.Dog;
 import com.cadl.armresourceprovider.models.EmptyModel;
 import com.cadl.armresourceprovider.models.ManagedServiceIdentity;
+import com.cadl.armresourceprovider.models.PriorityModel;
 import com.cadl.armresourceprovider.models.ProvisioningState;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Map;
@@ -176,6 +177,29 @@ public final class CustomTemplateResourceInner extends Resource {
             this.innerProperties = new CustomTemplateResourceProperties();
         }
         this.innerProperties().withAnonymousEmptyModel(anonymousEmptyModel);
+        return this;
+    }
+
+    /**
+     * Get the priority property: The priority property.
+     * 
+     * @return the priority value.
+     */
+    public PriorityModel priority() {
+        return this.innerProperties() == null ? null : this.innerProperties().priority();
+    }
+
+    /**
+     * Set the priority property: The priority property.
+     * 
+     * @param priority the priority value to set.
+     * @return the CustomTemplateResourceInner object itself.
+     */
+    public CustomTemplateResourceInner withPriority(PriorityModel priority) {
+        if (this.innerProperties() == null) {
+            this.innerProperties = new CustomTemplateResourceProperties();
+        }
+        this.innerProperties().withPriority(priority);
         return this;
     }
 

@@ -1,10 +1,8 @@
 ---
 id: installation
 title: Installation
-slug: /
+slug: docs
 ---
-
-# Installation
 
 ## Requirements
 
