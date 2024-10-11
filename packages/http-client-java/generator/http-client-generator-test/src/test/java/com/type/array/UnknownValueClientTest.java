@@ -5,6 +5,8 @@ package com.type.array;
 
 import java.util.Arrays;
 import java.util.List;
+
+import com.azure.core.util.BinaryData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -14,15 +16,17 @@ class UnknownValueClientTest {
 
     @Test
     void get() {
-        List<Object> response = client.get();
+        List<BinaryData> response = client.get();
         Assertions.assertEquals(3, response.size());
-        Assertions.assertEquals(1, response.get(0));
-        Assertions.assertEquals("hello", response.get(1));
+        Assertions.assertEquals(1, response.get(0).toObject(Integer.class));
+        Assertions.assertEquals("hello", response.get(1).toObject(String.class));
         Assertions.assertEquals(null, response.get(2));
     }
 
     @Test
     void put() {
-        client.put(Arrays.asList(1, "hello", null));
+        client.put(Arrays.asList(
+          BinaryData.fromObject(1),
+          BinaryData.fromObject("hello"), null));
     }
 }

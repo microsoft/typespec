@@ -7,6 +7,7 @@ import com.azure.core.util.BinaryData;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -17,9 +18,9 @@ class UnknownValueClientTest {
 
     @Test
     void get() {
-        Map<String, Object> response = client.get();
-        Assertions.assertEquals(1, response.get("k1"));
-        Assertions.assertEquals("hello", response.get("k2"));
+        Map<String, BinaryData> response = client.get();
+        Assertions.assertEquals(1, response.get("k1").toObject(Integer.class));
+        Assertions.assertEquals("hello", response.get("k2").toObject(String.class));
         Assertions.assertEquals(null, response.get("k3"));
     }
 
