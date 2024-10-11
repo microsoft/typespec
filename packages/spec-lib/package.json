@@ -19,7 +19,7 @@
   "exports": {
     ".": {
       "typespec": "./lib/lib.tsp",
-      "default": "./dist/index.js"
+      "default": "./dist/src/index.js"
     }
   },
   "engines": {
