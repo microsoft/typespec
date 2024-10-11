@@ -1,8 +1,34 @@
 ---
-import { HomeContent } from "../components/homepage/homepage.tsx";
 import ShowcaseLayout from "@site/src/layouts/showcase.astro";
+import Hero from "../components/homepage/hero.astro";
+import { SectionedLayout } from "../components/sectioned-layout/sectioned-layout";
+import {
+  Overview,
+  OpenAPISection,
+  DataValidationSection,
+  EditorSection,
+  Closing,
+  ExtensibilitySection,
+} from "../components/homepage/homepage.tsx";
 ---
 
+<style>
+  .hero-divider {
+    height: 2px;
+    align-self: stretch;
+    background: radial-gradient(circle, var(--colorNeutralStroke2) 0%, transparent 80%);
+  }
+</style>
+
 <ShowcaseLayout>
-  <HomeContent client:only="react" />
+  <Hero />
+  <div class="hero-divider"></div>
+  <SectionedLayout client:only="react">
+    <Overview client:only="react" />
+    <OpenAPISection client:only="react" />
+    <DataValidationSection client:only="react" />
+    <EditorSection client:only="react" />
+    <ExtensibilitySection client:only="react" />
+    <Closing client:only="react" />
+  </SectionedLayout>
 </ShowcaseLayout>

@@ -7,57 +7,11 @@ import { LearnMoreCard } from "../learn-more-card/learn-more-card";
 import { LightDarkImg } from "../light-dark-img/light-dark-img";
 import { CodeBlock } from "../prism-code-block/prism-code-block";
 import { Section } from "../section/section";
-import { SectionedLayout } from "../sectioned-layout/sectioned-layout";
 import { DescriptionText, PrimaryText } from "../text/text";
 import style from "./homepage.module.css";
 import { OverviewIllustration } from "./overview-illustration/overview-illustration";
 
-export const HomeContent = () => {
-  return (
-    <>
-      <Hero />
-      <div className={style["hero-divider"]}></div>
-      <SectionedLayout>
-        <Overview />
-        <OpenAPISection />
-        <DataValidationSection />
-        <EditorSection />
-        <ExtensibilitySection />
-        <Closing />
-      </SectionedLayout>
-    </>
-  );
-};
-
-const Hero = () => {
-  return (
-    <>
-      <div className={style["hero-container"]}>
-        <div className={style["hero-content"]}>
-          <h1 className={style["hero-title"]}>TypeSpec</h1>
-          <div className={style["hero-subtitle"]}>Describe APIs</div>
-          <DescriptionText size="large" className={style["hero-description"]}>
-            Describe your data up front and generate schemas, API specifications, client / server
-            code, docs, and more.
-          </DescriptionText>
-          <div className={style["hero-buttons"]}>
-            <Button as="a" appearance="primary" href={link(Links.docs)}>
-              Get Started
-            </Button>
-            <Button as="a" appearance="outline" href={link(Links.playground)}>
-              Try it out
-            </Button>
-          </div>
-        </div>
-        <div className={style["hero-demo"]}>
-          <HeroIllustration />
-        </div>
-      </div>
-    </>
-  );
-};
-
-const Overview = () => {
+export const Overview = () => {
   return (
     <>
       <div className={style["overview"]}>
@@ -100,7 +54,7 @@ const Overview = () => {
   );
 };
 
-const OpenAPISection = () => {
+export const OpenAPISection = () => {
   return (
     <Section
       header="Productivity"
@@ -117,7 +71,7 @@ const OpenAPISection = () => {
   );
 };
 
-const DataValidationSection = () => {
+export const DataValidationSection = () => {
   return (
     <Section
       header="Ecosystem"
@@ -134,7 +88,7 @@ const DataValidationSection = () => {
   );
 };
 
-const EditorSection = () => {
+export const EditorSection = () => {
   return (
     <Section
       header="Tooling"
@@ -151,7 +105,7 @@ const EditorSection = () => {
   );
 };
 
-const ExtensibilitySection = () => {
+export const ExtensibilitySection = () => {
   return (
     <Section
       header="Extensibility"
@@ -171,7 +125,6 @@ const ExtensibilitySection = () => {
 import extensibilityTs from "@site/src/assets/tsp-samples/extensibility/custom-lib.ts?raw";
 import extensibilityTsp from "@site/src/assets/tsp-samples/extensibility/custom-lib.tsp?raw";
 import { link } from "@site/src/utils";
-import { HeroIllustration } from "./hero-illustration/hero-illustration";
 
 const ExtensibilityIllustration = () => {
   return (
@@ -187,7 +140,7 @@ const ExtensibilityIllustration = () => {
   );
 };
 
-const Closing = () => {
+export const Closing = () => {
   return (
     <div className={style["closing"]}>
       <div className={style["closing-title"]}>Start your TypeSpec journey</div>

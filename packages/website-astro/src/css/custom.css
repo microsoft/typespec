@@ -19,6 +19,7 @@
   --colorNeutralForeground1: #242424;
   --colorNeutralForeground2: #424242;
   --colorNeutralForeground3: #616161;
+  --colorNeutralForeground4: #707070;
 
   /* Neutral background */
   --colorNeutralBackground1: #ffffff;
@@ -115,6 +116,7 @@
   --colorNeutralForeground1: #ffffff;
   --colorNeutralForeground2: #d6d6d6;
   --colorNeutralForeground3: #adadad;
+  --colorNeutralForeground4: #999999;
 
   /* Neutral background */
   --colorNeutralBackground1: #292929;
@@ -163,14 +165,8 @@
 
 :root {
   --header-height: 50px;
-}
-
-:root[data-theme="light"] {
   --sl-color-text-accent: var(--colorBrandForeground1);
-}
-/* For readability concerns, you should choose a lighter palette in dark mode. */
-:root[data-theme="dark"] {
-  --sl-color-text-accent: var(--colorBrandForeground1);
+  --sl-color-gray-5: var(--colorNeutralStroke1);
 }
 
 .DocSearch-Button {

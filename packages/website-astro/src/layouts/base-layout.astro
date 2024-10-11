@@ -7,6 +7,7 @@ import Footer from "@site/src/components/footer/footer.astro";
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://consentdeliveryfd.azurefd.net/mscc/lib/v2/wcp-consent.js" is:inline
     ></script>
     <script src={import.meta.env.BASE_URL + "1ds-init.js"} is:inline></script>
@@ -17,7 +18,7 @@ import Footer from "@site/src/components/footer/footer.astro";
     <main class="pt-[4.5rem] tablet:pt-24 main">
       <slot />
     </main>
-    <Footer class="footer"/>
+    <Footer class="footer" />
   </body>
   <style>
     body {

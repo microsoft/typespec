@@ -1,6 +1,7 @@
 // @ts-check
 import react from "@astrojs/react";
 import starlight from "@astrojs/starlight";
+import astroExpressiveCode from "astro-expressive-code";
 import { defineConfig } from "astro/config";
 import { readFile } from "fs/promises";
 import { resolve } from "path";
@@ -22,11 +23,25 @@ const typespecLang = {
   aliases: ["typespec", "tsp"],
 };
 
+/** @type {import("astro-expressive-code").AstroExpressiveCodeOptions} */
+const expressiveCodeOptions = {
+  themes: ["one-light", "one-dark-pro"],
+  styleOverrides: {
+    borderWidth: "0px",
+    borderRadius: "0px",
+    frames: {
+      frameBoxShadowCssValue: "",
+      editorTabBarBorderColor: "transpartent",
+    },
+  },
+};
+
 // https://astro.build/config
 export default defineConfig({
   base,
   trailingSlash: "always",
   integrations: [
+    astroExpressiveCode(expressiveCodeOptions),
     starlight({
       title: "TypeSpec",
       sidebar: await resolveSideBars(),
@@ -39,6 +54,7 @@ export default defineConfig({
         styleOverrides: {
           frames: {
             frameBoxShadowCssValue: "",
+            editorActiveTabBorderColor: "",
           },
         },
         plugins: [tspTryitCode(base + "playground/")],

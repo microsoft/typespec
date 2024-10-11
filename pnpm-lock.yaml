@@ -617,12 +617,12 @@ importers:
       '@typespec/spec-api':
         specifier: workspace:~
         version: link:../spec-api
-      '@typespec/spector':
-        specifier: workspace:~
-        version: link:../spector
       '@typespec/spec-lib':
         specifier: workspace:~
         version: link:../spec-lib
+      '@typespec/spector':
+        specifier: workspace:~
+        version: link:../spector
       '@typespec/versioning':
         specifier: workspace:~
         version: link:../versioning
@@ -1484,6 +1484,53 @@ importers:
         specifier: ^2.1.2
         version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
 
+  packages/spec-coverage-sdk:
+    dependencies:
+      '@azure/identity':
+        specifier: ~4.4.1
+        version: 4.4.1
+      '@azure/storage-blob':
+        specifier: ~12.25.0
+        version: 12.25.0
+      '@types/node':
+        specifier: ~22.7.5
+        version: 22.7.5
+    devDependencies:
+      rimraf:
+        specifier: ~6.0.1
+        version: 6.0.1
+      typescript:
+        specifier: ~5.6.3
+        version: 5.6.3
+
+  packages/spec-lib:
+    dependencies:
+      '@typespec/compiler':
+        specifier: workspace:~
+        version: link:../compiler
+      '@typespec/http':
+        specifier: workspace:~
+        version: link:../http
+      '@typespec/rest':
+        specifier: workspace:~
+        version: link:../rest
+      '@typespec/versioning':
+        specifier: workspace:~
+        version: link:../versioning
+    devDependencies:
+      '@types/node':
+        specifier: ~22.7.5
+        version: 22.7.5
+      '@typespec/tspd':
+        specifier: workspace:~
+        version: link:../tspd
+      rimraf:
+        specifier: ~6.0.1
+        version: 6.0.1
+      typescript:
+        specifier: ~5.6.3
+        version: 5.6.3
+
   packages/spector:
     dependencies:
       '@azure/identity':
@@ -1592,53 +1639,6 @@ importers:
       '@types/yargs':
         specifier: ~17.0.33
         version: 17.0.33
-      rimraf:
-        specifier: ~6.0.1
-        version: 6.0.1
-      typescript:
-        specifier: ~5.6.3
-        version: 5.6.3
-
-  packages/spec-coverage-sdk:
-    dependencies:
-      '@azure/identity':
-        specifier: ~4.4.1
-        version: 4.4.1
-      '@azure/storage-blob':
-        specifier: ~12.25.0
-        version: 12.25.0
-      '@types/node':
-        specifier: ~22.7.5
-        version: 22.7.5
-    devDependencies:
-      rimraf:
-        specifier: ~6.0.1
-        version: 6.0.1
-      typescript:
-        specifier: ~5.6.3
-        version: 5.6.3
-
-  packages/spec-lib:
-    dependencies:
-      '@typespec/compiler':
-        specifier: workspace:~
-        version: link:../compiler
-      '@typespec/http':
-        specifier: workspace:~
-        version: link:../http
-      '@typespec/rest':
-        specifier: workspace:~
-        version: link:../rest
-      '@typespec/versioning':
-        specifier: workspace:~
-        version: link:../versioning
-    devDependencies:
-      '@types/node':
-        specifier: ~22.7.5
-        version: 22.7.5
-      '@typespec/tspd':
-        specifier: workspace:~
-        version: link:../tspd
       rimraf:
         specifier: ~6.0.1
         version: 6.0.1
@@ -2123,6 +2123,9 @@ importers:
       '@typespec/website':
         specifier: workspace:*
         version: link:../website
+      astro-expressive-code:
+        specifier: ^0.37.0
+        version: 0.37.0(astro@4.16.0(@types/node@22.7.5)(rollup@4.24.0)(terser@5.34.1)(typescript@5.6.3))
       rehype-mermaid:
         specifier: ^3.0.0
         version: 3.0.0(playwright@1.48.0)
@@ -3947,14 +3950,26 @@ packages:
   '@expressive-code/core@0.35.6':
     resolution: {integrity: sha512-xGqCkmfkgT7lr/rvmfnYdDSeTdCSp1otAHgoFS6wNEeO7wGDPpxdosVqYiIcQ8CfWUABh/pGqWG90q+MV3824A==}
 
+  '@expressive-code/core@0.37.0':
+    resolution: {integrity: sha512-uCPAaQ//5RZeeKAN9cMyGH8YIm+h1Rldy34IWMbsCECrFVo86w+eR67jVWoQ2HNe0dSZ4XTdgJKYEScuVcy2Cw==}
+
   '@expressive-code/plugin-frames@0.35.6':
     resolution: {integrity: sha512-CqjSWjDJ3wabMJZfL9ZAzH5UAGKg7KWsf1TBzr4xvUbZvWoBtLA/TboBML0U1Ls8h/4TRCIvR4VEb8dv5+QG3w==}
+
+  '@expressive-code/plugin-frames@0.37.0':
+    resolution: {integrity: sha512-jqlds/LptU8+FYxD1Uiu1vULvC904TlcOote8wCgn4gdae2qmCj67G9C1b1j3MAaerblRQg4uNbUxeitRFYs6A==}
 
   '@expressive-code/plugin-shiki@0.35.6':
     resolution: {integrity: sha512-xm+hzi9BsmhkDUGuyAWIydOAWer7Cs9cj8FM0t4HXaQ+qCubprT6wJZSKUxuvFJIUsIOqk1xXFaJzGJGnWtKMg==}
 
+  '@expressive-code/plugin-shiki@0.37.0':
+    resolution: {integrity: sha512-0g9v7OBu3rNS7EOyam1G6+WE1siWBKteagV0917yooIFlOlcJ/pvV/nClSEwJgFdumwHK4sDj4ov4Y4p0tDn1w==}
+
   '@expressive-code/plugin-text-markers@0.35.6':
     resolution: {integrity: sha512-/k9eWVZSCs+uEKHR++22Uu6eIbHWEciVHbIuD8frT8DlqTtHYaaiwHPncO6KFWnGDz5i/gL7oyl6XmOi/E6GVg==}
+
+  '@expressive-code/plugin-text-markers@0.37.0':
+    resolution: {integrity: sha512-iDwB7iYga7hIyODR0wGVP2yo10H3Ncknif2diZvc/w9Mb/RvStEtCXRoqs3jgQlS3dhTGBXzTorFZx36vNy4rQ==}
 
   '@floating-ui/core@1.6.0':
     resolution: {integrity: sha512-PcF++MykgmTj3CIyOQbKA/hDzOAiqI3mhuoN44WRCopIs1sgoDoU4oty4Jtqaj/y3oDU6fnVSm4QG0a3t5i0+g==}
@@ -6705,6 +6720,11 @@ packages:
     peerDependencies:
       astro: ^4.0.0-beta || ^3.3.0
 
+  astro-expressive-code@0.37.0:
+    resolution: {integrity: sha512-ElWiCQHVQh5+l8fvGRgctvxEw63G/KEZgRi60ApPsHK6NsexgPZENk3bnHzbCpigCgh/L9k/yJ+3zOyuhoPqhQ==}
+    peerDependencies:
+      astro: ^4.0.0-beta || ^5.0.0-beta || ^3.3.0
+
   astro@4.16.0:
     resolution: {integrity: sha512-R5voBFy0yOg57uFnW24WV+RvqPerp9eOoDQoT0pQYqECuGuyV1PsZaSb9Nm0ec+KMLrfO9jvvESFw9LIN6XiUw==}
     engines: {node: ^18.17.1 || ^20.3.0 || >=21.0.0, npm: '>=9.6.5', pnpm: '>=7.1.0'}
@@ -8457,6 +8477,9 @@ packages:
 
   expressive-code@0.35.6:
     resolution: {integrity: sha512-+mx+TPTbMqgo0mL92Xh9QgjW0kSQIsEivMgEcOnaqKqL7qCw8Vkqc5Rg/di7ZYw4aMUSr74VTc+w8GQWu05j1g==}
+
+  expressive-code@0.37.0:
+    resolution: {integrity: sha512-UnfkF69UpKAa2ytyNNxBifSe723wL4DOK1dqkoK0PAYaO8mo9tXsyn/SMNMVvAkZNeJcJOttYfs957a9Uaqo6A==}
 
   extend-shallow@2.0.1:
     resolution: {integrity: sha512-zCnTtlxNoAiDc3gqY2aYAWFx7XWWiasuF2K8Me5WbN8otHKTUKBwjPtNpRs/rbUZm7KxWAaNj7P1a/p52GbVug==}
@@ -11819,6 +11842,9 @@ packages:
 
   rehype-expressive-code@0.35.6:
     resolution: {integrity: sha512-pPdE+pRcRw01kxMOwHQjuRxgwlblZt5+wAc3w2aPGgmcnn57wYjn07iKO7zaznDxYVxMYVvYlnL+R3vWFQS4Gw==}
+
+  rehype-expressive-code@0.37.0:
+    resolution: {integrity: sha512-5dUjqNkhw0gB1pkkjc11jWdvQFGMYcrzCrUGx7p8TiHc5IwbrzBWXXADNEP2KrtAlUIy5yRmkkgGD5az1owq3Q==}
 
   rehype-format@5.0.1:
     resolution: {integrity: sha512-zvmVru9uB0josBVpr946OR8ui7nJEdzZobwLOOqHb/OOD88W0Vk2SqLwoVOj0fM6IPCCO6TaV9CvQvJMWwukFQ==}
@@ -16345,18 +16371,43 @@ snapshots:
       unist-util-visit: 5.0.0
       unist-util-visit-parents: 6.0.1
 
+  '@expressive-code/core@0.37.0':
+    dependencies:
+      '@ctrl/tinycolor': 4.1.0
+      hast-util-select: 6.0.2
+      hast-util-to-html: 9.0.3
+      hast-util-to-text: 4.0.2
+      hastscript: 9.0.0
+      postcss: 8.4.47
+      postcss-nested: 6.2.0(postcss@8.4.47)
+      unist-util-visit: 5.0.0
+      unist-util-visit-parents: 6.0.1
+
   '@expressive-code/plugin-frames@0.35.6':
     dependencies:
       '@expressive-code/core': 0.35.6
+
+  '@expressive-code/plugin-frames@0.37.0':
+    dependencies:
+      '@expressive-code/core': 0.37.0
 
   '@expressive-code/plugin-shiki@0.35.6':
     dependencies:
       '@expressive-code/core': 0.35.6
       shiki: 1.22.0
 
+  '@expressive-code/plugin-shiki@0.37.0':
+    dependencies:
+      '@expressive-code/core': 0.37.0
+      shiki: 1.22.0
+
   '@expressive-code/plugin-text-markers@0.35.6':
     dependencies:
       '@expressive-code/core': 0.35.6
+
+  '@expressive-code/plugin-text-markers@0.37.0':
+    dependencies:
+      '@expressive-code/core': 0.37.0
 
   '@floating-ui/core@1.6.0':
     dependencies:
@@ -20291,6 +20342,11 @@ snapshots:
       astro: 4.16.0(@types/node@22.7.5)(rollup@4.24.0)(terser@5.34.1)(typescript@5.6.3)
       rehype-expressive-code: 0.35.6
 
+  astro-expressive-code@0.37.0(astro@4.16.0(@types/node@22.7.5)(rollup@4.24.0)(terser@5.34.1)(typescript@5.6.3)):
+    dependencies:
+      astro: 4.16.0(@types/node@22.7.5)(rollup@4.24.0)(terser@5.34.1)(typescript@5.6.3)
+      rehype-expressive-code: 0.37.0
+
   astro@4.16.0(@types/node@22.7.5)(rollup@4.24.0)(terser@5.34.1)(typescript@5.6.3):
     dependencies:
       '@astrojs/compiler': 2.10.3
@@ -22567,6 +22623,13 @@ snapshots:
       '@expressive-code/plugin-frames': 0.35.6
       '@expressive-code/plugin-shiki': 0.35.6
       '@expressive-code/plugin-text-markers': 0.35.6
+
+  expressive-code@0.37.0:
+    dependencies:
+      '@expressive-code/core': 0.37.0
+      '@expressive-code/plugin-frames': 0.37.0
+      '@expressive-code/plugin-shiki': 0.37.0
+      '@expressive-code/plugin-text-markers': 0.37.0
 
   extend-shallow@2.0.1:
     dependencies:
@@ -26827,6 +26890,10 @@ snapshots:
   rehype-expressive-code@0.35.6:
     dependencies:
       expressive-code: 0.35.6
+
+  rehype-expressive-code@0.37.0:
+    dependencies:
+      expressive-code: 0.37.0
 
   rehype-format@5.0.1:
     dependencies:
