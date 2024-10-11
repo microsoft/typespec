@@ -4,7 +4,7 @@ param(
     [string] $BuildNumber,
     [string] $Output,
     [switch] $Prerelease,
-    [string] $PublishType,
+    [string] $PublishType
 )
 
 $ErrorActionPreference = 'Stop'
