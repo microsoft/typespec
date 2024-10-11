@@ -44,7 +44,7 @@ public final class UnknownValueClient {
      * <pre>
      * {@code
      * {
-     *     String: Object (Required)
+     *     String: BinaryData (Required)
      * }
      * }
      * </pre>
@@ -69,7 +69,7 @@ public final class UnknownValueClient {
      * <pre>
      * {@code
      * {
-     *     String: Object (Required)
+     *     String: BinaryData (Required)
      * }
      * }
      * </pre>
@@ -100,10 +100,10 @@ public final class UnknownValueClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Map<String, Object> get() {
+    public Map<String, BinaryData> get() {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return getWithResponse(requestOptions).getValue().toObject(TYPE_REFERENCE_MAP_STRING_OBJECT);
+        return getWithResponse(requestOptions).getValue().toObject(TYPE_REFERENCE_MAP_STRING_BINARY_DATA);
     }
 
     /**
@@ -119,14 +119,14 @@ public final class UnknownValueClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void put(Map<String, Object> body) {
+    public void put(Map<String, BinaryData> body) {
         // Generated convenience method for putWithResponse
         RequestOptions requestOptions = new RequestOptions();
         putWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
     }
 
     @Generated
-    private static final TypeReference<Map<String, Object>> TYPE_REFERENCE_MAP_STRING_OBJECT
-        = new TypeReference<Map<String, Object>>() {
+    private static final TypeReference<Map<String, BinaryData>> TYPE_REFERENCE_MAP_STRING_BINARY_DATA
+        = new TypeReference<Map<String, BinaryData>>() {
         };
 }

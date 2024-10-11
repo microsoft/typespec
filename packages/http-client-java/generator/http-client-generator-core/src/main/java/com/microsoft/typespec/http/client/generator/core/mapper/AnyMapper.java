@@ -14,8 +14,7 @@ public class AnyMapper implements IMapper<AnySchema, IType> {
 
     private static final AnyMapper INSTANCE = new AnyMapper();
 
-    private AnyMapper() {
-        // private constructor
+    protected AnyMapper() {
     }
 
     /**
