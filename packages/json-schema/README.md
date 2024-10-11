@@ -26,9 +26,7 @@ model Car {
 }
 ```
 
-## Emitter
-
-### Usage
+## Usage
 
 1. Via the command line
 
@@ -53,15 +51,15 @@ options:
     option: value
 ```
 
-### Emitter options
+## Emitter options
 
-#### `file-type`
+### `file-type`
 
 **Type:** `"yaml" | "json"`
 
 Serialize the schema as either yaml or json.
 
-#### `int64-strategy`
+### `int64-strategy`
 
 **Type:** `"string" | "number"`
 
@@ -70,19 +68,19 @@ How to handle 64 bit integers on the wire. Options are:
 - string: serialize as a string (widely interoperable)
 - number: serialize as a number (not widely interoperable)
 
-#### `bundleId`
+### `bundleId`
 
 **Type:** `string`
 
 When provided, bundle all the schemas into a single json schema document with schemas under $defs. The provided id is the id of the root document and is also used for the file name.
 
-#### `emitAllModels`
+### `emitAllModels`
 
 **Type:** `boolean`
 
 When true, emit all model declarations to JSON Schema without requiring the @jsonSchema decorator.
 
-#### `emitAllRefs`
+### `emitAllRefs`
 
 **Type:** `boolean`
 

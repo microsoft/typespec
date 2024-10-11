@@ -1,18 +1,20 @@
 {
-  "name": "@typespec/spec-core",
+  "name": "@typespec/spector",
   "version": "0.1.0",
   "description": "Typespec Core Tool to validate, run mock api, collect coverage.",
   "main": "dist/index.js",
   "private": true,
   "type": "module",
   "bin": {
-    "spec-core": "./cmd/cli.mjs"
+    "tsp-spector": "./cmd/cli.mjs"
   },
   "scripts": {
     "watch": "tsc -p ./tsconfig.build.json --watch",
     "build": "tsc -p ./tsconfig.build.json",
     "clean": "rimraf dist/ temp/",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest run",
+    "test:watch": "vitest -w",
+    "test:ui": "vitest --ui"
   },
   "engines": {
     "node": ">=16.0.0"

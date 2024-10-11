@@ -366,7 +366,7 @@ export class MarkdownRenderer {
       return [];
     }
 
-    return section("Emitter", [
+    return [
       section("Usage", [
         "1. Via the command line",
         codeblock(`tsp compile . --emit=${refDoc.name}`, "bash"),
@@ -379,7 +379,7 @@ export class MarkdownRenderer {
         ),
       ]),
       this.emitterOptions(refDoc.emitter.options),
-    ]);
+    ];
   }
 
   emitterOptions(options: EmitterOptionRefDoc[]) {
@@ -403,7 +403,7 @@ export class MarkdownRenderer {
         ? { extends: [refDoc.linter.ruleSets[0].name] }
         : { rules: {} },
     });
-    return section("Linter", [
+    return [
       section("Usage", ["Add the following in `tspconfig.yaml`:", codeblock(setupExample, "yaml")]),
       refDoc.linter.ruleSets
         ? section("RuleSets", [
@@ -412,7 +412,7 @@ export class MarkdownRenderer {
           ])
         : [],
       section("Rules", this.linterRuleToc(refDoc.linter.rules)),
-    ]);
+    ];
   }
 
   linterRuleToc(rules: LinterRuleRefDoc[]) {

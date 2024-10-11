@@ -4,8 +4,6 @@ toc_min_heading_level: 2
 toc_max_heading_level: 3
 ---
 
-# Data types
-
 ## TypeSpec.OpenAPI
 
 ### `AdditionalInfo` {#TypeSpec.OpenAPI.AdditionalInfo}
