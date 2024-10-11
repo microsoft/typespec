@@ -27,6 +27,7 @@ import {
   getEncode,
   getExamples,
   getFormat,
+  getFriendlyName,
   getKnownValues,
   getMaxItems,
   getMaxLength,
@@ -46,6 +47,7 @@ import {
   isNullType,
   isSecret,
   isTemplateDeclaration,
+  isTemplateInstance,
   resolveEncodedName,
   serializeValueAsJson,
 } from "@typespec/compiler";
@@ -821,7 +823,32 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       };
     }
 
-    if (shouldInline(this.emitter.getProgram(), type)) {
+    const checkNeedForceRef = (
+      program: Program,
+      type: Type,
+      schema: ObjectBuilder<any>,
+    ): boolean => {
+      if (getFriendlyName(program, type)) {
+        return false;
+      }
+      if (type.kind === "Model" && isTemplateInstance(type)) {
+        return Array.from(type.properties.values()).some((prop) => {
+          if (prop.type?.kind === "Model") {
+            const curr = schema.properties[prop.name];
+            if (isArrayModelType(program, prop.type)) {
+              return "$ref" in curr.items;
+            } else {
+              return "$ref" in curr;
+            }
+          }
+          return false;
+        });
+      }
+      return false;
+    };
+
+    const isForceRef = checkNeedForceRef(this.emitter.getProgram(), type, schema);
+    if (shouldInline(this.emitter.getProgram(), type) && !isForceRef) {
       return this.#inlineType(type, schema);
     }
 
@@ -834,8 +861,11 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
     const shouldAddSuffix = usage !== undefined && usage.size > 1;
     const visibility = this.#getVisibilityContext();
-    const fullName =
-      name + (shouldAddSuffix ? getVisibilitySuffix(visibility, Visibility.Read) : "");
+    let fullName = name + (shouldAddSuffix ? getVisibilitySuffix(visibility, Visibility.Read) : "");
+
+    if (isForceRef && type.kind === "Model") {
+      fullName = type.name;
+    }
 
     const decl = this.emitter.result.declaration(fullName, schema);
 
