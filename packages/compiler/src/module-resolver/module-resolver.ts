@@ -165,7 +165,7 @@ export async function resolveModule(
       if (pkg.name === name) {
         return loadPackage(dir, pkg);
       } else {
-        return undefined;
+        continue;
       }
     }
     return undefined;
