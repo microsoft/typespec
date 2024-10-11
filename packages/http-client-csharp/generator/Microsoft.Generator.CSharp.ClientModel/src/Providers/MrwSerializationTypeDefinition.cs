@@ -712,15 +712,20 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var parameters = SerializationConstructor.Signature.Parameters;
 
             // Parse the custom serialization attributes
-            IEnumerable<AttributeData> serializationAttributes = _model.CustomCodeView?.GetAttributes()
-                .Where(a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenSerializationAttributeName) ?? [];
+            List<AttributeData> serializationAttributes = _model.CustomCodeView?.GetAttributes()
+                .Where(a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenSerializationAttributeName)
+                .ToList() ?? [];
             var baseModelProvider = _model.BaseModelProvider;
 
             while (baseModelProvider != null)
             {
-                serializationAttributes = serializationAttributes
-                    .Concat(baseModelProvider.CustomCodeView?.GetAttributes()
-                    .Where(a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenSerializationAttributeName) ?? []);
+                var customCodeView = baseModelProvider.CustomCodeView;
+                if (customCodeView != null)
+                {
+                    serializationAttributes
+                        .AddRange(customCodeView.GetAttributes()
+                        .Where(a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenSerializationAttributeName));
+                }
                 baseModelProvider = baseModelProvider.BaseModelProvider;
             }
 
