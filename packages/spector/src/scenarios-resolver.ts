@@ -4,7 +4,7 @@ import { ScenarioMockApi } from "@typespec/spec-api";
 import { dirname, join, relative, resolve } from "path";
 import pc from "picocolors";
 import { pathToFileURL } from "url";
-import { Scenario } from "./lib/decorators.js";
+import type { Scenario } from "./lib/decorators.js";
 import { logger } from "./logger.js";
 import { importSpecExpect, importTypeSpec, importTypeSpecHttp } from "./spec-utils/index.js";
 import { findFilesFromPattern } from "./utils/file-utils.js";
