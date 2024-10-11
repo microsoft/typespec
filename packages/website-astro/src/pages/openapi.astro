@@ -9,7 +9,7 @@ import IllustrationCard from "../components/illustration-card.astro";
 import abstractionCode from "@site/src/assets/tsp-samples/openapi3/abstraction.tsp?raw";
 import { Code } from "@astrojs/starlight/components";
 import OpenAPI3HeroIllustration from "@site/src/components/homepage/openapi3-hero-illustration.astro";
-import { OpenAPI3InteroperateIllustration } from "../components/interoperate-illustration/interoperate-illustration";
+import OpenAPI3InteroperateIllustration from "../components/interoperate-illustration/interoperate.astro";
 ---
 
 <ShowcaseLayout>
@@ -27,7 +27,7 @@ import { OpenAPI3InteroperateIllustration } from "../components/interoperate-ill
         title="Interoperate with the OpenAPI ecosystem"
         description="Benefit from a huge ecosystem of OpenAPI tools for configuring API gateways, generating code, and validating your data."
       >
-        <OpenAPI3InteroperateIllustration client:only="react" slot="illustration" />
+        <OpenAPI3InteroperateIllustration slot="illustration" />
 
         <LearnMoreCard
           title="Linters"

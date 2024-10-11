@@ -1,6 +1,7 @@
 ---
-export interface Props {
-  class?: string;
+import type { HTMLAttributes } from "astro/types";
+
+export interface Props extends HTMLAttributes<"div"> {
   title?: string;
   className?: string;
   hideHeader?: boolean;
