@@ -245,6 +245,8 @@ export class CodeModelBuilder {
       versioning: { previewStringRegex: /$/ },
     }); // include all versions and do the filter by ourselves
 
+    this.program.reportDiagnostics(this.sdkContext.diagnostics);
+
     // auth
     // TODO: it is not very likely, but different client could have different auth
     const auth = getAuthentication(this.program, this.serviceNamespace);
@@ -2111,7 +2113,7 @@ export class CodeModelBuilder {
           name: "string",
           crossLanguageDefinitionId: type.crossLanguageDefinitionId,
         },
-        description: type.doc,
+        doc: type.doc,
         valueType: type.additionalProperties,
         decorators: [],
       };

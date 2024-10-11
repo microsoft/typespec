@@ -23,6 +23,7 @@ if not version:
 setup(
     name="pygen",
     version=version,
+    include_package_data=True,
     description="Core Library for Python Generation",
     long_description=open("README.md", "r").read(),
     long_description_content_type="text/markdown",

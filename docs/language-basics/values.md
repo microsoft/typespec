@@ -3,8 +3,6 @@ id: values
 title: Values
 ---
 
-# Values
-
 TypeSpec can define values in addition to types. Values are useful in an API description to define default values for types or provide example values. They are also useful when passing data to decorators, and for template parameters that are ultimately passed to decorators or used as default values.
 
 Values cannot be used as types, and types cannot be used as values, they are completely separate. However, string, number, boolean, and null literals can be either a type or a value depending on context (see also [scalar literals](#scalar-literals)). Additionally, union and enum member references may produce a type or a value depending on context (see also [enum member &amp; union variant references](#enum-member--union-variant-references)).

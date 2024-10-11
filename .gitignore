@@ -126,7 +126,7 @@ lib-cov
 
 # Coverage directory used by tools like istanbul
 coverage
-!packages/spec-core/src/coverage
+!packages/spector/src/coverage
 spec-coverage.json
 
 # nyc test coverage
@@ -201,9 +201,13 @@ developer/
 vite.config.ts.timestamp-*
 
 
+# Astro
+.astro/
+
 # Api extractor
 packages/*/etc/
 docs/**/js-api/
+packages/website-astro/src/content/docs/current/**/js-api/
 
 # VS Code test web temp files
 .vscode-test-web/
