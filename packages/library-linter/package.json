@@ -20,6 +20,7 @@
   "main": "dist/src/index.js",
   "exports": {
     ".": {
+      "typespec": "./dist/src/index.js",
       "types": "./dist/src/index.d.ts",
       "default": "./dist/src/index.js"
     },
