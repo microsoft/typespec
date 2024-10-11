@@ -1,7 +1,5 @@
 <!-- cspell:ignore cadlranch -->
 
-# CadlRanch Testing
-
 By default all tests under the [http folder](https://github.com/Azure/cadl-ranch/tree/main/packages/cadl-ranch-specs/http) and excluding the [azure folder](https://github.com/Azure/cadl-ranch/tree/main/packages/cadl-ranch-specs/http/azure) will be generated. In order to get coverage for a test within one of the specs you must write a test case that executes the operation.
 
 ## Generating CadlRanchTests

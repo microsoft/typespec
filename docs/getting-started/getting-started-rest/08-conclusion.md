@@ -2,8 +2,6 @@
 title: Conclusion
 ---
 
-# Conclusion
-
 ## Recap of Key Concepts
 
 Throughout this tutorial, we've covered a wide range of topics to help you build a comprehensive REST API using TypeSpec. Here's a brief recap of the main concepts we explored:

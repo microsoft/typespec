@@ -3,8 +3,6 @@ id: unions
 title: Unions
 ---
 
-# Unions
-
 Unions define a type that must be exactly one of several possible variants. There are two types of unions:
 
 - Union expressions
