@@ -1,5 +1,4 @@
 ---
-id: emitters
 title: Emitters
 ---
 
