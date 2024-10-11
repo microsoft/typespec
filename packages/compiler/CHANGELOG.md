@@ -1,5 +1,12 @@
 # Change Log - @typespec/compiler
 
+## 0.61.1
+
+### Bug Fixes
+
+- [#4697](https://github.com/microsoft/typespec/pull/4697) Fix module resolution when resolving self from within another package
+
+
 ## 0.61.0
 
 ### Bug Fixes

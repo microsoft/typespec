@@ -1,6 +1,6 @@
 {
   "name": "@typespec/compiler",
-  "version": "0.61.0",
+  "version": "0.61.1",
   "description": "TypeSpec Compiler Preview",
   "author": "Microsoft Corporation",
   "license": "MIT",
