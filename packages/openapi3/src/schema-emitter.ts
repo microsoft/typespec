@@ -837,8 +837,6 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
             const curr = schema.properties[prop.name];
             if (isArrayModelType(program, prop.type)) {
               return "$ref" in curr.items;
-            } else {
-              return "$ref" in curr;
             }
           }
           return false;

@@ -3,10 +3,8 @@ import { it } from "vitest";
 import { openApiFor } from "./test-host.js";
 
 it.each([
-  ["normal", "model Cat <T extends Pet=Pet> { choices: T[]; }", "Cat"],
-  ["array", "model Cat <T extends Pet> { choices: T[]; }", "Cat<Pet>"],
-  ["normal", "model Cat <T extends Pet=Pet> { choices: T; }", "Cat"],
-  ["array", "model Cat <T extends Pet> { choices: T; }", "Cat<Pet>"],
+  ["TemplateInstance", "model Cat <T extends Pet=Pet> { choices: T[]; }", "Cat"],
+  ["Instance", "model Cat <T extends Pet> { choices: T[]; }", "Cat<Pet>"],
 ])(`%s => %s`, async (_, model, modelName) => {
   const openApi = await openApiFor(`
     model Pet {
