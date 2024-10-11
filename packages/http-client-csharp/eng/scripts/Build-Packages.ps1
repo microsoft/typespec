@@ -4,7 +4,7 @@ param(
     [string] $BuildNumber,
     [string] $Output,
     [switch] $Prerelease,
-    [string] $PublishType
+    [string] $PublishType,
 )
 
 $ErrorActionPreference = 'Stop'
@@ -90,7 +90,8 @@ $mgcCustomizationVersion = Get-CsprojVersion -csprojFilePath "$packageRoot/gener
 
 if ($BuildNumber) {
     # set package versions
-    $versionTag = $Prerelease ? "-alpha" : "-beta"
+    # For PR trigger, publish type is internal, the version tag is -dev
+    $versionTag = $Prerelease ? ($PublishType == 'public' ? "-alpha" : '-dev') : "-beta"
 
     $mgcVersion = "$mgcVersion$versionTag.$BuildNumber"
     Set-VersionVariable -variableName "mgcVersion" -version $mgcVersion

@@ -6,7 +6,13 @@ trigger:
     include:
       - packages/http-client-csharp/
 
-pr: none
+pr:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - packages/http-client-csharp/
 
 extends:
   template: /eng/common/pipelines/templates/1es-redirect.yml
@@ -17,7 +23,7 @@ extends:
         parameters:
           BuildPrereleaseVersion: true
           UseTypeSpecNext: false
-          Publish: "public"
+          Publish:  $[replace(replace('True',ne(variables['Build.Reason'], 'PullRequest'), 'public'),'True','internal')]
           PublishDependsOnTest: true
           PackagePath: /packages/http-client-csharp
           EmitterPackageJsonPath: packages/http-client-csharp/package.json
