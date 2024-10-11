@@ -3,8 +3,6 @@ id: linters
 title: Linters
 ---
 
-# Linters
-
 ## Linter versus `onValidate`
 
 A TypeSpec library can provide an `$onValidate` hook, which can be used to validate whether the TypeSpec program is valid according to your library's rules.

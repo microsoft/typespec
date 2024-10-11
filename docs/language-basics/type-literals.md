@@ -3,8 +3,6 @@ id: type-literals
 title: Type Literals
 ---
 
-# Type literals
-
 When designing APIs, it's common to define the structure of the API in terms of specific literal values. For instance, an operation might return a specific integer status code, or a model member might be one of a few specific string values. It's also useful to pass specific literal values to decorators. TypeSpec supports string, number, and boolean literal values to cater to these needs.
 
 ## String literals

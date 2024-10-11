@@ -3,8 +3,6 @@ id: imports
 title: Imports
 ---
 
-# Importing files and libraries in TypeSpec
-
 Imports are used to include files or libraries into your TypeSpec program. When compiling a TypeSpec file, you specify the path to your root TypeSpec file, typically named "main.tsp". From this root file, any imported files are added to your program. If a directory is imported, TypeSpec will search for a `main.tsp` file within that directory.
 
 The path specified in the import must either start with `"./"` or `"../"`, or be an absolute path. The path should either point to a directory, or have an extension of either ".tsp" or ".js". The examples below illustrate how to use imports to assemble a TypeSpec program from multiple files:
