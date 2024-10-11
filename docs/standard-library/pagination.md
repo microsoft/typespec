@@ -23,7 +23,7 @@ To enable pagination for an operation the first step is to decorate it with the 
 
 ## Client driven pagination
 
-For client driven pagination there is 3 decorator that can be used to annotate the operation parameters.
+For client driven pagination there are 3 decorators that can be used to annotate the operation parameters.
 
 - `@pageSize`: Number of items to return per page.
 - `@offset`: Number of items to skip
