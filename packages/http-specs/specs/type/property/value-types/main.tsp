@@ -2,7 +2,7 @@ import "@typespec/http";
 import "@typespec/spector";
 
 using Http;
-using SpecLib;
+using Spector;
 
 @doc("Illustrates various property types for models")
 @scenarioService("/type/property/value-types")

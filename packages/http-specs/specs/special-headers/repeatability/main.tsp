@@ -3,7 +3,7 @@ import "@typespec/versioning";
 import "@typespec/spector";
 
 using Http;
-using SpecLib;
+using Spector;
 using TypeSpec.Versioning;
 
 @doc("Illustrates OASIS repeatability headers")

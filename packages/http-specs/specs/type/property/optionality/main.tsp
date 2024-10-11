@@ -2,7 +2,7 @@ import "@typespec/http";
 import "@typespec/spector";
 
 using Http;
-using SpecLib;
+using Spector;
 
 @doc("Illustrates models with optional properties.")
 @scenarioService("/type/property/optional")

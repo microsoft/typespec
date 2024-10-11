@@ -2,7 +2,7 @@ import "@typespec/http";
 import "@typespec/spector";
 
 using Http;
-using SpecLib;
+using Spector;
 
 @doc("Illustrates inheritance with enum discriminator.")
 @scenarioService("/type/model/inheritance/enum-discriminator")

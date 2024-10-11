@@ -2,7 +2,7 @@ import "@typespec/http";
 import "@typespec/spector";
 
 using Http;
-using SpecLib;
+using Spector;
 
 /**
  * Illustrates server doesn't define endpoint. Client should automatically add an endpoint to let user pass in.

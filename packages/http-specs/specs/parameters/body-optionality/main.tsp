@@ -2,7 +2,7 @@ import "@typespec/http";
 import "@typespec/spector";
 
 using Http;
-using SpecLib;
+using Spector;
 
 @doc("Test describing optionality of the request body.")
 @scenarioService("/parameters/body-optionality")

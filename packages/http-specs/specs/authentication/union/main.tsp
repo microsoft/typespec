@@ -2,7 +2,7 @@ import "@typespec/http";
 import "@typespec/spector";
 
 using Http;
-using SpecLib;
+using Spector;
 
 @scenarioService("/authentication/union")
 @doc("Illustrates clients generated with ApiKey and OAuth2 authentication.")

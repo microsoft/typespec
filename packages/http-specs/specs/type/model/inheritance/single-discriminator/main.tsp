@@ -2,7 +2,7 @@ import "@typespec/http";
 import "@typespec/spector";
 
 using Http;
-using SpecLib;
+using Spector;
 
 @doc("Illustrates inheritance with single discriminator.")
 @scenarioService("/type/model/inheritance/single-discriminator")

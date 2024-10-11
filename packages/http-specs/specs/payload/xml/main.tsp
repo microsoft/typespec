@@ -3,7 +3,7 @@ import "@typespec/xml";
 import "@typespec/spector";
 
 using Http;
-using SpecLib;
+using Spector;
 using TypeSpec.Xml;
 
 @doc("Sends and receives bodies in XML format.")

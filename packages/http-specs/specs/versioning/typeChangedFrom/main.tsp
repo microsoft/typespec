@@ -3,7 +3,7 @@ import "@typespec/spector";
 import "@typespec/versioning";
 
 using Http;
-using SpecLib;
+using Spector;
 using TypeSpec.Versioning;
 
 /**

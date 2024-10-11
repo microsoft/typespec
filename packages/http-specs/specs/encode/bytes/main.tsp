@@ -2,7 +2,7 @@ import "@typespec/http";
 import "@typespec/spector";
 
 using Http;
-using SpecLib;
+using Spector;
 
 @doc("Test for encode decorator on bytes.")
 @scenarioService("/encode/bytes")

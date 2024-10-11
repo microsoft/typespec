@@ -2,7 +2,7 @@ import "../dist/src/lib/tsp-index.js";
 
 using TypeSpec.Reflection;
 
-namespace TypeSpec.SpecLib;
+namespace TypeSpec.Spector;
 
 alias ScenarioServiceOptions = {
   /**

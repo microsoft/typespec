@@ -23,7 +23,7 @@ import {
   ScenarioDecorator,
   ScenarioDocDecorator,
   ScenarioServiceDecorator,
-} from "../../generated-defs/TypeSpec.SpecLib.js";
+} from "../../generated-defs/TypeSpec.Spector.js";
 import { SpecLibStateKeys } from "./lib.js";
 
 export const $scenario: ScenarioDecorator = (context, target, name?) => {

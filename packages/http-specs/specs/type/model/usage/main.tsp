@@ -2,7 +2,7 @@ import "@typespec/http";
 import "@typespec/spector";
 
 using Http;
-using SpecLib;
+using Spector;
 
 /**
  * Those tests are meant to test different behavior of records if they are used as input, output or both.
