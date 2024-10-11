@@ -2,8 +2,6 @@
 title: Guide
 ---
 
-# Xml Library
-
 ## Default encoding of scalars
 
 As in Json we have some [default handling](https://typespec.io/docs/libraries/http/encoding#bytes) of the common scalars like `utcDateTime`

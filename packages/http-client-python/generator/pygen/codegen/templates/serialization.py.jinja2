@@ -226,7 +226,7 @@ except ImportError:  # Python 2.7
         :param datetime.timedelta offset: offset in timedelta format
         """
 
-        def __init__(self, offset):
+        def __init__(self, offset) -> None:
             self.__offset = offset
 
         def utcoffset(self, dt):
@@ -598,7 +598,7 @@ class Serializer(object):  # pylint: disable=too-many-public-methods
         "multiple": lambda x, y: x % y != 0,
     }
 
-    def __init__(self, classes: Optional[Mapping[str, type]] = None):
+    def __init__(self, classes: Optional[Mapping[str, type]] = None) -> None:
         self.serialize_type = {
             "iso-8601": Serializer.serialize_iso,
             "rfc-1123": Serializer.serialize_rfc,
@@ -1452,7 +1452,7 @@ class Deserializer(object):
 
     valid_date = re.compile(r"\d{4}[-]\d{2}[-]\d{2}T\d{2}:\d{2}:\d{2}\.?\d*Z?[-+]?[\d{2}]?:?[\d{2}]?")
 
-    def __init__(self, classes: Optional[Mapping[str, type]] = None):
+    def __init__(self, classes: Optional[Mapping[str, type]] = None) -> None:
         self.deserialize_type = {
             "iso-8601": Deserializer.deserialize_iso,
             "rfc-1123": Deserializer.deserialize_rfc,

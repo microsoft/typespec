@@ -2,8 +2,6 @@
 title: Authentication
 ---
 
-# Adding Authentication to Your REST API
-
 ## Introduction
 
 In this section, we'll focus on adding [authentication](../../libraries/http/authentication) to your REST API. We'll introduce the `@useAuth` decorator, show how to enforce authentication on specific operations, and provide an example using Bearer authentication.

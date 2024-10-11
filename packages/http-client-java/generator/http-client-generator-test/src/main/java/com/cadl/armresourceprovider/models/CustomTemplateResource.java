@@ -92,6 +92,13 @@ public interface CustomTemplateResource {
     CustomTemplateResourcePropertiesAnonymousEmptyModel anonymousEmptyModel();
 
     /**
+     * Gets the priority property: The priority property.
+     * 
+     * @return the priority value.
+     */
+    PriorityModel priority();
+
+    /**
      * Gets the region of the resource.
      * 
      * @return the region of the resource.
@@ -176,7 +183,7 @@ public interface CustomTemplateResource {
          */
         interface WithCreate extends DefinitionStages.WithTags, DefinitionStages.WithIdentity, DefinitionStages.WithDog,
             DefinitionStages.WithNamedEmptyModel, DefinitionStages.WithAnonymousEmptyModel,
-            DefinitionStages.WithIfMatch, DefinitionStages.WithIfNoneMatch {
+            DefinitionStages.WithPriority, DefinitionStages.WithIfMatch, DefinitionStages.WithIfNoneMatch {
             /**
              * Executes the create request.
              * 
@@ -256,6 +263,19 @@ public interface CustomTemplateResource {
              * @return the next definition stage.
              */
             WithCreate withAnonymousEmptyModel(CustomTemplateResourcePropertiesAnonymousEmptyModel anonymousEmptyModel);
+        }
+
+        /**
+         * The stage of the CustomTemplateResource definition allowing to specify priority.
+         */
+        interface WithPriority {
+            /**
+             * Specifies the priority property: The priority property..
+             * 
+             * @param priority The priority property.
+             * @return the next definition stage.
+             */
+            WithCreate withPriority(PriorityModel priority);
         }
 
         /**

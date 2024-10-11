@@ -8,9 +8,7 @@ TypeSpec library for emitting OpenAPI 3.0 from the TypeSpec REST protocol bindin
 npm install @typespec/openapi3
 ```
 
-## Emitter
-
-### Usage
+## Usage
 
 1. Via the command line
 
@@ -35,15 +33,15 @@ options:
     option: value
 ```
 
-### Emitter options
+## Emitter options
 
-#### `file-type`
+### `file-type`
 
 **Type:** `"yaml" | "json"`
 
 If the content should be serialized as YAML or JSON. Default 'yaml', it not specified infer from the `output-file` extension
 
-#### `output-file`
+### `output-file`
 
 **Type:** `string`
 
@@ -76,27 +74,27 @@ Example Multiple service with versioning
 - `openapi.Org1.Service2.v1.0.yaml`
 - `openapi.Org1.Service2.v1.1.yaml`
 
-#### `new-line`
+### `new-line`
 
 **Type:** `"crlf" | "lf"`
 
 Set the newline character for emitting files.
 
-#### `omit-unreachable-types`
+### `omit-unreachable-types`
 
 **Type:** `boolean`
 
 Omit unreachable types.
 By default all types declared under the service namespace will be included. With this flag on only types references in an operation will be emitted.
 
-#### `include-x-typespec-name`
+### `include-x-typespec-name`
 
 **Type:** `"inline-only" | "never"`
 
 If the generated openapi types should have the `x-typespec-name` extension set with the name of the TypeSpec type that created it.
 This extension is meant for debugging and should not be depended on.
 
-#### `safeint-strategy`
+### `safeint-strategy`
 
 **Type:** `"double-int" | "int64"`
 

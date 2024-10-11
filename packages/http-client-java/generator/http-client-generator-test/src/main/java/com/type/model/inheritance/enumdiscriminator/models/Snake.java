@@ -21,7 +21,7 @@ public class Snake implements JsonSerializable<Snake> {
      * discriminator property
      */
     @Generated
-    private SnakeKind kind = SnakeKind.fromString("Snake");
+    private SnakeKind kind;
 
     /*
      * Length of the snake
