@@ -7,6 +7,7 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.SourceInput;
 using Microsoft.Generator.CSharp.Statements;
@@ -119,6 +120,8 @@ namespace Microsoft.Generator.CSharp.Providers
             return modifiers;
         }
 
+        internal virtual TypeProvider? BaseTypeProvider => null;
+
         protected virtual CSharpType? GetBaseType() => null;
 
         public virtual WhereExpression? WhereClause { get; protected init; }
@@ -159,17 +162,58 @@ namespace Microsoft.Generator.CSharp.Providers
             var properties = new List<PropertyProvider>();
             var customProperties = new Dictionary<string, PropertyProvider>();
             var renamedProperties = new Dictionary<string, PropertyProvider>();
-            foreach (var customProperty in CustomCodeView?.Properties ?? [])
+            var allCustomProperties = CustomCodeView?.Properties != null
+                ? new List<PropertyProvider>(CustomCodeView.Properties)
+                : [];
+            var baseTypeCustomCodeView = BaseTypeProvider?.CustomCodeView;
+
+            // add all custom properties from base types
+            while (baseTypeCustomCodeView != null)
+            {
+                allCustomProperties.AddRange(baseTypeCustomCodeView.Properties);
+                baseTypeCustomCodeView = baseTypeCustomCodeView.BaseTypeProvider?.CustomCodeView;
+            }
+
+            foreach (var customProperty in allCustomProperties)
             {
                 customProperties.Add(customProperty.Name, customProperty);
+                bool isRenamedProperty = false;
+
                 foreach (var attribute in customProperty.Attributes ?? [])
                 {
                     if (CodeGenAttributes.TryGetCodeGenMemberAttributeValue(attribute, out var originalName))
                     {
                         renamedProperties.Add(originalName, customProperty);
+                        isRenamedProperty = true;
+                    }
+                }
+
+                // Handle custom serializable properties
+                if (!isRenamedProperty && customProperty.WireInfo == null)
+                {
+                    foreach (var attribute in GetCodeGenSerializationAttributes())
+                    {
+                        if (CodeGenAttributes.TryGetCodeGenSerializationAttributeValue(
+                            attribute,
+                            out var propertyName,
+                            out string? serializationName,
+                            out _,
+                            out _,
+                            out _) && propertyName == customProperty.Name)
+                        {
+                            customProperty.WireInfo = new(
+                                SerializationFormat.Default,
+                                false,
+                                !customProperty.Body.HasSetter,
+                                customProperty.Type.IsNullable,
+                                false,
+                                serializationName ?? customProperty.Name.ToVariableName());
+                            break;
+                        }
                     }
                 }
             }
+
             foreach (var property in BuildProperties())
             {
                 if (ShouldGenerate(property, customProperties, renamedProperties))
