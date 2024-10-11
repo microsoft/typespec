@@ -14,7 +14,7 @@ using System.ClientModel.Primitives;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
-    internal class ClientOptionsProvider : TypeProvider
+    public class ClientOptionsProvider : TypeProvider
     {
         private const string LatestVersionFieldName = "LatestVersion";
         private const string VersionPropertyName = "Version";
@@ -45,7 +45,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         internal PropertyProvider? VersionProperty => _versionProperty;
         private TypeProvider? ServiceVersionEnum => _serviceVersionEnum?.Value;
-        private FieldProvider? LatestVersionField => _latestVersionField ??= BuildLatestVersionField();
+        public FieldProvider? LatestVersionField => _latestVersionField ??= BuildLatestVersionField();
 
         private FieldProvider? BuildLatestVersionField()
         {
@@ -122,7 +122,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             foreach (var p in _inputClient.Parameters)
             {
-                if (!p.IsEndpoint && p.DefaultValue != null)
+                if (!p.IsEndpoint && !p.IsApiVersion && p.DefaultValue != null)
                 {
                     FormattableString? description = null;
                     if (p.Description != null)

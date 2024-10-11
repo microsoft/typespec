@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
@@ -37,6 +38,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.StubLibrary
                 return null;
             }
 
+            if (type is ClientOptionsProvider clientOptions)
+            {
+                if (clientOptions.LatestVersionField is not null)
+                {
+                    var fields = new List<FieldProvider> { clientOptions.LatestVersionField };
+                    type.Update(fields: fields);
+                }
+            }
             return type;
         }
 
