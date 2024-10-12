@@ -1,14 +1,14 @@
 import { FluentProvider, webDarkTheme, webLightTheme } from "@fluentui/react-components";
 import { useTheme } from "@site/src/utils/theme-react";
 
-export const FluentLayout = ({ children }) => {
-  return <FluentWrapper>{children}</FluentWrapper>;
+export const FluentLayout = (props) => {
+  return <FluentWrapper {...props} />;
 };
 
-const FluentWrapper = ({ children }) => {
+const FluentWrapper = ({ children, style }) => {
   const theme = useTheme();
   return (
-    <FluentProvider theme={theme === "dark" ? webDarkTheme : webLightTheme}>
+    <FluentProvider style={style} theme={theme === "dark" ? webDarkTheme : webLightTheme}>
       {children}
     </FluentProvider>
   );

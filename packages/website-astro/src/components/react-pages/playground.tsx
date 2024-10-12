@@ -1,10 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import "@typespec/playground/styles.css";
-import { type VersionData, loadImportMap } from "../playground-component/import-map";
-import { LoadingSpinner } from "../playground-component/loading-spinner";
+import { FluentLayout } from "../layouts/fluent-layout";
+import { loadImportMap, type VersionData } from "../playground-component/import-map";
 
-export const AsyncPlayground = ({ latestVersion }: { latestVersion: string }) => {
+export const AsyncPlayground = ({
+  latestVersion,
+  fallback,
+}: {
+  latestVersion: string;
+  fallback: ReactNode;
+}) => {
   const [mod, setMod] = useState<{
     versionData: VersionData;
     WebsitePlayground: typeof import("../playground-component/playground").WebsitePlayground;
@@ -18,9 +24,9 @@ export const AsyncPlayground = ({ latestVersion }: { latestVersion: string }) =>
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return mod ? (
-    <mod.WebsitePlayground versionData={mod.versionData} />
-  ) : (
-    <LoadingSpinner message="Loading playground..." />
+  return (
+    <FluentLayout style={{ height: "100%" }}>
+      {mod ? <mod.WebsitePlayground versionData={mod.versionData} /> : fallback}
+    </FluentLayout>
   );
 };
