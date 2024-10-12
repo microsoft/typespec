@@ -70,7 +70,7 @@ public class RouteTests {
 
         client.primitive("a");
 
-//    client.array(List.of("a", "b"));
+        client.array(List.of("a", "b"));
     }
 
     @Test
@@ -79,6 +79,6 @@ public class RouteTests {
 
         client.primitive("a");
 
-//    client.array(List.of("a", "b"));
+        client.array(List.of("a", "b"));
     }
 }
