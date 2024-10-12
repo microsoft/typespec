@@ -968,6 +968,9 @@ function wrapUnassignableErrors(
   errors: readonly TypeRelationError[],
 ): readonly TypeRelationError[] {
   const error = createUnassignableDiagnostic(source, target, source);
+  if (errors.length === 1) {
+    error.code = errors[0].code;
+  }
   error.children = errors;
   return [error];
 }
@@ -983,6 +986,9 @@ function wrapUnassignablePropertyErrors(
     },
     skipIfFirst: true,
   });
+  if (errors.length === 1) {
+    error.code = errors[0].code;
+  }
   error.children = errors;
   return [error];
 }
