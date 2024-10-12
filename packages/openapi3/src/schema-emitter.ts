@@ -764,7 +764,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
         } else if (propValue.baseScalar) {
           scalarSchema = this.#getSchemaForScalar(propValue.baseScalar);
         }
-        scalarSchema.xml = { name: propXmlName };
+        scalarSchema.xml = { name: hasUnwrappedDecorator ? xmlName : propXmlName };
         ref.items = scalarSchema;
       } else {
         ref.items = new ObjectBuilder({

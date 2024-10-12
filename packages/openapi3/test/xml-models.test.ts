@@ -175,8 +175,8 @@ describe("@attribute", () => {
       }`,
     );
     expectDiagnostics(diagnostics, {
-      code: "@typespec/openapi3/invalid-property-type",
-      message: `Propertie 'tags' is not supported in the OpenAPI 3 emitter, it will be ignored.`,
+      code: "@typespec/openapi3/xml-attribute-invalid-property-type",
+      message: `The XML Attribute can only be primitive types in the OpenAPI 3 emitter, Propertie 'tags' will be ignored.`,
     });
   });
 });
@@ -191,8 +191,8 @@ describe("@unwrapped", () => {
        };`,
     );
     expectDiagnostics(diagnostics, {
-      code: "@typespec/openapi3/invalid-property-type",
-      message: `Propertie 'id' is not supported in the OpenAPI 3 emitter, it will be ignored.`,
+      code: "@typespec/openapi3/xml-unwrapped-invalid-property-type",
+      message: `The XML Unwrapped can only used on array properties or primitive ones in the OpenAPI 3 emitter, Propertie 'id' will be ignored.`,
     });
   });
 });
@@ -341,7 +341,7 @@ describe("Array of primitive types", () => {
           type: "array",
           items: {
             type: "string",
-            xml: { name: "string" },
+            xml: { name: "tags" },
           },
         },
       },
@@ -420,7 +420,7 @@ describe("Array of primitive types", () => {
             type: "array",
             items: {
               type: `${type}`,
-              xml: { name: "ItemsName" },
+              xml: { name: "tags" },
             },
           },
         },
