@@ -33,7 +33,7 @@ public class ExtendsUnknownAdditionalPropertiesDiscriminated
     private final String name;
 
     /*
-     * Additional properties
+     * The model extends from Record<unknown> with a discriminator.
      */
     @Generated
     private Map<String, Object> additionalProperties;
@@ -69,7 +69,7 @@ public class ExtendsUnknownAdditionalPropertiesDiscriminated
     }
 
     /**
-     * Get the additionalProperties property: Additional properties.
+     * Get the additionalProperties property: The model extends from Record&lt;unknown&gt; with a discriminator.
      * 
      * @return the additionalProperties value.
      */
@@ -79,7 +79,7 @@ public class ExtendsUnknownAdditionalPropertiesDiscriminated
     }
 
     /**
-     * Set the additionalProperties property: Additional properties.
+     * Set the additionalProperties property: The model extends from Record&lt;unknown&gt; with a discriminator.
      * 
      * @param additionalProperties the additionalProperties value to set.
      * @return the ExtendsUnknownAdditionalPropertiesDiscriminated object itself.

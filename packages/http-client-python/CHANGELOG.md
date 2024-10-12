@@ -1,5 +1,11 @@
 # Change Log - @typespec/http-client-python
 
+## X.X.X
+
+### Bug Fixes
+
+- Fix CI to make sure generated SDK pass necessary check
+
 ## 0.2.0
 
 ### Bug Fixes

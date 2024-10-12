@@ -3,10 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.mapper;
 
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ChoiceSchema;
 import com.microsoft.typespec.http.client.generator.core.mapper.ChoiceMapper;
-import com.microsoft.typespec.http.client.generator.core.mapper.MapperUtils;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 
 public class FluentChoiceMapper extends ChoiceMapper {
     private static final FluentChoiceMapper INSTANCE = new FluentChoiceMapper();
@@ -19,7 +16,7 @@ public class FluentChoiceMapper extends ChoiceMapper {
     }
 
     @Override
-    public IType map(ChoiceSchema enumType) {
-        return MapperUtils.createEnumType(enumType, true, false);
+    protected boolean useCodeModelNameForEnumMember() {
+        return false;
     }
 }
