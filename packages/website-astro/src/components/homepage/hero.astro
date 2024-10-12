@@ -143,17 +143,13 @@ import { link } from "@site/src/utils/link";
     <div class="hero-content">
       <h1 class="hero-title">TypeSpec</h1>
       <div class="hero-subtitle">Describe APIs</div>
-      <DescriptionText client:only="react" size="large" className="hero-description">
+      <DescriptionText size="large" className="hero-description">
         Describe your data up front and generate schemas, API specifications, client / server code,
         docs, and more.
       </DescriptionText>
       <div class="hero-buttons">
-        <Button client:only="react" as="a" appearance="primary" href={link(Links.docs)}>
-          Get Started
-        </Button>
-        <Button client:only="react" as="a" appearance="outline" href={link(Links.playground)}>
-          Try it out
-        </Button>
+        <Button as="a" appearance="primary" href={link(Links.docs)}> Get Started </Button>
+        <Button as="a" appearance="outline" href={link(Links.playground)}> Try it out </Button>
       </div>
     </div>
     <div class="hero-demo">

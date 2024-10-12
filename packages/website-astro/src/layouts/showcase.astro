@@ -1,5 +1,5 @@
 ---
-import FluentUILayout from "./fluentui.astro";
+import BaseLayout from "./base-layout.astro";
 ---
 
 <style>
@@ -8,8 +8,8 @@ import FluentUILayout from "./fluentui.astro";
   }
 </style>
 
-<FluentUILayout>
+<BaseLayout>
   <div class="showcase">
     <slot />
   </div>
-</FluentUILayout>
+</BaseLayout>

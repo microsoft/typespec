@@ -51,6 +51,7 @@ const appearanceCls = `appearance-${appearance ?? "primary"}`;
 
   .appearance-primary:hover {
     color: var(--colorNeutralForegroundOnBrand);
+    background-color: var(--colorBrandBackgroundHover);
   }
 
   .appearance-outline {
@@ -58,8 +59,9 @@ const appearanceCls = `appearance-${appearance ?? "primary"}`;
   }
 
   .appearance-outline:hover {
+    background-color: var(--colorNeutralBackground1Hover);
     border-color: var(--colorNeutralStroke1Hover);
-    text-decoration: none;
+    color: var(--colorNeutralForeground1Hover);
   }
 </style>
 <Link class:list={["button", appearanceCls, className]} href={href}>
