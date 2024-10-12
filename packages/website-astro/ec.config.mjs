@@ -1,4 +1,9 @@
+// @ts-check
+import { addClassName } from "@expressive-code/core/hast";
 import { defineEcConfig } from "astro-expressive-code";
+import tspTryitCode from "./src/plugins/tsp-tryit-code.js";
+
+const base = process.env.TYPESPEC_WEBSITE_BASE_PATH ?? "/";
 
 export default defineEcConfig({
   themes: ["one-light", "one-dark-pro"],
@@ -12,11 +17,29 @@ export default defineEcConfig({
     return `[data-theme='${theme.name}']`;
   },
   styleOverrides: {
-    borderWidth: "0px",
     borderRadius: "0px",
-    frames: {
-      frameBoxShadowCssValue: "",
-      editorTabBarBorderColor: "transpartent",
+    borderWidth: "1px",
+    codePaddingBlock: "0.75rem",
+    codePaddingInline: "1rem",
+    codeFontFamily: "var(--__sl-font-mono)",
+    codeFontSize: "var(--sl-text-code)",
+    codeLineHeight: "var(--sl-line-height)",
+    uiFontFamily: "var(--__sl-font)",
+    textMarkers: {
+      lineDiffIndicatorMarginLeft: "0.25rem",
+      defaultChroma: "45",
+      backgroundOpacity: "60%",
     },
   },
+  plugins: [
+    {
+      name: "Starlight Plugin",
+      hooks: {
+        postprocessRenderedBlock: ({ renderData }) => {
+          addClassName(renderData.blockAst, "not-content");
+        },
+      },
+    },
+    tspTryitCode(base + "playground/"),
+  ],
 });

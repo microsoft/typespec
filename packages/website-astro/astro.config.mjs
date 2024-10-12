@@ -8,7 +8,6 @@ import { resolve } from "path";
 import rehypeMermaid from "rehype-mermaid";
 import remarkHeadingID from "remark-heading-id";
 import { resolveSideBars } from "./sidebars";
-import tspTryitCode from "./src/plugins/tsp-tryit-code";
 
 const base = process.env.TYPESPEC_WEBSITE_BASE_PATH ?? "/";
 
@@ -36,16 +35,7 @@ export default defineConfig({
       components: {
         Header: "./src/components/header/header.astro",
       },
-      expressiveCode: {
-        themes: ["one-light", "one-dark-pro"],
-        styleOverrides: {
-          frames: {
-            frameBoxShadowCssValue: "",
-            editorActiveTabBorderColor: "",
-          },
-        },
-        plugins: [tspTryitCode(base + "playground/")],
-      },
+      expressiveCode: false, // defined directly above
       head: [
         {
           tag: "script",

@@ -1,9 +1,8 @@
 import { definePlugin } from "@expressive-code/core";
-import { type Element, h } from "@expressive-code/core/hast";
-import type { CompilerOptions } from "@typespec/compiler";
+import { h } from "@expressive-code/core/hast";
 import { createUrlStateStorage } from "@typespec/playground/state-storage";
 
-export default function (playgroundUrl: string) {
+export default function (playgroundUrl) {
   const storage = createUrlStateStorage({
     content: {
       queryParam: "c",
@@ -20,7 +19,7 @@ export default function (playgroundUrl: string) {
       queryParam: "sample",
     },
   });
-  function resolvePlaygroundLink(content: string, compilerOptions: CompilerOptions) {
+  function resolvePlaygroundLink(content, compilerOptions) {
     return (
       playgroundUrl +
       "?" +
@@ -65,7 +64,7 @@ export default function (playgroundUrl: string) {
         }
 
         const compilerOptions = JSON.parse(tryitStr);
-        const extraElements: Element[] = [];
+        const extraElements = [];
 
         extraElements.push(
           h(
