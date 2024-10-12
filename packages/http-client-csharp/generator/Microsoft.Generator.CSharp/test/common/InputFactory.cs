@@ -74,7 +74,8 @@ namespace Microsoft.Generator.CSharp.Tests.Common
             InputOperationParameterKind kind = InputOperationParameterKind.Method,
             bool isEndpoint = false,
             bool isResourceParameter = false,
-            bool isContentType = false)
+            bool isContentType = false,
+            bool isApiVersion = false)
         {
             return new InputParameter(
                 name,
@@ -85,7 +86,7 @@ namespace Microsoft.Generator.CSharp.Tests.Common
                 defaultValue,
                 kind,
                 isRequired,
-                false,
+                isApiVersion,
                 isResourceParameter,
                 isContentType,
                 isEndpoint,
@@ -199,7 +200,9 @@ namespace Microsoft.Generator.CSharp.Tests.Common
             string access = "public",
             IEnumerable<InputParameter>? parameters = null,
             IEnumerable<OperationResponse>? responses = null,
-            IEnumerable<string>? requestMediaTypes = null)
+            IEnumerable<string>? requestMediaTypes = null,
+            string uri = "",
+            string path = "")
         {
             return new InputOperation(
                 name,
@@ -211,8 +214,8 @@ namespace Microsoft.Generator.CSharp.Tests.Common
                 responses is null ? [OperationResponse()] : [.. responses],
                 "GET",
                 BodyMediaType.Json,
-                "",
-                "",
+                uri,
+                path,
                 null,
                 requestMediaTypes is null ? null : [.. requestMediaTypes],
                 false,
