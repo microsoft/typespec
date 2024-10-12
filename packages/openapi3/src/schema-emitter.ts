@@ -561,7 +561,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
           (schema instanceof Placeholder || "$ref" in schema) &&
           !(type && shouldInline(program, type))
         ) {
-          if (type && type.kind === "Model") {
+          if (type && (type.kind === "Model" || type.kind === "Scalar")) {
             return new ObjectBuilder({
               type: "object",
               allOf: B.array([schema]),
@@ -580,6 +580,17 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       }
     };
 
+    const checkMerge = (schemaMembers: { schema: any; type: Type | null }[]): boolean => {
+      if (nullable) {
+        for (const m of schemaMembers) {
+          if (m.schema instanceof Placeholder || "$ref" in m.schema) {
+            return true;
+          }
+        }
+      }
+      return false;
+    };
+
     if (schemaMembers.length === 0) {
       if (nullable) {
         // This union is equivalent to just `null` but OA3 has no way to specify
@@ -596,13 +607,14 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       return wrapWithObjectBuilder(schemaMembers[0], { mergeUnionWideConstraints: true });
     }
 
+    const isMerge = checkMerge(schemaMembers);
     const schema: OpenAPI3Schema = {
       [ofType]: schemaMembers.map((m) =>
-        wrapWithObjectBuilder(m, { mergeUnionWideConstraints: false }),
+        wrapWithObjectBuilder(m, { mergeUnionWideConstraints: isMerge }),
       ),
     };
 
-    if (nullable) {
+    if (!isMerge && nullable) {
       schema.nullable = true;
     }
 
