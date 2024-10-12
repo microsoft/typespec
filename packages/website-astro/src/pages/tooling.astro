@@ -1,5 +1,5 @@
 ---
-import { useBaseUrl } from "@site/src/utils";
+import { baseUrl } from "@site/src/utils";
 import LearnMoreCard from "../components/learn-more-card.astro";
 import LightDarkImg from "../components/light-dark-img.astro";
 import ShowcaseLayout from "@site/src/layouts/showcase.astro";
@@ -58,7 +58,7 @@ import FormatterIllustration from "@site/src/components/illustrations/formatter.
       description="One of the simplest forms of refactoring is renaming a reference. Rename an identifier and see all of its references updated across your TypeSpec project."
     >
       <video
-        src={useBaseUrl("/img/illustrations/refactor.mp4")}
+        src={baseUrl("/img/illustrations/refactor.mp4")}
         autoplay
         loop={true}
         slot="illustration"></video>

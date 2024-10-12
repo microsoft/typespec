@@ -1,12 +1,10 @@
 ---
-import type { ReactNode } from "react";
 import Link from "./link.astro";
 
 export interface Props {
   appearance?: "primary" | "outline";
   as?: "a";
   href: string;
-  children?: ReactNode;
   className?: string;
 }
 const { href, className, appearance } = Astro.props;
