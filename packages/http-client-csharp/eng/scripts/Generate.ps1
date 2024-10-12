@@ -10,7 +10,10 @@ Import-Module "$PSScriptRoot\Generation.psm1" -DisableNameChecking -Force;
 $packageRoot = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
 $solutionDir = Join-Path $packageRoot 'generator'
 # absolute path to locally built emitter module
-$emitterPath = Resolve-Path (Join-Path $PSScriptRoot '..' '..' 'dist' 'emitter\')
+$emitterPath = Resolve-Path (Join-Path $PSScriptRoot '..' '..' 'dist' 'emitter\') -ErrorAction SilentlyContinue
+if (-not $emitterPath) {
+    $emitterPath = "@typespec/http-client-csharp"
+}
 
 if (-not $LaunchOnly) {
     Refresh-Build
