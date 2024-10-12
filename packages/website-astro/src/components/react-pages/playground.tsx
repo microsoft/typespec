@@ -9,7 +9,7 @@ export const AsyncPlayground = ({
   fallback,
 }: {
   latestVersion: string;
-  fallback: ReactNode;
+  fallback?: ReactNode;
 }) => {
   const [mod, setMod] = useState<{
     versionData: VersionData;
