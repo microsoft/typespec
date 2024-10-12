@@ -1,0 +1,25 @@
+---
+import useBaseUrl from "@docusaurus/useBaseUrl";
+import type { HTMLAttributes } from "astro/types";
+import type { FluentImageName } from "./types";
+
+export interface Props extends HTMLAttributes<"img"> {
+  name: FluentImageName;
+}
+
+const { name, alt, ...rest } = Astro.props;
+const srcLight = useBaseUrl(`/img/fluent/${name}-l-standard-128x128.png`);
+const srcDark = useBaseUrl(`/img/fluent/${name}-d-standard-128x128.png`);
+---
+
+<style>
+  :global([data-theme="light"]) .dark {
+    display: none;
+  }
+  :global([data-theme="dark"]) .light {
+    display: none;
+  }
+</style>
+
+<img class="light" src={srcLight} alt={alt ?? ""} {...rest} />
+<img class="dark" src={srcDark} alt={alt ?? ""} {...rest} />

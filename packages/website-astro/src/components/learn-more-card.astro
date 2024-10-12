@@ -1,7 +1,8 @@
 ---
-import { FluentImg, type FluentImageName } from "./fluent-img";
+import FluentImg from "./fluent-img.astro";
 import Link from "./link.astro";
 import { NeutralText, DescriptionText, Text } from "./text/text";
+import type { FluentImageName } from "./types";
 
 export interface Props {
   title: string;
@@ -48,8 +49,8 @@ const { image, title, description, link } = Astro.props;
   }
 </style>
 
-<Link href={link} className={"item"}>
-  {image && <FluentImg client:only="react" className={"item-image"} name={image} />}
+<Link href={link} class="item">
+  {image && <FluentImg class="item-image" name={image} />}
   <div class={"item-content"}>
     <NeutralText>{title}</NeutralText>
     <DescriptionText>{description}</DescriptionText>

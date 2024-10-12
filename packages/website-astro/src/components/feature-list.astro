@@ -1,7 +1,8 @@
 ---
-import { FluentImg, type FluentImageName } from "./fluent-img";
+import FluentImg from "./fluent-img.astro";
 import Link from "./link.astro";
 import { DescriptionText, NeutralText, Text } from "./text/text";
+import type { FluentImageName } from "./types";
 
 interface FeatureListItem {
   title: string;
@@ -47,7 +48,7 @@ const { items } = Astro.props;
   {
     items?.map(({ image, description, link, title }) => (
       <div class="item">
-        {image && <FluentImg client:only="react" className="item-image" name={image} />}
+        {image && <FluentImg class="item-image" name={image} />}
         <div class="item-content">
           <NeutralText size={"large"}>{title}</NeutralText>
           <DescriptionText>{description}</DescriptionText>

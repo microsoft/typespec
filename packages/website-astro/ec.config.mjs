@@ -17,6 +17,7 @@ export default defineEcConfig({
     return `[data-theme='${theme.name}']`;
   },
   styleOverrides: {
+    // Starlight theme overrides
     borderRadius: "0px",
     borderWidth: "1px",
     codePaddingBlock: "0.75rem",
@@ -29,6 +30,9 @@ export default defineEcConfig({
       lineDiffIndicatorMarginLeft: "0.25rem",
       defaultChroma: "45",
       backgroundOpacity: "60%",
+    },
+    frames: {
+      frameBoxShadowCssValue: "none",
     },
   },
   plugins: [

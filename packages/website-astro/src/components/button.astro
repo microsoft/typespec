@@ -9,7 +9,7 @@ export interface Props {
   children?: ReactNode;
   className?: string;
 }
-const { href, children, className, appearance } = Astro.props;
+const { href, className, appearance } = Astro.props;
 const appearanceCls = `appearance-${appearance ?? "primary"}`;
 ---
 
