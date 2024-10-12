@@ -198,6 +198,8 @@ developer/
 
 *.vsix
 *.zip
+vite.config.ts.timestamp-*
+
 
 # Astro
 .astro/
