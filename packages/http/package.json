@@ -22,6 +22,7 @@
   "tspMain": "lib/http.tsp",
   "exports": {
     ".": {
+      "typespec": "./lib/http.tsp",
       "types": "./dist/src/index.d.ts",
       "default": "./dist/src/index.js"
     },

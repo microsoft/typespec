@@ -75,6 +75,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
             return [.. derivedModels];
         }
+        internal override TypeProvider? BaseTypeProvider => BaseModelProvider;
 
         public ModelProvider? BaseModelProvider
             => _baseModelProvider ??= (_baseTypeProvider?.Value is ModelProvider baseModelProvider ? baseModelProvider : null);

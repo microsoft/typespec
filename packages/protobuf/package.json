@@ -20,7 +20,11 @@
   ],
   "main": "dist/src/index.js",
   "exports": {
-    ".": "./dist/src/index.js",
+    ".": {
+      "typespec": "./lib/proto.tsp",
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    },
     "./testing": "./dist/src/testing/index.js"
   },
   "type": "module",
