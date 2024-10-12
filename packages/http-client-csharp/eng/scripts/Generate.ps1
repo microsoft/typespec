@@ -9,6 +9,8 @@ Import-Module "$PSScriptRoot\Generation.psm1" -DisableNameChecking -Force;
 
 $packageRoot = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
 $solutionDir = Join-Path $packageRoot 'generator'
+# absolute path to locally built emitter module
+$emitterPath = Resolve-Path (Join-Path $PSScriptRoot '..' '..' 'dist' 'emitter\')
 
 if (-not $LaunchOnly) {
     Refresh-Build
@@ -20,7 +22,7 @@ if (-not $LaunchOnly) {
         $unbrandedTypespecTestProject = Join-Path $testProjectsLocalDir "Unbranded-TypeSpec"
         $unbrandedTypespecTestProject = $unbrandedTypespecTestProject
 
-        Invoke (Get-TspCommand "$unbrandedTypespecTestProject/Unbranded-TypeSpec.tsp" $unbrandedTypespecTestProject)
+        Invoke (Get-TspCommand "$unbrandedTypespecTestProject/Unbranded-TypeSpec.tsp" $unbrandedTypespecTestProject $false $emitterPath)
 
         # exit if the generation failed
         if ($LASTEXITCODE -ne 0) {
@@ -124,7 +126,7 @@ foreach ($directory in $directories) {
         continue
     }
     Write-Host "Generating $subPath" -ForegroundColor Cyan
-    Invoke (Get-TspCommand $specFile $generationDir $stubbed)
+    Invoke (Get-TspCommand $specFile $generationDir $stubbed $emitterPath)
 
     # exit if the generation failed
     if ($LASTEXITCODE -ne 0) {

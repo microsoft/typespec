@@ -1,6 +1,4 @@
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
-# absolute path to locally built emitter module
-$emitterPath = Resolve-Path (Join-Path $PSScriptRoot '..' '..' 'dist' 'emitter\')
 
 function Invoke($command, $executePath=$repoRoot)
 {
@@ -26,11 +24,12 @@ function Get-TspCommand {
     param (
         [string]$specFile,
         [string]$generationDir,
-        [bool]$generateStub = $false
+        [bool]$generateStub = $false,
+        [string]$emitterNameOrPath = "@typespec/http-client-csharp"
     )
     $command = "npx tsp compile $specFile"
     $command += " --trace @typespec/http-client-csharp"
-    $command += " --emit $emitterPath"
+    $command += " --emit $emitterNameOrPath"
     $configFile = Join-Path $generationDir "tspconfig.yaml"
     if (Test-Path $configFile) {
         $command += " --config=$configFile"
