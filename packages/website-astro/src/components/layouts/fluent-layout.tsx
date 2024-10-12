@@ -1,14 +1,14 @@
 import { FluentProvider, webDarkTheme, webLightTheme } from "@fluentui/react-components";
-import { useColorMode } from "../docusaurus/core/theme-common";
+import { useTheme } from "@site/src/utils/theme-react";
 
 export const FluentLayout = ({ children }) => {
   return <FluentWrapper>{children}</FluentWrapper>;
 };
 
 const FluentWrapper = ({ children }) => {
-  const { colorMode } = useColorMode();
+  const theme = useTheme();
   return (
-    <FluentProvider theme={colorMode === "dark" ? webDarkTheme : webLightTheme}>
+    <FluentProvider theme={theme === "dark" ? webDarkTheme : webLightTheme}>
       {children}
     </FluentProvider>
   );

@@ -1,14 +1,7 @@
-import { getTheme, setTheme, type Theme } from "@site/src/utils/theme";
+import { getTheme, type Theme } from "@site/src/utils/theme";
 import { useEffect, useState } from "react";
 
-type ContextValue = {
-  /** Current color mode. */
-  readonly colorMode: Theme;
-  /** Set new color mode. */
-  readonly setColorMode: (colorMode: Theme) => void;
-};
-
-export function useColorMode(): ContextValue {
+export function useTheme(): Theme {
   const [current, setCurrent] = useState<Theme>(getTheme());
   useEffect(() => {
     const handleThemeChange = () => {
@@ -24,5 +17,5 @@ export function useColorMode(): ContextValue {
     return () => observer.disconnect();
   }, []);
 
-  return { colorMode: current, setColorMode: setTheme };
+  return current;
 }
