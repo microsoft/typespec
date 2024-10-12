@@ -20,7 +20,6 @@ export interface EditorCommand {
 export const Editor: FunctionComponent<EditorProps> = ({ model, options, actions, onMount }) => {
   const editorContainerRef = useRef(null);
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
-
   useEffect(() => {
     editorRef.current = editor.create(editorContainerRef.current!, {
       model,
@@ -31,10 +30,6 @@ export const Editor: FunctionComponent<EditorProps> = ({ model, options, actions
     // This needs special handling where we only want to run this effect once
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    editor.setTheme(options.theme ?? "typespec");
-  }, [options.theme]);
 
   useEffect(() => {
     const disposables: IDisposable[] = [];
