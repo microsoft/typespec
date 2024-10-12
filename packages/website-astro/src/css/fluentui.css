@@ -102,6 +102,7 @@
 
 html {
   font-family: var(--fontFamilyBase);
+  color: var(--colorNeutralForeground1);
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }

@@ -19,7 +19,7 @@ import { link } from "@site/src/utils/link";
     align-self: stretch;
   }
 
-  [data-theme="light"] .hero-container {
+  :global([data-theme="light"]) .hero-container {
     background: radial-gradient(
         46.56% 45.08% at 56.04% 55.33%,
         rgba(0, 50, 255, 0.1) 0%,
@@ -38,7 +38,7 @@ import { link } from "@site/src/utils/link";
       radial-gradient(32.53% 31.57% at 50% 66.82%, rgba(70, 54, 104, 0.1) 0%, rgba(0, 0, 0, 0) 100%);
   }
 
-  [data-theme="dark"] .hero-container {
+  :global([data-theme="dark"]) .hero-container {
     background: radial-gradient(
         46.56% 45.08% at 56.04% 55.33%,
         rgba(0, 50, 255, 0.2) 0%,
@@ -138,22 +138,20 @@ import { link } from "@site/src/utils/link";
   }
 </style>
 
-<>
-  <div class="hero-container">
-    <div class="hero-content">
-      <h1 class="hero-title">TypeSpec</h1>
-      <div class="hero-subtitle">Describe APIs</div>
-      <DescriptionText size="large" className="hero-description">
-        Describe your data up front and generate schemas, API specifications, client / server code,
-        docs, and more.
-      </DescriptionText>
-      <div class="hero-buttons">
-        <Button as="a" appearance="primary" href={link(Links.docs)}> Get Started </Button>
-        <Button as="a" appearance="outline" href={link(Links.playground)}> Try it out </Button>
-      </div>
-    </div>
-    <div class="hero-demo">
-      <HeroIllustration />
+<div class="hero-container">
+  <div class="hero-content">
+    <h1 class="hero-title">TypeSpec</h1>
+    <div class="hero-subtitle">Describe APIs</div>
+    <DescriptionText size="large" className="hero-description">
+      Describe your data up front and generate schemas, API specifications, client / server code,
+      docs, and more.
+    </DescriptionText>
+    <div class="hero-buttons">
+      <Button as="a" appearance="primary" href={link(Links.docs)}> Get Started </Button>
+      <Button as="a" appearance="outline" href={link(Links.playground)}> Try it out </Button>
     </div>
   </div>
-</>;
+  <div class="hero-demo">
+    <HeroIllustration />
+  </div>
+</div>

@@ -7,7 +7,7 @@
     overflow-x: hidden;
   }
 
-  [data-theme="light"] .layout {
+  :global([data-theme="light"]) .layout {
     background: radial-gradient(
         154.41% 34.41% at 18.39% 93.33%,
         rgba(0, 117, 255, 0.1) 0%,
@@ -21,7 +21,7 @@
       linear-gradient(328deg, rgba(0, 120, 212, 0.1) -34.57%, rgba(0, 0, 0, 0) 111.7%);
   }
 
-  [data-theme="dark"] .layout {
+  :global([data-theme="dark"]) .layout {
     background: radial-gradient(
         154.41% 34.41% at 18.39% 93.33%,
         rgba(0, 117, 255, 0.2) 0%,

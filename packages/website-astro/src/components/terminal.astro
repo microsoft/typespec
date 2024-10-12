@@ -11,10 +11,10 @@ const { class: cls, ...rest } = Astro.props;
     height: 100%;
   }
 
-  [data-theme="light"] .terminal {
+  :global([data-theme="light"]) .terminal {
     --window-color: var(--colorNeutralBackground2);
   }
-  [data-theme="dark"] .terminal {
+  :global([data-theme="dark"]) .terminal {
     --window-color: var(--colorNeutralBackground4);
   }
 </style>
