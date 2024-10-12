@@ -3,6 +3,13 @@ import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 export const libDef = {
   name: "@typespec/tspd",
   diagnostics: {
+    "exports-missing": {
+      severity: "error",
+      messages: {
+        default: `exports field is missing in package.json`,
+        missingCondition: `exports field is missing one export with the typespec condition`,
+      },
+    },
     "documentation-missing": {
       severity: "warning",
       messages: {
@@ -22,6 +29,6 @@ export const libDef = {
 } as const;
 
 export const $lib = createTypeSpecLibrary(libDef);
-export const { reportDiagnostic, createStateSymbol } = $lib;
+export const { reportDiagnostic, createStateSymbol, createDiagnostic } = $lib;
 
 export type RefDocLibrary = typeof $lib;
