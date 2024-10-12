@@ -15,8 +15,6 @@ $directories = Get-ChildItem -Path "$cadlRanchRoot" -Directory -Recurse
 $cadlRanchCsproj = Join-Path $packageRoot 'generator' 'TestProjects' 'CadlRanch.Tests' 'TestProjects.CadlRanch.Tests.csproj'
 
 $coverageDir = Join-Path $packageRoot 'generator' 'artifacts' 'coverage'
-# absolute path to locally built emitter module
-$emitterPath = Resolve-Path (Join-Path $PSScriptRoot '..' '..' 'dist' 'emitter\')
 
 if (-not (Test-Path $coverageDir)) {
     New-Item -ItemType Directory -Path $coverageDir | Out-Null
@@ -59,7 +57,7 @@ foreach ($directory in $directories) {
         $specFile = Join-Path $specsDirectory $subPath "main.tsp"
     }
 
-    $command = Get-TspCommand $specFile $outputDir $false $emitterPath
+    $command = Get-TspCommand $specFile $outputDir
     Invoke $command
     # exit if the generation failed
     if ($LASTEXITCODE -ne 0) {
