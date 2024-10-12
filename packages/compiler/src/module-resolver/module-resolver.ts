@@ -6,7 +6,7 @@ import {
   InvalidPackageTargetError,
   NoMatchingConditionsError,
 } from "./esm/utils.js";
-import { parseNodeModuleSpecifier } from "./utils.js";
+import { NodeModuleSpecifier, parseNodeModuleSpecifier } from "./utils.js";
 
 // Resolve algorithm of node https://nodejs.org/api/modules.html#modules_all_together
 
@@ -126,10 +126,6 @@ export async function resolveModule(
     }
   }
 
-  // Try to resolve package itself.
-  const self = await resolveSelf(specifier, absoluteStart);
-  if (self) return self;
-
   // Try to resolve as a node_module package.
   const module = await resolveAsNodeModule(specifier, absoluteStart);
   if (module) return module;
@@ -154,21 +150,18 @@ export async function resolveModule(
   }
 
   /**
-   * Equivalent implementation to node LOAD_PACKAGE_SELF
-   * Resolve if the import is importing the current package.
+   * Try to import a package with that name in the current directory.
    */
-  async function resolveSelf(name: string, baseDir: string): Promise<ResolvedModule | undefined> {
-    for (const dir of listDirHierarchy(baseDir)) {
-      const pkgFile = resolvePath(dir, "package.json");
-      if (!(await isFile(host, pkgFile))) continue;
-      const pkg = await readPackage(host, pkgFile);
-      if (pkg.name === name) {
-        return loadPackage(dir, pkg);
-      } else {
-        return undefined;
-      }
-    }
-    return undefined;
+  async function resolveSelf(
+    { packageName, subPath }: NodeModuleSpecifier,
+    dir: string,
+  ): Promise<ResolvedModule | undefined> {
+    const pkgFile = resolvePath(dir, "package.json");
+    if (!(await isFile(host, pkgFile))) return undefined;
+    const pkg = await readPackage(host, pkgFile);
+    // Node Spec says that you shouldn't lookup past the first package.json. However we used to support that so keeping this.
+    if (pkg.name !== packageName) return undefined;
+    return loadPackage(dir, pkg, subPath);
   }
 
   /**
@@ -184,6 +177,8 @@ export async function resolveModule(
     const dirs = listDirHierarchy(baseDir);
 
     for (const dir of dirs) {
+      const self = await resolveSelf(module, dir);
+      if (self) return self;
       const n = await loadPackageAtPath(
         joinPaths(dir, "node_modules", module.packageName),
         module.subPath,
