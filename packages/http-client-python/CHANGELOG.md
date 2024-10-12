@@ -1,6 +1,10 @@
 # Change Log - @typespec/http-client-python
 
-## X.X.X
+## 0.3.0
+
+### Bump dependencies
+
+- Bump dependencies
 
 ### Bug Fixes
 
