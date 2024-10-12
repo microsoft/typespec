@@ -21,6 +21,6 @@ export const AsyncPlayground = ({ latestVersion }: { latestVersion: string }) =>
   return mod ? (
     <mod.WebsitePlayground versionData={mod.versionData} />
   ) : (
-    <LoadingSpinner message="Loading playground..." />
+    <LoadingSpinner message="Loading what playground..." />
   );
 };
