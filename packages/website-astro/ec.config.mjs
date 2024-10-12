@@ -40,6 +40,7 @@ export default defineEcConfig({
         },
       },
     },
+    // @ts-expect-error type version mismatch
     tspTryitCode(base + "playground/"),
   ],
 });
