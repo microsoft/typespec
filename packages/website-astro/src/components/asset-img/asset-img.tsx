@@ -1,4 +1,4 @@
-import useBaseUrl from "@docusaurus/useBaseUrl";
+import { useBaseUrl } from "@site/src/utils";
 import style from "./asset-img.module.css";
 
 export interface AssetImgProps {

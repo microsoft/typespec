@@ -1,5 +1,5 @@
-/* eslint-disable unicorn/filename-case */
-export default function useBaseUrl(input: string | undefined): string {
+/** Prefix the given uri with the current base url of the website */
+export function baseUrl(input: string | undefined): string {
   if (input === undefined) {
     return undefined as any;
   }
