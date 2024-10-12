@@ -21,6 +21,7 @@
   "main": "dist/src/index.js",
   "exports": {
     ".": {
+      "typespec": "./lib/main.tsp",
       "types": "./dist/src/index.d.ts",
       "default": "./dist/src/index.js"
     },
