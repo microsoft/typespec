@@ -56,7 +56,7 @@
   },
   "devDependencies": {
     "@azure-tools/cadl-ranch": "0.14.7",
-    "@azure-tools/cadl-ranch-specs": "0.37.6",
+    "@azure-tools/cadl-ranch-specs": "0.37.5",
     "@azure-tools/typespec-azure-core": "0.47.0",
     "@azure-tools/typespec-client-generator-core": "0.47.1",
     "@microsoft/api-extractor": "^7.47.9",
