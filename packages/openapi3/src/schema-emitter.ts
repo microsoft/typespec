@@ -729,7 +729,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     if (isAttribute(program, prop)) {
       if (prop.type?.kind === "Model") {
         reportDiagnostic(program, {
-          code: "invalid-property-type",
+          code: "xml-attribute-invalid-property-type",
           format: { name: prop.name },
           target: prop,
         });
@@ -743,7 +743,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     const hasUnwrappedDecorator = isUnwrapped(program, prop);
     if (!isArrayProperty && hasUnwrappedDecorator) {
       reportDiagnostic(program, {
-        code: "invalid-property-type",
+        code: "xml-unwrapped-invalid-property-type",
         format: { name: prop.name },
         target: prop,
       });

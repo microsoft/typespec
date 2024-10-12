@@ -68,6 +68,11 @@
     "@typespec/versioning": "workspace:~",
     "@typespec/xml": "workspace:~"
   },
+  "peerDependenciesMeta": {
+    "@typespec/xml": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "@types/node": "~22.7.5",
     "@types/yargs": "~17.0.33",
