@@ -751,11 +751,9 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
     if (isArrayProperty && ref && ref.items) {
       const propValue = (prop.type as ArrayModelType).indexer.value;
-      const propXmlName = resolveEncodedName(
-        program,
-        propValue as Scalar | Model,
-        "application/xml",
-      );
+      const propXmlName = hasUnwrappedDecorator
+        ? xmlName
+        : resolveEncodedName(program, propValue as Scalar | Model, "application/xml");
       if (propValue.kind === "Scalar") {
         let scalarSchema: OpenAPI3Schema = {};
         const isStd = this.#isStdType(propValue);
@@ -764,7 +762,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
         } else if (propValue.baseScalar) {
           scalarSchema = this.#getSchemaForScalar(propValue.baseScalar);
         }
-        scalarSchema.xml = { name: hasUnwrappedDecorator ? xmlName : propXmlName };
+        scalarSchema.xml = { name: propXmlName };
         ref.items = scalarSchema;
       } else {
         ref.items = new ObjectBuilder({
