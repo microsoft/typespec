@@ -388,49 +388,58 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
 
         private static IEnumerable<TestCaseData> ValidateApiVersionPathParameterTestCases()
         {
+            InputParameter endpointParameter = InputFactory.Parameter(
+                "endpoint",
+                InputPrimitiveType.String,
+                location: RequestLocation.Uri,
+                isRequired: true,
+                kind: InputOperationParameterKind.Client,
+                isEndpoint: true,
+                isApiVersion: false);
+
+            InputParameter stringApiVersionParameter = InputFactory.Parameter(
+                "apiVersion",
+                InputPrimitiveType.String,
+                location: RequestLocation.Uri,
+                isRequired: true,
+                kind: InputOperationParameterKind.Client,
+                isApiVersion: true);
+
+            InputParameter enumApiVersionParameter = InputFactory.Parameter(
+                "apiVersion",
+                InputFactory.Enum(
+                    "InputEnum",
+                    InputPrimitiveType.String,
+                    usage: InputModelTypeUsage.Input,
+                    isExtensible: true,
+                    values:
+                    [
+                        InputFactory.EnumMember.String("value1", "value1"),
+                        InputFactory.EnumMember.String("value2", "value2")
+                    ]),
+                location: RequestLocation.Uri,
+                isRequired: true,
+                kind: InputOperationParameterKind.Client,
+                isApiVersion: true);
+
             yield return new TestCaseData(
                 InputFactory.Client(
                     "TestClient",
                     operations:
                     [
                         InputFactory.Operation(
-                        "TestOperation",
-                        uri: "{endpoint}/{apiVersion}",
-                        parameters: [
-                            InputFactory.Parameter(
-                                    "endpoint",
-                                    InputPrimitiveType.String,
-                                    location: RequestLocation.Uri,
-                                    isRequired: true,
-                                    kind: InputOperationParameterKind.Client,
-                                    isEndpoint: true,
-                                    isApiVersion: false),
-                            InputFactory.Parameter(
-                                    "apiVersion",
-                                    InputPrimitiveType.String,
-                                    location: RequestLocation.Uri,
-                                    isRequired: true,
-                                    kind: InputOperationParameterKind.Client,
-                                    isApiVersion: true)
+                            "TestOperation",
+                            uri: "{endpoint}/{apiVersion}",
+                            parameters:
+                            [
+                                endpointParameter,
+                                stringApiVersionParameter
                             ])
                     ],
                     parameters: [
-                        InputFactory.Parameter(
-                                "endpoint",
-                                InputPrimitiveType.String,
-                                location: RequestLocation.Uri,
-                                isRequired: true,
-                                kind: InputOperationParameterKind.Client,
-                                isEndpoint: true,
-                                isApiVersion: false),
-                        InputFactory.Parameter(
-                                "apiVersion",
-                                InputPrimitiveType.String,
-                                location: RequestLocation.Uri,
-                                isRequired: true,
-                                kind: InputOperationParameterKind.Client,
-                                isApiVersion: true)
-                        ]));
+                        endpointParameter,
+                        stringApiVersionParameter
+                    ]));
 
             yield return new TestCaseData(
                 InputFactory.Client(
@@ -440,59 +449,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                         InputFactory.Operation(
                         "TestOperation",
                         parameters: [
-                        InputFactory.Parameter(
-                                "endpoint",
-                                InputPrimitiveType.String,
-                                location: RequestLocation.Uri,
-                                isRequired: true,
-                                kind: InputOperationParameterKind.Client,
-                                isEndpoint: true,
-                                isApiVersion: false),
-                        InputFactory.Parameter(
-                                "apiVersion",
-                                InputFactory.Enum(
-                                    "InputEnum",
-                                    InputPrimitiveType.String,
-                                    usage: InputModelTypeUsage.Input,
-                                    isExtensible: true,
-                                    values:
-                                    [
-                                        InputFactory.EnumMember.String("value1", "value1"),
-                                        InputFactory.EnumMember.String("value2", "value2")
-                                    ]),
-                                location: RequestLocation.Uri,
-                                isRequired: true,
-                                kind: InputOperationParameterKind.Client,
-                                isApiVersion: true)
+                            endpointParameter,
+                            enumApiVersionParameter
                         ],
                         uri: "{endpoint}/{apiVersion}")
                     ],
                     parameters: [
-                        InputFactory.Parameter(
-                                "endpoint",
-                                InputPrimitiveType.String,
-                                location: RequestLocation.Uri,
-                                isRequired: true,
-                                kind: InputOperationParameterKind.Client,
-                                isEndpoint: true,
-                                isApiVersion: false),
-                        InputFactory.Parameter(
-                                "apiVersion",
-                                InputFactory.Enum(
-                                    "InputEnum",
-                                    InputPrimitiveType.String,
-                                    usage: InputModelTypeUsage.Input,
-                                    isExtensible: true,
-                                    values:
-                                    [
-                                        InputFactory.EnumMember.String("value1", "value1"),
-                                        InputFactory.EnumMember.String("value2", "value2")
-                                    ]),
-                                location: RequestLocation.Uri,
-                                isRequired: true,
-                                kind: InputOperationParameterKind.Client,
-                                isApiVersion: true)
-                        ]));
+                        endpointParameter,
+                        enumApiVersionParameter
+                    ]));
         }
     }
 }
