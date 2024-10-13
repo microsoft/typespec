@@ -11,6 +11,7 @@ namespace Microsoft.Generator.CSharp
     internal static class TypeSymbolExtensions
     {
         private const string GlobalPrefix = "global::";
+        private const string NullableTypeName = "System.Nullable";
 
         public static bool IsSameType(this INamedTypeSymbol symbol, CSharpType type)
         {
@@ -110,7 +111,6 @@ namespace Microsoft.Generator.CSharp
                 // Handle nullable types
                 if (typeSymbol.NullableAnnotation == NullableAnnotation.Annotated && !IsCollectionType(namedTypeSymbol))
                 {
-                    const string nullableTypeName = "System.Nullable";
                     var argTypeSymbol = namedTypeSymbol.TypeArguments.FirstOrDefault();
 
                     if (argTypeSymbol != null)
@@ -119,11 +119,11 @@ namespace Microsoft.Generator.CSharp
                         // arg may not be fully qualified, but it is better than not having any type information at all.
                         if (argTypeSymbol.TypeKind == TypeKind.Error)
                         {
-                            return $"{nullableTypeName}`1[{argTypeSymbol}]";
+                            return $"{NullableTypeName}`1[{argTypeSymbol}]";
                         }
 
                         string[] typeArguments = [.. namedTypeSymbol.TypeArguments.Select(arg => "[" + GetFullyQualifiedName(arg) + "]")];
-                        return $"{nullableTypeName}`{namedTypeSymbol.TypeArguments.Length}[{string.Join(", ", typeArguments)}]";
+                        return $"{NullableTypeName}`{namedTypeSymbol.TypeArguments.Length}[{string.Join(", ", typeArguments)}]";
                     }
                 }
                 else if (namedTypeSymbol.TypeArguments.Length > 0 && !IsCollectionType(namedTypeSymbol))
@@ -166,7 +166,7 @@ namespace Microsoft.Generator.CSharp
             var typeArg = namedTypeSymbol?.TypeArguments.FirstOrDefault();
             bool isValueType = typeSymbol.IsValueType;
             bool isEnum = typeSymbol.TypeKind == TypeKind.Enum;
-            bool isNullable = fullyQualifiedName.StartsWith("System.Nullable`1");
+            bool isNullable = fullyQualifiedName.StartsWith(NullableTypeName);
             bool isNullableUnknownType = isNullable && typeArg?.TypeKind == TypeKind.Error;
             string name = isNullableUnknownType ? fullyQualifiedName : typeSymbol.Name;
             string[] pieces = fullyQualifiedName.Split('.');
