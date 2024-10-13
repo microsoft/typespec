@@ -1291,7 +1291,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         /// </summary>
         private MethodBodyStatement[] CreateWritePropertiesStatements()
         {
-            var properties = _model.Properties.Concat(_model.CustomCodeView?.Properties.Where(p => p.WireInfo != null) ?? []);
+            var properties = _model.CanonicalView!.Properties;
             List<MethodBodyStatement> propertyStatements = new();
             foreach (var property in properties)
             {

@@ -115,9 +115,11 @@ namespace Microsoft.Generator.CSharp
 
                     if (argTypeSymbol != null)
                     {
+                        // If the argument type is an error type, then fall back to using the ToString of the arg type symbol. This means that the
+                        // arg may not be fully qualified, but it is better than not having any type information at all.
                         if (argTypeSymbol.TypeKind == TypeKind.Error)
                         {
-                            return GetFullyQualifiedName(argTypeSymbol);
+                            return $"{nullableTypeName}`1[{argTypeSymbol}]";
                         }
 
                         string[] typeArguments = [.. namedTypeSymbol.TypeArguments.Select(arg => "[" + GetFullyQualifiedName(arg) + "]")];
@@ -164,7 +166,7 @@ namespace Microsoft.Generator.CSharp
             var typeArg = namedTypeSymbol?.TypeArguments.FirstOrDefault();
             bool isValueType = typeSymbol.IsValueType;
             bool isEnum = typeSymbol.TypeKind == TypeKind.Enum;
-            bool isNullable = typeSymbol.NullableAnnotation == NullableAnnotation.Annotated;
+            bool isNullable = fullyQualifiedName.StartsWith("System.Nullable`1");
             bool isNullableUnknownType = isNullable && typeArg?.TypeKind == TypeKind.Error;
             string name = isNullableUnknownType ? fullyQualifiedName : typeSymbol.Name;
             string[] pieces = fullyQualifiedName.Split('.');
