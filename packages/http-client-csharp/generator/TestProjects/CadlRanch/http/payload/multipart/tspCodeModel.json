@@ -864,55 +864,14 @@
      "Accessibility": "public",
      "Parameters": [
       {
-<<<<<<< HEAD
-       "$id": "83",
+       "$id": "87",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Type": {
-        "$id": "84",
-        "kind": "constant",
-        "valueType": {
-         "$id": "85",
-=======
-       "$id": "87",
-       "Name": "endpoint",
-       "NameInRequest": "endpoint",
        "Type": {
         "$id": "88",
-        "kind": "url",
-        "name": "url",
-        "crossLanguageDefinitionId": "TypeSpec.url"
-       },
-       "Location": "Uri",
-       "IsApiVersion": false,
-       "IsResourceParameter": false,
-       "IsContentType": false,
-       "IsRequired": true,
-       "IsEndpoint": true,
-       "SkipUrlEncoding": false,
-       "Explode": false,
-       "Kind": "Client",
-       "DefaultValue": {
-        "$id": "89",
-        "Type": {
-         "$id": "90",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string"
-        },
-        "Value": "http://localhost:3000"
-       }
-      },
-      {
-       "$id": "91",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Type": {
-        "$id": "92",
         "kind": "constant",
         "valueType": {
-         "$id": "93",
->>>>>>> 267a4f9c2ccc3489503129d1015ce3ee0be82ed6
+         "$id": "89",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -932,11 +891,7 @@
        "SkipUrlEncoding": false
       },
       {
-<<<<<<< HEAD
-       "$id": "86",
-=======
-       "$id": "94",
->>>>>>> 267a4f9c2ccc3489503129d1015ce3ee0be82ed6
+       "$id": "90",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -955,11 +910,7 @@
      ],
      "Responses": [
       {
-<<<<<<< HEAD
-       "$id": "87",
-=======
-       "$id": "95",
->>>>>>> 267a4f9c2ccc3489503129d1015ce3ee0be82ed6
+       "$id": "91",
        "StatusCodes": [
         204
        ],
@@ -982,40 +933,21 @@
      "Decorators": []
     },
     {
-<<<<<<< HEAD
-     "$id": "88",
-     "Name": "complex",
-=======
-     "$id": "96",
+     "$id": "92",
      "Name": "fileArrayAndBasic",
->>>>>>> 267a4f9c2ccc3489503129d1015ce3ee0be82ed6
      "ResourceName": "FormData",
      "Description": "Test content-type: multipart/form-data for mixed scenarios",
      "Accessibility": "public",
      "Parameters": [
       {
-<<<<<<< HEAD
-       "$id": "89",
+       "$id": "93",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Type": {
-        "$id": "90",
+        "$id": "94",
         "kind": "constant",
         "valueType": {
-         "$id": "91",
-=======
-       "$ref": "87"
-      },
-      {
-       "$id": "97",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Type": {
-        "$id": "98",
-        "kind": "constant",
-        "valueType": {
-         "$id": "99",
->>>>>>> 267a4f9c2ccc3489503129d1015ce3ee0be82ed6
+         "$id": "95",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1035,11 +967,7 @@
        "SkipUrlEncoding": false
       },
       {
-<<<<<<< HEAD
-       "$id": "92",
-=======
-       "$id": "100",
->>>>>>> 267a4f9c2ccc3489503129d1015ce3ee0be82ed6
+       "$id": "96",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -1058,11 +986,7 @@
      ],
      "Responses": [
       {
-<<<<<<< HEAD
-       "$id": "93",
-=======
-       "$id": "101",
->>>>>>> 267a4f9c2ccc3489503129d1015ce3ee0be82ed6
+       "$id": "97",
        "StatusCodes": [
         204
        ],
@@ -1085,39 +1009,21 @@
      "Decorators": []
     },
     {
-<<<<<<< HEAD
-     "$id": "94",
-=======
-     "$id": "102",
->>>>>>> 267a4f9c2ccc3489503129d1015ce3ee0be82ed6
+     "$id": "98",
      "Name": "jsonPart",
      "ResourceName": "FormData",
      "Description": "Test content-type: multipart/form-data for scenario contains json part and binary part ",
      "Accessibility": "public",
      "Parameters": [
       {
-<<<<<<< HEAD
-       "$id": "95",
+       "$id": "99",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Type": {
-        "$id": "96",
+        "$id": "100",
         "kind": "constant",
         "valueType": {
-         "$id": "97",
-=======
-       "$ref": "87"
-      },
-      {
-       "$id": "103",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Type": {
-        "$id": "104",
-        "kind": "constant",
-        "valueType": {
-         "$id": "105",
->>>>>>> 267a4f9c2ccc3489503129d1015ce3ee0be82ed6
+         "$id": "101",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1137,11 +1043,7 @@
        "SkipUrlEncoding": false
       },
       {
-<<<<<<< HEAD
-       "$id": "98",
-=======
-       "$id": "106",
->>>>>>> 267a4f9c2ccc3489503129d1015ce3ee0be82ed6
+       "$id": "102",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -1160,11 +1062,7 @@
      ],
      "Responses": [
       {
-<<<<<<< HEAD
-       "$id": "99",
-=======
-       "$id": "107",
->>>>>>> 267a4f9c2ccc3489503129d1015ce3ee0be82ed6
+       "$id": "103",
        "StatusCodes": [
         204
        ],
@@ -1187,39 +1085,21 @@
      "Decorators": []
     },
     {
-<<<<<<< HEAD
-     "$id": "100",
-=======
-     "$id": "108",
->>>>>>> 267a4f9c2ccc3489503129d1015ce3ee0be82ed6
+     "$id": "104",
      "Name": "binaryArrayParts",
      "ResourceName": "FormData",
      "Description": "Test content-type: multipart/form-data for scenario contains multi binary parts",
      "Accessibility": "public",
      "Parameters": [
       {
-<<<<<<< HEAD
-       "$id": "101",
+       "$id": "105",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Type": {
-        "$id": "102",
+        "$id": "106",
         "kind": "constant",
         "valueType": {
-         "$id": "103",
-=======
-       "$ref": "87"
-      },
-      {
-       "$id": "109",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Type": {
-        "$id": "110",
-        "kind": "constant",
-        "valueType": {
-         "$id": "111",
->>>>>>> 267a4f9c2ccc3489503129d1015ce3ee0be82ed6
+         "$id": "107",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1239,11 +1119,7 @@
        "SkipUrlEncoding": false
       },
       {
-<<<<<<< HEAD
-       "$id": "104",
-=======
-       "$id": "112",
->>>>>>> 267a4f9c2ccc3489503129d1015ce3ee0be82ed6
+       "$id": "108",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -1262,11 +1138,7 @@
      ],
      "Responses": [
       {
-<<<<<<< HEAD
-       "$id": "105",
-=======
-       "$id": "113",
->>>>>>> 267a4f9c2ccc3489503129d1015ce3ee0be82ed6
+       "$id": "109",
        "StatusCodes": [
         204
        ],
@@ -1289,39 +1161,21 @@
      "Decorators": []
     },
     {
-<<<<<<< HEAD
-     "$id": "106",
-=======
-     "$id": "114",
->>>>>>> 267a4f9c2ccc3489503129d1015ce3ee0be82ed6
+     "$id": "110",
      "Name": "multiBinaryParts",
      "ResourceName": "FormData",
      "Description": "Test content-type: multipart/form-data for scenario contains multi binary parts",
      "Accessibility": "public",
      "Parameters": [
       {
-<<<<<<< HEAD
-       "$id": "107",
+       "$id": "111",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Type": {
-        "$id": "108",
+        "$id": "112",
         "kind": "constant",
         "valueType": {
-         "$id": "109",
-=======
-       "$ref": "87"
-      },
-      {
-       "$id": "115",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Type": {
-        "$id": "116",
-        "kind": "constant",
-        "valueType": {
-         "$id": "117",
->>>>>>> 267a4f9c2ccc3489503129d1015ce3ee0be82ed6
+         "$id": "113",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1341,11 +1195,7 @@
        "SkipUrlEncoding": false
       },
       {
-<<<<<<< HEAD
-       "$id": "110",
-=======
-       "$id": "118",
->>>>>>> 267a4f9c2ccc3489503129d1015ce3ee0be82ed6
+       "$id": "114",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -1364,11 +1214,7 @@
      ],
      "Responses": [
       {
-<<<<<<< HEAD
-       "$id": "111",
-=======
-       "$id": "119",
->>>>>>> 267a4f9c2ccc3489503129d1015ce3ee0be82ed6
+       "$id": "115",
        "StatusCodes": [
         204
        ],
@@ -1391,39 +1237,21 @@
      "Decorators": []
     },
     {
-<<<<<<< HEAD
-     "$id": "112",
-=======
-     "$id": "120",
->>>>>>> 267a4f9c2ccc3489503129d1015ce3ee0be82ed6
+     "$id": "116",
      "Name": "checkFileNameAndContentType",
      "ResourceName": "FormData",
      "Description": "Test content-type: multipart/form-data",
      "Accessibility": "public",
      "Parameters": [
       {
-<<<<<<< HEAD
-       "$id": "113",
+       "$id": "117",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Type": {
-        "$id": "114",
+        "$id": "118",
         "kind": "constant",
         "valueType": {
-         "$id": "115",
-=======
-       "$ref": "87"
-      },
-      {
-       "$id": "121",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Type": {
-        "$id": "122",
-        "kind": "constant",
-        "valueType": {
-         "$id": "123",
->>>>>>> 267a4f9c2ccc3489503129d1015ce3ee0be82ed6
+         "$id": "119",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1443,11 +1271,7 @@
        "SkipUrlEncoding": false
       },
       {
-<<<<<<< HEAD
-       "$id": "116",
-=======
-       "$id": "124",
->>>>>>> 267a4f9c2ccc3489503129d1015ce3ee0be82ed6
+       "$id": "120",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -1466,11 +1290,7 @@
      ],
      "Responses": [
       {
-<<<<<<< HEAD
-       "$id": "117",
-=======
-       "$id": "125",
->>>>>>> 267a4f9c2ccc3489503129d1015ce3ee0be82ed6
+       "$id": "121",
        "StatusCodes": [
         204
        ],
@@ -1493,39 +1313,21 @@
      "Decorators": []
     },
     {
-<<<<<<< HEAD
-     "$id": "118",
-=======
-     "$id": "126",
->>>>>>> 267a4f9c2ccc3489503129d1015ce3ee0be82ed6
+     "$id": "122",
      "Name": "anonymousModel",
      "ResourceName": "FormData",
      "Description": "Test content-type: multipart/form-data",
      "Accessibility": "public",
      "Parameters": [
       {
-<<<<<<< HEAD
-       "$id": "119",
+       "$id": "123",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Type": {
-        "$id": "120",
+        "$id": "124",
         "kind": "constant",
         "valueType": {
-         "$id": "121",
-=======
-       "$ref": "87"
-      },
-      {
-       "$id": "127",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Type": {
-        "$id": "128",
-        "kind": "constant",
-        "valueType": {
-         "$id": "129",
->>>>>>> 267a4f9c2ccc3489503129d1015ce3ee0be82ed6
+         "$id": "125",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1545,11 +1347,7 @@
        "SkipUrlEncoding": false
       },
       {
-<<<<<<< HEAD
-       "$id": "122",
-=======
-       "$id": "130",
->>>>>>> 267a4f9c2ccc3489503129d1015ce3ee0be82ed6
+       "$id": "126",
        "Name": "anonymousModelRequest",
        "NameInRequest": "anonymousModelRequest",
        "Type": {
@@ -1568,11 +1366,7 @@
      ],
      "Responses": [
       {
-<<<<<<< HEAD
-       "$id": "123",
-=======
-       "$id": "131",
->>>>>>> 267a4f9c2ccc3489503129d1015ce3ee0be82ed6
+       "$id": "127",
        "StatusCodes": [
         204
        ],
@@ -1596,29 +1390,39 @@
     }
    ],
    "Protocol": {
-    "$id": "132"
+    "$id": "128"
    },
    "Parent": "MultiPartClient",
    "Parameters": [
     {
-<<<<<<< HEAD
-     "$id": "124",
-     "Name": "fileWithHttpPartSpecificContentType",
-     "ResourceName": "FormData",
-     "Description": "Test content-type: multipart/form-data",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "125",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Type": {
-        "$id": "126",
-        "kind": "constant",
-        "valueType": {
-         "$id": "127",
-=======
-     "$ref": "87"
+     "$id": "129",
+     "Name": "endpoint",
+     "NameInRequest": "endpoint",
+     "Type": {
+      "$id": "130",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": true,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client",
+     "DefaultValue": {
+      "$id": "131",
+      "Type": {
+       "$id": "132",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "Value": "http://localhost:3000"
+     }
     }
    ],
    "Decorators": []
@@ -1636,44 +1440,13 @@
      "Parameters": [
       {
        "$id": "135",
-       "Name": "endpoint",
-       "NameInRequest": "endpoint",
-       "Type": {
-        "$id": "136",
-        "kind": "url",
-        "name": "url",
-        "crossLanguageDefinitionId": "TypeSpec.url"
-       },
-       "Location": "Uri",
-       "IsApiVersion": false,
-       "IsResourceParameter": false,
-       "IsContentType": false,
-       "IsRequired": true,
-       "IsEndpoint": true,
-       "SkipUrlEncoding": false,
-       "Explode": false,
-       "Kind": "Client",
-       "DefaultValue": {
-        "$id": "137",
-        "Type": {
-         "$id": "138",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string"
-        },
-        "Value": "http://localhost:3000"
-       }
-      },
-      {
-       "$id": "139",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Type": {
-        "$id": "140",
+        "$id": "136",
         "kind": "constant",
         "valueType": {
-         "$id": "141",
->>>>>>> 267a4f9c2ccc3489503129d1015ce3ee0be82ed6
+         "$id": "137",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1693,11 +1466,7 @@
        "SkipUrlEncoding": false
       },
       {
-<<<<<<< HEAD
-       "$id": "128",
-=======
-       "$id": "142",
->>>>>>> 267a4f9c2ccc3489503129d1015ce3ee0be82ed6
+       "$id": "138",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -1716,239 +1485,7 @@
      ],
      "Responses": [
       {
-<<<<<<< HEAD
-       "$id": "129",
-       "StatusCodes": [
-        204
-       ],
-       "BodyMediaType": "Json",
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
-     "Uri": "{endpoint}",
-     "Path": "/multipart/form-data/check-filename-and-specific-content-type-with-httppart",
-     "RequestMediaTypes": [
-      "multipart/form-data"
-     ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Payload.MultiPart.FormData.fileWithHttpPartSpecificContentType",
-     "Decorators": []
-    },
-    {
-     "$id": "130",
-     "Name": "fileWithHttpPartRequiredContentType",
-     "ResourceName": "FormData",
-     "Description": "Test content-type: multipart/form-data",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "131",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Type": {
-        "$id": "132",
-        "kind": "constant",
-        "valueType": {
-         "$id": "133",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "multipart/form-data",
-        "decorators": []
-       },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": true,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      },
-      {
-       "$id": "134",
-       "Name": "body",
-       "NameInRequest": "body",
-       "Type": {
-        "$ref": "54"
-       },
-       "Location": "Body",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "135",
-       "StatusCodes": [
-        204
-       ],
-       "BodyMediaType": "Json",
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
-     "Uri": "{endpoint}",
-     "Path": "/multipart/form-data/check-filename-and-required-content-type-with-httppart",
-     "RequestMediaTypes": [
-      "multipart/form-data"
-     ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Payload.MultiPart.FormData.fileWithHttpPartRequiredContentType",
-     "Decorators": []
-    },
-    {
-     "$id": "136",
-     "Name": "fileWithHttpPartOptionalContentType",
-     "ResourceName": "FormData",
-     "Description": "Test content-type: multipart/form-data for optional content type",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "137",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Type": {
-        "$id": "138",
-        "kind": "constant",
-        "valueType": {
-         "$id": "139",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "multipart/form-data",
-        "decorators": []
-       },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": true,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      },
-      {
-       "$id": "140",
-       "Name": "body",
-       "NameInRequest": "body",
-       "Type": {
-        "$ref": "61"
-       },
-       "Location": "Body",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "141",
-       "StatusCodes": [
-        204
-       ],
-       "BodyMediaType": "Json",
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
-     "Uri": "{endpoint}",
-     "Path": "/multipart/form-data/file-with-http-part-optional-content-type",
-     "RequestMediaTypes": [
-      "multipart/form-data"
-     ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Payload.MultiPart.FormData.fileWithHttpPartOptionalContentType",
-     "Decorators": []
-    },
-    {
-     "$id": "142",
-     "Name": "complexWithHttpPart",
-     "ResourceName": "FormData",
-     "Description": "Test content-type: multipart/form-data for mixed scenarios",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "143",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Type": {
-        "$id": "144",
-        "kind": "constant",
-        "valueType": {
-         "$id": "145",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "multipart/form-data",
-        "decorators": []
-       },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": true,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      },
-      {
-       "$id": "146",
-       "Name": "body",
-       "NameInRequest": "body",
-       "Type": {
-        "$ref": "66"
-       },
-       "Location": "Body",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "147",
-=======
-       "$id": "143",
->>>>>>> 267a4f9c2ccc3489503129d1015ce3ee0be82ed6
+       "$id": "139",
        "StatusCodes": [
         204
        ],
@@ -1972,21 +1509,16 @@
     }
    ],
    "Protocol": {
-<<<<<<< HEAD
-    "$id": "148"
-=======
-    "$id": "144"
->>>>>>> 267a4f9c2ccc3489503129d1015ce3ee0be82ed6
+    "$id": "140"
    },
    "Parent": "FormData",
    "Parameters": [
     {
-<<<<<<< HEAD
-     "$id": "149",
+     "$id": "141",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Type": {
-      "$id": "150",
+      "$id": "142",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -2001,17 +1533,15 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "151",
+      "$id": "143",
       "Type": {
-       "$id": "152",
+       "$id": "144",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
       },
       "Value": "http://localhost:3000"
      }
-=======
-     "$ref": "135"
     }
    ],
    "Decorators": []
@@ -2029,43 +1559,13 @@
      "Parameters": [
       {
        "$id": "147",
-       "Name": "endpoint",
-       "NameInRequest": "endpoint",
-       "Type": {
-        "$id": "148",
-        "kind": "url",
-        "name": "url",
-        "crossLanguageDefinitionId": "TypeSpec.url"
-       },
-       "Location": "Uri",
-       "IsApiVersion": false,
-       "IsResourceParameter": false,
-       "IsContentType": false,
-       "IsRequired": true,
-       "IsEndpoint": true,
-       "SkipUrlEncoding": false,
-       "Explode": false,
-       "Kind": "Client",
-       "DefaultValue": {
-        "$id": "149",
-        "Type": {
-         "$id": "150",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string"
-        },
-        "Value": "http://localhost:3000"
-       }
-      },
-      {
-       "$id": "151",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Type": {
-        "$id": "152",
+        "$id": "148",
         "kind": "constant",
         "valueType": {
-         "$id": "153",
+         "$id": "149",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2085,7 +1585,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "154",
+       "$id": "150",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -2104,7 +1604,7 @@
      ],
      "Responses": [
       {
-       "$id": "155",
+       "$id": "151",
        "StatusCodes": [
         204
        ],
@@ -2127,24 +1627,21 @@
      "Decorators": []
     },
     {
-     "$id": "156",
+     "$id": "152",
      "Name": "requiredContentType",
      "ResourceName": "ContentType",
      "Description": "Test content-type: multipart/form-data",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "147"
-      },
-      {
-       "$id": "157",
+       "$id": "153",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Type": {
-        "$id": "158",
+        "$id": "154",
         "kind": "constant",
         "valueType": {
-         "$id": "159",
+         "$id": "155",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2164,7 +1661,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "160",
+       "$id": "156",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -2183,7 +1680,7 @@
      ],
      "Responses": [
       {
-       "$id": "161",
+       "$id": "157",
        "StatusCodes": [
         204
        ],
@@ -2206,24 +1703,21 @@
      "Decorators": []
     },
     {
-     "$id": "162",
+     "$id": "158",
      "Name": "optionalContentType",
      "ResourceName": "ContentType",
      "Description": "Test content-type: multipart/form-data for optional content type",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "147"
-      },
-      {
-       "$id": "163",
+       "$id": "159",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Type": {
-        "$id": "164",
+        "$id": "160",
         "kind": "constant",
         "valueType": {
-         "$id": "165",
+         "$id": "161",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2243,7 +1737,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "166",
+       "$id": "162",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -2262,7 +1756,7 @@
      ],
      "Responses": [
       {
-       "$id": "167",
+       "$id": "163",
        "StatusCodes": [
         204
        ],
@@ -2286,12 +1780,39 @@
     }
    ],
    "Protocol": {
-    "$id": "168"
+    "$id": "164"
    },
    "Parent": "FormDataHttpParts",
    "Parameters": [
     {
-     "$ref": "147"
+     "$id": "165",
+     "Name": "endpoint",
+     "NameInRequest": "endpoint",
+     "Type": {
+      "$id": "166",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": true,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client",
+     "DefaultValue": {
+      "$id": "167",
+      "Type": {
+       "$id": "168",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "Value": "http://localhost:3000"
+     }
     }
    ],
    "Decorators": []
@@ -2309,43 +1830,13 @@
      "Parameters": [
       {
        "$id": "171",
-       "Name": "endpoint",
-       "NameInRequest": "endpoint",
-       "Type": {
-        "$id": "172",
-        "kind": "url",
-        "name": "url",
-        "crossLanguageDefinitionId": "TypeSpec.url"
-       },
-       "Location": "Uri",
-       "IsApiVersion": false,
-       "IsResourceParameter": false,
-       "IsContentType": false,
-       "IsRequired": true,
-       "IsEndpoint": true,
-       "SkipUrlEncoding": false,
-       "Explode": false,
-       "Kind": "Client",
-       "DefaultValue": {
-        "$id": "173",
-        "Type": {
-         "$id": "174",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string"
-        },
-        "Value": "http://localhost:3000"
-       }
-      },
-      {
-       "$id": "175",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Type": {
-        "$id": "176",
+        "$id": "172",
         "kind": "constant",
         "valueType": {
-         "$id": "177",
+         "$id": "173",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2365,7 +1856,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "178",
+       "$id": "174",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -2384,7 +1875,7 @@
      ],
      "Responses": [
       {
-       "$id": "179",
+       "$id": "175",
        "StatusCodes": [
         204
        ],
@@ -2408,13 +1899,39 @@
     }
    ],
    "Protocol": {
-    "$id": "180"
+    "$id": "176"
    },
    "Parent": "FormDataHttpParts",
    "Parameters": [
     {
-     "$ref": "171"
->>>>>>> 267a4f9c2ccc3489503129d1015ce3ee0be82ed6
+     "$id": "177",
+     "Name": "endpoint",
+     "NameInRequest": "endpoint",
+     "Type": {
+      "$id": "178",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": true,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client",
+     "DefaultValue": {
+      "$id": "179",
+      "Type": {
+       "$id": "180",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "Value": "http://localhost:3000"
+     }
     }
    ],
    "Decorators": []

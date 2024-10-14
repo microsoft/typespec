@@ -28,7 +28,7 @@ describe("Test GetInputType for array", () => {
     const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
-      (p) => p.Name === "input"
+      (p) => p.Name === "input",
     );
     strictEqual(1, inputParamArray.length);
     const type = inputParamArray[0].Type;
@@ -88,7 +88,7 @@ describe("Test GetInputType for enum", () => {
     const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
-      (p) => p.Name === "input"
+      (p) => p.Name === "input",
     );
     strictEqual(1, inputParamArray.length);
     const type = inputParamArray[0].Type;
@@ -134,7 +134,7 @@ describe("Test GetInputType for enum", () => {
     const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
-      (p) => p.Name === "input"
+      (p) => p.Name === "input",
     );
     strictEqual(1, inputParamArray.length);
     const type = inputParamArray[0].Type;
@@ -173,7 +173,7 @@ describe("Test GetInputType for enum", () => {
     const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
-      (p) => p.Name === "input"
+      (p) => p.Name === "input",
     );
     strictEqual(1, inputParamArray.length);
     const type = inputParamArray[0].Type;

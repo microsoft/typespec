@@ -28,7 +28,7 @@ describe("Test GetInputType for scalar", () => {
     const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
-      (p) => p.Name === "location"
+      (p) => p.Name === "location",
     );
     strictEqual(1, inputParamArray.length);
     const type = inputParamArray[0].Type;

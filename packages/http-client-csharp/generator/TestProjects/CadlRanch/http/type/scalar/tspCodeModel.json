@@ -474,13 +474,8 @@
         200
        ],
        "BodyType": {
-<<<<<<< HEAD
         "$id": "52",
-        "kind": "any",
-=======
-        "$id": "56",
         "kind": "unknown",
->>>>>>> 267a4f9c2ccc3489503129d1015ce3ee0be82ed6
         "name": "unknown",
         "crossLanguageDefinitionId": "",
         "decorators": []
@@ -544,13 +539,8 @@
        "NameInRequest": "body",
        "Description": "_",
        "Type": {
-<<<<<<< HEAD
         "$id": "58",
-        "kind": "any",
-=======
-        "$id": "62",
         "kind": "unknown",
->>>>>>> 267a4f9c2ccc3489503129d1015ce3ee0be82ed6
         "name": "unknown",
         "crossLanguageDefinitionId": "",
         "decorators": []
