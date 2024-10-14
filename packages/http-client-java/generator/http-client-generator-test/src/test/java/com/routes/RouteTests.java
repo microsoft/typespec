@@ -4,6 +4,10 @@
 package com.routes;
 
 import java.util.List;
+import java.util.Set;
+
+import com.azure.core.http.policy.HttpLogDetailLevel;
+import com.azure.core.http.policy.HttpLogOptions;
 import org.junit.jupiter.api.Test;
 
 public class RouteTests {
@@ -70,15 +74,18 @@ public class RouteTests {
 
         client.primitive("a");
 
-//    client.array(List.of("a", "b"));
+//        client.array(List.of("a", "b"));
     }
 
     @Test
     public void buildQueryParametersQueryContinuationExplode() {
-        var client = new RoutesClientBuilder().buildQueryParametersQueryContinuationExplodeClient();
+        var client = new RoutesClientBuilder().httpLogOptions(new HttpLogOptions()
+                .setLogLevel(HttpLogDetailLevel.BODY_AND_HEADERS)
+                .setAllowedQueryParamNames(Set.of("fixed", "param"))
+        ).buildQueryParametersQueryContinuationExplodeClient();
 
         client.primitive("a");
 
-//    client.array(List.of("a", "b"));
+//        client.array(List.of("a", "b"));
     }
 }

@@ -1,6 +1,6 @@
 {
   "name": "@typespec/compiler",
-  "version": "0.61.0",
+  "version": "0.61.2",
   "description": "TypeSpec Compiler Preview",
   "author": "Microsoft Corporation",
   "license": "MIT",
@@ -22,6 +22,7 @@
   "tspMain": "lib/std/main.tsp",
   "exports": {
     ".": {
+      "typespec": "./lib/std/main.tsp",
       "types": "./dist/src/index.d.ts",
       "default": "./dist/src/index.js"
     },
