@@ -36,7 +36,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
         {
             var props = new[]
             {
-                InputFactory.Property("Prop1", InputFactory.Array(InputPrimitiveType.String))
+                InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.String))
             };
 
             var inputModel = InputFactory.Model("mockInputModel", properties: props);
@@ -57,6 +57,10 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.AreEqual( "prop1", wireInfo!.SerializedName);
 
             Assert.AreEqual(0, modelTypeProvider.Properties.Count);
+
+            var fullCtor = modelTypeProvider.Constructors.Last();
+            Assert.IsTrue(fullCtor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+            Assert.AreEqual(2, fullCtor.Signature.Parameters.Count);
         }
 
         [Test]
@@ -64,7 +68,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
         {
             var props = new[]
             {
-                InputFactory.Property("Prop1", InputFactory.Array(InputPrimitiveType.String))
+                InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.String))
             };
 
             var inputModel = InputFactory.Model("mockInputModel", properties: props);
@@ -94,7 +98,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
         {
             var props = new[]
             {
-                InputFactory.Property("Prop1", InputFactory.Array(InputPrimitiveType.String))
+                InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.String))
             };
 
             var inputModel = InputFactory.Model("mockInputModel", properties: props);
@@ -142,7 +146,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             var plugin = await MockHelpers.LoadMockPluginAsync(
                 inputModelTypes: new[] {
                     InputFactory.Model("mockInputModel", properties: new[] {
-                        InputFactory.Property("Prop1", InputPrimitiveType.String)
+                        InputFactory.Property("prop1", InputPrimitiveType.String)
                     })
                 },
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
