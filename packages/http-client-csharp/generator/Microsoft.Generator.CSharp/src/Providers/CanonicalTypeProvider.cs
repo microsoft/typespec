@@ -62,10 +62,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     && specToCustomPropertiesMap[candidateSpecProperty] == customProperty)
                 {
                     specProperty = candidateSpecProperty;
-                    // var serializedName = specProperty.WireInfo!.SerializedName;
-
                     customProperty.WireInfo = new PropertyWireInformation(specProperty);
-                    // customProperty.WireInfo!.SerializedName = serializedName;
                 }
 
                 string? serializedName = specProperty?.SerializedName;
