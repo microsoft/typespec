@@ -443,7 +443,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 var parameterType = ((ITypeSymbol)parameterTypes[i]!).GetCSharpType();
                 // we ignore nullability for reference types as these are generated the same regardless of nullability
                 // TODO - switch to using CSharpType.Equals once https://github.com/microsoft/typespec/issues/4624 is fixed.
-                if (!parameterType.Name.EndsWith(signature.Parameters[i].Type.Name) ||
+                if (GetTypeOrMethodName(parameterType.Name) != signature.Parameters[i].Type.Name ||
                     (parameterType.IsValueType && parameterType.IsNullable != signature.Parameters[i].Type.IsNullable))
                 {
                     return false;
@@ -455,20 +455,26 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private static bool IsMatch(MethodSignatureBase customMethod, MethodSignatureBase method)
         {
-            if (customMethod.Parameters.Count != method.Parameters.Count || !customMethod.Name.EndsWith(method.Name))
+            if (customMethod.Parameters.Count != method.Parameters.Count || GetTypeOrMethodName(customMethod.Name) != method.Name)
             {
                 return false;
             }
 
             for (int i = 0; i < customMethod.Parameters.Count; i++)
             {
-                if (!customMethod.Parameters[i].Type.Name.EndsWith(method.Parameters[i].Type.Name))
+                if (GetTypeOrMethodName(customMethod.Parameters[i].Type.Name) != method.Parameters[i].Type.Name)
                 {
                     return false;
                 }
             }
 
             return true;
+        }
+
+        private static string GetTypeOrMethodName(string fullyQualifiedName)
+        {
+            var parts = fullyQualifiedName.Split('.');
+            return parts[^1];
         }
 
         private static void ValidateArguments(TypeProvider type, AttributeData attributeData)
