@@ -37,7 +37,7 @@ namespace Microsoft.Generator.CSharp.Providers
         protected override PropertyProvider[] BuildProperties()
         {
             var specProperties = _inputModel?.Properties ?? [];
-            var specPropertiesMap = specProperties.ToDictionary(p => p.Name, p => p);
+            var specPropertiesMap = specProperties.ToDictionary(p => p.Name.ToCleanName(), p => p);
             var generatedProperties = _generatedTypeProvider.Properties;
             var customProperties = _generatedTypeProvider.CustomCodeView?.Properties ?? [];
 
