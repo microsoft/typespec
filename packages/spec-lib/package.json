@@ -17,7 +17,10 @@
   "main": "dist/index.js",
   "tspMain": "lib/lib.tsp",
   "exports": {
-    ".": "./dist/src/index.js"
+    ".": {
+      "typespec": "./lib/lib.tsp",
+      "default": "./dist/src/index.js"
+    }
   },
   "engines": {
     "node": ">=16.0.0"
