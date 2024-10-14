@@ -219,7 +219,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             new TestCaseData(InputPrimitiveType.Int32),
         ];
 
-        [Test]
         [TestCaseSource(nameof(ExtensibleEnumCases))]
         public async Task CanCustomizeExtensibleEnum(InputPrimitiveType enumType)
         {
