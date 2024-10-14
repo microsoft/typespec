@@ -65,8 +65,7 @@
     "@typespec/compiler": "workspace:~",
     "@typespec/http": "workspace:~",
     "@typespec/openapi": "workspace:~",
-    "@typespec/versioning": "workspace:~",
-    "@typespec/xml": "workspace:~"
+    "@typespec/versioning": "workspace:~"
   },
   "peerDependenciesMeta": {
     "@typespec/xml": {
