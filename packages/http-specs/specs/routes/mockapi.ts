@@ -1,4 +1,4 @@
-import { MockRequest, passOnSuccess, ScenarioMockApi, ValidationError } from "@typespec/spec-api";
+import { passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -17,38 +17,6 @@ function createTests(uri: string) {
     },
     response: {
       status: 204,
-    },
-    handler: (req: MockRequest) => {
-      const queryMap = new Map<string, string | string[]>();
-      for (const [key, value] of url.searchParams.entries()) {
-        if (queryMap.has(key)) {
-          const existing = queryMap.get(key)!;
-          if (Array.isArray(existing)) {
-            existing.push(value);
-          } else {
-            queryMap.set(key, [existing, value]);
-          }
-        } else {
-          queryMap.set(key, value);
-        }
-      }
-      for (const [key, value] of queryMap.entries()) {
-        if (Array.isArray(value)) {
-          req.expect.containsQueryParam(key, value, "multi");
-        } else {
-          req.expect.containsQueryParam(key, value);
-        }
-      }
-      for (const param of Object.keys(req.query)) {
-        if (!url.searchParams.has(param)) {
-          throw new ValidationError(
-            `Unexpected query parameter ${param}`,
-            undefined,
-            req.query[param],
-          );
-        }
-      }
-      return { status: 204 };
     },
     kind: "MockApiDefinition",
   });
