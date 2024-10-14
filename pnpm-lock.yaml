@@ -617,9 +617,6 @@ importers:
       '@typespec/spec-api':
         specifier: workspace:~
         version: link:../spec-api
-      '@typespec/spec-lib':
-        specifier: workspace:~
-        version: link:../spec-lib
       '@typespec/spector':
         specifier: workspace:~
         version: link:../spector
@@ -1503,34 +1500,6 @@ importers:
         specifier: ~5.6.3
         version: 5.6.3
 
-  packages/spec-lib:
-    dependencies:
-      '@typespec/compiler':
-        specifier: workspace:~
-        version: link:../compiler
-      '@typespec/http':
-        specifier: workspace:~
-        version: link:../http
-      '@typespec/rest':
-        specifier: workspace:~
-        version: link:../rest
-      '@typespec/versioning':
-        specifier: workspace:~
-        version: link:../versioning
-    devDependencies:
-      '@types/node':
-        specifier: ~22.7.5
-        version: 22.7.5
-      '@typespec/tspd':
-        specifier: workspace:~
-        version: link:../tspd
-      rimraf:
-        specifier: ~6.0.1
-        version: 6.0.1
-      typescript:
-        specifier: ~5.6.3
-        version: 5.6.3
-
   packages/spector:
     dependencies:
       '@azure/identity':
@@ -1554,9 +1523,9 @@ importers:
       '@typespec/spec-coverage-sdk':
         specifier: workspace:~
         version: link:../spec-coverage-sdk
-      '@typespec/spec-lib':
+      '@typespec/versioning':
         specifier: workspace:~
-        version: link:../spec-lib
+        version: link:../versioning
       ajv:
         specifier: ~8.17.1
         version: 8.17.1
@@ -1639,6 +1608,9 @@ importers:
       '@types/yargs':
         specifier: ~17.0.33
         version: 17.0.33
+      '@typespec/tspd':
+        specifier: workspace:~
+        version: link:../tspd
       rimraf:
         specifier: ~6.0.1
         version: 6.0.1
