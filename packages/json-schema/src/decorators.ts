@@ -1,21 +1,21 @@
 import {
-  DecoratorContext,
-  Enum,
-  Model,
-  ModelProperty,
-  Namespace,
+  type DecoratorContext,
+  type Enum,
+  type Model,
+  type ModelProperty,
+  type Namespace,
   Numeric,
-  Program,
-  Scalar,
-  Tuple,
-  Type,
-  Union,
+  type Program,
+  type Scalar,
+  type Tuple,
+  type Type,
+  type Union,
   isType,
   setTypeSpecNamespace,
   typespecTypeToJson,
 } from "@typespec/compiler";
-import { ValidatesRawJsonDecorator } from "../generated-defs/TypeSpec.JsonSchema.Private.js";
-import {
+import type { ValidatesRawJsonDecorator } from "../generated-defs/TypeSpec.JsonSchema.Private.js";
+import type {
   BaseUriDecorator,
   ContainsDecorator,
   ContentEncodingDecorator,

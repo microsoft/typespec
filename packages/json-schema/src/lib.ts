@@ -1,7 +1,7 @@
 import {
   createTypeSpecLibrary,
   definePackageFlags,
-  JSONSchemaType,
+  type JSONSchemaType,
   paramMessage,
 } from "@typespec/compiler";
 
