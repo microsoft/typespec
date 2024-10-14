@@ -1,10 +1,10 @@
 import { JSONSchemaType, createTypeSpecLibrary } from "@typespec/compiler";
 
-export interface PydanticEmitterOptions {
+export interface PythonEmitterOptions {
   "output-file"?: string;
 }
 
-const PydanticEmitterOptionsSchema: JSONSchemaType<PydanticEmitterOptions> = {
+const PythonEmitterOptionsSchema: JSONSchemaType<PythonEmitterOptions> = {
   type: "object",
   additionalProperties: false,
   properties: {
@@ -13,7 +13,7 @@ const PydanticEmitterOptionsSchema: JSONSchemaType<PydanticEmitterOptions> = {
   required: [],
 };
 
-const libName = "typespec-pydantic-alloy";
+const libName = "efnext-python";
 
 export const $lib = createTypeSpecLibrary({
   name: libName,
@@ -26,7 +26,7 @@ export const $lib = createTypeSpecLibrary({
     },
   },
   emitter: {
-    options: PydanticEmitterOptionsSchema,
+    options: PythonEmitterOptionsSchema,
   },
 } as const);
 

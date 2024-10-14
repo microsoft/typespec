@@ -4,3 +4,8 @@ packages:
   - "!packages/http-client-csharp/**"
   - "!packages/http-client-java/**"
   - "!packages/http-client-python/**"
+  - "!packages/html-program-viewer/**"
+  - "!packages/efnext-cli-sketch/**"
+  - "!packages/playground/**"
+  - "!packages/playground-website/**"
+  - "!packages/website"

@@ -45,7 +45,6 @@
   "dependencies": {
     "@typespec/best-practices": "workspace:~",
     "@typespec/compiler": "workspace:~",
-    "@typespec/html-program-viewer": "workspace:~",
     "@typespec/http": "workspace:~",
     "@typespec/http-server-javascript": "workspace:~",
     "@typespec/json-schema": "workspace:~",
@@ -54,7 +53,7 @@
     "http-client-javascript": "workspace:~",
     "@typespec/rest": "workspace:~",
     "@typespec/versioning": "workspace:~",
-    "@typespec/efnext-pydantic-sketch": "workspace:~"
+    "efnext-python": "workspace:~"
   },
   "devDependencies": {
     "@types/node": "~22.5.4",

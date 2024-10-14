@@ -61,8 +61,7 @@
         "compile",
         "../samples/specs/petstore",
         "--output-dir=${workspaceFolder}/petstore-output",
-        //"--emit=@typespec/efnext-pydantic-sketch"
-        "--emit=@typspec/http-client-python"
+        "--emit=efnext-python"
       ],
       "smartStep": true,
       "sourceMaps": true,
