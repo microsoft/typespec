@@ -33,8 +33,11 @@ export async function importTypeSpecLibrary(name: string, baseDir: string): Prom
     };
     const resolved = await resolveModule(host, name, {
       baseDir,
+      conditions: ["import"],
     });
-    return import(pathToFileURL(resolved.path).toString());
+    return import(
+      pathToFileURL(resolved.type === "module" ? resolved.mainFile : resolved.path).toString()
+    );
   } catch (err: any) {
     if (err.code === "MODULE_NOT_FOUND") {
       // Resolution from cwd failed: use current package.
