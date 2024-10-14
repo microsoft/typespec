@@ -32,6 +32,8 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private protected override CanonicalTypeProvider GetCanonicalView() => this;
 
+        // TODO - Implement BuildMethods, BuildConstructors, etc as needed
+
         protected override PropertyProvider[] BuildProperties()
         {
             var specProperties = _inputModel?.Properties ?? [];
