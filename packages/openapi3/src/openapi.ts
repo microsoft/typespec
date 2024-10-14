@@ -285,6 +285,7 @@ function createOAPIEmitter(
     allHttpAuthentications: HttpAuth[],
     defaultAuth: AuthenticationReference,
     version?: string,
+    moduleContent?: any,
   ) {
     diagnostics = createDiagnosticCollector();
     currentService = service;
@@ -298,11 +299,12 @@ function createOAPIEmitter(
       service.type,
       options.omitUnreachableTypes,
     );
+
     schemaEmitter = createAssetEmitter(
       program,
       class extends OpenAPI3SchemaEmitter {
         constructor(emitter: AssetEmitter<Record<string, any>, OpenAPI3EmitterOptions>) {
-          super(emitter, metadataInfo, visibilityUsage, options);
+          super(emitter, metadataInfo, visibilityUsage, options, moduleContent);
         }
       } as any,
       context,
@@ -615,7 +617,8 @@ function createOAPIEmitter(
       const httpService = ignoreDiagnostics(getHttpService(program, service.type));
       const auth = (serviceAuth = resolveAuthentication(httpService));
 
-      initializeEmitter(service, auth.schemes, auth.defaultAuth, version);
+      const moduleContent = await loadXmlModule(program.jsSourceFiles.keys());
+      initializeEmitter(service, auth.schemes, auth.defaultAuth, version, moduleContent);
       reportIfNoRoutes(program, httpService.operations);
 
       for (const op of resolveOperations(httpService.operations)) {
@@ -1823,4 +1826,14 @@ function sortOpenAPIDocument(doc: OpenAPI3Document): void {
   if (doc.components?.parameters) {
     doc.components.parameters = sortObjectByKeys(doc.components.parameters);
   }
+}
+
+async function loadXmlModule(sourceKeys: MapIterator<string>) {
+  let needXmlmodule = false;
+  for (const file of sourceKeys) {
+    if (file.includes("xml")) {
+      needXmlmodule = true;
+    }
+  }
+  return needXmlmodule ? await import("./xml-module.js") : null;
 }
