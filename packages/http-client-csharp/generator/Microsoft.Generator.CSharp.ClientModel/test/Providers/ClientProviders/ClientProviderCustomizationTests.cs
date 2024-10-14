@@ -153,7 +153,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
 
         // Validates that a method with a struct parameter can be replaced
         [Test]
-        public async Task CanReplaceStructMethod()
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task CanReplaceStructMethod(bool isStructCustomized)
         {
             var inputOperation = InputFactory.Operation("HelloAgain", parameters:
             [
@@ -162,7 +164,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             var inputClient = InputFactory.Client("TestClient", operations: [inputOperation]);
             var plugin = await MockHelpers.LoadMockPluginAsync(
                 clients: () => [inputClient],
-                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(isStructCustomized.ToString()));
 
             // Find the client provider
             var clientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider);
@@ -188,7 +190,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             var customMethodParams = customMethods[0].Signature.Parameters;
             Assert.AreEqual(1, customMethodParams.Count);
             Assert.AreEqual("p1", customMethodParams[0].Name);
-            Assert.AreEqual("MyStruct", customMethodParams[0].Type.Name);
+            Assert.AreEqual(isStructCustomized ? "Sample.TestClient.MyStruct" : "MyStruct", customMethodParams[0].Type.Name);
+
             Assert.IsTrue(customMethodParams[0].Type.IsStruct);
             Assert.IsTrue(customMethodParams[0].Type.IsNullable);
         }
