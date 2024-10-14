@@ -17,12 +17,21 @@ namespace Microsoft.Generator.CSharp.Providers
     public abstract class TypeProvider
     {
         private Lazy<NamedTypeSymbolProvider?> _customCodeView;
-        private Lazy<CanonicalTypeProvider?> _canonicalView;
+        private Lazy<CanonicalTypeProvider> _canonicalView;
+        private readonly InputType? _inputType;
 
-        protected TypeProvider()
+        protected TypeProvider(InputType? inputType = default)
         {
             _customCodeView = new(GetCustomCodeView);
             _canonicalView = new(GetCanonicalView);
+            _inputType = inputType;
+        }
+
+        // for mocking
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        protected TypeProvider() : this(null)
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        {
         }
 
         private protected virtual NamedTypeSymbolProvider? GetCustomCodeView()
@@ -30,8 +39,25 @@ namespace Microsoft.Generator.CSharp.Providers
 
         public NamedTypeSymbolProvider? CustomCodeView => _customCodeView.Value;
 
-        private protected virtual CanonicalTypeProvider? GetCanonicalView() => new CanonicalTypeProvider(this);
-        public TypeProvider? CanonicalView => _canonicalView.Value;
+        internal IReadOnlyList<PropertyProvider> GetAllCustomProperties()
+        {
+            var allCustomProperties = CustomCodeView?.Properties != null
+                ? new List<PropertyProvider>(CustomCodeView.Properties)
+                : [];
+            var baseTypeCustomCodeView = BaseTypeProvider?.CustomCodeView;
+
+            // add all custom properties from base types
+            while (baseTypeCustomCodeView != null)
+            {
+                allCustomProperties.AddRange(baseTypeCustomCodeView.Properties);
+                baseTypeCustomCodeView = baseTypeCustomCodeView.BaseTypeProvider?.CustomCodeView;
+            }
+
+            return allCustomProperties;
+        }
+
+        private protected virtual CanonicalTypeProvider GetCanonicalView() => new CanonicalTypeProvider(this, _inputType);
+        public TypeProvider CanonicalView => _canonicalView.Value;
 
         protected string? _deprecated;
 
@@ -138,10 +164,8 @@ namespace Microsoft.Generator.CSharp.Providers
         public IReadOnlyList<CSharpType> Implements => _implements ??= BuildImplements();
 
         private IReadOnlyList<PropertyProvider>? _properties;
-        private PropertyProvider[]? _specProperties;
 
-        internal PropertyProvider[] SpecProperties => _specProperties ??= BuildProperties();
-        public IReadOnlyList<PropertyProvider> Properties => _properties ??= FilterCustomizedProperties(SpecProperties);
+        public IReadOnlyList<PropertyProvider> Properties => _properties ??= FilterCustomizedProperties(BuildProperties());
 
         private IReadOnlyList<MethodProvider>? _methods;
         public IReadOnlyList<MethodProvider> Methods => _methods ??= BuildMethodsInternal();
@@ -170,19 +194,8 @@ namespace Microsoft.Generator.CSharp.Providers
             var properties = new List<PropertyProvider>();
             var customProperties = new Dictionary<string, PropertyProvider>();
             var renamedProperties = new Dictionary<string, PropertyProvider>();
-            var allCustomProperties = CustomCodeView?.Properties != null
-                ? new List<PropertyProvider>(CustomCodeView.Properties)
-                : [];
-            var baseTypeCustomCodeView = BaseTypeProvider?.CustomCodeView;
 
-            // add all custom properties from base types
-            while (baseTypeCustomCodeView != null)
-            {
-                allCustomProperties.AddRange(baseTypeCustomCodeView.Properties);
-                baseTypeCustomCodeView = baseTypeCustomCodeView.BaseTypeProvider?.CustomCodeView;
-            }
-
-            foreach (var customProperty in allCustomProperties)
+            foreach (var customProperty in GetAllCustomProperties())
             {
                 customProperties.Add(customProperty.Name, customProperty);
                 if (customProperty.OriginalName != null)
@@ -190,6 +203,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     renamedProperties.Add(customProperty.OriginalName, customProperty);
                 }
             }
+
             foreach (var property in specProperties)
             {
                 if (ShouldGenerate(property, customProperties, renamedProperties))

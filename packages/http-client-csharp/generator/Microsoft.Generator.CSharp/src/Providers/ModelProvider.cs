@@ -30,7 +30,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private ModelProvider? _baseModelProvider;
         private ConstructorProvider? _fullConstructor;
 
-        public ModelProvider(InputModelType inputModel)
+        public ModelProvider(InputModelType inputModel) : base(inputModel)
         {
             _inputModel = inputModel;
             Description = inputModel.Description != null ? FormattableStringHelpers.FromString(inputModel.Description) : $"The {Name}.";
