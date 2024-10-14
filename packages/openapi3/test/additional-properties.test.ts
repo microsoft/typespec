@@ -49,7 +49,7 @@ describe("openapi3: Additional properties", () => {
         "Pet",
         `
         model Pet { details: Record<unknown> };
-        `
+        `,
       );
 
       ok(res.isRef);
@@ -68,7 +68,7 @@ describe("openapi3: Additional properties", () => {
       @doc("value")
       scalar Value;
       model Pet is Record<Value> {};
-      `
+      `,
     );
 
     ok(res.isRef);

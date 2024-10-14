@@ -9,11 +9,15 @@ import com.versioning.removed.models.ModelV2;
 import org.junit.jupiter.api.Test;
 
 public class RemovedClientTests {
-    private final RemovedClient removedClient = new RemovedClientBuilder()
-            .endpoint("http://localhost:3000").version("v2").buildClient();
+
+    private final RemovedClient removedClientV1
+        = new RemovedClientBuilder().endpoint("http://localhost:3000").version("v1").buildClient();
+
+    private final RemovedClient removedClientV2
+        = new RemovedClientBuilder().endpoint("http://localhost:3000").version("v2").buildClient();
 
     @Test
     public void tesRemovedClient() {
-        removedClient.v2(new ModelV2("foo", EnumV2.ENUM_MEMBER_V2, BinaryData.fromObject("bar")));
+        removedClientV2.v2(new ModelV2("foo", EnumV2.ENUM_MEMBER_V2, BinaryData.fromObject("bar")));
     }
 }

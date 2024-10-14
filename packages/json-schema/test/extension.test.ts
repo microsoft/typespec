@@ -197,12 +197,12 @@ describe("setExtension", () => {
         emitNamespace: true,
         decorators: {
           namespace: "test",
-          $flags: { decoratorArgMarshalling: "new" },
+          $flags: {},
           $setExtension(context: DecoratorContext, target: Type, key: string, value: unknown) {
             setExtension(context.program, target, key, value);
           },
         },
-      }
+      },
     );
 
     const Foo = schemas["Foo.json"];

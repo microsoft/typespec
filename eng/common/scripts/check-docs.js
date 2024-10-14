@@ -26,7 +26,7 @@ async function findMarkdownFiles(folder) {
         } else {
           return [];
         }
-      })
+      }),
     )
   ).flat();
 }
@@ -54,7 +54,7 @@ async function main() {
         "---",
         "title: xyz",
         "---",
-      ].join("\n")
+      ].join("\n"),
     );
     process.exit(1);
   } else {

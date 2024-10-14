@@ -18,7 +18,7 @@ describe("compiler: node host", () => {
   async function writeFixture(
     path: string,
     content: string,
-    encoding: "utf8" | "utf8bom" | "utf16le" | "utf16be"
+    encoding: "utf8" | "utf8bom" | "utf16le" | "utf16be",
   ): Promise<string> {
     const resolvedPath = fixturePath(path);
     const directory = getDirectoryPath(resolvedPath);
@@ -64,7 +64,7 @@ describe("compiler: node host", () => {
 
         await rejects(
           () => NodeHost.readFile(fixture),
-          (error) => error instanceof InvalidEncodingError
+          (error) => error instanceof InvalidEncodingError,
         );
       });
 
@@ -73,7 +73,7 @@ describe("compiler: node host", () => {
 
         await rejects(
           () => NodeHost.readFile(fixture),
-          (error) => error instanceof InvalidEncodingError
+          (error) => error instanceof InvalidEncodingError,
         );
       });
     });

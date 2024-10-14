@@ -137,13 +137,13 @@ export function $onValidate(program: Program) {
         const [_, versionMap] = getVersions(program, namespace);
         validateVersionEnumValuesUnique(program, namespace);
         const serviceProps = getService(program, namespace);
-        // eslint-disable-next-line deprecation/deprecation
+        // eslint-disable-next-line @typescript-eslint/no-deprecated
         if (serviceProps?.version !== undefined && versionMap !== undefined) {
           reportDiagnostic(program, {
             code: "no-service-fixed-version",
             format: {
               name: getNamespaceFullName(namespace),
-              // eslint-disable-next-line deprecation/deprecation
+              // eslint-disable-next-line @typescript-eslint/no-deprecated
               version: serviceProps.version,
             },
             target: namespace,
@@ -203,7 +203,7 @@ export function $onValidate(program: Program) {
         }
       },
     },
-    { includeTemplateDeclaration: true }
+    { includeTemplateDeclaration: true },
   );
   validateVersionedNamespaceUsage(program, namespaceDependencies);
 }
@@ -246,7 +246,7 @@ function validateMultiTypeReference(program: Program, source: Type, options?: Ty
  */
 function getVersionedNameMap(
   program: Program,
-  source: Type
+  source: Type,
 ): Map<Version, string | undefined> | undefined {
   const allVersions = getAllVersions(program, source);
   if (allVersions === undefined) return undefined;
@@ -312,7 +312,7 @@ function getVersionedNameMap(
  */
 function getVersionedTypeMap(
   program: Program,
-  source: Type
+  source: Type,
 ): Map<Version, Type | undefined> | undefined {
   const allVersions = getAllVersions(program, source);
   if (allVersions === undefined) return undefined;
@@ -382,7 +382,7 @@ function validateVersionEnumValuesUnique(program: Program, namespace: Namespace)
 
 function validateVersionedNamespaceUsage(
   program: Program,
-  namespaceDependencies: Map<Namespace | undefined, Set<Namespace>>
+  namespaceDependencies: Map<Namespace | undefined, Set<Namespace>>,
 ) {
   for (const [source, targets] of namespaceDependencies.entries()) {
     const dependencies = source && getVersionDependencies(program, source);
@@ -566,7 +566,7 @@ function resolveAvailabilityForStack(program: Program, type: Type | Type[]): Res
  */
 function getAvailabilityMapFromStack(
   program: Program,
-  typeStack: Type[]
+  typeStack: Type[],
 ): Map<string, Availability> | undefined {
   for (const type of typeStack) {
     const map = getAvailabilityMap(program, type);
@@ -603,7 +603,7 @@ function validateTargetVersionCompatible(
   program: Program,
   source: Type | Type[],
   target: Type | Type[],
-  validateOptions: IncompatibleVersionValidateOptions = {}
+  validateOptions: IncompatibleVersionValidateOptions = {},
 ) {
   const sourceAvailability = resolveAvailabilityForStack(program, source);
   const [sourceNamespace] = getVersions(program, sourceAvailability.type);
@@ -632,7 +632,7 @@ function validateTargetVersionCompatible(
       targetAvailability.map,
       versionMap,
       sourceAvailability.type,
-      targetAvailability.type
+      targetAvailability.type,
     );
     if (!targetAvailability.map) {
       return;
@@ -645,7 +645,7 @@ function validateTargetVersionCompatible(
       sourceAvailability.map,
       targetAvailability.map,
       sourceAvailability.type,
-      targetAvailability.type
+      targetAvailability.type,
     );
   } else {
     validateAvailabilityForRef(
@@ -653,7 +653,7 @@ function validateTargetVersionCompatible(
       sourceAvailability.map,
       targetAvailability.map,
       sourceAvailability.type,
-      targetAvailability.type
+      targetAvailability.type,
     );
   }
 }
@@ -663,7 +663,7 @@ function translateAvailability(
   avail: Map<string, Availability>,
   versionMap: Map<Version, Version> | Version,
   source: Type,
-  target: Type
+  target: Type,
 ): Map<string, Availability> | undefined {
   if (!(versionMap instanceof Map)) {
     const version = versionMap;
@@ -672,7 +672,7 @@ function translateAvailability(
       const removedBefore = findAvailabilityOnOrBeforeVersion(
         version.name,
         Availability.Removed,
-        avail
+        avail,
       );
       if (addedAfter) {
         reportDiagnostic(program, {
@@ -715,7 +715,7 @@ function translateAvailability(
 function findAvailabilityAfterVersion(
   version: string,
   status: Availability,
-  avail: Map<string, Availability>
+  avail: Map<string, Availability>,
 ): string | undefined {
   let search = false;
   for (const [key, val] of avail) {
@@ -732,7 +732,7 @@ function findAvailabilityAfterVersion(
 function findAvailabilityOnOrBeforeVersion(
   version: string,
   status: Availability,
-  avail: Map<string, Availability>
+  avail: Map<string, Availability>,
 ): string | undefined {
   let search = false;
   for (const [key, val] of avail) {
@@ -757,7 +757,7 @@ function validateAvailabilityForRef(
   source: Type,
   target: Type,
   sourceOptions?: TypeNameOptions,
-  targetOptions?: TypeNameOptions
+  targetOptions?: TypeNameOptions,
 ) {
   // if source is unversioned and target is versioned
   if (sourceAvail === undefined) {
@@ -783,7 +783,7 @@ function validateAvailabilityForRef(
   const sourceReturnTypeChanged = getReturnTypeChangedFrom(program, source);
   if (sourceReturnTypeChanged !== undefined) {
     const sourceReturnTypeChangedKeys = [...sourceReturnTypeChanged.keys()].map(
-      (item) => item.name
+      (item) => item.name,
     );
     keyValSource = [...keyValSource, ...sourceReturnTypeChangedKeys];
   }
@@ -817,7 +817,7 @@ function validateAvailabilityForRef(
       const targetRemovedOn = findAvailabilityOnOrBeforeVersion(
         key,
         Availability.Removed,
-        targetAvail
+        targetAvail,
       );
       reportDiagnostic(program, {
         code: "incompatible-versioned-reference",
@@ -843,7 +843,7 @@ function canIgnoreDependentVersioning(type: Type, versioning: "added" | "removed
 
 function canIgnoreVersioningOnProperty(
   prop: ModelProperty,
-  versioning: "added" | "removed"
+  versioning: "added" | "removed",
 ): boolean {
   if (prop.sourceProperty === undefined) {
     return false;
@@ -853,7 +853,7 @@ function canIgnoreVersioningOnProperty(
   // Check if the decorator was defined on this property or a source property. If source property ignore.
   const selfDecorators = prop.decorators.filter((x) => x.decorator === decoratorFn);
   const sourceDecorators = prop.sourceProperty.decorators.filter(
-    (x) => x.decorator === decoratorFn
+    (x) => x.decorator === decoratorFn,
   );
   return !selfDecorators.some((x) => !sourceDecorators.some((y) => x.node === y.node));
 }
@@ -865,7 +865,7 @@ function validateAvailabilityForContains(
   source: Type,
   target: Type,
   sourceOptions?: TypeNameOptions,
-  targetOptions?: TypeNameOptions
+  targetOptions?: TypeNameOptions,
 ) {
   if (!sourceAvail) return;
 

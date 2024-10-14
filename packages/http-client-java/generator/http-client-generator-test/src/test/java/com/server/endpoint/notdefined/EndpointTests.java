@@ -9,9 +9,6 @@ public class EndpointTests {
 
     @Test
     public void testEndpoint() {
-        new NotDefinedClientBuilder()
-                .endpoint("http://localhost:3000")
-                .buildClient()
-                .valid();
+        new NotDefinedClientBuilder().endpoint("http://localhost:3000").buildClient().valid();
     }
 }

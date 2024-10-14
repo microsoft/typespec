@@ -10,7 +10,7 @@ describe("emitting models to yaml", () => {
         x: string;
       }
     `,
-      { "file-type": "yaml" }
+      { "file-type": "yaml" },
     );
     const Foo = schemas["Foo.yaml"];
 

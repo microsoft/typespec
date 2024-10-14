@@ -25,10 +25,21 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
             InputFactory.Property("likesBones", InputPrimitiveType.Boolean, isRequired: true)
         ]);
+
+        private static readonly InputModelType _anotherAnimal = InputFactory.Model("anotherAnimal", discriminatedKind: "dog", properties:
+        [
+            InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+            InputFactory.Property("other", InputPrimitiveType.String, isRequired: true, isDiscriminator: true)
+        ]);
         private static readonly InputModelType _baseModel = InputFactory.Model(
             "pet",
             properties: [InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true)],
-            discriminatedModels: new Dictionary<string, InputModelType>() { { "cat", _catModel }, { "dog", _dogModel } });
+            discriminatedModels: new Dictionary<string, InputModelType>()
+            {
+                { "cat", _catModel },
+                { "dog", _dogModel },
+                { "otherAnimal", _anotherAnimal }
+            });
 
         private static readonly InputEnumType _petEnum = InputFactory.Enum("pet", InputPrimitiveType.String, isExtensible: true, values:
         [
@@ -89,35 +100,34 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public void DerviedCtorShouldSetDiscriminator()
+        public void DerivedPublicCtorShouldSetDiscriminator()
         {
             MockHelpers.LoadMockPlugin();
             var catModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(_catModel);
             Assert.IsNotNull(catModel);
             Assert.AreEqual(2, catModel!.Constructors.Count);
-            foreach (var ctor in catModel.Constructors)
-            {
-                var init = ctor.Signature.Initializer;
-                Assert.IsNotNull(init);
-                var expression = init!.Arguments[0] as ScopedApi;
-                Assert.IsNotNull(expression);
-                var original = expression!.Original as LiteralExpression;
-                Assert.IsNotNull(original);
-                Assert.AreEqual("cat", original!.Literal);
-            }
+            var publicCtor = catModel.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsNotNull(publicCtor);
+
+            var init = publicCtor!.Signature.Initializer;
+            Assert.IsNotNull(init);
+            var expression = init!.Arguments[0] as ScopedApi;
+            Assert.IsNotNull(expression);
+            var original = expression!.Original as LiteralExpression;
+            Assert.IsNotNull(original);
+            Assert.AreEqual("cat", original!.Literal);
         }
 
         [Test]
-        public void DerivedCtorShouldNotHaveKindParam()
+        public void DerivedPublicCtorShouldNotHaveKindParam()
         {
             MockHelpers.LoadMockPlugin();
             var dogModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(_dogModel);
             Assert.IsNotNull(dogModel);
             Assert.AreEqual(2, dogModel!.Constructors.Count);
-            foreach (var ctor in dogModel.Constructors)
-            {
-                Assert.IsFalse(ctor.Signature.Parameters.Any(p => p.Name == "kind"));
-            }
+            var publicCtor = dogModel.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsNotNull(publicCtor);
+            Assert.IsFalse(publicCtor!.Signature.Parameters.Any(p => p.Name == "kind"));
         }
 
         [Test]
@@ -206,6 +216,31 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.IsNotNull(catModel);
             var kindProperty = catModel!.Properties.FirstOrDefault(p => p.Name == "Kind");
             Assert.IsNull(kindProperty);
+        }
+
+        [Test]
+        public void ModelWithNestedDiscriminators()
+        {
+            MockHelpers.LoadMockPlugin(inputModelTypes: [_baseEnumModel, _dogEnumModel, _anotherAnimal]);
+            var outputLibrary = CodeModelPlugin.Instance.OutputLibrary;
+            var anotherDogModel = outputLibrary.TypeProviders.OfType<ModelProvider>().FirstOrDefault(t => t.Name == "AnotherAnimal");
+            Assert.IsNotNull(anotherDogModel);
+
+            var serializationCtor = anotherDogModel!.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+            Assert.IsNotNull(serializationCtor);
+            Assert.AreEqual(3, serializationCtor!.Signature.Parameters.Count);
+
+            // ensure both discriminators are present
+            var kindParam = serializationCtor!.Signature.Parameters.FirstOrDefault(p => p.Name == "kind");
+            Assert.IsNotNull(kindParam);
+            var otherParam = serializationCtor!.Signature.Parameters.FirstOrDefault(p => p.Name == "other");
+            Assert.IsNotNull(otherParam);
+
+            // the primary ctor should only have the model's own discriminator
+            var publicCtor = anotherDogModel.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsNotNull(publicCtor);
+            Assert.AreEqual(1, publicCtor!.Signature.Parameters.Count);
+            Assert.AreEqual("other", publicCtor.Signature.Parameters[0].Name);
         }
     }
 }

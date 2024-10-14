@@ -17,7 +17,7 @@ title: "[I] ProjectionArithmeticExpressionNode"
 | `flags` | `readonly` | [`NodeFlags`](../enumerations/NodeFlags.md) | - | - | [`BaseNode`](BaseNode.md).`flags` |
 | `kind` | `readonly` | `ProjectionArithmeticExpression` | - | [`BaseNode`](BaseNode.md).`kind` | - |
 | `left` | `readonly` | [`ProjectionExpression`](../type-aliases/ProjectionExpression.md) | - | - | - |
-| `op` | `readonly` | `"-"` \| `"/"` \| `"+"` \| `"*"` | - | - | - |
+| `op` | `readonly` | `"/"` \| `"*"` \| `"-"` \| `"+"` | - | - | - |
 | `parent?` | `readonly` | [`Node`](../type-aliases/Node.md) | - | - | [`BaseNode`](BaseNode.md).`parent` |
 | `pos` | `readonly` | `number` | The starting position of the ranger measured in UTF-16 code units from the start of the full string. Inclusive. | - | [`BaseNode`](BaseNode.md).`pos` |
 | `right` | `readonly` | [`ProjectionExpression`](../type-aliases/ProjectionExpression.md) | - | - | - |

@@ -48,7 +48,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
   fromSdkClients(
     sdkPackage.clients.filter((c) => c.initialization.access === "public"),
     inputClients,
-    []
+    [],
   );
 
   const clientModel: CodeModel = {
@@ -64,7 +64,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
   function fromSdkClients(
     clients: SdkClientType<SdkHttpOperation>[],
     inputClients: InputClient[],
-    parentClientNames: string[]
+    parentClientNames: string[],
   ) {
     for (const client of clients) {
       const inputClient = emitClient(client, parentClientNames);
@@ -80,7 +80,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
 
   function emitClient(client: SdkClientType<SdkHttpOperation>, parentNames: string[]): InputClient {
     const endpointParameter = client.initialization.properties.find(
-      (p) => p.kind === "endpoint"
+      (p) => p.kind === "endpoint",
     ) as SdkEndpointParameter;
     const uri = getMethodUri(endpointParameter);
     const clientParameters = fromSdkEndpointParameter(endpointParameter);
@@ -95,8 +95,8 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
             uri,
             rootApiVersions,
             sdkContext,
-            sdkTypeMap
-          )
+            sdkTypeMap,
+          ),
         ),
       Protocol: {},
       Parent: parentNames.length > 0 ? parentNames[parentNames.length - 1] : undefined,
@@ -107,7 +107,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
 
   function getClientName(
     client: SdkClientType<SdkHttpOperation>,
-    parentClientNames: string[]
+    parentClientNames: string[],
   ): string {
     const clientName = client.name;
 
@@ -127,9 +127,8 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
   }
 
   function fromSdkEndpointParameter(p: SdkEndpointParameter): InputParameter[] {
-    // TODO: handle SdkUnionType
     if (p.type.kind === "union") {
-      return fromSdkEndpointType(p.type.values[0] as SdkEndpointType);
+      return fromSdkEndpointType(p.type.variantTypes[0]);
     } else {
       return fromSdkEndpointType(p.type);
     }
@@ -191,8 +190,8 @@ function getMethodUri(p: SdkEndpointParameter | undefined): string {
 
   if (p.type.kind === "endpoint" && p.type.templateArguments.length > 0) return p.type.serverUrl;
 
-  if (p.type.kind === "union" && p.type.values.length > 0)
-    return (p.type.values[0] as SdkEndpointType).serverUrl;
+  if (p.type.kind === "union" && p.type.variantTypes.length > 0)
+    return (p.type.variantTypes[0] as SdkEndpointType).serverUrl;
 
   return `{${p.name}}`;
 }

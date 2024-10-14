@@ -42,7 +42,8 @@ public final class SpreadModelArrayAsyncClient {
      * Get call.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     knownProp (Required): [
      *          (Required){
@@ -55,7 +56,8 @@ public final class SpreadModelArrayAsyncClient {
      *         ]
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -74,7 +76,8 @@ public final class SpreadModelArrayAsyncClient {
      * Put operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     knownProp (Required): [
      *          (Required){
@@ -87,7 +90,8 @@ public final class SpreadModelArrayAsyncClient {
      *         ]
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param body body.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

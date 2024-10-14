@@ -25,7 +25,7 @@ describe("Test encode duration", () => {
                 input: duration
               ): NoContentResponse;
       `,
-      runner
+      runner,
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
@@ -54,7 +54,7 @@ describe("Test encode duration", () => {
                 input: duration
               ): NoContentResponse;
       `,
-      runner
+      runner,
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
@@ -83,7 +83,7 @@ describe("Test encode duration", () => {
                 input: duration
               ): NoContentResponse;
       `,
-      runner
+      runner,
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
@@ -114,7 +114,7 @@ describe("Test encode duration", () => {
 
             op test(): ISO8601DurationProperty;
       `,
-      runner
+      runner,
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
@@ -143,7 +143,7 @@ describe("Test encode duration", () => {
 
             op test(): Int32SecondsDurationProperty;
       `,
-      runner
+      runner,
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
@@ -172,7 +172,7 @@ describe("Test encode duration", () => {
 
             op test(): FloatSecondsDurationProperty;
       `,
-      runner
+      runner,
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);

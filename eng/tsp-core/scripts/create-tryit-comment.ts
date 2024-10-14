@@ -88,5 +88,8 @@ async function request(method: string, url: string, data: any): Promise<string> 
     body: data.body,
   });
 
+  if (!response.ok) {
+    throw new Error(`Request failed: ${response.statusText}\n\n` + (await response.text()));
+  }
   return response.text();
 }

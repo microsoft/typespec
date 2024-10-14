@@ -3,10 +3,6 @@
 
 package com.type.property.additionalproperties;
 
-import com.type.property.additionalproperties.models.ExtendsUnknownAdditionalPropertiesDiscriminated;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import com.type.property.additionalproperties.models.DifferentSpreadFloatDerived;
 import com.type.property.additionalproperties.models.DifferentSpreadModelArrayDerived;
 import com.type.property.additionalproperties.models.DifferentSpreadModelDerived;
@@ -17,26 +13,39 @@ import com.type.property.additionalproperties.models.ExtendsModelArrayAdditional
 import com.type.property.additionalproperties.models.ExtendsStringAdditionalProperties;
 import com.type.property.additionalproperties.models.ExtendsUnknownAdditionalProperties;
 import com.type.property.additionalproperties.models.ExtendsUnknownAdditionalPropertiesDerived;
+import com.type.property.additionalproperties.models.ExtendsUnknownAdditionalPropertiesDiscriminated;
 import com.type.property.additionalproperties.models.ExtendsUnknownAdditionalPropertiesDiscriminatedDerived;
 import com.type.property.additionalproperties.models.ModelForRecord;
-
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class ExtendsTests {
-    private final ExtendsFloatClient extendsFloatClient = new AdditionalPropertiesClientBuilder().buildExtendsFloatClient();
-    private final ExtendsModelArrayClient extendsModelArrayClient = new AdditionalPropertiesClientBuilder().buildExtendsModelArrayClient();
-    private final ExtendsModelClient extendsModelClient = new AdditionalPropertiesClientBuilder().buildExtendsModelClient();
-    private final ExtendsStringClient extendsStringClient = new AdditionalPropertiesClientBuilder().buildExtendsStringClient();
-    private final ExtendsUnknownClient extendsUnknownClient = new AdditionalPropertiesClientBuilder().buildExtendsUnknownClient();
-    private final ExtendsUnknownDerivedClient extendsUnknownDerivedClient = new AdditionalPropertiesClientBuilder().buildExtendsUnknownDerivedClient();
-    private final ExtendsUnknownDiscriminatedClient extendsUnknownDiscriminatedClient = new AdditionalPropertiesClientBuilder().buildExtendsUnknownDiscriminatedClient();
-    private final ExtendsDifferentSpreadStringClient extendsDifferentSpreadStringClient = new AdditionalPropertiesClientBuilder().buildExtendsDifferentSpreadStringClient();
-    private final ExtendsDifferentSpreadFloatClient extendsDifferentSpreadFloatClient = new AdditionalPropertiesClientBuilder().buildExtendsDifferentSpreadFloatClient();
-    private final ExtendsDifferentSpreadModelClient extendsDifferentSpreadModelClient = new AdditionalPropertiesClientBuilder().buildExtendsDifferentSpreadModelClient();
-    private final ExtendsDifferentSpreadModelArrayClient extendsDifferentSpreadModelArrayClient = new AdditionalPropertiesClientBuilder().buildExtendsDifferentSpreadModelArrayClient();
+    private final ExtendsFloatClient extendsFloatClient
+        = new AdditionalPropertiesClientBuilder().buildExtendsFloatClient();
+    private final ExtendsModelArrayClient extendsModelArrayClient
+        = new AdditionalPropertiesClientBuilder().buildExtendsModelArrayClient();
+    private final ExtendsModelClient extendsModelClient
+        = new AdditionalPropertiesClientBuilder().buildExtendsModelClient();
+    private final ExtendsStringClient extendsStringClient
+        = new AdditionalPropertiesClientBuilder().buildExtendsStringClient();
+    private final ExtendsUnknownClient extendsUnknownClient
+        = new AdditionalPropertiesClientBuilder().buildExtendsUnknownClient();
+    private final ExtendsUnknownDerivedClient extendsUnknownDerivedClient
+        = new AdditionalPropertiesClientBuilder().buildExtendsUnknownDerivedClient();
+    private final ExtendsUnknownDiscriminatedClient extendsUnknownDiscriminatedClient
+        = new AdditionalPropertiesClientBuilder().buildExtendsUnknownDiscriminatedClient();
+    private final ExtendsDifferentSpreadStringClient extendsDifferentSpreadStringClient
+        = new AdditionalPropertiesClientBuilder().buildExtendsDifferentSpreadStringClient();
+    private final ExtendsDifferentSpreadFloatClient extendsDifferentSpreadFloatClient
+        = new AdditionalPropertiesClientBuilder().buildExtendsDifferentSpreadFloatClient();
+    private final ExtendsDifferentSpreadModelClient extendsDifferentSpreadModelClient
+        = new AdditionalPropertiesClientBuilder().buildExtendsDifferentSpreadModelClient();
+    private final ExtendsDifferentSpreadModelArrayClient extendsDifferentSpreadModelArrayClient
+        = new AdditionalPropertiesClientBuilder().buildExtendsDifferentSpreadModelArrayClient();
 
     @Test
     public void testExtendsFloat() {
@@ -57,20 +66,20 @@ public class ExtendsTests {
     public void testExtendsModelArrayClient() {
         Map<String, List<ModelForRecord>> propertyMap = new LinkedHashMap<>();
         propertyMap.put("prop", Arrays.asList(new ModelForRecord("ok"), new ModelForRecord("ok")));
-        ExtendsModelArrayAdditionalProperties body =
-                new ExtendsModelArrayAdditionalProperties(Arrays.asList(new ModelForRecord("ok"), new ModelForRecord("ok")));
+        ExtendsModelArrayAdditionalProperties body = new ExtendsModelArrayAdditionalProperties(
+            Arrays.asList(new ModelForRecord("ok"), new ModelForRecord("ok")));
         body.setAdditionalProperties(propertyMap);
         extendsModelArrayClient.put(body);
 
         ExtendsModelArrayAdditionalProperties properties = extendsModelArrayClient.get();
         Assertions.assertNotNull(properties);
         Assertions.assertNotNull(properties.getKnownProp());
-        properties.getKnownProp().forEach(modelForRecord ->
-                Assertions.assertEquals("ok", modelForRecord.getState()));
+        properties.getKnownProp().forEach(modelForRecord -> Assertions.assertEquals("ok", modelForRecord.getState()));
         Assertions.assertNotNull(properties.getAdditionalProperties());
         Assertions.assertNotNull(properties.getAdditionalProperties().get("prop"));
-        properties.getAdditionalProperties().get("prop").forEach(modelForRecord ->
-                Assertions.assertEquals("ok", modelForRecord.getState()));
+        properties.getAdditionalProperties()
+            .get("prop")
+            .forEach(modelForRecord -> Assertions.assertEquals("ok", modelForRecord.getState()));
     }
 
     @Test
@@ -93,9 +102,9 @@ public class ExtendsTests {
     @Test
     public void testExtendsStringClient() {
         Map<String, String> propertyMap = new LinkedHashMap<>();
-        propertyMap.put("prop", "abc") ;
-        ExtendsStringAdditionalProperties body =
-                new ExtendsStringAdditionalProperties("ExtendsStringAdditionalProperties");
+        propertyMap.put("prop", "abc");
+        ExtendsStringAdditionalProperties body
+            = new ExtendsStringAdditionalProperties("ExtendsStringAdditionalProperties");
         body.setAdditionalProperties(propertyMap);
         extendsStringClient.put(body);
 
@@ -110,10 +119,10 @@ public class ExtendsTests {
     public void testExtendsUnknownClient() {
         Map<String, Object> propertyMap = new LinkedHashMap<>();
         propertyMap.put("prop1", 32);
-        propertyMap.put("prop2", true) ;
-        propertyMap.put("prop3", "abc") ;
-        ExtendsUnknownAdditionalProperties body =
-                new ExtendsUnknownAdditionalProperties("ExtendsUnknownAdditionalProperties");
+        propertyMap.put("prop2", true);
+        propertyMap.put("prop3", "abc");
+        ExtendsUnknownAdditionalProperties body
+            = new ExtendsUnknownAdditionalProperties("ExtendsUnknownAdditionalProperties");
         body.setAdditionalProperties(propertyMap);
         extendsUnknownClient.put(body);
 
@@ -128,10 +137,10 @@ public class ExtendsTests {
     public void testExtendsUnknownDerivedClient() {
         Map<String, Object> additionalProperty = new LinkedHashMap<>();
         additionalProperty.put("prop1", 32);
-        additionalProperty.put("prop2", true) ;
-        additionalProperty.put("prop3", "abc") ;
-        ExtendsUnknownAdditionalPropertiesDerived body = new ExtendsUnknownAdditionalPropertiesDerived("ExtendsUnknownAdditionalProperties", 314)
-                .setAge(2.71875);
+        additionalProperty.put("prop2", true);
+        additionalProperty.put("prop3", "abc");
+        ExtendsUnknownAdditionalPropertiesDerived body
+            = new ExtendsUnknownAdditionalPropertiesDerived("ExtendsUnknownAdditionalProperties", 314).setAge(2.71875);
         body.setAdditionalProperties(additionalProperty);
         extendsUnknownDerivedClient.put(body);
 
@@ -146,10 +155,10 @@ public class ExtendsTests {
     public void testExtendsUnknownDiscriminatedClient() {
         Map<String, Object> additionalProperty = new LinkedHashMap<>();
         additionalProperty.put("prop1", 32);
-        additionalProperty.put("prop2", true) ;
-        additionalProperty.put("prop3", "abc") ;
-        ExtendsUnknownAdditionalPropertiesDiscriminatedDerived body = new ExtendsUnknownAdditionalPropertiesDiscriminatedDerived("Derived", 314)
-                .setAge(2.71875);
+        additionalProperty.put("prop2", true);
+        additionalProperty.put("prop3", "abc");
+        ExtendsUnknownAdditionalPropertiesDiscriminatedDerived body
+            = new ExtendsUnknownAdditionalPropertiesDiscriminatedDerived("Derived", 314).setAge(2.71875);
         body.setAdditionalProperties(additionalProperty);
         extendsUnknownDiscriminatedClient.put(body);
 
@@ -213,18 +222,19 @@ public class ExtendsTests {
     public void testExtendsDifferentSpreadModelArray() {
         Map<String, List<ModelForRecord>> propertyMap = new LinkedHashMap<>();
         propertyMap.put("prop", Arrays.asList(new ModelForRecord("ok"), new ModelForRecord("ok")));
-        DifferentSpreadModelArrayDerived body = new DifferentSpreadModelArrayDerived("abc", Arrays.asList(new ModelForRecord("ok"), new ModelForRecord("ok")));
+        DifferentSpreadModelArrayDerived body = new DifferentSpreadModelArrayDerived("abc",
+            Arrays.asList(new ModelForRecord("ok"), new ModelForRecord("ok")));
         body.setAdditionalProperties(propertyMap);
         extendsDifferentSpreadModelArrayClient.put(body);
 
         DifferentSpreadModelArrayDerived record = extendsDifferentSpreadModelArrayClient.get();
         Assertions.assertNotNull(record);
         Assertions.assertNotNull(record.getDerivedProp());
-        record.getDerivedProp().forEach(modelForRecord ->
-                Assertions.assertEquals("ok", modelForRecord.getState()));
+        record.getDerivedProp().forEach(modelForRecord -> Assertions.assertEquals("ok", modelForRecord.getState()));
         Assertions.assertNotNull(record.getAdditionalProperties());
         Assertions.assertNotNull(record.getAdditionalProperties().get("prop"));
-        record.getAdditionalProperties().get("prop").forEach(modelForRecord ->
-                Assertions.assertEquals("ok", modelForRecord.getState()));
+        record.getAdditionalProperties()
+            .get("prop")
+            .forEach(modelForRecord -> Assertions.assertEquals("ok", modelForRecord.getState()));
     }
 }

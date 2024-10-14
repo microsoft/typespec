@@ -4,7 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.SourceInput;
 using Microsoft.Generator.CSharp.Statements;
@@ -13,17 +16,17 @@ namespace Microsoft.Generator.CSharp.Providers
 {
     public abstract class TypeProvider
     {
-        private Lazy<TypeProvider?> _customCodeView;
+        private Lazy<NamedTypeSymbolProvider?> _customCodeView;
 
         protected TypeProvider()
         {
             _customCodeView = new(GetCustomCodeView);
         }
 
-        private protected virtual TypeProvider? GetCustomCodeView()
+        private protected virtual NamedTypeSymbolProvider? GetCustomCodeView()
             => CodeModelPlugin.Instance.SourceInputModel.FindForType(GetNamespace(), BuildName());
 
-        public TypeProvider? CustomCodeView => _customCodeView.Value;
+        public NamedTypeSymbolProvider? CustomCodeView => _customCodeView.Value;
 
         protected string? _deprecated;
 
@@ -79,9 +82,15 @@ namespace Microsoft.Generator.CSharp.Providers
         }
 
         protected virtual TypeSignatureModifiers GetDeclarationModifiers() => TypeSignatureModifiers.None;
+
         private TypeSignatureModifiers GetDeclarationModifiersInternal()
         {
             var modifiers = GetDeclarationModifiers();
+            var customModifiers = CustomCodeView?.DeclarationModifiers ?? TypeSignatureModifiers.None;
+            if (customModifiers != TypeSignatureModifiers.None)
+            {
+                modifiers |= customModifiers;
+            }
             // we default to public when no accessibility modifier is provided
             if (!modifiers.HasFlag(TypeSignatureModifiers.Internal) && !modifiers.HasFlag(TypeSignatureModifiers.Public) && !modifiers.HasFlag(TypeSignatureModifiers.Private))
             {
@@ -99,7 +108,7 @@ namespace Microsoft.Generator.CSharp.Providers
             // mask & (mask - 1) gives us 0 if mask is a power of 2, it means we have exactly one flag of above when the mask is a power of 2
             if ((mask & (mask - 1)) != 0)
             {
-                throw new InvalidOperationException($"Invalid modifier {modifiers} on TypeProvider {Type.Namespace}.{Name}");
+                throw new InvalidOperationException($"Invalid modifier {modifiers} on TypeProvider {Name}");
             }
 
             // we always add partial when possible
@@ -110,6 +119,8 @@ namespace Microsoft.Generator.CSharp.Providers
 
             return modifiers;
         }
+
+        internal virtual TypeProvider? BaseTypeProvider => null;
 
         protected virtual CSharpType? GetBaseType() => null;
 
@@ -122,14 +133,14 @@ namespace Microsoft.Generator.CSharp.Providers
         public IReadOnlyList<CSharpType> Implements => _implements ??= BuildImplements();
 
         private IReadOnlyList<PropertyProvider>? _properties;
-        public IReadOnlyList<PropertyProvider> Properties => _properties ??= BuildProperties();
+        public IReadOnlyList<PropertyProvider> Properties => _properties ??= BuildPropertiesInternal();
 
         private IReadOnlyList<MethodProvider>? _methods;
-        public IReadOnlyList<MethodProvider> Methods => _methods ??= BuildMethods();
+        public IReadOnlyList<MethodProvider> Methods => _methods ??= BuildMethodsInternal();
 
         private IReadOnlyList<ConstructorProvider>? _constructors;
 
-        public IReadOnlyList<ConstructorProvider> Constructors => _constructors ??= BuildConstructors();
+        public IReadOnlyList<ConstructorProvider> Constructors => _constructors ??= BuildConstructorsInternal();
 
         private IReadOnlyList<FieldProvider>? _fields;
         public IReadOnlyList<FieldProvider> Fields => _fields ??= BuildFields();
@@ -146,24 +157,103 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected virtual CSharpType[] GetTypeArguments() => [];
 
-        protected virtual PropertyProvider[] BuildProperties() => [];
-
-        private HashSet<string> BuildPropertyNames()
+        private PropertyProvider[] BuildPropertiesInternal()
         {
-            var propertyNames = new HashSet<string>();
-            foreach (var property in Properties)
+            var properties = new List<PropertyProvider>();
+            var customProperties = new Dictionary<string, PropertyProvider>();
+            var renamedProperties = new Dictionary<string, PropertyProvider>();
+            var allCustomProperties = CustomCodeView?.Properties != null
+                ? new List<PropertyProvider>(CustomCodeView.Properties)
+                : [];
+            var baseTypeCustomCodeView = BaseTypeProvider?.CustomCodeView;
+
+            // add all custom properties from base types
+            while (baseTypeCustomCodeView != null)
             {
-                propertyNames.Add(property.Name);
-                foreach (var attribute in property.Attributes ?? [])
+                allCustomProperties.AddRange(baseTypeCustomCodeView.Properties);
+                baseTypeCustomCodeView = baseTypeCustomCodeView.BaseTypeProvider?.CustomCodeView;
+            }
+
+            foreach (var customProperty in allCustomProperties)
+            {
+                customProperties.Add(customProperty.Name, customProperty);
+                bool isRenamedProperty = false;
+
+                foreach (var attribute in customProperty.Attributes ?? [])
                 {
-                    if (CodeGenAttributes.TryGetCodeGenMemberAttributeValue(attribute, out var name))
+                    if (CodeGenAttributes.TryGetCodeGenMemberAttributeValue(attribute, out var originalName))
                     {
-                        propertyNames.Add(name);
+                        renamedProperties.Add(originalName, customProperty);
+                        isRenamedProperty = true;
+                    }
+                }
+
+                // Handle custom serializable properties
+                if (!isRenamedProperty && customProperty.WireInfo == null)
+                {
+                    foreach (var attribute in GetCodeGenSerializationAttributes())
+                    {
+                        if (CodeGenAttributes.TryGetCodeGenSerializationAttributeValue(
+                            attribute,
+                            out var propertyName,
+                            out string? serializationName,
+                            out _,
+                            out _,
+                            out _) && propertyName == customProperty.Name)
+                        {
+                            customProperty.WireInfo = new(
+                                SerializationFormat.Default,
+                                false,
+                                !customProperty.Body.HasSetter,
+                                customProperty.Type.IsNullable,
+                                false,
+                                serializationName ?? customProperty.Name.ToVariableName());
+                            break;
+                        }
                     }
                 }
             }
-            return propertyNames;
+
+            foreach (var property in BuildProperties())
+            {
+                if (ShouldGenerate(property, customProperties, renamedProperties))
+                {
+                    properties.Add(property);
+                }
+            }
+
+            return properties.ToArray();
         }
+
+        private MethodProvider[] BuildMethodsInternal()
+        {
+            var methods = new List<MethodProvider>();
+            foreach (var method in BuildMethods())
+            {
+                if (ShouldGenerate(method))
+                {
+                    methods.Add(method);
+                }
+            }
+
+            return methods.ToArray();
+        }
+
+        private ConstructorProvider[] BuildConstructorsInternal()
+        {
+            var constructors = new List<ConstructorProvider>();
+            foreach (var constructor in BuildConstructors())
+            {
+                if (ShouldGenerate(constructor))
+                {
+                    constructors.Add(constructor);
+                }
+            }
+
+            return constructors.ToArray();
+        }
+
+        protected virtual PropertyProvider[] BuildProperties() => [];
 
         protected virtual FieldProvider[] BuildFields() => [];
 
@@ -260,5 +350,227 @@ namespace Microsoft.Generator.CSharp.Providers
         }
 
         private IReadOnlyList<EnumTypeMember>? _enumValues;
+
+        private bool ShouldGenerate(ConstructorProvider constructor)
+        {
+            foreach (var attribute in GetMemberSuppressionAttributes())
+            {
+                if (IsMatch(constructor.EnclosingType, constructor.Signature, attribute))
+                {
+                    return false;
+                }
+            }
+
+            var customConstructors = constructor.EnclosingType.CustomCodeView?.Constructors ?? [];
+            foreach (var customConstructor in customConstructors)
+            {
+                if (IsMatch(customConstructor.Signature, constructor.Signature))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private bool ShouldGenerate(MethodProvider method)
+        {
+            foreach (var attribute in GetMemberSuppressionAttributes())
+            {
+                if (IsMatch(method.EnclosingType, method.Signature, attribute))
+                {
+                    return false;
+                }
+            }
+
+            var customMethods = method.EnclosingType.CustomCodeView?.Methods ?? [];
+            foreach (var customMethod in customMethods)
+            {
+                if (IsMatch(customMethod.Signature, method.Signature))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private bool ShouldGenerate(PropertyProvider property, IDictionary<string, PropertyProvider> customProperties, IDictionary<string, PropertyProvider> renamedProperties)
+        {
+            foreach (var attribute in GetMemberSuppressionAttributes())
+            {
+                if (IsMatch(property, attribute))
+                {
+                    return false;
+                }
+            }
+
+            string? serializedName = null;
+            if (property.WireInfo != null)
+            {
+                bool containsRenamedProperty = renamedProperties.TryGetValue(property.Name, out PropertyProvider? renamedProp);
+                foreach (var attribute in GetCodeGenSerializationAttributes())
+                {
+                    if (CodeGenAttributes.TryGetCodeGenSerializationAttributeValue(
+                        attribute,
+                        out var propertyName,
+                        out string? serializationName,
+                        out _,
+                        out _,
+                        out _) && serializationName != null)
+                    {
+                        if (propertyName == property.Name
+                            || (containsRenamedProperty && renamedProp != null && propertyName == renamedProp.Name))
+                        {
+                            serializedName = serializationName;
+                            break;
+                        }
+                    }
+                }
+
+                // replace original property serialization name.
+                if (serializedName != null)
+                {
+                    property.WireInfo.SerializedName = serializedName;
+                }
+            }
+
+            if (renamedProperties.TryGetValue(property.Name, out PropertyProvider? customProp) ||
+                customProperties.TryGetValue(property.Name, out customProp))
+            {
+                // Store the wire info on the custom property so that we can use it for serialization.
+                // The custom property that has the CodeGenMemberAttribute stored in renamedProperties should take precedence.
+                customProp.WireInfo = property.WireInfo;
+                customProp.BaseProperty = property.BaseProperty;
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool IsMatch(PropertyProvider propertyProvider, AttributeData attribute)
+        {
+            ValidateArguments(propertyProvider.EnclosingType, attribute);
+            var name = attribute.ConstructorArguments[0].Value as string;
+            return name == propertyProvider.Name;
+        }
+
+        private static bool IsMatch(TypeProvider enclosingType, MethodSignatureBase signature, AttributeData attribute)
+        {
+            ValidateArguments(enclosingType, attribute);
+            var name = attribute.ConstructorArguments[0].Value as string;
+            if (name != signature.Name)
+            {
+                return false;
+            }
+
+            ISymbol?[]? parameterTypes;
+            if (attribute.ConstructorArguments.Length == 1)
+            {
+                parameterTypes = [];
+            }
+            else if (attribute.ConstructorArguments[1].Kind != TypedConstantKind.Array)
+            {
+                parameterTypes = attribute.ConstructorArguments[1..].Select(a => (ISymbol?) a.Value).ToArray();
+            }
+            else
+            {
+                parameterTypes = attribute.ConstructorArguments[1].Values.Select(v => (ISymbol?)v.Value).ToArray();
+            }
+            if (parameterTypes.Length != signature.Parameters.Count)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < parameterTypes.Length; i++)
+            {
+                var parameterType = ((ITypeSymbol)parameterTypes[i]!).GetCSharpType();
+                // we ignore nullability for reference types as these are generated the same regardless of nullability
+                // TODO - switch to using CSharpType.Equals once https://github.com/microsoft/typespec/issues/4624 is fixed.
+                if (parameterType.Name != signature.Parameters[i].Type.Name ||
+                    (parameterType.IsValueType && parameterType.IsNullable != signature.Parameters[i].Type.IsNullable))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private static bool IsMatch(MethodSignatureBase customMethod, MethodSignatureBase method)
+        {
+            if (customMethod.Parameters.Count != method.Parameters.Count || !customMethod.Name.EndsWith(method.Name))
+            {
+                return false;
+            }
+
+            for (int i = 0; i < customMethod.Parameters.Count; i++)
+            {
+                if (!customMethod.Parameters[i].Type.Name.EndsWith(method.Parameters[i].Type.Name))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private static void ValidateArguments(TypeProvider type, AttributeData attributeData)
+        {
+            var arguments = attributeData.ConstructorArguments;
+            if (arguments.Length == 0)
+            {
+                throw new InvalidOperationException($"CodeGenSuppress attribute on {type.Name} must specify a method, constructor, or property name as its first argument.");
+            }
+
+            if (arguments[0].Kind != TypedConstantKind.Primitive || arguments[0].Value is not string)
+            {
+                var attribute = GetText(attributeData.ApplicationSyntaxReference);
+                throw new InvalidOperationException($"{attribute} attribute on {type.Name} must specify a method, constructor, or property name as its first argument.");
+            }
+
+            if (arguments.Length == 2 && arguments[1].Kind == TypedConstantKind.Array)
+            {
+                ValidateTypeArguments(type, attributeData, arguments[1].Values);
+            }
+            else
+            {
+                ValidateTypeArguments(type, attributeData, arguments.Skip(1));
+            }
+        }
+
+        private static void ValidateTypeArguments(TypeProvider type, AttributeData attributeData, IEnumerable<TypedConstant> arguments)
+        {
+            foreach (var argument in arguments)
+            {
+                if (argument.Kind == TypedConstantKind.Type)
+                {
+                    if (argument.Value is IErrorTypeSymbol errorType)
+                    {
+                        var attribute = GetText(attributeData.ApplicationSyntaxReference);
+                        var fileLinePosition = GetFileLinePosition(attributeData.ApplicationSyntaxReference);
+                        var filePath = fileLinePosition.Path;
+                        var line = fileLinePosition.StartLinePosition.Line + 1;
+                        throw new InvalidOperationException($"The undefined type '{errorType.Name}' is referenced in the '{attribute}' attribute ({filePath}, line: {line}). Please define this type or remove it from the attribute.");
+                    }
+                }
+                else
+                {
+                    var attribute = GetText(attributeData.ApplicationSyntaxReference);
+                    throw new InvalidOperationException($"Argument '{argument.ToCSharpString()}' in attribute '{attribute}' applied to '{type.Name}' must be a type.");
+                }
+            }
+        }
+
+        private static string GetText(SyntaxReference? syntaxReference)
+            => syntaxReference?.SyntaxTree.GetText().ToString(syntaxReference.Span) ?? string.Empty;
+
+        private static FileLinePositionSpan GetFileLinePosition(SyntaxReference? syntaxReference)
+            => syntaxReference?.SyntaxTree.GetLocation(syntaxReference.Span).GetLineSpan() ?? default;
+
+        private IEnumerable<AttributeData> GetMemberSuppressionAttributes()
+            => CustomCodeView?.GetAttributes()?.Where(a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenSuppressAttributeName) ?? [];
+        private IEnumerable<AttributeData> GetCodeGenSerializationAttributes()
+            => CustomCodeView?.GetAttributes()?.Where(a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenSerializationAttributeName) ?? [];
     }
 }

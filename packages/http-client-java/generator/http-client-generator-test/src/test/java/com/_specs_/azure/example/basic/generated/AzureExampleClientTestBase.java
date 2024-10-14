@@ -10,7 +10,6 @@ package com._specs_.azure.example.basic.generated;
 
 import com._specs_.azure.example.basic.AzureExampleClient;
 import com._specs_.azure.example.basic.AzureExampleClientBuilder;
-import com.azure.core.http.HttpClient;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.test.TestMode;
@@ -24,11 +23,9 @@ class AzureExampleClientTestBase extends TestProxyTestBase {
     protected void beforeTest() {
         AzureExampleClientBuilder azureExampleClientbuilder = new AzureExampleClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            azureExampleClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             azureExampleClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         azureExampleClient = azureExampleClientbuilder.buildClient();

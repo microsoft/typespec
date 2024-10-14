@@ -6,7 +6,7 @@ const refTargetsKey = createStateSymbol("refs");
 export const $useRef: UseRefDecorator = (
   context: DecoratorContext,
   entity: Model | ModelProperty,
-  refUrl: string
+  refUrl: string,
 ) => {
   context.program.stateMap(refTargetsKey).set(entity, refUrl);
 };
@@ -18,7 +18,7 @@ export function getRef(program: Program, entity: Type): string | undefined {
 const oneOfKey = createStateSymbol("oneOf");
 export const $oneOf: OneOfDecorator = (
   context: DecoratorContext,
-  entity: Union | ModelProperty
+  entity: Union | ModelProperty,
 ) => {
   if (entity.kind === "ModelProperty" && entity.type.kind !== "Union") {
     reportDiagnostic(context.program, {

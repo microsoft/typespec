@@ -24,11 +24,8 @@ namespace Microsoft.Generator.CSharp
         private Dictionary<EnumCacheKey, TypeProvider?>? _enumCache;
         private Dictionary<EnumCacheKey, TypeProvider?> EnumCache => _enumCache ??= [];
 
-        private Dictionary<InputType, CSharpType>? _typeCache;
-        private Dictionary<InputType, CSharpType> TypeCache => _typeCache ??= [];
-
-        private HashSet<InputType>? _nullTypes;
-        private HashSet<InputType> NullTypes => _nullTypes ??= [];
+        private Dictionary<InputType, CSharpType?>? _typeCache;
+        private Dictionary<InputType, CSharpType?> TypeCache => _typeCache ??= [];
 
         private Dictionary<InputModelProperty, PropertyProvider?>? _propertyCache;
         private Dictionary<InputModelProperty, PropertyProvider?> PropertyCache => _propertyCache ??= [];
@@ -46,22 +43,17 @@ namespace Microsoft.Generator.CSharp
 
         public CSharpType? CreateCSharpType(InputType inputType)
         {
-            if (NullTypes.Contains(inputType))
+            if (TypeCache.TryGetValue(inputType, out var type))
             {
-                return null;
+                return type;
             }
 
-            CSharpType? type = CreateCSharpTypeCore(inputType);
-
-            if (type == null)
-            {
-                NullTypes.Add(inputType);
-            }
-
+            type = CreateCSharpTypeCore(inputType);
+            TypeCache.Add(inputType, type);
             return type;
         }
 
-        private protected virtual CSharpType? CreateCSharpTypeCore(InputType inputType)
+        protected virtual CSharpType? CreateCSharpTypeCore(InputType inputType)
         {
             CSharpType? type;
             switch (inputType)
@@ -101,20 +93,10 @@ namespace Microsoft.Generator.CSharp
                     type = CreateCSharpType(nullableType.Type)?.WithNullable(true);
                     break;
                 default:
-                    type = CreatePrimitiveCSharpType(inputType);
+                    type = CreatePrimitiveCSharpTypeCore(inputType);
                     break;
             }
 
-            return type;
-        }
-
-        internal CSharpType CreatePrimitiveCSharpType(InputType inputType)
-        {
-            if (TypeCache.TryGetValue(inputType, out var type))
-                return type;
-
-            type = CreatePrimitiveCSharpTypeCore(inputType);
-            TypeCache.Add(inputType, type);
             return type;
         }
 
@@ -146,7 +128,7 @@ namespace Microsoft.Generator.CSharp
                 InputPrimitiveTypeKind.Stream => new CSharpType(typeof(Stream)),
                 InputPrimitiveTypeKind.String => new CSharpType(typeof(string)),
                 InputPrimitiveTypeKind.Url => new CSharpType(typeof(Uri)),
-                InputPrimitiveTypeKind.Any => new CSharpType(typeof(BinaryData)),
+                InputPrimitiveTypeKind.Unknown => new CSharpType(typeof(BinaryData)),
                 _ => new CSharpType(typeof(object)),
             },
             InputDateTimeType dateTimeType => new CSharpType(typeof(DateTimeOffset)),
@@ -300,6 +282,7 @@ namespace Microsoft.Generator.CSharp
                 {
                     BytesKnownEncoding.Base64 => SerializationFormat.Bytes_Base64,
                     BytesKnownEncoding.Base64Url => SerializationFormat.Bytes_Base64Url,
+                    null => SerializationFormat.Default,
                     _ => throw new IndexOutOfRangeException($"unknown encode {primitiveType.Encode}")
                 },
                 InputPrimitiveTypeKind.Integer or InputPrimitiveTypeKind.Int8 or InputPrimitiveTypeKind.Int16 or InputPrimitiveTypeKind.Int32

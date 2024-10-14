@@ -16,7 +16,9 @@ import com.microsoft.typespec.http.client.generator.core.mapper.ServiceClientMap
 public class AndroidMapperFactory extends DefaultMapperFactory {
 
     @Override
-    public PrimitiveMapper getPrimitiveMapper() { return AndroidPrimitiveMapper.getInstance(); }
+    public PrimitiveMapper getPrimitiveMapper() {
+        return AndroidPrimitiveMapper.getInstance();
+    }
 
     @Override
     public ClientMethodMapper getClientMethodMapper() {

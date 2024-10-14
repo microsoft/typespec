@@ -47,7 +47,7 @@ describe("compiler: entrypoints", () => {
       });
       expectDiagnostics(program.diagnostics, {
         code: "library-invalid",
-        message: `Library "my-lib" has an invalid tspMain file.`,
+        message: `Library "my-lib" is invalid: Package @typespec/my-lib main file "not-a-file.tsp" is not pointing to a valid file or directory.`,
       });
     });
 
@@ -57,7 +57,7 @@ describe("compiler: entrypoints", () => {
       });
       expectDiagnostics(program.diagnostics, {
         code: "library-invalid",
-        message: `Library "my-lib" has an invalid main file.`,
+        message: `Library "my-lib" is invalid: Package @typespec/my-lib main file "not-a-file.js" is not pointing to a valid file or directory.`,
       });
     });
 
@@ -83,8 +83,8 @@ describe("compiler: entrypoints", () => {
             `Please file an issue at https://github.com/microsoft/my-emitter/issues`,
             ``,
             `Error: This is bad`,
-          ].join("\n")
-        )
+          ].join("\n"),
+        ),
       );
     });
 
@@ -97,8 +97,8 @@ describe("compiler: entrypoints", () => {
             `Please file an issue at https://github.com/microsoft/my-validator/issues`,
             ``,
             `Error: This is bad`,
-          ].join("\n")
-        )
+          ].join("\n"),
+        ),
       );
     });
 

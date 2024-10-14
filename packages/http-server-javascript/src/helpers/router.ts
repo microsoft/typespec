@@ -25,7 +25,7 @@ export interface Policy {
   (
     request: http.IncomingMessage,
     response: http.ServerResponse,
-    next: (request?: http.IncomingMessage) => void
+    next: (request?: http.IncomingMessage) => void,
   ): void;
 }
 
@@ -55,7 +55,7 @@ export function createPolicyChain<
     ctx: HttpContext,
     request: http.IncomingMessage,
     response: http.ServerResponse,
-    index: number
+    index: number,
   ) {
     if (index >= policies.length) {
       return out(ctx, request, response, ...outParams);
@@ -124,7 +124,7 @@ export function createPolicyChainForRoute<
   routePolicies: RoutePolicies<RouteConfig>,
   interfaceName: InterfaceName,
   methodName: keyof RouteConfig[InterfaceName],
-  out: Out
+  out: Out,
 ): Out {
   return createPolicyChain(
     name,
@@ -133,7 +133,7 @@ export function createPolicyChainForRoute<
       ...(routePolicies[interfaceName]?.methodPolicies?.[methodName] ?? []),
       ...(routePolicies[interfaceName]?.after ?? []),
     ],
-    out
+    out,
   );
 }
 
@@ -210,7 +210,7 @@ export interface RouterOptions<
     request: http.IncomingMessage,
     response: http.ServerResponse,
     route: string,
-    error: ValidationError
+    error: ValidationError,
   ) => void;
 
   /**
@@ -230,7 +230,7 @@ export interface RouterOptions<
   onInternalError?(
     error: unknown,
     request: http.IncomingMessage,
-    response: http.ServerResponse
+    response: http.ServerResponse,
   ): void;
 }
 

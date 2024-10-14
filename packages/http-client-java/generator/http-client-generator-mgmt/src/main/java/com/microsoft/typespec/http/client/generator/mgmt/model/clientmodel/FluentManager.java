@@ -3,13 +3,12 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel;
 
+import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
-import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Client;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
-import com.azure.core.util.CoreUtils;
-
+import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,10 +32,9 @@ public class FluentManager {
 
         this.serviceName = FluentUtils.getServiceName(clientName);
 
-        this.type = new ClassType.Builder()
-                .packageName(settings.getPackage())
-                .name(CodeNamer.toPascalCase(this.serviceName) + "Manager")
-                .build();
+        this.type = new ClassType.Builder().packageName(settings.getPackage())
+            .name(CodeNamer.toPascalCase(this.serviceName) + "Manager")
+            .build();
     }
 
     public Client getClient() {

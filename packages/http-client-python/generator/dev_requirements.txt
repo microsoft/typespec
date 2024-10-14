@@ -1,0 +1,13 @@
+-e ./generator
+pyright==1.1.375
+pylint==3.2.6
+tox==4.16.0
+mypy==1.10.1
+azure-pylint-guidelines-checker==0.0.8
+colorama==0.4.6
+debugpy==1.8.2
+pytest==8.3.2
+coverage==7.6.1
+black==24.8.0
+ptvsd==4.3.2
+types-PyYAML==6.0.12.8

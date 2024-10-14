@@ -6,7 +6,7 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 
-namespace sample.namespace
+namespace Sample
 {
     /// <summary></summary>
     public partial class TestClient
@@ -17,10 +17,10 @@ namespace sample.namespace
             message.ResponseClassifier = PipelineMessageClassifier200;
             global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Method = "GET";
-            global::sample.namespace.ClientUriBuilder uri = new global::sample.namespace.ClientUriBuilder();
+            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
             uri.Reset(_endpoint);
             request.Uri = uri.ToUri();
-            request.Headers.Set("repeatability-first-sent", global::sample.namespace.TypeFormatters.ConvertToString(global::System.DateTimeOffset.Now, "R"));
+            request.Headers.Set("repeatability-first-sent", global::Sample.TypeFormatters.ConvertToString(global::System.DateTimeOffset.Now, "R"));
             request.Headers.Set("repeatability-request-ID", global::System.Guid.NewGuid().ToString());
             request.Content = content;
             message.Apply(options);

@@ -1,0 +1,8 @@
+include *.md
+include LICENSE
+include {{ package_name.replace('-', '/') }}/py.typed
+recursive-include tests *.py
+recursive-include samples *.py *.md
+{%- for init_name in init_names %}
+include {{ init_name }}
+{%- endfor %}

@@ -70,7 +70,7 @@ export type BodyDecorator = (context: DecoratorContext, target: ModelProperty) =
 export type HeaderDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
-  headerNameOrOptions?: Type
+  headerNameOrOptions?: Type,
 ) => void;
 
 /**
@@ -86,7 +86,7 @@ export type HeaderDecorator = (
 export type QueryDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
-  queryNameOrOptions?: string | QueryOptions
+  queryNameOrOptions?: string | QueryOptions,
 ) => void;
 
 /**
@@ -102,7 +102,7 @@ export type QueryDecorator = (
 export type PathDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
-  paramNameOrOptions?: string | PathOptions
+  paramNameOrOptions?: string | PathOptions,
 ) => void;
 
 /**
@@ -241,7 +241,7 @@ export type ServerDecorator = (
   target: Namespace,
   url: string,
   description: string,
-  parameters?: Type
+  parameters?: Type,
 ) => void;
 
 /**
@@ -258,7 +258,7 @@ export type ServerDecorator = (
 export type UseAuthDecorator = (
   context: DecoratorContext,
   target: Namespace | Interface | Operation,
-  auth: Type
+  auth: Type,
 ) => void;
 
 /**
@@ -269,7 +269,7 @@ export type UseAuthDecorator = (
 export type IncludeInapplicableMetadataInPayloadDecorator = (
   context: DecoratorContext,
   target: Type,
-  value: boolean
+  value: boolean,
 ) => void;
 
 /**
@@ -298,7 +298,7 @@ export type RouteDecorator = (
   context: DecoratorContext,
   target: Namespace | Interface | Operation,
   path: string,
-  options?: Type
+  options?: Type,
 ) => void;
 
 /**

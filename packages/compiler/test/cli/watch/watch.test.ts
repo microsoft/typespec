@@ -40,7 +40,7 @@ class FixtureFS {
         this.#delayTimers.push(
           setTimeout(() => {
             fn().then(resolve).catch(reject);
-          }, delay)
+          }, delay),
         );
       });
     } else {

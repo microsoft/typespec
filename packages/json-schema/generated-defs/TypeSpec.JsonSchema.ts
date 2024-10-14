@@ -20,7 +20,7 @@ import type {
 export type JsonSchemaDecorator = (
   context: DecoratorContext,
   target: Type,
-  baseUri?: string
+  baseUri?: string,
 ) => void;
 
 /**
@@ -31,7 +31,7 @@ export type JsonSchemaDecorator = (
 export type BaseUriDecorator = (
   context: DecoratorContext,
   target: Namespace,
-  baseUri: string
+  baseUri: string,
 ) => void;
 
 /**
@@ -57,7 +57,7 @@ export type OneOfDecorator = (context: DecoratorContext, target: Union | ModelPr
 export type MultipleOfDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  value: Numeric
+  value: Numeric,
 ) => void;
 
 /**
@@ -69,7 +69,7 @@ export type MultipleOfDecorator = (
 export type ContainsDecorator = (
   context: DecoratorContext,
   target: Type | ModelProperty,
-  value: Type
+  value: Type,
 ) => void;
 
 /**
@@ -81,7 +81,7 @@ export type ContainsDecorator = (
 export type MinContainsDecorator = (
   context: DecoratorContext,
   target: Type | ModelProperty,
-  value: number
+  value: number,
 ) => void;
 
 /**
@@ -93,7 +93,7 @@ export type MinContainsDecorator = (
 export type MaxContainsDecorator = (
   context: DecoratorContext,
   target: Type | ModelProperty,
-  value: number
+  value: number,
 ) => void;
 
 /**
@@ -101,7 +101,7 @@ export type MaxContainsDecorator = (
  */
 export type UniqueItemsDecorator = (
   context: DecoratorContext,
-  target: Type | ModelProperty
+  target: Type | ModelProperty,
 ) => void;
 
 /**
@@ -112,7 +112,7 @@ export type UniqueItemsDecorator = (
 export type MinPropertiesDecorator = (
   context: DecoratorContext,
   target: Type | ModelProperty,
-  value: number
+  value: number,
 ) => void;
 
 /**
@@ -123,7 +123,7 @@ export type MinPropertiesDecorator = (
 export type MaxPropertiesDecorator = (
   context: DecoratorContext,
   target: Type | ModelProperty,
-  value: number
+  value: number,
 ) => void;
 
 /**
@@ -136,7 +136,7 @@ export type MaxPropertiesDecorator = (
 export type ContentEncodingDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  value: string
+  value: string,
 ) => void;
 
 /**
@@ -147,7 +147,7 @@ export type ContentEncodingDecorator = (
 export type PrefixItemsDecorator = (
   context: DecoratorContext,
   target: Type | ModelProperty,
-  value: Type
+  value: Type,
 ) => void;
 
 /**
@@ -158,7 +158,7 @@ export type PrefixItemsDecorator = (
 export type ContentMediaTypeDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  value: string
+  value: string,
 ) => void;
 
 /**
@@ -170,7 +170,7 @@ export type ContentMediaTypeDecorator = (
 export type ContentSchemaDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  value: Type
+  value: Type,
 ) => void;
 
 /**
@@ -196,7 +196,7 @@ export type ExtensionDecorator = (
   context: DecoratorContext,
   target: Type,
   key: string,
-  value: Type | unknown
+  value: Type | unknown,
 ) => void;
 
 export type TypeSpecJsonSchemaDecorators = {

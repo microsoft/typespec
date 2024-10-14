@@ -112,9 +112,7 @@ export const $lib = createTypeSpecLibrary({
   },
 } as const);
 
-export const $flags = definePackageFlags({
-  decoratorArgMarshalling: "new",
-});
+export const $flags = definePackageFlags({});
 
 export const { reportDiagnostic, createStateSymbol } = $lib;
 

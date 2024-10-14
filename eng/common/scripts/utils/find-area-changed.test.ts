@@ -28,6 +28,16 @@ describe("paths that should trigger Java CI", () => {
   });
 });
 
+describe("paths that should trigger python CI", () => {
+  it.each([
+    ["packages/http-client-python/emitter/src/emitter.ts"],
+    ["packages/http-client-python/package.json"],
+  ])("%s", (...paths) => {
+    const areas = findAreasChanged(paths);
+    expect(areas).toEqual(["Python"]);
+  });
+});
+
 describe("paths that should trigger Core CI", () => {
   it.each([
     "packages/compiler/package.json",
@@ -45,7 +55,7 @@ describe("paths that should trigger all isolated packages", () => {
     "eng/emitters/pipelines/templates/jobs/test-job.yml",
   ])("%s", (path) => {
     const areas = findAreasChanged([path]);
-    expect(areas).toEqual(["CSharp", "Java"]);
+    expect(areas).toEqual(["CSharp", "Java", "Python"]);
   });
 });
 
@@ -53,26 +63,28 @@ it("Should return a combination of core and isolated packages", () => {
   const areas = findAreasChanged([
     "packages/http-client-csharp/src/constants.ts",
     "packages/http-client-java/src/emitter.ts",
+    "packages/http-client-python/src/emitter.ts",
     "packages/compiler/package.json",
   ]);
-  expect(areas).toEqual(["CSharp", "Java", "Core"]);
+  expect(areas).toEqual(["CSharp", "Java", "Python", "Core"]);
 });
 
 it("Should return CSharp, Core and Java if .editorconfig is changed", () => {
   const areas = findAreasChanged([".editorconfig"]);
-  expect(areas).toEqual(["CSharp", "Java", "Core"]);
+  expect(areas).toEqual(["CSharp", "Java", "Python", "Core"]);
 });
 
-it("Should not return Core for .prettierignore, .prettierrc.json, cspell.yaml, esling.config.json", () => {
+it("Should not return Core for .prettierignore, .prettierrc.json, cspell.yaml, eslint.config.json", () => {
   const areas = findAreasChanged([
     ".prettierignore",
     ".prettierrc.json",
     "cspell.yaml",
-    "esling.config.json",
+    "eslint.config.json",
     "packages/http-client-csharp/emitter/src/constants.ts",
     "packages/http-client-java/emitter/src/emitter.ts",
+    "packages/http-client-python/emitter/src/emitter.ts",
   ]);
-  expect(areas).toEqual(["CSharp", "Java"]);
+  expect(areas).toEqual(["CSharp", "Java", "Python"]);
 });
 
 it("should return Core for random files at the root", () => {

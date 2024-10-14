@@ -4,13 +4,12 @@
 package com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.examplemodel;
 
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
-import com.microsoft.typespec.http.client.generator.mgmt.model.FluentType;
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.ModelNaming;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodGroupClient;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
-
+import com.microsoft.typespec.http.client.generator.mgmt.model.FluentType;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.ModelNaming;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,8 +27,8 @@ public class FluentClientMethodExample implements FluentMethodExample {
     private final ClientMethod clientMethod;
     private final List<ParameterExample> parameters = new ArrayList<>();
 
-    public FluentClientMethodExample(String name, String originalFileName,
-                                     MethodGroupClient methodGroup, ClientMethod clientMethod) {
+    public FluentClientMethodExample(String name, String originalFileName, MethodGroupClient methodGroup,
+        ClientMethod clientMethod) {
         this.name = name;
         this.originalFileName = originalFileName;
         this.methodGroup = methodGroup;
@@ -104,10 +103,12 @@ public class FluentClientMethodExample implements FluentMethodExample {
                 serviceClientReference = "resourceChangeClient()";
             } else if (tag.contains("deploymentstacks")) {
                 serviceClientReference = "deploymentStackClient()";
+            } else if (tag.contains("databoundaries")) {
+                serviceClientReference = "dataBoundaryClient()";
             }
         }
 
-        String methodGroupReference =  "get" + CodeNamer.toPascalCase(methodGroup.getVariableName()) + "()";
+        String methodGroupReference = "get" + CodeNamer.toPascalCase(methodGroup.getVariableName()) + "()";
         return managerReference + "." + serviceClientReference + "." + methodGroupReference;
     }
 

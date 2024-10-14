@@ -3,8 +3,8 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
+import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
-
 import java.util.List;
 import java.util.Set;
 
@@ -35,19 +35,22 @@ public class EnumType implements IType {
     private final ImplementationDetails implementationDetails;
 
     private String crossLanguageDefinitionId;
+    private final String fromMethodName;
+    private final String toMethodName;
 
     /**
      * Create a new Enum with the provided properties.
+     *
      * @param name The name of the new Enum.
      * @param description The description of the Enum.
      * @param expandable Whether this will be an ExpandableStringEnum type.
      * @param values The values of the Enum.
+     * @param fromMethodName The method name used to convert JSON to the enum type.
+     * @param toMethodName The method name used to convert the enum type to JSON.
      */
-    private EnumType(String packageKeyword, String name, String description,
-                     boolean expandable, List<ClientEnumValue> values,
-                     IType elementType,
-                     ImplementationDetails implementationDetails,
-                     String crossLanguageDefinitionId) {
+    private EnumType(String packageKeyword, String name, String description, boolean expandable,
+        List<ClientEnumValue> values, IType elementType, ImplementationDetails implementationDetails,
+        String crossLanguageDefinitionId, String fromMethodName, String toMethodName) {
         this.name = name;
         this.packageName = packageKeyword;
         this.description = description;
@@ -56,6 +59,8 @@ public class EnumType implements IType {
         this.elementType = elementType;
         this.implementationDetails = implementationDetails;
         this.crossLanguageDefinitionId = crossLanguageDefinitionId;
+        this.fromMethodName = fromMethodName;
+        this.toMethodName = toMethodName;
     }
 
     public String getCrossLanguageDefinitionId() {
@@ -134,7 +139,9 @@ public class EnumType implements IType {
      * @return The method name used to convert JSON to the enum type.
      */
     public final String getFromMethodName() {
-        return "from" + CodeNamer.toPascalCase(elementType.getClientType().toString());
+        return CoreUtils.isNullOrEmpty(fromMethodName)
+            ? "from" + CodeNamer.toPascalCase(elementType.getClientType().toString())
+            : fromMethodName;
     }
 
     /**
@@ -143,7 +150,9 @@ public class EnumType implements IType {
      * @return The method name used to convert the enum type to JSON.
      */
     public final String getToMethodName() {
-        return "to" + CodeNamer.toPascalCase(elementType.getClientType().toString());
+        return CoreUtils.isNullOrEmpty(toMethodName)
+            ? "to" + CodeNamer.toPascalCase(elementType.getClientType().toString())
+            : toMethodName;
     }
 
     @Override
@@ -190,8 +199,8 @@ public class EnumType implements IType {
             ? valueGetter + "." + getToMethodName() + "()"
             : valueGetter + " == null ? null : " + valueGetter + "." + getToMethodName() + "()";
 
-        return elementType.asNullable().jsonSerializationMethodCall(jsonWriterName, fieldName, actualValueGetter,
-            jsonMergePatch);
+        return elementType.asNullable()
+            .jsonSerializationMethodCall(jsonWriterName, fieldName, actualValueGetter, jsonMergePatch);
     }
 
     @Override
@@ -231,9 +240,12 @@ public class EnumType implements IType {
         private ImplementationDetails implementationDetails;
 
         private String crossLanguageDefinitionId;
+        private String fromMethodName;
+        private String toMethodName;
 
         /**
          * Sets the name of the Enum.
+         * 
          * @param name the name of the Enum
          * @return the Builder
          */
@@ -244,6 +256,7 @@ public class EnumType implements IType {
 
         /**
          * Sets the package name of the Enum.
+         * 
          * @param packageName the package name of the Enum
          * @return the Builder
          */
@@ -254,6 +267,7 @@ public class EnumType implements IType {
 
         /**
          * Sets the description of the Enum.
+         * 
          * @param description the description of the Enum
          * @return the Builder
          */
@@ -264,6 +278,7 @@ public class EnumType implements IType {
 
         /**
          * Sets whether the Enum is expandable.
+         * 
          * @param expandable whether the Enum is expandable
          * @return the Builder
          */
@@ -274,6 +289,7 @@ public class EnumType implements IType {
 
         /**
          * Sets the values of the Enum.
+         * 
          * @param values the values of the Enum
          * @return the Builder
          */
@@ -284,6 +300,7 @@ public class EnumType implements IType {
 
         /**
          * Sets the type of elements of the Enum.
+         * 
          * @param elementType the type of elements of the Enum
          * @return the Builder
          */
@@ -296,6 +313,7 @@ public class EnumType implements IType {
 
         /**
          * Sets the implementation details for the model.
+         * 
          * @param implementationDetails the implementation details.
          * @return the Builder itself
          */
@@ -309,20 +327,22 @@ public class EnumType implements IType {
             return this;
         }
 
+        public Builder fromMethodName(String fromMethodName) {
+            this.fromMethodName = fromMethodName;
+            return this;
+        }
+
+        public Builder toMethodName(String toMethodName) {
+            this.toMethodName = toMethodName;
+            return this;
+        }
+
         /**
          * @return an immutable EnumType instance with the configurations on this builder.
          */
         public EnumType build() {
-            return new EnumType(
-                    packageName,
-                    name,
-                    description,
-                    expandable,
-                    values,
-                    elementType,
-                    implementationDetails,
-                    crossLanguageDefinitionId
-            );
+            return new EnumType(packageName, name, description, expandable, values, elementType, implementationDetails,
+                crossLanguageDefinitionId, fromMethodName, toMethodName);
         }
     }
 }

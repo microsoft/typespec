@@ -3,6 +3,10 @@
 
 package com.microsoft.typespec.http.client.generator.core.template.example;
 
+import com.azure.core.http.HttpClient;
+import com.azure.core.http.policy.HttpLogDetailLevel;
+import com.azure.core.http.policy.HttpLogOptions;
+import com.azure.core.util.Configuration;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Scheme;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.AsyncSyncClient;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
@@ -13,11 +17,6 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlo
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaClass;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaIfBlock;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
-import com.azure.core.http.HttpClient;
-import com.azure.core.http.policy.HttpLogDetailLevel;
-import com.azure.core.http.policy.HttpLogOptions;
-import com.azure.core.util.Configuration;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -36,22 +35,16 @@ public class ProtocolTestWriter {
         final List<ServiceClient> serviceClients = testContext.getServiceClients();
         final ServiceClient serviceClient = serviceClients.iterator().next();
         final List<AsyncSyncClient> syncClients = testContext.getSyncClients();
-        final boolean isTokenCredential = serviceClient.getSecurityInfo() != null && serviceClient.getSecurityInfo().getSecurityTypes() != null
-                && serviceClient.getSecurityInfo().getSecurityTypes().contains(Scheme.SecuritySchemeType.OAUTH2);
+        final boolean isTokenCredential = serviceClient.getSecurityInfo() != null
+            && serviceClient.getSecurityInfo().getSecurityTypes() != null
+            && serviceClient.getSecurityInfo().getSecurityTypes().contains(Scheme.SecuritySchemeType.OAUTH2);
 
-        this.imports = new HashSet<>(Arrays.asList(
-                HttpClient.class.getName(),
-                HttpLogDetailLevel.class.getName(),
-                HttpLogOptions.class.getName(),
-                Configuration.class.getName(),
-                "com.azure.core.test.utils.MockTokenCredential",
-                "com.azure.identity.DefaultAzureCredentialBuilder",
-                "com.azure.core.test.TestProxyTestBase",
-                "com.azure.core.test.TestMode",
-//                "com.azure.core.test.annotation.DoNotRecord",
-                "org.junit.jupiter.api.Disabled",
-                "org.junit.jupiter.api.Test"
-        ));
+        this.imports = new HashSet<>(Arrays.asList(HttpClient.class.getName(), HttpLogDetailLevel.class.getName(),
+            HttpLogOptions.class.getName(), Configuration.class.getName(),
+            "com.azure.core.test.utils.MockTokenCredential", "com.azure.identity.DefaultAzureCredentialBuilder",
+            "com.azure.core.test.TestProxyTestBase", "com.azure.core.test.TestMode",
+            // "com.azure.core.test.annotation.DoNotRecord",
+            "org.junit.jupiter.api.Disabled", "org.junit.jupiter.api.Test"));
         // client and builder
         syncClients.forEach(c -> {
             c.addImportsTo(imports, false);
@@ -79,50 +72,65 @@ public class ProtocolTestWriter {
                 String builderClassName = syncClient.getClientBuilder().getClassName();
                 String builderVarName = CodeNamer.toCamelCase(syncClient.getClassName()) + "builder";
 
-                methodBlock.line(String.format("%1$s %2$s = new %3$s()", builderClassName, builderVarName, builderClassName));
+                methodBlock
+                    .line(String.format("%1$s %2$s = new %3$s()", builderClassName, builderVarName, builderClassName));
                 methodBlock.increaseIndent();
                 // required service client properties
-                currentServiceClient.getProperties().stream().filter(ServiceClientProperty::isRequired).forEach(serviceClientProperty -> {
-                    String defaultValueExpression = serviceClientProperty.getDefaultValueExpression();
-                    String expr;
-                    if (defaultValueExpression == null) {
-                        expr = String.format("Configuration.getGlobalConfiguration().get(\"%1$s\", %2$s)",
-                                serviceClientProperty.getName().toUpperCase(Locale.ROOT), ClassType.STRING.defaultValueExpression(serviceClientProperty.getName().toLowerCase(Locale.ROOT)));
-                    } else {
-                        expr = String.format("Configuration.getGlobalConfiguration().get(\"%1$s\", %2$s)",
+                currentServiceClient.getProperties()
+                    .stream()
+                    .filter(ServiceClientProperty::isRequired)
+                    .forEach(serviceClientProperty -> {
+                        String defaultValueExpression = serviceClientProperty.getDefaultValueExpression();
+                        String expr;
+                        if (defaultValueExpression == null) {
+                            expr = String.format("Configuration.getGlobalConfiguration().get(\"%1$s\", %2$s)",
+                                serviceClientProperty.getName().toUpperCase(Locale.ROOT), ClassType.STRING
+                                    .defaultValueExpression(serviceClientProperty.getName().toLowerCase(Locale.ROOT)));
+                        } else {
+                            expr = String.format("Configuration.getGlobalConfiguration().get(\"%1$s\", %2$s)",
                                 serviceClientProperty.getName().toUpperCase(Locale.ROOT), defaultValueExpression);
-                    }
-                    methodBlock.line(".%1$s(%2$s)", serviceClientProperty.getAccessorMethodSuffix(), expr);
-                });
-                methodBlock.line(".httpClient(HttpClient.createDefault())");
+                        }
+                        methodBlock.line(".%1$s(%2$s)", serviceClientProperty.getAccessorMethodSuffix(), expr);
+                    });
+                methodBlock.line(".httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))");
                 methodBlock.line(".httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));");
                 methodBlock.decreaseIndent();
 
-                JavaIfBlock codeBlock = methodBlock.ifBlock("getTestMode() == TestMode.PLAYBACK", ifBlock -> {
-                    if (isTokenCredential) {
-                        ifBlock.line(String.format("%1$s.httpClient(interceptorManager.getPlaybackClient())", builderVarName));
-                        ifBlock.line(".credential(new MockTokenCredential());");
-                    } else {
-                        ifBlock.line(String.format("%1$s.httpClient(interceptorManager.getPlaybackClient());", builderVarName));
-                    }
-                }).elseIfBlock("getTestMode() == TestMode.RECORD", ifBlock -> {
-                    if (isTokenCredential) {
-                        ifBlock.line(String.format("%1$s.addPolicy(interceptorManager.getRecordPolicy())", builderVarName));
-                        ifBlock.line(".credential(new DefaultAzureCredentialBuilder().build());");
-                    } else {
-                        ifBlock.line(String.format("%1$s.addPolicy(interceptorManager.getRecordPolicy());", builderVarName));
-                    }
-                });
+                JavaIfBlock codeBlock = null;
+                if (isTokenCredential) {
+                    codeBlock = methodBlock.ifBlock("getTestMode() == TestMode.PLAYBACK",
+                        ifBlock -> ifBlock.line(builderVarName + ".credential(new MockTokenCredential());"));
+                }
+
+                if (codeBlock != null) {
+                    codeBlock = codeBlock.elseIfBlock("getTestMode() == TestMode.RECORD",
+                        recordModeBlock(isTokenCredential, builderVarName));
+                } else {
+                    codeBlock = methodBlock.ifBlock("getTestMode() == TestMode.RECORD",
+                        recordModeBlock(isTokenCredential, builderVarName));
+                }
 
                 if (isTokenCredential) {
                     codeBlock.elseIfBlock("getTestMode() == TestMode.LIVE", ifBlock -> {
-                        ifBlock.line(String.format("%1$s.credential(new DefaultAzureCredentialBuilder().build());", builderVarName));
+                        ifBlock.line(builderVarName + ".credential(new DefaultAzureCredentialBuilder().build());");
                     });
                 }
 
-                methodBlock.line(String.format("%1$s = %2$s.%3$s();", clientVarName, builderVarName, syncClient.getClientBuilder().getBuilderMethodNameForSyncClient(syncClient)));
+                methodBlock.line(String.format("%1$s = %2$s.%3$s();", clientVarName, builderVarName,
+                    syncClient.getClientBuilder().getBuilderMethodNameForSyncClient(syncClient)));
                 methodBlock.line();
-            };
+            }
+        };
+    }
+
+    private static Consumer<JavaBlock> recordModeBlock(boolean isTokenCredential, String builderVarName) {
+        return ifBlock -> {
+            if (isTokenCredential) {
+                ifBlock.line(builderVarName + ".addPolicy(interceptorManager.getRecordPolicy())");
+                ifBlock.line(".credential(new DefaultAzureCredentialBuilder().build());");
+            } else {
+                ifBlock.line(builderVarName + ".addPolicy(interceptorManager.getRecordPolicy());");
+            }
         };
     }
 

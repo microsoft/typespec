@@ -51,7 +51,8 @@ public class AndroidClientMethodTemplate extends ClientMethodTemplate {
                 clientMethod.getValidateExpressions(), settings);
             addOptionalAndConstantVariables(function, clientMethod, restAPIMethod.getParameters(), settings);
             applyParameterTransformations(function, clientMethod, settings);
-            //ConvertClientTypesToWireTypes(function, clientMethod, restAPIMethod.getParameters(), clientMethod.getClientReference(), settings);
+            // ConvertClientTypesToWireTypes(function, clientMethod, restAPIMethod.getParameters(),
+            // clientMethod.getClientReference(), settings);
 
             if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
                 final String completeFutureVariableName = "completableFuture";
@@ -84,8 +85,8 @@ public class AndroidClientMethodTemplate extends ClientMethodTemplate {
         function.line("PagedResponseCompletableFuture<%1$s, %2$s> completableFuture =%n", callbackDataType, modelType);
         function.indent(() -> {
             function.line("new PagedResponseCompletableFuture<>(response ->");
-            function.indent(() -> function.line(
-                "new PagedResponseBase<>(response.getRequest(), response.getStatusCode(), "
+            function
+                .indent(() -> function.line("new PagedResponseBase<>(response.getRequest(), response.getStatusCode(), "
                     + "response.getHeaders(), response.getValue().getValue(), response.getValue().getNextLink(), null),"));
             function.line(");");
         });
@@ -106,7 +107,8 @@ public class AndroidClientMethodTemplate extends ClientMethodTemplate {
             addOptionalAndConstantVariables(function, clientMethod, restAPIMethod.getParameters(), settings);
             applyParameterTransformations(function, clientMethod, settings);
             // REVISIT: Restore this call for Android
-            // ConvertClientTypesToWireTypes(function, clientMethod, restAPIMethod.getParameters(), clientMethod.getClientReference(), settings);
+            // ConvertClientTypesToWireTypes(function, clientMethod, restAPIMethod.getParameters(),
+            // clientMethod.getClientReference(), settings);
 
             final String completeFutureVariableName = "completableFuture";
             function.line(declareResponseCompletableFuture(clientMethod));
@@ -141,9 +143,8 @@ public class AndroidClientMethodTemplate extends ClientMethodTemplate {
 
     private String generateProxyMethodCall(ClientMethod clientMethod, ProxyMethod restAPIMethod,
         JavaSettings settings) {
-        java.util.List<String> serviceMethodArgs = clientMethod.getProxyMethodArguments(settings)
-            .stream()
-            .map(argVal -> {
+        java.util.List<String> serviceMethodArgs
+            = clientMethod.getProxyMethodArguments(settings).stream().map(argVal -> {
                 if (clientMethod.getParameters()
                     .stream()
                     .filter(param -> param.getName().equals(argVal))
@@ -162,8 +163,7 @@ public class AndroidClientMethodTemplate extends ClientMethodTemplate {
                     return "completableFuture";
                 }
                 return argVal;
-            })
-            .collect(java.util.stream.Collectors.toList());
+            }).collect(java.util.stream.Collectors.toList());
         String restAPIMethodArgumentList = String.join(", ", serviceMethodArgs);
         return String.format("service.%s(%s);", restAPIMethod.getName(), restAPIMethodArgumentList);
     }
@@ -195,8 +195,8 @@ public class AndroidClientMethodTemplate extends ClientMethodTemplate {
                     "Return type 'ClassType.InputStream' not implemented for android");
             } else {
                 IType returnType = clientMethod.getReturnValue().getType();
-                String proxyMethodCall = String.format("%s(%s).get()", effectiveAsyncMethodName,
-                    clientMethod.getArgumentList());
+                String proxyMethodCall
+                    = String.format("%s(%s).get()", effectiveAsyncMethodName, clientMethod.getArgumentList());
 
                 function.line("try {");
                 if (returnType != PrimitiveType.VOID) {

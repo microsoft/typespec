@@ -41,23 +41,27 @@ public final class AddedClient {
      * The v1 operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     prop: String (Required)
      *     enumProp: String(enumMemberV1/enumMemberV2) (Required)
      *     unionProp: BinaryData (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     prop: String (Required)
      *     enumProp: String(enumMemberV1/enumMemberV2) (Required)
      *     unionProp: BinaryData (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param headerV2 The headerV2 parameter.
      * @param body The body parameter.
@@ -78,23 +82,27 @@ public final class AddedClient {
      * The v2 operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     prop: String (Required)
      *     enumProp: String(enumMember) (Required)
      *     unionProp: BinaryData (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     prop: String (Required)
      *     enumProp: String(enumMember) (Required)
      *     unionProp: BinaryData (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param body The body parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

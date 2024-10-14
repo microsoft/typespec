@@ -5,14 +5,12 @@ package com.microsoft.typespec.http.client.generator.mgmt.model.projectmodel;
 
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
+import com.microsoft.typespec.http.client.generator.core.model.projectmodel.Project;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentGen;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentClient;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentStatic;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentJavaSettings;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
-import com.microsoft.typespec.http.client.generator.core.model.projectmodel.Project;
-import org.slf4j.Logger;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -21,6 +19,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
 
 public class FluentProject extends Project {
 
@@ -37,22 +36,20 @@ public class FluentProject extends Project {
         private String tagDescription;
 
         private String getServiceDescription() {
-            return String.format("%1$s %2$s %3$s",
-                    simpleDescription,
-                    clientDescription,
-                    tagDescription).trim();
+            return String.format("%1$s %2$s %3$s", simpleDescription, clientDescription, tagDescription).trim();
         }
 
         public String getServiceDescriptionForPom() {
-            return String.format("%1$s %2$s %3$s %4$s",
-                    simpleDescription,
+            return String
+                .format("%1$s %2$s %3$s %4$s", simpleDescription,
                     "For documentation on how to use this package, please see https://aka.ms/azsdk/java/mgmt.",
-                    clientDescription,
-                    tagDescription).trim();
+                    clientDescription, tagDescription)
+                .trim();
         }
 
         public String getServiceDescriptionForMarkdown() {
-            return this.getServiceDescription() + " For documentation on how to use this package, please see [Azure Management Libraries for Java](https://aka.ms/azsdk/java/mgmt).";
+            return this.getServiceDescription()
+                + " For documentation on how to use this package, please see [Azure Management Libraries for Java](https://aka.ms/azsdk/java/mgmt).";
         }
     }
 
@@ -83,9 +80,8 @@ public class FluentProject extends Project {
         this.serviceDescription.clientDescription = clientDescription;
         String autorestTag = JavaSettings.getInstance().getAutorestSettings().getTag();
         // SDK from TypeSpec does not contain autorest tag.
-        this.serviceDescription.tagDescription = autorestTag == null
-                ? ""
-                : String.format(tagDescriptionTemplate, autorestTag);
+        this.serviceDescription.tagDescription
+            = autorestTag == null ? "" : String.format(tagDescriptionTemplate, autorestTag);
 
         this.changelog = new Changelog(this);
     }
@@ -133,8 +129,9 @@ public class FluentProject extends Project {
             if (Files.isDirectory(srcTestJavaPath)) {
                 try {
                     Files.walk(srcTestJavaPath).forEach(path -> {
-                        if (!Files.isDirectory(path) && Files.isReadable(path)
-                                && (path.getFileName().toString().endsWith("Tests.java")
+                        if (!Files.isDirectory(path)
+                            && Files.isReadable(path)
+                            && (path.getFileName().toString().endsWith("Tests.java")
                                 || path.getFileName().toString().endsWith("Test.java"))) {
                             LOGGER.info("Attempt to find code sample from test file '{}'", path);
                             codeSamples.add(CodeSample.fromTestFile(path));

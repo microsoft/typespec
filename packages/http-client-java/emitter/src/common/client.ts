@@ -44,7 +44,7 @@ export class ServiceVersion extends Metadata {
           },
         },
       },
-      initializer
+      initializer,
     );
   }
 }

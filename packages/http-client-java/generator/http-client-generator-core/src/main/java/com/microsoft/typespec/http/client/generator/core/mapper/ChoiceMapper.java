@@ -4,9 +4,9 @@
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ChoiceSchema;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -17,7 +17,7 @@ public class ChoiceMapper implements IMapper<ChoiceSchema, IType> {
     private static final ChoiceMapper INSTANCE = new ChoiceMapper();
     Map<ChoiceSchema, IType> parsed = new ConcurrentHashMap<>();
 
-    private ChoiceMapper() {
+    protected ChoiceMapper() {
     }
 
     /**
@@ -46,7 +46,17 @@ public class ChoiceMapper implements IMapper<ChoiceSchema, IType> {
         return choiceType;
     }
 
+    protected boolean useCodeModelNameForEnumMember() {
+        return true;
+    }
+
     private IType createChoiceType(ChoiceSchema enumType) {
-        return MapperUtils.createEnumType(enumType, true);
+        IType elementType = Mappers.getSchemaMapper().map(enumType.getChoiceType());
+        boolean isStringEnum = elementType == ClassType.STRING;
+        if (isStringEnum) {
+            return MapperUtils.createEnumType(enumType, true, useCodeModelNameForEnumMember());
+        } else {
+            return MapperUtils.createEnumType(enumType, true, useCodeModelNameForEnumMember(), "getValue", "fromValue");
+        }
     }
 }

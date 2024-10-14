@@ -34,7 +34,7 @@ describe("compiler: projector: Identity", () => {
    */
   async function projectWithNoChange<K extends Type["kind"], T extends Type & { kind: K }>(
     code: string,
-    kind?: K
+    kind?: K,
   ): Promise<IdentifyProjectResult<T>> {
     const projections = [{ arguments: [], projectionName: "noop" }];
 
@@ -109,7 +109,7 @@ describe("compiler: projector: Identity", () => {
   function expectTrackedTypes(trackedTypes: Type[], expectedTypes: [Type["kind"], string][]) {
     deepStrictEqual(
       trackedTypes.map((x) => [x.kind, getTypeName(x)]),
-      expectedTypes
+      expectedTypes,
     );
   }
 
@@ -121,9 +121,25 @@ describe("compiler: projector: Identity", () => {
             name: string;
           }
         `,
-        "Model"
+        "Model",
       );
       strictEqual(projectResult.type.properties.get("name")?.model, projectResult.type);
+    });
+
+    it("link projected model with sourceModels", async () => {
+      const code = `
+        @test("target") model Foo is Bar {
+          ...Spreadable
+        }
+        model Bar {}
+        model Spreadable {}
+      `;
+      const projectResult = await projectWithNoChange(code, "Model");
+      const [sourceBar, sourceSpreadable] = projectResult.type.sourceModels.map((x) => x.model);
+      const Spreadable = projectResult.globalNamespace.models.get("Spreadable")!;
+      const Bar = projectResult.globalNamespace.models.get("Bar")!;
+      strictEqual(sourceBar, Bar);
+      strictEqual(sourceSpreadable, Spreadable);
     });
 
     it("link projected property with sourceProperty", async () => {
@@ -195,7 +211,7 @@ describe("compiler: projector: Identity", () => {
             one: {};
           }
         `,
-        "Union"
+        "Union",
       );
       strictEqual(projectResult.type.variants.get("one")?.union, projectResult.type);
     });
@@ -224,7 +240,7 @@ describe("compiler: projector: Identity", () => {
             one,
           }
         `,
-        "Enum"
+        "Enum",
       );
       strictEqual(projectResult.type.members.get("one")?.enum, projectResult.type);
     });
@@ -271,7 +287,7 @@ describe("compiler: projector: Identity", () => {
             one(): void;
           }
         `,
-        "Interface"
+        "Interface",
       );
       strictEqual(projectResult.type.operations.get("one")?.interface, projectResult.type);
     });
@@ -299,7 +315,7 @@ describe("compiler: projector: Identity", () => {
         model M<P> {}
         @test("target") model T extends M<string> {}
         `,
-        "Model"
+        "Model",
       );
       checkTemplateConsistency(projection.originalType.baseModel, projection.type.baseModel);
     });
@@ -309,7 +325,7 @@ describe("compiler: projector: Identity", () => {
         scalar S<P>;
         @test("target") scalar T extends S<string>;
         `,
-        "Scalar"
+        "Scalar",
       );
       checkTemplateConsistency(projection.originalType.baseScalar, projection.type.baseScalar);
     });
@@ -320,11 +336,11 @@ describe("compiler: projector: Identity", () => {
         op O<P>(): void;
         @test("target") model T { p: O<string> };
         `,
-        "Model"
+        "Model",
       );
       checkTemplateConsistency(
         projection.originalType.properties.get("p")?.type,
-        projection.type.properties.get("p")?.type
+        projection.type.properties.get("p")?.type,
       );
     });
     it("interface", async () => {
@@ -333,11 +349,11 @@ describe("compiler: projector: Identity", () => {
         interface I<P> {}
         @test("target") model T { p: I<string> };
         `,
-        "Model"
+        "Model",
       );
       checkTemplateConsistency(
         projection.originalType.properties.get("p")?.type,
-        projection.type.properties.get("p")?.type
+        projection.type.properties.get("p")?.type,
       );
     });
     it("union", async () => {
@@ -346,11 +362,11 @@ describe("compiler: projector: Identity", () => {
         union U<P> {}
         @test("target") model T { p: U<string> };
         `,
-        "Model"
+        "Model",
       );
       checkTemplateConsistency(
         projection.originalType.properties.get("p")?.type,
-        projection.type.properties.get("p")?.type
+        projection.type.properties.get("p")?.type,
       );
     });
   });
@@ -363,9 +379,7 @@ describe("compiler: projector: Identity", () => {
     ok(projected.templateMapper !== original.templateMapper);
     ok(projected.templateMapper.args !== original.templateMapper.args);
     ok(projected.templateMapper.map !== original.templateMapper.map);
-    // eslint-disable-next-line deprecation/deprecation
     ok(projected.templateArguments !== original.templateArguments);
-    // eslint-disable-next-line deprecation/deprecation
     ok(projected.templateArguments === projected.templateMapper.args);
     strictEqual(projected.templateMapper.args.length, original.templateMapper.args.length);
     strictEqual(projected.templateMapper.map.size, original.templateMapper.map.size);

@@ -28,6 +28,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Model.Usage.InputRecord.requiredProp"
     }
@@ -57,6 +58,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Model.Usage.OutputRecord.requiredProp"
     }
@@ -86,6 +88,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Model.Usage.InputOutputRecord.requiredProp"
     }

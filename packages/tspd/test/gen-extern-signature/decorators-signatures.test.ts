@@ -10,19 +10,17 @@ async function generateDecoratorSignatures(code: string) {
     `
     import "./lib.js";
     using TypeSpec.Reflection;
-    ${code}`
+    ${code}`,
   );
   host.addJsFile("lib.js", {
-    $flags: definePackageFlags({
-      decoratorArgMarshalling: "new",
-    }),
+    $flags: definePackageFlags({}),
   });
   await host.diagnose("main.tsp", {
     parseOptions: { comments: true, docs: true },
   });
 
   expectDiagnosticEmpty(
-    host.program.diagnostics.filter((x) => x.code !== "missing-implementation")
+    host.program.diagnostics.filter((x) => x.code !== "missing-implementation"),
   );
 
   const result = await generateExternDecorators(host.program, "test-lib", {

@@ -156,7 +156,7 @@ describe("tsp-openapi: generate-type", () => {
       const wrappedType = await formatWrappedType(type);
       const wrappedExpected = await formatWrappedType(t.expected);
       strictEqual(wrappedType, wrappedExpected);
-    })
+    }),
   );
 });
 

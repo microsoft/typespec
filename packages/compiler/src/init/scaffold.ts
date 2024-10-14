@@ -1,9 +1,9 @@
 import { stringify } from "yaml";
 import { TypeSpecConfigFilename } from "../config/config-loader.js";
 import { formatTypeSpec } from "../core/formatter.js";
-import { NodePackage } from "../core/module-resolver.js";
 import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
 import { CompilerHost } from "../core/types.js";
+import { PackageJson } from "../types/package-json.js";
 import { readUrlOrPath, resolveRelativeUrlOrPath } from "../utils/misc.js";
 import { FileTemplatingContext, createFileTemplatingContext, render } from "./file-templating.js";
 import {
@@ -62,7 +62,7 @@ export function normalizeLibrary(library: InitTemplateLibrary): InitTemplateLibr
 
 export function makeScaffoldingConfig(
   template: InitTemplate,
-  config: Partial<ScaffoldingConfig>
+  config: Partial<ScaffoldingConfig>,
 ): ScaffoldingConfig {
   return {
     template,
@@ -117,7 +117,7 @@ async function writePackageJson(host: CompilerHost, config: ScaffoldingConfig) {
     devDependencies[library.name] = await getLibraryVersion(library);
   }
 
-  const packageJson: NodePackage = {
+  const packageJson: PackageJson = {
     name: config.name,
     version: "0.1.0",
     type: "module",
@@ -128,7 +128,7 @@ async function writePackageJson(host: CompilerHost, config: ScaffoldingConfig) {
 
   return host.writeFile(
     joinPaths(config.directory, "package.json"),
-    JSON.stringify(packageJson, null, 2)
+    JSON.stringify(packageJson, null, 2),
   );
 }
 
@@ -209,7 +209,7 @@ async function writeFile(
   host: CompilerHost,
   config: ScaffoldingConfig,
   context: FileTemplatingContext,
-  file: InitTemplateFile
+  file: InitTemplateFile,
 ) {
   const baseDir = config.baseUri + "/";
   const template = await readUrlOrPath(host, resolveRelativeUrlOrPath(baseDir, file.path));

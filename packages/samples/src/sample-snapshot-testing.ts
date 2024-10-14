@@ -13,7 +13,7 @@ import { expectDiagnosticEmpty } from "@typespec/compiler/testing";
 import { fail, ok, strictEqual } from "assert";
 import { readdirSync } from "fs";
 import { mkdir, readFile, readdir, rm, writeFile } from "fs/promises";
-import { File, Suite, afterAll, beforeAll, it } from "vitest";
+import { RunnerTestFile, RunnerTestSuite, afterAll, beforeAll, it } from "vitest";
 
 const shouldUpdateSnapshots = process.env.RECORD === "true";
 
@@ -49,7 +49,7 @@ export function defineSampleSnaphotTests(config: SampleSnapshotTestOptions) {
     existingSnapshots = await readFilesInDirRecursively(config.outputDir);
   });
 
-  afterAll(async function (context: Readonly<Suite | File>) {
+  afterAll(async function (context: Readonly<RunnerTestSuite | RunnerTestFile>) {
     if (context.tasks.some((x) => x.mode === "skip")) {
       return; // Not running the full test suite, so don't bother checking snapshots.
     }
@@ -66,7 +66,7 @@ export function defineSampleSnaphotTests(config: SampleSnapshotTestOptions) {
       } else {
         const snapshotList = [...missingSnapshots].map((x) => `  ${x}`).join("\n");
         fail(
-          `The following snapshot are still present in the output dir but were not generated:\n${snapshotList}\n Run with RECORD=true to regenerate them.`
+          `The following snapshot are still present in the output dir but were not generated:\n${snapshotList}\n Run with RECORD=true to regenerate them.`,
         );
       }
     }
@@ -77,7 +77,7 @@ export function defineSampleSnaphotTests(config: SampleSnapshotTestOptions) {
 function defineSampleSnaphotTest(
   context: TestContext,
   config: SampleSnapshotTestOptions,
-  sample: Sample
+  sample: Sample,
 ) {
   it(sample.name, async () => {
     context.runCount++;
@@ -101,7 +101,7 @@ function defineSampleSnaphotTest(
     const emit = options.emit;
     if (emit === undefined || emit.length === 0) {
       fail(
-        `No emitters configured for sample "${sample.name}". Make sure the  config at: "${options.config}" is correct.`
+        `No emitters configured for sample "${sample.name}". Make sure the  config at: "${options.config}" is correct.`,
       );
     }
 
@@ -145,7 +145,7 @@ function defineSampleSnaphotTest(
         const snapshotPath = resolvePath(outputDir, filename);
         ok(
           host.outputs.has(snapshotPath),
-          `Snapshot for "${snapshotPath}" was not emitted. Run with RECORD=true to remove it.`
+          `Snapshot for "${snapshotPath}" was not emitted. Run with RECORD=true to remove it.`,
         );
       }
     }

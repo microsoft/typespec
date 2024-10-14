@@ -8,7 +8,6 @@ package com.type.property.additionalproperties.generated;
 // If you wish to modify these files, please copy them out of the 'generated' package, and modify there.
 // See https://aka.ms/azsdk/dpg/java/tests for guide on adding a test.
 
-import com.azure.core.http.HttpClient;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.test.TestMode;
@@ -117,22 +116,18 @@ class AdditionalPropertiesClientTestBase extends TestProxyTestBase {
     protected void beforeTest() {
         AdditionalPropertiesClientBuilder extendsUnknownClientbuilder = new AdditionalPropertiesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            extendsUnknownClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             extendsUnknownClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         extendsUnknownClient = extendsUnknownClientbuilder.buildExtendsUnknownClient();
 
         AdditionalPropertiesClientBuilder extendsUnknownDerivedClientbuilder = new AdditionalPropertiesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            extendsUnknownDerivedClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             extendsUnknownDerivedClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         extendsUnknownDerivedClient = extendsUnknownDerivedClientbuilder.buildExtendsUnknownDerivedClient();
@@ -140,11 +135,9 @@ class AdditionalPropertiesClientTestBase extends TestProxyTestBase {
         AdditionalPropertiesClientBuilder extendsUnknownDiscriminatedClientbuilder
             = new AdditionalPropertiesClientBuilder()
                 .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-                .httpClient(HttpClient.createDefault())
+                .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
                 .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            extendsUnknownDiscriminatedClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             extendsUnknownDiscriminatedClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         extendsUnknownDiscriminatedClient
@@ -152,198 +145,162 @@ class AdditionalPropertiesClientTestBase extends TestProxyTestBase {
 
         AdditionalPropertiesClientBuilder isUnknownClientbuilder = new AdditionalPropertiesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            isUnknownClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             isUnknownClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         isUnknownClient = isUnknownClientbuilder.buildIsUnknownClient();
 
         AdditionalPropertiesClientBuilder isUnknownDerivedClientbuilder = new AdditionalPropertiesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            isUnknownDerivedClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             isUnknownDerivedClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         isUnknownDerivedClient = isUnknownDerivedClientbuilder.buildIsUnknownDerivedClient();
 
         AdditionalPropertiesClientBuilder isUnknownDiscriminatedClientbuilder = new AdditionalPropertiesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            isUnknownDiscriminatedClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             isUnknownDiscriminatedClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         isUnknownDiscriminatedClient = isUnknownDiscriminatedClientbuilder.buildIsUnknownDiscriminatedClient();
 
         AdditionalPropertiesClientBuilder extendsStringClientbuilder = new AdditionalPropertiesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            extendsStringClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             extendsStringClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         extendsStringClient = extendsStringClientbuilder.buildExtendsStringClient();
 
         AdditionalPropertiesClientBuilder isStringClientbuilder = new AdditionalPropertiesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            isStringClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             isStringClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         isStringClient = isStringClientbuilder.buildIsStringClient();
 
         AdditionalPropertiesClientBuilder spreadStringClientbuilder = new AdditionalPropertiesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            spreadStringClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             spreadStringClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         spreadStringClient = spreadStringClientbuilder.buildSpreadStringClient();
 
         AdditionalPropertiesClientBuilder extendsFloatClientbuilder = new AdditionalPropertiesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            extendsFloatClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             extendsFloatClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         extendsFloatClient = extendsFloatClientbuilder.buildExtendsFloatClient();
 
         AdditionalPropertiesClientBuilder isFloatClientbuilder = new AdditionalPropertiesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            isFloatClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             isFloatClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         isFloatClient = isFloatClientbuilder.buildIsFloatClient();
 
         AdditionalPropertiesClientBuilder spreadFloatClientbuilder = new AdditionalPropertiesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            spreadFloatClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             spreadFloatClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         spreadFloatClient = spreadFloatClientbuilder.buildSpreadFloatClient();
 
         AdditionalPropertiesClientBuilder extendsModelClientbuilder = new AdditionalPropertiesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            extendsModelClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             extendsModelClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         extendsModelClient = extendsModelClientbuilder.buildExtendsModelClient();
 
         AdditionalPropertiesClientBuilder isModelClientbuilder = new AdditionalPropertiesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            isModelClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             isModelClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         isModelClient = isModelClientbuilder.buildIsModelClient();
 
         AdditionalPropertiesClientBuilder spreadModelClientbuilder = new AdditionalPropertiesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            spreadModelClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             spreadModelClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         spreadModelClient = spreadModelClientbuilder.buildSpreadModelClient();
 
         AdditionalPropertiesClientBuilder extendsModelArrayClientbuilder = new AdditionalPropertiesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            extendsModelArrayClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             extendsModelArrayClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         extendsModelArrayClient = extendsModelArrayClientbuilder.buildExtendsModelArrayClient();
 
         AdditionalPropertiesClientBuilder isModelArrayClientbuilder = new AdditionalPropertiesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            isModelArrayClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             isModelArrayClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         isModelArrayClient = isModelArrayClientbuilder.buildIsModelArrayClient();
 
         AdditionalPropertiesClientBuilder spreadModelArrayClientbuilder = new AdditionalPropertiesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            spreadModelArrayClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             spreadModelArrayClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         spreadModelArrayClient = spreadModelArrayClientbuilder.buildSpreadModelArrayClient();
 
         AdditionalPropertiesClientBuilder spreadDifferentStringClientbuilder = new AdditionalPropertiesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            spreadDifferentStringClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             spreadDifferentStringClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         spreadDifferentStringClient = spreadDifferentStringClientbuilder.buildSpreadDifferentStringClient();
 
         AdditionalPropertiesClientBuilder spreadDifferentFloatClientbuilder = new AdditionalPropertiesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            spreadDifferentFloatClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             spreadDifferentFloatClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         spreadDifferentFloatClient = spreadDifferentFloatClientbuilder.buildSpreadDifferentFloatClient();
 
         AdditionalPropertiesClientBuilder spreadDifferentModelClientbuilder = new AdditionalPropertiesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            spreadDifferentModelClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             spreadDifferentModelClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         spreadDifferentModelClient = spreadDifferentModelClientbuilder.buildSpreadDifferentModelClient();
@@ -351,11 +308,9 @@ class AdditionalPropertiesClientTestBase extends TestProxyTestBase {
         AdditionalPropertiesClientBuilder spreadDifferentModelArrayClientbuilder
             = new AdditionalPropertiesClientBuilder()
                 .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-                .httpClient(HttpClient.createDefault())
+                .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
                 .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            spreadDifferentModelArrayClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             spreadDifferentModelArrayClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         spreadDifferentModelArrayClient = spreadDifferentModelArrayClientbuilder.buildSpreadDifferentModelArrayClient();
@@ -363,11 +318,9 @@ class AdditionalPropertiesClientTestBase extends TestProxyTestBase {
         AdditionalPropertiesClientBuilder extendsDifferentSpreadStringClientbuilder
             = new AdditionalPropertiesClientBuilder()
                 .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-                .httpClient(HttpClient.createDefault())
+                .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
                 .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            extendsDifferentSpreadStringClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             extendsDifferentSpreadStringClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         extendsDifferentSpreadStringClient
@@ -376,11 +329,9 @@ class AdditionalPropertiesClientTestBase extends TestProxyTestBase {
         AdditionalPropertiesClientBuilder extendsDifferentSpreadFloatClientbuilder
             = new AdditionalPropertiesClientBuilder()
                 .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-                .httpClient(HttpClient.createDefault())
+                .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
                 .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            extendsDifferentSpreadFloatClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             extendsDifferentSpreadFloatClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         extendsDifferentSpreadFloatClient
@@ -389,11 +340,9 @@ class AdditionalPropertiesClientTestBase extends TestProxyTestBase {
         AdditionalPropertiesClientBuilder extendsDifferentSpreadModelClientbuilder
             = new AdditionalPropertiesClientBuilder()
                 .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-                .httpClient(HttpClient.createDefault())
+                .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
                 .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            extendsDifferentSpreadModelClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             extendsDifferentSpreadModelClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         extendsDifferentSpreadModelClient
@@ -402,11 +351,9 @@ class AdditionalPropertiesClientTestBase extends TestProxyTestBase {
         AdditionalPropertiesClientBuilder extendsDifferentSpreadModelArrayClientbuilder
             = new AdditionalPropertiesClientBuilder()
                 .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-                .httpClient(HttpClient.createDefault())
+                .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
                 .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            extendsDifferentSpreadModelArrayClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             extendsDifferentSpreadModelArrayClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         extendsDifferentSpreadModelArrayClient
@@ -414,22 +361,18 @@ class AdditionalPropertiesClientTestBase extends TestProxyTestBase {
 
         AdditionalPropertiesClientBuilder multipleSpreadClientbuilder = new AdditionalPropertiesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            multipleSpreadClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             multipleSpreadClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         multipleSpreadClient = multipleSpreadClientbuilder.buildMultipleSpreadClient();
 
         AdditionalPropertiesClientBuilder spreadRecordUnionClientbuilder = new AdditionalPropertiesClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            spreadRecordUnionClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             spreadRecordUnionClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         spreadRecordUnionClient = spreadRecordUnionClientbuilder.buildSpreadRecordUnionClient();
@@ -437,11 +380,9 @@ class AdditionalPropertiesClientTestBase extends TestProxyTestBase {
         AdditionalPropertiesClientBuilder spreadRecordDiscriminatedUnionClientbuilder
             = new AdditionalPropertiesClientBuilder()
                 .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-                .httpClient(HttpClient.createDefault())
+                .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
                 .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            spreadRecordDiscriminatedUnionClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             spreadRecordDiscriminatedUnionClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         spreadRecordDiscriminatedUnionClient
@@ -450,11 +391,9 @@ class AdditionalPropertiesClientTestBase extends TestProxyTestBase {
         AdditionalPropertiesClientBuilder spreadRecordNonDiscriminatedUnionClientbuilder
             = new AdditionalPropertiesClientBuilder()
                 .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-                .httpClient(HttpClient.createDefault())
+                .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
                 .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            spreadRecordNonDiscriminatedUnionClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             spreadRecordNonDiscriminatedUnionClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         spreadRecordNonDiscriminatedUnionClient
@@ -463,11 +402,9 @@ class AdditionalPropertiesClientTestBase extends TestProxyTestBase {
         AdditionalPropertiesClientBuilder spreadRecordNonDiscriminatedUnion2Clientbuilder
             = new AdditionalPropertiesClientBuilder()
                 .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-                .httpClient(HttpClient.createDefault())
+                .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
                 .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            spreadRecordNonDiscriminatedUnion2Clientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             spreadRecordNonDiscriminatedUnion2Clientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         spreadRecordNonDiscriminatedUnion2Client
@@ -476,11 +413,9 @@ class AdditionalPropertiesClientTestBase extends TestProxyTestBase {
         AdditionalPropertiesClientBuilder spreadRecordNonDiscriminatedUnion3Clientbuilder
             = new AdditionalPropertiesClientBuilder()
                 .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-                .httpClient(HttpClient.createDefault())
+                .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
                 .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            spreadRecordNonDiscriminatedUnion3Clientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             spreadRecordNonDiscriminatedUnion3Clientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         spreadRecordNonDiscriminatedUnion3Client

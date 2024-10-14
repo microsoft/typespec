@@ -9,7 +9,6 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaInt
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJavadocComment;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaModifier;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -29,9 +28,8 @@ public class MethodTemplate {
     private final Consumer<JavaJavadocComment> comment;
     private final Consumer<JavaBlock> method;
 
-    private MethodTemplate(Set<String> imports,
-                           JavaVisibility visibility, List<JavaModifier> modifiers, String methodSignature,
-                           Consumer<JavaJavadocComment> comment, Consumer<JavaBlock> method) {
+    private MethodTemplate(Set<String> imports, JavaVisibility visibility, List<JavaModifier> modifiers,
+        String methodSignature, Consumer<JavaJavadocComment> comment, Consumer<JavaBlock> method) {
         this.imports = imports;
         this.visibility = visibility;
         this.modifiers = modifiers;
@@ -78,7 +76,8 @@ public class MethodTemplate {
         private final List<JavaModifier> modifiers = new ArrayList<>();
         private String methodSignature;
         private Consumer<JavaJavadocComment> comment = null;
-        private Consumer<JavaBlock> method = m -> {};
+        private Consumer<JavaBlock> method = m -> {
+        };
 
         private Builder() {
         }

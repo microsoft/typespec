@@ -23,11 +23,11 @@ export const commentHandler: Printer<Node>["handleComments"] = {
     ].some((x) => x({ comment, text, options, ast: ast as TypeSpecScriptNode, isLastComment })),
   remaining: (comment, text, options, ast, isLastComment) =>
     [handleOnlyComments].some((x) =>
-      x({ comment, text, options, ast: ast as TypeSpecScriptNode, isLastComment })
+      x({ comment, text, options, ast: ast as TypeSpecScriptNode, isLastComment }),
     ),
   endOfLine: (comment, text, options, ast, isLastComment) =>
     [handleOnlyComments].some((x) =>
-      x({ comment, text, options, ast: ast as TypeSpecScriptNode, isLastComment })
+      x({ comment, text, options, ast: ast as TypeSpecScriptNode, isLastComment }),
     ),
 };
 

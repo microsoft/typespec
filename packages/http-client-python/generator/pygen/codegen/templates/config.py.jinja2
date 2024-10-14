@@ -1,0 +1,73 @@
+class {{ client.name }}Configuration:  {{ client.config.pylint_disable() }}
+    """Configuration for {{ client.name }}.
+
+    Note that all parameters used to create this instance are saved as instance
+    attributes.
+{% if client.config.parameters.method | first %}
+
+{% endif %}
+    {{ op_tools.serialize_with_wrap(serializer.property_descriptions(async_mode), "\n ") | indent }}
+    {{ serializer.init_signature_and_response_type_annotation(async_mode) | indent }}
+    {% if client.config.parameters.kwargs_to_pop %}
+        {{ op_tools.serialize(serializer.pop_kwargs_from_signature()) | indent(8) }}
+    {% endif %}
+{% if serializer.check_required_parameters() %}
+        {{ op_tools.serialize(serializer.check_required_parameters()) | indent(8) -}}
+{% endif %}
+
+{% for parameter in client.config.parameters.method %}
+        self.{{ parameter.client_name }} = {{ parameter.client_name }}
+{% endfor %}
+{% if serializer.set_constants() %}
+        {{ op_tools.serialize(serializer.set_constants()) | indent(8) -}}
+{% endif %}
+{% if client.credential %}
+    {% set cred_scopes = client.credential.type if client.credential.type.policy is defined and client.credential.type.policy.credential_scopes is defined %}
+    {% if not cred_scopes %}
+        {% set cred_scopes = client.credential.type.types | selectattr("policy.credential_scopes") | first if client.credential.type.types is defined %}
+    {% endif %}
+    {% if cred_scopes %}
+        self.credential_scopes = kwargs.pop('credential_scopes', {{ cred_scopes.policy.credential_scopes }})
+    {% endif %}
+{% endif %}
+        kwargs.setdefault('sdk_moniker', '{{ client.config.sdk_moniker }}/{}'.format(VERSION))
+        self.polling_interval = kwargs.get("polling_interval", 30)
+        self._configure(**kwargs)
+
+{% if client.credential and client.credential.type.types is defined %}
+    def _infer_policy(self, **kwargs):
+    {% for cred_type in client.credential.type.types %}
+        if {{ cred_type.instance_check_template.format("self.credential") }}:
+            return {{ cred_type.policy.call(async_mode) }}
+    {% endfor %}
+        raise TypeError(f"Unsupported credential: {self.credential}")
+{% endif %}
+
+    def _configure(
+        self,
+        **kwargs: Any
+    ) -> None:
+        self.user_agent_policy = kwargs.get('user_agent_policy') or policies.UserAgentPolicy(**kwargs)
+        self.headers_policy = kwargs.get('headers_policy') or policies.HeadersPolicy(**kwargs)
+        self.proxy_policy = kwargs.get('proxy_policy') or policies.ProxyPolicy(**kwargs)
+        self.logging_policy = kwargs.get('logging_policy') or policies.NetworkTraceLoggingPolicy(**kwargs)
+        {% if code_model.is_azure_flavor %}
+        self.http_logging_policy = kwargs.get('http_logging_policy') or {{ "ARM" if client.code_model.options['azure_arm'] else "policies." }}HttpLoggingPolicy(**kwargs)
+        self.custom_hook_policy = kwargs.get('custom_hook_policy') or policies.CustomHookPolicy(**kwargs)
+        self.redirect_policy = kwargs.get('redirect_policy') or policies.{{ keywords.async_class }}RedirectPolicy(**kwargs)
+        {% endif %}
+        self.retry_policy = kwargs.get('retry_policy') or policies.{{ keywords.async_class }}RetryPolicy(**kwargs)
+        self.authentication_policy = kwargs.get('authentication_policy')
+        {% if client.credential and client.credential.type.policy is defined %}
+            {# only adding this if credential_scopes is not passed during code generation #}
+            {% if client.credential.type.policy.credential_scopes is defined and client.credential.type.policy.credential_scopes | length == 0 %}
+        if not self.credential_scopes and not self.authentication_policy:
+            raise ValueError("You must provide either credential_scopes or authentication_policy as kwargs")
+            {% endif %}
+        if self.credential and not self.authentication_policy:
+            self.authentication_policy = {{ client.credential.type.policy.call(async_mode) }}
+        {% endif %}
+        {% if client.credential and client.credential.type.types is defined %}
+        if self.credential and not self.authentication_policy:
+            self.authentication_policy = self._infer_policy(**kwargs)
+        {% endif %}

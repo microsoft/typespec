@@ -2,8 +2,6 @@
 title: Examples
 ---
 
-# Examples
-
 TypeSpec provide 2 decorators `@example` and `@opExample` to provide some examples for the types and operations.
 With those decorators the examples must be provided as TypeSpec values that should be assignable to the type or operation parameter/return types.
 
@@ -62,6 +60,18 @@ model Pet {
   name: string;
   age: int32;
   bark?: boolean;
+}
+```
+
+### Define typed examples using `const`
+
+```tsp
+const petExample: Pet = #{ name: "Max", age: 3 };
+
+@example(petExample)
+model Pet {
+  name: string;
+  age: int32;
 }
 ```
 

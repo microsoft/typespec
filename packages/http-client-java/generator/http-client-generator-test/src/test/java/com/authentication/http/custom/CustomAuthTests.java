@@ -3,9 +3,6 @@
 
 package com.authentication.http.custom;
 
-import com.authentication.apikey.ApiKeyAsyncClient;
-import com.authentication.apikey.ApiKeyClient;
-import com.authentication.apikey.ApiKeyClientBuilder;
 import com.authentication.util.AzureKeyCredentialPolicy;
 import com.azure.core.credential.AzureKeyCredential;
 import com.azure.core.exception.HttpResponseException;
@@ -17,9 +14,10 @@ public class CustomAuthTests {
     @Test
     public void testValid() {
         CustomAsyncClient client = new CustomClientBuilder()
-                // AzureKeyCredentialPolicy from core requires HTTPS
-                .addPolicy(new AzureKeyCredentialPolicy("authorization", new AzureKeyCredential("valid-key"), "SharedAccessKey"))
-                .buildAsyncClient();
+            // AzureKeyCredentialPolicy from core requires HTTPS
+            .addPolicy(
+                new AzureKeyCredentialPolicy("authorization", new AzureKeyCredential("valid-key"), "SharedAccessKey"))
+            .buildAsyncClient();
 
         client.valid().block();
     }
@@ -27,9 +25,10 @@ public class CustomAuthTests {
     @Test
     public void testInvalid() {
         CustomClient client = new CustomClientBuilder()
-                // AzureKeyCredentialPolicy from core requires HTTPS
-                .addPolicy(new AzureKeyCredentialPolicy("authorization", new AzureKeyCredential("invalid-key"), "SharedAccessKey"))
-                .buildClient();
+            // AzureKeyCredentialPolicy from core requires HTTPS
+            .addPolicy(
+                new AzureKeyCredentialPolicy("authorization", new AzureKeyCredential("invalid-key"), "SharedAccessKey"))
+            .buildClient();
 
         // assert HttpResponseException
         Assertions.assertThrows(HttpResponseException.class, client::invalid);

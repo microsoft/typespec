@@ -516,6 +516,7 @@
              "optional": false,
              "readOnly": false,
              "discriminator": false,
+             "flatten": false,
              "decorators": [],
              "crossLanguageDefinitionId": "Type.Union.Cat.name"
             }
@@ -554,6 +555,7 @@
         "optional": false,
         "readOnly": false,
         "discriminator": false,
+        "flatten": false,
         "decorators": [],
         "crossLanguageDefinitionId": "Type.Union.MixedTypesCases.model"
        },
@@ -604,6 +606,7 @@
         "optional": false,
         "readOnly": false,
         "discriminator": false,
+        "flatten": false,
         "decorators": [],
         "crossLanguageDefinitionId": "Type.Union.MixedTypesCases.literal"
        },
@@ -654,6 +657,7 @@
         "optional": false,
         "readOnly": false,
         "discriminator": false,
+        "flatten": false,
         "decorators": [],
         "crossLanguageDefinitionId": "Type.Union.MixedTypesCases.int"
        },
@@ -704,6 +708,7 @@
         "optional": false,
         "readOnly": false,
         "discriminator": false,
+        "flatten": false,
         "decorators": [],
         "crossLanguageDefinitionId": "Type.Union.MixedTypesCases.boolean"
        },
@@ -761,6 +766,7 @@
         "optional": false,
         "readOnly": false,
         "discriminator": false,
+        "flatten": false,
         "decorators": [],
         "crossLanguageDefinitionId": "Type.Union.MixedTypesCases.array"
        }
@@ -769,6 +775,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop"
     }
@@ -799,6 +806,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous.prop"
     }
@@ -894,6 +902,7 @@
         "optional": false,
         "readOnly": false,
         "discriminator": false,
+        "flatten": false,
         "decorators": [],
         "crossLanguageDefinitionId": "Type.Union.MixedLiteralsCases.stringLiteral"
        },
@@ -966,6 +975,7 @@
         "optional": false,
         "readOnly": false,
         "discriminator": false,
+        "flatten": false,
         "decorators": [],
         "crossLanguageDefinitionId": "Type.Union.MixedLiteralsCases.intLiteral"
        },
@@ -1038,6 +1048,7 @@
         "optional": false,
         "readOnly": false,
         "discriminator": false,
+        "flatten": false,
         "decorators": [],
         "crossLanguageDefinitionId": "Type.Union.MixedLiteralsCases.floatLiteral"
        },
@@ -1110,6 +1121,7 @@
         "optional": false,
         "readOnly": false,
         "discriminator": false,
+        "flatten": false,
         "decorators": [],
         "crossLanguageDefinitionId": "Type.Union.MixedLiteralsCases.booleanLiteral"
        }
@@ -1118,6 +1130,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop"
     }
@@ -1145,6 +1158,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous.prop"
     }
@@ -1209,6 +1223,7 @@
         "optional": false,
         "readOnly": false,
         "discriminator": false,
+        "flatten": false,
         "decorators": [],
         "crossLanguageDefinitionId": "Type.Union.StringAndArrayCases.string"
        },
@@ -1250,6 +1265,7 @@
         "optional": false,
         "readOnly": false,
         "discriminator": false,
+        "flatten": false,
         "decorators": [],
         "crossLanguageDefinitionId": "Type.Union.StringAndArrayCases.array"
        }
@@ -1258,6 +1274,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop"
     }
@@ -1285,6 +1302,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous.prop"
     }
@@ -1323,6 +1341,7 @@
         "optional": false,
         "readOnly": false,
         "discriminator": false,
+        "flatten": false,
         "decorators": [],
         "crossLanguageDefinitionId": "Type.Union.EnumsOnlyCases.lr"
        },
@@ -1338,6 +1357,7 @@
         "optional": false,
         "readOnly": false,
         "discriminator": false,
+        "flatten": false,
         "decorators": [],
         "crossLanguageDefinitionId": "Type.Union.EnumsOnlyCases.ud"
        }
@@ -1346,6 +1366,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop"
     }
@@ -1373,6 +1394,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous.prop"
     }
@@ -1422,6 +1444,7 @@
           "optional": false,
           "readOnly": false,
           "discriminator": false,
+          "flatten": false,
           "decorators": [],
           "crossLanguageDefinitionId": "Type.Union.Dog.bark"
          }
@@ -1433,6 +1456,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop"
     }
@@ -1471,6 +1495,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous.prop"
     }
@@ -1495,6 +1520,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop"
     }
@@ -1519,6 +1545,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous.prop"
     }
@@ -1543,6 +1570,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop"
     }
@@ -1567,6 +1595,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous.prop"
     }
@@ -1591,6 +1620,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop"
     }
@@ -1615,6 +1645,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous.prop"
     }
@@ -1639,6 +1670,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop"
     }
@@ -1663,6 +1695,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous.prop"
     }
@@ -1687,6 +1720,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop"
     }
@@ -1711,6 +1745,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous.prop"
     }

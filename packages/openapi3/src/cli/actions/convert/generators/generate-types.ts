@@ -9,7 +9,7 @@ export class SchemaToExpressionGenerator {
 
   public generateTypeFromRefableSchema(
     schema: Refable<OpenAPI3Schema>,
-    callingScope: string[]
+    callingScope: string[],
   ): string {
     const hasRef = "$ref" in schema;
     return hasRef
@@ -38,7 +38,7 @@ export class SchemaToExpressionGenerator {
 
   private getRefScopeAndName(
     ref: string,
-    callingScope: string[]
+    callingScope: string[],
   ): ReturnType<typeof getScopeAndName> {
     const parts = ref.split("/");
     const name = parts.pop() ?? "";
@@ -147,7 +147,7 @@ export class SchemaToExpressionGenerator {
           .join("");
         const isOptional = !requiredProps.includes(name) ? "?" : "";
         props.push(
-          `${decorators}${printIdentifier(name)}${isOptional}: ${this.generateTypeFromRefableSchema(schema.properties[name], callingScope)}`
+          `${decorators}${printIdentifier(name)}${isOptional}: ${this.generateTypeFromRefableSchema(schema.properties[name], callingScope)}`,
         );
       }
     }
