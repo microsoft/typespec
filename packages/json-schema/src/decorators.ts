@@ -373,7 +373,7 @@ function isJsonTemplateType(
   );
 }
 
-/** {@inheritdoc ValidateRawJsonDecorator} */
+/** @internal */
 export const $validatesRawJson: ValidatesRawJsonDecorator = (
   context: DecoratorContext,
   target: Model,
