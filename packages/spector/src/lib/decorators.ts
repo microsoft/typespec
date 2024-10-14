@@ -23,16 +23,16 @@ import {
   ScenarioDecorator,
   ScenarioDocDecorator,
   ScenarioServiceDecorator,
-} from "../generated-defs/TypeSpec.SpecLib.js";
-import { SpecLibStateKeys } from "./lib.js";
+} from "../../generated-defs/TypeSpec.Spector.js";
+import { SpectorStateKeys } from "./lib.js";
 
 export const $scenario: ScenarioDecorator = (context, target, name?) => {
-  context.program.stateMap(SpecLibStateKeys.Scenario).set(target, name ?? target.name);
+  context.program.stateMap(SpectorStateKeys.Scenario).set(target, name ?? target.name);
 };
 
 export const $scenarioDoc: ScenarioDocDecorator = (context, target, doc, formatArgs?) => {
   const formattedDoc = formatArgs ? replaceTemplatedStringFromProperties(doc, formatArgs) : doc;
-  context.program.stateMap(SpecLibStateKeys.ScenarioDoc).set(target, formattedDoc);
+  context.program.stateMap(SpectorStateKeys.ScenarioDoc).set(target, formattedDoc);
 };
 
 export const $scenarioService: ScenarioServiceDecorator = (context, target, route, options?) => {
@@ -40,7 +40,7 @@ export const $scenarioService: ScenarioServiceDecorator = (context, target, rout
     type: { kind: "String", value: getNamespaceFullName(target).replace(/\./g, "") },
   });
 
-  context.program.stateSet(SpecLibStateKeys.ScenarioService).add(target);
+  context.program.stateSet(SpectorStateKeys.ScenarioService).add(target);
 
   const versions = options ? (options as Model).properties.get("versioned")?.type : null;
   if (versions) {
@@ -63,7 +63,7 @@ export function getScenarioDoc(
   program: Program,
   target: Operation | Interface | Namespace,
 ): string | undefined {
-  return program.stateMap(SpecLibStateKeys.ScenarioDoc).get(target);
+  return program.stateMap(SpectorStateKeys.ScenarioDoc).get(target);
 }
 
 function replaceTemplatedStringFromProperties(formatString: string, formatArgs: Model) {
@@ -210,14 +210,14 @@ function resolveScenarioName(target: Operation | Interface | Namespace, name: st
 }
 
 export function isScenario(program: Program, target: Operation | Interface | Namespace): boolean {
-  return program.stateMap(SpecLibStateKeys.Scenario).has(target);
+  return program.stateMap(SpectorStateKeys.Scenario).has(target);
 }
 
 export function getScenarioName(
   program: Program,
   target: Operation | Interface | Namespace,
 ): string | undefined {
-  const name = program.stateMap(SpecLibStateKeys.Scenario).get(target);
+  const name = program.stateMap(SpectorStateKeys.Scenario).get(target);
   if (name === undefined) {
     return undefined;
   }
