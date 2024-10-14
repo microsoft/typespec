@@ -2,12 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
-using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection.PortableExecutable;
 using System.Threading;
 using Microsoft.Generator.CSharp.ClientModel.Primitives;
 using Microsoft.Generator.CSharp.ClientModel.Snippets;
@@ -18,7 +16,6 @@ using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
-using static Microsoft.Generator.CSharp.StringExtensions.GetPathPartsEnumerator;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
@@ -37,13 +34,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private readonly FieldProvider? _authorizationHeaderConstant;
         private readonly FieldProvider? _authorizationApiKeyPrefixConstant;
         private FieldProvider? _apiVersionField;
-        private readonly ParameterProvider[] _subClientInternalConstructorParams;
+        private readonly List<ParameterProvider> _subClientInternalConstructorParams;
         private IReadOnlyList<Lazy<ClientProvider>>? _subClients;
         private ParameterProvider? _clientOptionsParameter;
         private ClientOptionsProvider? _clientOptions;
         private RestClientProvider? _restClient;
         private readonly InputParameter[] _allClientParameters;
-        private Lazy<ClientProvider?> _parent;
+        //private Lazy<ClientProvider?> _parent;
 
         private ParameterProvider? ClientOptionsParameter => _clientOptionsParameter ??= ClientOptions != null
             ? ScmKnownParameters.ClientOptions(ClientOptions.Type)
@@ -124,7 +121,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     $"_cached{Name}",
                     this);
             }
-            _parent = new Lazy<ClientProvider?>(GetParent);
+            //_parent = new Lazy<ClientProvider?>(GetParent);
             _endpointParameterName = new(GetEndpointParameterName);
 
             _allClientParameters = _inputClient.Parameters.Concat(_inputClient.Operations.SelectMany(op => op.Parameters).Where(p => p.Kind == InputOperationParameterKind.Client)).DistinctBy(p => p.Name).ToArray();
@@ -136,12 +133,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             if (_uriParameters is null)
             {
                 _ = Constructors;
-                if (_parent.Value is not null)
-                {
-                    var combined = new HashSet<ParameterProvider>(_uriParameters ?? []);
-                    combined.UnionWith(_parent.Value.GetUriParameters());
-                    _uriParameters = combined.ToList();
-                }
+                //if (_parent.Value is not null)
+                //{
+                //    var combined = new HashSet<ParameterProvider>(_uriParameters ?? []);
+                //    combined.UnionWith(_parent.Value.GetUriParameters());
+                //    _uriParameters = combined.ToList();
+                //}
             }
             return _uriParameters ?? [];
         }
@@ -197,11 +194,16 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     var type = ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(p.Type);
                     if (type != null)
                     {
-                        fields.Add(new(
+                        FieldProvider field = new(
                             FieldModifiers.Private | FieldModifiers.ReadOnly,
                             type,
                             "_" + p.Name.ToVariableName(),
-                            this));
+                            this);
+                        if (p.IsApiVersion)
+                        {
+                            _apiVersionField = field;
+                        }
+                        fields.Add(field);
                     }
                 }
             }
