@@ -5,33 +5,29 @@ export const Scenarios: Record<string, ScenarioMockApi> = {};
 function createTests(uri: string) {
   const url = new URL("http://example.com" + uri);
   const searchParams = url.searchParams;
-  const params: Record<string, any> = {};
-  for (const [key, value] of searchParams) {
-    params[key] = value;
+  const queryMap = new Map<string, string | string[]>();
+  for (const [key, value] of url.searchParams.entries()) {
+    if (queryMap.has(key)) {
+      const existing = queryMap.get(key)!;
+      if (Array.isArray(existing)) {
+        existing.push(value);
+      } else {
+        queryMap.set(key, [existing, value]);
+      }
+    } else {
+      queryMap.set(key, value);
+    }
   }
   return passOnSuccess({
     uri: url.pathname,
     method: "get",
     request: {
-      params,
+      queryMap,
     },
     response: {
       status: 204,
     },
     handler: (req: MockRequest) => {
-      const queryMap = new Map<string, string | string[]>();
-      for (const [key, value] of url.searchParams.entries()) {
-        if (queryMap.has(key)) {
-          const existing = queryMap.get(key)!;
-          if (Array.isArray(existing)) {
-            existing.push(value);
-          } else {
-            queryMap.set(key, [existing, value]);
-          }
-        } else {
-          queryMap.set(key, value);
-        }
-      }
       for (const [key, value] of queryMap.entries()) {
         if (Array.isArray(value)) {
           req.expect.containsQueryParam(key, value, "multi");
