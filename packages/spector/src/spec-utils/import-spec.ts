@@ -1,6 +1,6 @@
+import { type ResolveModuleHost, resolveModule } from "@typespec/compiler/module-resolver";
 import { readFile, realpath, stat } from "fs/promises";
 import { pathToFileURL } from "url";
-import { ResolveModuleHost, resolveModule } from "./module-resolver.js";
 
 export async function importTypeSpec(
   baseDir: string,
@@ -34,7 +34,7 @@ export async function importTypeSpecLibrary(name: string, baseDir: string): Prom
     const resolved = await resolveModule(host, name, {
       baseDir,
     });
-    return import(pathToFileURL(resolved).toString());
+    return import(pathToFileURL(resolved.path).toString());
   } catch (err: any) {
     if (err.code === "MODULE_NOT_FOUND") {
       // Resolution from cwd failed: use current package.
