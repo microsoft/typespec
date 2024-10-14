@@ -4,7 +4,6 @@ export const Scenarios: Record<string, ScenarioMockApi> = {};
 
 function createTests(uri: string) {
   const url = new URL("http://example.com" + uri);
-  const searchParams = url.searchParams;
   const queryMap = new Map<string, string | string[]>();
   for (const [key, value] of url.searchParams.entries()) {
     if (queryMap.has(key)) {
