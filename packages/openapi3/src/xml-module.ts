@@ -8,25 +8,18 @@ import {
   isArrayModelType,
   resolveEncodedName,
 } from "@typespec/compiler";
-
 import { ArrayBuilder, ObjectBuilder } from "@typespec/compiler/emitter-framework";
 import { getNs, isAttribute, isUnwrapped } from "@typespec/xml";
 import { reportDiagnostic } from "./lib.js";
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { getSchemaForStdScalars } from "./std-scalar-schemas.js";
 import { OpenAPI3Schema, OpenAPI3XmlSchema } from "./types.js";
+
 const B = {
   array: <T>(items: T[]): ArrayBuilder<T> => {
     const builder = new ArrayBuilder<T>();
     for (const item of items) {
       builder.push(item);
-    }
-    return builder;
-  },
-  object: <T extends Record<string, unknown>>(obj: T): ObjectBuilder<T[string]> => {
-    const builder = new ObjectBuilder<T[string]>();
-    for (const [key, value] of Object.entries(obj)) {
-      builder.set(key, value as any);
     }
     return builder;
   },
