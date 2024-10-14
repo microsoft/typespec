@@ -1,7 +1,7 @@
 import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 
 export const $lib = createTypeSpecLibrary({
-  name: "@typespec/spec-lib",
+  name: "@typespec/spector",
   diagnostics: {
     "category-invalid": {
       severity: "error",
@@ -30,4 +30,4 @@ export const $lib = createTypeSpecLibrary({
   },
 });
 
-export const { reportDiagnostic, createStateSymbol, stateKeys: SpecLibStateKeys } = $lib;
+export const { reportDiagnostic, createStateSymbol, stateKeys: SpectorStateKeys } = $lib;

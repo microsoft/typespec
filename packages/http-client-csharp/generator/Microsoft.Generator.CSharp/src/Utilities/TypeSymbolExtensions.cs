@@ -116,6 +116,8 @@ namespace Microsoft.Generator.CSharp
 
                     if (argTypeSymbol != null)
                     {
+                        // If the argument type is an error type, then fall back to using the ToString of the arg type symbol. This means that the
+                        // arg may not be fully qualified, but it is better than not having any type information at all.
                         if (argTypeSymbol.TypeKind == TypeKind.Error)
                         {
                             return $"{NullableTypeName}`1[{argTypeSymbol}]";

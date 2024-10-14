@@ -1,4 +1,4 @@
-import { json, MockRequest, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
+import { json, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -34,9 +34,6 @@ Scenarios.Type_Model_Inheritance_SingleDiscriminator_getModel = passOnSuccess({
     status: 200,
     body: json(validPolymorphicBody),
   },
-  handler: (req: MockRequest) => {
-    return { status: 200, body: json(validPolymorphicBody) };
-  },
   kind: "MockApiDefinition",
 });
 Scenarios.Type_Model_Inheritance_SingleDiscriminator_putModel = passOnSuccess({
@@ -47,10 +44,6 @@ Scenarios.Type_Model_Inheritance_SingleDiscriminator_putModel = passOnSuccess({
   },
   response: {
     status: 204,
-  },
-  handler: (req: MockRequest) => {
-    req.expect.bodyEquals(validPolymorphicBody);
-    return { status: 204 };
   },
   kind: "MockApiDefinition",
 });
@@ -63,9 +56,6 @@ Scenarios.Type_Model_Inheritance_SingleDiscriminator_getRecursiveModel = passOnS
     status: 200,
     body: json(validRecursiveBody),
   },
-  handler: (req: MockRequest) => {
-    return { status: 200, body: json(validRecursiveBody) };
-  },
   kind: "MockApiDefinition",
 });
 Scenarios.Type_Model_Inheritance_SingleDiscriminator_putRecursiveModel = passOnSuccess({
@@ -76,10 +66,6 @@ Scenarios.Type_Model_Inheritance_SingleDiscriminator_putRecursiveModel = passOnS
   },
   response: {
     status: 204,
-  },
-  handler: (req: MockRequest) => {
-    req.expect.bodyEquals(validRecursiveBody);
-    return { status: 204 };
   },
   kind: "MockApiDefinition",
 });
@@ -92,9 +78,6 @@ Scenarios.Type_Model_Inheritance_SingleDiscriminator_getMissingDiscriminator = p
     status: 200,
     body: json({ wingspan: 1 }),
   },
-  handler: (req: MockRequest) => {
-    return { status: 200, body: json({ wingspan: 1 }) };
-  },
   kind: "MockApiDefinition",
 });
 
@@ -106,9 +89,6 @@ Scenarios.Type_Model_Inheritance_SingleDiscriminator_getWrongDiscriminator = pas
     status: 200,
     body: json({ wingspan: 1, kind: "wrongKind" }),
   },
-  handler: (req: MockRequest) => {
-    return { status: 200, body: json({ wingspan: 1, kind: "wrongKind" }) };
-  },
   kind: "MockApiDefinition",
 });
 Scenarios.Type_Model_Inheritance_SingleDiscriminator_getLegacyModel = passOnSuccess({
@@ -118,9 +98,6 @@ Scenarios.Type_Model_Inheritance_SingleDiscriminator_getLegacyModel = passOnSucc
   response: {
     status: 200,
     body: json({ size: 20, kind: "t-rex" }),
-  },
-  handler: (req: MockRequest) => {
-    return { status: 200, body: json({ size: 20, kind: "t-rex" }) };
   },
   kind: "MockApiDefinition",
 });
