@@ -1311,7 +1311,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         /// </summary>
         private MethodBodyStatement[] CreateWritePropertiesStatements()
         {
-            var properties = _model.CanonicalView!.Properties;
+            var properties = _model.CanonicalView.Properties;
             List<MethodBodyStatement> propertyStatements = new();
             foreach (var property in properties)
             {

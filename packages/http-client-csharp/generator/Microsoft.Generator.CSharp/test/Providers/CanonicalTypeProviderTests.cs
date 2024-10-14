@@ -36,26 +36,26 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         [Test]
         public void ValidateModifiers()
         {
-            var modifiers = _typeProvider.CanonicalView!.DeclarationModifiers;
+            var modifiers = _typeProvider.CanonicalView.DeclarationModifiers;
             Assert.IsTrue(modifiers.HasFlag(TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class));
         }
 
         [Test]
         public void ValidateName()
         {
-            Assert.AreEqual(_typeProvider.Name, _typeProvider.CanonicalView!.Name);
+            Assert.AreEqual(_typeProvider.Name, _typeProvider.CanonicalView.Name);
         }
 
         [Test]
         public void ValidateNamespace()
         {
-            Assert.AreEqual(_typeProvider.Namespace, _typeProvider.CanonicalView!.Namespace);
+            Assert.AreEqual(_typeProvider.Namespace, _typeProvider.CanonicalView.Namespace);
         }
 
         [Test]
         public void ValidateProperties()
         {
-            Dictionary<string, PropertyProvider> properties = _typeProvider.CanonicalView!.Properties.ToDictionary(p => p.Name);
+            Dictionary<string, PropertyProvider> properties = _typeProvider.CanonicalView.Properties.ToDictionary(p => p.Name);
             Assert.AreEqual(5, properties.Count);
             Assert.AreEqual(1, _typeProvider.Properties.Count);
             Assert.AreEqual(4, _typeProvider.CustomCodeView!.Properties.Count);

@@ -457,14 +457,14 @@ namespace Microsoft.Generator.CSharp.Providers
             if (isPrimaryConstructor)
             {
                 // the primary ctor should only include the properties of the direct base model
-                baseProperties = BaseModelProvider?.CanonicalView!.Properties ?? [];
+                baseProperties = BaseModelProvider?.CanonicalView.Properties ?? [];
             }
             else if (BaseModelProvider?.FullConstructor.Signature != null)
             {
                 baseParameters.AddRange(BaseModelProvider.FullConstructor.Signature.Parameters);
             }
 
-            HashSet<PropertyProvider> overriddenProperties = CanonicalView!.Properties.Where(p => p.BaseProperty is not null).Select(p => p.BaseProperty!).ToHashSet();
+            HashSet<PropertyProvider> overriddenProperties = CanonicalView.Properties.Where(p => p.BaseProperty is not null).Select(p => p.BaseProperty!).ToHashSet();
 
             // add the base parameters, if any
             foreach (var property in baseProperties)
@@ -506,7 +506,7 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             if (_inputModel.BaseModel is not null && _inputModel.DiscriminatorValue is not null)
             {
-                var discriminator = BaseModelProvider?.CanonicalView!.Properties.Where(p => p.IsDiscriminator).FirstOrDefault();
+                var discriminator = BaseModelProvider?.CanonicalView.Properties.Where(p => p.IsDiscriminator).FirstOrDefault();
                 if (discriminator != null)
                 {
                     var type = discriminator.Type;
@@ -617,7 +617,7 @@ namespace Microsoft.Generator.CSharp.Providers
             bool isPrimaryConstructor,
             IReadOnlyList<ParameterProvider>? parameters = null)
         {
-            List<MethodBodyStatement> methodBodyStatements = new(CanonicalView!.Properties.Count + 1);
+            List<MethodBodyStatement> methodBodyStatements = new(CanonicalView.Properties.Count + 1);
             Dictionary<string, ParameterProvider> parameterMap = parameters?.ToDictionary(p => p.Name) ?? [];
 
             foreach (var property in CanonicalView.Properties)
