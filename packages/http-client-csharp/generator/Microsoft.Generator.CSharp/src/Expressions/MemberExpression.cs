@@ -13,6 +13,7 @@ namespace Microsoft.Generator.CSharp.Expressions
                 writer.AppendRaw(".");
             }
             // workaround to avoid Roslyn reducing properties named Object to object
+            // Should come up with a better approach - https://github.com/microsoft/typespec/issues/4724
             writer.AppendRaw(MemberName == "Object" && Inner == null ? $"this.{MemberName}" : MemberName);
         }
     }
