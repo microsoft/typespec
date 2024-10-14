@@ -1,3 +1,4 @@
+/** @internal */
 export { JsonSchemaEmitter } from "./json-schema-emitter.js";
 export { $flags, $lib, EmitterOptionsSchema, JSONSchemaEmitterOptions } from "./lib.js";
 

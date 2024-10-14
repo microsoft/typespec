@@ -5,13 +5,26 @@ import {
   paramMessage,
 } from "@typespec/compiler";
 
+/**
+ * File type
+ */
 export type FileType = "yaml" | "json";
+
+/**
+ * Strategy for handling the int64 type in the resulting json schema.
+ * - string: As a string
+ * - number: As a number (In JavaScript, int64 cannot be accurately represented as number)
+ *
+ */
 export type Int64Strategy = "string" | "number";
 
+/**
+ * Json schema emitter options
+ */
 export interface JSONSchemaEmitterOptions {
   /**
    * Serialize the schema as either yaml or json.
-   * @default yaml, it not specified infer from the `output-file` extension
+   * @defaultValue yaml it not specified infer from the `output-file` extension
    */
   "file-type"?: FileType;
 
@@ -32,7 +45,7 @@ export interface JSONSchemaEmitterOptions {
 
   /**
    * When true, emit all model declarations to JSON Schema without requiring
-   * the @jsonSchema decorator.
+   * the `@jsonSchema` decorator.
    */
   emitAllModels?: boolean;
 
@@ -44,6 +57,9 @@ export interface JSONSchemaEmitterOptions {
   emitAllRefs?: boolean;
 }
 
+/**
+ * Internal: Json Schema emitter options schema
+ */
 export const EmitterOptionsSchema: JSONSchemaType<JSONSchemaEmitterOptions> = {
   type: "object",
   additionalProperties: false,
@@ -85,6 +101,7 @@ export const EmitterOptionsSchema: JSONSchemaType<JSONSchemaEmitterOptions> = {
   required: [],
 };
 
+/** Internal: TypeSpec library definition */
 export const $lib = createTypeSpecLibrary({
   name: "@typespec/json-schema",
   diagnostics: {
@@ -112,6 +129,7 @@ export const $lib = createTypeSpecLibrary({
   },
 } as const);
 
+/** Internal: TypeSpec flags */
 export const $flags = definePackageFlags({});
 
 export const { reportDiagnostic, createStateSymbol } = $lib;
