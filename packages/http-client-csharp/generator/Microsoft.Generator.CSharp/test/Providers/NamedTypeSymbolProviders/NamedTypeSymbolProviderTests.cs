@@ -102,10 +102,15 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.NamedTypeSymbolProviders
             var property = _namedTypeSymbolProvider.Properties.FirstOrDefault();
             Assert.IsNotNull(property);
 
-            bool isNullable = Nullable.GetUnderlyingType(propertyType) != null;
-            var expectedType = propertyType.FullName!.StartsWith("System")
+            Type? nullableUnderlyingType = Nullable.GetUnderlyingType(propertyType);
+            var propertyName = nullableUnderlyingType?.Name ?? propertyType.Name;
+            bool isNullable = nullableUnderlyingType != null;
+            bool isSystemType = propertyType.FullName!.StartsWith("System")
+                && (!isNullable || nullableUnderlyingType?.Namespace?.StartsWith("System") == true);
+
+            var expectedType = isSystemType
                 ? new CSharpType(propertyType, isNullable)
-                : new CSharpType(propertyType.Name, propertyType.Namespace!, false, isNullable, null, [], false, false);
+                : new CSharpType(propertyName, propertyType.Namespace!, false, isNullable, null, [], false, false);
 
             var propertyCSharpType = property!.Type;
 
@@ -114,9 +119,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.NamedTypeSymbolProviders
             Assert.AreEqual(expectedType.IsList, propertyCSharpType.IsList);
             Assert.AreEqual(expectedType.Arguments.Count, propertyCSharpType.Arguments.Count);
             Assert.AreEqual(expectedType.IsCollection, propertyCSharpType.IsCollection);
-
-            var isFrameworkType = !isEnum && expectedType.IsFrameworkType;
-            Assert.AreEqual(isFrameworkType, propertyCSharpType.IsFrameworkType);
+            Assert.AreEqual(expectedType.IsFrameworkType, propertyCSharpType.IsFrameworkType);
 
             for (var i = 0; i < expectedType.Arguments.Count; i++)
             {
@@ -125,7 +128,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.NamedTypeSymbolProviders
             }
 
             // validate the underlying types aren't nullable
-            if (isNullable && isFrameworkType)
+            if (isNullable && expectedType.IsFrameworkType)
             {
                 var underlyingType = propertyCSharpType.FrameworkType;
                 Assert.IsTrue(Nullable.GetUnderlyingType(underlyingType) == null);
