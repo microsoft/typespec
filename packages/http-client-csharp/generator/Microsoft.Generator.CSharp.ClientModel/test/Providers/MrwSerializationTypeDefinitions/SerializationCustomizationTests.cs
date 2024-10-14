@@ -114,6 +114,38 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
+        // Validates that the custom serialization method is used in the serialization provider
+        // for the custom property that exists in the base model.
+        [Test]
+        public async Task CanCustomizeSerializationMethodForPropertyInBase()
+        {
+            var baseModel = InputFactory.Model(
+                "baseModel",
+                usage: InputModelTypeUsage.Input,
+                properties: [InputFactory.Property("Prop1", InputPrimitiveType.Int32, isRequired: true)]);
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModels: () => [
+                    InputFactory.Model(
+                        "mockInputModel",
+                        usage: InputModelTypeUsage.Json,
+                        properties:
+                        [
+                            InputFactory.Property("OtherProp", InputPrimitiveType.Int32, isRequired: true),
+                        ],
+                        baseModel: baseModel),
+                ],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = plugin.Object.OutputLibrary.TypeProviders.FirstOrDefault(t => t is ModelProvider);
+            Assert.IsNotNull(modelProvider);
+            var serializationProvider = modelProvider!.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            Assert.IsNotNull(serializationProvider);
+
+            var writer = new TypeProviderWriter(serializationProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
         // Validates that a properties serialization name can be changed using custom code.
         [Test]
         public async Task CanChangePropertySerializedName()
