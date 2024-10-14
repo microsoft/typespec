@@ -532,7 +532,5 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private IEnumerable<AttributeData> GetMemberSuppressionAttributes()
             => CustomCodeView?.GetAttributes()?.Where(a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenSuppressAttributeName) ?? [];
-        private IEnumerable<AttributeData> GetCodeGenSerializationAttributes()
-            => CustomCodeView?.GetAttributes()?.Where(a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenSerializationAttributeName) ?? [];
     }
 }

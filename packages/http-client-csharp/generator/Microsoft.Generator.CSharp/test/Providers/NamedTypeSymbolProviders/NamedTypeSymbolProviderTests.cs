@@ -71,6 +71,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.NamedTypeSymbolProviders
         [TestCase(typeof(IList<string>))]
         [TestCase(typeof(IList<string?>))]
         [TestCase(typeof(IList<PropertyType>))]
+        [TestCase(typeof(IList<SomeEnum>))]
         [TestCase(typeof(ReadOnlyMemory<byte>?))]
         [TestCase(typeof(ReadOnlyMemory<byte>))]
         [TestCase(typeof(ReadOnlyMemory<object>))]
@@ -80,7 +81,10 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.NamedTypeSymbolProviders
         [TestCase(typeof(string[]))]
         [TestCase(typeof(IDictionary<int, int>))]
         [TestCase(typeof(BinaryData))]
-        public void ValidatePropertyTypes(Type propertyType)
+        [TestCase(typeof(SomeEnum), true)]
+        [TestCase(typeof(SomeEnum?), true)]
+        [TestCase(typeof(IDictionary<string, SomeEnum>))]
+        public void ValidatePropertyTypes(Type propertyType, bool isEnum = false)
         {
             // setup
             var namedSymbol = new NamedSymbol(propertyType);
@@ -95,9 +99,15 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.NamedTypeSymbolProviders
             var property = _namedTypeSymbolProvider.Properties.FirstOrDefault();
             Assert.IsNotNull(property);
 
-            bool isNullable = Nullable.GetUnderlyingType(propertyType) != null;
-            var expectedType = propertyType.FullName!.StartsWith("System") ? new CSharpType(propertyType, isNullable) :
-                new CSharpType(propertyType.Name, propertyType.Namespace!, false, isNullable, null, [], false, false);
+            Type? nullableUnderlyingType = Nullable.GetUnderlyingType(propertyType);
+            var propertyName = nullableUnderlyingType?.Name ?? propertyType.Name;
+            bool isNullable = nullableUnderlyingType != null;
+            bool isSystemType = propertyType.FullName!.StartsWith("System")
+                && (!isNullable || nullableUnderlyingType?.Namespace?.StartsWith("System") == true);
+
+            var expectedType = isSystemType
+                ? new CSharpType(propertyType, isNullable)
+                : new CSharpType(propertyName, propertyType.Namespace!, false, isNullable, null, [], false, false);
 
             var propertyCSharpType = property!.Type;
 
@@ -187,6 +197,11 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.NamedTypeSymbolProviders
                 Assert.AreEqual($"{expected.Description}.", actual.Description!.ToString()); // the writer adds a period
                 Assert.AreEqual(expected.InitializationValue, actual.InitializationValue);
             }
+        }
+
+        public enum SomeEnum
+        {
+            Foo,
         }
     }
 }

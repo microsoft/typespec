@@ -113,6 +113,30 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task CanChangePropertyTypeToEnum()
+        {
+            var props = new[]
+            {
+                InputFactory.Property("Prop1", InputPrimitiveType.String)
+            };
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
+
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelTypeProvider = plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+            AssertCommon(modelTypeProvider, "Sample.Models", "MockInputModel");
+
+            // the property should be added to the custom code view
+            Assert.AreEqual(1, modelTypeProvider.CustomCodeView!.Properties.Count);
+            // the property type should be changed
+            Assert.AreEqual("SomeEnum", modelTypeProvider.CustomCodeView.Properties[0].Type.Name);
+            Assert.IsTrue(modelTypeProvider.CustomCodeView.Properties[0].Type.IsNullable);
+        }
+
+        [Test]
         public async Task CanChangePropertyAccessibility()
         {
             var plugin = await MockHelpers.LoadMockPluginAsync(

@@ -152,7 +152,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         }
 
         // Validates that a method with a struct parameter can be replaced
-        [Test]
         [TestCase(true)]
         [TestCase(false)]
         public async Task CanReplaceStructMethod(bool isStructCustomized)
@@ -190,7 +189,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             var customMethodParams = customMethods[0].Signature.Parameters;
             Assert.AreEqual(1, customMethodParams.Count);
             Assert.AreEqual("p1", customMethodParams[0].Name);
-            Assert.AreEqual(isStructCustomized ? "Sample.TestClient.MyStruct" : "MyStruct", customMethodParams[0].Type.Name);
+            Assert.AreEqual("MyStruct", customMethodParams[0].Type.Name);
+            Assert.AreEqual(isStructCustomized ? "Sample.TestClient" : string.Empty, customMethodParams[0].Type.Namespace);
 
             Assert.IsTrue(customMethodParams[0].Type.IsStruct);
             Assert.IsTrue(customMethodParams[0].Type.IsNullable);
