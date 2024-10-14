@@ -21,7 +21,7 @@ function createTests(uri: string) {
     uri: url.pathname,
     method: "get",
     request: {
-      params: queryMap,
+      params: Object.fromEntries(queryMap),
     },
     response: {
       status: 204,
