@@ -6,6 +6,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build-src": "babel src -d dist --extensions .ts,.tsx",
+    "clean": "rimraf ./dist ./temp",
     "build": "tsc -p . && npm run build-src",
     "watch-src": "babel src -d dist/src --extensions '.ts,.tsx' --watch",
     "watch-tsc": "tsc -p . --watch",

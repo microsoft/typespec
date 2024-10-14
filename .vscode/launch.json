@@ -60,8 +60,8 @@
       "args": [
         "compile",
         "../samples/specs/petstore",
-        "--output-dir=${workspaceFolder}/petstore-output",
-        "--emit=efnext-python"
+        "--emit=${workspaceFolder}/packages/efnext-python"
+        //"--emit=@typespec/openapi3"
       ],
       "smartStep": true,
       "sourceMaps": true,
