@@ -50,6 +50,7 @@ components:
       type: object
       required:
         - name
+        - kind
       properties:
         name:
           type: string
