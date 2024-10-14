@@ -107,13 +107,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 Assert.IsNotNull(optionalParamField);
                 Assert.AreEqual(new CSharpType(typeof(string), isNullable: true), optionalParamField?.Type);
 
-                var optionalParam2Field = fields.FirstOrDefault(f => f.Name == "_optionalParam2");
-                Assert.IsNotNull(optionalParam2Field);
-                Assert.AreEqual(new CSharpType(typeof(string), isNullable: false), optionalParam2Field?.Type);
+                var requiredParam2Field = fields.FirstOrDefault(f => f.Name == "_requiredParam2");
+                Assert.IsNotNull(requiredParam2Field);
+                Assert.AreEqual(new CSharpType(typeof(string), isNullable: false), requiredParam2Field?.Type);
 
-                var optionalParam3Field = fields.FirstOrDefault(f => f.Name == "_optionalParam3");
-                Assert.IsNotNull(optionalParam3Field);
-                Assert.AreEqual(new CSharpType(typeof(long), isNullable: false), optionalParam3Field?.Type);
+                var requiredParam3Field = fields.FirstOrDefault(f => f.Name == "_requiredParam3");
+                Assert.IsNotNull(requiredParam3Field);
+                Assert.AreEqual(new CSharpType(typeof(long), isNullable: false), requiredParam3Field?.Type);
             }
         }
 
@@ -495,14 +495,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                         kind: InputOperationParameterKind.Client,
                         isRequired: false),
                     InputFactory.Parameter(
-                        "optionalParam2",
+                        "requiredParam2",
                         InputPrimitiveType.String,
                         location: RequestLocation.None,
                         defaultValue: InputFactory.Constant.String("someValue"),
                         kind: InputOperationParameterKind.Client,
                         isRequired: true),
                     InputFactory.Parameter(
-                        "optionalParam3",
+                        "requiredParam3",
                         InputPrimitiveType.Int64,
                         location: RequestLocation.None,
                         defaultValue: InputFactory.Constant.Int64(2),

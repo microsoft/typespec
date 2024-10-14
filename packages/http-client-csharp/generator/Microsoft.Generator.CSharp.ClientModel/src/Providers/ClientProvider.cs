@@ -103,10 +103,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 {
                     _subClientInternalConstructorParams.Add(parameterProvider);
                     FieldProvider field = new(
-                            FieldModifiers.Private | FieldModifiers.ReadOnly,
-                            parameterProvider.Type,
-                            "_" + parameterProvider.Name,
-                            this);
+                        FieldModifiers.Private | FieldModifiers.ReadOnly,
+                        parameterProvider.Type,
+                        $"_{parameterProvider.Name}",
+                        this);
                     parameterProvider.Field = field;
                 }
             }
