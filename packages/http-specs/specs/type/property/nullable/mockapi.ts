@@ -1,4 +1,4 @@
-import { json, MockRequest, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
+import { json, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -11,12 +11,6 @@ function createServerTests(url: string, value: unknown, patchNullableProperty?: 
       response: {
         status: 200,
         body: json(value),
-      },
-      handler: (req: MockRequest) => {
-        return {
-          status: 200,
-          body: json(value),
-        };
       },
       kind: "MockApiDefinition",
     }),
@@ -34,15 +28,6 @@ function createServerTests(url: string, value: unknown, patchNullableProperty?: 
       },
       response: {
         status: 204,
-      },
-      handler: (req: MockRequest) => {
-        req.expect.bodyEquals({
-          requiredProperty: "foo",
-          nullableProperty: patchNullableProperty || null,
-        });
-        return {
-          status: 204,
-        };
       },
       kind: "MockApiDefinition",
     }),

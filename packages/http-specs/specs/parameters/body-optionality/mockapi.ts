@@ -11,10 +11,6 @@ function createServerTests(uri: string, data: any) {
     response: {
       status: 204,
     },
-    handler: (req: MockRequest) => {
-      req.expect.bodyEquals({ name: "foo" });
-      return { status: 204 };
-    },
     kind: "MockApiDefinition",
   });
 }
@@ -37,10 +33,6 @@ Scenarios.Parameters_BodyOptionality_OptionalExplicit = passOnSuccess([
     },
     response: {
       status: 204,
-    },
-    handler: (req: MockRequest) => {
-      req.expect.bodyEquals({ name: "foo" });
-      return { status: 204 };
     },
     kind: "MockApiDefinition",
   },

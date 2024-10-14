@@ -1,8 +1,8 @@
 import "@typespec/http";
-import "@typespec/spec-lib";
+import "@typespec/spector";
 
 using Http;
-using SpecLib;
+using Spector;
 
 @scenarioService("/authentication/oauth2")
 @doc("Illustrates clients generated with OAuth2 authentication.")

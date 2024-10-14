@@ -39,7 +39,7 @@ export type ScenarioDocDecorator = (
   formatArgs?: Model,
 ) => void;
 
-export type TypeSpecSpecLibDecorators = {
+export type TypeSpecSpectorDecorators = {
   scenarioService: ScenarioServiceDecorator;
   scenario: ScenarioDecorator;
   scenarioDoc: ScenarioDocDecorator;

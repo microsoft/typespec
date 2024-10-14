@@ -2,7 +2,12 @@
   "name": "@typespec/spector",
   "version": "0.1.0",
   "description": "Typespec Core Tool to validate, run mock api, collect coverage.",
-  "main": "dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/src/index.js",
+      "typespec": "./lib/main.tsp"
+    }
+  },
   "private": true,
   "type": "module",
   "bin": {
@@ -10,8 +15,9 @@
   },
   "scripts": {
     "watch": "tsc -p ./tsconfig.build.json --watch",
-    "build": "tsc -p ./tsconfig.build.json",
+    "build": "npm run gen-extern-signature && tsc -p tsconfig.build.json",
     "clean": "rimraf dist/ temp/",
+    "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
     "test": "vitest run",
     "test:watch": "vitest -w",
     "test:ui": "vitest --ui"
@@ -33,11 +39,11 @@
     "@azure/identity": "~4.4.1",
     "@types/js-yaml": "^4.0.5",
     "@typespec/compiler": "workspace:~",
+    "@typespec/versioning": "workspace:~",
     "@typespec/http": "workspace:~",
     "@typespec/rest": "workspace:~",
     "@typespec/spec-api": "workspace:~",
     "@typespec/spec-coverage-sdk": "workspace:~",
-    "@typespec/spec-lib": "workspace:~",
     "ajv": "~8.17.1",
     "axios": "^1.7.5",
     "body-parser": "^1.20.3",
@@ -67,6 +73,7 @@
     "@types/node-fetch": "^2.6.3",
     "@types/xml2js": "^0.4.11",
     "@types/yargs": "~17.0.33",
+    "@typespec/tspd": "workspace:~",
     "rimraf": "~6.0.1",
     "typescript": "~5.6.3"
   }
