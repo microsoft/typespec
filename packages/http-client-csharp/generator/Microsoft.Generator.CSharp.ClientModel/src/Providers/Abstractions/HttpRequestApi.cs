@@ -9,7 +9,7 @@ using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
-    public abstract record HttpRequestApi : ScopedApi, IHttpRequestApi
+    public abstract record HttpRequestApi : ScopedApi, IExpressionApi<HttpRequestApi>
     {
         protected HttpRequestApi(CSharpType type, ValueExpression original) : base(type, original)
         {

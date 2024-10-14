@@ -1,12 +1,14 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.Expressions;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
-    public interface IHttpResponseApi : IExpressionApi<HttpResponseApi>
+    public interface IExpressionApi<T>
     {
-        CSharpType HttpResponseType { get; }
+        T FromExpression(ValueExpression original);
+
+        T ToExpression();
     }
 }

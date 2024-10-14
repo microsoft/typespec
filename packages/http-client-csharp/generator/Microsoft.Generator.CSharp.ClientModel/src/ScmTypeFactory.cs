@@ -33,7 +33,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
 
         public virtual IHttpRequestOptionsApi HttpRequestOptionsApi => RequestOptionsProvider.Instance;
 
-        public virtual IHttpRequestApi HttpRequestApi => PipelineRequestProvider.Instance;
+        public virtual IExpressionApi<HttpRequestApi> HttpRequestApi => PipelineRequestProvider.Instance;
 
         public virtual IClientPipelineApi ClientPipelineApi => ClientPipelineProvider.Instance;
 
