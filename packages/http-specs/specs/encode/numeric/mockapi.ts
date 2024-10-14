@@ -1,4 +1,4 @@
-import { json, MockRequest, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
+import { json, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -14,13 +14,6 @@ function createTests(uri: string, value: any) {
     response: {
       status: 200,
       body: json({ value }),
-    },
-    handler: (req: MockRequest) => {
-      req.expect.coercedBodyEquals({ value });
-      return {
-        status: 200,
-        body: json({ value }),
-      };
     },
     kind: "MockApiDefinition",
   });
