@@ -412,6 +412,13 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
             imports.addAll(parentModel.getImports());
             lastParentName = parentModel.getName();
             parentModel = ClientModelUtil.getClientModel(parentModel.getParentModelName());
+
+            // implementation code of stream-style serialization refs to the element type of the Map
+            for (ClientModelProperty parentProperty : parentModel.getProperties()) {
+                if (parentProperty.isAdditionalProperties()) {
+                    parentProperty.addImportsTo(imports, false);
+                }
+            }
         }
 
         addGeneratedImport(imports);
