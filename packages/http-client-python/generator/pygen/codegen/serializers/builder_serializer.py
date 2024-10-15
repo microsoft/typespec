@@ -557,7 +557,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             [
                 f"_stream = {builder.stream_value}",
                 f"pipeline_response: PipelineResponse = {self._call_method}self._client.{self.pipeline_name}.run(  "
-                + f"{'# type: ignore' if type_ignore else ''} # pylint: disable=protected-access",
+                + f"{'# type: ignore' if type_ignore else ''}",
                 "    _request,",
                 "    stream=_stream,",
                 "    **kwargs",
