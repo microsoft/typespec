@@ -3,6 +3,7 @@ import {
   SdkBodyParameter,
   SdkClientType,
   SdkHeaderParameter,
+  SdkHttpErrorResponse,
   SdkHttpOperation,
   SdkHttpOperationExample,
   SdkHttpResponse,
@@ -337,7 +338,7 @@ function emitHttpBodyParameter(
 function emitHttpResponse(
   context: PythonSdkContext<SdkHttpOperation>,
   statusCodes: HttpStatusCodeRange | number | "*",
-  response: SdkHttpResponse,
+  response: SdkHttpResponse | SdkHttpErrorResponse,
   method?: SdkServiceMethod<SdkHttpOperation>,
   isException = false,
 ): Record<string, any> | undefined {
