@@ -19,16 +19,13 @@
     "body": "model ${1:ModelName} {\n  ${2:propertyName}: ${0:propertyType};\n}",
     "description": "Model definition"
   },
-  "Namespece": {
+  "Namespace": {
     "prefix": "namespace",
     "body": "namespace ${1:NamespaceName} {\n  ${0:member}\n}",
     "description": "Namespace definition"
   },
   "Operation": {
-    "prefix": [
-      "op",
-      "operation"
-    ],
+    "prefix": ["op", "operation"],
     "body": "operation ${1:OperationName}(${2:parameters}): ${0:ReturnType};",
     "description": "Operation definition"
   },
