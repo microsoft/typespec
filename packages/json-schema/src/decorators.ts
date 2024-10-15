@@ -3,9 +3,7 @@ import {
   type Enum,
   isType,
   type Model,
-  type ModelProperty,
   type Namespace,
-  Numeric,
   type Program,
   type Scalar,
   setTypeSpecNamespace,
@@ -17,7 +15,6 @@ import {
 import { unsafe_useStateMap, unsafe_useStateSet } from "@typespec/compiler/experimental";
 import type { ValidatesRawJsonDecorator } from "../generated-defs/TypeSpec.JsonSchema.Private.js";
 import type {
-  BaseUriDecorator,
   ContainsDecorator,
   ContentEncodingDecorator,
   ContentMediaTypeDecorator,
@@ -35,6 +32,7 @@ import type {
   UniqueItemsDecorator,
 } from "../generated-defs/TypeSpec.JsonSchema.js";
 import { JsonSchemaStateKeys } from "./lib.js";
+import { createDataDecorator } from "./utils.js";
 
 /**
  * TypeSpec Types that can create a json schmea declaration
@@ -66,15 +64,9 @@ export const [
   /** Get base uri set via `@baseUri` decorator */
   getBaseUri,
   setBaseUri,
-] = unsafe_useStateMap<Type, string>(JsonSchemaStateKeys["JsonSchema.baseURI"]);
-/** {@inheritdoc BaseUriDecorator} */
-export const $baseUri: BaseUriDecorator = (
-  context: DecoratorContext,
-  target: Namespace,
-  baseUri: string,
-) => {
-  setBaseUri(context.program, target, baseUri);
-};
+  /** {@inheritdoc BaseUriDecorator} */
+  $baseUri,
+] = createDataDecorator(JsonSchemaStateKeys["JsonSchema.baseURI"]);
 
 /** Find base uri for the given type. */
 export function findBaseUri(
@@ -121,16 +113,10 @@ export const [
   /** Get value set by `@multipleOf` decorator as a `Numeric` type. */
   getMultipleOfAsNumeric,
   setMultipleOf,
-] = unsafe_useStateMap<Type, Numeric>(JsonSchemaStateKeys["JsonSchema.multipleOf"]);
+  /** {@inheritdoc MultipleOfDecorator} */
 
-/** {@inheritdoc MultipleOfDecorator} */
-export const $multipleOf: MultipleOfDecorator = (
-  context: DecoratorContext,
-  target: Scalar | ModelProperty,
-  value: Numeric,
-) => {
-  setMultipleOf(context.program, target, value);
-};
+  $multipleOf,
+] = createDataDecorator<MultipleOfDecorator, Type>(JsonSchemaStateKeys["JsonSchema.multipleOf"]);
 
 /** Get value set by `@multipleOf` decorator as a `number` type. If the value is not representable as a number or not set, returns undefined. */
 export function getMultipleOf(program: Program, target: Type): number | undefined {
@@ -141,12 +127,9 @@ export const [
   /** Get id as set with `@id` decorator. */
   getId,
   setId,
-] = unsafe_useStateMap<Type, string>(JsonSchemaStateKeys["JsonSchema.id"]);
-
-/** {@inheritdoc IdDecorator} */
-export const $id: IdDecorator = (context: DecoratorContext, target: Type, value: string) => {
-  setId(context.program, target, value);
-};
+  /** {@inheritdoc IdDecorator} */
+  $id,
+] = createDataDecorator<IdDecorator>(JsonSchemaStateKeys["JsonSchema.id"]);
 
 export const [
   /** Check if given type is annotated with `@oneOf` decorator */
@@ -163,40 +146,24 @@ export const [
   /** Get contains value set by `@contains` decorator */
   getContains,
   setContains,
-] = unsafe_useStateMap<Type, Type>(JsonSchemaStateKeys["JsonSchema.contains"]);
-/** {@inheritdoc ContainsDecorator} */
-export const $contains: ContainsDecorator = (
-  context: DecoratorContext,
-  target: Type,
-  value: Type,
-) => {
-  setContains(context.program, target, value);
-};
+  /** {@inheritdoc ContainsDecorator} */
+  $contains,
+] = createDataDecorator<ContainsDecorator>(JsonSchemaStateKeys["JsonSchema.contains"]);
 
-export const [/** Get value set by `@minContains` decorator */ getMinContains, setMinContains] =
-  unsafe_useStateMap<Type, number>(JsonSchemaStateKeys["JsonSchema.minContains"]);
-/** {@inheritdoc MinContainsDecorator} */
-export const $minContains: MinContainsDecorator = (
-  context: DecoratorContext,
-  target: Type,
-  value: number,
-) => {
-  setMinContains(context.program, target, value);
-};
+export const [
+  /** Get value set by `@minContains` decorator */
+  getMinContains,
+  setMinContains,
+  /** {@inheritdoc MinContainsDecorator} */
+  $minContains,
+] = createDataDecorator<MinContainsDecorator>(JsonSchemaStateKeys["JsonSchema.minContains"]);
 
 export const [
   /** Get value set by `@maxContains` decorator */
   getMaxContains,
   setMaxContains,
-] = unsafe_useStateMap<Type, number>(JsonSchemaStateKeys["JsonSchema.maxContains"]);
-/** {@inheritdoc MaxContainsDecorator} */
-export const $maxContains: MaxContainsDecorator = (
-  context: DecoratorContext,
-  target: Type,
-  value: number,
-) => {
-  setMaxContains(context.program, target, value);
-};
+  $maxContains,
+] = createDataDecorator<MaxContainsDecorator>(JsonSchemaStateKeys["JsonSchema.maxContains"]);
 
 export const [
   /** Check if the given array is annotated with `@uniqueItems` decorator */
@@ -204,81 +171,55 @@ export const [
   setUniqueItems,
 ] = unsafe_useStateMap(JsonSchemaStateKeys["JsonSchema.uniqueItems"]);
 /** {@inheritdoc UniqueItemsDecorator} */
-export const $uniqueItems: UniqueItemsDecorator = (context: DecoratorContext, target: Type) => {
+export const $uniqueItems: UniqueItemsDecorator = (context: DecoratorContext, target: Type) =>
   setUniqueItems(context.program, target, true);
-};
 
 export const [
   /** Get minimum number of properties set by `@minProperties` decorator */
   getMinProperties,
   setMinProperties,
-] = unsafe_useStateMap<Type, number>(JsonSchemaStateKeys["JsonSchema.minProperties"]);
-/** {@inheritdoc MinPropertiesDecorator} */
-export const $minProperties: MinPropertiesDecorator = (
-  context: DecoratorContext,
-  target: Type,
-  value: number,
-) => {
-  setMinProperties(context.program, target, value);
-};
+  /** {@inheritdoc MinPropertiesDecorator} */
+  $minProperties,
+] = createDataDecorator<MinPropertiesDecorator>(JsonSchemaStateKeys["JsonSchema.minProperties"]);
 
 export const [
   /** Get maximum number of properties set by `@maxProperties` decorator */
 
   getMaxProperties,
   setMaxProperties,
-] = unsafe_useStateMap<Type, number>(JsonSchemaStateKeys["JsonSchema.maxProperties"]);
-/** {@inheritdoc MaxPropertiesDecorator} */
-export const $maxProperties: MaxPropertiesDecorator = (
-  context: DecoratorContext,
-  target: Type,
-  value: number,
-) => {
-  setMaxProperties(context.program, target, value);
-};
+  /** {@inheritdoc MaxPropertiesDecorator} */
+  $maxProperties,
+] = createDataDecorator<MaxPropertiesDecorator>(JsonSchemaStateKeys["JsonSchema.maxProperties"]);
 
 export const [
   /** Get content encoding as configured by `@contentEncoding` decorator. */
   getContentEncoding,
   setContentEncoding,
-] = unsafe_useStateMap<Type, string>(JsonSchemaStateKeys["JsonSchema.contentEncoding"]);
-/** {@inheritdoc ContentEncodingDecorator} */
-export const $contentEncoding: ContentEncodingDecorator = (
-  context: DecoratorContext,
-  target: Scalar | ModelProperty,
-  value: string,
-) => {
-  setContentEncoding(context.program, target, value);
-};
+  /** {@inheritdoc ContentEncodingDecorator} */
+  $contentEncoding,
+] = createDataDecorator<ContentEncodingDecorator, Type>(
+  JsonSchemaStateKeys["JsonSchema.contentEncoding"],
+);
 
 export const [
   /** Get content media type as configured by `@contentMediaType` decorator. */
   getContentMediaType,
   setContentMediaType,
-] = unsafe_useStateMap<Type, string>(JsonSchemaStateKeys["JsonSchema.contentMediaType"]);
-/** {@inheritdoc ContentMediaTypeDecorator} */
-export const $contentMediaType: ContentMediaTypeDecorator = (
-  context: DecoratorContext,
-  target: Scalar | ModelProperty,
-  value: string,
-) => {
-  setContentMediaType(context.program, target, value);
-};
+  /** {@inheritdoc ContentMediaTypeDecorator} */
+  $contentMediaType,
+] = createDataDecorator<ContentMediaTypeDecorator, Type>(
+  JsonSchemaStateKeys["JsonSchema.contentMediaType"],
+);
 
 export const [
   /** Get content schema set with `@contentSchema` decorator */
   getContentSchema,
   setContentSchema,
-] = unsafe_useStateMap<Type, Type>(JsonSchemaStateKeys["JsonSchema.contentSchema"]);
-
-/** {@inheritdoc ContentSchemaDecorator} */
-export const $contentSchema: ContentSchemaDecorator = (
-  context: DecoratorContext,
-  target: Scalar | ModelProperty,
-  value: Type,
-) => {
-  setContentSchema(context.program, target, value);
-};
+  /** {@inheritdoc ContentSchemaDecorator} */
+  $contentSchema,
+] = createDataDecorator<ContentSchemaDecorator, Type>(
+  JsonSchemaStateKeys["JsonSchema.contentSchema"],
+);
 
 export const [
   /** Get prefix items set with `@prefixItems` decorator */
