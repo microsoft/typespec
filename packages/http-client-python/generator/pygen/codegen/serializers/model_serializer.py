@@ -115,8 +115,13 @@ class _ModelSerializer(BaseSerializer, ABC):
             return ""
         if any(p for p in model.properties if p.is_discriminator and model.discriminator_value):
             return ""
+        # "prop" may contain pylint disable comment like "id: float,  # pylint: disable=redefined-builtin",
+        # so call .split to get rid of it
         if model.parents and any(
-            "=" in prop for parent in model.parents for prop in self.init_line(parent) if self.need_init(parent)
+            "=" in prop.split(",")[0]
+            for parent in model.parents
+            for prop in self.init_line(parent)
+            if self.need_init(parent)
         ):
             return ""
         return "  # pylint: disable=useless-super-delegation"
