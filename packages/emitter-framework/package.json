@@ -40,8 +40,8 @@
     "@typespec/http": "workspace:~"
   },
   "dependencies": {
-    "@alloy-js/core": "0.2.0",
-    "@alloy-js/typescript": "0.2.0"
+    "@alloy-js/core": "0.3.0",
+    "@alloy-js/typescript": "0.3.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.24.8",

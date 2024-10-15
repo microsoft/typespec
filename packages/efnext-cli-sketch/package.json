@@ -78,8 +78,8 @@
     "vitest": "^1.6.0"
   },
   "dependencies": {
-    "@alloy-js/core": "0.2.0",
-    "@alloy-js/typescript": "0.2.0",
+    "@alloy-js/core": "0.3.0",
+    "@alloy-js/typescript": "0.3.0",
     "@typespec/emitter-framework": "workspace:~",
     "change-case": "~5.4.4",
     "cli-table3": "^0.6.5",
