@@ -599,7 +599,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             retval.append(f"    params_added_on={dict(params_added_on)},")
         if retval:
             retval_str = "\n".join(retval)
-            return f"@api_version_validation(\n{retval_str}\n){builder.pylint_disable(self.async_mode)}"
+            return f"@api_version_validation(\n{retval_str}\n)"
         return ""
 
     def pop_kwargs_from_signature(self, builder: OperationType) -> List[str]:
