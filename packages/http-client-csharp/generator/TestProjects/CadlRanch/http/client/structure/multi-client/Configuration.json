@@ -1,6 +1,6 @@
 {
   "output-folder": ".",
-  "namespace": "Client.Structure.Service.multi.client",
-  "library-name": "Client.Structure.Service.multi.client",
+  "namespace": "Client.Structure.Service.Multi.Client",
+  "library-name": "Client.Structure.Service.Multi.Client",
   "use-model-reader-writer": true
 }
