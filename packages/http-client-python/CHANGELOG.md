@@ -1,5 +1,11 @@
 # Change Log - @typespec/http-client-python
 
+## 0.3.2
+
+### Bug Fixes
+
+- Fix pylint issue for useless suppressions
+
 ## 0.3.1
 
 ### Bug Fixes
