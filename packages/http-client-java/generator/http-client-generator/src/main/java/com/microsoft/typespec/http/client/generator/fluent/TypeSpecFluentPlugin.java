@@ -53,6 +53,7 @@ public class TypeSpecFluentPlugin extends FluentGen {
         SETTINGS_MAP.put("output-model-immutable", true);
         SETTINGS_MAP.put("uuid-as-string", true);
         SETTINGS_MAP.put("stream-style-serialization", emitterOptions.getStreamStyleSerialization());
+        SETTINGS_MAP.put("use-object-for-unknown", emitterOptions.getUseObjectForUnknown());
 
         JavaSettingsAccessor.setHost(this);
         LOGGER.info("Output folder: {}", emitterOptions.getOutputDir());

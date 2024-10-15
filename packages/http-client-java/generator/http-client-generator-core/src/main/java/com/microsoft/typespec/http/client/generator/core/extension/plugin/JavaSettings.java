@@ -170,7 +170,7 @@ public class JavaSettings {
                 getBooleanValue(host, "share-jsonserializable-code", false),
                 getBooleanValue(host, "use-object-for-unknown", false),
                 getBooleanValue(host, "android", false));
-    }
+        }
         return instance;
     }
 
