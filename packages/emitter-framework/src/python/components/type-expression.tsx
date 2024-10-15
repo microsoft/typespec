@@ -1,7 +1,7 @@
 import { IntrinsicType, Scalar, Type } from "@typespec/compiler";
 import { Reference } from "./reference.js";
 import { TypeLiteral } from "./type-literal.js";
-import { isArray, isDeclaration, isRecord } from "../../core/utils/typeguards.js";
+import { isDeclaration } from "../../core/utils/typeguards.js";
 import { refkey } from "@alloy-js/core";
 import { ArrayExpression, ClassExpression, DictionaryExpression } from "./index.js";
 import { $ } from "@typespec/compiler/typekit";

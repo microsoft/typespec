@@ -1,10 +1,9 @@
-import { Children } from "@alloy-js/core/jsx-runtime";
 import {
   createContext,
-  OutputSymbol,
   Scope,
   SourceFile as CoreSourceFile,
   useContext,
+  Children,
 } from "@alloy-js/core";
 import { PythonPackageScope, PythonProjectScope, Reference, useProject } from "../index.js";
 import { usePackage } from "./python-package.jsx";

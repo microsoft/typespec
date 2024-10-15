@@ -1,4 +1,3 @@
-
 import { Type } from "@typespec/compiler";
 import { TypeExpression } from "./type-expression.js";
 

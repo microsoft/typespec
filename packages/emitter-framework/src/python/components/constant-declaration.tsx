@@ -1,4 +1,3 @@
-import { $ } from "@typespec/compiler/typekit";
 import { usePythonNamePolicy } from "../name-policy.js";
 
 export interface ConstantDeclarationProps {

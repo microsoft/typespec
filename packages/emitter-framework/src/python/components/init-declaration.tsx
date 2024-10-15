@@ -1,4 +1,4 @@
-import { Children, Declaration, DeclarationProps, mapJoin, Output, render, Scope } from "@alloy-js/core";
+import { Children, Declaration, DeclarationProps, mapJoin, Scope } from "@alloy-js/core";
 import { usePythonNamePolicy } from "../name-policy.js";
 import { Model, ModelProperty } from "@typespec/compiler";
 import { Docstring, TypeExpression, useClass } from "./index.js";

@@ -10,7 +10,6 @@ import {
 } from "@alloy-js/core";
 import { createPythonProjectScope, PyProjectTomlFile, PythonPackage, PythonProjectScope, SetupPyFile } from "../index.js";
 import { join } from "path";
-import { Program } from "@typespec/compiler";
 
 /**
  * A Python project is a collection of Python packages and packaging metadata.

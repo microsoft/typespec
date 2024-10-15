@@ -1,5 +1,5 @@
 import { memo, Refkey, resolve, useContext } from "@alloy-js/core";
-import { PythonMemberScope, PythonPackageScope, SourceFileContext, usePackage } from "../index.js";
+import { PythonMemberScope, SourceFileContext } from "../index.js";
 import { PythonOutputSymbol } from "./output-symbol.js";
 import { PythonOutputScope } from "./scopes.js";
 

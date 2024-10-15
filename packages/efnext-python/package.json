@@ -4,6 +4,9 @@
   "type": "module",
   "private": true,
   "main": "dist/index.js",
+  "exports": {
+    ".": "./dist/index.js"
+  },
   "scripts": {
     "build-src": "babel src -d dist --extensions .ts,.tsx",
     "clean": "rimraf ./dist ./temp",

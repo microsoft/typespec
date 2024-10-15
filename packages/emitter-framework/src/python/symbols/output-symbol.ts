@@ -1,5 +1,5 @@
 import { Binder, OutputSymbol, Refkey, useScope } from "@alloy-js/core";
-import { PythonMemberScope, PythonOutputScope } from "./index.js";
+import { PythonOutputScope } from "./index.js";
 
 /**
  * Represents an 'exported' symbol from a .py file. Class, enum, etc.
