@@ -1,8 +1,8 @@
 import "@typespec/http";
-import "@typespec/spec-lib";
+import "@typespec/spector";
 
 using Http;
-using SpecLib;
+using Spector;
 
 @doc("Illustrates not-discriminated inheritance model.")
 @scenarioService("/type/model/inheritance/not-discriminated")

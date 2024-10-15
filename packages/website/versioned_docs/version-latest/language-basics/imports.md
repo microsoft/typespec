@@ -23,7 +23,7 @@ import "./decorators.js";
 
 ## Importing a library
 
-The import value can be the name of one of the package dependencies. In this case, TypeSpec will look for the `package.json` file and check the `tspMain` entry (defaulting to `main` if `tspMain` is absent) to determine the library entrypoint to load.
+The import value can be the name of one of the package dependencies.
 
 ```typespec
 import "/rest";
@@ -32,11 +32,24 @@ import "/rest";
 ```json
 // ./node_modules/@typespec/rest/package.json
 {
-  "tspMain": "./lib/main.tsp"
+  "exports": {
+    ".": { "typespec": "./lib/main.tsp" }
+  }
 }
 ```
 
 This results in `./node_modules/@typespec/rest/lib/main.tsp` being imported.
+
+### Package resolution algorithm
+
+When trying to import a package TypeSpec follows the following logic
+
+1. Parse the package name from the import specificier into `pkgName` and `subPath` (e.g. `@scope/lib/named` => pkgName: `@scope/lib` subpath: `named` )
+1. Look to see if `pkgName` is itself(Containing package)
+1. Otherwise lookup for a parent folder with a `node_modules/${pkgName}` sub folder
+1. Reading the `package.json` of the package
+   a. If `exports` is defined respect the [ESM logic](https://github.com/nodejs/node/blob/main/doc/api/esm.md) to resolve the `typespec` condition(TypeSpec will not respect the `default` condition)
+   b. If `exports` is not found or for back compat the `.` export is missing the `typespec` condition fallback to checking `tspMain` or `main`
 
 ## Importing a directory
 

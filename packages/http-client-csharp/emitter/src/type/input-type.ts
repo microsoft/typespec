@@ -106,7 +106,7 @@ export interface InputModelProperty extends InputTypeBase {
   readOnly: boolean;
   discriminator: boolean;
   crossLanguageDefinitionId: string;
-  flattenedNames?: string[]; // TODO -- remove this when we are ready to move the flatten handling from emitter to the generator
+  flatten: boolean;
 }
 
 export function isInputModelType(type: InputType): type is InputModelType {

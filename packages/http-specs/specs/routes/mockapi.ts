@@ -4,23 +4,35 @@ export const Scenarios: Record<string, ScenarioMockApi> = {};
 
 function createTests(uri: string) {
   const url = new URL("http://example.com" + uri);
-  const searchParams = url.searchParams;
-  const params: Record<string, any> = {};
-  for (const [key, value] of searchParams) {
-    params[key] = value;
+  const queryMap = new Map<string, string | string[]>();
+  for (const [key, value] of url.searchParams.entries()) {
+    if (queryMap.has(key)) {
+      const existing = queryMap.get(key)!;
+      if (Array.isArray(existing)) {
+        existing.push(value);
+      } else {
+        queryMap.set(key, [existing, value]);
+      }
+    } else {
+      queryMap.set(key, value);
+    }
   }
   return passOnSuccess({
     uri: url.pathname,
     method: "get",
     request: {
-      params,
+      params: Object.fromEntries(queryMap),
     },
     response: {
       status: 204,
     },
     handler: (req: MockRequest) => {
-      for (const [key, value] of url.searchParams.entries()) {
-        req.expect.containsQueryParam(key, value);
+      for (const [key, value] of queryMap.entries()) {
+        if (Array.isArray(value)) {
+          req.expect.containsQueryParam(key, value, "multi");
+        } else {
+          req.expect.containsQueryParam(key, value);
+        }
       }
       for (const param of Object.keys(req.query)) {
         if (!url.searchParams.has(param)) {
@@ -138,7 +150,7 @@ Scenarios.Routes_QueryParameters_QueryExpansion_Explode_primitive = createTests(
   "/routes/query/query-expansion/explode/primitive?param=a",
 );
 Scenarios.Routes_QueryParameters_QueryExpansion_Explode_array = createTests(
-  "/routes/query/query-expansion/explode/array?param=a,b",
+  "/routes/query/query-expansion/explode/array?param=a&param=b",
 );
 Scenarios.Routes_QueryParameters_QueryExpansion_Explode_record = createTests(
   "/routes/query/query-expansion/explode/record?a=1&b=2",
@@ -156,7 +168,7 @@ Scenarios.Routes_QueryParameters_QueryContinuation_Explode_primitive = createTes
   "/routes/query/query-continuation/explode/primitive?fixed=true&param=a",
 );
 Scenarios.Routes_QueryParameters_QueryContinuation_Explode_array = createTests(
-  "/routes/query/query-continuation/explode/array?fixed=true&param=a,b",
+  "/routes/query/query-continuation/explode/array?fixed=true&param=a&param=b",
 );
 Scenarios.Routes_QueryParameters_QueryContinuation_Explode_record = createTests(
   "/routes/query/query-continuation/explode/record?fixed=true&a=1&b=2",

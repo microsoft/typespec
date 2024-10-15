@@ -43,6 +43,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
         }
 
+        internal PropertyProvider? VersionProperty => _versionProperty;
         private TypeProvider? ServiceVersionEnum => _serviceVersionEnum?.Value;
         private FieldProvider? LatestVersionField => _latestVersionField ??= BuildLatestVersionField();
 
@@ -145,7 +146,5 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             return [.. properties];
         }
-
-        protected override TypeSignatureModifiers GetDeclarationModifiers() => GetCustomCodeModifiers();
     }
 }

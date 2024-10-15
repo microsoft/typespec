@@ -121,8 +121,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return [.. methods];
         }
 
-        protected override TypeSignatureModifiers GetDeclarationModifiers() => GetCustomCodeModifiers();
-
         private bool IsCreateRequest(MethodProvider method)
         {
             var span = method.Signature.Name.AsSpan();
@@ -142,9 +140,21 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 null,
                 [.. GetMethodParameters(operation, true), options]);
             var paramMap = new Dictionary<string, ParameterProvider>(signature.Parameters.ToDictionary(p => p.Name));
+
             foreach (var param in ClientProvider.GetUriParameters())
             {
                 paramMap[param.Name] = param;
+            }
+
+            /* add client-level parameter.*/
+            foreach (var inputParam in operation.Parameters)
+            {
+                if (inputParam.Kind == InputOperationParameterKind.Client && !paramMap.ContainsKey(inputParam.Name))
+                {
+                    var param = ClientModelPlugin.Instance.TypeFactory.CreateParameter(inputParam);
+                    param.Field = ClientProvider.Fields.FirstOrDefault(f => f.Name == "_" + inputParam.Name);
+                    paramMap[inputParam.Name] = param;
+                }
             }
 
             var classifier = GetClassifier(operation);

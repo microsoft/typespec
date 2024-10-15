@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "tsBuildInfoFile": "temp/.tsbuildinfo"
+  },
+  "references": [
+    { "path": "../spec-api/tsconfig.build.json" },
+    { "path": "../spec-coverage-sdk/tsconfig.build.json" }
+  ],
+  "include": ["src/**/*.ts", "generated-defs/**/*.ts"],
+  "exclude": ["**/*.test.*"]
+}

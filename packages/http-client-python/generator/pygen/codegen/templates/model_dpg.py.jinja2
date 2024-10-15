@@ -57,11 +57,11 @@
         {% for param_signature in serializer.init_line(model) %}
         {{ param_signature }}
         {% endfor %}
-    ):
+    ) -> None:
         ...
 
     @overload
-    def __init__(self, mapping: Mapping[str, Any]):
+    def __init__(self, mapping: Mapping[str, Any]) -> None:
         """
         :param mapping: raw JSON to initialize the model.
         :type mapping: Mapping[str, Any]

@@ -77,6 +77,18 @@ public final class Operation implements JsonSerializable<Operation> {
     @Generated
     private Unit unitValue;
 
+    /*
+     * The olympicRecord property.
+     */
+    @Generated
+    private OlympicRecordModel olympicRecord;
+
+    /*
+     * The olympicRecordValue property.
+     */
+    @Generated
+    private OlympicRecordModel olympicRecordValue;
+
     /**
      * Creates an instance of Operation class.
      * 
@@ -206,6 +218,50 @@ public final class Operation implements JsonSerializable<Operation> {
     }
 
     /**
+     * Get the olympicRecord property: The olympicRecord property.
+     * 
+     * @return the olympicRecord value.
+     */
+    @Generated
+    public OlympicRecordModel getOlympicRecord() {
+        return this.olympicRecord;
+    }
+
+    /**
+     * Set the olympicRecord property: The olympicRecord property.
+     * 
+     * @param olympicRecord the olympicRecord value to set.
+     * @return the Operation object itself.
+     */
+    @Generated
+    public Operation setOlympicRecord(OlympicRecordModel olympicRecord) {
+        this.olympicRecord = olympicRecord;
+        return this;
+    }
+
+    /**
+     * Get the olympicRecordValue property: The olympicRecordValue property.
+     * 
+     * @return the olympicRecordValue value.
+     */
+    @Generated
+    public OlympicRecordModel getOlympicRecordValue() {
+        return this.olympicRecordValue;
+    }
+
+    /**
+     * Set the olympicRecordValue property: The olympicRecordValue property.
+     * 
+     * @param olympicRecordValue the olympicRecordValue value to set.
+     * @return the Operation object itself.
+     */
+    @Generated
+    public Operation setOlympicRecordValue(OlympicRecordModel olympicRecordValue) {
+        this.olympicRecordValue = olympicRecordValue;
+        return this;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Generated
@@ -223,6 +279,9 @@ public final class Operation implements JsonSerializable<Operation> {
         jsonWriter.writeStringField("colorModelValue",
             this.colorModelValue == null ? null : this.colorModelValue.toString());
         jsonWriter.writeNumberField("unitValue", this.unitValue == null ? null : this.unitValue.toDouble());
+        jsonWriter.writeNumberField("olympicRecord", this.olympicRecord == null ? null : this.olympicRecord.getValue());
+        jsonWriter.writeNumberField("olympicRecordValue",
+            this.olympicRecordValue == null ? null : this.olympicRecordValue.getValue());
         return jsonWriter.writeEndObject();
     }
 
@@ -243,6 +302,8 @@ public final class Operation implements JsonSerializable<Operation> {
             ColorModel color = null;
             Unit unit = null;
             Unit unitValue = null;
+            OlympicRecordModel olympicRecord = null;
+            OlympicRecordModel olympicRecordValue = null;
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
@@ -257,12 +318,18 @@ public final class Operation implements JsonSerializable<Operation> {
                     unit = Unit.fromDouble(reader.getDouble());
                 } else if ("unitValue".equals(fieldName)) {
                     unitValue = Unit.fromDouble(reader.getDouble());
+                } else if ("olympicRecord".equals(fieldName)) {
+                    olympicRecord = OlympicRecordModel.fromValue(reader.getDouble());
+                } else if ("olympicRecordValue".equals(fieldName)) {
+                    olympicRecordValue = OlympicRecordModel.fromValue(reader.getDouble());
                 } else {
                     reader.skipChildren();
                 }
             }
             Operation deserializedOperation = new Operation(name, priority, color, unit);
             deserializedOperation.unitValue = unitValue;
+            deserializedOperation.olympicRecord = olympicRecord;
+            deserializedOperation.olympicRecordValue = olympicRecordValue;
 
             return deserializedOperation;
         });

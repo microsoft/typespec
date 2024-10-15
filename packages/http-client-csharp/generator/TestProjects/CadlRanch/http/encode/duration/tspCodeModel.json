@@ -35,6 +35,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Encode.Duration.Property.DefaultDurationProperty.value"
     }
@@ -71,6 +72,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Encode.Duration.Property.ISO8601DurationProperty.value"
     }
@@ -107,6 +109,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Encode.Duration.Property.Int32SecondsDurationProperty.value"
     }
@@ -143,6 +146,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Encode.Duration.Property.FloatSecondsDurationProperty.value"
     }
@@ -179,6 +183,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Encode.Duration.Property.Float64SecondsDurationProperty.value"
     }
@@ -237,6 +242,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Encode.Duration.Property.FloatSecondsDurationArrayProperty.value"
     }

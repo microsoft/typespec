@@ -27,7 +27,7 @@ public final class IsModelArrayAdditionalProperties implements JsonSerializable<
     private final List<ModelForRecord> knownProp;
 
     /*
-     * Additional properties
+     * The model is from Record<ModelForRecord[]> type.
      */
     @Generated
     private Map<String, List<ModelForRecord>> additionalProperties;
@@ -53,7 +53,7 @@ public final class IsModelArrayAdditionalProperties implements JsonSerializable<
     }
 
     /**
-     * Get the additionalProperties property: Additional properties.
+     * Get the additionalProperties property: The model is from Record&lt;ModelForRecord[]&gt; type.
      * 
      * @return the additionalProperties value.
      */
@@ -63,7 +63,7 @@ public final class IsModelArrayAdditionalProperties implements JsonSerializable<
     }
 
     /**
-     * Set the additionalProperties property: Additional properties.
+     * Set the additionalProperties property: The model is from Record&lt;ModelForRecord[]&gt; type.
      * 
      * @param additionalProperties the additionalProperties value to set.
      * @return the IsModelArrayAdditionalProperties object itself.

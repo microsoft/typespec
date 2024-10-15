@@ -8,9 +8,7 @@ TypeSpec HTTP protocol binding
 npm install @typespec/http
 ```
 
-## Linter
-
-### Usage
+## Usage
 
 Add the following in `tspconfig.yaml`:
 
@@ -20,13 +18,13 @@ linter:
     - "@typespec/http/all"
 ```
 
-### RuleSets
+## RuleSets
 
 Available ruleSets:
 
 - `@typespec/http/all`
 
-### Rules
+## Rules
 
 | Name                                                                                                                        | Description                                                                               |
 | --------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |

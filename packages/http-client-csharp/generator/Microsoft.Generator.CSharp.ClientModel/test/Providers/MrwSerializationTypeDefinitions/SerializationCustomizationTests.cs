@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
@@ -113,6 +114,38 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
+        // Validates that the custom serialization method is used in the serialization provider
+        // for the custom property that exists in the base model.
+        [Test]
+        public async Task CanCustomizeSerializationMethodForPropertyInBase()
+        {
+            var baseModel = InputFactory.Model(
+                "baseModel",
+                usage: InputModelTypeUsage.Input,
+                properties: [InputFactory.Property("Prop1", InputPrimitiveType.Int32, isRequired: true)]);
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModels: () => [
+                    InputFactory.Model(
+                        "mockInputModel",
+                        usage: InputModelTypeUsage.Json,
+                        properties:
+                        [
+                            InputFactory.Property("OtherProp", InputPrimitiveType.Int32, isRequired: true),
+                        ],
+                        baseModel: baseModel),
+                ],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = plugin.Object.OutputLibrary.TypeProviders.FirstOrDefault(t => t is ModelProvider);
+            Assert.IsNotNull(modelProvider);
+            var serializationProvider = modelProvider!.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            Assert.IsNotNull(serializationProvider);
+
+            var writer = new TypeProviderWriter(serializationProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
         // Validates that a properties serialization name can be changed using custom code.
         [Test]
         public async Task CanChangePropertySerializedName()
@@ -178,6 +211,35 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             var writer = new TypeProviderWriter(serializationProvider);
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        private static IEnumerable<TestCaseData> ExtensibleEnumCases =>
+        [
+            new TestCaseData(InputPrimitiveType.String),
+            new TestCaseData(InputPrimitiveType.Int32),
+        ];
+
+        [TestCaseSource(nameof(ExtensibleEnumCases))]
+        public async Task CanCustomizeExtensibleEnum(InputPrimitiveType enumType)
+        {
+            var props = new[]
+            {
+                InputFactory.Property("Prop1", InputFactory.Enum("EnumType", enumType, isExtensible: true))
+            };
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: props, usage: InputModelTypeUsage.Json);
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModels: () => [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(enumType.Name));
+
+            var modelProvider = plugin.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            Assert.IsNotNull(serializationProvider);
+            Assert.AreEqual(0, serializationProvider.Fields.Count);
+
+            var writer = new TypeProviderWriter(serializationProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(enumType.Name), file.Content);
         }
 
         [Test]
