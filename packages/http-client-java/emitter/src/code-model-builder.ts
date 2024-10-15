@@ -940,9 +940,7 @@ export class CodeModelBuilder {
   ): LongRunningMetadata {
     const trackConvenienceApi: boolean = Boolean(op.convenienceApi);
 
-    // const lroMetadata = sdkMethod.__raw_lro_metadata;
     const lroMetadata = sdkMethod.lroMetadata;
-    // needs lroMetadata.statusMonitorStep, as getLroMetadata would return for @pollingOperation operation
     if (lroMetadata && lroMetadata.pollingStep) {
       let pollingSchema = undefined;
       let finalSchema = undefined;
