@@ -1,8 +1,8 @@
 import "@typespec/http";
-import "@typespec/spec-lib";
+import "@typespec/spector";
 
 using Http;
-using SpecLib;
+using Spector;
 
 /**
  * Illustrates the model templated cases. There is a base templated type and an instantiated type extending from it.
