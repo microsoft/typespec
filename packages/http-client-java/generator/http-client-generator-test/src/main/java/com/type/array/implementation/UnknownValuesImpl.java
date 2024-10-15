@@ -104,7 +104,7 @@ public final class UnknownValuesImpl {
      * <pre>
      * {@code
      * [
-     *     BinaryData (Required)
+     *     Object (Required)
      * ]
      * }
      * </pre>
@@ -129,7 +129,7 @@ public final class UnknownValuesImpl {
      * <pre>
      * {@code
      * [
-     *     BinaryData (Required)
+     *     Object (Required)
      * ]
      * }
      * </pre>
@@ -154,7 +154,7 @@ public final class UnknownValuesImpl {
      * <pre>
      * {@code
      * [
-     *     BinaryData (Required)
+     *     Object (Required)
      * ]
      * }
      * </pre>
@@ -181,7 +181,7 @@ public final class UnknownValuesImpl {
      * <pre>
      * {@code
      * [
-     *     BinaryData (Required)
+     *     Object (Required)
      * ]
      * }
      * </pre>

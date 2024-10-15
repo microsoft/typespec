@@ -46,7 +46,7 @@ public final class UnknownValueAsyncClient {
      * <pre>
      * {@code
      * [
-     *     BinaryData (Required)
+     *     Object (Required)
      * ]
      * }
      * </pre>
@@ -71,7 +71,7 @@ public final class UnknownValueAsyncClient {
      * <pre>
      * {@code
      * [
-     *     BinaryData (Required)
+     *     Object (Required)
      * ]
      * }
      * </pre>
@@ -102,11 +102,11 @@ public final class UnknownValueAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<List<BinaryData>> get() {
+    public Mono<List<Object>> get() {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return getWithResponse(requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(TYPE_REFERENCE_LIST_BINARY_DATA));
+            .map(protocolMethodData -> protocolMethodData.toObject(TYPE_REFERENCE_LIST_OBJECT));
     }
 
     /**
@@ -123,14 +123,13 @@ public final class UnknownValueAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Void> put(List<BinaryData> body) {
+    public Mono<Void> put(List<Object> body) {
         // Generated convenience method for putWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return putWithResponse(BinaryData.fromObject(body), requestOptions).flatMap(FluxUtil::toMono);
     }
 
     @Generated
-    private static final TypeReference<List<BinaryData>> TYPE_REFERENCE_LIST_BINARY_DATA
-        = new TypeReference<List<BinaryData>>() {
-        };
+    private static final TypeReference<List<Object>> TYPE_REFERENCE_LIST_OBJECT = new TypeReference<List<Object>>() {
+    };
 }

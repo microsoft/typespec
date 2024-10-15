@@ -44,7 +44,7 @@ public final class UnknownValueClient {
      * <pre>
      * {@code
      * [
-     *     BinaryData (Required)
+     *     Object (Required)
      * ]
      * }
      * </pre>
@@ -69,7 +69,7 @@ public final class UnknownValueClient {
      * <pre>
      * {@code
      * [
-     *     BinaryData (Required)
+     *     Object (Required)
      * ]
      * }
      * </pre>
@@ -100,10 +100,10 @@ public final class UnknownValueClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public List<BinaryData> get() {
+    public List<Object> get() {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return getWithResponse(requestOptions).getValue().toObject(TYPE_REFERENCE_LIST_BINARY_DATA);
+        return getWithResponse(requestOptions).getValue().toObject(TYPE_REFERENCE_LIST_OBJECT);
     }
 
     /**
@@ -119,14 +119,13 @@ public final class UnknownValueClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void put(List<BinaryData> body) {
+    public void put(List<Object> body) {
         // Generated convenience method for putWithResponse
         RequestOptions requestOptions = new RequestOptions();
         putWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
     }
 
     @Generated
-    private static final TypeReference<List<BinaryData>> TYPE_REFERENCE_LIST_BINARY_DATA
-        = new TypeReference<List<BinaryData>>() {
-        };
+    private static final TypeReference<List<Object>> TYPE_REFERENCE_LIST_OBJECT = new TypeReference<List<Object>>() {
+    };
 }

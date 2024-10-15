@@ -168,8 +168,7 @@ public class JavaSettings {
                 getBooleanValue(host, "graal-vm-config", false), getStringValue(host, "flavor", "Azure"),
                 getBooleanValue(host, "disable-typed-headers-methods", false),
                 getBooleanValue(host, "share-jsonserializable-code", false),
-                getBooleanValue(host, "use-object-for-unknown", false),
-                getBooleanValue(host, "android", false));
+                getBooleanValue(host, "use-object-for-unknown", false), getBooleanValue(host, "android", false));
         }
         return instance;
     }
