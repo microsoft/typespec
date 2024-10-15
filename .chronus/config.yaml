@@ -51,6 +51,10 @@ versionPolicies:
       - "typespec-vs"
       - "typespec-vscode"
       - "@typespec/library-linter"
+      - "@typespec/events"
+      - "@typespec/sse"
+      - "@typespec/streams"
+      - "@typespec/xml"
 
 changelog: ["@chronus/github/changelog", { repo: "microsoft/typespec" }]
 

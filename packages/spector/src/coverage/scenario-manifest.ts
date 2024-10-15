@@ -1,10 +1,10 @@
-import { Scenario } from "@typespec/spec-lib";
 import { loadScenarios } from "../scenarios-resolver.js";
 import { Diagnostic } from "../utils/diagnostic-reporter.js";
 import { getCommit, getPackageJson } from "../utils/misc-utils.js";
 import { ScenarioLocation, ScenarioManifest, GeneratorMode } from "@typespec/spec-coverage-sdk";
 import { getSourceLocation, normalizePath } from "@typespec/compiler";
 import { relative } from "path";
+import type { Scenario } from "../lib/decorators.js";
 
 export async function computeScenarioManifest(
   scenariosPath: string,

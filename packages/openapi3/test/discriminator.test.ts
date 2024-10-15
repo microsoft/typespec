@@ -103,7 +103,7 @@ describe("openapi3: polymorphic model inheritance with discriminator", () => {
         name: { type: "string" },
         weight: { type: "number", format: "float" },
       },
-      required: ["name"],
+      required: ["name", "kind"],
       discriminator: {
         propertyName: "kind",
         mapping: {
@@ -154,7 +154,7 @@ describe("openapi3: polymorphic model inheritance with discriminator", () => {
         },
         weight: { type: "number", format: "float" },
       },
-      required: ["name"],
+      required: ["name", "kind"],
       discriminator: {
         propertyName: "kind",
         mapping: {
@@ -215,7 +215,7 @@ describe("openapi3: polymorphic model inheritance with discriminator", () => {
         name: { type: "string" },
         weight: { type: "number", format: "float" },
       },
-      required: ["name"],
+      required: ["name", "kind"],
       discriminator: {
         propertyName: "kind",
         mapping: {
@@ -234,7 +234,7 @@ describe("openapi3: polymorphic model inheritance with discriminator", () => {
         },
         bark: { type: "string" },
       },
-      required: ["kind", "bark"],
+      required: ["kind", "bark", "breed"],
       allOf: [{ $ref: "#/components/schemas/Pet" }],
       discriminator: {
         propertyName: "breed",
@@ -343,5 +343,19 @@ describe("openapi3: polymorphic model inheritance with discriminator", () => {
         message: `Discriminator value "dog" is already used in another variant.`,
       },
     ]);
+  });
+
+  it("discriminator always needs to be marked as required", async () => {
+    const openApi = await openApiFor(`
+     @discriminator("kind")
+     model Animal {
+      id: string;
+      kind?: string;
+     }`);
+
+    deepStrictEqual(openApi.components.schemas.Animal.required, ["id", "kind"]);
+    deepStrictEqual(openApi.components.schemas.Animal.discriminator, {
+      propertyName: "kind",
+    });
   });
 });
