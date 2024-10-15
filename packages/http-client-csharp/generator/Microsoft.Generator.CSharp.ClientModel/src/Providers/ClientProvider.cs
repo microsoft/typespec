@@ -189,7 +189,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             // Add optional client parameters as fields
-            foreach (var p in _inputClient.Parameters)
+            foreach (var p in _allClientParameters)
             {
                 if (!p.IsEndpoint)
                 {
