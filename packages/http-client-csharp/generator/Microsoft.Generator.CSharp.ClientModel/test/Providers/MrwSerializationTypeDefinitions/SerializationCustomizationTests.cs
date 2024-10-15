@@ -332,7 +332,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
-        [Test]
         [TestCase(true)]
         [TestCase(false)]
         public async Task CanCustomizePropertyUsingField(bool redefineProperty)

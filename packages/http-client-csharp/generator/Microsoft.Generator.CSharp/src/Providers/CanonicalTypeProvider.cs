@@ -180,7 +180,6 @@ namespace Microsoft.Generator.CSharp.Providers
                 }
 
                 // handle customized extensible enums, since the custom type would not be an enum, but the spec type would be an enum
-
                 if (IsExtensibleEnum(specProperty!, out var inputEnumType))
                 {
                     customField.Type = new CSharpType(

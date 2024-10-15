@@ -635,54 +635,17 @@ namespace Microsoft.Generator.CSharp.Providers
             bool isPrimaryConstructor,
             IReadOnlyList<ParameterProvider>? parameters = null)
         {
-            List<MethodBodyStatement> methodBodyStatements = new(CanonicalView.Properties.Count + 1);
+            List<MethodBodyStatement> methodBodyStatements = new(CanonicalView.Properties.Count + CanonicalView.Fields.Count + 1);
             Dictionary<string, ParameterProvider> parameterMap = parameters?.ToDictionary(p => p.Name) ?? [];
 
             foreach (var property in CanonicalView.Properties)
             {
-                // skip those non-spec properties
-                if (property.WireInfo == null)
-                    continue;
+                CreatePropertyAssignmentStatement(isPrimaryConstructor, methodBodyStatements, parameterMap, property);
+            }
 
-                // skip if this is an overload / new of a base property
-                // also skip if the base was required or the derived property is not required
-                if (property.BaseProperty is not null && (!isPrimaryConstructor || property.WireInfo?.IsRequired == false || property.BaseProperty.WireInfo?.IsRequired == true))
-                    continue;
-
-                ValueExpression assignee = property.BackingField is null ? property : property.BackingField;
-
-                if (!isPrimaryConstructor)
-                {
-                    // always add the property for the serialization constructor
-                    methodBodyStatements.Add(assignee.Assign(GetConversion(property)).Terminate());
-                    continue;
-                }
-
-                ValueExpression? initializationValue = null;
-
-                if (parameterMap.TryGetValue(property.AsParameter.Name, out var parameter) || Type.IsStruct)
-                {
-                    if (parameter != null)
-                    {
-                        initializationValue = parameter;
-
-                        if (CSharpType.RequiresToList(parameter.Type, property.Type))
-                        {
-                            initializationValue = parameter.Type.IsNullable ?
-                                initializationValue.NullConditional().ToList() :
-                                initializationValue.ToList();
-                        }
-                    }
-                }
-                else if (initializationValue == null && property.Type.IsCollection)
-                {
-                    initializationValue = New.Instance(property.Type.PropertyInitializationType);
-                }
-
-                if (initializationValue != null)
-                {
-                    methodBodyStatements.Add(assignee.Assign(initializationValue).Terminate());
-                }
+            foreach (var field in CanonicalView.Fields)
+            {
+                CreatePropertyAssignmentStatement(isPrimaryConstructor, methodBodyStatements, parameterMap, field: field);
             }
 
             // handle additional properties
@@ -711,17 +674,76 @@ namespace Microsoft.Generator.CSharp.Providers
             return methodBodyStatements;
         }
 
-        private ValueExpression GetConversion(PropertyProvider property)
+        private void CreatePropertyAssignmentStatement(
+            bool isPrimaryConstructor,
+            List<MethodBodyStatement> methodBodyStatements,
+            Dictionary<string, ParameterProvider> parameterMap,
+            PropertyProvider? property = default,
+            FieldProvider? field = default)
         {
-            CSharpType to = property.BackingField is null ? property.Type : property.BackingField.Type;
-            CSharpType from = property.Type;
+            var wireInfo = property?.WireInfo ?? field?.WireInfo;
+            // skip those non-spec properties
+            if (wireInfo == null)
+                return;
+
+            // skip if this is an overload / new of a base property
+            // also skip if the base was required or the derived property is not required
+            if (property?.BaseProperty is not null && (!isPrimaryConstructor || wireInfo.IsRequired == false || property.BaseProperty.WireInfo?.IsRequired == true))
+                return;
+
+            ValueExpression assignee = property != null
+                ? property.BackingField is null ? property : property.BackingField
+                : field!;
+
+            if (!isPrimaryConstructor)
+            {
+                // always add the property for the serialization constructor
+                methodBodyStatements.Add(assignee.Assign(GetConversion(property, field)).Terminate());
+                return;
+            }
+
+            ValueExpression? initializationValue = null;
+
+            var type = property?.Type ?? field!.Type;
+
+            if (parameterMap.TryGetValue(property?.AsParameter.Name ?? field!.AsParameter.Name, out var parameter) || Type.IsStruct)
+            {
+                if (parameter != null)
+                {
+                    initializationValue = parameter;
+
+                    if (CSharpType.RequiresToList(parameter.Type, type))
+                    {
+                        initializationValue = parameter.Type.IsNullable ?
+                            initializationValue.NullConditional().ToList() :
+                            initializationValue.ToList();
+                    }
+                }
+            }
+            else if (initializationValue == null && type.IsCollection)
+            {
+                initializationValue = New.Instance(type.PropertyInitializationType);
+            }
+
+            if (initializationValue != null)
+            {
+                methodBodyStatements.Add(assignee.Assign(initializationValue).Terminate());
+            }
+        }
+
+        private ValueExpression GetConversion(PropertyProvider? property = default, FieldProvider? field = default)
+        {
+            CSharpType to = property != null
+                ? property.BackingField is null ? property.Type : property.BackingField.Type
+                : field!.Type;
+            CSharpType from = property?.Type ?? field!.Type;
 
             if (from.IsEnum && to.Equals(from.UnderlyingEnumType))
             {
-                return from.ToSerial(property.AsParameter);
+                return from.ToSerial(property?.AsParameter ?? field!.AsParameter);
             }
 
-            return property.AsParameter;
+            return property?.AsParameter ?? field!.AsParameter;
         }
 
         /// <summary>
