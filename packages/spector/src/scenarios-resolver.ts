@@ -1,10 +1,10 @@
 import { Operation } from "@typespec/compiler";
 import { isSharedRoute } from "@typespec/http";
 import { ScenarioMockApi } from "@typespec/spec-api";
-import { Scenario } from "@typespec/spec-lib";
 import { dirname, join, relative, resolve } from "path";
 import pc from "picocolors";
 import { pathToFileURL } from "url";
+import type { Scenario } from "./lib/decorators.js";
 import { logger } from "./logger.js";
 import { importSpecExpect, importTypeSpec, importTypeSpecHttp } from "./spec-utils/index.js";
 import { findFilesFromPattern } from "./utils/file-utils.js";
@@ -70,7 +70,7 @@ export async function loadScenarios(
   for (const { name, specFilePath } of scenarioFiles) {
     logger.debug(`Found scenario "${specFilePath}"`);
     const program = await typespecCompiler.compile(typespecCompiler.NodeHost, specFilePath, {
-      additionalImports: ["@typespec/spec-lib"],
+      additionalImports: ["@typespec/spector"],
       noEmit: true,
       warningAsError: true,
     });
