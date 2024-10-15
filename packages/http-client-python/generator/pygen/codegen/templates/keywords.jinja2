@@ -17,3 +17,11 @@ except ImportError:
     _patch_all = []
 {% endif %}
 from ._patch import patch_sdk as _patch_sdk{% endmacro %}
+{% macro path_type_checking_imports() %}
+# pylint: disable=wrong-import-position
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ._patch import *  # pylint: disable=unused-wildcard-import
+{% endmacro %}
