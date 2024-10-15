@@ -31,7 +31,7 @@ export interface XmlModule {
 }
 
 export async function resolveXmlModule(): Promise<XmlModule | undefined> {
-  const xml = await import("@typespec/xml");
+  const xml = await tryImport("@typespec/xml");
   if (xml === undefined) return undefined;
 
   return {
@@ -209,4 +209,13 @@ function isXmlModelChecker(
   }
 
   return false;
+}
+
+async function tryImport(modulePath: string): Promise<any | undefined> {
+  try {
+    const module = await import(modulePath);
+    return module;
+  } catch {
+    return undefined;
+  }
 }
