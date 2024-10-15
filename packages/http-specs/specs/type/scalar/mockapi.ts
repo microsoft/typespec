@@ -1,4 +1,4 @@
-import { json, MockRequest, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
+import { json, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -9,9 +9,6 @@ Scenarios.Type_Scalar_String_get = passOnSuccess({
   response: {
     status: 200,
     body: json("test"),
-  },
-  handler: (req: MockRequest) => {
-    return { status: 200, body: json("test") };
   },
   kind: "MockApiDefinition",
 });
@@ -28,10 +25,6 @@ Scenarios.Type_Scalar_String_put = passOnSuccess({
   response: {
     status: 204,
   },
-  handler: (req: MockRequest) => {
-    req.expect.bodyEquals("test");
-    return { status: 204 };
-  },
   kind: "MockApiDefinition",
 });
 
@@ -42,9 +35,6 @@ Scenarios.Type_Scalar_Boolean_get = passOnSuccess({
   response: {
     status: 200,
     body: json(true),
-  },
-  handler: (req: MockRequest) => {
-    return { status: 200, body: json(true) };
   },
   kind: "MockApiDefinition",
 });
@@ -61,10 +51,6 @@ Scenarios.Type_Scalar_Boolean_put = passOnSuccess({
   response: {
     status: 204,
   },
-  handler: (req: MockRequest) => {
-    req.expect.bodyEquals(true);
-    return { status: 204 };
-  },
   kind: "MockApiDefinition",
 });
 
@@ -75,9 +61,6 @@ Scenarios.Type_Scalar_Unknown_get = passOnSuccess({
   response: {
     status: 200,
     body: json("test"),
-  },
-  handler: (req: MockRequest) => {
-    return { status: 200, body: json("test") };
   },
   kind: "MockApiDefinition",
 });
@@ -93,10 +76,6 @@ Scenarios.Type_Scalar_Unknown_put = passOnSuccess({
   response: {
     status: 204,
   },
-  handler: (req: MockRequest) => {
-    req.expect.bodyEquals("test");
-    return { status: 204 };
-  },
   kind: "MockApiDefinition",
 });
 
@@ -108,12 +87,6 @@ Scenarios.Type_Scalar_DecimalType_responseBody = passOnSuccess({
     status: 200,
     body: json(0.33333),
   },
-  handler: (req: MockRequest) => {
-    return {
-      status: 200,
-      body: json(0.33333),
-    };
-  },
   kind: "MockApiDefinition",
 });
 Scenarios.Type_Scalar_Decimal128Type_responseBody = passOnSuccess({
@@ -123,12 +96,6 @@ Scenarios.Type_Scalar_Decimal128Type_responseBody = passOnSuccess({
   response: {
     status: 200,
     body: json(0.33333),
-  },
-  handler: (req: MockRequest) => {
-    return {
-      status: 200,
-      body: json(0.33333),
-    };
   },
   kind: "MockApiDefinition",
 });
@@ -144,12 +111,6 @@ Scenarios.Type_Scalar_DecimalType_requestBody = passOnSuccess({
   response: {
     status: 204,
   },
-  handler: (req: MockRequest) => {
-    req.expect.bodyEquals(0.33333);
-    return {
-      status: 204,
-    };
-  },
   kind: "MockApiDefinition",
 });
 Scenarios.Type_Scalar_Decimal128Type_requestBody = passOnSuccess({
@@ -164,28 +125,16 @@ Scenarios.Type_Scalar_Decimal128Type_requestBody = passOnSuccess({
   response: {
     status: 204,
   },
-  handler: (req: MockRequest) => {
-    req.expect.bodyEquals(0.33333);
-    return {
-      status: 204,
-    };
-  },
   kind: "MockApiDefinition",
 });
 Scenarios.Type_Scalar_DecimalType_requestParameter = passOnSuccess({
   uri: "/type/scalar/decimal/request_parameter",
   method: `get`,
   request: {
-    params: { value: 0.33333 },
+    params: { value: "0.33333" },
   },
   response: {
     status: 204,
-  },
-  handler: (req: MockRequest) => {
-    req.expect.containsQueryParam("value", "0.33333");
-    return {
-      status: 204,
-    };
   },
   kind: "MockApiDefinition",
 });
@@ -193,16 +142,10 @@ Scenarios.Type_Scalar_Decimal128Type_requestParameter = passOnSuccess({
   uri: "/type/scalar/decimal128/request_parameter",
   method: `get`,
   request: {
-    params: { value: 0.33333 },
+    params: { value: "0.33333" },
   },
   response: {
     status: 204,
-  },
-  handler: (req: MockRequest) => {
-    req.expect.containsQueryParam("value", "0.33333");
-    return {
-      status: 204,
-    };
   },
   kind: "MockApiDefinition",
 });
@@ -214,12 +157,6 @@ Scenarios.Type_Scalar_DecimalVerify_prepareVerify = passOnSuccess({
     status: 200,
     body: json([0.1, 0.1, 0.1]),
   },
-  handler: (req: MockRequest) => {
-    return {
-      status: 200,
-      body: json([0.1, 0.1, 0.1]),
-    };
-  },
   kind: "MockApiDefinition",
 });
 Scenarios.Type_Scalar_Decimal128Verify_prepareVerify = passOnSuccess({
@@ -229,12 +166,6 @@ Scenarios.Type_Scalar_Decimal128Verify_prepareVerify = passOnSuccess({
   response: {
     status: 200,
     body: json([0.1, 0.1, 0.1]),
-  },
-  handler: (req: MockRequest) => {
-    return {
-      status: 200,
-      body: json([0.1, 0.1, 0.1]),
-    };
   },
   kind: "MockApiDefinition",
 });
@@ -250,12 +181,6 @@ Scenarios.Type_Scalar_DecimalVerify_verify = passOnSuccess({
   response: {
     status: 204,
   },
-  handler: (req: MockRequest) => {
-    req.expect.bodyEquals(0.3);
-    return {
-      status: 204,
-    };
-  },
   kind: "MockApiDefinition",
 });
 Scenarios.Type_Scalar_Decimal128Verify_verify = passOnSuccess({
@@ -269,12 +194,6 @@ Scenarios.Type_Scalar_Decimal128Verify_verify = passOnSuccess({
   },
   response: {
     status: 204,
-  },
-  handler: (req: MockRequest) => {
-    req.expect.bodyEquals(0.3);
-    return {
-      status: 204,
-    };
   },
   kind: "MockApiDefinition",
 });

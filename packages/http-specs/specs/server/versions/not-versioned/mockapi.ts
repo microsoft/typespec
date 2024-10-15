@@ -47,9 +47,5 @@ Scenarios.Server_Versions_NotVersioned_withQueryApiVersion = passOnSuccess({
   response: {
     status: 200,
   },
-  handler: (req: MockRequest) => {
-    req.expect.containsQueryParam("api-version", "v1.0");
-    return { status: 200 };
-  },
   kind: "MockApiDefinition",
 });
