@@ -940,9 +940,10 @@ export class CodeModelBuilder {
   ): LongRunningMetadata {
     const trackConvenienceApi: boolean = Boolean(op.convenienceApi);
 
-    const lroMetadata = sdkMethod.__raw_lro_metadata;
+    // const lroMetadata = sdkMethod.__raw_lro_metadata;
+    const lroMetadata = sdkMethod.lroMetadata;
     // needs lroMetadata.statusMonitorStep, as getLroMetadata would return for @pollingOperation operation
-    if (lroMetadata && lroMetadata.pollingInfo && lroMetadata.statusMonitorStep) {
+    if (lroMetadata && lroMetadata.pollingStep) {
       let pollingSchema = undefined;
       let finalSchema = undefined;
 
@@ -950,7 +951,7 @@ export class CodeModelBuilder {
       let finalResultPropertySerializedName: string | undefined = undefined;
 
       const verb = sdkMethod.operation.verb;
-      const useNewPollStrategy = isLroNewPollingStrategy(sdkMethod.operation.__raw, lroMetadata);
+      const useNewPollStrategy = isLroNewPollingStrategy(sdkMethod.operation, lroMetadata);
       if (useNewPollStrategy) {
         // use OperationLocationPollingStrategy
         pollingStrategy = new Metadata({
@@ -965,38 +966,36 @@ export class CodeModelBuilder {
 
       // pollingSchema
       if (
-        modelIs(lroMetadata.pollingInfo.responseModel, "OperationStatus", "Azure.Core.Foundations")
+        modelIs(lroMetadata.pollingStep.responseBody, "OperationStatus", "Azure.Core.Foundations")
       ) {
         pollingSchema = this.pollResultSchema;
       } else {
-        const pollType = this.findResponseBody(lroMetadata.pollingInfo.responseModel);
-        const sdkType = getClientType(this.sdkContext, pollType);
-        pollingSchema = this.processSchema(sdkType, "pollResult");
+        const pollType = lroMetadata.pollingStep.responseBody;
+        if (pollType) {
+          pollingSchema = this.processSchema(pollType, "pollResult");
+        }
       }
 
       // finalSchema
       if (
         verb !== "delete" &&
-        lroMetadata.finalResult &&
-        lroMetadata.finalEnvelopeResult &&
-        lroMetadata.finalResult !== "void" &&
-        lroMetadata.finalEnvelopeResult !== "void"
+        lroMetadata.finalResponse &&
+        lroMetadata.finalResponse.result &&
+        lroMetadata.finalResponse.envelopeResult
       ) {
         const finalResult = useNewPollStrategy
-          ? lroMetadata.finalResult
-          : lroMetadata.finalEnvelopeResult;
-        const finalType = this.findResponseBody(finalResult);
-        const sdkType = getClientType(this.sdkContext, finalType);
-        finalSchema = this.processSchema(sdkType, "finalResult");
+          ? lroMetadata.finalResponse.result
+          : lroMetadata.finalResponse.envelopeResult;
+        finalSchema = this.processSchema(finalResult, "finalResult");
 
         if (
           useNewPollStrategy &&
           lroMetadata.finalStep &&
           lroMetadata.finalStep.kind === "pollingSuccessProperty" &&
-          lroMetadata.finalStep.target
+          lroMetadata.finalResponse.resultPath
         ) {
           // final result is the value in lroMetadata.finalStep.target
-          finalResultPropertySerializedName = this.getSerializedName(lroMetadata.finalStep.target);
+          finalResultPropertySerializedName = lroMetadata.finalResponse.resultPath;
         }
       }
 
