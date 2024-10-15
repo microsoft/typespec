@@ -167,8 +167,10 @@ public class JavaSettings {
                 getBooleanValue(host, "null-byte-array-maps-to-empty-array", false),
                 getBooleanValue(host, "graal-vm-config", false), getStringValue(host, "flavor", "Azure"),
                 getBooleanValue(host, "disable-typed-headers-methods", false),
-                getBooleanValue(host, "share-jsonserializable-code", false), getBooleanValue(host, "android", false));
-        }
+                getBooleanValue(host, "share-jsonserializable-code", false),
+                getBooleanValue(host, "use-object-for-unknown", false),
+                getBooleanValue(host, "android", false));
+    }
         return instance;
     }
 
@@ -293,7 +295,8 @@ public class JavaSettings {
         boolean includeReadOnlyInConstructorArgs, boolean urlAsString, boolean uuidAsString,
         boolean disableRequiredPropertyAnnotation, boolean pageSizeEnabled, boolean useKeyCredential,
         boolean nullByteArrayMapsToEmptyArray, boolean generateGraalVmConfig, String flavor,
-        boolean disableTypedHeadersMethods, boolean shareJsonSerializableCode, boolean android) {
+        boolean disableTypedHeadersMethods, boolean shareJsonSerializableCode, boolean useObjectForUnknown,
+        boolean android) {
 
         this.autorestSettings = autorestSettings;
         this.modelerSettings = new ModelerSettings(modelerSettings);
@@ -392,6 +395,7 @@ public class JavaSettings {
         this.flavor = flavor;
         this.disableTypedHeadersMethods = disableTypedHeadersMethods;
         this.shareJsonSerializableCode = shareJsonSerializableCode;
+        this.useObjectForUnknown = useObjectForUnknown;
         this.android = android;
     }
 
@@ -1605,6 +1609,12 @@ public class JavaSettings {
      */
     public boolean isShareJsonSerializableCode() {
         return shareJsonSerializableCode;
+    }
+
+    private final boolean useObjectForUnknown;
+
+    public boolean isUseObjectForUnknown() {
+        return useObjectForUnknown;
     }
 
     private final boolean android;

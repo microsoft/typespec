@@ -29,10 +29,10 @@ public class AnyMapper implements IMapper<AnySchema, IType> {
 
     @Override
     public IType map(AnySchema anySchema) {
-        if (JavaSettings.getInstance().isDataPlaneClient()) {
-            return ClassType.BINARY_DATA;
-        } else {
+        if (JavaSettings.getInstance().isUseObjectForUnknown()) {
             return ClassType.OBJECT;
+        } else {
+            return ClassType.BINARY_DATA;
         }
     }
 }
