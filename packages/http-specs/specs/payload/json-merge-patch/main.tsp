@@ -1,8 +1,8 @@
 import "@typespec/http";
-import "@typespec/spec-lib";
+import "@typespec/spector";
 
 using Http;
-using SpecLib;
+using Spector;
 
 @doc("Test for merge-patch+json content-type")
 @scenarioService("/json-merge-patch")
