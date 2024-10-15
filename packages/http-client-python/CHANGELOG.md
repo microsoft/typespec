@@ -1,5 +1,11 @@
 # Change Log - @typespec/http-client-python
 
+## 0.3.1
+
+### Bug Fixes
+
+- Avoid change original data when deserialize for polymorphic model
+
 ## 0.3.0
 
 ### Bump dependencies
