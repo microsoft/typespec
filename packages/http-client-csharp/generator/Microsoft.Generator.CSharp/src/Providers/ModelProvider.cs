@@ -453,11 +453,13 @@ namespace Microsoft.Generator.CSharp.Providers
             var baseParameters = new List<ParameterProvider>();
             var constructorParameters = new List<ParameterProvider>();
             IEnumerable<PropertyProvider> baseProperties = [];
+            IEnumerable<FieldProvider> baseFields = [];
 
             if (isPrimaryConstructor)
             {
                 // the primary ctor should only include the properties of the direct base model
                 baseProperties = BaseModelProvider?.CanonicalView.Properties ?? [];
+                baseFields = BaseModelProvider?.CanonicalView.Fields ?? [];
             }
             else if (BaseModelProvider?.FullConstructor.Signature != null)
             {
@@ -469,7 +471,13 @@ namespace Microsoft.Generator.CSharp.Providers
             // add the base parameters, if any
             foreach (var property in baseProperties)
             {
-                AddInitializationParameterForCtor(baseParameters, property, Type.IsStruct, isPrimaryConstructor);
+                AddInitializationParameterForCtor(baseParameters, Type.IsStruct, isPrimaryConstructor, property);
+            }
+
+            // add the base fields, if any
+            foreach (var field in baseFields)
+            {
+                AddInitializationParameterForCtor(baseParameters, Type.IsStruct, isPrimaryConstructor, field: field);
             }
 
             // construct the initializer using the parameters from base signature
@@ -477,7 +485,12 @@ namespace Microsoft.Generator.CSharp.Providers
 
             foreach (var property in CanonicalView.Properties)
             {
-                AddInitializationParameterForCtor(constructorParameters, property, Type.IsStruct, isPrimaryConstructor);
+                AddInitializationParameterForCtor(constructorParameters, Type.IsStruct, isPrimaryConstructor, property);
+            }
+
+            foreach (var field in CanonicalView.Fields)
+            {
+                AddInitializationParameterForCtor(constructorParameters, Type.IsStruct, isPrimaryConstructor, field: field);
             }
 
             constructorParameters.AddRange(_inputModel.IsUnknownDiscriminatorModel
@@ -586,30 +599,35 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private static void AddInitializationParameterForCtor(
             List<ParameterProvider> parameters,
-            PropertyProvider property,
             bool isStruct,
-            bool isPrimaryConstructor)
+            bool isPrimaryConstructor,
+            PropertyProvider? property = default,
+            FieldProvider? field = default)
         {
+            var wireInfo = property?.WireInfo ?? field?.WireInfo;
+            var type = property?.Type ?? field?.Type;
+
             // We only add those properties with wire info indicating they are coming from specs.
-            if (property.WireInfo is not { } wireInfo)
+            if (wireInfo == null)
             {
                 return;
             }
 
+            var parameter = property?.AsParameter ?? field!.AsParameter;
             if (isPrimaryConstructor)
             {
-                if (isStruct || (wireInfo.IsRequired && !property.Type.IsLiteral))
+                if (isStruct || (wireInfo.IsRequired && !type!.IsLiteral))
                 {
                     if (!wireInfo.IsReadOnly)
                     {
-                        parameters.Add(property.AsParameter.ToPublicInputParameter());
+                        parameters.Add(parameter.ToPublicInputParameter());
                     }
                 }
             }
             else
             {
                 // For the serialization constructor, we always add the property as a parameter
-                parameters.Add(property.AsParameter);
+                parameters.Add(parameter);
             }
         }
 

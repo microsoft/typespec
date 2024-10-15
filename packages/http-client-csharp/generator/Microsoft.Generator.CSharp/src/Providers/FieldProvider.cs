@@ -2,9 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Statements;
@@ -17,10 +15,11 @@ namespace Microsoft.Generator.CSharp.Providers
         private Lazy<ParameterProvider> _parameter;
         public FormattableString? Description { get; }
         public FieldModifiers Modifiers { get; }
-        public CSharpType Type { get; }
+        public CSharpType Type { get; internal set; }
         public string Name { get; }
         public ValueExpression? InitializationValue { get; }
         public XmlDocProvider? XmlDocs { get; }
+        public PropertyWireInformation? WireInfo { get; internal set; }
 
         private CodeWriterDeclaration? _declaration;
 
@@ -35,7 +34,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         public TypeProvider EnclosingType { get; }
 
-        internal IEnumerable<AttributeData>? Attributes { get; init; }
+        internal string? OriginalName { get; init; }
 
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
