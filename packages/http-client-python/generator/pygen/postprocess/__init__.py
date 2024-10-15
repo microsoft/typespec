@@ -157,13 +157,13 @@ class PostProcessPlugin(Plugin):
                 added_objs.append(obj)
         file_content = file_content.replace(
             "try:\n    from ._patch import __all__ as _patch_all\n    "
-            "from ._patch import *  # pylint: disable=unused-wildcard-import"
+            "from ._patch import *"
             "\nexcept ImportError:\n    _patch_all = []",
             "",
         )
         file_content = file_content.replace("from ._patch import __all__ as _patch_all", "")
         file_content = file_content.replace(
-            "from ._patch import *  # pylint: disable=unused-wildcard-import\n",
+            "from ._patch import *\n",
             "",
         )
         file_content = file_content.replace("__all__.extend([p for p in _patch_all if p not in __all__])", "")
