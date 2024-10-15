@@ -1,7 +1,7 @@
-import { Scenario, ScenarioEndpoint } from "@typespec/spec-lib";
 import { writeFile } from "fs/promises";
 import pc from "picocolors";
 import prettier from "prettier";
+import type { Scenario, ScenarioEndpoint } from "../lib/decorators.js";
 import { logger } from "../logger.js";
 import { loadScenarios } from "../scenarios-resolver.js";
 

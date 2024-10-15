@@ -30,7 +30,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private ModelProvider? _baseModelProvider;
         private ConstructorProvider? _fullConstructor;
 
-        public ModelProvider(InputModelType inputModel)
+        public ModelProvider(InputModelType inputModel) : base(inputModel)
         {
             _inputModel = inputModel;
             Description = inputModel.Description != null ? FormattableStringHelpers.FromString(inputModel.Description) : $"The {Name}.";
@@ -84,8 +84,6 @@ namespace Microsoft.Generator.CSharp.Providers
         private List<PropertyProvider> AdditionalPropertyProperties => _additionalPropertyProperties ??= BuildAdditionalPropertyProperties();
         internal bool SupportsBinaryDataAdditionalProperties => AdditionalPropertyProperties.Any(p => p.Type.ElementType.Equals(_additionalPropsUnknownType));
         public ConstructorProvider FullConstructor => _fullConstructor ??= BuildFullConstructor();
-
-        internal IReadOnlyList<PropertyProvider> AllSpecProperties => Properties.Concat(CustomCodeView?.Properties.Where(p => p.WireInfo != null) ?? []).ToList();
 
         protected override string GetNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
 
@@ -459,14 +457,14 @@ namespace Microsoft.Generator.CSharp.Providers
             if (isPrimaryConstructor)
             {
                 // the primary ctor should only include the properties of the direct base model
-                baseProperties = BaseModelProvider?.Properties ?? [];
+                baseProperties = BaseModelProvider?.CanonicalView.Properties ?? [];
             }
             else if (BaseModelProvider?.FullConstructor.Signature != null)
             {
                 baseParameters.AddRange(BaseModelProvider.FullConstructor.Signature.Parameters);
             }
 
-            HashSet<PropertyProvider> overriddenProperties = AllSpecProperties.Where(p => p.BaseProperty is not null).Select(p => p.BaseProperty!).ToHashSet();
+            HashSet<PropertyProvider> overriddenProperties = CanonicalView.Properties.Where(p => p.BaseProperty is not null).Select(p => p.BaseProperty!).ToHashSet();
 
             // add the base parameters, if any
             foreach (var property in baseProperties)
@@ -477,7 +475,7 @@ namespace Microsoft.Generator.CSharp.Providers
             // construct the initializer using the parameters from base signature
             var constructorInitializer = new ConstructorInitializer(true, [.. baseParameters.Select(p => GetExpressionForCtor(p, overriddenProperties, isPrimaryConstructor))]);
 
-            foreach (var property in AllSpecProperties)
+            foreach (var property in CanonicalView.Properties)
             {
                 AddInitializationParameterForCtor(constructorParameters, property, Type.IsStruct, isPrimaryConstructor);
             }
@@ -508,7 +506,7 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             if (_inputModel.BaseModel is not null && _inputModel.DiscriminatorValue is not null)
             {
-                var discriminator = BaseModelProvider?.Properties.Where(p => p.IsDiscriminator).FirstOrDefault();
+                var discriminator = BaseModelProvider?.CanonicalView.Properties.Where(p => p.IsDiscriminator).FirstOrDefault();
                 if (discriminator != null)
                 {
                     var type = discriminator.Type;
@@ -518,12 +516,12 @@ namespace Microsoft.Generator.CSharp.Providers
                     }
                     else
                     {
-                        if (!type.IsFrameworkType && type.IsEnum)
+                        if (!type.IsFrameworkType && type.IsEnum && _inputModel.BaseModel.DiscriminatorProperty!.Type is InputEnumType inputEnumType)
                         {
                             /* TODO: when customize the discriminator type to a enum, then we may not be able to get the correct TypeProvider in this way.
                              * We will handle this when issue https://github.com/microsoft/typespec/issues/4313 is resolved.
                              * */
-                            var discriminatorProvider = CodeModelPlugin.Instance.TypeFactory.CreateEnum(enumType: (InputEnumType)_inputModel.BaseModel.DiscriminatorProperty!.Type);
+                            var discriminatorProvider = CodeModelPlugin.Instance.TypeFactory.CreateEnum(enumType: inputEnumType);
                             var enumMember = discriminatorProvider!.EnumValues.FirstOrDefault(e => e.Value.ToString() == _inputModel.DiscriminatorValue) ?? throw new InvalidOperationException($"invalid discriminator value {_inputModel.DiscriminatorValue}");
                             /* {KindType}.{enumMember} */
                             return TypeReferenceExpression.FromType(type).Property(enumMember.Name);
@@ -619,10 +617,10 @@ namespace Microsoft.Generator.CSharp.Providers
             bool isPrimaryConstructor,
             IReadOnlyList<ParameterProvider>? parameters = null)
         {
-            List<MethodBodyStatement> methodBodyStatements = new(Properties.Count + 1);
+            List<MethodBodyStatement> methodBodyStatements = new(CanonicalView.Properties.Count + 1);
             Dictionary<string, ParameterProvider> parameterMap = parameters?.ToDictionary(p => p.Name) ?? [];
 
-            foreach (var property in AllSpecProperties)
+            foreach (var property in CanonicalView.Properties)
             {
                 // skip those non-spec properties
                 if (property.WireInfo == null)

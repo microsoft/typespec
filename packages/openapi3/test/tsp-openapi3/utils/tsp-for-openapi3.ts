@@ -7,6 +7,7 @@ import { OpenAPI3TestLibrary } from "../../../src/testing/index.js";
 import {
   OpenAPI3Document,
   OpenAPI3Parameter,
+  OpenAPI3PathItem,
   OpenAPI3Schema,
   Refable,
 } from "../../../src/types.js";
@@ -20,16 +21,17 @@ function wrapCodeInTest(code: string): string {
 export interface OpenAPI3Options {
   schemas?: Record<string, Refable<OpenAPI3Schema>>;
   parameters?: Record<string, Refable<OpenAPI3Parameter>>;
+  paths?: Record<string, OpenAPI3PathItem>;
 }
 
-export async function tspForOpenAPI3({ parameters, schemas }: OpenAPI3Options) {
+export async function tspForOpenAPI3({ parameters, paths, schemas }: OpenAPI3Options) {
   const openApi3Doc: OpenAPI3Document = {
     info: {
       title: "Test Service",
       version: "1.0.0",
     },
     openapi: "3.0.0",
-    paths: {},
+    paths: { ...paths },
     components: {
       schemas: {
         ...(schemas as any),
