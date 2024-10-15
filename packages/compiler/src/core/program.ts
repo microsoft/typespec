@@ -322,7 +322,7 @@ export async function compile(
     }
 
     // main entrypoint
-    await sourceLoader.importFile(entrypoint, { type: "project" }, "entrypoint");
+    await sourceLoader.importFile(entrypoint, NoTarget, { type: "project" }, "entrypoint");
 
     // additional imports
     for (const additionalImport of options?.additionalImports ?? []) {
@@ -350,6 +350,7 @@ export async function compile(
     const locationContext: LocationContext = { type: "compiler" };
     return loader.importFile(
       resolvePath(host.getExecutionRoot(), "lib/intrinsics.tsp"),
+      NoTarget,
       locationContext,
     );
   }
@@ -357,7 +358,7 @@ export async function compile(
   async function loadStandardLibrary(loader: SourceLoader) {
     const locationContext: LocationContext = { type: "compiler" };
     for (const dir of host.getLibDirs()) {
-      await loader.importFile(resolvePath(dir, "main.tsp"), locationContext);
+      await loader.importFile(resolvePath(dir, "main.tsp"), NoTarget, locationContext);
     }
   }
 
@@ -406,28 +407,23 @@ export async function compile(
 
   async function resolveEmitterModuleAndEntrypoint(
     basedir: string,
-    emitterNameOrPath: string,
+    specifier: string,
   ): Promise<
     [
-      { module: ModuleResolutionResult; entrypoint: JsSourceFileNode | undefined } | undefined,
+      { module: ModuleResolutionResult; entrypoint: JsSourceFileNode } | undefined,
       readonly Diagnostic[],
     ]
   > {
     const locationContext: LocationContext = { type: "project" };
     // attempt to resolve a node module with this name
-    const [module, diagnostics] = await resolveJSLibrary(
-      emitterNameOrPath,
-      basedir,
-      locationContext,
-    );
+    const [module, diagnostics] = await resolveJSLibrary(specifier, basedir, locationContext);
     if (!module) {
       return [undefined, diagnostics];
     }
 
     const entrypoint = module.type === "file" ? module.path : module.mainFile;
     const [file, jsDiagnostics] = await loadJsFile(host, entrypoint, NoTarget);
-
-    return [{ module, entrypoint: file }, jsDiagnostics];
+    return [file && { module, entrypoint: file }, jsDiagnostics];
   }
 
   async function loadLibrary(
@@ -469,17 +465,6 @@ export async function compile(
     }
 
     const { entrypoint, metadata } = library;
-    if (entrypoint === undefined) {
-      program.reportDiagnostic(
-        createDiagnostic({
-          code: "invalid-emitter",
-          format: { emitterPackage: emitterNameOrPath },
-          target: NoTarget,
-        }),
-      );
-      return undefined;
-    }
-
     const emitFunction = entrypoint.esmExports.$onEmit;
     const libDefinition = library.definition;
 
@@ -518,10 +503,16 @@ export async function compile(
         options: emitterOptions,
       };
     } else {
+      program.trace(
+        "emitter.load.invalid-emitter",
+        `Emitter does not have an emit function. Available exported symbols are ${Object.keys(entrypoint.esmExports).join(", ")}`,
+      );
       program.reportDiagnostic(
         createDiagnostic({
           code: "invalid-emitter",
-          format: { emitterPackage: emitterNameOrPath },
+          format: {
+            emitterPackage: emitterNameOrPath,
+          },
           target: NoTarget,
         }),
       );
@@ -635,7 +626,10 @@ export async function compile(
     locationContext: LocationContext,
   ): Promise<[ModuleResolutionResult | undefined, readonly Diagnostic[]]> {
     try {
-      return [await resolveModule(getResolveModuleHost(), specifier, { baseDir }), []];
+      return [
+        await resolveModule(getResolveModuleHost(), specifier, { baseDir, conditions: ["import"] }),
+        [],
+      ];
     } catch (e: any) {
       if (e instanceof ResolveModuleError) {
         return [undefined, [moduleResolutionErrorToDiagnostic(e, specifier, NoTarget)]];
