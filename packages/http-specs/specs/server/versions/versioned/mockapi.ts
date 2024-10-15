@@ -39,10 +39,6 @@ function createAPIVersionTests(uri: string, requestData: any, serverData: string
     response: {
       status: 200,
     },
-    handler: (req: MockRequest) => {
-      req.expect.containsQueryParam("api-version", serverData);
-      return { status: 200 };
-    },
     kind: "MockApiDefinition",
   });
 }
