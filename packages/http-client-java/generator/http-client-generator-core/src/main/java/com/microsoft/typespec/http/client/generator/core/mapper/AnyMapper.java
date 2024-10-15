@@ -4,6 +4,7 @@
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.AnySchema;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 
@@ -28,6 +29,10 @@ public class AnyMapper implements IMapper<AnySchema, IType> {
 
     @Override
     public IType map(AnySchema anySchema) {
-        return ClassType.OBJECT;
+        if (JavaSettings.getInstance().isDataPlaneClient()) {
+            return ClassType.BINARY_DATA;
+        } else {
+            return ClassType.OBJECT;
+        }
     }
 }
