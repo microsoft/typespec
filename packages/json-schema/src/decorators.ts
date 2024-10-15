@@ -162,6 +162,7 @@ export const [
   /** Get value set by `@maxContains` decorator */
   getMaxContains,
   setMaxContains,
+  /** {@inheritdoc MaxContainsDecorator} */
   $maxContains,
 ] = createDataDecorator<MaxContainsDecorator>(JsonSchemaStateKeys["JsonSchema.maxContains"]);
 
