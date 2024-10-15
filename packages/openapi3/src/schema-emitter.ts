@@ -84,6 +84,7 @@ import {
   OpenAPI3SchemaProperty,
 } from "./types.js";
 import { VisibilityUsageTracker } from "./visibility-usage.js";
+import { XmlModule } from "./xml-module.js";
 
 /**
  * OpenAPI3 schema emitter. Deals with emitting content of `components/schemas` section.
@@ -95,13 +96,13 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
   #metadataInfo: MetadataInfo;
   #visibilityUsage: VisibilityUsageTracker;
   #options: ResolvedOpenAPI3EmitterOptions;
-  #xmlModule: any;
+  #xmlModule: XmlModule | undefined;
   constructor(
     emitter: AssetEmitter<Record<string, any>, OpenAPI3EmitterOptions>,
     metadataInfo: MetadataInfo,
     visibilityUsage: VisibilityUsageTracker,
     options: ResolvedOpenAPI3EmitterOptions,
-    xmlModule: any,
+    xmlModule: XmlModule | undefined,
   ) {
     super(emitter);
     this.#metadataInfo = metadataInfo;

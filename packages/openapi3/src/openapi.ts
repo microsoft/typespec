@@ -113,6 +113,7 @@ import {
 } from "./types.js";
 import { deepEquals, isSharedHttpOperation, SharedHttpOperation } from "./util.js";
 import { resolveVisibilityUsage, VisibilityUsageTracker } from "./visibility-usage.js";
+import { resolveXmlModule, XmlModule } from "./xml-module.js";
 
 const defaultFileType: FileType = "yaml";
 const defaultOptions = {
@@ -284,8 +285,8 @@ function createOAPIEmitter(
     service: Service,
     allHttpAuthentications: HttpAuth[],
     defaultAuth: AuthenticationReference,
+    xmlModule: XmlModule | undefined,
     version?: string,
-    moduleContent?: any,
   ) {
     diagnostics = createDiagnosticCollector();
     currentService = service;
@@ -304,7 +305,7 @@ function createOAPIEmitter(
       program,
       class extends OpenAPI3SchemaEmitter {
         constructor(emitter: AssetEmitter<Record<string, any>, OpenAPI3EmitterOptions>) {
-          super(emitter, metadataInfo, visibilityUsage, options, moduleContent);
+          super(emitter, metadataInfo, visibilityUsage, options, xmlModule);
         }
       } as any,
       context,
@@ -617,8 +618,8 @@ function createOAPIEmitter(
       const httpService = ignoreDiagnostics(getHttpService(program, service.type));
       const auth = (serviceAuth = resolveAuthentication(httpService));
 
-      const moduleContent = await loadXmlModule(program.jsSourceFiles.keys());
-      initializeEmitter(service, auth.schemes, auth.defaultAuth, version, moduleContent);
+      const xmlModule = await resolveXmlModule();
+      initializeEmitter(service, auth.schemes, auth.defaultAuth, xmlModule, version);
       reportIfNoRoutes(program, httpService.operations);
 
       for (const op of resolveOperations(httpService.operations)) {
@@ -1826,14 +1827,4 @@ function sortOpenAPIDocument(doc: OpenAPI3Document): void {
   if (doc.components?.parameters) {
     doc.components.parameters = sortObjectByKeys(doc.components.parameters);
   }
-}
-
-async function loadXmlModule(sourceKeys: MapIterator<string>) {
-  let needXmlmodule = false;
-  for (const file of sourceKeys) {
-    if (file.includes("xml")) {
-      needXmlmodule = true;
-    }
-  }
-  return needXmlmodule ? await import("./xml-module.js") : null;
 }
