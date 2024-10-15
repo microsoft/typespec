@@ -45,7 +45,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         internal PropertyProvider? VersionProperty => _versionProperty;
         private TypeProvider? ServiceVersionEnum => _serviceVersionEnum?.Value;
-        public FieldProvider? LatestVersionField => _latestVersionField ??= BuildLatestVersionField();
+        private FieldProvider? LatestVersionField => _latestVersionField ??= BuildLatestVersionField();
 
         private FieldProvider? BuildLatestVersionField()
         {

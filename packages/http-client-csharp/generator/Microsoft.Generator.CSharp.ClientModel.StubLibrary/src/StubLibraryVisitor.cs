@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
@@ -40,11 +41,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.StubLibrary
 
             if (type is ClientOptionsProvider clientOptions)
             {
-                if (clientOptions.LatestVersionField is not null)
-                {
-                    var fields = new List<FieldProvider> { clientOptions.LatestVersionField };
-                    type.Update(fields: fields);
-                }
+                type.Update(constructors: []);
             }
             return type;
         }
