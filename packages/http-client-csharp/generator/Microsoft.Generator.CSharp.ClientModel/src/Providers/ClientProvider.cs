@@ -40,7 +40,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private ClientOptionsProvider? _clientOptions;
         private RestClientProvider? _restClient;
         private readonly InputParameter[] _allClientParameters;
-        private Lazy<ClientProvider?> _parent;
+        //private Lazy<ClientProvider?> _parent;
 
         private ParameterProvider? ClientOptionsParameter => _clientOptionsParameter ??= ClientOptions != null
             ? ScmKnownParameters.ClientOptions(ClientOptions.Type)
@@ -126,7 +126,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             _allClientParameters = _inputClient.Parameters.Concat(_inputClient.Operations.SelectMany(op => op.Parameters).Where(p => p.Kind == InputOperationParameterKind.Client)).DistinctBy(p => p.Name).ToArray();
 
-            _parent = new Lazy<ClientProvider?>(GetParent);
+            //_parent = new Lazy<ClientProvider?>(GetParent);
         }
 
         private List<ParameterProvider>? _uriParameters;
@@ -135,12 +135,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             if (_uriParameters is null)
             {
                 _ = Constructors;
-                if (_parent.Value is not null)
-                {
-                    var combined = new HashSet<ParameterProvider>(_uriParameters ?? []);
-                    combined.UnionWith(_parent.Value.GetUriParameters());
-                    _uriParameters = combined.ToList();
-                }
+                //if (_parent.Value is not null)
+                //{
+                //    var combined = new HashSet<ParameterProvider>(_uriParameters ?? []);
+                //    combined.UnionWith(_parent.Value.GetUriParameters());
+                //    _uriParameters = combined.ToList();
+                //}
             }
             return _uriParameters ?? [];
         }
@@ -196,7 +196,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     var type = ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(p.Type);
                     if (type != null)
                     {
-                        FieldProvider field = new(
+                        FieldProvider field = new( //FIX setting isNullable to be false here should be true
                             FieldModifiers.Private | FieldModifiers.ReadOnly,
                             type,
                             "_" + p.Name.ToVariableName(),
