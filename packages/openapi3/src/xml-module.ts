@@ -29,15 +29,6 @@ export interface XmlModule {
     ref?: Record<string, any>,
   ): void;
 }
-const B = {
-  array: <T>(items: T[]): ArrayBuilder<T> => {
-    const builder = new ArrayBuilder<T>();
-    for (const item of items) {
-      builder.push(item);
-    }
-    return builder;
-  },
-} as const;
 
 export async function resolveXmlModule(): Promise<XmlModule | undefined> {
   const xml = await import("@typespec/xml");
@@ -146,7 +137,7 @@ export async function resolveXmlModule(): Promise<XmlModule | undefined> {
           ref.items = scalarSchema;
         } else {
           ref.items = new ObjectBuilder({
-            allOf: B.array([ref.items]),
+            allOf: new ArrayBuilder(ref.items),
             xml: { name: propXmlName },
           });
         }
@@ -158,7 +149,7 @@ export async function resolveXmlModule(): Promise<XmlModule | undefined> {
       }
 
       if (!isArrayProperty && ref && !ref.type) {
-        emitObject.allOf = B.array([ref]);
+        emitObject.allOf = new ArrayBuilder(ref as any);
         xmlObject.name = xmlName;
       }
 
