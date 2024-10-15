@@ -168,7 +168,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 if (!p.IsEndpoint)
                 {
-                    var type = p is { IsApiVersion: true, Type: InputEnumType enumType } ? ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(enumType.ValueType) : ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(p.Type);
+                    var type = p is { IsApiVersion: true, Type: InputEnumType enumType }
+                        ? ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(enumType.ValueType)
+                        : ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(p.Type);
+
                     if (type != null)
                     {
                         FieldProvider field = new(
@@ -256,7 +259,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 {
                     currentParam = ClientModelPlugin.Instance.TypeFactory.CreateParameter(parameter);
                     currentParam.Field = Fields.FirstOrDefault(f => f.Name == "_" + parameter.Name);
-                    if (!parameter.IsApiVersion) requiredParameters.Add(currentParam);
+                    if (!parameter.IsApiVersion)
+                    {
+                        requiredParameters.Add(currentParam);
+                    }
                 }
                 if (parameter.Location == RequestLocation.Uri)
                 {
