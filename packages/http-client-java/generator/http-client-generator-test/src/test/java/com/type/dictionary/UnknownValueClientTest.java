@@ -10,12 +10,14 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.util.Map;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class UnknownValueClientTest {
 
     UnknownValueClient client = new DictionaryClientBuilder().buildUnknownValueClient();
 
+    @Disabled("TODO https://github.com/Azure/autorest.java/issues/2964")
     @Test
     void get() {
         Map<String, BinaryData> response = client.get();

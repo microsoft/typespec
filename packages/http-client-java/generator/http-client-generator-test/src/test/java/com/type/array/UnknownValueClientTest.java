@@ -8,12 +8,14 @@ import java.util.List;
 
 import com.azure.core.util.BinaryData;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class UnknownValueClientTest {
 
     UnknownValueClient client = new ArrayClientBuilder().buildUnknownValueClient();
 
+    @Disabled("TODO https://github.com/Azure/autorest.java/issues/2964")
     @Test
     void get() {
         List<BinaryData> response = client.get();
