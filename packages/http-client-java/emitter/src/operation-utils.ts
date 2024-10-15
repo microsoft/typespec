@@ -1,6 +1,8 @@
 import { Parameter } from "@autorest/codemodel";
-import { LroMetadata } from "@azure-tools/typespec-azure-core";
-import { SdkHttpOperation, SdkLroServiceMetadata } from "@azure-tools/typespec-client-generator-core";
+import {
+  SdkHttpOperation,
+  SdkLroServiceMetadata,
+} from "@azure-tools/typespec-client-generator-core";
 import { ModelProperty, Operation, Program, Type, Union } from "@typespec/compiler";
 import {
   HttpOperation,
@@ -198,7 +200,11 @@ export function cloneOperationParameter(parameter: Parameter): Parameter {
   );
 }
 
-function operationIs(operation: SdkHttpOperation, name: string | undefined, namespace: string): boolean {
+function operationIs(
+  operation: SdkHttpOperation,
+  name: string | undefined,
+  namespace: string,
+): boolean {
   let currentOp: Operation | undefined = operation.__raw.operation;
   while (currentOp) {
     if ((!name || currentOp.name === name) && getNamespace(currentOp) === namespace) {

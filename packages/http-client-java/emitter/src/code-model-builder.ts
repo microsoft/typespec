@@ -70,7 +70,6 @@ import {
   SdkUnionType,
   createSdkContext,
   getAllModels,
-  getClientType,
   getWireName,
   isApiVersion,
   isSdkBuiltInKind,

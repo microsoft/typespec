@@ -220,7 +220,7 @@ export function getUnionDescription(union: Union, typeNameOptions: TypeNameOptio
 
 export function modelIs(model: SdkModelType | undefined, name: string, namespace: string): boolean {
   // use raw model because SdkModelType does not have sourceModel information
-  let currentModel: Model | undefined = model?.__raw as (Model | undefined);
+  let currentModel: Model | undefined = model?.__raw as Model | undefined;
   while (currentModel) {
     if (currentModel.name === name && getNamespace(currentModel) === namespace) {
       return true;
