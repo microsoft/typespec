@@ -1,8 +1,8 @@
 import "@typespec/http";
-import "@typespec/spec-lib";
+import "@typespec/spector";
 
 using Http;
-using SpecLib;
+using Spector;
 
 @doc("Projection")
 @scenarioService("/serialization/encoded-name/json")

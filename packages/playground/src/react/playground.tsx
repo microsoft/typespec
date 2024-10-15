@@ -110,6 +110,10 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
   const { host, onSave } = props;
   const editorRef = useRef<editor.IStandaloneCodeEditor | undefined>(undefined);
 
+  useEffect(() => {
+    editor.setTheme(props.editorOptions?.theme ?? "typespec");
+  }, [props.editorOptions?.theme]);
+
   const [selectedEmitter, onSelectedEmitterChange] = useControllableValue(
     props.emitter,
     props.defaultEmitter,

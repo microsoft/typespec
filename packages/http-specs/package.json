@@ -49,7 +49,6 @@
     "@typespec/compiler": "workspace:~",
     "@typespec/http": "workspace:~",
     "@typespec/rest": "workspace:~",
-    "@typespec/spec-lib": "workspace:~",
     "@typespec/versioning": "workspace:~",
     "@typespec/xml": "workspace:~"
   }

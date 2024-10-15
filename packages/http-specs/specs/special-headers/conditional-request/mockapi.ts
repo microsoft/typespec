@@ -1,4 +1,4 @@
-import { MockRequest, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
+import { passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -12,12 +12,6 @@ Scenarios.SpecialHeaders_ConditionalRequest_postIfUnmodifiedSince = passOnSucces
   },
   response: {
     status: 204,
-  },
-  handler: (req: MockRequest) => {
-    req.expect.containsHeader("if-unmodified-since", "Fri, 26 Aug 2022 14:38:00 GMT");
-    return {
-      status: 204,
-    };
   },
   kind: "MockApiDefinition",
 });
@@ -33,12 +27,6 @@ Scenarios.SpecialHeaders_ConditionalRequest_headIfModifiedSince = passOnSuccess(
   response: {
     status: 204,
   },
-  handler: (req: MockRequest) => {
-    req.expect.containsHeader("if-modified-since", "Fri, 26 Aug 2022 14:38:00 GMT");
-    return {
-      status: 204,
-    };
-  },
   kind: "MockApiDefinition",
 });
 
@@ -53,12 +41,6 @@ Scenarios.SpecialHeaders_ConditionalRequest_postIfMatch = passOnSuccess({
   response: {
     status: 204,
   },
-  handler: (req: MockRequest) => {
-    req.expect.containsHeader("if-match", '"valid"');
-    return {
-      status: 204,
-    };
-  },
   kind: "MockApiDefinition",
 });
 
@@ -72,12 +54,6 @@ Scenarios.SpecialHeaders_ConditionalRequest_postIfNoneMatch = passOnSuccess({
   },
   response: {
     status: 204,
-  },
-  handler: (req: MockRequest) => {
-    req.expect.containsHeader("if-none-match", '"invalid"');
-    return {
-      status: 204,
-    };
   },
   kind: "MockApiDefinition",
 });
