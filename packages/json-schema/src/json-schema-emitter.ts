@@ -567,7 +567,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       }
     };
 
-    const applyTypeConstraint = (fn: (p: Program, t: Type) => Type, key: string) => {
+    const applyTypeConstraint = (fn: (p: Program, t: Type) => Type | undefined, key: string) => {
       const constraintType = fn(this.emitter.getProgram(), type);
       if (constraintType) {
         const ref = this.emitter.emitTypeReference(constraintType);

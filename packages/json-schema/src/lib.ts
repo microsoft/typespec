@@ -127,11 +127,47 @@ export const $lib = createTypeSpecLibrary({
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<JSONSchemaEmitterOptions>,
   },
+  state: {
+    JsonSchema: { description: "State indexing types marked with @jsonSchema" },
+    "JsonSchema.baseURI": { description: "Contains data configured with @baseUri decorator" },
+    "JsonSchema.multipleOf": { description: "Contains data configured with @multipleOf decorator" },
+    "JsonSchema.id": { description: "Contains data configured with @id decorator" },
+    "JsonSchema.oneOf": { description: "Contains data configured with @oneOf decorator" },
+    "JsonSchema.contains": { description: "Contains data configured with @contains decorator" },
+    "JsonSchema.minContains": {
+      description: "Contains data configured with @minContains decorator",
+    },
+    "JsonSchema.maxContains": {
+      description: "Contains data configured with @maxContains decorator",
+    },
+    "JsonSchema.uniqueItems": {
+      description: "Contains data configured with @uniqueItems decorator",
+    },
+    "JsonSchema.minProperties": {
+      description: "Contains data configured with @minProperties decorator",
+    },
+    "JsonSchema.maxProperties": {
+      description: "Contains data configured with @maxProperties decorator",
+    },
+    "JsonSchema.contentEncoding": {
+      description: "Contains data configured with @contentEncoding decorator",
+    },
+    "JsonSchema.contentSchema": {
+      description: "Contains data configured with @contentSchema decorator",
+    },
+    "JsonSchema.contentMediaType": {
+      description: "Contains data configured with @contentMediaType decorator",
+    },
+    "JsonSchema.prefixItems": {
+      description: "Contains data configured with @prefixItems decorator",
+    },
+    "JsonSchema.extension": { description: "Contains data configured with @extension decorator" },
+  },
 } as const);
 
 /** Internal: TypeSpec flags */
 export const $flags = definePackageFlags({});
 
-export const { reportDiagnostic, createStateSymbol } = $lib;
+export const { reportDiagnostic, createStateSymbol, stateKeys: JsonSchemaStateKeys } = $lib;
 
 export type JsonSchemaLibrary = typeof $lib;
