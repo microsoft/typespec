@@ -344,8 +344,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 type = paramProvider.Field is null ? paramProvider.Type : paramProvider.Field.Type;
                 if (type.IsEnum)
                 {
-                    var csharpType = paramProvider.Field is null ? paramProvider.Type : paramProvider.Field.Type;
-                    valueExpression = csharpType.ToSerial(paramProvider);
+                    valueExpression = type.ToSerial(paramProvider);
                     format = null;
                 }
                 else
