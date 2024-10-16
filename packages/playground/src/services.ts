@@ -329,7 +329,6 @@ export async function registerMonacoLanguage(host: BrowserHost) {
       { token: "function", foreground: "#E06C75" },
     ],
   });
-  monaco.editor.setTheme("typespec");
 
   monaco.languages.registerDocumentSemanticTokensProvider("typespec", {
     getLegend() {

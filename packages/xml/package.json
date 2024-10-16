@@ -20,7 +20,10 @@
   "main": "dist/src/index.js",
   "tspMain": "lib/main.tsp",
   "exports": {
-    ".": "./dist/src/index.js",
+    ".": {
+      "typespec": "./lib/main.tsp",
+      "default": "./dist/src/index.js"
+    },
     "./testing": "./dist/src/testing/index.js"
   },
   "engines": {

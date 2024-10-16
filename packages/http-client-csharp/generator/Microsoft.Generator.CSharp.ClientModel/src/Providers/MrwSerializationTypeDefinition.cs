@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text.Json;
+using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.ClientModel.Snippets;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
@@ -710,6 +711,24 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             Dictionary<JsonValueKind, List<MethodBodyStatement>> additionalPropsValueKindBodyStatements = [];
             var parameters = SerializationConstructor.Signature.Parameters;
 
+            // Parse the custom serialization attributes
+            List<AttributeData> serializationAttributes = _model.CustomCodeView?.GetAttributes()
+                .Where(a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenSerializationAttributeName)
+                .ToList() ?? [];
+            var baseModelProvider = _model.BaseModelProvider;
+
+            while (baseModelProvider != null)
+            {
+                var customCodeView = baseModelProvider.CustomCodeView;
+                if (customCodeView != null)
+                {
+                    serializationAttributes
+                        .AddRange(customCodeView.GetAttributes()
+                        .Where(a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenSerializationAttributeName));
+                }
+                baseModelProvider = baseModelProvider.BaseModelProvider;
+            }
+
             // Create each property's deserialization statement
             for (int i = 0; i < parameters.Count; i++)
             {
@@ -731,7 +750,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     var propertySerializationName = wireInfo.SerializedName;
                     var checkIfJsonPropEqualsName = new IfStatement(jsonProperty.NameEquals(propertySerializationName))
                     {
-                        DeserializeProperty(property, jsonProperty)
+                        DeserializeProperty(property, jsonProperty, serializationAttributes)
                     };
                     propertyDeserializationStatements.Add(checkIfJsonPropEqualsName);
                 }
@@ -752,7 +771,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var rawBinaryData = _rawDataField;
             if (rawBinaryData == null)
             {
-                var baseModelProvider = _model.BaseModelProvider;
+                baseModelProvider = _model.BaseModelProvider;
                 while (baseModelProvider != null)
                 {
                     var field = baseModelProvider.Fields.FirstOrDefault(f => f.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
@@ -1033,7 +1052,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private MethodBodyStatement[] DeserializeProperty(
             PropertyProvider property,
-            ScopedApi<JsonProperty> jsonProperty)
+            ScopedApi<JsonProperty> jsonProperty,
+            IEnumerable<AttributeData> serializationAttributes)
         {
             var serializationFormat = property.WireInfo?.SerializationFormat ?? SerializationFormat.Default;
             var propertyVarReference = property.AsVariableExpression;
@@ -1043,8 +1063,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 propertyVarReference.Assign(value).Terminate()
             };
 
-            foreach (var attribute in _model.CustomCodeView?.GetAttributes()
-                         .Where(a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenSerializationAttributeName) ?? [])
+            foreach (var attribute in serializationAttributes)
             {
                 if (CodeGenAttributes.TryGetCodeGenSerializationAttributeValue(
                         attribute,
@@ -1059,6 +1078,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                             deserializationHook,
                             jsonProperty,
                             ByRef(propertyVarReference)).Terminate()];
+                    break;
                 }
             }
 
@@ -1291,7 +1311,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         /// </summary>
         private MethodBodyStatement[] CreateWritePropertiesStatements()
         {
-            var properties = _model.Properties.Concat(_model.CustomCodeView?.Properties.Where(p => p.WireInfo != null) ?? []);
+            var properties = _model.CanonicalView.Properties;
             List<MethodBodyStatement> propertyStatements = new();
             foreach (var property in properties)
             {
