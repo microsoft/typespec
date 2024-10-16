@@ -84,5 +84,26 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             Assert.IsNotNull(fullCtor);
             Assert.IsTrue(fullCtor!.Signature.Parameters.Any(p => p.Name == "prop1"));
         }
+
+        [Test]
+        public async Task CanCustomizePropertyUsingField()
+        {
+            var props = new[]
+            {
+                InputFactory.Property("Prop1", InputPrimitiveType.String),
+            };
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: props, usage: InputModelTypeUsage.Json);
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModels: () => [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = plugin.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
+
+            Assert.AreEqual(0, modelProvider.Properties.Count);
+            var writer = new TypeProviderWriter(modelProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
     }
 }

@@ -38,6 +38,11 @@ namespace Microsoft.Generator.CSharp.Tests.Common
             {
                 return new InputLiteralType(InputPrimitiveType.Any, value);
             }
+
+            public static InputLiteralType Enum(InputEnumType enumType, object value)
+            {
+                return new InputLiteralType(enumType, value);
+            }
         }
 
         public static class Constant

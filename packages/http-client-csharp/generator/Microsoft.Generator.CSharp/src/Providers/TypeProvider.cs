@@ -39,7 +39,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         public NamedTypeSymbolProvider? CustomCodeView => _customCodeView.Value;
 
-        internal IReadOnlyList<PropertyProvider> GetAllCustomProperties()
+        private IReadOnlyList<PropertyProvider> GetAllCustomProperties()
         {
             var allCustomProperties = CustomCodeView?.Properties != null
                 ? new List<PropertyProvider>(CustomCodeView.Properties)
@@ -54,6 +54,23 @@ namespace Microsoft.Generator.CSharp.Providers
             }
 
             return allCustomProperties;
+        }
+
+        private IReadOnlyList<FieldProvider> GetAllCustomFields()
+        {
+            var allCustomFields = CustomCodeView?.Fields != null
+                ? new List<FieldProvider>(CustomCodeView.Fields)
+                : [];
+            var baseTypeCustomCodeView = BaseTypeProvider?.CustomCodeView;
+
+            // add all custom fields from base types
+            while (baseTypeCustomCodeView != null)
+            {
+                allCustomFields.AddRange(baseTypeCustomCodeView.Fields);
+                baseTypeCustomCodeView = baseTypeCustomCodeView.BaseTypeProvider?.CustomCodeView;
+            }
+
+            return allCustomFields;
         }
 
         private protected virtual CanonicalTypeProvider GetCanonicalView() => new CanonicalTypeProvider(this, _inputType);
@@ -192,21 +209,29 @@ namespace Microsoft.Generator.CSharp.Providers
         private protected virtual PropertyProvider[] FilterCustomizedProperties(PropertyProvider[] specProperties)
         {
             var properties = new List<PropertyProvider>();
-            var customProperties = new Dictionary<string, PropertyProvider>();
-            var renamedProperties = new Dictionary<string, PropertyProvider>();
+            var customProperties = new HashSet<string>();
 
             foreach (var customProperty in GetAllCustomProperties())
             {
-                customProperties.Add(customProperty.Name, customProperty);
+                customProperties.Add(customProperty.Name);
                 if (customProperty.OriginalName != null)
                 {
-                    renamedProperties.Add(customProperty.OriginalName, customProperty);
+                    customProperties.Add(customProperty.OriginalName);
+                }
+            }
+
+            foreach (var customField in GetAllCustomFields())
+            {
+                customProperties.Add(customField.Name);
+                if (customField.OriginalName != null)
+                {
+                    customProperties.Add(customField.OriginalName);
                 }
             }
 
             foreach (var property in specProperties)
             {
-                if (ShouldGenerate(property, customProperties, renamedProperties))
+                if (ShouldGenerate(property, customProperties))
                 {
                     properties.Add(property);
                 }
@@ -385,7 +410,7 @@ namespace Microsoft.Generator.CSharp.Providers
             return true;
         }
 
-        private bool ShouldGenerate(PropertyProvider property, IDictionary<string, PropertyProvider> customProperties, IDictionary<string, PropertyProvider> renamedProperties)
+        private bool ShouldGenerate(PropertyProvider property, HashSet<string> customProperties)
         {
             foreach (var attribute in GetMemberSuppressionAttributes())
             {
@@ -395,13 +420,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 }
             }
 
-            if (renamedProperties.TryGetValue(property.Name, out PropertyProvider? customProp) ||
-                customProperties.TryGetValue(property.Name, out customProp))
-            {
-                return false;
-            }
-
-            return true;
+            return !customProperties.Contains(property.Name);
         }
 
         private static bool IsMatch(PropertyProvider propertyProvider, AttributeData attribute)
