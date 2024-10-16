@@ -60,7 +60,6 @@ model CookieOptions {
   explode?: boolean;
 }
 
-// TODO: example
 /**
  * Specify this property is to be sent or received in the cookie.
  *
@@ -70,15 +69,15 @@ model CookieOptions {
  * @example
  *
  * ```typespec
- * op read(@cookie authToken: string): {@header("ETag") eTag: string};
- * op create(@header({name: "X-Color", format: "csv"}) colors: string[]): void;
+ * op read(@cookie token: string): {data: string[]};
+ * op create(@cookie({name: "auth_token"}) data: string[]): void;
  * ```
- *simple
+ *
  * @example Implicit header name
  *
  * ```typespec
- * op read(): {@header contentType: string}; // headerName: content-type
- * op update(@header ifMatch: string): void; // headerName: if-match
+ * op read(): {@cookie authToken: string}; // headerName: auth_token
+ * op update(@cookie AuthToken: string): void; // headerName: auth_token
  * ```
  */
 extern dec cookie(target: ModelProperty, cookieNameOrOptions?: valueof string | CookieOptions);
