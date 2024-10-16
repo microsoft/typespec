@@ -1329,7 +1329,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     continue;
                 }
 
-                propertyStatements.Add(CreateWritePropertyStatement(property));
+                propertyStatements.Add(CreateWritePropertyStatement(property.WireInfo, property.Type, property.Name, property));
             }
 
             foreach (var field in _model.CanonicalView.Fields)
@@ -1340,26 +1340,23 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     continue;
                 }
 
-                propertyStatements.Add(CreateWritePropertyStatement(field: field));
+                propertyStatements.Add(CreateWritePropertyStatement(field.WireInfo, field.Type, field.Name, field));
             }
 
             return [.. propertyStatements];
         }
 
         private MethodBodyStatement CreateWritePropertyStatement(
-            PropertyProvider? property = default,
-            FieldProvider? field = default)
+            PropertyWireInformation wireInfo,
+            CSharpType propertyType,
+            string propertyName,
+            MemberExpression propertyExpression)
         {
-            var wireInfo = property?.WireInfo ?? field?.WireInfo;
-            var propertySerializationName = wireInfo!.SerializedName;
+            var propertySerializationName = wireInfo.SerializedName;
             var propertySerializationFormat = wireInfo.SerializationFormat;
             var propertyIsReadOnly = wireInfo.IsReadOnly;
             var propertyIsRequired = wireInfo.IsRequired;
             var propertyIsNullable = wireInfo.IsNullable;
-
-            MemberExpression propertyExpression = property != null ? property : field!;
-            var propertyType = property?.Type ?? field!.Type;
-            var propertyName = property?.Name ?? field!.Name;
 
             // Generate the serialization statements for the property
             var serializationStatement = CreateSerializationStatement(propertyType, propertyExpression, propertySerializationFormat);
@@ -1395,7 +1392,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 propertyExpression,
                 propertyType,
                 wireInfo,
-                propertyName,
                 propertyIsRequired,
                 propertyIsReadOnly,
                 propertyIsNullable,
@@ -1411,17 +1407,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return wrapInIsDefinedStatement;
         }
 
-        /// <summary>
-        /// Wraps the serialization statement in a condition check to ensure only initialized and required properties are serialized.
-        /// </summary>
-        /// <param name="propertyMemberExpression">The expression representing the property to serialize.</param>
-        /// <param name="writePropertySerializationStatement">The serialization statement to conditionally execute.</param>
-        /// <returns>A method body statement that includes condition checks before serialization.</returns>
         private MethodBodyStatement WrapInIsDefined(
             MemberExpression propertyExpression,
             CSharpType propertyType,
             PropertyWireInformation wireInfo,
-            string propertyName,
             bool propertyIsRequired,
             bool propertyIsReadOnly,
             bool propertyIsNullable,
