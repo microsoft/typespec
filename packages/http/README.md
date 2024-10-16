@@ -37,6 +37,7 @@ Available ruleSets:
 - [`@body`](#@body)
 - [`@bodyIgnore`](#@bodyignore)
 - [`@bodyRoot`](#@bodyroot)
+- [`@cookie`](#@cookie)
 - [`@delete`](#@delete)
 - [`@get`](#@get)
 - [`@head`](#@head)
@@ -143,6 +144,47 @@ op download(): {
     @header id: string;
   };
 };
+```
+
+#### `@cookie`
+
+Specify this property is to be sent or received in the cookie.
+
+```typespec
+@TypeSpec.Http.cookie(cookieNameOrOptions?: valueof string | TypeSpec.Http.CookieOptions)
+```
+
+##### Target
+
+`ModelProperty`
+
+##### Parameters
+
+| Name                | Type                                            | Description                                                                                                                                                                                       |
+| ------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| cookieNameOrOptions | `valueof string \| TypeSpec.Http.CookieOptions` | Optional name of the cookie in the cookie or cookie options.<br />By default the cookie name will be the property name converted from camelCase to snake_case. (e.g. `authToken` -> `auth_token`) |
+
+##### Examples
+
+```typespec
+op read(@cookie token: string): {
+  data: string[];
+};
+op create(
+  @cookie({
+    name: "auth_token",
+  })
+  data: string[],
+): void;
+```
+
+###### Implicit header name
+
+```typespec
+op read(): {
+  @cookie authToken: string;
+}; // headerName: auth_token
+op update(@cookie AuthToken: string): void; // headerName: auth_token
 ```
 
 #### `@delete`

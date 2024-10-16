@@ -189,6 +189,21 @@ model TypeSpec.Http.ConflictResponse
 | ---------- | ----- | ---------------- |
 | statusCode | `409` | The status code. |
 
+### `CookieOptions` {#TypeSpec.Http.CookieOptions}
+
+Cookie Options.
+
+```typespec
+model TypeSpec.Http.CookieOptions
+```
+
+#### Properties
+
+| Name     | Type      | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| -------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| name?    | `string`  | Name in the cookie.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| explode? | `boolean` | If false the value will be joined with `,`.<br /><br />\| Style \| Explode \| Uri Template \| Primitive value id = 5 \| Array id = [3, 4, 5] \| Object id = {"role": "admin", "firstName": "Alex"} \|<br />\| ----- \| ------- \| -------------\| ---------------------- \| -------------------- \| -------------------------------------------------- \|<br />\| form \| true \| `         ` \| `Cookie: id=5` \| \| \|<br />\| form \| false \| `id={id}` \| `Cookie: id=5` \| `Cookie: id=3,4,5   `\| `Cookie: id=role,admin,firstName,Alex` \| |
+
 ### `CreatedResponse` {#TypeSpec.Http.CreatedResponse}
 
 The request has succeeded and a new resource has been created as a result.
