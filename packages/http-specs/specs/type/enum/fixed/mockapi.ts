@@ -1,4 +1,4 @@
-import { json, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
+import { json, passOnCode, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -27,7 +27,7 @@ Scenarios.Type_Enum_Fixed_String_putKnownValue = passOnSuccess({
   kind: "MockApiDefinition",
 });
 
-Scenarios.Type_Enum_Fixed_String_putUnknownValue = passOnSuccess({
+Scenarios.Type_Enum_Fixed_String_putUnknownValue = passOnCode(500, {
   uri: "/type/enum/fixed/string/unknown-value",
   method: "put",
   request: {

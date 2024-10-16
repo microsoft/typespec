@@ -110,16 +110,22 @@ class _ModelSerializer(BaseSerializer, ABC):
     def need_init(self, model: ModelType) -> bool:
         return (not model.internal) and bool(self.init_line(model) or model.discriminator)
 
-    def pylint_disable(self, model: ModelType) -> str:
+    def pylint_disable_items(self, model: ModelType) -> List[str]:
         if model.flattened_property or self.initialize_properties(model):
-            return ""
+            return [""]
         if any(p for p in model.properties if p.is_discriminator and model.discriminator_value):
-            return ""
+            return [""]
         if model.parents and any(
             "=" in prop for parent in model.parents for prop in self.init_line(parent) if self.need_init(parent)
         ):
-            return ""
-        return "  # pylint: disable=useless-super-delegation"
+            return [""]
+        return ["useless-super-delegation"]
+
+    def pylint_disable(self, model: ModelType) -> str:
+        return "  # pylint: disable=" + ", ".join(self.pylint_disable_items(model))
+
+    def global_pylint_disables(self) -> str:
+        return ""
 
 
 class MsrestModelSerializer(_ModelSerializer):
@@ -315,3 +321,15 @@ class DpgModelSerializer(_ModelSerializer):
                     properties_to_pass_to_super.append(f"{prop.client_name}={prop.get_declaration()}")
         properties_to_pass_to_super.append("**kwargs")
         return ", ".join(properties_to_pass_to_super)
+
+    def global_pylint_disables(self) -> str:
+        result = []
+        for model in self.code_model.model_types:
+            if self.need_init(model):
+                for item in self.pylint_disable_items(model):
+                    if item:
+                        result.append(item)
+        final_result = set(result)
+        if final_result:
+            return "# pylint: disable=" + ", ".join(final_result)
+        return ""
