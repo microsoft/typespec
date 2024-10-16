@@ -56,6 +56,7 @@ export interface LoadSourceOptions {
 export interface SourceLoader {
   importFile(
     path: string,
+    diagnosticTarget: DiagnosticTarget | typeof NoTarget,
     locationContext?: LocationContext,
     kind?: "import" | "entrypoint",
   ): Promise<void>;
@@ -87,6 +88,7 @@ export async function createSourceLoader(
 
   async function importFile(
     path: string,
+    diagnosticTarget: DiagnosticTarget | typeof NoTarget,
     locationContext: LocationContext,
     kind: "import" | "entrypoint" = "import",
   ) {
@@ -94,10 +96,10 @@ export async function createSourceLoader(
 
     switch (sourceFileKind) {
       case "js":
-        await importJsFile(path, locationContext, NoTarget);
+        await importJsFile(path, locationContext, diagnosticTarget);
         break;
       case "typespec":
-        await loadTypeSpecFile(path, locationContext, NoTarget);
+        await loadTypeSpecFile(path, locationContext, diagnosticTarget);
         break;
       default:
         diagnostics.add(
@@ -231,7 +233,7 @@ export async function createSourceLoader(
       return;
     }
 
-    return importFile(importFilePath, locationContext);
+    return importFile(importFilePath, target, locationContext);
   }
 
   /**
@@ -334,10 +336,23 @@ export async function loadJsFile(
 ): Promise<[JsSourceFileNode | undefined, readonly Diagnostic[]]> {
   const file = createSourceFile("", path);
   const diagnostics: Diagnostic[] = [];
-  const exports = await doIO(host.getJsImport, path, (x) => diagnostics.push(x), {
-    diagnosticTarget,
-    jsDiagnosticTarget: { file, pos: 0, end: 0 },
-  });
+  const exports = await doIO(
+    host.getJsImport,
+    path,
+    (x) => {
+      diagnostics.push(
+        createDiagnostic({
+          code: "js-error",
+          format: { specifier: path, error: x.message },
+          target: diagnosticTarget,
+        }),
+      );
+    },
+    {
+      diagnosticTarget,
+      jsDiagnosticTarget: { file, pos: 0, end: 0 },
+    },
+  );
 
   if (!exports) {
     return [undefined, diagnostics];
