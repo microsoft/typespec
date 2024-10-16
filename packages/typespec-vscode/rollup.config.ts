@@ -1,8 +1,13 @@
 import commonjs from "@rollup/plugin-commonjs";
 import resolve from "@rollup/plugin-node-resolve";
 import typescript from "@rollup/plugin-typescript";
+import path from "path";
 
 import { defineConfig } from "rollup";
+import { fileURLToPath } from "url";
+
+const curFile = fileURLToPath(import.meta.url);
+const curDir = path.dirname(curFile);
 
 const plugins = [(resolve as any)({ preferBuiltins: true }), (commonjs as any)()];
 const baseConfig = defineConfig({
@@ -65,5 +70,11 @@ export default defineConfig([
 ]);
 
 function ts(outDir: string) {
-  return (typescript as any)({ tsconfig: "./tsconfig.build.json", outDir });
+  return (typescript as any)({
+    compilerOptions: {
+      sourceRoot: curDir,
+    },
+    tsconfig: "./tsconfig.build.json",
+    outDir,
+  });
 }

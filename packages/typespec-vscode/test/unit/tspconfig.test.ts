@@ -333,6 +333,10 @@ describe("Test completion for tspconfig", () => {
         expected: ["valueC1", "valueC2"],
       },
       {
+        config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options:\n      propC:\n        propC-two:┆\n`,
+        expected: ["valueC1", "valueC2"],
+      },
+      {
         config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options:\n      new-option:\n        ┆`,
         expected: ["addProp"],
       },

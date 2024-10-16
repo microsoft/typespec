@@ -110,7 +110,7 @@ export function resolveYamlScalarTarget(
           );
           return undefined;
         }
-        const yp = createYamlPathFromVisitScalarNode(found);
+        const yp = createYamlPathFromVisitScalarNode(found, pos);
         if (!yp || yp.path.length === 0) {
           logger.debug(
             `Unexpected found path which should at least contains one segment for the found previous non-empty line item`,
@@ -119,8 +119,14 @@ export function resolveYamlScalarTarget(
         }
         // adjust path and sibling for the whitespace line
         if (yp.type === "arr-item") {
-          // the sibling node is a plain text value of an array (otherwise there should be an map node under the seq node), so we don't need to worry about the empty line here
-          return undefined;
+          // the sibling node is a plain text value of an array (otherwise there should be an map node under the seq node)
+          // in this case, we would assume that the plain text value is actually an object with current white line as the first property
+          return {
+            path: yp.path,
+            type: "key",
+            source: "",
+            siblings: [],
+          };
         } else {
           return {
             path: [...yp.path.slice(0, yp.path.length - 1), ""],
@@ -153,7 +159,7 @@ export function resolveYamlScalarTarget(
             isMap(last.value) ||
             (isScalar(last.value) && isWhitespaceString(last.value.source)))
         ) {
-          const yp = createYamlPathFromVisitScalarNode(found);
+          const yp = createYamlPathFromVisitScalarNode(found, pos);
           if (!yp || yp.path.length === 0) {
             logger.debug(
               `Unexpected found path which should at least contains one segment for the found previous non-empty line item`,
@@ -180,13 +186,14 @@ export function resolveYamlScalarTarget(
       logger.debug(`Failed to find the scalar node at the position: ${pos}`);
       return undefined;
     }
-    const yp = createYamlPathFromVisitScalarNode(found);
+    const yp = createYamlPathFromVisitScalarNode(found, pos);
     return yp;
   }
 }
 
 function createYamlPathFromVisitScalarNode(
   info: YamlVisitScalarNode,
+  offset: number,
 ): YamlScalarTarget | undefined {
   const { key, n, path: nodePath } = info;
   if (nodePath.length === 0) {
@@ -231,7 +238,8 @@ function createYamlPathFromVisitScalarNode(
       );
       return undefined;
     }
-    if (key === "value" && last.srcToken?.sep?.some((t) => t.type === "newline")) {
+    const newline = last.srcToken?.sep?.find((t) => t.type === "newline");
+    if (key === "value" && newline && newline.offset < offset) {
       // if the scalar node is marked as value but separated by newline from the key, it's more likely that the user is inputting the first property of an object
       // so build the target as an object key
       path.push(n.source ?? "");
