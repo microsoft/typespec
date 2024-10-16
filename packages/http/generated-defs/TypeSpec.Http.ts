@@ -85,15 +85,14 @@ export type HeaderDecorator = (
  * By default the cookie name will be the property name converted from camelCase to snake_case. (e.g. `authToken` -> `auth_token`)
  * @example
  * ```typespec
- * op read(@cookie authToken: string): {@header("ETag") eTag: string};
- * op create(@header({name: "X-Color", format: "csv"}) colors: string[]): void;
+ * op read(@cookie token: string): {data: string[]};
+ * op create(@cookie({name: "auth_token"}) data: string[]): void;
  * ```
- * simple
  * @example Implicit header name
  *
  * ```typespec
- * op read(): {@header contentType: string}; // headerName: content-type
- * op update(@header ifMatch: string): void; // headerName: if-match
+ * op read(): {@cookie authToken: string}; // headerName: auth_token
+ * op update(@cookie AuthToken: string): void; // headerName: auth_token
  * ```
  */
 export type CookieDecorator = (
