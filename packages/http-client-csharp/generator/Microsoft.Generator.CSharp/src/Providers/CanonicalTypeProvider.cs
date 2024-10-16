@@ -100,9 +100,8 @@ namespace Microsoft.Generator.CSharp.Providers
                     }
                 }
 
-                // handle customized extensible enums, since the custom type would not be an enum, but the spec type would be an enum
-
-                if (IsExtensibleEnum(specProperty!, out var inputEnumType))
+                // handle customized enums - we need to pull the type information from the spec property
+                if (IsCustomizedEnumProperty(specProperty!, customProperty.Type.IsEnum, out var specType))
                 {
                     customProperty.Type = new CSharpType(
                         customProperty.Type.Name,
@@ -114,7 +113,7 @@ namespace Microsoft.Generator.CSharp.Providers
                         customProperty.Type.IsPublic,
                         customProperty.Type.IsStruct,
                         customProperty.Type.BaseType,
-                        TypeFactory.CreatePrimitiveCSharpTypeCore(inputEnumType!.ValueType));
+                        TypeFactory.CreatePrimitiveCSharpTypeCore(specType!));
                 }
             }
 
@@ -179,8 +178,8 @@ namespace Microsoft.Generator.CSharp.Providers
                     }
                 }
 
-                // handle customized extensible enums, since the custom type would not be an enum, but the spec type would be an enum
-                if (IsExtensibleEnum(specProperty!, out var inputEnumType))
+                // handle customized enums - we need to pull the type information from the spec property
+                if (IsCustomizedEnumProperty(specProperty!, customField.Type.IsEnum, out var specType))
                 {
                     customField.Type = new CSharpType(
                         customField.Type.Name,
@@ -192,25 +191,32 @@ namespace Microsoft.Generator.CSharp.Providers
                         customField.Type.IsPublic,
                         customField.Type.IsStruct,
                         customField.Type.BaseType,
-                        TypeFactory.CreatePrimitiveCSharpTypeCore(inputEnumType!.ValueType));
+                        TypeFactory.CreatePrimitiveCSharpTypeCore(specType!));
                 }
             }
 
             return [..generatedFields, ..customFields];
         }
 
-        private static bool IsExtensibleEnum(InputModelProperty? inputProperty, out InputEnumType? inputEnumType)
+        private static bool IsCustomizedEnumProperty(InputModelProperty inputProperty, bool isCustomEnum, out InputType? specType)
         {
-            switch (inputProperty?.Type)
+            switch (inputProperty.Type)
             {
-                case InputEnumType { IsExtensible: true } enumType:
-                    inputEnumType = enumType;
+                // We don't support customizing from enum to primitive type currently
+                case InputEnumType enumType:
+                    specType = enumType;
                     return true;
-                case InputLiteralType { ValueType: InputEnumType { IsExtensible: true } enumTypeFromLiteral }:
-                    inputEnumType = enumTypeFromLiteral;
+                case InputLiteralType { ValueType: InputEnumType enumTypeFromLiteral }:
+                    specType = enumTypeFromLiteral;
                     return true;
                 default:
-                    inputEnumType = null;
+                    // if the spec type is a primitive, but the custom type is an enum, we should use the spec type
+                    if (isCustomEnum)
+                    {
+                        specType = inputProperty.Type;
+                        return true;
+                    }
+                    specType = null;
                     return false;
             }
         }
