@@ -94,7 +94,11 @@ function createHandler(apiDefinition: MockApiDefinition) {
     if (apiDefinition.request.headers) {
       Object.entries(apiDefinition.request.headers).forEach(([key, value]) => {
         if (key !== "Content-Type") {
-          req.expect.containsHeader(key, value as string);
+          if (Array.isArray(value)) {
+            req.expect.deepEqual(req.headers[key], value);
+          } else {
+            req.expect.containsHeader(key.toLowerCase(), String(value));
+          }
         }
       });
     }
@@ -102,7 +106,11 @@ function createHandler(apiDefinition: MockApiDefinition) {
     // Validate query params if present in the request
     if (apiDefinition.request.params) {
       Object.entries(apiDefinition.request.params).forEach(([key, value]) => {
-        req.expect.containsQueryParam(key, value as string);
+        if (Array.isArray(value)) {
+          req.expect.deepEqual(req.query[key], value);
+        } else {
+          req.expect.containsQueryParam(key, String(value));
+        }
       });
     }
 
