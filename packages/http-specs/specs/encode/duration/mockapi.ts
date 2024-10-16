@@ -19,13 +19,6 @@ function createBodyServerTests(uri: string, data: any, value: any) {
       status: 200,
       body: json(data),
     },
-    handler: (req: MockRequest) => {
-      req.expect.coercedBodyEquals({ value: value });
-      return {
-        status: 200,
-        body: json({ value: value }),
-      };
-    },
     kind: "MockApiDefinition",
   });
 }
@@ -150,12 +143,6 @@ function createHeaderServerTests(uri: string, headersData: any, value: any) {
     response: {
       status: 204,
     },
-    handler: (req: MockRequest) => {
-      req.expect.containsHeader("duration", value);
-      return {
-        status: 204,
-      };
-    },
     kind: "MockApiDefinition",
   });
 }
@@ -177,28 +164,21 @@ Scenarios.Encode_Duration_Header_iso8601 = createHeaderServerTests(
 Scenarios.Encode_Duration_Header_int32Seconds = createHeaderServerTests(
   "/encode/duration/header/int32-seconds",
   {
-    duration: 36,
+    duration: "36",
   },
   "36",
 );
 Scenarios.Encode_Duration_Header_floatSeconds = createHeaderServerTests(
   "/encode/duration/header/float-seconds",
   {
-    duration: 35.625,
-  },
-  "35.625",
-);
-Scenarios.Encode_Duration_Header_floatSeconds = createHeaderServerTests(
-  "/encode/duration/header/float64-seconds",
-  {
-    duration: 35.625,
+    duration: "35.625",
   },
   "35.625",
 );
 Scenarios.Encode_Duration_Header_float64Seconds = createHeaderServerTests(
   "/encode/duration/header/float64-seconds",
   {
-    duration: 35.625,
+    duration: "35.625",
   },
   "35.625",
 );
