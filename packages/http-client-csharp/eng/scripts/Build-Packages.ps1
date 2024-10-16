@@ -90,7 +90,7 @@ $mgcCustomizationVersion = Get-CsprojVersion -csprojFilePath "$packageRoot/gener
 
 if ($BuildNumber) {
     # set package versions
-    $versionTag = $Prerelease ? ($PublishType -eq 'public' ? "-alpha" : '-dev') : "-beta"
+    $versionTag = $Prerelease ? "-alpha" : "-beta"
 
     $mgcVersion = "$mgcVersion$versionTag.$BuildNumber"
     Set-VersionVariable -variableName "mgcVersion" -version $mgcVersion
