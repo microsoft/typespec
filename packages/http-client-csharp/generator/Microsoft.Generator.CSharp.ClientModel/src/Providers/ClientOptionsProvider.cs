@@ -14,7 +14,7 @@ using System.ClientModel.Primitives;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
-    public class ClientOptionsProvider : TypeProvider
+    internal class ClientOptionsProvider : TypeProvider
     {
         private const string LatestVersionFieldName = "LatestVersion";
         private const string VersionPropertyName = "Version";
