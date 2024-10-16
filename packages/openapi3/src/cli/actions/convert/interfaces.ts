@@ -112,6 +112,7 @@ export interface TypeSpecOperation extends TypeSpecDeclaration {
 
 export interface TypeSpecOperationParameter {
   name: string;
+  in: string;
   doc?: string;
   decorators: TypeSpecDecorator[];
   isOptional: boolean;

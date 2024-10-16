@@ -35,7 +35,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             // validate the methods use the custom member name
             var writer = new TypeProviderWriter(modelProvider);
             var file = writer.Write();
-            var expected = Helpers.GetExpectedFromFile();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 

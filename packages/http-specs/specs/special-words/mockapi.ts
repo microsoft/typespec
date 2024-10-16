@@ -1,4 +1,4 @@
-import { MockRequest, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
+import { passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -12,12 +12,6 @@ Scenarios.SpecialWords_ModelProperties_sameAsModel = passOnSuccess({
   },
   response: {
     status: 204,
-  },
-  handler: (req: MockRequest) => {
-    req.expect.bodyEquals({ ["SameAsModel"]: "ok" });
-    return {
-      status: 204,
-    };
   },
   kind: "MockApiDefinition",
 });
@@ -33,12 +27,6 @@ function createModelsTests(uri: string) {
     },
     response: {
       status: 204,
-    },
-    handler: (req: MockRequest) => {
-      req.expect.bodyEquals({ name: "ok" });
-      return {
-        status: 204,
-      };
     },
     kind: "MockApiDefinition",
   });
@@ -84,11 +72,6 @@ function createOperationsTests(uri: string) {
     request: {},
     response: {
       status: 204,
-    },
-    handler: (req: MockRequest) => {
-      return {
-        status: 204,
-      };
     },
     kind: "MockApiDefinition",
   });
@@ -155,12 +138,6 @@ function createParametersTests(uri: string, data: any, paramName: string) {
     },
     response: {
       status: 204,
-    },
-    handler: (req: MockRequest) => {
-      req.expect.containsQueryParam(paramName, "ok");
-      return {
-        status: 204,
-      };
     },
     kind: "MockApiDefinition",
   });

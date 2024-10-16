@@ -8,6 +8,7 @@ using System.Xml;
 using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.SourceInput;
 using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Providers
@@ -108,6 +109,13 @@ namespace Microsoft.Generator.CSharp.Providers
             List<PropertyProvider> properties = new List<PropertyProvider>();
             foreach (var propertySymbol in _namedTypeSymbol.GetMembers().OfType<IPropertySymbol>())
             {
+                var codeGenAttribute = propertySymbol.GetAttributes().SingleOrDefault(
+                    a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenMemberAttributeName);
+                string? originalName = null;
+                if (codeGenAttribute != null)
+                {
+                    CodeGenAttributes.TryGetCodeGenMemberAttributeValue(codeGenAttribute, out originalName);
+                }
                 var propertyProvider = new PropertyProvider(
                     GetSymbolXmlDoc(propertySymbol, "summary"),
                     GetAccessModifier(propertySymbol.DeclaredAccessibility),
@@ -116,7 +124,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     new AutoPropertyBody(propertySymbol.SetMethod is not null),
                     this)
                 {
-                    Attributes = propertySymbol.GetAttributes()
+                    OriginalName = originalName
                 };
                 properties.Add(propertyProvider);
             }
