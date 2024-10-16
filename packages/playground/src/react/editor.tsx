@@ -20,6 +20,7 @@ export interface EditorCommand {
 export const Editor: FunctionComponent<EditorProps> = ({ model, options, actions, onMount }) => {
   const editorContainerRef = useRef(null);
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
+
   useEffect(() => {
     editorRef.current = editor.create(editorContainerRef.current!, {
       model,
