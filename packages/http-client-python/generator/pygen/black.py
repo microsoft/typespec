@@ -59,10 +59,9 @@ class BlackScriptPlugin(Plugin):
         except:
             _LOGGER.error("Error: failed to format %s", file)
             raise
-        else:
-            if len(file_content.splitlines()) > 1000:
-                file_content = "# pylint: disable=too-many-lines\n" + file_content
-            self.write_file(file, file_content)
+        if len(file_content.splitlines()) > 1000:
+            file_content = "# pylint: disable=too-many-lines\n" + file_content
+        self.write_file(file, file_content)
 
 
 if __name__ == "__main__":
