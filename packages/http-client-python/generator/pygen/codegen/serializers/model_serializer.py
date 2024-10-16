@@ -110,20 +110,22 @@ class _ModelSerializer(BaseSerializer, ABC):
     def need_init(self, model: ModelType) -> bool:
         return (not model.internal) and bool(self.init_line(model) or model.discriminator)
 
-    def pylint_disable(self, model: ModelType) -> str:
+    def pylint_disable(self, model: ModelType, recursive: bool = True) -> str:
         if model.flattened_property or self.initialize_properties(model):
             return ""
         if any(p for p in model.properties if p.is_discriminator and model.discriminator_value):
             return ""
-        # "prop" may contain pylint disable comment like "id: float,  # pylint: disable=redefined-builtin",
-        # so call .split to get rid of it
-        if model.parents and any(
-            "=" in prop.split(",")[0]
-            for parent in model.parents
-            for prop in self.init_line(parent)
-            if self.need_init(parent)
-        ):
-            return ""
+        if model.parents:
+            for parent in model.parents:
+                if self.need_init(parent):
+                    # "prop" may contain pylint disable comment like "id: float,  # pylint: disable=redefined-builtin",
+                    # so call .split to get rid of it
+                    if any("=" in prop.split(",")[0] for prop in self.init_line(parent)):
+                        return ""
+
+                    # if parent already has "disable=useless-super-delegation", we don't need to add it again
+                    if recursive and "useless-super-delegation" in self.pylint_disable(parent, False):
+                        return ""
         return "  # pylint: disable=useless-super-delegation"
 
 
