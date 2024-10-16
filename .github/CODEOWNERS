@@ -24,8 +24,8 @@
 ######################
 # IDE
 ######################
-/packages/typespec-vs/                       @RodgeFu
-/packages/typespec-vscode/                   @RodgeFu
-/packages/compiler/src/server/               @RodgeFu
+/packages/typespec-vs/                       @RodgeFu @bterlson @markcowl @allenjzhang @timotheeguerin
+/packages/typespec-vscode/                   @RodgeFu @bterlson @markcowl @allenjzhang @timotheeguerin
+/packages/compiler/src/server/               @RodgeFu @bterlson @markcowl @allenjzhang @timotheeguerin
 
 
