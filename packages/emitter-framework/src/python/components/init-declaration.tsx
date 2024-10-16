@@ -3,7 +3,6 @@ import { usePythonNamePolicy } from "../name-policy.js";
 import { Model, ModelProperty } from "@typespec/compiler";
 import { Docstring, TypeExpression, useClass } from "./index.js";
 import { $ } from "@typespec/compiler/typekit";
-import { renderToString } from "@alloy-js/core/testing";
 
 export interface InitDeclarationProps extends Omit<DeclarationProps, "name"> {
   type?: Model;
@@ -47,11 +46,11 @@ export function InitDeclaration(props: InitDeclarationProps) {
   if (args) {
     docstring += "\n";
     for (const arg of args) {
-      const argType = arg.optional ? `Optional[${renderToString(<TypeExpression type={arg.type} />)}]` : renderToString(<TypeExpression type={arg.type} />);
+      //const argType = arg.optional ? `Optional[${renderToString(<TypeExpression type={arg.type} />)}]` : renderToString(<TypeExpression type={arg.type} />);
       const argName = namer.getName(arg.name, "parameter");
       const argDoc = $.type.getDoc(arg) ?? "";
       docstring += `\n:param ${argName}: ${argDoc}`.trimEnd();
-      docstring += `\n:type ${argName}: ${argType}`.trimEnd();
+      //docstring += `\n:type ${argName}: ${argType}`.trimEnd();
     }
   }
   return (

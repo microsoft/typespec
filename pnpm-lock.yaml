@@ -257,8 +257,8 @@ importers:
   packages/compiler:
     dependencies:
       '@alloy-js/core':
-        specifier: 0.2.0
-        version: 0.2.0
+        specifier: 0.3.0
+        version: 0.3.0
       '@babel/code-frame':
         specifier: ~7.24.7
         version: 7.24.7
@@ -1660,9 +1660,6 @@ packages:
 
   '@alloy-js/babel-preset@0.1.1':
     resolution: {integrity: sha512-sX3nb9+qciBXTaafIYYa/aW3FFZPcSIWm7VFwz134nFJu79jMS+JgsBgcL+md6zH4Vf9WPE/8V1E4LX9WdxS1A==}
-
-  '@alloy-js/core@0.2.0':
-    resolution: {integrity: sha512-ztzgiqfosK4OYWJBTMTTgMimSfaP5MfZZ2Y76L9dIZ22FpjxWXEEkrRugkk23VSIEPLOx/EI9WQQmOQsU3JWQw==}
 
   '@alloy-js/core@0.3.0':
     resolution: {integrity: sha512-mAYPGTeO6iNncG/3LZ+PghjWB1EofOmUG6YR6OwFg6Y9qcAOc6xIXpC8m0opumqMuZJeijXq0f2qEonkr2+nXQ==}
@@ -8120,16 +8117,6 @@ snapshots:
       '@alloy-js/babel-plugin-jsx-dom-expressions': 0.37.21(@babel/core@7.25.8)
     transitivePeerDependencies:
       - '@babel/core'
-
-  '@alloy-js/core@0.2.0':
-    dependencies:
-      '@alloy-js/babel-preset': 0.1.1(@babel/core@7.25.8)
-      '@babel/core': 7.25.8
-      '@babel/preset-typescript': 7.25.7(@babel/core@7.25.8)
-      '@vue/reactivity': 3.5.12
-      pathe: 1.1.2
-    transitivePeerDependencies:
-      - supports-color
 
   '@alloy-js/core@0.3.0':
     dependencies:
