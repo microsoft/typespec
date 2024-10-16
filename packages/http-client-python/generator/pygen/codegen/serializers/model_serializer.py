@@ -323,6 +323,13 @@ class DpgModelSerializer(_ModelSerializer):
         return ", ".join(properties_to_pass_to_super)
 
     def global_pylint_disables(self) -> str:
-        return "# pylint: disable=" + ", ".join(
-            set(item for model in self.code_model.model_types for item in self.pylint_disable_items(model) if item)
-        )
+        result = []
+        for model in self.code_model.model_types:
+            if self.need_init(model):
+                for item in self.pylint_disable_items(model):
+                    if item:
+                        result.append(item)
+        final_result = set(result)
+        if final_result:
+            return "# pylint: disable=" + ", ".join(final_result)
+        return ""
