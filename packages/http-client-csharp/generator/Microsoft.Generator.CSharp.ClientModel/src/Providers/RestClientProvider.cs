@@ -308,18 +308,32 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 pathSpan = pathSpan.Slice(paramIndex + 1);
                 var paramEndIndex = pathSpan.IndexOf('}');
                 var paramName = pathSpan.Slice(0, paramEndIndex).ToString();
-                var inputParam = inputParamHash[paramName];
-
-                if (inputParam.Location == RequestLocation.Path || inputParam.Location == RequestLocation.Uri)
+                /* when the parameter is in operation.uri, it is client parameter
+                 * It is not operation parameter and not in inputParamHash list.
+                 */
+                var isClientParameter = ClientProvider.GetUriParameters().Any(p => p.Name == paramName);
+                CSharpType? type;
+                string? format;
+                ValueExpression valueExpression;
+                if (isClientParameter)
                 {
-                    CSharpType? type;
-                    string? format;
-                    ValueExpression valueExpression;
-                    GetParamInfo(paramMap, operation, inputParam, out type, out format, out valueExpression);
-                    ValueExpression[] toStringParams = format is null ? [] : [Literal(format)];
-                    valueExpression = type?.Equals(typeof(string)) == true ? valueExpression : valueExpression.Invoke(nameof(ToString), toStringParams);
-                    statements.Add(uri.AppendPath(valueExpression, true).Terminate());
+                    GetParamInfo(paramMap[paramName], out type, out format, out valueExpression);
                 }
+                else
+                {
+                    var inputParam = inputParamHash[paramName];
+                    if (inputParam.Location == RequestLocation.Path || inputParam.Location == RequestLocation.Uri)
+                    {
+                        GetParamInfo(paramMap, operation, inputParam, out type, out format, out valueExpression);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException($"The location of parameter {inputParam.Name} should be path or uri");
+                    }
+                }
+                ValueExpression[] toStringParams = format is null ? [] : [Literal(format)];
+                valueExpression = type?.Equals(typeof(string)) == true ? valueExpression : valueExpression.Invoke(nameof(ToString), toStringParams);
+                statements.Add(uri.AppendPath(valueExpression, true).Terminate());
 
                 pathSpan = pathSpan.Slice(paramEndIndex + 1);
             }
@@ -341,17 +355,22 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             else
             {
                 var paramProvider = paramMap[inputParam.Name];
-                if (paramProvider.Type.IsEnum)
-                {
-                    var csharpType = paramProvider.Field is null ? paramProvider.Type : paramProvider.Field.Type;
-                    valueExpression = csharpType.ToSerial(paramProvider);
-                    format = null;
-                }
-                else
-                {
-                    valueExpression = paramProvider.Field is null ? paramProvider : paramProvider.Field;
-                    format = paramProvider.WireInfo.SerializationFormat.ToFormatSpecifier();
-                }
+                GetParamInfo(paramProvider, out type, out format, out valueExpression);
+            }
+        }
+
+        private static void GetParamInfo(ParameterProvider paramProvider, out CSharpType? type, out string? format, out ValueExpression valueExpression)
+        {
+            type = paramProvider.Field is null ? paramProvider.Type : paramProvider.Field.Type;
+            if (type.IsEnum)
+            {
+                valueExpression = type.ToSerial(paramProvider);
+                format = null;
+            }
+            else
+            {
+                valueExpression = paramProvider.Field is null ? paramProvider : paramProvider.Field;
+                format = paramProvider.WireInfo.SerializationFormat.ToFormatSpecifier();
             }
         }
 
