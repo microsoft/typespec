@@ -8,5 +8,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
     public interface IHttpRequestOptionsApi : IExpressionApi<HttpRequestOptionsApi>
     {
         CSharpType HttpRequestOptionsType { get; }
+
+        string ParameterName { get; }
     }
 }

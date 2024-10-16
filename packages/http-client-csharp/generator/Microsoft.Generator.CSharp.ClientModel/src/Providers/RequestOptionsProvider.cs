@@ -23,6 +23,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         public override CSharpType HttpRequestOptionsType => typeof(RequestOptions);
 
+        public override string ParameterName => "options";
+
         public override ValueExpression ErrorOptions()
             => Original.NullConditional().Property(nameof(RequestOptions.ErrorOptions));
 

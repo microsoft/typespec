@@ -22,5 +22,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         public abstract HttpRequestOptionsApi ToExpression();
 
         public abstract CSharpType HttpRequestOptionsType { get; }
+        public abstract string ParameterName { get; }
     }
 }
