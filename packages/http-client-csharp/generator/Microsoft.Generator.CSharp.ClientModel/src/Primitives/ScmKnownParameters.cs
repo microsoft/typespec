@@ -39,11 +39,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Primitives
         // Known header parameters
         public static readonly ParameterProvider RepeatabilityRequestId = new("repeatabilityRequestId", FormattableStringHelpers.Empty, typeof(Guid))
         {
-            Value = Static(typeof(Guid)).Invoke(nameof(Guid.NewGuid)).Invoke(nameof(string.ToString)),
+            DefaultValue = Static(typeof(Guid)).Invoke(nameof(Guid.NewGuid)).Invoke(nameof(string.ToString)),
         };
         public static readonly ParameterProvider RepeatabilityFirstSent = new("repeatabilityFirstSent", FormattableStringHelpers.Empty, typeof(DateTimeOffset))
         {
-            Value = Static(typeof(DateTimeOffset)).Property(nameof(DateTimeOffset.Now)),
+            DefaultValue = Static(typeof(DateTimeOffset)).Property(nameof(DateTimeOffset.Now)),
         };
 
         public static readonly ParameterProvider ContentType = new("contentType", $"The contentType to use which has the multipart/form-data boundary.", typeof(string));

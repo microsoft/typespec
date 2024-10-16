@@ -29,16 +29,16 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
         public void RepeatabilityRequestIdParamHasDefaultValue()
         {
             var parameter = ScmKnownParameters.RepeatabilityRequestId;
-            var expectedValue = Static(typeof(Guid)).Invoke(nameof(Guid.NewGuid)).Invoke(nameof(string.ToString));
-            Assert.AreEqual(expectedValue, parameter.Value);
+            var expectedDefaultValue = Static(typeof(Guid)).Invoke(nameof(Guid.NewGuid)).Invoke(nameof(string.ToString));
+            Assert.AreEqual(expectedDefaultValue, parameter.DefaultValue);
         }
 
         [Test]
         public void RepeatabilityFirstSentParamHasDefaultValue()
         {
             var parameter = ScmKnownParameters.RepeatabilityFirstSent;
-            var expectedValue = Static(typeof(DateTimeOffset)).Property(nameof(DateTimeOffset.Now));
-            Assert.AreEqual(expectedValue, parameter.Value);
+            var expectedDefaultValue = Static(typeof(DateTimeOffset)).Property(nameof(DateTimeOffset.Now));
+            Assert.AreEqual(expectedDefaultValue, parameter.DefaultValue);
         }
     }
 }
