@@ -59,8 +59,8 @@
       "program": "${workspaceFolder}/packages/compiler/entrypoints/cli.js",
       "args": [
         "compile",
-        "../samples/specs/petstore",
-        "--emit=${workspaceFolder}/packages/efnext-python"
+        "packages/samples/specs/petstore/petstore.tsp",
+        "--emit=efnext-python",
         //"--emit=@typespec/openapi3"
       ],
       "smartStep": true,
@@ -70,7 +70,7 @@
         "${workspaceFolder}/packages/*/dist/**/*.js",
         "${workspaceFolder}/packages/*/dist-dev/**/*.js"
       ],
-      "cwd": "${workspaceFolder}/packages/compiler",
+      "cwd": "${workspaceFolder}",
       "presentation": {
         "order": 2
       }

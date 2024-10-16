@@ -9,7 +9,6 @@ import {
   useContext,
 } from "@alloy-js/core";
 import { createPythonProjectScope, PyProjectTomlFile, PythonPackage, PythonProjectScope, SetupPyFile } from "../index.js";
-import { join } from "path";
 
 /**
  * A Python project is a collection of Python packages and packaging metadata.
@@ -29,7 +28,6 @@ import { join } from "path";
 export interface PythonProjectProps {
   name: string;
   version: string;
-  path?: string;
   children?: Children;
 }
 
@@ -42,27 +40,21 @@ export function useProject(): PythonProjectContext | undefined {
 
 export interface PythonProjectContext {
   scope: PythonProjectScope;
-  path: string;
-  fullPath: string;
   name: string;
   version: string;
 }
 
 export function PythonProject(props: PythonProjectProps) {
-  const parentDir = useContext(SourceDirectoryContext);
-  const projectPath = join((props.path ?? parentDir!.path), props.name);
-  const projectContext = createProjectContext(props.name, props.version, projectPath);
+  const projectContext = createProjectContext(props.name, props.version);
   return (
     <PythonProjectContext.Provider value={projectContext}>
       <Scope value={projectContext.scope}>
-        <SourceDirectory path={projectPath}>
-          <PyProjectTomlFile />
-          <SetupPyFile />
-          <SourceFile path="LICENSE" filetype="plain-text" />
-          <SourceFile path="README.md" filetype="markdown" />
-          <PythonPackage parent={projectContext} name={projectContext.name} />
-          {props.children}
-        </SourceDirectory>
+        <PyProjectTomlFile />
+        <SetupPyFile />
+        <SourceFile path="LICENSE" filetype="plain-text" />
+        <SourceFile path="README.md" filetype="markdown" />
+        <PythonPackage parent={projectContext} name={projectContext.name} />
+        {props.children}
       </Scope>
     </PythonProjectContext.Provider>
   );
@@ -71,11 +63,7 @@ export function PythonProject(props: PythonProjectProps) {
 function createProjectContext(
   name: string,
   version: string,
-  path: string,
 ): PythonProjectContext {
-  const parentDir = useContext(SourceDirectoryContext);
-  const fullPath = parentDir ? `${parentDir.path}/${path}` : path;
-
   const scope = createPythonProjectScope(
     useBinder(),
     name
@@ -83,8 +71,6 @@ function createProjectContext(
 
   return {
     scope: scope,
-    path: path,
-    fullPath: fullPath,
     name: name,
     version: version,
   };

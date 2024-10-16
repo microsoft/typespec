@@ -1,4 +1,4 @@
-import { Children } from "@alloy-js/core";
+import { Children, RenderTextTree, renderTree } from "@alloy-js/core";
 
 /**
  * Utility function to join children with a separator.
@@ -10,7 +10,7 @@ import { Children } from "@alloy-js/core";
 export function joinChildren(
   children: Children | undefined,
   separator: string,
-  terminal?: string
+  terminal?: string,
 ): string {
   let value = "";
   if (!children || (Array.isArray(children) && children.length === 0)) {
@@ -25,4 +25,12 @@ export function joinChildren(
     value += terminal;
   }
   return value;
+}
+
+function printTree(tree: RenderTextTree) {
+  return (tree as any).flat(Infinity).join("");
+}
+
+export function renderToString(element: Children) {
+  return printTree(renderTree(element));
 }

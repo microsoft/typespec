@@ -22,6 +22,7 @@
     { "path": "packages/xml/tsconfig.json" },
     { "path": "packages/http-server-javascript/tsconfig.json" },
     { "path": "packages/http-server-csharp/tsconfig.json" },
+    { "path": "packages/emitter-framework/tsconfig.json" },
     { "path": "packages/efnext-python/tsconfig.json" }
   ],
   "files": []
