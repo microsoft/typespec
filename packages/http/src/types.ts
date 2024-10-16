@@ -323,10 +323,14 @@ export interface PathParameterOptions extends Required<PathOptions> {
 
 export type HttpOperationParameter =
   | HttpOperationHeaderParameter
+  | HttpOperationCookieParameter
   | HttpOperationQueryParameter
   | HttpOperationPathParameter;
 
 export type HttpOperationHeaderParameter = HeaderFieldOptions & {
+  param: ModelProperty;
+};
+export type HttpOperationCookieParameter = CookieParameterOptions & {
   param: ModelProperty;
 };
 export type HttpOperationQueryParameter = QueryParameterOptions & {

@@ -10,6 +10,7 @@ import {
   type Program,
 } from "@typespec/compiler";
 import {
+  getCookieParamOptions,
   getHeaderFieldOptions,
   getPathParamOptions,
   getQueryParamOptions,
@@ -107,6 +108,7 @@ function getHttpProperty(
 
   const annotations = {
     header: getHeaderFieldOptions(program, property),
+    cookie: getCookieParamOptions(program, property),
     query: getQueryParamOptions(program, property),
     path: getPathParamOptions(program, property),
     body: isBody(program, property),
@@ -185,6 +187,8 @@ function getHttpProperty(
     } else {
       return createResult({ kind: "header", options: annotations.header });
     }
+  } else if (annotations.cookie) {
+    return createResult({ kind: "cookie", options: annotations.cookie });
   } else if (annotations.query) {
     return createResult({ kind: "query", options: annotations.query });
   } else if (annotations.path) {
