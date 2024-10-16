@@ -35,6 +35,11 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     },
+    "http-client-structure-renamed-operation": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/client/structure/renamed-operation -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
     "http-encode-bytes": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/encode/bytes -p StubLibraryPlugin",
       "commandName": "Executable",
@@ -152,11 +157,6 @@
     },
     "http-type-union": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/type/union -p StubLibraryPlugin",
-      "commandName": "Executable",
-      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
-    },
-    "http-client-structure-renamed-operation": {
-      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/client/structure/renamed-operation -p StubLibraryPlugin",
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     },
