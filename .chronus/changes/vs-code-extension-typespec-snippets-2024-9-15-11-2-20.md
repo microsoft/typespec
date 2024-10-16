@@ -4,4 +4,4 @@ packages:
   - typespec-vscode
 ---
 
-feat(vscode): add basic snippets for typespec
+Add basic snippets for typespec
