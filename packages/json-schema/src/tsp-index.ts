@@ -1,5 +1,5 @@
-import { TypeSpecJsonSchemaDecorators } from "../generated-defs/TypeSpec.JsonSchema.js";
-import { TypeSpecJsonSchemaPrivateDecorators } from "../generated-defs/TypeSpec.JsonSchema.Private.js";
+import type { TypeSpecJsonSchemaDecorators } from "../generated-defs/TypeSpec.JsonSchema.js";
+import type { TypeSpecJsonSchemaPrivateDecorators } from "../generated-defs/TypeSpec.JsonSchema.Private.js";
 import {
   $baseUri,
   $contains,

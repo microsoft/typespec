@@ -740,7 +740,13 @@ const diagnostics = {
   "invalid-emitter": {
     severity: "error",
     messages: {
-      default: paramMessage`Requested emitter package ${"emitterPackage"} does not provide an "onEmit" function.`,
+      default: paramMessage`Requested emitter package ${"emitterPackage"} does not provide an "$onEmit" function.`,
+    },
+  },
+  "js-error": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Failed to load ${"specifier"} due to the following JS error: ${"error"}`,
     },
   },
   "missing-import": {

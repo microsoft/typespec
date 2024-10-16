@@ -1,8 +1,8 @@
-import { json, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
+import { json, passOnCode, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
-Scenarios.Authentication_ApiKey_invalid = passOnSuccess({
+Scenarios.Authentication_ApiKey_invalid = passOnCode(403, {
   uri: `/authentication/api-key/invalid`,
   method: `get`,
   request: {

@@ -61,6 +61,26 @@ describe("compiler: entrypoints", () => {
       });
     });
 
+    it("emit diagnostics if imported library has js load error", async () => {
+      const program = await compileScenario("import-library-js-error", {
+        additionalImports: ["my-lib"],
+      });
+      expectDiagnostics(program.diagnostics, {
+        code: "js-error",
+        message: `Failed to load ${scenarioRoot}/import-library-js-error/node_modules/my-lib/index.js due to the following JS error: Cannot find module '${scenarioRoot}/import-library-js-error/node_modules/my-lib/invalid-file-not-exists.js' imported from ${scenarioRoot}/import-library-js-error/node_modules/my-lib/index.js`,
+      });
+    });
+
+    it("emit diagnostics if emitter has js load error", async () => {
+      const program = await compileScenario("import-library-js-error", {
+        emit: ["my-lib"],
+      });
+      expectDiagnostics(program.diagnostics, {
+        code: "js-error",
+        message: `Failed to load ${scenarioRoot}/import-library-js-error/node_modules/my-lib/index.js due to the following JS error: Cannot find module '${scenarioRoot}/import-library-js-error/node_modules/my-lib/invalid-file-not-exists.js' imported from ${scenarioRoot}/import-library-js-error/node_modules/my-lib/index.js`,
+      });
+    });
+
     it("emit diagnostics if emitter require import that is not imported", async () => {
       const program = await compileScenario("emitter-require-import", {
         emit: ["@typespec/my-emitter"],

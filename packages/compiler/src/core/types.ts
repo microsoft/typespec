@@ -2082,7 +2082,7 @@ export interface LibraryLocationContext {
 
 export interface LibraryInstance {
   module: ModuleResolutionResult;
-  entrypoint: JsSourceFileNode | undefined;
+  entrypoint: JsSourceFileNode;
   metadata: LibraryMetadata;
   definition?: TypeSpecLibrary<any>;
   linter: LinterResolvedDefinition;
