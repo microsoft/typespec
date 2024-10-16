@@ -100,7 +100,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 Assert.AreEqual(new CSharpType(typeof(Uri)), endpointField?.Type);
             }
 
-            // validate other optional parameters as fields
+            // validate other parameters as fields
             if (containsAdditionalOptionalParams)
             {
                 var optionalParamField = fields.FirstOrDefault(f => f.Name == "_optionalNullableParam");

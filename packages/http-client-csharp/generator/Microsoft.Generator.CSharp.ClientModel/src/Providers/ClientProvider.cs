@@ -40,7 +40,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private ClientOptionsProvider? _clientOptions;
         private RestClientProvider? _restClient;
         private readonly InputParameter[] _allClientParameters;
-        //private Lazy<ClientProvider?> _parent;
 
         private ParameterProvider? ClientOptionsParameter => _clientOptionsParameter ??= ClientOptions != null
             ? ScmKnownParameters.ClientOptions(ClientOptions.Type)
@@ -97,20 +96,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 ? [PipelineProperty.AsParameter, _apiKeyAuthField.AsParameter, _endpointParameter]
                 : [PipelineProperty.AsParameter, _endpointParameter];
 
-            foreach (InputParameter p in inputClient.Parameters)
-            {
-                var parameterProvider = ClientModelPlugin.Instance.TypeFactory.CreateParameter(p);
-                if (!p.IsEndpoint && parameterProvider != PipelineProperty.AsParameter && parameterProvider != _apiKeyAuthField?.AsParameter)
-                {
-                    _subClientInternalConstructorParams.Add(parameterProvider);
-                    FieldProvider field = new(
-                        FieldModifiers.Private | FieldModifiers.ReadOnly,
-                        parameterProvider.Type,
-                        $"_{parameterProvider.Name}",
-                        this);
-                    parameterProvider.Field = field;
-                }
-            }
             if (_inputClient.Parent != null)
             {
                 // _clientCachingField will only have subClients (children)
@@ -126,7 +111,20 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             _allClientParameters = _inputClient.Parameters.Concat(_inputClient.Operations.SelectMany(op => op.Parameters).Where(p => p.Kind == InputOperationParameterKind.Client)).DistinctBy(p => p.Name).ToArray();
 
-            //_parent = new Lazy<ClientProvider?>(GetParent);
+            foreach (InputParameter p in _allClientParameters)
+            {
+                var parameterProvider = ClientModelPlugin.Instance.TypeFactory.CreateParameter(p);
+                if (!p.IsEndpoint && parameterProvider != PipelineProperty.AsParameter && parameterProvider != _apiKeyAuthField?.AsParameter)
+                {
+                    _subClientInternalConstructorParams.Add(parameterProvider);
+                    FieldProvider field = new(
+                        FieldModifiers.Private | FieldModifiers.ReadOnly,
+                        parameterProvider.Type,
+                        $"_{parameterProvider.Name}",
+                        this);
+                    parameterProvider.Field = field;
+                }
+            }
         }
 
         private List<ParameterProvider>? _uriParameters;
@@ -135,12 +133,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             if (_uriParameters is null)
             {
                 _ = Constructors;
-                //if (_parent.Value is not null)
-                //{
-                //    var combined = new HashSet<ParameterProvider>(_uriParameters ?? []);
-                //    combined.UnionWith(_parent.Value.GetUriParameters());
-                //    _uriParameters = combined.ToList();
-                //}
             }
             return _uriParameters ?? [];
         }
@@ -196,9 +188,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     var type = ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(p.Type);
                     if (type != null)
                     {
-                        FieldProvider field = new( //FIX setting isNullable to be false here should be true
+                        FieldProvider field = new(
                             FieldModifiers.Private | FieldModifiers.ReadOnly,
-                            type,
+                            type.WithNullable(!p.IsRequired),
                             "_" + p.Name.ToVariableName(),
                             this);
                         if (p.IsApiVersion)
@@ -488,15 +480,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             return subClients;
-        }
-
-        // TODO: Update method to be more efficient
-        private ClientProvider? GetParent()
-        {
-            var parentClient = ClientModelPlugin.Instance.InputLibrary.InputNamespace.Clients.Where(iclient => iclient.Name == _inputClient.Parent).FirstOrDefault();
-            if (parentClient is not null)
-                return ClientModelPlugin.Instance.TypeFactory.CreateClient(parentClient!); // do null check
-            return null;
         }
     }
 }
