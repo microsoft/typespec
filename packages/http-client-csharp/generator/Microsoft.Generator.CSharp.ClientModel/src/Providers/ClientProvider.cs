@@ -40,6 +40,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private ClientOptionsProvider? _clientOptions;
         private RestClientProvider? _restClient;
         private readonly InputParameter[] _allClientParameters;
+        private Lazy<List<FieldProvider>> _additionalClientFields;
 
         private ParameterProvider? ClientOptionsParameter => _clientOptionsParameter ??= ClientOptions != null
             ? ScmKnownParameters.ClientOptions(ClientOptions.Type)
@@ -108,22 +109,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             _endpointParameterName = new(GetEndpointParameterName);
-
+            _additionalClientFields = new Lazy<List<FieldProvider>>(() => BuildAdditionalClientFields());
             _allClientParameters = _inputClient.Parameters.Concat(_inputClient.Operations.SelectMany(op => op.Parameters).Where(p => p.Kind == InputOperationParameterKind.Client)).DistinctBy(p => p.Name).ToArray();
 
-            foreach (InputParameter p in _allClientParameters)
+            foreach (var field in _additionalClientFields.Value)
             {
-                var parameterProvider = ClientModelPlugin.Instance.TypeFactory.CreateParameter(p);
-                if (!p.IsEndpoint && parameterProvider != PipelineProperty.AsParameter && parameterProvider != _apiKeyAuthField?.AsParameter)
-                {
-                    _subClientInternalConstructorParams.Add(parameterProvider);
-                    FieldProvider field = new(
-                        FieldModifiers.Private | FieldModifiers.ReadOnly,
-                        parameterProvider.Type,
-                        $"_{parameterProvider.Name}",
-                        this);
-                    parameterProvider.Field = field;
-                }
+                _subClientInternalConstructorParams.Add(field.AsParameter);
             }
         }
 
@@ -167,7 +158,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override FieldProvider[] BuildFields()
         {
-            HashSet<FieldProvider> fields = [EndpointField];
+            List<FieldProvider> fields = [EndpointField];
 
             if (_apiKeyAuthField != null && _authorizationHeaderConstant != null)
             {
@@ -180,6 +171,23 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 }
             }
 
+            fields.AddRange(BuildAdditionalClientFields());
+
+            // add sub-client caching fields
+            foreach (var subClient in SubClients)
+            {
+                if (subClient.Value._clientCachingField != null)
+                {
+                    fields.Add(subClient.Value._clientCachingField);
+                }
+            }
+
+            return [.. fields];
+        }
+
+        private List<FieldProvider> BuildAdditionalClientFields()
+        {
+            var fields = new List<FieldProvider>();
             // Add optional client parameters as fields
             foreach (var p in _allClientParameters)
             {
@@ -201,17 +209,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     }
                 }
             }
-
-            // add sub-client caching fields
-            foreach (var subClient in SubClients)
-            {
-                if (subClient.Value._clientCachingField != null)
-                {
-                    fields.Add(subClient.Value._clientCachingField);
-                }
-            }
-
-            return [.. fields];
+            return fields;
         }
 
         protected override PropertyProvider[] BuildProperties()
