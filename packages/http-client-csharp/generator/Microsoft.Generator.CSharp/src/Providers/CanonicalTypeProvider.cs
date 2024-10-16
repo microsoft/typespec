@@ -101,7 +101,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 }
 
                 // handle customized enums - we need to pull the type information from the spec property
-                if (IsCustomizedEnumProperty(specProperty!, customProperty.Type.IsEnum, out var specType))
+                if (IsCustomizedEnumProperty(specProperty, customProperty.Type, out var specType))
                 {
                     customProperty.Type = new CSharpType(
                         customProperty.Type.Name,
@@ -179,7 +179,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 }
 
                 // handle customized enums - we need to pull the type information from the spec property
-                if (IsCustomizedEnumProperty(specProperty!, customField.Type.IsEnum, out var specType))
+                if (IsCustomizedEnumProperty(specProperty, customField.Type, out var specType))
                 {
                     customField.Type = new CSharpType(
                         customField.Type.Name,
@@ -198,27 +198,32 @@ namespace Microsoft.Generator.CSharp.Providers
             return [..generatedFields, ..customFields];
         }
 
-        private static bool IsCustomizedEnumProperty(InputModelProperty inputProperty, bool isCustomEnum, out InputType? specType)
+        private static bool IsCustomizedEnumProperty(InputModelProperty? inputProperty, CSharpType customType, out InputType? specValueType)
         {
-            switch (inputProperty.Type)
+            var enumValueType = GetEnumValueType(inputProperty?.Type);
+            if (enumValueType != null)
             {
-                // We don't support customizing from enum to primitive type currently
-                case InputEnumType enumType:
-                    specType = enumType;
-                    return true;
-                case InputLiteralType { ValueType: InputEnumType enumTypeFromLiteral }:
-                    specType = enumTypeFromLiteral;
-                    return true;
-                default:
-                    // if the spec type is a primitive, but the custom type is an enum, we should use the spec type
-                    if (isCustomEnum)
-                    {
-                        specType = inputProperty.Type;
-                        return true;
-                    }
-                    specType = null;
-                    return false;
+                specValueType = enumValueType;
+                return true;
             }
+            if (customType.IsEnum && inputProperty != null)
+            {
+                specValueType = inputProperty.Type is InputNullableType nullableType ? nullableType.Type : inputProperty.Type;
+                return true;
+            }
+            specValueType = null;
+            return false;
+        }
+
+        private static InputPrimitiveType? GetEnumValueType(InputType? type)
+        {
+            return type switch
+            {
+                InputNullableType nullableType => GetEnumValueType(nullableType.Type),
+                InputEnumType enumType => enumType.ValueType,
+                InputLiteralType { ValueType: InputEnumType enumTypeFromLiteral } => enumTypeFromLiteral.ValueType,
+                _ => null
+            };
         }
 
         private Dictionary<InputModelProperty, PropertyProvider> BuildSpecToCustomPropertyMap(IReadOnlyList<PropertyProvider> customProperties)
