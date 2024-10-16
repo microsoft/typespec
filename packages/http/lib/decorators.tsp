@@ -40,6 +40,50 @@ model HeaderOptions {
 extern dec header(target: ModelProperty, headerNameOrOptions?: string | HeaderOptions);
 
 /**
+ * Cookie Options.
+ */
+model CookieOptions {
+  /**
+   * Name in the cookie.
+   */
+  name?: string;
+
+  /**
+   * If false the value will be joined with `,`.
+   *
+   *  | Style | Explode | Uri Template | Primitive value id = 5 | Array id = [3, 4, 5] | Object id = {"role": "admin", "firstName": "Alex"} |
+   *  | ----- | ------- | -------------| ---------------------- | -------------------- | -------------------------------------------------- |
+   *  | form  | true    | `         `  | `Cookie: id=5`         |                      |                                                    |
+   *  | form  | false   | `id={id}`    | `Cookie: id=5`         | `Cookie: id=3,4,5   `| `Cookie: id=role,admin,firstName,Alex`             |
+   *
+   */
+  explode?: boolean;
+}
+
+// TODO: example
+/**
+ * Specify this property is to be sent or received in the cookie.
+ *
+ * @param cookieNameOrOptions Optional name of the cookie in the cookie or cookie options.
+ *  By default the cookie name will be the property name converted from camelCase to snake_case. (e.g. `authToken` -> `auth_token`)
+ *
+ * @example
+ *
+ * ```typespec
+ * op read(@cookie authToken: string): {@header("ETag") eTag: string};
+ * op create(@header({name: "X-Color", format: "csv"}) colors: string[]): void;
+ * ```
+ *simple
+ * @example Implicit header name
+ *
+ * ```typespec
+ * op read(): {@header contentType: string}; // headerName: content-type
+ * op update(@header ifMatch: string): void; // headerName: if-match
+ * ```
+ */
+extern dec cookie(target: ModelProperty, cookieNameOrOptions?: valueof string | CookieOptions);
+
+/**
  * Query parameter options.
  */
 model QueryOptions {
