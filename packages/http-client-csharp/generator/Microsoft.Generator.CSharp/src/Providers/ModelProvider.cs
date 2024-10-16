@@ -540,7 +540,7 @@ namespace Microsoft.Generator.CSharp.Providers
                         }
 
                         // Handle custom fixed enum discriminator
-                        if (discriminator.CustomProvider?.Value?.Type is { IsEnum: true, IsValueType: true, IsStruct: false })
+                        if (discriminator.CustomProvider?.Value?.IsEnum == true)
                         {
                             var enumMember = discriminator.CustomProvider.Value.Fields
                                 .FirstOrDefault(f => f.Name.Equals(_inputModel.DiscriminatorValue, StringComparison.OrdinalIgnoreCase));
