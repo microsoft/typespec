@@ -126,7 +126,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     this)
                 {
                     OriginalName = originalName,
-                    CustomType = new(() => propertySymbol.Type is INamedTypeSymbol propertyNamedTypeSymbol
+                    CustomProvider = new(() => propertySymbol.Type is INamedTypeSymbol propertyNamedTypeSymbol
                         ? new NamedTypeSymbolProvider(propertyNamedTypeSymbol)
                         : null),
                 };

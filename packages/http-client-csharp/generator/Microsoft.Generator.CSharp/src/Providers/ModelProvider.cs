@@ -526,11 +526,11 @@ namespace Microsoft.Generator.CSharp.Providers
                             return Static(type).Property(enumMember.Name);
                         }
 
-                        if (discriminator.CustomType?.Value?.IsEnum == true)
+                        // Handle custom fixed enum discriminator
+                        if (discriminator.CustomProvider?.Value?.Type is { IsEnum: true, IsValueType: true, IsStruct: false })
                         {
-                            var customProvider = discriminator.CustomType;
-                            var enumMember = customProvider.Value.Fields.FirstOrDefault(f
-                                => f.Name.Equals(_inputModel.DiscriminatorValue, StringComparison.OrdinalIgnoreCase));
+                            var enumMember = discriminator.CustomProvider.Value.Fields
+                                .FirstOrDefault(f => f.Name.Equals(_inputModel.DiscriminatorValue, StringComparison.OrdinalIgnoreCase));
                             if (enumMember != null)
                             {
                                 return Static(type).Property(enumMember.Name);

@@ -42,7 +42,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         internal string? OriginalName { get; init; }
 
-        internal Lazy<NamedTypeSymbolProvider?>? CustomType { get; init; }
+        internal Lazy<NamedTypeSymbolProvider?>? CustomProvider { get; init; }
 
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
