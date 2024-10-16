@@ -73,7 +73,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         }
 
         [TestCaseSource(nameof(BuildFieldsTestCases))]
-        public void TestBuildFields(List<InputParameter> inputParameters, bool containsAdditionalOptionalParams)
+        public void TestBuildFields(List<InputParameter> inputParameters, bool containsAdditionalParams)
         {
             var client = InputFactory.Client(TestClientName, parameters: [.. inputParameters]);
             var clientProvider = new ClientProvider(client);
@@ -82,7 +82,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
 
             // validate the fields
             var fields = clientProvider.Fields;
-            if (containsAdditionalOptionalParams)
+            if (containsAdditionalParams)
             {
                 Assert.AreEqual(6, fields.Count);
 
@@ -101,7 +101,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             }
 
             // validate other parameters as fields
-            if (containsAdditionalOptionalParams)
+            if (containsAdditionalParams)
             {
                 var optionalParamField = fields.FirstOrDefault(f => f.Name == "_optionalNullableParam");
                 Assert.IsNotNull(optionalParamField);
