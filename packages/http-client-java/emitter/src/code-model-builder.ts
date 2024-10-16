@@ -245,7 +245,9 @@ export class CodeModelBuilder {
       versioning: { previewStringRegex: /$/ },
     }); // include all versions and do the filter by ourselves
 
-    this.program.reportDiagnostics(this.sdkContext.diagnostics);
+    // TODO: reportDiagnostics from TCGC temporary disabled
+    // issue https://github.com/Azure/typespec-azure/issues/1675
+    // this.program.reportDiagnostics(this.sdkContext.diagnostics);
 
     // auth
     // TODO: it is not very likely, but different client could have different auth

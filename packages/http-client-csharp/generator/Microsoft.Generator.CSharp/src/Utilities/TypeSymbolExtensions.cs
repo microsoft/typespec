@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Primitives;
@@ -11,6 +12,7 @@ namespace Microsoft.Generator.CSharp
     internal static class TypeSymbolExtensions
     {
         private const string GlobalPrefix = "global::";
+        private const string NullableTypeName = "System.Nullable";
 
         public static bool IsSameType(this INamedTypeSymbol symbol, CSharpType type)
         {
@@ -110,18 +112,19 @@ namespace Microsoft.Generator.CSharp
                 // Handle nullable types
                 if (typeSymbol.NullableAnnotation == NullableAnnotation.Annotated && !IsCollectionType(namedTypeSymbol))
                 {
-                    const string nullableTypeName = "System.Nullable";
                     var argTypeSymbol = namedTypeSymbol.TypeArguments.FirstOrDefault();
 
                     if (argTypeSymbol != null)
                     {
+                        // If the argument type is an error type, then fall back to using the ToString of the arg type symbol. This means that the
+                        // arg may not be fully qualified, but it is better than not having any type information at all.
                         if (argTypeSymbol.TypeKind == TypeKind.Error)
                         {
-                            return GetFullyQualifiedName(argTypeSymbol);
+                            return $"{NullableTypeName}`1[{argTypeSymbol}]";
                         }
 
                         string[] typeArguments = [.. namedTypeSymbol.TypeArguments.Select(arg => "[" + GetFullyQualifiedName(arg) + "]")];
-                        return $"{nullableTypeName}`{namedTypeSymbol.TypeArguments.Length}[{string.Join(", ", typeArguments)}]";
+                        return $"{NullableTypeName}`{namedTypeSymbol.TypeArguments.Length}[{string.Join(", ", typeArguments)}]";
                     }
                 }
                 else if (namedTypeSymbol.TypeArguments.Length > 0 && !IsCollectionType(namedTypeSymbol))
@@ -152,7 +155,7 @@ namespace Microsoft.Generator.CSharp
             {
                 // Special case for types that would not be defined in corlib, but should still be considered framework types.
                 "System.BinaryData" => typeof(BinaryData),
-                _ => System.Type.GetType(fullyQualifiedName)
+                _ => Type.GetType(fullyQualifiedName)
             };
         }
 
@@ -163,18 +166,28 @@ namespace Microsoft.Generator.CSharp
         {
             var typeArg = namedTypeSymbol?.TypeArguments.FirstOrDefault();
             bool isValueType = typeSymbol.IsValueType;
-            bool isEnum = typeSymbol.TypeKind == TypeKind.Enum;
-            bool isNullable = typeSymbol.NullableAnnotation == NullableAnnotation.Annotated;
+            bool isNullable = fullyQualifiedName.StartsWith(NullableTypeName);
+            bool isEnum = typeSymbol.TypeKind == TypeKind.Enum || (isNullable && typeArg?.TypeKind == TypeKind.Enum);
             bool isNullableUnknownType = isNullable && typeArg?.TypeKind == TypeKind.Error;
             string name = isNullableUnknownType ? fullyQualifiedName : typeSymbol.Name;
             string[] pieces = fullyQualifiedName.Split('.');
+            List<CSharpType> arguments = [];
+            INamedTypeSymbol? namedTypeArg = typeArg as INamedTypeSymbol;
+            INamedTypeSymbol? enumUnderlyingType = !isNullable ? namedTypeSymbol?.EnumUnderlyingType : namedTypeArg?.EnumUnderlyingType;
+
+            // For nullable types, we need to get the type arguments from the underlying type.
+            if (namedTypeSymbol?.IsGenericType == true &&
+                (!isNullable || (namedTypeArg?.IsGenericType == true)))
+            {
+                arguments.AddRange(namedTypeSymbol.TypeArguments.Select(GetCSharpType));
+            }
 
             // handle nullables
-            if (isNullable)
+            if (isNullable && typeArg != null)
             {
                 // System.Nullable`1[T] -> T
-                name = typeArg != null ? GetFullyQualifiedName(typeArg) : fullyQualifiedName;
-                pieces = name.Split('.');
+                name = typeArg.Name;
+                pieces = GetFullyQualifiedName(typeArg).Split('.');
             }
 
             return new CSharpType(
@@ -183,14 +196,14 @@ namespace Microsoft.Generator.CSharp
                 isValueType,
                 isNullable,
                 typeSymbol.ContainingType is not null ? GetCSharpType(typeSymbol.ContainingType) : null,
-                namedTypeSymbol is not null && !isNullableUnknownType ? [.. namedTypeSymbol.TypeArguments.Select(GetCSharpType)] : [],
+                arguments,
                 typeSymbol.DeclaredAccessibility == Accessibility.Public,
                 isValueType && !isEnum,
                 baseType: typeSymbol.BaseType is not null && typeSymbol.BaseType.TypeKind != TypeKind.Error && !isNullableUnknownType
                     ? GetCSharpType(typeSymbol.BaseType)
                     : null,
-                underlyingEnumType: namedTypeSymbol is not null && namedTypeSymbol.EnumUnderlyingType is not null
-                    ? GetCSharpType(namedTypeSymbol.EnumUnderlyingType).FrameworkType
+                underlyingEnumType: enumUnderlyingType != null
+                    ? GetCSharpType(enumUnderlyingType).FrameworkType
                     : null);
         }
 
