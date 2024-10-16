@@ -64,6 +64,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     && specToCustomPropertiesMap[candidateSpecProperty] == customProperty)
                 {
                     specProperty = candidateSpecProperty;
+                    customProperty.IsDiscriminator = specProperty.IsDiscriminator;
                     customProperty.WireInfo = new PropertyWireInformation(specProperty);
                 }
 

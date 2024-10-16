@@ -116,6 +116,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 {
                     CodeGenAttributes.TryGetCodeGenMemberAttributeValue(codeGenAttribute, out originalName);
                 }
+
                 var propertyProvider = new PropertyProvider(
                     GetSymbolXmlDoc(propertySymbol, "summary"),
                     GetAccessModifier(propertySymbol.DeclaredAccessibility),
@@ -124,7 +125,10 @@ namespace Microsoft.Generator.CSharp.Providers
                     new AutoPropertyBody(propertySymbol.SetMethod is not null),
                     this)
                 {
-                    OriginalName = originalName
+                    OriginalName = originalName,
+                    CustomType = new(() => propertySymbol.Type is INamedTypeSymbol propertyNamedTypeSymbol
+                        ? new NamedTypeSymbolProvider(propertyNamedTypeSymbol)
+                        : null),
                 };
                 properties.Add(propertyProvider);
             }

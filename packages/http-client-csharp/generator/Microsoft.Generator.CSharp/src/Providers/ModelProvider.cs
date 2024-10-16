@@ -514,23 +514,32 @@ namespace Microsoft.Generator.CSharp.Providers
                     {
                         return GetUnknownDiscriminatorExpression(discriminator);
                     }
-                    else
+
+                    if (!type.IsFrameworkType && type.IsEnum)
                     {
-                        if (!type.IsFrameworkType && type.IsEnum && _inputModel.BaseModel.DiscriminatorProperty!.Type is InputEnumType inputEnumType)
+                        if (_inputModel.BaseModel.DiscriminatorProperty!.Type is InputEnumType inputEnumType)
                         {
-                            /* TODO: when customize the discriminator type to a enum, then we may not be able to get the correct TypeProvider in this way.
-                             * We will handle this when issue https://github.com/microsoft/typespec/issues/4313 is resolved.
-                             * */
                             var discriminatorProvider = CodeModelPlugin.Instance.TypeFactory.CreateEnum(enumType: inputEnumType);
-                            var enumMember = discriminatorProvider!.EnumValues.FirstOrDefault(e => e.Value.ToString() == _inputModel.DiscriminatorValue) ?? throw new InvalidOperationException($"invalid discriminator value {_inputModel.DiscriminatorValue}");
+                            var enumMember = discriminatorProvider!.EnumValues.FirstOrDefault(e => e.Value.ToString() == _inputModel.DiscriminatorValue)
+                                ?? throw new InvalidOperationException($"invalid discriminator value {_inputModel.DiscriminatorValue}");
                             /* {KindType}.{enumMember} */
-                            return TypeReferenceExpression.FromType(type).Property(enumMember.Name);
+                            return Static(type).Property(enumMember.Name);
                         }
-                        else
+
+                        if (discriminator.CustomType?.Value?.IsEnum == true)
                         {
-                            return Literal(_inputModel.DiscriminatorValue);
+                            var customProvider = discriminator.CustomType;
+                            var enumMember = customProvider.Value.Fields.FirstOrDefault(f
+                                => f.Name.Equals(_inputModel.DiscriminatorValue, StringComparison.OrdinalIgnoreCase));
+                            if (enumMember != null)
+                            {
+                                return Static(type).Property(enumMember.Name);
+                            }
                         }
                     }
+
+                    // fallback to the default value
+                    return Literal(_inputModel.DiscriminatorValue);
                 }
             }
             return null;
