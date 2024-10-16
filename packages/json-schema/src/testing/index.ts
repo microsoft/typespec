@@ -1,7 +1,7 @@
 import {
   createTestLibrary,
   findTestPackageRoot,
-  TypeSpecTestLibrary,
+  type TypeSpecTestLibrary,
 } from "@typespec/compiler/testing";
 
 export const JsonSchemaTestLibrary: TypeSpecTestLibrary = createTestLibrary({

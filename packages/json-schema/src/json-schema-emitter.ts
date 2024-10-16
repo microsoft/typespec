@@ -1,20 +1,20 @@
 import {
-  BooleanLiteral,
-  DiagnosticTarget,
-  Enum,
-  EnumMember,
-  IntrinsicType,
-  Model,
-  ModelProperty,
-  NumericLiteral,
-  Program,
-  Scalar,
-  StringLiteral,
-  StringTemplate,
-  Tuple,
-  Type,
-  Union,
-  UnionVariant,
+  type BooleanLiteral,
+  type DiagnosticTarget,
+  type Enum,
+  type EnumMember,
+  type IntrinsicType,
+  type Model,
+  type ModelProperty,
+  type NumericLiteral,
+  type Program,
+  type Scalar,
+  type StringLiteral,
+  type StringTemplate,
+  type Tuple,
+  type Type,
+  type Union,
+  type UnionVariant,
   compilerAssert,
   emitFile,
   explainStringTemplateNotSerializable,
@@ -42,22 +42,22 @@ import {
 } from "@typespec/compiler";
 import {
   ArrayBuilder,
-  Context,
+  type Context,
   Declaration,
-  EmitEntity,
-  EmittedSourceFile,
-  EmitterOutput,
+  type EmitEntity,
+  type EmittedSourceFile,
+  type EmitterOutput,
   ObjectBuilder,
   Placeholder,
-  Scope,
-  SourceFile,
-  SourceFileScope,
+  type Scope,
+  type SourceFile,
+  type SourceFileScope,
   TypeEmitter,
 } from "@typespec/compiler/emitter-framework";
 import { DuplicateTracker } from "@typespec/compiler/utils";
 import { stringify } from "yaml";
 import {
-  JsonSchemaDeclaration,
+  type JsonSchemaDeclaration,
   findBaseUri,
   getContains,
   getContentEncoding,
@@ -75,7 +75,9 @@ import {
   isJsonSchemaDeclaration,
   isOneOf,
 } from "./index.js";
-import { JSONSchemaEmitterOptions, reportDiagnostic } from "./lib.js";
+import { type JSONSchemaEmitterOptions, reportDiagnostic } from "./lib.js";
+
+/** @internal */
 export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSchemaEmitterOptions> {
   #idDuplicateTracker = new DuplicateTracker<string, DiagnosticTarget>();
   #typeForSourceFile = new Map<SourceFile<any>, JsonSchemaDeclaration>();
@@ -565,7 +567,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       }
     };
 
-    const applyTypeConstraint = (fn: (p: Program, t: Type) => Type, key: string) => {
+    const applyTypeConstraint = (fn: (p: Program, t: Type) => Type | undefined, key: string) => {
       const constraintType = fn(this.emitter.getProgram(), type);
       if (constraintType) {
         const ref = this.emitter.emitTypeReference(constraintType);

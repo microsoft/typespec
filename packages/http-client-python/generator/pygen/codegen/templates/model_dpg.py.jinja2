@@ -70,7 +70,7 @@
     {% endif %}
     {% set initialize_properties = serializer.initialize_properties(model) %}
     {% if serializer.need_init(model) or initialize_properties %}
-    def __init__(self, *args: Any, **kwargs: Any) -> None:{{ serializer.pylint_disable(model) }}
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         {% for line in serializer.super_call(model) %}
         {{ line }}
         {% endfor %}
