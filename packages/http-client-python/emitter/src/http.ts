@@ -110,8 +110,14 @@ function addPagingInformation(
   }
   const itemType = getType(context, method.response.type!);
   const base = emitHttpOperation(context, rootClient, operationGroupName, method.operation, method);
-  const itemName = getPropertyWireName(method.operation.responses[0].type, method.response.resultPath);
-  const continuationTokenName = getPropertyWireName(method.operation.responses[0].type, method.nextLinkPath);
+  const itemName = getPropertyWireName(
+    method.operation.responses[0].type,
+    method.response.resultPath,
+  );
+  const continuationTokenName = getPropertyWireName(
+    method.operation.responses[0].type,
+    method.nextLinkPath,
+  );
   base.responses.forEach((resp: Record<string, any>) => {
     resp.type = itemType;
   });
