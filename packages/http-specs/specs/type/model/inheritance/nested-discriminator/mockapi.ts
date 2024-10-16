@@ -1,4 +1,4 @@
-import { json, MockRequest, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
+import { json, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -72,9 +72,6 @@ Scenarios.Type_Model_Inheritance_NestedDiscriminator_getModel = passOnSuccess({
     status: 200,
     body: json(validPolymorphicBody),
   },
-  handler: (req: MockRequest) => {
-    return { status: 200, body: json(validPolymorphicBody) };
-  },
   kind: "MockApiDefinition",
 });
 Scenarios.Type_Model_Inheritance_NestedDiscriminator_putModel = passOnSuccess({
@@ -85,10 +82,6 @@ Scenarios.Type_Model_Inheritance_NestedDiscriminator_putModel = passOnSuccess({
   },
   response: {
     status: 204,
-  },
-  handler: (req: MockRequest) => {
-    req.expect.bodyEquals(validPolymorphicBody);
-    return { status: 204 };
   },
   kind: "MockApiDefinition",
 });
@@ -101,9 +94,6 @@ Scenarios.Type_Model_Inheritance_NestedDiscriminator_getRecursiveModel = passOnS
     status: 200,
     body: json(validRecursiveBody),
   },
-  handler: (req: MockRequest) => {
-    return { status: 200, body: json(validRecursiveBody) };
-  },
   kind: "MockApiDefinition",
 });
 Scenarios.Type_Model_Inheritance_NestedDiscriminator_putRecursiveModel = passOnSuccess({
@@ -114,10 +104,6 @@ Scenarios.Type_Model_Inheritance_NestedDiscriminator_putRecursiveModel = passOnS
   },
   response: {
     status: 204,
-  },
-  handler: (req: MockRequest) => {
-    req.expect.bodyEquals(validRecursiveBody);
-    return { status: 204 };
   },
   kind: "MockApiDefinition",
 });
@@ -130,9 +116,6 @@ Scenarios.Type_Model_Inheritance_NestedDiscriminator_getMissingDiscriminator = p
     status: 200,
     body: json({ age: 1 }),
   },
-  handler: (req: MockRequest) => {
-    return { status: 200, body: json({ age: 1 }) };
-  },
   kind: "MockApiDefinition",
 });
 Scenarios.Type_Model_Inheritance_NestedDiscriminator_getWrongDiscriminator = passOnSuccess({
@@ -142,9 +125,6 @@ Scenarios.Type_Model_Inheritance_NestedDiscriminator_getWrongDiscriminator = pas
   response: {
     status: 200,
     body: json({ age: 1, kind: "wrongKind" }),
-  },
-  handler: (req: MockRequest) => {
-    return { status: 200, body: json({ age: 1, kind: "wrongKind" }) };
   },
   kind: "MockApiDefinition",
 });

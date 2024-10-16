@@ -295,6 +295,13 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       }
     }
 
+    const discriminator = getDiscriminator(this.emitter.getProgram(), model);
+    if (discriminator) {
+      if (!requiredProps.includes(discriminator.propertyName)) {
+        requiredProps.push(discriminator.propertyName);
+      }
+    }
+
     return requiredProps.length > 0 ? requiredProps : undefined;
   }
 
