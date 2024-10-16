@@ -36,7 +36,7 @@ async function resolveTspConfigCompleteItems(
       targetType === "key") ||
     (nodePath.length === CONFIG_PATH_LENGTH_FOR_EMITTER_LIST &&
       nodePath[0] === "emit" &&
-      targetType === "value")
+      targetType === "arr-item")
   ) {
     const emitters = await emitterProvider.listEmitters(tspConfigFile);
     const items: CompletionItem[] = [];
@@ -160,7 +160,7 @@ function resolveCompleteItems(
   foundSchemas
     .flatMap((s) => expandPossibleSchema(s))
     .forEach((cur) => {
-      if (targetType === "key") {
+      if (targetType === "key" || targetType === "arr-item") {
         if (cur.type === "object") {
           const props = Object.keys(cur.properties ?? {})
             .filter(
@@ -176,7 +176,8 @@ function resolveCompleteItems(
             });
           result.push(...props);
         }
-      } else if (targetType === "value") {
+      }
+      if (targetType === "value" || targetType === "arr-item") {
         if (cur.type === "boolean") {
           result.push(
             ...["true", "false"].map((value) => {

@@ -82,7 +82,7 @@ export async function forCurAndParentDirectories<T>(
     const stats = await stat(cur);
     curDir = stats.isDirectory() ? cur : stats.isFile() ? dirname(cur) : undefined;
   } catch (e) {
-    logger.error("Unexpected exception when checking whether cur is a file or directory");
+    logger.error("Unexpected exception when checking whether cur is a file or directory", [e]);
     return undefined;
   }
   if (!curDir) {
@@ -104,18 +104,12 @@ export async function forCurAndParentDirectories<T>(
 }
 
 export function isWhitespaceString(str: string | undefined): boolean {
-  return !str || str.trim().length === 0;
+  if (str === undefined) return false;
+  return /^\s*$/.test(str);
 }
 
 export function firstNonWhitespaceCharacterIndex(line: string): number {
-  // TODO: add more white chars if needed
-  const whiteChars = [" ", "\t", "\r", "\n"];
-  for (let i = 0; i < line.length; i++) {
-    if (!whiteChars.includes(line[i])) {
-      return i;
-    }
-  }
-  return line.length;
+  return line.search(/\S/);
 }
 
 export function distinctArray<T, P>(arr: T[], keySelector: (item: T) => P): T[] {

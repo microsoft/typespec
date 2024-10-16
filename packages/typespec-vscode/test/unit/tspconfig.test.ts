@@ -70,7 +70,7 @@ describe("Test completion for tspconfig", () => {
         expected: rootOptions.filter((o) => o !== "trace"),
       },
     ])("#%# Test root: $config", async ({ config, expected }) => {
-      checkCompletionItems(config, join(__dirname, "./workspace"), expected);
+      await checkCompletionItems(config, join(__dirname, "./workspace"), expected);
     });
   });
 
@@ -85,7 +85,7 @@ describe("Test completion for tspconfig", () => {
         expected: ["fake-emitter"],
       },
     ])("#%# Test emitters: $config", async ({ config, expected }) => {
-      checkCompletionItems(config, join(__dirname, "./workspace"), expected);
+      await checkCompletionItems(config, join(__dirname, "./workspace"), expected);
     });
 
     it.each([
@@ -98,7 +98,7 @@ describe("Test completion for tspconfig", () => {
         expected: [],
       },
     ])("#%# Test no emitter items: $config", async ({ config }) => {
-      checkCompletionItems(config, "", []);
+      await checkCompletionItems(config, "", []);
     });
 
     it.each([
@@ -111,7 +111,7 @@ describe("Test completion for tspconfig", () => {
         expected: [],
       },
     ])("#%# Test no emitter options: $config", async ({ config, expected }) => {
-      checkCompletionItems(config, "", expected);
+      await checkCompletionItems(config, "", expected);
     });
   });
 
@@ -119,7 +119,16 @@ describe("Test completion for tspconfig", () => {
     it.each([
       {
         config: `options:\n  fake-emitter:\n    ┆`,
-        expected: ["target-name", "is-valid", "type", "emitter-output-dir", "options", "options-b"],
+        expected: [
+          "target-name",
+          "is-valid",
+          "type",
+          "emitter-output-dir",
+          "options",
+          "options-b",
+          "options-arr-obj",
+          "options-arr-boolean",
+        ],
       },
       {
         config: `options:\n  fake-emitter:\n    target-name: ┆`,
@@ -135,11 +144,26 @@ describe("Test completion for tspconfig", () => {
       },
       {
         config: `options:\n  fake-emitter:\n    target-name: "fake"\n    i┆`,
-        expected: ["is-valid", "type", "emitter-output-dir", "options", "options-b"],
+        expected: [
+          "is-valid",
+          "type",
+          "emitter-output-dir",
+          "options",
+          "options-b",
+          "options-arr-obj",
+          "options-arr-boolean",
+        ],
       },
       {
         config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    ┆`,
-        expected: ["type", "emitter-output-dir", "options", "options-b"],
+        expected: [
+          "type",
+          "emitter-output-dir",
+          "options",
+          "options-b",
+          "options-arr-obj",
+          "options-arr-boolean",
+        ],
       },
       {
         config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: ┆`,
@@ -281,6 +305,10 @@ describe("Test completion for tspconfig", () => {
         expected: ["propA", "propB", "propC"],
       },
       {
+        config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options:\n      prop┆`,
+        expected: ["propA", "propB", "propC"],
+      },
+      {
         config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options:\n      propA: ┆`,
         expected: [],
       },
@@ -314,6 +342,42 @@ describe("Test completion for tspconfig", () => {
       },
       {
         config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options-b:\n      new-option: ┆`,
+        expected: ["true", "false"],
+      },
+      {
+        config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options-arr-obj:\n      - ┆`,
+        expected: ["arr-propA", "arr-propB"],
+      },
+      {
+        config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options-arr-obj:\n      - \n        ┆`,
+        expected: [],
+      },
+      {
+        config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options-arr-obj:\n      - arr-propA┆`,
+        expected: ["arr-propA", "arr-propB"],
+      },
+      {
+        config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options-arr-obj:\n      - arr-propA\n        ┆`,
+        expected: [],
+      },
+      {
+        config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options-arr-obj:\n      - arr-propA:\n        ┆`,
+        expected: ["arr-propB"],
+      },
+      {
+        config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options-arr-obj:\n      - arr-propA:\n          ┆`,
+        expected: ["arr-propA-one", "arr-propA-two"],
+      },
+      {
+        config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options-arr-obj:\n      - arr-propA:\n          arr-propA-one: ┆`,
+        expected: ["true", "false"],
+      },
+      {
+        config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options-arr-obj:\n      - arr-propA:\n          arr-propA-one: \n\n        ┆`,
+        expected: ["arr-propB"],
+      },
+      {
+        config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options-arr-boolean:\n      - ┆`,
         expected: ["true", "false"],
       },
     ])("#%# Test Complex: $config", async ({ config, expected }) => {

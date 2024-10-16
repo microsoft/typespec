@@ -36,14 +36,15 @@ export async function activate(context: ExtensionContext) {
       { language: "yaml", scheme: "file", pattern: "**/tspconfig.yaml" },
       {
         async provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
+          logger.debug("Start providing tspconfig completion items");
           const doc: TextDocument = TextDocument.create(
-            document.uri.toString(),
+            document.uri.fsPath,
             document.languageId,
             document.version,
             document.getText(),
           );
           const items = await provideTspconfigCompletionItems(doc, position);
-          return items.map((item) => {
+          const results = items.map((item) => {
             const r = new vscode.CompletionItem(item.label);
             switch (item.kind) {
               case "field":
@@ -60,6 +61,10 @@ export async function activate(context: ExtensionContext) {
             r.insertText = item.insertText;
             return r;
           });
+          logger.debug(
+            `Finish providing tspconfig completion items.${results.length} items provided.`,
+          );
+          return results;
         },
       },
     ),

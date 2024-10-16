@@ -25,9 +25,9 @@ export interface YamlScalarTarget {
   /**
    * The final target of the path, either the key or value of the node pointed by the path property
    *   - "key" or "value" if the node is pointing to an object property
-   *   - "value" if the node is pointing to an array item
+   *   - "arr-item" if the node is pointing to an array item
    */
-  type: "key" | "value";
+  type: "key" | "value" | "arr-item";
   /**
    * actual value of target in the doc
    */
@@ -90,13 +90,13 @@ export function resolveYamlScalarTarget(
       if (isWhitespaceString(preLine) || isCommentLine(preLine)) {
         continue;
       }
-      const preIndent = firstNonWhitespaceCharacterIndex(preLine);
+      const preIndent = getIndentOfYamlLine(preLine);
+      if (preIndent === -1) {
+        // we got an empty '-' line
+        return undefined;
+      }
       if (preIndent === indent) {
         // we found the previous line which should be the sibling of the current line
-        if (isArrayItemLine(preLine)) {
-          // no worry about the array which should be handled after user input "-"
-          return undefined;
-        }
         const found = findScalarNode(
           yamlDoc,
           document.offsetAt({
@@ -118,12 +118,17 @@ export function resolveYamlScalarTarget(
           return undefined;
         }
         // adjust path and sibling for the whitespace line
-        return {
-          path: [...yp.path.slice(0, yp.path.length - 1), ""],
-          type: "key",
-          source: "",
-          siblings: [...yp.siblings, yp.source],
-        };
+        if (yp.type === "arr-item") {
+          // the sibling node is a plain text value of an array (otherwise there should be an map node under the seq node), so we don't need to worry about the empty line here
+          return undefined;
+        } else {
+          return {
+            path: [...yp.path.slice(0, yp.path.length - 1), ""],
+            type: "key",
+            source: "",
+            siblings: [...yp.siblings, yp.source],
+          };
+        }
         break;
       } else if (preIndent < indent) {
         // we found the previous line which should be the parent of the current line
@@ -251,9 +256,11 @@ function createYamlPathFromVisitScalarNode(
   } else if (isSeq(last)) {
     return {
       path: path,
-      type: "value",
+      type: "arr-item",
       source: n.source ?? "",
-      siblings: last.items.map((item) => (isScalar(item) ? (item.source ?? "") : "")),
+      siblings: last.items
+        .filter((i) => i !== n)
+        .map((item) => (isScalar(item) ? (item.source ?? "") : "")),
     };
   } else {
     logger.debug(
@@ -267,8 +274,9 @@ function isCommentLine(line: string): boolean {
   return line.trimStart().startsWith("#");
 }
 
-function isArrayItemLine(line: string): boolean {
-  return line.trimStart().startsWith("-");
+/** whitespace and '-' will be considered as indent */
+function getIndentOfYamlLine(line: string): number {
+  return line.search(/[^\s-]/);
 }
 
 function findScalarNode(
