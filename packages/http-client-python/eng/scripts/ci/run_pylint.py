@@ -37,6 +37,7 @@ def _single_dir_pylint(mod):
                 "--evaluation=(max(0, 0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention + info)/ statement) * 10)))",
                 "--load-plugins=pylint_guidelines_checker",
                 "--output-format=parseable",
+                "--recursive=y",
                 str(inner_class.absolute()),
             ]
         )
