@@ -21,3 +21,11 @@
 ######################
 /eng/emitters/                               @m-nash
 
+######################
+# IDE
+######################
+/packages/typespec-vs/                       @RodgeFu
+/packages/typespec-vscode/                   @RodgeFu
+/packages/compiler/src/server/               @RodgeFu
+
+
