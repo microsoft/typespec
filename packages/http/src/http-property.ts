@@ -20,10 +20,16 @@ import {
 } from "./decorators.js";
 import { createDiagnostic } from "./lib.js";
 import { Visibility, isVisible } from "./metadata.js";
-import { HeaderFieldOptions, PathParameterOptions, QueryParameterOptions } from "./types.js";
+import {
+  CookieParameterOptions,
+  HeaderFieldOptions,
+  PathParameterOptions,
+  QueryParameterOptions,
+} from "./types.js";
 
 export type HttpProperty =
   | HeaderProperty
+  | CookieProperty
   | ContentTypeProperty
   | QueryProperty
   | PathProperty
@@ -42,6 +48,11 @@ export interface HttpPropertyBase {
 export interface HeaderProperty extends HttpPropertyBase {
   readonly kind: "header";
   readonly options: HeaderFieldOptions;
+}
+
+export interface CookieProperty extends HttpPropertyBase {
+  readonly kind: "cookie";
+  readonly options: CookieParameterOptions;
 }
 
 export interface ContentTypeProperty extends HttpPropertyBase {

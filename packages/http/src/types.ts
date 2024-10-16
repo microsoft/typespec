@@ -10,7 +10,7 @@ import {
   Tuple,
   Type,
 } from "@typespec/compiler";
-import { PathOptions, QueryOptions } from "../generated-defs/TypeSpec.Http.js";
+import { CookieOptions, PathOptions, QueryOptions } from "../generated-defs/TypeSpec.Http.js";
 import { HeaderProperty, HttpProperty } from "./http-property.js";
 
 /**
@@ -291,6 +291,16 @@ export type RouteProducer = (
 
 export interface HeaderFieldOptions {
   type: "header";
+  name: string;
+  /**
+   * The string format of the array. "csv" and "simple" are used interchangeably, as are
+   * "multi" and "form".
+   */
+  format?: "csv" | "multi" | "ssv" | "tsv" | "pipes" | "simple" | "form";
+}
+
+export interface CookieParameterOptions extends Required<Omit<CookieOptions, "format">> {
+  type: "cookie";
   name: string;
   /**
    * The string format of the array. "csv" and "simple" are used interchangeably, as are

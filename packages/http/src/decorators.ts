@@ -26,6 +26,8 @@ import {
   BodyDecorator,
   BodyIgnoreDecorator,
   BodyRootDecorator,
+  CookieDecorator,
+  CookieOptions,
   DeleteDecorator,
   GetDecorator,
   HeadDecorator,
@@ -49,6 +51,7 @@ import { getStatusCodesFromType } from "./status-codes.js";
 import {
   Authentication,
   AuthenticationOption,
+  CookieParameterOptions,
   HeaderFieldOptions,
   HttpAuth,
   HttpStatusCodeRange,
@@ -120,6 +123,38 @@ export function getHeaderFieldName(program: Program, entity: Type): string {
 
 export function isHeader(program: Program, entity: Type) {
   return program.stateMap(HttpStateKeys.header).has(entity);
+}
+
+export const $cookie: CookieDecorator = (
+  context: DecoratorContext,
+  entity: ModelProperty,
+  cookieNameOrOptions?: string | CookieOptions,
+) => {
+  const paramName =
+    typeof cookieNameOrOptions === "string"
+      ? cookieNameOrOptions
+      : (cookieNameOrOptions?.name ??
+        entity.name.replace(/([a-z])([A-Z])/g, "$1_$2").toLowerCase());
+  const userOptions = typeof cookieNameOrOptions === "object" ? cookieNameOrOptions : {};
+  const options: CookieParameterOptions = {
+    type: "cookie",
+    name: paramName,
+    explode: userOptions.explode ?? true,
+    format: "form",
+  };
+  context.program.stateMap(HttpStateKeys.cookie).set(entity, options);
+};
+
+export function getCookieParamOptions(program: Program, entity: Type): QueryParameterOptions {
+  return program.stateMap(HttpStateKeys.cookie).get(entity);
+}
+
+export function getCookieParamName(program: Program, entity: Type): string {
+  return getCookieParamOptions(program, entity)?.name;
+}
+
+export function isCookieParam(program: Program, entity: Type) {
+  return program.stateMap(HttpStateKeys.cookie).has(entity);
 }
 
 export const $query: QueryDecorator = (
