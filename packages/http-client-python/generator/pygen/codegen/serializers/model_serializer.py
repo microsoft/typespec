@@ -110,23 +110,22 @@ class _ModelSerializer(BaseSerializer, ABC):
     def need_init(self, model: ModelType) -> bool:
         return (not model.internal) and bool(self.init_line(model) or model.discriminator)
 
-    def pylint_disable(self, model: ModelType, recursive: bool = True) -> str:
+    def pylint_disable_items(self, model: ModelType) -> List[str]:
         if model.flattened_property or self.initialize_properties(model):
-            return ""
+            return [""]
         if any(p for p in model.properties if p.is_discriminator and model.discriminator_value):
-            return ""
-        if model.parents:
-            for parent in model.parents:
-                if self.need_init(parent):
-                    # "prop" may contain pylint disable comment like "id: float,  # pylint: disable=redefined-builtin",
-                    # so call .split to get rid of it
-                    if any("=" in prop.split(",")[0] for prop in self.init_line(parent)):
-                        return ""
+            return [""]
+        if model.parents and any(
+            "=" in prop for parent in model.parents for prop in self.init_line(parent) if self.need_init(parent)
+        ):
+            return [""]
+        return ["useless-super-delegation"]
 
-                    # if parent already has "disable=useless-super-delegation", we don't need to add it again
-                    if recursive and "useless-super-delegation" in self.pylint_disable(parent, False):
-                        return ""
-        return "  # pylint: disable=useless-super-delegation"
+    def pylint_disable(self, model: ModelType) -> str:
+        return "  # pylint: disable=" + ", ".join(self.pylint_disable_items(model))
+
+    def global_pylint_disables(self) -> str:
+        return ""
 
 
 class MsrestModelSerializer(_ModelSerializer):
@@ -322,3 +321,8 @@ class DpgModelSerializer(_ModelSerializer):
                     properties_to_pass_to_super.append(f"{prop.client_name}={prop.get_declaration()}")
         properties_to_pass_to_super.append("**kwargs")
         return ", ".join(properties_to_pass_to_super)
+
+    def global_pylint_disables(self) -> str:
+        return "# pylint: disable=" + ", ".join(
+            set(item for model in self.code_model.model_types for item in self.pylint_disable_items(model) if item)
+        )
