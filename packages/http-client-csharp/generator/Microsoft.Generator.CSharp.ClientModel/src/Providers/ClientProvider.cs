@@ -171,7 +171,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 }
             }
 
-            fields.AddRange(BuildAdditionalClientFields());
+            fields.AddRange(_additionalClientFields.Value);
 
             // add sub-client caching fields
             foreach (var subClient in SubClients)
