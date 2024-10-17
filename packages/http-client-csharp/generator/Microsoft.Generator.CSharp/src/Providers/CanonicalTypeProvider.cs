@@ -103,20 +103,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 }
 
                 // handle customized enums - we need to pull the type information from the spec property
-                if (IsCustomizedEnumProperty(specProperty, customProperty.Type, out var specType))
-                {
-                    customProperty.Type = new CSharpType(
-                        customProperty.Type.Name,
-                        customProperty.Type.Namespace,
-                        customProperty.Type.IsValueType,
-                        customProperty.Type.IsNullable,
-                        customProperty.Type.DeclaringType,
-                        customProperty.Type.Arguments,
-                        customProperty.Type.IsPublic,
-                        customProperty.Type.IsStruct,
-                        customProperty.Type.BaseType,
-                        TypeFactory.CreatePrimitiveCSharpTypeCore(specType));
-                }
+                customProperty.Type = EnsureEnum(specProperty, customProperty.Type);
 
                 // ensure literal types are correctly represented in the custom property using the info from the spec property
                 customProperty.Type = EnsureLiteral(specProperty, customProperty.Type);
@@ -184,20 +171,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 }
 
                 // handle customized enums - we need to pull the type information from the spec property
-                if (IsCustomizedEnumProperty(specProperty, customField.Type, out var specType))
-                {
-                    customField.Type = new CSharpType(
-                        customField.Type.Name,
-                        customField.Type.Namespace,
-                        customField.Type.IsValueType,
-                        customField.Type.IsNullable,
-                        customField.Type.DeclaringType,
-                        customField.Type.Arguments,
-                        customField.Type.IsPublic,
-                        customField.Type.IsStruct,
-                        customField.Type.BaseType,
-                        TypeFactory.CreatePrimitiveCSharpTypeCore(specType));
-                }
+                customField.Type = EnsureEnum(specProperty, customField.Type);
 
                 // ensure literal types are correctly represented in the custom field using the info from the spec property
                 customField.Type = EnsureLiteral(specProperty, customField.Type);
@@ -233,6 +207,25 @@ namespace Microsoft.Generator.CSharp.Providers
                 return CSharpType.FromLiteral(customType, inputLiteral.Value);
             }
 
+            return customType;
+        }
+
+        private static CSharpType EnsureEnum(InputModelProperty? specProperty, CSharpType customType)
+        {
+            if (IsCustomizedEnumProperty(specProperty, customType, out var specType))
+            {
+                return new CSharpType(
+                    customType.Name,
+                    customType.Namespace,
+                    customType.IsValueType,
+                    customType.IsNullable,
+                    customType.DeclaringType,
+                    customType.Arguments,
+                    customType.IsPublic,
+                    customType.IsStruct,
+                    customType.BaseType,
+                    TypeFactory.CreatePrimitiveCSharpTypeCore(specType));
+            }
             return customType;
         }
 
