@@ -25,7 +25,7 @@ public class ApiKeyTests {
     public void testInvalid() {
         ApiKeyClient client = new ApiKeyClientBuilder()
             // AzureKeyCredentialPolicy from core requires HTTPS
-            .addPolicy(new AzureKeyCredentialPolicy("x-ms-api-key", new AzureKeyCredential("valid-key")))
+            .addPolicy(new AzureKeyCredentialPolicy("x-ms-api-key", new AzureKeyCredential("invalid-key")))
             .buildClient();
 
         // assert HttpResponseException
