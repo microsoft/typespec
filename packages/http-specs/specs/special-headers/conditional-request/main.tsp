@@ -1,9 +1,9 @@
 import "@typespec/http";
 import "@typespec/versioning";
-import "@typespec/spec-lib";
+import "@typespec/spector";
 
 using Http;
-using SpecLib;
+using Spector;
 using TypeSpec.Versioning;
 
 @doc("Illustrates conditional request headers")

@@ -9,7 +9,7 @@ from server.versions.notversioned import NotVersionedClient
 
 @pytest.fixture
 def client():
-    with NotVersionedClient(endpoint="http://localhost:3000", api_version="v1.0") as client:
+    with NotVersionedClient(endpoint="http://localhost:3000") as client:
         yield client
 
 
@@ -18,8 +18,8 @@ def test_without_api_version(client: NotVersionedClient):
 
 
 def test_with_query_api_version(client: NotVersionedClient):
-    client.with_query_api_version()
+    client.with_query_api_version(api_version="v1.0")
 
 
 def test_with_path_api_version(client: NotVersionedClient):
-    client.with_path_api_version()
+    client.with_path_api_version(api_version="v1.0")

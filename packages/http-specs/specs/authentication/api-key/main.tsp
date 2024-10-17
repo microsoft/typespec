@@ -1,8 +1,8 @@
 import "@typespec/http";
-import "@typespec/spec-lib";
+import "@typespec/spector";
 
 using Http;
-using SpecLib;
+using Spector;
 
 @scenarioService("/authentication/api-key")
 @doc("Illustrates clients generated with ApiKey authentication.")

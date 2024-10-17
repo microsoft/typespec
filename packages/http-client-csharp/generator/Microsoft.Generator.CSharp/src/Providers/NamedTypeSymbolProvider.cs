@@ -8,6 +8,7 @@ using System.Xml;
 using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.SourceInput;
 using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Providers
@@ -94,7 +95,7 @@ namespace Microsoft.Generator.CSharp.Providers
                         this,
                         GetSymbolXmlDoc(fieldSymbol, "summary"))
                     {
-                        Attributes = fieldSymbol.GetAttributes()
+                        OriginalName = GetOriginalName(fieldSymbol)
                     };
 
                     fields.Add(fieldProvider);
@@ -116,11 +117,24 @@ namespace Microsoft.Generator.CSharp.Providers
                     new AutoPropertyBody(propertySymbol.SetMethod is not null),
                     this)
                 {
-                    Attributes = propertySymbol.GetAttributes()
+                    OriginalName = GetOriginalName(propertySymbol)
                 };
                 properties.Add(propertyProvider);
             }
             return [.. properties];
+        }
+
+        private static string? GetOriginalName(ISymbol symbol)
+        {
+            var codeGenAttribute = symbol.GetAttributes().SingleOrDefault(
+                a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenMemberAttributeName);
+            string? originalName = null;
+            if (codeGenAttribute != null)
+            {
+                CodeGenAttributes.TryGetCodeGenMemberAttributeValue(codeGenAttribute, out originalName);
+            }
+
+            return originalName;
         }
 
         protected override ConstructorProvider[] BuildConstructors()

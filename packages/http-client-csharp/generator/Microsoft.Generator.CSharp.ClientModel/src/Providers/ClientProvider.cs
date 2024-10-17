@@ -168,7 +168,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 if (!p.IsEndpoint)
                 {
-                    var type = ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(p.Type);
+                    var type = p is { IsApiVersion: true, Type: InputEnumType enumType }
+                        ? ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(enumType.ValueType)
+                        : ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(p.Type);
+
                     if (type != null)
                     {
                         FieldProvider field = new(
@@ -251,15 +254,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             ParameterProvider? currentParam = null;
             foreach (var parameter in _allClientParameters)
             {
+                currentParam = null;
                 if (parameter.IsRequired && !parameter.IsEndpoint && !parameter.IsApiVersion)
                 {
-                    currentParam = ClientModelPlugin.Instance.TypeFactory.CreateParameter(parameter);
-                    currentParam.Field = Fields.FirstOrDefault(f => f.Name == "_" + parameter.Name);
+                    currentParam = CreateParameter(parameter);
                     requiredParameters.Add(currentParam);
                 }
                 if (parameter.Location == RequestLocation.Uri)
                 {
-                    _uriParameters.Add(currentParam ?? ClientModelPlugin.Instance.TypeFactory.CreateParameter(parameter));
+                    _uriParameters.Add(currentParam ?? CreateParameter(parameter));
                 }
             }
 
@@ -267,6 +270,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 requiredParameters.Add(_apiKeyAuthField.AsParameter);
 
             return requiredParameters;
+        }
+
+        private ParameterProvider CreateParameter(InputParameter parameter)
+        {
+            var param = ClientModelPlugin.Instance.TypeFactory.CreateParameter(parameter);
+            param.Field = Fields.FirstOrDefault(f => f.Name == "_" + parameter.Name);
+            return param;
         }
 
         private MethodBodyStatement[] BuildPrimaryConstructorBody(IReadOnlyList<ParameterProvider> primaryConstructorParameters)
