@@ -100,7 +100,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             if (_inputClient.Parent != null)
             {
                 // _clientCachingField will only have subClients (children)
-                // Allows parent to access fields from subClients
+                // The sub-client caching field for the sub-client which is used for building the caching fields within a parent.
                 _clientCachingField = new FieldProvider(
                     FieldModifiers.Private,
                     Type,
