@@ -34,6 +34,7 @@ export default defineConfig({
       customCss: ["./src/css/custom.css"],
       components: {
         Header: "./src/components/header/header.astro",
+        PageFrame: "./src/components/starlight-overrides/PageFrame.astro",
       },
       expressiveCode: false, // defined directly above
       head: [
