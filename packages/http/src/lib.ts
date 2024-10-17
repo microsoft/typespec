@@ -170,6 +170,7 @@ export const $lib = createTypeSpecLibrary({
   state: {
     authentication: { description: "State for the @auth decorator" },
     header: { description: "State for the @header decorator" },
+    cookie: { description: "State for the @cookie decorator" },
     query: { description: "State for the @query decorator" },
     path: { description: "State for the @path decorator" },
     body: { description: "State for the @body decorator" },
