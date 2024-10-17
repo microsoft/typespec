@@ -14,7 +14,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.Abstractions
     internal class ClientResponseApiTests
     {
         [Test]
-        public void ValidateReturnTypeIsOverriden()
+        public void ValidateReturnTypeIsOverridden()
         {
             ClientProvider clientProvider = CreateMockClientProvider();
 
@@ -26,7 +26,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.Abstractions
         }
 
         [Test]
-        public void ValidateBodyOfClientOperationIsOverriden()
+        public void ValidateBodyOfClientOperationIsOverridden()
         {
             var clientProvider = CreateMockClientProvider();
 

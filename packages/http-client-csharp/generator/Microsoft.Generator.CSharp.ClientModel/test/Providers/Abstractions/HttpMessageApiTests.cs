@@ -13,7 +13,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.Abstractions
     internal class HttpMessageApiTests
     {
         [Test]
-        public void ValidateReturnTypeOfCreateRequestIsOverriden()
+        public void ValidateReturnTypeOfCreateRequestIsOverridden()
         {
             var client = CreateTestClient();
             var restClient = client.RestClient;
@@ -25,7 +25,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.Abstractions
         }
 
         [Test]
-        public void ValidateBodyOfProcessMessageIsOverride()
+        public void ValidateBodyOfProcessMessageIsOverridden()
         {
             var client = CreateTestClient();
             var method = client.Methods.FirstOrDefault(x => x.Signature.Parameters.Any(p => p.Type.Equals(typeof(RequestOptions))) && !x.Signature.Name.EndsWith("Async"));

@@ -10,7 +10,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.Abstractions
     internal class ClientPipelineApiTests
     {
         [Test]
-        public void ValidatePipelinePropertyTypeIsOverriden()
+        public void ValidatePipelinePropertyTypeIsOverridden()
         {
             ClientProvider clientProvider = CreateTestClient();
             var pipelineProperty = clientProvider.Properties.FirstOrDefault(x => x.Name == "Pipeline");
@@ -20,7 +20,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.Abstractions
         }
 
         [Test]
-        public void ValidateBodyOfRestCientOperationIsOverriden()
+        public void ValidateBodyOfRestCientOperationIsOverridden()
         {
             var clientProvider = CreateTestClient();
             var restClient = clientProvider.RestClient;
