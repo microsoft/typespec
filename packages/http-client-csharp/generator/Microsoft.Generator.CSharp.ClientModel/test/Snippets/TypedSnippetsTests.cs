@@ -5,6 +5,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 using Microsoft.Generator.CSharp.ClientModel.Primitives;
+using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.ClientModel.Snippets;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Providers;
@@ -50,14 +51,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
         public void BinaryContentSnippet_InvokeStatic(bool withOptions)
         {
             var arg = Snippet.This;
-            ScopedApi<BinaryContent> result;
+            RequestContentApi result;
             ScopedApi<ModelReaderWriterOptions>? options = null;
             if (withOptions)
             {
                 options = new MemberExpression(null, "w").As<ModelReaderWriterOptions>();
             }
 
-            result = options != null ? BinaryContentSnippets.Create(arg, options) : BinaryContentSnippets.Create(arg);
+            result = options != null ? RequestContentApiSnippets.Create(arg, options) : RequestContentApiSnippets.Create(arg);
 
             Assert.IsNotNull(result);
             var untyped = result.Original as InvokeMethodExpression;

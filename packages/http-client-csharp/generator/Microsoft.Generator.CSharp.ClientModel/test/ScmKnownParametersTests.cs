@@ -21,7 +21,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
         [Test]
         public void BinaryDataParameterHasValidation()
         {
-            var parameter = ScmKnownParameters.BinaryContent;
+            var parameter = ScmKnownParameters.RequestContent;
             Assert.AreEqual(ParameterValidationType.AssertNotNull, parameter.Validation);
         }
 
