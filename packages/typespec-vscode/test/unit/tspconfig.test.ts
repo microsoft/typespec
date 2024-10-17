@@ -301,15 +301,15 @@ describe("Test completion for tspconfig", () => {
   describe("Test completion items in complex scenario", () => {
     it.each([
       {
-        config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options:\n      ┆`,
+        config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options:\n      ┆\nwarn-as-error: true`,
         expected: ["propA", "propB", "propC"],
       },
       {
-        config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options:\n      prop┆`,
+        config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options:\n      prop┆ \n    some-option: "value"`,
         expected: ["propA", "propB", "propC"],
       },
       {
-        config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options:\n      propA: ┆`,
+        config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options:\n      propA: ┆\n\nemit:\n  - fake-emitter2`,
         expected: [],
       },
       {
@@ -369,7 +369,11 @@ describe("Test completion for tspconfig", () => {
         expected: ["arr-propB"],
       },
       {
-        config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options-arr-obj:\n      - arr-propA:\n          ┆`,
+        config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options-arr-obj:\n      - arr-propA:\n      - ┆`,
+        expected: ["arr-propA", "arr-propB"],
+      },
+      {
+        config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options-arr-obj:\n      - arr-propA:\n          ┆\n`,
         expected: ["arr-propA-one", "arr-propA-two"],
       },
       {

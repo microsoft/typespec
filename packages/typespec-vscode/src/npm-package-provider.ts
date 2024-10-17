@@ -1,9 +1,8 @@
 import type { NodePackage } from "@typespec/compiler";
 import { FSWatcher, watch, WatchEventType, WatchListener } from "fs";
-import { join } from "path";
+import { dirname, join } from "path";
 import {
   debounce,
-  forCurAndParentDirectories,
   isFile,
   isWhitespaceString,
   loadModuleExports,
@@ -29,14 +28,19 @@ export class NpmPackageProvider {
     if (cache) {
       return cache;
     }
-    return await forCurAndParentDirectories(startFolder, async (dir: string) => {
-      const packageJsonPath = join(dir, "package.json");
+
+    let lastFolder = "";
+    let curFolder = startFolder;
+    while (curFolder !== lastFolder) {
+      const packageJsonPath = join(curFolder, "package.json");
       if (await isFile(packageJsonPath)) {
-        this.packageJsonFolderCache.set(key, dir);
-        return dir;
+        this.packageJsonFolderCache.set(key, curFolder);
+        return curFolder;
       }
-      return undefined;
-    });
+      lastFolder = curFolder;
+      curFolder = dirname(curFolder);
+    }
+    return undefined;
   }
 
   /**

@@ -1,6 +1,6 @@
 import type { ModuleResolutionResult, NodePackage, ResolveModuleHost } from "@typespec/compiler";
 import { readFile, realpath, stat } from "fs/promises";
-import { dirname, join, normalize, resolve } from "path";
+import { join, normalize, resolve } from "path";
 import { pathToFileURL } from "url";
 import { Executable } from "vscode-languageclient/node.js";
 import logger from "./log/logger.js";
@@ -67,42 +67,6 @@ export function useShellInExec(exe: Executable, win32Only: boolean = true): Exec
   return exe;
 }
 
-/**
- * trigger action for the given curDir and all its parent dirs. return T to stop the loop or undefined to continue
- * @param cur if cur is a directory, the foreach will start from cur, otherwise, it will start from the parent directory of cur (file)
- * @param action
- * @returns
- */
-export async function forCurAndParentDirectories<T>(
-  cur: string,
-  action: (dir: string) => T | undefined,
-) {
-  let curDir = undefined;
-  try {
-    const stats = await stat(cur);
-    curDir = stats.isDirectory() ? cur : stats.isFile() ? dirname(cur) : undefined;
-  } catch (e) {
-    logger.error("Unexpected exception when checking whether cur is a file or directory", [e]);
-    return undefined;
-  }
-  if (!curDir) {
-    logger.error("Unexpected error, given cur is not a file or folder: " + cur);
-    return undefined;
-  }
-
-  let lastFolder = "";
-  let curFolder = curDir;
-  while (curFolder !== lastFolder) {
-    const r = action(curFolder);
-    if (r !== undefined) {
-      return r;
-    }
-    lastFolder = curFolder;
-    curFolder = dirname(curFolder);
-  }
-  return undefined;
-}
-
 export function isWhitespaceString(str: string | undefined): boolean {
   if (str === undefined) return false;
   return /^\s*$/.test(str);
@@ -140,10 +104,8 @@ export async function loadNodePackage(baseDir: string): Promise<NodePackage | un
     });
     const data = JSON.parse(content) as NodePackage;
 
-    if (!data || !data.name || !data.version) {
-      logger.error(
-        `Invalid package.json file: ${packageJsonPath}. Failed to parse it as json or missing name or version.`,
-      );
+    if (!data) {
+      logger.error(`Invalid package.json file: ${packageJsonPath}. Failed to parse it as json.`);
       return undefined;
     }
     return data;
