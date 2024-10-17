@@ -125,6 +125,7 @@ export function isHeader(program: Program, entity: Type) {
   return program.stateMap(HttpStateKeys.header).has(entity);
 }
 
+/** {@inheritDoc CookieDecorator } */
 export const $cookie: CookieDecorator = (
   context: DecoratorContext,
   entity: ModelProperty,
