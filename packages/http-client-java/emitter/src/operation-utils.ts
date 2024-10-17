@@ -155,7 +155,7 @@ export function isLroNewPollingStrategy(
 ): boolean {
   let useNewStrategy = false;
   if (
-    lroMetadata.pollingStep &&
+    lroMetadata.pollingStep.responseBody &&
     modelIs(lroMetadata.pollingStep.responseBody, "OperationStatus", "Azure.Core.Foundations")
   ) {
     useNewStrategy = operationIs(operation, undefined, "Azure.Core");
