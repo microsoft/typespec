@@ -16,10 +16,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         }
 
         private static HttpRequestApi? _instance;
-        internal static HttpRequestApi Instance => _instance ??= new PipelineRequestProvider();
-        private PipelineRequestProvider() : base(typeof(PipelineRequest), Empty)
-        {
-        }
+        internal static HttpRequestApi Instance => _instance ??= new PipelineRequestProvider(Empty);
 
         public override ValueExpression Content()
             => Original.Property(nameof(PipelineRequest.Content));

@@ -17,11 +17,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         }
 
         private static HttpResponseApi? _instance;
-        internal static HttpResponseApi Instance => _instance ??= new PipelineResponseProvider();
-
-        private PipelineResponseProvider() : base(typeof(PipelineResponse), Empty)
-        {
-        }
+        internal static HttpResponseApi Instance => _instance ??= new PipelineResponseProvider(Empty);
 
         public override ScopedApi<Stream> ContentStream()
             => Original.Property(nameof(PipelineResponse.ContentStream)).As<Stream>();

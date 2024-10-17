@@ -13,10 +13,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
     internal record BinaryContentProvider : RequestContentApi
     {
         private static RequestContentApi? _instance;
-        internal static RequestContentApi Instance => _instance ??= new BinaryContentProvider();
-        private BinaryContentProvider() : base(typeof(BinaryContent), Empty)
-        {
-        }
+        internal static RequestContentApi Instance => _instance ??= new BinaryContentProvider(Empty);
 
         public BinaryContentProvider(ValueExpression original) : base(typeof(BinaryContent), original)
         {

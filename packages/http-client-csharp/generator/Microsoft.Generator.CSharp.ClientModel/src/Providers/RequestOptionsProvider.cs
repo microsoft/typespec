@@ -16,10 +16,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         }
 
         private static HttpRequestOptionsApi? _instance;
-        internal static HttpRequestOptionsApi Instance => _instance ??= new RequestOptionsProvider();
-        private RequestOptionsProvider() : base(typeof(RequestOptions), Empty)
-        {
-        }
+        internal static HttpRequestOptionsApi Instance => _instance ??= new RequestOptionsProvider(Empty);
 
         public override CSharpType HttpRequestOptionsType => typeof(RequestOptions);
 

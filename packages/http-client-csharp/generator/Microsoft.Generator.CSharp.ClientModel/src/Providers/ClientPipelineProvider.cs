@@ -11,10 +11,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
     internal record ClientPipelineProvider : ClientPipelineApi
     {
         private static ClientPipelineApi? _instance;
-        internal static ClientPipelineApi Instance => _instance ??= new ClientPipelineProvider();
-        private ClientPipelineProvider() : base(typeof(ClientPipeline), Empty)
-        {
-        }
+        internal static ClientPipelineApi Instance => _instance ??= new ClientPipelineProvider(Empty);
 
         public ClientPipelineProvider(ValueExpression original) : base(typeof(ClientPipeline), original)
         {

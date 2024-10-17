@@ -17,11 +17,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         }
 
         private static ClientResponseApi? _instance;
-        internal static ClientResponseApi Instance => _instance ??= new ClientResultProvider();
-
-        private ClientResultProvider() : base(typeof(ClientResult), Empty)
-        {
-        }
+        internal static ClientResponseApi Instance => _instance ??= new ClientResultProvider(Empty);
 
         public override CSharpType ClientResponseType => typeof(ClientResult);
 

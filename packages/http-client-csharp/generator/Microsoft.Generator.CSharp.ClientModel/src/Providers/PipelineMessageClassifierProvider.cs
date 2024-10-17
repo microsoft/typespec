@@ -11,10 +11,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
     internal record PipelineMessageClassifierProvider : StatusCodeClassifierApi
     {
         private static StatusCodeClassifierApi? _instance;
-        internal static StatusCodeClassifierApi Instance => _instance ??= new PipelineMessageClassifierProvider();
-        private PipelineMessageClassifierProvider() : base(typeof(PipelineMessageClassifier), Empty)
-        {
-        }
+        internal static StatusCodeClassifierApi Instance => _instance ??= new PipelineMessageClassifierProvider(Empty);
 
         public PipelineMessageClassifierProvider(ValueExpression original) : base(typeof(PipelineMessageClassifier), original)
         {
