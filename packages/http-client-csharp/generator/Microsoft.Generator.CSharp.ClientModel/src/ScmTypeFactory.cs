@@ -5,6 +5,7 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using Microsoft.Generator.CSharp.ClientModel.Primitives;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
@@ -22,6 +23,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
         public virtual CSharpType KeyCredentialType => typeof(ApiKeyCredential);
 
         public virtual CSharpType TokenCredentialType => throw new NotImplementedException("Token credential is not supported in Scm libraries yet");
+
+        public virtual HttpPipelineApi HttpPipelineApi { get; } = new ScmHttpPipelineApi();
 
         /// <summary>
         /// Returns the serialization type providers for the given input type.
