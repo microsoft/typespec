@@ -6,17 +6,17 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading.Tasks;
-using Client.Structure.Service.Multi.Client.Models;
+using Client.Structure.Service.Renamed.Operation.Models;
 
-namespace Client.Structure.Service.Multi.Client
+namespace Client.Structure.Service.Renamed.Operation
 {
-    public partial class ClientAClient
+    public partial class RenamedOperationClient
     {
-        protected ClientAClient() => throw null;
+        protected RenamedOperationClient() => throw null;
 
-        public ClientAClient(Uri endpoint, ClientType client) : this(endpoint, client, new ClientAClientOptions()) => throw null;
+        public RenamedOperationClient(Uri endpoint, ClientType client) : this(endpoint, client, new RenamedOperationClientOptions()) => throw null;
 
-        public ClientAClient(Uri endpoint, ClientType client, ClientAClientOptions options) => throw null;
+        public RenamedOperationClient(Uri endpoint, ClientType client, RenamedOperationClientOptions options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
@@ -43,5 +43,7 @@ namespace Client.Structure.Service.Multi.Client
         public virtual ClientResult RenamedFive() => throw null;
 
         public virtual Task<ClientResult> RenamedFiveAsync() => throw null;
+
+        public virtual Group GetGroupClient() => throw null;
     }
 }
