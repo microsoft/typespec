@@ -2,10 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
@@ -29,7 +27,7 @@ namespace Microsoft.Generator.CSharp.Providers
         public CSharpType? ExplicitInterface { get; }
         public XmlDocProvider XmlDocs { get; private set; }
         public PropertyWireInformation? WireInfo { get; internal set; }
-        public bool IsDiscriminator { get; }
+        public bool IsDiscriminator { get; internal set; }
         public bool IsAdditionalProperties { get; init; }
 
         public FieldProvider? BackingField { get; set; }
@@ -43,6 +41,8 @@ namespace Microsoft.Generator.CSharp.Providers
         public TypeProvider EnclosingType { get; }
 
         internal string? OriginalName { get; init; }
+
+        internal Lazy<NamedTypeSymbolProvider?>? CustomProvider { get; init; }
 
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
