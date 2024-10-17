@@ -266,7 +266,7 @@ export const libDef = {
     "xml-attribute-invalid-property-type": {
       severity: "warning",
       messages: {
-        default: paramMessage`The XML Attribute can only be primitive types in the OpenAPI 3 emitter, Property '${"name"}' will be ignored.`,
+        default: paramMessage`The XML Attribute can only be primitive types in the OpenAPI 3 emitter, Property '${"name"}' type will be changed to type: string.`,
       },
     },
     "xml-unwrapped-invalid-property-type": {

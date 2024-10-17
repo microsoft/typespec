@@ -101,9 +101,9 @@ export async function resolveXmlModule(): Promise<XmlModule | undefined> {
             format: { name: prop.name },
             target: prop,
           });
-        } else {
-          xmlObject.attribute = true;
+          emitObject.type = "string";
         }
+        xmlObject.attribute = true;
       }
 
       // Handle array wrapping if necessary

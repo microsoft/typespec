@@ -1,6 +1,6 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { describe, expect, it } from "vitest";
-import { createOpenAPITestRunner, oapiForModel } from "./test-host.js";
+import { createOpenAPITestRunner, emitOpenApiWithDiagnostics, oapiForModel } from "./test-host.js";
 
 describe("@name", () => {
   it("set xml.name for schema", async () => {
@@ -163,20 +163,25 @@ describe("@attribute", () => {
     });
   });
 
-  it("warning if attribute is object", async () => {
-    const runner = await createOpenAPITestRunner();
-    const diagnostics = await runner.diagnose(
-      `model Tag {
+  it("warning and change the type to be type: string if attribute is object", async () => {
+    const [res, diagnostics] = await emitOpenApiWithDiagnostics(`
+      model Tag {
         name: string;
       }
       model Pet {
         @attribute
         tags: Tag;
-      }`,
-    );
+      }
+    `);
+
     expectDiagnostics(diagnostics, {
       code: "@typespec/openapi3/xml-attribute-invalid-property-type",
-      message: `The XML Attribute can only be primitive types in the OpenAPI 3 emitter, Property 'tags' will be ignored.`,
+      message: `The XML Attribute can only be primitive types in the OpenAPI 3 emitter, Property 'tags' type will be changed to type: string.`,
+    });
+    expect(res.components?.schemas?.Pet).toMatchObject({
+      properties: {
+        tags: { type: "string", xml: { attribute: true } },
+      },
     });
   });
 });
