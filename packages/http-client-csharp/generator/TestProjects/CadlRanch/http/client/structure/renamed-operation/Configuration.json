@@ -1,0 +1,6 @@
+{
+  "output-folder": ".",
+  "namespace": "Client.Structure.Service.Renamed.Operation",
+  "library-name": "Client.Structure.Service.Renamed.Operation",
+  "use-model-reader-writer": true
+}
