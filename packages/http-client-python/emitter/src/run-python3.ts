@@ -9,7 +9,7 @@
 import cp from "child_process";
 import { patchPythonPath } from "./system-requirements.js";
 
-async function runPython3(...args: string[]) {
+export async function runPython3(...args: string[]) {
   const command = await patchPythonPath(["python", ...args], {
     version: ">=3.8",
     environmentVariable: "AUTOREST_PYTHON_EXE",
@@ -18,8 +18,3 @@ async function runPython3(...args: string[]) {
     stdio: [0, 1, 2],
   });
 }
-
-runPython3(...process.argv.slice(2)).catch((err) => {
-  console.error(err.toString()); // eslint-disable-line no-console
-  process.exit(1);
-});
