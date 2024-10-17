@@ -4,7 +4,7 @@ title: "[F] getFriendlyName"
 
 ---
 ```ts
-function getFriendlyName(program, target): string
+function getFriendlyName(program, type): undefined | string
 ```
 
 ## Parameters
@@ -12,8 +12,8 @@ function getFriendlyName(program, target): string
 | Parameter | Type |
 | ------ | ------ |
 | `program` | [`Program`](../interfaces/Program.md) |
-| `target` | [`Type`](../type-aliases/Type.md) |
+| `type` | [`Type`](../type-aliases/Type.md) |
 
 ## Returns
 
-`string`
+`undefined` \| `string`

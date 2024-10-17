@@ -23,7 +23,7 @@ namespace Microsoft.Generator.CSharp.Providers
         public FormattableString Description { get; }
         public XmlDocSummaryStatement XmlDocSummary { get; }
         public MethodSignatureModifiers Modifiers { get; internal set; }
-        public CSharpType Type { get; }
+        public CSharpType Type { get; internal set; }
         public string Name { get; internal set; }
         public PropertyBody Body { get; internal set; }
         public CSharpType? ExplicitInterface { get; }
@@ -42,7 +42,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         public TypeProvider EnclosingType { get; }
 
-        internal IEnumerable<AttributeData>? Attributes { get; init; }
+        internal string? OriginalName { get; init; }
 
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.

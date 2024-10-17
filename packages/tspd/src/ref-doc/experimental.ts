@@ -4,7 +4,7 @@ import {
   Diagnostic,
   joinPaths,
   NodeHost,
-  NodePackage,
+  type PackageJson,
 } from "@typespec/compiler";
 import { mkdir, readFile, writeFile } from "fs/promises";
 import prettier from "prettier";
@@ -64,7 +64,7 @@ export async function resolveLibraryRefDocsBase(
   return undefined;
 }
 
-async function readPackageJson(libraryPath: string): Promise<NodePackage> {
+async function readPackageJson(libraryPath: string): Promise<PackageJson> {
   const buffer = await readFile(joinPaths(libraryPath, "package.json"));
   return JSON.parse(buffer.toString());
 }

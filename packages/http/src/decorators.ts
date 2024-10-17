@@ -708,6 +708,8 @@ export const $sharedRoute: SharedRouteDecorator = (
  *               exclude it.
  *
  * @see isApplicableMetadata
+ *
+ * @ignore Cause issue with conflicting function of same name for now
  */
 export function $includeInapplicableMetadataInPayload(
   context: DecoratorContext,

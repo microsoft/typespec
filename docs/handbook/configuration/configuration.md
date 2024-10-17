@@ -2,8 +2,6 @@
 title: Configuration
 ---
 
-# Compiler and library configurations
-
 The TypeSpec compiler and libraries can be configured either via a [configuration file](#configuration-file) or command line flags.
 
 ## Configuration file
@@ -114,6 +112,8 @@ Here's what would be produced:
 #### Project Parameters
 
 A TypeSpec project file can define certain parameters that can subsequently be specified through the CLI.
+Parameters can be organized in a nested structure, to access different levels of the structure, use dots (`.`) in the variable expression.
+Therefore, parameter names should not contain `.` in their name.
 
 The `{cwd}` and `{project-root}` variables can be utilized in the default value of these parameters.
 
@@ -130,7 +130,7 @@ parameters:
 output-dir: {base-dir}/output
 ```
 
-The parameter can then be specified via `--arg` in this format `--arg "<parameter-name>=<value>"`
+The parameter can then be specified via `--arg` in this format `--arg "<parameter-name>=<value>"` and for nested structures `--arg "<parameter-name>.<nested-parameter-name>=<value>"`
 
 ```bash
 tsp compile . --arg "base-dir=/path/to/base"
@@ -169,6 +169,17 @@ options:
     emitter-sub-folder: bar
 
 ```
+
+Emitter options support a nested structure, enabling complex configurations.
+
+```yaml
+options:
+  emitter-sub-folder:
+    sub-folder: bar
+```
+
+To set these values via the CLI, use dots to navigate deeper levels in the definition. `--option "<option-name>.<nested-option-name>=<value>"`
+Due to this capability, emitter option names should not contain a `.` in their name.
 
 ## TypeSpec Configuration Options
 

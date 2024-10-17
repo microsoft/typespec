@@ -2,8 +2,6 @@
 title: Authentication
 ---
 
-# Configure Http Authentication
-
 ## Configure
 
 Authentication can be configured using the `@useAuth` decorator on a service namespace, sub-namespace, interface or operation.

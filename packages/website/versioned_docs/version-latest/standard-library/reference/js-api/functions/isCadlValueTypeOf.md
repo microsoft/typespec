@@ -24,6 +24,8 @@ function isCadlValueTypeOf<K>(target, expectedType): target is InferredTypeSpecV
 
 `target is InferredTypeSpecValue<K>`
 
+boolean if the target is of one of the allowed types.
+
 ## Deprecated
 
 use isTypeSpecValueTypeOf

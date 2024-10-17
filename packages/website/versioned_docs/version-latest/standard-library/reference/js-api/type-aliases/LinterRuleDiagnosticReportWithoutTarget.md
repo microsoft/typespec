@@ -11,8 +11,8 @@ type LinterRuleDiagnosticReportWithoutTarget<T, M>: object & LinterRuleDiagnosti
 
 | Name | Type |
 | ------ | ------ |
-| `codefixes` | [`CodeFix`](../interfaces/CodeFix.md)[] |
-| `messageId` | `M` |
+| `codefixes`? | [`CodeFix`](../interfaces/CodeFix.md)[] |
+| `messageId`? | `M` |
 
 ## Type Parameters
 

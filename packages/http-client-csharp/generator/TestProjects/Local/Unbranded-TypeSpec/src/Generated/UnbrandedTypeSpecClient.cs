@@ -19,6 +19,7 @@ namespace UnbrandedTypeSpec
         private const string AuthorizationHeader = "my-api-key";
         /// <summary> A credential used to authenticate to the service. </summary>
         private readonly ApiKeyCredential _keyCredential;
+        private readonly string _apiVersion;
 
         /// <summary> Initializes a new instance of UnbrandedTypeSpecClient for mocking. </summary>
         protected UnbrandedTypeSpecClient()
@@ -48,6 +49,7 @@ namespace UnbrandedTypeSpec
             _endpoint = endpoint;
             _keyCredential = keyCredential;
             Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(_keyCredential, AuthorizationHeader) }, Array.Empty<PipelinePolicy>());
+            _apiVersion = options.Version;
         }
 
         /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
@@ -1159,6 +1161,70 @@ namespace UnbrandedTypeSpec
             Argument.AssertNotNull(id, nameof(id));
 
             return await HeadAsBooleanAsync(id, null).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// [Protocol Method] Return hi again
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="p1"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="p1"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult WithApiVersion(string p1, RequestOptions options)
+        {
+            Argument.AssertNotNull(p1, nameof(p1));
+
+            using PipelineMessage message = CreateWithApiVersionRequest(p1, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] Return hi again
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="p1"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="p1"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> WithApiVersionAsync(string p1, RequestOptions options)
+        {
+            Argument.AssertNotNull(p1, nameof(p1));
+
+            using PipelineMessage message = CreateWithApiVersionRequest(p1, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> Return hi again. </summary>
+        /// <param name="p1"></param>
+        /// <exception cref="ArgumentNullException"> <paramref name="p1"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult WithApiVersion(string p1)
+        {
+            Argument.AssertNotNull(p1, nameof(p1));
+
+            return WithApiVersion(p1, null);
+        }
+
+        /// <summary> Return hi again. </summary>
+        /// <param name="p1"></param>
+        /// <exception cref="ArgumentNullException"> <paramref name="p1"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> WithApiVersionAsync(string p1)
+        {
+            Argument.AssertNotNull(p1, nameof(p1));
+
+            return await WithApiVersionAsync(p1, null).ConfigureAwait(false);
         }
     }
 }

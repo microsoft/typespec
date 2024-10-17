@@ -29,7 +29,7 @@ import java.util.Objects;
 public final class MapperUtils {
     /**
      * Create enum client type from code model.
-     * 
+     *
      * @param enumType code model schema for enum
      * @param expandable whether it's expandable enum
      * @param useCodeModelNameForEnumMember whether to use code model enum member name for client enum member name
@@ -37,6 +37,21 @@ public final class MapperUtils {
      */
     public static IType createEnumType(ChoiceSchema enumType, boolean expandable,
         boolean useCodeModelNameForEnumMember) {
+        return createEnumType(enumType, expandable, useCodeModelNameForEnumMember, null, null);
+    }
+
+    /**
+     * Create enum client type from code model.
+     *
+     * @param enumType code model schema for enum
+     * @param expandable whether it's expandable enum
+     * @param useCodeModelNameForEnumMember whether to use code model enum member name for client enum member name
+     * @param serializationMethodName method name for serialization
+     * @param deserializationMethodName method name for deserialization
+     * @return enum client type
+     */
+    public static IType createEnumType(ChoiceSchema enumType, boolean expandable, boolean useCodeModelNameForEnumMember,
+        String serializationMethodName, String deserializationMethodName) {
         JavaSettings settings = JavaSettings.getInstance();
         String enumTypeName = enumType.getLanguage().getJava().getName();
 
@@ -98,6 +113,8 @@ public final class MapperUtils {
                     new ImplementationDetails.Builder().usages(SchemaUtil.mapSchemaContext(enumType.getUsage()))
                         .build())
                 .crossLanguageDefinitionId(enumType.getCrossLanguageDefinitionId())
+                .fromMethodName(deserializationMethodName)
+                .toMethodName(serializationMethodName)
                 .build();
         }
     }

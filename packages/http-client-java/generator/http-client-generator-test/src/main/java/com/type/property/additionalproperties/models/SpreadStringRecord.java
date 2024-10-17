@@ -26,7 +26,7 @@ public final class SpreadStringRecord implements JsonSerializable<SpreadStringRe
     private final String name;
 
     /*
-     * Additional properties
+     * The model spread Record<string> with the same known property type
      */
     @Generated
     private Map<String, String> additionalProperties;
@@ -52,7 +52,7 @@ public final class SpreadStringRecord implements JsonSerializable<SpreadStringRe
     }
 
     /**
-     * Get the additionalProperties property: Additional properties.
+     * Get the additionalProperties property: The model spread Record&lt;string&gt; with the same known property type.
      * 
      * @return the additionalProperties value.
      */
@@ -62,7 +62,7 @@ public final class SpreadStringRecord implements JsonSerializable<SpreadStringRe
     }
 
     /**
-     * Set the additionalProperties property: Additional properties.
+     * Set the additionalProperties property: The model spread Record&lt;string&gt; with the same known property type.
      * 
      * @param additionalProperties the additionalProperties value to set.
      * @return the SpreadStringRecord object itself.

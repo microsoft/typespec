@@ -3,8 +3,6 @@ id: formatter
 title: Formatter
 ---
 
-# Formatter
-
 TypeSpec comes with a built-in formatter. The formatter can be used in different ways:
 
 - [Via the cli](#via-the-cli)

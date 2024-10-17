@@ -56,14 +56,12 @@ public class Project {
     public enum Dependency {
         // azure
         AZURE_CLIENT_SDK_PARENT("com.azure", "azure-client-sdk-parent", "1.7.0"),
-        AZURE_JSON("com.azure", "azure-json", "1.3.0"),
-        AZURE_XML("com.azure", "azure-xml", "1.1.0"),
-        AZURE_CORE("com.azure", "azure-core", "1.52.0"),
-        AZURE_CORE_MANAGEMENT("com.azure", "azure-core-management", "1.15.3"),
-        AZURE_CORE_HTTP_NETTY("com.azure", "azure-core-http-netty", "1.15.4"),
-        AZURE_CORE_TEST("com.azure", "azure-core-test", "1.27.0-beta.1"),
-        AZURE_IDENTITY("com.azure", "azure-identity", "1.13.3"),
-        AZURE_CORE_EXPERIMENTAL("com.azure", "azure-core-experimental", "1.0.0-beta.53"),
+        AZURE_CORE("com.azure", "azure-core", "1.53.0"),
+        AZURE_CORE_MANAGEMENT("com.azure", "azure-core-management", "1.15.4"),
+        AZURE_CORE_HTTP_NETTY("com.azure", "azure-core-http-netty", "1.15.5"),
+        AZURE_CORE_TEST("com.azure", "azure-core-test", "1.27.0-beta.2"),
+        AZURE_IDENTITY("com.azure", "azure-identity", "1.14.0"),
+        AZURE_CORE_EXPERIMENTAL("com.azure", "azure-core-experimental", "1.0.0-beta.54"),
 
         CLIENTCORE("io.clientcore", "core", "1.0.0-beta.1"),
         CLIENTCORE_JSON("io.clientcore", "core-json", "1.0.0-beta.1");
@@ -304,57 +302,7 @@ public class Project {
             Path pomPath = Paths.get(outputFolder, "pom.xml");
 
             if (Files.isReadable(pomPath)) {
-                try {
-                    DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-                    DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-                    Document doc = dBuilder.parse(pomPath.toFile());
-                    NodeList nodeList = (NodeList) XPathFactory.newInstance()
-                        .newXPath()
-                        .compile("dependencies/dependency")
-                        .evaluate(doc, XPathConstants.NODESET);
-                    for (int i = 0; i < nodeList.getLength(); i++) {
-                        Node dependencyNode = nodeList.item(i);
-                        String groupId = null;
-                        String artifactId = null;
-                        String version = null;
-                        String scope = null;
-                        NodeList itemNodeList = dependencyNode.getChildNodes();
-                        for (int k = 0; k < itemNodeList.getLength(); ++k) {
-                            Node itemNode = itemNodeList.item(k);
-                            if (itemNode.getNodeType() == Node.ELEMENT_NODE) {
-                                Element elementItemNode = (Element) itemNode;
-                                switch (elementItemNode.getTagName()) {
-                                    case "groupId":
-                                        groupId = ((Text) elementItemNode.getChildNodes().item(0)).getWholeText();
-                                        break;
-
-                                    case "artifactId":
-                                        artifactId = ((Text) elementItemNode.getChildNodes().item(0)).getWholeText();
-                                        break;
-
-                                    case "version":
-                                        version = ((Text) elementItemNode.getChildNodes().item(0)).getWholeText();
-                                        break;
-
-                                    case "scope":
-                                        scope = ((Text) elementItemNode.getChildNodes().item(0)).getWholeText();
-                                        break;
-                                }
-                            }
-                        }
-
-                        if (groupId != null && artifactId != null && version != null) {
-                            String dependencyIdentifier = groupId + ":" + artifactId + ":" + version;
-                            if (scope != null) {
-                                dependencyIdentifier += ":" + scope;
-                            }
-                            this.pomDependencyIdentifiers.add(dependencyIdentifier);
-                            LOGGER.info("Found dependency identifier '{}' from POM", dependencyIdentifier);
-                        }
-                    }
-                } catch (Exception e) {
-                    LOGGER.warn("Failed to parse 'pom.xml'", e);
-                }
+                this.pomDependencyIdentifiers.addAll(findPomDependencies(pomPath));
             } else {
                 LOGGER.info("'pom.xml' not found or not readable");
             }
@@ -419,5 +367,61 @@ public class Project {
 
     public boolean isGenerateSamples() {
         return JavaSettings.getInstance().isGenerateSamples();
+    }
+
+    static List<String> findPomDependencies(Path pomPath) {
+        List<String> pomDependencyIdentifiers = new ArrayList<>();
+        try {
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(pomPath.toFile());
+            NodeList nodeList = (NodeList) XPathFactory.newInstance()
+                .newXPath()
+                .compile("project/dependencies/dependency")
+                .evaluate(doc, XPathConstants.NODESET);
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                Node dependencyNode = nodeList.item(i);
+                String groupId = null;
+                String artifactId = null;
+                String version = null;
+                String scope = null;
+                NodeList itemNodeList = dependencyNode.getChildNodes();
+                for (int k = 0; k < itemNodeList.getLength(); ++k) {
+                    Node itemNode = itemNodeList.item(k);
+                    if (itemNode.getNodeType() == Node.ELEMENT_NODE) {
+                        Element elementItemNode = (Element) itemNode;
+                        switch (elementItemNode.getTagName()) {
+                            case "groupId":
+                                groupId = ((Text) elementItemNode.getChildNodes().item(0)).getWholeText();
+                                break;
+
+                            case "artifactId":
+                                artifactId = ((Text) elementItemNode.getChildNodes().item(0)).getWholeText();
+                                break;
+
+                            case "version":
+                                version = ((Text) elementItemNode.getChildNodes().item(0)).getWholeText();
+                                break;
+
+                            case "scope":
+                                scope = ((Text) elementItemNode.getChildNodes().item(0)).getWholeText();
+                                break;
+                        }
+                    }
+                }
+
+                if (groupId != null && artifactId != null && version != null) {
+                    String dependencyIdentifier = groupId + ":" + artifactId + ":" + version;
+                    if (scope != null) {
+                        dependencyIdentifier += ":" + scope;
+                    }
+                    pomDependencyIdentifiers.add(dependencyIdentifier);
+                    LOGGER.info("Found dependency identifier '{}' from POM", dependencyIdentifier);
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.warn("Failed to parse 'pom.xml'", e);
+        }
+        return pomDependencyIdentifiers;
     }
 }

@@ -9,7 +9,6 @@ using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Snippets;
-using Microsoft.Generator.CSharp.SourceInput;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
@@ -31,7 +30,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private ModelProvider? _baseModelProvider;
         private ConstructorProvider? _fullConstructor;
 
-        public ModelProvider(InputModelType inputModel)
+        public ModelProvider(InputModelType inputModel) : base(inputModel)
         {
             _inputModel = inputModel;
             Description = inputModel.Description != null ? FormattableStringHelpers.FromString(inputModel.Description) : $"The {Name}.";
@@ -76,6 +75,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
             return [.. derivedModels];
         }
+        internal override TypeProvider? BaseTypeProvider => BaseModelProvider;
 
         public ModelProvider? BaseModelProvider
             => _baseModelProvider ??= (_baseTypeProvider?.Value is ModelProvider baseModelProvider ? baseModelProvider : null);
@@ -84,8 +84,6 @@ namespace Microsoft.Generator.CSharp.Providers
         private List<PropertyProvider> AdditionalPropertyProperties => _additionalPropertyProperties ??= BuildAdditionalPropertyProperties();
         internal bool SupportsBinaryDataAdditionalProperties => AdditionalPropertyProperties.Any(p => p.Type.ElementType.Equals(_additionalPropsUnknownType));
         public ConstructorProvider FullConstructor => _fullConstructor ??= BuildFullConstructor();
-
-        internal IReadOnlyList<PropertyProvider> AllSpecProperties => Properties.Concat(CustomCodeView?.Properties.Where(p => p.WireInfo != null) ?? []).ToList();
 
         protected override string GetNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
 
@@ -105,7 +103,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override TypeSignatureModifiers GetDeclarationModifiers()
         {
-            var customCodeModifiers = GetCustomCodeModifiers();
+            var customCodeModifiers = CustomCodeView?.DeclarationModifiers ?? TypeSignatureModifiers.None;
             var isStruct = false;
             // the information of if this model should be a struct comes from two sources:
             // 1. the customied code
@@ -331,12 +329,12 @@ namespace Microsoft.Generator.CSharp.Providers
             var properties = new List<PropertyProvider>(propertiesCount + 1);
 
             Dictionary<string, InputModelProperty> baseProperties = _inputModel.BaseModel?.Properties.ToDictionary(p => p.Name) ?? [];
-
+            var baseModelDiscriminator = _inputModel.BaseModel?.DiscriminatorProperty;
             for (int i = 0; i < propertiesCount; i++)
             {
                 var property = _inputModel.Properties[i];
 
-                if (property.IsDiscriminator && Type.BaseType is not null)
+                if (property.IsDiscriminator && property.Name == baseModelDiscriminator?.Name)
                     continue;
 
                 var outputProperty = CodeModelPlugin.Instance.TypeFactory.CreateProperty(property, this);
@@ -458,16 +456,15 @@ namespace Microsoft.Generator.CSharp.Providers
 
             if (isPrimaryConstructor)
             {
-                baseProperties = _inputModel.GetAllBaseModels()
-                    .Reverse()
-                    .SelectMany(model => CodeModelPlugin.Instance.TypeFactory.CreateModel(model)?.Properties ?? []);
+                // the primary ctor should only include the properties of the direct base model
+                baseProperties = BaseModelProvider?.CanonicalView.Properties ?? [];
             }
             else if (BaseModelProvider?.FullConstructor.Signature != null)
             {
                 baseParameters.AddRange(BaseModelProvider.FullConstructor.Signature.Parameters);
             }
 
-            HashSet<PropertyProvider> overriddenProperties = AllSpecProperties.Where(p => p.BaseProperty is not null).Select(p => p.BaseProperty!).ToHashSet();
+            HashSet<PropertyProvider> overriddenProperties = CanonicalView.Properties.Where(p => p.BaseProperty is not null).Select(p => p.BaseProperty!).ToHashSet();
 
             // add the base parameters, if any
             foreach (var property in baseProperties)
@@ -478,7 +475,7 @@ namespace Microsoft.Generator.CSharp.Providers
             // construct the initializer using the parameters from base signature
             var constructorInitializer = new ConstructorInitializer(true, [.. baseParameters.Select(p => GetExpressionForCtor(p, overriddenProperties, isPrimaryConstructor))]);
 
-            foreach (var property in AllSpecProperties)
+            foreach (var property in CanonicalView.Properties)
             {
                 AddInitializationParameterForCtor(constructorParameters, property, Type.IsStruct, isPrimaryConstructor);
             }
@@ -509,39 +506,22 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             if (_inputModel.BaseModel is not null && _inputModel.DiscriminatorValue is not null)
             {
-                var discriminator = BaseModelProvider?.Properties.Where(p => p.IsDiscriminator).FirstOrDefault();
+                var discriminator = BaseModelProvider?.CanonicalView.Properties.Where(p => p.IsDiscriminator).FirstOrDefault();
                 if (discriminator != null)
                 {
                     var type = discriminator.Type;
                     if (IsUnknownDiscriminatorModel)
                     {
-                        var discriminatorExpression = discriminator.AsParameter.AsExpression;
-                        if (!type.IsFrameworkType && type.IsEnum)
-                        {
-                            if (type.IsStruct)
-                            {
-                                /* kind != default ? kind : "unknown" */
-                                return new TernaryConditionalExpression(discriminatorExpression.NotEqual(Default), discriminatorExpression, Literal(_inputModel.DiscriminatorValue));
-                            }
-                            else
-                            {
-                                return discriminatorExpression;
-                            }
-                        }
-                        else
-                        {
-                            /* kind ?? "unknown" */
-                            return discriminatorExpression.NullCoalesce(Literal(_inputModel.DiscriminatorValue));
-                        }
+                        return GetUnknownDiscriminatorExpression(discriminator);
                     }
                     else
                     {
-                        if (!type.IsFrameworkType && type.IsEnum)
+                        if (!type.IsFrameworkType && type.IsEnum && _inputModel.BaseModel.DiscriminatorProperty!.Type is InputEnumType inputEnumType)
                         {
                             /* TODO: when customize the discriminator type to a enum, then we may not be able to get the correct TypeProvider in this way.
                              * We will handle this when issue https://github.com/microsoft/typespec/issues/4313 is resolved.
                              * */
-                            var discriminatorProvider = CodeModelPlugin.Instance.TypeFactory.CreateEnum(enumType: (InputEnumType)_inputModel.BaseModel.DiscriminatorProperty!.Type);
+                            var discriminatorProvider = CodeModelPlugin.Instance.TypeFactory.CreateEnum(enumType: inputEnumType);
                             var enumMember = discriminatorProvider!.EnumValues.FirstOrDefault(e => e.Value.ToString() == _inputModel.DiscriminatorValue) ?? throw new InvalidOperationException($"invalid discriminator value {_inputModel.DiscriminatorValue}");
                             /* {KindType}.{enumMember} */
                             return TypeReferenceExpression.FromType(type).Property(enumMember.Name);
@@ -558,15 +538,50 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private ValueExpression GetExpressionForCtor(ParameterProvider parameter, HashSet<PropertyProvider> overriddenProperties, bool isPrimaryConstructor)
         {
-            if (parameter.Property is not null && parameter.Property.IsDiscriminator && _inputModel.DiscriminatorValue != null &&
-                (isPrimaryConstructor || !isPrimaryConstructor && IsUnknownDiscriminatorModel))
+            if (parameter.Property is not null && parameter.Property.IsDiscriminator && _inputModel.DiscriminatorValue != null)
             {
-                return DiscriminatorValueExpression ?? throw new InvalidOperationException($"invalid discriminator {_inputModel.DiscriminatorValue}");
+                if (isPrimaryConstructor)
+                {
+                    return DiscriminatorValueExpression ?? throw new InvalidOperationException($"invalid discriminator {_inputModel.DiscriminatorValue} for property {parameter.Property.Name}");
+                }
+                else if (IsUnknownDiscriminatorModel)
+                {
+                    return GetUnknownDiscriminatorExpression(parameter.Property) ?? throw new InvalidOperationException($"invalid discriminator {_inputModel.DiscriminatorValue} for property {parameter.Property.Name}");
+                }
             }
 
             var paramToUse = parameter.Property is not null && overriddenProperties.Contains(parameter.Property) ? Properties.First(p => p.Name == parameter.Property.Name).AsParameter : parameter;
 
             return paramToUse.Property is not null ? GetConversion(paramToUse.Property) : paramToUse;
+        }
+
+        private ValueExpression? GetUnknownDiscriminatorExpression(PropertyProvider property)
+        {
+            if (!property.IsDiscriminator || _inputModel.DiscriminatorValue == null)
+            {
+                return null;
+            }
+
+            var discriminatorExpression = property.AsParameter.AsExpression;
+            var type = property.Type;
+
+            if (!type.IsFrameworkType && type.IsEnum)
+            {
+                if (type.IsStruct)
+                {
+                    /* kind != default ? kind : "unknown" */
+                    return new TernaryConditionalExpression(discriminatorExpression.NotEqual(Default), discriminatorExpression, Literal(_inputModel.DiscriminatorValue));
+                }
+                else
+                {
+                    return discriminatorExpression;
+                }
+            }
+            else
+            {
+                /* kind ?? "unknown" */
+                return discriminatorExpression.NullCoalesce(Literal(_inputModel.DiscriminatorValue));
+            }
         }
 
         private static void AddInitializationParameterForCtor(
@@ -602,10 +617,10 @@ namespace Microsoft.Generator.CSharp.Providers
             bool isPrimaryConstructor,
             IReadOnlyList<ParameterProvider>? parameters = null)
         {
-            List<MethodBodyStatement> methodBodyStatements = new(Properties.Count + 1);
+            List<MethodBodyStatement> methodBodyStatements = new(CanonicalView.Properties.Count + 1);
             Dictionary<string, ParameterProvider> parameterMap = parameters?.ToDictionary(p => p.Name) ?? [];
 
-            foreach (var property in AllSpecProperties)
+            foreach (var property in CanonicalView.Properties)
             {
                 // skip those non-spec properties
                 if (property.WireInfo == null)
@@ -697,10 +712,15 @@ namespace Microsoft.Generator.CSharp.Providers
         /// <returns>The constructed <see cref="FieldProvider"/> if the model should generate the field.</returns>
         private FieldProvider? BuildRawDataField()
         {
-            // check if there is a raw data field on my base, if so, we do not have to have one here
-            if (BaseModelProvider?.RawDataField != null)
+            // check if there is a raw data field on any of the base models, if so, we do not have to have one here.
+            var baseModelProvider = BaseModelProvider;
+            while (baseModelProvider != null)
             {
-                return null;
+                if (baseModelProvider.RawDataField != null)
+                {
+                    return null;
+                }
+                baseModelProvider = baseModelProvider.BaseModelProvider;
             }
 
             var modifiers = FieldModifiers.Private;
