@@ -13,6 +13,8 @@ namespace Client.Structure.Service.Models
         /// <summary> RenamedOperation. </summary>
         RenamedOperation,
         /// <summary> TwoOperationGroup. </summary>
-        TwoOperationGroup
+        TwoOperationGroup,
+        /// <summary> ClientOperationGroup. </summary>
+        ClientOperationGroup
     }
 }
