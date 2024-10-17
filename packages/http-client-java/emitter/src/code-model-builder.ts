@@ -963,6 +963,7 @@ export class CodeModelBuilder {
 
       // pollingSchema
       if (
+        lroMetadata.pollingStep.responseBody &&
         modelIs(lroMetadata.pollingStep.responseBody, "OperationStatus", "Azure.Core.Foundations")
       ) {
         pollingSchema = this.pollResultSchema;
