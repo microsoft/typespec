@@ -154,6 +154,11 @@ namespace Microsoft.Generator.CSharp.Providers
                 return false;
             }
 
+            if (!inputProperty.EnclosingType!.Usage.HasFlag(InputModelTypeUsage.Input))
+            {
+                return false;
+            }
+
             if (type.IsLiteral && inputProperty.IsRequired)
             {
                 return false;
