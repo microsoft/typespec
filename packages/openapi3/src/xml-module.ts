@@ -37,7 +37,7 @@ export async function resolveXmlModule(): Promise<XmlModule | undefined> {
   return {
     attachXmlObjectForScalarOrModel: (
       program: Program,
-      prop: Scalar | Model,
+      type: Scalar | Model,
       emitObject: OpenAPI3Schema,
     ) => {
       const isXmlModel = isXmlModelChecker(program, prop, []);
