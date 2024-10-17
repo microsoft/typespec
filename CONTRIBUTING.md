@@ -47,7 +47,6 @@ Those commands can be run on the workspace or in a specific package(`cd ./packag
 | `pnpm test:watch`           | Run test in watch mode(only when inside a package)                                                                                                        |
 | `pnpm watch`                | Build in watch mode, Starting this command will rebuild the typescript files on save.                                                                     |
 | `pnpm clean`                | Clean, sometimes there are ghost files left in the dist folder (common when renaming or deleting a TypeScript file), running this will get a clean state. |
-| `pnpm format`               | Format                                                                                                                                                    |
 | `pnpm format:check`         | Validate files are formatted                                                                                                                              |
 | `pnpm gen-extern-signature` | Regenerate TypeScript signature for decorators(except compiler)                                                                                           |
 | `pnpm change add`           | Add a change description                                                                                                                                  |
@@ -55,6 +54,7 @@ Those commands can be run on the workspace or in a specific package(`cd ./packag
 | `pnpm lint:fix`             | Fix autofixable issues                                                                                                                                    |
 | `pnpm regen-samples`        | Regen the samples(when the samples test fail)                                                                                                             |
 | `pnpm regen-docs`           | Regen the reference docs                                                                                                                                  |
+| `pnpm run setup:min`    `pnpm run format`       | Run the formatter to reformat all files                                                                                               |
 
 ### Verbose test logging
 
