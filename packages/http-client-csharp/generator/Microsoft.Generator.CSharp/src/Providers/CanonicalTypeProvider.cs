@@ -117,6 +117,9 @@ namespace Microsoft.Generator.CSharp.Providers
                         customProperty.Type.BaseType,
                         TypeFactory.CreatePrimitiveCSharpTypeCore(specType));
                 }
+
+                // ensure literal types are correctly represented in the custom property using the info from the spec property
+                customProperty.Type = EnsureLiteral(specProperty, customProperty.Type);
             }
 
             return [..generatedProperties, ..customProperties];
@@ -195,6 +198,9 @@ namespace Microsoft.Generator.CSharp.Providers
                         customField.Type.BaseType,
                         TypeFactory.CreatePrimitiveCSharpTypeCore(specType));
                 }
+
+                // ensure literal types are correctly represented in the custom field using the info from the spec property
+                customField.Type = EnsureLiteral(specProperty, customField.Type);
             }
 
             return [..generatedFields, ..customFields];
@@ -218,6 +224,16 @@ namespace Microsoft.Generator.CSharp.Providers
             }
             specValueType = null;
             return false;
+        }
+
+        private static CSharpType EnsureLiteral(InputModelProperty? specProperty, CSharpType customType)
+        {
+            if (specProperty?.Type is InputLiteralType inputLiteral && (customType.IsFrameworkType || customType.IsEnum))
+            {
+                return CSharpType.FromLiteral(customType, inputLiteral.Value);
+            }
+
+            return customType;
         }
 
         private static InputPrimitiveType? GetEnumValueType(InputType? type)

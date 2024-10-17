@@ -500,5 +500,99 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.IsTrue(ctors.Any(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)));
             Assert.IsTrue(ctors.Any(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal)));
         }
+
+        // Validates that if a required literal property is customized, then the default ctor
+        // does not include the custom property as a parameter.
+        [Test]
+        public async Task DoesNotIncludeReqCustomLiteralInDefaultCtor()
+        {
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModelTypes: [
+                    InputFactory.Model(
+                        "mockInputModel",
+                        usage: InputModelTypeUsage.Input,
+                        properties:
+                        [
+                            InputFactory.Property("Prop1", new InputLiteralType(
+                                new InputEnumType(
+                                    "foo",
+                                    "foo",
+                                    null,
+                                    null,
+                                    "description",
+                                    InputModelTypeUsage.None,
+                                    InputPrimitiveType.String,
+                                    [
+                                        new InputEnumTypeValue("bar", "bar", InputPrimitiveType.String, null)
+                                    ],
+                                    false),
+                                "bar"),
+                                isRequired: true),
+                            InputFactory.Property("Prop2", InputPrimitiveType.String, isRequired: true),
+                        ])
+                    ],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var csharpGen = new CSharpGen();
+
+            await csharpGen.ExecuteAsync();
+
+            var ctors = plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel").Constructors;
+            Assert.AreEqual(2, ctors.Count);
+
+            var publicCtor = ctors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsNotNull(publicCtor);
+
+            var ctorParams = publicCtor!.Signature.Parameters;
+
+            // should not have the custom required literal property
+            Assert.AreEqual(1, ctorParams.Count);
+            Assert.AreEqual("prop2", ctorParams[0].Name);
+        }
+
+        [Test]
+        public async Task DoesNotIncludeReqCustomFieldLiteralInDefaultCtor()
+        {
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModelTypes: [
+                    InputFactory.Model(
+                        "mockInputModel",
+                        usage: InputModelTypeUsage.Input,
+                        properties:
+                        [
+                            InputFactory.Property("Prop1", new InputLiteralType(
+                                new InputEnumType(
+                                    "foo",
+                                    "foo",
+                                    null,
+                                    null,
+                                    "description",
+                                    InputModelTypeUsage.None,
+                                    InputPrimitiveType.String,
+                                    [
+                                        new InputEnumTypeValue("bar", "bar", InputPrimitiveType.String, null)
+                                    ],
+                                    false),
+                                "bar"),
+                                isRequired: true),
+                            InputFactory.Property("Prop2", InputPrimitiveType.String, isRequired: true),
+                        ])
+                    ],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var csharpGen = new CSharpGen();
+
+            await csharpGen.ExecuteAsync();
+
+            var ctors = plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel").Constructors;
+            Assert.AreEqual(2, ctors.Count);
+
+            var publicCtor = ctors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsNotNull(publicCtor);
+
+            var ctorParams = publicCtor!.Signature.Parameters;
+
+            // should not have the custom required literal property
+            Assert.AreEqual(1, ctorParams.Count);
+            Assert.AreEqual("prop2", ctorParams[0].Name);
+        }
     }
 }
