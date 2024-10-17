@@ -506,6 +506,10 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
         [Test]
         public async Task DoesNotIncludeReqCustomLiteralInDefaultCtor()
         {
+            var enumType = InputFactory.Enum(
+                "originalEnum",
+                InputPrimitiveType.String,
+                values: [InputFactory.EnumMember.String("bar", "bar")]);
             var plugin = await MockHelpers.LoadMockPluginAsync(
                 inputModelTypes: [
                     InputFactory.Model(
@@ -513,21 +517,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
                         usage: InputModelTypeUsage.Input,
                         properties:
                         [
-                            InputFactory.Property("Prop1", new InputLiteralType(
-                                new InputEnumType(
-                                    "foo",
-                                    "foo",
-                                    null,
-                                    null,
-                                    "description",
-                                    InputModelTypeUsage.None,
-                                    InputPrimitiveType.String,
-                                    [
-                                        new InputEnumTypeValue("bar", "bar", InputPrimitiveType.String, null)
-                                    ],
-                                    false),
-                                "bar"),
-                                isRequired: true),
+                            InputFactory.Property("Prop1", InputFactory.Literal.Enum(enumType, "bar"), isRequired: true),
                             InputFactory.Property("Prop2", InputPrimitiveType.String, isRequired: true),
                         ])
                     ],
@@ -559,21 +549,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
                         usage: InputModelTypeUsage.Input,
                         properties:
                         [
-                            InputFactory.Property("Prop1", new InputLiteralType(
-                                new InputEnumType(
-                                    "foo",
-                                    "foo",
-                                    null,
-                                    null,
-                                    "description",
-                                    InputModelTypeUsage.None,
-                                    InputPrimitiveType.String,
-                                    [
-                                        new InputEnumTypeValue("bar", "bar", InputPrimitiveType.String, null)
-                                    ],
-                                    false),
-                                "bar"),
-                                isRequired: true),
+                            InputFactory.Property("Prop1", InputFactory.Literal.String("bar"), isRequired: true),
                             InputFactory.Property("Prop2", InputPrimitiveType.String, isRequired: true),
                         ])
                     ],
