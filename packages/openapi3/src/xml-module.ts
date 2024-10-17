@@ -31,7 +31,7 @@ export interface XmlModule {
 }
 
 export async function resolveXmlModule(): Promise<XmlModule | undefined> {
-  const xml = await tryImport("@typespec/xml");
+  const xml = await tryImportXml();
   if (xml === undefined) return undefined;
 
   return {
@@ -40,7 +40,7 @@ export async function resolveXmlModule(): Promise<XmlModule | undefined> {
       type: Scalar | Model,
       emitObject: OpenAPI3Schema,
     ) => {
-      const isXmlModel = isXmlModelChecker(program, prop, []);
+      const isXmlModel = isXmlModelChecker(program, type, []);
       if (!isXmlModel) {
         return;
       }
@@ -48,13 +48,13 @@ export async function resolveXmlModule(): Promise<XmlModule | undefined> {
       const xmlObject: OpenAPI3XmlSchema = {};
 
       // Resolve XML name
-      const xmlName = resolveEncodedName(program, prop, "application/xml");
-      if (xmlName !== prop.name) {
+      const xmlName = resolveEncodedName(program, type, "application/xml");
+      if (xmlName !== type.name) {
         xmlObject.name = xmlName;
       }
 
       // Get and set XML namespace if present
-      const currNs = xml.getNs(program, prop);
+      const currNs = xml.getNs(program, type);
       if (currNs) {
         xmlObject.prefix = currNs.prefix;
         xmlObject.namespace = currNs.namespace;
@@ -211,9 +211,9 @@ function isXmlModelChecker(
   return false;
 }
 
-async function tryImport(modulePath: string): Promise<any | undefined> {
+async function tryImportXml(): Promise<typeof import("@typespec/xml") | undefined> {
   try {
-    const module = await import(modulePath);
+    const module = await import("@typespec/xml");
     return module;
   } catch {
     return undefined;
