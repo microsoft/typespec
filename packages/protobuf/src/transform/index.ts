@@ -827,6 +827,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
       ),
       index: program.stateMap(state.fieldIndex).get(property),
       doc: getDoc(program, property),
+      optional: program.stateMap(state.optional).get(property),
     };
 
     // Determine if the property type is an array
