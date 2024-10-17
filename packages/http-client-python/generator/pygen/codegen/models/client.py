@@ -354,7 +354,7 @@ class Config(_ClientConfigBase[ConfigGlobalParameterList]):
     """Model representing our Config type."""
 
     def pylint_disable(self) -> str:
-        retval = add_to_pylint_disable("", "too-many-instance-attributes")
+        retval = add_to_pylint_disable("", "too-many-instance-attributes") if self.code_model.is_azure_flavor else ""
         if len(self.name) > NAME_LENGTH_LIMIT:
             retval = add_to_pylint_disable(retval, "name-too-long")
         return retval

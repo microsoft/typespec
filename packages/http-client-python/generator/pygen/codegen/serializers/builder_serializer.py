@@ -553,11 +553,12 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         type_ignore = self.async_mode and builder.group_name == ""  # is in a mixin
         if builder.stream_value is True and not self.code_model.options["version_tolerant"]:
             retval.append("_decompress = kwargs.pop('decompress', True)")
+        pylint_disable = " # pylint: disable=protected-access" if self.code_model.is_azure_flavor else ""
         retval.extend(
             [
                 f"_stream = {builder.stream_value}",
                 f"pipeline_response: PipelineResponse = {self._call_method}self._client.{self.pipeline_name}.run(  "
-                + f"{'# type: ignore' if type_ignore else ''} # pylint: disable=protected-access",
+                + f"{'# type: ignore' if type_ignore else ''}{pylint_disable}",
                 "    _request,",
                 "    stream=_stream,",
                 "    **kwargs",
@@ -599,7 +600,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             retval.append(f"    params_added_on={dict(params_added_on)},")
         if retval:
             retval_str = "\n".join(retval)
-            return f"@api_version_validation(\n{retval_str}\n){builder.pylint_disable(self.async_mode)}"
+            return f"@api_version_validation(\n{retval_str}\n)"
         return ""
 
     def pop_kwargs_from_signature(self, builder: OperationType) -> List[str]:

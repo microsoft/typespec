@@ -1,5 +1,17 @@
 # Change Log - @typespec/http-client-python
 
+## 0.3.3
+
+### Bug Fixes
+
+- Fix pylint issue for useless suppressions
+
+## 0.3.2
+
+### Bug Fixes
+
+- Update generated code so there is no need to run the `postprocess` script when customizations are made #4718
+
 ## 0.3.1
 
 ### Bug Fixes
