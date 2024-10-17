@@ -403,10 +403,17 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         [Test]
         public void TestApiVersionOfClient()
         {
+            List<string> apiVersions = ["1.0", "2.0"];
+            var enumValues = apiVersions.Select(a => InputFactory.EnumMember.String(a, a));
+            var inputEnum = InputFactory.Enum("ServiceVersion", InputPrimitiveType.Int64, values: [.. enumValues], usage: InputModelTypeUsage.ApiVersionEnum);
+
+            MockHelpers.LoadMockPlugin(
+                apiVersions: () => apiVersions,
+                inputEnums: () => [inputEnum]);
             var client = InputFactory.Client(TestClientName,
                 operations: [
                     InputFactory.Operation("OperationWithApiVersion",
-                            parameters: [InputFactory.Parameter("apiVersion", InputPrimitiveType.String, isRequired: true, location: RequestLocation.Query, kind: InputOperationParameterKind.Client)])
+                            parameters: [InputFactory.Parameter("apiVersion", InputPrimitiveType.String, isRequired: true, location: RequestLocation.Query, kind: InputOperationParameterKind.Client, isApiVersion: true)])
                     ]);
             var clientProvider = new ClientProvider(client);
             Assert.IsNotNull(clientProvider);
@@ -414,7 +421,55 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             /* verify that the client has apiVersion field */
             Assert.IsNotNull(clientProvider.Fields.FirstOrDefault(f => f.Name.Equals("_apiVersion")));
 
+            /* verify that there is no apiVersion parameter in constructor. */
+            var apiVersionParameter = clientProvider.Constructors.Select(c => c.Signature.Parameters.FirstOrDefault(p => p.Name.Equals("apiVersion"))).FirstOrDefault();
+            Assert.IsNull(apiVersionParameter);
+
+            /* verify the apiVersion assignment in constructor body */
+            var primaryConstructor = clientProvider.Constructors.FirstOrDefault(
+                c => c.Signature?.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Public);
+            Assert.IsNotNull(primaryConstructor);
+            var bodyStatements = primaryConstructor?.BodyStatements as MethodBodyStatements;
+            Assert.IsNotNull(bodyStatements);
+            Assert.IsTrue(bodyStatements!.Statements.Any(s => s.ToDisplayString().IndexOf("_apiVersion = options.Version;\n") != -1));
+
             var method = clientProvider.Methods.FirstOrDefault(m => m.Signature.Name.Equals("OperationWithApiVersion"));
+            Assert.IsNotNull(method);
+            /* verify that the method does not have apiVersion parameter */
+            Assert.IsNull(method?.Signature.Parameters.FirstOrDefault(p => p.Name.Equals("apiVersion")));
+        }
+
+        [TestCaseSource(nameof(ValidateApiVersionPathParameterTestCases))]
+        public void TestApiVersionPathParameterOfClient(InputClient inputClient)
+        {
+            List<string> apiVersions = ["value1", "value2"];
+            var enumValues = apiVersions.Select(a => InputFactory.EnumMember.String(a, a));
+            var inputEnum = InputFactory.Enum("ServiceVersion", InputPrimitiveType.Int64, values: [.. enumValues], usage: InputModelTypeUsage.ApiVersionEnum);
+            MockHelpers.LoadMockPlugin(
+                apiVersions: () => apiVersions,
+                inputEnums: () => [inputEnum]);
+
+            var clientProvider = new ClientProvider(inputClient);
+            Assert.IsNotNull(clientProvider);
+
+            /* verify that the client has apiVersion field */
+            var apiVersionField = clientProvider.Fields.FirstOrDefault(f => f.Name.Equals("_apiVersion"));
+            Assert.IsNotNull(apiVersionField);
+            Assert.AreEqual(new CSharpType(typeof(string)), apiVersionField?.Type);
+
+            /* verify that there is no apiVersion parameter in constructor. */
+            var apiVersionParameter = clientProvider.Constructors.Select(c => c.Signature.Parameters.FirstOrDefault(p => p.Name.Equals("apiVersion"))).FirstOrDefault();
+            Assert.IsNull(apiVersionParameter);
+
+            /* verify the apiVersion assignment in constructor body */
+            var primaryConstructor = clientProvider.Constructors.FirstOrDefault(
+                c => c.Signature?.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Public);
+            Assert.IsNotNull(primaryConstructor);
+            var bodyStatements = primaryConstructor?.BodyStatements as MethodBodyStatements;
+            Assert.IsNotNull(bodyStatements);
+            Assert.IsTrue(bodyStatements!.Statements.Any(s => s.ToDisplayString().IndexOf("_apiVersion = options.Version;\n") != -1));
+
+            var method = clientProvider.Methods.FirstOrDefault(m => m.Signature.Name.Equals("TestOperation"));
             Assert.IsNotNull(method);
             /* verify that the method does not have apiVersion parameter */
             Assert.IsNull(method?.Signature.Parameters.FirstOrDefault(p => p.Name.Equals("apiVersion")));
@@ -598,6 +653,80 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                     isEndpoint: true,
                     defaultValue: InputFactory.Constant.String("mockValue")),
                 New.Instance(KnownParameters.Endpoint.Type, Literal("mockvalue")));
+        }
+
+        private static IEnumerable<TestCaseData> ValidateApiVersionPathParameterTestCases()
+        {
+            InputParameter endpointParameter = InputFactory.Parameter(
+                "endpoint",
+                InputPrimitiveType.String,
+                location: RequestLocation.Uri,
+                isRequired: true,
+                kind: InputOperationParameterKind.Client,
+                isEndpoint: true,
+                isApiVersion: false);
+
+            InputParameter stringApiVersionParameter = InputFactory.Parameter(
+                "apiVersion",
+                InputPrimitiveType.String,
+                location: RequestLocation.Uri,
+                isRequired: true,
+                kind: InputOperationParameterKind.Client,
+                isApiVersion: true);
+
+            InputParameter enumApiVersionParameter = InputFactory.Parameter(
+                "apiVersion",
+                InputFactory.Enum(
+                    "InputEnum",
+                    InputPrimitiveType.String,
+                    usage: InputModelTypeUsage.Input,
+                    isExtensible: true,
+                    values:
+                    [
+                        InputFactory.EnumMember.String("value1", "value1"),
+                        InputFactory.EnumMember.String("value2", "value2")
+                    ]),
+                location: RequestLocation.Uri,
+                isRequired: true,
+                kind: InputOperationParameterKind.Client,
+                isApiVersion: true);
+
+            yield return new TestCaseData(
+                InputFactory.Client(
+                    "TestClient",
+                    operations:
+                    [
+                        InputFactory.Operation(
+                            "TestOperation",
+                            uri: "{endpoint}/{apiVersion}",
+                            parameters:
+                            [
+                                endpointParameter,
+                                stringApiVersionParameter
+                            ])
+                    ],
+                    parameters: [
+                        endpointParameter,
+                        stringApiVersionParameter
+                    ]));
+
+            yield return new TestCaseData(
+                InputFactory.Client(
+                    "TestClient",
+                    operations:
+                    [
+                        InputFactory.Operation(
+                        "TestOperation",
+                        parameters: [
+                            endpointParameter,
+                            enumApiVersionParameter
+                        ],
+                        uri: "{endpoint}/{apiVersion}")
+                    ],
+                    parameters: [
+                        endpointParameter,
+                        enumApiVersionParameter
+                    ]));
         }
     }
 }
