@@ -629,7 +629,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 {
                     if (!wireInfo.IsReadOnly)
                     {
-                        parameters.Add(parameter.ToPublicInputParameter());
+                        parameters.Add(parameter);
                     }
                 }
             }
