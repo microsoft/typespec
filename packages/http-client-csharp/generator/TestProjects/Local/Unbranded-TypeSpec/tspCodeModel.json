@@ -1997,7 +1997,8 @@
      "GenerateProtocolMethod": true,
      "GenerateConvenienceMethod": true,
      "CrossLanguageDefinitionId": "UnbrandedTypeSpec.sayHi",
-     "Decorators": []
+     "Decorators": [],
+     "AzureStuff": "hello azure"
     },
     {
      "$id": "205",
@@ -2151,7 +2152,8 @@
      "GenerateProtocolMethod": true,
      "GenerateConvenienceMethod": true,
      "CrossLanguageDefinitionId": "UnbrandedTypeSpec.helloAgain",
-     "Decorators": []
+     "Decorators": [],
+     "AzureStuff": "hello azure"
     },
     {
      "$id": "218",
@@ -2306,7 +2308,8 @@
      "GenerateProtocolMethod": true,
      "GenerateConvenienceMethod": false,
      "CrossLanguageDefinitionId": "UnbrandedTypeSpec.noContentType",
-     "Decorators": []
+     "Decorators": [],
+     "AzureStuff": "hello azure"
     },
     {
      "$id": "231",
@@ -2371,7 +2374,8 @@
      "GenerateProtocolMethod": true,
      "GenerateConvenienceMethod": true,
      "CrossLanguageDefinitionId": "UnbrandedTypeSpec.helloDemo2",
-     "Decorators": []
+     "Decorators": [],
+     "AzureStuff": "hello azure"
     },
     {
      "$id": "236",
@@ -2484,7 +2488,8 @@
      "GenerateProtocolMethod": true,
      "GenerateConvenienceMethod": true,
      "CrossLanguageDefinitionId": "UnbrandedTypeSpec.createLiteral",
-     "Decorators": []
+     "Decorators": [],
+     "AzureStuff": "hello azure"
     },
     {
      "$id": "245",
@@ -2630,7 +2635,8 @@
      "GenerateProtocolMethod": true,
      "GenerateConvenienceMethod": true,
      "CrossLanguageDefinitionId": "UnbrandedTypeSpec.helloLiteral",
-     "Decorators": []
+     "Decorators": [],
+     "AzureStuff": "hello azure"
     },
     {
      "$id": "259",
@@ -2724,7 +2730,8 @@
      "GenerateProtocolMethod": true,
      "GenerateConvenienceMethod": true,
      "CrossLanguageDefinitionId": "UnbrandedTypeSpec.topAction",
-     "Decorators": []
+     "Decorators": [],
+     "AzureStuff": "hello azure"
     },
     {
      "$id": "267",
@@ -2789,7 +2796,8 @@
      "GenerateProtocolMethod": true,
      "GenerateConvenienceMethod": false,
      "CrossLanguageDefinitionId": "UnbrandedTypeSpec.topAction2",
-     "Decorators": []
+     "Decorators": [],
+     "AzureStuff": "hello azure"
     },
     {
      "$id": "272",
@@ -2902,7 +2910,8 @@
      "GenerateProtocolMethod": true,
      "GenerateConvenienceMethod": false,
      "CrossLanguageDefinitionId": "UnbrandedTypeSpec.patchAction",
-     "Decorators": []
+     "Decorators": [],
+     "AzureStuff": "hello azure"
     },
     {
      "$id": "281",
@@ -3015,7 +3024,8 @@
      "GenerateProtocolMethod": true,
      "GenerateConvenienceMethod": true,
      "CrossLanguageDefinitionId": "UnbrandedTypeSpec.anonymousBody",
-     "Decorators": []
+     "Decorators": [],
+     "AzureStuff": "hello azure"
     },
     {
      "$id": "290",
@@ -3128,7 +3138,8 @@
      "GenerateProtocolMethod": true,
      "GenerateConvenienceMethod": true,
      "CrossLanguageDefinitionId": "UnbrandedTypeSpec.friendlyModel",
-     "Decorators": []
+     "Decorators": [],
+     "AzureStuff": "hello azure"
     },
     {
      "$id": "299",
@@ -3188,7 +3199,8 @@
      "GenerateProtocolMethod": true,
      "GenerateConvenienceMethod": true,
      "CrossLanguageDefinitionId": "UnbrandedTypeSpec.addTimeHeader",
-     "Decorators": []
+     "Decorators": [],
+     "AzureStuff": "hello azure"
     },
     {
      "$id": "304",
@@ -3301,7 +3313,8 @@
      "GenerateProtocolMethod": true,
      "GenerateConvenienceMethod": true,
      "CrossLanguageDefinitionId": "UnbrandedTypeSpec.projectedNameModel",
-     "Decorators": []
+     "Decorators": [],
+     "AzureStuff": "hello azure"
     },
     {
      "$id": "313",
@@ -3366,7 +3379,8 @@
      "GenerateProtocolMethod": true,
      "GenerateConvenienceMethod": true,
      "CrossLanguageDefinitionId": "UnbrandedTypeSpec.returnsAnonymousModel",
-     "Decorators": []
+     "Decorators": [],
+     "AzureStuff": "hello azure"
     },
     {
      "$id": "318",
@@ -3442,7 +3456,8 @@
      "GenerateProtocolMethod": true,
      "GenerateConvenienceMethod": true,
      "CrossLanguageDefinitionId": "UnbrandedTypeSpec.getUnknownValue",
-     "Decorators": []
+     "Decorators": [],
+     "AzureStuff": "hello azure"
     },
     {
      "$id": "324",
@@ -3555,7 +3570,8 @@
      "GenerateProtocolMethod": false,
      "GenerateConvenienceMethod": true,
      "CrossLanguageDefinitionId": "UnbrandedTypeSpec.internalProtocol",
-     "Decorators": []
+     "Decorators": [],
+     "AzureStuff": "hello azure"
     },
     {
      "$id": "333",
@@ -3587,7 +3603,8 @@
      "GenerateProtocolMethod": false,
      "GenerateConvenienceMethod": true,
      "CrossLanguageDefinitionId": "UnbrandedTypeSpec.stillConvenient",
-     "Decorators": []
+     "Decorators": [],
+     "AzureStuff": "hello azure"
     },
     {
      "$id": "335",
@@ -3640,7 +3657,8 @@
      "GenerateProtocolMethod": true,
      "GenerateConvenienceMethod": true,
      "CrossLanguageDefinitionId": "UnbrandedTypeSpec.headAsBoolean",
-     "Decorators": []
+     "Decorators": [],
+     "AzureStuff": "hello azure"
     },
     {
      "$id": "339",
@@ -3724,7 +3742,8 @@
      "GenerateProtocolMethod": true,
      "GenerateConvenienceMethod": true,
      "CrossLanguageDefinitionId": "UnbrandedTypeSpec.WithApiVersion",
-     "Decorators": []
+     "Decorators": [],
+     "AzureStuff": "hello azure"
     }
    ],
    "Protocol": {
@@ -3735,7 +3754,8 @@
      "$ref": "193"
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "AzureStuff": "hello azure"
   }
  ],
  "Auth": {
