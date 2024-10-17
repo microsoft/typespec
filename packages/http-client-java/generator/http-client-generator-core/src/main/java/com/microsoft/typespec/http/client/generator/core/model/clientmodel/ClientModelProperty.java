@@ -289,14 +289,17 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
      */
     public final void addImportsTo(Set<String> imports, boolean shouldGenerateXmlSerialization) {
         JavaSettings settings = JavaSettings.getInstance();
+        final boolean requireJackson = !settings.isStreamStyleSerialization();
 
         if (getHeaderCollectionPrefix() != null && !getHeaderCollectionPrefix().isEmpty()) {
             Annotation.HEADER_COLLECTION.addImportsTo(imports);
         }
         if (isAdditionalProperties) {
-            imports.add("com.fasterxml.jackson.annotation.JsonIgnore");
-            imports.add("com.fasterxml.jackson.annotation.JsonAnySetter");
-            imports.add("com.fasterxml.jackson.annotation.JsonAnyGetter");
+            if (requireJackson) {
+                imports.add("com.fasterxml.jackson.annotation.JsonIgnore");
+                imports.add("com.fasterxml.jackson.annotation.JsonAnySetter");
+                imports.add("com.fasterxml.jackson.annotation.JsonAnyGetter");
+            }
             imports.add(LinkedHashMap.class.getName());
         }
 
@@ -305,7 +308,7 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
             addJsonFlattenAnnotationImport(imports);
         }
 
-        if (!isAdditionalProperties && getClientType() instanceof MapType) {
+        if (requireJackson && !isAdditionalProperties && getClientType() instanceof MapType) {
             // required for "@JsonInclude(value = JsonInclude.Include.NON_NULL, content = JsonInclude.Include.ALWAYS)"
             imports.add("com.fasterxml.jackson.annotation.JsonInclude");
         }
@@ -319,16 +322,18 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
             imports.add(ClassType.CORE_UTILS.getFullName());
         }
 
-        if (shouldGenerateXmlSerialization) {
-            imports.add("com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement");
-            if (isXmlWrapper()) {
-                imports.add("com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty");
+        if (requireJackson) {
+            if (shouldGenerateXmlSerialization) {
+                imports.add("com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement");
+                if (isXmlWrapper()) {
+                    imports.add("com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty");
+                }
+                if (isXmlText()) {
+                    imports.add("com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlText");
+                }
+            } else {
+                imports.add("com.fasterxml.jackson.annotation.JsonProperty");
             }
-            if (isXmlText()) {
-                imports.add("com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlText");
-            }
-        } else {
-            imports.add("com.fasterxml.jackson.annotation.JsonProperty");
         }
     }
 

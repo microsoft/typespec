@@ -30,6 +30,7 @@ export interface EmitterOptions {
 
   "enable-sync-stack"?: boolean;
   "stream-style-serialization"?: boolean;
+  "use-object-for-unknown"?: boolean;
 
   "partial-update"?: boolean;
   "models-subpackage"?: string;
@@ -77,6 +78,7 @@ const EmitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
 
     "enable-sync-stack": { type: "boolean", nullable: true, default: true },
     "stream-style-serialization": { type: "boolean", nullable: true, default: true },
+    "use-object-for-unknown": { type: "boolean", nullable: true, default: true },
 
     // customization
     "partial-update": { type: "boolean", nullable: true, default: false },
