@@ -163,7 +163,7 @@ describe("@attribute", () => {
     });
   });
 
-  it("warning if attribute is object array", async () => {
+  it("warning if attribute is array object", async () => {
     const runner = await createOpenAPITestRunner();
     const diagnostics = await runner.diagnose(
       `model Tag {
@@ -176,7 +176,7 @@ describe("@attribute", () => {
     );
     expectDiagnostics(diagnostics, {
       code: "@typespec/openapi3/xml-attribute-ignored-property-type",
-      message: `The XML Attribute can only be primitive types in the OpenAPI 3 emitter, Property 'tags' will be ignored.`,
+      message: `The XML Attribute cannot used on array properties or primitive ones in the OpenAPI 3 emitter, it will be ignored on property 'tags'.`,
     });
   });
 
