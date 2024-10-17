@@ -25,6 +25,6 @@ namespace UnbrandedTypeSpec.Models
         }
 
         /// <summary> name of the ModelWithProjectedName. </summary>
-        public string Name { get; set; }
+        public string Name { get; }
     }
 }
