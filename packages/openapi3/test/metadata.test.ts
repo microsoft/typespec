@@ -610,6 +610,7 @@ describe("openapi3: metadata", () => {
        @query q: string;
        @path p: string;
        @header h: string;
+       @cookie c: string;
       }
       @route("/single") @get op single(...Parameters): string;
       @route("/batch") @get op batch(@bodyRoot _: Parameters[]): string;
@@ -623,6 +624,7 @@ describe("openapi3: metadata", () => {
             { $ref: "#/components/parameters/Parameters.q" },
             { $ref: "#/components/parameters/Parameters.p" },
             { $ref: "#/components/parameters/Parameters.h" },
+            { $ref: "#/components/parameters/Parameters.c" },
           ],
           responses: {
             "200": {
@@ -677,10 +679,19 @@ describe("openapi3: metadata", () => {
           required: true,
           schema: { type: "string" },
         },
+        "Parameters.c": {
+          name: "c",
+          in: "cookie",
+          required: true,
+          schema: { type: "string" },
+        },
       },
       schemas: {
         Parameters: {
           properties: {
+            c: {
+              type: "string",
+            },
             h: {
               type: "string",
             },
@@ -691,7 +702,7 @@ describe("openapi3: metadata", () => {
               type: "string",
             },
           },
-          required: ["q", "p", "h"],
+          required: ["q", "p", "h", "c"],
           type: "object",
         },
       },
@@ -704,6 +715,7 @@ describe("openapi3: metadata", () => {
       @route("/test") @post op test(
         @query q: string;
         @header h: string;
+        @cookie c: string;
         foo: string;
         bar: int32;
       ): string;
@@ -724,6 +736,12 @@ describe("openapi3: metadata", () => {
             {
               name: "h",
               in: "header",
+              required: true,
+              schema: { type: "string" },
+            },
+            {
+              name: "c",
+              in: "cookie",
               required: true,
               schema: { type: "string" },
             },
@@ -766,6 +784,7 @@ describe("openapi3: metadata", () => {
         @query q: string;
         @path p: string;
         @header h: string;
+        @cookie c: string;
       }
       @route("/batch") @post op batch(@bodyRoot body?: Parameters[]): string;
       `,
@@ -799,6 +818,9 @@ describe("openapi3: metadata", () => {
       schemas: {
         Parameters: {
           properties: {
+            c: {
+              type: "string",
+            },
             h: {
               type: "string",
             },
@@ -809,7 +831,7 @@ describe("openapi3: metadata", () => {
               type: "string",
             },
           },
-          required: ["q", "p", "h"],
+          required: ["q", "p", "h", "c"],
           type: "object",
         },
       },
