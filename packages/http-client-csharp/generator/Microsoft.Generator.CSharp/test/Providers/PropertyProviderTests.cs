@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
@@ -69,9 +70,9 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         }
 
         [TestCaseSource(nameof(CollectionPropertyTestCases))]
-        public void CollectionProperty(CSharpType coreType, InputModelProperty collectionProperty, CSharpType expectedType, bool expectedHasSetter)
+        public void CollectionProperty(CSharpType coreType, InputModelType inputModel, CSharpType expectedType)
         {
-            InputFactory.Model("TestModel", properties: [collectionProperty]);
+            var collectionProperty = inputModel.Properties.Single();
             var property = new PropertyProvider(collectionProperty, new TestTypeProvider());
             Assert.AreEqual(collectionProperty.Name.ToCleanName(), property.Name);
             Assert.AreEqual(expectedType, property.Type);
@@ -81,35 +82,15 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             Assert.IsNotNull(propertyAsParam);
             Assert.AreEqual(collectionProperty.Name.ToVariableName(), propertyAsParam.Name);
             Assert.AreEqual(expectedType, propertyAsParam.Type);
-            Assert.AreEqual(expectedHasSetter, property.Body.HasSetter);
         }
 
-        [TestCase(InputModelTypeUsage.Input, true)]
-        [TestCase(InputModelTypeUsage.Input | InputModelTypeUsage.Output, true)]
-        [TestCase(InputModelTypeUsage.Output, false)]
-        [TestCase(InputModelTypeUsage.Json | InputModelTypeUsage.Output, false)]
-        [TestCase(InputModelTypeUsage.Json, false)]
-        public void UsageInfluencesSetterForNonCollectionProperties(InputModelTypeUsage usage, bool expectedHasSetter)
+        [TestCaseSource(nameof(BodyHasSetterTestCases))]
+        public void BodyHasSetterValidation(string name, InputModelType inputModel, bool expectedHasSetter)
         {
-            InputModelProperty inputModelProperty = InputFactory.Property("prop1", InputPrimitiveType.String, wireName: "prop1", isRequired: true);
-            InputFactory.Model("TestModel", properties: [inputModelProperty], usage: usage);
-            var property = new PropertyProvider(inputModelProperty, new TestTypeProvider());
-            Assert.AreEqual(inputModelProperty.Name.ToCleanName(), property.Name);
-            Assert.AreEqual(expectedHasSetter, property.Body.HasSetter);
-        }
+            var collectionProperty = inputModel.Properties.Single();
+            var property = new PropertyProvider(collectionProperty, new TestTypeProvider());
 
-        [TestCase(InputModelTypeUsage.Input)]
-        [TestCase(InputModelTypeUsage.Input | InputModelTypeUsage.Output)]
-        [TestCase(InputModelTypeUsage.Output)]
-        [TestCase(InputModelTypeUsage.Json | InputModelTypeUsage.Output)]
-        [TestCase(InputModelTypeUsage.Json)]
-        public void UsageIsIgnoredForDeterminingSetterForCollectionProperties(InputModelTypeUsage usage)
-        {
-            InputModelProperty inputModelProperty = InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.String), wireName: "prop1", isRequired: true);
-            InputFactory.Model("TestModel", properties: [inputModelProperty], usage: usage);
-            var property = new PropertyProvider(inputModelProperty, new TestTypeProvider());
-            Assert.AreEqual(inputModelProperty.Name.ToCleanName(), property.Name);
-            Assert.IsFalse(property.Body.HasSetter);
+            Assert.AreEqual(expectedHasSetter, property.Body.HasSetter);
         }
 
         private static IEnumerable<TestCaseData> CollectionPropertyTestCases()
@@ -117,27 +98,60 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             // List<string> -> IReadOnlyList<string>
             yield return new TestCaseData(
                 new CSharpType(typeof(IList<>), typeof(string)),
-                InputFactory.Property("readOnlyCollection", InputFactory.Array(InputPrimitiveType.String), isRequired: true, isReadOnly: true),
-                new CSharpType(typeof(IReadOnlyList<>), typeof(string)),
-                false);
+                InputFactory.Model("TestModel", properties: [InputFactory.Property("readOnlyCollection", InputFactory.Array(InputPrimitiveType.String), isRequired: true, isReadOnly: true)]),
+                new CSharpType(typeof(IReadOnlyList<>), typeof(string)));
             // List<string> -> IReadOnlyList<string>
             yield return new TestCaseData(
                 new CSharpType(typeof(IList<>), typeof(string)),
-                InputFactory.Property("readOnlyCollection", new InputNullableType(InputFactory.Array(InputPrimitiveType.String)), isRequired: true, isReadOnly: false),
+                InputFactory.Model("TestModel", usage: InputModelTypeUsage.Output, properties: [InputFactory.Property("readOnlyCollection", new InputNullableType(InputFactory.Array(InputPrimitiveType.String)), isRequired: true, isReadOnly: false)]),
                 new CSharpType(typeof(IList<>), isNullable: true, typeof(string)),
                 true);
             // Dictionary<string, int> -> IReadOnlyDictionary<string, int>
             yield return new TestCaseData(
                 new CSharpType(typeof(IDictionary<,>), typeof(string), typeof(int)),
-                InputFactory.Property("readOnlyDictionary", InputFactory.Dictionary(InputPrimitiveType.Int32), isRequired: true, isReadOnly: true),
+                InputFactory.Model("TestModel", properties: [InputFactory.Property("readOnlyDictionary", InputFactory.Dictionary(InputPrimitiveType.Int32), isRequired: true, isReadOnly: true)]),
                 new CSharpType(typeof(IReadOnlyDictionary<,>), typeof(string), typeof(int)),
                 false);
-            // string -> string
+        }
+
+        private static IEnumerable<TestCaseData> BodyHasSetterTestCases()
+        {
             yield return new TestCaseData(
-                new CSharpType(typeof(string)),
-                InputFactory.Property("stringProperty", InputPrimitiveType.String, isRequired: true, isReadOnly: true),
-                new CSharpType(typeof(string)),
+                "readOnlyString",
+                InputFactory.Model("TestModel", properties: [InputFactory.Property("readOnlyString", InputPrimitiveType.String, isRequired: true, isReadOnly: true)]),
                 false);
+            yield return new TestCaseData(
+                "readOnlyStringOnInputModel",
+                InputFactory.Model("TestModel", usage: InputModelTypeUsage.Input, properties: [InputFactory.Property("readOnlyString", InputPrimitiveType.Int32, isRequired: true, isReadOnly: true)]),
+                false);
+            yield return new TestCaseData(
+                "intOnInputModel",
+                InputFactory.Model("TestModel", usage: InputModelTypeUsage.Input, properties: [InputFactory.Property("intProperty", InputPrimitiveType.Int32, isRequired: true)]),
+                true);
+            yield return new TestCaseData(
+                "readOnlyCollectionOnOutputModel",
+                InputFactory.Model("TestModel", usage: InputModelTypeUsage.Output, properties: [InputFactory.Property("readOnlyCollection", new InputNullableType(InputFactory.Array(InputPrimitiveType.String)), isRequired: true, isReadOnly: true)]),
+                false);
+            yield return new TestCaseData(
+                "readOnlyCollectionOnInputOutputModel",
+                InputFactory.Model("TestModel", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output, properties: [InputFactory.Property("readOnlyCollection", new InputNullableType(InputFactory.Array(InputPrimitiveType.String)), isRequired: true, isReadOnly: true)]),
+                false);
+            yield return new TestCaseData(
+                "nullableCollectionOnOutputModel",
+                InputFactory.Model("TestModel", usage: InputModelTypeUsage.Output, properties: [InputFactory.Property("nullableCollection", new InputNullableType(InputFactory.Array(InputPrimitiveType.String)), isRequired: true, isReadOnly: false)]),
+                true);
+            yield return new TestCaseData(
+                "readOnlyDictionaryOnOutputModel",
+                InputFactory.Model("TestModel", usage: InputModelTypeUsage.Output, properties: [InputFactory.Property("readOnlyDictionary", InputFactory.Dictionary(InputPrimitiveType.Int32), isRequired: true)]),
+                false);
+            yield return new TestCaseData(
+                "readOnlyDictionaryOnInputOutputModel",
+                InputFactory.Model("TestModel", usage: InputModelTypeUsage.Output | InputModelTypeUsage.Input, properties: [InputFactory.Property("readOnlyDictionary", InputFactory.Dictionary(InputPrimitiveType.Int32), isRequired: true)]),
+                false);
+            yield return new TestCaseData(
+                "nullableDictionaryOnOutputModel",
+                InputFactory.Model("TestModel", usage: InputModelTypeUsage.Output, properties: [InputFactory.Property("nullableDictionary", new InputNullableType(InputFactory.Dictionary(InputPrimitiveType.String)), isRequired: true, isReadOnly: false)]),
+                true);
         }
     }
 }

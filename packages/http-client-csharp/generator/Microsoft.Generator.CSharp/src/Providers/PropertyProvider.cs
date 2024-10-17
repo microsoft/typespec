@@ -154,11 +154,6 @@ namespace Microsoft.Generator.CSharp.Providers
                 return false;
             }
 
-            if (!inputProperty.EnclosingType!.Usage.HasFlag(InputModelTypeUsage.Input))
-            {
-                return false;
-            }
-
             if (type.IsLiteral && inputProperty.IsRequired)
             {
                 return false;
@@ -167,6 +162,11 @@ namespace Microsoft.Generator.CSharp.Providers
             if (type.IsCollection && !type.IsReadOnlyMemory)
             {
                 return type.IsNullable;
+            }
+
+            if (!inputProperty.EnclosingType!.Usage.HasFlag(InputModelTypeUsage.Input))
+            {
+                return false;
             }
 
             return true;
