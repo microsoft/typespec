@@ -147,10 +147,6 @@ export function getCookieParamOptions(program: Program, entity: Type): QueryPara
   return program.stateMap(HttpStateKeys.cookie).get(entity);
 }
 
-export function getCookieParamName(program: Program, entity: Type): string {
-  return getCookieParamOptions(program, entity)?.name;
-}
-
 export function isCookieParam(program: Program, entity: Type) {
   return program.stateMap(HttpStateKeys.cookie).has(entity);
 }
