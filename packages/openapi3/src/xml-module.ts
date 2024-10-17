@@ -94,20 +94,30 @@ export async function resolveXmlModule(): Promise<XmlModule | undefined> {
       }
 
       // Set XML attribute if present
-      if (xml.isAttribute(program, prop)) {
-        if (prop.type?.kind === "Model") {
+      const isArrayProperty = prop.type?.kind === "Model" && isArrayModelType(program, prop.type);
+      const isAttribute = xml.isAttribute(program, prop);
+      if (isAttribute) {
+        if (prop.type?.kind === "Model" && isArrayProperty) {
           reportDiagnostic(program, {
-            code: "xml-attribute-invalid-property-type",
+            code: "xml-attribute-ignored-property-type",
             format: { name: prop.name },
             target: prop,
           });
-          emitObject.type = "string";
+        } else {
+          if (prop.type?.kind === "Model") {
+            reportDiagnostic(program, {
+              code: "xml-attribute-invalid-property-type",
+              format: { name: prop.name },
+              target: prop,
+            });
+
+            emitObject.type = "string";
+          }
+          xmlObject.attribute = true;
         }
-        xmlObject.attribute = true;
       }
 
       // Handle array wrapping if necessary
-      const isArrayProperty = prop.type?.kind === "Model" && isArrayModelType(program, prop.type);
       const hasUnwrappedDecorator = xml.isUnwrapped(program, prop);
       if (!isArrayProperty && hasUnwrappedDecorator) {
         reportDiagnostic(program, {
@@ -148,7 +158,7 @@ export async function resolveXmlModule(): Promise<XmlModule | undefined> {
         }
       }
 
-      if (!isArrayProperty && !refSchema.type) {
+      if (!isArrayProperty && !refSchema.type && !isAttribute) {
         emitObject.allOf = new ArrayBuilder(refSchema as any);
         xmlObject.name = xmlName;
       }

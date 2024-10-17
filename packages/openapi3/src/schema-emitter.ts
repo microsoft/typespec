@@ -402,10 +402,14 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       if (Object.keys(additionalProps).length === 0) {
         return schema;
       } else {
-        return {
-          allOf: [schema],
-          ...additionalProps,
-        };
+        if (additionalProps.xml?.attribute) {
+          return additionalProps;
+        } else {
+          return {
+            allOf: [schema],
+            ...additionalProps,
+          };
+        }
       }
     } else {
       if (getOneOf(program, prop) && schema.anyOf) {
