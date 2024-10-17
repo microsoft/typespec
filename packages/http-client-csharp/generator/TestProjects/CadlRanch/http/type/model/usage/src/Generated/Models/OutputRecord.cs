@@ -6,10 +6,6 @@ namespace _Type.Model.Usage.Models
 {
     public partial class OutputRecord
     {
-        public string RequiredProp
-        {
-            get => throw null;
-            set => throw null;
-        }
+        public string RequiredProp => throw null;
     }
 }
