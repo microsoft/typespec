@@ -1,0 +1,11 @@
+---
+import { link } from "@site/src/utils";
+import type { HTMLAttributes } from "astro/types";
+
+export interface LinkProps extends HTMLAttributes<"a"> {}
+const { href, children, ...props } = Astro.props;
+---
+
+<a href={link(href)} {...props}>
+  <slot />
+</a>

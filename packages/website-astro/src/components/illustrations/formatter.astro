@@ -1,0 +1,79 @@
+---
+import { Code } from "@astrojs/starlight/components";
+import notFormattedTsp from "@site/src/assets/tsp-samples/tooling/formatter/file.noformat.tsp?raw";
+import formattedTsp from "@site/src/assets/tsp-samples/tooling/formatter/formatted.tsp?raw";
+---
+
+<style>
+  .formatter-illustration {
+    --animation-duration: 6s;
+    width: 100%;
+    height: 420px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .formatter-illustration > * {
+    width: 100%;
+    height: 416px;
+  }
+
+  .formatter-illustration-formatted {
+    position: absolute;
+    opacity: 0;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    animation: fade var(--animation-duration) infinite alternate;
+  }
+
+  .formatter-illustration-codeblock {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  @keyframes fade {
+    0% {
+      opacity: 0;
+    }
+    40% {
+      opacity: 0;
+    }
+    60% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  .badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 200;
+    padding: 2px 5px;
+    border-radius: 4px;
+    color: #fefefe;
+  }
+
+  .formatter-illustration-unformatted .badge {
+    background-color: var(--colorStatusWarningForeground1);
+    animation: fade var(--animation-duration) infinite alternate-reverse;
+  }
+  .formatter-illustration-formatted .badge {
+    background-color: var(--colorBrandBackground);
+    animation: fade var(--animation-duration) infinite alternate;
+  }
+</style>
+
+<div class="formatter-illustration">
+  <div class="formatter-illustration-unformatted">
+    <div class="badge">Unformatted</div>
+    <Code lang="tsp" class="formatter-illustration-codeblock" code={notFormattedTsp} />
+  </div>
+  <div class="formatter-illustration-formatted">
+    <div class="badge">Formatted</div>
+    <Code lang="tsp" class="formatter-illustration-codeblock" code={formattedTsp} />
+  </div>
+</div>

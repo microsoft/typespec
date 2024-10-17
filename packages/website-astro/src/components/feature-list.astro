@@ -1,0 +1,64 @@
+---
+import FluentImg from "./fluent-img.astro";
+import Link from "./link.astro";
+import { DescriptionText, NeutralText, Text } from "./text/text";
+import type { FluentImageName } from "./types";
+
+interface FeatureListItem {
+  title: string;
+  description?: string;
+  image?: FluentImageName;
+  link?: string;
+}
+
+export interface Props {
+  items?: FeatureListItem[];
+}
+
+const { items } = Astro.props;
+---
+
+<style>
+  .items-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  .item {
+    display: flex;
+    gap: 12px;
+  }
+
+  .item-image {
+    width: 64px;
+    height: 64px;
+    max-width: 64px;
+  }
+
+  .item-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+</style>
+
+<div class="items-list">
+  {
+    items?.map(({ image, description, link, title }) => (
+      <div class="item">
+        {image && <FluentImg class="item-image" name={image} />}
+        <div class="item-content">
+          <NeutralText size={"large"}>{title}</NeutralText>
+          <DescriptionText>{description}</DescriptionText>
+          {link && (
+            <Link href={link}>
+              <Text>Learn more →</Text>
+            </Link>
+          )}
+        </div>
+      </div>
+    ))
+  }
+</div>

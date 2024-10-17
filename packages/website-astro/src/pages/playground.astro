@@ -2,6 +2,8 @@
 import { AsyncPlayground } from "../components/react-pages/playground";
 import FluentUILayout from "@site/src/layouts/fluentui.astro";
 import packageJson from "../../../compiler/package.json";
+import { LoadingSpinner } from "../components/playground-component/loading-spinner";
+import BaseLayout from "../layouts/base-layout.astro";
 
 function getMajorMinorVersion(): string {
   const version = packageJson.version;
@@ -23,8 +25,10 @@ const latestVersion = getMajorMinorVersion();
     shimMode: true,
   })}
 />
-<FluentUILayout>
+<BaseLayout footer={false}>
   <div style={{ height: "calc(100vh - var(--header-height))", width: "100%" }}>
-    <AsyncPlayground client:only="react" latestVersion={latestVersion} />
+    <AsyncPlayground client:only="react" latestVersion={latestVersion}>
+      <LoadingSpinner slot="fallback" message="Loading playground..." />
+    </AsyncPlayground>
   </div>
-</FluentUILayout>
+</BaseLayout>

@@ -1,4 +1,3 @@
-import { Spinner } from "@fluentui/react-components";
 import style from "./loading-spinner.module.css";
 
 export interface LoadingSpinnerProps {
@@ -7,7 +6,11 @@ export interface LoadingSpinnerProps {
 export const LoadingSpinner = ({ message }: LoadingSpinnerProps) => {
   return (
     <div className={style["container"]}>
-      <Spinner />
+      <div className={style["progress-bar"]}>
+        <span className={style["spinner"]}>
+          <span className={style["spinner-tail"]}></span>
+        </span>
+      </div>
       <div>{message}</div>
     </div>
   );
