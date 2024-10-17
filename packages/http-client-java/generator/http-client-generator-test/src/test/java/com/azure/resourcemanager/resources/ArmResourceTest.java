@@ -1,33 +1,34 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.resourcemanager.models.resources;
+package com.azure.resourcemanager.resources;
 
 import com.azure.core.management.Region;
 import com.azure.core.util.Context;
-import com.azure.resourcemanager.models.resources.models.NestedProxyResource;
-import com.azure.resourcemanager.models.resources.models.NestedProxyResourceProperties;
-import com.azure.resourcemanager.models.resources.models.NotificationDetails;
-import com.azure.resourcemanager.models.resources.models.ProvisioningState;
-import com.azure.resourcemanager.models.resources.models.TopLevelTrackedResource;
-import com.azure.resourcemanager.models.resources.models.TopLevelTrackedResourceProperties;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.azure.resourcemanager.resources.models.NestedProxyResource;
+import com.azure.resourcemanager.resources.models.NestedProxyResourceProperties;
+import com.azure.resourcemanager.resources.models.NotificationDetails;
+import com.azure.resourcemanager.resources.models.ProvisioningState;
+import com.azure.resourcemanager.resources.models.TopLevelTrackedResource;
+import com.azure.resourcemanager.resources.models.TopLevelTrackedResourceProperties;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.utils.ArmUtils;
 
 public class ArmResourceTest {
     private static final String TOP_LEVEL_TRACKED_RESOURCE_ID
-        = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.Models.Resources/topLevelTrackedResources/top";
+        = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/top";
     private static final String TOP_LEVEL_TRACKED_RESOURCE_NAME = "top";
     private static final String TOP_LEVEL_TRACKED_RESOURCE_TYPE
-        = "Azure.ResourceManager.Models.Resources/topLevelTrackedResources";
+        = "Azure.ResourceManager.Resources/topLevelTrackedResources";
     private static final String NESTED_PROXY_RESOURCE_ID
-        = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.Models.Resources/topLevelTrackedResources/top/nestedProxyResources/nested";
+        = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/top/nestedProxyResources/nested";
     private static final String NESTED_PROXY_RESOURCE_NAME = "nested";
     private static final String NESTED_PROXY_RESOURCE_TYPE
-        = "Azure.ResourceManager.Models.Resources/topLevelTrackedResources/top/nestedProxyResources";
+        = "Azure.ResourceManager.Resources/topLevelTrackedResources/top/nestedProxyResources";
     private static final Region TOP_LEVEL_TRACKED_RESOURCE_REGION = Region.US_EAST;
     private static final String RESOURCE_DESCRIPTION_VALID = "valid";
     private static final String RESOURCE_DESCRIPTION_VALID2 = "valid2";
@@ -40,7 +41,7 @@ public class ArmResourceTest {
     @Test
     public void testTopLevelTrackedResource() {
         // TopLevelTrackedResources.createOrReplace
-        TopLevelTrackedResource topLevelTrackedResource = manager.topLevelTrackedResources()
+        TopLevelTrackedResource topLevelTrackedResource = manager.topLevels()
             .define(TOP_LEVEL_TRACKED_RESOURCE_NAME)
             .withRegion(Region.US_EAST)
             .withExistingResourceGroup(RESOURCE_GROUP_NAME)
@@ -54,7 +55,7 @@ public class ArmResourceTest {
         Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, topLevelTrackedResource.properties().description());
         Assertions.assertEquals(RESOURCE_PROVISIONING_STATE, topLevelTrackedResource.properties().provisioningState());
 
-        manager.topLevelTrackedResources()
+        manager.topLevels()
             .actionSync(RESOURCE_GROUP_NAME, TOP_LEVEL_TRACKED_RESOURCE_NAME,
                 new NotificationDetails().withMessage(NOTIFICATION_DETAILS_MESSAGE).withUrgent(true));
 
@@ -62,7 +63,7 @@ public class ArmResourceTest {
             .actionSync(new NotificationDetails().withMessage(NOTIFICATION_DETAILS_MESSAGE).withUrgent(true));
 
         // TopLevelTrackedResources.listByResourceGroup
-        List<TopLevelTrackedResource> topLevelTrackedResourceList = manager.topLevelTrackedResources()
+        List<TopLevelTrackedResource> topLevelTrackedResourceList = manager.topLevels()
             .listByResourceGroup(RESOURCE_GROUP_NAME)
             .stream()
             .collect(Collectors.toList());
@@ -77,7 +78,7 @@ public class ArmResourceTest {
         Assertions.assertEquals(RESOURCE_PROVISIONING_STATE, topLevelTrackedResource.properties().provisioningState());
 
         // TopLevelTrackedResources.listBySubscription
-        topLevelTrackedResourceList = manager.topLevelTrackedResources()
+        topLevelTrackedResourceList = manager.topLevels()
             .list()
             .stream()
             .filter(resource -> TOP_LEVEL_TRACKED_RESOURCE_ID.equals(resource.id()))
@@ -93,7 +94,7 @@ public class ArmResourceTest {
         Assertions.assertEquals(RESOURCE_PROVISIONING_STATE, topLevelTrackedResource.properties().provisioningState());
 
         // TopLevelTrackedResources.get
-        topLevelTrackedResource = manager.topLevelTrackedResources()
+        topLevelTrackedResource = manager.topLevels()
             .getByResourceGroup(RESOURCE_GROUP_NAME, TOP_LEVEL_TRACKED_RESOURCE_NAME);
         Assertions.assertEquals(TOP_LEVEL_TRACKED_RESOURCE_ID, topLevelTrackedResource.id());
         Assertions.assertEquals(TOP_LEVEL_TRACKED_RESOURCE_NAME, topLevelTrackedResource.name());
@@ -116,13 +117,13 @@ public class ArmResourceTest {
         Assertions.assertEquals(RESOURCE_PROVISIONING_STATE, topLevelTrackedResource.properties().provisioningState());
 
         // TopLevelTrackedResources.delete
-        manager.topLevelTrackedResources().delete(RESOURCE_GROUP_NAME, TOP_LEVEL_TRACKED_RESOURCE_NAME, Context.NONE);
+        manager.topLevels().delete(RESOURCE_GROUP_NAME, TOP_LEVEL_TRACKED_RESOURCE_NAME, Context.NONE);
     }
 
     @Test
     public void testNestedProxyResource() {
         // NestedProxyResources.createOrReplace
-        NestedProxyResource nestedProxyResource = manager.nestedProxyResources()
+        NestedProxyResource nestedProxyResource = manager.nesteds()
             .define(NESTED_PROXY_RESOURCE_NAME)
             .withExistingTopLevelTrackedResource(RESOURCE_GROUP_NAME, TOP_LEVEL_TRACKED_RESOURCE_NAME)
             .withProperties(new NestedProxyResourceProperties().withDescription(RESOURCE_DESCRIPTION_VALID))
@@ -135,7 +136,7 @@ public class ArmResourceTest {
         Assertions.assertEquals(RESOURCE_PROVISIONING_STATE, nestedProxyResource.properties().provisioningState());
 
         // NestedProxyResources.listByTopLevelTrackedResource
-        List<NestedProxyResource> nestedProxyResourceList = manager.nestedProxyResources()
+        List<NestedProxyResource> nestedProxyResourceList = manager.nesteds()
             .listByTopLevelTrackedResource(RESOURCE_GROUP_NAME, TOP_LEVEL_TRACKED_RESOURCE_NAME)
             .stream()
             .collect(Collectors.toList());
@@ -149,7 +150,7 @@ public class ArmResourceTest {
         Assertions.assertEquals(RESOURCE_PROVISIONING_STATE, nestedProxyResource.properties().provisioningState());
 
         // NestedProxyResources.get
-        nestedProxyResource = manager.nestedProxyResources()
+        nestedProxyResource = manager.nesteds()
             .get(RESOURCE_GROUP_NAME, TOP_LEVEL_TRACKED_RESOURCE_NAME, NESTED_PROXY_RESOURCE_NAME);
         Assertions.assertEquals(NESTED_PROXY_RESOURCE_ID, nestedProxyResource.id());
         Assertions.assertEquals(NESTED_PROXY_RESOURCE_NAME, nestedProxyResource.name());
@@ -170,7 +171,7 @@ public class ArmResourceTest {
         Assertions.assertEquals(RESOURCE_PROVISIONING_STATE, nestedProxyResource.properties().provisioningState());
 
         // NestedProxyResources.delete
-        manager.nestedProxyResources()
+        manager.nesteds()
             .delete(RESOURCE_GROUP_NAME, TOP_LEVEL_TRACKED_RESOURCE_NAME, NESTED_PROXY_RESOURCE_NAME);
     }
 }
