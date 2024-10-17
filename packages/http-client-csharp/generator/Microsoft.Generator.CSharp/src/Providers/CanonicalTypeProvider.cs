@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
@@ -113,7 +114,7 @@ namespace Microsoft.Generator.CSharp.Providers
                         customProperty.Type.IsPublic,
                         customProperty.Type.IsStruct,
                         customProperty.Type.BaseType,
-                        TypeFactory.CreatePrimitiveCSharpTypeCore(specType!));
+                        TypeFactory.CreatePrimitiveCSharpTypeCore(specType));
                 }
             }
 
@@ -191,14 +192,17 @@ namespace Microsoft.Generator.CSharp.Providers
                         customField.Type.IsPublic,
                         customField.Type.IsStruct,
                         customField.Type.BaseType,
-                        TypeFactory.CreatePrimitiveCSharpTypeCore(specType!));
+                        TypeFactory.CreatePrimitiveCSharpTypeCore(specType));
                 }
             }
 
             return [..generatedFields, ..customFields];
         }
 
-        private static bool IsCustomizedEnumProperty(InputModelProperty? inputProperty, CSharpType customType, out InputType? specValueType)
+        private static bool IsCustomizedEnumProperty(
+            InputModelProperty? inputProperty,
+            CSharpType customType,
+            [NotNullWhen(true)] out InputType? specValueType)
         {
             var enumValueType = GetEnumValueType(inputProperty?.Type);
             if (enumValueType != null)
