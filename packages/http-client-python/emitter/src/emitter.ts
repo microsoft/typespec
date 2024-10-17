@@ -117,7 +117,7 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
       if (!fs.existsSync(outputFolder)) {
         fs.mkdirSync(outputFolder, { recursive: true });
       }
-      let pyodide = await loadPyodide({ indexURL: path.join(root, "node_modules", "pyodide") });
+      const pyodide = await loadPyodide({ indexURL: path.join(root, "node_modules", "pyodide") });
       pyodide.FS.mount(pyodide.FS.filesystems.NODEFS, { root: "." }, ".");
       const yamlStr = jsyaml.dump(yamlMap);
       if (!fs.existsSync("temp")) {
