@@ -299,14 +299,9 @@ export interface HeaderFieldOptions {
   format?: "csv" | "multi" | "ssv" | "tsv" | "pipes" | "simple" | "form";
 }
 
-export interface CookieParameterOptions extends Required<Omit<CookieOptions, "format">> {
+export interface CookieParameterOptions extends Required<CookieOptions> {
   type: "cookie";
   name: string;
-  /**
-   * The string format of the array. "csv" and "simple" are used interchangeably, as are
-   * "multi" and "form".
-   */
-  format?: "csv" | "multi" | "ssv" | "tsv" | "pipes" | "simple" | "form";
 }
 
 export interface QueryParameterOptions extends Required<Omit<QueryOptions, "format">> {

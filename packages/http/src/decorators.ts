@@ -136,12 +136,9 @@ export const $cookie: CookieDecorator = (
       ? cookieNameOrOptions
       : (cookieNameOrOptions?.name ??
         entity.name.replace(/([a-z])([A-Z])/g, "$1_$2").toLowerCase());
-  const userOptions = typeof cookieNameOrOptions === "object" ? cookieNameOrOptions : {};
   const options: CookieParameterOptions = {
     type: "cookie",
     name: paramName,
-    explode: userOptions.explode ?? true,
-    format: "form",
   };
   context.program.stateMap(HttpStateKeys.cookie).set(entity, options);
 };

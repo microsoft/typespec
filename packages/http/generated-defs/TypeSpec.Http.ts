@@ -9,7 +9,6 @@ import type {
 
 export interface CookieOptions {
   readonly name?: string;
-  readonly explode?: boolean;
 }
 
 export interface QueryOptions {

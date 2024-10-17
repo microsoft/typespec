@@ -201,30 +201,6 @@ describe("http: decorators", () => {
 
       strictEqual(getCookieParamName(runner.program, myCookie), "my-cookie");
     });
-
-    it("set default explode: true", async () => {
-      const { myCookie } = await runner.compile(`
-        op test(@test @cookie myCookie: string): string;
-      `);
-      expect(getCookieParamOptions(runner.program, myCookie)).toEqual({
-        type: "cookie",
-        name: "my_cookie",
-        explode: true,
-        format: "form",
-      });
-    });
-
-    it("specify explode: false", async () => {
-      const { myCookie } = await runner.compile(`
-        op test(@test @cookie(#{explode: false}) myCookie: string): string;
-      `);
-      expect(getCookieParamOptions(runner.program, myCookie)).toEqual({
-        type: "cookie",
-        name: "my_cookie",
-        explode: false,
-        format: "form",
-      });
-    });
   });
 
   describe("@query", () => {

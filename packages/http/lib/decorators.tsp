@@ -47,17 +47,6 @@ model CookieOptions {
    * Name in the cookie.
    */
   name?: string;
-
-  /**
-   * If false the value will be joined with `,`.
-   *
-   *  | Style | Explode | Uri Template | Primitive value id = 5 | Array id = [3, 4, 5] | Object id = {"role": "admin", "firstName": "Alex"} |
-   *  | ----- | ------- | -------------| ---------------------- | -------------------- | -------------------------------------------------- |
-   *  | form  | true    | `         `  | `Cookie: id=5`         |                      |                                                    |
-   *  | form  | false   | `id={id}`    | `Cookie: id=5`         | `Cookie: id=3,4,5   `| `Cookie: id=role,admin,firstName,Alex`             |
-   *
-   */
-  explode?: boolean;
 }
 
 /**
