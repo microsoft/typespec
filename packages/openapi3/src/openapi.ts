@@ -1409,6 +1409,10 @@ function createOAPIEmitter(
     switch (parameter.type) {
       case "header":
         return mapHeaderParameterFormat(parameter);
+      case "cookie":
+        // style and explode options are omitted for cookies
+        // https://github.com/microsoft/typespec/pull/4761#discussion_r1803365689
+        return {};
       case "query":
         return getQueryParameterAttributes(parameter);
       case "path":
