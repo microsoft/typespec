@@ -1,0 +1,6 @@
+{
+  "output-folder": ".",
+  "namespace": "Server.Path.Multiple",
+  "library-name": "Server.Path.Multiple",
+  "use-model-reader-writer": true
+}
