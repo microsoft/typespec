@@ -55,7 +55,7 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 type = type.WithNullable(true);
             }
-            Type = type;
+            Type = type.InputType;
             Validation = inputParameter.IsRequired && !Type.IsValueType && !Type.IsNullable
                 ? ParameterValidationType.AssertNotNull
                 : ParameterValidationType.None;

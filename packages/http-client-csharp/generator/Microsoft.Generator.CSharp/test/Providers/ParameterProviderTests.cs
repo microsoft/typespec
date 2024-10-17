@@ -52,6 +52,15 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             Assert.AreEqual(ParameterValidationType.None, parameter.Validation);
         }
 
+        [Test]
+        public void ArraysAreConvertedToIEnumerable()
+        {
+            MockHelpers.LoadMockPlugin();
+            var inputType = InputFactory.Parameter("testParam", InputFactory.Array(InputPrimitiveType.String), isRequired: true);
+            var parameter = CodeModelPlugin.Instance.TypeFactory.CreateParameter(inputType);
+            Assert.IsTrue(parameter.Type.Equals(typeof(IEnumerable<string>)));
+        }
+
         private static IEnumerable<InputType> ValueInputTypes()
         {
             yield return InputPrimitiveType.Int32;
