@@ -278,7 +278,7 @@ export const libDef = {
     "xml-unwrapped-invalid-property-type": {
       severity: "warning",
       messages: {
-        default: paramMessage`The XML Unwrapped can only used on array properties or primitive ones in the OpenAPI 3 emitter, Property '${"name"}' will be ignored.`,
+        default: paramMessage`XML \`@unwrapped\` can only used on array properties or primitive ones in the OpenAPI 3 emitter, Property '${"name"}' will be ignored.`,
       },
     },
   },
