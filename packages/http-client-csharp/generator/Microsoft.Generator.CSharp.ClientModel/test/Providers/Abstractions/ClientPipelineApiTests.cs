@@ -20,7 +20,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.Abstractions
         }
 
         [Test]
-        public void ValidateBodyOfRestCientOperationIsOverridden()
+        public void ValidateBodyOfRestClientOperationIsOverridden()
         {
             var clientProvider = CreateTestClient();
             var restClient = clientProvider.RestClient;

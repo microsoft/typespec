@@ -18,7 +18,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.Abstractions
         {
             ClientProvider clientProvider = CreateMockClientProvider();
 
-            // grap the sync version of the method from the client provider
+            // take the sync version of the method from the client provider
             var method = clientProvider.Methods.FirstOrDefault(x => !x.Signature.Name.EndsWith("Async"));
             Assert.NotNull(method);
             Assert.NotNull(method!.Signature.ReturnType);
@@ -30,7 +30,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.Abstractions
         {
             var clientProvider = CreateMockClientProvider();
 
-            // grap the sync version of the method from the client provider
+            // take the sync version of the method from the client provider
             var method = clientProvider.Methods.FirstOrDefault(x => x.Signature.Parameters.Any(p => p.Type.Equals(typeof(RequestOptions))) && !x.Signature.Name.EndsWith("Async"));
             Assert.NotNull(method);
             Assert.NotNull(method!.BodyStatements);
