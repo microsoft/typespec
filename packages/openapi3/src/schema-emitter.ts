@@ -381,12 +381,12 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       return {};
     }
 
+    const isRef = refSchema.value instanceof Placeholder || "$ref" in refSchema.value;
+
+    const schema = this.#applyEncoding(prop, refSchema.value as any);
+
     // Apply decorators on the property to the type's schema
-    const additionalProps: Partial<OpenAPI3Schema> = this.#applyConstraints(
-      prop,
-      {},
-      refSchema.value,
-    );
+    const additionalProps: Partial<OpenAPI3Schema> = this.#applyConstraints(prop, {}, schema);
     if (prop.defaultValue) {
       additionalProps.default = getDefaultValue(program, prop.defaultValue, prop);
     }
@@ -397,10 +397,6 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
     // Attach any additional OpenAPI extensions
     this.#attachExtensions(program, prop, additionalProps);
-
-    const isRef = refSchema.value instanceof Placeholder || "$ref" in refSchema.value;
-
-    const schema = this.#applyEncoding(prop, refSchema.value as any);
 
     if (schema && isRef && !(prop.type.kind === "Model" && isArrayModelType(program, prop.type))) {
       if (Object.keys(additionalProps).length === 0) {
@@ -773,7 +769,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
   #applyConstraints(
     type: Scalar | Model | ModelProperty | Union | Enum,
     original: OpenAPI3Schema,
-    ref?: Record<string, any>,
+    refSchema?: OpenAPI3Schema,
   ): ObjectBuilder<OpenAPI3Schema> {
     const schema = new ObjectBuilder(original);
     const program = this.emitter.getProgram();
@@ -834,7 +830,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
             this.#options,
             type,
             schema,
-            ref,
+            refSchema,
           );
           break;
       }

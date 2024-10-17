@@ -70,7 +70,7 @@ export async function resolveXmlModule(): Promise<XmlModule | undefined> {
       options: ResolvedOpenAPI3EmitterOptions,
       prop: ModelProperty,
       emitObject: OpenAPI3Schema,
-      ref?: Record<string, any>,
+      refSchema: OpenAPI3Schema,
     ) => {
       const xmlObject: OpenAPI3XmlSchema = {};
 
@@ -117,7 +117,7 @@ export async function resolveXmlModule(): Promise<XmlModule | undefined> {
         });
       }
 
-      if (isArrayProperty && ref && ref.items) {
+      if (isArrayProperty && refSchema.items) {
         const propValue = (prop.type as ArrayModelType).indexer.value;
         const propXmlName = hasUnwrappedDecorator
           ? xmlName
@@ -134,10 +134,10 @@ export async function resolveXmlModule(): Promise<XmlModule | undefined> {
             );
           }
           scalarSchema.xml = { name: propXmlName };
-          ref.items = scalarSchema;
+          refSchema.items = scalarSchema;
         } else {
-          ref.items = new ObjectBuilder({
-            allOf: new ArrayBuilder(ref.items),
+          refSchema.items = new ObjectBuilder({
+            allOf: new ArrayBuilder(refSchema.items as any),
             xml: { name: propXmlName },
           });
         }
@@ -148,8 +148,8 @@ export async function resolveXmlModule(): Promise<XmlModule | undefined> {
         }
       }
 
-      if (!isArrayProperty && ref && !ref.type) {
-        emitObject.allOf = new ArrayBuilder(ref as any);
+      if (!isArrayProperty && !refSchema.type) {
+        emitObject.allOf = new ArrayBuilder(refSchema as any);
         xmlObject.name = xmlName;
       }
 
