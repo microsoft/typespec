@@ -23,7 +23,7 @@ const { footer = true } = Astro.props;
       <Header />
     </header>
     <!-- pt is set according to the height of the header -->
-    <main class="pt-[4.5rem] tablet:pt-24 main">
+    <main class="main">
       <slot />
     </main>
     {footer && <Footer />}
@@ -38,6 +38,7 @@ const { footer = true } = Astro.props;
 
     .main {
       flex: 1;
+      margin-top: var(--header-height);
       background-color: var(--colorNeutralBackground1);
     }
 
