@@ -47,14 +47,14 @@ This is equivalent to:
 model Dog {}
 ```
 
-Example: decorating a model property
+Example: decorating a model property to indicate that it is read-only
 
 ```typespec
 model Dog {
   name: string;
 }
 
-@@readOnly(Dog.name);
+@@visibility(Dog.name, "read");
 ```
 
 ## Creating decorators
