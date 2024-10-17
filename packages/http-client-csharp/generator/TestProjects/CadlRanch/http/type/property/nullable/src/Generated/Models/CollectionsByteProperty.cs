@@ -11,10 +11,6 @@ namespace _Type.Property.Nullable.Models
     {
         public string RequiredProperty => throw null;
 
-        public IList<BinaryData> NullableProperty
-        {
-            get => throw null;
-            set => throw null;
-        }
+        public IList<BinaryData> NullableProperty => throw null;
     }
 }

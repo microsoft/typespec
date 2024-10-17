@@ -10,10 +10,6 @@ namespace _Type.Property.Nullable.Models
     {
         public string RequiredProperty => throw null;
 
-        public IList<InnerModel> NullableProperty
-        {
-            get => throw null;
-            set => throw null;
-        }
+        public IList<InnerModel> NullableProperty => throw null;
     }
 }
