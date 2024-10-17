@@ -176,7 +176,7 @@ describe("@attribute", () => {
     );
     expectDiagnostics(diagnostics, {
       code: "@typespec/openapi3/xml-attribute-invalid-property-type",
-      message: `The XML Attribute can only be primitive types in the OpenAPI 3 emitter, Propertie 'tags' will be ignored.`,
+      message: `The XML Attribute can only be primitive types in the OpenAPI 3 emitter, Property 'tags' will be ignored.`,
     });
   });
 });
@@ -192,7 +192,7 @@ describe("@unwrapped", () => {
     );
     expectDiagnostics(diagnostics, {
       code: "@typespec/openapi3/xml-unwrapped-invalid-property-type",
-      message: `The XML Unwrapped can only used on array properties or primitive ones in the OpenAPI 3 emitter, Propertie 'id' will be ignored.`,
+      message: `The XML Unwrapped can only used on array properties or primitive ones in the OpenAPI 3 emitter, Property 'id' will be ignored.`,
     });
   });
 });
