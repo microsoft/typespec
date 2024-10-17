@@ -99,18 +99,16 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 new CSharpType(typeof(IList<>), typeof(string)),
                 InputFactory.Property("readOnlyCollection", InputFactory.Array(InputPrimitiveType.String), isRequired: true, isReadOnly: true),
                 new CSharpType(typeof(IReadOnlyList<>), typeof(string)));
-            // List<string> -> IReadOnlyList<string>
-            yield return new TestCaseData(
-                new CSharpType(typeof(IList<>), typeof(string)),
-                InputFactory.Property("readOnlyCollection", new InputNullableType(InputFactory.Array(InputPrimitiveType.String)), isRequired: true, isReadOnly: false),
-                new CSharpType(typeof(IList<>), isNullable: true, typeof(string)),
-                true);
             // Dictionary<string, int> -> IReadOnlyDictionary<string, int>
             yield return new TestCaseData(
                 new CSharpType(typeof(IDictionary<,>), typeof(string), typeof(int)),
                 InputFactory.Property("readOnlyDictionary", InputFactory.Dictionary(InputPrimitiveType.Int32), isRequired: true, isReadOnly: true),
-                new CSharpType(typeof(IReadOnlyDictionary<,>), typeof(string), typeof(int)),
-                false);
+                new CSharpType(typeof(IReadOnlyDictionary<,>), typeof(string), typeof(int)));
+            // string -> string
+            yield return new TestCaseData(
+                new CSharpType(typeof(string)),
+                InputFactory.Property("stringProperty", InputPrimitiveType.String, isRequired: true, isReadOnly: true),
+                new CSharpType(typeof(string)));
         }
 
         private static IEnumerable<TestCaseData> BodyHasSetterTestCases()
