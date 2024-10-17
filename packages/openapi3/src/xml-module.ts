@@ -17,7 +17,7 @@ import { OpenAPI3Schema, OpenAPI3XmlSchema } from "./types.js";
 export interface XmlModule {
   attachXmlObjectForScalarOrModel(
     program: Program,
-    prop: Scalar | Model,
+    type: Scalar | Model,
     emitObject: OpenAPI3Schema,
   ): void;
 
