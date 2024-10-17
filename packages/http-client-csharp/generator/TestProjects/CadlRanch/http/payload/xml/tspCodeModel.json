@@ -716,6 +716,7 @@
      "$id": "88",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
+     "Description": "Service host",
      "Type": {
       "$id": "89",
       "kind": "url",
@@ -760,6 +761,7 @@
        "$id": "94",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "95",
         "kind": "url",
@@ -965,6 +967,7 @@
        "$id": "114",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "115",
         "kind": "url",
@@ -1170,6 +1173,7 @@
        "$id": "134",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "135",
         "kind": "url",
@@ -1375,6 +1379,7 @@
        "$id": "154",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "155",
         "kind": "url",
@@ -1580,6 +1585,7 @@
        "$id": "174",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "175",
         "kind": "url",
@@ -1785,6 +1791,7 @@
        "$id": "194",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "195",
         "kind": "url",
@@ -1990,6 +1997,7 @@
        "$id": "214",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "215",
         "kind": "url",
@@ -2195,6 +2203,7 @@
        "$id": "234",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "235",
         "kind": "url",
@@ -2400,6 +2409,7 @@
        "$id": "254",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "255",
         "kind": "url",
@@ -2605,6 +2615,7 @@
        "$id": "274",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "275",
         "kind": "url",
@@ -2810,6 +2821,7 @@
        "$id": "294",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "295",
         "kind": "url",
@@ -3015,6 +3027,7 @@
        "$id": "314",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "315",
         "kind": "url",
