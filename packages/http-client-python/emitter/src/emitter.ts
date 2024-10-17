@@ -7,15 +7,15 @@ import {
 import { EmitContext } from "@typespec/compiler";
 import { execSync } from "child_process";
 import fs from "fs";
+import jsyaml from "js-yaml";
 import path, { dirname } from "path";
+import { loadPyodide } from "pyodide";
 import { fileURLToPath } from "url";
 import { emitCodeModel } from "./code-model.js";
 import { saveCodeModelAsYaml } from "./external-process.js";
 import { PythonEmitterOptions, PythonSdkContext } from "./lib.js";
-import { removeUnderscoresFromNamespace } from "./utils.js";
-import { loadPyodide } from "pyodide";
-import jsyaml from "js-yaml";
 import { runPython3 } from "./run-python3.js";
+import { removeUnderscoresFromNamespace } from "./utils.js";
 
 export function getModelsMode(context: SdkContext): "dpg" | "none" {
   const specifiedModelsMode = context.emitContext.options["models-mode"];
@@ -84,65 +84,67 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
   addDefaultOptions(sdkContext);
   const resolvedOptions = sdkContext.emitContext.options;
   if (resolvedOptions["use-pyodide"]) {
-    const commandArgs: Record<string, string> = {}
+    const commandArgs: Record<string, string> = {};
     if (resolvedOptions["packaging-files-config"]) {
-        const keyValuePairs = Object.entries(resolvedOptions["packaging-files-config"]).map(([key, value]) => {
-            return `${key}:${value}`;
-        });
-        commandArgs["packaging-files-config"] = keyValuePairs.join("|");
-        resolvedOptions["packaging-files-config"] = undefined;
+      const keyValuePairs = Object.entries(resolvedOptions["packaging-files-config"]).map(
+        ([key, value]) => {
+          return `${key}:${value}`;
+        },
+      );
+      commandArgs["packaging-files-config"] = keyValuePairs.join("|");
+      resolvedOptions["packaging-files-config"] = undefined;
     }
     if (
-        resolvedOptions["package-pprint-name"] !== undefined &&
-        !resolvedOptions["package-pprint-name"].startsWith('"')
+      resolvedOptions["package-pprint-name"] !== undefined &&
+      !resolvedOptions["package-pprint-name"].startsWith('"')
     ) {
-        resolvedOptions["package-pprint-name"] = `"${resolvedOptions["package-pprint-name"]}"`;
+      resolvedOptions["package-pprint-name"] = `"${resolvedOptions["package-pprint-name"]}"`;
     }
 
     for (const [key, value] of Object.entries(resolvedOptions)) {
-        commandArgs[key] = value;
+      commandArgs[key] = value;
     }
     if (sdkContext.arm === true) {
-        commandArgs["azure-arm"]="true";
+      commandArgs["azure-arm"] = "true";
     }
     if (resolvedOptions.flavor === "azure") {
-        commandArgs["emit-cross-language-definition-file"]="true";
+      commandArgs["emit-cross-language-definition-file"] = "true";
     }
     commandArgs["from-typespec"] = "true";
 
     if (!program.compilerOptions.noEmit && !program.hasError()) {
-        const outputFolder = path.relative(root, outputDir)
-        if (!fs.existsSync(outputFolder)) {
-          fs.mkdirSync(outputFolder, { recursive: true });
-        }
-        let pyodide = await loadPyodide({indexURL: path.join(root, "node_modules", "pyodide")});
-        pyodide.FS.mount(pyodide.FS.filesystems.NODEFS, { root: "." }, ".");
-        const yamlStr = jsyaml.dump(yamlMap);
-        if (!fs.existsSync("temp")) {
-          fs.mkdirSync("temp");
-        }      
-        const yamlPath = path.join("temp", "yamldata.yaml");
-        pyodide.FS.writeFile(yamlPath, yamlStr);
-        await pyodide.loadPackage("micropip");
-        const micropip = pyodide.pyimport("micropip");
-        await micropip.install(
-            [
-                "black",
-                "click",
-                "docutils",
-                "Jinja2",
-                "m2r2",
-                "MarkupSafe",
-                "pathspec",
-                "platformdirs",
-                "PyYAML",
-                "tomli",
-                "setuptools",
-            ]
-        );
-        await micropip.install("https://github.com/microsoft/typespec/releases/download/pygen%401.0.0/pygen-0.1.0-py3-none-any.whl");
-        const globals = pyodide.toPy({outputFolder, yamlPath, commandArgs});
-        const python = `
+      const outputFolder = path.relative(root, outputDir);
+      if (!fs.existsSync(outputFolder)) {
+        fs.mkdirSync(outputFolder, { recursive: true });
+      }
+      let pyodide = await loadPyodide({ indexURL: path.join(root, "node_modules", "pyodide") });
+      pyodide.FS.mount(pyodide.FS.filesystems.NODEFS, { root: "." }, ".");
+      const yamlStr = jsyaml.dump(yamlMap);
+      if (!fs.existsSync("temp")) {
+        fs.mkdirSync("temp");
+      }
+      const yamlPath = path.join("temp", "yamldata.yaml");
+      pyodide.FS.writeFile(yamlPath, yamlStr);
+      await pyodide.loadPackage("micropip");
+      const micropip = pyodide.pyimport("micropip");
+      await micropip.install([
+        "black",
+        "click",
+        "docutils",
+        "Jinja2",
+        "m2r2",
+        "MarkupSafe",
+        "pathspec",
+        "platformdirs",
+        "PyYAML",
+        "tomli",
+        "setuptools",
+      ]);
+      await micropip.install(
+        "https://github.com/microsoft/typespec/releases/download/pygen%401.0.0/pygen-0.1.0-py3-none-any.whl",
+      );
+      const globals = pyodide.toPy({ outputFolder, yamlPath, commandArgs });
+      const python = `
         async def main():
             from pygen import m2r, preprocess, codegen, black
 
@@ -152,8 +154,8 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
             black.BlackScriptPlugin(output_folder=outputFolder, **commandArgs).process()
     
         await main()
-        `
-        await pyodide.runPythonAsync(python, {globals});
+        `;
+      await pyodide.runPythonAsync(python, { globals });
     }
   } else {
     await runPython3("./eng/scripts/setup/install.py");
