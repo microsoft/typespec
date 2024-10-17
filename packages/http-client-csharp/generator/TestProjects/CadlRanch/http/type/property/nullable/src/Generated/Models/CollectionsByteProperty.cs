@@ -9,16 +9,8 @@ namespace _Type.Property.Nullable.Models
 {
     public partial class CollectionsByteProperty
     {
-        public string RequiredProperty
-        {
-            get => throw null;
-            set => throw null;
-        }
+        public string RequiredProperty => throw null;
 
-        public IList<BinaryData> NullableProperty
-        {
-            get => throw null;
-            set => throw null;
-        }
+        public IList<BinaryData> NullableProperty => throw null;
     }
 }
