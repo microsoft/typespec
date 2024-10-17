@@ -182,7 +182,7 @@ describe("http: decorators", () => {
         `);
 
       ok(isCookieParam(runner.program, myCookie));
-      strictEqual(getCookieParamOptions(runner.program, myCookie).name, "my_cookie");
+      strictEqual(getCookieParamOptions(runner.program, myCookie)?.name, "my_cookie");
     });
 
     it("override cookie name with 1st parameter", async () => {
@@ -190,7 +190,7 @@ describe("http: decorators", () => {
           op test(@test @cookie("my-cookie") myCookie: string): string;
         `);
 
-      strictEqual(getCookieParamOptions(runner.program, myCookie).name, "my-cookie");
+      strictEqual(getCookieParamOptions(runner.program, myCookie)?.name, "my-cookie");
     });
 
     it("override cookie with CookieOptions", async () => {
@@ -198,7 +198,7 @@ describe("http: decorators", () => {
           op test(@test @cookie(#{name: "my-cookie"}) myCookie: string): string;
         `);
 
-      strictEqual(getCookieParamOptions(runner.program, myCookie).name, "my-cookie");
+      strictEqual(getCookieParamOptions(runner.program, myCookie)?.name, "my-cookie");
     });
   });
 

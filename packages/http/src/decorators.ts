@@ -143,7 +143,16 @@ export const $cookie: CookieDecorator = (
   context.program.stateMap(HttpStateKeys.cookie).set(entity, options);
 };
 
-export function getCookieParamOptions(program: Program, entity: Type): QueryParameterOptions {
+/**
+ * Get the cookie parameter options for the given entity.
+ * @param program
+ * @param entity
+ * @returns The cookie parameter options or undefined if the entity is not a cookie parameter.
+ */
+export function getCookieParamOptions(
+  program: Program,
+  entity: Type,
+): QueryParameterOptions | undefined {
   return program.stateMap(HttpStateKeys.cookie).get(entity);
 }
 
