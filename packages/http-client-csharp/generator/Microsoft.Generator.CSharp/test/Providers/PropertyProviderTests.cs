@@ -70,9 +70,8 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         }
 
         [TestCaseSource(nameof(CollectionPropertyTestCases))]
-        public void CollectionProperty(CSharpType coreType, InputModelType inputModel, CSharpType expectedType)
+        public void CollectionProperty(CSharpType coreType, InputModelProperty collectionProperty, CSharpType expectedType)
         {
-            var collectionProperty = inputModel.Properties.Single();
             var property = new PropertyProvider(collectionProperty, new TestTypeProvider());
             Assert.AreEqual(collectionProperty.Name.ToCleanName(), property.Name);
             Assert.AreEqual(expectedType, property.Type);
@@ -98,18 +97,18 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             // List<string> -> IReadOnlyList<string>
             yield return new TestCaseData(
                 new CSharpType(typeof(IList<>), typeof(string)),
-                InputFactory.Model("TestModel", properties: [InputFactory.Property("readOnlyCollection", InputFactory.Array(InputPrimitiveType.String), isRequired: true, isReadOnly: true)]),
+                InputFactory.Property("readOnlyCollection", InputFactory.Array(InputPrimitiveType.String), isRequired: true, isReadOnly: true),
                 new CSharpType(typeof(IReadOnlyList<>), typeof(string)));
             // List<string> -> IReadOnlyList<string>
             yield return new TestCaseData(
                 new CSharpType(typeof(IList<>), typeof(string)),
-                InputFactory.Model("TestModel", usage: InputModelTypeUsage.Output, properties: [InputFactory.Property("readOnlyCollection", new InputNullableType(InputFactory.Array(InputPrimitiveType.String)), isRequired: true, isReadOnly: false)]),
+                InputFactory.Property("readOnlyCollection", new InputNullableType(InputFactory.Array(InputPrimitiveType.String)), isRequired: true, isReadOnly: false),
                 new CSharpType(typeof(IList<>), isNullable: true, typeof(string)),
                 true);
             // Dictionary<string, int> -> IReadOnlyDictionary<string, int>
             yield return new TestCaseData(
                 new CSharpType(typeof(IDictionary<,>), typeof(string), typeof(int)),
-                InputFactory.Model("TestModel", properties: [InputFactory.Property("readOnlyDictionary", InputFactory.Dictionary(InputPrimitiveType.Int32), isRequired: true, isReadOnly: true)]),
+                InputFactory.Property("readOnlyDictionary", InputFactory.Dictionary(InputPrimitiveType.Int32), isRequired: true, isReadOnly: true),
                 new CSharpType(typeof(IReadOnlyDictionary<,>), typeof(string), typeof(int)),
                 false);
         }
