@@ -117,7 +117,10 @@ namespace Microsoft.Generator.CSharp.Providers
                     new AutoPropertyBody(propertySymbol.SetMethod is not null),
                     this)
                 {
-                    OriginalName = GetOriginalName(propertySymbol)
+                    OriginalName = GetOriginalName(propertySymbol),
+                    CustomProvider = new(() => propertySymbol.Type is INamedTypeSymbol propertyNamedTypeSymbol
+                        ? new NamedTypeSymbolProvider(propertyNamedTypeSymbol)
+                        : null)
                 };
                 properties.Add(propertyProvider);
             }
