@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
@@ -66,6 +67,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     && specToCustomPropertiesMap.TryGetValue(candidateSpecProperty, out var mappedProperty) && mappedProperty == customProperty)
                 {
                     specProperty = candidateSpecProperty;
+                    customProperty.IsDiscriminator = specProperty.IsDiscriminator;
                     customProperty.WireInfo = new PropertyWireInformation(specProperty);
                 }
 
@@ -100,9 +102,8 @@ namespace Microsoft.Generator.CSharp.Providers
                     }
                 }
 
-                // handle customized extensible enums, since the custom type would not be an enum, but the spec type would be an enum
-
-                if (IsExtensibleEnum(specProperty!, out var inputEnumType))
+                // handle customized enums - we need to pull the type information from the spec property
+                if (IsCustomizedEnumProperty(specProperty, customProperty.Type, out var specType))
                 {
                     customProperty.Type = new CSharpType(
                         customProperty.Type.Name,
@@ -114,7 +115,7 @@ namespace Microsoft.Generator.CSharp.Providers
                         customProperty.Type.IsPublic,
                         customProperty.Type.IsStruct,
                         customProperty.Type.BaseType,
-                        TypeFactory.CreatePrimitiveCSharpTypeCore(inputEnumType!.ValueType));
+                        TypeFactory.CreatePrimitiveCSharpTypeCore(specType));
                 }
             }
 
@@ -179,8 +180,8 @@ namespace Microsoft.Generator.CSharp.Providers
                     }
                 }
 
-                // handle customized extensible enums, since the custom type would not be an enum, but the spec type would be an enum
-                if (IsExtensibleEnum(specProperty!, out var inputEnumType))
+                // handle customized enums - we need to pull the type information from the spec property
+                if (IsCustomizedEnumProperty(specProperty, customField.Type, out var specType))
                 {
                     customField.Type = new CSharpType(
                         customField.Type.Name,
@@ -192,27 +193,42 @@ namespace Microsoft.Generator.CSharp.Providers
                         customField.Type.IsPublic,
                         customField.Type.IsStruct,
                         customField.Type.BaseType,
-                        TypeFactory.CreatePrimitiveCSharpTypeCore(inputEnumType!.ValueType));
+                        TypeFactory.CreatePrimitiveCSharpTypeCore(specType));
                 }
             }
 
             return [..generatedFields, ..customFields];
         }
 
-        private static bool IsExtensibleEnum(InputModelProperty? inputProperty, out InputEnumType? inputEnumType)
+        private static bool IsCustomizedEnumProperty(
+            InputModelProperty? inputProperty,
+            CSharpType customType,
+            [NotNullWhen(true)] out InputType? specValueType)
         {
-            switch (inputProperty?.Type)
+            var enumValueType = GetEnumValueType(inputProperty?.Type);
+            if (enumValueType != null)
             {
-                case InputEnumType { IsExtensible: true } enumType:
-                    inputEnumType = enumType;
-                    return true;
-                case InputLiteralType { ValueType: InputEnumType { IsExtensible: true } enumTypeFromLiteral }:
-                    inputEnumType = enumTypeFromLiteral;
-                    return true;
-                default:
-                    inputEnumType = null;
-                    return false;
+                specValueType = enumValueType;
+                return true;
             }
+            if (customType.IsEnum && inputProperty != null)
+            {
+                specValueType = inputProperty.Type is InputNullableType nullableType ? nullableType.Type : inputProperty.Type;
+                return true;
+            }
+            specValueType = null;
+            return false;
+        }
+
+        private static InputPrimitiveType? GetEnumValueType(InputType? type)
+        {
+            return type switch
+            {
+                InputNullableType nullableType => GetEnumValueType(nullableType.Type),
+                InputEnumType enumType => enumType.ValueType,
+                InputLiteralType { ValueType: InputEnumType enumTypeFromLiteral } => enumTypeFromLiteral.ValueType,
+                _ => null
+            };
         }
 
         private Dictionary<InputModelProperty, PropertyProvider> BuildSpecToCustomPropertyMap(IReadOnlyList<PropertyProvider> customProperties)

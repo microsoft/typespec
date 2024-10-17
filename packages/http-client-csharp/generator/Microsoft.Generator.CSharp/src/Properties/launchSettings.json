@@ -80,6 +80,11 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     },
+    "http-server-path-multiple": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/server/path/multiple -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
     "http-server-path-single": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/server/path/single -p StubLibraryPlugin",
       "commandName": "Executable",
