@@ -46,14 +46,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                required:
-                  - items
-                properties:
-                  items:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Person'
+                $ref: '#/components/schemas/ListResult'
     patch:
       operationId: Hello_updateRest
       parameters: []
@@ -95,6 +88,15 @@ paths:
                 $ref: '#/components/schemas/ReadablePerson'
 components:
   schemas:
+    ListResult:
+      type: object
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Person'
     OptionalPerson:
       type: object
       properties:
