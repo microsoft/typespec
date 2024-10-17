@@ -159,14 +159,14 @@ namespace Microsoft.Generator.CSharp.Providers
                 return false;
             }
 
-            if (type.IsCollection && !type.IsReadOnlyMemory)
-            {
-                return type.IsNullable;
-            }
-
             if (!inputProperty.EnclosingType!.Usage.HasFlag(InputModelTypeUsage.Input))
             {
                 return false;
+            }
+
+            if (type.IsCollection && !type.IsReadOnlyMemory)
+            {
+                return type.IsNullable;
             }
 
             return true;

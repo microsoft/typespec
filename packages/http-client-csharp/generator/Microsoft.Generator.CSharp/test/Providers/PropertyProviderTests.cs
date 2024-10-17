@@ -136,6 +136,10 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             yield return new TestCaseData(
                 "nullableCollectionOnOutputModel",
                 InputFactory.Model("TestModel", usage: InputModelTypeUsage.Output, properties: [InputFactory.Property("nullableCollection", new InputNullableType(InputFactory.Array(InputPrimitiveType.String)), isRequired: true, isReadOnly: false)]),
+                false);
+            yield return new TestCaseData(
+                "nullableCollectionOnInputModel",
+                InputFactory.Model("TestModel", usage: InputModelTypeUsage.Input, properties: [InputFactory.Property("nullableCollection", new InputNullableType(InputFactory.Array(InputPrimitiveType.String)), isRequired: true, isReadOnly: false)]),
                 true);
             yield return new TestCaseData(
                 "readOnlyDictionaryOnOutputModel",
@@ -148,6 +152,10 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             yield return new TestCaseData(
                 "nullableDictionaryOnOutputModel",
                 InputFactory.Model("TestModel", usage: InputModelTypeUsage.Output, properties: [InputFactory.Property("nullableDictionary", new InputNullableType(InputFactory.Dictionary(InputPrimitiveType.String)), isRequired: true, isReadOnly: false)]),
+                false);
+            yield return new TestCaseData(
+                "nullableDictionaryOnInputModel",
+                InputFactory.Model("TestModel", usage: InputModelTypeUsage.Input, properties: [InputFactory.Property("nullableDictionary", new InputNullableType(InputFactory.Dictionary(InputPrimitiveType.String)), isRequired: true, isReadOnly: false)]),
                 true);
         }
     }
