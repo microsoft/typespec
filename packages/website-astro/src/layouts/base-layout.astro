@@ -19,7 +19,9 @@ const { footer = true } = Astro.props;
     <script src={import.meta.env.BASE_URL + "1ds-init.js"} is:inline></script>
   </head>
   <body class="body">
-    <Header />
+    <header class="header">
+      <Header />
+    </header>
     <!-- pt is set according to the height of the header -->
     <main class="pt-[4.5rem] tablet:pt-24 main">
       <slot />
@@ -39,6 +41,11 @@ const { footer = true } = Astro.props;
       background-color: var(--colorNeutralBackground1);
     }
 
+    .header {
+      position: fixed;
+      width: 100vw;
+      z-index: 1000;
+    }
     .footer {
       flex: 0 0 auto;
     }

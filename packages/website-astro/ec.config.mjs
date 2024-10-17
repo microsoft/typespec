@@ -6,7 +6,6 @@ import tspTryitCode from "./src/plugins/tsp-tryit-code.js";
 const base = process.env.TYPESPEC_WEBSITE_BASE_PATH ?? "/";
 
 export default defineEcConfig({
-  themes: ["one-light", "one-dark-pro"],
   themeCssSelector: (theme, { styleVariants }) => {
     // If one dark and one light theme are available, and the user has not disabled it,
     // generate theme CSS selectors compatible with Starlight's dark mode switch
