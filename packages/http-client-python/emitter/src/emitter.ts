@@ -141,7 +141,7 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
         "setuptools",
       ]);
       await micropip.install(
-        "https://github.com/microsoft/typespec/releases/download/pygen%401.0.0/pygen-0.1.0-py3-none-any.whl",
+        "https://github.com/YalinLi0312/typespec/releases/download/pygen%40v0.1.0/pygen-0.1.0-py3-none-any.whl",
       );
       const globals = pyodide.toPy({ outputFolder, yamlPath, commandArgs });
       const python = `
