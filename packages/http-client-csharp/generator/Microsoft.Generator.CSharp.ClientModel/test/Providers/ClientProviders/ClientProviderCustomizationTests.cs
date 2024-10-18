@@ -266,5 +266,31 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 Assert.IsNull(method.XmlDocs);
             }
         }
+
+        [Test]
+        public async Task CanRenameSubClient()
+        {
+            var inputOperation = InputFactory.Operation("HelloAgain", parameters:
+            [
+                InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
+            ]);
+            var inputClient = InputFactory.Client("TestClient", operations: [inputOperation]);
+            InputClient subClient = InputFactory.Client("custom", [], [], inputClient.Name);
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                clients: () => [inputClient, subClient],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Find the sub-client provider
+            var subClientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == "CustomClient");
+            Assert.IsNotNull(subClientProvider);
+
+            // find the parent client provider
+            var parentClientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == "TestClient");
+            Assert.IsNotNull(parentClientProvider);
+
+            // find the sub-client factory method
+            var subClientFactoryMethod = parentClientProvider!.Methods.SingleOrDefault(m => m.Signature.Name == "GetCustomClient");
+            Assert.IsNotNull(subClientFactoryMethod);
+        }
     }
 }
