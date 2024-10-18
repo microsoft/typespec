@@ -266,7 +266,7 @@ export const libDef = {
     "xml-attribute-ignored-property-type": {
       severity: "warning",
       messages: {
-        default: paramMessage`The XML Attribute cannot used on array properties or primitive ones in the OpenAPI 3 emitter, it will be ignored on property '${"name"}'.`,
+        default: paramMessage`XML \`@attribute\` cannot used on array properties or primitive ones in the OpenAPI 3 emitter, it will be ignored on property '${"name"}'.`,
       },
     },
     "xml-attribute-invalid-property-type": {

@@ -176,7 +176,7 @@ describe("@attribute", () => {
     );
     expectDiagnostics(diagnostics, {
       code: "@typespec/openapi3/xml-attribute-ignored-property-type",
-      message: `The XML Attribute cannot used on array properties or primitive ones in the OpenAPI 3 emitter, it will be ignored on property 'tags'.`,
+      message: `XML \`@attribute\` cannot used on array properties or primitive ones in the OpenAPI 3 emitter, it will be ignored on property 'tags'.`,
     });
   });
 
@@ -193,7 +193,7 @@ describe("@attribute", () => {
 
     expectDiagnostics(diagnostics, {
       code: "@typespec/openapi3/xml-attribute-invalid-property-type",
-      message: `The XML Attribute can only be primitive types in the OpenAPI 3 emitter, Property 'tags' type will be changed to type: string.`,
+      message: `XML \`@attribute\` can only be primitive types in the OpenAPI 3 emitter, Property 'tags' type will be changed to type: string.`,
     });
     expect(res.components?.schemas?.Pet).toMatchObject({
       properties: {
@@ -214,7 +214,7 @@ describe("@unwrapped", () => {
     );
     expectDiagnostics(diagnostics, {
       code: "@typespec/openapi3/xml-unwrapped-invalid-property-type",
-      message: `The XML Unwrapped can only used on array properties or primitive ones in the OpenAPI 3 emitter, Property 'id' will be ignored.`,
+      message: `XML \`@unwrapped\` can only used on array properties or primitive ones in the OpenAPI 3 emitter, Property 'id' will be ignored.`,
     });
   });
 });
