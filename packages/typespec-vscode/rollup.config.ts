@@ -72,6 +72,7 @@ export default defineConfig([
 function ts(outDir: string) {
   return (typescript as any)({
     compilerOptions: {
+      // set sourceRoot to absolute path, otherwise the path in the map file generated is incorrect when outDir is given
       sourceRoot: curDir,
     },
     tsconfig: "./tsconfig.build.json",
