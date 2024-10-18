@@ -21,9 +21,9 @@ jobs:
 
       - task: 1ES.PublishPipelineArtifact@1
         inputs:
-          path: ./packages/playground-website/test-results
-          artifact: "scenariossummaryresults-${{ parameters.os }}-node-${{ parameters.nodeVersion }}"
-        displayName: Publish UI tests artifacts
+          path: ./packages/http-specs
+          artifact: "spec-summary.md"
+        displayName: Generate Scenarios Summary
         condition: ne(variables['Agent.OS'], 'Windows_NT')
 
       - script: node eng/common/scripts/check-for-changed-files.js
