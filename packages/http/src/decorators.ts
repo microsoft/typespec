@@ -156,7 +156,13 @@ export function getCookieParamOptions(
   return program.stateMap(HttpStateKeys.cookie).get(entity);
 }
 
-export function isCookieParam(program: Program, entity: Type) {
+/**
+ * Check whether the given entity is a cookie parameter.
+ * @param program
+ * @param entity
+ * @returns True if the entity is a cookie parameter, false otherwise.
+ */
+export function isCookieParam(program: Program, entity: Type): boolean {
   return program.stateMap(HttpStateKeys.cookie).has(entity);
 }
 
