@@ -323,6 +323,17 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task CanRemoveField()
+        {
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModelTypes: [InputFactory.Model("mockInputModel", properties: [])],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var csharpGen = new CSharpGen();
+            await csharpGen.ExecuteAsync();
+            Assert.AreEqual(0, plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel").Fields.Count);
+        }
+
+        [Test]
         public async Task CanChangeEnumMemberName()
         {
             var enumValues = new[]
@@ -478,6 +489,26 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
 
             // The generated code should not contain any ctors
             Assert.IsEmpty(plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel").Constructors);
+        }
+
+        [Test]
+        public async Task CanReplaceField()
+        {
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModelTypes: new[] {
+                    InputFactory.Model(
+                        "mockInputModel",
+                        // use Input so that we generate a public ctor
+                        usage: InputModelTypeUsage.Input,
+                        properties: []),
+                },
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var csharpGen = new CSharpGen();
+
+            await csharpGen.ExecuteAsync();
+
+            // The generated code should not contain any fields
+            Assert.IsEmpty(plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel").Fields);
         }
 
         [Test]
