@@ -95,7 +95,7 @@ export class NpmPackage {
       200,
     );
     this.packageJsonWatcher = watch(
-      this.packageJsonFile,
+      this.packageJsonFolder,
       { encoding: "utf-8", persistent: false, recursive: false },
       onPackageJsonChange,
     );
@@ -103,10 +103,6 @@ export class NpmPackage {
 
   private packageJsonFolder: string;
   private packageJsonWatcher: FSWatcher | undefined;
-
-  get packageJsonFile(): string {
-    return join(this.packageJsonFolder, "package.json");
-  }
 
   private packageJsonData: NodePackage | undefined;
   async getPackageJsonData(): Promise<NodePackage | undefined> {
