@@ -9,7 +9,7 @@
     "dev": "astro dev",
     "start": "astro dev",
     "build": "tsx ./.scripts/build.ts",
-    "build:web": "pnpm copy && astro check && astro build",
+    "build:web": "pnpm copy && astro check --minimumFailingSeverity warning && astro build",
     "preview": "astro preview",
     "astro": "astro"
   },
