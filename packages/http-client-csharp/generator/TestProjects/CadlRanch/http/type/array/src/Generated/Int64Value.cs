@@ -27,8 +27,8 @@ namespace _Type._Array
 
         public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options) => throw null;
 
-        public virtual ClientResult Put(IList<long> body) => throw null;
+        public virtual ClientResult Put(IEnumerable<long> body) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(IList<long> body) => throw null;
+        public virtual Task<ClientResult> PutAsync(IEnumerable<long> body) => throw null;
     }
 }
