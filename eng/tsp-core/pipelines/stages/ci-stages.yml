@@ -63,7 +63,6 @@ stages:
 
       - template: /eng/tsp-core/pipelines/jobs/publish-artifacts.yml
       - template: /eng/tsp-core/pipelines/jobs/e2e.yml
-      - template: /eng/tsp-core/pipelines/jobs/generate-scenarios-summary.yml
 
       - job: docker_build
         pool:
