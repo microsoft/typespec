@@ -13,7 +13,7 @@ When we say that emitters should handle things consistently, we mean they should
 
 If you're new to writing emitters, begin with the [emitter basics](./emitters-basics.md).
 
-Next, examine the [REST metadata emitter sample](https://github.com/microsoft/typespec/tree/main/packages/samples/rest-metadata-emitter). This sample uses all of the APIs discussed below to create a simple textual representation. It intentionally avoids splitting types like the OpenAPI emitter to highlight that this is not mandatory. Instead, it includes contextual comments to indicate how data depends on context.
+Next, examine the [REST metadata emitter sample](https://github.com/microsoft/typespec/tree/main/packages/samples/specs/rest-metadata-emitter). This sample uses all of the APIs discussed below to create a simple textual representation. It intentionally avoids splitting types like the OpenAPI emitter to highlight that this is not mandatory. Instead, it includes contextual comments to indicate how data depends on context.
 
 However, if you want your emitter to split types like OpenAPI, you can still use the same API. Cross-referencing with the official [OpenAPI emitter](../emitters/openapi3/openapi.md) where these APIs are called can also be helpful.
 
