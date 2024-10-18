@@ -31,6 +31,7 @@
     "test": "vitest run",
     "test:ci": "vitest run  --coverage --reporter=junit --reporter=default",
     "test:e2e": "pnpm -r run test:e2e",
+    "generate-scenarios-summary": "pnpm -r run generate-scenarios-summary",
     "update-latest-docs": "pnpm -r run update-latest-docs",
     "watch": "tsc --build ./tsconfig.ws.json --watch",
     "sync-labels": "tsx ./eng/common/scripts/labels/sync-labels.ts  --config ./eng/common/config/labels.ts"
