@@ -130,9 +130,9 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
       await micropip.install([
         "black",
         "click",
-        "docutils",
-        "Jinja2",
-        "m2r2",
+        "docutils==0.21.2",
+        "Jinja2==3.1.4",
+        "m2r2==0.3.3.post2",
         "MarkupSafe",
         "pathspec",
         "platformdirs",
