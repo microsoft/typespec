@@ -5,15 +5,17 @@ package com.azure.resourcemanager.resources;
 
 import com.azure.core.management.Region;
 import com.azure.core.util.Context;
-import java.util.List;
-import java.util.stream.Collectors;
-
+import com.azure.resourcemanager.resources.fluent.models.SingletonTrackedResourceInner;
 import com.azure.resourcemanager.resources.models.NestedProxyResource;
 import com.azure.resourcemanager.resources.models.NestedProxyResourceProperties;
 import com.azure.resourcemanager.resources.models.NotificationDetails;
 import com.azure.resourcemanager.resources.models.ProvisioningState;
+import com.azure.resourcemanager.resources.models.SingletonTrackedResource;
+import com.azure.resourcemanager.resources.models.SingletonTrackedResourceProperties;
 import com.azure.resourcemanager.resources.models.TopLevelTrackedResource;
 import com.azure.resourcemanager.resources.models.TopLevelTrackedResourceProperties;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.utils.ArmUtils;
@@ -63,10 +65,8 @@ public class ArmResourceTest {
             .actionSync(new NotificationDetails().withMessage(NOTIFICATION_DETAILS_MESSAGE).withUrgent(true));
 
         // TopLevelTrackedResources.listByResourceGroup
-        List<TopLevelTrackedResource> topLevelTrackedResourceList = manager.topLevels()
-            .listByResourceGroup(RESOURCE_GROUP_NAME)
-            .stream()
-            .collect(Collectors.toList());
+        List<TopLevelTrackedResource> topLevelTrackedResourceList
+            = manager.topLevels().listByResourceGroup(RESOURCE_GROUP_NAME).stream().collect(Collectors.toList());
         Assertions.assertEquals(1, topLevelTrackedResourceList.size());
         topLevelTrackedResource = topLevelTrackedResourceList.get(0);
         Assertions.assertEquals(TOP_LEVEL_TRACKED_RESOURCE_ID, topLevelTrackedResource.id());
@@ -94,8 +94,8 @@ public class ArmResourceTest {
         Assertions.assertEquals(RESOURCE_PROVISIONING_STATE, topLevelTrackedResource.properties().provisioningState());
 
         // TopLevelTrackedResources.get
-        topLevelTrackedResource = manager.topLevels()
-            .getByResourceGroup(RESOURCE_GROUP_NAME, TOP_LEVEL_TRACKED_RESOURCE_NAME);
+        topLevelTrackedResource
+            = manager.topLevels().getByResourceGroup(RESOURCE_GROUP_NAME, TOP_LEVEL_TRACKED_RESOURCE_NAME);
         Assertions.assertEquals(TOP_LEVEL_TRACKED_RESOURCE_ID, topLevelTrackedResource.id());
         Assertions.assertEquals(TOP_LEVEL_TRACKED_RESOURCE_NAME, topLevelTrackedResource.name());
         Assertions.assertEquals(TOP_LEVEL_TRACKED_RESOURCE_TYPE, topLevelTrackedResource.type());
@@ -150,8 +150,8 @@ public class ArmResourceTest {
         Assertions.assertEquals(RESOURCE_PROVISIONING_STATE, nestedProxyResource.properties().provisioningState());
 
         // NestedProxyResources.get
-        nestedProxyResource = manager.nesteds()
-            .get(RESOURCE_GROUP_NAME, TOP_LEVEL_TRACKED_RESOURCE_NAME, NESTED_PROXY_RESOURCE_NAME);
+        nestedProxyResource
+            = manager.nesteds().get(RESOURCE_GROUP_NAME, TOP_LEVEL_TRACKED_RESOURCE_NAME, NESTED_PROXY_RESOURCE_NAME);
         Assertions.assertEquals(NESTED_PROXY_RESOURCE_ID, nestedProxyResource.id());
         Assertions.assertEquals(NESTED_PROXY_RESOURCE_NAME, nestedProxyResource.name());
         Assertions.assertEquals(NESTED_PROXY_RESOURCE_TYPE, nestedProxyResource.type());
@@ -171,7 +171,32 @@ public class ArmResourceTest {
         Assertions.assertEquals(RESOURCE_PROVISIONING_STATE, nestedProxyResource.properties().provisioningState());
 
         // NestedProxyResources.delete
-        manager.nesteds()
-            .delete(RESOURCE_GROUP_NAME, TOP_LEVEL_TRACKED_RESOURCE_NAME, NESTED_PROXY_RESOURCE_NAME);
+        manager.nesteds().delete(RESOURCE_GROUP_NAME, TOP_LEVEL_TRACKED_RESOURCE_NAME, NESTED_PROXY_RESOURCE_NAME);
+    }
+
+    @Test
+    public void testSingletonResource() {
+        final String resourceNameDefault = "default";
+
+        SingletonTrackedResource resource = manager.singletons()
+            .createOrUpdate(RESOURCE_GROUP_NAME,
+                new SingletonTrackedResourceInner().withLocation(TOP_LEVEL_TRACKED_RESOURCE_REGION.name())
+                    .withProperties(
+                        new SingletonTrackedResourceProperties().withDescription(RESOURCE_DESCRIPTION_VALID)));
+        Assertions.assertEquals(resourceNameDefault, resource.name());
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, resource.properties().description());
+
+        resource = manager.singletons()
+            // TODO location should not be in PATCH
+            .update(RESOURCE_GROUP_NAME, new SingletonTrackedResourceInner().withLocation(Region.US_EAST2.name())
+                .withProperties(new SingletonTrackedResourceProperties().withDescription(RESOURCE_DESCRIPTION_VALID2)));
+        Assertions.assertEquals(resourceNameDefault, resource.name());
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID2, resource.properties().description());
+
+        resource = manager.singletons().getByResourceGroup(RESOURCE_GROUP_NAME);
+        Assertions.assertEquals(resourceNameDefault, resource.name());
+
+        resource = manager.singletons().listByResourceGroup(RESOURCE_GROUP_NAME).stream().findFirst().get();
+        Assertions.assertEquals(resourceNameDefault, resource.name());
     }
 }
