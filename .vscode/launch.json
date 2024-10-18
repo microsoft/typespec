@@ -101,7 +101,7 @@
       "args": ["generate-third-party-notices"],
       "sourceMaps": true,
       "skipFiles": ["<node_internals>/**/*.js"],
-      "cwd": "${workspaceFolder}/packages/typespec-vscode",
+      "cwd": "${workspaceFolder}/packages/typespec-vscode"
     },
     {
       "name": "Regenerate .tmlanguage",
