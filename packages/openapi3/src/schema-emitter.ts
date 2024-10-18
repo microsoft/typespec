@@ -27,6 +27,7 @@ import {
   getEncode,
   getExamples,
   getFormat,
+  getFriendlyName,
   getKnownValues,
   getMaxItems,
   getMaxLength,
@@ -46,6 +47,7 @@ import {
   isNullType,
   isSecret,
   isTemplateDeclaration,
+  isTemplateInstance,
   resolveEncodedName,
   serializeValueAsJson,
 } from "@typespec/compiler";
@@ -840,7 +842,30 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       };
     }
 
-    if (shouldInline(this.emitter.getProgram(), type)) {
+    const checkNeedForceRef = (
+      program: Program,
+      type: Type,
+      schema: ObjectBuilder<any>,
+    ): boolean => {
+      if (getFriendlyName(program, type)) {
+        return false;
+      }
+      if (type.kind === "Model" && isTemplateInstance(type)) {
+        return Array.from(type.properties.values()).some((prop) => {
+          if (prop.type?.kind === "Model") {
+            const curr = schema.properties[prop.name];
+            if (isArrayModelType(program, prop.type)) {
+              return "$ref" in curr.items;
+            }
+          }
+          return false;
+        });
+      }
+      return false;
+    };
+
+    const isForceRef = checkNeedForceRef(this.emitter.getProgram(), type, schema);
+    if (shouldInline(this.emitter.getProgram(), type) && !isForceRef) {
       return this.#inlineType(type, schema);
     }
 
@@ -864,6 +889,11 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       fullName,
       Object.fromEntries(decl.scope.declarations.map((x) => [x.name, true])),
     );
+
+    if (isForceRef && type.kind === "Model") {
+      return this.emitter.result.declaration(type.name, schema);
+    }
+
     return decl;
   }
 
