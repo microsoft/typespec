@@ -1,4 +1,4 @@
-import { json, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
+import { json, passOnCode, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -16,12 +16,12 @@ Scenarios.Authentication_Http_Custom_valid = passOnSuccess({
   kind: "MockApiDefinition",
 });
 
-Scenarios.Authentication_Http_Custom_invalid = passOnSuccess({
+Scenarios.Authentication_Http_Custom_invalid = passOnCode(403, {
   uri: `/authentication/http/custom/invalid`,
   method: "get",
   request: {
     headers: {
-      authorization: "SharedAccessKey valid-key",
+      authorization: "SharedAccessKey invalid-key",
     },
     status: 403,
   },

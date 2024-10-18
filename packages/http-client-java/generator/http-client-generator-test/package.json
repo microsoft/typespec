@@ -12,7 +12,7 @@
     "testserver-stop": "npx cadl-ranch server stop"
   },
   "dependencies": {
-    "@azure-tools/cadl-ranch-specs": "0.37.7",
+    "@azure-tools/cadl-ranch-specs": "0.38.0",
     "@typespec/http-client-java": "file:/../../typespec-http-client-java-0.1.0.tgz",
     "@typespec/http-client-java-tests": "file:"
   },

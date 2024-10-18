@@ -4,7 +4,8 @@
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": ".",
-    "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo"
+    "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo",
+    "verbatimModuleSyntax": true
   },
   "include": ["src/**/*.ts", "generated-defs/**/*.ts", "test/**/*.ts"]
 }
