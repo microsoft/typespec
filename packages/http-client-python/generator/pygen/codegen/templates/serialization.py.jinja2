@@ -226,7 +226,7 @@ except ImportError:  # Python 2.7
         :param datetime.timedelta offset: offset in timedelta format
         """
 
-        def __init__(self, offset):
+        def __init__(self, offset) -> None:
             self.__offset = offset
 
         def utcoffset(self, dt):
@@ -506,7 +506,6 @@ class Model(object):
     def _classify(cls, response, objects):
         """Check the class _subtype_map for any child classes.
         We want to ignore any inherited _subtype_maps.
-        Remove the polymorphic key from the initial data.
 
         :param dict response: The initial data
         :param dict objects: The class objects
@@ -518,7 +517,7 @@ class Model(object):
 
             if not isinstance(response, ET.Element):
                 rest_api_response_key = cls._get_rest_key_parts(subtype_key)[-1]
-                subtype_value = response.pop(rest_api_response_key, None) or response.pop(subtype_key, None)
+                subtype_value = response.get(rest_api_response_key, None) or response.get(subtype_key, None)
             else:
                 subtype_value = xml_key_extractor(subtype_key, cls._attribute_map[subtype_key], response)
             if subtype_value:
@@ -598,7 +597,7 @@ class Serializer(object):  # pylint: disable=too-many-public-methods
         "multiple": lambda x, y: x % y != 0,
     }
 
-    def __init__(self, classes: Optional[Mapping[str, type]] = None):
+    def __init__(self, classes: Optional[Mapping[str, type]] = None) -> None:
         self.serialize_type = {
             "iso-8601": Serializer.serialize_iso,
             "rfc-1123": Serializer.serialize_rfc,
@@ -1452,7 +1451,7 @@ class Deserializer(object):
 
     valid_date = re.compile(r"\d{4}[-]\d{2}[-]\d{2}T\d{2}:\d{2}:\d{2}\.?\d*Z?[-+]?[\d{2}]?:?[\d{2}]?")
 
-    def __init__(self, classes: Optional[Mapping[str, type]] = None):
+    def __init__(self, classes: Optional[Mapping[str, type]] = None) -> None:
         self.deserialize_type = {
             "iso-8601": Deserializer.deserialize_iso,
             "rfc-1123": Deserializer.deserialize_rfc,

@@ -29,14 +29,14 @@ new DuplicateTracker<K, V>(): DuplicateTracker<K, V>
 ### entries()
 
 ```ts
-entries(): Iterable<[K, V[]]>
+entries(): Iterable<[K, V[]], any, any>
 ```
 
 Return iterator of all the duplicate entries.
 
 #### Returns
 
-`Iterable`<[`K`, `V`[]]\>
+`Iterable`<[`K`, `V`[]], `any`, `any`\>
 
 ***
 

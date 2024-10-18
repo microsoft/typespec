@@ -2,10 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
@@ -23,13 +21,13 @@ namespace Microsoft.Generator.CSharp.Providers
         public FormattableString Description { get; }
         public XmlDocSummaryStatement XmlDocSummary { get; }
         public MethodSignatureModifiers Modifiers { get; internal set; }
-        public CSharpType Type { get; }
+        public CSharpType Type { get; internal set; }
         public string Name { get; internal set; }
         public PropertyBody Body { get; internal set; }
         public CSharpType? ExplicitInterface { get; }
         public XmlDocProvider XmlDocs { get; private set; }
         public PropertyWireInformation? WireInfo { get; internal set; }
-        public bool IsDiscriminator { get; }
+        public bool IsDiscriminator { get; internal set; }
         public bool IsAdditionalProperties { get; init; }
 
         public FieldProvider? BackingField { get; set; }
@@ -42,7 +40,9 @@ namespace Microsoft.Generator.CSharp.Providers
 
         public TypeProvider EnclosingType { get; }
 
-        internal IEnumerable<AttributeData>? Attributes { get; init; }
+        internal string? OriginalName { get; init; }
+
+        internal Lazy<NamedTypeSymbolProvider?>? CustomProvider { get; init; }
 
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -155,6 +155,11 @@ namespace Microsoft.Generator.CSharp.Providers
             }
 
             if (type.IsLiteral && inputProperty.IsRequired)
+            {
+                return false;
+            }
+
+            if (!inputProperty.EnclosingType!.Usage.HasFlag(InputModelTypeUsage.Input))
             {
                 return false;
             }

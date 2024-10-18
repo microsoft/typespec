@@ -4,6 +4,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
@@ -36,6 +37,10 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
             // Find the model factory provider
             var modelFactory = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ModelFactoryProvider);
             Assert.IsNotNull(modelFactory);
+
+            // The model factory should be public
+            Assert.IsTrue(modelFactory!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            ValidateModelFactoryCommon(modelFactory);
 
             // The model factory method should be replaced
             var modelFactoryMethods = modelFactory!.Methods;
@@ -71,9 +76,51 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
             var modelFactory = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ModelFactoryProvider);
             Assert.IsNotNull(modelFactory);
 
+            // The model factory should be public
+            Assert.IsTrue(modelFactory!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            ValidateModelFactoryCommon(modelFactory);
+
             // The model factory method should not be replaced
             var modelFactoryMethods = modelFactory!.Methods;
             Assert.AreEqual(1, modelFactoryMethods.Count);
+        }
+
+        private static void ValidateModelFactoryCommon(TypeProvider modelFactory)
+        {
+            Assert.IsTrue(modelFactory!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Static));
+            Assert.IsTrue(modelFactory!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Partial));
+            Assert.IsTrue(modelFactory!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Class));
+        }
+
+        [Test]
+        public async Task CanChangeAccessibilityOfModelFactory()
+        {
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModelTypes: [
+                    InputFactory.Model(
+                        "mockInputModel",
+                        properties:
+                        [
+                            InputFactory.Property("Prop1", InputPrimitiveType.String),
+                            InputFactory.Property("OptionalBool", InputPrimitiveType.Boolean, isRequired: false)
+                        ]),
+                    InputFactory.Model(
+                        "otherModel",
+                        properties: [InputFactory.Property("Prop2", InputPrimitiveType.String)]),
+                ],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var csharpGen = new CSharpGen();
+
+            await csharpGen.ExecuteAsync();
+
+            // Find the model factory provider
+            var modelFactory = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ModelFactoryProvider);
+            Assert.IsNotNull(modelFactory);
+
+            // The model factory should be internal
+            Assert.IsTrue(modelFactory!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+            Assert.IsFalse(modelFactory!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            ValidateModelFactoryCommon(modelFactory);
         }
     }
 }

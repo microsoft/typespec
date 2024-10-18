@@ -1,7 +1,7 @@
 // @ts-check
 
 import { $route } from "@typespec/http";
-import { $scenario, $scenarioDoc } from "@typespec/spec-lib";
+import { $scenario, $scenarioDoc } from "@typespec/spector";
 
 /**
  *

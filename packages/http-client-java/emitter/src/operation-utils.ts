@@ -1,6 +1,8 @@
 import { Parameter } from "@autorest/codemodel";
-import { LroMetadata } from "@azure-tools/typespec-azure-core";
-import { SdkHttpOperation } from "@azure-tools/typespec-client-generator-core";
+import {
+  SdkHttpOperation,
+  SdkLroServiceMetadata,
+} from "@azure-tools/typespec-client-generator-core";
 import { ModelProperty, Operation, Program, Type, Union } from "@typespec/compiler";
 import {
   HttpOperation,
@@ -148,28 +150,26 @@ export function getServiceVersion(client: CodeModelClient | CodeModel): ServiceV
 }
 
 export function isLroNewPollingStrategy(
-  httpOperation: HttpOperation,
-  lroMetadata: LroMetadata,
+  operation: SdkHttpOperation,
+  lroMetadata: SdkLroServiceMetadata,
 ): boolean {
-  const operation = httpOperation.operation;
   let useNewStrategy = false;
   if (
-    lroMetadata.pollingInfo &&
-    lroMetadata.statusMonitorStep &&
-    modelIs(lroMetadata.pollingInfo.responseModel, "OperationStatus", "Azure.Core.Foundations")
+    lroMetadata.pollingStep.responseBody &&
+    modelIs(lroMetadata.pollingStep.responseBody, "OperationStatus", "Azure.Core.Foundations")
   ) {
     useNewStrategy = operationIs(operation, undefined, "Azure.Core");
   }
 
   if (!useNewStrategy) {
     // LroMetadata: following 2 pattern in LroMetadata requires new polling strategy, regardless whether they uses Azure.Core template
-    if (httpOperation.verb === "put" && !lroMetadata.finalStep) {
+    if (operation.verb === "put" && !lroMetadata.finalStep) {
       // PUT without last GET on resource
       useNewStrategy = true;
     } else if (
       lroMetadata.finalStep &&
       lroMetadata.finalStep.kind === "pollingSuccessProperty" &&
-      lroMetadata.finalStep.target
+      lroMetadata.finalResponse?.resultPath
     ) {
       // final result is the value in lroMetadata.finalStep.target
       useNewStrategy = true;
@@ -200,8 +200,12 @@ export function cloneOperationParameter(parameter: Parameter): Parameter {
   );
 }
 
-function operationIs(operation: Operation, name: string | undefined, namespace: string): boolean {
-  let currentOp: Operation | undefined = operation;
+function operationIs(
+  operation: SdkHttpOperation,
+  name: string | undefined,
+  namespace: string,
+): boolean {
+  let currentOp: Operation | undefined = operation.__raw.operation;
   while (currentOp) {
     if ((!name || currentOp.name === name) && getNamespace(currentOp) === namespace) {
       return true;

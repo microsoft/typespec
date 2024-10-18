@@ -1,4 +1,4 @@
-import { MockRequest, passOnSuccess, ScenarioMockApi, xml } from "@typespec/spec-api";
+import { passOnSuccess, ScenarioMockApi, xml } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -133,12 +133,6 @@ function createServerTests(uri: string, data?: any) {
         status: 200,
         body: xml(data),
       },
-      handler: (req: MockRequest) => {
-        return {
-          status: 200,
-          body: xml(data),
-        };
-      },
       kind: "MockApiDefinition",
     }),
     put: passOnSuccess({
@@ -152,13 +146,6 @@ function createServerTests(uri: string, data?: any) {
       },
       response: {
         status: 204,
-      },
-      handler: (req: MockRequest) => {
-        req.expect.containsHeader("content-type", "application/xml");
-        req.expect.xmlBodyEquals(data);
-        return {
-          status: 204,
-        };
       },
       kind: "MockApiDefinition",
     }),

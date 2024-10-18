@@ -6,22 +6,10 @@ namespace Payload.Xml.Models
 {
     public partial class ModelWithAttributes
     {
-        public int Id1
-        {
-            get => throw null;
-            set => throw null;
-        }
+        public int Id1 => throw null;
 
-        public string Id2
-        {
-            get => throw null;
-            set => throw null;
-        }
+        public string Id2 => throw null;
 
-        public bool Enabled
-        {
-            get => throw null;
-            set => throw null;
-        }
+        public bool Enabled => throw null;
     }
 }

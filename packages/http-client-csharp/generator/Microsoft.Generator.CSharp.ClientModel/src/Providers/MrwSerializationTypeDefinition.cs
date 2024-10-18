@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text.Json;
+using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.ClientModel.Snippets;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
@@ -169,15 +170,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private MethodProvider BuildExplicitFromClientResult()
         {
-            var result = new ParameterProvider("result", $"The {typeof(ClientResult):C} to deserialize the {Type:C} from.", typeof(ClientResult));
+            var result = new ParameterProvider("result", $"The {ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseType:C} to deserialize the {Type:C} from.", ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseType);
             var modifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Explicit | MethodSignatureModifiers.Operator;
             // using PipelineResponse response = result.GetRawResponse();
-            var responseDeclaration = UsingDeclare("response", typeof(PipelineResponse), result.Invoke(nameof(ClientResult.GetRawResponse)), out var response);
+            var responseDeclaration = UsingDeclare("response", ClientModelPlugin.Instance.TypeFactory.HttpResponseApi.HttpResponseType, result.AsExpression.ToApi<ClientResponseApi>().GetRawResponse(), out var response);
             // using JsonDocument document = JsonDocument.Parse(response.Content);
             var document = UsingDeclare(
                 "document",
                 typeof(JsonDocument),
-                JsonDocumentSnippets.Parse(response.Property(nameof(PipelineResponse.Content)).As<BinaryData>()),
+                JsonDocumentSnippets.Parse(response.Property(nameof(HttpResponseApi.Content)).As<BinaryData>()),
                 out var docVariable);
             // return DeserializeT(doc.RootElement, ModelSerializationExtensions.WireOptions);
             var deserialize = Return(_model.Type.Deserialize(docVariable.As<JsonDocument>().RootElement(), ModelSerializationExtensionsSnippets.Wire));
@@ -195,13 +196,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private MethodProvider BuildImplicitToBinaryContent()
         {
-            var model = new ParameterProvider(Type.Name.ToVariableName(), $"The {Type:C} to serialize into {typeof(BinaryContent):C}", Type);
+            var model = new ParameterProvider(Type.Name.ToVariableName(), $"The {Type:C} to serialize into {ClientModelPlugin.Instance.TypeFactory.RequestContentApi.RequestContentType:C}", Type);
             var modifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Implicit | MethodSignatureModifiers.Operator;
             // return BinaryContent.Create(model, ModelSerializationExtensions.WireOptions);
-            var binaryContentMethod = Static(typeof(BinaryContent)).Invoke(nameof(BinaryContent.Create), [model, ModelSerializationExtensionsSnippets.Wire]);
             return new MethodProvider(
-                new MethodSignature(nameof(BinaryContent), null, modifiers, null, null, [model]),
-                Return(binaryContentMethod),
+                new MethodSignature(ClientModelPlugin.Instance.TypeFactory.RequestContentApi.RequestContentType.FrameworkType.Name, null, modifiers, null, null, [model]),
+                ClientModelPlugin.Instance.TypeFactory.RequestContentApi.ToExpression().Create(model),
                 this);
         }
 
@@ -710,28 +710,51 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             Dictionary<JsonValueKind, List<MethodBodyStatement>> additionalPropsValueKindBodyStatements = [];
             var parameters = SerializationConstructor.Signature.Parameters;
 
+            // Parse the custom serialization attributes
+            List<AttributeData> serializationAttributes = _model.CustomCodeView?.GetAttributes()
+                .Where(a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenSerializationAttributeName)
+                .ToList() ?? [];
+            var baseModelProvider = _model.BaseModelProvider;
+
+            while (baseModelProvider != null)
+            {
+                var customCodeView = baseModelProvider.CustomCodeView;
+                if (customCodeView != null)
+                {
+                    serializationAttributes
+                        .AddRange(customCodeView.GetAttributes()
+                        .Where(a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenSerializationAttributeName));
+                }
+                baseModelProvider = baseModelProvider.BaseModelProvider;
+            }
+
             // Create each property's deserialization statement
             for (int i = 0; i < parameters.Count; i++)
             {
                 var parameter = parameters[i];
-                if (parameter.Property is { } property)
+                if (parameter.Property != null || parameter.Field != null)
                 {
                     // handle additional properties
-                    if (property != _additionalBinaryDataProperty && property.IsAdditionalProperties)
+                    if (parameter.Property != null && parameter.Property != _additionalBinaryDataProperty && parameter.Property.IsAdditionalProperties)
                     {
-                        AddAdditionalPropertiesValueKindStatements(additionalPropsValueKindBodyStatements, property, jsonProperty);
+                        AddAdditionalPropertiesValueKindStatements(additionalPropsValueKindBodyStatements, parameter.Property, jsonProperty);
                         continue;
                     }
 
+                    var wireInfo = parameter.Property?.WireInfo ?? parameter.Field?.WireInfo;
+
                     // By default, we should only deserialize properties with wire info. Those properties without wire info indicate they are not spec properties.
-                    if (property.WireInfo is not { } wireInfo)
+                    if (wireInfo == null)
                     {
                         continue;
                     }
                     var propertySerializationName = wireInfo.SerializedName;
+                    var propertyName = parameter.Property?.Name ?? parameter.Field?.Name;
+                    var propertyType = parameter.Property?.Type ?? parameter.Field?.Type;
+                    var propertyExpression = parameter.Property?.AsVariableExpression ?? parameter.Field?.AsVariableExpression;
                     var checkIfJsonPropEqualsName = new IfStatement(jsonProperty.NameEquals(propertySerializationName))
                     {
-                        DeserializeProperty(property, jsonProperty)
+                        DeserializeProperty(propertyName!, propertyType!, wireInfo, propertyExpression!, jsonProperty, serializationAttributes)
                     };
                     propertyDeserializationStatements.Add(checkIfJsonPropEqualsName);
                 }
@@ -752,7 +775,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var rawBinaryData = _rawDataField;
             if (rawBinaryData == null)
             {
-                var baseModelProvider = _model.BaseModelProvider;
+                baseModelProvider = _model.BaseModelProvider;
                 while (baseModelProvider != null)
                 {
                     var field = baseModelProvider.Fields.FirstOrDefault(f => f.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
@@ -1032,19 +1055,22 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         }
 
         private MethodBodyStatement[] DeserializeProperty(
-            PropertyProvider property,
-            ScopedApi<JsonProperty> jsonProperty)
+            string propertyName,
+            CSharpType propertyType,
+            PropertyWireInformation wireInfo,
+            VariableExpression variableExpression,
+            ScopedApi<JsonProperty> jsonProperty,
+            IEnumerable<AttributeData> serializationAttributes)
         {
-            var serializationFormat = property.WireInfo?.SerializationFormat ?? SerializationFormat.Default;
-            var propertyVarReference = property.AsVariableExpression;
+            var serializationFormat = wireInfo.SerializationFormat;
+            var propertyVarReference = variableExpression;
             var deserializationStatements = new MethodBodyStatement[2]
             {
-                DeserializeValue(property.Type, jsonProperty.Value(), serializationFormat, out ValueExpression value),
+                DeserializeValue(propertyType, jsonProperty.Value(), serializationFormat, out ValueExpression value),
                 propertyVarReference.Assign(value).Terminate()
             };
 
-            foreach (var attribute in _model.CustomCodeView?.GetAttributes()
-                         .Where(a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenSerializationAttributeName) ?? [])
+            foreach (var attribute in serializationAttributes)
             {
                 if (CodeGenAttributes.TryGetCodeGenSerializationAttributeValue(
                         attribute,
@@ -1052,19 +1078,20 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         out _,
                         out _,
                         out var deserializationHook,
-                        out _) && name == property.Name && deserializationHook != null)
+                        out _) && name == propertyName && deserializationHook != null)
                 {
                     deserializationStatements =
                         [Static().Invoke(
                             deserializationHook,
                             jsonProperty,
                             ByRef(propertyVarReference)).Terminate()];
+                    break;
                 }
             }
 
             return
             [
-                DeserializationPropertyNullCheckStatement(property, jsonProperty, propertyVarReference),
+                DeserializationPropertyNullCheckStatement(propertyType, wireInfo, jsonProperty, propertyVarReference),
                 deserializationStatements,
                 Continue
             ];
@@ -1077,14 +1104,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         /// return a null check for the json property.
         /// </summary>
         private static MethodBodyStatement DeserializationPropertyNullCheckStatement(
-            PropertyProvider property,
+            CSharpType propertyType,
+            PropertyWireInformation wireInfo,
             ScopedApi<JsonProperty> jsonProperty,
             VariableExpression propertyVarRef)
         {
             // Produces: if (prop.Value.ValueKind == System.Text.Json.JsonValueKind.Null)
             var checkEmptyProperty = jsonProperty.Value().ValueKindEqualsNull();
-            CSharpType serializedType = property.Type;
-            var propertyIsRequired = property.WireInfo?.IsRequired ?? false;
+            CSharpType serializedType = propertyType;
+            var propertyIsRequired = wireInfo.IsRequired;
 
             if (serializedType.IsNullable || !propertyIsRequired)
             {
@@ -1291,89 +1319,110 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         /// </summary>
         private MethodBodyStatement[] CreateWritePropertiesStatements()
         {
-            var properties = _model.Properties.Concat(_model.CustomCodeView?.Properties.Where(p => p.WireInfo != null) ?? []);
             List<MethodBodyStatement> propertyStatements = new();
-            foreach (var property in properties)
+            foreach (var property in _model.CanonicalView.Properties)
             {
                 // we should only write those properties with a wire info. Those properties without wireinfo indicate they are not spec properties.
-                if (property.WireInfo is not { } wireInfo)
+                if (property.WireInfo == null)
                 {
                     continue;
                 }
-                var propertySerializationName = wireInfo.SerializedName;
-                var propertySerializationFormat = wireInfo.SerializationFormat;
-                var propertyIsReadOnly = wireInfo.IsReadOnly;
-                var propertyIsRequired = wireInfo.IsRequired;
-                var propertyIsNullable = wireInfo.IsNullable;
 
-                // Generate the serialization statements for the property
-                var serializationStatement = CreateSerializationStatement(property.Type, property, propertySerializationFormat);
+                propertyStatements.Add(CreateWritePropertyStatement(property.WireInfo, property.Type, property.Name, property));
+            }
 
-                // Check for custom serialization hooks
-                foreach (var attribute in _model.CustomCodeView?.GetAttributes()
-                             .Where(a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenSerializationAttributeName) ?? [])
+            foreach (var field in _model.CanonicalView.Fields)
+            {
+                // we should only write those properties with a wire info. Those properties without wireinfo indicate they are not spec properties.
+                if (field.WireInfo == null)
                 {
-                    if (CodeGenAttributes.TryGetCodeGenSerializationAttributeValue(
-                            attribute,
-                            out var name,
-                            out _,
-                            out var serializationHook,
-                            out _,
-                            out _) && name == property.Name && serializationHook != null)
-                    {
-                        serializationStatement = This.Invoke(
-                                serializationHook,
-                                _utf8JsonWriterSnippet,
-                                _serializationOptionsParameter)
-                            .Terminate();
-                    }
+                    continue;
                 }
 
-                var writePropertySerializationStatements = new MethodBodyStatement[]
-                {
-                    _utf8JsonWriterSnippet.WritePropertyName(propertySerializationName),
-                    serializationStatement
-                };
-
-                // Wrap the serialization statement in a check for whether the property is defined
-                var wrapInIsDefinedStatement = WrapInIsDefined(property, property, propertyIsRequired, propertyIsReadOnly, propertyIsNullable, writePropertySerializationStatements);
-                if (propertyIsReadOnly && wrapInIsDefinedStatement is not IfStatement)
-                {
-                    wrapInIsDefinedStatement = new IfStatement(_isNotEqualToWireConditionSnippet)
-                    {
-                        wrapInIsDefinedStatement
-                    };
-                }
-                propertyStatements.Add(wrapInIsDefinedStatement);
+                propertyStatements.Add(CreateWritePropertyStatement(field.WireInfo, field.Type, field.Name, field));
             }
 
             return [.. propertyStatements];
         }
 
-        /// <summary>
-        /// Wraps the serialization statement in a condition check to ensure only initialized and required properties are serialized.
-        /// </summary>
-        /// <param name="propertyProvider">The model property.</param>
-        /// <param name="propertyMemberExpression">The expression representing the property to serialize.</param>
-        /// <param name="writePropertySerializationStatement">The serialization statement to conditionally execute.</param>
-        /// <returns>A method body statement that includes condition checks before serialization.</returns>
+        private MethodBodyStatement CreateWritePropertyStatement(
+            PropertyWireInformation wireInfo,
+            CSharpType propertyType,
+            string propertyName,
+            MemberExpression propertyExpression)
+        {
+            var propertySerializationName = wireInfo.SerializedName;
+            var propertySerializationFormat = wireInfo.SerializationFormat;
+            var propertyIsReadOnly = wireInfo.IsReadOnly;
+            var propertyIsRequired = wireInfo.IsRequired;
+            var propertyIsNullable = wireInfo.IsNullable;
+
+            // Generate the serialization statements for the property
+            var serializationStatement = CreateSerializationStatement(propertyType, propertyExpression, propertySerializationFormat);
+
+            // Check for custom serialization hooks
+            foreach (var attribute in _model.CustomCodeView?.GetAttributes()
+                         .Where(a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenSerializationAttributeName) ?? [])
+            {
+                if (CodeGenAttributes.TryGetCodeGenSerializationAttributeValue(
+                        attribute,
+                        out var name,
+                        out _,
+                        out var serializationHook,
+                        out _,
+                        out _) && name == propertyName && serializationHook != null)
+                {
+                    serializationStatement = This.Invoke(
+                            serializationHook,
+                            _utf8JsonWriterSnippet,
+                            _serializationOptionsParameter)
+                        .Terminate();
+                }
+            }
+
+            var writePropertySerializationStatements = new MethodBodyStatement[]
+            {
+                _utf8JsonWriterSnippet.WritePropertyName(propertySerializationName),
+                serializationStatement
+            };
+
+            // Wrap the serialization statement in a check for whether the property is defined
+            var wrapInIsDefinedStatement = WrapInIsDefined(
+                propertyExpression,
+                propertyType,
+                wireInfo,
+                propertyIsRequired,
+                propertyIsReadOnly,
+                propertyIsNullable,
+                writePropertySerializationStatements);
+            if (propertyIsReadOnly && wrapInIsDefinedStatement is not IfStatement)
+            {
+                wrapInIsDefinedStatement = new IfStatement(_isNotEqualToWireConditionSnippet)
+                {
+                    wrapInIsDefinedStatement
+                };
+            }
+
+            return wrapInIsDefinedStatement;
+        }
+
         private MethodBodyStatement WrapInIsDefined(
-            PropertyProvider propertyProvider,
-            MemberExpression propertyMemberExpression,
+            MemberExpression propertyExpression,
+            CSharpType propertyType,
+            PropertyWireInformation wireInfo,
             bool propertyIsRequired,
             bool propertyIsReadOnly,
             bool propertyIsNullable,
             MethodBodyStatement writePropertySerializationStatement)
         {
-            var propertyType = propertyProvider.Type;
-
             // Create the first conditional statement to check if the property is defined
             if (propertyIsNullable)
             {
                 writePropertySerializationStatement = CheckPropertyIsInitialized(
-                propertyProvider,
+                propertyType,
+                wireInfo,
                 propertyIsRequired,
-                propertyMemberExpression,
+                propertyExpression,
                 writePropertySerializationStatement);
             }
 
@@ -1384,18 +1433,16 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             // Conditionally serialize based on whether the property is a collection or a single value
-            return CreateConditionalSerializationStatement(propertyType, propertyMemberExpression, propertyIsReadOnly, writePropertySerializationStatement);
+            return CreateConditionalSerializationStatement(propertyType, propertyExpression, propertyIsReadOnly, writePropertySerializationStatement);
         }
 
         private IfElseStatement CheckPropertyIsInitialized(
-            PropertyProvider propertyProvider,
+            CSharpType propertyType,
+            PropertyWireInformation wireInfo,
             bool isPropRequired,
             MemberExpression propertyMemberExpression,
             MethodBodyStatement writePropertySerializationStatement)
         {
-            var propertyType = propertyProvider.Type;
-            var propertySerialization = propertyProvider.WireInfo;
-            var propertyName = propertySerialization?.SerializedName ?? propertyProvider.Name;
             ScopedApi<bool> propertyIsInitialized;
 
             if (propertyType.IsCollection && !propertyType.IsReadOnlyMemory && isPropRequired)
@@ -1411,7 +1458,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return new IfElseStatement(
                 propertyIsInitialized,
                 writePropertySerializationStatement,
-                _utf8JsonWriterSnippet.WriteNull(propertyName.ToVariableName()));
+                _utf8JsonWriterSnippet.WriteNull(wireInfo.SerializedName.ToVariableName()));
         }
 
         /// <summary>
