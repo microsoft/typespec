@@ -30,7 +30,7 @@
     "regen-samples": "pnpm -r run regen-samples",
     "test": "vitest run",
     "test:ci": "vitest run  --coverage --reporter=junit --reporter=default",
-    "test:e2e": "pnpm -r run test:e2e",
+    "test:e2e": "pnpm -r run test:e2e  && pnpm generate-scenarios-summary",
     "generate-scenarios-summary": "pnpm -r run generate-scenarios-summary",
     "update-latest-docs": "pnpm -r run update-latest-docs",
     "watch": "tsc --build ./tsconfig.ws.json --watch",

@@ -19,9 +19,6 @@ jobs:
       - script: pnpm run test:e2e
         displayName: E2E Tests
 
-      - script: pnpm run generate-scenarios-summary
-        displayName: Generate Scenarios Summary
-
       - task: 1ES.PublishPipelineArtifact@1
         inputs:
           path: ./packages/playground-website/test-results
