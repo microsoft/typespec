@@ -419,7 +419,7 @@ const VERB_DECORATORS = [$get, $head, $post, $put, $patch, $delete];
 
 export interface HttpServer {
   url: string;
-  description: string;
+  description: string | undefined;
   parameters: Map<string, ModelProperty>;
 }
 
@@ -434,7 +434,7 @@ export const $server: ServerDecorator = (
   context: DecoratorContext,
   target: Namespace,
   url: string,
-  description: string,
+  description?: string,
   parameters?: Type,
 ) => {
   const params = extractParamsFromPath(url);
