@@ -1,7 +1,7 @@
 ---
 changeKind: fix
 packages:
-  - typespec-vs
+  - "@typespec/internal-build-utils"
 ---
 
 Fix bug: skip package.json whose name is undefined
