@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
@@ -50,6 +51,16 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             var inputType = InputFactory.Parameter("testParam", paramType, isRequired: true);
             var parameter = CodeModelPlugin.Instance.TypeFactory.CreateParameter(inputType);
             Assert.AreEqual(ParameterValidationType.None, parameter.Validation);
+        }
+
+        [Test]
+        public void ValidateArrayHandling()
+        {
+            MockHelpers.LoadMockPlugin();
+            var inputType = InputFactory.Parameter("testParam", InputFactory.Array(InputPrimitiveType.String), isRequired: true);
+            var parameter = CodeModelPlugin.Instance.TypeFactory.CreateParameter(inputType);
+            Assert.IsTrue(parameter.Type.Equals(typeof(IList<string>)));
+            Assert.IsTrue(parameter.ToPublicInputParameter().Type.Equals(typeof(IEnumerable<string>)));
         }
 
         private static IEnumerable<InputType> ValueInputTypes()

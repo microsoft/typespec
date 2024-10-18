@@ -381,10 +381,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     null,
                     null);
 
-                var paramProvider = ClientModelPlugin.Instance.TypeFactory.CreateParameter(inputParameter);
+                var paramProvider = ClientModelPlugin.Instance.TypeFactory.CreateParameter(inputParameter).ToPublicInputParameter();
                 paramProvider.DefaultValue = !inputParameter.IsRequired ? Default : null;
                 paramProvider.SpreadSource = ClientModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
-                paramProvider.Type = paramProvider.Type.InputType;
 
                 builtParameters[index++] = paramProvider;
             }
@@ -427,7 +426,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
                 var spreadInputModel = inputParam.Kind == InputOperationParameterKind.Spread ? GetSpreadParameterModel(inputParam) : null;
 
-                ParameterProvider? parameter = ClientModelPlugin.Instance.TypeFactory.CreateParameter(inputParam);
+                ParameterProvider? parameter = ClientModelPlugin.Instance.TypeFactory.CreateParameter(inputParam).ToPublicInputParameter();
 
                 if (isProtocol)
                 {

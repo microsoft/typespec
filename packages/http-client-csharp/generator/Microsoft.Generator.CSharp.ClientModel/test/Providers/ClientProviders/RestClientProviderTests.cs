@@ -24,7 +24,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             properties:
             [
                 InputFactory.Property("p1", InputPrimitiveType.String, isRequired: true),
-                InputFactory.Property("optionalProp", InputPrimitiveType.String, isRequired: false)
+                InputFactory.Property("optionalProp1", InputPrimitiveType.String, isRequired: false),
+                InputFactory.Property("optionalProp2", InputFactory.Array(InputPrimitiveType.String), isRequired: false)
             ]);
 
         public RestClientProviderTests()
@@ -142,9 +143,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 // validate spread parameters
                 Assert.AreEqual(_spreadModel.Properties[0].Name, methodParameters[1].Name);
                 Assert.IsNull(methodParameters[1].DefaultValue);
-                // validate optional parameter
+                // validate optional parameters
                 Assert.AreEqual(_spreadModel.Properties[1].Name, methodParameters[2].Name);
                 Assert.AreEqual(Snippet.Default, methodParameters[2].DefaultValue);
+                // validate optional parameters
+                Assert.AreEqual(_spreadModel.Properties[2].Name, methodParameters[3].Name);
+                Assert.AreEqual(Snippet.Default, methodParameters[3].DefaultValue);
+                // the collection parameter should be using the correct input type
+                Assert.IsTrue(methodParameters[3].Type.Equals(typeof(IEnumerable<string>)));
             }
         }
 

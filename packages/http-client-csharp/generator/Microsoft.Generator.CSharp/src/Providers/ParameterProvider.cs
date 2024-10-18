@@ -111,7 +111,8 @@ namespace Microsoft.Generator.CSharp.Providers
                 IsOut,
                 Attributes,
                 property: Property,
-                field: Field)
+                field: Field,
+                location: Location)
             {
                 Validation = Validation,
                 _asVariable = AsExpression,

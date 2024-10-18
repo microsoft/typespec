@@ -99,6 +99,11 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 new CSharpType(typeof(IList<>), typeof(string)),
                 InputFactory.Property("readOnlyCollection", InputFactory.Array(InputPrimitiveType.String), isRequired: true, isReadOnly: true),
                 new CSharpType(typeof(IReadOnlyList<>), typeof(string)));
+            // List<string> -> IList<string>
+            yield return new TestCaseData(
+                new CSharpType(typeof(IList<>), typeof(string)),
+                InputFactory.Property("Collection", InputFactory.Array(InputPrimitiveType.String), isRequired: true, isReadOnly: false),
+                new CSharpType(typeof(IList<>), typeof(string)));
             // Dictionary<string, int> -> IReadOnlyDictionary<string, int>
             yield return new TestCaseData(
                 new CSharpType(typeof(IDictionary<,>), typeof(string), typeof(int)),

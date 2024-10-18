@@ -374,6 +374,33 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             Assert.AreEqual(Helpers.GetExpectedFromFile(), codeFile.Content);
         }
 
+        [Test]
+        public void ValidateMethodSignatureUsesIEnumerable()
+        {
+            MockHelpers.LoadMockPlugin();
+
+            var inputClient = InputFactory.Client(
+                TestClientName,
+                operations:
+                [
+                    InputFactory.Operation(
+                        "Foo",
+                        parameters:
+                        [
+                            InputFactory.Parameter(
+                                "arrayParam",
+                                InputFactory.Array(
+                                    InputPrimitiveType.String))
+                        ])
+                ]);
+            var clientProvider = ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
+            var convenienceMethod = clientProvider.Methods.FirstOrDefault(
+                m => m.Signature.Name == "Foo" &&
+                     !m.Signature.Parameters.Any(p => p.Type.Equals(typeof(RequestOptions))));
+            Assert.IsNotNull(convenienceMethod);
+            Assert.AreEqual(new CSharpType(typeof(IEnumerable<string>)), convenienceMethod!.Signature.Parameters[0].Type);
+        }
+
         [TestCaseSource(nameof(ValidateClientWithSpreadTestCases))]
         public void ValidateClientWithSpread(InputClient inputClient)
         {
