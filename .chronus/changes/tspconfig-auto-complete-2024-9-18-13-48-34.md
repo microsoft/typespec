@@ -5,4 +5,4 @@ packages:
   - typespec-vscode
 ---
 
-Support intellisense for tspconfig.yaml file
+Support completion for tspconfig.yaml file in vscode
