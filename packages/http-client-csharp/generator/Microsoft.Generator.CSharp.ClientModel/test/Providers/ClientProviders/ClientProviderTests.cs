@@ -73,7 +73,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         }
 
         [TestCaseSource(nameof(BuildFieldsTestCases))]
-        public void TestBuildFields(List<InputParameter> inputParameters, bool containsAdditionalOptionalParams)
+        public void TestBuildFields(List<InputParameter> inputParameters, bool containsAdditionalParams)
         {
             var client = InputFactory.Client(TestClientName, parameters: [.. inputParameters]);
             var clientProvider = new ClientProvider(client);
@@ -82,7 +82,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
 
             // validate the fields
             var fields = clientProvider.Fields;
-            if (containsAdditionalOptionalParams)
+            if (containsAdditionalParams)
             {
                 Assert.AreEqual(6, fields.Count);
 
@@ -100,20 +100,20 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 Assert.AreEqual(new CSharpType(typeof(Uri)), endpointField?.Type);
             }
 
-            // validate other optional parameters as fields
-            if (containsAdditionalOptionalParams)
+            // validate other parameters as fields
+            if (containsAdditionalParams)
             {
-                var optionalParamField = fields.FirstOrDefault(f => f.Name == "_optionalParam");
+                var optionalParamField = fields.FirstOrDefault(f => f.Name == "_optionalNullableParam");
                 Assert.IsNotNull(optionalParamField);
-                Assert.AreEqual(new CSharpType(typeof(string)), optionalParamField?.Type);
+                Assert.AreEqual(new CSharpType(typeof(string), isNullable: true), optionalParamField?.Type);
 
-                var optionalParam2Field = fields.FirstOrDefault(f => f.Name == "_optionalParam2");
-                Assert.IsNotNull(optionalParam2Field);
-                Assert.AreEqual(new CSharpType(typeof(string)), optionalParam2Field?.Type);
+                var requiredParam2Field = fields.FirstOrDefault(f => f.Name == "_requiredParam2");
+                Assert.IsNotNull(requiredParam2Field);
+                Assert.AreEqual(new CSharpType(typeof(string), isNullable: false), requiredParam2Field?.Type);
 
-                var optionalParam3Field = fields.FirstOrDefault(f => f.Name == "_optionalParam3");
-                Assert.IsNotNull(optionalParam3Field);
-                Assert.AreEqual(new CSharpType(typeof(long)), optionalParam3Field?.Type);
+                var requiredParam3Field = fields.FirstOrDefault(f => f.Name == "_requiredParam3");
+                Assert.IsNotNull(requiredParam3Field);
+                Assert.AreEqual(new CSharpType(typeof(long), isNullable: false), requiredParam3Field?.Type);
             }
         }
 
@@ -142,6 +142,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             }
             else
             {
+                // The 3 fields are _endpoint, AuthorizationHeader, and _keyCredential
                 Assert.AreEqual(3, fields.Count);
             }
         }
@@ -567,24 +568,28 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 }, false);
                 yield return new TestCaseData(new List<InputParameter>
                 {
+                    // have to explicitly set isRequired because we now call CreateParameter in buildFields
                     InputFactory.Parameter(
-                        "optionalParam",
+                        "optionalNullableParam",
                         InputPrimitiveType.String,
                         location: RequestLocation.None,
                         defaultValue: InputFactory.Constant.String("someValue"),
-                        kind: InputOperationParameterKind.Client),
+                        kind: InputOperationParameterKind.Client,
+                        isRequired: false),
                     InputFactory.Parameter(
-                        "optionalParam2",
+                        "requiredParam2",
                         InputPrimitiveType.String,
                         location: RequestLocation.None,
                         defaultValue: InputFactory.Constant.String("someValue"),
-                        kind: InputOperationParameterKind.Client),
+                        kind: InputOperationParameterKind.Client,
+                        isRequired: true),
                     InputFactory.Parameter(
-                        "optionalParam3",
+                        "requiredParam3",
                         InputPrimitiveType.Int64,
                         location: RequestLocation.None,
                         defaultValue: InputFactory.Constant.Int64(2),
-                        kind: InputOperationParameterKind.Client),
+                        kind: InputOperationParameterKind.Client,
+                        isRequired: true),
                     InputFactory.Parameter(
                         KnownParameters.Endpoint.Name,
                         InputPrimitiveType.String,
