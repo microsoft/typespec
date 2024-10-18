@@ -45,6 +45,8 @@ import {
   WorkspaceEdit,
   WorkspaceFoldersChangeEvent,
 } from "vscode-languageserver/node.js";
+import { TypeSpecConfigJsonSchema } from "../config/config-schema.js";
+import { TypeSpecRawConfig } from "../config/types.js";
 import { CharCode } from "../core/charcode.js";
 import { resolveCodeFix } from "../core/code-fixes.js";
 import { compilerAssert, getSourceLocation } from "../core/diagnostics.js";
@@ -66,6 +68,7 @@ import {
   Diagnostic,
   DiagnosticTarget,
   IdentifierNode,
+  JSONSchemaType,
   Node,
   PositionDetail,
   SourceFile,
@@ -155,6 +158,7 @@ export function createServer(host: ServerHost): Server {
     getCodeActions,
     executeCommand,
     log,
+    getTypeSpecConfigJsonSchema,
   };
 
   async function initialize(params: InitializeParams): Promise<InitializeResult> {
@@ -245,6 +249,10 @@ export function createServer(host: ServerHost): Server {
   function initialized(params: InitializedParams): void {
     isInitialized = true;
     log({ level: "info", message: "Initialization complete." });
+  }
+
+  async function getTypeSpecConfigJsonSchema(): Promise<JSONSchemaType<TypeSpecRawConfig>> {
+    return TypeSpecConfigJsonSchema;
   }
 
   async function workspaceFoldersChanged(e: WorkspaceFoldersChangeEvent) {
