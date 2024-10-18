@@ -19,7 +19,7 @@ jobs:
       - script: pnpm run generate-scenarios-summary
         displayName: Generate Scenarios Summary
 
-      - task: 1ES.PublishPipelineArtifact@2
+      - task: 1ES.PublishPipelineArtifact@1
         inputs:
           path: ./packages/playground-website/test-results
           artifact: "scenariossummaryresults-${{ parameters.os }}-node-${{ parameters.nodeVersion }}"
