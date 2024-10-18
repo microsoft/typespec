@@ -86,6 +86,36 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.AreEqual(1, derivedModelProperties.Count);
         }
 
+        [Test]
+        public void ValidateListParameterHandlingInConstructor()
+        {
+            var properties = new List<InputModelProperty>
+            {
+                InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.String), isRequired: true),
+            };
+
+            var inputModel = InputFactory.Model(
+                "model",
+                usage: InputModelTypeUsage.Input,
+                properties: properties);
+
+            var model = CodeModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
+
+            Assert.NotNull(model);
+            Assert.IsNotNull(model);
+            Assert.AreEqual(1, model!.Properties.Count);
+
+            var fullCtor = model.Constructors.Last();
+            Assert.IsTrue(fullCtor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+            // the internal full ctor should use IList
+            Assert.IsTrue(fullCtor.Signature.Parameters.First().Type.Equals(typeof(IList<string>)));
+
+            var publicCtor = model.Constructors.First();
+            Assert.IsTrue(publicCtor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            // the public ctor should use IEnumerable
+            Assert.IsTrue(publicCtor.Signature.Parameters.First().Type.Equals(typeof(IEnumerable<string>)));
+        }
+
         public static IEnumerable<TestCaseData> BuildProperties_ValidatePropertySettersTestCases
         {
             get
