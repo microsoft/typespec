@@ -28,7 +28,7 @@ class OperationsInitSerializer:
             return "_operations" if self.code_model.options["combine_operation_files"] else operation_group.filename
 
         return [
-            f"from .{_get_filename(og)} import {og.class_name}"
+            f"from .{_get_filename(og)} import {og.class_name}  # type: ignore"
             for client in self.clients
             for og in client.operation_groups
         ]
