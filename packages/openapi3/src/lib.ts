@@ -263,6 +263,24 @@ export const libDef = {
         default: paramMessage`Authentication "${"authType"}" is not a known authentication by the openapi3 emitter, it will be ignored.`,
       },
     },
+    "xml-attribute-ignored-property-type": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`XML \`@attribute\` cannot used on array properties or primitive ones in the OpenAPI 3 emitter, it will be ignored on property '${"name"}'.`,
+      },
+    },
+    "xml-attribute-invalid-property-type": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`XML \`@attribute\` can only be primitive types in the OpenAPI 3 emitter, Property '${"name"}' type will be changed to type: string.`,
+      },
+    },
+    "xml-unwrapped-invalid-property-type": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`XML \`@unwrapped\` can only used on array properties or primitive ones in the OpenAPI 3 emitter, Property '${"name"}' will be ignored.`,
+      },
+    },
   },
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<OpenAPI3EmitterOptions>,
