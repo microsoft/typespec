@@ -107,8 +107,8 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
 
             var fullCtor = model.Constructors.Last();
             Assert.IsTrue(fullCtor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
-            // the internal full ctor should use IEnumerable
-            Assert.IsTrue(fullCtor.Signature.Parameters.First().Type.Equals(typeof(IEnumerable<string>)));
+            // the internal full ctor should use IList
+            Assert.IsTrue(fullCtor.Signature.Parameters.First().Type.Equals(typeof(IList<string>)));
 
             var publicCtor = model.Constructors.First();
             Assert.IsTrue(publicCtor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));

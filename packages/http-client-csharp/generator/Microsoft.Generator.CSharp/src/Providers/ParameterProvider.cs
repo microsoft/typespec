@@ -55,7 +55,7 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 type = type.WithNullable(true);
             }
-            Type = type.InputType;
+            Type = type;
             Validation = inputParameter.IsRequired && !Type.IsValueType && !Type.IsNullable
                 ? ParameterValidationType.AssertNotNull
                 : ParameterValidationType.None;
@@ -79,7 +79,7 @@ namespace Microsoft.Generator.CSharp.Providers
             Debug.Assert(!(property is not null && field is not null), "A parameter cannot be both a property and a field");
 
             Name = name;
-            Type = type.InputType;
+            Type = type;
             Description = description;
             IsRef = isRef;
             IsOut = isOut;
@@ -91,6 +91,32 @@ namespace Microsoft.Generator.CSharp.Providers
             InitializationValue = initializationValue;
             WireInfo = new WireInformation(SerializationFormat.Default, name);
             Location = location ?? ParameterLocation.Unknown;
+        }
+
+        private ParameterProvider? _inputParameter;
+        /// <summary>
+        /// Returns the public input variant of this parameter.
+        /// For example if the parameter is a <see cref="List{T}"/> it will be converted into an <see cref="IEnumerable{T}"/>.
+        /// </summary>
+        public ParameterProvider ToPublicInputParameter() => _inputParameter ??= BuildInputVariant();
+
+        private ParameterProvider BuildInputVariant()
+        {
+            return new(
+                Name,
+                Description,
+                Type.InputType,
+                DefaultValue,
+                IsRef,
+                IsOut,
+                Attributes,
+                property: Property,
+                field: Field,
+                location: Location)
+            {
+                Validation = Validation,
+                _asVariable = AsExpression,
+            };
         }
 
         public override bool Equals(object? obj)

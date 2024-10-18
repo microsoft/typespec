@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
@@ -53,12 +54,13 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         }
 
         [Test]
-        public void ArraysAreConvertedToIEnumerable()
+        public void ValidateArrayHandling()
         {
             MockHelpers.LoadMockPlugin();
             var inputType = InputFactory.Parameter("testParam", InputFactory.Array(InputPrimitiveType.String), isRequired: true);
             var parameter = CodeModelPlugin.Instance.TypeFactory.CreateParameter(inputType);
-            Assert.IsTrue(parameter.Type.Equals(typeof(IEnumerable<string>)));
+            Assert.IsTrue(parameter.Type.Equals(typeof(IList<string>)));
+            Assert.IsTrue(parameter.ToPublicInputParameter().Type.Equals(typeof(IEnumerable<string>)));
         }
 
         private static IEnumerable<InputType> ValueInputTypes()
@@ -90,6 +92,17 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                new ParameterProvider("name", $"Description", new CSharpType(typeof(string)), attributes: [new(new CSharpType(typeof(int)))]),
                new ParameterProvider("name1", $"Description", new CSharpType(typeof(string)), attributes: [new(new CSharpType(typeof(string)))]),
                false);
+        }
+
+        [Test]
+        public void ToPublicInputParameterUsesSameExpression()
+        {
+            MockHelpers.LoadMockPlugin();
+            var inputType = InputFactory.Parameter("testParam", InputPrimitiveType.Int32, isRequired: true);
+            var parameter = CodeModelPlugin.Instance.TypeFactory.CreateParameter(inputType);
+            var expected = parameter.AsExpression;
+            var publicParameter = parameter.ToPublicInputParameter();
+            Assert.AreEqual(expected, publicParameter.AsExpression);
         }
     }
 }

@@ -66,17 +66,17 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         }
 
         [TestCaseSource(nameof(CollectionPropertyTestCases))]
-        public void CollectionProperty(CSharpType coreType, InputModelProperty collectionProperty, CSharpType propertyExpectedType, CSharpType paramExpectedType)
+        public void CollectionProperty(CSharpType coreType, InputModelProperty collectionProperty, CSharpType expectedType)
         {
             var property = new PropertyProvider(collectionProperty, new TestTypeProvider());
             Assert.AreEqual(collectionProperty.Name.ToCleanName(), property.Name);
-            Assert.AreEqual(propertyExpectedType, property.Type);
+            Assert.AreEqual(expectedType, property.Type);
 
             // validate the parameter conversion
             var propertyAsParam = property.AsParameter;
             Assert.IsNotNull(propertyAsParam);
             Assert.AreEqual(collectionProperty.Name.ToVariableName(), propertyAsParam.Name);
-            Assert.AreEqual(paramExpectedType, propertyAsParam.Type);
+            Assert.AreEqual(expectedType, propertyAsParam.Type);
         }
 
         private static IEnumerable<TestCaseData> CollectionPropertyTestCases()
@@ -85,25 +85,21 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             yield return new TestCaseData(
                 new CSharpType(typeof(IList<>), typeof(string)),
                 InputFactory.Property("readOnlyCollection", InputFactory.Array(InputPrimitiveType.String), isRequired: true, isReadOnly: true),
-                new CSharpType(typeof(IReadOnlyList<>), typeof(string)),
-                new CSharpType(typeof(IEnumerable<>), typeof(string)));
+                new CSharpType(typeof(IReadOnlyList<>), typeof(string)));
             // List<string> -> IList<string>
             yield return new TestCaseData(
                 new CSharpType(typeof(IList<>), typeof(string)),
                 InputFactory.Property("Collection", InputFactory.Array(InputPrimitiveType.String), isRequired: true, isReadOnly: false),
-                new CSharpType(typeof(IList<>), typeof(string)),
-                new CSharpType(typeof(IEnumerable<>), typeof(string)));
+                new CSharpType(typeof(IList<>), typeof(string)));
             // Dictionary<string, int> -> IReadOnlyDictionary<string, int>
             yield return new TestCaseData(
                 new CSharpType(typeof(IDictionary<,>), typeof(string), typeof(int)),
                 InputFactory.Property("readOnlyDictionary", InputFactory.Dictionary(InputPrimitiveType.Int32), isRequired: true, isReadOnly: true),
-                new CSharpType(typeof(IReadOnlyDictionary<,>), typeof(string), typeof(int)),
                 new CSharpType(typeof(IReadOnlyDictionary<,>), typeof(string), typeof(int)));
             // string -> string
             yield return new TestCaseData(
                 new CSharpType(typeof(string)),
                 InputFactory.Property("stringProperty", InputPrimitiveType.String, isRequired: true, isReadOnly: true),
-                new CSharpType(typeof(string)),
                 new CSharpType(typeof(string)));
         }
     }
