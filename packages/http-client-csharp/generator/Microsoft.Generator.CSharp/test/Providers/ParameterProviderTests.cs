@@ -95,14 +95,53 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         }
 
         [Test]
-        public void ToPublicInputParameterUsesSameExpression()
+        public void ToPublicInputParameterCopiesProperties()
         {
             MockHelpers.LoadMockPlugin();
             var inputType = InputFactory.Parameter("testParam", InputPrimitiveType.Int32, isRequired: true);
             var parameter = CodeModelPlugin.Instance.TypeFactory.CreateParameter(inputType);
-            var expected = parameter.AsExpression;
             var publicParameter = parameter.ToPublicInputParameter();
-            Assert.AreEqual(expected, publicParameter.AsExpression);
+
+            Assert.AreEqual(parameter.AsExpression, publicParameter.AsExpression);
+            Assert.AreEqual(parameter.Attributes, publicParameter.Attributes);
+            Assert.AreEqual(parameter.DefaultValue, publicParameter.DefaultValue);
+            Assert.AreEqual(parameter.Description, publicParameter.Description);
+            Assert.AreEqual(parameter.Field, publicParameter.Field);
+            Assert.AreEqual(parameter.InitializationValue, publicParameter.InitializationValue);
+            Assert.AreEqual(parameter.IsOut, publicParameter.IsOut);
+            Assert.AreEqual(parameter.IsRef, publicParameter.IsRef);
+            Assert.AreEqual(parameter.Location, publicParameter.Location);
+            Assert.AreEqual(parameter.Name, publicParameter.Name);
+            Assert.AreEqual(parameter.Property, publicParameter.Property);
+            Assert.AreEqual(parameter.Validation, publicParameter.Validation);
+            Assert.AreEqual(parameter.WireInfo, publicParameter.WireInfo);
+
+            Assert.AreEqual(parameter.Type.InputType, publicParameter.Type);
+        }
+
+        [Test]
+        public void WithRefCopiesProperties()
+        {
+            MockHelpers.LoadMockPlugin();
+            var inputType = InputFactory.Parameter("testParam", InputPrimitiveType.Int32, isRequired: true);
+            var parameter = CodeModelPlugin.Instance.TypeFactory.CreateParameter(inputType);
+            var refParemeter = parameter.WithRef();
+
+            Assert.AreEqual(parameter.AsExpression, refParemeter.AsExpression);
+            Assert.AreEqual(parameter.Attributes, refParemeter.Attributes);
+            Assert.AreEqual(parameter.DefaultValue, refParemeter.DefaultValue);
+            Assert.AreEqual(parameter.Description, refParemeter.Description);
+            Assert.AreEqual(parameter.Field, refParemeter.Field);
+            Assert.AreEqual(parameter.InitializationValue, refParemeter.InitializationValue);
+            Assert.AreEqual(parameter.Location, refParemeter.Location);
+            Assert.AreEqual(parameter.Name, refParemeter.Name);
+            Assert.AreEqual(parameter.Property, refParemeter.Property);
+            Assert.AreEqual(parameter.Type.InputType, refParemeter.Type);
+            Assert.AreEqual(parameter.Validation, refParemeter.Validation);
+            Assert.AreEqual(parameter.WireInfo, refParemeter.WireInfo);
+
+            Assert.AreEqual(false, refParemeter.IsOut);
+            Assert.AreEqual(true, refParemeter.IsRef);
         }
     }
 }

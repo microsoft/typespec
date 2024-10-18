@@ -40,12 +40,12 @@ namespace Encode.Bytes
 
         public virtual Task<ClientResult> Base64urlAsync(BinaryData value) => throw null;
 
-        public virtual ClientResult Base64urlArray(IList<BinaryData> value, RequestOptions options) => throw null;
+        public virtual ClientResult Base64urlArray(IEnumerable<BinaryData> value, RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> Base64urlArrayAsync(IList<BinaryData> value, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> Base64urlArrayAsync(IEnumerable<BinaryData> value, RequestOptions options) => throw null;
 
-        public virtual ClientResult Base64urlArray(IList<BinaryData> value) => throw null;
+        public virtual ClientResult Base64urlArray(IEnumerable<BinaryData> value) => throw null;
 
-        public virtual Task<ClientResult> Base64urlArrayAsync(IList<BinaryData> value) => throw null;
+        public virtual Task<ClientResult> Base64urlArrayAsync(IEnumerable<BinaryData> value) => throw null;
     }
 }
