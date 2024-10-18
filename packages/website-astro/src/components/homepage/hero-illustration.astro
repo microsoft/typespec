@@ -1,0 +1,104 @@
+---
+import { Code, TabItem, Tabs } from "@astrojs/starlight/components";
+import Window from "../window.astro";
+import openapiTsp from "@site/src/assets/tsp-samples/homepage/hero/http/main.tsp?raw";
+import openapiYaml from "@site/src/assets/tsp-samples/homepage/hero/http/out/openapi.yaml?raw";
+import jsonSchemaTsp from "@site/src/assets/tsp-samples/homepage/hero/json-schema/main.tsp?raw";
+import jsonSchemaOutput from "@site/src/assets/tsp-samples/homepage/hero/json-schema/out/schema.yaml?raw";
+import protobufTsp from "@site/src/assets/tsp-samples/protobuf/hero/main.tsp?raw";
+import protobufOutput from "@site/src/assets/tsp-samples/protobuf/hero/out/addressbook.proto?raw";
+import clsx from "clsx";
+---
+
+<style>
+  /* Patch starlight tabs to look like fluent design */
+  .hero-illustration > :global(starlight-tabs) {
+    display: flex;
+    flex-direction: column-reverse;
+
+    .tablist-wrapper {
+      align-self: center;
+    }
+
+    [role="tablist"] {
+      border-bottom: 0;
+    }
+    .tab [role="tab"] {
+      border-bottom: 0;
+    }
+    .tab [role="tab"][aria-selected="true"] {
+      border-bottom: 2px solid var(--colorBrandForeground1);
+    }
+  }
+
+  .hero-illustration {
+    width: 1200px;
+  }
+  @media only screen and (max-width: 1200px) {
+    .hero-illustration {
+      width: 700px;
+    }
+  }
+
+  .split-windows {
+    height: 600px;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 2px;
+  }
+
+  .split-window {
+    flex: 1;
+    min-height: 100%;
+    overflow-y: auto;
+    background-color: var(--ec-frm-edBg);
+  }
+
+  .output {
+    font-size: 90%;
+  }
+</style>
+<div class="hero-illustration">
+  <Tabs>
+    <TabItem label="Http">
+      <Window class="hero-illustration">
+        <div class="split-windows">
+          <Code class="split-window" lang="tsp" title="main.tsp" code={openapiTsp} />
+          <Code
+            class={clsx("split-window", "output")}
+            lang="yaml"
+            title="openapi.yaml"
+            code={openapiYaml}
+          />
+        </div>
+      </Window>
+    </TabItem>
+    <TabItem label="Json Schema">
+      <Window class="hero-illustration">
+        <div class="split-windows">
+          <Code class="split-window" lang="tsp" title="main.tsp" code={jsonSchemaTsp} />
+          <Code
+            class={clsx("split-window", "output")}
+            lang="yaml"
+            title="schema.yaml"
+            code={jsonSchemaOutput}
+          />
+        </div>
+      </Window>
+    </TabItem>
+    <TabItem label="Protobuf">
+      <Window class="hero-illustration">
+        <div class="split-windows">
+          <Code class="split-window" lang="tsp" title="main.tsp" code={protobufTsp} />
+          <Code
+            class={clsx("split-window", "output")}
+            lang="proto"
+            title="addressbook.proto"
+            code={protobufOutput}
+          />
+        </div>
+      </Window>
+    </TabItem>
+  </Tabs>
+</div>
