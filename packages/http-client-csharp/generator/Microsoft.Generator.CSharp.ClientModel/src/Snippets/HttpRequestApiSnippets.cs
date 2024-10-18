@@ -3,6 +3,7 @@
 
 using System;
 using System.ClientModel.Primitives;
+using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
@@ -10,14 +11,8 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
-    internal static class PipelineRequestSnippets
+    internal static class HttpRequestApiSnippets
     {
-        public static ScopedApi<Uri> Uri(this ScopedApi<PipelineRequest> pipelineRequest)
-            => pipelineRequest.Property(nameof(PipelineRequest.Uri)).As<Uri>();
-
-        public static MethodBodyStatement SetMethod(this ScopedApi<PipelineRequest> pipelineRequest, string method)
-            => pipelineRequest.Property("Method").Assign(Literal(method)).Terminate();
-
         public static MethodBodyStatement SetHeaderValue(this ScopedApi<PipelineRequest> pipelineRequest, string name, ValueExpression value)
             => pipelineRequest.Property(nameof(PipelineRequest.Headers)).Invoke(nameof(PipelineRequestHeaders.Set), Literal(name), value).Terminate();
 
@@ -27,7 +22,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         public static MethodBodyStatement SetContent(this ScopedApi<PipelineRequest> pipelineRequest, ValueExpression content)
             => pipelineRequest.Property(nameof(PipelineRequest.Content)).Assign(content).Terminate();
 
-        public static MethodBodyStatement SetHeaderDelimited(this ScopedApi<PipelineRequest> pipelineRequest, string name, ValueExpression value, ValueExpression delimiter, ValueExpression? format = null)
+        public static MethodBodyStatement SetHeaderDelimited(this HttpRequestApi pipelineRequest, string name, ValueExpression value, ValueExpression delimiter, ValueExpression? format = null)
         {
             ValueExpression[] parameters = format != null ? [Literal(name), value, delimiter, format] : [Literal(name), value, delimiter];
             return pipelineRequest.Property(nameof(PipelineRequest.Headers)).Invoke("SetDelimited", parameters).Terminate();
