@@ -72,7 +72,9 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         [TestCaseSource(nameof(CollectionPropertyTestCases))]
         public void CollectionProperty(CSharpType coreType, InputModelProperty collectionProperty, CSharpType expectedType)
         {
+            InputFactory.Model("TestModel", properties: [collectionProperty]);
             var property = new PropertyProvider(collectionProperty, new TestTypeProvider());
+
             Assert.AreEqual(collectionProperty.Name.ToCleanName(), property.Name);
             Assert.AreEqual(expectedType, property.Type);
 
