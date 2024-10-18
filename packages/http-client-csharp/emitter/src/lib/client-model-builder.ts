@@ -24,8 +24,9 @@ import { Logger } from "./logger.js";
 import { navigateModels } from "./model.js";
 import { fromSdkServiceMethod, getParameterDefaultValue } from "./operation-converter.js";
 import { processServiceAuthentication } from "./service-authentication.js";
+import { CodeModelType, Hook } from "../emitter.js";
 
-export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeModel {
+export function createModel<T extends CodeModelType>(sdkContext: SdkContext<NetEmitterOptions>, hook?: Hook<T>): CodeModel {
   const sdkPackage = sdkContext.sdkPackage;
 
   const sdkTypeMap: SdkTypeMap = {
@@ -48,6 +49,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
     sdkPackage.clients.filter((c) => c.initialization.access === "public"),
     inputClients,
     [],
+    hook
   );
 
   const clientModel: CodeModel = {
@@ -60,30 +62,31 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
   };
   return clientModel;
 
-  function fromSdkClients(
+  function fromSdkClients<T extends CodeModelType>(
     clients: SdkClientType<SdkHttpOperation>[],
     inputClients: InputClient[],
     parentClientNames: string[],
+    hook?: Hook<T>
   ) {
     for (const client of clients) {
-      const inputClient = emitClient(client, parentClientNames);
+      const inputClient = emitClient(client, parentClientNames, hook);
       inputClients.push(inputClient);
       const subClients = client.methods
         .filter((m) => m.kind === "clientaccessor")
         .map((m) => m.response as SdkClientType<SdkHttpOperation>);
       parentClientNames.push(inputClient.Name);
-      fromSdkClients(subClients, inputClients, parentClientNames);
+      fromSdkClients(subClients, inputClients, parentClientNames, hook);
       parentClientNames.pop();
     }
   }
 
-  function emitClient(client: SdkClientType<SdkHttpOperation>, parentNames: string[]): InputClient {
+  function emitClient<T extends CodeModelType>(client: SdkClientType<SdkHttpOperation>, parentNames: string[], hook?: Hook<T>): InputClient {
     const endpointParameter = client.initialization.properties.find(
       (p) => p.kind === "endpoint",
     ) as SdkEndpointParameter;
     const uri = getMethodUri(endpointParameter);
     const clientParameters = fromSdkEndpointParameter(endpointParameter);
-    return {
+    const unbrandingClient =  {
       Name: getClientName(client, parentNames),
       Description: client.summary ?? client.doc,
       Operations: client.methods
@@ -96,6 +99,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
             rootApiVersions,
             sdkContext,
             sdkTypeMap,
+            hook
           ),
         ),
       Protocol: {},
@@ -103,6 +107,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
       Parameters: clientParameters,
       Decorators: client.decorators,
     };
+    return hook?.emitClient ? hook.emitClient(client, unbrandingClient) : unbrandingClient;
   }
 
   function getClientName(
