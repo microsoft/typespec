@@ -20,7 +20,8 @@
   "publisher": "typespec",
   "displayName": "TypeSpec for VS Code",
   "categories": [
-    "Programming Languages"
+    "Programming Languages",
+    "Snippets"
   ],
   "type": "module",
   "main": "./dist/src/extension.cjs",
@@ -140,6 +141,12 @@
             "description": "The arguments to tsp compile"
           }
         }
+      }
+    ],
+    "snippets": [
+      {
+        "language": "typespec",
+        "path": "./snippets.json"
       }
     ]
   },
