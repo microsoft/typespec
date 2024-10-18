@@ -40,9 +40,10 @@
     "@types/react": "~18.3.11",
     "@types/react-dom": "~18.3.0",
     "@types/remark-heading-id": "^1.0.0",
-    "@typespec/playground-website": "workspace:*",
     "@typespec/internal-build-utils": "workspace:~",
+    "@typespec/playground-website": "workspace:*",
     "@typespec/website": "workspace:*",
+    "astro-expressive-code": "^0.37.0",
     "rehype-mermaid": "^3.0.0",
     "remark-heading-id": "^1.0.1",
     "rimraf": "~6.0.1"

@@ -1,0 +1,187 @@
+---
+import Window from "./window.astro";
+const tabs = Object.keys(Astro.slots);
+---
+
+<style>
+  .items {
+    position: relative;
+    z-index: 0;
+    height: 500px;
+  }
+
+  .item {
+    background-color: var(--colorNeutralBackground1);
+    box-shadow: var(--shadow4);
+    box-sizing: border-box;
+    left: 0;
+    transition: left 0.2s linear;
+    width: calc(100% - 100px);
+  }
+
+  .item:not(.item-selected) {
+    position: absolute;
+    top: 10px;
+    left: 96px;
+    max-height: calc(100% - 20px);
+    cursor: pointer;
+  }
+
+  .item:not(.item-selected):hover {
+    outline: 4px solid var(--colorBrandForeground1);
+  }
+
+  .item-selected {
+    position: relative;
+    z-index: 100;
+  }
+
+  .item :global(img) {
+    display: block;
+  }
+  [role="tablist"] {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+  }
+  li {
+    list-style: none;
+  }
+
+  a[role="tab"] {
+    display: block;
+    color: var(--colorNeutralForeground2);
+    cursor: pointer;
+    padding-bottom: 3px;
+    border-bottom: 2px solid transparent;
+  }
+  a[role="tab"]:hover {
+    color: var(--colorBrandForeground1);
+    cursor: pointer;
+    border-bottom-color: var(--colorBrandForeground1);
+  }
+  a[role="tab"][aria-selected="true"] {
+    border-bottom-color: var(--colorBrandForeground1);
+  }
+</style>
+
+<carousel-tabs>
+  <div class="items">
+    {
+      tabs.map(async (name, i) => {
+        const render = await Astro.slots.render(name);
+        return (
+          <Window class:list={["item", i === 0 && "item-selected"]} role="tabpanel">
+            <Fragment set:html={render} />
+          </Window>
+        );
+      })
+    }
+  </div>
+  <ul role="tablist">
+    {
+      tabs.map((name, i) => (
+        <li role="presentation" class="tab">
+          <a
+            role="tab"
+            id={name}
+            aria-selected={i === 0 ? "true" : "false"}
+            tabindex={i !== 0 ? -1 : 0}
+          >
+            {name}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</carousel-tabs>
+
+<script>
+  class CarouselTabs extends HTMLElement {
+    tabs: HTMLAnchorElement[];
+    panels: HTMLElement[];
+
+    constructor() {
+      super();
+      const tablist = this.querySelector<HTMLUListElement>('[role="tablist"]')!;
+      this.tabs = [...tablist.querySelectorAll<HTMLAnchorElement>('[role="tab"]')];
+      this.panels = [...this.querySelectorAll<HTMLElement>('[role="tabpanel"]')];
+      console.log("register", this.tabs);
+
+      this.panels.forEach((panel, i) => {
+        panel.addEventListener("click", (e) => {
+          e.preventDefault();
+          this.switchTab(this.tabs[i], i);
+        });
+      });
+      this.tabs.forEach((tab, i) => {
+        // Handle clicks for mouse users
+        tab.addEventListener("click", (e) => {
+          e.preventDefault();
+          const currentTab = tablist.querySelector('[aria-selected="true"]');
+          if (e.currentTarget !== currentTab) {
+            this.switchTab(e.currentTarget as HTMLAnchorElement, i);
+          }
+        });
+
+        // Handle keyboard input
+        tab.addEventListener("keydown", (e) => {
+          const index = this.tabs.indexOf(e.currentTarget as any);
+          // Work out which key the user is pressing and
+          // Calculate the new tab's index where appropriate
+          const nextIndex =
+            e.key === "ArrowLeft"
+              ? index - 1
+              : e.key === "ArrowRight"
+                ? index + 1
+                : e.key === "Home"
+                  ? 0
+                  : e.key === "End"
+                    ? this.tabs.length - 1
+                    : null;
+          if (nextIndex === null) return;
+          if (this.tabs[nextIndex]) {
+            e.preventDefault();
+            this.switchTab(this.tabs[nextIndex], nextIndex);
+          }
+        });
+      });
+    }
+
+    switchTab(newTab: HTMLAnchorElement | null | undefined, index: number, shouldSync = true) {
+      if (!newTab) return;
+
+      // If tabs should be synced, we store the current position so we can restore it after
+      // switching tabs to prevent the page from jumping when the new tab content is of a different
+      // height than the previous tab.
+      const previousTabsOffset = shouldSync ? this.getBoundingClientRect().top : 0;
+
+      // Mark all tabs as unselected and hide all tab panels.
+      this.tabs.forEach((tab) => {
+        tab.setAttribute("aria-selected", "false");
+        tab.setAttribute("tabindex", "-1");
+      });
+      this.panels.forEach((oldPanel) => {
+        oldPanel.classList.remove("item-selected");
+      });
+
+      // Show new panel and mark new tab as selected.
+      const newPanel = this.panels[index];
+      console.log("Switch", newPanel, this.panels);
+      if (newPanel) newPanel.classList.add("item-selected");
+      // Restore active tab to the default tab order.
+      newTab.removeAttribute("tabindex");
+      newTab.setAttribute("aria-selected", "true");
+      if (shouldSync) {
+        newTab.focus();
+        window.scrollTo({
+          top: window.scrollY + (this.getBoundingClientRect().top - previousTabsOffset),
+        });
+      }
+    }
+  }
+
+  customElements.define("carousel-tabs", CarouselTabs);
+</script>
