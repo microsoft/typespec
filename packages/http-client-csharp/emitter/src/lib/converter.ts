@@ -122,7 +122,7 @@ export function fromSdkModelType(
       ) /* when tcgc provide a way to identify if the access is override or not, we can get the accessibility from the modelType.access */,
       usage: modelType.usage,
       deprecation: modelType.deprecation,
-      description: modelType.description,
+      description: modelType.summary ?? modelType.doc,
       discriminatorValue: modelType.discriminatorValue,
       decorators: modelType.decorators,
     } as InputModelType;
@@ -185,7 +185,7 @@ export function fromSdkModelType(
       kind: property.kind,
       name: property.name,
       serializedName: serializedName,
-      description: property.description,
+      description: property.summary ?? property.doc,
       type: fromSdkType(
         targetType,
         context,
@@ -225,7 +225,7 @@ export function fromSdkEnumType(
         enumType.__raw as any,
       ) /* when tcgc provide a way to identify if the access is override or not, we can get the accessibility from the enumType.access,*/,
       deprecation: enumType.deprecation,
-      description: enumType.description,
+      description: enumType.summary ?? enumType.doc,
       isFixed: enumType.isFixed,
       isFlags: enumType.isFlags,
       usage: enumType.usage,
@@ -386,7 +386,7 @@ function fromSdkEnumValueType(
     value: enumValueType.value,
     valueType: fromSdkBuiltInType(enumValueType.valueType),
     enumType: fromSdkEnumType(enumValueType.enumType, context, typeMap),
-    description: enumValueType.description,
+    description: enumValueType.summary ?? enumValueType.doc,
     decorators: enumValueType.decorators,
   };
 }

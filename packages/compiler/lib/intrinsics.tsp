@@ -70,12 +70,12 @@ scalar uint8 extends uint16;
 scalar safeint extends int64;
 
 /**
- * A 32 bit floating point number. (`±1.5 x 10^−45` to `±3.4 x 10^38`)
+ * A 64 bit floating point number. (`±5.0 × 10^−324` to `±1.7 × 10^308`)
  */
 scalar float64 extends float;
 
 /**
- * A 32 bit floating point number. (`±5.0 × 10^−324` to `±1.7 × 10^308`)
+ * A 32 bit floating point number. (`±1.5 x 10^−45` to `±3.4 x 10^38`)
  */
 scalar float32 extends float64;
 
