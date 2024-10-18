@@ -19,6 +19,7 @@ export type Props = {
 
 const { post, imageLoading } = Astro.props;
 
+console.log("POst", post);
 const image = post.data.image && (await resolveBlogImagePath(post.slug, post.data.image));
 ---
 
