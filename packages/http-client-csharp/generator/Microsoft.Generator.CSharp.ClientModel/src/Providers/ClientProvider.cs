@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
@@ -35,12 +34,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private readonly FieldProvider? _authorizationHeaderConstant;
         private readonly FieldProvider? _authorizationApiKeyPrefixConstant;
         private FieldProvider? _apiVersionField;
-        private readonly ParameterProvider[] _subClientInternalConstructorParams;
+        private readonly List<ParameterProvider> _subClientInternalConstructorParams;
         private IReadOnlyList<Lazy<ClientProvider>>? _subClients;
         private ParameterProvider? _clientOptionsParameter;
         private ClientOptionsProvider? _clientOptions;
         private RestClientProvider? _restClient;
         private readonly InputParameter[] _allClientParameters;
+        private Lazy<List<FieldProvider>> _additionalClientFields;
 
         private ParameterProvider? ClientOptionsParameter => _clientOptionsParameter ??= ClientOptions != null
             ? ScmKnownParameters.ClientOptions(ClientOptions.Type)
@@ -99,6 +99,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             if (_inputClient.Parent != null)
             {
+                // _clientCachingField will only have subClients (children)
+                // The sub-client caching field for the sub-client which is used for building the caching fields within a parent.
                 _clientCachingField = new FieldProvider(
                     FieldModifiers.Private,
                     Type,
@@ -107,8 +109,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             _endpointParameterName = new(GetEndpointParameterName);
-
+            _additionalClientFields = new Lazy<List<FieldProvider>>(() => BuildAdditionalClientFields());
             _allClientParameters = _inputClient.Parameters.Concat(_inputClient.Operations.SelectMany(op => op.Parameters).Where(p => p.Kind == InputOperationParameterKind.Client)).DistinctBy(p => p.Name).ToArray();
+
+            foreach (var field in _additionalClientFields.Value)
+            {
+                _subClientInternalConstructorParams.Add(field.AsParameter);
+            }
         }
 
         private List<ParameterProvider>? _uriParameters;
@@ -164,26 +171,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 }
             }
 
-            foreach (var p in _allClientParameters)
-            {
-                if (!p.IsEndpoint)
-                {
-                    var type = ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(p.Type);
-                    if (type != null)
-                    {
-                        FieldProvider field = new(
-                            FieldModifiers.Private | FieldModifiers.ReadOnly,
-                            type,
-                            "_" + p.Name.ToVariableName(),
-                            this);
-                        if (p.IsApiVersion)
-                        {
-                            _apiVersionField = field;
-                        }
-                        fields.Add(field);
-                    }
-                }
-            }
+            fields.AddRange(_additionalClientFields.Value);
 
             // add sub-client caching fields
             foreach (var subClient in SubClients)
@@ -195,6 +183,36 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             return [.. fields];
+        }
+
+        private List<FieldProvider> BuildAdditionalClientFields()
+        {
+            var fields = new List<FieldProvider>();
+            // Add optional client parameters as fields
+            foreach (var p in _allClientParameters)
+            {
+                if (!p.IsEndpoint)
+                {
+                    var type = p is { IsApiVersion: true, Type: InputEnumType enumType }
+                        ? ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(enumType.ValueType)
+                        : ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(p.Type);
+
+                    if (type != null)
+                    {
+                        FieldProvider field = new(
+                            FieldModifiers.Private | FieldModifiers.ReadOnly,
+                            type.WithNullable(!p.IsRequired),
+                            "_" + p.Name.ToVariableName(),
+                            this);
+                        if (p.IsApiVersion)
+                        {
+                            _apiVersionField = field;
+                        }
+                        fields.Add(field);
+                    }
+                }
+            }
+            return fields;
         }
 
         protected override PropertyProvider[] BuildProperties()
@@ -251,15 +269,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             ParameterProvider? currentParam = null;
             foreach (var parameter in _allClientParameters)
             {
+                currentParam = null;
                 if (parameter.IsRequired && !parameter.IsEndpoint && !parameter.IsApiVersion)
                 {
-                    currentParam = ClientModelPlugin.Instance.TypeFactory.CreateParameter(parameter);
-                    currentParam.Field = Fields.FirstOrDefault(f => f.Name == "_" + parameter.Name);
+                    currentParam = CreateParameter(parameter);
                     requiredParameters.Add(currentParam);
                 }
                 if (parameter.Location == RequestLocation.Uri)
                 {
-                    _uriParameters.Add(currentParam ?? ClientModelPlugin.Instance.TypeFactory.CreateParameter(parameter));
+                    _uriParameters.Add(currentParam ?? CreateParameter(parameter));
                 }
             }
 
@@ -267,6 +285,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 requiredParameters.Add(_apiKeyAuthField.AsParameter);
 
             return requiredParameters;
+        }
+
+        private ParameterProvider CreateParameter(InputParameter parameter)
+        {
+            var param = ClientModelPlugin.Instance.TypeFactory.CreateParameter(parameter);
+            param.Field = Fields.FirstOrDefault(f => f.Name == "_" + parameter.Name);
+            return param;
         }
 
         private MethodBodyStatement[] BuildPrimaryConstructorBody(IReadOnlyList<ParameterProvider> primaryConstructorParameters)
@@ -447,6 +472,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             };
         }
 
+        // TODO: Update method to be more efficient
         private IReadOnlyList<Lazy<ClientProvider>> GetSubClients()
         {
             var inputClients = ClientModelPlugin.Instance.InputLibrary.InputNamespace.Clients;

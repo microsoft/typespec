@@ -122,7 +122,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             foreach (var p in _inputClient.Parameters)
             {
-                if (!p.IsEndpoint && p.DefaultValue != null)
+                if (!p.IsEndpoint && !p.IsApiVersion && p.DefaultValue != null)
                 {
                     FormattableString? description = null;
                     if (p.Description != null)
