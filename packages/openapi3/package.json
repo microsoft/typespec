@@ -67,6 +67,11 @@
     "@typespec/openapi": "workspace:~",
     "@typespec/versioning": "workspace:~"
   },
+  "peerDependenciesMeta": {
+    "@typespec/xml": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "@types/node": "~22.7.5",
     "@types/yargs": "~17.0.33",
@@ -77,6 +82,7 @@
     "@typespec/rest": "workspace:~",
     "@typespec/tspd": "workspace:~",
     "@typespec/versioning": "workspace:~",
+    "@typespec/xml": "workspace:~",
     "@vitest/coverage-v8": "^2.1.2",
     "@vitest/ui": "^2.1.2",
     "c8": "^10.1.2",
