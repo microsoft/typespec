@@ -8,7 +8,7 @@ import { Image } from 'astro:assets';
 type Props = CollectionEntry<"blog">["data"];
 
 const { title, image: relativeImage, publishDate } = Astro.props;
-const image = relativeImage && resolveBlogImagePath(Astro.params.slug ?? "", relativeImage);
+const image = relativeImage && await resolveBlogImagePath(Astro.params.slug ?? "", relativeImage);
 ---
 
 <style>
