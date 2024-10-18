@@ -451,7 +451,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private bool ShouldGenerate(FieldProvider field, HashSet<string> customFields)
         {
             // partial fixed enums are not supported so we don't need to check for custom fields in enums
-            if (field.EnclosingType?.IsEnum == true)
+            if (field.EnclosingType?.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Enum) == true)
             {
                 return true;
             }
