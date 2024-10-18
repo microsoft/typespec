@@ -129,9 +129,9 @@ function main() {
   connection.onExecuteCommand(profile(s.executeCommand));
   connection.languages.semanticTokens.on(profile(s.buildSemanticTokens));
 
-  const getTypespecConfigSchemaMethodName: ServerOnRequestMethodName =
+  const getTypespecConfigJsonSchemaMethodName: ServerOnRequestMethodName =
     "typespec/getTypeSpecConfigJsonSchema";
-  connection.onRequest(getTypespecConfigSchemaMethodName, s.getTypeSpecConfigJsonSchema);
+  connection.onRequest(getTypespecConfigJsonSchemaMethodName, s.getTypeSpecConfigJsonSchema);
 
   documents.onDidChangeContent(profile(s.checkChange));
   documents.onDidClose(profile(s.documentClosed));

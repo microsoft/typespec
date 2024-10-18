@@ -45,7 +45,7 @@ async function resolveTspConfigCompleteItems(
         const item: CompletionItem = {
           label: name,
           kind: "field",
-          documentation: (await pkg.getPackageJsonData())?.description ?? `emitter from ${name}`,
+          documentation: (await pkg.getPackageJsonData())?.description ?? `Emitter from ${name}`,
           insertText: `"${name}"`,
         };
         items.push(item);
@@ -59,9 +59,6 @@ async function resolveTspConfigCompleteItems(
       return [];
     }
     const exports = await emitter.getModuleExports();
-    if (exports?.$lib?.emitter?.options === undefined) {
-      return [];
-    }
 
     const builtInEmitterSchema = await schemaProvider.getTypeSpecEmitterConfigJsonSchema();
 
@@ -72,10 +69,14 @@ async function resolveTspConfigCompleteItems(
         })
       : [];
 
-    const itemsFromEmitter = resolveCompleteItems(exports.$lib.emitter.options, {
-      ...target,
-      path: nodePath.slice(CONFIG_PATH_LENGTH_FOR_EMITTER_LIST),
-    });
+    const itemsFromEmitter = [];
+    if (exports?.$lib?.emitter?.options !== undefined) {
+      const more = resolveCompleteItems(exports.$lib.emitter.options, {
+        ...target,
+        path: nodePath.slice(CONFIG_PATH_LENGTH_FOR_EMITTER_LIST),
+      });
+      itemsFromEmitter.push(...more);
+    }
     return [...itemsFromBuiltIn, ...itemsFromEmitter];
   } else {
     const schema = await schemaProvider.getTypeSpecConfigJsonSchema();
@@ -153,6 +154,7 @@ function resolveCompleteItems(
   target: YamlScalarTarget,
 ): CompletionItem[] {
   const { path: nodePath, type: targetType } = target;
+  // if the target is a key which means it's pointing to an object property, we should remove the last element of the path to get it's parent object for its schema
   const path = targetType === "key" ? nodePath.slice(0, -1) : nodePath;
   const foundSchemas = findSchemaByPath(schema, path, 0);
 

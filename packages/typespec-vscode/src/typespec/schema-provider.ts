@@ -6,18 +6,17 @@ export type ObjectJSONSchemaType = JSONSchemaType<object>;
 
 class SchemaProvider {
   private typeSpecConfigJsonSchema: ObjectJSONSchemaType | undefined;
-  private client: LanguageClient | undefined;
 
-  constructor() {}
+  constructor(private client?: LanguageClient | undefined) {}
 
-  init(client: LanguageClient) {
+  setLanguageClient(client: LanguageClient | undefined) {
     this.client = client;
   }
 
   async getTypeSpecConfigJsonSchema(): Promise<ObjectJSONSchemaType | undefined> {
     if (!this.typeSpecConfigJsonSchema) {
       if (!this.client) {
-        logger.debug("Try to use default TypeSpecConfigJsonSchema when LSP client is undefined");
+        logger.debug("Try to use default TypeSpecConfigJsonSchema when no LSP client is defined");
         return this.defaultTypeSpecConfigJsonSchema;
       } else {
         const getSchemaMethod: ServerOnRequestMethodName = "typespec/getTypeSpecConfigJsonSchema";
@@ -37,7 +36,7 @@ class SchemaProvider {
           return this.defaultTypeSpecConfigJsonSchema;
         }
         // the emitters field has been deprecated but not marked in compiler yet
-        // so we mark it here to avoid showing it in the completion list when user's using older compiler
+        // so we mark it here to avoid showing it in the completion list when user's using these old compiler
         if (this.typeSpecConfigJsonSchema.properties?.emitters) {
           this.typeSpecConfigJsonSchema.properties.emitters.deprecated = true;
         }
@@ -51,7 +50,8 @@ class SchemaProvider {
     return schema?.properties?.options?.additionalProperties;
   }
 
-  // copied from packages/compiler/src/config/config-schema.ts to provide "default" emitter config schema when the compiler is too old to provide schema through LSP
+  // copied from packages/compiler/src/config/config-schema.ts to provide "default" emitter config schema when needed. i.e. the compiler is too old to provide schema through LSP
+  // copy should be good enough because the newer schema may not be compatible with the older compiler
   private defaultEmitterOptionsSchema: JSONSchemaType<object> = {
     type: "object",
     additionalProperties: true,
@@ -61,7 +61,8 @@ class SchemaProvider {
     },
   };
 
-  // copied from packages/compiler/src/config/config-schema.ts to provide "default" TypeSpec config schema when the compiler is too old to provide schema through LSP
+  // copied from packages/compiler/src/config/config-schema.ts to provide "default" TypeSpec config schema when needed. i.e. the compiler is too old to provide schema through LSP
+  // copy should be good enough because the newer schema may not be compatible with the older compiler
   private defaultTypeSpecConfigJsonSchema: JSONSchemaType<object> = {
     type: "object",
     additionalProperties: false,

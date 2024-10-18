@@ -125,7 +125,7 @@ async function launchLanguageClient(context: ExtensionContext) {
     client = new LanguageClient(id, name, { run: exe, debug: exe }, options);
     await client.start();
     logger.debug("TypeSpec server started");
-    schemaProvider.init(client);
+    schemaProvider.setLanguageClient(client);
   } catch (e) {
     if (typeof e === "string" && e.startsWith("Launching server using command")) {
       const workspaceFolder = workspace.workspaceFolders?.[0]?.uri?.fsPath ?? "";

@@ -47,6 +47,15 @@ export function debounce<T extends (...args: any[]) => any>(fn: T, delayInMs: nu
   } as T;
 }
 
+export function tryParseJson(content: string): any | undefined {
+  try {
+    return JSON.parse(content);
+  } catch (e) {
+    logger.error("Failed to parse json content.", [e]);
+    return undefined;
+  }
+}
+
 /**
  *
  * @param exe
@@ -67,9 +76,8 @@ export function useShellInExec(exe: Executable, win32Only: boolean = true): Exec
   return exe;
 }
 
-export function isWhitespaceString(str: string | undefined): boolean {
-  if (str === undefined) return false;
-  return /^\s*$/.test(str);
+export function isWhitespaceStringOrUndefined(str: string | undefined): boolean {
+  return !str || /^\s*$/.test(str);
 }
 
 export function firstNonWhitespaceCharacterIndex(line: string): number {
@@ -86,31 +94,35 @@ export function distinctArray<T, P>(arr: T[], keySelector: (item: T) => P): T[] 
 
 /**
  *
- * @param baseDir the dir containing the package.json file
+ * @param packageJsonFolder the folder containing the package.json file
  * @returns
  */
-export async function loadNodePackage(baseDir: string): Promise<NodePackage | undefined> {
-  if (!baseDir) {
-    throw new Error("baseDir is required");
+export async function loadNodePackage(packageJsonFolder: string): Promise<NodePackage | undefined> {
+  if (!packageJsonFolder) {
+    logger.error("packageJsonFolder is required");
+    return undefined;
   }
-  const packageJsonPath = join(baseDir, "package.json");
+  const packageJsonPath = join(packageJsonFolder, "package.json");
   try {
     if (!isFile(packageJsonPath)) {
+      logger.error(`No package.json file found in ${packageJsonFolder}`);
       return undefined;
     }
 
     const content = await logger.profile(`Loading NpmPackage: ${packageJsonPath}`, async () => {
       return await readFile(packageJsonPath, "utf-8");
     });
-    const data = JSON.parse(content) as NodePackage;
+    const data = tryParseJson(content) as NodePackage;
 
-    if (!data) {
-      logger.error(`Invalid package.json file: ${packageJsonPath}. Failed to parse it as json.`);
+    if (!data || !data.name) {
+      logger.error(
+        `Invalid package.json file: ${packageJsonPath}. Failed to parse it as json or parsed json doesn's have name property.`,
+      );
       return undefined;
     }
     return data;
   } catch (e) {
-    logger.error(`Exception when loading package.json from ${baseDir}`, [e]);
+    logger.error(`Exception when loading package.json from ${packageJsonFolder}`, [e]);
     return undefined;
   }
 }

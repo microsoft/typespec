@@ -78,11 +78,11 @@ describe("Test completion for tspconfig", () => {
     it.each([
       {
         config: `emit:\n  - ┆`,
-        expected: ["fake-emitter"],
+        expected: ["fake-emitter", "fake-emitter-no-schema"],
       },
       {
         config: `options:\n\n  fak┆`,
-        expected: ["fake-emitter"],
+        expected: ["fake-emitter", "fake-emitter-no-schema"],
       },
     ])("#%# Test emitters: $config", async ({ config, expected }) => {
       await checkCompletionItems(config, join(__dirname, "./workspace"), expected);
@@ -133,6 +133,10 @@ describe("Test completion for tspconfig", () => {
       {
         config: `options:\n  fake-emitter:\n    target-name: ┆`,
         expected: [],
+      },
+      {
+        config: `options:\n  fake-emitter:\n  fake-emitter-no-schema: \n    ┆`,
+        expected: ["emitter-output-dir"],
       },
       {
         config: `options:\n  fake-emitter:\n    target-name: "fak┆e"`,

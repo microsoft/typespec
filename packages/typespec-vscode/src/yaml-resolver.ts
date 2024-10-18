@@ -14,7 +14,7 @@ import {
   visit,
 } from "yaml";
 import logger from "./log/logger.js";
-import { firstNonWhitespaceCharacterIndex, isWhitespaceString } from "./utils.js";
+import { firstNonWhitespaceCharacterIndex, isWhitespaceStringOrUndefined } from "./utils.js";
 
 type YamlNodePathSegment = Document<Node, true> | Node | Pair;
 export interface YamlScalarTarget {
@@ -67,7 +67,7 @@ export function resolveYamlScalarTarget(
     return undefined;
   }
 
-  if (isWhitespaceString(targetLine) || isCommentLine(targetLine)) {
+  if (isWhitespaceStringOrUndefined(targetLine) || isCommentLine(targetLine)) {
     const indent = position.character;
     if (indent === 0) {
       const rootProperties: string[] = [];
@@ -75,7 +75,10 @@ export function resolveYamlScalarTarget(
         rootProperties.push(
           ...yamlDoc.contents.items.map((item) => (item.key as any).source ?? ""),
         );
-      } else if (isScalar(yamlDoc.contents) && !isWhitespaceString(yamlDoc.contents.source)) {
+      } else if (
+        isScalar(yamlDoc.contents) &&
+        !isWhitespaceStringOrUndefined(yamlDoc.contents.source)
+      ) {
         rootProperties.push(yamlDoc.contents.source);
       }
       return {
@@ -87,7 +90,7 @@ export function resolveYamlScalarTarget(
     }
     for (let i = position.line - 1; i >= 0; i--) {
       const preLine = lines[i];
-      if (isWhitespaceString(preLine) || isCommentLine(preLine)) {
+      if (isWhitespaceStringOrUndefined(preLine) || isCommentLine(preLine)) {
         continue;
       }
       const preIndent = getIndentOfYamlLine(preLine);
@@ -120,13 +123,7 @@ export function resolveYamlScalarTarget(
         // adjust path and sibling for the whitespace line
         if (yp.type === "arr-item") {
           // the sibling node is a plain text value of an array (otherwise there should be an map node under the seq node)
-          // in this case, we would assume that the plain text value is actually an object with current white line as the first property
-          return {
-            path: yp.path,
-            type: "key",
-            source: "",
-            siblings: [],
-          };
+          return undefined;
         } else {
           return {
             path: [...yp.path.slice(0, yp.path.length - 1), ""],
@@ -157,7 +154,7 @@ export function resolveYamlScalarTarget(
           isPair(last) &&
           (last.value === null ||
             isMap(last.value) ||
-            (isScalar(last.value) && isWhitespaceString(last.value.source)))
+            (isScalar(last.value) && isWhitespaceStringOrUndefined(last.value.source)))
         ) {
           const yp = createYamlPathFromVisitScalarNode(found, pos);
           if (!yp || yp.path.length === 0) {
@@ -215,7 +212,7 @@ function createYamlPathFromVisitScalarNode(
         path.push(index.toString());
       } else {
         logger.debug(
-          `Unexpected path structure. the next element isn't found in the sequence: ${inspect(next)}`,
+          `Unexpected path structure. the next element isn't found in the sequence(array): ${inspect(next)}`,
         );
         return undefined;
       }

@@ -1,10 +1,11 @@
 import type { NodePackage } from "@typespec/compiler";
 import { FSWatcher, watch, WatchEventType, WatchListener } from "fs";
 import { dirname, join } from "path";
+import logger from "./log/logger.js";
 import {
   debounce,
   isFile,
-  isWhitespaceString,
+  isWhitespaceStringOrUndefined,
   loadModuleExports,
   loadNodePackage,
   normalizePath,
@@ -20,7 +21,7 @@ export class NpmPackageProvider {
    * @returns
    */
   async getPackageJsonFolder(startFolder: string): Promise<string | undefined> {
-    if (isWhitespaceString(startFolder)) {
+    if (isWhitespaceStringOrUndefined(startFolder)) {
       return undefined;
     }
     const key = normalizePath(startFolder);
@@ -143,7 +144,8 @@ export class NpmPackage {
    */
   public static async createFrom(packageJsonFolder: string): Promise<NpmPackage | undefined> {
     if (!packageJsonFolder) {
-      throw new Error("packageJsonFolder is required");
+      logger.error("packageJsonFolder is required");
+      return undefined;
     }
     const data = await loadNodePackage(packageJsonFolder);
     if (!data) {

@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "fake-emitter": "0.0.2",
+    "fake-emitter-no-schema": "0.1.2",
     "fake-yaml": "0.0.1"
   }
 }

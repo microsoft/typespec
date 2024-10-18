@@ -1,12 +1,6 @@
 export type LogLevel = "info" | "warn" | "error" | "debug" | "trace";
 
-export interface LogOptions {
-  /** show the Output window in vscode */
-  showOutput: boolean;
-  /** show the log in vscode popup */
-  showPopup: boolean;
-}
-
+export type LogOptions = Record<string, any>;
 export interface LogItem {
   message: string;
   level: LogLevel;
