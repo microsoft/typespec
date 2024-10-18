@@ -97,6 +97,47 @@ op download(): {
 };
 ```
 
+### `@cookie` {#@TypeSpec.Http.cookie}
+
+Specify this property is to be sent or received in the cookie.
+
+```typespec
+@TypeSpec.Http.cookie(cookieNameOrOptions?: valueof string | TypeSpec.Http.CookieOptions)
+```
+
+#### Target
+
+`ModelProperty`
+
+#### Parameters
+
+| Name                | Type                                            | Description                                                                                                                                                                                       |
+| ------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| cookieNameOrOptions | `valueof string \| TypeSpec.Http.CookieOptions` | Optional name of the cookie in the cookie or cookie options.<br />By default the cookie name will be the property name converted from camelCase to snake_case. (e.g. `authToken` -> `auth_token`) |
+
+#### Examples
+
+```typespec
+op read(@cookie token: string): {
+  data: string[];
+};
+op create(
+  @cookie({
+    name: "auth_token",
+  })
+  data: string[],
+): void;
+```
+
+##### Implicit header name
+
+```typespec
+op read(): {
+  @cookie authToken: string;
+}; // headerName: auth_token
+op update(@cookie AuthToken: string): void; // headerName: auth_token
+```
+
 ### `@delete` {#@TypeSpec.Http.delete}
 
 Specify the HTTP verb for the target operation to be `DELETE`.

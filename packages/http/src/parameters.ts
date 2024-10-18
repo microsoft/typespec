@@ -126,6 +126,7 @@ function getOperationParametersForVerb(
         }
       // eslint-disable-next-line no-fallthrough
       case "query":
+      case "cookie":
       case "header":
         parameters.push({
           ...item.options,

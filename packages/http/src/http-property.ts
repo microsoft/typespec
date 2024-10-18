@@ -10,6 +10,7 @@ import {
   type Program,
 } from "@typespec/compiler";
 import {
+  getCookieParamOptions,
   getHeaderFieldOptions,
   getPathParamOptions,
   getQueryParamOptions,
@@ -20,10 +21,16 @@ import {
 } from "./decorators.js";
 import { createDiagnostic } from "./lib.js";
 import { Visibility, isVisible } from "./metadata.js";
-import { HeaderFieldOptions, PathParameterOptions, QueryParameterOptions } from "./types.js";
+import {
+  CookieParameterOptions,
+  HeaderFieldOptions,
+  PathParameterOptions,
+  QueryParameterOptions,
+} from "./types.js";
 
 export type HttpProperty =
   | HeaderProperty
+  | CookieProperty
   | ContentTypeProperty
   | QueryProperty
   | PathProperty
@@ -42,6 +49,11 @@ export interface HttpPropertyBase {
 export interface HeaderProperty extends HttpPropertyBase {
   readonly kind: "header";
   readonly options: HeaderFieldOptions;
+}
+
+export interface CookieProperty extends HttpPropertyBase {
+  readonly kind: "cookie";
+  readonly options: CookieParameterOptions;
 }
 
 export interface ContentTypeProperty extends HttpPropertyBase {
@@ -96,6 +108,7 @@ function getHttpProperty(
 
   const annotations = {
     header: getHeaderFieldOptions(program, property),
+    cookie: getCookieParamOptions(program, property),
     query: getQueryParamOptions(program, property),
     path: getPathParamOptions(program, property),
     body: isBody(program, property),
@@ -174,6 +187,8 @@ function getHttpProperty(
     } else {
       return createResult({ kind: "header", options: annotations.header });
     }
+  } else if (annotations.cookie) {
+    return createResult({ kind: "cookie", options: annotations.cookie });
   } else if (annotations.query) {
     return createResult({ kind: "query", options: annotations.query });
   } else if (annotations.path) {
