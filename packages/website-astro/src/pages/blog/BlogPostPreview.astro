@@ -1,7 +1,8 @@
 ---
 import Card from "@site/src/components/card.astro";
-import { resolveBlogImagePath } from "@site/src/utils/resolve-image";
+import { resolveBlogImagePath } from "@site/src/pages/blog/resolve-image";
 import { format } from "date-fns";
+import { Image } from "astro:assets";
 
 export type Props = {
   post: {
@@ -18,7 +19,7 @@ export type Props = {
 
 const { post, imageLoading } = Astro.props;
 
-const image = post.data.image && resolveBlogImagePath(post.slug, post.data.image);
+const image = post.data.image && (await resolveBlogImagePath(post.slug, post.data.image));
 ---
 
 <style>
@@ -80,7 +81,7 @@ const image = post.data.image && resolveBlogImagePath(post.slug, post.data.image
 
   .content {
     padding: 1rem;
-    background: var(--colorNeutralBackground2)
+    background: var(--colorNeutralBackground2);
   }
 </style>
 <article aria-labelledby={post.slug}>
@@ -91,24 +92,7 @@ const image = post.data.image && resolveBlogImagePath(post.slug, post.data.image
       </time>
     </header>
     <div class="image-container">
-      {
-        image && (
-          <img
-            class="image"
-            src={post.data.image && resolveBlogImagePath(post.slug, post.data.image)}
-            alt=""
-          />
-          // <Image
-          //   src={image}
-          //   width="766"
-          //   widths={[766, 1500]}
-          //   sizes="90vw"
-          //   alt=""
-          //   class="my-4"
-          //   loading={imageLoading}
-          // />
-        )
-      }
+      {image && <Image class="image" src={image} alt="" loading={imageLoading} />}
     </div>
 
     <div class="content">
