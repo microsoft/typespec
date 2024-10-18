@@ -4,7 +4,7 @@
   "private": true,
   "version": "0.0.1",
   "scripts": {
-    "copy": "cp -r ../../docs/. ./src/content/docs/docs && cp -r ../website/static/. ./src/assets  && cp -r ../website/static/img/. ./public/img  && cp ../website/static/1ds-init.js ./public/1ds-init.js",
+    "copy": "cp -r ../../docs/. ./src/content/docs/docs && cp -r ../website/static/. ./src/assets  && cp -r ../website/static/img/. ./public/img  && cp ../website/static/1ds-init.js ./public/1ds-init.js && cp -r ../../blog/. ./src/content/blog",
     "clean": "rimraf ./dist ./temp ./.astro",
     "dev": "astro dev",
     "start": "astro dev",
@@ -29,6 +29,7 @@
     "@typespec/playground": "workspace:~",
     "astro": "^4.16.1",
     "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
     "es-module-shims": "~1.10.0",
     "prism-react-renderer": "^2.4.0",
     "react": "~18.3.1",
