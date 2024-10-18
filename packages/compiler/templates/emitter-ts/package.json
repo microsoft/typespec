@@ -13,13 +13,14 @@
       "default": "./dist/src/testing/index.js"
     }
   },
-  "dependencies": {
+  "peerDependencies": {
     "@typespec/compiler": "latest"
   },
   "devDependencies": {
     "@types/node": "latest",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
+    "@typespec/compiler": "latest",
     "eslint": "^8.45.0",
     "typescript": "^5.3.3",
     "prettier": "^3.0.3"
