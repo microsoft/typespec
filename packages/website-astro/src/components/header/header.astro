@@ -88,6 +88,10 @@ import Search from "./search.astro";
       justify-content: flex-end;
       flex: 0 0 auto;
     }
+
+    .group-content .item {
+      padding: 0.5rem 1rem;
+    }
   }
 
   .item {
@@ -104,6 +108,14 @@ import Search from "./search.astro";
     color: var(--colorNeutralForeground1);
   }
 
+
+  .group .group-content {
+    opacity: 0;
+    transition: 0.2s ease-in-out;
+  }
+  .group[open] .group-content {
+    opacity: 1;
+  }
   .group > summary {
     display: flex;
     cursor: pointer;
@@ -130,7 +142,7 @@ import Search from "./search.astro";
 
   <div id="header-nav-content" class="nav-content">
     <div class="items">
-      <details class="group item">
+      <details id="use-cases-menu" class="group item">
         <summary>Use cases <Icon name="down-caret" /></summary>
         <ul class="group-content">
           <li><Link class="item link" href="/openapi">OpenAPI</Link></li>
@@ -176,6 +188,17 @@ import Search from "./search.astro";
       navcontent.dataset.open = "false";
     } else {
       navcontent.dataset.open = "true";
+    }
+  });
+
+
+  const menu = document.querySelector<HTMLDetailsElement>("#use-cases-menu")!;
+  menu.addEventListener("focusout", () => {
+    if (!menu.matches(":focus-within")) {
+      // delay the transition on focustout so the menu doesn't immediately disappear
+      setTimeout(() => {
+        menu.open = false;
+      }, 200);
     }
   });
 </script>
