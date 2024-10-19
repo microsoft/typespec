@@ -3,15 +3,25 @@ import type { CollectionEntry } from "astro:content";
 import BaseLayout from "./base-layout.astro";
 import { resolveBlogImagePath } from "../pages/blog/resolve-image";
 import { format } from "date-fns/format";
-import { Image } from 'astro:assets';
+import { Image } from "astro:assets";
 
 type Props = CollectionEntry<"blog">["data"];
 
 const { title, image: relativeImage, publishDate } = Astro.props;
-const image = relativeImage && await resolveBlogImagePath(Astro.params.slug ?? "", relativeImage);
+const image = relativeImage && (await resolveBlogImagePath(Astro.params.slug ?? "", relativeImage));
 ---
 
 <style>
+  .content {
+    min-height: 100%;
+    box-sizing: border-box;
+    font-size: var(--fontSizeBase400);
+  }
+  @media only screen and (min-width: 1024px) {
+    .content {
+      padding: 3rem;
+    }
+  }
   .hero-image {
     width: 100%;
   }
@@ -24,7 +34,6 @@ const image = relativeImage && await resolveBlogImagePath(Astro.params.slug ?? "
     width: 720px;
     max-width: calc(100% - 2em);
     margin: auto;
-    padding: 1em;
   }
   .title {
     margin-bottom: 1em;
@@ -51,30 +60,21 @@ const image = relativeImage && await resolveBlogImagePath(Astro.params.slug ?? "
     border-top: 0;
     border-color: var(--colorNeutralStroke3);
   }
-
-  .content {
-    min-height: 100%;
-    padding: 20px;
-    box-sizing: border-box;
-  }
-
-  
 </style>
 <BaseLayout>
-    <article class="content">
-      <div class="hero-image">
-        {image && <Image src={image} alt="" />}
+  <article class="content">
+    <div class="hero-image">
+      {image && <Image src={image} alt="" />}
+    </div>
+    <div class="prose">
+      <div class="title">
+        <time class="date" datetime={publishDate.toISOString()}>
+          {format(publishDate, "MMMM d, yyyy")}
+        </time>
+        <h1>{title}</h1>
+        <hr />
       </div>
-      <div class="prose">
-        <div class="title">
-          <time class="date" datetime={publishDate.toISOString()}>
-            {format(publishDate, "MMMM d, yyyy")}
-          </time>
-          <h1>{title}</h1>
-          <hr />
-        </div>
-        <slot />
-      </div>
-    </article>
+      <slot />
+    </div>
+  </article>
 </BaseLayout>
-
