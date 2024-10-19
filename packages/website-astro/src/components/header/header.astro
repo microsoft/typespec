@@ -1,6 +1,5 @@
 ---
 import ThemePicker from "../theme-picker.astro";
-import { HeaderMenu } from "./menu";
 import Link from "./link.astro";
 import { Icon } from "@astrojs/starlight/components";
 import Search from "./search.astro";
@@ -9,34 +8,84 @@ import Search from "./search.astro";
 <style>
   .navbar {
     display: flex;
-    position: sticky;
-    z-index: 1000;
+    align-items: center;
     background-color: var(--colorNeutralBackground3);
     padding: 0.5rem 1rem;
     margin: 0;
     box-shadow: var(--shadow4);
+    height: var(--header-height);
   }
-
-  .items {
+  #header-drawer-button {
+    font-size: 1.5rem;
+    background: none;
+    border: none;
     display: flex;
     align-items: center;
-    flex: 1;
-    min-width: 0;
   }
 
-  .items.right {
-    justify-content: flex-end;
-    flex: 0 0 auto;
+  .nav-content {
+    display: none;
+  }
+
+  @media screen and (max-width: 1023px) {
+    .nav-content[data-open="true"] {
+      display: block;
+      position: absolute;
+      top: var(--header-height);
+      left: 0;
+      background-color: var(--colorNeutralBackground2);
+      width: 100vw;
+      height: calc(100vh - var(--header-height));
+      overflow-y: auto;
+    }
+  }
+
+  .nav-content li {
+    padding: 1rem;
+    border-bottom: 1px solid var(--colorNeutralStroke1);
+  }
+
+  .brand-item {
+    flex: 1;
   }
 
   .brand {
     color: var(--colorNeutralForeground1);
-    margin-right: 1rem;
+  }
+
+  @media screen and (min-width: 1024px) {
+    .nav-content {
+      display: flex;
+      flex: 1;
+      position: relative;
+    }
+
+    .nav-content li {
+      border-bottom: 0;
+      padding: 0 0.5rem;
+    }
+
+    .brand-item {
+      flex: 0;
+      margin-right: 1rem;
+    }
+
+    .items {
+      display: flex;
+      align-items: center;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .items.right {
+      justify-content: flex-end;
+      flex: 0 0 auto;
+    }
   }
 
   .item {
     display: inline-block;
-    padding: 0.25rem 0.75rem;
+    /* padding: 0.25rem 0.75rem; */
   }
   .link {
     cursor: pointer;
@@ -97,47 +146,73 @@ import Search from "./search.astro";
     box-shadow: var(--shadow4);
   }
 
-  .group-content li {
+  li {
     list-style: none;
   }
   .group-content a {
     display: flex;
   }
   .group-content a:hover {
-    background-color: var(--colorNeutralBackground2)
+    background-color: var(--colorNeutralBackground2);
   }
 </style>
 <nav aria-label="Main" class="navbar">
-  <div class="items">
-    <Link href="/" class="brand"><b>TypeSpec</b></Link>
-    <details class="group">
-      <summary>Use cases <Icon name="down-caret" /></summary>
-      <ul class="group-content">
-        <li><Link class="item link" href="/openapi">OpenAPI</Link></li>
-        <li><Link class="item link" href="/data-validation">Data Validation</Link></li>
-        <li><Link class="item link" href="/tooling">Tooling support</Link></li>
-      </ul>
-    </details>
-    <Link class="item link" href="/docs">Docs</Link>
-    <Link class="item link" href="/playground">Playground</Link>
-    <!-- TODO: add blog -->
-    <!-- <Link class="item link" href="/blog">Blog</Link> -->
-    <Link class="item link" href="/community">Community</Link>
+  <li class="brand-item"><Link href="/" class="brand"><b>TypeSpec</b></Link></li>
+
+  <div id="header-nav-content" class="nav-content">
+    <div class="items">
+      <li>
+        <details class="group">
+          <summary>Use cases <Icon name="down-caret" /></summary>
+          <ul class="group-content">
+            <li><Link class="item link" href="/openapi">OpenAPI</Link></li>
+            <li><Link class="item link" href="/data-validation">Data Validation</Link></li>
+            <li><Link class="item link" href="/tooling">Tooling support</Link></li>
+          </ul>
+        </details>
+      </li>
+      <li><Link class="item link" href="/docs">Docs</Link></li>
+      <li><Link class="item link" href="/playground">Playground</Link></li>
+      <!-- TODO: add blog -->
+      <!-- <Link class="item link" href="/blog">Blog</Link> -->
+      <li><Link class="item link" href="/community">Community</Link></li>
+    </div>
+    <div class="items right">
+      <li>
+        <Link
+          class="item github-link"
+          href="https://github.com/microsoft/typespec"
+          target="_blank"
+          rel="noopener noreferrer"
+        />
+      </li>
+      <li>
+        <Link
+          class="item discord-link"
+          href="https://aka.ms/typespec/discord"
+          target="_blank"
+          rel="noopener noreferrer"
+        />
+      </li>
+      <li>
+        <ThemePicker />
+      </li>
+    </div>
   </div>
-  <div class="items right">
-    <Link
-      class="item github-link"
-      href="https://github.com/microsoft/typespec"
-      target="_blank"
-      rel="noopener noreferrer"
-    />
-    <Link
-      class="item discord-link"
-      href="https://aka.ms/typespec/discord"
-      target="_blank"
-      rel="noopener noreferrer"
-    />
-    <ThemePicker />
-    <Search />
-  </div>
+  <Search />
+  <button id="header-drawer-button" type="button" class="lg:hidden" title="Show Menu">
+    <Icon name="bars" />
+  </button>
 </nav>
+
+<script>
+  const button = document.querySelector("#header-drawer-button") as HTMLElement;
+  const navcontent = document.querySelector("#header-nav-content") as HTMLElement;
+  button.addEventListener("click", () => {
+    if (navcontent.dataset.open === "true") {
+      navcontent.dataset.open = "false";
+    } else {
+      navcontent.dataset.open = "true";
+    }
+  });
+</script>

@@ -31,3 +31,9 @@ header.header {
   padding: 0;
   padding-inline-end: unset !important;
 }
+
+@media screen and (min-width: 1024px) {
+  .lg\:hidden {
+    display: none;
+  }
+}
