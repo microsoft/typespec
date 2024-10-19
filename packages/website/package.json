@@ -19,7 +19,7 @@
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
     "regen-docs": "node ./.scripts/regen-compiler-docs.mjs",
-    "regen-all-packages-docs": "pnpm -w --filter \"@typespec/website^...\" --filter \"!@typespec/http-specs\" run regen-docs"
+    "regen-all-packages-docs": "pnpm -w --filter \"@typespec/website^...\" --filter \"!@typespec/monorepo\" run regen-docs"
   },
   "keywords": [],
   "author": "",
