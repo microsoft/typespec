@@ -38,6 +38,55 @@ import Search from "./search.astro";
     list-style: none;
   }
 
+  .group summary {
+    display: flex;
+    align-items: center;
+  }
+
+  .group-content {
+    padding: 0;
+    margin: 0;
+  }
+
+  .group-content .item:active {
+    background-color: var(--colorNeutralBackground1Pressed);
+  }
+
+  .item {
+    display: inline-block;
+  }
+
+  .item.link {
+    cursor: pointer;
+    color: var(--colorNeutralForeground1);
+  }
+
+  .icon {
+    font-size: 1.5rem;
+    color: var(--colorNeutralForeground1);
+  }
+
+  .group .group-content {
+    opacity: 0;
+    transition: 0.2s ease-in-out;
+  }
+  .group[open] .group-content {
+    opacity: 1;
+  }
+  .group > summary {
+    display: flex;
+    cursor: pointer;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .group-content .item {
+    display: flex;
+  }
+  .group-content .item:hover {
+    background-color: var(--colorNeutralBackground2);
+  }
+
   @media screen and (max-width: 1023px) {
     .nav-content[data-open="true"] {
       display: block;
@@ -50,10 +99,27 @@ import Search from "./search.astro";
       overflow-y: auto;
     }
 
-    .nav-content .item {
+    .item {
+      display: flex;
       border-bottom: 1px solid var(--colorNeutralStroke1);
       padding: 1rem;
-      display: block;
+    }
+
+    .item:active {
+      background-color: var(--colorNeutralBackground1Pressed);
+    }
+
+    .group-content .item {
+      padding-left: 2rem;
+    }
+
+    .group summary .icon {
+      font-size: 1.5rem;
+      transform: rotate(-90deg);
+      transition: 0.2s ease-in-out;
+    }
+    .group[open] summary .icon {
+      transform: rotate(0);
     }
   }
 
@@ -89,52 +155,16 @@ import Search from "./search.astro";
       flex: 0 0 auto;
     }
 
+    .group-content {
+      position: absolute;
+      background: var(--colorNeutralBackground1);
+      padding: 0;
+      box-shadow: var(--shadow4);
+    }
+
     .group-content .item {
       padding: 0.5rem 1rem;
     }
-  }
-
-  .item {
-    display: inline-block;
-  }
-
-  .item.link {
-    cursor: pointer;
-    color: var(--colorNeutralForeground1);
-  }
-
-  .icon {
-    font-size: 1.5rem;
-    color: var(--colorNeutralForeground1);
-  }
-
-
-  .group .group-content {
-    opacity: 0;
-    transition: 0.2s ease-in-out;
-  }
-  .group[open] .group-content {
-    opacity: 1;
-  }
-  .group > summary {
-    display: flex;
-    cursor: pointer;
-    gap: 0.5rem;
-    align-items: center;
-  }
-
-  .group-content {
-    position: absolute;
-    background: var(--colorNeutralBackground1);
-    padding: 0;
-    box-shadow: var(--shadow4);
-  }
-
-  .group-content a {
-    display: flex;
-  }
-  .group-content a:hover {
-    background-color: var(--colorNeutralBackground2);
   }
 </style>
 <nav aria-label="Main" class="navbar">
@@ -142,8 +172,10 @@ import Search from "./search.astro";
 
   <div id="header-nav-content" class="nav-content">
     <div class="items">
-      <details id="use-cases-menu" class="group item">
-        <summary>Use cases <Icon name="down-caret" /></summary>
+      <details id="use-cases-menu" class="group">
+        <summary class="item"
+          ><span class="grow">Use cases</span> <Icon class="icon" name="down-caret" /></summary
+        >
         <ul class="group-content">
           <li><Link class="item link" href="/openapi">OpenAPI</Link></li>
           <li><Link class="item link" href="/data-validation">Data Validation</Link></li>
@@ -190,7 +222,6 @@ import Search from "./search.astro";
       navcontent.dataset.open = "true";
     }
   });
-
 
   const menu = document.querySelector<HTMLDetailsElement>("#use-cases-menu")!;
   menu.addEventListener("focusout", () => {

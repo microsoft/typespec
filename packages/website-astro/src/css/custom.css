@@ -37,3 +37,7 @@ header.header {
     display: none;
   }
 }
+
+.grow {
+  flex-grow: 1;
+}
