@@ -1,5 +1,9 @@
 @import url("./fluentui.css");
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
   --header-height: 50px;
   --sl-color-text-accent: var(--colorBrandForeground1);
@@ -30,14 +34,4 @@ a {
 header.header {
   padding: 0;
   padding-inline-end: unset !important;
-}
-
-@media screen and (min-width: 1024px) {
-  .lg\:hidden {
-    display: none;
-  }
-}
-
-.grow {
-  flex-grow: 1;
 }
