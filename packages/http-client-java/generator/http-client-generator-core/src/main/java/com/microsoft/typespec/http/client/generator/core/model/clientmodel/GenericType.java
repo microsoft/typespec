@@ -4,7 +4,6 @@
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
-
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
@@ -32,6 +31,7 @@ public class GenericType implements IType {
 
     /**
      * Create a new GenericType from the provided properties.
+     * 
      * @param name The main non-generic type of this generic type.
      * @param typeArguments The type arguments of this generic type.
      */
@@ -44,8 +44,8 @@ public class GenericType implements IType {
             if (Objects.equals(packageKeyword + "." + name, com.azure.core.http.rest.Response.class.getName())) {
                 packageKeyword = "io.clientcore.core.http";
             } else {
-                packageKeyword = packageKeyword
-                        .replace(ExternalPackage.AZURE_CORE_PACKAGE_NAME, ExternalPackage.CLIENTCORE_PACKAGE_NAME);
+                packageKeyword = packageKeyword.replace(ExternalPackage.AZURE_CORE_PACKAGE_NAME,
+                    ExternalPackage.CLIENTCORE_PACKAGE_NAME);
             }
         }
 
@@ -141,7 +141,10 @@ public class GenericType implements IType {
 
     @Override
     public String toString() {
-        return String.format("%1$s<%2$s>", getName(), Arrays.stream(getTypeArguments()).map(typeArgument -> typeArgument.asNullable().toString()).collect(Collectors.joining(", ")));
+        return String.format("%1$s<%2$s>", getName(),
+            Arrays.stream(getTypeArguments())
+                .map(typeArgument -> typeArgument.asNullable().toString())
+                .collect(Collectors.joining(", ")));
     }
 
     /**
@@ -169,12 +172,16 @@ public class GenericType implements IType {
     public boolean equals(Object rhs) {
         boolean tempVar = rhs instanceof GenericType;
         GenericType genericTypeRhs = tempVar ? (GenericType) rhs : null;
-        return tempVar && getPackage().equals(genericTypeRhs.packageName) && getName().equals(genericTypeRhs.name) && Arrays.equals(getTypeArguments(), genericTypeRhs.typeArguments);
+        return tempVar
+            && getPackage().equals(genericTypeRhs.packageName)
+            && getName().equals(genericTypeRhs.name)
+            && Arrays.equals(getTypeArguments(), genericTypeRhs.typeArguments);
     }
 
     @Override
     public int hashCode() {
-        return getPackage().hashCode() + getName().hashCode() + Arrays.stream(getTypeArguments()).map(Object::hashCode).reduce(0, Integer::sum);
+        return getPackage().hashCode() + getName().hashCode()
+            + Arrays.stream(getTypeArguments()).map(Object::hashCode).reduce(0, Integer::sum);
     }
 
     public final IType asNullable() {
@@ -182,7 +189,8 @@ public class GenericType implements IType {
     }
 
     public final boolean contains(IType type) {
-        return this == type || Arrays.stream(getTypeArguments()).anyMatch((IType typeArgument) -> typeArgument.contains(type));
+        return this == type
+            || Arrays.stream(getTypeArguments()).anyMatch((IType typeArgument) -> typeArgument.contains(type));
     }
 
     public void addImportsTo(Set<String> imports, boolean includeImplementationImports) {
@@ -236,18 +244,26 @@ public class GenericType implements IType {
         for (int i = 0; i < clientTypeArguments.length; ++i) {
             if (clientTypeArguments[i] != wireTypeArguments[i]) {
                 if (this instanceof ListType) {
-                    expression = String.format("%1$s.stream().map(el -> %2$s).collect(java.util.stream.Collectors.toList())", expression, wireTypeArguments[i].convertToClientType("el"));
-                } else if (this instanceof IterableType) {
-                    expression = String.format("java.util.stream.StreamSupport.stream(%1$s.spliterator(), false).map" +
-                            "(el -> %2$s).collect(java.util.stream.Collectors.toList())",
+                    expression
+                        = String.format("%1$s.stream().map(el -> %2$s).collect(java.util.stream.Collectors.toList())",
                             expression, wireTypeArguments[i].convertToClientType("el"));
+                } else if (this instanceof IterableType) {
+                    expression = String.format(
+                        "java.util.stream.StreamSupport.stream(%1$s.spliterator(), false).map"
+                            + "(el -> %2$s).collect(java.util.stream.Collectors.toList())",
+                        expression, wireTypeArguments[i].convertToClientType("el"));
                 } else if (this instanceof MapType) {
                     // Key is always String in Swagger 2
-                    expression = String.format("%1$s.entrySet().stream().collect(java.util.stream.Collectors.toMap(Map.Entry::getKey, el -> %2$s))", expression, wireTypeArguments[i].convertToClientType("el.getValue()"));
+                    expression = String.format(
+                        "%1$s.entrySet().stream().collect(java.util.stream.Collectors.toMap(Map.Entry::getKey, el -> %2$s))",
+                        expression, wireTypeArguments[i].convertToClientType("el.getValue()"));
                 } else if (this.getPackage().equals("io.reactivex")) {
-                    expression = String.format("%1$s.map(el => %2$s)", expression, wireTypeArguments[0].convertToClientType("el"));
+                    expression = String.format("%1$s.map(el => %2$s)", expression,
+                        wireTypeArguments[0].convertToClientType("el"));
                 } else {
-                    throw new UnsupportedOperationException(String.format("Instance %1$s of generic type %2$s not supported for conversion to client type.", expression, toString()));
+                    throw new UnsupportedOperationException(
+                        String.format("Instance %1$s of generic type %2$s not supported for conversion to client type.",
+                            expression, toString()));
                 }
                 break;
             }
@@ -267,18 +283,26 @@ public class GenericType implements IType {
         for (int i = 0; i < clientTypeArguments.length; ++i) {
             if (clientTypeArguments[i] != wireTypeArguments[i]) {
                 if (this instanceof ListType) {
-                    expression = String.format("%1$s.stream().map(el -> %2$s).collect(java.util.stream.Collectors.toList())", expression, wireTypeArguments[i].convertFromClientType("el"));
-                } else if (this instanceof IterableType) {
-                    expression = String.format("java.util.stream.StreamSupport.stream(%1$s.spliterator(), false).map" +
-                            "(el -> %2$s).collect(java.util.stream.Collectors.toList())",
+                    expression
+                        = String.format("%1$s.stream().map(el -> %2$s).collect(java.util.stream.Collectors.toList())",
                             expression, wireTypeArguments[i].convertFromClientType("el"));
+                } else if (this instanceof IterableType) {
+                    expression = String.format(
+                        "java.util.stream.StreamSupport.stream(%1$s.spliterator(), false).map"
+                            + "(el -> %2$s).collect(java.util.stream.Collectors.toList())",
+                        expression, wireTypeArguments[i].convertFromClientType("el"));
                 } else if (this instanceof MapType) {
                     // Key is always String in Swagger 2
-                    expression = String.format("%1$s.entrySet().stream().collect(java.util.stream.Collectors.toMap(Map.Entry::getKey, el -> %2$s))", expression, wireTypeArguments[i].convertFromClientType("el.getValue()"));
+                    expression = String.format(
+                        "%1$s.entrySet().stream().collect(java.util.stream.Collectors.toMap(Map.Entry::getKey, el -> %2$s))",
+                        expression, wireTypeArguments[i].convertFromClientType("el.getValue()"));
                 } else if (this.getPackage().equals("io.reactivex")) {
-                    expression = String.format("%1$s.map(el => %2$s)", expression, wireTypeArguments[0].convertFromClientType("el"));
+                    expression = String.format("%1$s.map(el => %2$s)", expression,
+                        wireTypeArguments[0].convertFromClientType("el"));
                 } else {
-                    throw new UnsupportedOperationException(String.format("Instance %1$s of generic type %2$s not supported for conversion from client type.", expression, toString()));
+                    throw new UnsupportedOperationException(String.format(
+                        "Instance %1$s of generic type %2$s not supported for conversion from client type.", expression,
+                        toString()));
                 }
                 break;
             }
@@ -311,7 +335,8 @@ public class GenericType implements IType {
 
     @Override
     public final String xmlSerializationMethodCall(String xmlWriterName, String attributeOrElementName,
-        String namespaceUri, String valueGetter, boolean isAttribute, boolean nameIsVariable, boolean namespaceIsConstant) {
+        String namespaceUri, String valueGetter, boolean isAttribute, boolean nameIsVariable,
+        boolean namespaceIsConstant) {
         return null;
     }
 

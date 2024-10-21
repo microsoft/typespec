@@ -852,6 +852,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "UnbrandedTypeSpec.Thing.name"
     },
@@ -900,6 +901,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "UnbrandedTypeSpec.Thing.requiredUnion"
     },
@@ -921,6 +923,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "UnbrandedTypeSpec.Thing.requiredLiteralString"
     },
@@ -942,6 +945,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "UnbrandedTypeSpec.Thing.requiredLiteralInt"
     },
@@ -963,6 +967,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "UnbrandedTypeSpec.Thing.requiredLiteralFloat"
     },
@@ -988,6 +993,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "UnbrandedTypeSpec.Thing.requiredLiteralBool"
     },
@@ -1009,6 +1015,7 @@
      "optional": true,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "UnbrandedTypeSpec.Thing.optionalLiteralString"
     },
@@ -1030,6 +1037,7 @@
      "optional": true,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "UnbrandedTypeSpec.Thing.optionalLiteralInt"
     },
@@ -1051,6 +1059,7 @@
      "optional": true,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "UnbrandedTypeSpec.Thing.optionalLiteralFloat"
     },
@@ -1076,6 +1085,7 @@
      "optional": true,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "UnbrandedTypeSpec.Thing.optionalLiteralBool"
     },
@@ -1095,6 +1105,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "UnbrandedTypeSpec.Thing.requiredBadDescription"
     },
@@ -1125,6 +1136,7 @@
      "optional": true,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "UnbrandedTypeSpec.Thing.optionalNullableList"
     },
@@ -1155,6 +1167,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "UnbrandedTypeSpec.Thing.requiredNullableList"
     }
@@ -1185,6 +1198,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.requiredString"
     },
@@ -1205,6 +1219,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.requiredInt"
     },
@@ -1227,6 +1242,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.requiredCollection"
     },
@@ -1254,6 +1270,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.requiredDictionary"
     },
@@ -1269,6 +1286,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.requiredModel"
     },
@@ -1284,6 +1302,7 @@
      "optional": true,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.intExtensibleEnum"
     },
@@ -1306,6 +1325,7 @@
      "optional": true,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.intExtensibleEnumCollection"
     },
@@ -1321,6 +1341,7 @@
      "optional": true,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.floatExtensibleEnum"
     },
@@ -1336,6 +1357,7 @@
      "optional": true,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.floatExtensibleEnumWithIntValue"
     },
@@ -1358,6 +1380,7 @@
      "optional": true,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.floatExtensibleEnumCollection"
     },
@@ -1373,6 +1396,7 @@
      "optional": true,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.floatFixedEnum"
     },
@@ -1388,6 +1412,7 @@
      "optional": true,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.floatFixedEnumWithIntValue"
     },
@@ -1410,6 +1435,7 @@
      "optional": true,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.floatFixedEnumCollection"
     },
@@ -1425,6 +1451,7 @@
      "optional": true,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.intFixedEnum"
     },
@@ -1447,6 +1474,7 @@
      "optional": true,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.intFixedEnumCollection"
     },
@@ -1462,6 +1490,7 @@
      "optional": true,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.stringFixedEnum"
     },
@@ -1473,7 +1502,7 @@
      "description": "required unknown",
      "type": {
       "$id": "154",
-      "kind": "any",
+      "kind": "unknown",
       "name": "unknown",
       "crossLanguageDefinitionId": "",
       "decorators": []
@@ -1481,6 +1510,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.requiredUnknown"
     },
@@ -1492,7 +1522,7 @@
      "description": "optional unknown",
      "type": {
       "$id": "156",
-      "kind": "any",
+      "kind": "unknown",
       "name": "unknown",
       "crossLanguageDefinitionId": "",
       "decorators": []
@@ -1500,6 +1530,7 @@
      "optional": true,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.optionalUnknown"
     },
@@ -1521,7 +1552,7 @@
       },
       "valueType": {
        "$id": "160",
-       "kind": "any",
+       "kind": "unknown",
        "name": "unknown",
        "crossLanguageDefinitionId": "",
        "decorators": []
@@ -1531,6 +1562,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.requiredRecordUnknown"
     },
@@ -1552,7 +1584,7 @@
       },
       "valueType": {
        "$id": "164",
-       "kind": "any",
+       "kind": "unknown",
        "name": "unknown",
        "crossLanguageDefinitionId": "",
        "decorators": []
@@ -1562,6 +1594,7 @@
      "optional": true,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.optionalRecordUnknown"
     },
@@ -1583,7 +1616,7 @@
       },
       "valueType": {
        "$id": "168",
-       "kind": "any",
+       "kind": "unknown",
        "name": "unknown",
        "crossLanguageDefinitionId": "",
        "decorators": []
@@ -1593,6 +1626,7 @@
      "optional": false,
      "readOnly": true,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.readOnlyRequiredRecordUnknown"
     },
@@ -1614,7 +1648,7 @@
       },
       "valueType": {
        "$id": "172",
-       "kind": "any",
+       "kind": "unknown",
        "name": "unknown",
        "crossLanguageDefinitionId": "",
        "decorators": []
@@ -1624,6 +1658,7 @@
      "optional": true,
      "readOnly": true,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.readOnlyOptionalRecordUnknown"
     },
@@ -1662,6 +1697,7 @@
         "optional": false,
         "readOnly": false,
         "discriminator": false,
+        "flatten": false,
         "decorators": [],
         "crossLanguageDefinitionId": "UnbrandedTypeSpec.ModelWithRequiredNullableProperties.requiredNullablePrimitive"
        },
@@ -1681,6 +1717,7 @@
         "optional": false,
         "readOnly": false,
         "discriminator": false,
+        "flatten": false,
         "decorators": [],
         "crossLanguageDefinitionId": "UnbrandedTypeSpec.ModelWithRequiredNullableProperties.requiredExtensibleEnum"
        },
@@ -1700,6 +1737,7 @@
         "optional": false,
         "readOnly": false,
         "discriminator": false,
+        "flatten": false,
         "decorators": [],
         "crossLanguageDefinitionId": "UnbrandedTypeSpec.ModelWithRequiredNullableProperties.requiredFixedEnum"
        }
@@ -1708,6 +1746,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.modelWithRequiredNullable"
     },
@@ -1728,6 +1767,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.requiredBytes"
     }
@@ -1761,6 +1801,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "UnbrandedTypeSpec.NotFriend.name"
     }
@@ -1791,6 +1832,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "UnbrandedTypeSpec.ModelWithProjectedName.name"
     }
@@ -3599,10 +3641,94 @@
      "GenerateConvenienceMethod": true,
      "CrossLanguageDefinitionId": "UnbrandedTypeSpec.headAsBoolean",
      "Decorators": []
+    },
+    {
+     "$id": "339",
+     "Name": "WithApiVersion",
+     "ResourceName": "UnbrandedTypeSpec",
+     "Description": "Return hi again",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "193"
+      },
+      {
+       "$id": "340",
+       "Name": "p1",
+       "NameInRequest": "p1",
+       "Type": {
+        "$id": "341",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
+        "decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      },
+      {
+       "$id": "342",
+       "Name": "apiVersion",
+       "NameInRequest": "apiVersion",
+       "Type": {
+        "$id": "343",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
+        "decorators": []
+       },
+       "Location": "Query",
+       "IsApiVersion": true,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "344",
+        "Type": {
+         "$id": "345",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "2024-08-16-preview"
+       },
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "346",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{unbrandedTypeSpecUrl}",
+     "Path": "/WithApiVersion",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "UnbrandedTypeSpec.WithApiVersion",
+     "Decorators": []
     }
    ],
    "Protocol": {
-    "$id": "339"
+    "$id": "347"
    },
    "Parameters": [
     {
@@ -3613,9 +3739,9 @@
   }
  ],
  "Auth": {
-  "$id": "340",
+  "$id": "348",
   "ApiKey": {
-   "$id": "341",
+   "$id": "349",
    "Name": "my-api-key"
   }
  }

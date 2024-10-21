@@ -184,25 +184,29 @@ public final class EtagHeadersImpl {
      * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param name The name parameter.
      * @param resource The resource instance.
@@ -241,25 +245,29 @@ public final class EtagHeadersImpl {
      * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param name The name parameter.
      * @param resource The resource instance.
@@ -294,25 +302,29 @@ public final class EtagHeadersImpl {
      * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param name The name parameter.
      * @param resource The resource instance.
@@ -347,25 +359,29 @@ public final class EtagHeadersImpl {
      * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param name The name parameter.
      * @param resource The resource instance.
@@ -390,14 +406,16 @@ public final class EtagHeadersImpl {
      * Resource list operation template.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -421,14 +439,16 @@ public final class EtagHeadersImpl {
      * Resource list operation template.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -450,14 +470,16 @@ public final class EtagHeadersImpl {
      * Resource list operation template.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -479,14 +501,16 @@ public final class EtagHeadersImpl {
      * Resource list operation template.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -505,19 +529,19 @@ public final class EtagHeadersImpl {
     }
 
     /**
-     * Resource list operation template.
-     * 
      * Get the next page of items.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param nextLink The URL to get the next list of items.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -539,19 +563,19 @@ public final class EtagHeadersImpl {
     }
 
     /**
-     * Resource list operation template.
-     * 
      * Get the next page of items.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param nextLink The URL to get the next list of items.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

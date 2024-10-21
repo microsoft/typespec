@@ -10,14 +10,13 @@ import com.encode.datetime.models.Rfc3339DatetimeProperty;
 import com.encode.datetime.models.Rfc7231DatetimeProperty;
 import com.encode.datetime.models.UnixTimestampArrayDatetimeProperty;
 import com.encode.datetime.models.UnixTimestampDatetimeProperty;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.List;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class EncodeDateTimeTests {
 
@@ -28,8 +27,10 @@ public class EncodeDateTimeTests {
 
     private final static OffsetDateTime DATE0 = OffsetDateTime.of(2022, 8, 26, 14, 38, 0, 0, ZoneOffset.UTC);
     private final static OffsetDateTime DATE1 = OffsetDateTime.of(2022, 8, 26, 18, 38, 0, 0, ZoneOffset.UTC);
-    private final static OffsetDateTime DATE2 = OffsetDateTime.ofInstant(Instant.ofEpochSecond(1686566864), ZoneOffset.UTC);
-    private final static OffsetDateTime DATE3 = OffsetDateTime.ofInstant(Instant.ofEpochSecond(1686734256), ZoneOffset.UTC);
+    private final static OffsetDateTime DATE2
+        = OffsetDateTime.ofInstant(Instant.ofEpochSecond(1686566864), ZoneOffset.UTC);
+    private final static OffsetDateTime DATE3
+        = OffsetDateTime.ofInstant(Instant.ofEpochSecond(1686734256), ZoneOffset.UTC);
 
     @Test
     public void testQuery() {
@@ -56,7 +57,6 @@ public class EncodeDateTimeTests {
 
         headerClient.unixTimestampArray(Arrays.asList(DATE2, DATE3));
     }
-
 
     @Test
     public void testResponseHeader() {
@@ -86,7 +86,8 @@ public class EncodeDateTimeTests {
         propertyClient.unixTimestamp(new UnixTimestampDatetimeProperty(DATE2));
 
         List<OffsetDateTime> array = Arrays.asList(DATE2, DATE3);
-        UnixTimestampArrayDatetimeProperty ret = propertyClient.unixTimestampArray(new UnixTimestampArrayDatetimeProperty(array));
+        UnixTimestampArrayDatetimeProperty ret
+            = propertyClient.unixTimestampArray(new UnixTimestampArrayDatetimeProperty(array));
         Assertions.assertEquals(array, ret.getValue());
     }
 }

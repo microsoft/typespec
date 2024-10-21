@@ -11,7 +11,6 @@ import {
   SdkType,
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
-import { getDoc } from "@typespec/compiler";
 import { NetEmitterOptions, resolveOptions } from "../options.js";
 import { CodeModel } from "../type/code-model.js";
 import { InputClient } from "../type/input-client.js";
@@ -48,7 +47,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
   fromSdkClients(
     sdkPackage.clients.filter((c) => c.initialization.access === "public"),
     inputClients,
-    []
+    [],
   );
 
   const clientModel: CodeModel = {
@@ -64,7 +63,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
   function fromSdkClients(
     clients: SdkClientType<SdkHttpOperation>[],
     inputClients: InputClient[],
-    parentClientNames: string[]
+    parentClientNames: string[],
   ) {
     for (const client of clients) {
       const inputClient = emitClient(client, parentClientNames);
@@ -80,13 +79,13 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
 
   function emitClient(client: SdkClientType<SdkHttpOperation>, parentNames: string[]): InputClient {
     const endpointParameter = client.initialization.properties.find(
-      (p) => p.kind === "endpoint"
+      (p) => p.kind === "endpoint",
     ) as SdkEndpointParameter;
     const uri = getMethodUri(endpointParameter);
     const clientParameters = fromSdkEndpointParameter(endpointParameter);
     return {
       Name: getClientName(client, parentNames),
-      Description: client.description,
+      Description: client.summary ?? client.doc,
       Operations: client.methods
         .filter((m) => m.kind !== "clientaccessor")
         .map((m) =>
@@ -96,8 +95,8 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
             clientParameters,
             rootApiVersions,
             sdkContext,
-            sdkTypeMap
-          )
+            sdkTypeMap,
+          ),
         ),
       Protocol: {},
       Parent: parentNames.length > 0 ? parentNames[parentNames.length - 1] : undefined,
@@ -108,7 +107,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
 
   function getClientName(
     client: SdkClientType<SdkHttpOperation>,
-    parentClientNames: string[]
+    parentClientNames: string[],
   ): string {
     const clientName = client.name;
 
@@ -128,9 +127,8 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
   }
 
   function fromSdkEndpointParameter(p: SdkEndpointParameter): InputParameter[] {
-    // TODO: handle SdkUnionType
     if (p.type.kind === "union") {
-      return fromSdkEndpointType(p.type.values[0] as SdkEndpointType);
+      return fromSdkEndpointType(p.type.variantTypes[0]);
     } else {
       return fromSdkEndpointType(p.type);
     }
@@ -159,8 +157,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
       parameters.push({
         Name: parameter.name,
         NameInRequest: parameter.serializedName,
-        // TODO: remove this workaround after https://github.com/Azure/typespec-azure/issues/1212 is fixed
-        Description: parameter.__raw ? getDoc(sdkContext.program, parameter.__raw) : undefined,
+        Description: parameter.doc,
         // TODO: we should do the magic in generator
         Type: parameterType,
         Location: RequestLocation.Uri,
@@ -192,8 +189,8 @@ function getMethodUri(p: SdkEndpointParameter | undefined): string {
 
   if (p.type.kind === "endpoint" && p.type.templateArguments.length > 0) return p.type.serverUrl;
 
-  if (p.type.kind === "union" && p.type.values.length > 0)
-    return (p.type.values[0] as SdkEndpointType).serverUrl;
+  if (p.type.kind === "union" && p.type.variantTypes.length > 0)
+    return (p.type.variantTypes[0] as SdkEndpointType).serverUrl;
 
   return `{${p.name}}`;
 }

@@ -27,7 +27,7 @@ public final class SpreadRecordForUnion implements JsonSerializable<SpreadRecord
     private final boolean flag;
 
     /*
-     * Additional properties
+     * The model spread Record<string | float32>
      */
     @Generated
     private Map<String, BinaryData> additionalProperties;
@@ -53,7 +53,7 @@ public final class SpreadRecordForUnion implements JsonSerializable<SpreadRecord
     }
 
     /**
-     * Get the additionalProperties property: Additional properties.
+     * Get the additionalProperties property: The model spread Record&lt;string | float32&gt;.
      * 
      * @return the additionalProperties value.
      */
@@ -63,7 +63,7 @@ public final class SpreadRecordForUnion implements JsonSerializable<SpreadRecord
     }
 
     /**
-     * Set the additionalProperties property: Additional properties.
+     * Set the additionalProperties property: The model spread Record&lt;string | float32&gt;.
      * 
      * @param additionalProperties the additionalProperties value to set.
      * @return the SpreadRecordForUnion object itself.

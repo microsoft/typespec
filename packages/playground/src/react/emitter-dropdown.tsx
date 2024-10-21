@@ -20,7 +20,7 @@ export const EmitterDropdown: FunctionComponent<EmitterDropdownProps> = ({
     (evt: any) => {
       onSelectedEmitterChange(evt.target.value);
     },
-    [onSelectedEmitterChange]
+    [onSelectedEmitterChange],
   );
   return (
     <Select

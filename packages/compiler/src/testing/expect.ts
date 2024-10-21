@@ -60,15 +60,15 @@ export function expectDiagnostics(
   match: DiagnosticMatch | DiagnosticMatch[],
   options = {
     strict: true,
-  }
+  },
 ) {
   const array = isArray(match) ? match : [match];
 
   if (options.strict && array.length !== diagnostics.length) {
     fail(
       `Expected ${array.length} diagnostics but found ${diagnostics.length}:\n ${formatDiagnostics(
-        diagnostics
-      )}`
+        diagnostics,
+      )}`,
     );
   }
   for (let i = 0; i < array.length; i++) {
@@ -80,7 +80,7 @@ export function expectDiagnostics(
       strictEqual(
         diagnostic.code,
         expectation.code,
-        `Diagnostic at index ${i} has non matching code.\n${message}`
+        `Diagnostic at index ${i} has non matching code.\n${message}`,
       );
     }
 
@@ -88,14 +88,14 @@ export function expectDiagnostics(
       matchStrOrRegex(
         diagnostic.message,
         expectation.message,
-        `Diagnostic at index ${i} has non matching message.\n${message}`
+        `Diagnostic at index ${i} has non matching message.\n${message}`,
       );
     }
     if (expectation.severity !== undefined) {
       strictEqual(
         diagnostic.severity,
         expectation.severity,
-        `Diagnostic at index ${i} has non matching severity.\n${message}`
+        `Diagnostic at index ${i} has non matching severity.\n${message}`,
       );
     }
     if (
@@ -114,7 +114,7 @@ export function expectDiagnostics(
           typeof expectation.file === "string"
             ? resolveVirtualPath(expectation.file)
             : expectation.file,
-          `Diagnostics at index ${i} has non matching file.\n${message}`
+          `Diagnostics at index ${i} has non matching file.\n${message}`,
         );
       }
 
@@ -122,7 +122,7 @@ export function expectDiagnostics(
         strictEqual(
           source.pos,
           expectation.pos,
-          `Diagnostic at index ${i} has non-matching start position.`
+          `Diagnostic at index ${i} has non-matching start position.`,
         );
       }
 
@@ -130,7 +130,7 @@ export function expectDiagnostics(
         strictEqual(
           source.end,
           expectation.end,
-          `Diagnostic at index ${i} has non-matching end position.`
+          `Diagnostic at index ${i} has non-matching end position.`,
         );
       }
     }

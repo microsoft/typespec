@@ -35,6 +35,11 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     },
+    "http-client-structure-renamed-operation": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/client/structure/renamed-operation -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
     "http-encode-bytes": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/encode/bytes -p StubLibraryPlugin",
       "commandName": "Executable",
@@ -55,6 +60,11 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     },
+    "http-parameters-spread": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/parameters/spread -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
     "http-payload-media-type": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/payload/media-type -p StubLibraryPlugin",
       "commandName": "Executable",
@@ -67,6 +77,16 @@
     },
     "http-payload-xml": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/payload/xml -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
+    "http-server-path-multiple": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/server/path/multiple -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
+    "http-server-path-single": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/server/path/single -p StubLibraryPlugin",
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     },
@@ -112,6 +132,11 @@
     },
     "http-type-model-usage": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/type/model/usage -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
+    "http-type-property-additional-properties": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/type/property/additional-properties -p StubLibraryPlugin",
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     },

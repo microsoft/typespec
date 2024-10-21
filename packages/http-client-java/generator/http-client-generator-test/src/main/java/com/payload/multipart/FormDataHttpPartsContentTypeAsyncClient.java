@@ -115,11 +115,13 @@ public final class FormDataHttpPartsContentTypeAsyncClient {
     public Mono<Void> imageJpegContentType(FileWithHttpPartSpecificContentTypeRequest body) {
         // Generated convenience method for imageJpegContentTypeWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return imageJpegContentTypeWithResponse(new MultipartFormDataHelper(requestOptions)
-            .serializeFileField("profileImage", body.getProfileImage().getContent(),
-                body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
-            .end()
-            .getRequestBody(), requestOptions).flatMap(FluxUtil::toMono);
+        return imageJpegContentTypeWithResponse(
+            new MultipartFormDataHelper(requestOptions)
+                .serializeFileField("profileImage", body.getProfileImage().getContent(),
+                    body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
+                .end()
+                .getRequestBody(),
+            requestOptions).flatMap(FluxUtil::toMono);
     }
 
     /**
@@ -139,11 +141,13 @@ public final class FormDataHttpPartsContentTypeAsyncClient {
     public Mono<Void> requiredContentType(FileWithHttpPartRequiredContentTypeRequest body) {
         // Generated convenience method for requiredContentTypeWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return requiredContentTypeWithResponse(new MultipartFormDataHelper(requestOptions)
-            .serializeFileField("profileImage", body.getProfileImage().getContent(),
-                body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
-            .end()
-            .getRequestBody(), requestOptions).flatMap(FluxUtil::toMono);
+        return requiredContentTypeWithResponse(
+            new MultipartFormDataHelper(requestOptions)
+                .serializeFileField("profileImage", body.getProfileImage().getContent(),
+                    body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
+                .end()
+                .getRequestBody(),
+            requestOptions).flatMap(FluxUtil::toMono);
     }
 
     /**
@@ -163,10 +167,12 @@ public final class FormDataHttpPartsContentTypeAsyncClient {
     public Mono<Void> optionalContentType(FileWithHttpPartOptionalContentTypeRequest body) {
         // Generated convenience method for optionalContentTypeWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return optionalContentTypeWithResponse(new MultipartFormDataHelper(requestOptions)
-            .serializeFileField("profileImage", body.getProfileImage().getContent(),
-                body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
-            .end()
-            .getRequestBody(), requestOptions).flatMap(FluxUtil::toMono);
+        return optionalContentTypeWithResponse(
+            new MultipartFormDataHelper(requestOptions)
+                .serializeFileField("profileImage", body.getProfileImage().getContent(),
+                    body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
+                .end()
+                .getRequestBody(),
+            requestOptions).flatMap(FluxUtil::toMono);
     }
 }

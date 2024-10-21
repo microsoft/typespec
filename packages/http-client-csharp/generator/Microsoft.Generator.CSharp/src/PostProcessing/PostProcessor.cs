@@ -176,13 +176,16 @@ namespace Microsoft.Generator.CSharp
             // find the GENERATED document of model factory (we may have the customized document of this for overloads)
             Document? modelFactoryGeneratedDocument = null;
             // the nodes corresponding to the model factory symbol has never been changed therefore the nodes inside the cache are still usable
-            foreach (var declarationNode in definitions.DeclaredNodesCache[modelFactorySymbol])
+            if (definitions.DeclaredNodesCache.TryGetValue(modelFactorySymbol, out var nodes))
             {
-                var document = project.GetDocument(declarationNode.SyntaxTree);
-                if (document != null && GeneratedCodeWorkspace.IsGeneratedDocument(document))
+                foreach (var declarationNode in nodes)
                 {
-                    modelFactoryGeneratedDocument = document;
-                    break;
+                    var document = project.GetDocument(declarationNode.SyntaxTree);
+                    if (document != null && GeneratedCodeWorkspace.IsGeneratedDocument(document))
+                    {
+                        modelFactoryGeneratedDocument = document;
+                        break;
+                    }
                 }
             }
 

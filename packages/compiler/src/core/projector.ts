@@ -52,7 +52,7 @@ import type {
 export function createProjector(
   program: Program,
   projections: ProjectionApplication[],
-  startNode?: Type
+  startNode?: Type,
 ): ProjectedProgram {
   const projectedTypes = new Map<Type, Type>();
   const checker = program.checker;
@@ -103,10 +103,10 @@ export function createProjector(
   function projectType(type: IndeterminateEntity): IndeterminateEntity;
   function projectType(type: Type | Value): Type | Value;
   function projectType(
-    type: Type | Value | IndeterminateEntity
+    type: Type | Value | IndeterminateEntity,
   ): Type | Value | IndeterminateEntity;
   function projectType(
-    type: Type | Value | IndeterminateEntity
+    type: Type | Value | IndeterminateEntity,
   ): Type | Value | IndeterminateEntity {
     if (isValue(type)) {
       return type;
@@ -132,7 +132,7 @@ export function createProjector(
       case "Namespace":
         compilerAssert(
           projectingNamespaces,
-          `Namespace ${type.name} should have already been projected.`
+          `Namespace ${type.name} should have already been projected.`,
         );
         projected = projectNamespace(type, false);
         break;
@@ -291,7 +291,7 @@ export function createProjector(
 
     if (model.templateMapper) {
       projectedModel.templateMapper = projectTemplateMapper(model.templateMapper);
-      // eslint-disable-next-line deprecation/deprecation
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
       projectedModel.templateArguments = mutate(projectedModel.templateMapper.args);
     }
 
@@ -301,6 +301,10 @@ export function createProjector(
     if (model.sourceModel) {
       projectedModel.sourceModel = projectType(model.sourceModel) as Model;
     }
+
+    projectedModel.sourceModels = model.sourceModels.map((source) => {
+      return { ...source, model: projectType(source.model) as Model };
+    });
 
     if (model.indexer) {
       const projectedValue = projectType(model.indexer.value);
@@ -357,7 +361,7 @@ export function createProjector(
 
     if (scalar.templateMapper) {
       projectedScalar.templateMapper = projectTemplateMapper(scalar.templateMapper);
-      // eslint-disable-next-line deprecation/deprecation
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
       projectedScalar.templateArguments = mutate(projectedScalar.templateMapper.args);
     }
 
@@ -423,7 +427,7 @@ export function createProjector(
 
     if (op.templateMapper) {
       projectedOp.templateMapper = projectTemplateMapper(op.templateMapper);
-      // eslint-disable-next-line deprecation/deprecation
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
       projectedOp.templateArguments = mutate(projectedOp.templateMapper.args);
     }
 
@@ -455,7 +459,7 @@ export function createProjector(
 
     if (iface.templateMapper) {
       projectedIface.templateMapper = projectTemplateMapper(iface.templateMapper);
-      // eslint-disable-next-line deprecation/deprecation
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
       projectedIface.templateArguments = mutate(projectedIface.templateMapper.args);
     }
 
@@ -486,7 +490,7 @@ export function createProjector(
 
     if (union.templateMapper) {
       projectedUnion.templateMapper = projectTemplateMapper(union.templateMapper);
-      // eslint-disable-next-line deprecation/deprecation
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
       projectedUnion.templateArguments = mutate(projectedUnion.templateMapper.args);
     }
 
@@ -631,7 +635,7 @@ export function createProjector(
         const projected = checker.project(
           projectedType,
           targetNode,
-          projectionApplication.arguments
+          projectionApplication.arguments,
         );
         if (projected !== projectedType) {
           // override the projected type cache with the returned type

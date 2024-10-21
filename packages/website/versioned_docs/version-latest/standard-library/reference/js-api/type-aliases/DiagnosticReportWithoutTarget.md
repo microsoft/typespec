@@ -12,8 +12,8 @@ type DiagnosticReportWithoutTarget<T, C, M>: object & DiagnosticFormat<T, C, M>;
 | Name | Type |
 | ------ | ------ |
 | `code` | `C` |
-| `codefixes` | readonly [`CodeFix`](../interfaces/CodeFix.md)[] |
-| `messageId` | `M` |
+| `codefixes`? | readonly [`CodeFix`](../interfaces/CodeFix.md)[] |
+| `messageId`? | `M` |
 
 ## Type Parameters
 

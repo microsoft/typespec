@@ -3,8 +3,6 @@ id: models
 title: Models
 ---
 
-# Models
-
 Models in TypeSpec are utilized to define the structure or schema of data.
 
 ## Types of models

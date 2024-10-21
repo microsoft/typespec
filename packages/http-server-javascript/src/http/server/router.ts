@@ -64,7 +64,7 @@ function* emitRouterDefinition(
   ctx: HttpContext,
   service: HttpService,
   routeTree: RouteTree,
-  module: Module
+  module: Module,
 ): Iterable<string> {
   const routerName = parseCase(service.namespace.name).pascalCase + "Router";
 
@@ -213,7 +213,7 @@ function* emitRouteHandler(
   ctx: HttpContext,
   routeTree: RouteTree,
   backends: Map<OperationContainer, [ReCase, string]>,
-  module: Module
+  module: Module,
 ): Iterable<string> {
   const mustTerminate = routeTree.edges.length === 0 && !routeTree.bind;
 
@@ -274,7 +274,7 @@ function* emitRouteHandler(
 function* emitRouteOperationDispatch(
   ctx: HttpContext,
   operations: Map<HttpVerb, RouteOperation[]>,
-  backends: Map<OperationContainer, [ReCase, string]>
+  backends: Map<OperationContainer, [ReCase, string]>,
 ): Iterable<string> {
   yield `switch (request.method) {`;
   for (const [verb, operationList] of operations.entries()) {
@@ -282,7 +282,7 @@ function* emitRouteOperationDispatch(
       const operation = operationList[0];
       const [backend] = backends.get(operation.container)!;
       const operationName = keywordSafe(
-        backend.snakeCase + "_" + parseCase(operation.operation.name).snakeCase
+        backend.snakeCase + "_" + parseCase(operation.operation.name).snakeCase,
       );
 
       const backendMemberName = backend.camelCase;
@@ -299,7 +299,7 @@ function* emitRouteOperationDispatch(
       const route = getHttpOperation(ctx.program, operationList[0].operation)[0].path;
       yield `  case ${JSON.stringify(verb.toUpperCase())}:`;
       yield* indent(
-        indent(emitRouteOperationDispatchMultiple(ctx, operationList, route, backends))
+        indent(emitRouteOperationDispatchMultiple(ctx, operationList, route, backends)),
       );
     }
   }
@@ -321,7 +321,7 @@ function* emitRouteOperationDispatchMultiple(
   ctx: HttpContext,
   operations: RouteOperation[],
   route: string,
-  backends: Map<OperationContainer, [ReCase, string]>
+  backends: Map<OperationContainer, [ReCase, string]>,
 ): Iterable<string> {
   const usedContentTypes = new Set<string>();
   const contentTypeMap = new Map<RouteOperation, string>();
@@ -329,12 +329,12 @@ function* emitRouteOperationDispatchMultiple(
   for (const operation of operations) {
     const [httpOperation] = getHttpOperation(ctx.program, operation.operation);
     const operationContentType = httpOperation.parameters.parameters.find(
-      (param) => param.type === "header" && param.name.toLowerCase() === "content-type"
+      (param) => param.type === "header" && param.name.toLowerCase() === "content-type",
     )?.param.type;
 
     if (!operationContentType || operationContentType.kind !== "String") {
       throw new UnimplementedError(
-        "Only string content-types are supported for route differentiation."
+        "Only string content-types are supported for route differentiation.",
       );
     }
 
@@ -356,7 +356,7 @@ function* emitRouteOperationDispatchMultiple(
   for (const [operation, contentType] of contentTypeMap.entries()) {
     const [backend] = backends.get(operation.container)!;
     const operationName = keywordSafe(
-      backend.snakeCase + "_" + parseCase(operation.operation.name).snakeCase
+      backend.snakeCase + "_" + parseCase(operation.operation.name).snakeCase,
     );
 
     const backendMemberName = backend.camelCase;
@@ -475,7 +475,7 @@ function intoRouteTree(routes: Route[]): RouteTree {
   const [operations, rest] = bifilter(routes, (route) => route.segments.length === 0);
   const [literal, parameterized] = bifilter(
     rest,
-    (route) => typeof route.segments[0]! === "string"
+    (route) => typeof route.segments[0]! === "string",
   );
 
   const edgeMap = new Map<string, Route[]>();
@@ -515,9 +515,9 @@ function intoRouteTree(routes: Route[]): RouteTree {
                 segments: [prefix.substring(edge.length), ...rest],
               };
             }
-          })
+          }),
         ),
-      ] as const
+      ] as const,
   );
 
   let bind: [Set<string>, RouteTree] | undefined;
@@ -585,8 +585,8 @@ function getRouteSegments(ctx: HttpContext, operation: HttpOperation): RouteSegm
         [
           p.param.name,
           p.param.type.kind === "ModelProperty" ? p.param.type.type : p.param.type,
-        ] as const
-    )
+        ] as const,
+    ),
   );
 
   let remainingTemplate = operation.path;

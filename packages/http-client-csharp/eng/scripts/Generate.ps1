@@ -52,12 +52,10 @@ $failingSpecs = @(
     Join-Path 'http' 'special-words'
     Join-Path 'http' 'client' 'structure' 'default'
     Join-Path 'http' 'client' 'structure' 'client-operation-group'
-    Join-Path 'http' 'client' 'structure' 'renamed-operation'
     Join-Path 'http' 'client' 'structure' 'two-operation-group'
     Join-Path 'http' 'encode' 'numeric'
     Join-Path 'http' 'parameters' 'body-optionality'
     Join-Path 'http' 'parameters' 'collection-format'
-    Join-Path 'http' 'parameters' 'spread'
     Join-Path 'http' 'payload' 'content-negotiation'
     Join-Path 'http' 'payload' 'json-merge-patch'
     Join-Path 'http' 'payload' 'pageable'
@@ -65,8 +63,6 @@ $failingSpecs = @(
     Join-Path 'http' 'routes'
     Join-Path 'http' 'serialization' 'encoded-name' 'json'
     Join-Path 'http' 'server' 'endpoint' 'not-defined'
-    Join-Path 'http' 'server' 'path' 'multiple'
-    Join-Path 'http' 'server' 'path' 'single'
     Join-Path 'http' 'server' 'versions' 'versioned'
     Join-Path 'http' 'special-headers' 'conditional-request'
     Join-Path 'http' 'special-headers' 'repeatability'
@@ -76,7 +72,6 @@ $failingSpecs = @(
     Join-Path 'http' 'type' 'model' 'inheritance' 'not-discriminated'
     Join-Path 'http' 'type' 'model' 'inheritance' 'recursive'
     Join-Path 'http' 'type' 'model' 'templated'
-    Join-Path 'http' 'type' 'property' 'additional-properties'
 )
 
 $cadlRanchLaunchProjects = @{}

@@ -4,9 +4,8 @@
 package com.parameters.spread;
 
 import com.parameters.spread.models.BodyParameter;
-import org.junit.jupiter.api.Test;
-
 import java.util.List;
+import org.junit.jupiter.api.Test;
 
 public class SpreadTests {
 

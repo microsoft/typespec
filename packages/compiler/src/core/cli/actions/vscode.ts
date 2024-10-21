@@ -9,10 +9,10 @@ export interface InstallVSCodeExtensionOptions {
 }
 export async function installVSCodeExtension(
   host: CliCompilerHost,
-  options: InstallVSCodeExtensionOptions
+  options: InstallVSCodeExtensionOptions,
 ) {
   return await installVsix(host, "typespec-vscode", (vsixPaths) =>
-    runCode(host, ["--install-extension", vsixPaths[0]], options.insiders)
+    runCode(host, ["--install-extension", vsixPaths[0]], options.insiders),
   );
 }
 
@@ -22,7 +22,7 @@ export interface UninstallVSCodeExtensionOptions {
 
 export async function uninstallVSCodeExtension(
   host: CliCompilerHost,
-  options: UninstallVSCodeExtensionOptions
+  options: UninstallVSCodeExtensionOptions,
 ) {
   return runCode(host, ["--uninstall-extension", "microsoft.typespec-vscode"], options.insiders);
 }
@@ -30,7 +30,7 @@ export async function uninstallVSCodeExtension(
 function runCode(
   host: CliCompilerHost,
   codeArgs: string[],
-  insiders: boolean
+  insiders: boolean,
 ): readonly Diagnostic[] {
   try {
     run(host, insiders ? "code-insiders" : "code", codeArgs, {

@@ -100,9 +100,11 @@ public final class UnknownsImpl {
      * get unknown value.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
-     * Object
-     * }</pre>
+     * <pre>
+     * {@code
+     * BinaryData
+     * }
+     * </pre>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -121,9 +123,11 @@ public final class UnknownsImpl {
      * get unknown value.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
-     * Object
-     * }</pre>
+     * <pre>
+     * {@code
+     * BinaryData
+     * }
+     * </pre>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -142,9 +146,11 @@ public final class UnknownsImpl {
      * put unknown value.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
-     * Object
-     * }</pre>
+     * <pre>
+     * {@code
+     * BinaryData
+     * }
+     * </pre>
      * 
      * @param body _.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -165,9 +171,11 @@ public final class UnknownsImpl {
      * put unknown value.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
-     * Object
-     * }</pre>
+     * <pre>
+     * {@code
+     * BinaryData
+     * }
+     * </pre>
      * 
      * @param body _.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

@@ -17,6 +17,7 @@
      "$id": "4",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
+     "Description": "Service host",
      "Type": {
       "$id": "5",
       "kind": "url",
@@ -61,6 +62,7 @@
        "$id": "10",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "11",
         "kind": "url",
@@ -258,6 +260,7 @@
        "$id": "29",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "30",
         "kind": "url",
@@ -455,6 +458,7 @@
        "$id": "48",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "49",
         "kind": "url",
@@ -517,7 +521,7 @@
        ],
        "BodyType": {
         "$id": "56",
-        "kind": "any",
+        "kind": "unknown",
         "name": "unknown",
         "crossLanguageDefinitionId": "",
         "decorators": []
@@ -585,7 +589,7 @@
        "Description": "_",
        "Type": {
         "$id": "62",
-        "kind": "any",
+        "kind": "unknown",
         "name": "unknown",
         "crossLanguageDefinitionId": "",
         "decorators": []
@@ -652,6 +656,7 @@
        "$id": "67",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "68",
         "kind": "url",
@@ -899,6 +904,7 @@
        "$id": "90",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "91",
         "kind": "url",
@@ -1146,6 +1152,7 @@
        "$id": "113",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "114",
         "kind": "url",
@@ -1348,6 +1355,7 @@
        "$id": "133",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "134",
         "kind": "url",

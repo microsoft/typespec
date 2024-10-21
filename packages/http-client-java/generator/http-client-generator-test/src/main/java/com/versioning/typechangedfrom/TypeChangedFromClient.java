@@ -40,21 +40,25 @@ public final class TypeChangedFromClient {
      * The test operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     prop: String (Required)
      *     changedProp: String (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     prop: String (Required)
      *     changedProp: String (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param param The param parameter.
      * @param body The body parameter.

@@ -3,7 +3,7 @@ import { MinimumDotnetVersion } from "./constants.js";
 
 export async function runDotnet(
   args: string[],
-  options: Omit<RunOptions, "stdio" | "throwOnNonZeroExit"> = {}
+  options: Omit<RunOptions, "stdio" | "throwOnNonZeroExit"> = {},
 ) {
   await ensureDotnetVersion();
   const result = await run("dotnet", args, {

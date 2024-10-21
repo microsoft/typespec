@@ -3,8 +3,6 @@ id: basics
 title: Creating a TypeSpec Library
 ---
 
-# Creating a TypeSpec library
-
 A TypeSpec library is a package that includes TypeSpec types, decorators, emitters or linters. These libraries are [npm packages](https://docs.npmjs.com/packages-and-modules/contributing-packages-to-the-registry) with some additional TypeSpec-specific metadata and conventions. This guide will walk you through the process of creating a new TypeSpec library, adding types to it, and distributing it on the public npm registry. Further sections will delve into the specifics of creating [decorators](create-decorators.md), [emitters](./emitters-basics.md) and [linters](./linters.md).
 
 While this guide assumes that you'll be using [TypeScript](https://typescriptlang.org) to develop your library, you can skip the TypeScript-related steps if you prefer to use plain JavaScript.
@@ -75,7 +73,19 @@ Your package.json needs to refer to two main files: your Node module main file, 
 
 ```jsonc
   "main": "dist/src/index.js",
-  "tspMain": "lib/main.tsp"
+  "exports": {
+    ".": {
+      "typespec": "./lib/main.tsp"
+    },
+    // Additional named export are possible
+    "./experimental": {
+      "typespec": "./lib/experimental.tsp"
+    },
+    // Wildcard export as well
+    "./lib/*": {
+      "typespec": "./lib/*.tsp"
+    }
+  }
 ```
 
 ### d. Install and initialize TypeScript
@@ -122,19 +132,7 @@ export const { reportDiagnostic, createDiagnostic } = $lib;
 
 Diagnostics are used for linters and decorators, which are covered in subsequent topics.
 
-### f. Set package flags
-
-You can optionally set any package flags by exporting a `$flags` const that is initialized with the `definePackageFlags`. Like `$lib`, this value must be exported from your package.
-
-It is strongly recommended to set `valueMarshalling` to `"new"` as this will be the default behavior in future TypeSpec versions.
-
-```typescript
-export const $flags = definePackageFlags({
-  valueMarshalling: "new",
-});
-```
-
-### g. Create `index.ts`
+### f. Create `index.ts`
 
 Open `./src/index.ts` and import your library definition:
 
@@ -143,7 +141,7 @@ Open `./src/index.ts` and import your library definition:
 export { $lib } from "./lib.js";
 ```
 
-### h. Build TypeScript
+### g. Build TypeScript
 
 TypeSpec can only import JavaScript files, so any changes made to TypeScript sources need to be compiled before they are visible to TypeSpec. To do this, run `npx tsc -p .` in your library's root directory. If you want to re-run the TypeScript compiler whenever files are changed, you can run `npx tsc -p . --watch`.
 
@@ -161,7 +159,7 @@ Alternatively, you can add these as scripts in your `package.json` to make them 
 
 You can then run `npm run build` or `npm run watch` to build or watch your library.
 
-### i. Add your main TypeSpec file
+### h. Add your main TypeSpec file
 
 Open `./lib/main.tsp` and import your JS entrypoint. This ensures that when TypeSpec imports your library, the code to define the library is run. When we add decorators in later topics, this import will ensure those get exposed as well.
 

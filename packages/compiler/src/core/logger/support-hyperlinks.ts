@@ -49,7 +49,6 @@ export function supportsHyperlink(stream: NodeJS.WriteStream) {
       case "WezTerm":
         return version.major >= 20200620;
       case "vscode":
-        // eslint-disable-next-line no-mixed-operators
         return version.major > 1 || (version.major === 1 && version.minor >= 72);
       // No default
     }

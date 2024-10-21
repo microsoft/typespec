@@ -10,7 +10,7 @@ import { themes } from "prism-react-renderer";
 import { LightTheme } from "./themes/light";
 
 function getMajorMinorVersion(pkgJsonPath): string {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const version = require(pkgJsonPath).version;
   const [major, minor] = version.split(".");
   return `${major}.${minor}.x`;
@@ -79,6 +79,7 @@ const config: Config = {
     format: "detect",
   },
   scripts: [
+    "https://consentdeliveryfd.azurefd.net/mscc/lib/v2/wcp-consent.js",
     {
       src: `${baseUrl}es-module-shims.js`,
       type: "module",
@@ -151,7 +152,7 @@ const config: Config = {
         configureWebpack: (config, isServer, utils) => {
           // Need to change the font rule to use asset/resource
           const fontRule = config.module.rules.find(
-            (x) => typeof x === "object" && x.test?.toString().includes("ttf")
+            (x) => typeof x === "object" && x.test?.toString().includes("ttf"),
           );
           delete (fontRule as any).use;
           (fontRule as any).type = "asset/resource";
@@ -169,7 +170,7 @@ const config: Config = {
                   warning.name === "ModuleDependencyWarning" &&
                   warning.message.startsWith("Critical dependency") &&
                   (moduleName?.endsWith(
-                    "node_modules/vscode-languageserver-types/lib/umd/main.js"
+                    "node_modules/vscode-languageserver-types/lib/umd/main.js",
                   ) ||
                     moduleName?.endsWith("packages/compiler/dist/src/core/node-host.js"))
                 );

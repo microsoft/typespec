@@ -11,7 +11,7 @@ interface SpawnError {
 
 export async function installTypeSpecDependencies(
   host: CliCompilerHost,
-  directory: string
+  directory: string,
 ): Promise<void> {
   const child = spawn("npm", ["install"], {
     shell: process.platform === "win32",
@@ -24,7 +24,7 @@ export async function installTypeSpecDependencies(
     child.on("error", (error: SpawnError) => {
       if (error.code === "ENOENT") {
         host.logger.error(
-          "Cannot find `npm` executable. Make sure to have npm installed in your path."
+          "Cannot find `npm` executable. Make sure to have npm installed in your path.",
         );
       } else {
         host.logger.error(error.toString());

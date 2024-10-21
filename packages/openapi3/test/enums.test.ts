@@ -30,7 +30,7 @@ describe("openapi3: enums", () => {
       enum Foo {
         y: 0;
       };
-      `
+      `,
     );
     strictEqual(res.schemas.Foo.title, "FooEnum");
   });

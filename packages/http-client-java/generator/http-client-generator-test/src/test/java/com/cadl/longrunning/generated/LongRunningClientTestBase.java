@@ -8,7 +8,6 @@ package com.cadl.longrunning.generated;
 // If you wish to modify these files, please copy them out of the 'generated' package, and modify there.
 // See https://aka.ms/azsdk/dpg/java/tests for guide on adding a test.
 
-import com.azure.core.http.HttpClient;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.test.TestMode;
@@ -24,11 +23,9 @@ class LongRunningClientTestBase extends TestProxyTestBase {
     protected void beforeTest() {
         LongRunningClientBuilder longRunningClientbuilder = new LongRunningClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            longRunningClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             longRunningClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         longRunningClient = longRunningClientbuilder.buildClient();

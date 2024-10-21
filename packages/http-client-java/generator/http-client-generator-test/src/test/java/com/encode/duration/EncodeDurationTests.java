@@ -4,17 +4,16 @@
 package com.encode.duration;
 
 import com.encode.duration.models.DefaultDurationProperty;
+import com.encode.duration.models.Float64SecondsDurationProperty;
 import com.encode.duration.models.FloatSecondsDurationArrayProperty;
 import com.encode.duration.models.FloatSecondsDurationProperty;
-import com.encode.duration.models.Float64SecondsDurationProperty;
-import com.encode.duration.models.Int32SecondsDurationProperty;
 import com.encode.duration.models.ISO8601DurationProperty;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
+import com.encode.duration.models.Int32SecondsDurationProperty;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class EncodeDurationTests {
 
@@ -58,22 +57,22 @@ public class EncodeDurationTests {
 
     @Test
     public void testProperty() {
-        Assertions.assertEquals(DAY40,
-                propertyClient.defaultMethod(new DefaultDurationProperty(DAY40)).getValue());
+        Assertions.assertEquals(DAY40, propertyClient.defaultMethod(new DefaultDurationProperty(DAY40)).getValue());
 
         Assertions.assertEquals(SECOND35,
-                propertyClient.floatSeconds(new FloatSecondsDurationProperty(SECOND35)).getValue());
+            propertyClient.floatSeconds(new FloatSecondsDurationProperty(SECOND35)).getValue());
 
         Assertions.assertEquals(SECOND35,
-                propertyClient.float64Seconds(new Float64SecondsDurationProperty(SECOND35)).getValue());
+            propertyClient.float64Seconds(new Float64SecondsDurationProperty(SECOND35)).getValue());
 
         Assertions.assertEquals(SECOND36,
-                propertyClient.int32Seconds(new Int32SecondsDurationProperty(SECOND36)).getValue());
+            propertyClient.int32Seconds(new Int32SecondsDurationProperty(SECOND36)).getValue());
 
         propertyClient.iso8601(new ISO8601DurationProperty(DAY40));
 
         List<Duration> array = Arrays.asList(SECOND35, Duration.ofSeconds(46, 750_000_000));
-        FloatSecondsDurationArrayProperty ret = propertyClient.floatSecondsArray(new FloatSecondsDurationArrayProperty(array));
+        FloatSecondsDurationArrayProperty ret
+            = propertyClient.floatSecondsArray(new FloatSecondsDurationArrayProperty(array));
         Assertions.assertEquals(array, ret.getValue());
     }
 }

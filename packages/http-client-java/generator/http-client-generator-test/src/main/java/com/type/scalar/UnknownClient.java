@@ -39,9 +39,11 @@ public final class UnknownClient {
      * get unknown value.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
-     * Object
-     * }</pre>
+     * <pre>
+     * {@code
+     * BinaryData
+     * }
+     * </pre>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -60,9 +62,11 @@ public final class UnknownClient {
      * put unknown value.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
-     * Object
-     * }</pre>
+     * <pre>
+     * {@code
+     * BinaryData
+     * }
+     * </pre>
      * 
      * @param body _.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -90,10 +94,10 @@ public final class UnknownClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Object get() {
+    public BinaryData get() {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return getWithResponse(requestOptions).getValue().toObject(Object.class);
+        return getWithResponse(requestOptions).getValue();
     }
 
     /**
@@ -109,9 +113,9 @@ public final class UnknownClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void put(Object body) {
+    public void put(BinaryData body) {
         // Generated convenience method for putWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        putWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        putWithResponse(body, requestOptions).getValue();
     }
 }

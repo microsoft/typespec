@@ -20,7 +20,7 @@ export function generateSignatureTests(
   namespaceName: string,
   importName: string,
   decoratorSignatureImport: string,
-  decorators: DecoratorSignature[]
+  decorators: DecoratorSignature[],
 ): string {
   const content: Doc[] = [];
   const decRecord = getDecoratorRecordForNamespaceName(namespaceName);
@@ -51,7 +51,7 @@ function getDecoratorRecordForNamespaceName(namespaceName: string) {
 export function generateSignatures(
   program: Program,
   decorators: DecoratorSignature[],
-  namespaceName: string
+  namespaceName: string,
 ): string {
   const compilerImports = new Set<string>();
   const localTypes = new Set<Model>();
@@ -110,7 +110,7 @@ export function generateSignatures(
       " = ",
       `(context: ${useCompilerType("DecoratorContext")}, ${getTSParameter(
         decorator.target,
-        true
+        true,
       )}${args}) => void;`,
     ].join("");
   }
@@ -127,7 +127,7 @@ export function generateSignatures(
 
   /** For a rest param of constraint T[] or valueof T[] return the T or valueof T */
   function extractRestParamConstraint(
-    constraint: MixedParameterConstraint
+    constraint: MixedParameterConstraint,
   ): MixedParameterConstraint | undefined {
     let valueType: Type | undefined;
     let type: Type | undefined;
@@ -222,6 +222,10 @@ export function generateSignatures(
         } else if (isReflectionType(type)) {
           return getValueOfReflectionType(type);
         } else {
+          // If its exactly the record type use Record<string, T> instead of the model name.
+          if (type.indexer && type.name === "Record" && type.namespace?.name === "TypeSpec") {
+            return `Record<string, ${getValueTSType(type.indexer.value)}>`;
+          }
           if (type.name) {
             return useLocalType(type);
           } else {
@@ -248,6 +252,9 @@ export function generateSignatures(
     const properties = [...model.properties.values()].map((x) => {
       return `readonly ${x.name}${x.optional ? "?" : ""}: ${getValueTSType(x.type)}`;
     });
+    if (model.indexer?.value) {
+      properties.unshift(`readonly [key: string]: ${getValueTSType(model.indexer.value)}`);
+    }
 
     return `{ ${properties.join(", ")} }`;
   }

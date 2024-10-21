@@ -14,15 +14,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class PatchClientTest {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     @Test
     public void testSerializationForNumbers() throws JsonProcessingException {
         Resource resource = new Resource();
@@ -31,8 +31,8 @@ public class PatchClientTest {
         resource.setLongValue(null);
         String json = BinaryData.fromObject(resource).toString();
         JsonNode node = OBJECT_MAPPER.readTree(json);
-        Assertions.assertEquals(JsonNodeType.NULL,  node.get("longValue").getNodeType());
-        Assertions.assertEquals(JsonNodeType.NULL,  node.get("intValue").getNodeType());
+        Assertions.assertEquals(JsonNodeType.NULL, node.get("longValue").getNodeType());
+        Assertions.assertEquals(JsonNodeType.NULL, node.get("intValue").getNodeType());
     }
 
     @Test
@@ -55,7 +55,8 @@ public class PatchClientTest {
         resource.getInnerModelProperty().setDescription(null);
         String json = BinaryData.fromObject(resource).toString();
         JsonNode node = OBJECT_MAPPER.readTree(json);
-        Assertions.assertEquals(JsonNodeType.NULL, node.get("wireNameForInnerModelProperty").get("description").getNodeType());
+        Assertions.assertEquals(JsonNodeType.NULL,
+            node.get("wireNameForInnerModelProperty").get("description").getNodeType());
 
         // serialize for outer model property
         resource.setInnerModelProperty(null);
@@ -161,6 +162,6 @@ public class PatchClientTest {
         String json = BinaryData.fromObject(newResource).toString();
         JsonNode node = OBJECT_MAPPER.readTree(json);
         Assertions.assertNull(node.get("description"));
-        Assertions.assertEquals(JsonNodeType.NULL,  node.get("intValue").getNodeType());
+        Assertions.assertEquals(JsonNodeType.NULL, node.get("intValue").getNodeType());
     }
 }

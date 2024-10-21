@@ -3,29 +3,28 @@
 
 package com.microsoft.typespec.http.client.generator.fluent;
 
+import com.azure.core.util.CoreUtils;
+import com.azure.json.JsonReader;
+import com.azure.json.ReadValueCallback;
 import com.microsoft.typespec.http.client.generator.JavaSettingsAccessor;
 import com.microsoft.typespec.http.client.generator.TypeSpecPlugin;
 import com.microsoft.typespec.http.client.generator.core.extension.model.Message;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
-import com.microsoft.typespec.http.client.generator.mgmt.FluentGen;
-import com.microsoft.typespec.http.client.generator.mgmt.mapper.FluentMapper;
-import com.microsoft.typespec.http.client.generator.mgmt.model.javamodel.FluentJavaPackage;
-import com.microsoft.typespec.http.client.generator.mgmt.FluentNamer;
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Client;
-import com.azure.core.util.CoreUtils;
-import com.azure.json.JsonReader;
-import com.azure.json.ReadValueCallback;
+import com.microsoft.typespec.http.client.generator.mgmt.FluentGen;
+import com.microsoft.typespec.http.client.generator.mgmt.FluentNamer;
+import com.microsoft.typespec.http.client.generator.mgmt.mapper.FluentMapper;
+import com.microsoft.typespec.http.client.generator.mgmt.model.javamodel.FluentJavaPackage;
 import com.microsoft.typespec.http.client.generator.model.EmitterOptions;
 import com.microsoft.typespec.http.client.generator.util.FileUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TypeSpecFluentPlugin extends FluentGen {
     private static final Logger LOGGER = LoggerFactory.getLogger(TypeSpecFluentPlugin.class);
@@ -54,6 +53,7 @@ public class TypeSpecFluentPlugin extends FluentGen {
         SETTINGS_MAP.put("output-model-immutable", true);
         SETTINGS_MAP.put("uuid-as-string", true);
         SETTINGS_MAP.put("stream-style-serialization", emitterOptions.getStreamStyleSerialization());
+        SETTINGS_MAP.put("use-object-for-unknown", emitterOptions.getUseObjectForUnknown());
 
         JavaSettingsAccessor.setHost(this);
         LOGGER.info("Output folder: {}", emitterOptions.getOutputDir());

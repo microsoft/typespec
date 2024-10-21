@@ -6,16 +6,8 @@ namespace _Type.Property.Nullable.Models
 {
     public partial class StringProperty
     {
-        public string RequiredProperty
-        {
-            get => throw null;
-            set => throw null;
-        }
+        public string RequiredProperty => throw null;
 
-        public string NullableProperty
-        {
-            get => throw null;
-            set => throw null;
-        }
+        public string NullableProperty => throw null;
     }
 }

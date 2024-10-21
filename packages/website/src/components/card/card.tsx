@@ -18,7 +18,7 @@ export const Card = ({ children, className, noPadding, blend }: CardProps) => {
         style["card"],
         noPadding && style["no-padding"],
         blend && style["blend"],
-        className
+        className,
       )}
     >
       <div className={style["bg"]}></div>

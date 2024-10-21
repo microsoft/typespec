@@ -1,9 +1,9 @@
-import { Diagnostic } from "@typespec/compiler";
+import type { Diagnostic } from "@typespec/compiler";
 import { createAssetEmitter } from "@typespec/compiler/emitter-framework";
 import { createTestHost, expectDiagnosticEmpty } from "@typespec/compiler/testing";
 import { parse } from "yaml";
 import { JsonSchemaEmitter } from "../src/json-schema-emitter.js";
-import { JSONSchemaEmitterOptions } from "../src/lib.js";
+import type { JSONSchemaEmitterOptions } from "../src/lib.js";
 import { JsonSchemaTestLibrary } from "../src/testing/index.js";
 
 export async function getHostForCadlFile(contents: string, decorators?: Record<string, any>) {
@@ -29,7 +29,7 @@ export async function emitSchemaWithDiagnostics(
     emitNamespace?: boolean;
     emitTypes?: string[];
     decorators?: Record<string, any>;
-  } = { emitNamespace: true }
+  } = { emitNamespace: true },
 ): Promise<[Record<string, any>, readonly Diagnostic[]]> {
   if (!options["file-type"]) {
     options["file-type"] = "json";
@@ -45,7 +45,7 @@ export async function emitSchemaWithDiagnostics(
     {
       emitterOutputDir: "cadl-output",
       options,
-    } as any
+    } as any,
   );
   if (options.emitAllModels) {
     emitter.emitProgram({ emitTypeSpecNamespace: false });
@@ -80,7 +80,7 @@ export async function emitSchema(
     emitNamespace?: boolean;
     emitTypes?: string[];
     decorators?: Record<string, any>;
-  } = { emitNamespace: true }
+  } = { emitNamespace: true },
 ) {
   const [schemas, diagnostics] = await emitSchemaWithDiagnostics(code, options, testOptions);
   expectDiagnosticEmpty(diagnostics);

@@ -29,6 +29,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Dictionary.InnerModel.property"
     },
@@ -55,6 +56,7 @@
      "optional": true,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Dictionary.InnerModel.children"
     }
@@ -75,6 +77,7 @@
      "$id": "10",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
+     "Description": "Service host",
      "Type": {
       "$id": "11",
       "kind": "url",
@@ -119,6 +122,7 @@
        "$id": "16",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "17",
         "kind": "url",
@@ -338,6 +342,7 @@
        "$id": "39",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "40",
         "kind": "url",
@@ -557,6 +562,7 @@
        "$id": "62",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "63",
         "kind": "url",
@@ -776,6 +782,7 @@
        "$id": "85",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "86",
         "kind": "url",
@@ -995,6 +1002,7 @@
        "$id": "108",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "109",
         "kind": "url",
@@ -1214,6 +1222,7 @@
        "$id": "131",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "132",
         "kind": "url",
@@ -1449,6 +1458,7 @@
        "$id": "156",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "157",
         "kind": "url",
@@ -1684,6 +1694,7 @@
        "$id": "181",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "182",
         "kind": "url",
@@ -1756,7 +1767,7 @@
         },
         "valueType": {
          "$id": "191",
-         "kind": "any",
+         "kind": "unknown",
          "name": "unknown",
          "crossLanguageDefinitionId": "",
          "decorators": []
@@ -1834,7 +1845,7 @@
         },
         "valueType": {
          "$id": "199",
-         "kind": "any",
+         "kind": "unknown",
          "name": "unknown",
          "crossLanguageDefinitionId": "",
          "decorators": []
@@ -1903,6 +1914,7 @@
        "$id": "204",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "205",
         "kind": "url",
@@ -2114,6 +2126,7 @@
        "$id": "225",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "226",
         "kind": "url",
@@ -2325,6 +2338,7 @@
        "$id": "246",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "247",
         "kind": "url",

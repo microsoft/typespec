@@ -16,18 +16,38 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    <spotless.config.path>../</spotless.config.path>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>com.azure</groupId>
       <artifactId>azure-core</artifactId>
-      <version>1.51.0</version>
+      <version>1.53.0</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-annotations</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-core</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-databind</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.fasterxml.jackson.datatype</groupId>
+          <artifactId>jackson-datatype-jsr310</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.azure</groupId>
       <artifactId>azure-json</artifactId>
-      <version>1.2.0</version>
+      <version>1.3.0</version>
     </dependency>
     <dependency>
       <groupId>com.azure</groupId>
@@ -60,19 +80,26 @@
       <version>0.21.1</version>
     </dependency>
     <dependency>
-      <groupId>org.eclipse.jdt</groupId>
-      <artifactId>org.eclipse.jdt.core</artifactId>
-      <version>3.33.0</version>
-    </dependency>
-    <dependency>
       <groupId>org.atteo</groupId>
       <artifactId>evo-inflector</artifactId>
       <version>1.3</version>
     </dependency>
-     <dependency>
+    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
       <version>1.7.36</version>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <version>5.9.3</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <version>5.9.3</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>

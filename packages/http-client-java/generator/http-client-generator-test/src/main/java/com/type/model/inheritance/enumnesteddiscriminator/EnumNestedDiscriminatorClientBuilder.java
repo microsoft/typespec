@@ -17,8 +17,8 @@ import com.azure.core.http.HttpPipelinePosition;
 import com.azure.core.http.policy.AddDatePolicy;
 import com.azure.core.http.policy.AddHeadersFromContextPolicy;
 import com.azure.core.http.policy.AddHeadersPolicy;
-import com.azure.core.http.policy.HttpLoggingPolicy;
 import com.azure.core.http.policy.HttpLogOptions;
+import com.azure.core.http.policy.HttpLoggingPolicy;
 import com.azure.core.http.policy.HttpPipelinePolicy;
 import com.azure.core.http.policy.HttpPolicyProviders;
 import com.azure.core.http.policy.RequestIdPolicy;
@@ -218,9 +218,8 @@ public final class EnumNestedDiscriminatorClientBuilder implements HttpTrait<Enu
     private EnumNestedDiscriminatorClientImpl buildInnerClient() {
         this.validateClient();
         HttpPipeline localPipeline = (pipeline != null) ? pipeline : createHttpPipeline();
-        String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
         EnumNestedDiscriminatorClientImpl client = new EnumNestedDiscriminatorClientImpl(localPipeline,
-            JacksonAdapter.createDefaultSerializerAdapter(), localEndpoint);
+            JacksonAdapter.createDefaultSerializerAdapter(), this.endpoint);
         return client;
     }
 
@@ -228,6 +227,7 @@ public final class EnumNestedDiscriminatorClientBuilder implements HttpTrait<Enu
     private void validateClient() {
         // This method is invoked from 'buildInnerClient'/'buildClient' method.
         // Developer can customize this method, to validate that the necessary conditions are met for the new client.
+        Objects.requireNonNull(endpoint, "'endpoint' cannot be null.");
     }
 
     @Generated

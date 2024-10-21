@@ -4,7 +4,6 @@
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
-
 import java.util.Objects;
 import java.util.Set;
 
@@ -46,22 +45,26 @@ public class ServiceClientProperty {
 
     /**
      * Create a new ServiceClientProperty with the provided properties.
+     * 
      * @param description The description of this property.
      * @param type The type of this property that is exposed via the client.
      * @param name The name of this property.
      * @param readOnly Whether or not this property's value can be changed by the client library.
      * @param defaultValueExpression The expression that evaluates to this property's default value.
      */
-    public ServiceClientProperty(String description, IType type, String name, boolean readOnly, String defaultValueExpression) {
+    public ServiceClientProperty(String description, IType type, String name, boolean readOnly,
+        String defaultValueExpression) {
         this(description, type, name, readOnly, defaultValueExpression, name, JavaVisibility.Public, false, null);
     }
 
-    public ServiceClientProperty(String description, IType type, String name, boolean readOnly, String defaultValueExpression, JavaVisibility methodVisibility) {
+    public ServiceClientProperty(String description, IType type, String name, boolean readOnly,
+        String defaultValueExpression, JavaVisibility methodVisibility) {
         this(description, type, name, readOnly, defaultValueExpression, name, methodVisibility, false, null);
     }
 
-    private ServiceClientProperty(String description, IType type, String name, boolean readOnly, String defaultValueExpression,
-                                  String accessorMethodSuffix, JavaVisibility methodVisibility, boolean required, String requestParameterName) {
+    private ServiceClientProperty(String description, IType type, String name, boolean readOnly,
+        String defaultValueExpression, String accessorMethodSuffix, JavaVisibility methodVisibility, boolean required,
+        String requestParameterName) {
         this.description = description;
         this.type = type;
         this.name = name;
@@ -114,8 +117,10 @@ public class ServiceClientProperty {
 
     /**
      * Add this property's imports to the provided set of imports.
+     * 
      * @param imports The set of imports to add to.
-     * @param includeImplementationImports Whether to include imports that are only necessary for method implementations.
+     * @param includeImplementationImports Whether to include imports that are only necessary for method
+     * implementations.
      */
     public final void addImportsTo(Set<String> imports, boolean includeImplementationImports) {
         getType().addImportsTo(imports, includeImplementationImports);
@@ -123,14 +128,16 @@ public class ServiceClientProperty {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         ServiceClientProperty that = (ServiceClientProperty) o;
-        return readOnly == that.readOnly &&
-                Objects.equals(description, that.description) &&
-                Objects.equals(type, that.type) &&
-                Objects.equals(name, that.name) &&
-                Objects.equals(defaultValueExpression, that.defaultValueExpression);
+        return readOnly == that.readOnly
+            && Objects.equals(description, that.description)
+            && Objects.equals(type, that.type)
+            && Objects.equals(name, that.name)
+            && Objects.equals(defaultValueExpression, that.defaultValueExpression);
     }
 
     @Override
@@ -199,7 +206,7 @@ public class ServiceClientProperty {
                 accessorMethodSuffix = name;
             }
             return new ServiceClientProperty(description, type, name, readOnly, defaultValueExpression,
-                    accessorMethodSuffix, methodVisibility, required, requestParameterName);
+                accessorMethodSuffix, methodVisibility, required, requestParameterName);
         }
     }
 }

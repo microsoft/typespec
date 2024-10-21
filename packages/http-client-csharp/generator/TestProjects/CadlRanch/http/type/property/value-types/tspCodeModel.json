@@ -438,6 +438,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionEnumValueProperty.property"
     }
@@ -464,6 +465,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionFloatLiteralProperty.property"
     }
@@ -490,6 +492,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionIntLiteralProperty.property"
     }
@@ -516,6 +519,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionStringLiteralProperty.property"
     }
@@ -552,6 +556,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.BooleanLiteralProperty.property"
     }
@@ -584,6 +589,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.FloatLiteralProperty.property"
     }
@@ -616,6 +622,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.IntLiteralProperty.property"
     }
@@ -648,6 +655,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.StringLiteralProperty.property"
     }
@@ -670,7 +678,7 @@
      "description": "Property",
      "type": {
       "$id": "69",
-      "kind": "any",
+      "kind": "unknown",
       "name": "unknown",
       "crossLanguageDefinitionId": "",
       "decorators": []
@@ -678,6 +686,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownArrayProperty.property"
     }
@@ -700,7 +709,7 @@
      "description": "Property",
      "type": {
       "$id": "72",
-      "kind": "any",
+      "kind": "unknown",
       "name": "unknown",
       "crossLanguageDefinitionId": "",
       "decorators": []
@@ -708,6 +717,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownDictProperty.property"
     }
@@ -730,7 +740,7 @@
      "description": "Property",
      "type": {
       "$id": "75",
-      "kind": "any",
+      "kind": "unknown",
       "name": "unknown",
       "crossLanguageDefinitionId": "",
       "decorators": []
@@ -738,6 +748,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownIntProperty.property"
     }
@@ -760,7 +771,7 @@
      "description": "Property",
      "type": {
       "$id": "78",
-      "kind": "any",
+      "kind": "unknown",
       "name": "unknown",
       "crossLanguageDefinitionId": "",
       "decorators": []
@@ -768,6 +779,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownStringProperty.property"
     }
@@ -820,6 +832,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.DictionaryStringProperty.property"
     }
@@ -869,6 +882,7 @@
          "optional": false,
          "readOnly": false,
          "discriminator": false,
+         "flatten": false,
          "decorators": [],
          "crossLanguageDefinitionId": "Type.Property.ValueTypes.InnerModel.property"
         }
@@ -880,6 +894,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsModelProperty.property"
     }
@@ -920,6 +935,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsIntProperty.property"
     }
@@ -957,6 +973,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsStringProperty.property"
     }
@@ -983,6 +1000,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.ModelProperty.property"
     }
@@ -1009,6 +1027,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.ExtensibleEnumProperty.property"
     }
@@ -1035,6 +1054,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.EnumProperty.property"
     }
@@ -1073,6 +1093,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.DurationProperty.property"
     }
@@ -1111,6 +1132,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.DatetimeProperty.property"
     }
@@ -1141,6 +1163,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal128Property.property"
     }
@@ -1171,6 +1194,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.DecimalProperty.property"
     }
@@ -1201,6 +1225,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.FloatProperty.property"
     }
@@ -1231,6 +1256,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.IntProperty.property"
     }
@@ -1262,6 +1288,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.BytesProperty.property"
     }
@@ -1292,6 +1319,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.StringProperty.property"
     }
@@ -1322,6 +1350,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.BooleanProperty.property"
     }
@@ -1342,6 +1371,7 @@
      "$id": "136",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
+     "Description": "Service host",
      "Type": {
       "$id": "137",
       "kind": "url",
@@ -1386,6 +1416,7 @@
        "$id": "142",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "143",
         "kind": "url",
@@ -1575,6 +1606,7 @@
        "$id": "159",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "160",
         "kind": "url",
@@ -1764,6 +1796,7 @@
        "$id": "176",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "177",
         "kind": "url",
@@ -1953,6 +1986,7 @@
        "$id": "193",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "194",
         "kind": "url",
@@ -2142,6 +2176,7 @@
        "$id": "210",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "211",
         "kind": "url",
@@ -2331,6 +2366,7 @@
        "$id": "227",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "228",
         "kind": "url",
@@ -2520,6 +2556,7 @@
        "$id": "244",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "245",
         "kind": "url",
@@ -2709,6 +2746,7 @@
        "$id": "261",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "262",
         "kind": "url",
@@ -2898,6 +2936,7 @@
        "$id": "278",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "279",
         "kind": "url",
@@ -3087,6 +3126,7 @@
        "$id": "295",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "296",
         "kind": "url",
@@ -3276,6 +3316,7 @@
        "$id": "312",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "313",
         "kind": "url",
@@ -3465,6 +3506,7 @@
        "$id": "329",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "330",
         "kind": "url",
@@ -3654,6 +3696,7 @@
        "$id": "346",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "347",
         "kind": "url",
@@ -3843,6 +3886,7 @@
        "$id": "363",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "364",
         "kind": "url",
@@ -4032,6 +4076,7 @@
        "$id": "380",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "381",
         "kind": "url",
@@ -4221,6 +4266,7 @@
        "$id": "397",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "398",
         "kind": "url",
@@ -4410,6 +4456,7 @@
        "$id": "414",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "415",
         "kind": "url",
@@ -4599,6 +4646,7 @@
        "$id": "431",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "432",
         "kind": "url",
@@ -4788,6 +4836,7 @@
        "$id": "448",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "449",
         "kind": "url",
@@ -4977,6 +5026,7 @@
        "$id": "465",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "466",
         "kind": "url",
@@ -5166,6 +5216,7 @@
        "$id": "482",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "483",
         "kind": "url",
@@ -5355,6 +5406,7 @@
        "$id": "499",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "500",
         "kind": "url",
@@ -5544,6 +5596,7 @@
        "$id": "516",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "517",
         "kind": "url",
@@ -5733,6 +5786,7 @@
        "$id": "533",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "534",
         "kind": "url",
@@ -5922,6 +5976,7 @@
        "$id": "550",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "551",
         "kind": "url",
@@ -6111,6 +6166,7 @@
        "$id": "567",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "568",
         "kind": "url",
@@ -6300,6 +6356,7 @@
        "$id": "584",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "585",
         "kind": "url",
@@ -6489,6 +6546,7 @@
        "$id": "601",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "602",
         "kind": "url",
@@ -6678,6 +6736,7 @@
        "$id": "618",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "619",
         "kind": "url",

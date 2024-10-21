@@ -105,34 +105,34 @@ namespace Microsoft.Generator.CSharp
         /// </summary>
         /// <param name="inputType">The <see cref="InputType"/> to convert.</param>
         /// <returns>An instance of <see cref="CSharpType"/>.</returns>
-        private CSharpType CreatePrimitiveCSharpTypeCore(InputType inputType) => inputType switch
+        internal static Type CreatePrimitiveCSharpTypeCore(InputType inputType) => inputType switch
         {
             InputPrimitiveType primitiveType => primitiveType.Kind switch
             {
-                InputPrimitiveTypeKind.Boolean => new CSharpType(typeof(bool)),
-                InputPrimitiveTypeKind.Bytes => new CSharpType(typeof(BinaryData)),
-                InputPrimitiveTypeKind.PlainDate => new CSharpType(typeof(DateTimeOffset)),
-                InputPrimitiveTypeKind.Decimal => new CSharpType(typeof(decimal)),
-                InputPrimitiveTypeKind.Decimal128 => new CSharpType(typeof(decimal)),
-                InputPrimitiveTypeKind.PlainTime => new CSharpType(typeof(TimeSpan)),
-                InputPrimitiveTypeKind.Float32 => new CSharpType(typeof(float)),
-                InputPrimitiveTypeKind.Float64 => new CSharpType(typeof(double)),
-                InputPrimitiveTypeKind.Int8 => new CSharpType(typeof(sbyte)),
-                InputPrimitiveTypeKind.UInt8 => new CSharpType(typeof(byte)),
-                InputPrimitiveTypeKind.Int32 => new CSharpType(typeof(int)),
-                InputPrimitiveTypeKind.Int64 => new CSharpType(typeof(long)),
-                InputPrimitiveTypeKind.SafeInt => new CSharpType(typeof(long)),
-                InputPrimitiveTypeKind.Integer => new CSharpType(typeof(long)), // in typespec, integer is the base type of int related types, see type relation: https://typespec.io/docs/language-basics/type-relations
-                InputPrimitiveTypeKind.Float => new CSharpType(typeof(double)), // in typespec, float is the base type of float32 and float64, see type relation: https://typespec.io/docs/language-basics/type-relations
-                InputPrimitiveTypeKind.Numeric => new CSharpType(typeof(double)), // in typespec, numeric is the base type of number types, see type relation: https://typespec.io/docs/language-basics/type-relations
-                InputPrimitiveTypeKind.Stream => new CSharpType(typeof(Stream)),
-                InputPrimitiveTypeKind.String => new CSharpType(typeof(string)),
-                InputPrimitiveTypeKind.Url => new CSharpType(typeof(Uri)),
-                InputPrimitiveTypeKind.Any => new CSharpType(typeof(BinaryData)),
-                _ => new CSharpType(typeof(object)),
+                InputPrimitiveTypeKind.Boolean => typeof(bool),
+                InputPrimitiveTypeKind.Bytes => typeof(BinaryData),
+                InputPrimitiveTypeKind.PlainDate => typeof(DateTimeOffset),
+                InputPrimitiveTypeKind.Decimal => typeof(decimal),
+                InputPrimitiveTypeKind.Decimal128 => typeof(decimal),
+                InputPrimitiveTypeKind.PlainTime => typeof(TimeSpan),
+                InputPrimitiveTypeKind.Float32 => typeof(float),
+                InputPrimitiveTypeKind.Float64 => typeof(double),
+                InputPrimitiveTypeKind.Int8 => typeof(sbyte),
+                InputPrimitiveTypeKind.UInt8 => typeof(byte),
+                InputPrimitiveTypeKind.Int32 => typeof(int),
+                InputPrimitiveTypeKind.Int64 => typeof(long),
+                InputPrimitiveTypeKind.SafeInt => typeof(long),
+                InputPrimitiveTypeKind.Integer => typeof(long), // in typespec, integer is the base type of int related types, see type relation: https://typespec.io/docs/language-basics/type-relations
+                InputPrimitiveTypeKind.Float => typeof(double), // in typespec, float is the base type of float32 and float64, see type relation: https://typespec.io/docs/language-basics/type-relations
+                InputPrimitiveTypeKind.Numeric => typeof(double), // in typespec, numeric is the base type of number types, see type relation: https://typespec.io/docs/language-basics/type-relations
+                InputPrimitiveTypeKind.Stream => typeof(Stream),
+                InputPrimitiveTypeKind.String => typeof(string),
+                InputPrimitiveTypeKind.Url => typeof(Uri),
+                InputPrimitiveTypeKind.Unknown => typeof(BinaryData),
+                _ => typeof(object),
             },
-            InputDateTimeType dateTimeType => new CSharpType(typeof(DateTimeOffset)),
-            InputDurationType durationType => new CSharpType(typeof(TimeSpan)),
+            InputDateTimeType dateTimeType => typeof(DateTimeOffset),
+            InputDurationType durationType => typeof(TimeSpan),
             _ => throw new InvalidOperationException($"Unknown type: {inputType}")
         };
 

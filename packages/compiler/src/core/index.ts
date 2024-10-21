@@ -1,4 +1,5 @@
 export * from "../manifest.js";
+export * from "../module-resolver/module-resolver.js";
 export * from "./checker.js";
 export * from "./decorator-utils.js";
 export * from "./deprecation.js";
@@ -29,19 +30,16 @@ export {
   type Discriminator,
 } from "./intrinsic-type-state.js";
 export {
-  // eslint-disable-next-line deprecation/deprecation
   createCadlLibrary,
   createLinterRule as createRule,
   createTypeSpecLibrary,
   defineLinter,
   definePackageFlags,
   paramMessage,
-  // eslint-disable-next-line deprecation/deprecation
   setCadlNamespace,
   setTypeSpecNamespace,
 } from "./library.js";
 export { resolveLinterDefinition } from "./linter.js";
-export * from "./module-resolver.js";
 export { NodeHost } from "./node-host.js";
 export { Numeric, isNumeric } from "./numeric.js";
 export * from "./options.js";

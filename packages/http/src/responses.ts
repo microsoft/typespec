@@ -26,7 +26,7 @@ import { HttpOperationResponse, HttpStatusCodes, HttpStatusCodesEntry } from "./
  */
 export function getResponsesForOperation(
   program: Program,
-  operation: Operation
+  operation: Operation,
 ): [HttpOperationResponse[], readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const responseType = operation.returnType;
@@ -78,15 +78,15 @@ function processResponseType(
   diagnostics: DiagnosticCollector,
   operation: Operation,
   responses: ResponseIndex,
-  responseType: Type
+  responseType: Type,
 ) {
   // Get body
   let { body: resolvedBody, metadata } = diagnostics.pipe(
-    resolveHttpPayload(program, responseType, Visibility.Read, "response")
+    resolveHttpPayload(program, responseType, Visibility.Read, "response"),
   );
   // Get explicity defined status codes
   const statusCodes: HttpStatusCodes = diagnostics.pipe(
-    getResponseStatusCodes(program, responseType, metadata)
+    getResponseStatusCodes(program, responseType, metadata),
   );
 
   // Get response headers
@@ -140,7 +140,7 @@ function processResponseType(
 function getResponseStatusCodes(
   program: Program,
   responseType: Type,
-  metadata: HttpProperty[]
+  metadata: HttpProperty[],
 ): [HttpStatusCodes, readonly Diagnostic[]] {
   const codes: HttpStatusCodes = [];
   const diagnostics = createDiagnosticCollector();
@@ -179,7 +179,7 @@ function getExplicitSetStatusCode(program: Program, entity: Model | ModelPropert
  */
 function getResponseHeaders(
   program: Program,
-  metadata: HttpProperty[]
+  metadata: HttpProperty[],
 ): Record<string, ModelProperty> {
   const responseHeaders: Record<string, ModelProperty> = {};
   for (const prop of metadata) {
@@ -196,7 +196,7 @@ function isResponseEnvelope(metadata: HttpProperty[]): boolean {
       prop.kind === "body" ||
       prop.kind === "bodyRoot" ||
       prop.kind === "multipartBody" ||
-      prop.kind === "statusCode"
+      prop.kind === "statusCode",
   );
 }
 
@@ -205,7 +205,7 @@ function getResponseDescription(
   operation: Operation,
   responseType: Type,
   statusCode: HttpStatusCodes[number],
-  metadata: HttpProperty[]
+  metadata: HttpProperty[],
 ): string | undefined {
   // NOTE: If the response type is an envelope and not the same as the body
   // type, then use its @doc as the response description. However, if the

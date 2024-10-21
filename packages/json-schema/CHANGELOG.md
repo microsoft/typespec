@@ -1,5 +1,16 @@
 # Change Log - @typespec/json-schema
 
+## 0.61.0
+
+### Bump dependencies
+
+- [#4424](https://github.com/microsoft/typespec/pull/4424) Bump dependencies
+
+### Features
+
+- [#4447](https://github.com/microsoft/typespec/pull/4447) Example set with `@example` decorator will populate the schema `examples` property
+
+
 ## 0.60.0
 
 ### Bug Fixes

@@ -1,0 +1,22 @@
+---
+import Default from "@astrojs/starlight/components/PageFrame.astro";
+import Footer from "../footer/footer.astro";
+import type { Props } from "@astrojs/starlight/props";
+---
+
+<Default {...Astro.props}>
+  <slot name="header" slot="header" /><slot name="sidebar" slot="sidebar" /><div>
+    <slot />
+    <div class="footer">
+      <Footer />
+    </div>
+  </div>
+</Default>
+
+<style>
+  .footer {
+    position: absolute;
+    z-index: 1000;
+    width: 100%;
+  }
+</style>

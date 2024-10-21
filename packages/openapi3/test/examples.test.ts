@@ -8,7 +8,7 @@ describe("schema examples", () => {
       `
       @example(#{name: "John"})
       model Test { name: string }
-      `
+      `,
     );
     expect(res.components.schemas.Test.example).toEqual({ name: "John" });
   });
@@ -17,7 +17,7 @@ describe("schema examples", () => {
     const res = await openApiFor(
       `
       model Test { @example("John") name: string }
-      `
+      `,
     );
     expect(res.components.schemas.Test.properties.name.example).toEqual("John");
   });
@@ -27,9 +27,28 @@ describe("schema examples", () => {
       `
       @example(#{dob: plainDate.fromISO("2021-01-01")})
       model Test { dob: plainDate }
-      `
+      `,
     );
     expect(res.components.schemas.Test.example).toEqual({ dob: "2021-01-01" });
+  });
+
+  it("enum in union", async () => {
+    const res = await openApiFor(
+      `
+      enum Types {a, b}
+
+      model A { type: Types;}
+
+      union Un { A }
+
+      @example(#{ prop: #{ type: Types.a } })
+      model Test {
+        prop: Un;
+      }
+
+      `,
+    );
+    expect(res.components.schemas.Test.example).toEqual({ prop: { type: "a" } });
   });
 });
 
@@ -45,7 +64,7 @@ describe("operation examples", () => {
       })
       op createPet(name: string, age: int32): void;
 
-      `
+      `,
     );
     expect(res.paths["/"].post?.requestBody?.content["application/json"].example).toEqual({
       name: "Fluffy",
@@ -65,7 +84,7 @@ describe("operation examples", () => {
       }, #{ title: "MyExample" })
       op createPet(name: string, age: int32): void;
 
-      `
+      `,
     );
     expect(res.paths["/"].post?.requestBody?.content["application/json"].examples).toEqual({
       MyExample: {
@@ -88,7 +107,7 @@ describe("operation examples", () => {
         },
       })
       op getPet(): {name: string, age: int32};
-      `
+      `,
     );
     expect(res.paths["/"].get?.responses[200].content["application/json"].example).toEqual({
       name: "Fluffy",
@@ -114,7 +133,7 @@ describe("operation examples", () => {
           @statusCode _: 404;
           error: string;
         };
-        `
+        `,
       );
       expect(res.paths["/"].get?.responses[200].content["application/json"].examples).toEqual({
         Ok: {
@@ -151,7 +170,7 @@ describe("operation examples", () => {
           error: string;
         };
 
-        `
+        `,
       );
       expect(res.paths["/"].get?.responses[200].content["application/json"].examples).toEqual({
         Ok: {
@@ -182,7 +201,7 @@ describe("operation examples", () => {
         },
       })
       op getPet(): {@body pet: {name: string, age: int32}};
-      `
+      `,
     );
     expect(res.paths["/"].get?.responses[200].content["application/json"].example).toEqual({
       name: "Fluffy",
@@ -202,7 +221,7 @@ describe("operation examples", () => {
         },
       })
       op getPet(): {@bodyRoot pet: {name: string, age: int32}};
-      `
+      `,
     );
     expect(res.paths["/"].get?.responses[200].content["application/json"].example).toEqual({
       name: "Fluffy",

@@ -14,9 +14,9 @@ public class ApiKeyTests {
     @Test
     public void testValid() {
         ApiKeyAsyncClient client = new ApiKeyClientBuilder()
-                // AzureKeyCredentialPolicy from core requires HTTPS
-                .addPolicy(new AzureKeyCredentialPolicy("x-ms-api-key", new AzureKeyCredential("valid-key")))
-                .buildAsyncClient();
+            // AzureKeyCredentialPolicy from core requires HTTPS
+            .addPolicy(new AzureKeyCredentialPolicy("x-ms-api-key", new AzureKeyCredential("valid-key")))
+            .buildAsyncClient();
 
         client.valid().block();
     }
@@ -24,9 +24,9 @@ public class ApiKeyTests {
     @Test
     public void testInvalid() {
         ApiKeyClient client = new ApiKeyClientBuilder()
-                // AzureKeyCredentialPolicy from core requires HTTPS
-                .addPolicy(new AzureKeyCredentialPolicy("x-ms-api-key", new AzureKeyCredential("valid-key")))
-                .buildClient();
+            // AzureKeyCredentialPolicy from core requires HTTPS
+            .addPolicy(new AzureKeyCredentialPolicy("x-ms-api-key", new AzureKeyCredential("invalid-key")))
+            .buildClient();
 
         // assert HttpResponseException
         Assertions.assertThrows(HttpResponseException.class, client::invalid);

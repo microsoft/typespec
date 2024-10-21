@@ -17,7 +17,7 @@ import {
   shouldGenerateConvenient,
   shouldGenerateProtocol,
 } from "@azure-tools/typespec-client-generator-core";
-import { getDeprecated, getDoc, getSummary, isErrorModel } from "@typespec/compiler";
+import { getDeprecated, isErrorModel } from "@typespec/compiler";
 import { HttpStatusCodeRange } from "@typespec/http";
 import { getResourceOperation } from "@typespec/rest";
 import { NetEmitterOptions } from "../options.js";
@@ -40,7 +40,7 @@ import { getExternalDocs, getOperationId } from "./decorators.js";
 import { fromSdkHttpExamples } from "./example-converter.js";
 import { Logger } from "./logger.js";
 import { getInputType } from "./model.js";
-import { isSdkPathParameter } from "./utils.js";
+import { capitalize, isSdkPathParameter } from "./utils.js";
 
 export function fromSdkServiceMethod(
   method: SdkServiceMethod<SdkHttpOperation>,
@@ -48,12 +48,12 @@ export function fromSdkServiceMethod(
   clientParameters: InputParameter[],
   rootApiVersions: string[],
   sdkContext: SdkContext<NetEmitterOptions>,
-  typeMap: SdkTypeMap
+  typeMap: SdkTypeMap,
 ): InputOperation {
   let generateConvenience = shouldGenerateConvenient(sdkContext, method.operation.__raw.operation);
   if (method.operation.verb === "patch" && generateConvenience) {
     Logger.getInstance().warn(
-      `Convenience method is not supported for PATCH method, it will be automatically turned off. Please set the '@convenientAPI' to false for operation ${method.operation.__raw.operation.name}.`
+      `Convenience method is not supported for PATCH method, it will be automatically turned off. Please set the '@convenientAPI' to false for operation ${method.operation.__raw.operation.name}.`,
     );
     generateConvenience = false;
   }
@@ -62,12 +62,12 @@ export function fromSdkServiceMethod(
     method.operation,
     rootApiVersions,
     sdkContext,
-    typeMap
+    typeMap,
   );
   const responseMap = fromSdkHttpOperationResponses(
     method.operation.responses,
     sdkContext,
-    typeMap
+    typeMap,
   );
   return {
     Name: method.name,
@@ -76,10 +76,8 @@ export function fromSdkServiceMethod(
         .name ??
       getOperationGroupName(sdkContext, method.operation, sdkContext.sdkPackage.rootNamespace),
     Deprecated: getDeprecated(sdkContext.program, method.__raw!),
-    // TODO: we need to figure out how we want to handle summary and description
-    // Right now, we generate garbage <remarks> for some APIs like `Platform-OpenAI-TypeSpec`
-    Summary: getSummary(sdkContext.program, method.__raw!),
-    Description: getDoc(sdkContext.program, method.__raw!),
+    Summary: method.summary,
+    Description: method.doc,
     Accessibility: method.access,
     Parameters: [...clientParameters, ...parameterMap.values()],
     Responses: [...responseMap.values()],
@@ -102,7 +100,7 @@ export function fromSdkServiceMethod(
           method.operation.examples,
           parameterMap,
           responseMap,
-          typeMap
+          typeMap,
         )
       : undefined,
   };
@@ -110,7 +108,7 @@ export function fromSdkServiceMethod(
 
 export function getParameterDefaultValue(
   clientDefaultValue: any,
-  parameterType: InputType
+  parameterType: InputType,
 ): InputConstant | undefined {
   if (
     clientDefaultValue === undefined ||
@@ -150,7 +148,7 @@ function fromSdkOperationParameters(
   operation: SdkHttpOperation,
   rootApiVersions: string[],
   sdkContext: SdkContext<NetEmitterOptions>,
-  typeMap: SdkTypeMap
+  typeMap: SdkTypeMap,
 ): Map<SdkHttpParameter, InputParameter> {
   const parameters = new Map<SdkHttpParameter, InputParameter>();
   for (const p of operation.parameters) {
@@ -163,7 +161,7 @@ function fromSdkOperationParameters(
       operation.bodyParam,
       rootApiVersions,
       sdkContext,
-      typeMap
+      typeMap,
     );
     parameters.set(operation.bodyParam, bodyParam);
   }
@@ -174,7 +172,7 @@ function fromSdkHttpOperationParameter(
   p: SdkPathParameter | SdkQueryParameter | SdkHeaderParameter | SdkBodyParameter,
   rootApiVersions: string[],
   sdkContext: SdkContext<NetEmitterOptions>,
-  typeMap: SdkTypeMap
+  typeMap: SdkTypeMap,
 ): InputParameter {
   const isContentType =
     p.kind === "header" && p.serializedName.toLocaleLowerCase() === "content-type";
@@ -185,7 +183,7 @@ function fromSdkHttpOperationParameter(
   return {
     Name: p.name,
     NameInRequest: p.kind === "header" ? normalizeHeaderName(serializedName) : serializedName,
-    Description: p.description,
+    Description: p.summary ?? p.doc,
     Type: parameterType,
     Location: getParameterLocation(p),
     IsApiVersion:
@@ -205,12 +203,22 @@ function fromSdkHttpOperationParameter(
 function loadLongRunningOperation(
   method: SdkServiceMethod<SdkHttpOperation>,
   sdkContext: SdkContext<NetEmitterOptions>,
-  typeMap: SdkTypeMap
+  typeMap: SdkTypeMap,
 ): import("../type/operation-long-running.js").OperationLongRunning | undefined {
   if (method.kind !== "lro") {
     return undefined;
   }
-
+  /* Remove this workaround when https://github.com/Azure/typespec-azure/issues/1538 is resolved */
+  if (
+    method.__raw_lro_metadata.finalEnvelopeResult &&
+    method.__raw_lro_metadata.finalEnvelopeResult !== "void" &&
+    method.__raw_lro_metadata.finalEnvelopeResult.name === ""
+  ) {
+    method.__raw_lro_metadata.finalEnvelopeResult = {
+      ...method.__raw_lro_metadata.finalEnvelopeResult,
+      name: capitalize(`${method.name}Response`),
+    };
+  }
   return {
     FinalStateVia: convertLroFinalStateVia(method.__raw_lro_metadata.finalStateVia),
     FinalResponse: {
@@ -224,7 +232,7 @@ function loadLongRunningOperation(
               sdkContext,
               method.__raw_lro_metadata.finalEnvelopeResult,
               typeMap,
-              method.operation.__raw.operation
+              method.operation.__raw.operation,
             )
           : undefined,
       BodyMediaType: BodyMediaType.Json,
@@ -234,12 +242,13 @@ function loadLongRunningOperation(
 }
 
 function fromSdkHttpOperationResponses(
-  operationResponses: Map<HttpStatusCodeRange | number, SdkHttpResponse>,
+  operationResponses: SdkHttpResponse[],
   sdkContext: SdkContext<NetEmitterOptions>,
-  typeMap: SdkTypeMap
+  typeMap: SdkTypeMap,
 ): Map<SdkHttpResponse, OperationResponse> {
   const responses = new Map<SdkHttpResponse, OperationResponse>();
-  for (const [range, r] of operationResponses) {
+  for (const r of operationResponses) {
+    const range = r.statusCodes;
     responses.set(r, {
       StatusCodes: toStatusCodesArray(range),
       BodyType: r.type ? fromSdkType(r.type, sdkContext, typeMap) : undefined,
@@ -255,16 +264,16 @@ function fromSdkHttpOperationResponses(
 function fromSdkServiceResponseHeaders(
   headers: SdkServiceResponseHeader[],
   sdkContext: SdkContext<NetEmitterOptions>,
-  typeMap: SdkTypeMap
+  typeMap: SdkTypeMap,
 ): HttpResponseHeader[] {
   return headers.map(
     (h) =>
       ({
         Name: h.__raw!.name,
         NameInResponse: h.serializedName,
-        Description: h.description,
+        Description: h.summary ?? h.doc,
         Type: fromSdkType(h.type, sdkContext, typeMap),
-      }) as HttpResponseHeader
+      }) as HttpResponseHeader,
   );
 }
 
@@ -295,7 +304,7 @@ function getBodyMediaType(type: SdkType | undefined) {
 
 function getRequestMediaTypes(op: SdkHttpOperation): string[] | undefined {
   const contentTypes = op.parameters.filter(
-    (p) => p.kind === "header" && p.serializedName.toLocaleLowerCase() === "content-type"
+    (p) => p.kind === "header" && p.serializedName.toLocaleLowerCase() === "content-type",
   );
   if (contentTypes.length === 0) return undefined;
   return contentTypes.map((p) => getMediaTypes(p.type)).flat();
@@ -309,7 +318,7 @@ function getMediaTypes(type: SdkType): string[] {
     return [type.value as string];
   } else if (type.kind === "union") {
     const mediaTypes: string[] = [];
-    for (const unionItem of type.values) {
+    for (const unionItem of type.variantTypes) {
       if (unionItem.kind === "constant" && unionItem.valueType.kind === "string") {
         mediaTypes.push(unionItem.value as string);
       } else {
@@ -327,7 +336,7 @@ function getMediaTypes(type: SdkType): string[] {
 }
 
 function loadOperationPaging(
-  method: SdkServiceMethod<SdkHttpOperation>
+  method: SdkServiceMethod<SdkHttpOperation>,
 ): OperationPaging | undefined {
   if (method.kind !== "paging") {
     return undefined;
@@ -341,7 +350,7 @@ function loadOperationPaging(
 
 // TODO: https://github.com/Azure/typespec-azure/issues/981
 function getParameterLocation(
-  p: SdkPathParameter | SdkQueryParameter | SdkHeaderParameter | SdkBodyParameter | undefined
+  p: SdkPathParameter | SdkQueryParameter | SdkHeaderParameter | SdkBodyParameter | undefined,
 ): RequestLocation {
   switch (p?.kind) {
     case "path":
@@ -360,7 +369,7 @@ function getParameterLocation(
 function getParameterKind(
   p: SdkPathParameter | SdkQueryParameter | SdkHeaderParameter | SdkBodyParameter,
   type: InputType,
-  hasGlobalApiVersion: boolean
+  hasGlobalApiVersion: boolean,
 ): InputOperationParameterKind {
   if (p.kind === "body") {
     /** TODO: remove this and use the spread metadata of parameter when https://github.com/Azure/typespec-azure/issues/1513 is resolved */
@@ -390,7 +399,7 @@ function getParameterKind(
 function getOperationGroupName(
   context: SdkContext,
   operation: SdkHttpOperation,
-  namespace: string
+  namespace: string,
 ): string {
   const explicitOperationId = getOperationId(context, operation.__raw.operation);
   if (explicitOperationId) {

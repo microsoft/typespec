@@ -8,7 +8,7 @@ import { findTestPackageRoot } from "../../src/testing/test-utils.js";
 
 const scenarioRoot = resolvePath(
   await findTestPackageRoot(import.meta.url),
-  "test/config/scenarios"
+  "test/config/scenarios",
 );
 
 describe("compiler: resolve compiler options", () => {
@@ -22,7 +22,7 @@ describe("compiler: resolve compiler options", () => {
           cwd: normalizePath(process.cwd()),
           entrypoint: fullPath, // not really used here
           configPath: fullPath,
-        }
+        },
       );
       return [options, diagnostics] as const;
     };
@@ -35,6 +35,23 @@ describe("compiler: resolve compiler options", () => {
         config: resolvePath(scenarioRoot, "custom/myConfig.yaml"),
         emit: ["openapi"],
         options: {},
+        outputDir: tspOutputPath,
+      });
+    });
+
+    it("loads config with nested parameters", async () => {
+      const [options, diagnostics] = await resolveOptions("custom/myConfigNested.yaml");
+      expectDiagnosticEmpty(diagnostics);
+
+      deepStrictEqual(options, {
+        config: resolvePath(scenarioRoot, "custom/myConfigNested.yaml"),
+        emit: ["openapi"],
+        options: {
+          description: {
+            name: "Testing name: Sphere",
+            details: { one: "Type: Bar", two: { "two-one": "Default: Metadata default" } },
+          },
+        },
         outputDir: tspOutputPath,
       });
     });

@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.mapper;
 
+import com.microsoft.typespec.http.client.generator.core.mapper.ChoiceMapper;
 import com.microsoft.typespec.http.client.generator.core.mapper.ClientMethodMapper;
 import com.microsoft.typespec.http.client.generator.core.mapper.DefaultMapperFactory;
 import com.microsoft.typespec.http.client.generator.core.mapper.ExceptionMapper;
@@ -11,6 +12,7 @@ import com.microsoft.typespec.http.client.generator.core.mapper.ModelMapper;
 import com.microsoft.typespec.http.client.generator.core.mapper.ObjectMapper;
 import com.microsoft.typespec.http.client.generator.core.mapper.PrimitiveMapper;
 import com.microsoft.typespec.http.client.generator.core.mapper.ProxyMethodMapper;
+import com.microsoft.typespec.http.client.generator.core.mapper.SealedChoiceMapper;
 
 public class FluentMapperFactory extends DefaultMapperFactory {
 
@@ -47,5 +49,15 @@ public class FluentMapperFactory extends DefaultMapperFactory {
     @Override
     public ModelMapper getModelMapper() {
         return FluentModelMapper.getInstance();
+    }
+
+    @Override
+    public ChoiceMapper getChoiceMapper() {
+        return FluentChoiceMapper.getInstance();
+    }
+
+    @Override
+    public SealedChoiceMapper getSealedChoiceMapper() {
+        return FluentSealedChoiceMapper.getInstance();
     }
 }

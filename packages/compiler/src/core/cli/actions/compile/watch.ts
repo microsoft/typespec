@@ -16,7 +16,7 @@ export interface WatchHost extends CompilerHost {
 }
 
 export function createWatcher(
-  onFileChanged: (event: WatchEventType, name: string) => void
+  onFileChanged: (event: WatchEventType, name: string) => void,
 ): ProjectWatcher {
   const current = new Map<string, FSWatcher>();
   const dupFilter = createDupsFilter();
@@ -25,9 +25,9 @@ export function createWatcher(
   function watchFile(file: string): FSWatcher {
     const watcher = watch(
       file,
-      dupFilter((event: WatchEventType, _name: string) => {
+      dupFilter((event: WatchEventType, _name: string | null) => {
         onFileChanged(event, file);
-      })
+      }),
     );
     return watcher;
   }
@@ -67,8 +67,11 @@ export function createWatchHost(host: CliCompilerHost): WatchHost {
 }
 function createDupsFilter() {
   let memo: Record<string, [WatchEventType, string]> = {};
-  return function (fn: (e: WatchEventType, name: string) => void) {
-    return function (event: WatchEventType, name: string) {
+  return function (fn: (e: WatchEventType, name: string | null) => void) {
+    return function (event: WatchEventType, name: string | null) {
+      if (name === null) {
+        return;
+      }
       memo[name] = [event, name];
       setTimeout(function () {
         Object.values(memo).forEach((args) => {

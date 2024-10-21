@@ -3,8 +3,6 @@ id: emitter-metadata-handling
 title: Managing metadata and visibility in REST API emitters
 ---
 
-# Managing metadata and visibility in REST API emitters
-
 Ensuring consistent handling of [automatic visibility](../libraries/http/operations.md#automatic-visibility) and [metadata](../libraries/http/operations.md#metadata) by all REST API emitters is crucial. To understand how these features work, please refer to the TypeSpec-author documentation. This guide will help you integrate these features into your own emitter correctly.
 
 The standard `/rest` library offers a JavaScript API for emitters to interpret APIs written using its decorators. We will focus on the APIs that are specifically relevant to these features.
@@ -17,7 +15,7 @@ If you're new to writing emitters, begin with the [emitter basics](./emitters-ba
 
 Next, examine the [REST metadata emitter sample](https://github.com/microsoft/typespec/tree/main/packages/samples/rest-metadata-emitter). This sample uses all of the APIs discussed below to create a simple textual representation. It intentionally avoids splitting types like the OpenAPI emitter to highlight that this is not mandatory. Instead, it includes contextual comments to indicate how data depends on context.
 
-However, if you want your emitter to split types like OpenAPI, you can still use the same API. Cross-referencing with the official [OpenAPI emitter] where these APIs are called can also be helpful.
+However, if you want your emitter to split types like OpenAPI, you can still use the same API. Cross-referencing with the official [OpenAPI emitter](../emitters/openapi3/openapi.md) where these APIs are called can also be helpful.
 
 ## Key API
 

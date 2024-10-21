@@ -5,10 +5,9 @@ package com.microsoft.typespec.http.client.generator.core.customization;
 
 import com.microsoft.typespec.http.client.generator.core.customization.implementation.Utils;
 import com.microsoft.typespec.http.client.generator.core.customization.implementation.ls.EclipseLanguageClient;
-import org.eclipse.lsp4j.SymbolInformation;
-
 import java.lang.reflect.Modifier;
 import java.util.List;
+import org.eclipse.lsp4j.SymbolInformation;
 
 /**
  * The constructor level customization for an AutoRest generated constructor.
@@ -19,7 +18,7 @@ public final class ConstructorCustomization extends CodeCustomization {
     private final String constructorSignature;
 
     ConstructorCustomization(Editor editor, EclipseLanguageClient languageClient, String packageName, String className,
-                             String constructorSignature, SymbolInformation symbol) {
+        String constructorSignature, SymbolInformation symbol) {
         super(editor, languageClient, symbol);
         this.packageName = packageName;
         this.className = className;
@@ -62,11 +61,14 @@ public final class ConstructorCustomization extends CodeCustomization {
      * @return A new ConstructorCustomization representing the updated constructor.
      */
     public ConstructorCustomization removeAnnotation(String annotation) {
-        return Utils.removeAnnotation(this, compilationUnit -> compilationUnit.getClassByName(className).get()
+        return Utils.removeAnnotation(this,
+            compilationUnit -> compilationUnit.getClassByName(className)
+                .get()
                 .getConstructors()
                 .stream()
                 .filter(ctor -> Utils.declarationContainsSymbol(ctor.getRange().get(), symbol.getLocation().getRange()))
-                .findFirst().get()
+                .findFirst()
+                .get()
                 .getAnnotationByName(Utils.cleanAnnotationName(annotation)),
             () -> refreshCustomization(constructorSignature));
     }
@@ -112,11 +114,11 @@ public final class ConstructorCustomization extends CodeCustomization {
     public ConstructorCustomization replaceParameters(String newParameters, List<String> importsToAdd) {
         String newSignature = className + "(" + newParameters + ")";
 
-        ClassCustomization classCustomization = new PackageCustomization(editor, languageClient, packageName)
-            .getClass(className);
+        ClassCustomization classCustomization
+            = new PackageCustomization(editor, languageClient, packageName).getClass(className);
 
-        ClassCustomization updatedClassCustomization = Utils.addImports(importsToAdd, classCustomization,
-            classCustomization::refreshSymbol);
+        ClassCustomization updatedClassCustomization
+            = Utils.addImports(importsToAdd, classCustomization, classCustomization::refreshSymbol);
 
         return Utils.replaceParameters(newParameters, updatedClassCustomization.getConstructor(constructorSignature),
             () -> updatedClassCustomization.getConstructor(newSignature));
@@ -141,19 +143,18 @@ public final class ConstructorCustomization extends CodeCustomization {
      * @return A new ConstructorCustomization representing the updated constructor.
      */
     public ConstructorCustomization replaceBody(String newBody, List<String> importsToAdd) {
-        ClassCustomization classCustomization = new PackageCustomization(editor, languageClient, packageName)
-            .getClass(className);
+        ClassCustomization classCustomization
+            = new PackageCustomization(editor, languageClient, packageName).getClass(className);
 
-        ClassCustomization updatedClassCustomization = Utils.addImports(importsToAdd, classCustomization,
-            classCustomization::refreshSymbol);
+        ClassCustomization updatedClassCustomization
+            = Utils.addImports(importsToAdd, classCustomization, classCustomization::refreshSymbol);
 
         return Utils.replaceBody(newBody, updatedClassCustomization.getConstructor(constructorSignature),
             () -> updatedClassCustomization.getConstructor(constructorSignature));
     }
 
     private ConstructorCustomization refreshCustomization(String constructorSignature) {
-        return new PackageCustomization(editor, languageClient, packageName)
-            .getClass(className)
+        return new PackageCustomization(editor, languageClient, packageName).getClass(className)
             .getConstructor(constructorSignature);
     }
 }

@@ -8,7 +8,7 @@ import { createOpenAPITestRunner, oapiForModel, openApiFor } from "./test-host.j
 
 async function openapiWithOptions(
   code: string,
-  options: OpenAPI3EmitterOptions
+  options: OpenAPI3EmitterOptions,
 ): Promise<OpenAPI3Document> {
   const runner = await createOpenAPITestRunner();
 
@@ -35,7 +35,7 @@ describe("openapi3: types included", () => {
 
       op test(): Referenced;
     `,
-      {}
+      {},
     );
     deepStrictEqual(Object.keys(output.components!.schemas!), ["NotReferenced", "Referenced"]);
   });
@@ -50,7 +50,7 @@ describe("openapi3: types included", () => {
     `,
       {
         "omit-unreachable-types": true,
-      }
+      },
     );
     deepStrictEqual(Object.keys(output.components!.schemas!), ["Referenced"]);
   });
@@ -62,7 +62,7 @@ describe("openapi3: x-typespec-name", () => {
       `
       model Foo {names: string[]}
     `,
-      {}
+      {},
     );
     ok(!("x-typespec-name" in output.components!.schemas!.Foo.properties!.names));
   });
@@ -72,7 +72,7 @@ describe("openapi3: x-typespec-name", () => {
       `
       model Foo {names: string[]}
     `,
-      { "include-x-typespec-name": "never" }
+      { "include-x-typespec-name": "never" },
     );
     ok(!("x-typespec-name" in output.components!.schemas!.Foo.properties!.names));
   });
@@ -82,7 +82,7 @@ describe("openapi3: x-typespec-name", () => {
       `
       model Foo {names: string[]}
     `,
-      { "include-x-typespec-name": "inline-only" }
+      { "include-x-typespec-name": "inline-only" },
     );
     const prop: any = output.components!.schemas!.Foo.properties!.names;
     strictEqual(prop["x-typespec-name"], `string[]`);
@@ -103,7 +103,7 @@ describe("openapi3: literals", () => {
         "Pet",
         `
         model Pet { name: ${test[0]} };
-        `
+        `,
       );
 
       const schema = res.schemas.Pet.properties.name;
@@ -119,7 +119,7 @@ describe("openapi3: operations", () => {
       @route("/")
       @get()
       op read(@query queryWithDefault?: string = "defaultValue"): string;
-      `
+      `,
     );
 
     strictEqual(res.paths["/"].get.operationId, "read");
@@ -139,7 +139,7 @@ describe("openapi3: operations", () => {
         @maxValue(10)
         @query count: int32
       ): string;
-      `
+      `,
     );
 
     const getThing = res.paths["/thing/{name}"].get;
@@ -163,7 +163,7 @@ describe("openapi3: operations", () => {
       `
       #deprecated "use something else"
       op read(@query query: string): string;
-      `
+      `,
     );
 
     strictEqual(res.paths["/"].get.deprecated, true);
@@ -218,7 +218,7 @@ describe("openapi3: extension decorator", () => {
       @get()
       @extension("x-operation-extension", "barbaz")
       op list(): Pet[];
-      `
+      `,
     );
     ok(oapi.paths["/"].get);
     strictEqual(oapi.paths["/"].get["x-operation-extension"], "barbaz");
@@ -238,12 +238,12 @@ describe("openapi3: extension decorator", () => {
       @route("/Pets")
       @get()
       op get(... PetId): Pet;
-      `
+      `,
     );
     ok(oapi.paths["/Pets/{petId}"].get);
     strictEqual(
       oapi.paths["/Pets/{petId}"].get.parameters[0]["$ref"],
-      "#/components/parameters/PetId"
+      "#/components/parameters/PetId",
     );
     strictEqual(oapi.components.parameters.PetId.name, "petId");
     strictEqual(oapi.components.parameters.PetId["x-parameter-extension"], "foobaz");
@@ -254,7 +254,7 @@ describe("openapi3: extension decorator", () => {
       `
       @extension("x-namespace-extension", "foobar")
       @service namespace Service {};
-      `
+      `,
     );
 
     strictEqual(oapi["x-namespace-extension"], "foobar");
@@ -276,12 +276,12 @@ describe("openapi3: extension decorator", () => {
       @route("/Pets")
       @get()
       op get(... PetId): Pet;
-      `
+      `,
     );
     ok(oapi.paths["/Pets/{petId}"].get);
     strictEqual(
       oapi.paths["/Pets/{petId}"].get.parameters[0]["$ref"],
-      "#/components/parameters/PetId"
+      "#/components/parameters/PetId",
     );
     strictEqual(oapi.components.parameters.PetId.name, "petId");
     strictEqual(oapi.components.schemas.Pet.properties.name.pattern, "^[a-zA-Z0-9-]{3,24}$");

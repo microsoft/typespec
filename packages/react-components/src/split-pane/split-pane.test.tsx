@@ -12,7 +12,7 @@ it("render 2 panes", async () => {
     <SplitPane sizes={[undefined, undefined]}>
       <Pane>Pane 1</Pane>
       <Pane>Pane 2</Pane>
-    </SplitPane>
+    </SplitPane>,
   );
   expect(await screen.findAllByRole("separator")).toHaveLength(1);
   expect(container).toHaveTextContent("Pane 1");
@@ -25,7 +25,7 @@ it("render 3 panes with 2 separators", async () => {
       <Pane>Pane 1</Pane>
       <Pane>Pane 2</Pane>
       <Pane>Pane 3</Pane>
-    </SplitPane>
+    </SplitPane>,
   );
   expect(await screen.findAllByRole("separator")).toHaveLength(2);
   expect(container).toHaveTextContent("Pane 1");
@@ -39,7 +39,7 @@ describe("sizes", () => {
       <SplitPane initialSizes={[undefined, undefined]}>
         <Pane>Pane 1</Pane>
         <Pane>Pane 2</Pane>
-      </SplitPane>
+      </SplitPane>,
     );
 
     expect(await screen.findByText("Pane 1")).toHaveStyle({ width: "500px" });
@@ -52,7 +52,7 @@ describe("sizes", () => {
         <Pane>Pane 1</Pane>
         <Pane>Pane 2</Pane>
         <Pane>Pane 3</Pane>
-      </SplitPane>
+      </SplitPane>,
     );
 
     expect(await screen.findByText("Pane 1")).toHaveStyle({ width: "200px" });
@@ -63,20 +63,29 @@ describe("sizes", () => {
   function mockMouseEvent(
     target: HTMLElement,
     type: keyof typeof createEvent,
-    { pageX, pageY }: { pageX?: number; pageY?: number } = {}
+    { pageX, pageY }: { pageX?: number; pageY?: number } = {},
   ) {
     const evt = createEvent[type](target);
     if (pageX !== undefined) (evt as any).pageX = pageX;
     if (pageY !== undefined) (evt as any).pageY = pageY;
     return evt;
   }
+  function mockTouchEvent(
+    target: HTMLElement,
+    type: keyof typeof createEvent,
+    { touches }: { touches: Partial<TouchEvent["touches"][number]>[] },
+  ) {
+    const evt = createEvent[type](target);
+    (evt as any).touches = touches;
+    return evt;
+  }
 
-  it("resize", async () => {
+  it("resize (mouse)", async () => {
     render(
       <SplitPane initialSizes={[undefined, undefined]}>
         <Pane>Pane 1</Pane>
         <Pane>Pane 2</Pane>
-      </SplitPane>
+      </SplitPane>,
     );
     const separator = await screen.getByRole("separator");
     const pane1 = await screen.findByText("Pane 1");
@@ -93,6 +102,46 @@ describe("sizes", () => {
 
     fireEvent(separator, mockMouseEvent(separator, "mouseUp"));
     fireEvent(separator, mockMouseEvent(separator, "mouseMove", { pageX: 700, pageY: 0 }));
+
+    // Should not update after we mouse up
+    expect(pane1).toHaveStyle({ width: "600px" });
+    expect(pane2).toHaveStyle({ width: "400px" });
+  });
+
+  it("resize (touch)", async () => {
+    render(
+      <SplitPane initialSizes={[undefined, undefined]}>
+        <Pane>Pane 1</Pane>
+        <Pane>Pane 2</Pane>
+      </SplitPane>,
+    );
+    const separator = await screen.getByRole("separator");
+    const pane1 = await screen.findByText("Pane 1");
+    const pane2 = await screen.findByText("Pane 2");
+
+    expect(pane1).toHaveStyle({ width: "500px" });
+    expect(pane2).toHaveStyle({ width: "500px" });
+
+    fireEvent(
+      separator,
+      mockTouchEvent(separator, "touchStart", { touches: [{ clientX: 500, clientY: 0 }] }),
+    );
+    fireEvent(
+      separator,
+      mockTouchEvent(separator, "touchMove", { touches: [{ clientX: 600, clientY: 0 }] }),
+    );
+
+    expect(pane1).toHaveStyle({ width: "600px" });
+    expect(pane2).toHaveStyle({ width: "400px" });
+
+    fireEvent(
+      separator,
+      mockTouchEvent(separator, "touchEnd", { touches: [{ clientX: 600, clientY: 0 }] }),
+    );
+    fireEvent(
+      separator,
+      mockTouchEvent(separator, "touchMove", { touches: [{ clientX: 700, clientY: 0 }] }),
+    );
 
     // Should not update after we mouse up
     expect(pane1).toHaveStyle({ width: "600px" });

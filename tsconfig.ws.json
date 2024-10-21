@@ -13,6 +13,9 @@
     { "path": "packages/tmlanguage-generator/tsconfig.json" },
     { "path": "packages/protobuf/tsconfig.json" },
     { "path": "packages/openapi3/tsconfig.json" },
+    { "path": "packages/spec-api/tsconfig.build.json" },
+    { "path": "packages/spector/tsconfig.build.json" },
+    { "path": "packages/http-specs/tsconfig.build.json" },
     { "path": "packages/monarch/tsconfig.json" },
     { "path": "packages/bundler/tsconfig.json" },
     { "path": "packages/tspd/tsconfig.json" },
@@ -20,7 +23,8 @@
     { "path": "packages/json-schema/tsconfig.json" },
     { "path": "packages/best-practices/tsconfig.json" },
     { "path": "packages/xml/tsconfig.json" },
-    { "path": "packages/http-server-javascript/tsconfig.json" }
+    { "path": "packages/http-server-javascript/tsconfig.json" },
+    { "path": "packages/http-server-csharp/tsconfig.json" }
   ],
   "files": []
 }

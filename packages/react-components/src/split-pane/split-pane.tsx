@@ -1,17 +1,9 @@
 import { mergeClasses } from "@fluentui/react-components";
-import {
-  useCallback,
-  useMemo,
-  useRef,
-  useState,
-  type FunctionComponent,
-  type JSX,
-  type MouseEvent,
-} from "react";
+import { useCallback, useMemo, useRef, useState, type FunctionComponent, type JSX } from "react";
 import { useControllableValue } from "../hooks.js";
 import { Pane, type PaneProps } from "./pane.js";
 import { SashContent } from "./sash-content.js";
-import { Sash } from "./sash.js";
+import { Sash, type DraggingEvent } from "./sash.js";
 import style from "./split-pane.module.css";
 import { useElDimensions } from "./use-el-dimensions.js";
 
@@ -23,8 +15,8 @@ export interface SplitPaneProps {
   sizes?: (string | number | undefined)[];
   sashRender?: (index: number, active: boolean) => React.ReactNode;
   onChange?: (sizes: number[]) => void;
-  onDragStart?: (e: MouseEvent) => void;
-  onDragEnd?: (e: MouseEvent) => void;
+  onDragStart?: (e: DraggingEvent) => void;
+  onDragEnd?: (e: DraggingEvent) => void;
   className?: string;
   sashClassName?: string;
   performanceMode?: boolean;
@@ -59,7 +51,7 @@ export const SplitPane: FunctionComponent<SplitPaneProps> = ({
   const [resolvedPropSize, updateSizes] = useControllableValue<(string | number | undefined)[]>(
     propSizes,
     defaultSizes,
-    onChange as any
+    onChange as any,
   );
   const axis = useRef<Axis>({ x: 0, y: 0 });
   const wrapper = useRef<HTMLDivElement>(null);
@@ -75,7 +67,7 @@ export const SplitPane: FunctionComponent<SplitPaneProps> = ({
         splitPos: split === "vertical" ? "left" : "top",
         splitAxis: split === "vertical" ? "x" : "y",
       }) as const,
-    [split]
+    [split],
   );
 
   const wrapSize: number = wrapperRect[sizeName] ?? 0;
@@ -92,7 +84,7 @@ export const SplitPane: FunctionComponent<SplitPaneProps> = ({
         }
         return limits;
       }),
-    [children, wrapSize]
+    [children, wrapSize],
   );
 
   const sizes = useMemo(
@@ -122,23 +114,23 @@ export const SplitPane: FunctionComponent<SplitPaneProps> = ({
 
       return res;
     },
-    [children, resolvedPropSize, wrapSize]
+    [children, resolvedPropSize, wrapSize],
   );
 
   const sashPosSizes = useMemo(
     () => sizes.reduce((a, b) => [...a, a[a.length - 1] + b], [0]),
-    [sizes]
+    [sizes],
   );
 
   const dragStart = useCallback(
-    (e: any) => {
+    (e: DraggingEvent) => {
       document?.body?.classList?.add(style["split-disabled"]);
       axis.current = { x: e.pageX, y: e.pageY };
       cacheSizes.current = { sizes, sashPosSizes };
       setDragging(true);
       onDragStart(e);
     },
-    [onDragStart, sizes, sashPosSizes]
+    [onDragStart, sizes, sashPosSizes],
   );
 
   const resetPosition = useCallback(() => {
@@ -148,28 +140,28 @@ export const SplitPane: FunctionComponent<SplitPaneProps> = ({
   }, [defaultSizes, updateSizes]);
 
   const dragEnd = useCallback(
-    (e: any) => {
+    (e: DraggingEvent) => {
       document?.body?.classList?.remove(style["split-disabled"]);
       axis.current = { x: e.pageX, y: e.pageY };
       cacheSizes.current = { sizes, sashPosSizes };
       setDragging(false);
       onDragEnd(e);
     },
-    [onDragEnd, sizes, sashPosSizes]
+    [onDragEnd, sizes, sashPosSizes],
   );
 
   const onDragging = useCallback(
-    (e: MouseEvent<HTMLDivElement>, i: number) => {
+    (e: DraggingEvent, i: number) => {
       const curAxis = { x: e.pageX, y: e.pageY };
       let distanceX = curAxis[splitAxis] - axis.current[splitAxis];
 
       const leftBorder = -Math.min(
         sizes[i] - paneLimitSizes[i][0],
-        paneLimitSizes[i + 1][1] - sizes[i + 1]
+        paneLimitSizes[i + 1][1] - sizes[i + 1],
       );
       const rightBorder = Math.min(
         sizes[i + 1] - paneLimitSizes[i + 1][0],
-        paneLimitSizes[i][1] - sizes[i]
+        paneLimitSizes[i][1] - sizes[i],
       );
 
       if (distanceX < leftBorder) {
@@ -185,7 +177,7 @@ export const SplitPane: FunctionComponent<SplitPaneProps> = ({
 
       updateSizes(nextSizes);
     },
-    [splitAxis, sizes, paneLimitSizes, updateSizes]
+    [splitAxis, sizes, paneLimitSizes, updateSizes],
   );
 
   const paneFollow = !(performanceMode && isDragging);
@@ -199,7 +191,7 @@ export const SplitPane: FunctionComponent<SplitPaneProps> = ({
         split === "vertical" && style["split-pane-vertical"],
         split === "horizontal" && style["split-pane-horizontal"],
         isDragging && style["split-pane-dragging"],
-        wrapClassName
+        wrapClassName,
       )}
       ref={wrapper}
       {...others}
@@ -227,7 +219,7 @@ export const SplitPane: FunctionComponent<SplitPaneProps> = ({
           key={index}
           className={mergeClasses(
             !allowResize && style["sash-disabled"],
-            split === "vertical" ? style["sash-vertical"] : style["sash-horizontal"]
+            split === "vertical" ? style["sash-vertical"] : style["sash-horizontal"],
           )}
           style={{
             [sizeName]: resizerSize,

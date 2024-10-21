@@ -12,6 +12,7 @@ using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 using Microsoft.Generator.CSharp.Snippets;
+using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
 {
@@ -23,7 +24,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             properties:
             [
                 InputFactory.Property("p1", InputPrimitiveType.String, isRequired: true),
-                InputFactory.Property("optionalProp", InputPrimitiveType.String, isRequired: false)
+                InputFactory.Property("optionalProp1", InputPrimitiveType.String, isRequired: false),
+                InputFactory.Property("optionalProp2", InputFactory.Array(InputPrimitiveType.String), isRequired: false)
             ]);
 
         public RestClientProviderTests()
@@ -141,9 +143,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 // validate spread parameters
                 Assert.AreEqual(_spreadModel.Properties[0].Name, methodParameters[1].Name);
                 Assert.IsNull(methodParameters[1].DefaultValue);
-                // validate optional parameter
+                // validate optional parameters
                 Assert.AreEqual(_spreadModel.Properties[1].Name, methodParameters[2].Name);
                 Assert.AreEqual(Snippet.Default, methodParameters[2].DefaultValue);
+                // validate optional parameters
+                Assert.AreEqual(_spreadModel.Properties[2].Name, methodParameters[3].Name);
+                Assert.AreEqual(Snippet.Default, methodParameters[3].DefaultValue);
+                // the collection parameter should be using the correct input type
+                Assert.IsTrue(methodParameters[3].Type.Equals(typeof(IEnumerable<string>)));
             }
         }
 
@@ -193,6 +200,41 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             var writer = new TypeProviderWriter(restClientProvider);
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void ValidateClientWithApiVersion()
+        {
+            var client = InputFactory.Client("TestClient",
+                operations: [
+                    InputFactory.Operation("OperationWithApiVersion",
+                            parameters: [InputFactory.Parameter("apiVersion", InputPrimitiveType.String, isRequired: true, location: RequestLocation.Query, kind: InputOperationParameterKind.Client)])
+                    ]);
+            var clientProvider = new ClientProvider(client);
+            var restClientProvider = new MockClientProvider(client, clientProvider);
+            var method = restClientProvider.Methods.FirstOrDefault(m => m.Signature.Name == "CreateOperationWithApiVersionRequest");
+            Assert.IsNotNull(method);
+            /* verify that there is no apiVersion parameter in method signature. */
+            Assert.IsNull(method?.Signature.Parameters.FirstOrDefault(p => p.Name.Equals("apiVersion")));
+            var bodyStatements = method?.BodyStatements as MethodBodyStatements;
+            Assert.IsNotNull(bodyStatements);
+            /* verify that it will use client _apiVersion field to append query parameter. */
+            Assert.IsTrue(bodyStatements!.Statements.Any(s => s.ToDisplayString() == "uri.AppendQuery(\"apiVersion\", _apiVersion, true);\n"));
+        }
+
+        [TestCaseSource(nameof(ValidateApiVersionPathParameterTestCases))]
+        public void ValidateClientWithApiVersionPathParameter(InputClient inputClient)
+        {
+            var clientProvider = new ClientProvider(inputClient);
+            var restClientProvider = new MockClientProvider(inputClient, clientProvider);
+            var method = restClientProvider.Methods.FirstOrDefault(m => m.Signature.Name == "CreateTestOperationRequest");
+            Assert.IsNotNull(method);
+            /* verify that there is no apiVersion parameter in method signature. */
+            Assert.IsNull(method?.Signature.Parameters.FirstOrDefault(p => p.Name.Equals("apiVersion")));
+            var bodyStatements = method?.BodyStatements as MethodBodyStatements;
+            Assert.IsNotNull(bodyStatements);
+            /* verify that it will use client _apiVersion field to append query parameter. */
+            Assert.IsTrue(bodyStatements!.Statements.Any(s => s.ToDisplayString() == "uri.AppendPath(_apiVersion, true);\n"));
         }
 
         private readonly static InputOperation BasicOperation = InputFactory.Operation(
@@ -348,6 +390,80 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             protected override PropertyProvider[] BuildProperties() => [];
 
             protected override TypeProvider[] BuildNestedTypes() => [];
+        }
+
+        private static IEnumerable<TestCaseData> ValidateApiVersionPathParameterTestCases()
+        {
+            InputParameter endpointParameter = InputFactory.Parameter(
+                "endpoint",
+                InputPrimitiveType.String,
+                location: RequestLocation.Uri,
+                isRequired: true,
+                kind: InputOperationParameterKind.Client,
+                isEndpoint: true,
+                isApiVersion: false);
+
+            InputParameter stringApiVersionParameter = InputFactory.Parameter(
+                "apiVersion",
+                InputPrimitiveType.String,
+                location: RequestLocation.Uri,
+                isRequired: true,
+                kind: InputOperationParameterKind.Client,
+                isApiVersion: true);
+
+            InputParameter enumApiVersionParameter = InputFactory.Parameter(
+                "apiVersion",
+                InputFactory.Enum(
+                    "InputEnum",
+                    InputPrimitiveType.String,
+                    usage: InputModelTypeUsage.Input,
+                    isExtensible: true,
+                    values:
+                    [
+                        InputFactory.EnumMember.String("value1", "value1"),
+                        InputFactory.EnumMember.String("value2", "value2")
+                    ]),
+                location: RequestLocation.Uri,
+                isRequired: true,
+                kind: InputOperationParameterKind.Client,
+                isApiVersion: true);
+
+            yield return new TestCaseData(
+                InputFactory.Client(
+                    "TestClient",
+                    operations:
+                    [
+                        InputFactory.Operation(
+                            "TestOperation",
+                            uri: "{endpoint}/{apiVersion}",
+                            parameters:
+                            [
+                                endpointParameter,
+                                stringApiVersionParameter
+                            ])
+                    ],
+                    parameters: [
+                        endpointParameter,
+                        stringApiVersionParameter
+                    ]));
+
+            yield return new TestCaseData(
+                InputFactory.Client(
+                    "TestClient",
+                    operations:
+                    [
+                        InputFactory.Operation(
+                        "TestOperation",
+                        parameters: [
+                            endpointParameter,
+                            enumApiVersionParameter
+                        ],
+                        uri: "{endpoint}/{apiVersion}")
+                    ],
+                    parameters: [
+                        endpointParameter,
+                        enumApiVersionParameter
+                    ]));
         }
     }
 }

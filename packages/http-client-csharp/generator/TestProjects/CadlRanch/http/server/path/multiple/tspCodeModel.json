@@ -1,0 +1,200 @@
+{
+ "$id": "1",
+ "Name": "Server.Path.Multiple",
+ "ApiVersions": [
+  "v1.0"
+ ],
+ "Enums": [
+  {
+   "$id": "2",
+   "kind": "enum",
+   "name": "Versions",
+   "crossLanguageDefinitionId": "Server.Path.Multiple.Versions",
+   "valueType": {
+    "$id": "3",
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
+   },
+   "values": [
+    {
+     "$id": "4",
+     "kind": "enumvalue",
+     "name": "v1_0",
+     "value": "v1.0",
+     "valueType": {
+      "$id": "5",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "enumType": {
+      "$ref": "2"
+     },
+     "description": "Version 1.0",
+     "decorators": []
+    }
+   ],
+   "description": "Service versions",
+   "isFixed": true,
+   "isFlags": false,
+   "usage": "Input,ApiVersionEnum",
+   "decorators": []
+  }
+ ],
+ "Models": [],
+ "Clients": [
+  {
+   "$id": "6",
+   "Name": "MultipleClient",
+   "Operations": [
+    {
+     "$id": "7",
+     "Name": "noOperationParams",
+     "ResourceName": "Multiple",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$id": "8",
+       "Name": "endpoint",
+       "NameInRequest": "endpoint",
+       "Description": "Pass in http://localhost:3000 for endpoint.",
+       "Type": {
+        "$id": "9",
+        "kind": "url",
+        "name": "url",
+        "crossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client"
+      },
+      {
+       "$id": "10",
+       "Name": "apiVersion",
+       "NameInRequest": "apiVersion",
+       "Description": "Pass in v1.0 for API version.",
+       "Type": {
+        "$ref": "2"
+       },
+       "Location": "Uri",
+       "IsApiVersion": true,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "11",
+        "Type": {
+         "$id": "12",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "v1.0"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "13",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}/server/path/multiple/{apiVersion}",
+     "Path": "/",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Server.Path.Multiple.noOperationParams",
+     "Decorators": []
+    },
+    {
+     "$id": "14",
+     "Name": "withOperationPathParam",
+     "ResourceName": "Multiple",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "8"
+      },
+      {
+       "$ref": "10"
+      },
+      {
+       "$id": "15",
+       "Name": "keyword",
+       "NameInRequest": "keyword",
+       "Type": {
+        "$id": "16",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
+        "decorators": []
+       },
+       "Location": "Path",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "17",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}/server/path/multiple/{apiVersion}",
+     "Path": "/{keyword}",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Server.Path.Multiple.withOperationPathParam",
+     "Decorators": []
+    }
+   ],
+   "Protocol": {
+    "$id": "18"
+   },
+   "Parameters": [
+    {
+     "$ref": "8"
+    },
+    {
+     "$ref": "10"
+    }
+   ],
+   "Decorators": []
+  }
+ ]
+}

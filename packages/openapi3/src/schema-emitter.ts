@@ -77,7 +77,12 @@ import { applyEncoding } from "./encoding.js";
 import { OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { getSchemaForStdScalars } from "./std-scalar-schemas.js";
-import { OpenAPI3Discriminator, OpenAPI3Schema, OpenAPI3SchemaProperty } from "./types.js";
+import {
+  JsonType,
+  OpenAPI3Discriminator,
+  OpenAPI3Schema,
+  OpenAPI3SchemaProperty,
+} from "./types.js";
 import { VisibilityUsageTracker } from "./visibility-usage.js";
 
 /**
@@ -94,7 +99,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     emitter: AssetEmitter<Record<string, any>, OpenAPI3EmitterOptions>,
     metadataInfo: MetadataInfo,
     visibilityUsage: VisibilityUsageTracker,
-    options: ResolvedOpenAPI3EmitterOptions
+    options: ResolvedOpenAPI3EmitterOptions,
   ) {
     super(emitter);
     this.#metadataInfo = metadataInfo;
@@ -254,7 +259,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       new ObjectBuilder({
         type: "array",
         items: this.emitter.emitTypeReference(elementType),
-      })
+      }),
     );
   }
 
@@ -283,10 +288,17 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
         const encodedName = resolveEncodedName(
           this.emitter.getProgram(),
           prop,
-          this.#getContentType()
+          this.#getContentType(),
         );
 
         requiredProps.push(encodedName);
+      }
+    }
+
+    const discriminator = getDiscriminator(this.emitter.getProgram(), model);
+    if (discriminator) {
+      if (!requiredProps.includes(discriminator.propertyName)) {
+        requiredProps.push(discriminator.propertyName);
       }
     }
 
@@ -372,7 +384,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     // Apply decorators on the property to the type's schema
     const additionalProps: Partial<OpenAPI3Schema> = this.#applyConstraints(prop, {});
     if (prop.defaultValue) {
-      additionalProps.default = getDefaultValue(program, prop.defaultValue);
+      additionalProps.default = getDefaultValue(program, prop.defaultValue, prop);
     }
 
     if (isReadonlyProperty(program, prop)) {
@@ -441,7 +453,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       return {};
     }
 
-    const enumTypes = new Set<string>();
+    const enumTypes = new Set<JsonType>();
     const enumValues = new Set<string | number>();
     for (const member of en.members.values()) {
       enumTypes.add(typeof member.value === "number" ? "number" : "string");
@@ -452,7 +464,10 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       reportDiagnostic(program, { code: "enum-unique-type", target: en });
     }
 
-    const schema: OpenAPI3Schema = { type: enumTypes.values().next().value, enum: [...enumValues] };
+    const schema: OpenAPI3Schema = {
+      type: enumTypes.values().next().value!,
+      enum: [...enumValues],
+    };
 
     return this.#applyConstraints(en, schema);
   }
@@ -526,7 +541,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
     const wrapWithObjectBuilder = (
       schemaMember: { schema: any; type: Type | null },
-      { mergeUnionWideConstraints }: { mergeUnionWideConstraints: boolean }
+      { mergeUnionWideConstraints }: { mergeUnionWideConstraints: boolean },
     ): ObjectBuilder<OpenAPI3Schema> => {
       // we can just return the single schema member after applying nullable
       const schema = schemaMember.schema;
@@ -546,7 +561,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
           (schema instanceof Placeholder || "$ref" in schema) &&
           !(type && shouldInline(program, type))
         ) {
-          if (type && type.kind === "Model") {
+          if (type && (type.kind === "Model" || type.kind === "Scalar")) {
             return new ObjectBuilder({
               type: "object",
               allOf: B.array([schema]),
@@ -565,6 +580,17 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       }
     };
 
+    const checkMerge = (schemaMembers: { schema: any; type: Type | null }[]): boolean => {
+      if (nullable) {
+        for (const m of schemaMembers) {
+          if (m.schema instanceof Placeholder || "$ref" in m.schema) {
+            return true;
+          }
+        }
+      }
+      return false;
+    };
+
     if (schemaMembers.length === 0) {
       if (nullable) {
         // This union is equivalent to just `null` but OA3 has no way to specify
@@ -581,13 +607,14 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       return wrapWithObjectBuilder(schemaMembers[0], { mergeUnionWideConstraints: true });
     }
 
+    const isMerge = checkMerge(schemaMembers);
     const schema: OpenAPI3Schema = {
       [ofType]: schemaMembers.map((m) =>
-        wrapWithObjectBuilder(m, { mergeUnionWideConstraints: false })
+        wrapWithObjectBuilder(m, { mergeUnionWideConstraints: isMerge }),
       ),
     };
 
-    if (nullable) {
+    if (!isMerge && nullable) {
       schema.nullable = true;
     }
 
@@ -649,7 +676,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     targetDeclaration: Declaration<Record<string, unknown>>,
     pathUp: Scope<Record<string, unknown>>[],
     pathDown: Scope<Record<string, unknown>>[],
-    commonScope: Scope<Record<string, unknown>> | null
+    commonScope: Scope<Record<string, unknown>> | null,
   ): object | EmitEntity<Record<string, unknown>> {
     if (targetDeclaration.value instanceof Placeholder) {
       // I don't think this is possible, confirm.
@@ -670,7 +697,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
   circularReference(
     target: EmitEntity<Record<string, any>>,
     scope: Scope<Record<string, any>> | undefined,
-    cycle: ReferenceCycle
+    cycle: ReferenceCycle,
   ): Record<string, any> | EmitEntity<Record<string, any>> {
     if (!cycle.containsDeclaration) {
       reportDiagnostic(this.emitter.getProgram(), {
@@ -696,7 +723,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
   scalarInstantiation(
     scalar: Scalar,
-    name: string | undefined
+    name: string | undefined,
   ): EmitterOutput<Record<string, any>> {
     return this.#getSchemaForScalar(scalar);
   }
@@ -726,7 +753,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
   #applySchemaExamples(
     type: Model | Scalar | Union | Enum | ModelProperty,
-    target: ObjectBuilder<unknown>
+    target: ObjectBuilder<unknown>,
   ) {
     const program = this.emitter.getProgram();
     const examples = getExamples(program, type);
@@ -737,7 +764,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
   #applyConstraints(
     type: Scalar | Model | ModelProperty | Union | Enum,
-    original: OpenAPI3Schema
+    original: OpenAPI3Schema,
   ): ObjectBuilder<OpenAPI3Schema> {
     const schema = new ObjectBuilder(original);
     const program = this.emitter.getProgram();
@@ -783,7 +810,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     applyConstraint(getSummary, "title");
     applyConstraint(
       (p: Program, t: Type) => (getDeprecated(p, t) !== undefined ? true : undefined),
-      "deprecated"
+      "deprecated",
     );
 
     this.#attachExtensions(program, type, schema);
@@ -835,7 +862,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       this.emitter.getProgram(),
       type,
       fullName,
-      Object.fromEntries(decl.scope.declarations.map((x) => [x.name, true]))
+      Object.fromEntries(decl.scope.declarations.map((x) => [x.name, true])),
     );
     return decl;
   }
@@ -846,39 +873,9 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
   #applyEncoding(
     typespecType: Scalar | ModelProperty,
-    target: OpenAPI3Schema | Placeholder<OpenAPI3Schema>
+    target: OpenAPI3Schema | Placeholder<OpenAPI3Schema>,
   ): OpenAPI3Schema {
     return applyEncoding(this.emitter.getProgram(), typespecType, target as any, this.#options);
-  }
-  #mergeFormatAndEncoding(
-    format: string | undefined,
-    encoding: string | undefined,
-    encodeAsFormat: string | undefined
-  ): string | undefined {
-    switch (format) {
-      case undefined:
-        return encodeAsFormat ?? encoding ?? format;
-      case "date-time":
-        switch (encoding) {
-          case "rfc3339":
-            return "date-time";
-          case "unixTimestamp":
-            return "unixtime";
-          case "rfc7231":
-            return "http-date";
-          default:
-            return encoding;
-        }
-      case "duration":
-        switch (encoding) {
-          case "ISO8601":
-            return "duration";
-          default:
-            return encodeAsFormat ?? encoding;
-        }
-      default:
-        return encodeAsFormat ?? encoding;
-    }
   }
 
   intrinsic(intrinsic: IntrinsicType, name: string): EmitterOutput<object> {
@@ -944,27 +941,12 @@ const B = {
   },
 } as const;
 
-export function getDefaultValue(program: Program, defaultType: Value): any {
-  switch (defaultType.valueKind) {
-    case "StringValue":
-      return defaultType.value;
-    case "NumericValue":
-      return defaultType.value.asNumber() ?? undefined;
-    case "BooleanValue":
-      return defaultType.value;
-    case "ArrayValue":
-      return defaultType.values.map((x) => getDefaultValue(program, x));
-    case "NullValue":
-      return null;
-    case "EnumValue":
-      return defaultType.value.value ?? defaultType.value.name;
-    default:
-      reportDiagnostic(program, {
-        code: "invalid-default",
-        format: { type: defaultType.valueKind },
-        target: defaultType,
-      });
-  }
+export function getDefaultValue(
+  program: Program,
+  defaultType: Value,
+  modelProperty: ModelProperty,
+): any {
+  return serializeValueAsJson(program, defaultType, modelProperty);
 }
 
 export function isBytesKeptRaw(program: Program, type: Type) {

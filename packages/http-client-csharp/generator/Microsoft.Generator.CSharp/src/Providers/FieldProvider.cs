@@ -15,10 +15,11 @@ namespace Microsoft.Generator.CSharp.Providers
         private Lazy<ParameterProvider> _parameter;
         public FormattableString? Description { get; }
         public FieldModifiers Modifiers { get; }
-        public CSharpType Type { get; }
+        public CSharpType Type { get; internal set; }
         public string Name { get; }
         public ValueExpression? InitializationValue { get; }
         public XmlDocProvider? XmlDocs { get; }
+        public PropertyWireInformation? WireInfo { get; internal set; }
 
         private CodeWriterDeclaration? _declaration;
 
@@ -32,6 +33,8 @@ namespace Microsoft.Generator.CSharp.Providers
         public VariableExpression AsVariableExpression => _variable ??= new(Type, Name.ToVariableName());
 
         public TypeProvider EnclosingType { get; }
+
+        internal string? OriginalName { get; init; }
 
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.

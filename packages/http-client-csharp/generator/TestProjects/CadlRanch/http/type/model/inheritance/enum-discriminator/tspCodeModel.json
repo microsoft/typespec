@@ -101,6 +101,7 @@
     "optional": false,
     "readOnly": false,
     "discriminator": true,
+    "flatten": false,
     "decorators": [],
     "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.Dog.kind"
    },
@@ -124,6 +125,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.Dog.weight"
     }
@@ -165,6 +167,7 @@
        "optional": false,
        "readOnly": false,
        "discriminator": true,
+       "flatten": false,
        "decorators": [],
        "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.Golden.kind"
       }
@@ -195,6 +198,7 @@
     "optional": false,
     "readOnly": false,
     "discriminator": true,
+    "flatten": false,
     "decorators": [],
     "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.Snake.kind"
    },
@@ -218,6 +222,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.Snake.length"
     }
@@ -259,6 +264,7 @@
        "optional": false,
        "readOnly": false,
        "discriminator": true,
+       "flatten": false,
        "decorators": [],
        "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.Cobra.kind"
       }
@@ -287,6 +293,7 @@
        "$id": "30",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "31",
         "kind": "url",

@@ -11,7 +11,6 @@ package com._specs_.azure.core.page.generated;
 import com._specs_.azure.core.page.PageClient;
 import com._specs_.azure.core.page.PageClientBuilder;
 import com._specs_.azure.core.page.TwoModelsAsPageItemClient;
-import com.azure.core.http.HttpClient;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.test.TestMode;
@@ -27,22 +26,18 @@ class PageClientTestBase extends TestProxyTestBase {
     protected void beforeTest() {
         PageClientBuilder pageClientbuilder = new PageClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            pageClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             pageClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         pageClient = pageClientbuilder.buildClient();
 
         PageClientBuilder twoModelsAsPageItemClientbuilder = new PageClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            twoModelsAsPageItemClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             twoModelsAsPageItemClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         twoModelsAsPageItemClient = twoModelsAsPageItemClientbuilder.buildTwoModelsAsPageItemClient();

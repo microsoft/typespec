@@ -3,15 +3,14 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method;
 
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceModel;
-import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.ModelNaming;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ReturnValue;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJavadocComment;
 import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
-
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceModel;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.ModelNaming;
 import java.util.Set;
 
 public class FluentDefineMethod extends FluentMethod {
@@ -20,13 +19,13 @@ public class FluentDefineMethod extends FluentMethod {
     private final ClientMethodParameter methodParameter;
     private final IType resourceNameType;
 
-    public static FluentDefineMethod defineMethodWithConstantResourceName(
-            FluentResourceModel model, FluentMethodType type, String resourceName) {
+    public static FluentDefineMethod defineMethodWithConstantResourceName(FluentResourceModel model,
+        FluentMethodType type, String resourceName) {
         return new FluentDefineMethod(model, type, resourceName, null);
     }
 
-    public FluentDefineMethod(FluentResourceModel model, FluentMethodType type,
-                              String resourceName, ClientMethodParameter methodParameter) {
+    public FluentDefineMethod(FluentResourceModel model, FluentMethodType type, String resourceName,
+        ClientMethodParameter methodParameter) {
         super(model, type);
 
         this.constantResourceName = methodParameter == null;
@@ -37,10 +36,10 @@ public class FluentDefineMethod extends FluentMethod {
         String interfaceTypeName = model.getInterfaceType().getName();
         this.description = String.format("Begins definition for a new %1$s resource.", interfaceTypeName);
 
-        this.interfaceReturnValue = new ReturnValue(String.format("the first stage of the new %1$s definition.", interfaceTypeName),
-                new ClassType.Builder()
-                        .name(String.format("%1$s.%2$s.Blank", interfaceTypeName, ModelNaming.MODEL_FLUENT_INTERFACE_DEFINITION_STAGES))
-                        .build());
+        this.interfaceReturnValue
+            = new ReturnValue(String.format("the first stage of the new %1$s definition.", interfaceTypeName),
+                new ClassType.Builder().name(String.format("%1$s.%2$s.Blank", interfaceTypeName,
+                    ModelNaming.MODEL_FLUENT_INTERFACE_DEFINITION_STAGES)).build());
         this.implementationReturnValue = new ReturnValue("", model.getImplementationType());
 
         if (methodParameter != null) {
@@ -55,20 +54,16 @@ public class FluentDefineMethod extends FluentMethod {
     @Override
     public MethodTemplate getMethodTemplate() {
         if (this.implementationMethodTemplate == null) {
-            this.implementationMethodTemplate = MethodTemplate.builder()
-                    .methodSignature(this.getImplementationMethodSignature())
-                    .method(block -> {
-                        if (constantResourceName) {
-                            block.methodReturn(String.format("new %1$s(this.%2$s())",
-                                    fluentResourceModel.getImplementationType().toString(),
-                                    ModelNaming.METHOD_MANAGER));
-                        } else {
-                            block.methodReturn(String.format("new %1$s(name, this.%2$s())",
-                                    fluentResourceModel.getImplementationType().toString(),
-                                    ModelNaming.METHOD_MANAGER));
-                        }
-                    })
-                    .build();
+            this.implementationMethodTemplate
+                = MethodTemplate.builder().methodSignature(this.getImplementationMethodSignature()).method(block -> {
+                    if (constantResourceName) {
+                        block.methodReturn(String.format("new %1$s(this.%2$s())",
+                            fluentResourceModel.getImplementationType().toString(), ModelNaming.METHOD_MANAGER));
+                    } else {
+                        block.methodReturn(String.format("new %1$s(name, this.%2$s())",
+                            fluentResourceModel.getImplementationType().toString(), ModelNaming.METHOD_MANAGER));
+                    }
+                }).build();
         }
         return this.implementationMethodTemplate;
     }

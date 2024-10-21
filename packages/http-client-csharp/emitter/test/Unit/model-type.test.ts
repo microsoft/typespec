@@ -44,9 +44,8 @@ model Dog extends Pet {
 
 op test(@body input: Pet): Pet;
 `,
-      runner
+      runner,
     );
-    runner.compileAndDiagnose;
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
@@ -58,7 +57,7 @@ op test(@body input: Pet): Pet;
     deepStrictEqual("kind", petModel?.discriminatorProperty?.name);
     // assert we have a property corresponding to the discriminator property above on the base model
     const discriminatorProperty = petModel?.properties.find(
-      (p) => p === petModel?.discriminatorProperty
+      (p) => p === petModel?.discriminatorProperty,
     );
     strictEqual(discriminatorProperty?.name, "kind");
     strictEqual(discriminatorProperty.serializedName, "kind");
@@ -70,26 +69,26 @@ op test(@body input: Pet): Pet;
     // assert we will NOT have a DiscriminatorProperty on the derived models
     assert(
       catModel?.discriminatorProperty === undefined,
-      "Cat model should not have the discriminator property"
+      "Cat model should not have the discriminator property",
     );
     assert(
       dogModel?.discriminatorProperty === undefined,
-      "Dog model should not have the discriminator property"
+      "Dog model should not have the discriminator property",
     );
     // assert we will NOT have a property corresponding to the discriminator property on the derived models
     const catDiscriminatorProperty = catModel?.properties.find(
-      (p) => p === petModel?.discriminatorProperty
+      (p) => p === petModel?.discriminatorProperty,
     );
     const dogDiscriminatorProperty = dogModel?.properties.find(
-      (p) => p === petModel?.discriminatorProperty
+      (p) => p === petModel?.discriminatorProperty,
     );
     assert(
       catDiscriminatorProperty === undefined,
-      "Cat model should not have the discriminator property in the properties list"
+      "Cat model should not have the discriminator property in the properties list",
     );
     assert(
       dogDiscriminatorProperty === undefined,
-      "Dog model should not have the discriminator property in the properties list"
+      "Dog model should not have the discriminator property in the properties list",
     );
   });
 
@@ -128,7 +127,7 @@ op test(@body input: Pet): Pet;
 
         op test(@body input: Pet): Pet;
         `,
-      runner
+      runner,
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
@@ -159,13 +158,13 @@ op test(@body input: Pet): Pet;
     // assert we will NOT have a DiscriminatorPropertyName on the derived models
     assert(
       cat.discriminatorProperty === undefined,
-      "Cat model should not have the discriminator property"
+      "Cat model should not have the discriminator property",
     );
     // assert we will NOT have a property corresponding to the discriminator property on the derived models
     const catDiscriminatorProperty = cat.properties.find((p) => p === pet.discriminatorProperty);
     assert(
       catDiscriminatorProperty === undefined,
-      "Cat model should not have the discriminator property in the properties list"
+      "Cat model should not have the discriminator property in the properties list",
     );
 
     // verify derived model Dog
@@ -176,13 +175,13 @@ op test(@body input: Pet): Pet;
     // assert we will NOT have a DiscriminatorProperty on the derived models
     assert(
       dog.discriminatorProperty === undefined,
-      "Dog model should not have the discriminator property"
+      "Dog model should not have the discriminator property",
     );
     // assert we will NOT have a property corresponding to the discriminator property on the derived models
     const dogDiscriminatorProperty = dog.properties.find((p) => p === pet.discriminatorProperty);
     assert(
       dogDiscriminatorProperty === undefined,
-      "Dog model should not have the discriminator property in the properties list"
+      "Dog model should not have the discriminator property in the properties list",
     );
   });
 
@@ -221,7 +220,7 @@ op test(@body input: Pet): Pet;
 
         op test(@body input: Pet): Pet;
         `,
-      runner
+      runner,
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
@@ -252,13 +251,13 @@ op test(@body input: Pet): Pet;
     // assert we will NOT have a DiscriminatorPropertyName on the derived models
     assert(
       cat.discriminatorProperty === undefined,
-      "Cat model should not have the discriminator property"
+      "Cat model should not have the discriminator property",
     );
     // assert we will NOT have a property corresponding to the discriminator property on the derived models
     const catDiscriminatorProperty = cat.properties.find((p) => p === pet.discriminatorProperty);
     assert(
       catDiscriminatorProperty === undefined,
-      "Cat model should not have the discriminator property in the properties list"
+      "Cat model should not have the discriminator property in the properties list",
     );
 
     // verify derived model Dog
@@ -269,13 +268,13 @@ op test(@body input: Pet): Pet;
     // assert we will NOT have a DiscriminatorProperty on the derived models
     assert(
       dog.discriminatorProperty === undefined,
-      "Dog model should not have the discriminator property name"
+      "Dog model should not have the discriminator property name",
     );
     // assert we will NOT have a property corresponding to the discriminator property on the derived models
     const dogDiscriminatorProperty = dog.properties.find((p) => p === pet.discriminatorProperty);
     assert(
       dogDiscriminatorProperty === undefined,
-      "Dog model should not have the discriminator property in the properties list"
+      "Dog model should not have the discriminator property in the properties list",
     );
   });
 });
@@ -341,9 +340,8 @@ op op4(@body body: ExtendsFoo): ExtendsFoo;
 @route("/op5")
 op op5(@body body: ExtendsFooArray): ExtendsFooArray;
 `,
-      runner
+      runner,
     );
-    runner.compileAndDiagnose;
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
@@ -360,7 +358,7 @@ op op5(@body body: ExtendsFooArray): ExtendsFooArray;
     ok(extendsFooModel);
     ok(extendsFooArrayModel);
     // assert the inherited dictionary type is expected
-    strictEqual(extendsUnknownModel.additionalProperties?.kind, "any");
+    strictEqual(extendsUnknownModel.additionalProperties?.kind, "unknown");
 
     strictEqual(extendsStringModel.additionalProperties?.kind, "string");
 
@@ -434,9 +432,8 @@ op op4(@body body: IsFoo): IsFoo;
 @route("/op5")
 op op5(@body body: IsFooArray): IsFooArray;
 `,
-      runner
+      runner,
     );
-    runner.compileAndDiagnose;
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
@@ -453,7 +450,7 @@ op op5(@body body: IsFooArray): IsFooArray;
     assert(isFooModel !== undefined);
     assert(isFooArrayModel !== undefined);
     // assert the inherited dictionary type is expected
-    strictEqual(isUnknownModel.additionalProperties?.kind, "any");
+    strictEqual(isUnknownModel.additionalProperties?.kind, "unknown");
 
     strictEqual(isStringModel.additionalProperties?.kind, "string");
 
@@ -486,9 +483,8 @@ model Empty {
 op op1(): void;
 `,
       runner,
-      { IsTCGCNeeded: true }
+      { IsTCGCNeeded: true },
     );
-    runner.compileAndDiagnose;
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
@@ -515,7 +511,7 @@ describe("typespec-client-generator-core: general decorators list", () => {
       op test(): Book;
       `,
       runner,
-      { IsTCGCNeeded: true, IsXmlNeeded: true }
+      { IsTCGCNeeded: true, IsXmlNeeded: true },
     );
 
     const context = createEmitterContext(program);

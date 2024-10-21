@@ -13,22 +13,22 @@ import java.util.Collection;
  */
 public final class ManagedServiceIdentityType extends ExpandableStringEnum<ManagedServiceIdentityType> {
     /**
-     * Static value None for ManagedServiceIdentityType.
+     * No managed identity.
      */
     public static final ManagedServiceIdentityType NONE = fromString("None");
 
     /**
-     * Static value SystemAssigned for ManagedServiceIdentityType.
+     * System assigned managed identity.
      */
     public static final ManagedServiceIdentityType SYSTEM_ASSIGNED = fromString("SystemAssigned");
 
     /**
-     * Static value UserAssigned for ManagedServiceIdentityType.
+     * User assigned managed identity.
      */
     public static final ManagedServiceIdentityType USER_ASSIGNED = fromString("UserAssigned");
 
     /**
-     * Static value SystemAssigned,UserAssigned for ManagedServiceIdentityType.
+     * System and user assigned managed identity.
      */
     public static final ManagedServiceIdentityType SYSTEM_ASSIGNED_USER_ASSIGNED
         = fromString("SystemAssigned,UserAssigned");

@@ -11,6 +11,6 @@ public class EnumValueTests {
 
     @Test
     public void test() {
-       client.put(client.get());
+        client.put(client.get());
     }
 }

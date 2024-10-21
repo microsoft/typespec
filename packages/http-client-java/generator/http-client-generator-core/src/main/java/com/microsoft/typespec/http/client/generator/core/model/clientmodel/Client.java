@@ -69,6 +69,7 @@ public class Client {
 
     /**
      * Create a new Client with the provided values.
+     * 
      * @param clientName The name of the service client.
      * @param clientDescription The description of the service client.
      * @param enums The enum types that are used by the client.
@@ -86,14 +87,12 @@ public class Client {
      * @param protocolExamples examples for DPG.
      */
     private Client(String clientName, String clientDescription, List<EnumType> enums, List<ClientException> exceptions,
-                   List<XmlSequenceWrapper> xmlSequenceWrappers, List<ClientResponse> responseModels,
-                   List<ClientModel> models, List<PackageInfo> packageInfos, Manager manager,
-                   ServiceClient serviceClient, List<ServiceClient> serviceClients, ModuleInfo moduleInfo,
-                   List<AsyncSyncClient> syncClients, List<AsyncSyncClient> asyncClients,
-                   List<ClientBuilder> clientBuilders, List<ProtocolExample> protocolExamples,
-                   List<LiveTests> liveTests, List<UnionModel> unionModels, List<ClientMethodExample> clientMethodExamples, String crossLanguageDefinitionId,
-                   GraalVmConfig graalVmConfig
-    ) {
+        List<XmlSequenceWrapper> xmlSequenceWrappers, List<ClientResponse> responseModels, List<ClientModel> models,
+        List<PackageInfo> packageInfos, Manager manager, ServiceClient serviceClient,
+        List<ServiceClient> serviceClients, ModuleInfo moduleInfo, List<AsyncSyncClient> syncClients,
+        List<AsyncSyncClient> asyncClients, List<ClientBuilder> clientBuilders, List<ProtocolExample> protocolExamples,
+        List<LiveTests> liveTests, List<UnionModel> unionModels, List<ClientMethodExample> clientMethodExamples,
+        String crossLanguageDefinitionId, GraalVmConfig graalVmConfig) {
         this.clientName = clientName;
         this.clientDescription = clientDescription;
         this.enums = enums;
@@ -231,7 +230,6 @@ public class Client {
         private GraalVmConfig graalVmConfig;
         private String crossLanguageDefinitionId;
 
-
         public Builder crossLanguageDefinitionId(String crossLanguageDefinitionId) {
             this.crossLanguageDefinitionId = crossLanguageDefinitionId;
             return this;
@@ -239,6 +237,7 @@ public class Client {
 
         /**
          * Sets the name of this service client.
+         * 
          * @param clientName the name of this service client
          * @return the Builder itself
          */
@@ -249,6 +248,7 @@ public class Client {
 
         /**
          * Sets the description of this service.
+         * 
          * @param clientDescription the description of this service
          * @return the Builder itself
          */
@@ -259,6 +259,7 @@ public class Client {
 
         /**
          * Sets the enum types that are used by this service.
+         * 
          * @param enums the enum types that are used by this service
          * @return the Builder itself
          */
@@ -269,6 +270,7 @@ public class Client {
 
         /**
          * Sets the exception types that are used by this service.
+         * 
          * @param exceptions the exception types that are used by this service
          * @return the Builder itself
          */
@@ -279,6 +281,7 @@ public class Client {
 
         /**
          * Sets the XML sequence wrappers that are used by this service.
+         * 
          * @param xmlSequenceWrappers the XML sequence wrappers that are used by this service
          * @return the Builder itself
          */
@@ -289,7 +292,9 @@ public class Client {
 
         /**
          * Sets the response models which contain the response status code, headers and body for each service method.
-         * @param responseModels the response models which contain the response status code, headers and body for each service method
+         * 
+         * @param responseModels the response models which contain the response status code, headers and body for each
+         * service method
          * @return the Builder itself
          */
         public Builder responseModels(List<ClientResponse> responseModels) {
@@ -299,6 +304,7 @@ public class Client {
 
         /**
          * Sets the model types that are used by this service.
+         * 
          * @param models the model types that are used by this service
          * @return the Builder itself
          */
@@ -314,6 +320,7 @@ public class Client {
 
         /**
          * Sets the package infos.
+         * 
          * @param packageInfos the package infos
          * @return the Builder itself
          */
@@ -324,6 +331,7 @@ public class Client {
 
         /**
          * Sets the manager for this service.
+         * 
          * @param manager the manager for this service
          * @return the Builder itself
          */
@@ -334,6 +342,7 @@ public class Client {
 
         /**
          * Sets the serviceClient for this service.
+         * 
          * @param serviceClient the serviceClient for this service
          * @return the Builder itself
          */
@@ -349,6 +358,7 @@ public class Client {
 
         /**
          * Sets the module info for this client.
+         * 
          * @param moduleInfo the module info
          * @return the Builder itself
          */
@@ -359,6 +369,7 @@ public class Client {
 
         /**
          * Sets the module info for this client.
+         * 
          * @param syncClients the sync service clients
          * @return the Builder itself
          */
@@ -369,6 +380,7 @@ public class Client {
 
         /**
          * Sets the module info for this client.
+         * 
          * @param asyncClients async service clients
          * @return the Builder itself
          */
@@ -379,6 +391,7 @@ public class Client {
 
         /**
          * Sets the module info for this client.
+         * 
          * @param clientBuilders the service client builders
          * @return the Builder itself
          */
@@ -389,6 +402,7 @@ public class Client {
 
         /**
          * Sets the examples for this client.
+         * 
          * @param protocolExamples the examples for DPG
          * @return the Builder itself
          */
@@ -399,6 +413,7 @@ public class Client {
 
         /**
          * Sets the client method examples for this client.
+         * 
          * @param clientMethodExamples the examples for vanilla client methods
          * @return the Builder itself
          */
@@ -409,6 +424,7 @@ public class Client {
 
         /**
          * Sets the live tests for this client.
+         * 
          * @param liveTests live tests
          * @return the Builder itself
          */
@@ -426,28 +442,10 @@ public class Client {
             if (serviceClient == null && !serviceClients.isEmpty()) {
                 serviceClient = serviceClients.iterator().next();
             }
-            return new Client(clientName,
-                    clientDescription,
-                    enums,
-                    exceptions,
-                    xmlSequenceWrappers,
-                    responseModels,
-                    models,
-                    packageInfos,
-                    manager,
-                    serviceClient,
-                    serviceClients,
-                    moduleInfo,
-                    syncClients,
-                    asyncClients,
-                    clientBuilders,
-                    protocolExamples,
-                    liveTests,
-                    unionModels,
-                    clientMethodExamples,
-                    crossLanguageDefinitionId,
-                    graalVmConfig
-                );
+            return new Client(clientName, clientDescription, enums, exceptions, xmlSequenceWrappers, responseModels,
+                models, packageInfos, manager, serviceClient, serviceClients, moduleInfo, syncClients, asyncClients,
+                clientBuilders, protocolExamples, liveTests, unionModels, clientMethodExamples,
+                crossLanguageDefinitionId, graalVmConfig);
         }
     }
 }

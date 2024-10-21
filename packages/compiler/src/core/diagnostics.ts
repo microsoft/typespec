@@ -50,7 +50,7 @@ export function formatDiagnostic(diagnostic: Diagnostic) {
       url: diagnostic.url,
       sourceLocation: getSourceLocation(diagnostic.target, { locateId: true }),
     },
-    { pretty: false }
+    { pretty: false },
   );
 }
 
@@ -63,19 +63,19 @@ export interface SourceLocationOptions {
 }
 export function getSourceLocation(
   target: DiagnosticTarget,
-  options?: SourceLocationOptions
+  options?: SourceLocationOptions,
 ): SourceLocation;
 export function getSourceLocation(
   target: typeof NoTarget | undefined,
-  options?: SourceLocationOptions
+  options?: SourceLocationOptions,
 ): undefined;
 export function getSourceLocation(
   target: DiagnosticTarget | typeof NoTarget | undefined,
-  options?: SourceLocationOptions
+  options?: SourceLocationOptions,
 ): SourceLocation | undefined;
 export function getSourceLocation(
   target: DiagnosticTarget | typeof NoTarget | undefined,
-  options: SourceLocationOptions = {}
+  options: SourceLocationOptions = {},
 ): SourceLocation | undefined {
   if (target === NoTarget || target === undefined) {
     return undefined;
@@ -131,7 +131,7 @@ function getSourceLocationOfNode(node: Node, options: SourceLocationOptions): So
     return createSyntheticSourceLocation(
       node.flags & NodeFlags.Synthetic
         ? undefined
-        : "<unknown location - cannot obtain source location of unbound node - file bug at https://github.com/microsoft/typespec>"
+        : "<unknown location - cannot obtain source location of unbound node - file bug at https://github.com/microsoft/typespec>",
     );
   }
 
@@ -156,7 +156,7 @@ function getSourceLocationOfNode(node: Node, options: SourceLocationOptions): So
  * when verbose output is disabled.
  */
 export function logVerboseTestOutput(
-  messageOrCallback: string | ((log: (message: string) => void) => void)
+  messageOrCallback: string | ((log: (message: string) => void) => void),
 ) {
   if (process.env.TYPESPEC_VERBOSE_TEST_OUTPUT) {
     if (typeof messageOrCallback === "string") {
@@ -183,7 +183,7 @@ export function logVerboseTestOutput(
 export function compilerAssert(
   condition: any,
   message: string,
-  target?: DiagnosticTarget
+  target?: DiagnosticTarget,
 ): asserts condition {
   if (condition) {
     return;
@@ -229,7 +229,7 @@ export function assertType<TKind extends Type["kind"][]>(
 export function reportDeprecated(
   program: Program,
   message: string,
-  target: DiagnosticTarget | typeof NoTarget
+  target: DiagnosticTarget | typeof NoTarget,
 ): void {
   program.reportDiagnostic({
     severity: "warning",

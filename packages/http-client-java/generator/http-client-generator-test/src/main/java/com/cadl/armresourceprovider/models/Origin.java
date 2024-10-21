@@ -14,17 +14,17 @@ import java.util.Collection;
  */
 public final class Origin extends ExpandableStringEnum<Origin> {
     /**
-     * Static value user for Origin.
+     * Indicates the operation is initiated by a user.
      */
     public static final Origin USER = fromString("user");
 
     /**
-     * Static value system for Origin.
+     * Indicates the operation is initiated by a system.
      */
     public static final Origin SYSTEM = fromString("system");
 
     /**
-     * Static value user,system for Origin.
+     * Indicates the operation is initiated by a user or system.
      */
     public static final Origin USER_SYSTEM = fromString("user,system");
 
