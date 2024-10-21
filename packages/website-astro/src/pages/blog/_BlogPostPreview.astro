@@ -24,15 +24,16 @@ const image = post.data.image && (await resolveBlogImagePath(post.slug, post.dat
 ---
 
 <style>
-  .card > :global(.bg) {
+  .link > :global(.card .bg) {
     border: 1px solid var(--colorNeutralStroke3);
-    border-radius: 0 !important;
+    border-radius: 0;
   }
-  .card {
+  .link {
+    display: block;
     border-radius: 0;
     color: var(--colorNeutralForeground1);
   }
-  .card:hover {
+  .link:hover {
     outline: solid var(--colorBrandForeground1);
   }
   .date {
@@ -92,12 +93,8 @@ const image = post.data.image && (await resolveBlogImagePath(post.slug, post.dat
   }
 </style>
 <article aria-labelledby={post.slug}>
-  <Link
-    href={`/blog/${post.slug}/`}
-    data-astro-prefetch
-    class="outline-none after:absolute after:inset-0"
-  >
-    <Card noPadding class="card">
+  <Link class="link" href={`/blog/${post.slug}/`} data-astro-prefetch>
+    <Card noPadding>
       <header>
         <time class="date" datetime={post.data.publishDate.toISOString()}>
           {format(post.data.publishDate, "MMMM d, yyyy")}
