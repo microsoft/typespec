@@ -1,37 +1,37 @@
 {
   "Alias": {
     "prefix": "alias",
-    "body": "alias ${1:AliasName} = ${0:Expression};",
+    "body": "alias ${1:name} = $TM_SELECTED_TEXT$0;",
     "description": "Alias definition"
   },
   "Enum": {
     "prefix": "enum",
-    "body": "enum ${1:EnumName} {\n  ${0:Value},\n}",
+    "body": "enum ${1:name} {\n  ${0:value},\n}",
     "description": "Enum definition"
   },
   "Interface": {
     "prefix": "interface",
-    "body": "interface ${1:InterfaceName} {\n  ${2:member}(${3:parameters}): ${0:ReturnType};\n}",
+    "body": "interface ${1:name} {\n  ${2:member}(${3:parameters}:${4:type}): ${0:returnType};\n}",
     "description": "Interface definition"
   },
   "Model": {
     "prefix": "model",
-    "body": "model ${1:ModelName} {\n  ${2:propertyName}: ${0:propertyType};\n}",
+    "body": "model ${1:name} {\n  ${2:propertyName}: ${0:propertyType};\n}",
     "description": "Model definition"
   },
   "Namespace": {
     "prefix": "namespace",
-    "body": "namespace ${1:NamespaceName} {\n  ${0:member}\n}",
+    "body": "namespace ${1:name} {\n  $TM_SELECTED_TEXT$0\n}",
     "description": "Namespace definition"
   },
   "Operation": {
     "prefix": ["op", "operation"],
-    "body": "operation ${1:OperationName}(${2:parameters}): ${0:ReturnType};",
+    "body": "operation ${1:name}(${2:parameters}:${3:type}): ${0:returnType};",
     "description": "Operation definition"
   },
   "Union": {
     "prefix": "union",
-    "body": "union ${1:UnionName} = ${2:Variant1} | ${0:Variant2};",
+    "body": "union ${1:name} = ${2:variant1} | ${0:variant2};",
     "description": "Named union definition"
   }
 }
