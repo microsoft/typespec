@@ -5,4 +5,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-Cli logs diagnostic source path relative to the CWD.
+CLI logs diagnostic source path relative to the CWD.
