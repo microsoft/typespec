@@ -64,6 +64,27 @@ describe("body resolution", () => {
   });
 });
 
+describe("response cookie", () => {
+  it("emit diagnostics for implicit @cookie in the response", async () => {
+    const [_, diagnostics] = await compileOperations(`
+        op get(): { @cookie token: string };
+      `);
+
+    expectDiagnostics(diagnostics, { code: "@typespec/http/response-cookie-not-supported" });
+  });
+
+  it("emit diagnostics for explicit @cookie in the response", async () => {
+    const [_, diagnostics] = await compileOperations(`
+        op get(): { @body explicit: { @cookie token: string } };
+      `);
+
+    expectDiagnostics(diagnostics, [
+      { code: "@typespec/http/response-cookie-not-supported" },
+      { code: "@typespec/http/metadata-ignored" },
+    ]);
+  });
+});
+
 it("doesn't emit diagnostic if the metadata is not applicable in the response", async () => {
   const [_, diagnostics] = await compileOperations(
     `op read(): { @body explicit: {@path id: string} };`,

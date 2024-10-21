@@ -240,6 +240,19 @@ export function resolvePayloadProperties(
         httpProperty = { kind: "bodyProperty", property, path: propPath };
       }
 
+      // Ignore cookies in response to avoid future breaking changes to @cookie.
+      // https://github.com/microsoft/typespec/pull/4761#discussion_r1805082132
+      if (httpProperty.kind === "cookie" && visibility & Visibility.Read) {
+        diagnostics.add(
+          createDiagnostic({
+            code: "response-cookie-not-supported",
+            target: property,
+            format: { propName: property.name },
+          }),
+        );
+        continue;
+      }
+
       if (
         httpProperty.kind === "body" ||
         httpProperty.kind === "bodyRoot" ||

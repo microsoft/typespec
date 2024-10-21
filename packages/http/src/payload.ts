@@ -259,7 +259,8 @@ function validateBodyProperty(
       modelProperty: (prop) => {
         const kind = isHeader(program, prop)
           ? "header"
-          : usedIn === "request" && isCookieParam(program, prop)
+          : // also emit metadata-ignored for response cookie
+            (usedIn === "request" || usedIn === "response") && isCookieParam(program, prop)
             ? "cookie"
             : (usedIn === "request" || usedIn === "multipart") && isQueryParam(program, prop)
               ? "query"
