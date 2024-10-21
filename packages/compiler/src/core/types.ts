@@ -89,7 +89,13 @@ export interface TypeMapper {
   partial: boolean;
   getMappedType(type: TemplateParameter): Type | Value | IndeterminateEntity;
   args: readonly (Type | Value | IndeterminateEntity)[];
-  /** @internal */ map: Map<TemplateParameter, Type | Value | IndeterminateEntity>;
+  /** @internal Node used to create this type mapper. */
+  readonly source: {
+    readonly node: Node;
+    readonly mapper: TypeMapper | undefined;
+  };
+  /** @internal */
+  map: Map<TemplateParameter, Type | Value | IndeterminateEntity>;
 }
 
 export interface TemplatedTypeBase {
