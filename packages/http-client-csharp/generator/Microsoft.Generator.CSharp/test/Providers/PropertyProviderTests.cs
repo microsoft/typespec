@@ -176,12 +176,12 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 true,
                 null);
             yield return new TestCaseData(
-                "nonReadOnlyStringPopOnStruct",
+                "nonReadOnlyStringPropOnStruct",
                 InputFactory.Model("TestModel", usage: InputModelTypeUsage.Input, properties: [InputFactory.Property("nonReadOnlyString", InputPrimitiveType.String)], modelAsStruct: true),
                 true,
                 TypeSignatureModifiers.Struct);
             yield return new TestCaseData(
-                "requiredReadOnlyStringPopOnStruct",
+                "requiredReadOnlyStringPropOnStruct",
                 InputFactory.Model("TestModel", usage: InputModelTypeUsage.Input, properties: [InputFactory.Property("readOnlyString", InputPrimitiveType.String, isReadOnly: true, isRequired: true)], modelAsStruct: true),
                 false,
                 TypeSignatureModifiers.Struct);
