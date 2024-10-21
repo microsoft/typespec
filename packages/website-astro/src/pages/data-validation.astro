@@ -15,6 +15,7 @@ import { Code, TabItem, Tabs } from "@astrojs/starlight/components";
 import validationDecoratorsTsp from "@site/src/assets/tsp-samples/data-validation/validation-decorators.tsp?raw";
 import IllustrationCard from "../components/illustration-card.astro";
 import DataValidationHeroIllustration from "../components/homepage/data-validation-hero-illustration.astro";
+import EditorTabs from "../components/EditorTabs.astro";
 ---
 
 <ShowcaseLayout>
@@ -48,22 +49,20 @@ import DataValidationHeroIllustration from "../components/homepage/data-validati
       title="Produce JSON Schema"
       description="Benefit from the JSON Schema ecosystem to validate your data while writing more concise and readable code."
     >
-      <IllustrationCard slot="illustration">
-        <Tabs>
-          <TabItem label="main.tsp">
-            <Code lang="tsp" code={multiFileTsp} />
-          </TabItem>
-          <TabItem label="Address.yaml">
-            <Code lang="yaml" code={multiFileAddress} />
-          </TabItem>
-          <TabItem label="Car.yaml">
-            <Code lang="yaml" code={multiFileCar} />
-          </TabItem>
-          <TabItem label="Person.yaml">
-            <Code lang="yaml" code={multiFilePerson} />
-          </TabItem>
-        </Tabs>
-      </IllustrationCard>
+      <EditorTabs slot="illustration">
+        <TabItem label="main.tsp">
+          <Code lang="tsp" code={multiFileTsp} />
+        </TabItem>
+        <TabItem label="Address.yaml">
+          <Code lang="yaml" code={multiFileAddress} />
+        </TabItem>
+        <TabItem label="Car.yaml">
+          <Code lang="yaml" code={multiFileCar} />
+        </TabItem>
+        <TabItem label="Person.yaml">
+          <Code lang="yaml" code={multiFilePerson} />
+        </TabItem>
+      </EditorTabs>
       <LearnMoreCard
         title="Configure the JSON schema emitter"
         description="Change how the JSON schema is emitted: specify a bundleId to combine all schemas into a single file or use JSON instead of yaml."
@@ -77,16 +76,14 @@ import DataValidationHeroIllustration from "../components/homepage/data-validati
       title="JSON Schema Decorators"
       description="The JSON schema library provides decorators to customize the output with JSON schema specific concepts."
     >
-      <IllustrationCard slot="illustration">
-        <Tabs>
-          <TabItem label="main.tsp">
-            <Code lang="tsp" code={extensionsTsp} />
-          </TabItem>
-          <TabItem label="output.yaml">
-            <Code lang="yaml" code={extensionsYaml} />
-          </TabItem>
-        </Tabs>
-      </IllustrationCard>
+      <EditorTabs slot="illustration">
+        <TabItem label="main.tsp">
+          <Code lang="tsp" code={extensionsTsp} />
+        </TabItem>
+        <TabItem label="output.yaml">
+          <Code lang="yaml" code={extensionsYaml} />
+        </TabItem>
+      </EditorTabs>
       <LearnMoreCard
         title="JSON Schema Decorators Reference"
         description="Read the reference documentation for available options."

@@ -32,11 +32,11 @@ const { layout, header, title, description, illustration } = Astro.props;
       gap: 3vw;
     }
 
-    .text-left {
+    .prose-left {
       flex-direction: row;
     }
 
-    .text-right {
+    .prose-right {
       flex-direction: row-reverse;
     }
   }
@@ -136,7 +136,7 @@ const { layout, header, title, description, illustration } = Astro.props;
   }
 </style>
 
-<div class={clsx("section", layout === "text-right" ? "text-right" : "text-left")}>
+<div class={clsx("section", layout === "text-right" ? "prose-right" : "prose-left")}>
   <div class={"info-container"}>
     <div class={"info"}>
       {
