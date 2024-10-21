@@ -34,9 +34,9 @@ namespace Sample.Models
         }
 
         /// <summary> Description for requiredString. </summary>
-        public string RequiredString { get; set; }
+        public string RequiredString { get; }
 
         /// <summary> Description for requiredInt. </summary>
-        public int RequiredInt { get; set; }
+        public int RequiredInt { get; }
     }
 }
