@@ -499,9 +499,10 @@ describe("openapi3: return types", () => {
     });
   });
 
-  it("invalid metadata property in body should still be included as plain properties", async () => {
+  it("invalid metadata properties in body should still be included but response cookies should not be included", async () => {
     const res = await openApiFor(`op read(): {
         @header header: string;
+        #suppress "@typespec/http/response-cookie-not-supported"
         @cookie cookie: string;
         @query query: string;
         name: string;
@@ -509,11 +510,10 @@ describe("openapi3: return types", () => {
     expect(res.paths["/"].get.responses["200"].content["application/json"].schema).toEqual({
       type: "object",
       properties: {
-        cookie: { type: "string" },
         query: { type: "string" },
         name: { type: "string" },
       },
-      required: ["cookie", "query", "name"],
+      required: ["query", "name"],
     });
   });
 
