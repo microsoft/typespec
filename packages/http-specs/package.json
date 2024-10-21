@@ -12,6 +12,7 @@
     "test:e2e": "pnpm validate-scenarios  && pnpm validate-mock-apis && pnpm validate-client-server",
     "validate-scenarios": "tsp-spector validate-scenarios ./specs",
     "generate-scenarios-summary": "tsp-spector generate-scenarios-summary ./specs",
+    "regen-docs": "pnpm generate-scenarios-summary",
     "validate-mock-apis": "tsp-spector validate-mock-apis ./specs",
     "check-scenario-coverage": "tsp-spector check-coverage ./specs",
     "validate-client-server": "concurrently \"tsp-spector server start ./specs\" \"npm run client\" && tsp-spector server stop",

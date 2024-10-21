@@ -257,6 +257,9 @@ public class TypeSpecPlugin extends Javagen {
         if (options.getStreamStyleSerialization() != null) {
             SETTINGS_MAP.put("stream-style-serialization", options.getStreamStyleSerialization());
         }
+        if (options.getUseObjectForUnknown()) {
+            SETTINGS_MAP.put("use-object-for-unknown", emitterOptions.getUseObjectForUnknown());
+        }
 
         SETTINGS_MAP.put("sdk-integration", sdkIntegration);
         SETTINGS_MAP.put("regenerate-pom", sdkIntegration);
