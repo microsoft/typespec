@@ -21,7 +21,7 @@
   },
   "Operation": {
     "prefix": ["op", "operation"],
-    "body": "operation ${1:name}(${2:parameters}:${3:type}): ${0:returnType};",
+    "body": "op ${1:name}(${2:parameters}:${3:type}): ${0:returnType};",
     "description": "Operation definition"
   },
   "Union": {
