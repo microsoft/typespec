@@ -43,7 +43,7 @@ public final class UnknownArrayClient {
      * <pre>
      * {@code
      * {
-     *     property: Object (Required)
+     *     property: BinaryData (Required)
      * }
      * }
      * </pre>
@@ -68,7 +68,7 @@ public final class UnknownArrayClient {
      * <pre>
      * {@code
      * {
-     *     property: Object (Required)
+     *     property: BinaryData (Required)
      * }
      * }
      * </pre>

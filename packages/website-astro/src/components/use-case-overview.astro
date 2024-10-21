@@ -1,0 +1,93 @@
+---
+import Button from "./button.astro";
+import { DescriptionText, NeutralText } from "./text/text";
+
+export interface Props {
+  title: string;
+  subtitle: string;
+  link: string;
+  illustration?: React.ReactNode;
+}
+const props = Astro.props;
+---
+
+<style>
+  .container {
+    padding-top: 100px;
+    padding-bottom: 80px;
+  }
+
+  .overview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    align-content: center;
+
+    margin: auto;
+  }
+
+  .content {
+    flex: 1 1 50%;
+    padding: 80px;
+  }
+
+  .spacer {
+    height: 32px;
+  }
+
+  .title {
+    max-width: 522px;
+  }
+  .subtitle {
+    max-width: 522px;
+  }
+
+  .illustration {
+    width: 40vw;
+    max-height: 100%;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  @media only screen and (min-width: 1024px) {
+    .overview {
+      flex-direction: row;
+    }
+    .illustration {
+      width: 50vw;
+    }
+  }
+
+  @media only screen and (min-width: 1200px) {
+    .overview {
+      max-width: 1464px;
+    }
+  }
+
+  @media only screen and (max-width: 1023px) {
+    .illustration {
+      display: none;
+    }
+  }
+</style>
+
+<div class="container">
+  <div class="overview">
+    <div class="content">
+      <NeutralText size="xlarge" className="title">
+        {props.title}
+      </NeutralText>
+      <div class="spacer"></div>
+      <DescriptionText size="large" className="subtitle">
+        {props.subtitle}
+      </DescriptionText>
+      <div class="spacer"></div>
+      <Button as="a" appearance="primary" href={props.link}> Get started </Button>
+    </div>
+
+    <div class="illustration">
+      <slot name="illustration" />
+    </div>
+  </div>
+</div>

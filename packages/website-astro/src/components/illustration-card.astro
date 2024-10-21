@@ -1,0 +1,24 @@
+---
+import Card, { type Props as CardProps } from "./card.astro";
+
+export interface Props extends CardProps {}
+const { class: cls, noPadding, ...props } = Astro.props;
+---
+
+<style>
+  .illustration :global(.tabs-container) {
+    margin-bottom: 0;
+  }
+
+  .illustration :global(.tabs-container) :global(.margin-top--md) {
+    margin-top: 0 !important;
+  }
+
+  .illustration :global(img) {
+    display: block;
+  }
+</style>
+
+<Card class:list={[cls, "illustration"]} noPadding={noPadding ?? true} {...props}>
+  <slot />
+</Card>
