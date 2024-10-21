@@ -109,31 +109,6 @@ const { layout, header, title, description, illustration } = Astro.props;
     display: flex;
     gap: 12px;
   }
-
-  .items-list-card .item-image {
-    width: 52px;
-    height: 52px;
-    max-width: 52px;
-  }
-
-  .items-list-plain {
-    gap: 40px;
-  }
-
-  .items-list-card {
-    gap: 12px;
-  }
-
-  .items-list-plain .item-image {
-    width: 64px;
-    height: 64px;
-    max-width: 64px;
-  }
-  .item-content {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
 </style>
 
 <div class={clsx("section", layout === "text-right" ? "prose-right" : "prose-left")}>
