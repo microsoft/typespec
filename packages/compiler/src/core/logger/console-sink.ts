@@ -1,4 +1,5 @@
 import { codeFrameColumns } from "@babel/code-frame";
+import { relative } from "path/posix";
 import pc from "picocolors";
 import { Formatter } from "picocolors/types.js";
 import { LogLevel, LogSink, ProcessedLog, SourceLocation } from "../types.js";
@@ -60,7 +61,7 @@ function formatLevel(options: FormatLogOptions, level: LogLevel) {
 
 function formatSourceLocation(options: FormatLogOptions, location: SourceLocation) {
   const postition = getLineAndColumn(location);
-  const path = color(options, location.file.path, pc.cyan);
+  const path = color(options, relative(process.cwd(), location.file.path), pc.cyan);
 
   const line = color(options, postition.start.line.toString(), pc.yellow);
   const column = color(options, postition.start.column.toString(), pc.yellow);
