@@ -33,11 +33,21 @@ export function formatLog(log: ProcessedLog, options: FormatLogOptions): string 
   const code = log.code ? ` ${hyperlink(color(options, log.code, pc.gray), log.url, options)}` : "";
   const level = formatLevel(options, log.level);
   const content = `${level}${code}: ${log.message}`;
-  const location = log.sourceLocation;
-  if (location?.file) {
-    const formattedLocation = formatSourceLocation(options, location);
-    const sourcePreview = formatSourcePreview(options, location);
-    return `${formattedLocation} - ${content}${sourcePreview}`;
+  const [root, ...locationStack] = log.sourceLocations ?? [];
+  if (root?.file) {
+    const formattedLocation = formatSourceLocation(options, root);
+    const sourcePreview = formatSourcePreview(options, root);
+    const message = [`${formattedLocation} - ${content}${sourcePreview}`];
+
+    for (const location of locationStack) {
+      const formattedLocation = formatSourceLocation(options, location);
+      const sourcePreview = formatSourcePreview(options, location);
+      message.push(
+        indent(`${formattedLocation} - occurred while instantiating template${sourcePreview}`),
+      );
+    }
+
+    return message.join("\n");
   } else {
     return content;
   }
@@ -90,6 +100,13 @@ function formatSourcePreview(options: FormatLogOptions, location: SourceLocation
     linesBelow: 0,
   });
   return `\n${result}`;
+}
+
+function indent(code: string) {
+  return code
+    .split("\n")
+    .map((x) => `  ${x}`)
+    .join("\n");
 }
 
 interface RealLocation {

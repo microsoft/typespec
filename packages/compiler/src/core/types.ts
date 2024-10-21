@@ -2714,7 +2714,7 @@ export interface ProcessedLog {
   code?: string;
   /** Documentation for the error code. */
   url?: string;
-  sourceLocation?: SourceLocation;
+  sourceLocations?: SourceLocation[];
 }
 
 export interface LogSink {

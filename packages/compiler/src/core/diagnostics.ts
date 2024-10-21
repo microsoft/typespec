@@ -36,7 +36,7 @@ export function logDiagnostics(diagnostics: readonly Diagnostic[], logger: LogSi
       message: diagnostic.message,
       code: diagnostic.code,
       url: diagnostic.url,
-      sourceLocation: getSourceLocation(diagnostic.target, { locateId: true }),
+      sourceLocations: getSourceLocationStack(diagnostic.target, { locateId: true }),
     });
   }
 }
@@ -48,7 +48,7 @@ export function formatDiagnostic(diagnostic: Diagnostic) {
       level: diagnostic.severity,
       message: diagnostic.message,
       url: diagnostic.url,
-      sourceLocation: getSourceLocation(diagnostic.target, { locateId: true }),
+      sourceLocations: getSourceLocationStack(diagnostic.target, { locateId: true }),
     },
     { pretty: false },
   );
@@ -109,6 +109,31 @@ export function getSourceLocation(
 
     return createSyntheticSourceLocation();
   }
+}
+
+/**
+ * @internal
+ */
+export function getSourceLocationStack(
+  target: DiagnosticTarget | typeof NoTarget | undefined,
+  options: SourceLocationOptions = {},
+): SourceLocation[] {
+  const root = getSourceLocation(target, options);
+  if (root === undefined) {
+    return [];
+  }
+
+  if (typeof target !== "object" || !("entityKind" in target) || !("templateMapper" in target)) {
+    return [root];
+  }
+
+  const result = [root];
+  let current = target.templateMapper;
+  while (current) {
+    result.push(getSourceLocationOfNode(current.source.node, options));
+    current = current.source.mapper;
+  }
+  return result;
 }
 
 function createSyntheticSourceLocation(loc = "<unknown location>") {
