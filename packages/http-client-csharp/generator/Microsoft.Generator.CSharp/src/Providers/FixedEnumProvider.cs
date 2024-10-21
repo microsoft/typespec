@@ -71,25 +71,9 @@ namespace Microsoft.Generator.CSharp.Providers
                 string? customMemberName = null;
                 foreach (var customMember in customMembers)
                 {
-                    var attributes = customMember.Attributes;
-                    if (attributes == null)
+                    if (customMember.OriginalName == name)
                     {
-                        continue;
-                    }
-
-                    foreach (var attribute in attributes)
-                    {
-                        if (CodeGenAttributes.TryGetCodeGenMemberAttributeValue(attribute, out var originalName)
-                            && originalName == name)
-                        {
-                            customMemberName = customMember.Name;
-                            break;
-                        }
-                    }
-
-                    if (customMemberName != null)
-                    {
-                        break;
+                        customMemberName = customMember.Name;
                     }
                 }
 

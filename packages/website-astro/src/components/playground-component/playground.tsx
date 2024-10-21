@@ -1,5 +1,4 @@
 import versions from "@site/playground-versions.json";
-import { useColorMode } from "@site/src/components/docusaurus/core/theme-common";
 import { ImportToolbarButton, TypeSpecPlaygroundConfig } from "@typespec/playground-website";
 import {
   Footer,
@@ -13,6 +12,7 @@ import { type FunctionComponent, useMemo } from "react";
 import { type VersionData } from "./import-map";
 import { LoadingSpinner } from "./loading-spinner";
 
+import { useTheme } from "@site/src/utils/theme-react";
 import "@typespec/playground-website/style.css";
 import "@typespec/playground/styles.css";
 
@@ -21,11 +21,11 @@ export interface WebsitePlaygroundProps {
 }
 
 export const WebsitePlayground = ({ versionData }: WebsitePlaygroundProps) => {
-  const { colorMode } = useColorMode();
+  const theme = useTheme();
 
   const editorOptions = useMemo(() => {
-    return { theme: colorMode === "dark" ? "typespec-dark" : "typespec" };
-  }, [colorMode]);
+    return { theme: theme === "dark" ? "typespec-dark" : "typespec" };
+  }, [theme]);
 
   return (
     <StandalonePlayground
