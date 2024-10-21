@@ -11,7 +11,6 @@ import {
   SdkType,
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
-import { getDoc } from "@typespec/compiler";
 import { NetEmitterOptions, resolveOptions } from "../options.js";
 import { CodeModel } from "../type/code-model.js";
 import { InputClient } from "../type/input-client.js";
@@ -86,7 +85,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
     const clientParameters = fromSdkEndpointParameter(endpointParameter);
     return {
       Name: getClientName(client, parentNames),
-      Description: client.description,
+      Description: client.summary ?? client.doc,
       Operations: client.methods
         .filter((m) => m.kind !== "clientaccessor")
         .map((m) =>
@@ -157,8 +156,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
       parameters.push({
         Name: parameter.name,
         NameInRequest: parameter.serializedName,
-        // TODO: remove this workaround after https://github.com/Azure/typespec-azure/issues/1212 is fixed
-        Description: parameter.__raw ? getDoc(sdkContext.program, parameter.__raw) : undefined,
+        Description: parameter.doc,
         // TODO: we should do the magic in generator
         Type: parameterType,
         Location: RequestLocation.Uri,

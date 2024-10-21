@@ -83,6 +83,23 @@
       "$ref": "2"
      },
      "decorators": []
+    },
+    {
+     "$id": "12",
+     "kind": "enumvalue",
+     "name": "ClientOperationGroup",
+     "value": "client-operation-group",
+     "valueType": {
+      "$id": "13",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "enumType": {
+      "$ref": "2"
+     },
+     "decorators": []
     }
    ],
    "isFixed": true,
@@ -94,18 +111,18 @@
  "Models": [],
  "Clients": [
   {
-   "$id": "12",
+   "$id": "14",
    "Name": "ClientAClient",
    "Operations": [
     {
-     "$id": "13",
+     "$id": "15",
      "Name": "renamedOne",
      "ResourceName": "ClientA",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
       {
-       "$id": "14",
+       "$id": "16",
        "StatusCodes": [
         204
        ],
@@ -125,14 +142,14 @@
      "Decorators": []
     },
     {
-     "$id": "15",
+     "$id": "17",
      "Name": "renamedThree",
      "ResourceName": "ClientA",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
       {
-       "$id": "16",
+       "$id": "18",
        "StatusCodes": [
         204
        ],
@@ -152,14 +169,14 @@
      "Decorators": []
     },
     {
-     "$id": "17",
+     "$id": "19",
      "Name": "renamedFive",
      "ResourceName": "ClientA",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
       {
-       "$id": "18",
+       "$id": "20",
        "StatusCodes": [
         204
        ],
@@ -180,16 +197,16 @@
     }
    ],
    "Protocol": {
-    "$id": "19"
+    "$id": "21"
    },
    "Parameters": [
     {
-     "$id": "20",
+     "$id": "22",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Description": "Need to be set as 'http://localhost:3000' in client.",
      "Type": {
-      "$id": "21",
+      "$id": "23",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -205,7 +222,7 @@
      "Kind": "Client"
     },
     {
-     "$id": "22",
+     "$id": "24",
      "Name": "client",
      "NameInRequest": "client",
      "Description": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",
@@ -226,18 +243,18 @@
    "Decorators": []
   },
   {
-   "$id": "23",
+   "$id": "25",
    "Name": "ClientBClient",
    "Operations": [
     {
-     "$id": "24",
+     "$id": "26",
      "Name": "renamedTwo",
      "ResourceName": "ClientB",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
       {
-       "$id": "25",
+       "$id": "27",
        "StatusCodes": [
         204
        ],
@@ -257,14 +274,14 @@
      "Decorators": []
     },
     {
-     "$id": "26",
+     "$id": "28",
      "Name": "renamedFour",
      "ResourceName": "ClientB",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
       {
-       "$id": "27",
+       "$id": "29",
        "StatusCodes": [
         204
        ],
@@ -284,14 +301,14 @@
      "Decorators": []
     },
     {
-     "$id": "28",
+     "$id": "30",
      "Name": "renamedSix",
      "ResourceName": "ClientB",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
       {
-       "$id": "29",
+       "$id": "31",
        "StatusCodes": [
         204
        ],
@@ -312,16 +329,16 @@
     }
    ],
    "Protocol": {
-    "$id": "30"
+    "$id": "32"
    },
    "Parameters": [
     {
-     "$id": "31",
+     "$id": "33",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Description": "Need to be set as 'http://localhost:3000' in client.",
      "Type": {
-      "$id": "32",
+      "$id": "34",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -337,7 +354,7 @@
      "Kind": "Client"
     },
     {
-     "$id": "33",
+     "$id": "35",
      "Name": "client",
      "NameInRequest": "client",
      "Description": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",

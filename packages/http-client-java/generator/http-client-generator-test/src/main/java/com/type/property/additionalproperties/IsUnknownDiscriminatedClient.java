@@ -46,7 +46,7 @@ public final class IsUnknownDiscriminatedClient {
      *     kind: String (Required)
      *     name: String (Required)
      *      (Optional): {
-     *         String: Object (Required)
+     *         String: BinaryData (Required)
      *     }
      * }
      * }
@@ -75,7 +75,7 @@ public final class IsUnknownDiscriminatedClient {
      *     kind: String (Required)
      *     name: String (Required)
      *      (Optional): {
-     *         String: Object (Required)
+     *         String: BinaryData (Required)
      *     }
      * }
      * }

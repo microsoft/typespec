@@ -17,7 +17,7 @@ import {
   shouldGenerateConvenient,
   shouldGenerateProtocol,
 } from "@azure-tools/typespec-client-generator-core";
-import { getDeprecated, getDoc, getSummary, isErrorModel } from "@typespec/compiler";
+import { getDeprecated, isErrorModel } from "@typespec/compiler";
 import { HttpStatusCodeRange } from "@typespec/http";
 import { getResourceOperation } from "@typespec/rest";
 import { NetEmitterOptions } from "../options.js";
@@ -75,10 +75,8 @@ export function fromSdkServiceMethod(
         .name ??
       getOperationGroupName(sdkContext, method.operation, sdkContext.sdkPackage.rootNamespace),
     Deprecated: getDeprecated(sdkContext.program, method.__raw!),
-    // TODO: we need to figure out how we want to handle summary and description
-    // Right now, we generate garbage <remarks> for some APIs like `Platform-OpenAI-TypeSpec`
-    Summary: getSummary(sdkContext.program, method.__raw!),
-    Description: getDoc(sdkContext.program, method.__raw!),
+    Summary: method.summary,
+    Description: method.doc,
     Accessibility: method.access,
     Parameters: [...parameterMap.values()],
     Responses: [...responseMap.values()],
@@ -184,7 +182,7 @@ function fromSdkHttpOperationParameter(
   return {
     Name: p.name,
     NameInRequest: p.kind === "header" ? normalizeHeaderName(serializedName) : serializedName,
-    Description: p.description,
+    Description: p.summary ?? p.doc,
     Type: parameterType,
     Location: getParameterLocation(p),
     IsApiVersion:
@@ -272,7 +270,7 @@ function fromSdkServiceResponseHeaders(
       ({
         Name: h.__raw!.name,
         NameInResponse: h.serializedName,
-        Description: h.description,
+        Description: h.summary ?? h.doc,
         Type: fromSdkType(h.type, sdkContext, typeMap),
       }) as HttpResponseHeader,
   );

@@ -56,12 +56,12 @@ namespace Encode.Duration
 
         public virtual Task<ClientResult> Float64SecondsAsync(TimeSpan input) => throw null;
 
-        public virtual ClientResult Int32SecondsArray(IList<TimeSpan> input, RequestOptions options) => throw null;
+        public virtual ClientResult Int32SecondsArray(IEnumerable<TimeSpan> input, RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> Int32SecondsArrayAsync(IList<TimeSpan> input, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> Int32SecondsArrayAsync(IEnumerable<TimeSpan> input, RequestOptions options) => throw null;
 
-        public virtual ClientResult Int32SecondsArray(IList<TimeSpan> input) => throw null;
+        public virtual ClientResult Int32SecondsArray(IEnumerable<TimeSpan> input) => throw null;
 
-        public virtual Task<ClientResult> Int32SecondsArrayAsync(IList<TimeSpan> input) => throw null;
+        public virtual Task<ClientResult> Int32SecondsArrayAsync(IEnumerable<TimeSpan> input) => throw null;
     }
 }

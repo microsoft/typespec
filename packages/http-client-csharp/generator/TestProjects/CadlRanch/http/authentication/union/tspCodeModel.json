@@ -75,6 +75,7 @@
      "$id": "8",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
+     "Description": "Service host",
      "Type": {
       "$id": "9",
       "kind": "url",

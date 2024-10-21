@@ -8,11 +8,7 @@ namespace Payload.Xml.Models
 {
     public partial class ModelWithEncodedNames
     {
-        public SimpleModel ModelData
-        {
-            get => throw null;
-            set => throw null;
-        }
+        public SimpleModel ModelData => throw null;
 
         public IList<string> Colors => throw null;
     }
