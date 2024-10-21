@@ -1154,7 +1154,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             SerializationFormat serializationFormat,
             out ValueExpression value)
         {
-            if (valueType.IsList || valueType.IsArray)
+            if (valueType.IsArray && valueType.IsReadOnlyMemory)
+            //if (valueType.IsList || valueType.IsArray)
             {
                 if (valueType.IsArray && valueType.ElementType.IsReadOnlyMemory)
                 {
