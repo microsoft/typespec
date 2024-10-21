@@ -35,3 +35,8 @@ header.header {
   padding: 0;
   padding-inline-end: unset !important;
 }
+
+/* Algolia docsearch tweaks */
+.DocSearch-Container {
+  z-index: 1000 !important;
+}
