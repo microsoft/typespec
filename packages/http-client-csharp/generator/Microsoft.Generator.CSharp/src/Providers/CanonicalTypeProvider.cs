@@ -212,7 +212,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private static CSharpType EnsureEnum(InputModelProperty? specProperty, CSharpType customType)
         {
-            if (IsCustomizedEnumProperty(specProperty, customType, out var specType))
+            if (!customType.IsFrameworkType && IsCustomizedEnumProperty(specProperty, customType, out var specType))
             {
                 return new CSharpType(
                     customType.Name,
