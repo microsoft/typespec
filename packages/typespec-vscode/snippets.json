@@ -1,9 +1,4 @@
 {
-  "Alias": {
-    "prefix": "alias",
-    "body": "alias ${1:name} = $TM_SELECTED_TEXT$0;",
-    "description": "Alias definition"
-  },
   "Enum": {
     "prefix": "enum",
     "body": "enum ${1:name} {\n  ${0:value},\n}",
