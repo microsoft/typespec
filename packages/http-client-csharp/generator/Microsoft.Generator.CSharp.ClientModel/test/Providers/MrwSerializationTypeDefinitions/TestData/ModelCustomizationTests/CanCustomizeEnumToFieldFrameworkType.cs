@@ -30,10 +30,10 @@ namespace Sample.Models
             {
                 throw new global::System.FormatException($"The model {nameof(global::Sample.Models.MockInputModel)} does not support writing '{format}' format.");
             }
-            if (global::Sample.Optional.IsDefined(Prop1))
+            if (global::Sample.Optional.IsDefined(_prop1))
             {
                 writer.WritePropertyName("prop1"u8);
-                writer.WriteStringValue(Prop1.Value.ToString());
+                writer.WriteObjectValue<object>(_prop1, options);
             }
             if (((options.Format != "W") && (_additionalBinaryDataProperties != null)))
             {
@@ -73,7 +73,7 @@ namespace Sample.Models
             {
                 return null;
             }
-            global::Sample.Models.MockInputEnum? prop1 = default;
+            object prop1 = default;
             global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new global::Sample.ChangeTrackingDictionary<string, global::System.BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
@@ -84,7 +84,7 @@ namespace Sample.Models
                         prop1 = null;
                         continue;
                     }
-                    prop1 = new global::Sample.Models.MockInputEnum(prop.Value.GetString());
+                    prop1 = prop.Value.GetObject();
                     continue;
                 }
                 if ((options.Format != "W"))
