@@ -353,12 +353,12 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.IsNotNull(enumProvider);
 
             // validate the enum provider uses the custom member name
-            Assert.AreEqual(3, enumProvider!.Fields.Count);
-            Assert.AreEqual("Red", enumProvider.Fields[0].Name);
-            Assert.AreEqual("Green", enumProvider.Fields[1].Name);
-            Assert.AreEqual("SkyBlue", enumProvider.Fields[2].Name);
+            Assert.AreEqual(3, enumProvider!.EnumValues.Count);
+            Assert.AreEqual("Red", enumProvider.EnumValues[0].Name);
+            Assert.AreEqual("Green", enumProvider.EnumValues[1].Name);
+            Assert.AreEqual("SkyBlue", enumProvider.EnumValues[2].Name);
 
-            // the members should also be added to the custom code view
+            // the members should be added to the custom code view with the custom member names
             Assert.IsNotNull(customCodeView);
             Assert.AreEqual(3, customCodeView?.Fields.Count);
             Assert.AreEqual("Red", customCodeView?.Fields[0].Name);
