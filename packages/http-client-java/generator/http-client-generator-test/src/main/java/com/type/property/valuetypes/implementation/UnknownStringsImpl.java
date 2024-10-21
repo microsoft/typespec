@@ -104,7 +104,7 @@ public final class UnknownStringsImpl {
      * <pre>
      * {@code
      * {
-     *     property: Object (Required)
+     *     property: BinaryData (Required)
      * }
      * }
      * </pre>
@@ -129,7 +129,7 @@ public final class UnknownStringsImpl {
      * <pre>
      * {@code
      * {
-     *     property: Object (Required)
+     *     property: BinaryData (Required)
      * }
      * }
      * </pre>
@@ -154,7 +154,7 @@ public final class UnknownStringsImpl {
      * <pre>
      * {@code
      * {
-     *     property: Object (Required)
+     *     property: BinaryData (Required)
      * }
      * }
      * </pre>
@@ -181,7 +181,7 @@ public final class UnknownStringsImpl {
      * <pre>
      * {@code
      * {
-     *     property: Object (Required)
+     *     property: BinaryData (Required)
      * }
      * }
      * </pre>
