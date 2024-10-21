@@ -29,6 +29,8 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
     private String customTypeSubpackage;
     private String customizationClass;
     private Boolean includeApiViewProperties = true;
+
+    private Boolean useObjectForUnknown = false;
     private Map<String, JavaSettings.PollingDetails> polling = new HashMap<>();
     private Boolean arm = false;
     private String modelsSubpackage;
@@ -64,6 +66,10 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
 
     public Boolean getStreamStyleSerialization() {
         return streamStyleSerialization;
+    }
+
+    public Boolean getUseObjectForUnknown() {
+        return useObjectForUnknown;
     }
 
     public EmitterOptions setNamespace(String namespace) {
@@ -137,6 +143,7 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
             .writeStringField("custom-types-subpackage", customTypeSubpackage)
             .writeStringField("customization-class", customizationClass)
             .writeBooleanField("include-api-view-properties", includeApiViewProperties)
+            .writeBooleanField("use-object-for-unknown", useObjectForUnknown)
             .writeMapField("polling", polling, JsonWriter::writeJson)
             .writeBooleanField("arm", arm)
             .writeStringField("models-subpackage", modelsSubpackage)
@@ -174,6 +181,8 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
                 options.customizationClass = emptyToNull(reader.getString());
             } else if ("include-api-view-properties".equals(fieldName)) {
                 options.includeApiViewProperties = reader.getNullable(JsonReader::getBoolean);
+            } else if ("use-object-for-unknown".equals(fieldName)) {
+                options.useObjectForUnknown = reader.getNullable(JsonReader::getBoolean);
             } else if ("polling".equals(fieldName)) {
                 options.polling = reader.readMap(JavaSettings.PollingDetails::fromJson);
             } else if ("arm".equals(fieldName)) {

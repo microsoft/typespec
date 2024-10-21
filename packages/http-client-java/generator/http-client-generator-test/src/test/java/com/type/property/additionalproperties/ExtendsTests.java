@@ -3,6 +3,7 @@
 
 package com.type.property.additionalproperties;
 
+import com.azure.core.util.BinaryData;
 import com.type.property.additionalproperties.models.DifferentSpreadFloatDerived;
 import com.type.property.additionalproperties.models.DifferentSpreadModelArrayDerived;
 import com.type.property.additionalproperties.models.DifferentSpreadModelDerived;
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.utils.BinaryDataUtils;
 
 public class ExtendsTests {
     private final ExtendsFloatClient extendsFloatClient
@@ -117,28 +119,28 @@ public class ExtendsTests {
 
     @Test
     public void testExtendsUnknownClient() {
-        Map<String, Object> propertyMap = new LinkedHashMap<>();
-        propertyMap.put("prop1", 32);
-        propertyMap.put("prop2", true);
-        propertyMap.put("prop3", "abc");
+        Map<String, BinaryData> additionalProperty = new LinkedHashMap<>();
+        additionalProperty.put("prop1", BinaryData.fromObject(32));
+        additionalProperty.put("prop2", BinaryData.fromObject(true));
+        additionalProperty.put("prop3", BinaryData.fromObject("abc"));
         ExtendsUnknownAdditionalProperties body
             = new ExtendsUnknownAdditionalProperties("ExtendsUnknownAdditionalProperties");
-        body.setAdditionalProperties(propertyMap);
+        body.setAdditionalProperties(additionalProperty);
         extendsUnknownClient.put(body);
 
         ExtendsUnknownAdditionalProperties properties = extendsUnknownClient.get();
         Assertions.assertNotNull(properties);
         Assertions.assertNotNull(properties.getAdditionalProperties());
         Assertions.assertEquals("ExtendsUnknownAdditionalProperties", properties.getName());
-        Assertions.assertEquals(propertyMap, properties.getAdditionalProperties());
+        BinaryDataUtils.assertMapEquals(additionalProperty, properties.getAdditionalProperties());
     }
 
     @Test
     public void testExtendsUnknownDerivedClient() {
-        Map<String, Object> additionalProperty = new LinkedHashMap<>();
-        additionalProperty.put("prop1", 32);
-        additionalProperty.put("prop2", true);
-        additionalProperty.put("prop3", "abc");
+        Map<String, BinaryData> additionalProperty = new LinkedHashMap<>();
+        additionalProperty.put("prop1", BinaryData.fromObject(32));
+        additionalProperty.put("prop2", BinaryData.fromObject(true));
+        additionalProperty.put("prop3", BinaryData.fromObject("abc"));
         ExtendsUnknownAdditionalPropertiesDerived body
             = new ExtendsUnknownAdditionalPropertiesDerived("ExtendsUnknownAdditionalProperties", 314).setAge(2.71875);
         body.setAdditionalProperties(additionalProperty);
@@ -148,15 +150,15 @@ public class ExtendsTests {
         Assertions.assertNotNull(properties);
         Assertions.assertNotNull(properties.getAdditionalProperties());
         Assertions.assertEquals("ExtendsUnknownAdditionalProperties", properties.getName());
-        Assertions.assertEquals(additionalProperty, properties.getAdditionalProperties());
+        BinaryDataUtils.assertMapEquals(additionalProperty, properties.getAdditionalProperties());
     }
 
     @Test
     public void testExtendsUnknownDiscriminatedClient() {
-        Map<String, Object> additionalProperty = new LinkedHashMap<>();
-        additionalProperty.put("prop1", 32);
-        additionalProperty.put("prop2", true);
-        additionalProperty.put("prop3", "abc");
+        Map<String, BinaryData> additionalProperty = new LinkedHashMap<>();
+        additionalProperty.put("prop1", BinaryData.fromObject(32));
+        additionalProperty.put("prop2", BinaryData.fromObject(true));
+        additionalProperty.put("prop3", BinaryData.fromObject("abc"));
         ExtendsUnknownAdditionalPropertiesDiscriminatedDerived body
             = new ExtendsUnknownAdditionalPropertiesDiscriminatedDerived("Derived", 314).setAge(2.71875);
         body.setAdditionalProperties(additionalProperty);
@@ -166,7 +168,7 @@ public class ExtendsTests {
         Assertions.assertNotNull(properties);
         Assertions.assertNotNull(properties.getAdditionalProperties());
         Assertions.assertEquals("Derived", properties.getName());
-        Assertions.assertEquals(additionalProperty, properties.getAdditionalProperties());
+        BinaryDataUtils.assertMapEquals(additionalProperty, properties.getAdditionalProperties());
     }
 
     @Test

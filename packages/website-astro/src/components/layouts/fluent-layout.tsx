@@ -1,24 +1,14 @@
 import { FluentProvider, webDarkTheme, webLightTheme } from "@fluentui/react-components";
-import { useColorMode } from "../docusaurus/core/theme-common";
-import style from "./layouts.module.css";
+import { useTheme } from "@site/src/utils/theme-react";
 
-export const FluentLayout = ({ children }) => {
-  return <FluentWrapper>{children}</FluentWrapper>;
+export const FluentLayout = (props) => {
+  return <FluentWrapper {...props} />;
 };
 
-export const ShowcaseLayout = ({ children }) => {
+const FluentWrapper = ({ children, style }) => {
+  const theme = useTheme();
   return (
-    // Need to do this because fluentui can't do SSR simply...
-    <FluentLayout>
-      <div className={style["showcase-layout"]}>{children}</div>
-    </FluentLayout>
-  );
-};
-
-const FluentWrapper = ({ children }) => {
-  const { colorMode } = useColorMode();
-  return (
-    <FluentProvider theme={colorMode === "dark" ? webDarkTheme : webLightTheme}>
+    <FluentProvider style={style} theme={theme === "dark" ? webDarkTheme : webLightTheme}>
       {children}
     </FluentProvider>
   );

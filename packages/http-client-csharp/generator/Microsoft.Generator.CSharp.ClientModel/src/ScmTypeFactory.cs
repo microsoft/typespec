@@ -23,6 +23,24 @@ namespace Microsoft.Generator.CSharp.ClientModel
 
         public virtual CSharpType TokenCredentialType => throw new NotImplementedException("Token credential is not supported in Scm libraries yet");
 
+        public virtual CSharpType? ClientUriBuilderBaseType => null;
+
+        public virtual IClientResponseApi ClientResponseApi => ClientResultProvider.Instance;
+
+        public virtual IHttpResponseApi HttpResponseApi => PipelineResponseProvider.Instance;
+
+        public virtual IHttpMessageApi HttpMessageApi => PipelineMessageProvider.Instance;
+
+        public virtual IHttpRequestOptionsApi HttpRequestOptionsApi => RequestOptionsProvider.Instance;
+
+        public virtual IExpressionApi<HttpRequestApi> HttpRequestApi => PipelineRequestProvider.Instance;
+
+        public virtual IClientPipelineApi ClientPipelineApi => ClientPipelineProvider.Instance;
+
+        public virtual IStatusCodeClassifierApi StatusCodeClassifierApi => PipelineMessageClassifierProvider.Instance;
+
+        public virtual IRequestContentApi RequestContentApi => BinaryContentProvider.Instance;
+
         /// <summary>
         /// Returns the serialization type providers for the given input type.
         /// </summary>

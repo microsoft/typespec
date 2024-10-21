@@ -1,5 +1,17 @@
 # Change Log - @typespec/http-client-python
 
+## 0.3.4
+
+### Bug Fixes
+
+- Added ignore comment in `__init__.py` to avoid mypy error
+
+## 0.3.3
+
+### Bug Fixes
+
+- Fix pylint issue for useless suppressions
+
 ## 0.3.2
 
 ### Bug Fixes

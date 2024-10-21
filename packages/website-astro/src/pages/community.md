@@ -1,5 +1,5 @@
 ---
-layout: ../layouts/base-layout.astro
+layout: ../layouts/content.astro
 ---
 
 # Welcome

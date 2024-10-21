@@ -3,7 +3,6 @@
 
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
@@ -120,6 +119,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
 
             // The model factory should be internal
             Assert.IsTrue(modelFactory!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+            Assert.IsFalse(modelFactory!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
             ValidateModelFactoryCommon(modelFactory);
         }
     }

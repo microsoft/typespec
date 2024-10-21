@@ -186,6 +186,11 @@ export type Decorators = {
       [`valueof "abc" | "def" | string`, `"abc" | "def" | string`],
       [`valueof string[]`, `readonly string[]`],
       [`valueof ("abc" | "def")[]`, `readonly ("abc" | "def")[]`],
+      [`valueof Record<int32>`, `Record<string, number>`],
+      [
+        `valueof {...Record<int32>, other: string}`,
+        `{ readonly [key: string]: number; readonly other: string }`,
+      ],
       [`valueof {name: string, age?: int32}`, `{ readonly name: string; readonly age?: number }`],
     ])("%s => %s", async (ref, expected) => {
       await expectSignatures({

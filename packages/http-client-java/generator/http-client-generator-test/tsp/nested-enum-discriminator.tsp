@@ -1,10 +1,12 @@
 import "@typespec/http";
-import "@azure-tools/cadl-ranch-expect";
 
 using TypeSpec.Http;
 
 @doc("Illustrates multiple level inheritance with multiple enum discriminators.")
-@scenarioService("/type/model/inheritance/enum-nested-discriminator")
+@service({
+  title: "EnumNestedDiscriminator",
+})
+@route("/type/model/inheritance/enum-nested-discriminator")
 namespace Type.Model.Inheritance.EnumNestedDiscriminator;
 
 @doc("extensible enum type for discriminator")
@@ -63,186 +65,26 @@ model GoblinShark extends Shark {
   sharktype: SharkKind.Goblin;
 }
 
-@scenario
 @route("/model")
-@scenarioDoc("""
-  Generate and receive polymorphic model in multiple levels inheritance with 2 discriminators.
-  Expected response body:
-  ```json
-  {"age": 1, "kind": "shark",  "sharktype": "goblin"}
-  ```
-  """)
 @get
 op getModel(): Fish;
 
-@scenario
 @route("/model")
-@scenarioDoc("""
-  Generate and send polymorphic model in multiple levels inheritance with 2 discriminators.
-  Expected input body:
-  ```json
-  {"age": 1, "kind": "shark",  "sharktype": "goblin"}
-  ```
-  """)
 @put
 op putModel(@body input: Fish): NoContentResponse;
 
-@scenario
 @route("/recursivemodel")
-@scenarioDoc("""
-  Generate and receive polymorphic models has collection and dictionary properties referring to other polymorphic models.
-  Expected response body:
-  ```json
-  {
-    "age": 1,
-    "kind": "salmon",
-    "partner": {
-      "age": 2,
-      "kind": "shark",
-      "sharktype": "saw"
-    },
-    "friends": [
-      {
-        "age": 2,
-        "kind": "salmon",
-        "partner": {
-          "age": 3,
-          "kind": "salmon"
-        },
-        "hate": {
-          "key1": {
-            "age": 4,
-            "kind": "salmon"
-          },
-          "key2": {
-            "age": 2,
-            "kind": "shark",
-            "sharktype": "goblin"
-          }
-        }
-      },
-      {
-        "age": 3,
-        "kind": "shark",
-        "sharktype": "goblin"
-      }
-    ],
-    "hate": {
-      "key3": {
-        "age": 3,
-        "kind": "shark",
-        "sharktype": "saw"
-      },
-      "key4": {
-        "age": 2,
-        "kind": "salmon",
-        "friends": [
-          {
-            "age": 1,
-            "kind": "salmon"
-          },
-          {
-            "age": 4,
-            "kind": "shark",
-            "sharktype": "goblin"
-          }
-        ]
-      }
-    }
-  }
-  ```
-  """)
 @get
 op getRecursiveModel(): Fish;
 
-@scenario
 @route("/recursivemodel")
-@scenarioDoc("""
-  Generate and send polymorphic models has collection and dictionary properties referring to other polymorphic models.
-  Expected input body:
-  ```json
-  {
-    "age": 1,
-    "kind": "salmon",
-    "partner": {
-      "age": 2,
-      "kind": "shark",
-      "sharktype": "saw"
-    },
-    "friends": [
-      {
-        "age": 2,
-        "kind": "salmon",
-        "partner": {
-          "age": 3,
-          "kind": "salmon"
-        },
-        "hate": {
-          "key1": {
-            "age": 4,
-            "kind": "salmon"
-          },
-          "key2": {
-            "age": 2,
-            "kind": "shark",
-            "sharktype": "goblin"
-          }
-        }
-      },
-      {
-        "age": 3,
-        "kind": "shark",
-        "sharktype": "goblin"
-      }
-    ],
-    "hate": {
-      "key3": {
-        "age": 3,
-        "kind": "shark",
-        "sharktype": "saw"
-      },
-      "key4": {
-        "age": 2,
-        "kind": "salmon",
-        "friends": [
-          {
-            "age": 1,
-            "kind": "salmon"
-          },
-          {
-            "age": 4,
-            "kind": "shark",
-            "sharktype": "goblin"
-          }
-        ]
-      }
-    }
-  }
-  ```
-  """)
 @put
 op putRecursiveModel(@body input: Fish): NoContentResponse;
 
-@scenario
 @route("/missingdiscriminator")
-@scenarioDoc("""
-  Get a model omitting the discriminator.
-  Expected response body:
-  ```json
-  {"age": 1}
-  ```
-  """)
 @get
 op getMissingDiscriminator(): Fish;
 
-@scenario
 @route("/wrongdiscriminator")
-@scenarioDoc("""
-  Get a model containing discriminator value never defined.
-  Expected response body:
-  ```json
-  {"age": 1, "kind": "wrongKind" }
-  ```
-  """)
 @get
 op getWrongDiscriminator(): Fish;

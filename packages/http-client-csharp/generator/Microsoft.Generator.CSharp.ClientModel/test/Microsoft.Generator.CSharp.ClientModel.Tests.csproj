@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
     <ProjectReference Include="..\..\Microsoft.Generator.CSharp\test\common\Microsoft.Generator.CSharp.Tests.Common.csproj" />
