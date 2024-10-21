@@ -38,9 +38,10 @@ import Search from "./search.astro";
     list-style: none;
   }
 
-  .group summary {
+  .group > summary {
     display: flex;
     align-items: center;
+    justify-content: space-between;
   }
 
   .group-content {
@@ -74,10 +75,8 @@ import Search from "./search.astro";
     opacity: 1;
   }
   .group > summary {
-    display: flex;
     cursor: pointer;
     gap: 0.5rem;
-    align-items: center;
   }
 
   .group-content .item {
@@ -174,7 +173,7 @@ import Search from "./search.astro";
     <div class="items">
       <details id="use-cases-menu" class="group">
         <summary class="item"
-          ><span class="grow">Use cases</span> <Icon class="icon" name="down-caret" /></summary
+          ><span>Use cases</span> <Icon class="icon" name="down-caret" /></summary
         >
         <ul class="group-content">
           <li><Link class="item link" href="/openapi">OpenAPI</Link></li>
