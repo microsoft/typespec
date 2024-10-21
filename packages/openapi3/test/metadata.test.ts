@@ -682,6 +682,7 @@ describe("openapi3: metadata", () => {
         "Parameters.c": {
           name: "c",
           in: "cookie",
+          explode: false,
           required: true,
           schema: { type: "string" },
         },
@@ -743,6 +744,7 @@ describe("openapi3: metadata", () => {
               name: "c",
               in: "cookie",
               required: true,
+              explode: false,
               schema: { type: "string" },
             },
           ],

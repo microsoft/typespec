@@ -1412,7 +1412,7 @@ function createOAPIEmitter(
       case "cookie":
         // style and explode options are omitted from cookies
         // https://github.com/microsoft/typespec/pull/4761#discussion_r1803365689
-        return {};
+        return { explode: false };
       case "query":
         return getQueryParameterAttributes(parameter);
       case "path":
