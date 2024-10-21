@@ -73,15 +73,12 @@ describe("response cookie", () => {
     expectDiagnostics(diagnostics, { code: "@typespec/http/response-cookie-not-supported" });
   });
 
-  it("emit diagnostics for explicit @cookie in the response", async () => {
+  it("doesn't emit response-cookie-not-supported diagnostics for explicit @cookie in the response", async () => {
     const [_, diagnostics] = await compileOperations(`
         op get(): { @body explicit: { @cookie token: string } };
       `);
 
-    expectDiagnostics(diagnostics, [
-      { code: "@typespec/http/response-cookie-not-supported" },
-      { code: "@typespec/http/metadata-ignored" },
-    ]);
+    expectDiagnostics(diagnostics, { code: "@typespec/http/metadata-ignored" });
   });
 });
 
