@@ -41,7 +41,12 @@ export function logDiagnostics(diagnostics: readonly Diagnostic[], logger: LogSi
   }
 }
 
-export function formatDiagnostic(diagnostic: Diagnostic) {
+export interface FormatDiagnosticOptions {
+  readonly pretty?: boolean;
+  readonly pathRelativeTo?: string;
+}
+
+export function formatDiagnostic(diagnostic: Diagnostic, options: FormatDiagnosticOptions = {}) {
   return formatLog(
     {
       code: diagnostic.code,
@@ -50,7 +55,7 @@ export function formatDiagnostic(diagnostic: Diagnostic) {
       url: diagnostic.url,
       sourceLocation: getSourceLocation(diagnostic.target, { locateId: true }),
     },
-    { pretty: false },
+    { pretty: options?.pretty ?? false, pathRelativeTo: options?.pathRelativeTo },
   );
 }
 

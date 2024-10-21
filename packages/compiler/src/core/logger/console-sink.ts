@@ -6,6 +6,7 @@ import { LogLevel, LogSink, ProcessedLog, SourceLocation } from "../types.js";
 import { supportsHyperlink } from "./support-hyperlinks.js";
 
 export interface FormatLogOptions {
+  pathRelativeTo?: string;
   pretty?: boolean;
 }
 
@@ -61,8 +62,11 @@ function formatLevel(options: FormatLogOptions, level: LogLevel) {
 
 function formatSourceLocation(options: FormatLogOptions, location: SourceLocation) {
   const postition = getLineAndColumn(location);
-  const path = color(options, relative(process.cwd(), location.file.path), pc.cyan);
+  const prePath = options.pathRelativeTo
+    ? relative(process.cwd(), location.file.path)
+    : location.file.path;
 
+  const path = color(options, prePath, pc.cyan);
   const line = color(options, postition.start.line.toString(), pc.yellow);
   const column = color(options, postition.start.column.toString(), pc.yellow);
   return `${path}:${line}:${column}`;
