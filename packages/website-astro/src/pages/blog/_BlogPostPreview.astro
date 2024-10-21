@@ -26,8 +26,10 @@ const image = post.data.image && (await resolveBlogImagePath(post.slug, post.dat
 <style>
   .card > :global(.bg) {
     border: 1px solid var(--colorNeutralStroke3);
-
     border-radius: 0 !important;
+  }
+  .card {
+    color: var(--colorNeutralForeground1);
   }
   .date {
     display: block;
@@ -86,27 +88,27 @@ const image = post.data.image && (await resolveBlogImagePath(post.slug, post.dat
   }
 </style>
 <article aria-labelledby={post.slug}>
-  <Card noPadding class="card">
-    <header>
-      <time class="date" datetime={post.data.publishDate.toISOString()}>
-        {format(post.data.publishDate, "MMMM d, yyyy")}
-      </time>
-    </header>
-    <div class="image-container">
-      {image && <Image class="image" src={image} alt="" loading={imageLoading} />}
-    </div>
+  <Link
+    href={`/blog/${post.slug}/`}
+    data-astro-prefetch
+    class="outline-none after:absolute after:inset-0"
+  >
+    <Card noPadding class="card">
+      <header>
+        <time class="date" datetime={post.data.publishDate.toISOString()}>
+          {format(post.data.publishDate, "MMMM d, yyyy")}
+        </time>
+      </header>
+      <div class="image-container">
+        {image && <Image class="image" src={image} alt="" loading={imageLoading} />}
+      </div>
 
-    <div class="content">
-      <h3 class="heading-4 md:heading-3" id={post.slug}>
-        <Link
-          href={`/blog/${post.slug}/`}
-          data-astro-prefetch
-          class="outline-none after:absolute after:inset-0"
-        >
+      <div class="content">
+        <h3 class="heading-4 md:heading-3" id={post.slug}>
           {post.data.title}
-        </Link>
-      </h3>
-      <p class="text-astro-gray-200">{post.data.description}</p>
-    </div>
-  </Card>
+        </h3>
+        <p class="text-astro-gray-200">{post.data.description}</p>
+      </div>
+    </Card>
+  </Link>
 </article>
