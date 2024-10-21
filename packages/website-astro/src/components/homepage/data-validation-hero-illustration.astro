@@ -1,20 +1,18 @@
 ---
 import commonLibSharedTsp from "@site/src/assets/tsp-samples/data-validation/common-lib/common.tsp?raw";
 import commonLibMainTsp from "@site/src/assets/tsp-samples/data-validation/common-lib/main.tsp?raw";
-import IllustrationCard from "../illustration-card.astro";
 import { Code } from "@astrojs/starlight/components";
-import { Tabs, TabItem } from "@astrojs/starlight/components";
+import { TabItem } from "@astrojs/starlight/components";
+import EditorTabs from "../EditorTabs.astro";
 ---
 
-<IllustrationCard>
-  <Tabs>
-    <TabItem label="main.tsp">
+<EditorTabs>
+  <TabItem label="main.tsp">
+    <Code lang="tsp" code={commonLibMainTsp} />
+  </TabItem>
+  <TabItem label="common.tsp">
+    <div class='hero-openapi"'>
       <Code lang="tsp" code={commonLibSharedTsp} />
-    </TabItem>
-    <TabItem label="openapi.yaml">
-      <div class='hero-openapi"'>
-        <Code lang="tsp" code={commonLibMainTsp} />
-      </div>
-    </TabItem>
-  </Tabs>
-</IllustrationCard>
+    </div>
+  </TabItem>
+</EditorTabs>

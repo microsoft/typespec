@@ -5,8 +5,6 @@ import Section from "../components/section.astro";
 import SectionedLayout from "../components/sectioned-layout.astro";
 import UseCaseOverview from "../components/use-case-overview.astro";
 import { Links } from "../constants";
-import commonLibSharedTsp from "@site/src/assets/tsp-samples/data-validation/common-lib/common.tsp?raw";
-import commonLibMainTsp from "@site/src/assets/tsp-samples/data-validation/common-lib/main.tsp?raw";
 import multiFileTsp from "@site/src/assets/tsp-samples/json-schema/multi-file/main.tsp?raw";
 import multiFileAddress from "@site/src/assets/tsp-samples/json-schema/multi-file/out/Address.yaml?raw";
 import multiFileCar from "@site/src/assets/tsp-samples/json-schema/multi-file/out/Car.yaml?raw";
@@ -16,7 +14,9 @@ import extensionsYaml from "@site/src/assets/tsp-samples/json-schema/extensions/
 import { Code, TabItem, Tabs } from "@astrojs/starlight/components";
 import validationDecoratorsTsp from "@site/src/assets/tsp-samples/data-validation/validation-decorators.tsp?raw";
 import IllustrationCard from "../components/illustration-card.astro";
+import DataValidationHeroIllustration from "../components/homepage/data-validation-hero-illustration.astro";
 ---
+
 <ShowcaseLayout>
   <SectionedLayout>
     <UseCaseOverview
@@ -24,16 +24,7 @@ import IllustrationCard from "../components/illustration-card.astro";
       subtitle="Benefit from the reusability and modularity of TypeSpec types to ensure data consistency across your APIs."
       link={Links.libraryReferences.jsonSchema.index}
     >
-      <IllustrationCard slot="illustration">
-        <Tabs>
-          <TabItem label="main.tsp">
-            <Code lang="tsp" code={commonLibMainTsp} />
-          </TabItem>
-          <TabItem label="common.tsp">
-            <Code lang="tsp" code={commonLibSharedTsp} />
-          </TabItem>
-        </Tabs>
-      </IllustrationCard>
+      <DataValidationHeroIllustration slot="illustration" />
     </UseCaseOverview>
     <Section
       header="Standard library"
