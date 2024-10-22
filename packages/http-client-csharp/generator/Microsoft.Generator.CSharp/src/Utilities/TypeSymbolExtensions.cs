@@ -155,6 +155,7 @@ namespace Microsoft.Generator.CSharp
             {
                 // Special case for types that would not be defined in corlib, but should still be considered framework types.
                 "System.BinaryData" => typeof(BinaryData),
+                "System.Uri" => typeof(Uri),
                 _ => Type.GetType(fullyQualifiedName)
             };
         }
