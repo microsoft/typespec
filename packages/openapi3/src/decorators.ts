@@ -1,8 +1,10 @@
 import {
   DecoratorContext,
+  Interface,
   Model,
   ModelProperty,
   Namespace,
+  Operation,
   Program,
   Type,
   TypeSpecValue,
@@ -55,7 +57,7 @@ const [getTagsMetadataState, setTagMetadatas] = unsafe_useStateMap<Type, OpenAPI
 );
 export const $tagMetadata: TagMetadataDecorator = (
   context: DecoratorContext,
-  entity: Namespace,
+  entity: Namespace | Interface | Operation,
   name: string,
   additionalTag?: TypeSpecValue,
 ) => {
@@ -71,6 +73,9 @@ export const $tagMetadata: TagMetadataDecorator = (
     if (data === undefined) {
       return;
     }
+
+    curr.description = data.description;
+    curr.externalDocs = data.externalDocs;
   }
 
   const tags = getTagsMetadataState(context.program, entity);
@@ -83,4 +88,30 @@ export const $tagMetadata: TagMetadataDecorator = (
 
 export function getTagMetadata(program: Program, entity: Type): OpenAPI3Tag[] {
   return getTagsMetadataState(program, entity) || [];
+}
+
+// Merge the tags for a operation with the tags that are on the namespace or
+// interface it resides within.
+export function getAllTagMetadatas(
+  program: Program,
+  target: Namespace | Interface | Operation,
+): OpenAPI3Tag[] | undefined {
+  const tags = new Set<OpenAPI3Tag>();
+
+  let current: Namespace | Interface | Operation | undefined = target;
+  while (current !== undefined) {
+    for (const t of getTagMetadata(program, current)) {
+      tags.add(t);
+    }
+
+    // Move up to the parent
+    if (current.kind === "Operation") {
+      current = current.interface ?? current.namespace;
+    } else {
+      // Type is a namespace or interface
+      current = current.namespace;
+    }
+  }
+
+  return tags.size > 0 ? Array.from(tags).reverse() : undefined;
 }

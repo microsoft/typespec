@@ -110,6 +110,7 @@ Default: `int64`
 ### TypeSpec.OpenAPI
 
 - [`@oneOf`](#@oneof)
+- [`@tagMetadata`](#@tagmetadata)
 - [`@useRef`](#@useref)
 
 #### `@oneOf`
@@ -127,6 +128,25 @@ Specify that `oneOf` should be used instead of `anyOf` for that union.
 ##### Parameters
 
 None
+
+#### `@tagMetadata`
+
+Specify OpenAPI additional information.
+
+```typespec
+@TypeSpec.OpenAPI.tagMetadata(name: valueof string, additionalTag?: TypeSpec.OpenAPI.AdditionalTag)
+```
+
+##### Target
+
+`Namespace | Interface | Operation`
+
+##### Parameters
+
+| Name          | Type                              | Description            |
+| ------------- | --------------------------------- | ---------------------- |
+| name          | `valueof string`                  | tag name               |
+| additionalTag | [`AdditionalTag`](#additionaltag) | Additional information |
 
 #### `@useRef`
 

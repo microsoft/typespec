@@ -22,6 +22,25 @@ Specify that `oneOf` should be used instead of `anyOf` for that union.
 
 None
 
+### `@tagMetadata` {#@TypeSpec.OpenAPI.tagMetadata}
+
+Specify OpenAPI additional information.
+
+```typespec
+@TypeSpec.OpenAPI.tagMetadata(name: valueof string, additionalTag?: TypeSpec.OpenAPI.AdditionalTag)
+```
+
+#### Target
+
+`Namespace | Interface | Operation`
+
+#### Parameters
+
+| Name          | Type                                                              | Description            |
+| ------------- | ----------------------------------------------------------------- | ---------------------- |
+| name          | `valueof string`                                                  | tag name               |
+| additionalTag | [`AdditionalTag`](./data-types.md#TypeSpec.OpenAPI.AdditionalTag) | Additional information |
+
 ### `@useRef` {#@TypeSpec.OpenAPI.useRef}
 
 Specify an external reference that should be used inside of emitting this type.

@@ -1,8 +1,10 @@
 import type {
   DecoratorContext,
+  Interface,
   Model,
   ModelProperty,
   Namespace,
+  Operation,
   Type,
   Union,
 } from "@typespec/compiler";
@@ -31,7 +33,7 @@ export type UseRefDecorator = (
  */
 export type TagMetadataDecorator = (
   context: DecoratorContext,
-  target: Namespace,
+  target: Namespace | Interface | Operation,
   name: string,
   additionalTag?: Type,
 ) => void;
