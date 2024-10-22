@@ -6,6 +6,7 @@ import {
   CompletionList,
   CompletionParams,
   DefinitionParams,
+  DiagnosticRelatedInformation,
   DiagnosticSeverity,
   DiagnosticTag,
   DidChangeWatchedFilesParams,
@@ -50,7 +51,13 @@ import { resolveCodeFix } from "../core/code-fixes.js";
 import { compilerAssert, getSourceLocation } from "../core/diagnostics.js";
 import { formatTypeSpec } from "../core/formatter.js";
 import { getEntityName, getTypeName } from "../core/helpers/type-name-utils.js";
-import { ResolveModuleHost, resolveModule } from "../core/index.js";
+import {
+  ResolveModuleHost,
+  SourceLocation,
+  getDiagnosticNodeStack,
+  getSourceLocationOfNode,
+  resolveModule,
+} from "../core/index.js";
 import { getPositionBeforeTrivia } from "../core/parser-utils.js";
 import { getNodeAtPosition, getNodeAtPositionDetail, visitChildren } from "../core/parser.js";
 import { ensureTrailingDirectorySeparator, getDirectoryPath } from "../core/path-utils.js";
@@ -373,31 +380,9 @@ export function createServer(host: ServerHost): Server {
     }
 
     for (const each of program.diagnostics) {
-      let diagDocument: TextDocument | undefined;
-
-      const location = getSourceLocation(each.target, { locateId: true });
-      if (location?.file) {
-        diagDocument = (location.file as ServerSourceFile).document;
-      } else {
-        // https://github.com/microsoft/language-server-protocol/issues/256
-        //
-        // LSP does not currently allow sending a diagnostic with no location so
-        // we report diagnostics with no location on the document that changed to
-        // trigger.
-        diagDocument = document;
-        log({ level: "debug", message: `Diagnostic with no location: ${each.message}` });
-      }
-
-      if (!diagDocument || !fileService.upToDate(diagDocument)) {
-        continue;
-      }
-
-      const start = diagDocument.positionAt(location?.pos ?? 0);
-      const end = diagDocument.positionAt(location?.end ?? 0);
-      const range = Range.create(start, end);
-      const severity = convertSeverity(each.severity);
-      const diagnostic = VSDiagnostic.create(range, each.message, severity, each.code, "TypeSpec");
-
+      const result = convertDiagnosticToLsp(program, document, each);
+      if (result === undefined) continue;
+      const [diagnostic, diagDocument] = result;
       if (each.url) {
         diagnostic.codeDescription = {
           href: each.url,
@@ -419,6 +404,89 @@ export function createServer(host: ServerHost): Server {
     for (const [document, diagnostics] of diagnosticMap) {
       sendDiagnostics(document, diagnostics);
     }
+  }
+
+  function getDocumentForLocation(
+    diagnostic: Diagnostic,
+    location: SourceLocation,
+    currentDocument: TextDocument,
+  ): TextDocument | undefined {
+    if (location?.file) {
+      return (location.file as ServerSourceFile).document;
+    } else {
+      // https://github.com/microsoft/language-server-protocol/issues/256
+      //
+      // LSP does not currently allow sending a diagnostic with no location so
+      // we report diagnostics with no location on the document that changed to
+      // trigger.
+      log({ level: "debug", message: `Diagnostic with no location: ${diagnostic.message}` });
+      return currentDocument;
+    }
+  }
+  function getVSLocation(
+    diagnostic: Diagnostic,
+    location: SourceLocation | undefined,
+    currentDocument: TextDocument,
+  ): { document: TextDocument; range: Range } | undefined {
+    if (location === undefined) return undefined;
+    const document = getDocumentForLocation(diagnostic, location, currentDocument);
+    if (!document || !fileService.upToDate(document)) {
+      return undefined;
+    }
+
+    const start = document.positionAt(location?.pos ?? 0);
+    const end = document.positionAt(location?.end ?? 0);
+    const range = Range.create(start, end);
+
+    return { range, document };
+  }
+
+  /** Convert TypeSpec Diagnostic to Lsp diagnostic. Each TypeSpec diagnostic could produce multiple lsp ones when it involve multiple locations. */
+  function convertDiagnosticToLsp(
+    program: Program,
+    document: TextDocument,
+    diagnostic: Diagnostic,
+  ): [VSDiagnostic, TextDocument] | undefined {
+    const root = getVSLocation(
+      diagnostic,
+      getSourceLocation(diagnostic.target, { locateId: true }),
+      document,
+    );
+    const instantiatioNodes = getDiagnosticNodeStack(diagnostic.target);
+    if (root === undefined) return undefined;
+
+    const severity = convertSeverity(diagnostic.severity);
+
+    const relatedInformation: DiagnosticRelatedInformation[] = [];
+    if (instantiatioNodes.length > 0) {
+      for (const item of instantiatioNodes) {
+        const location = getVSLocation(
+          diagnostic,
+          getSourceLocationOfNode(item, { locateId: true }),
+          document,
+        );
+        if (location === undefined) {
+          break;
+        }
+        relatedInformation.push(
+          DiagnosticRelatedInformation.create(
+            { uri: location.document.uri, range: location.range },
+            `in instantiation of template \`${getTypeName(program.checker.getTypeForNode(item))}\``,
+          ),
+        );
+      }
+    }
+    return [
+      VSDiagnostic.create(
+        root.range,
+        diagnostic.message,
+        severity,
+        diagnostic.code,
+        "TypeSpec",
+        relatedInformation,
+      ),
+      root.document,
+    ];
   }
 
   async function getHover(params: HoverParams): Promise<Hover> {

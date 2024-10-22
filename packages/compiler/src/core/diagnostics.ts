@@ -114,6 +114,25 @@ export function getSourceLocation(
 /**
  * @internal
  */
+export function getDiagnosticNodeStack(
+  target: DiagnosticTarget | typeof NoTarget | undefined,
+): Node[] {
+  if (typeof target !== "object" || !("entityKind" in target) || !("templateMapper" in target)) {
+    return [];
+  }
+
+  const result = [];
+  let current = target.templateMapper;
+  while (current) {
+    result.push(current.source.node);
+    current = current.source.mapper;
+  }
+  return result;
+}
+
+/**
+ * @internal
+ */
 export function getSourceLocationStack(
   target: DiagnosticTarget | typeof NoTarget | undefined,
   options: SourceLocationOptions = {},
@@ -127,6 +146,7 @@ export function getSourceLocationStack(
     return [root];
   }
 
+  // TODO: use getDiagnosticNodeStack
   const result = [root];
   let current = target.templateMapper;
   while (current) {
@@ -145,7 +165,11 @@ function createSyntheticSourceLocation(loc = "<unknown location>") {
   };
 }
 
-function getSourceLocationOfNode(node: Node, options: SourceLocationOptions): SourceLocation {
+/** @internal */
+export function getSourceLocationOfNode(
+  node: Node,
+  options: SourceLocationOptions,
+): SourceLocation {
   let root = node;
 
   while (root.parent !== undefined) {
