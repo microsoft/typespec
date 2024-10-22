@@ -33,7 +33,7 @@ jobs:
         run: pnpm install
 
       - name: Install browsers
-        run: pnpm exec playwright install
+        run: npx playwright install
 
       # - name: Build
       #   run: pnpm --filter "@typespec/website..." run build
