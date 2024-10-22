@@ -48,15 +48,10 @@ import {
 } from "vscode-languageserver/node.js";
 import { CharCode } from "../core/charcode.js";
 import { resolveCodeFix } from "../core/code-fixes.js";
-import { compilerAssert, getSourceLocation } from "../core/diagnostics.js";
+import { compilerAssert, getDiagnosticNodeStack, getSourceLocation } from "../core/diagnostics.js";
 import { formatTypeSpec } from "../core/formatter.js";
 import { getEntityName, getTypeName } from "../core/helpers/type-name-utils.js";
-import {
-  ResolveModuleHost,
-  SourceLocation,
-  getDiagnosticNodeStack,
-  resolveModule,
-} from "../core/index.js";
+import { ResolveModuleHost, SourceLocation, resolveModule } from "../core/index.js";
 import { getPositionBeforeTrivia } from "../core/parser-utils.js";
 import { getNodeAtPosition, getNodeAtPositionDetail, visitChildren } from "../core/parser.js";
 import { ensureTrailingDirectorySeparator, getDirectoryPath } from "../core/path-utils.js";
@@ -379,25 +374,26 @@ export function createServer(host: ServerHost): Server {
     }
 
     for (const each of program.diagnostics) {
-      const result = convertDiagnosticToLsp(program, document, each);
-      if (result === undefined) continue;
-      const [diagnostic, diagDocument] = result;
-      if (each.url) {
-        diagnostic.codeDescription = {
-          href: each.url,
-        };
+      const results = convertDiagnosticToLsp(program, document, each);
+      for (const result of results) {
+        const [diagnostic, diagDocument] = result;
+        if (each.url) {
+          diagnostic.codeDescription = {
+            href: each.url,
+          };
+        }
+        if (each.code === "deprecated") {
+          diagnostic.tags = [DiagnosticTag.Deprecated];
+        }
+        diagnostic.data = { id: diagnosticIdCounter++ };
+        const diagnostics = diagnosticMap.get(diagDocument);
+        compilerAssert(
+          diagnostics,
+          "Diagnostic reported against a source file that was not added to the program.",
+        );
+        diagnostics.push(diagnostic);
+        currentDiagnosticIndex.set(diagnostic.data.id, each);
       }
-      if (each.code === "deprecated") {
-        diagnostic.tags = [DiagnosticTag.Deprecated];
-      }
-      diagnostic.data = { id: diagnosticIdCounter++ };
-      const diagnostics = diagnosticMap.get(diagDocument);
-      compilerAssert(
-        diagnostics,
-        "Diagnostic reported against a source file that was not added to the program.",
-      );
-      diagnostics.push(diagnostic);
-      currentDiagnosticIndex.set(diagnostic.data.id, each);
     }
 
     for (const [document, diagnostics] of diagnosticMap) {
@@ -445,25 +441,27 @@ export function createServer(host: ServerHost): Server {
     program: Program,
     document: TextDocument,
     diagnostic: Diagnostic,
-  ): [VSDiagnostic, TextDocument] | undefined {
+  ): [VSDiagnostic, TextDocument][] {
     const root = getVSLocation(
       diagnostic,
       getSourceLocation(diagnostic.target, { locateId: true }),
       document,
     );
-    const instantiatioNodes = getDiagnosticNodeStack(diagnostic.target);
-    if (root === undefined) return undefined;
+    const instantiationNodes = getDiagnosticNodeStack(diagnostic.target);
+    if (root === undefined) return [];
 
     const severity = convertSeverity(diagnostic.severity);
 
     const relatedInformation: DiagnosticRelatedInformation[] = [];
-    if (instantiatioNodes.length > 0) {
-      for (const item of instantiatioNodes) {
-        const location = getVSLocation(
+    const relatedDiagnostics: [VSDiagnostic, TextDocument][] = [];
+    if (instantiationNodes.length > 0) {
+      let last;
+      for (const item of instantiationNodes) {
+        const location = (last = getVSLocation(
           diagnostic,
           getSourceLocation(item, { locateId: true }),
           document,
-        );
+        ));
         if (location === undefined) {
           break;
         }
@@ -474,8 +472,28 @@ export function createServer(host: ServerHost): Server {
           ),
         );
       }
+
+      if (last) {
+        // const last = instantiationNodes[instantiationNodes.length - 1];
+        relatedDiagnostics.push([
+          VSDiagnostic.create(
+            last.range,
+            `In instantiation of this template:`,
+            DiagnosticSeverity.Warning,
+            diagnostic.code,
+            "TypeSpec",
+            [
+              DiagnosticRelatedInformation.create(
+                { uri: root.document.uri, range: root.range },
+                diagnostic.message,
+              ),
+            ],
+          ),
+          last.document,
+        ]);
+      }
     }
-    return [
+    const rootDiagnostic: [VSDiagnostic, TextDocument] = [
       VSDiagnostic.create(
         root.range,
         diagnostic.message,
@@ -486,6 +504,7 @@ export function createServer(host: ServerHost): Server {
       ),
       root.document,
     ];
+    return [rootDiagnostic, ...relatedDiagnostics];
   }
 
   async function getHover(params: HoverParams): Promise<Hover> {
