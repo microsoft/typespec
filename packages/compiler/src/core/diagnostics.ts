@@ -10,6 +10,7 @@ import {
   Node,
   NodeFlags,
   NoTarget,
+  RelatedSourceLocation,
   SourceLocation,
   SymbolFlags,
   SyntaxKind,
@@ -36,7 +37,8 @@ export function logDiagnostics(diagnostics: readonly Diagnostic[], logger: LogSi
       message: diagnostic.message,
       code: diagnostic.code,
       url: diagnostic.url,
-      sourceLocations: getSourceLocationStack(diagnostic.target, { locateId: true }),
+      sourceLocation: getSourceLocation(diagnostic.target, { locateId: true }),
+      related: getRelatedLocations(diagnostic),
     });
   }
 }
@@ -48,10 +50,20 @@ export function formatDiagnostic(diagnostic: Diagnostic) {
       level: diagnostic.severity,
       message: diagnostic.message,
       url: diagnostic.url,
-      sourceLocations: getSourceLocationStack(diagnostic.target, { locateId: true }),
+      sourceLocation: getSourceLocation(diagnostic.target, { locateId: true }),
+      related: getRelatedLocations(diagnostic),
     },
     { pretty: false },
   );
+}
+
+function getRelatedLocations(diagnostic: Diagnostic): RelatedSourceLocation[] {
+  return getDiagnosticTemplateInstantitationTrace(diagnostic.target).map((x) => {
+    return {
+      message: "occurred while instantiating template",
+      location: getSourceLocation(x),
+    };
+  });
 }
 
 export interface SourceLocationOptions {
@@ -119,7 +131,7 @@ export function getSourceLocation(
 /**
  * @internal
  */
-export function getDiagnosticNodeStack(
+export function getDiagnosticTemplateInstantitationTrace(
   target: DiagnosticTarget | typeof NoTarget | undefined,
 ): Node[] {
   if (typeof target !== "object" || !("templateMapper" in target)) {
@@ -133,21 +145,6 @@ export function getDiagnosticNodeStack(
     current = current.source.mapper;
   }
   return result;
-}
-
-/**
- * @internal
- */
-export function getSourceLocationStack(
-  target: DiagnosticTarget | typeof NoTarget | undefined,
-  options: SourceLocationOptions = {},
-): SourceLocation[] {
-  const root = getSourceLocation(target, options);
-  if (root === undefined) {
-    return [];
-  }
-
-  return [root, ...getDiagnosticNodeStack(target).map((x) => getSourceLocationOfNode(x, options))];
 }
 
 function createSyntheticSourceLocation(loc = "<unknown location>") {

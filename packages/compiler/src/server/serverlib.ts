@@ -48,7 +48,11 @@ import {
 } from "vscode-languageserver/node.js";
 import { CharCode } from "../core/charcode.js";
 import { resolveCodeFix } from "../core/code-fixes.js";
-import { compilerAssert, getDiagnosticNodeStack, getSourceLocation } from "../core/diagnostics.js";
+import {
+  compilerAssert,
+  getDiagnosticTemplateInstantitationTrace,
+  getSourceLocation,
+} from "../core/diagnostics.js";
 import { formatTypeSpec } from "../core/formatter.js";
 import { getEntityName, getTypeName } from "../core/helpers/type-name-utils.js";
 import { ResolveModuleHost, SourceLocation, resolveModule } from "../core/index.js";
@@ -447,7 +451,7 @@ export function createServer(host: ServerHost): Server {
       getSourceLocation(diagnostic.target, { locateId: true }),
       document,
     );
-    const instantiationNodes = getDiagnosticNodeStack(diagnostic.target);
+    const instantiationNodes = getDiagnosticTemplateInstantitationTrace(diagnostic.target);
     if (root === undefined) return [];
 
     const severity = convertSeverity(diagnostic.severity);

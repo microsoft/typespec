@@ -2723,7 +2723,18 @@ export interface ProcessedLog {
   code?: string;
   /** Documentation for the error code. */
   url?: string;
-  sourceLocations?: SourceLocation[];
+
+  /** Log location */
+  sourceLocation?: SourceLocation;
+
+  /** @internal */
+  related?: RelatedSourceLocation[];
+}
+
+/** @internal */
+export interface RelatedSourceLocation {
+  readonly message: string;
+  readonly location: SourceLocation;
 }
 
 export interface LogSink {

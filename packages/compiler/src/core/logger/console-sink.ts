@@ -33,18 +33,16 @@ export function formatLog(log: ProcessedLog, options: FormatLogOptions): string 
   const code = log.code ? ` ${hyperlink(color(options, log.code, pc.gray), log.url, options)}` : "";
   const level = formatLevel(options, log.level);
   const content = `${level}${code}: ${log.message}`;
-  const [root, ...locationStack] = log.sourceLocations ?? [];
+  const root = log.sourceLocation;
   if (root?.file) {
     const formattedLocation = formatSourceLocation(options, root);
     const sourcePreview = formatSourcePreview(options, root);
     const message = [`${formattedLocation} - ${content}${sourcePreview}`];
 
-    for (const location of locationStack) {
-      const formattedLocation = formatSourceLocation(options, location);
-      const sourcePreview = formatSourcePreview(options, location);
-      message.push(
-        indent(`${formattedLocation} - occurred while instantiating template${sourcePreview}`),
-      );
+    for (const related of log.related ?? []) {
+      const formattedLocation = formatSourceLocation(options, related.location);
+      const sourcePreview = formatSourcePreview(options, related.location);
+      message.push(indent(`${formattedLocation} - ${related.message}${sourcePreview}`));
     }
 
     return message.join("\n");
