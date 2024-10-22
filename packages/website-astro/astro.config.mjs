@@ -27,6 +27,7 @@ const typespecLang = {
 // https://astro.build/config
 export default defineConfig({
   base,
+  site: "https://typespec.io",
   trailingSlash: "always",
   integrations: [
     astroExpressiveCode(),
