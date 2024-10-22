@@ -1,5 +1,9 @@
 @import url("./fluentui.css");
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
   --header-height: 50px;
   --sl-color-text-accent: var(--colorBrandForeground1);
@@ -19,6 +23,8 @@
 
 img {
   max-width: 100%;
+  width: auto;
+  height: auto;
 }
 
 a {
@@ -30,4 +36,9 @@ a {
 header.header {
   padding: 0;
   padding-inline-end: unset !important;
+}
+
+/* Algolia docsearch tweaks */
+.DocSearch-Container {
+  z-index: 1000 !important;
 }

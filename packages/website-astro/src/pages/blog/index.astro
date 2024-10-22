@@ -1,0 +1,43 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "@site/src/layouts/base-layout.astro";
+import BlogPostPreview from "./_BlogPostPreview.astro";
+
+const posts = await getCollection("blog");
+---
+
+<style>
+  .content {
+    background-color: var(--colorNeutralBackground3);
+    min-height: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  .list {
+    max-width: 960px;
+    margin: auto;
+  }
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+</style>
+<BaseLayout>
+  <div class="content">
+    <section class="list">
+      <ul>
+        {
+          posts.map((post, index) => (
+            <li>
+              <BlogPostPreview post={post} imageLoading={index === 0 ? "eager" : "lazy"} />
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+  </div>
+</BaseLayout>
