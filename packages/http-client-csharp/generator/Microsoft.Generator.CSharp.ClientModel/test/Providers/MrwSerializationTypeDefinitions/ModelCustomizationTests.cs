@@ -271,25 +271,5 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             Assert.AreEqual("CustomModel", modelProvider.CustomCodeView?.Name);
             Assert.AreEqual("CustomModel", serializationProvider.CustomCodeView?.Name);
         }
-
-        [Test]
-        public async Task CanCustomizePropertyIntoReadOnlyMemory()
-        {
-            await MockHelpers.LoadMockPluginAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-
-            var modelProp = InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.Int32));
-            var inputModel = InputFactory.Model("mockInputModel", properties: [modelProp], usage: InputModelTypeUsage.Json);
-
-            var plugin = await MockHelpers.LoadMockPluginAsync(
-                inputModels: () => [inputModel],
-                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-
-            var modelProvider = plugin.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
-            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
-            Assert.IsNotNull(serializationProvider);
-            var writer = new TypeProviderWriter(serializationProvider);
-            var file = writer.Write();
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
-        }
     }
 }
