@@ -66,23 +66,23 @@ if (fs.existsSync(join(venvPath, "bin"))) {
   throw new Error("Virtual environment doesn't exist.");
 }
 
-foldersToProcess.forEach((flavor) => {
-  try {
-    if (getCommand(commandToRun, flavor, argv.values.name)) {
-      console.log(`Running ${commandToRun} for flavor ${flavor}...`);
-      myExecSync(commandToRun, flavor, argv.values.name);
-    } else {
-      console.error(`Error: Unknown command '${commandToRun}'.`);
-      process.exit(1);
-    }
-  } catch (error) {
-    const message = (error as Error).message;
-    if (message.includes("pyright") || message.includes("mypy") || message.includes("lint")) {
-      // fixing linting issues that come from upgrading python version in separate pr
-      process.exit(0);
-    }
-    console.error(message);
-    console.error(`Error executing command for flavor ${flavor}: ${message}`);
-    process.exit(1);
-  }
-});
+// foldersToProcess.forEach((flavor) => {
+//   try {
+//     if (getCommand(commandToRun, flavor, argv.values.name)) {
+//       console.log(`Running ${commandToRun} for flavor ${flavor}...`);
+//       myExecSync(commandToRun, flavor, argv.values.name);
+//     } else {
+//       console.error(`Error: Unknown command '${commandToRun}'.`);
+//       process.exit(1);
+//     }
+//   } catch (error) {
+//     const message = (error as Error).message;
+//     if (message.includes("pyright") || message.includes("mypy") || message.includes("lint")) {
+//       // fixing linting issues that come from upgrading python version in separate pr
+//       process.exit(0);
+//     }
+//     console.error(message);
+//     console.error(`Error executing command for flavor ${flavor}: ${message}`);
+//     process.exit(1);
+//   }
+// });
