@@ -6,6 +6,7 @@ on:
   push:
     branches:
       - main
+      - switch-astro
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
@@ -36,17 +37,25 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      # - name: Build
+      #   run: pnpm --filter "@typespec/website..." run build
+      #   env:
+      #     # Only when deploying to microsoft.github.io/typespec. For typespec.io use the default value.
+      #     # TYPESPEC_WEBSITE_BASE_PATH: "/typespec/"
+      #     NODE_OPTIONS: "--max_old_space_size=4096"
+
+      # - name: Upload artifact
+      #   uses: actions/upload-pages-artifact@v1
+      #   with:
+      #     path: ./packages/website/build
+
       - name: Build
-        run: pnpm --filter "@typespec/website..." run build
-        env:
-          # Only when deploying to microsoft.github.io/typespec. For typespec.io use the default value.
-          # TYPESPEC_WEBSITE_BASE_PATH: "/typespec/"
-          NODE_OPTIONS: "--max_old_space_size=4096"
+        run: pnpm --filter "@typespec/website-astro..." run build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: ./packages/website/build
+          path: ./packages/website-astro/dist
 
   # Deployment job
   deploy:
