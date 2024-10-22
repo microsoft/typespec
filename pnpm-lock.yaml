@@ -7631,10 +7631,6 @@ packages:
     peerDependencies:
       cytoscape: ^3.2.0
 
-  cytoscape@3.28.1:
-    resolution: {integrity: sha512-xyItz4O/4zp9/239wCcH8ZcFuuZooEeF8KHRmzjDfGdXsj3OG9MFSMA0pJE0uX3uCN/ygof6hHf4L7lst+JaDg==}
-    engines: {node: '>=0.10'}
-
   cytoscape@3.30.2:
     resolution: {integrity: sha512-oICxQsjW8uSaRmn4UK/jkczKOqTrVqt5/1WL0POiJUT2EKNc9STM4hYFHv917yu55aTBMFNRzymlJhVAiWPCxw==}
     engines: {node: '>=0.10'}
@@ -9059,9 +9055,6 @@ packages:
   he@1.2.0:
     resolution: {integrity: sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==}
     hasBin: true
-
-  heap@0.2.7:
-    resolution: {integrity: sha512-2bsegYkkHO+h/9MGbn6KWcE45cHZgPANo5LXF7EvWdT0yT2EguSVO1nDgU5c8+ZOPwp2vMNa7YFsJhVcDR9Sdg==}
 
   highlight.js@11.0.1:
     resolution: {integrity: sha512-EqYpWyTF2s8nMfttfBA2yLKPNoZCO33pLS4MnbXQ4hECf1TKujCt1Kq7QAdrio7roL4+CqsfjqwYj4tYgq0pJQ==}
@@ -21671,11 +21664,6 @@ snapshots:
 
   csstype@3.1.3: {}
 
-  cytoscape-cose-bilkent@4.1.0(cytoscape@3.28.1):
-    dependencies:
-      cose-base: 1.0.3
-      cytoscape: 3.28.1
-
   cytoscape-cose-bilkent@4.1.0(cytoscape@3.30.2):
     dependencies:
       cose-base: 1.0.3
@@ -21685,11 +21673,6 @@ snapshots:
     dependencies:
       cose-base: 2.2.0
       cytoscape: 3.30.2
-
-  cytoscape@3.28.1:
-    dependencies:
-      heap: 0.2.7
-      lodash: 4.17.21
 
   cytoscape@3.30.2: {}
 
@@ -23500,8 +23483,6 @@ snapshots:
 
   he@1.2.0: {}
 
-  heap@0.2.7: {}
-
   highlight.js@11.0.1: {}
 
   history@4.10.1:
@@ -24869,8 +24850,8 @@ snapshots:
       '@braintree/sanitize-url': 6.0.4
       '@types/d3-scale': 4.0.8
       '@types/d3-scale-chromatic': 3.0.3
-      cytoscape: 3.28.1
-      cytoscape-cose-bilkent: 4.1.0(cytoscape@3.28.1)
+      cytoscape: 3.30.2
+      cytoscape-cose-bilkent: 4.1.0(cytoscape@3.30.2)
       d3: 7.9.0
       d3-sankey: 0.12.3
       dagre-d3-es: 7.0.10
