@@ -75,7 +75,7 @@ import {
   TypeReferenceNode,
   TypeSpecScriptNode,
 } from "../core/types.js";
-import { getNormalizedRealPath, resolveTspMain } from "../utils/misc.js";
+import { getNormalizedRealPath, isDefined, resolveTspMain } from "../utils/misc.js";
 import { getSemanticTokens } from "./classify.js";
 import { createCompileService } from "./compile-service.js";
 import { resolveCompletion } from "./completion.js";
@@ -455,41 +455,54 @@ export function createServer(host: ServerHost): Server {
     const relatedInformation: DiagnosticRelatedInformation[] = [];
     const relatedDiagnostics: [VSDiagnostic, TextDocument][] = [];
     if (instantiationNodes.length > 0) {
-      let last;
-      for (const item of instantiationNodes) {
-        const location = (last = getVSLocation(
-          diagnostic,
-          getSourceLocation(item, { locateId: true }),
-          document,
-        ));
-        if (location === undefined) {
-          break;
-        }
+      const items = instantiationNodes
+        .map((node) => {
+          const location = getVSLocation(
+            diagnostic,
+            getSourceLocation(node, { locateId: true }),
+            document,
+          );
+          return location === undefined
+            ? undefined
+            : {
+                node,
+                location,
+              };
+        })
+        .filter(isDefined);
+      for (const { location, node } of items) {
         relatedInformation.push(
           DiagnosticRelatedInformation.create(
             { uri: location.document.uri, range: location.range },
-            `in instantiation of template \`${getTypeName(program.checker.getTypeForNode(item))}\``,
+            `in instantiation of template \`${getTypeName(program.checker.getTypeForNode(node))}\``,
           ),
         );
       }
 
+      const [last, ...rest] = [...items].reverse();
+
       if (last) {
-        // const last = instantiationNodes[instantiationNodes.length - 1];
         relatedDiagnostics.push([
           VSDiagnostic.create(
-            last.range,
+            last.location.range,
             `In instantiation of this template:`,
             DiagnosticSeverity.Warning,
             diagnostic.code,
             "TypeSpec",
             [
+              ...rest.map((x) =>
+                DiagnosticRelatedInformation.create(
+                  { uri: x.location.document.uri, range: x.location.range },
+                  `in instantiation of template \`${getTypeName(program.checker.getTypeForNode(x.node))}\``,
+                ),
+              ),
               DiagnosticRelatedInformation.create(
                 { uri: root.document.uri, range: root.range },
                 diagnostic.message,
               ),
             ],
           ),
-          last.document,
+          last.location.document,
         ]);
       }
     }
