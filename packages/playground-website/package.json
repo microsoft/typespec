@@ -56,7 +56,6 @@
     "@fluentui/react-components": "~9.54.15",
     "@fluentui/react-icons": "^2.0.258",
     "@typespec/compiler": "workspace:~",
-    "@typespec/html-program-viewer": "workspace:~",
     "@typespec/http": "workspace:~",
     "@typespec/json-schema": "workspace:~",
     "@typespec/openapi": "workspace:~",

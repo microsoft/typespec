@@ -45,7 +45,6 @@
   "dependencies": {
     "@typespec/best-practices": "workspace:~",
     "@typespec/compiler": "workspace:~",
-    "@typespec/html-program-viewer": "workspace:~",
     "@typespec/http": "workspace:~",
     "@typespec/http-server-javascript": "workspace:~",
     "@typespec/json-schema": "workspace:~",

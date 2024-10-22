@@ -592,85 +592,6 @@ importers:
         specifier: ^2.1.0
         version: 2.1.1(@types/node@22.5.5)(@vitest/ui@2.1.1)(happy-dom@15.7.4)(jsdom@19.0.0)(terser@5.30.0)
 
-  packages/html-program-viewer:
-    dependencies:
-      '@fluentui/react-components':
-        specifier: ~9.54.15
-        version: 9.54.15(@types/react-dom@18.3.0)(@types/react@18.3.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)
-      '@fluentui/react-icons':
-        specifier: ^2.0.258
-        version: 2.0.258(react@18.3.1)
-      '@fluentui/react-list-preview':
-        specifier: ^0.3.6
-        version: 0.3.6(@types/react-dom@18.3.0)(@types/react@18.3.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)
-      react:
-        specifier: ~18.3.1
-        version: 18.3.1
-      react-dom:
-        specifier: ~18.3.1
-        version: 18.3.1(react@18.3.1)
-      react-hotkeys-hook:
-        specifier: ^4.5.1
-        version: 4.5.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-    devDependencies:
-      '@babel/core':
-        specifier: ^7.25.2
-        version: 7.25.2
-      '@testing-library/dom':
-        specifier: ^10.4.0
-        version: 10.4.0
-      '@testing-library/jest-dom':
-        specifier: ^6.5.0
-        version: 6.5.0
-      '@testing-library/react':
-        specifier: ^16.0.1
-        version: 16.0.1(@testing-library/dom@10.4.0)(@types/react-dom@18.3.0)(@types/react@18.3.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@types/node':
-        specifier: ~22.5.4
-        version: 22.5.5
-      '@types/react':
-        specifier: ~18.3.5
-        version: 18.3.7
-      '@types/react-dom':
-        specifier: ~18.3.0
-        version: 18.3.0
-      '@typespec/compiler':
-        specifier: workspace:~
-        version: link:../compiler
-      '@typespec/react-components':
-        specifier: workspace:~
-        version: link:../react-components
-      '@vitejs/plugin-react':
-        specifier: ~4.3.1
-        version: 4.3.1(vite@5.4.6(@types/node@22.5.5)(terser@5.30.0))
-      '@vitest/coverage-v8':
-        specifier: ^2.1.0
-        version: 2.1.1(vitest@2.1.1(@types/node@22.5.5)(@vitest/ui@2.1.1)(happy-dom@15.7.4)(jsdom@19.0.0)(terser@5.30.0))
-      '@vitest/ui':
-        specifier: ^2.1.0
-        version: 2.1.1(vitest@2.1.1)
-      c8:
-        specifier: ^10.1.2
-        version: 10.1.2
-      rimraf:
-        specifier: ~6.0.1
-        version: 6.0.1
-      typescript:
-        specifier: ~5.6.2
-        version: 5.6.2
-      vite:
-        specifier: ^5.4.4
-        version: 5.4.6(@types/node@22.5.5)(terser@5.30.0)
-      vite-plugin-checker:
-        specifier: ^0.8.0
-        version: 0.8.0(eslint@9.10.0(jiti@1.21.0))(optionator@0.9.3)(typescript@5.6.2)(vite@5.4.6(@types/node@22.5.5)(terser@5.30.0))
-      vite-plugin-dts:
-        specifier: 4.2.1
-        version: 4.2.1(@types/node@22.5.5)(rollup@4.21.3)(typescript@5.6.2)(vite@5.4.6(@types/node@22.5.5)(terser@5.30.0))
-      vitest:
-        specifier: ^2.1.0
-        version: 2.1.1(@types/node@22.5.5)(@vitest/ui@2.1.1)(happy-dom@15.7.4)(jsdom@19.0.0)(terser@5.30.0)
-
   packages/http:
     devDependencies:
       '@types/node':
@@ -1100,9 +1021,6 @@ importers:
       '@typespec/compiler':
         specifier: workspace:~
         version: link:../compiler
-      '@typespec/html-program-viewer':
-        specifier: workspace:~
-        version: link:../html-program-viewer
       '@typespec/http':
         specifier: workspace:~
         version: link:../http
@@ -1233,9 +1151,6 @@ importers:
       '@typespec/compiler':
         specifier: workspace:~
         version: link:../compiler
-      '@typespec/html-program-viewer':
-        specifier: workspace:~
-        version: link:../html-program-viewer
       '@typespec/http':
         specifier: workspace:~
         version: link:../http
@@ -1503,9 +1418,6 @@ importers:
       '@typespec/compiler':
         specifier: workspace:~
         version: link:../compiler
-      '@typespec/html-program-viewer':
-        specifier: workspace:~
-        version: link:../html-program-viewer
       '@typespec/http':
         specifier: workspace:~
         version: link:../http
@@ -3962,14 +3874,6 @@ packages:
       '@types/react-dom': '>=16.9.0 <19.0.0'
       react: '>=16.14.0 <19.0.0'
       react-dom: '>=16.14.0 <19.0.0'
-
-  '@fluentui/react-list-preview@0.3.6':
-    resolution: {integrity: sha512-IJaQELFjY3QJiD4Ue4pRxFdzfu+/XEiorioee0sK22yRAQkMFEP99hmlr9T8I/dPFjnmx6nm8ZITzQ1fP05mmA==}
-    peerDependencies:
-      '@types/react': '>=16.8.0 <19.0.0'
-      '@types/react-dom': '>=16.8.0 <19.0.0'
-      react: '>=16.14.0 <19.0.0'
-      react-dom: '>=16.8.0 <19.0.0'
 
   '@fluentui/react-menu@9.14.15':
     resolution: {integrity: sha512-WB/fy8RLEZyVfADXnfdNGolbKW4TcQkcHW1oVIgHKGo5WmKtLJRMxm0hYJYr6juLE0kix8x7Uu7f8Ds9wo7rrA==}
@@ -10943,12 +10847,6 @@ packages:
       react: ^16.6.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.6.0 || ^17.0.0 || ^18.0.0
 
-  react-hotkeys-hook@4.5.1:
-    resolution: {integrity: sha512-scAEJOh3Irm0g95NIn6+tQVf/OICCjsQsC9NBHfQws/Vxw4sfq1tDQut5fhTEvPraXhu/sHxRd9lOtxzyYuNAg==}
-    peerDependencies:
-      react: '>=16.8.1'
-      react-dom: '>=16.8.1'
-
   react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
 
@@ -15823,25 +15721,6 @@ snapshots:
       '@types/react-dom': 18.3.0
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-
-  '@fluentui/react-list-preview@0.3.6(@types/react-dom@18.3.0)(@types/react@18.3.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)':
-    dependencies:
-      '@fluentui/keyboard-keys': 9.0.7
-      '@fluentui/react-checkbox': 9.2.36(@types/react-dom@18.3.0)(@types/react@18.3.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)
-      '@fluentui/react-context-selector': 9.1.66(@types/react-dom@18.3.0)(@types/react@18.3.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)
-      '@fluentui/react-jsx-runtime': 9.0.43(@types/react@18.3.7)(react@18.3.1)
-      '@fluentui/react-shared-contexts': 9.20.0(@types/react@18.3.7)(react@18.3.1)
-      '@fluentui/react-tabster': 9.22.6(@types/react-dom@18.3.0)(@types/react@18.3.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@fluentui/react-theme': 9.1.17
-      '@fluentui/react-utilities': 9.18.14(@types/react@18.3.7)(react@18.3.1)
-      '@griffel/react': 1.5.22(react@18.3.1)
-      '@swc/helpers': 0.5.8
-      '@types/react': 18.3.7
-      '@types/react-dom': 18.3.0
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-    transitivePeerDependencies:
-      - scheduler
 
   '@fluentui/react-menu@9.14.15(@types/react-dom@18.3.0)(@types/react@18.3.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)':
     dependencies:
@@ -24642,11 +24521,6 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
       react-fast-compare: 3.2.2
       shallowequal: 1.1.0
-
-  react-hotkeys-hook@4.5.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
-    dependencies:
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
 
   react-is@16.13.1: {}
 
