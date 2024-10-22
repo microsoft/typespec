@@ -99,11 +99,13 @@ import {
   UnionVariant,
   Value,
 } from "../core/types.js";
+import { setKey } from "./key.js";
 import { useStateMap, useStateSet } from "./utils.js";
 
 export { $encodedName, resolveEncodedName } from "./encoded-names.js";
 export { serializeValueAsJson } from "./examples.js";
 export * from "./service.js";
+export * from "./visibility.js";
 export { ExampleOptions };
 
 export const namespace = "TypeSpec";
@@ -1074,8 +1076,6 @@ function isEnumMemberAssignableToType(program: Program, typeName: Type, member: 
 }
 export { getKnownValues };
 
-const [getKey, setKey] = useStateMap<Type, string>("key");
-
 /**
  * `@key` - mark a model property as the key to identify instances of that type
  *
@@ -1104,13 +1104,7 @@ export const $key: KeyDecorator = (
   setKey(context.program, entity, altName || entity.name);
 };
 
-export function isKey(program: Program, property: ModelProperty) {
-  return getKey(program, property) !== undefined;
-}
-
-export function getKeyName(program: Program, property: ModelProperty): string | undefined {
-  return getKey(program, property);
-}
+export { getKeyName, isKey } from "./key.js";
 
 /**
  * Mark a type as deprecated

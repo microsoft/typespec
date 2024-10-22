@@ -31,9 +31,9 @@ namespace TypeSpec;
  * ```typespec
  * model Dog {
  *   // the service will generate an ID, so you don't need to send it.
- *   @visibility("read") id: int32;
+ *   @visibility(Lifecycle.Read) id: int32;
  *   // the service will store this secret name, but won't ever return it
- *   @visibility("create", "update") secretName: string;
+ *   @visibility(Lifecycle.Create, Lifecycle.Update) secretName: string;
  *   // the regular name is always present
  *   name: string;
  * }
@@ -104,12 +104,23 @@ extern dec withVisibility(target: Model, ...visibilities: valueof (string | Enum
 /**
  * Set the visibility of key properties in a model if not already set.
  *
- * @param visibility The desired default visibility value. If a key property already has a `visibility` decorator then the default visibility is not applied.
+ * This will set the visibility modifiers of all key properties in the model if the visibility is not already _explicitly_ set,
+ * but will not change the visibility of any properties that have visibility set _explicitly_, even if the visibility
+ * is the same as the default visibility.
+ *
+ * Visibility may be explicitly set using any of the following decorators:
+ *
+ * - `@visibility`
+ * - `@removeVisibility`
+ * - `@invisible`
+ *
+ * @param visibility The desired default visibility value. If a key property already has visibility set, it will not be changed.
  */
 extern dec withDefaultKeyVisibility(target: Model, visibility: valueof string | EnumMember);
 
 /**
  * Sets which visibilities apply to parameters for the given operation.
+ *
  * @param visibilities List of visibility strings which apply to this operation.
  */
 extern dec parameterVisibility(target: Operation, ...visibilities: valueof (string | EnumMember)[]);
@@ -181,28 +192,178 @@ model VisibilityFilter {
 /**
  * Applies the given visibility filter to the properties of the target model.
  *
- * The transformation is recursive
+ * This transformation is recursive, so it will also apply the filter to any nested
+ * or referenced models that are the types of any properties in the `target`.
+ *
+ * @param target The model to apply the visibility filter to.
+ * @param filter The visibility filter to apply to the properties of the target model.
+ *
+ * @example
+ * ```typespec
+ * model Dog {
+ *   @visibility(Lifecycle.Read)
+ *   id: int32;
+ *
+ *   name: string;
+ * }
+ *
+ * @withVisibilityFilter(#{ all: #[Lifecycle.Read] })
+ * model DogRead {
+ *  ...Dog
+ * }
+ * ```
  */
 extern dec withVisibilityFilter(target: Model, filter: valueof VisibilityFilter);
 
+/**
+ * Transforms the `target` model to include only properties that are visible during the
+ * "Update" lifecycle phase.
+ *
+ * Any nested models of optional properties will be transformed into the "CreateOrUpdate"
+ * lifecycle phase instead of the "Update" lifecycle phase, so that nested models may be
+ * fully updated.
+ *
+ * @param target The model to apply the transformation to.
+ *
+ * @example
+ * ```typespec
+ * model Dog {
+ *   @visibility(Lifecycle.Read)
+ *   id: int32;
+ *
+ *   @visibility(Lifecycle.Create, Lifecycle.Update)
+ *   secretName: string;
+ *
+ *   name: string;
+ * }
+ *
+ * @withLifecycleUpdate
+ * model DogUpdate {
+ *   ...Dog
+ * }
+ * ```
+ */
+extern dec withLifecycleUpdate(target: Model);
+
+/**
+ * Makes a copy of the model `T` with only the properties that are visible during the
+ * "Create" resource lifecycle phase.
+ *
+ * This transformation is recursive, and will include only properties that have the
+ * `Lifecycle.Create` visibility modifier.
+ *
+ * If a `NameTemplate` is provided, the new model will be named according to the template.
+ * The template uses the same syntax as the `@friendlyName` decorator.
+ *
+ * @template T The model to transform.
+ * @template NameTemplate The name template to use for the new model.
+ *
+ *  * @example
+ * ```typespec
+ * model Dog {
+ *   @visibility(Lifecycle.Read)
+ *   id: int32;
+ *
+ *   name: string;
+ * }
+ *
+ * model CreateDog is Create<Dog>;
+ * ```
+ */
 @friendlyName(NameTemplate, T)
 @withVisibilityFilter(#{ all: #[Lifecycle.Create] })
 model Create<T extends Reflection.Model, NameTemplate extends valueof string = "Create{name}"> {
   ...T;
 }
 
+/**
+ * Makes a copy of the model `T` with only the properties that are visible during the
+ * "Read" resource lifecycle phase.
+ *
+ * This transformation is recursive, and will include only properties that have the
+ * `Lifecycle.Read` visibility modifier.
+ *
+ * If a `NameTemplate` is provided, the new model will be named according to the template.
+ * The template uses the same syntax as the `@friendlyName` decorator.
+ *
+ * @template T The model to transform.
+ * @template NameTemplate The name template to use for the new model.
+ *
+ *  * @example
+ * ```typespec
+ * model Dog {
+ *   @visibility(Lifecycle.Read)
+ *   id: int32;
+ *
+ *   name: string;
+ * }
+ *
+ * model ReadDog is Read<Dog>;
+ * ```
+ */
 @friendlyName(NameTemplate, T)
 @withVisibilityFilter(#{ all: #[Lifecycle.Read] })
 model Read<T extends Reflection.Model, NameTemplate extends valueof string = "Read{name}"> {
   ...T;
 }
 
+/**
+ * Makes a copy of the model `T` with only the properties that are visible during the
+ * "Update" resource lifecycle phase.
+ *
+ * This transformation will include only the properties that have the `Lifecycle.Update`
+ * visibility modifier, and the types of all properties will be replaced with the
+ * equivalent `CreateOrUpdate` transformation.
+ *
+ * If a `NameTemplate` is provided, the new model will be named according to the template.
+ * The template uses the same syntax as the `@friendlyName` decorator.
+ *
+ * @template T The model to transform.
+ * @template NameTemplate The name template to use for the new model.
+ *
+ *  * @example
+ * ```typespec
+ * model Dog {
+ *   @visibility(Lifecycle.Read)
+ *   id: int32;
+ *
+ *   name: string;
+ * }
+ *
+ * model UpdateDog is Update<Dog>;
+ * ```
+ */
 @friendlyName(NameTemplate, T)
-@withVisibilityFilter(#{ all: #[Lifecycle.Update] })
+@withLifecycleUpdate
 model Update<T extends Reflection.Model, NameTemplate extends valueof string = "Update{name}"> {
   ...T;
 }
 
+/**
+ * Makes a copy of the model `T` with only the properties that are visible during the
+ * "Create" or "Update" resource lifecycle phases.
+ *
+ * This transformation is recursive, and will include only properties that have the
+ * `Lifecycle.Create` or `Lifecycle.Update` visibility modifier.
+ *
+ * If a `NameTemplate` is provided, the new model will be named according to the template.
+ * The template uses the same syntax as the `@friendlyName` decorator.
+ *
+ * @template T The model to transform.
+ * @template NameTemplate The name template to use for the new model.
+ *
+ *  * @example
+ * ```typespec
+ * model Dog {
+ *   @visibility(Lifecycle.Read)
+ *   id: int32;
+ *
+ *   name: string;
+ * }
+ *
+ * model CreateOrUpdateDog is CreateOrUpdate<Dog>;
+ * ```
+ */
 @friendlyName(NameTemplate, T)
 @withVisibilityFilter(#{ any: #[Lifecycle.Create, Lifecycle.Update] })
 model CreateOrUpdate<

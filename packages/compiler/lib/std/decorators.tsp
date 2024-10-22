@@ -581,11 +581,6 @@ extern dec opExample(
 );
 
 /**
- * Returns the model with non-updateable properties removed.
- */
-extern dec withUpdateableProperties(target: Model);
-
-/**
  * Returns the model with required properties removed.
  */
 extern dec withOptionalProperties(target: Model);

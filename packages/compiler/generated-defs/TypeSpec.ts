@@ -792,13 +792,60 @@ export type DefaultVisibilityDecorator = (
 /**
  * Applies the given visibility filter to the properties of the target model.
  *
- * The transformation is recursive
+ * This transformation is recursive, so it will also apply the filter to any nested
+ * or referenced models that are the types of any properties in the `target`.
+ *
+ * @param target The model to apply the visibility filter to.
+ * @param filter The visibility filter to apply to the properties of the target model.
+ * @example
+ * ```typespec
+ * model Dog {
+ *   @visibility(Lifecycle.Read)
+ *   id: int32;
+ *
+ *   name: string;
+ * }
+ *
+ * @withVisibilityFilter(#{ all: #[Lifecycle.Read] })
+ * model DogRead {
+ *  ...Dog
+ * }
+ * ```
  */
 export type WithVisibilityFilterDecorator = (
   context: DecoratorContext,
   target: Model,
   filter: VisibilityFilter,
 ) => void;
+
+/**
+ * Transforms the `target` model to include only properties that are visible during the
+ * "Update" lifecycle phase.
+ *
+ * Any nested models of optional properties will be transformed into the "CreateOrUpdate"
+ * lifecycle phase instead of the "Update" lifecycle phase, so that nested models may be
+ * fully updated.
+ *
+ * @param target The model to apply the transformation to.
+ * @example
+ * ```typespec
+ * model Dog {
+ *   @visibility(Lifecycle.Read)
+ *   id: int32;
+ *
+ *   @visibility(Lifecycle.Create, Lifecycle.Update)
+ *   secretName: string;
+ *
+ *   name: string;
+ * }
+ *
+ * @withLifecycleUpdate
+ * model DogUpdate {
+ *   ...Dog
+ * }
+ * ```
+ */
+export type WithLifecycleUpdateDecorator = (context: DecoratorContext, target: Model) => void;
 
 export type TypeSpecDecorators = {
   encode: EncodeDecorator;
@@ -846,4 +893,5 @@ export type TypeSpecDecorators = {
   returnTypeVisibility: ReturnTypeVisibilityDecorator;
   defaultVisibility: DefaultVisibilityDecorator;
   withVisibilityFilter: WithVisibilityFilterDecorator;
+  withLifecycleUpdate: WithLifecycleUpdateDecorator;
 };

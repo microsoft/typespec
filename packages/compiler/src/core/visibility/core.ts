@@ -4,27 +4,32 @@
 // TypeSpec Visibility System
 // --------------------------
 
-// This module defines the core visibility system of the TypeSpec language. The visibility system is used to decide when
-// properties of a _conceptual resource_ are present. The system is based on the concept of _visibility classes_,
-// represented by TypeSpec enums. Each visibility class has a set of _visibility modifiers_ that can be applied to a
-// model property, each modifier represented by a member of the visibility class enum.
+// This module defines the core visibility system of the TypeSpec language. The
+// visibility system is used to decide when properties of a _conceptual resource_
+// are present. The system is based on the concept of _visibility classes_,
+// represented by TypeSpec enums. Each visibility class has a set of _visibility
+// modifiers_ that can be applied to a model property, each modifier represented
+// by a member of the visibility class enum.
 //
-// Each visibility class has a _default modifier set_ that is used when no modifiers are specified for a property, and
-// each property has an _active modifier set_ that is used when analyzing the visibility of the property.
+// Each visibility class has a _default modifier set_ that is used when no
+// modifiers are specified for a property, and each property has an _active
+// modifier set_ that is used when analyzing the visibility of the property.
 //
-// Visibility can be _sealed_ for a program, property, or visibility class within a property. Once visibility is sealed,
-// it cannot be unsealed, and any attempts to modify a sealed visibility will fail.
+// Visibility can be _sealed_ for a program, property, or visibility class
+// within a property. Once visibility is sealed, it cannot be unsealed, and any
+// attempts to modify a sealed visibility will fail.
 
 import { compilerAssert } from "../diagnostics.js";
 import { reportDiagnostic } from "../messages.js";
 import { Program } from "../program.js";
-import { DecoratorContext, Enum, EnumMember, EnumValue, ModelProperty } from "../types.js";
+import { DecoratorContext, Enum, EnumMember, ModelProperty } from "../types.js";
 import {
   getLifecycleVisibilityEnum,
   normalizeLegacyLifecycleVisibilityString,
 } from "./lifecycle.js";
 
 import { VisibilityFilter as GeneratedVisibilityFilter } from "../../../generated-defs/TypeSpec.js";
+import { useStateMap, useStateSet } from "../../lib/utils.js";
 
 /**
  * A set of active visibility modifiers per visibility class.
@@ -36,17 +41,22 @@ type VisibilityModifiers = Map<Enum, Set<EnumMember>>;
  *
  * This store is used to track the visibility modifiers
  */
-const VISIBILITY_STORE = new WeakMap<ModelProperty, VisibilityModifiers>();
+const [getVisibilityStore, setVisibilityStore] = useStateMap<ModelProperty, VisibilityModifiers>(
+  "visibilityStore",
+);
 
 /**
  * Returns the visibility modifiers for a given `property` within a `program`.
  */
-function getOrInitializeVisibilityModifiers(property: ModelProperty): VisibilityModifiers {
-  let visibilityModifiers = VISIBILITY_STORE.get(property);
+function getOrInitializeVisibilityModifiers(
+  program: Program,
+  property: ModelProperty,
+): VisibilityModifiers {
+  let visibilityModifiers = getVisibilityStore(program, property);
 
   if (!visibilityModifiers) {
     visibilityModifiers = new Map();
-    VISIBILITY_STORE.set(property, visibilityModifiers);
+    setVisibilityStore(program, property, visibilityModifiers);
   }
 
   return visibilityModifiers;
@@ -70,7 +80,7 @@ function getOrInitializeActiveModifierSetForClass(
   visibilityClass: Enum,
   defaultSet: Set<EnumMember>,
 ): Set<EnumMember> {
-  const visibilityModifiers = getOrInitializeVisibilityModifiers(property);
+  const visibilityModifiers = getOrInitializeVisibilityModifiers(program, property);
   let visibilityModifierSet = visibilityModifiers.get(visibilityClass);
 
   if (!visibilityModifierSet) {
@@ -86,23 +96,25 @@ function getOrInitializeActiveModifierSetForClass(
  */
 const VISIBILITY_PROGRAM_SEALS = new WeakSet<Program>();
 
-/**
- * If a property is in this set, visibility is sealed for that property.
- */
-const VISIBILITY_SEALS = new WeakSet<ModelProperty>();
+const [isVisibilitySealedForProperty, sealVisibilityForProperty] = useStateSet<ModelProperty>(
+  "propertyVisibilitySealed",
+);
 
-/**
- * If a property is a key in this map, visibility is sealed for that property within all the visibility classes in the
- * corresponding set.
- */
-const VISIBILITY_SEALS_FOR_CLASS = new WeakMap<ModelProperty, Set<Enum>>();
+const [getSealedVisibilityClasses, setSealedVisibilityClasses] = useStateMap<
+  ModelProperty,
+  Set<Enum>
+>("sealedVisibilityClasses");
 
-function sealVisibilityModifiersForClass(property: ModelProperty, visibilityClass: Enum) {
-  let sealedClasses = VISIBILITY_SEALS_FOR_CLASS.get(property);
+function sealVisibilityModifiersForClass(
+  program: Program,
+  property: ModelProperty,
+  visibilityClass: Enum,
+) {
+  let sealedClasses = getSealedVisibilityClasses(program, property);
 
   if (!sealedClasses) {
     sealedClasses = new Set();
-    VISIBILITY_SEALS_FOR_CLASS.set(property, sealedClasses);
+    setSealedVisibilityClasses(program, property, sealedClasses);
   }
 
   sealedClasses.add(visibilityClass);
@@ -111,16 +123,18 @@ function sealVisibilityModifiersForClass(property: ModelProperty, visibilityClas
 /**
  * Stores the default modifier set for a given visibility class.
  */
-const DEFAULT_MODIFIER_SET_CACHE = new WeakMap<Enum, Set<EnumMember>>();
+const [getDefaultModifiers, setDefaultModifiers] = useStateMap<Enum, Set<EnumMember>>(
+  "defaultVisibilityModifiers",
+);
 
-function getDefaultModifierSetForClass(visibilityClass: Enum): Set<EnumMember> {
-  const cached = DEFAULT_MODIFIER_SET_CACHE.get(visibilityClass);
+function getDefaultModifierSetForClass(program: Program, visibilityClass: Enum): Set<EnumMember> {
+  const cached = getDefaultModifiers(program, visibilityClass);
 
   if (cached) return cached;
 
   const defaultModifierSet = new Set<EnumMember>(visibilityClass.members.values());
 
-  DEFAULT_MODIFIER_SET_CACHE.set(visibilityClass, defaultModifierSet);
+  setDefaultModifiers(program, visibilityClass, defaultModifierSet);
 
   return defaultModifierSet;
 }
@@ -132,22 +146,23 @@ function getDefaultModifierSetForClass(visibilityClass: Enum): Set<EnumMember> {
  * before the default modifier set is used by any operation.
  */
 export function setDefaultModifierSetForVisibilityClass(
+  program: Program,
   visibilityClass: Enum,
   defaultSet: Set<EnumMember>,
 ) {
   compilerAssert(
-    !DEFAULT_MODIFIER_SET_CACHE.has(visibilityClass),
+    !getDefaultModifiers(program, visibilityClass),
     "The default modifier set for a visibility class may only be set once.",
   );
 
-  DEFAULT_MODIFIER_SET_CACHE.set(visibilityClass, defaultSet);
+  setDefaultModifiers(program, visibilityClass, defaultSet);
 }
 
 /**
  * Convert a sequence of visibility modifiers into a map of visibility classes to their respective modifiers in the
  * sequence.
  */
-function groupModifiersByVisibilityClass(modifiers: EnumMember[]) {
+function groupModifiersByVisibilityClass(modifiers: EnumMember[]): Map<Enum, Set<EnumMember>> {
   const enumMap = new Map<Enum, Set<EnumMember>>();
 
   // Prepare new modifier sets for each visibility class
@@ -169,7 +184,8 @@ function groupModifiersByVisibilityClass(modifiers: EnumMember[]) {
 
 // #region Legacy Visibility API
 
-const LEGACY_VISIBILITY_MODIFIERS = new WeakMap<ModelProperty, string[]>();
+const [getLegacyVisibility, setLegacyVisibilityModifiers, getLegacyVisibilityStateMap] =
+  useStateMap<ModelProperty, string[]>("legacyVisibility");
 
 /**
  * Sets the legacy visibility modifiers for a property.
@@ -188,86 +204,78 @@ export function setLegacyVisibility(
   property: ModelProperty,
   visibilities: string[],
 ) {
+  const { program } = context;
   compilerAssert(
-    LEGACY_VISIBILITY_MODIFIERS.get(property) === undefined,
+    getLegacyVisibility(program, property) === undefined,
     "Legacy visibility modifiers have already been set for this property.",
   );
 
-  LEGACY_VISIBILITY_MODIFIERS.set(property, visibilities);
+  setLegacyVisibilityModifiers(program, property, visibilities);
 
-  const lifecycleClass = getLifecycleVisibilityEnum(context.program);
+  const lifecycleClass = getLifecycleVisibilityEnum(program);
 
   if (visibilities.length === 1 && visibilities[0] === "none") {
-    clearVisibilityModifiersForClass(context.program, property, lifecycleClass, context);
+    clearVisibilityModifiersForClass(program, property, lifecycleClass, context);
   } else {
     const lifecycleVisibilities = visibilities
-      .map((v) => normalizeLegacyLifecycleVisibilityString(context.program, v))
+      .map((v) => normalizeLegacyLifecycleVisibilityString(program, v))
       .filter((v) => !!v);
 
-    addVisibilityModifiers(context.program, property, lifecycleVisibilities);
+    addVisibilityModifiers(program, property, lifecycleVisibilities);
   }
 
-  sealVisibilityModifiers(property, lifecycleClass);
+  sealVisibilityModifiers(program, property, lifecycleClass);
+}
+
+/**
+ * Removes legacy visibility modifiers from a property.
+ *
+ * @param program - the program in which the property occurs
+ * @param property - the property to remove visibility modifiers from
+ */
+export function clearLegacyVisibility(program: Program, property: ModelProperty) {
+  getLegacyVisibilityStateMap(program).delete(property);
 }
 
 /**
  * Returns the legacy visibility modifiers for a property.
+ *
+ * For a property using the enum-driven visibility system, the active Lifecycle visibility modifiers will be converted
+ * to strings for backwards compatibility as follows:
+ *
+ * - If Lifecycle visibility is not explicitly set, and no legacy visibility is set, this function will return `undefined`.
+ * - If the property has no active Lifecycle visibility modifiers, this function will return `["none"]`.
+ * - Otherwise, this function will return an array of lowercase strings representing the active Lifecycle visibility
+ *   modifiers ("create", "read", "update").
  *
  * @deprecated Use `getVisibilityForClass` or `getLifecycleVisibility` instead.
  * @param program - the program in which the property occurs
  * @param property - the property to get legacy visibility modifiers for
  */
 export function getVisibility(program: Program, property: ModelProperty): string[] | undefined {
-  void program;
-  return LEGACY_VISIBILITY_MODIFIERS.get(property);
-}
+  const legacyModifiers = getLegacyVisibility(program, property);
 
-export function splitLegacyVisibility(
-  visibilities: (string | EnumValue)[],
-): [EnumMember[], string[]] {
-  const legacyVisibilities = [] as string[];
-  const modifiers = [] as EnumMember[];
+  if (legacyModifiers) return legacyModifiers;
 
-  for (const visibility of visibilities) {
-    if (typeof visibility === "string") {
-      legacyVisibilities.push(visibility);
-    } else {
-      modifiers.push(visibility.value);
-    }
-  }
+  // Now check for applied lifecycle visibility modifiers and coerce them if necessary.
 
-  return [modifiers, legacyVisibilities] as const;
+  const lifecycleModifiers = getVisibilityStore(program, property)?.get(
+    getLifecycleVisibilityEnum(program),
+  );
+
+  // Visibility is completely uninitialized, so return undefined to mimic legacy behavior.
+  if (!lifecycleModifiers) return undefined;
+
+  // Visibility has been cleared explicitly: return ["none"] to mimic legacy application of visibility "none".
+  if (lifecycleModifiers.size === 0) return ["none"];
+
+  // Otherwise we just convert the modifiers to strings.
+  return Array.from(lifecycleModifiers).map((v) => v.name.toLowerCase());
 }
 
 // #endregion
 
 // #region Visibility Management API
-
-/**
- * Initializes the default modifier set for a visibility class.
- *
- * This function may be called once per visibility class to set the modifier set that should be used when no modifiers
- * are specified on a property for the given visibility class.
- *
- * If no default set is provided for a visibility class using this function, the default set will be the set of ALL
- * members/modifiers in the visibility class enum.
- *
- * This function may only be called ONCE per visibility class.
- *
- * @param visibilityClass
- * @param defaultSet
- */
-export function initializeDefaultModifierSetForClass(
-  visibilityClass: Enum,
-  defaultSet: Set<EnumMember>,
-) {
-  compilerAssert(
-    !DEFAULT_MODIFIER_SET_CACHE.has(visibilityClass),
-    "The default modifier set for a visibility class may only be initialized once.",
-  );
-
-  DEFAULT_MODIFIER_SET_CACHE.set(visibilityClass, defaultSet);
-}
 
 /**
  * Check if a property has had its visibility modifiers sealed.
@@ -289,10 +297,10 @@ export function isSealed(
   if (VISIBILITY_PROGRAM_SEALS.has(program)) return true;
 
   const classSealed = visibilityClass
-    ? VISIBILITY_SEALS_FOR_CLASS.get(property)?.has(visibilityClass)
+    ? getSealedVisibilityClasses(program, property)?.has(visibilityClass)
     : false;
 
-  return classSealed || VISIBILITY_SEALS.has(property);
+  return classSealed || isVisibilitySealedForProperty(program, property);
 }
 
 /**
@@ -304,11 +312,15 @@ export function isSealed(
  * @param property - the property to seal
  * @param visibilityClass - the optional visibility class to seal the property for
  */
-export function sealVisibilityModifiers(property: ModelProperty, visibilityClass?: Enum) {
+export function sealVisibilityModifiers(
+  program: Program,
+  property: ModelProperty,
+  visibilityClass?: Enum,
+) {
   if (visibilityClass) {
-    sealVisibilityModifiersForClass(property, visibilityClass);
+    sealVisibilityModifiersForClass(program, property, visibilityClass);
   } else {
-    VISIBILITY_SEALS.add(property);
+    sealVisibilityForProperty(program, property);
   }
 }
 
@@ -408,7 +420,7 @@ export function removeVisibilityModifiers(
       program,
       property,
       visibilityClass,
-      /* defaultSet: */ getDefaultModifierSetForClass(visibilityClass),
+      /* defaultSet: */ getDefaultModifierSetForClass(program, visibilityClass),
     );
 
     for (const modifier of newModifiers) {
@@ -458,7 +470,7 @@ export function getVisibilityForClass(
     program,
     property,
     visibilityClass,
-    /* defaultSet: */ getDefaultModifierSetForClass(visibilityClass),
+    /* defaultSet: */ getDefaultModifierSetForClass(program, visibilityClass),
   );
 }
 
@@ -482,7 +494,7 @@ export function hasVisibility(
     program,
     property,
     modifier.enum,
-    /* defaultSet: */ getDefaultModifierSetForClass(modifier.enum),
+    /* defaultSet: */ getDefaultModifierSetForClass(program, modifier.enum),
   );
 
   return activeSet?.has(modifier) ?? false;

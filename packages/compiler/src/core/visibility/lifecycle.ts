@@ -35,32 +35,13 @@ export function getLifecycleVisibilityEnum(program: Program): Enum {
   return type;
 }
 
-// interface LifecycleVisibilityEnumMembers {
-//   Create: EnumMember;
-//   Read: EnumMember;
-//   Update: EnumMember;
-// }
-
-// const LIFECYCLE_ENUM_MEMBERS_CACHE = new WeakMap<Program, LifecycleVisibilityEnumMembers>();
-
-// function getLifecycleVisibilityEnumMembers(program: Program): LifecycleVisibilityEnumMembers {
-//   const cached = LIFECYCLE_ENUM_MEMBERS_CACHE.get(program);
-
-//   if (cached) return cached;
-
-//   const lifecycle = getLifecycleVisibilityEnum(program);
-
-//   const members: LifecycleVisibilityEnumMembers = {
-//     Create: lifecycle.members.get("Create")!,
-//     Read: lifecycle.members.get("Read")!,
-//     Update: lifecycle.members.get("Update")!,
-//   };
-
-//   LIFECYCLE_ENUM_MEMBERS_CACHE.set(program, members);
-
-//   return members;
-// }
-
+/**
+ * Returns the member of `Lifecycle` that corresponds to the given legacy `visibility` string.
+ *
+ * @param program - the program to get the lifecycle visibility enum for
+ * @param visibility - the visibility string to normalize
+ * @returns the corresponding member of `Lifecycle` or `undefined` if the visibility string is not recognized
+ */
 export function normalizeLegacyLifecycleVisibilityString(
   program: Program,
   visibility: string,
@@ -73,6 +54,35 @@ export function normalizeLegacyLifecycleVisibilityString(
       return lifecycle.members.get("Read")!;
     case "update":
       return lifecycle.members.get("Update")!;
+    default:
+      return undefined;
+  }
+}
+
+/**
+ * Returns the legacy visibility string that corresponds to the given `visibility` member of `Lifecycle`.
+ *
+ * If the given `visibility` member is not a member of `Lifecycle`, the function will return `undefined`.
+ *
+ * @param program - the program to get the lifecycle visibility enum for
+ * @param visibility - the visibility modifier to normalize
+ * @returns the corresponding legacy visibility string or `undefined` if the visibility member is not recognized
+ */
+export function normalizeVisibilityToLegacyLifecycleString(
+  program: Program,
+  visibility: EnumMember,
+): string | undefined {
+  const lifecycle = getLifecycleVisibilityEnum(program);
+
+  if (visibility.enum !== lifecycle) return undefined;
+
+  switch (visibility.name) {
+    case "Create":
+      return "create";
+    case "Read":
+      return "read";
+    case "Update":
+      return "update";
     default:
       return undefined;
   }
