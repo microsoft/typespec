@@ -55,7 +55,6 @@ import {
   ResolveModuleHost,
   SourceLocation,
   getDiagnosticNodeStack,
-  getSourceLocationOfNode,
   resolveModule,
 } from "../core/index.js";
 import { getPositionBeforeTrivia } from "../core/parser-utils.js";
@@ -462,7 +461,7 @@ export function createServer(host: ServerHost): Server {
       for (const item of instantiatioNodes) {
         const location = getVSLocation(
           diagnostic,
-          getSourceLocationOfNode(item, { locateId: true }),
+          getSourceLocation(item, { locateId: true }),
           document,
         );
         if (location === undefined) {
