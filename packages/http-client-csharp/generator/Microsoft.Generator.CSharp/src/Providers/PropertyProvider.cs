@@ -77,6 +77,8 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 propertyType = propertyType.WithNullable(true);
             }
+
+            EnclosingType = enclosingType;
             var serializationFormat = CodeModelPlugin.Instance.TypeFactory.GetSerializationFormat(inputProperty.Type);
             var propHasSetter = PropertyHasSetter(propertyType, inputProperty);
             MethodSignatureModifiers setterModifier = propHasSetter ? MethodSignatureModifiers.Public : MethodSignatureModifiers.None;
@@ -89,7 +91,6 @@ namespace Microsoft.Generator.CSharp.Providers
             XmlDocSummary = PropertyDescriptionBuilder.BuildPropertyDescription(inputProperty, propertyType, serializationFormat, Description);
             XmlDocs = GetXmlDocs();
             WireInfo = new PropertyWireInformation(inputProperty);
-            EnclosingType = enclosingType;
             IsDiscriminator = inputProperty.IsDiscriminator;
 
             InitializeParameter(Name, FormattableStringHelpers.FromString(inputProperty.Description) ?? FormattableStringHelpers.Empty, Type);
@@ -141,7 +142,6 @@ namespace Microsoft.Generator.CSharp.Providers
         /// <summary>
         /// Returns true if the property has a setter.
         /// </summary>
-        /// <param name="type">The <see cref="CSharpType"/> of the property.</param>
         protected virtual bool PropertyHasSetter(CSharpType type, InputModelProperty inputProperty)
         {
             if (inputProperty.IsDiscriminator)
@@ -160,6 +160,11 @@ namespace Microsoft.Generator.CSharp.Providers
             }
 
             if (!inputProperty.EnclosingType!.Usage.HasFlag(InputModelTypeUsage.Input))
+            {
+                return false;
+            }
+
+            if (EnclosingType.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct | TypeSignatureModifiers.ReadOnly))
             {
                 return false;
             }
