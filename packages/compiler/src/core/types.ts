@@ -2147,7 +2147,16 @@ export interface SourceLocation extends TextRange {
 export const NoTarget = Symbol.for("NoTarget");
 
 /** Diagnostic target that can be used when working with TypeSpec types.  */
-export type TypeSpecDiagnosticTarget = Node | Entity | Sym;
+export type TypeSpecDiagnosticTarget = Node | Entity | Sym | TemplateInstanceTarget;
+
+/** Represent a diagnostic target that happens in a template instance context.  */
+export interface TemplateInstanceTarget {
+  /** Node target */
+  readonly node: Node;
+  /** Template mapper used. */
+  readonly templateMapper: TypeMapper;
+}
+
 export type DiagnosticTarget = TypeSpecDiagnosticTarget | SourceLocation;
 
 export type DiagnosticSeverity = "error" | "warning";

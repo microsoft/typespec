@@ -10,7 +10,6 @@ export {
   defineCodeFix,
   formatDiagnostic,
   getSourceLocation,
-  getSourceLocationStack,
   ignoreDiagnostics,
   logDiagnostics,
   logVerboseTestOutput,

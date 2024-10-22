@@ -456,19 +456,17 @@ export function createChecker(program: Program): Checker {
   const projectionMembers = createProjectionMembers(checker);
   return checker;
 
-  function wrapInstantiationDiagnostic(diagnostic: Diagnostic, mapper?: TypeMapper): Diagnostic {
-    if (mapper === undefined) return diagnostic;
-    let target = diagnostic.target;
-    let current: TypeMapper | undefined = mapper;
-    while (current) {
-      target = current.source.node;
-      current = current.source.mapper;
-    }
-
+  function wrapInstantiationDiagnostic(
+    diagnostic: Diagnostic,
+    templateMapper?: TypeMapper,
+  ): Diagnostic {
+    if (templateMapper === undefined || typeof diagnostic.target !== "object") return diagnostic;
     return {
       ...diagnostic,
-      target,
-      message: `The following error occurred in this template instantiation: ${diagnostic.message}`,
+      target: {
+        node: diagnostic.target as any,
+        templateMapper,
+      },
     };
   }
 

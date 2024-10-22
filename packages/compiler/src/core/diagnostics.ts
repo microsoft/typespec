@@ -85,7 +85,12 @@ export function getSourceLocation(
     return target;
   }
 
-  if (!("kind" in target) && !("valueKind" in target) && !("entityKind" in target)) {
+  if (!("kind" in target) && !("entityKind" in target)) {
+    // TemplateInstanceTarget
+    if ("node" in target) {
+      return getSourceLocationOfNode(target.node, options);
+    }
+
     // symbol
     if (target.flags & SymbolFlags.Using) {
       target = target.symbolSource!;
@@ -117,7 +122,7 @@ export function getSourceLocation(
 export function getDiagnosticNodeStack(
   target: DiagnosticTarget | typeof NoTarget | undefined,
 ): Node[] {
-  if (typeof target !== "object" || !("entityKind" in target) || !("templateMapper" in target)) {
+  if (typeof target !== "object" || !("templateMapper" in target)) {
     return [];
   }
 
