@@ -320,6 +320,22 @@ namespace UnbrandedTypeSpec
             return message;
         }
 
+        internal PipelineMessage CreateWithApiVersionRequest(string p1, RequestOptions options)
+        {
+            PipelineMessage message = Pipeline.CreateMessage();
+            message.ResponseClassifier = PipelineMessageClassifier204;
+            PipelineRequest request = message.Request;
+            request.Method = "GET";
+            ClientUriBuilder uri = new ClientUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/WithApiVersion", false);
+            uri.AppendQuery("apiVersion", _apiVersion, true);
+            request.Uri = uri.ToUri();
+            request.Headers.Set("p1", p1);
+            message.Apply(options);
+            return message;
+        }
+
         private class Classifier2xxAnd4xx : PipelineMessageClassifier
         {
             public override bool TryClassify(PipelineMessage message, out bool isError)

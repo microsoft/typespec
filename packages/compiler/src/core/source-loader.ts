@@ -1,14 +1,15 @@
+import {
+  ModuleResolutionResult,
+  ResolvedModule,
+  resolveModule,
+  ResolveModuleError,
+  ResolveModuleHost,
+} from "../module-resolver/module-resolver.js";
+import { PackageJson } from "../types/package-json.js";
 import { deepEquals, doIO, resolveTspMain } from "../utils/misc.js";
 import { compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
 import { resolveTypeSpecEntrypointForDir } from "./entrypoint-resolution.js";
 import { createDiagnostic } from "./messages.js";
-import {
-  ModuleResolutionResult,
-  NodePackage,
-  ResolvedModule,
-  resolveModule,
-  ResolveModuleHost,
-} from "./module-resolver.js";
 import { isImportStatement, parse } from "./parser.js";
 import { getDirectoryPath } from "./path-utils.js";
 import { createSourceFile } from "./source-file.js";
@@ -43,7 +44,7 @@ export interface SourceResolution {
 
 interface TypeSpecLibraryReference {
   path: string;
-  manifest: NodePackage;
+  manifest: PackageJson;
 }
 
 export interface LoadSourceOptions {
@@ -55,6 +56,7 @@ export interface LoadSourceOptions {
 export interface SourceLoader {
   importFile(
     path: string,
+    diagnosticTarget: DiagnosticTarget | typeof NoTarget,
     locationContext?: LocationContext,
     kind?: "import" | "entrypoint",
   ): Promise<void>;
@@ -86,6 +88,7 @@ export async function createSourceLoader(
 
   async function importFile(
     path: string,
+    diagnosticTarget: DiagnosticTarget | typeof NoTarget,
     locationContext: LocationContext,
     kind: "import" | "entrypoint" = "import",
   ) {
@@ -93,10 +96,10 @@ export async function createSourceLoader(
 
     switch (sourceFileKind) {
       case "js":
-        await importJsFile(path, locationContext, NoTarget);
+        await importJsFile(path, locationContext, diagnosticTarget);
         break;
       case "typespec":
-        await loadTypeSpecFile(path, locationContext, NoTarget);
+        await loadTypeSpecFile(path, locationContext, diagnosticTarget);
         break;
       default:
         diagnostics.add(
@@ -230,7 +233,7 @@ export async function createSourceLoader(
       return;
     }
 
-    return importFile(importFilePath, locationContext);
+    return importFile(importFilePath, target, locationContext);
   }
 
   /**
@@ -251,22 +254,12 @@ export async function createSourceLoader(
           // but using tspMain instead of main.
           return resolveTspMain(pkg) ?? pkg.main;
         },
+        conditions: ["typespec"],
+        fallbackOnMissingCondition: true,
       });
     } catch (e: any) {
-      if (e.code === "MODULE_NOT_FOUND") {
-        diagnostics.add(
-          createDiagnostic({ code: "import-not-found", format: { path: specifier }, target }),
-        );
-        return undefined;
-      } else if (e.code === "INVALID_MAIN") {
-        diagnostics.add(
-          createDiagnostic({
-            code: "library-invalid",
-            format: { path: specifier },
-            messageId: "tspMain",
-            target,
-          }),
-        );
+      if (e instanceof ResolveModuleError) {
+        diagnostics.add(moduleResolutionErrorToDiagnostic(e, specifier, target));
         return undefined;
       } else {
         throw e;
@@ -343,10 +336,23 @@ export async function loadJsFile(
 ): Promise<[JsSourceFileNode | undefined, readonly Diagnostic[]]> {
   const file = createSourceFile("", path);
   const diagnostics: Diagnostic[] = [];
-  const exports = await doIO(host.getJsImport, path, (x) => diagnostics.push(x), {
-    diagnosticTarget,
-    jsDiagnosticTarget: { file, pos: 0, end: 0 },
-  });
+  const exports = await doIO(
+    host.getJsImport,
+    path,
+    (x) => {
+      diagnostics.push(
+        createDiagnostic({
+          code: "js-error",
+          format: { specifier: path, error: x.message },
+          target: diagnosticTarget,
+        }),
+      );
+    },
+    {
+      diagnosticTarget,
+      jsDiagnosticTarget: { file, pos: 0, end: 0 },
+    },
+  );
 
   if (!exports) {
     return [undefined, diagnostics];
@@ -371,4 +377,30 @@ export async function loadJsFile(
     flags: NodeFlags.None,
   };
   return [node, diagnostics];
+}
+
+export function moduleResolutionErrorToDiagnostic(
+  e: ResolveModuleError,
+  specifier: string,
+  target: DiagnosticTarget | typeof NoTarget,
+): Diagnostic {
+  switch (e.code) {
+    case "MODULE_NOT_FOUND":
+      return createDiagnostic({ code: "import-not-found", format: { path: specifier }, target });
+    case "INVALID_MODULE":
+    case "INVALID_MODULE_EXPORT_TARGET":
+      return createDiagnostic({
+        code: "library-invalid",
+        format: { path: specifier, message: e.message },
+        target,
+      });
+    case "INVALID_MAIN":
+      return createDiagnostic({
+        code: "library-invalid",
+        format: { path: specifier, message: e.message },
+        target,
+      });
+    default:
+      return createDiagnostic({ code: "import-not-found", format: { path: specifier }, target });
+  }
 }

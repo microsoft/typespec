@@ -6,6 +6,7 @@ package com.type.property.additionalproperties.models;
 
 import com.azure.core.annotation.Fluent;
 import com.azure.core.annotation.Generated;
+import com.azure.core.util.BinaryData;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
@@ -26,10 +27,10 @@ public class ExtendsUnknownAdditionalProperties implements JsonSerializable<Exte
     private final String name;
 
     /*
-     * Additional properties
+     * The model extends from Record<unknown> type.
      */
     @Generated
-    private Map<String, Object> additionalProperties;
+    private Map<String, BinaryData> additionalProperties;
 
     /**
      * Creates an instance of ExtendsUnknownAdditionalProperties class.
@@ -52,23 +53,23 @@ public class ExtendsUnknownAdditionalProperties implements JsonSerializable<Exte
     }
 
     /**
-     * Get the additionalProperties property: Additional properties.
+     * Get the additionalProperties property: The model extends from Record&lt;unknown&gt; type.
      * 
      * @return the additionalProperties value.
      */
     @Generated
-    public Map<String, Object> getAdditionalProperties() {
+    public Map<String, BinaryData> getAdditionalProperties() {
         return this.additionalProperties;
     }
 
     /**
-     * Set the additionalProperties property: Additional properties.
+     * Set the additionalProperties property: The model extends from Record&lt;unknown&gt; type.
      * 
      * @param additionalProperties the additionalProperties value to set.
      * @return the ExtendsUnknownAdditionalProperties object itself.
      */
     @Generated
-    public ExtendsUnknownAdditionalProperties setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public ExtendsUnknownAdditionalProperties setAdditionalProperties(Map<String, BinaryData> additionalProperties) {
         this.additionalProperties = additionalProperties;
         return this;
     }
@@ -82,8 +83,11 @@ public class ExtendsUnknownAdditionalProperties implements JsonSerializable<Exte
         jsonWriter.writeStartObject();
         jsonWriter.writeStringField("name", this.name);
         if (additionalProperties != null) {
-            for (Map.Entry<String, Object> additionalProperty : additionalProperties.entrySet()) {
-                jsonWriter.writeUntypedField(additionalProperty.getKey(), additionalProperty.getValue());
+            for (Map.Entry<String, BinaryData> additionalProperty : additionalProperties.entrySet()) {
+                jsonWriter.writeUntypedField(additionalProperty.getKey(),
+                    additionalProperty.getValue() == null
+                        ? null
+                        : additionalProperty.getValue().toObject(Object.class));
             }
         }
         return jsonWriter.writeEndObject();
@@ -102,7 +106,7 @@ public class ExtendsUnknownAdditionalProperties implements JsonSerializable<Exte
     public static ExtendsUnknownAdditionalProperties fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             String name = null;
-            Map<String, Object> additionalProperties = null;
+            Map<String, BinaryData> additionalProperties = null;
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
@@ -114,7 +118,8 @@ public class ExtendsUnknownAdditionalProperties implements JsonSerializable<Exte
                         additionalProperties = new LinkedHashMap<>();
                     }
 
-                    additionalProperties.put(fieldName, reader.readUntyped());
+                    additionalProperties.put(fieldName,
+                        reader.getNullable(nonNullReader -> BinaryData.fromObject(nonNullReader.readUntyped())));
                 }
             }
             ExtendsUnknownAdditionalProperties deserializedExtendsUnknownAdditionalProperties

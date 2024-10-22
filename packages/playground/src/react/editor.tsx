@@ -33,10 +33,6 @@ export const Editor: FunctionComponent<EditorProps> = ({ model, options, actions
   }, []);
 
   useEffect(() => {
-    editor.setTheme(options.theme ?? "typespec");
-  }, [options.theme]);
-
-  useEffect(() => {
     const disposables: IDisposable[] = [];
     for (const command of actions ?? []) {
       disposables.push(editorRef.current!.addAction(command));

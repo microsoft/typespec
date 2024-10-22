@@ -3,8 +3,6 @@ id: interfaces
 title: Interfaces
 ---
 
-# Interfaces
-
 Interfaces are useful for grouping and reusing [operations](./operations.md).
 
 You can declare interfaces using the `interface` keyword. Its name must be an [`identifier`](./identifiers.md).

@@ -39,12 +39,125 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
 
         if (enumType.getExpandable()) {
             if (settings.isBranded()) {
-                writeExpandableStringEnum(enumType, javaFile, settings);
+                writeBrandedExpandableEnum(enumType, javaFile, settings);
             } else {
                 writeExpandableStringEnumInterface(enumType, javaFile, settings);
             }
         } else {
             writeEnum(enumType, javaFile, settings);
+        }
+    }
+
+    /**
+     * Extension point for expandable enum implementation of branded flavor.
+     *
+     * @param enumType enumType to write implementation
+     * @param javaFile javaFile to write into
+     * @param settings {@link JavaSettings} instance
+     */
+    protected void writeBrandedExpandableEnum(EnumType enumType, JavaFile javaFile, JavaSettings settings) {
+        if (enumType.getElementType() == ClassType.STRING) {
+            writeExpandableStringEnum(enumType, javaFile, settings);
+        } else {
+            Set<String> imports = new HashSet<>();
+            imports.add("java.util.Collection");
+            imports.add("java.lang.IllegalArgumentException");
+            imports.add("java.util.Map");
+            imports.add("java.util.concurrent.ConcurrentHashMap");
+            imports.add("java.util.ArrayList");
+            imports.add("java.util.Objects");
+            imports.add(ClassType.EXPANDABLE_ENUM.getFullName());
+            if (!settings.isStreamStyleSerialization()) {
+                imports.add("com.fasterxml.jackson.annotation.JsonCreator");
+            }
+
+            addGeneratedImport(imports);
+
+            javaFile.declareImport(imports);
+            javaFile.javadocComment(comment -> comment.description(enumType.getDescription()));
+
+            String enumName = enumType.getName();
+            IType elementType = enumType.getElementType();
+            String typeName = elementType.getClientType().asNullable().toString();
+            String pascalTypeName = CodeNamer.toPascalCase(typeName);
+            String declaration = enumName + " implements ExpandableEnum<" + pascalTypeName + ">";
+            javaFile.publicFinalClass(declaration, classBlock -> {
+                classBlock.privateStaticFinalVariable(
+                    String.format("Map<%1$s, %2$s> VALUES = new ConcurrentHashMap<>()", pascalTypeName, enumName));
+
+                for (ClientEnumValue enumValue : enumType.getValues()) {
+                    String value = enumValue.getValue();
+                    classBlock.javadocComment(CoreUtils.isNullOrEmpty(enumValue.getDescription())
+                        ? "Static value " + value + " for " + enumName + "."
+                        : enumValue.getDescription());
+                    addGeneratedAnnotation(classBlock);
+                    classBlock.publicStaticFinalVariable(String.format("%1$s %2$s = fromValue(%3$s)", enumName,
+                        enumValue.getName(), elementType.defaultValueExpression(value)));
+                }
+
+                classBlock.variable(pascalTypeName + " value", JavaVisibility.Private, JavaModifier.Final);
+                classBlock.privateConstructor(enumName + "(" + pascalTypeName + " value)", ctor -> {
+                    ctor.line("this.value = value;");
+                });
+
+                // fromValue(typeName)
+                classBlock.javadocComment(comment -> {
+                    comment.description("Creates or finds a " + enumName);
+                    comment.param("value", "a value to look for");
+                    comment.methodReturns("the corresponding " + enumName);
+                });
+
+                addGeneratedAnnotation(classBlock);
+                if (!settings.isStreamStyleSerialization()) {
+                    classBlock.annotation("JsonCreator");
+                }
+
+                classBlock.publicStaticMethod(String.format("%1$s fromValue(%2$s value)", enumName, pascalTypeName),
+                    function -> {
+                        function.line("Objects.requireNonNull(value, \"'value' cannot be null.\");");
+                        function.line(enumName + " member = VALUES.get(value);");
+                        function.ifBlock("member != null", ifAction -> ifAction.line("return member;"));
+                        function.methodReturn("VALUES.computeIfAbsent(value, key -> new " + enumName + "(key))");
+                    });
+
+                // values
+                classBlock.javadocComment(comment -> {
+                    comment.description("Gets known " + enumName + " values.");
+                    comment.methodReturns("Known " + enumName + " values.");
+                });
+                addGeneratedAnnotation(classBlock);
+                classBlock.publicStaticMethod(String.format("Collection<%s> values()", enumName),
+                    function -> function.methodReturn("new ArrayList<>(VALUES.values())"));
+
+                // getValue
+                classBlock.javadocComment(comment -> {
+                    comment.description("Gets the value of the " + enumName + " instance.");
+                    comment.methodReturns("the value of the " + enumName + " instance.");
+                });
+
+                addGeneratedAnnotation(classBlock);
+                classBlock.annotation("Override");
+                classBlock.publicMethod(pascalTypeName + " getValue()",
+                    function -> function.methodReturn("this.value"));
+
+                // toString
+                addGeneratedAnnotation(classBlock);
+                classBlock.annotation("Override");
+                classBlock.method(JavaVisibility.Public, null, "String toString()",
+                    function -> function.methodReturn("Objects.toString(this.value)"));
+
+                // equals
+                addGeneratedAnnotation(classBlock);
+                classBlock.annotation("Override");
+                classBlock.method(JavaVisibility.Public, null, "boolean equals(Object obj)",
+                    function -> function.methodReturn("Objects.equals(this.value, obj)"));
+
+                // hashcode
+                addGeneratedAnnotation(classBlock);
+                classBlock.annotation("Override");
+                classBlock.method(JavaVisibility.Public, null, "int hashCode()",
+                    function -> function.methodReturn("Objects.hashCode(this.value)"));
+            });
         }
     }
 

@@ -63,6 +63,7 @@ components:
       required:
         - name
         - favoriteToys
+        - type
       properties:
         name:
           type: string

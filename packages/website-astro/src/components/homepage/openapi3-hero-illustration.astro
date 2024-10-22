@@ -1,0 +1,27 @@
+---
+import heroMainTsp from "@site/src/assets/tsp-samples/openapi3/hero/main.tsp?raw";
+import heroOpenAPIYaml from "@site/src/assets/tsp-samples/openapi3/hero/out/openapi.yaml?raw";
+import { Code } from "@astrojs/starlight/components";
+import { TabItem } from "@astrojs/starlight/components";
+import EditorTabs from "../editor-tabs.astro";
+---
+
+<style>
+  .tab-content {
+    max-height: 50vh;
+    overflow-y: auto;
+  }
+</style>
+
+<EditorTabs>
+  <TabItem label="main.tsp">
+    <div class="tab-content">
+      <Code lang="tsp" code={heroMainTsp} />
+    </div>
+  </TabItem>
+  <TabItem label="openapi.yaml">
+    <div class="tab-content">
+      <Code lang="yaml" code={heroOpenAPIYaml} />
+    </div>
+  </TabItem>
+</EditorTabs>

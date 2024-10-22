@@ -1,4 +1,5 @@
 export * from "../manifest.js";
+export * from "../module-resolver/module-resolver.js";
 export * from "./checker.js";
 export * from "./decorator-utils.js";
 export * from "./deprecation.js";
@@ -39,7 +40,6 @@ export {
   setTypeSpecNamespace,
 } from "./library.js";
 export { resolveLinterDefinition } from "./linter.js";
-export * from "./module-resolver.js";
 export { NodeHost } from "./node-host.js";
 export { Numeric, isNumeric } from "./numeric.js";
 export * from "./options.js";

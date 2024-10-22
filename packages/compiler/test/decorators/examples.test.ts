@@ -47,6 +47,19 @@ describe("@example", () => {
       expect(serializeValueAsJson(program, examples[0].value, target)).toEqual({ a: 1, b: 2 });
     });
 
+    it("use const with type of model", async () => {
+      const { program, examples, target } = await getExamplesFor(`
+      const example: Test = #{ a: 1, b: 2 };
+      @example(example)
+      @test("test") model Test {
+        a: int32;
+        b: int32;
+      }
+    `);
+      expect(examples).toHaveLength(1);
+      expect(serializeValueAsJson(program, examples[0].value, target)).toEqual({ a: 1, b: 2 });
+    });
+
     it("emit diagnostic for missing property", async () => {
       const diagnostics = await diagnoseCode(`
         @example(#{ a: 1 })
@@ -98,6 +111,16 @@ describe("@example", () => {
       expect(serializeValueAsJson(program, examples[0].value, target)).toEqual("11:32");
     });
 
+    it("use const with type of scalar", async () => {
+      const { program, examples, target } = await getExamplesFor(`
+        const example: test = test.fromISO("11:32");
+        @example(example)
+        @test scalar test extends utcDateTime;
+      `);
+      expect(examples).toHaveLength(1);
+      expect(serializeValueAsJson(program, examples[0].value, target)).toEqual("11:32");
+    });
+
     it("emit diagnostic for unassignable value", async () => {
       const diagnostics = await diagnoseCode(`
         @example("11:32")
@@ -114,6 +137,19 @@ describe("@example", () => {
       const { program, examples, target } = await getExamplesFor(`
       @example(test.a)
       @test enum test {
+        a,
+        b,
+      }
+    `);
+      expect(examples).toHaveLength(1);
+      expect(serializeValueAsJson(program, examples[0].value, target)).toEqual("a");
+    });
+
+    it("use const with type of enum", async () => {
+      const { program, examples, target } = await getExamplesFor(`
+      const example: Test = Test.a;
+      @example(example)
+      @test("test") enum Test {
         a,
         b,
       }
@@ -254,6 +290,20 @@ describe("json serialization of examples", () => {
     const { examples, program, target } = await getExamplesFor(code);
     return serializeValueAsJson(program, examples[0].value, target);
   }
+
+  it("respect json encodedName", async () => {
+    const result = await getJsonValueOfExample(`
+      @example(#{
+        expireIn: 1
+      })
+      @test model test {
+        @encodedName("application/json", "exp")
+        expireIn: int32
+      }
+    `);
+
+    expect(result).toEqual({ exp: 1 });
+  });
 
   describe("scalar encoding", () => {
     const allCases: [

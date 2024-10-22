@@ -27,6 +27,7 @@
     "optional": false,
     "readOnly": false,
     "discriminator": true,
+    "flatten": false,
     "decorators": [],
     "crossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.Bird.kind"
    },
@@ -49,6 +50,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.Bird.wingspan"
     }
@@ -89,6 +91,7 @@
        "optional": false,
        "readOnly": false,
        "discriminator": true,
+       "flatten": false,
        "decorators": [],
        "crossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.SeaGull.kind"
       }
@@ -128,6 +131,7 @@
        "optional": false,
        "readOnly": false,
        "discriminator": true,
+       "flatten": false,
        "decorators": [],
        "crossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.Sparrow.kind"
       }
@@ -167,6 +171,7 @@
        "optional": false,
        "readOnly": false,
        "discriminator": true,
+       "flatten": false,
        "decorators": [],
        "crossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.Goose.kind"
       }
@@ -206,6 +211,7 @@
        "optional": false,
        "readOnly": false,
        "discriminator": true,
+       "flatten": false,
        "decorators": [],
        "crossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.Eagle.kind"
       },
@@ -227,6 +233,7 @@
        "optional": true,
        "readOnly": false,
        "discriminator": false,
+       "flatten": false,
        "decorators": [],
        "crossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.Eagle.friends"
       },
@@ -253,6 +260,7 @@
        "optional": true,
        "readOnly": false,
        "discriminator": false,
+       "flatten": false,
        "decorators": [],
        "crossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.Eagle.hate"
       },
@@ -267,6 +275,7 @@
        "optional": true,
        "readOnly": false,
        "discriminator": false,
+       "flatten": false,
        "decorators": [],
        "crossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.Eagle.partner"
       }
@@ -310,6 +319,7 @@
     "optional": false,
     "readOnly": false,
     "discriminator": true,
+    "flatten": false,
     "decorators": [],
     "crossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.Dinosaur.kind"
    },
@@ -332,6 +342,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.Dinosaur.size"
     }
@@ -372,6 +383,7 @@
        "optional": false,
        "readOnly": false,
        "discriminator": true,
+       "flatten": false,
        "decorators": [],
        "crossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.TRex.kind"
       }
@@ -399,6 +411,7 @@
        "$id": "42",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "43",
         "kind": "url",

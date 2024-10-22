@@ -43,6 +43,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
         }
 
+        internal PropertyProvider? VersionProperty => _versionProperty;
         private TypeProvider? ServiceVersionEnum => _serviceVersionEnum?.Value;
         private FieldProvider? LatestVersionField => _latestVersionField ??= BuildLatestVersionField();
 
@@ -65,7 +66,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override CSharpType[] BuildImplements()
         {
-            return [typeof(ClientPipelineOptions)];
+            return [ClientModelPlugin.Instance.TypeFactory.ClientPipelineApi.ClientPipelineOptionsType];
         }
 
         protected override FieldProvider[] BuildFields()
@@ -121,7 +122,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             foreach (var p in _inputClient.Parameters)
             {
-                if (!p.IsEndpoint && p.DefaultValue != null)
+                if (!p.IsEndpoint && !p.IsApiVersion && p.DefaultValue != null)
                 {
                     FormattableString? description = null;
                     if (p.Description != null)

@@ -57,6 +57,10 @@ $generateScript = {
     $tspOptions += " --option ""@typespec/http-client-java.api-version=2022-09-01"""
     # exclude preview from service versions
     $tspOptions += " --option ""@typespec/http-client-java.service-version-exclude-preview=true"""
+  } elseif ($tspFile -match "type[\\/]array" -or $tspFile -match "type[\\/]dictionary") {
+    # TODO https://github.com/Azure/autorest.java/issues/2964
+    # also serve as a test for "use-object-for-unknown" emitter option
+    $tspOptions += " --option ""@typespec/http-client-java.use-object-for-unknown=true"""
   } elseif ($tspFile -match "arm.tsp") {
     # for mgmt, do not generate tests due to random mock values
     $tspOptions += " --option ""@typespec/http-client-java.generate-tests=false"""
@@ -113,28 +117,7 @@ $generateScript = {
   }
 }
 
-Set-Location (Resolve-Path (Join-Path $PSScriptRoot '..' '..'))
-
-npm install
-npm run build
-npm pack
-
-Set-Location $PSScriptRoot
-
-
-if (Test-Path node_modules) {
-  Remove-Item node_modules -Recurse -Force
-}
-
-if (Test-Path package-lock.json) {
-  Remove-Item package-lock.json
-}
-
-# delete output
-if (Test-Path tsp-output) {
-  Remove-Item tsp-output -Recurse -Force
-}
-npm install 
+./Setup.ps1
 
 New-Item -Path ./existingcode/src/main/java/com/cadl/ -ItemType Directory -Force | Out-Null
 

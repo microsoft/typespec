@@ -4,20 +4,16 @@ title: "[F] getService"
 
 ---
 ```ts
-function getService(program, namespace): Service | undefined
+function getService(program, type): undefined | Service
 ```
-
-Get the service information for the given namespace.
 
 ## Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `program` | [`Program`](../interfaces/Program.md) | Program |
-| `namespace` | [`Namespace`](../interfaces/Namespace.md) | Service namespace |
+| Parameter | Type |
+| ------ | ------ |
+| `program` | [`Program`](../interfaces/Program.md) |
+| `type` | [`Namespace`](../interfaces/Namespace.md) |
 
 ## Returns
 
-[`Service`](../interfaces/Service.md) \| `undefined`
-
-Service information or undefined if namespace is not a service namespace.
+`undefined` \| [`Service`](../interfaces/Service.md)

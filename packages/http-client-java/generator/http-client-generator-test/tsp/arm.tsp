@@ -147,6 +147,7 @@ model CustomTemplateResourceProperties {
   dog: Dog;
   namedEmptyModel: EmptyModel;
   anonymousEmptyModel: {};
+  priority: PriorityModel;
 }
 
 @doc("Empty model.")
@@ -181,6 +182,12 @@ model ResponseWithHeader<T> {
 
 model Result {
   reason?: string;
+}
+
+union PriorityModel {
+  int32,
+  HIGH: 0,
+  LOW: 1,
 }
 
 // #suppress "@azure-tools/typespec-azure-resource-manager/arm-resource-invalid-envelope-property" "built-in conditional request includes time based conditional headers"

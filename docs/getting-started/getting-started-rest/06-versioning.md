@@ -2,8 +2,6 @@
 title: Versioning
 ---
 
-# Versioning
-
 ## Introduction
 
 In this section, we'll focus on implementing versioning in your REST API. Versioning allows you to manage changes to your API over time without breaking existing clients. We'll introduce the `@versioned` decorator, show how to define versions with enums, and demonstrate how to use the `@added` decorator to specify version-specific models and operations.

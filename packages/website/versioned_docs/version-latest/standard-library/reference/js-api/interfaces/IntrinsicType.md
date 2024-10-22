@@ -23,7 +23,7 @@ title: "[I] IntrinsicType"
 | `instantiationParameters?` | `public` | [`Type`](../type-aliases/Type.md)[] | - | - | [`BaseType`](BaseType.md).`instantiationParameters` |
 | `isFinished` | `public` | `boolean` | Reflect if a type has been finished(Decorators have been called). There is multiple reasons a type might not be finished: - a template declaration will not - a template instance that argument that are still template parameters - a template instance that is only partially instantiated(like a templated operation inside a templated interface) | - | [`BaseType`](BaseType.md).`isFinished` |
 | `kind` | `public` | `"Intrinsic"` | - | [`BaseType`](BaseType.md).`kind` | - |
-| `name` | `public` | \| `"unknown"` \| `"never"` \| `"null"` \| `"ErrorType"` \| `"void"` | - | - | - |
+| `name` | `public` | \| `"unknown"` \| `"never"` \| `"null"` \| `"void"` \| `"ErrorType"` | - | - | - |
 | `node?` | `public` | [`Node`](../type-aliases/Node.md) | - | - | [`BaseType`](BaseType.md).`node` |
 | `projectionBase?` | `public` | [`Type`](../type-aliases/Type.md) | - | - | [`BaseType`](BaseType.md).`projectionBase` |
 | `projectionSource?` | `public` | [`Type`](../type-aliases/Type.md) | - | - | [`BaseType`](BaseType.md).`projectionSource` |
