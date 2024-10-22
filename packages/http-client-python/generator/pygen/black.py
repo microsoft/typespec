@@ -29,7 +29,7 @@ class BlackScriptPlugin(Plugin):
         self.output_folder = Path(output_folder)
 
     def process(self) -> bool:
-        # apply format_file on every .py file in the output folder
+        # apply format_file on every .py file in the output folders
         list(
             map(
                 self.format_file,
