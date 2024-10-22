@@ -1,7 +1,5 @@
 ---
 title: "Data types"
-toc_min_heading_level: 2
-toc_max_heading_level: 3
 ---
 
 ## TypeSpec.OpenAPI
@@ -16,14 +14,14 @@ model TypeSpec.OpenAPI.AdditionalInfo
 
 #### Properties
 
-| Name            | Type                                                  | Description                                                                                                                       |
-| --------------- | ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| title?          | `string`                                              | The title of the API. Overrides the `@service` title.                                                                             |
-| summary?        | `string`                                              | A short summary of the API. Overrides the `@summary` provided on the service namespace.                                           |
-| version?        | `string`                                              | The version of the OpenAPI document (which is distinct from the OpenAPI Specification version or the API implementation version). |
-| termsOfService? | `url`                                                 | A URL to the Terms of Service for the API. MUST be in the format of a URL.                                                        |
-| contact?        | [`Contact`](./data-types.md#TypeSpec.OpenAPI.Contact) | The contact information for the exposed API.                                                                                      |
-| license?        | [`License`](./data-types.md#TypeSpec.OpenAPI.License) | The license information for the exposed API.                                                                                      |
+| Name            | Type                                                | Description                                                                                                                       |
+| --------------- | --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| title?          | `string`                                            | The title of the API. Overrides the `@service` title.                                                                             |
+| summary?        | `string`                                            | A short summary of the API. Overrides the `@summary` provided on the service namespace.                                           |
+| version?        | `string`                                            | The version of the OpenAPI document (which is distinct from the OpenAPI Specification version or the API implementation version). |
+| termsOfService? | `url`                                               | A URL to the Terms of Service for the API. MUST be in the format of a URL.                                                        |
+| contact?        | [`Contact`](./data-types/#TypeSpec.OpenAPI.Contact) | The contact information for the exposed API.                                                                                      |
+| license?        | [`License`](./data-types/#TypeSpec.OpenAPI.License) | The license information for the exposed API.                                                                                      |
 
 ### `Contact` {#TypeSpec.OpenAPI.Contact}
 

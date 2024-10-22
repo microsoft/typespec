@@ -78,9 +78,9 @@ single Protobuf file.
 
 #### Parameters
 
-| Name    | Type                                                                 | Description                         |
-| ------- | -------------------------------------------------------------------- | ----------------------------------- |
-| details | [`PackageDetails`](./data-types.md#TypeSpec.Protobuf.PackageDetails) | the optional details of the package |
+| Name    | Type                                                               | Description                         |
+| ------- | ------------------------------------------------------------------ | ----------------------------------- |
+| details | [`PackageDetails`](./data-types/#TypeSpec.Protobuf.PackageDetails) | the optional details of the package |
 
 ### `@reserve` {#@TypeSpec.Protobuf.reserve}
 
@@ -160,9 +160,9 @@ Set the streaming mode of an operation. See [StreamMode](./data-types#TypeSpec.P
 
 #### Parameters
 
-| Name | Type                                                         | Description                                    |
-| ---- | ------------------------------------------------------------ | ---------------------------------------------- |
-| mode | [`StreamMode`](./data-types.md#TypeSpec.Protobuf.StreamMode) | The streaming mode to apply to this operation. |
+| Name | Type                                                       | Description                                    |
+| ---- | ---------------------------------------------------------- | ---------------------------------------------- |
+| mode | [`StreamMode`](./data-types/#TypeSpec.Protobuf.StreamMode) | The streaming mode to apply to this operation. |
 
 #### Examples
 

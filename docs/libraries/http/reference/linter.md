@@ -1,7 +1,5 @@
 ---
 title: "Linter usage"
-toc_min_heading_level: 2
-toc_max_heading_level: 3
 ---
 
 ## Usage
@@ -22,6 +20,6 @@ Available ruleSets:
 
 ## Rules
 
-| Name                                                                                                   | Description                                                                               |
-| ------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------- |
-| [`@typespec/http/op-reference-container-route`](/libraries/http/rules/op-reference-container-route.md) | Check for referenced (`op is`) operations which have a @route on one of their containers. |
+| Name                                                                                                 | Description                                                                               |
+| ---------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| [`@typespec/http/op-reference-container-route`](/libraries/http/rules/op-reference-container-route/) | Check for referenced (`op is`) operations which have a @route on one of their containers. |
