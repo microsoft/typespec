@@ -9,6 +9,8 @@ import rehypeMermaid from "rehype-mermaid";
 import remarkHeadingID from "remark-heading-id";
 import { resolveSideBars } from "./sidebars";
 
+import tailwind from "@astrojs/tailwind";
+
 const base = process.env.TYPESPEC_WEBSITE_BASE_PATH ?? "/";
 
 const grammarPath = resolve(import.meta.dirname, "../../grammars/typespec.json");
@@ -31,6 +33,7 @@ export default defineConfig({
     starlight({
       title: "TypeSpec",
       sidebar: await resolveSideBars(),
+      favicon: "/img/favicon.svg",
       customCss: ["./src/css/custom.css"],
       components: {
         Header: "./src/components/header/header.astro",
@@ -56,6 +59,7 @@ export default defineConfig({
       plugins: [],
     }),
     react(),
+    tailwind({ applyBaseStyles: false }),
   ],
   markdown: {
     // @ts-expect-error wrong type

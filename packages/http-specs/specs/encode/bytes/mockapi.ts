@@ -1,5 +1,11 @@
 import { resolvePath } from "@typespec/compiler";
-import { CollectionFormat, MockRequest, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
+import {
+  CollectionFormat,
+  json,
+  MockRequest,
+  passOnSuccess,
+  ScenarioMockApi,
+} from "@typespec/spec-api";
 import { readFileSync } from "fs";
 import { fileURLToPath } from "url";
 
@@ -71,6 +77,7 @@ function createPropertyServerTests(uri: string, data: any, value: any) {
     },
     response: {
       status: 200,
+      body: json({ value: value }),
     },
     kind: "MockApiDefinition",
   });

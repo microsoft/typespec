@@ -773,10 +773,11 @@ namespace Microsoft.Generator.CSharp.Providers
             }
 
             var modifiers = FieldModifiers.Private;
-            if (!DeclarationModifiers.HasFlag(TypeSignatureModifiers.Sealed))
+            if (!DeclarationModifiers.HasFlag(TypeSignatureModifiers.Sealed) && !DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct))
             {
                 modifiers |= FieldModifiers.Protected;
             }
+            modifiers |= FieldModifiers.ReadOnly;
 
             var rawDataField = new FieldProvider(
                 modifiers: modifiers,

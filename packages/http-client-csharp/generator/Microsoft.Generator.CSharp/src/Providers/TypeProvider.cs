@@ -192,7 +192,7 @@ namespace Microsoft.Generator.CSharp.Providers
         public IReadOnlyList<ConstructorProvider> Constructors => _constructors ??= BuildConstructorsInternal();
 
         private IReadOnlyList<FieldProvider>? _fields;
-        public IReadOnlyList<FieldProvider> Fields => _fields ??= BuildFields();
+        public IReadOnlyList<FieldProvider> Fields => _fields ??= FilterCustomizedFields(BuildFields());
 
         private IReadOnlyList<TypeProvider>? _nestedTypes;
         public IReadOnlyList<TypeProvider> NestedTypes => _nestedTypes ??= BuildNestedTypes();
@@ -238,6 +238,31 @@ namespace Microsoft.Generator.CSharp.Providers
             }
 
             return [..properties];
+        }
+
+        private protected virtual FieldProvider[] FilterCustomizedFields(FieldProvider[] specFields)
+        {
+            var fields = new List<FieldProvider>();
+            var customFields = new HashSet<string>();
+
+            foreach (var customField in GetAllCustomFields())
+            {
+                customFields.Add(customField.Name);
+                if (customField.OriginalName != null)
+                {
+                    customFields.Add(customField.OriginalName);
+                }
+            }
+
+            foreach (var field in specFields)
+            {
+                if (ShouldGenerate(field, customFields))
+                {
+                    fields.Add(field);
+                }
+            }
+
+            return [.. fields];
         }
 
         private MethodProvider[] BuildMethodsInternal()
@@ -423,11 +448,31 @@ namespace Microsoft.Generator.CSharp.Providers
             return !customProperties.Contains(property.Name);
         }
 
+        private bool ShouldGenerate(FieldProvider field, HashSet<string> customFields)
+        {
+            foreach (var attribute in GetMemberSuppressionAttributes())
+            {
+                if (IsMatch(field, attribute))
+                {
+                    return false;
+                }
+            }
+
+            return !customFields.Contains(field.Name);
+        }
+
         private static bool IsMatch(PropertyProvider propertyProvider, AttributeData attribute)
         {
             ValidateArguments(propertyProvider.EnclosingType, attribute);
             var name = attribute.ConstructorArguments[0].Value as string;
             return name == propertyProvider.Name;
+        }
+
+        private static bool IsMatch(FieldProvider fieldProvider, AttributeData attribute)
+        {
+            ValidateArguments(fieldProvider.EnclosingType, attribute);
+            var name = attribute.ConstructorArguments[0].Value as string;
+            return name == fieldProvider.Name;
         }
 
         private static bool IsMatch(TypeProvider enclosingType, MethodSignatureBase signature, AttributeData attribute)
@@ -501,13 +546,13 @@ namespace Microsoft.Generator.CSharp.Providers
             var arguments = attributeData.ConstructorArguments;
             if (arguments.Length == 0)
             {
-                throw new InvalidOperationException($"CodeGenSuppress attribute on {type.Name} must specify a method, constructor, or property name as its first argument.");
+                throw new InvalidOperationException($"CodeGenSuppress attribute on {type.Name} must specify a method, constructor, field, or property name as its first argument.");
             }
 
             if (arguments[0].Kind != TypedConstantKind.Primitive || arguments[0].Value is not string)
             {
                 var attribute = GetText(attributeData.ApplicationSyntaxReference);
-                throw new InvalidOperationException($"{attribute} attribute on {type.Name} must specify a method, constructor, or property name as its first argument.");
+                throw new InvalidOperationException($"{attribute} attribute on {type.Name} must specify a method, constructor, field, or property name as its first argument.");
             }
 
             if (arguments.Length == 2 && arguments[1].Kind == TypedConstantKind.Array)
