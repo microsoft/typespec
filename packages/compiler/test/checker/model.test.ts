@@ -265,6 +265,94 @@ describe("compiler: models", () => {
     }
   });
 
+  describe("allows using enum members with the same type as the property type", () => {
+    const testCases: [string, string, any][] = [
+      [
+        "string",
+        `"foo"`,
+        {
+          kind: "ModelProperty",
+          default: {
+            kind: "EnumMember",
+            name: "MATCH",
+            enum: { kind: "Enum", name: "Constants" },
+          },
+        },
+      ],
+      [
+        "int32",
+        `123`,
+        {
+          kind: "ModelProperty",
+          default: {
+            kind: "EnumMember",
+            name: "MATCH",
+            enum: { kind: "Enum", name: "Constants" },
+          },
+        },
+      ],
+      [
+        "float32",
+        `123.456`,
+        {
+          kind: "ModelProperty",
+          default: {
+            kind: "EnumMember",
+            name: "MATCH",
+            enum: { kind: "Enum", name: "Constants" },
+          },
+        },
+      ],
+    ];
+
+    it.each(testCases)(`foo?: %s = %s`, async (type, defaultValue, expectedValue) => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        enum Constants {
+          MATCH: ${defaultValue}
+        }
+
+        model A {
+          @test
+          foo?: ${type} = Constants.MATCH
+        }
+        `,
+      );
+      const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
+      expect(foo).toMatchObject(expectedValue);
+    });
+  });
+
+  describe("doesn't allow using enum members of different type than the property type", () => {
+    const testCases: [string, string, string][] = [
+      ["string", `123`, `Type 'Constants.MATCH' is not assignable to type 'string'`],
+      ["int32", `"foo"`, `Type 'Constants.MATCH' is not assignable to type 'int32'`],
+      ["float32", `"foo"`, `Type 'Constants.MATCH' is not assignable to type 'float32'`],
+      ["int32", `123.456`, `Type 'Constants.MATCH' is not assignable to type 'int32'`],
+    ];
+
+    for (const [type, value, errorMessage] of testCases) {
+      it(`foo?: ${type} = Constants.MATCH`, async () => {
+        testHost.addTypeSpecFile(
+          "main.tsp",
+          `
+          enum Constants {
+            MATCH: ${value}
+          }
+
+          model A { foo?: ${type} = Constants.MATCH }
+          `,
+        );
+        const diagnostics = await testHost.diagnose("main.tsp");
+        expectDiagnostics(diagnostics, {
+          code: "unassignable",
+          message: errorMessage,
+        });
+      });
+    }
+  });
+
   it(`emit diagnostic when using non value type as default value`, async () => {
     const { source, pos } = extractCursor(`
     model Foo<D> {
