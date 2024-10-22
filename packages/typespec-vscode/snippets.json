@@ -1,22 +1,22 @@
 {
   "Enum": {
     "prefix": "enum",
-    "body": "enum ${1:name} {\n  ${0:value},\n}",
+    "body": "enum ${1:Name} {\n  ${0:value},\n}",
     "description": "Enum definition"
   },
   "Interface": {
     "prefix": "interface",
-    "body": "interface ${1:name} {\n  ${2:member}(${3:parameters}:${4:type}): ${0:returnType};\n}",
+    "body": "interface ${1:Name} {\n  ${2:member}(${3:parameters}:${4:type}): ${0:returnType};\n}",
     "description": "Interface definition"
   },
   "Model": {
     "prefix": "model",
-    "body": "model ${1:name} {\n  ${2:propertyName}: ${0:propertyType};\n}",
+    "body": "model ${1:Name} {\n  ${2:propertyName}: ${0:propertyType};\n}",
     "description": "Model definition"
   },
   "Namespace": {
     "prefix": "namespace",
-    "body": "namespace ${1:name} {\n  $TM_SELECTED_TEXT$0\n}",
+    "body": "namespace ${1:Name} {\n  $TM_SELECTED_TEXT$0\n}",
     "description": "Namespace definition"
   },
   "Operation": {
@@ -26,7 +26,7 @@
   },
   "Union": {
     "prefix": "union",
-    "body": "union ${1:name} = ${2:variant1} | ${0:variant2};",
+    "body": "union ${1:Name} = ${2:variant1} | ${0:variant2};",
     "description": "Named union definition"
   }
 }
