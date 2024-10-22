@@ -6,7 +6,6 @@ on:
   push:
     branches:
       - main
-      - switch-astro
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
