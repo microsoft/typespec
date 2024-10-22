@@ -6,8 +6,6 @@ import {
   CompletionList,
   CompletionParams,
   DefinitionParams,
-  DiagnosticRelatedInformation,
-  DiagnosticSeverity,
   DiagnosticTag,
   DidChangeWatchedFilesParams,
   DocumentFormattingParams,
@@ -48,14 +46,10 @@ import {
 } from "vscode-languageserver/node.js";
 import { CharCode } from "../core/charcode.js";
 import { resolveCodeFix } from "../core/code-fixes.js";
-import {
-  compilerAssert,
-  getDiagnosticTemplateInstantitationTrace,
-  getSourceLocation,
-} from "../core/diagnostics.js";
+import { compilerAssert, getSourceLocation } from "../core/diagnostics.js";
 import { formatTypeSpec } from "../core/formatter.js";
 import { getEntityName, getTypeName } from "../core/helpers/type-name-utils.js";
-import { ResolveModuleHost, SourceLocation, resolveModule } from "../core/index.js";
+import { ResolveModuleHost, resolveModule } from "../core/index.js";
 import { getPositionBeforeTrivia } from "../core/parser-utils.js";
 import { getNodeAtPosition, getNodeAtPositionDetail, visitChildren } from "../core/parser.js";
 import { ensureTrailingDirectorySeparator, getDirectoryPath } from "../core/path-utils.js";
@@ -79,11 +73,12 @@ import {
   TypeReferenceNode,
   TypeSpecScriptNode,
 } from "../core/types.js";
-import { getNormalizedRealPath, isDefined, resolveTspMain } from "../utils/misc.js";
+import { getNormalizedRealPath, resolveTspMain } from "../utils/misc.js";
 import { getSemanticTokens } from "./classify.js";
 import { createCompileService } from "./compile-service.js";
 import { resolveCompletion } from "./completion.js";
 import { Commands } from "./constants.js";
+import { convertDiagnosticToLsp } from "./diagnostics.js";
 import { createFileService } from "./file-service.js";
 import { createFileSystemCache } from "./file-system-cache.js";
 import { getSymbolStructure } from "./symbol-structure.js";
@@ -378,7 +373,7 @@ export function createServer(host: ServerHost): Server {
     }
 
     for (const each of program.diagnostics) {
-      const results = convertDiagnosticToLsp(program, document, each);
+      const results = convertDiagnosticToLsp(fileService, program, document, each);
       for (const result of results) {
         const [diagnostic, diagDocument] = result;
         if (each.url) {
@@ -403,125 +398,6 @@ export function createServer(host: ServerHost): Server {
     for (const [document, diagnostics] of diagnosticMap) {
       sendDiagnostics(document, diagnostics);
     }
-  }
-
-  function getDocumentForLocation(
-    diagnostic: Diagnostic,
-    location: SourceLocation,
-    currentDocument: TextDocument,
-  ): TextDocument | undefined {
-    if (location?.file) {
-      return (location.file as ServerSourceFile).document;
-    } else {
-      // https://github.com/microsoft/language-server-protocol/issues/256
-      //
-      // LSP does not currently allow sending a diagnostic with no location so
-      // we report diagnostics with no location on the document that changed to
-      // trigger.
-      log({ level: "debug", message: `Diagnostic with no location: ${diagnostic.message}` });
-      return currentDocument;
-    }
-  }
-  function getVSLocation(
-    diagnostic: Diagnostic,
-    location: SourceLocation | undefined,
-    currentDocument: TextDocument,
-  ): { document: TextDocument; range: Range } | undefined {
-    if (location === undefined) return undefined;
-    const document = getDocumentForLocation(diagnostic, location, currentDocument);
-    if (!document || !fileService.upToDate(document)) {
-      return undefined;
-    }
-
-    const start = document.positionAt(location?.pos ?? 0);
-    const end = document.positionAt(location?.end ?? 0);
-    const range = Range.create(start, end);
-
-    return { range, document };
-  }
-
-  /** Convert TypeSpec Diagnostic to Lsp diagnostic. Each TypeSpec diagnostic could produce multiple lsp ones when it involve multiple locations. */
-  function convertDiagnosticToLsp(
-    program: Program,
-    document: TextDocument,
-    diagnostic: Diagnostic,
-  ): [VSDiagnostic, TextDocument][] {
-    const root = getVSLocation(
-      diagnostic,
-      getSourceLocation(diagnostic.target, { locateId: true }),
-      document,
-    );
-    const instantiationNodes = getDiagnosticTemplateInstantitationTrace(diagnostic.target);
-    if (root === undefined) return [];
-
-    const severity = convertSeverity(diagnostic.severity);
-
-    const relatedInformation: DiagnosticRelatedInformation[] = [];
-    const relatedDiagnostics: [VSDiagnostic, TextDocument][] = [];
-    if (instantiationNodes.length > 0) {
-      const items = instantiationNodes
-        .map((node) => {
-          const location = getVSLocation(
-            diagnostic,
-            getSourceLocation(node, { locateId: true }),
-            document,
-          );
-          return location === undefined
-            ? undefined
-            : {
-                node,
-                location,
-              };
-        })
-        .filter(isDefined);
-      for (const { location, node } of items) {
-        relatedInformation.push(
-          DiagnosticRelatedInformation.create(
-            { uri: location.document.uri, range: location.range },
-            `in instantiation of template \`${getTypeName(program.checker.getTypeForNode(node))}\``,
-          ),
-        );
-      }
-
-      const [last, ...rest] = [...items].reverse();
-
-      if (last) {
-        relatedDiagnostics.push([
-          VSDiagnostic.create(
-            last.location.range,
-            `In instantiation of this template:`,
-            DiagnosticSeverity.Warning,
-            diagnostic.code,
-            "TypeSpec",
-            [
-              ...rest.map((x) =>
-                DiagnosticRelatedInformation.create(
-                  { uri: x.location.document.uri, range: x.location.range },
-                  `in instantiation of template \`${getTypeName(program.checker.getTypeForNode(x.node))}\``,
-                ),
-              ),
-              DiagnosticRelatedInformation.create(
-                { uri: root.document.uri, range: root.range },
-                diagnostic.message,
-              ),
-            ],
-          ),
-          last.location.document,
-        ]);
-      }
-    }
-    const rootDiagnostic: [VSDiagnostic, TextDocument] = [
-      VSDiagnostic.create(
-        root.range,
-        diagnostic.message,
-        severity,
-        diagnostic.code,
-        "TypeSpec",
-        relatedInformation,
-      ),
-      root.document,
-    ];
-    return [rootDiagnostic, ...relatedDiagnostics];
   }
 
   async function getHover(params: HoverParams): Promise<Hover> {
@@ -1001,15 +877,6 @@ export function createServer(host: ServerHost): Server {
     const start = file.getLineAndCharacterOfPosition(location.pos);
     const end = file.getLineAndCharacterOfPosition(location.end);
     return Range.create(start, end);
-  }
-
-  function convertSeverity(severity: "warning" | "error"): DiagnosticSeverity {
-    switch (severity) {
-      case "warning":
-        return DiagnosticSeverity.Warning;
-      case "error":
-        return DiagnosticSeverity.Error;
-    }
   }
 
   function log(log: ServerLog) {
