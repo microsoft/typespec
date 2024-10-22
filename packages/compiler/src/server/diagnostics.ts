@@ -11,7 +11,7 @@ import {
 } from "../core/diagnostics.js";
 import { getTypeName } from "../core/helpers/type-name-utils.js";
 import type { Program } from "../core/program.js";
-import type { SourceLocation } from "../core/types.js";
+import type { Node, SourceLocation } from "../core/types.js";
 import { Diagnostic } from "../core/types.js";
 import { isDefined } from "../utils/misc.js";
 import type { FileService } from "./file-service.js";
@@ -32,20 +32,13 @@ export function convertDiagnosticToLsp(
   const relatedDiagnostics: [VSDiagnostic, TextDocument][] = [];
   if (instantiationNodes.length > 0) {
     const items = instantiationNodes
-      .map((node) => {
-        const location = getVSLocation(getSourceLocation(node, { locateId: true }), document);
-        return location === undefined
-          ? undefined
-          : {
-              node,
-              location,
-            };
-      })
+      .map((node) => getVSLocationWithTypeInfo(program, node, document))
       .filter(isDefined);
-    for (const { location, node } of items) {
+
+    for (const location of items) {
       relatedInformation.push({
         location: { uri: location.document.uri, range: location.range },
-        message: `in instantiation of template \`${getTypeName(program.checker.getTypeForNode(node))}\``,
+        message: `in instantiation of template \`${location.typeName}\``,
       });
     }
 
@@ -54,14 +47,14 @@ export function convertDiagnosticToLsp(
     if (last) {
       relatedDiagnostics.push([
         createLspDiagnostic({
-          range: last.location.range,
+          range: last.range,
           message: `In instantiation of this template:`,
           severity: DiagnosticSeverity.Warning,
           code: diagnostic.code,
           relatedInformation: [
-            ...rest.map((x) => ({
-              location: { uri: x.location.document.uri, range: x.location.range },
-              message: `in instantiation of template \`${getTypeName(program.checker.getTypeForNode(x.node))}\``,
+            ...rest.map((location) => ({
+              location: { uri: location.document.uri, range: location.range },
+              message: `in instantiation of template \`${location.typeName}\``,
             })),
             {
               location: { uri: root.document.uri, range: root.range },
@@ -69,7 +62,7 @@ export function convertDiagnosticToLsp(
             },
           ],
         }),
-        last.location.document,
+        last.document,
       ]);
     }
   }
@@ -109,10 +102,15 @@ function getDocumentForLocation(
   }
 }
 
+interface VSLocation {
+  readonly document: TextDocument;
+  readonly range: Range;
+}
+
 function getVSLocation(
   location: SourceLocation | undefined,
   currentDocument: TextDocument,
-): { document: TextDocument; range: Range } | undefined {
+): VSLocation | undefined {
   if (location === undefined) return undefined;
   const document = getDocumentForLocation(location, currentDocument);
   if (!document) {
@@ -123,6 +121,24 @@ function getVSLocation(
   const end = document.positionAt(location?.end ?? 0);
 
   return { range: { start, end }, document };
+}
+
+interface VSLocationWithTypeInfo extends VSLocation {
+  readonly typeName: string;
+  readonly node: Node;
+}
+function getVSLocationWithTypeInfo(
+  program: Program,
+  node: Node,
+  document: TextDocument,
+): VSLocationWithTypeInfo | undefined {
+  const location = getVSLocation(getSourceLocation(node, { locateId: true }), document);
+  if (location === undefined) return undefined;
+  return {
+    ...location,
+    node,
+    typeName: getTypeName(program.checker.getTypeForNode(node)),
+  };
 }
 
 function convertSeverity(severity: "warning" | "error"): DiagnosticSeverity {
