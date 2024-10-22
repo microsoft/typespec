@@ -34,7 +34,7 @@ jobs:
 
       - name: Install browsers
         run: pnpm exec playwright install
-        working-directory: packages/astro-website
+        working-directory: packages/website-astro
 
       # - name: Build
       #   run: pnpm --filter "@typespec/website..." run build
