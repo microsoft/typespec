@@ -4,6 +4,7 @@
 using System;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
@@ -18,9 +19,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
         }
 
-        public abstract HttpMessageApi CreateMessage();
-
-        public abstract ValueExpression CreateMessage(HttpRequestOptionsApi requestOptions, ValueExpression responseClassifier);
+        public abstract ValueExpression CreateMessage(ParameterProvider requestOptions, ValueExpression responseClassifier);
 
         public abstract InvokeMethodExpression Send(HttpMessageApi message);
 

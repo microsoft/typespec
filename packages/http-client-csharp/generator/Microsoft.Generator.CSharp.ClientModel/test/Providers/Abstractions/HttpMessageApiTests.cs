@@ -32,7 +32,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.Abstractions
 
             Assert.IsNotNull(method);
             Assert.IsNotNull(method!.BodyStatements);
-            var test = method!.BodyStatements!.ToDisplayString();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), method!.BodyStatements!.ToDisplayString());
         }
 
