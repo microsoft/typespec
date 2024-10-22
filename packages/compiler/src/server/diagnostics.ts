@@ -25,9 +25,9 @@ export function convertDiagnosticToLsp(
   diagnostic: Diagnostic,
 ): [VSDiagnostic, TextDocument][] {
   const root = getVSLocation(getSourceLocation(diagnostic.target, { locateId: true }), document);
-  const instantiationNodes = getDiagnosticTemplateInstantitationTrace(diagnostic.target);
   if (root === undefined || !fileService.upToDate(root.document)) return [];
 
+  const instantiationNodes = getDiagnosticTemplateInstantitationTrace(diagnostic.target);
   const relatedInformation: DiagnosticRelatedInformation[] = [];
   const relatedDiagnostics: [VSDiagnostic, TextDocument][] = [];
   if (instantiationNodes.length > 0) {
