@@ -257,7 +257,7 @@ namespace Microsoft.Generator.CSharp.Primitives
             {
                 if (IsReadOnlyMemory)
                 {
-                    return new CSharpType(typeof(ReadOnlyMemory<>), Arguments);
+                    return new CSharpType(ElementType.FrameworkType.MakeArrayType());
                 }
 
                 if (IsList)

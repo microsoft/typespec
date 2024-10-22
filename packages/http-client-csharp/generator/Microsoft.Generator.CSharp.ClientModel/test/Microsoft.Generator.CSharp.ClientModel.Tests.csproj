@@ -25,4 +25,10 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Providers\MrwSerializationTypeDefinitions\TestData\ModelCustomizationTests\CanCustomizePropertyIntoReadOnlyMemory\MockInputModel.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>
