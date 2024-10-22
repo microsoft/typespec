@@ -36,6 +36,7 @@ namespace Microsoft.Generator.CSharp.Providers
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _generatedTypeProvider.DeclarationModifiers;
 
         private protected override PropertyProvider[] FilterCustomizedProperties(PropertyProvider[] canonicalProperties) => canonicalProperties;
+        private protected override FieldProvider[] FilterCustomizedFields(FieldProvider[] canonicalFields) => canonicalFields;
 
         private protected override CanonicalTypeProvider GetCanonicalView() => this;
 
@@ -212,7 +213,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private static CSharpType EnsureEnum(InputModelProperty? specProperty, CSharpType customType)
         {
-            if (IsCustomizedEnumProperty(specProperty, customType, out var specType))
+            if (!customType.IsFrameworkType && IsCustomizedEnumProperty(specProperty, customType, out var specType))
             {
                 return new CSharpType(
                     customType.Name,

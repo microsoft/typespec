@@ -323,6 +323,17 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task CanRemoveField()
+        {
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModelTypes: [InputFactory.Model("mockInputModel", properties: [])],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var csharpGen = new CSharpGen();
+            await csharpGen.ExecuteAsync();
+            Assert.AreEqual(0, plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel").Fields.Count);
+        }
+
+        [Test]
         public async Task CanChangeEnumMemberName()
         {
             var enumValues = new[]
@@ -342,12 +353,12 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.IsNotNull(enumProvider);
 
             // validate the enum provider uses the custom member name
-            Assert.AreEqual(3, enumProvider!.Fields.Count);
-            Assert.AreEqual("Red", enumProvider.Fields[0].Name);
-            Assert.AreEqual("Green", enumProvider.Fields[1].Name);
-            Assert.AreEqual("SkyBlue", enumProvider.Fields[2].Name);
+            Assert.AreEqual(3, enumProvider!.EnumValues.Count);
+            Assert.AreEqual("Red", enumProvider.EnumValues[0].Name);
+            Assert.AreEqual("Green", enumProvider.EnumValues[1].Name);
+            Assert.AreEqual("SkyBlue", enumProvider.EnumValues[2].Name);
 
-            // the members should also be added to the custom code view
+            // the members should be added to the custom code view with the custom member names
             Assert.IsNotNull(customCodeView);
             Assert.AreEqual(3, customCodeView?.Fields.Count);
             Assert.AreEqual("Red", customCodeView?.Fields[0].Name);
@@ -478,6 +489,26 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
 
             // The generated code should not contain any ctors
             Assert.IsEmpty(plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel").Constructors);
+        }
+
+        [Test]
+        public async Task CanReplaceField()
+        {
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModelTypes: new[] {
+                    InputFactory.Model(
+                        "mockInputModel",
+                        // use Input so that we generate a public ctor
+                        usage: InputModelTypeUsage.Input,
+                        properties: []),
+                },
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var csharpGen = new CSharpGen();
+
+            await csharpGen.ExecuteAsync();
+
+            // The generated code should not contain any fields
+            Assert.IsEmpty(plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel").Fields);
         }
 
         [Test]
