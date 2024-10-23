@@ -41,7 +41,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Client.Structure.ClientOperationGrou
             Assert.IsNotNull(typeof(SubNamespaceSecondClient).GetMethods().Where(m => m.Name == "FiveAsync").FirstOrDefault());
             //check existence of method to get the operation group client
             Assert.AreNotEqual(null, typeof(SubNamespaceSecondClient).GetMethod("GetGroup5Client"));
-            /*cheeck methods in operation group5 client. */
+            /*check methods in operation group5 client. */
             var methodsOfGroup5 = typeof(Group5).GetMethods();
             Assert.IsNotNull(methodsOfGroup5);
             Assert.AreEqual(2, methodsOfGroup5.Where(method => method.Name.EndsWith("Async")).ToArray().Length);
