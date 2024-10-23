@@ -30,6 +30,11 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     },
+    "http-client-structure-client-operation-group": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/client/structure/client-operation-group -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
     "http-client-structure-multi-client": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/client/structure/multi-client -p StubLibraryPlugin",
       "commandName": "Executable",
