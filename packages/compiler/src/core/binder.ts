@@ -29,6 +29,7 @@ import {
   ProjectionNode,
   ProjectionParameterDeclarationNode,
   ProjectionStatementNode,
+  ScalarConstructorNode,
   ScalarStatementNode,
   ScopeNode,
   Sym,
@@ -312,6 +313,9 @@ export function createBinder(program: Program): Binder {
       case SyntaxKind.ScalarStatement:
         bindScalarStatement(node);
         break;
+      case SyntaxKind.ScalarConstructor:
+        bindScalarConstructor(node);
+        break;
       case SyntaxKind.InterfaceStatement:
         bindInterfaceStatement(node);
         break;
@@ -523,6 +527,10 @@ export function createBinder(program: Program): Binder {
     mutate(node).locals = new SymbolTable();
   }
 
+  function bindScalarConstructor(node: ScalarConstructorNode) {
+    declareMember(node, SymbolFlags.Member, node.id.sv);
+  }
+
   function bindInterfaceStatement(node: InterfaceStatementNode) {
     declareSymbol(node, SymbolFlags.Interface | SymbolFlags.Declaration);
     mutate(node).locals = new SymbolTable();
@@ -678,7 +686,12 @@ export function createBinder(program: Program): Binder {
    * @param name name of the symbol
    */
   function declareMember(
-    node: ModelPropertyNode | OperationStatementNode | EnumMemberNode | UnionVariantNode,
+    node:
+      | ModelPropertyNode
+      | OperationStatementNode
+      | EnumMemberNode
+      | UnionVariantNode
+      | ScalarConstructorNode,
     flags: SymbolFlags,
     name: string,
   ) {
