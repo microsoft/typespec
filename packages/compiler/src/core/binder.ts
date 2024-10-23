@@ -539,7 +539,7 @@ export function createBinder(program: Program): Binder {
     mutate(node).locals = new SymbolTable();
   }
   function bindConstStatement(node: ConstStatementNode) {
-    declareSymbol(node, SymbolFlags.Const);
+    declareSymbol(node, SymbolFlags.Const | SymbolFlags.Declaration);
   }
 
   function bindEnumStatement(node: EnumStatementNode) {
@@ -620,7 +620,7 @@ export function createBinder(program: Program): Binder {
    * @returns Created Symbol
    */
   function declareSymbol(node: Declaration, flags: SymbolFlags, name?: string) {
-    compilerAssert(flags & SymbolFlags.Declaration, "Expected declaration symbol");
+    compilerAssert(flags & SymbolFlags.Declaration, `Expected declaration symbol: ${name}`, node);
     switch (scope.kind) {
       case SyntaxKind.NamespaceStatement:
         return declareNamespaceMember(node, flags, name);
