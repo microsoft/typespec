@@ -223,7 +223,12 @@ export function createBinder(program: Program): Binder {
         flags: NodeFlags.None,
         symbol: undefined!,
       };
-      const sym = createSymbol(jsNamespaceNode, part, SymbolFlags.Namespace, containerSymbol);
+      const sym = createSymbol(
+        jsNamespaceNode,
+        part,
+        SymbolFlags.Namespace | SymbolFlags.Declaration,
+        containerSymbol,
+      );
       mutate(jsNamespaceNode).symbol = sym;
       if (existingBinding) {
         if (existingBinding.flags & SymbolFlags.Namespace) {
@@ -246,7 +251,7 @@ export function createBinder(program: Program): Binder {
       sym = createSymbol(
         sourceFile,
         "@" + name,
-        SymbolFlags.Decorator | SymbolFlags.Implementation,
+        SymbolFlags.Decorator | SymbolFlags.Declaration | SymbolFlags.Implementation,
         containerSymbol,
       );
     } else {
@@ -254,7 +259,7 @@ export function createBinder(program: Program): Binder {
       sym = createSymbol(
         sourceFile,
         name,
-        SymbolFlags.Function | SymbolFlags.Implementation,
+        SymbolFlags.Function | SymbolFlags.Declaration | SymbolFlags.Implementation,
         containerSymbol,
       );
     }
@@ -420,7 +425,7 @@ export function createBinder(program: Program): Binder {
         node,
         name,
         SymbolFlags.Projection | SymbolFlags.Declaration,
-        scope.symbol
+        scope.symbol,
       );
       mutate(table).set(name, sym);
     }
@@ -581,7 +586,7 @@ export function createBinder(program: Program): Binder {
       declareMember(
         statement,
         SymbolFlags.Operation | SymbolFlags.Member | SymbolFlags.Declaration,
-        statement.id.sv
+        statement.id.sv,
       );
     } else {
       declareSymbol(statement, SymbolFlags.Operation | SymbolFlags.Declaration);
@@ -602,7 +607,7 @@ export function createBinder(program: Program): Binder {
       node,
       node.id.sv,
       SymbolFlags.FunctionParameter | SymbolFlags.Declaration,
-      scope.symbol
+      scope.symbol,
     );
     mutate(node).symbol = symbol;
   }
@@ -675,7 +680,7 @@ export function createBinder(program: Program): Binder {
   function declareMember(
     node: ModelPropertyNode | OperationStatementNode | EnumMemberNode | UnionVariantNode,
     flags: SymbolFlags,
-    name: string
+    name: string,
   ) {
     const symbol = createSymbol(node, name, flags, scope.symbol);
     mutate(node).symbol = symbol;
@@ -736,7 +741,7 @@ export function createSymbol(
 
   compilerAssert(
     !(flags & SymbolFlags.Declaration) || node !== undefined,
-    "Declaration without node"
+    "Declaration without node",
   );
 
   return {
