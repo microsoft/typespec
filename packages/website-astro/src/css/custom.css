@@ -42,3 +42,7 @@ header.header {
 .DocSearch-Container {
   z-index: 1000 !important;
 }
+
+.sl-markdown-content code {
+  overflow-wrap: normal;
+}
