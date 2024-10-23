@@ -18,12 +18,14 @@ extern dec useRef(target: Model | ModelProperty, ref: valueof string);
 model AdditionalTag {
   /** A description of the API. */
   description?: string;
-  externalDocs?: ExternalDocs
+
+  externalDocs?: ExternalDocs;
 }
 
 model ExternalDocs {
   /** Documentation url */
   url: string;
+
   /** Optional description */
   description?: string;
 }
@@ -33,4 +35,8 @@ model ExternalDocs {
  * @param name tag name
  * @param additionalTag Additional information
  */
-extern dec tagMetadata(target: Namespace | Interface | Operation, name: valueof string, additionalTag?: AdditionalTag);
+extern dec tagMetadata(
+  target: Namespace | Interface | Operation,
+  name: valueof string,
+  additionalTag?: AdditionalTag
+);

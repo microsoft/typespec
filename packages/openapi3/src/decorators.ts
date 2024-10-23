@@ -52,8 +52,8 @@ export function getOneOf(program: Program, entity: Type): boolean {
   return program.stateMap(oneOfKey).get(entity);
 }
 
-const [getTagsMetadataState, setTagMetadatas] = unsafe_useStateMap<Type, OpenAPI3Tag[]>(
-  Symbol.for("tagMetadatas"),
+const [getTagsMetadataState, setTagsMetadata] = unsafe_useStateMap<Type, OpenAPI3Tag[]>(
+  Symbol.for("tagsMetadata"),
 );
 export const $tagMetadata: TagMetadataDecorator = (
   context: DecoratorContext,
@@ -82,7 +82,7 @@ export const $tagMetadata: TagMetadataDecorator = (
   if (tags) {
     tags.push(metadata);
   } else {
-    setTagMetadatas(context.program, entity, [metadata]);
+    setTagsMetadata(context.program, entity, [metadata]);
   }
 };
 
@@ -92,7 +92,7 @@ export function getTagMetadata(program: Program, entity: Type): OpenAPI3Tag[] {
 
 // Merge the tags for a operation with the tags that are on the namespace or
 // interface it resides within.
-export function getAllTagMetadatas(
+export function getAllTagsMetadata(
   program: Program,
   target: Namespace | Interface | Operation,
 ): OpenAPI3Tag[] | undefined {

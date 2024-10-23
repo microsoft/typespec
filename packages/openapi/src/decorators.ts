@@ -19,9 +19,9 @@ import {
   InfoDecorator,
   OperationIdDecorator,
 } from "../generated-defs/TypeSpec.OpenAPI.js";
+import { checkNoAdditionalProperties, isOpenAPIExtensionKey } from "./helpers.js";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
 import { AdditionalInfo, ExtensionKey, ExternalDocs } from "./types.js";
-import { checkNoAdditionalProperties, isOpenAPIExtensionKey }from "./helpers.js"
 
 const operationIdsKey = createStateSymbol("operationIds");
 /**

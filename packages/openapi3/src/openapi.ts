@@ -85,7 +85,7 @@ import {
 } from "@typespec/openapi";
 import { buildVersionProjections, VersionProjections } from "@typespec/versioning";
 import { stringify } from "yaml";
-import { getAllTagMetadatas, getRef } from "./decorators.js";
+import { getAllTagsMetadata, getRef } from "./decorators.js";
 import { applyEncoding } from "./encoding.js";
 import { getExampleOrExamples, OperationExamples, resolveOperationExamples } from "./examples.js";
 import { createDiagnostic, FileType, OpenAPI3EmitterOptions } from "./lib.js";
@@ -730,7 +730,7 @@ function createOAPIEmitter(
         }
       }
 
-      const opTagMetadatas = getAllTagMetadatas(program, op.operation);
+      const opTagMetadatas = getAllTagsMetadata(program, op.operation);
       if (opTagMetadatas) {
         const opTagNames = opTagMetadatas.map((tag) => tag.name);
         const currentTags = oai3Operation.tags;
@@ -807,7 +807,7 @@ function createOAPIEmitter(
       }
     }
 
-    const currentTagMetadatas = getAllTagMetadatas(program, op);
+    const currentTagMetadatas = getAllTagsMetadata(program, op);
     if (currentTagMetadatas) {
       const currentTagNames = currentTagMetadatas.map((tag) => tag.name);
       oai3Operation.tags = currentTagNames;
