@@ -1,6 +1,5 @@
 import assert from "assert";
-import EventEmitter from "events";
-import type { FSWatcher, RmOptions } from "fs";
+import type { RmOptions } from "fs";
 import { readdir, readFile, stat } from "fs/promises";
 import { globby } from "globby";
 import { join } from "path";
@@ -11,7 +10,13 @@ import { NodeHost } from "../core/node-host.js";
 import { CompilerOptions } from "../core/options.js";
 import { getAnyExtensionFromPath, getDirectoryPath, resolvePath } from "../core/path-utils.js";
 import { compile as compileProgram, Program } from "../core/program.js";
-import type { CompilerHost, Diagnostic, OnChangedListener, StringLiteral, Type } from "../core/types.js";
+import type {
+  CompilerHost,
+  Diagnostic,
+  OnChangedListener,
+  StringLiteral,
+  Type,
+} from "../core/types.js";
 import { createSourceFile, getSourceFileKindFromExt } from "../index.js";
 import { createStringMap } from "../utils/misc.js";
 import { expectDiagnosticEmpty } from "./expect.js";
@@ -40,10 +45,10 @@ function createTestCompilerHost(
   const triggerWatcher = (changedPath: string, watchers: Map<string, OnChangedListener[]>) => {
     watchers.get(changedPath)?.forEach((cb) => cb(changedPath));
     const dir = getDirectoryPath(changedPath);
-    if(dir !== changedPath){
-      watchers.get(dir)?.forEach(cb => cb(changedPath));
+    if (dir !== changedPath) {
+      watchers.get(dir)?.forEach((cb) => cb(changedPath));
     }
-  }
+  };
   const libDirs = [resolveVirtualPath(".tsp/lib/std")];
   if (!options?.excludeTestLib) {
     libDirs.push(resolveVirtualPath(".tsp/test-lib"));
@@ -100,9 +105,13 @@ function createTestCompilerHost(
       }
     },
 
-    watch(path: string, onChanged: (filename: string)=>void) {
+    watch(path: string, onChanged: (filename: string) => void) {
       virtualFsWatchers.set(path, [...(virtualFsWatchers.get(path) ?? []), onChanged]);
-      return {close(){virtualFsWatchers.delete(path)}};
+      return {
+        close() {
+          virtualFsWatchers.delete(path);
+        },
+      };
     },
 
     getLibDirs() {
@@ -363,69 +372,4 @@ export async function findFilesFromPattern(directory: string, pattern: string): 
     cwd: directory,
     onlyFiles: true,
   });
-}
-
-class MockupFSWatcher implements FSWatcher {
-  close(): void {}
-  ref(): this {
-    throw new Error("Method not implemented.");
-  }
-  unref(): this {
-    throw new Error("Method not implemented.");
-  }
-  addListener(event: unknown, listener: unknown): this {
-    throw new Error("Method not implemented.");
-  }
-  on(event: unknown, listener: unknown): this {
-    throw new Error("Method not implemented.");
-  }
-  once(event: unknown, listener: unknown): this {
-    throw new Error("Method not implemented.");
-  }
-  prependListener(event: unknown, listener: unknown): this {
-    throw new Error("Method not implemented.");
-  }
-  prependOnceListener(event: unknown, listener: unknown): this {
-    throw new Error("Method not implemented.");
-  }
-  [EventEmitter.captureRejectionSymbol]?<K>(
-    error: Error,
-    event: string | symbol,
-    ...args: any[]
-  ): void {
-    throw new Error("Method not implemented.");
-  }
-  removeListener<K>(eventName: string | symbol, listener: (...args: any[]) => void): this {
-    throw new Error("Method not implemented.");
-  }
-  off<K>(eventName: string | symbol, listener: (...args: any[]) => void): this {
-    throw new Error("Method not implemented.");
-  }
-  removeAllListeners(eventName?: string | symbol | undefined): this {
-    throw new Error("Method not implemented.");
-  }
-  setMaxListeners(n: number): this {
-    throw new Error("Method not implemented.");
-  }
-  getMaxListeners(): number {
-    throw new Error("Method not implemented.");
-  }
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-  listeners<K>(eventName: string | symbol): Function[] {
-    throw new Error("Method not implemented.");
-  }
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-  rawListeners<K>(eventName: string | symbol): Function[] {
-    throw new Error("Method not implemented.");
-  }
-  emit<K>(eventName: string | symbol, ...args: any[]): boolean {
-    throw new Error("Method not implemented.");
-  }
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-  listenerCount<K>(eventName: string | symbol, listener?: Function | undefined): number {
-    throw new Error("Method not implemented.");
-  }
-  eventNames(): (string | symbol)[] {
-    throw new Error("Method not implemented.");
-  }
 }

@@ -398,26 +398,29 @@ describe("Test completion for tspconfig", () => {
       const workspaceFolder = join(__dirname, "./workspace");
       await testHost.addRealFolder("./workspace", workspaceFolder);
       const textDocument = testHost.addOrUpdateDocument("./workspace/tspconfig.yaml", source);
-      const {items} = await testHost.server.complete({
+      const { items } = await testHost.server.complete({
         textDocument,
         position: textDocument.positionAt(pos),
       });
       const expected = ["fake-emitter", "fake-emitter-no-schema"];
       expect(items.map((i) => i.label).sort()).toEqual(expected.sort());
-      
+
       const oldFile = await testHost.compilerHost.readFile("./workspace/package.json");
-      const changed = oldFile.text.replace("fake-emitter-no-schema", "fake-emitter-no-schema-not-exist");
+      const changed = oldFile.text.replace(
+        "fake-emitter-no-schema",
+        "fake-emitter-no-schema-not-exist",
+      );
       await testHost.compilerHost.writeFile("./workspace/package.json", changed);
 
       // sleep 1s to wait for the file watcher to trigger the cache clear
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      const {items: items2} = await testHost.server.complete({
+      const { items: items2 } = await testHost.server.complete({
         textDocument,
         position: textDocument.positionAt(pos),
       });
       const expected2 = ["fake-emitter"];
-      expect(items2.map((i) => i.label).sort()).toEqual(expected2.sort());      
+      expect(items2.map((i) => i.label).sort()).toEqual(expected2.sort());
     });
   });
 });
@@ -428,7 +431,8 @@ async function checkCompletionItems(
   expected: string[],
   tspconfigPathUnderWorkspace: string = "./tspconfig.yaml",
 ) {
-  const items = (await complete(configWithPosition, includeWorkspace, tspconfigPathUnderWorkspace)).items;
+  const items = (await complete(configWithPosition, includeWorkspace, tspconfigPathUnderWorkspace))
+    .items;
   expect(items.map((i) => i.label).sort()).toEqual(expected.sort());
 }
 
@@ -443,7 +447,10 @@ async function complete(
     const workspaceFolder = join(__dirname, "./workspace");
     await testHost.addRealFolder("./workspace", workspaceFolder);
   }
-  const textDocument = testHost.addOrUpdateDocument(join("./workspace", tspconfigPathUnderWorkspace), source);
+  const textDocument = testHost.addOrUpdateDocument(
+    join("./workspace", tspconfigPathUnderWorkspace),
+    source,
+  );
   return await testHost.server.complete({
     textDocument,
     position: textDocument.positionAt(pos),

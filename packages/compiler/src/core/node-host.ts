@@ -52,11 +52,14 @@ export const NodeHost: CompilerHost = {
   pathToFileURL(path: string) {
     return pathToFileURL(path).href;
   },
-  watch: (
-    path: string,
-    onChanged: OnChangedListener,
-  ) => {
-    return watch(path, { encoding: "utf-8", persistent: false, recursive: false }, (event, filename) => { if(filename) onChanged(filename);});
+  watch: (path: string, onChanged: OnChangedListener) => {
+    return watch(
+      path,
+      { encoding: "utf-8", persistent: false, recursive: false },
+      (event, filename) => {
+        if (filename) onChanged(filename);
+      },
+    );
   },
 };
 

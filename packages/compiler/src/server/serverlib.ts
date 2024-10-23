@@ -996,9 +996,11 @@ export function createServer(host: ServerHost): Server {
       getSourceFileKind,
     };
 
-    function watch(path: string, onChanged: OnChangedListener){
+    function watch(path: string, onChanged: OnChangedListener) {
       return base.watch(path, (filename) => {
-        fileSystemCache.notify([{ uri: fileService.getURL(filename), type: FileChangeType.Changed }]);
+        fileSystemCache.notify([
+          { uri: fileService.getURL(filename), type: FileChangeType.Changed },
+        ]);
         onChanged(filename);
       });
     }

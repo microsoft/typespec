@@ -83,16 +83,10 @@ export class NpmPackage {
     this.packageJsonFolder = packageJsonFolder;
     this.packageJsonData = packageJsonData;
 
-    const onPackageJsonChange = debounce(
-      () => {
-        this.clearCache();
-      },
-      200,
-    );
-    this.packageJsonWatcher = this.host.watch(
-      this.packageJsonFolder,
-      onPackageJsonChange,
-    );
+    const onPackageJsonChange = debounce(() => {
+      this.clearCache();
+    }, 200);
+    this.packageJsonWatcher = this.host.watch(this.packageJsonFolder, onPackageJsonChange);
   }
 
   private packageJsonFolder: string;
