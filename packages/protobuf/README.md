@@ -53,6 +53,7 @@ By default, the emitter will create `message` declarations for any models in a n
 
 - [`@field`](#@field)
 - [`@message`](#@message)
+- [`@optional`](#@optional)
 - [`@package`](#@package)
 - [`@reserve`](#@reserve)
 - [`@service`](#@service)
@@ -114,6 +115,32 @@ This decorator will force the emitter to check and emit a model.
 ##### Parameters
 
 None
+
+#### `@optional`
+
+Decorate a model property with an optional keyword. This will emit the "optional" keyword for the decorated field.
+Doesn't have affect on arrays.
+
+```typespec
+@TypeSpec.Protobuf.optional
+```
+
+##### Target
+
+`ModelProperty`
+
+##### Parameters
+
+None
+
+##### Examples
+
+```typespec
+model Example {
+  @optional
+  property: string;
+}
+```
 
 #### `@package`
 
