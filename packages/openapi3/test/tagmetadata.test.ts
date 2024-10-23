@@ -2,7 +2,7 @@ import { Interface, Namespace, Operation } from "@typespec/compiler";
 import { TestHost, expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { getAllTagMetadatas } from "./../src/decorators.js";
+import { getAllTagsMetadata } from "./../src/decorators.js";
 import { createOpenAPITestHost, diagnoseOpenApiFor, openApiFor } from "./test-host.js";
 
 describe("openapi3: tagMetadata", () => {
@@ -78,28 +78,28 @@ describe("openapi3: tagMetadata", () => {
       RecursiveOperation: Operation;
     };
 
-    deepStrictEqual(getAllTagMetadatas(testHost.program, OpNamespace), [{ name: "namespace" }]);
-    deepStrictEqual(getAllTagMetadatas(testHost.program, OpInterface), [{ name: "interface" }]);
-    deepStrictEqual(getAllTagMetadatas(testHost.program, UntaggedInterface), undefined);
-    deepStrictEqual(getAllTagMetadatas(testHost.program, NamespaceOperation), [
+    deepStrictEqual(getAllTagsMetadata(testHost.program, OpNamespace), [{ name: "namespace" }]);
+    deepStrictEqual(getAllTagsMetadata(testHost.program, OpInterface), [{ name: "interface" }]);
+    deepStrictEqual(getAllTagsMetadata(testHost.program, UntaggedInterface), undefined);
+    deepStrictEqual(getAllTagsMetadata(testHost.program, NamespaceOperation), [
       { name: "namespace" },
       { name: "namespaceOp" },
     ]);
-    deepStrictEqual(getAllTagMetadatas(testHost.program, InterfaceOperation), [
+    deepStrictEqual(getAllTagsMetadata(testHost.program, InterfaceOperation), [
       { name: "interface" },
       { name: "interfaceOp" },
     ]);
-    deepStrictEqual(getAllTagMetadatas(testHost.program, TaggedOperation), [{ name: "taggedOp" }]);
+    deepStrictEqual(getAllTagsMetadata(testHost.program, TaggedOperation), [{ name: "taggedOp" }]);
 
     // Check recursive tag walking
-    deepStrictEqual(getAllTagMetadatas(testHost.program, RecursiveNamespace), [
+    deepStrictEqual(getAllTagsMetadata(testHost.program, RecursiveNamespace), [
       { name: "recursiveNamespace" },
     ]);
-    deepStrictEqual(getAllTagMetadatas(testHost.program, RecursiveInterface), [
+    deepStrictEqual(getAllTagsMetadata(testHost.program, RecursiveInterface), [
       { name: "recursiveNamespace" },
       { name: "recursiveInterface" },
     ]);
-    deepStrictEqual(getAllTagMetadatas(testHost.program, RecursiveOperation), [
+    deepStrictEqual(getAllTagsMetadata(testHost.program, RecursiveOperation), [
       { name: "recursiveNamespace" },
       { name: "recursiveInterface" },
       { name: "recursiveOperation" },

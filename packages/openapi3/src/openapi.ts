@@ -233,7 +233,7 @@ function createOAPIEmitter(
   // De-dupe the per-endpoint tags that will be added into the #/tags
   let tags: Set<string>;
 
-  let tagMetadatas: Set<OpenAPI3Tag>;
+  let tagsMetadata: Set<OpenAPI3Tag>;
 
   const typeNameOptions: TypeNameOptions = {
     // shorten type names by removing TypeSpec and service namespace
@@ -348,7 +348,7 @@ function createOAPIEmitter(
     params = new Map();
     paramModels = new Set();
     tags = new Set();
-    tagMetadatas = new Set();
+    tagsMetadata = new Set();
   }
 
   function isValidServerVariableType(program: Program, type: Type): boolean {
@@ -633,7 +633,7 @@ function createOAPIEmitter(
       emitParameters();
       emitSchemas(service.type);
       emitTags();
-      emitTagMetadatas();
+      emitTagsMetadata();
 
       // Clean up empty entries
       if (root.components) {
@@ -730,9 +730,9 @@ function createOAPIEmitter(
         }
       }
 
-      const opTagMetadatas = getAllTagsMetadata(program, op.operation);
-      if (opTagMetadatas) {
-        const opTagNames = opTagMetadatas.map((tag) => tag.name);
+      const opTagsMetadata = getAllTagsMetadata(program, op.operation);
+      if (opTagsMetadata) {
+        const opTagNames = opTagsMetadata.map((tag) => tag.name);
         const currentTags = oai3Operation.tags;
         if (currentTags) {
           // combine tags but eliminate duplicates
@@ -740,9 +740,9 @@ function createOAPIEmitter(
         } else {
           oai3Operation.tags = opTagNames;
         }
-        for (const tag of opTagMetadatas) {
+        for (const tag of opTagsMetadata) {
           // Add to root tags if not already there
-          tagMetadatas.add(tag);
+          tagsMetadata.add(tag);
         }
       }
     }
@@ -807,13 +807,13 @@ function createOAPIEmitter(
       }
     }
 
-    const currentTagMetadatas = getAllTagsMetadata(program, op);
-    if (currentTagMetadatas) {
-      const currentTagNames = currentTagMetadatas.map((tag) => tag.name);
+    const currentTagsMetadata = getAllTagsMetadata(program, op);
+    if (currentTagsMetadata) {
+      const currentTagNames = currentTagsMetadata.map((tag) => tag.name);
       oai3Operation.tags = currentTagNames;
-      for (const tag of currentTagMetadatas) {
+      for (const tag of currentTagsMetadata) {
         // Add to root tags if not already there
-        tagMetadatas.add(tag);
+        tagsMetadata.add(tag);
       }
     }
 
@@ -1619,8 +1619,8 @@ function createOAPIEmitter(
     }
   }
 
-  function emitTagMetadatas() {
-    for (const tag of tagMetadatas) {
+  function emitTagsMetadata() {
+    for (const tag of tagsMetadata) {
       root.tags!.push(tag);
     }
   }
