@@ -61,9 +61,7 @@ export const $tagMetadata: TagMetadataDecorator = (
   name: string,
   additionalTag?: TypeSpecValue,
 ) => {
-  const curr = {
-    name: name,
-  } as OpenAPI3Tag;
+  const metadata: OpenAPI3Tag = { name };
   if (additionalTag) {
     const [data, diagnostics] = typespecTypeToJson<AdditionalTag & Record<ExtensionKey, unknown>>(
       additionalTag,
@@ -74,15 +72,17 @@ export const $tagMetadata: TagMetadataDecorator = (
       return;
     }
     validateAdditionalInfoModel(context, additionalTag);
-    curr.description = data.description;
-    curr.externalDocs = data.externalDocs;
+    if (data) {
+      metadata.description = data.description;
+      metadata.externalDocs = data.externalDocs;
+    }
   }
 
   const tags = getTagsMetadataState(context.program, entity);
   if (tags) {
-    tags.push(curr);
+    tags.push(metadata);
   } else {
-    setTagMetadatas(context.program, entity, [curr]);
+    setTagMetadatas(context.program, entity, [metadata]);
   }
 };
 
