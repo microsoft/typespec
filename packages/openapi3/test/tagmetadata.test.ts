@@ -1,9 +1,9 @@
 import { Interface, Namespace, Operation } from "@typespec/compiler";
-import { TestHost } from "@typespec/compiler/testing";
+import { TestHost,expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { getAllTagMetadatas } from "./../src/decorators.js";
-import { createOpenAPITestHost, openApiFor } from "./test-host.js";
+import { createOpenAPITestHost, openApiFor,diagnoseOpenApiFor } from "./test-host.js";
 
 describe("openapi3: tagMetadata", () => {
   let testHost: TestHost;
@@ -104,6 +104,30 @@ describe("openapi3: tagMetadata", () => {
       { name: "recursiveInterface" },
       { name: "recursiveOperation" },
     ]);
+  });
+
+  it("emit diagnostic if tagName is not a string", async () => {
+    const diagnostics = await diagnoseOpenApiFor(
+      `
+      @tagMetadata(123)
+      namespace PetStore{};
+      `);
+
+    expectDiagnostics(diagnostics, {
+      code: "invalid-argument",
+    });
+  });
+
+  it("emit diagnostic if description is not a string", async () => {
+    const diagnostics = await diagnoseOpenApiFor(
+      `
+      @tagMetadata("tagName", { description: 123, })
+      namespace PetStore{};
+      `);
+
+    expectDiagnostics(diagnostics, {
+      code: "invalid-argument",
+    });
   });
 
   it("set the additional information with @tagMetadata decorator", async () => {
