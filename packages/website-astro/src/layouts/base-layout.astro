@@ -2,6 +2,7 @@
 import "@site/src/css/custom.css";
 import Header from "@site/src/components/header/header.astro";
 import Footer from "@site/src/components/footer/footer.astro";
+import { baseUrl } from "../utils/base-url";
 
 export interface Props {
   /** Whether to render the footer @default true */
@@ -13,6 +14,8 @@ const { footer = true } = Astro.props;
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href={Astro.site + baseUrl("/img/favicon.svg")} />
+    <link rel="og:image" type="image/svg+xml" href={baseUrl("/img/social.svg")} />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://consentdeliveryfd.azurefd.net/mscc/lib/v2/wcp-consent.js" is:inline
     ></script>
