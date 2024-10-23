@@ -103,7 +103,7 @@
 html {
   font-family: var(--fontFamilyBase);
   color: var(--colorNeutralForeground1);
-  font-size: var(--fontSizeBase300);
+  font-size: var(--fontSizeBase400);
   font-weight: var(--fontWeightRegular);
   line-height: var(--lineHeightBase300);
   -webkit-font-smoothing: antialiased;

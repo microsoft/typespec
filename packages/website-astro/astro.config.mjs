@@ -27,12 +27,14 @@ const typespecLang = {
 // https://astro.build/config
 export default defineConfig({
   base,
+  site: "https://typespec.io",
   trailingSlash: "always",
   integrations: [
     astroExpressiveCode(),
     starlight({
       title: "TypeSpec",
       sidebar: await resolveSideBars(),
+      favicon: "/img/favicon.svg",
       customCss: ["./src/css/custom.css"],
       components: {
         Header: "./src/components/header/header.astro",
