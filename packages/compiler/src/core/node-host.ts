@@ -1,11 +1,11 @@
-import { realpath, watch, WatchListener, WatchOptions } from "fs";
+import { realpath, watch } from "fs";
 import { mkdir, readdir, readFile, rm, stat, writeFile } from "fs/promises";
 import { fileURLToPath, pathToFileURL } from "url";
 import { findProjectRoot } from "../utils/misc.js";
 import { createConsoleSink } from "./logger/index.js";
 import { joinPaths } from "./path-utils.js";
 import { createSourceFile, getSourceFileKindFromExt } from "./source-file.js";
-import { CompilerHost, RmOptions } from "./types.js";
+import { CompilerHost, OnChangedListener, RmOptions } from "./types.js";
 
 export const CompilerPackageRoot = (await findProjectRoot(stat, fileURLToPath(import.meta.url)))!;
 
@@ -54,10 +54,9 @@ export const NodeHost: CompilerHost = {
   },
   watch: (
     path: string,
-    options: WatchOptions | BufferEncoding,
-    onChanged: WatchListener<string>,
+    onChanged: OnChangedListener,
   ) => {
-    return watch(path, options, onChanged);
+    return watch(path, { encoding: "utf-8", persistent: false, recursive: false }, (event, filename) => { if(filename) onChanged(filename);});
   },
 };
 

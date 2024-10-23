@@ -1,4 +1,4 @@
-import { join } from "path";
+import { joinPaths } from "../core/path-utils.js";
 import { NpmPackage, NpmPackageProvider } from "./npm-package-provider.js";
 
 export class EmitterProvider {
@@ -19,7 +19,7 @@ export class EmitterProvider {
   }
 
   private async getEmitterFromDep(packageJsonFolder: string, depName: string) {
-    const depFolder = join(packageJsonFolder, "node_modules", depName);
+    const depFolder = joinPaths(packageJsonFolder, "node_modules", depName);
     const depPkg = await this.npmPackageProvider.get(depFolder);
     if (depPkg && (await EmitterProvider.isEmitter(depPkg))) {
       return depPkg;

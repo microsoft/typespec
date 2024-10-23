@@ -1,4 +1,3 @@
-import { inspect } from "util";
 import { Position, TextDocument } from "vscode-languageserver-textdocument";
 import {
   Document,
@@ -223,7 +222,7 @@ function createYamlPathFromVisitScalarNode(
       } else {
         log({
           level: "debug",
-          message: `Unexpected path structure. the next element isn't found in the sequence(array): ${inspect(next)}`,
+          message: `Unexpected path structure. the next element isn't found in the sequence(array): ${next.toJSON()}`,
         });
         return undefined;
       }

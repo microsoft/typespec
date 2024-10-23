@@ -1,11 +1,8 @@
-import { FSWatcher, WatchEventType, WatchListener } from "fs";
-import { dirname, join } from "path";
-import { normalizePath } from "../core/path-utils.js";
+import { getDirectoryPath, joinPaths, normalizePath } from "../core/path-utils.js";
 import { loadJsFile } from "../core/source-loader.js";
-import { CompilerHost, NoTarget } from "../core/types.js";
+import { Closable, CompilerHost, NoTarget } from "../core/types.js";
 import { NodePackage, resolveModule } from "../index.js";
 import { debounce, isWhitespaceStringOrUndefined, tryParseJson } from "../utils/misc.js";
-
 export class NpmPackageProvider {
   private pkgCache = new Map<string, NpmPackage>();
 
@@ -24,7 +21,7 @@ export class NpmPackageProvider {
     let lastFolder = "";
     let curFolder = startFolder;
     while (curFolder !== lastFolder) {
-      const packageJsonPath = join(curFolder, "package.json");
+      const packageJsonPath = joinPaths(curFolder, "package.json");
       try {
         const stat = await this.host.stat(packageJsonPath);
         if (stat.isFile()) {
@@ -34,7 +31,7 @@ export class NpmPackageProvider {
         // ignore
       }
       lastFolder = curFolder;
-      curFolder = dirname(curFolder);
+      curFolder = getDirectoryPath(curFolder);
     }
     return undefined;
   }
@@ -86,21 +83,20 @@ export class NpmPackage {
     this.packageJsonFolder = packageJsonFolder;
     this.packageJsonData = packageJsonData;
 
-    const onPackageJsonChange: WatchListener<string> = debounce(
-      (eventType: WatchEventType, filename: string | null) => {
+    const onPackageJsonChange = debounce(
+      () => {
         this.clearCache();
       },
       200,
     );
     this.packageJsonWatcher = this.host.watch(
       this.packageJsonFolder,
-      { encoding: "utf-8", persistent: false, recursive: false },
       onPackageJsonChange,
     );
   }
 
   private packageJsonFolder: string;
-  private packageJsonWatcher: FSWatcher | undefined;
+  private packageJsonWatcher: Closable | undefined;
 
   private packageJsonData: NodePackage | undefined;
   async getPackageJsonData(): Promise<NodePackage | undefined> {
@@ -166,7 +162,7 @@ export class NpmPackage {
     if (!packageJsonFolder) {
       return undefined;
     }
-    const packageJsonPath = join(packageJsonFolder, "package.json");
+    const packageJsonPath = joinPaths(packageJsonFolder, "package.json");
     try {
       if (!(await host.stat(packageJsonPath)).isFile()) {
         return undefined;

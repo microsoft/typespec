@@ -1,6 +1,6 @@
 import assert from "assert";
 import EventEmitter from "events";
-import type { FSWatcher, RmOptions, WatchListener, WatchOptions } from "fs";
+import type { FSWatcher, RmOptions } from "fs";
 import { readdir, readFile, stat } from "fs/promises";
 import { globby } from "globby";
 import { join } from "path";
@@ -9,9 +9,9 @@ import { logDiagnostics, logVerboseTestOutput } from "../core/diagnostics.js";
 import { createLogger } from "../core/logger/logger.js";
 import { NodeHost } from "../core/node-host.js";
 import { CompilerOptions } from "../core/options.js";
-import { getAnyExtensionFromPath, resolvePath } from "../core/path-utils.js";
+import { getAnyExtensionFromPath, getDirectoryPath, resolvePath } from "../core/path-utils.js";
 import { compile as compileProgram, Program } from "../core/program.js";
-import type { CompilerHost, Diagnostic, StringLiteral, Type } from "../core/types.js";
+import type { CompilerHost, Diagnostic, OnChangedListener, StringLiteral, Type } from "../core/types.js";
 import { createSourceFile, getSourceFileKindFromExt } from "../index.js";
 import { createStringMap } from "../utils/misc.js";
 import { expectDiagnosticEmpty } from "./expect.js";
@@ -36,6 +36,14 @@ function createTestCompilerHost(
   jsImports: Map<string, Record<string, any>>,
   options?: TestHostOptions,
 ): CompilerHost {
+  const virtualFsWatchers = new Map<string, OnChangedListener[]>();
+  const triggerWatcher = (changedPath: string, watchers: Map<string, OnChangedListener[]>) => {
+    watchers.get(changedPath)?.forEach((cb) => cb(changedPath));
+    const dir = getDirectoryPath(changedPath);
+    if(dir !== changedPath){
+      watchers.get(dir)?.forEach(cb => cb(changedPath));
+    }
+  }
   const libDirs = [resolveVirtualPath(".tsp/lib/std")];
   if (!options?.excludeTestLib) {
     libDirs.push(resolveVirtualPath(".tsp/test-lib"));
@@ -61,6 +69,7 @@ function createTestCompilerHost(
     async writeFile(path: string, content: string) {
       path = resolveVirtualPath(path);
       virtualFs.set(path, content);
+      triggerWatcher(path, virtualFsWatchers);
     },
 
     async readDir(path: string) {
@@ -82,15 +91,18 @@ function createTestCompilerHost(
         for (const key of virtualFs.keys()) {
           if (key.startsWith(`${path}/`)) {
             virtualFs.delete(key);
+            triggerWatcher(key, virtualFsWatchers);
           }
         }
       } else {
         virtualFs.delete(path);
+        triggerWatcher(path, virtualFsWatchers);
       }
     },
 
-    watch(path: string, options: WatchOptions | BufferEncoding, onChanged: WatchListener<string>) {
-      return new MockupFSWatcher();
+    watch(path: string, onChanged: (filename: string)=>void) {
+      virtualFsWatchers.set(path, [...(virtualFsWatchers.get(path) ?? []), onChanged]);
+      return {close(){virtualFsWatchers.delete(path)}};
     },
 
     getLibDirs() {
