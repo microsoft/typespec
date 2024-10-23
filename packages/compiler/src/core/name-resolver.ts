@@ -205,7 +205,6 @@ export function createResolver(program: Program): NameResolver {
     node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
   ): ResolutionResult {
     const links = getNodeLinks(node);
-
     if (links.resolutionResult) {
       return [links.resolvedSymbol, links.resolutionResult];
     }
@@ -213,6 +212,11 @@ export function createResolver(program: Program): NameResolver {
     let result = resolveTypeReferenceWorker(node);
 
     const [resolvedSym, resolvedSymResult] = result;
+
+    if (resolvedSym) {
+      links.resolvedSymbol = resolvedSym;
+    }
+    links.resolutionResult = resolvedSymResult;
 
     if (resolvedSym && resolvedSym.flags & SymbolFlags.Alias) {
       // unwrap aliases
@@ -236,10 +240,6 @@ export function createResolver(program: Program): NameResolver {
       // todo: non-declarations
     }
 
-    if (resolvedSym) {
-      links.resolvedSymbol = resolvedSym;
-    }
-    links.resolutionResult = resolvedSymResult;
     return result;
   }
 

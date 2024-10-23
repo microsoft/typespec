@@ -331,6 +331,21 @@ describe("model statements", () => {
       );
       ok(prop[1] & ResolutionResultFlags.Unknown);
     });
+
+    it("resolves model circular reference", () => {
+      const { Foo: model } = getResolutions(
+        [
+          `
+            model Foo {
+              prop: Foo;
+            }
+            ┆
+            `,
+        ],
+        "Foo",
+      );
+      assertSymbol(model, { name: "Foo", flags: SymbolFlags.Declaration });
+    });
   });
 });
 
