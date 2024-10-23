@@ -1157,7 +1157,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 if (valueType.IsReadOnlyMemory)
                 {
-                    var arrayVar = new VariableExpression(valueType.PropertyInitializationType, "array");
+                    var arrayVar = new VariableExpression(new CSharpType(valueType.ElementType.FrameworkType.MakeArrayType()), "array");
                     var index = new VariableExpression(typeof(int), "index");
                     var indexer = New.Array(valueType.ElementType, jsonElement.GetArrayLength());
                     var deserializeReadOnlyMemory = new MethodBodyStatement[]

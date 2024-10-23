@@ -316,7 +316,7 @@ namespace Microsoft.Generator.CSharp.Tests.Primitives
             var arguments = typeof(int);
             var cSharpType = new CSharpType(typeof(ReadOnlyMemory<>), arguments: arguments);
             var actual = cSharpType.PropertyInitializationType;
-            var expected = new CSharpType(typeof(int[]));
+            var expected = new CSharpType(typeof(ReadOnlyMemory<>), arguments: arguments);
 
             var areEqual = actual.Equals(expected);
 
