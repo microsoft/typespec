@@ -763,7 +763,7 @@ describe("namespaces", () => {
   });
 });
 
-describe.only("js namespaces", () => {
+describe("js namespaces", () => {
   describe("binding", () => {
     it("merges across files", () => {
       const sym = getGlobalSymbol([
