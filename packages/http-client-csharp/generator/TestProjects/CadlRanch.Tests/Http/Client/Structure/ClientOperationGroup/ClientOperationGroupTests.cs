@@ -22,7 +22,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Client.Structure.ClientOperationGrou
             //check existence of method to get the operation group client
             Assert.AreNotEqual(null, typeof(FirstClient).GetMethod("GetGroup3Client"));
             Assert.AreNotEqual(null, typeof(FirstClient).GetMethod("GetGroup4Client"));
-            /*cheeck methods in operation group3 client. */
+            /*check methods in operation group3 client. */
             var methodsOfGroup3 = typeof(Group3).GetMethods();
             Assert.IsNotNull(methodsOfGroup3);
             Assert.AreEqual(4, methodsOfGroup3.Where(method => method.Name.EndsWith("Async")).ToArray().Length);
