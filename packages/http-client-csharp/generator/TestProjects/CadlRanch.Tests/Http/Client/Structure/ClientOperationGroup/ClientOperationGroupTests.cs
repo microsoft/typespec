@@ -28,7 +28,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Client.Structure.ClientOperationGrou
             Assert.AreEqual(4, methodsOfGroup3.Where(method => method.Name.EndsWith("Async")).ToArray().Length);
             Assert.IsNotNull(typeof(Group3).GetMethods().Where(m => m.Name == "TwoAsync").FirstOrDefault());
             Assert.IsNotNull(typeof(Group3).GetMethods().Where(m => m.Name == "ThreeAsync").FirstOrDefault());
-            /*cheeck methods in operation group4 client. */
+            /*check methods in operation group4 client. */
             var methodsOfGroup4 = typeof(Group4).GetMethods();
             Assert.IsNotNull(methodsOfGroup4);
             Assert.AreEqual(2, methodsOfGroup4.Where(method => method.Name.EndsWith("Async")).ToArray().Length);
