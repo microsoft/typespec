@@ -13,7 +13,7 @@ import { resolveSideBars } from "./sidebars";
 
 const base = process.env.TYPESPEC_WEBSITE_BASE_PATH ?? "/";
 
-const grammarPath = resolve(import.meta.dirname, "../../grammars/typespec.json");
+const grammarPath = resolve(import.meta.dirname, "./grammars/typespec.json");
 const tspGrammar = JSON.parse((await readFile(grammarPath)).toString());
 
 const typespecLang = {
