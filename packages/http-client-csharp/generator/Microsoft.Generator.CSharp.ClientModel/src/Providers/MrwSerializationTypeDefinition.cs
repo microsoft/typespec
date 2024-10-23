@@ -1158,26 +1158,26 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             if (valueType.IsList || valueType.IsArray)
             {
-                if (valueType.IsArray && valueType.ElementType.IsReadOnlyMemory)
+                if (valueType.IsReadOnlyMemory)
                 {
-                    var array = new VariableExpression(valueType.ElementType.PropertyInitializationType, "array");
+                    var arrayVar = new VariableExpression(new CSharpType(valueType.ElementType.FrameworkType.MakeArrayType()), "array");
                     var index = new VariableExpression(typeof(int), "index");
                     var deserializeReadOnlyMemory = new MethodBodyStatement[]
                     {
                         Declare(index, Int(0)),
-                        Declare(array, New.Array(valueType.ElementType, jsonElement.GetArrayLength())),
+                        Declare(arrayVar, New.Array(valueType.ElementType, jsonElement.GetArrayLength())),
                         ForeachStatement.Create("item", jsonElement.EnumerateArray(), out ScopedApi<JsonElement> item).Add(new MethodBodyStatement[]
                         {
                              NullCheckCollectionItemIfRequired(valueType.ElementType, item, item.Assign(Null).Terminate(),
                                 new MethodBodyStatement[]
                                 {
                                     DeserializeValue(valueType.ElementType, item, serializationFormat, out ValueExpression deserializedArrayElement),
-                                    item.Assign(deserializedArrayElement).Terminate(),
+                                    new IndexableExpression(arrayVar)[index].Assign(deserializedArrayElement).Terminate(),
                                 }),
                             index.Increment().Terminate()
                         })
                     };
-                    value = New.Instance(valueType.ElementType, array);
+                    value = New.Instance(new CSharpType(typeof(ReadOnlyMemory<>), valueType.ElementType), arrayVar);
                     return deserializeReadOnlyMemory;
                 }
 
