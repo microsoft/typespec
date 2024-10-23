@@ -30,6 +30,7 @@
     "@typespec/compiler": "workspace:~",
     "@typespec/playground": "workspace:~",
     "astro": "^4.16.1",
+    "astro-rehype-relative-markdown-links": "^0.15.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "es-module-shims": "~1.10.0",

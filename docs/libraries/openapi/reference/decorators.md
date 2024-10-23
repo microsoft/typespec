@@ -108,9 +108,9 @@ The service `title` and `version` are already specified using `@service`.
 
 #### Parameters
 
-| Name           | Type                                                              | Description            |
-| -------------- | ----------------------------------------------------------------- | ---------------------- |
-| additionalInfo | [`AdditionalInfo`](./data-types/#TypeSpec.OpenAPI.AdditionalInfo) | Additional information |
+| Name           | Type                                                                | Description            |
+| -------------- | ------------------------------------------------------------------- | ---------------------- |
+| additionalInfo | [`AdditionalInfo`](./data-types.md#TypeSpec.OpenAPI.AdditionalInfo) | Additional information |
 
 ### `@operationId` {#@TypeSpec.OpenAPI.operationId}
 

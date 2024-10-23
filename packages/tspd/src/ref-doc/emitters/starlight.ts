@@ -67,7 +67,7 @@ function renderIndexFile(renderer: DocusaurusRenderer, refDoc: TypeSpecLibraryRe
 
     refDoc.description ?? [],
     renderer.install(refDoc),
-    refDoc.emitter?.options ? section("Emitter usage", `[See documentation](./emitter/)`) : [],
+    refDoc.emitter?.options ? section("Emitter usage", `[See documentation](./emitter.md)`) : [],
 
     groupByNamespace(refDoc.namespaces, (namespace) => {
       const content = [];
@@ -258,14 +258,14 @@ export class DocusaurusRenderer extends MarkdownRenderer {
   filename(type: RefDocEntity): string {
     switch (type.kind) {
       case "decorator":
-        return "./decorators/";
+        return "./decorators.md";
       case "operation":
       case "interface":
-        return "./interfaces/";
+        return "./interfaces.md";
       case "model":
       case "enum":
       case "union":
-        return "./data-types/";
+        return "./data-types.md";
       default:
         return "";
     }
@@ -275,7 +275,7 @@ export class DocusaurusRenderer extends MarkdownRenderer {
     const homepage = (this.refDoc.packageJson as any).docusaurusWebsite;
     if (homepage && url.includes(homepage)) {
       const fromRoot = url.replace(homepage, "");
-      return `${fromRoot}/`;
+      return `${fromRoot}.md`;
     } else {
       return url;
     }
