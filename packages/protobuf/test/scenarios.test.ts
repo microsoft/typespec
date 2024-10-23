@@ -168,7 +168,7 @@ async function doEmit(
         .filter(([name]) => name.startsWith(baseOutputPath))
         .map(([name, value]) => [name.replace(baseOutputPath, ""), value]),
     ),
-    diagnostics: diagnostics.map(formatDiagnostic),
+    diagnostics: diagnostics.map((x) => formatDiagnostic(x)),
   };
 }
 

@@ -1423,7 +1423,7 @@ function parseEach(cases: (string | [string, Callback])[], options?: ParseOption
 
       logVerboseTestOutput("\n=== Diagnostics ===");
       if (astNode.parseDiagnostics.length > 0) {
-        const diagnostics = astNode.parseDiagnostics.map(formatDiagnostic).join("\n");
+        const diagnostics = astNode.parseDiagnostics.map((x) => formatDiagnostic(x)).join("\n");
         assert.strictEqual(
           hasParseError(astNode),
           astNode.parseDiagnostics.some((e) => e.severity === "error"),
