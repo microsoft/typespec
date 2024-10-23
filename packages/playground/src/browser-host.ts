@@ -115,7 +115,13 @@ export function createBrowserHostInternal(options: BrowserHostCreateOptions): Br
       virtualFsWatchers.set(path, [...(virtualFsWatchers.get(path) ?? []), onChanged]);
       return {
         close() {
-          virtualFsWatchers.delete(path);
+          const cbs = virtualFsWatchers.get(path);
+          if(cbs){
+            const index = cbs.indexOf(onChanged);
+            if (index !== -1) {
+              cbs.splice(index, 1);
+            }
+          }
         },
       };
     },
