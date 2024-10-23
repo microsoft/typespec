@@ -1,10 +1,6 @@
 import {
-  compilerAssert,
   DecoratorContext,
-  Diagnostic,
-  DiagnosticTarget,
   getDoc,
-  getProperty,
   getService,
   getSummary,
   Model,
@@ -23,8 +19,9 @@ import {
   InfoDecorator,
   OperationIdDecorator,
 } from "../generated-defs/TypeSpec.OpenAPI.js";
-import { createDiagnostic, createStateSymbol, reportDiagnostic } from "./lib.js";
+import { createStateSymbol, reportDiagnostic } from "./lib.js";
 import { AdditionalInfo, ExtensionKey, ExternalDocs } from "./types.js";
+import { checkNoAdditionalProperties, isOpenAPIExtensionKey }from "./helpers.js"
 
 const operationIdsKey = createStateSymbol("operationIds");
 /**
@@ -112,10 +109,6 @@ export function setExtension(
  */
 export function getExtensions(program: Program, entity: Type): ReadonlyMap<ExtensionKey, any> {
   return program.stateMap(openApiExtensionKey).get(entity) ?? new Map<ExtensionKey, any>();
-}
-
-function isOpenAPIExtensionKey(key: string): key is ExtensionKey {
-  return key.startsWith("x-");
 }
 
 /**
@@ -252,37 +245,4 @@ function validateAdditionalInfoModel(context: DecoratorContext, typespecType: Ty
     );
     context.program.reportDiagnostics(diagnostics);
   }
-}
-
-function checkNoAdditionalProperties(
-  typespecType: Type,
-  target: DiagnosticTarget,
-  source: Model,
-): Diagnostic[] {
-  const diagnostics: Diagnostic[] = [];
-  compilerAssert(typespecType.kind === "Model", "Expected type to be a Model.");
-
-  for (const [name, type] of typespecType.properties.entries()) {
-    const sourceProperty = getProperty(source, name);
-    if (sourceProperty) {
-      if (sourceProperty.type.kind === "Model") {
-        const nestedDiagnostics = checkNoAdditionalProperties(
-          type.type,
-          target,
-          sourceProperty.type,
-        );
-        diagnostics.push(...nestedDiagnostics);
-      }
-    } else if (!isOpenAPIExtensionKey(name)) {
-      diagnostics.push(
-        createDiagnostic({
-          code: "invalid-extension-key",
-          format: { value: name },
-          target,
-        }),
-      );
-    }
-  }
-
-  return diagnostics;
 }

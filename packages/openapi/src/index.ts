@@ -21,6 +21,7 @@ export {
 } from "./decorators.js";
 export {
   checkDuplicateTypeName,
+  checkNoAdditionalProperties,
   getOpenAPITypeName,
   getParameterKey,
   isReadonlyProperty,

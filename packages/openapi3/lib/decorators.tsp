@@ -18,6 +18,14 @@ extern dec useRef(target: Model | ModelProperty, ref: valueof string);
 model AdditionalTag {
   /** A description of the API. */
   description?: string;
+  externalDocs?: ExternalDocs
+}
+
+model ExternalDocs {
+  /** Documentation url */
+  url: string;
+  /** Optional description */
+  description?: string;
 }
 
 /**

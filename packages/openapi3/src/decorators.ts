@@ -12,7 +12,7 @@ import {
   typespecTypeToJson,
 } from "@typespec/compiler";
 import { unsafe_useStateMap } from "@typespec/compiler/experimental";
-import { ExtensionKey } from "@typespec/openapi";
+import { ExtensionKey, checkNoAdditionalProperties } from "@typespec/openapi";
 import {
   OneOfDecorator,
   TagMetadataDecorator,
@@ -73,7 +73,7 @@ export const $tagMetadata: TagMetadataDecorator = (
     if (data === undefined) {
       return;
     }
-
+    validateAdditionalInfoModel(context, additionalTag);
     curr.description = data.description;
     curr.externalDocs = data.externalDocs;
   }
@@ -114,4 +114,19 @@ export function getAllTagMetadatas(
   }
 
   return tags.size > 0 ? Array.from(tags).reverse() : undefined;
+}
+
+function validateAdditionalInfoModel(context: DecoratorContext, typespecType: TypeSpecValue) {
+  const propertyModel = context.program.resolveTypeReference(
+    "TypeSpec.OpenAPI.AdditionalTag",
+  )[0]! as Model;
+
+  if (typeof typespecType === "object" && propertyModel) {
+    const diagnostics = checkNoAdditionalProperties(
+      typespecType,
+      context.getArgumentTarget(0)!,
+      propertyModel,
+    );
+    context.program.reportDiagnostics(diagnostics);
+  }
 }

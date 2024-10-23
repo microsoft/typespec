@@ -1,9 +1,9 @@
 import { Interface, Namespace, Operation } from "@typespec/compiler";
-import { TestHost,expectDiagnostics } from "@typespec/compiler/testing";
+import { TestHost, expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { getAllTagMetadatas } from "./../src/decorators.js";
-import { createOpenAPITestHost, openApiFor,diagnoseOpenApiFor } from "./test-host.js";
+import { createOpenAPITestHost, diagnoseOpenApiFor, openApiFor } from "./test-host.js";
 
 describe("openapi3: tagMetadata", () => {
   let testHost: TestHost;
@@ -111,7 +111,8 @@ describe("openapi3: tagMetadata", () => {
       `
       @tagMetadata(123)
       namespace PetStore{};
-      `);
+      `,
+    );
 
     expectDiagnostics(diagnostics, {
       code: "invalid-argument",
@@ -123,7 +124,8 @@ describe("openapi3: tagMetadata", () => {
       `
       @tagMetadata("tagName", { description: 123, })
       namespace PetStore{};
-      `);
+      `,
+    );
 
     expectDiagnostics(diagnostics, {
       code: "invalid-argument",

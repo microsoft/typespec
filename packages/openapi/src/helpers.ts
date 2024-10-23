@@ -1,10 +1,15 @@
 import {
+  compilerAssert,
+  Diagnostic,
+  DiagnosticTarget,
   getFriendlyName,
+  getProperty,
   getTypeName,
   getVisibility,
   isGlobalNamespace,
   isService,
   isTemplateInstance,
+  Model,
   ModelProperty,
   Operation,
   Program,
@@ -12,7 +17,8 @@ import {
   TypeNameOptions,
 } from "@typespec/compiler";
 import { getOperationId } from "./decorators.js";
-import { reportDiagnostic } from "./lib.js";
+import { createDiagnostic, reportDiagnostic } from "./lib.js";
+import { ExtensionKey } from "./types.js";
 
 /**
  * Determines whether a type will be inlined in OpenAPI rather than defined
@@ -163,4 +169,47 @@ export function isReadonlyProperty(program: Program, property: ModelProperty) {
   // note: multiple visibilities that include read are not handled using
   // readonly: true, but using separate schemas.
   return visibility?.length === 1 && visibility[0] === "read";
+}
+
+/**
+ * Determines if a OpenAPIExtensionKey is start with `x-`.
+ */
+export function isOpenAPIExtensionKey(key: string): key is ExtensionKey {
+  return key.startsWith("x-");
+}
+
+/**
+ * Check Additional Properties
+ */
+export function checkNoAdditionalProperties(
+  typespecType: Type,
+  target: DiagnosticTarget,
+  source: Model,
+): Diagnostic[] {
+  const diagnostics: Diagnostic[] = [];
+  compilerAssert(typespecType.kind === "Model", "Expected type to be a Model.");
+
+  for (const [name, type] of typespecType.properties.entries()) {
+    const sourceProperty = getProperty(source, name);
+    if (sourceProperty) {
+      if (sourceProperty.type.kind === "Model") {
+        const nestedDiagnostics = checkNoAdditionalProperties(
+          type.type,
+          target,
+          sourceProperty.type,
+        );
+        diagnostics.push(...nestedDiagnostics);
+      }
+    } else if (!isOpenAPIExtensionKey(name)) {
+      diagnostics.push(
+        createDiagnostic({
+          code: "invalid-extension-key",
+          format: { value: name },
+          target,
+        }),
+      );
+    }
+  }
+
+  return diagnostics;
 }
