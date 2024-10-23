@@ -82,8 +82,8 @@ import { provideTspconfigCompletionItems } from "./completion-tspconfig.js";
 import { resolveCompletion } from "./completion.js";
 import { Commands } from "./constants.js";
 import { EmitterProvider } from "./emitter-provider.js";
-import { createFileService, FileService } from "./file-service.js";
-import { createFileSystemCache, FileSystemCache } from "./file-system-cache.js";
+import { createFileService } from "./file-service.js";
+import { createFileSystemCache } from "./file-system-cache.js";
 import { NpmPackageProvider } from "./npm-package-provider.js";
 import { getSymbolStructure } from "./symbol-structure.js";
 import {
@@ -112,7 +112,7 @@ export function createServer(host: ServerHost): Server {
     fileService,
     log,
   });
-  const compilerHost = createCompilerHost(host, fileService, fileSystemCache);
+  const compilerHost = createCompilerHost();
   const npmPackageProvider = new NpmPackageProvider(compilerHost);
   const emitterProvider = new EmitterProvider(npmPackageProvider);
 
@@ -983,78 +983,74 @@ export function createServer(host: ServerHost): Server {
       diagnostics,
     });
   }
-}
 
-export function createCompilerHost(
-  host: ServerHost,
-  fileService: FileService,
-  fileSystemCache: FileSystemCache,
-): CompilerHost {
-  const base = host.compilerHost;
-  return {
-    ...base,
-    parseCache: new WeakMap(),
-    readFile,
-    stat,
-    getSourceFileKind,
-  };
+  function createCompilerHost(): CompilerHost {
+    const base = host.compilerHost;
+    return {
+      ...base,
+      parseCache: new WeakMap(),
+      readFile,
+      stat,
+      getSourceFileKind,
+    };
 
-  async function readFile(path: string): Promise<ServerSourceFile> {
-    const document = fileService.getOpenDocument(path);
-    const cached = await fileSystemCache.get(path);
+    async function readFile(path: string): Promise<ServerSourceFile> {
+      const document = fileService.getOpenDocument(path);
+      const cached = await fileSystemCache.get(path);
 
-    // Try cache
-    if (cached && (!document || document.version === cached.version)) {
-      if (cached.type === "error") {
-        throw cached.error;
+      // Try cache
+      if (cached && (!document || document.version === cached.version)) {
+        if (cached.type === "error") {
+          throw cached.error;
+        }
+        return cached.file;
       }
-      return cached.file;
+
+      // Try open document, although this is cheap, the instance still needs
+      // to be cached so that the compiler can reuse parse and bind results.
+      if (document) {
+        const file = {
+          document,
+          ...createSourceFile(document.getText(), path),
+        };
+        fileSystemCache.set(path, { type: "file", file, version: document.version });
+        return file;
+      }
+
+      // Hit the disk and cache
+      try {
+        const file = await base.readFile(path);
+        fileSystemCache.set(path, { type: "file", file });
+        return file;
+      } catch (error) {
+        fileSystemCache.set(path, { type: "error", error });
+        throw error;
+      }
     }
 
-    // Try open document, although this is cheap, the instance still needs
-    // to be cached so that the compiler can reuse parse and bind results.
-    if (document) {
-      const file = {
-        document,
-        ...createSourceFile(document.getText(), path),
-      };
-      fileSystemCache.set(path, { type: "file", file, version: document.version });
-      return file;
+    async function stat(path: string): Promise<{ isDirectory(): boolean; isFile(): boolean }> {
+      // if we have an open document for the path or a cache entry, then we know
+      // it's a file and not a directory and needn't hit the disk.
+      if (fileService.getOpenDocument(path) || (await fileSystemCache.get(path))?.type === "file") {
+        return {
+          isFile() {
+            return true;
+          },
+          isDirectory() {
+            return false;
+          },
+        };
+      }
+      return await base.stat(path);
     }
 
-    // Hit the disk and cache
-    try {
-      const file = await base.readFile(path);
-      fileSystemCache.set(path, { type: "file", file });
-      return file;
-    } catch (error) {
-      fileSystemCache.set(path, { type: "error", error });
-      throw error;
+    function getSourceFileKind(path: string) {
+      const document = fileService.getOpenDocument(path);
+      if (document?.languageId === "typespec") {
+        return "typespec";
+      }
+      return getSourceFileKindFromExt(path);
     }
-  }
-
-  async function stat(path: string): Promise<{ isDirectory(): boolean; isFile(): boolean }> {
-    // if we have an open document for the path or a cache entry, then we know
-    // it's a file and not a directory and needn't hit the disk.
-    if (fileService.getOpenDocument(path) || (await fileSystemCache.get(path))?.type === "file") {
-      return {
-        isFile() {
-          return true;
-        },
-        isDirectory() {
-          return false;
-        },
-      };
-    }
-    return await base.stat(path);
-  }
-
-  function getSourceFileKind(path: string) {
-    const document = fileService.getOpenDocument(path);
-    if (document?.languageId === "typespec") {
-      return "typespec";
-    }
-    return getSourceFileKindFromExt(path);
   }
 }
 

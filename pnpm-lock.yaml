@@ -1838,9 +1838,6 @@ importers:
       vscode-languageclient:
         specifier: ~9.0.1
         version: 9.0.1
-      vscode-languageserver-textdocument:
-        specifier: ~1.0.12
-        version: 1.0.12
 
   packages/versioning:
     devDependencies:
