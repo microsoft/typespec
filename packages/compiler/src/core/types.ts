@@ -268,11 +268,14 @@ export type MetaMemberKey = Type["kind"] | "Array";
 export interface MetaMembersTable {
   type: Partial<Record<MetaMemberKey, Sym>>;
 }
-export type NeverIndexer = { key: NeverType; value: undefined };
+export type NeverIndexer = {
+  readonly key: NeverType;
+  readonly value: undefined;
+};
 
 export type ModelIndexer = {
-  key: Scalar;
-  value: Type;
+  readonly key: Scalar;
+  readonly value: Type;
 };
 
 export interface ArrayModelType extends Model {

@@ -1,4 +1,5 @@
 import { TypeSpecDecorators } from "../../generated-defs/TypeSpec.js";
+import { TypeSpecPrototypesDecorators } from "../../generated-defs/TypeSpec.Prototypes.js";
 import {
   $deprecated,
   $discriminator,
@@ -42,6 +43,7 @@ import {
   $withVisibility,
   $withoutDefaultValues,
   $withoutOmittedProperties,
+  getterDecorator,
 } from "./decorators.js";
 
 /** @internal */
@@ -90,6 +92,9 @@ export const $decorators = {
     parameterVisibility: $parameterVisibility,
     returnTypeVisibility: $returnTypeVisibility,
   } satisfies TypeSpecDecorators,
+  "TypeSpec.Prototypes": {
+    getter: getterDecorator,
+  } satisfies TypeSpecPrototypesDecorators,
 };
 
 // Projection function exports

@@ -259,12 +259,13 @@ export const $inspectTypeName: InspectTypeNameDecorator = (context, target: Type
   console.log(getTypeName(target));
 };
 
-const prototypeGetterKey = createStateSymbol("prototypes.getter");
-export function $getter(context: DecoratorContext, target: Type) {
+const prototypeGetterKey = Symbol.for(`TypeSpec.Prototypes.getter`);
+/** @internal */
+export function getterDecorator(context: DecoratorContext, target: Type) {
   context.program.stateMap(prototypeGetterKey).set(target, true);
 }
-$getter.namespace = "Prototypes";
 
+/** @internal */
 export function isPrototypeGetter(program: Program, target: Type): ModelIndexer | undefined {
   return program.stateMap(prototypeGetterKey).get(target) ?? false;
 }

@@ -1,4 +1,5 @@
 namespace TypeSpec.Prototypes;
+
 extern dec getter(target: Reflection.Operation);
 
 namespace Types {
