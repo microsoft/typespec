@@ -197,7 +197,6 @@ describe("compiler: parser", () => {
       ["interface X { foo(a: string", [/'\)' expected/]],
       ["interface X { foo(@myDec", [/Property expected/]],
       ["interface X { foo(#suppress x", [/Property expected/]],
-      ["interface TrailingComma extends A, B, {}", [{ code: "token-expected" }]],
     ]);
   });
 

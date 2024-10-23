@@ -150,12 +150,6 @@ const diagnostics = {
       typeofTarget: "Typeof expects a value literal or value reference.",
     },
   },
-  "trailing-token": {
-    severity: "error",
-    messages: {
-      default: paramMessage`Trailing ${"token"}`,
-    },
-  },
   "unknown-directive": {
     severity: "error",
     messages: {
