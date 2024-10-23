@@ -29,6 +29,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.Abstractions
 
             Assert.NotNull(method);
             Assert.NotNull(method!.BodyStatements);
+            var test = method!.BodyStatements!.ToDisplayString();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), method!.BodyStatements!.ToDisplayString());
         }
 
@@ -59,7 +60,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.Abstractions
                 => Original.Invoke("GetFakeCreate", [options, perRetryPolicies]);
 
             public override ValueExpression CreateMessage(ParameterProvider requestOptions, ValueExpression responseClassifier)
-                => Original.Invoke("GetFakeCreateMessage");
+                => Original.Invoke("GetFakeCreateMessage", [requestOptions, responseClassifier]);
 
             public override ClientPipelineApi FromExpression(ValueExpression expression)
                 => new TestClientPipelineApi(expression);
