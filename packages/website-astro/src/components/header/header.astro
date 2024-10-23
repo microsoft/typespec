@@ -3,6 +3,11 @@ import ThemePicker from "../theme-picker.astro";
 import Link from "./link.astro";
 import { Icon } from "@astrojs/starlight/components";
 import Search from "./search.astro";
+export interface Props {
+  noDrawer?: boolean;
+}
+
+const { noDrawer } = Astro.props;
 ---
 
 <style>
@@ -42,6 +47,9 @@ import Search from "./search.astro";
     display: flex;
     align-items: center;
     justify-content: space-between;
+  }
+  .group > summary::-webkit-details-marker {
+    display: none;
   }
 
   .group-content {
@@ -209,9 +217,13 @@ import Search from "./search.astro";
     </div>
   </div>
   <Search />
-  <button id="header-drawer-button" type="button" class="lg:hidden icon" title="Show Menu">
-    <Icon name="bars" />
-  </button>
+  {
+    !noDrawer && (
+      <button id="header-drawer-button" type="button" class="lg:hidden icon" title="Show Menu">
+        <Icon name="bars" />
+      </button>
+    )
+  }
 </nav>
 
 <script>
