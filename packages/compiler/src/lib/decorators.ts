@@ -48,7 +48,6 @@ import {
 } from "../core/decorator-utils.js";
 import { getDeprecationDetails, markDeprecated } from "../core/deprecation.js";
 import {
-  ModelIndexer,
   Numeric,
   StdTypeName,
   compilerAssert,
@@ -258,17 +257,6 @@ export const $inspectTypeName: InspectTypeNameDecorator = (context, target: Type
   // eslint-disable-next-line no-console
   console.log(getTypeName(target));
 };
-
-const prototypeGetterKey = Symbol.for(`TypeSpec.Prototypes.getter`);
-/** @internal */
-export function getterDecorator(context: DecoratorContext, target: Type) {
-  context.program.stateMap(prototypeGetterKey).set(target, true);
-}
-
-/** @internal */
-export function isPrototypeGetter(program: Program, target: Type): ModelIndexer | undefined {
-  return program.stateMap(prototypeGetterKey).get(target) ?? false;
-}
 
 export function isStringType(program: Program | ProjectedProgram, target: Type): target is Scalar {
   const coreType = program.checker.getStdType("string");

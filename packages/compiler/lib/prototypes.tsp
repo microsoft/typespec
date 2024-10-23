@@ -1,6 +1,6 @@
 namespace TypeSpec.Prototypes;
 
-extern dec getter(target: Reflection.Operation);
+extern dec getter(target: unknown);
 
 namespace Types {
   interface ModelProperty {

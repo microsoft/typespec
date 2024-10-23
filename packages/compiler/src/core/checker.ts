@@ -1,5 +1,8 @@
-import { isPrototypeGetter } from "../lib/decorators.js"; // TODO: should be in intrinsic decorators
-import { $docFromComment, getIndexer } from "../lib/intrinsic-decorators.js";
+import {
+  docFromCommentDecorator,
+  getIndexer,
+  isPrototypeGetter,
+} from "../lib/intrinsic-decorators.js";
 import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { createChangeIdentifierCodeFix } from "./compiler-code-fixes/change-identifier.codefix.js";
@@ -5121,7 +5124,7 @@ export function createChecker(program: Program): Checker {
 
   function createDocFromCommentDecorator(key: "self" | "returns" | "errors", doc: string) {
     return {
-      decorator: $docFromComment,
+      decorator: docFromCommentDecorator,
       args: [
         { value: createLiteralType(key), jsValue: key },
         { value: createLiteralType(doc), jsValue: doc },
