@@ -94,8 +94,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             if (_model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract))
             {
-                var unknownVariant = _model.DerivedModels.First(m => m.IsUnknownDiscriminatorModel);
-                return [new AttributeStatement(typeof(PersistableModelProxyAttribute), TypeOf(unknownVariant.Type))];
+                var unknownVariant = _model.DerivedModels.FirstOrDefault(m => m.IsUnknownDiscriminatorModel);
+                if (unknownVariant != null)
+                {
+                    return [new AttributeStatement(typeof(PersistableModelProxyAttribute), TypeOf(unknownVariant.Type))];
+                }
             }
             return [];
         }
@@ -427,7 +430,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return new MethodProvider
             (
               new MethodSignature(methodName, null, signatureModifiers, _model.Type, null, [_jsonElementDeserializationParam, _serializationOptionsParameter]),
-              _model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract) ? BuildAbstractDeserializationMethodBody() : BuildDeserializationMethodBody(),
+              _model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract) && _model.DerivedModels.Any(m => m.IsUnknownDiscriminatorModel) ? BuildAbstractDeserializationMethodBody() : BuildDeserializationMethodBody(),
               this
             );
         }
