@@ -13,8 +13,8 @@ import {
   Scalar,
   visit,
 } from "yaml";
-import logger from "./log/logger.js";
-import { firstNonWhitespaceCharacterIndex, isWhitespaceStringOrUndefined } from "./utils.js";
+import { firstNonWhitespaceCharacterIndex, isWhitespaceStringOrUndefined } from "../utils/misc.js";
+import { ServerLog } from "./types.js";
 
 type YamlNodePathSegment = Document<Node, true> | Node | Pair;
 export interface YamlScalarTarget {
@@ -47,6 +47,7 @@ interface YamlVisitScalarNode {
 export function resolveYamlScalarTarget(
   document: TextDocument,
   position: Position,
+  log: (log: ServerLog) => void,
 ): YamlScalarTarget | undefined {
   const pos = document.offsetAt(position);
   const content = document.getText();
@@ -108,16 +109,18 @@ export function resolveYamlScalarTarget(
           }),
         );
         if (!found) {
-          logger.debug(
-            `Failed to find the scalar node in the found previous sibling line of empty line. curLine: ${targetLine}, preLine: ${preLine}`,
-          );
+          log({
+            level: "debug",
+            message: `Failed to find the scalar node in the found previous sibling line of empty line. curLine: ${targetLine}, preLine: ${preLine}`,
+          });
           return undefined;
         }
-        const yp = createYamlPathFromVisitScalarNode(found, pos);
+        const yp = createYamlPathFromVisitScalarNode(found, pos, log);
         if (!yp || yp.path.length === 0) {
-          logger.debug(
-            `Unexpected found path which should at least contains one segment for the found previous non-empty line item`,
-          );
+          log({
+            level: "debug",
+            message: `Unexpected found path which should at least contains one segment for the found previous non-empty line item`,
+          });
           return undefined;
         }
         // adjust path and sibling for the whitespace line
@@ -143,9 +146,10 @@ export function resolveYamlScalarTarget(
           }),
         );
         if (!found) {
-          logger.debug(
-            `Failed to find the scalar node in the found previous parent line of empty line. curLine: ${targetLine}, preLine: ${preLine}`,
-          );
+          log({
+            level: "debug",
+            message: `Failed to find the scalar node in the found previous parent line of empty line. curLine: ${targetLine}, preLine: ${preLine}`,
+          });
           return undefined;
         }
         // the parent should be a map or null (potential a map)
@@ -156,11 +160,12 @@ export function resolveYamlScalarTarget(
             isMap(last.value) ||
             (isScalar(last.value) && isWhitespaceStringOrUndefined(last.value.source)))
         ) {
-          const yp = createYamlPathFromVisitScalarNode(found, pos);
+          const yp = createYamlPathFromVisitScalarNode(found, pos, log);
           if (!yp || yp.path.length === 0) {
-            logger.debug(
-              `Unexpected found path which should at least contains one segment for the found previous non-empty line item`,
-            );
+            log({
+              level: "debug",
+              message: `Unexpected found path which should at least contains one segment for the found previous non-empty line item`,
+            });
             return undefined;
           }
           // adjust path and sibling for the whitespace line
@@ -180,10 +185,13 @@ export function resolveYamlScalarTarget(
   } else {
     const found = findScalarNode(yamlDoc, pos);
     if (!found) {
-      logger.debug(`Failed to find the scalar node at the position: ${pos}`);
+      log({
+        level: "debug",
+        message: `Failed to find the scalar node at the position: ${pos}`,
+      });
       return undefined;
     }
-    const yp = createYamlPathFromVisitScalarNode(found, pos);
+    const yp = createYamlPathFromVisitScalarNode(found, pos, log);
     return yp;
   }
 }
@@ -191,12 +199,14 @@ export function resolveYamlScalarTarget(
 function createYamlPathFromVisitScalarNode(
   info: YamlVisitScalarNode,
   offset: number,
+  log: (log: ServerLog) => void,
 ): YamlScalarTarget | undefined {
   const { key, n, path: nodePath } = info;
   if (nodePath.length === 0) {
-    logger.debug(
-      `Unexpected path structure, nodePath is empty while we always expect at least a root doc node`,
-    );
+    log({
+      level: "debug",
+      message: `Unexpected path structure, nodePath is empty while we always expect at least a root doc node`,
+    });
     return undefined;
   }
   const path: string[] = [];
@@ -211,9 +221,10 @@ function createYamlPathFromVisitScalarNode(
       if (index >= 0) {
         path.push(index.toString());
       } else {
-        logger.debug(
-          `Unexpected path structure. the next element isn't found in the sequence(array): ${inspect(next)}`,
-        );
+        log({
+          level: "debug",
+          message: `Unexpected path structure. the next element isn't found in the sequence(array): ${inspect(next)}`,
+        });
         return undefined;
       }
     }
@@ -230,9 +241,10 @@ function createYamlPathFromVisitScalarNode(
     };
   } else if (isPair(last)) {
     if (nodePath.length < 2) {
-      logger.debug(
-        `Unexpected path structure, the pair node should have a parent node: ${last.toString()}`,
-      );
+      log({
+        level: "debug",
+        message: `Unexpected path structure, the pair node should have a parent node: ${last.toString()}`,
+      });
       return undefined;
     }
     const newline = last.srcToken?.sep?.find((t) => t.type === "newline");
@@ -268,9 +280,10 @@ function createYamlPathFromVisitScalarNode(
         .map((item) => (isScalar(item) ? (item.source ?? "") : "")),
     };
   } else {
-    logger.debug(
-      `Unexpected path structure, last element is not pair or seq for scalar node: ${last.toString()}`,
-    );
+    log({
+      level: "debug",
+      message: `Unexpected path structure, last element is not pair or seq for scalar node: ${last.toString()}`,
+    });
     return undefined;
   }
 }

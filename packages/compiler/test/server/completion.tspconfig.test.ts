@@ -1,9 +1,7 @@
 import { join } from "path";
-import { beforeAll, describe, expect, it } from "vitest";
-import { Position, TextDocument } from "vscode-languageserver-textdocument";
-import { ConsoleLogLogger } from "../../src/log/console-log-listener.js";
-import logger from "../../src/log/logger.js";
-import { provideTspconfigCompletionItems } from "../../src/vscode/completion-item-provider.js";
+import { describe, expect, it } from "vitest";
+import { CompletionList } from "vscode-languageserver/node.js";
+import { createTestServerHost, extractCursor } from "../../src/testing/test-server-host.js";
 
 describe("Test completion for tspconfig", () => {
   const rootOptions = [
@@ -18,10 +16,6 @@ describe("Test completion for tspconfig", () => {
     "options",
     "linter",
   ];
-
-  beforeAll(() => {
-    logger.registerLogListener("test-log", new ConsoleLogLogger());
-  });
 
   describe("Test completion items for root options", () => {
     it.each([
@@ -70,7 +64,7 @@ describe("Test completion for tspconfig", () => {
         expected: rootOptions.filter((o) => o !== "trace"),
       },
     ])("#%# Test root: $config", async ({ config, expected }) => {
-      await checkCompletionItems(config, join(__dirname, "./workspace"), expected);
+      await checkCompletionItems(config, true, expected);
     });
   });
 
@@ -85,7 +79,7 @@ describe("Test completion for tspconfig", () => {
         expected: ["fake-emitter", "fake-emitter-no-schema"],
       },
     ])("#%# Test emitters: $config", async ({ config, expected }) => {
-      await checkCompletionItems(config, join(__dirname, "./workspace"), expected);
+      await checkCompletionItems(config, true, expected);
     });
 
     it.each([
@@ -98,7 +92,7 @@ describe("Test completion for tspconfig", () => {
         expected: [],
       },
     ])("#%# Test no emitter items: $config", async ({ config }) => {
-      await checkCompletionItems(config, "", []);
+      await checkCompletionItems(config, false, []);
     });
 
     it.each([
@@ -111,7 +105,7 @@ describe("Test completion for tspconfig", () => {
         expected: [],
       },
     ])("#%# Test no emitter options: $config", async ({ config, expected }) => {
-      await checkCompletionItems(config, "", expected);
+      await checkCompletionItems(config, false, expected);
     });
   });
 
@@ -174,7 +168,7 @@ describe("Test completion for tspconfig", () => {
         expected: ["a", "b", "c"],
       },
     ])("#%# Test emitter options: $config", async ({ config, expected }) => {
-      await checkCompletionItems(config, join(__dirname, "./workspace"), expected);
+      await checkCompletionItems(config, true, expected);
     });
   });
 
@@ -197,7 +191,7 @@ describe("Test completion for tspconfig", () => {
         expected: [],
       },
     ])("#%# Test wae: $config", async ({ config, expected }) => {
-      await checkCompletionItems(config, join(__dirname, "./workspace"), expected);
+      await checkCompletionItems(config, true, expected);
     });
   });
 
@@ -232,7 +226,7 @@ describe("Test completion for tspconfig", () => {
         expected: [],
       },
     ])("#%# Test linter: $config", async ({ config, expected }) => {
-      await checkCompletionItems(config, join(__dirname, "./workspace"), expected);
+      await checkCompletionItems(config, true, expected);
     });
   });
 
@@ -255,7 +249,7 @@ describe("Test completion for tspconfig", () => {
         expected: [],
       },
     ])("#%# Test addProp: $config", async ({ config, expected }) => {
-      await checkCompletionItems(config, join(__dirname, "./workspace"), expected);
+      await checkCompletionItems(config, true, expected);
     });
   });
 
@@ -298,7 +292,7 @@ describe("Test completion for tspconfig", () => {
         expected: rootOptions,
       },
     ])("#%# Test comment: $config", async ({ config, expected }) => {
-      await checkCompletionItems(config, join(__dirname, "./workspace"), expected);
+      await checkCompletionItems(config, true, expected);
     });
   });
 
@@ -393,34 +387,33 @@ describe("Test completion for tspconfig", () => {
         expected: ["true", "false"],
       },
     ])("#%# Test Complex: $config", async ({ config, expected }) => {
-      await checkCompletionItems(config, join(__dirname, "./workspace"), expected);
+      await checkCompletionItems(config, true, expected);
     });
   });
 });
 
 async function checkCompletionItems(
   configWithPosition: string,
-  packageJsonFolder: string,
+  includeWorkspace: boolean,
   expected: string[],
 ) {
-  const [content, pos] = parseContentWithPosition(configWithPosition);
-  const doc = TextDocument.create("fake", "typespec", 1 /*version*/, content);
-
-  const items = await provideTspconfigCompletionItems(doc, pos, packageJsonFolder);
-  logger.debug(`verify result for ${configWithPosition}`);
+  const items = (await complete(configWithPosition, includeWorkspace)).items;
   expect(items.map((i) => i.label).sort()).toEqual(expected.sort());
 }
 
-function parseContentWithPosition(contentWithPosition: string): [string, Position] {
-  const lines = contentWithPosition.split("\n");
-  let pos: Position | undefined;
-  for (let i = 0; i < lines.length; i++) {
-    const c = lines[i].indexOf("┆");
-    if (c !== -1) {
-      lines[i] = lines[i].replace("┆", "");
-      pos = { line: i, character: c };
-      return [lines.join("\n"), pos];
-    }
+async function complete(
+  sourceWithCursor: string,
+  includeWorkspace: boolean,
+): Promise<CompletionList> {
+  const { source, pos } = extractCursor(sourceWithCursor);
+  const testHost = await createTestServerHost(undefined);
+  if (includeWorkspace) {
+    const workspaceFolder = join(__dirname, "./workspace");
+    await testHost.addRealFolder("./workspace", workspaceFolder);
   }
-  throw new Error("No position found");
+  const textDocument = testHost.addOrUpdateDocument("./workspace/tspconfig.yaml", source);
+  return await testHost.server.complete({
+    textDocument,
+    position: textDocument.positionAt(pos),
+  });
 }

@@ -1,4 +1,4 @@
-import { realpath } from "fs";
+import { realpath, watch, WatchListener, WatchOptions } from "fs";
 import { mkdir, readdir, readFile, rm, stat, writeFile } from "fs/promises";
 import { fileURLToPath, pathToFileURL } from "url";
 import { findProjectRoot } from "../utils/misc.js";
@@ -51,6 +51,13 @@ export const NodeHost: CompilerHost = {
   fileURLToPath,
   pathToFileURL(path: string) {
     return pathToFileURL(path).href;
+  },
+  watch: (
+    path: string,
+    options: WatchOptions | BufferEncoding,
+    onChanged: WatchListener<string>,
+  ) => {
+    return watch(path, options, onChanged);
   },
 };
 

@@ -15,7 +15,7 @@ import {
 import { NodeHost } from "../core/node-host.js";
 import { typespecVersion } from "../utils/misc.js";
 import { createServer } from "./serverlib.js";
-import { Server, ServerHost, ServerLog, ServerOnRequestMethodName } from "./types.js";
+import { Server, ServerHost, ServerLog } from "./types.js";
 
 let server: Server | undefined = undefined;
 
@@ -128,10 +128,6 @@ function main() {
   connection.onCodeAction(profile(s.getCodeActions));
   connection.onExecuteCommand(profile(s.executeCommand));
   connection.languages.semanticTokens.on(profile(s.buildSemanticTokens));
-
-  const getTypespecConfigJsonSchemaMethodName: ServerOnRequestMethodName =
-    "typespec/getTypeSpecConfigJsonSchema";
-  connection.onRequest(getTypespecConfigJsonSchemaMethodName, s.getTypeSpecConfigJsonSchema);
 
   documents.onDidChangeContent(profile(s.checkChange));
   documents.onDidClose(profile(s.documentClosed));

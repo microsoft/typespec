@@ -1,7 +1,9 @@
 import { join } from "path";
-import npmPackageProvider, { NpmPackage } from "../npm-package-provider.js";
+import { NpmPackage, NpmPackageProvider } from "./npm-package-provider.js";
 
-class EmitterProvider {
+export class EmitterProvider {
+  constructor(private npmPackageProvider: NpmPackageProvider) {}
+
   private static async isEmitter(pkg: NpmPackage) {
     const data = await pkg.getPackageJsonData();
     if (!data) return false;
@@ -16,9 +18,9 @@ class EmitterProvider {
     return false;
   }
 
-  private static async getEmitterFromDep(packageJsonFolder: string, depName: string) {
+  private async getEmitterFromDep(packageJsonFolder: string, depName: string) {
     const depFolder = join(packageJsonFolder, "node_modules", depName);
-    const depPkg = await npmPackageProvider.get(depFolder);
+    const depPkg = await this.npmPackageProvider.get(depFolder);
     if (depPkg && (await EmitterProvider.isEmitter(depPkg))) {
       return depPkg;
     }
@@ -31,10 +33,10 @@ class EmitterProvider {
    * @returns
    */
   async listEmitters(startFolder: string): Promise<Record<string, NpmPackage>> {
-    const packageJsonFolder = await npmPackageProvider.getPackageJsonFolder(startFolder);
+    const packageJsonFolder = await this.npmPackageProvider.getPackageJsonFolder(startFolder);
     if (!packageJsonFolder) return {};
 
-    const pkg = await npmPackageProvider.get(packageJsonFolder);
+    const pkg = await this.npmPackageProvider.get(packageJsonFolder);
     const data = await pkg?.getPackageJsonData();
     if (!data) return {};
 
@@ -44,7 +46,7 @@ class EmitterProvider {
       ...(data.devDependencies ?? {}),
     };
     for (const dep of Object.keys(allDep)) {
-      const depPkg = await EmitterProvider.getEmitterFromDep(packageJsonFolder, dep);
+      const depPkg = await this.getEmitterFromDep(packageJsonFolder, dep);
       if (depPkg) {
         emitters[dep] = depPkg;
       }
@@ -59,13 +61,10 @@ class EmitterProvider {
    * @returns
    */
   async getEmitter(startFolder: string, emitterName: string): Promise<NpmPackage | undefined> {
-    const packageJsonFolder = await npmPackageProvider.getPackageJsonFolder(startFolder);
+    const packageJsonFolder = await this.npmPackageProvider.getPackageJsonFolder(startFolder);
     if (!packageJsonFolder) {
       return undefined;
     }
-    return EmitterProvider.getEmitterFromDep(packageJsonFolder, emitterName);
+    return this.getEmitterFromDep(packageJsonFolder, emitterName);
   }
 }
-
-const emitterProvider = new EmitterProvider();
-export default emitterProvider;

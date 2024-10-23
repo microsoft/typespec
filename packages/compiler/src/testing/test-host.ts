@@ -1,14 +1,16 @@
 import assert from "assert";
-import type { RmOptions } from "fs";
-import { readFile } from "fs/promises";
+import EventEmitter from "events";
+import type { FSWatcher, RmOptions, WatchListener, WatchOptions } from "fs";
+import { readdir, readFile, stat } from "fs/promises";
 import { globby } from "globby";
+import { join } from "path";
 import { fileURLToPath, pathToFileURL } from "url";
 import { logDiagnostics, logVerboseTestOutput } from "../core/diagnostics.js";
 import { createLogger } from "../core/logger/logger.js";
 import { NodeHost } from "../core/node-host.js";
 import { CompilerOptions } from "../core/options.js";
 import { getAnyExtensionFromPath, resolvePath } from "../core/path-utils.js";
-import { Program, compile as compileProgram } from "../core/program.js";
+import { compile as compileProgram, Program } from "../core/program.js";
 import type { CompilerHost, Diagnostic, StringLiteral, Type } from "../core/types.js";
 import { createSourceFile, getSourceFileKindFromExt } from "../index.js";
 import { createStringMap } from "../utils/misc.js";
@@ -87,6 +89,10 @@ function createTestCompilerHost(
       }
     },
 
+    watch(path: string, options: WatchOptions | BufferEncoding, onChanged: WatchListener<string>) {
+      return new MockupFSWatcher();
+    },
+
     getLibDirs() {
       return libDirs;
     },
@@ -161,6 +167,7 @@ export async function createTestFileSystem(options?: TestHostOptions): Promise<T
     addJsFile,
     addRealTypeSpecFile,
     addRealJsFile,
+    addRealFolder,
     addTypeSpecLibrary,
     compilerHost,
     fs: virtualFs,
@@ -178,6 +185,25 @@ export async function createTestFileSystem(options?: TestHostOptions): Promise<T
 
   async function addRealTypeSpecFile(path: string, existingPath: string) {
     virtualFs.set(resolveVirtualPath(path), await readFile(existingPath, "utf8"));
+  }
+
+  async function addRealFolder(folder: string, existingFolder: string) {
+    const entries = await readdir(existingFolder);
+    for (const entry of entries) {
+      const existingPath = join(existingFolder, entry);
+      const virtualPath = join(folder, entry);
+      const s = await stat(existingPath);
+      if (s.isFile()) {
+        if (existingPath.endsWith(".js")) {
+          await addRealJsFile(virtualPath, existingPath);
+        } else {
+          await addRealTypeSpecFile(virtualPath, existingPath);
+        }
+      }
+      if (s.isDirectory()) {
+        await addRealFolder(virtualPath, existingPath);
+      }
+    }
   }
 
   async function addRealJsFile(path: string, existingPath: string) {
@@ -325,4 +351,69 @@ export async function findFilesFromPattern(directory: string, pattern: string): 
     cwd: directory,
     onlyFiles: true,
   });
+}
+
+class MockupFSWatcher implements FSWatcher {
+  close(): void {}
+  ref(): this {
+    throw new Error("Method not implemented.");
+  }
+  unref(): this {
+    throw new Error("Method not implemented.");
+  }
+  addListener(event: unknown, listener: unknown): this {
+    throw new Error("Method not implemented.");
+  }
+  on(event: unknown, listener: unknown): this {
+    throw new Error("Method not implemented.");
+  }
+  once(event: unknown, listener: unknown): this {
+    throw new Error("Method not implemented.");
+  }
+  prependListener(event: unknown, listener: unknown): this {
+    throw new Error("Method not implemented.");
+  }
+  prependOnceListener(event: unknown, listener: unknown): this {
+    throw new Error("Method not implemented.");
+  }
+  [EventEmitter.captureRejectionSymbol]?<K>(
+    error: Error,
+    event: string | symbol,
+    ...args: any[]
+  ): void {
+    throw new Error("Method not implemented.");
+  }
+  removeListener<K>(eventName: string | symbol, listener: (...args: any[]) => void): this {
+    throw new Error("Method not implemented.");
+  }
+  off<K>(eventName: string | symbol, listener: (...args: any[]) => void): this {
+    throw new Error("Method not implemented.");
+  }
+  removeAllListeners(eventName?: string | symbol | undefined): this {
+    throw new Error("Method not implemented.");
+  }
+  setMaxListeners(n: number): this {
+    throw new Error("Method not implemented.");
+  }
+  getMaxListeners(): number {
+    throw new Error("Method not implemented.");
+  }
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+  listeners<K>(eventName: string | symbol): Function[] {
+    throw new Error("Method not implemented.");
+  }
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+  rawListeners<K>(eventName: string | symbol): Function[] {
+    throw new Error("Method not implemented.");
+  }
+  emit<K>(eventName: string | symbol, ...args: any[]): boolean {
+    throw new Error("Method not implemented.");
+  }
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+  listenerCount<K>(eventName: string | symbol, listener?: Function | undefined): number {
+    throw new Error("Method not implemented.");
+  }
+  eventNames(): (string | symbol)[] {
+    throw new Error("Method not implemented.");
+  }
 }

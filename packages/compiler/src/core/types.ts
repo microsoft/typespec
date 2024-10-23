@@ -1,4 +1,5 @@
 import type { JSONSchemaType as AjvJSONSchemaType } from "ajv";
+import { FSWatcher, WatchListener, WatchOptions } from "fs";
 import type { TypeEmitter } from "../emitter-framework/type-emitter.js";
 import type { AssetEmitter } from "../emitter-framework/types.js";
 import type { ModuleResolutionResult } from "../module-resolver/module-resolver.js";
@@ -2269,6 +2270,18 @@ export interface CompilerHost {
    * @param path Path to the directory.
    */
   mkdirp(path: string): Promise<string | undefined>;
+
+  /**
+   * watch a file or directory for changes.
+   * @param path path to the file/dir to watch
+   * @param options options for the watch
+   * @param onChanged callback to be called when the file/dir changes
+   */
+  watch(
+    path: string,
+    options: WatchOptions | BufferEncoding,
+    onChanged: WatchListener<string>,
+  ): FSWatcher;
 
   // get the directory TypeSpec is executing from
   getExecutionRoot(): string;

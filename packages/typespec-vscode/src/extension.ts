@@ -1,12 +1,8 @@
 import vscode, { commands, ExtensionContext, workspace } from "vscode";
 import { LanguageClient, LanguageClientOptions } from "vscode-languageclient/node.js";
-import { TextDocument } from "vscode-languageserver-textdocument";
 import { ExtensionLogListener } from "./log/extension-log-listener.js";
 import logger from "./log/logger.js";
-import npmPackageProvider from "./npm-package-provider.js";
 import { resolveTypeSpecServer } from "./typespec/compiler.js";
-import schemaProvider from "./typespec/schema-provider.js";
-import { provideTspconfigCompletionItems } from "./vscode/completion-item-provider.js";
 import { createTaskProvider } from "./vscode/task-provider.js";
 import { TypeSpecLogOutputChannel } from "./vscode/typespec-log-output-channel.js";
 
@@ -31,51 +27,14 @@ export async function activate(context: ExtensionContext) {
     commands.registerCommand("typespec.restartServer", restartTypeSpecServer),
   );
 
-  context.subscriptions.push(
-    vscode.languages.registerCompletionItemProvider(
-      { language: "yaml", scheme: "file", pattern: "**/tspconfig.yaml" },
-      {
-        async provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-          logger.debug("Start providing tspconfig completion items");
-          const doc: TextDocument = TextDocument.create(
-            document.uri.fsPath,
-            document.languageId,
-            document.version,
-            document.getText(),
-          );
-          const items = await provideTspconfigCompletionItems(doc, position);
-          const results = items.map((item) => {
-            const r = new vscode.CompletionItem(item.label);
-            switch (item.kind) {
-              case "field":
-                r.kind = vscode.CompletionItemKind.Field;
-                break;
-              case "value":
-                r.kind = vscode.CompletionItemKind.Value;
-                break;
-              default:
-                logger.debug(`Unknown kind of completion item: ${item.kind}`);
-                r.kind = vscode.CompletionItemKind.Text;
-            }
-            r.documentation = item.documentation;
-            r.insertText = item.insertText;
-            return r;
-          });
-          logger.debug(
-            `Finish providing tspconfig completion items.${results.length} items provided.`,
-          );
-          return results;
-        },
-      },
-    ),
-  );
-
   return await vscode.window.withProgress(
     {
       title: "Launching TypeSpec language service...",
       location: vscode.ProgressLocation.Notification,
     },
-    async () => launchLanguageClient(context),
+    async () => {
+      await launchLanguageClient(context);
+    },
   );
 }
 
@@ -115,6 +74,8 @@ async function launchLanguageClient(context: ExtensionContext) {
     documentSelector: [
       { scheme: "file", language: "typespec" },
       { scheme: "untitled", language: "typespec" },
+      { scheme: "file", language: "yaml", pattern: "**/tspconfig.yaml" },
+      { scheme: "untitled", language: "yaml", pattern: "**/tspconfig.yaml" },
     ],
     outputChannel,
   };
@@ -125,7 +86,6 @@ async function launchLanguageClient(context: ExtensionContext) {
     client = new LanguageClient(id, name, { run: exe, debug: exe }, options);
     await client.start();
     logger.debug("TypeSpec server started");
-    schemaProvider.setLanguageClient(client);
   } catch (e) {
     if (typeof e === "string" && e.startsWith("Launching server using command")) {
       const workspaceFolder = workspace.workspaceFolders?.[0]?.uri?.fsPath ?? "";
@@ -149,6 +109,5 @@ async function launchLanguageClient(context: ExtensionContext) {
 }
 
 export async function deactivate() {
-  npmPackageProvider.reset();
   await client?.stop();
 }

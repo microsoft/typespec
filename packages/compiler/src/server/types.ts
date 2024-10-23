@@ -37,14 +37,7 @@ import {
   WorkspaceFoldersChangeEvent,
 } from "vscode-languageserver";
 import { TextDocument, TextEdit } from "vscode-languageserver-textdocument";
-import { TypeSpecRawConfig } from "../config/types.js";
-import type {
-  CompilerHost,
-  JSONSchemaType,
-  Program,
-  SourceFile,
-  TypeSpecScriptNode,
-} from "../core/index.js";
+import type { CompilerHost, Program, SourceFile, TypeSpecScriptNode } from "../core/index.js";
 
 export type ServerLogLevel = "trace" | "debug" | "info" | "warning" | "error";
 export interface ServerLog {
@@ -96,11 +89,7 @@ export interface Server {
   getCodeActions(params: CodeActionParams): Promise<CodeAction[]>;
   executeCommand(params: ExecuteCommandParams): Promise<void>;
   log(log: ServerLog): void;
-  // following methods are going through onRequest interface of LSP
-  getTypeSpecConfigJsonSchema(): Promise<JSONSchemaType<TypeSpecRawConfig>>;
 }
-
-export type ServerOnRequestMethodName = "typespec/getTypeSpecConfigJsonSchema";
 
 export interface ServerSourceFile extends SourceFile {
   // Keep track of the open document (if any) associated with a source file.
