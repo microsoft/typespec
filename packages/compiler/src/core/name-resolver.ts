@@ -57,6 +57,7 @@
  * program.
  **/
 
+import { Mutable, mutate } from "../utils/misc.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import {
   AliasStatementNode,
@@ -92,7 +93,6 @@ import {
   TypeReferenceNode,
   TypeSpecScriptNode,
 } from "./types.js";
-import { Mutable, mutate } from "./util.js";
 
 export function createResolver(program: Program) {
   const mergedSymbols = new Map<Sym, Sym>();
@@ -192,7 +192,7 @@ export function createResolver(program: Program) {
   }
 
   function resolveTypeReference(
-    node: TypeReferenceNode | MemberExpressionNode | IdentifierNode
+    node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
   ): ResolutionResult {
     const links = getNodeLinks(node);
 
@@ -234,7 +234,7 @@ export function createResolver(program: Program) {
   }
 
   function resolveTypeReferenceWorker(
-    node: TypeReferenceNode | MemberExpressionNode | IdentifierNode
+    node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
   ): ResolutionResult {
     if (node.kind === SyntaxKind.TypeReference) {
       return resolveTypeReference(node.target);
@@ -292,7 +292,7 @@ export function createResolver(program: Program) {
   function resolveModelMember(
     modelSym: Sym,
     modelNode: ModelStatementNode | ModelExpressionNode,
-    id: IdentifierNode
+    id: IdentifierNode,
   ): ResolutionResult {
     const modelSymLinks = getSymbolLinks(modelSym);
 
@@ -368,7 +368,7 @@ export function createResolver(program: Program) {
     const node = baseSym.declarations[0];
     compilerAssert(
       node.kind === SyntaxKind.NamespaceStatement || node.kind === SyntaxKind.TypeSpecScript,
-      "Unexpected node kind"
+      "Unexpected node kind",
     );
 
     const exportSym = tableLookup(baseSym.exports!, id);
@@ -581,9 +581,10 @@ export function createResolver(program: Program) {
 
   function bindInterfaceMembers(node: InterfaceStatementNode) {
     const ifaceSym = node.symbol!;
+    const ifaceSymLinks = getSymbolLinks(ifaceSym);
     for (const extendsRef of node.extends) {
       const [extendsSym, extendsResult] = resolveTypeReference(extendsRef);
-      setUnknownMembers(ifaceSym, extendsSym, extendsResult);
+      setUnknownMembers(ifaceSymLinks, extendsSym, extendsResult);
 
       if (~extendsResult & ResolutionResultFlags.Resolved) {
         continue;
@@ -643,7 +644,7 @@ export function createResolver(program: Program) {
 
       targetTable.set(
         variantNode.id.sv,
-        createSymbol(variantNode, variantNode.id.sv, SymbolFlags.Member)
+        createSymbol(variantNode, variantNode.id.sv, SymbolFlags.Member),
       );
     }
   }
@@ -771,7 +772,7 @@ export function createResolver(program: Program) {
     key: string,
     sourceBinding: Sym,
     target: Mutable<SymbolTable>,
-    expectTargetFlags: SymbolFlags
+    expectTargetFlags: SymbolFlags,
   ) {
     const targetBinding = target.get(key);
     if (!targetBinding || !(targetBinding.flags & expectTargetFlags)) {
@@ -822,7 +823,7 @@ export function createResolver(program: Program) {
             code: "duplicate-using",
             format: { usingName: memberExpressionToString(using.name) },
             target: using,
-          })
+          }),
         );
         continue;
       }

@@ -48,6 +48,7 @@ import {
 } from "../core/decorator-utils.js";
 import { getDeprecationDetails, markDeprecated } from "../core/deprecation.js";
 import {
+  ModelIndexer,
   Numeric,
   StdTypeName,
   compilerAssert,

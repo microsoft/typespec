@@ -1,3 +1,4 @@
+import { isPrototypeGetter } from "../lib/decorators.js"; // TODO: should be in intrinsic decorators
 import { $docFromComment, getIndexer } from "../lib/intrinsic-decorators.js";
 import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
@@ -416,7 +417,7 @@ export function createChecker(program: Program): Checker {
   }
   let evalContext: EvalContext | undefined = undefined;
   const metaMembersTable: MetaMembersTable = createMetaMembersTable();
-  
+
   const checker: Checker = {
     getTypeForNode,
     checkProgram,
@@ -3479,7 +3480,7 @@ export function createChecker(program: Program): Checker {
   function resolveMetaProperty(
     node: MemberExpressionNode,
     base: Sym,
-    mapper: TypeMapper | undefined
+    mapper: TypeMapper | undefined,
   ) {
     const baseType =
       base.flags & SymbolFlags.LateBound
@@ -3528,7 +3529,7 @@ export function createChecker(program: Program): Checker {
           messageId: "metaProperty",
           format: { kind: getMemberKindName(base.declarations[0]), id: node.id.sv },
           target: node,
-        })
+        }),
       );
     }
 
@@ -3556,7 +3557,7 @@ export function createChecker(program: Program): Checker {
         ifaceNode,
         [param],
         [(baseType as Model).indexer!.value],
-        mapper
+        mapper,
       ) as Interface;
       return getOrCreateAugmentedSymbolTable(ifaceType.symbol!.members!);
     } else {
@@ -4789,7 +4790,7 @@ export function createChecker(program: Program): Checker {
     const containerSym = type.symbol;
     compilerAssert(containerSym.members, "Container symbol didn't have members at late-bind");
     const containerMembers: Mutable<SymbolTable> = getOrCreateAugmentedSymbolTable(
-      containerSym.members
+      containerSym.members,
     );
 
     switch (type.kind) {
@@ -4806,12 +4807,14 @@ export function createChecker(program: Program): Checker {
       case "Enum":
         for (const member of type.members.values()) {
           lateBindMember(member, SymbolFlags.Member | SymbolFlags.Declaration);
-
         }
         break;
       case "Interface":
         for (const member of type.operations.values()) {
-          lateBindMember(member, SymbolFlags.Member | SymbolFlags.Operation | SymbolFlags.Declaration);
+          lateBindMember(
+            member,
+            SymbolFlags.Member | SymbolFlags.Operation | SymbolFlags.Declaration,
+          );
         }
         break;
       case "Union":
@@ -6047,10 +6050,11 @@ export function createChecker(program: Program): Checker {
 
   function getSymbolLinksForMember(node: MemberNode): SymbolLinks | undefined {
     const sym = getSymbolForMember(node);
-    return sym ? (sym.node ?? sym.declarations[0]) === node
-      ? getSymbolLinks(sym)
-      : undefined
-    : undefined;
+    return sym
+      ? (sym.node ?? sym.declarations[0]) === node
+        ? getSymbolLinks(sym)
+        : undefined
+      : undefined;
   }
 
   function checkEnumMember(

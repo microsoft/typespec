@@ -269,6 +269,7 @@ export interface MetaMembersTable {
   type: Partial<Record<MetaMemberKey, Sym>>;
 }
 export type NeverIndexer = { key: NeverType; value: undefined };
+
 export type ModelIndexer = {
   key: Scalar;
   value: Type;
@@ -836,48 +837,48 @@ export interface SymbolLinks {
   /** For const statements the value of the const */
   value?: Value | null;
 
-   /**
+  /**
    * When a symbol contains unknown members, symbol lookup during
    * name resolution should always return unknown if it can't definitely
    * find a member.
    */
-   hasUnknownMembers?: boolean;
+  hasUnknownMembers?: boolean;
 
-   /**
-    * True if we have completed the early binding of member symbols for this model during
-    * the name resolution phase.
-    */
-   membersBound?: boolean;
- 
-   /**
-    * The symbol aliased by an alias symbol. When present, guaranteed to be a
-    * non-alias symbol. Will not be present when the name resolver could not
-    * determine a symbol for the alias, e.g. when it is a computed type.
-    */
-   aliasedSymbol?: Sym;
- 
-   /**
-    * The result of resolving the aliased reference. When resolved, aliasedSymbol
-    * will contain the resolved symbol. Otherwise, aliasedSymbol may be present
-    * if the alias is a type literal with a symbol, otherwise it will be
-    * undefined.
-    */
-   aliasResolutionResult?: ResolutionResultFlags;
- 
-   /**
-    * The symbol for the constraint of a type parameter. Will not be present when
-    * the name resolver could not determine a symbol for the constraint, e.g.
-    * when it is a computed type.
-    */
-   constraintSymbol?: Sym;
- 
-   /**
-    * The result of resolving the type parameter constraint. When resolved,
-    * constraintSymbol will contain the resolved symbol. Otherwise,
-    * constraintSymbol may be present if the constraint is a type literal with a
-    * symbol, otherwise it will be undefined.
-    */
-   constraintResolutionResult?: ResolutionResultFlags;
+  /**
+   * True if we have completed the early binding of member symbols for this model during
+   * the name resolution phase.
+   */
+  membersBound?: boolean;
+
+  /**
+   * The symbol aliased by an alias symbol. When present, guaranteed to be a
+   * non-alias symbol. Will not be present when the name resolver could not
+   * determine a symbol for the alias, e.g. when it is a computed type.
+   */
+  aliasedSymbol?: Sym;
+
+  /**
+   * The result of resolving the aliased reference. When resolved, aliasedSymbol
+   * will contain the resolved symbol. Otherwise, aliasedSymbol may be present
+   * if the alias is a type literal with a symbol, otherwise it will be
+   * undefined.
+   */
+  aliasResolutionResult?: ResolutionResultFlags;
+
+  /**
+   * The symbol for the constraint of a type parameter. Will not be present when
+   * the name resolver could not determine a symbol for the constraint, e.g.
+   * when it is a computed type.
+   */
+  constraintSymbol?: Sym;
+
+  /**
+   * The result of resolving the type parameter constraint. When resolved,
+   * constraintSymbol will contain the resolved symbol. Otherwise,
+   * constraintSymbol may be present if the constraint is a type literal with a
+   * symbol, otherwise it will be undefined.
+   */
+  constraintResolutionResult?: ResolutionResultFlags;
 }
 
 export interface NodeLinks {

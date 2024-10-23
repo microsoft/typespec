@@ -14,8 +14,8 @@ import {
   TypeReferenceNode,
 } from "../src/core/types.js";
 import { Program, Sym } from "../src/index.js";
+import { beforeEach, describe, it } from "vitest";
 
-describe.only("compiler: nameResolver", () => {
   let binder: Binder;
   let resolver: ReturnType<typeof createResolver>;
   let program: Program;
@@ -1102,7 +1102,6 @@ describe.only("compiler: nameResolver", () => {
       }
     }
   }
-});
 
 interface SymbolDescriptor {
   name?: string;
