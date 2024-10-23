@@ -269,7 +269,7 @@ namespace ListKind {
     delimiter: Token.Comma,
     toleratedDelimiter: Token.Semicolon,
     toleratedDelimiterIsValid: false,
-    trailingDelimiterIsValid: false,
+    trailingDelimiterIsValid: true,
     invalidAnnotationTarget: "expression",
     allowedStatementKeyword: Token.None,
   } as const;
@@ -296,6 +296,7 @@ namespace ListKind {
   export const Heritage = {
     ...ExpresionsBase,
     allowEmpty: false,
+    trailingDelimiterIsValid: false,
     open: Token.None,
     close: Token.None,
   } as const;
