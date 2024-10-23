@@ -14,7 +14,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Client.Structure.ClientOperationGrou
         [Test]
         public void VerifyMethods()
         {
-            /*cheeck methods in FirstClient. */
+            /*check methods in FirstClient. */
             var methodsOfFirstClient = typeof(FirstClient).GetMethods();
             Assert.IsNotNull(methodsOfFirstClient);
             Assert.AreEqual(2, methodsOfFirstClient.Where(method => method.Name.EndsWith("Async")).Count());
