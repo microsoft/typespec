@@ -4,7 +4,13 @@ syntax = "proto3";
 
 package A;
 
+import "C.proto";
+
 message Output {
   int32 testOutputField = 1;
   string secondField = 2;
+}
+
+message ReferentInput {
+  C.Input referentField = 1;
 }

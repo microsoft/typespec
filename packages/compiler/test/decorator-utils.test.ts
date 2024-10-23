@@ -1,4 +1,5 @@
 import { deepStrictEqual, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import {
   DecoratorContext,
   TypeSpecValue,
@@ -34,7 +35,7 @@ describe("compiler: decorator utils", () => {
         import "./mapToJson.js";
 
         ${code};
-      `
+      `,
       );
       await host.compile("main.tsp");
       return result;

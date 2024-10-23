@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Parameter Decorators
-  version: 0000-00-00
+  version: 0.0.0
 tags: []
 paths:
   /thing/{name}:
@@ -23,6 +23,7 @@ paths:
             format: int32
             minimum: 0
             maximum: 10
+          explode: false
       responses:
         '200':
           description: The request has succeeded.

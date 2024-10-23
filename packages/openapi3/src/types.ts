@@ -1,4 +1,5 @@
-import { ExtensionKey } from "@typespec/openapi";
+import { Diagnostic, Service } from "@typespec/compiler";
+import { Contact, ExtensionKey, License } from "@typespec/openapi";
 
 export type Extensions = {
   [key in ExtensionKey]?: any;
@@ -39,11 +40,65 @@ export interface OpenAPI3Document extends Extensions {
   security?: Record<string, string[]>[];
 }
 
+/**
+ * A record containing the the OpenAPI 3 documents corresponding to
+ * a particular service definition.
+ */
+export type OpenAPI3ServiceRecord =
+  | OpenAPI3UnversionedServiceRecord
+  | OpenAPI3VersionedServiceRecord;
+
+export interface OpenAPI3UnversionedServiceRecord {
+  /** The service that generated this OpenAPI document */
+  readonly service: Service;
+
+  /** Whether the service is versioned */
+  readonly versioned: false;
+
+  /** The OpenAPI 3 document */
+  readonly document: OpenAPI3Document;
+
+  /** The diagnostics created for this document */
+  readonly diagnostics: readonly Diagnostic[];
+}
+
+export interface OpenAPI3VersionedServiceRecord {
+  /** The service that generated this OpenAPI document */
+  readonly service: Service;
+
+  /** Whether the service is versioned */
+  readonly versioned: true;
+
+  /** The OpenAPI 3 document records for each version of this service */
+  readonly versions: OpenAPI3VersionedDocumentRecord[];
+}
+
+/**
+ * A record containing an unversioned OpenAPI document and associated metadata.
+ */
+
+export interface OpenAPI3VersionedDocumentRecord {
+  /** The OpenAPI document*/
+  readonly document: OpenAPI3Document;
+
+  /** The service that generated this OpenAPI document. */
+  readonly service: Service;
+
+  /** The version of the service. Absent if the service is unversioned. */
+  readonly version: string;
+
+  /** The diagnostics created for this version. */
+  readonly diagnostics: readonly Diagnostic[];
+}
+
 export interface OpenAPI3Info extends Extensions {
   title: string;
   description?: string;
   termsOfService?: string;
   version: string;
+  contact?: Contact;
+  license?: License;
+  summary?: string;
 }
 
 export interface OpenAPI3Server {
@@ -102,7 +157,7 @@ export type OpenAPI3Response = Extensions & {
   description: string;
 
   /** Maps a header name to its definition. RFC7230 states header names are case insensitive. If a response header is defined with the name "Content-Type", it SHALL be ignored. */
-  headers: Record<string, Refable<OpenAPI3Header>>;
+  headers?: Record<string, Refable<OpenAPI3Header>>;
 
   /** A map containing descriptions of potential response payloads. The key is a media type or media type range and the value describes it. For responses that match multiple keys, only the most specific key is applicable. e.g. text/plain overrides text/* */
   content?: Record<string, OpenAPI3MediaType>;
@@ -122,6 +177,12 @@ export type OpenAPI3MediaType = Extensions & {
 
   /** A map between a property name and its encoding information. The key, being the property name, MUST exist in the schema as a property. The encoding object SHALL only apply to requestBody objects when the media type is multipart or application/x-www-form-urlencoded.  */
   encoding?: Record<string, OpenAPI3Encoding>;
+
+  /** Example */
+  example?: unknown;
+
+  /** Examples with title  */
+  examples?: Record<string, OpenAPI3Example>;
 };
 
 /**
@@ -153,7 +214,7 @@ export type OpenAPI3Encoding = Extensions & {
  */
 export type OpenAPI3RequestBody = Extensions & {
   /** A brief description of the request body. This could contain examples of use. CommonMark syntax MAY be used for rich text representation. */
-  description: string;
+  description?: string;
 
   /** The content of the request body. The key is a media type or media type range and the value describes it. For requests that match multiple keys, only the most specific key is applicable. e.g. text/plain overrides text/* */
   content: Record<string, OpenAPI3MediaType>;
@@ -297,8 +358,10 @@ export type OpenAPI3Link =
  * @see https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#exampleObject
  */
 export interface OpenAPI3Example {
-  /** The name of the property MUST be one of the Operation produces values (either implicit or inherited). The value SHOULD be an example of what such a response would look like. */
-  [mineType: string]: unknown;
+  summary?: string;
+  description?: string;
+  value?: unknown;
+  externalValue?: string;
 }
 
 export interface OpenAPI3Discriminator extends Extensions {
@@ -607,14 +670,17 @@ export type OpenAPI3Operation = Extensions & {
   responses?: any;
   tags?: string[];
   operationId?: string;
-  requestBody?: any;
-  parameters: OpenAPI3Parameter[];
+  requestBody?: OpenAPI3RequestBody;
+  parameters: Refable<OpenAPI3Parameter>[];
   deprecated?: boolean;
+  security?: Record<string, string[]>[];
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export interface Ref<T> {
   $ref: string;
+  description?: string;
+  summary?: string;
 }
 
 export type Refable<T> = Ref<T> | T;

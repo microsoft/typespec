@@ -5,10 +5,10 @@ title: "[C] DuplicateTracker"
 ---
 Helper class to track duplicate instance
 
-## Type parameters
+## Type Parameters
 
-| Parameter |
-| :------ |
+| Type Parameter |
+| ------ |
 | `K` |
 | `V` |
 
@@ -20,21 +20,23 @@ Helper class to track duplicate instance
 new DuplicateTracker<K, V>(): DuplicateTracker<K, V>
 ```
 
-## Properties
+#### Returns
 
-| Modifier | Property | Type | Description |
-| :------ | :------ | :------ | :------ |
-| `private` | `#entries` | `Map`<`K`, `V`[]\> | - |
+[`DuplicateTracker`](DuplicateTracker.md)<`K`, `V`\>
 
 ## Methods
 
 ### entries()
 
 ```ts
-entries(): Iterable<[K, V[]]>
+entries(): Iterable<[K, V[]], any, any>
 ```
 
 Return iterator of all the duplicate entries.
+
+#### Returns
+
+`Iterable`<[`K`, `V`[]], `any`, `any`\>
 
 ***
 
@@ -49,6 +51,10 @@ Track usage of K.
 #### Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `k` | `K` | key that is being checked for duplicate. |
 | `v` | `V` | value that map to the key |
+
+#### Returns
+
+`void`

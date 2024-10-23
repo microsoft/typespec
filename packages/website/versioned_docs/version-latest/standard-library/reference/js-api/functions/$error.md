@@ -4,16 +4,19 @@ title: "[F] $error"
 
 ---
 ```ts
-$error(context, entity): void
+function $error(context, target): void
 ```
 
 `@error` decorator marks a model as an error type.
-
-`@error` can only be specified on a model.
+ Any derived models (using extends) will also be seen as error types.
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
-| `entity` | [`Model`](../interfaces/Model.md) |
+| `target` | [`Model`](../interfaces/Model.md) |
+
+## Returns
+
+`void`

@@ -5,6 +5,7 @@ import {
   expectDiagnostics,
 } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
+import { beforeEach, describe, expect, it } from "vitest";
 import {
   getAuthentication,
   getHeaderFieldName,
@@ -17,6 +18,8 @@ import {
   getStatusCodes,
   includeInapplicableMetadataInPayload,
   isBody,
+  isBodyIgnore,
+  isBodyRoot,
   isHeader,
   isPathParam,
   isQueryParam,
@@ -24,7 +27,6 @@ import {
 } from "../src/decorators.js";
 import { Visibility, getRequestVisibility, resolveRequestVisibility } from "../src/metadata.js";
 import { createHttpTestRunner } from "./test-host.js";
-
 describe("http: decorators", () => {
   let runner: BasicTestRunner;
 
@@ -79,18 +81,12 @@ describe("http: decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "invalid-argument",
-          message:
-            "Argument '123' is not assignable to parameter of type 'string | TypeSpec.Http.HeaderOptions'",
         },
         {
           code: "invalid-argument",
-          message:
-            "Argument '(anonymous model)' is not assignable to parameter of type 'string | TypeSpec.Http.HeaderOptions'",
         },
         {
           code: "invalid-argument",
-          message:
-            "Argument '(anonymous model)' is not assignable to parameter of type 'string | TypeSpec.Http.HeaderOptions'",
         },
       ]);
     });
@@ -161,38 +157,21 @@ describe("http: decorators", () => {
     it("emit diagnostics when query name is not a string or of type QueryOptions", async () => {
       const diagnostics = await runner.diagnose(`
           op test(@query(123) MyQuery: string): string;
-          op test2(@query({name: 123}) MyQuery: string): string;
-          op test3(@query({format: "invalid"}) MyQuery: string): string;
+          op test2(@query(#{name: 123}) MyQuery: string): string;
+          op test3(@query(#{format: "invalid"}) MyQuery: string): string;
         `);
 
       expectDiagnostics(diagnostics, [
         {
           code: "invalid-argument",
-          message:
-            "Argument '123' is not assignable to parameter of type 'string | TypeSpec.Http.QueryOptions'",
         },
         {
           code: "invalid-argument",
-          message:
-            "Argument '(anonymous model)' is not assignable to parameter of type 'string | TypeSpec.Http.QueryOptions'",
         },
         {
           code: "invalid-argument",
-          message:
-            "Argument '(anonymous model)' is not assignable to parameter of type 'string | TypeSpec.Http.QueryOptions'",
         },
       ]);
-    });
-
-    it("emit diagnostics when query is not specifing format but is an array", async () => {
-      const diagnostics = await runner.diagnose(`
-          op test(@query select: string[]): string;
-        `);
-
-      expectDiagnostics(diagnostics, {
-        code: "@typespec/http/query-format-required",
-        message: `A format must be specified for @query when type is an array. e.g. @query({format: "multi"})`,
-      });
     });
 
     it("generate query name from property name", async () => {
@@ -212,15 +191,43 @@ describe("http: decorators", () => {
       strictEqual(getQueryParamName(runner.program, select), "$select");
     });
 
-    describe("change format for array value", () => {
-      ["csv", "tsv", "ssv", "simple", "form", "pipes"].forEach((format) => {
+    it("specify explode: true", async () => {
+      const { selects } = await runner.compile(`
+        op test(@test @query(#{ explode: true }) selects: string[]): string;
+      `);
+      expect(getQueryParamOptions(runner.program, selects)).toEqual({
+        type: "query",
+        name: "selects",
+        format: "multi",
+        explode: true,
+      });
+    });
+
+    describe("LEGACY: change format for array value", () => {
+      ["csv", "tsv", "ssv", "simple", "pipes"].forEach((format) => {
         it(`set query format to "${format}"`, async () => {
           const { selects } = await runner.compile(`
-            op test(@test @query({name: "$select", format: "${format}"}) selects: string[]): string;
+            #suppress "deprecated" "Test"
+            op test(@test @query(#{name: "$select", format: "${format}"}) selects: string[]): string;
           `);
           deepStrictEqual(getQueryParamOptions(runner.program, selects), {
             type: "query",
             name: "$select",
+            explode: false,
+            format,
+          });
+        });
+      });
+      ["form"].forEach((format) => {
+        it(`set query format to "${format}"`, async () => {
+          const { selects } = await runner.compile(`
+            #suppress "deprecated" "Test"
+            op test(@test @query(#{name: "$select", format: "${format}"}) selects: string[]): string;
+          `);
+          deepStrictEqual(getQueryParamOptions(runner.program, selects), {
+            type: "query",
+            name: "$select",
+            explode: true,
             format,
           });
         });
@@ -260,7 +267,7 @@ describe("http: decorators", () => {
       ]);
     });
 
-    it("emit diagnostics when not all duplicated routes are declared shared", async () => {
+    it("emit diagnostics when not all duplicated routes are declared shared on each op conflicting", async () => {
       const diagnostics = await runner.diagnose(`
         @route("/test") @sharedRoute op test(): string;
         @route("/test") @sharedRoute op test2(): string;
@@ -269,7 +276,15 @@ describe("http: decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "@typespec/http/shared-inconsistency",
-          message: `All shared routes must agree on the value of the shared parameter.`,
+          message: `Each operation routed at "get /test" needs to have the @sharedRoute decorator.`,
+        },
+        {
+          code: "@typespec/http/shared-inconsistency",
+          message: `Each operation routed at "get /test" needs to have the @sharedRoute decorator.`,
+        },
+        {
+          code: "@typespec/http/shared-inconsistency",
+          message: `Each operation routed at "get /test" needs to have the @sharedRoute decorator.`,
         },
       ]);
     });
@@ -283,6 +298,15 @@ describe("http: decorators", () => {
       expectDiagnosticEmpty(diagnostics);
     });
 
+    it("do not emit diagnostics routes sharing path but not same verb", async () => {
+      const diagnostics = await runner.diagnose(`
+        @route("/test") @sharedRoute op test(): string;
+        @route("/test") @sharedRoute op test2(): string;
+        @route("/test") @post op test3(): string;
+      `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
     it("emit diagnostic when wrong type for shared is provided", async () => {
       const diagnostics = await runner.diagnose(`
         @route("/test", {shared: "yes"}) op test(): string;
@@ -290,7 +314,6 @@ describe("http: decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "invalid-argument",
-          message: `Argument '(anonymous model)' is not assignable to parameter of type '(anonymous model)'`,
         },
       ]);
     });
@@ -345,7 +368,6 @@ describe("http: decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "invalid-argument",
-          message: "Argument '123' is not assignable to parameter of type 'valueof string'",
         },
       ]);
     });
@@ -367,6 +389,9 @@ describe("http: decorators", () => {
       deepStrictEqual(getPathParamOptions(runner.program, select), {
         type: "path",
         name: "$select",
+        allowReserved: false,
+        explode: false,
+        style: "simple",
       });
       strictEqual(getPathParamName(runner.program, select), "$select");
     });
@@ -400,6 +425,68 @@ describe("http: decorators", () => {
         `);
 
       ok(isBody(runner.program, body));
+    });
+  });
+
+  describe("@bodyRoot", () => {
+    it("emit diagnostics when @body is not used on model property", async () => {
+      const diagnostics = await runner.diagnose(`
+          @bodyRoot op test(): string;
+
+          @bodyRoot model Foo {}
+        `);
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "decorator-wrong-target",
+          message:
+            "Cannot apply @bodyRoot decorator to test since it is not assignable to ModelProperty",
+        },
+        {
+          code: "decorator-wrong-target",
+          message:
+            "Cannot apply @bodyRoot decorator to Foo since it is not assignable to ModelProperty",
+        },
+      ]);
+    });
+
+    it("set the body root with @bodyRoot", async () => {
+      const { body } = (await runner.compile(`
+          @post op test(@test @bodyRoot body: string): string;
+        `)) as { body: ModelProperty };
+
+      ok(isBodyRoot(runner.program, body));
+    });
+  });
+
+  describe("@bodyIgnore", () => {
+    it("emit diagnostics when @body is not used on model property", async () => {
+      const diagnostics = await runner.diagnose(`
+          @bodyIgnore op test(): string;
+
+          @bodyIgnore model Foo {}
+        `);
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "decorator-wrong-target",
+          message:
+            "Cannot apply @bodyIgnore decorator to test since it is not assignable to ModelProperty",
+        },
+        {
+          code: "decorator-wrong-target",
+          message:
+            "Cannot apply @bodyIgnore decorator to Foo since it is not assignable to ModelProperty",
+        },
+      ]);
+    });
+
+    it("isBodyIgnore returns true on property decorated", async () => {
+      const { body } = await runner.compile(`
+          @post op test(@test @bodyIgnore body: string): string;
+        `);
+
+      ok(isBodyIgnore(runner.program, body as ModelProperty));
     });
   });
 
@@ -439,7 +526,7 @@ describe("http: decorators", () => {
           key: string;
         }
         @put op create(): CreatedOrUpdatedResponse & DateHeader & Key;
-        `
+        `,
       );
       expectDiagnostics(diagnostics, [{ code: "@typespec/http/multiple-status-codes" }]);
     });
@@ -449,7 +536,7 @@ describe("http: decorators", () => {
         `      
         model CustomUnauthorizedResponse {
           @statusCode _: 401;
-          @body body: UnauthorizedResponse;
+          @bodyRoot body: UnauthorizedResponse;
         }
   
         model Pet {
@@ -462,7 +549,7 @@ describe("http: decorators", () => {
         }
         
         op list(): PetList | CustomUnauthorizedResponse;
-        `
+        `,
       );
       expectDiagnostics(diagnostics, [{ code: "@typespec/http/multiple-status-codes" }]);
     });
@@ -537,7 +624,6 @@ describe("http: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' is not assignable to parameter of type 'valueof string'",
       });
     });
 
@@ -549,7 +635,6 @@ describe("http: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' is not assignable to parameter of type 'valueof string'",
       });
     });
 
@@ -573,7 +658,6 @@ describe("http: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' is not assignable to parameter of type 'Record<unknown>'",
       });
     });
 
@@ -623,20 +707,6 @@ describe("http: decorators", () => {
   });
 
   describe("@useAuth", () => {
-    it("emit diagnostics when @useAuth is not used on namespace", async () => {
-      const diagnostics = await runner.diagnose(`
-          @useAuth(BasicAuth) op test(): string;
-        `);
-
-      expectDiagnostics(diagnostics, [
-        {
-          code: "decorator-wrong-target",
-          message:
-            "Cannot apply @useAuth decorator to test since it is not assignable to Namespace",
-        },
-      ]);
-    });
-
     it("emit diagnostics when config is not a model, tuple or union", async () => {
       const diagnostics = await runner.diagnose(`
           @useAuth(anOp)
@@ -647,7 +717,6 @@ describe("http: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument 'anOp' is not assignable to parameter of type '{} | Union | {}[]'",
       });
     });
 
@@ -663,14 +732,10 @@ describe("http: decorators", () => {
 
       expectDiagnostics(diagnostics, [
         {
-          code: "unassignable",
-          message:
-            "Type 'foo' is not assignable to type 'TypeSpec.Http.AuthorizationCodeFlow | TypeSpec.Http.ImplicitFlow | TypeSpec.Http.PasswordFlow | TypeSpec.Http.ClientCredentialsFlow'",
+          code: "invalid-argument",
         },
         {
-          code: "unassignable",
-          message:
-            "Type 'Flow' is not assignable to type 'TypeSpec.Http.AuthorizationCodeFlow | TypeSpec.Http.ImplicitFlow | TypeSpec.Http.PasswordFlow | TypeSpec.Http.ClientCredentialsFlow'",
+          code: "invalid-argument",
         },
       ]);
     });
@@ -681,7 +746,7 @@ describe("http: decorators", () => {
         @test namespace Foo {}
       `)) as { Foo: Namespace };
 
-      deepStrictEqual(getAuthentication(runner.program, Foo), {
+      expect(getAuthentication(runner.program, Foo)).toEqual({
         options: [
           {
             schemes: [
@@ -689,6 +754,7 @@ describe("http: decorators", () => {
                 id: "BasicAuth",
                 type: "http",
                 scheme: "basic",
+                model: expect.objectContaining({ kind: "Model" }),
               },
             ],
           },
@@ -704,11 +770,17 @@ describe("http: decorators", () => {
         @test namespace Foo {}
       `)) as { Foo: Namespace };
 
-      deepStrictEqual(getAuthentication(runner.program, Foo), {
+      expect(getAuthentication(runner.program, Foo)).toEqual({
         options: [
           {
             schemes: [
-              { id: "MyAuth", description: "My custom basic auth", type: "http", scheme: "basic" },
+              {
+                id: "MyAuth",
+                description: "My custom basic auth",
+                type: "http",
+                scheme: "basic",
+                model: expect.objectContaining({ kind: "Model" }),
+              },
             ],
           },
         ],
@@ -721,7 +793,7 @@ describe("http: decorators", () => {
         @test namespace Foo {}
       `)) as { Foo: Namespace };
 
-      deepStrictEqual(getAuthentication(runner.program, Foo), {
+      expect(getAuthentication(runner.program, Foo)).toEqual({
         options: [
           {
             schemes: [
@@ -729,6 +801,7 @@ describe("http: decorators", () => {
                 id: "BearerAuth",
                 type: "http",
                 scheme: "bearer",
+                model: expect.objectContaining({ kind: "Model" }),
               },
             ],
           },
@@ -742,7 +815,7 @@ describe("http: decorators", () => {
         @test namespace Foo {}
       `)) as { Foo: Namespace };
 
-      deepStrictEqual(getAuthentication(runner.program, Foo), {
+      expect(getAuthentication(runner.program, Foo)).toEqual({
         options: [
           {
             schemes: [
@@ -751,6 +824,7 @@ describe("http: decorators", () => {
                 type: "apiKey",
                 in: "header",
                 name: "x-my-header",
+                model: expect.objectContaining({ kind: "Model" }),
               },
             ],
           },
@@ -770,7 +844,7 @@ describe("http: decorators", () => {
         @test namespace Foo {}
       `)) as { Foo: Namespace };
 
-      deepStrictEqual(getAuthentication(runner.program, Foo), {
+      expect(getAuthentication(runner.program, Foo)).toEqual({
         options: [
           {
             schemes: [
@@ -785,6 +859,63 @@ describe("http: decorators", () => {
                     scopes: [{ value: "read" }, { value: "write" }],
                   },
                 ],
+                model: expect.objectContaining({ kind: "Model" }),
+              },
+            ],
+          },
+        ],
+      });
+    });
+
+    it("can specify OAuth2 with scopes, which are default for every flow", async () => {
+      const { Foo } = (await runner.compile(`
+        alias MyAuth<T extends string[]> = OAuth2Auth<Flows=[{
+          type: OAuth2FlowType.implicit;
+          authorizationUrl: "https://api.example.com/oauth2/authorize";
+          refreshUrl: "https://api.example.com/oauth2/refresh";
+        }], Scopes=T>;
+
+        @useAuth(MyAuth<["read", "write"]>)
+        @test namespace Foo {}
+      `)) as { Foo: Namespace };
+
+      expect(getAuthentication(runner.program, Foo)).toEqual({
+        options: [
+          {
+            schemes: [
+              {
+                id: "OAuth2Auth",
+                type: "oauth2",
+                flows: [
+                  {
+                    type: "implicit",
+                    authorizationUrl: "https://api.example.com/oauth2/authorize",
+                    refreshUrl: "https://api.example.com/oauth2/refresh",
+                    scopes: [{ value: "read" }, { value: "write" }],
+                  },
+                ],
+                model: expect.objectContaining({ kind: "Model" }),
+              },
+            ],
+          },
+        ],
+      });
+    });
+
+    it("can specify NoAuth", async () => {
+      const { Foo } = (await runner.compile(`
+        @useAuth(NoAuth)
+        @test namespace Foo {}
+      `)) as { Foo: Namespace };
+
+      expect(getAuthentication(runner.program, Foo)).toEqual({
+        options: [
+          {
+            schemes: [
+              {
+                id: "NoAuth",
+                type: "noAuth",
+                model: expect.objectContaining({ kind: "Model" }),
               },
             ],
           },
@@ -798,13 +929,27 @@ describe("http: decorators", () => {
         @test namespace Foo {}
       `)) as { Foo: Namespace };
 
-      deepStrictEqual(getAuthentication(runner.program, Foo), {
+      expect(getAuthentication(runner.program, Foo)).toEqual({
         options: [
           {
-            schemes: [{ id: "BasicAuth", type: "http", scheme: "basic" }],
+            schemes: [
+              {
+                id: "BasicAuth",
+                type: "http",
+                scheme: "basic",
+                model: expect.objectContaining({ kind: "Model" }),
+              },
+            ],
           },
           {
-            schemes: [{ id: "BearerAuth", type: "http", scheme: "bearer" }],
+            schemes: [
+              {
+                id: "BearerAuth",
+                type: "http",
+                scheme: "bearer",
+                model: expect.objectContaining({ kind: "Model" }),
+              },
+            ],
           },
         ],
       });
@@ -816,12 +961,22 @@ describe("http: decorators", () => {
         @test namespace Foo {}
       `)) as { Foo: Namespace };
 
-      deepStrictEqual(getAuthentication(runner.program, Foo), {
+      expect(getAuthentication(runner.program, Foo)).toEqual({
         options: [
           {
             schemes: [
-              { id: "BasicAuth", type: "http", scheme: "basic" },
-              { id: "BearerAuth", type: "http", scheme: "bearer" },
+              {
+                id: "BasicAuth",
+                type: "http",
+                scheme: "basic",
+                model: expect.objectContaining({ kind: "Model" }),
+              },
+              {
+                id: "BearerAuth",
+                type: "http",
+                scheme: "bearer",
+                model: expect.objectContaining({ kind: "Model" }),
+              },
             ],
           },
         ],
@@ -834,10 +989,17 @@ describe("http: decorators", () => {
         @test namespace Foo {}
       `)) as { Foo: Namespace };
 
-      deepStrictEqual(getAuthentication(runner.program, Foo), {
+      expect(getAuthentication(runner.program, Foo)).toEqual({
         options: [
           {
-            schemes: [{ id: "BearerAuth", type: "http", scheme: "bearer" }],
+            schemes: [
+              {
+                id: "BearerAuth",
+                type: "http",
+                scheme: "bearer",
+                model: expect.objectContaining({ kind: "Model" }),
+              },
+            ],
           },
           {
             schemes: [
@@ -846,8 +1008,82 @@ describe("http: decorators", () => {
                 type: "apiKey",
                 in: "header",
                 name: "x-my-header",
+                model: expect.objectContaining({ kind: "Model" }),
               },
-              { id: "BasicAuth", type: "http", scheme: "basic" },
+              {
+                id: "BasicAuth",
+                type: "http",
+                scheme: "basic",
+                model: expect.objectContaining({ kind: "Model" }),
+              },
+            ],
+          },
+        ],
+      });
+    });
+
+    it("can override auth schemes on interface", async () => {
+      const { Foo } = (await runner.compile(`
+        alias ServiceKeyAuth = ApiKeyAuth<ApiKeyLocation.header, "X-API-KEY">;
+        @useAuth(ServiceKeyAuth)
+        @test namespace Foo {
+          @useAuth(BasicAuth | BearerAuth)
+          interface Bar { }
+        }
+      `)) as { Foo: Namespace };
+
+      expect(getAuthentication(runner.program, Foo.interfaces.get("Bar")!)).toEqual({
+        options: [
+          {
+            schemes: [
+              {
+                id: "BasicAuth",
+                type: "http",
+                scheme: "basic",
+                model: expect.objectContaining({ kind: "Model" }),
+              },
+            ],
+          },
+          {
+            schemes: [
+              {
+                id: "BearerAuth",
+                type: "http",
+                scheme: "bearer",
+                model: expect.objectContaining({ kind: "Model" }),
+              },
+            ],
+          },
+        ],
+      });
+    });
+
+    it("can override auth schemes on operation", async () => {
+      const { Foo } = (await runner.compile(`
+        alias ServiceKeyAuth = ApiKeyAuth<ApiKeyLocation.header, "X-API-KEY">;
+        @useAuth(ServiceKeyAuth)
+        @test namespace Foo {
+          @useAuth([BasicAuth, BearerAuth])
+          op bar(): void;
+        }
+      `)) as { Foo: Namespace };
+
+      expect(getAuthentication(runner.program, Foo.operations.get("bar")!)).toEqual({
+        options: [
+          {
+            schemes: [
+              {
+                id: "BasicAuth",
+                type: "http",
+                scheme: "basic",
+                model: expect.objectContaining({ kind: "Model" }),
+              },
+              {
+                id: "BearerAuth",
+                type: "http",
+                scheme: "bearer",
+                model: expect.objectContaining({ kind: "Model" }),
+              },
             ],
           },
         ],
@@ -882,7 +1118,7 @@ describe("http: decorators", () => {
       strictEqual(M.kind, "Model" as const);
       strictEqual(
         includeInapplicableMetadataInPayload(runner.program, M.properties.get("p")!),
-        true
+        true,
       );
     });
     it("can specify at namespace level", async () => {
@@ -895,7 +1131,7 @@ describe("http: decorators", () => {
       strictEqual(M.kind, "Model" as const);
       strictEqual(
         includeInapplicableMetadataInPayload(runner.program, M.properties.get("p")!),
-        false
+        false,
       );
     });
     it("can specify at model level", async () => {
@@ -907,7 +1143,7 @@ describe("http: decorators", () => {
       strictEqual(M.kind, "Model" as const);
       strictEqual(
         includeInapplicableMetadataInPayload(runner.program, M.properties.get("p")!),
-        false
+        false,
       );
     });
     it("can specify at property level", async () => {
@@ -919,7 +1155,7 @@ describe("http: decorators", () => {
       strictEqual(M.kind, "Model" as const);
       strictEqual(
         includeInapplicableMetadataInPayload(runner.program, M.properties.get("p")!),
-        false
+        false,
       );
     });
 
@@ -933,7 +1169,7 @@ describe("http: decorators", () => {
       strictEqual(M.kind, "Model" as const);
       strictEqual(
         includeInapplicableMetadataInPayload(runner.program, M.properties.get("p")!),
-        true
+        true,
       );
     });
   });
@@ -945,9 +1181,8 @@ describe("http: decorators", () => {
       @test op testPatch(): void;
       `);
       deepStrictEqual(
-        // eslint-disable-next-line deprecation/deprecation
         getRequestVisibility("patch"),
-        resolveRequestVisibility(runner.program, testPatch as Operation, "patch")
+        resolveRequestVisibility(runner.program, testPatch as Operation, "patch"),
       );
     });
 
@@ -957,11 +1192,10 @@ describe("http: decorators", () => {
       @patch
       @test op testPatch(): void;
       `);
-      // eslint-disable-next-line deprecation/deprecation
       deepStrictEqual(getRequestVisibility("patch"), Visibility.Update | Visibility.Patch);
       deepStrictEqual(
         resolveRequestVisibility(runner.program, testPatch as Operation, "patch"),
-        Visibility.Update | Visibility.Create | Visibility.Patch
+        Visibility.Update | Visibility.Create | Visibility.Patch,
       );
     });
   });

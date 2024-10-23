@@ -1,27 +1,29 @@
 import assert from "assert";
 import path from "path";
-import url from "url";
+import { describe, it } from "vitest";
 
 import micromatch from "micromatch";
 
-import { formatDiagnostic } from "@typespec/compiler";
+import { formatDiagnostic, resolvePath } from "@typespec/compiler";
 import {
-  createTestHost,
-  resolveVirtualPath,
   TypeSpecTestLibrary,
+  createTestHost,
+  findTestPackageRoot,
+  resolveVirtualPath,
 } from "@typespec/compiler/testing";
 import { readdirSync, statSync } from "fs";
-import { mkdir, readdir, readFile, rm, stat, writeFile } from "fs/promises";
+import { mkdir, readFile, readdir, rm, stat, writeFile } from "fs/promises";
 import { ProtobufEmitterOptions } from "../src/lib.js";
 
-const SCENARIOS_DIRECTORY = url.fileURLToPath(new url.URL("../../test/scenarios", import.meta.url));
+const pkgRoot = await findTestPackageRoot(import.meta.url);
+const SCENARIOS_DIRECTORY = resolvePath(pkgRoot, "test/scenarios");
 
 const shouldRecord = process.env.RECORD === "true";
 const patternsToRun = process.env.RUN_SCENARIOS?.split(",") ?? ["*"];
 
 const TypeSpecProtobufTestLibrary: TypeSpecTestLibrary = {
   name: "@typespec/protobuf",
-  packageRoot: path.resolve(url.fileURLToPath(import.meta.url), "../../../"),
+  packageRoot: await findTestPackageRoot(import.meta.url),
   files: [
     { realDir: "", pattern: "package.json", virtualPath: "./node_modules/@typespec/protobuf" },
     {
@@ -81,7 +83,7 @@ describe("protobuf scenarios", function () {
             assert.strictEqual(
               Object.entries(emitResult.files).length,
               0,
-              "no expectations exist, but output files were generated"
+              "no expectations exist, but output files were generated",
             );
           } else {
             const expectedFiles = await readdirRecursive(expectationDirectory);
@@ -140,7 +142,7 @@ interface EmitResult {
 
 async function doEmit(
   files: Record<string, string>,
-  options: ProtobufEmitterOptions
+  options: ProtobufEmitterOptions,
 ): Promise<EmitResult> {
   const baseOutputPath = resolveVirtualPath("test-output/");
 
@@ -164,7 +166,7 @@ async function doEmit(
     files: Object.fromEntries(
       [...host.fs.entries()]
         .filter(([name]) => name.startsWith(baseOutputPath))
-        .map(([name, value]) => [name.replace(baseOutputPath, ""), value])
+        .map(([name, value]) => [name.replace(baseOutputPath, ""), value]),
     ),
     diagnostics: diagnostics.map(formatDiagnostic),
   };
@@ -172,12 +174,12 @@ async function doEmit(
 
 function assertFilesAsExpected(
   outputFiles: Record<string, string>,
-  expectedFiles: Record<string, string>
+  expectedFiles: Record<string, string>,
 ) {
   for (const fn of Object.keys(expectedFiles)) {
     assert.ok(
       Object.prototype.hasOwnProperty.call(outputFiles, fn),
-      `expected file ${fn} was not produced`
+      `expected file ${fn} was not produced`,
     );
   }
 
@@ -198,7 +200,7 @@ function assertFilesAsExpected(
  */
 async function writeExpectationDirectory(
   expectationDirectory: string,
-  outputFiles: Record<string, string>
+  outputFiles: Record<string, string>,
 ) {
   const fileEntries = Object.entries(outputFiles);
 

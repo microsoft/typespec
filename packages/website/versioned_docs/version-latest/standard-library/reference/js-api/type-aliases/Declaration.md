@@ -17,6 +17,7 @@ type Declaration:
   | ProjectionLambdaParameterDeclarationNode
   | EnumStatementNode
   | AliasStatementNode
+  | ConstStatementNode
   | DecoratorDeclarationStatementNode
   | FunctionDeclarationStatementNode;
 ```

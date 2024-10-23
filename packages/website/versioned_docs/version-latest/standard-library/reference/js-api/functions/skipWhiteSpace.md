@@ -4,7 +4,7 @@ title: "[F] skipWhiteSpace"
 
 ---
 ```ts
-skipWhiteSpace(
+function skipWhiteSpace(
    input, 
    position, 
    endPosition): number
@@ -13,7 +13,11 @@ skipWhiteSpace(
 ## Parameters
 
 | Parameter | Type | Default value |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `input` | `string` | `undefined` |
 | `position` | `number` | `undefined` |
 | `endPosition` | `number` | `input.length` |
+
+## Returns
+
+`number`

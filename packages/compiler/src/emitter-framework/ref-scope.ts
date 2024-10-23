@@ -1,4 +1,4 @@
-import { Declaration, Scope } from "./types.js";
+import type { Declaration, Scope } from "./types.js";
 
 export function scopeChain<T>(scope: Scope<T> | null) {
   const chain = [];
@@ -18,7 +18,7 @@ export function scopeChain<T>(scope: Scope<T> | null) {
  */
 export function resolveDeclarationReferenceScope<T>(
   target: Declaration<T>,
-  currentScope: Scope<T>
+  currentScope: Scope<T>,
 ) {
   const targetScope = target.scope;
   const targetChain = scopeChain(targetScope);

@@ -1,3 +1,9 @@
 {
-  "type": "module"
+  "name": "@typespec/e2e",
+  "type": "module",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "test:e2e": "node ./e2e-tests.js"
+  }
 }

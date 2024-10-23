@@ -5,8 +5,8 @@ title: "[I] SemanticToken"
 ---
 ## Properties
 
-| Property | Type | Description |
-| :------ | :------ | :------ |
-| `end` | `number` | - |
-| `kind` | [`SemanticTokenKind`](../enumerations/SemanticTokenKind.md) | - |
-| `pos` | `number` | - |
+| Property | Type |
+| ------ | ------ |
+| `end` | `number` |
+| `kind` | [`SemanticTokenKind`](../enumerations/SemanticTokenKind.md) |
+| `pos` | `number` |

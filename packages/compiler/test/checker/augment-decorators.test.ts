@@ -1,4 +1,5 @@
 import { deepEqual, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { Model, Operation, StringLiteral, Type } from "../../src/core/types.js";
 import { TestHost, createTestHost, expectDiagnosticEmpty } from "../../src/testing/index.js";
 
@@ -26,7 +27,7 @@ describe("compiler: checker: augment decorators", () => {
       @test model Foo { };
 
       @@blue(Foo);
-      `
+      `,
     );
 
     const { Foo } = await testHost.compile("test.tsp");
@@ -50,7 +51,7 @@ describe("compiler: checker: augment decorators", () => {
       model Foo { };
 
       @@customName(Foo, "FooCustom");
-      `
+      `,
     );
 
     await testHost.compile("test.tsp");
@@ -68,6 +69,7 @@ describe("compiler: checker: augment decorators", () => {
         },
       });
     });
+
     it("can be defined at the root of document", async () => {
       testHost.addTypeSpecFile(
         "test.tsp",
@@ -77,7 +79,7 @@ describe("compiler: checker: augment decorators", () => {
         @test model Foo { };
   
         @@blue(Foo);
-        `
+        `,
       );
 
       const { Foo } = await testHost.compile("test.tsp");
@@ -95,7 +97,7 @@ describe("compiler: checker: augment decorators", () => {
         @test model Foo { };
   
         @@blue(Foo);
-        `
+        `,
       );
 
       const { Foo } = await testHost.compile("test.tsp");
@@ -113,7 +115,37 @@ describe("compiler: checker: augment decorators", () => {
           
           @@blue(Foo);
         }
+        `,
+      );
+
+      const { Foo } = await testHost.compile("test.tsp");
+      strictEqual(Foo, blueThing);
+    });
+
+    // Regression for https://github.com/microsoft/typespec/issues/2600
+    it("alias of instantiated template doesn't interfere with augment decorators", async () => {
+      // Here we could have add an issue where `Foo` would have been checked before the `@@blue` augment decorator could be run
+      // As we resolve the member symbols and meta types early,
+      // alias `FactoryString` would have checked the template instance `Factory<string>`
+      // which would then have checked `Foo` and then `@@blue` wouldn't have been run
+      testHost.addTypeSpecFile(
+        "test.tsp",
         `
+        import "./test.js";
+  
+        @test model Foo {};
+
+        interface Factory<T> {
+          op Action(): Foo;
+        }
+
+        alias FactoryString = Factory<string>;
+        
+        op test is FactoryString.Action;
+
+        @@doc(Foo, "This doc");
+        @@blue(Foo);
+        `,
       );
 
       const { Foo } = await testHost.compile("test.tsp");
@@ -141,7 +173,7 @@ describe("compiler: checker: augment decorators", () => {
       ${code}
 
       @@customName(${reference}, "FooCustom");
-      `
+      `,
       );
 
       const [result, diagnostics] = await testHost.compileAndDiagnose("test.tsp");
@@ -161,7 +193,7 @@ describe("compiler: checker: augment decorators", () => {
         `model Foo { 
           @test("target") name: string
         }`,
-        "Foo.name"
+        "Foo.name",
       ));
     it("enum", () => expectTarget(`@test("target") enum Foo { a, b }`, "Foo"));
     it("enum member", () => expectTarget(`enum Foo { @test("target") a, b }`, "Foo.a"));
@@ -197,19 +229,21 @@ describe("compiler: checker: augment decorators", () => {
   
           @@customName(Foo, "Some foo thing");
           @@customName(Foo.testProp, "Some test prop");
-          `
+          `,
       );
       const [results, diagnostics] = await testHost.compileAndDiagnose("test.tsp");
       expectDiagnosticEmpty(diagnostics);
       const stringTest = results.stringTest as Operation;
       strictEqual(stringTest.kind, "Operation");
       deepEqual((stringTest.returnType as Model).decorators[0].args[0].value, {
+        entityKind: "Type",
         kind: "String",
         value: "Some foo thing",
         isFinished: false,
       });
       for (const prop of (stringTest.returnType as Model).properties) {
         deepEqual(prop[1].decorators[0].args[0].value, {
+          entityKind: "Type",
           kind: "String",
           value: "Some test prop",
           isFinished: false,
@@ -245,7 +279,7 @@ describe("compiler: checker: augment decorators", () => {
 
         @@customName(Foo<string>, "A string Foo");
         @@customName(StringFoo, "A string Foo");
-        `
+        `,
       );
       const diagnostics = await testHost.diagnose("test.tsp");
       strictEqual(diagnostics.length, 2);
@@ -272,7 +306,7 @@ describe("compiler: checker: augment decorators", () => {
             import "./test.js";
 
             ${code}
-      `
+      `,
         );
 
         const { target } = await testHost.compile("test.tsp");
@@ -331,7 +365,7 @@ describe("compiler: checker: augment decorators", () => {
       import "./test.js";
 
       ${code}
-      `
+      `,
         );
 
         const { target } = await testHost.compile("test.tsp");

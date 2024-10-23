@@ -1,4 +1,5 @@
 import { deepStrictEqual, strictEqual } from "assert";
+import { describe, it } from "vitest";
 import { openApiFor } from "./test-host.js";
 
 describe("openapi3: documentation", () => {

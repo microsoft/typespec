@@ -1,5 +1,6 @@
 import { strictEqual } from "assert";
-import { getDiscriminatedUnion, getDiscriminator, Model } from "../../src/index.js";
+import { beforeEach, describe, it } from "vitest";
+import { Model, getDiscriminatedUnion, getDiscriminator } from "../../src/index.js";
 import {
   BasicTestRunner,
   createTestRunner,

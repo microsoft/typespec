@@ -5,11 +5,15 @@ title: "[E] IdentifierKind"
 ---
 ## Enumeration Members
 
-| Member | Value |
-| :------ | :------ |
-| `Declaration` | `4` |
-| `Decorator` | `1` |
-| `Function` | `2` |
-| `Other` | `5` |
+| Enumeration Member | Value |
+| ------ | ------ |
+| `Declaration` | `5` |
+| `Decorator` | `2` |
+| `Function` | `3` |
+| `ModelExpressionProperty` | `6` |
+| `ModelStatementProperty` | `7` |
+| `ObjectLiteralProperty` | `8` |
+| `Other` | `9` |
+| `TemplateArgument` | `1` |
 | `TypeReference` | `0` |
-| `Using` | `3` |
+| `Using` | `4` |

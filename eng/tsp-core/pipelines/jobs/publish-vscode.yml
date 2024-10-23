@@ -1,0 +1,49 @@
+jobs:
+  - job: sign_vscode
+    displayName: Sign
+    pool:
+      name: $(LINUXPOOL)
+      image: $(LINUXVMIMAGE)
+      os: linux
+
+    steps:
+      - checkout: self
+
+      - download: current
+        artifact: vscode-extension-unsigned
+        displayName: Download VSCode extension(.vsix) from pipeline artifacts
+
+      - template: /eng/tsp-core/pipelines/templates/sign-vsix.yml
+        parameters:
+          path: $(Pipeline.Workspace)/vscode-extension-unsigned
+          pattern: "*.vsix"
+
+    templateContext:
+      outputs:
+        - output: pipelineArtifact
+          path: $(Pipeline.Workspace)/vscode-extension-unsigned
+          artifact: vscode-extension-signed
+          displayName: Publish signed VSCode extension
+
+  - job: publish_vscode
+    displayName: Publish
+    dependsOn: sign_vscode
+    pool:
+      name: $(LINUXPOOL)
+      image: $(LINUXVMIMAGE)
+      os: linux
+
+    steps:
+      - checkout: self
+
+      - download: current
+        artifact: vscode-extension-signed
+        displayName: Download VSCode extension(.vsix) from pipeline artifacts
+
+      - template: /eng/tsp-core/pipelines/templates/install.yml
+
+      - script: npm run deploy -- --skip-duplicate --packagePath $(Pipeline.Workspace)/vscode-extension-signed/typespec-vscode-*.vsix
+        displayName: Publish
+        workingDirectory: packages/typespec-vscode
+        env:
+          VSCE_PAT: $(azuresdk-devdiv-openapi-extension-marketplace-devops-pat)

@@ -1,6 +1,6 @@
 import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 
-export const libDef = {
+export const $lib = createTypeSpecLibrary({
   name: "@typespec/openapi",
   diagnostics: {
     "invalid-extension-key": {
@@ -16,6 +16,13 @@ export const libDef = {
         parameter: paramMessage`Duplicate parameter key: '${"value"}'. Check @friendlyName decorators and overlap with types in TypeSpec or service namespace.`,
       },
     },
+    "not-url": {
+      severity: "error",
+      messages: {
+        default: paramMessage`${"property"}: ${"value"} is not a valid URL.`,
+      },
+    },
   },
-} as const;
-export const { reportDiagnostic, createStateSymbol } = createTypeSpecLibrary(libDef);
+});
+
+export const { createDiagnostic, reportDiagnostic, createStateSymbol } = $lib;

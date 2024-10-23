@@ -4,7 +4,7 @@ title: "[F] isAnyDirectorySeparator"
 
 ---
 ```ts
-isAnyDirectorySeparator(charCode): boolean
+function isAnyDirectorySeparator(charCode): boolean
 ```
 
 Determines whether a charCode corresponds to `/` or ``.
@@ -12,5 +12,9 @@ Determines whether a charCode corresponds to `/` or ``.
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `charCode` | `number` |
+
+## Returns
+
+`boolean`

@@ -3,32 +3,30 @@ id: overview
 title: Overview
 ---
 
-# Language Overview
-
-This is an overview of the language concept in TypeSpec. It doesn't go in detail but can be used as a cheat sheet.
+This document provides a concise overview of the language concepts in TypeSpec. It serves as a quick reference guide rather than an in-depth tutorial.
 
 ## Declarations
 
-- Declaration names must be unique across types within the same scope. For example this is not allowed
+- Names of declarations must be unique across different types within the same scope. For instance, the following is not permissible:
   <!-- prettier-ignore -->
-    ```typespec
+  ```typespec
   model Dog {}
   namespace Dog {}
   ```
 
 ## Imports
 
-_Details: [Imports](./imports.md)_
+_For more details, see: [Imports](./imports.md)_
 
 | Feature              | Example                   |
 | -------------------- | ------------------------- |
-| Import typespec file | `import "./models.tsp"`   |
+| Import TypeSpec file | `import "./models.tsp"`   |
 | Import JS file       | `import "./models.js"`    |
 | Import Library       | `import "@typespec/rest"` |
 
 ## Namespaces
 
-_Details: [Namespaces](./namespaces.md)_
+_For more details, see: [Namespaces](./namespaces.md)_
 
 | Feature           | Example                      |
 | ----------------- | ---------------------------- |
@@ -39,7 +37,7 @@ _Details: [Namespaces](./namespaces.md)_
 
 ## Decorators
 
-_Details: [Decorators](./decorators.md)_
+_For more details, see: [Decorators](./decorators.md)_
 
 | Feature                      | Example                                                                             |
 | ---------------------------- | ----------------------------------------------------------------------------------- |
@@ -51,7 +49,7 @@ _Details: [Decorators](./decorators.md)_
 
 ## Scalars
 
-_Details: [Scalars](./models.md)_
+_For more details, see: [Scalars](./scalars.md)_
 
 | Feature            | Example                                     |
 | ------------------ | ------------------------------------------- |
@@ -61,7 +59,7 @@ _Details: [Scalars](./models.md)_
 
 ## Models
 
-_Details: [Models](./models.md)_
+_For more details, see: [Models](./models.md)_
 
 | Feature                        | Example                               |
 | ------------------------------ | ------------------------------------- |
@@ -76,7 +74,7 @@ _Details: [Models](./models.md)_
 
 ## Operations
 
-_Details: [Operations](./operations.md)_
+_For more details, see: [Operations](./operations.md)_
 
 | Feature                       | Example                                          |
 | ----------------------------- | ------------------------------------------------ |
@@ -89,7 +87,7 @@ _Details: [Operations](./operations.md)_
 
 ## Interfaces
 
-_Details: [Interfaces](./interfaces.md)_
+_For more details, see: [Interfaces](./interfaces.md)_
 
 | Feature               | Example                                |
 | --------------------- | -------------------------------------- |
@@ -99,7 +97,7 @@ _Details: [Interfaces](./interfaces.md)_
 
 ## Templates
 
-_Details: [Templates](./templates.md)_
+_For more details, see: [Templates](./templates.md)_
 
 | Feature                           | Example                                             |
 | --------------------------------- | --------------------------------------------------- |
@@ -111,7 +109,7 @@ _Details: [Templates](./templates.md)_
 
 ## Enums
 
-_Details: [Enums](./enums.md)_
+_For more details, see: [Enums](./enums.md)_
 
 | Feature            | Example                                        |
 | ------------------ | ---------------------------------------------- |
@@ -123,7 +121,7 @@ _Details: [Enums](./enums.md)_
 
 ## Unions
 
-_Details: [Unions](./unions.md)_
+_For more details, see: [Unions](./unions.md)_
 
 | Feature                 | Example                          |
 | ----------------------- | -------------------------------- |
@@ -132,7 +130,7 @@ _Details: [Unions](./unions.md)_
 
 ## Intersections
 
-_Details: [Intersections](./intersections.md)_
+_For more details, see: [Intersections](./intersections.md)_
 
 | Feature                  | Example        |
 | ------------------------ | -------------- |
@@ -140,7 +138,7 @@ _Details: [Intersections](./intersections.md)_
 
 ## Type literals
 
-_Details: [Type literals](./type-literals.md)_
+_For more details, see: [Type literals](./type-literals.md)_
 
 | Feature           | Example                                                  |
 | ----------------- | -------------------------------------------------------- |
@@ -152,7 +150,7 @@ _Details: [Type literals](./type-literals.md)_
 
 ## Aliases
 
-_Details: [Aliases](./alias.md)_
+_For more details, see: [Aliases](./alias.md)_
 
 | Feature           | Example                           |
 | ----------------- | --------------------------------- |

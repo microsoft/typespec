@@ -4,23 +4,25 @@ title: "[F] cadlTypeToJson"
 
 ---
 ```ts
-cadlTypeToJson<T>(typespecType, target): [T | undefined, Diagnostic[]]
+function cadlTypeToJson<T>(typespecType, target): [T | undefined, Diagnostic[]]
 ```
 
-## Type parameters
+## Type Parameters
 
-| Parameter |
-| :------ |
+| Type Parameter |
+| ------ |
 | `T` |
 
 ## Parameters
 
-| Parameter | Type |
-| :------ | :------ |
-| `typespecType` | [`TypeSpecValue`](../type-aliases/TypeSpecValue.md) |
-| `target` | [`DiagnosticTarget`](../type-aliases/DiagnosticTarget.md) |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `typespecType` | [`TypeSpecValue`](../type-aliases/TypeSpecValue.md) | The type to convert to Json data |
+| `target` | [`DiagnosticTarget`](../type-aliases/DiagnosticTarget.md) | The diagnostic target in case of errors. |
 
 ## Returns
+
+[`T` \| `undefined`, [`Diagnostic`](../interfaces/Diagnostic.md)[]]
 
 ## Deprecated
 

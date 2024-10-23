@@ -3,20 +3,17 @@ id: linters
 title: Linters
 ---
 
-# Linters
+## Linter versus `onValidate`
 
-## Linter vs `onValidate`
+A TypeSpec library can provide an `$onValidate` hook, which can be used to validate whether the TypeSpec program is valid according to your library's rules.
 
-TypeSpec library can probide a `$onValidate` hook which can be used to validate the typespec program is valid in the eye of your library.
+On the other hand, a linter might provide optional validation. The program could be correct, but there might be room for improvements. For instance, a linter might require documentation on every type. While this isn't necessary to represent the TypeSpec program, it could enhance the end user experience. Linters need to be explicitly enabled, whereas `$onValidate` will run automatically if that library is imported.
 
-A linter on the other hand might be a validation that is optional, the program is correct but there could be some improvements. For example requiring documentation on every type. This is not something that is needed to represent the typespec program but without it the end user experience might suffer.
-Linters need to be explicitly enabled. `$onValidate` will be run automatically if that library is imported.
+## Creating a linter
 
-## Writing a linter
+You can find examples in `packages/best-practices`.
 
-See examples in `packages/best-practices`.
-
-### 1. Define a rules
+### 1. Define rules
 
 ```ts
 import {  createLinterRule } from "@typespec/compiler";
@@ -66,7 +63,31 @@ export const requiredDocRule = createLinterRule({
 });
 ```
 
-#### Don'ts
+#### Provide a codefix
+
+[See codefixes](./codefixes.md) for more details on how codefixes work in the TypeSpec ecosystem.
+
+In the same way you can provide a codefix on any reported diagnostic, you can pass codefixes to the `reportDiagnostic` function.
+
+```ts
+context.reportDiagnostic({
+  messageId: "models",
+  target: model,
+  codefixes: [
+    defineCodeFix({
+      id: "add-model-suffix",
+      label: "Add 'Model' suffix to model name",
+      fix: (program) => {
+        program.update(model, {
+          name: `${model.name}Model`,
+        });
+      },
+    }),
+  ],
+});
+```
+
+#### Things to avoid
 
 - ❌ Do not call `program.reportDiagnostic` or your library `reportDiagnostic` helper directly in a linter rule
 
@@ -92,46 +113,46 @@ context.reportDiagnostic({
 
 <!-- cspell:disable-next-line -->
 
-When defining your `$lib` with `createTypeSpecLibrary`([See](./basics.md#4-create-libts)) an additional entry for `linter` can be provided
+Export a `$linter` variable from your library entrypoint:
 
-```ts
+```ts title="index.ts"
+export { $linter } from "./linter.js";
+```
+
+```ts title="linter.ts"
+import { defineLinter } from "@typespec/compiler";
 // Import the rule defined previously
 import { requiredDocRule } from "./rules/required-doc.rule.js";
 
-export const $lib = createTypeSpecLibrary({
-  name: "@typespec/my-linter",
-  diagnostics: {},
-  linter: {
-    // Include all the rules your linter is defining here.
-    rules: [requiredDocRule],
+export const $linter = defineLinter({
+  // Include all the rules your linter is defining here.
+  rules: [requiredDocRule],
 
-    // Optionally a linter can provide a set of rulesets
-    ruleSets: {
-      recommended: {
-        // (optional) A ruleset takes a map of rules to explicitly enable
-        enable: { [`@typespec/my-linter/${requiredDocRule.name}`]: true },
+  // Optionally a linter can provide a set of rulesets
+  ruleSets: {
+    recommended: {
+      // (optional) A ruleset takes a map of rules to explicitly enable
+      enable: { [`@typespec/my-linter/${requiredDocRule.name}`]: true },
 
-        // (optional) A rule set can extend another rule set
-        extends: ["@typespec/best-practices/recommended"],
+      // (optional) A rule set can extend another rule set
+      extends: ["@typespec/best-practices/recommended"],
 
-        // (optional) A rule set can disable a rule enabled in a ruleset it extended.
-        disable: {
-          "`@typespec/best-practices/no-a": "This doesn't apply in this ruleset.",
-        },
+      // (optional) A rule set can disable a rule enabled in a ruleset it extended.
+      disable: {
+        "`@typespec/best-practices/no-a": "This doesn't apply in this ruleset.",
       },
     },
   },
 });
 ```
 
-When referencing a rule or ruleset(in `enable`, `extends`, `disable`) the rule or rule set id must be used which in this format: `<libraryName>/<ruleName>`
+When referencing a rule or ruleset (in `enable`, `extends`, `disable`), you must use the rule or rule set id, which is in this format: `<libraryName>/<ruleName>`.
 
 ## Testing a linter
 
-To test linter rule an rule tester is provided letting you test a specific rule without enabling the others.
+To test a linter rule, a rule tester is provided, allowing you to test a specific rule without enabling the others.
 
-First you'll want to create an instance of the rule tester using `createLinterRuleTester` passing it the rule that is being tested.
-You can then provide different test checking the rule pass or fails.
+First, you'll want to create an instance of the rule tester using `createLinterRuleTester`, passing it the rule that is being tested. You can then provide different tests to check whether the rule passes or fails.
 
 ```ts
 import { RuleTester, createLinterRuleTester, createTestRunner } from "@typespec/compiler/testing";
@@ -156,4 +177,26 @@ describe("required-doc rule", () => {
     await ruleTester.expect(`model Bar {}`).toBeValid();
   });
 });
+```
+
+### Testing linter with codefixes
+
+The linter rule tester provides an API to easily test a codefix. This is a different approach from the standalone codefix tester, which is more targeted at testing codefixes in isolation.
+
+This can be done by calling `applyCodeFix` with the fix id. It will expect a single diagnostic to be emitted with a codefix with the given id. Then, call `toEqual` with the expected code after the codefix is applied.
+
+:::note
+When using multi-line strings (with `\``) in TypeScript, there is no de-indenting done, so you will need to make sure the input and expected result are aligned to the left.
+:::
+
+```ts
+await tester
+  .expect(
+    `        
+    model Foo {}
+    `,
+  )
+  .applyCodeFix("add-model-suffix").toEqual(`
+    model FooModel {}
+  `);
 ```

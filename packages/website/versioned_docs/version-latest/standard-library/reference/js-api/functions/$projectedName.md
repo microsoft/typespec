@@ -4,10 +4,10 @@ title: "[F] $projectedName"
 
 ---
 ```ts
-$projectedName(
+function $projectedName(
    context, 
    target, 
-   projectionName, 
+   targetName, 
    projectedName): void
 ```
 
@@ -16,8 +16,12 @@ $projectedName(
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) | DecoratorContext |
 | `target` | [`Type`](../type-aliases/Type.md) | The that should have a different name. |
-| `projectionName` | `string` | Name of the projection (e.g. "toJson", "toCSharp") |
+| `targetName` | `string` | - |
 | `projectedName` | `string` | Name of the type should have in the scope of the projection specified. |
+
+## Returns
+
+`void`

@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
-  title: Documentaion sample
-  version: 0000-00-00
+  title: Documentation sample
+  version: 0.0.0
 tags: []
 paths:
   /foo/DefaultDescriptions:
@@ -73,7 +73,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Resp'
         '404':
-          description: The server cannot find the requested resource.
+          description: Not found
           content:
             application/json:
               schema:
@@ -96,13 +96,13 @@ components:
           format: int32
     ErrorWithDocs:
       type: object
-      description: Error from @doc
       required:
         - code
       properties:
         code:
           type: integer
           format: int32
+      description: Error from @doc
     NotFoundResp:
       type: object
       required:
@@ -112,12 +112,12 @@ components:
           type: string
     NotFoundWithDocsResp:
       type: object
-      description: Not found
       required:
         - details
       properties:
         details:
           type: string
+      description: Not found
     Resp:
       type: object
       required:
@@ -128,10 +128,10 @@ components:
           format: int32
     RespWithDocs:
       type: object
-      description: Response from @doc
       required:
         - value
       properties:
         value:
           type: integer
           format: int32
+      description: Response from @doc

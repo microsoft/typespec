@@ -4,8 +4,8 @@
   "private": true,
   "author": "Microsoft Corporation",
   "description": "TypeSpec Language Specification Source Code",
-  "homepage": "https://microsoft.github.io/typespec",
-  "readme": "https://github.com/microsoft/typespec/blob/master/README.md",
+  "homepage": "https://typespec.io",
+  "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/microsoft/typespec/issues"
@@ -16,12 +16,12 @@
   },
   "type": "module",
   "scripts": {
-    "build": "ecmarkup --strict src/spec.emu.html dist/spec.html",
+    "build": "ecmarkup --strict src/spec.emu.html dist/spec.html 2>&1",
     "watch": "node scripts/watch-spec.js"
   },
   "devDependencies": {
-    "@types/node": "~18.11.9",
-    "ecmarkup": "~12.0.3",
-    "@typespec/internal-build-utils": "workspace:~0.49.0"
+    "@types/node": "~22.7.5",
+    "@typespec/internal-build-utils": "workspace:~",
+    "ecmarkup": "~20.0.0"
   }
 }

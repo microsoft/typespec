@@ -1,5 +1,0 @@
-# Template building all packages with parallelism.
-
-steps:
-  - script: node common/scripts/install-run-rush.js rebuild --parallelism max --verbose
-    displayName: Build

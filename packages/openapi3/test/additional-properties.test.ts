@@ -1,6 +1,6 @@
-import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok } from "assert";
-import { diagnoseOpenApiFor, oapiForModel } from "./test-host.js";
+import { describe, it } from "vitest";
+import { oapiForModel } from "./test-host.js";
 
 describe("openapi3: Additional properties", () => {
   describe("extends Record<T>", () => {
@@ -49,7 +49,7 @@ describe("openapi3: Additional properties", () => {
         "Pet",
         `
         model Pet { details: Record<unknown> };
-        `
+        `,
       );
 
       ok(res.isRef);
@@ -61,20 +61,6 @@ describe("openapi3: Additional properties", () => {
     });
   });
 
-  it("emits error if model extends record with incompatible value type", async () => {
-    const diagnostics = await diagnoseOpenApiFor(
-      `
-      model Pet extends Record<string> { age: int16 };
-      `
-    );
-    expectDiagnostics(diagnostics, [
-      {
-        code: "unassignable",
-        message: "Type 'int16' is not assignable to type 'string'",
-      },
-    ]);
-  });
-
   it("set additionalProperties if model extends Record with leaf type", async () => {
     const res = await oapiForModel(
       "Pet",
@@ -82,7 +68,7 @@ describe("openapi3: Additional properties", () => {
       @doc("value")
       scalar Value;
       model Pet is Record<Value> {};
-      `
+      `,
     );
 
     ok(res.isRef);

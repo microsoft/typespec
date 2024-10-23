@@ -2,12 +2,16 @@ import {
   DiagnosticResult,
   Interface,
   ListOperationOptions,
+  Model,
   ModelProperty,
   Namespace,
   Operation,
   Program,
+  Tuple,
   Type,
 } from "@typespec/compiler";
+import { PathOptions, QueryOptions } from "../generated-defs/TypeSpec.Http.js";
+import { HeaderProperty, HttpProperty } from "./http-property.js";
 
 /**
  * @deprecated use `HttpOperation`. To remove in November 2022 release.
@@ -16,7 +20,10 @@ export type OperationDetails = HttpOperation;
 
 export type HttpVerb = "get" | "put" | "post" | "patch" | "delete" | "head";
 
-export interface ServiceAuthentication {
+/** @deprecated use Authentication */
+export type ServiceAuthentication = Authentication;
+
+export interface Authentication {
   /**
    * Either one of those options can be used independently to authenticate.
    */
@@ -34,7 +41,9 @@ export type HttpAuth =
   | BasicAuth
   | BearerAuth
   | ApiKeyAuth<ApiKeyLocation, string>
-  | Oauth2Auth<OAuth2Flow[]>;
+  | Oauth2Auth<OAuth2Flow[]>
+  | OpenIDConnectAuth
+  | NoAuth;
 
 export interface HttpAuthBase {
   /**
@@ -46,6 +55,9 @@ export interface HttpAuthBase {
    * Optional description.
    */
   description?: string;
+
+  /** Model that defined the authentication */
+  readonly model: Model;
 }
 
 /**
@@ -53,7 +65,7 @@ export interface HttpAuthBase {
  * The client sends HTTP requests with the Authorization header that contains the word Basic word followed by a space and a base64-encoded string username:password.
  * For example, to authorize as demo / p@55w0rd the client would send
  * ```
- *  Authorization: Basic ZGVtbzpwQDU1dzByZA==
+ * Authorization: Basic ZGVtbzpwQDU1dzByZA==
  * ```
  */
 export interface BasicAuth extends HttpAuthBase {
@@ -168,11 +180,85 @@ export interface OAuth2Scope {
   description?: string;
 }
 
+/**
+ * OpenID Connect (OIDC) is an identity layer built on top of the OAuth 2.0 protocol and supported by some OAuth 2.0 providers, such as Google and Azure Active Directory.
+ * It defines a sign-in flow that enables a client application to authenticate a user, and to obtain information (or "claims") about that user, such as the user name, email, and so on.
+ * User identity information is encoded in a secure JSON Web Token (JWT), called ID token.
+ * OpenID Connect defines a discovery mechanism, called OpenID Connect Discovery, where an OpenID server publishes its metadata at a well-known URL, typically
+ *
+ * ```http
+ * https://server.com/.well-known/openid-configuration
+ * ```
+ */
+export interface OpenIDConnectAuth extends HttpAuthBase {
+  type: "openIdConnect";
+  openIdConnectUrl: string;
+}
+
+/**
+ * This authentication option signifies that API is not secured at all.
+ * It might be useful when overriding authentication on interface of operation level.
+ */
+export interface NoAuth extends HttpAuthBase {
+  type: "noAuth";
+}
+
+export type HttpAuthRef = AnyHttpAuthRef | OAuth2HttpAuthRef | NoHttpAuthRef;
+
+export interface AnyHttpAuthRef {
+  readonly kind: "any";
+  readonly auth: HttpAuth;
+}
+
+export interface NoHttpAuthRef {
+  readonly kind: "noAuth";
+  readonly auth: NoAuth;
+}
+
+/* Holder of this reference needs only a `scopes` subset of all scopes defined at `auth` */
+export interface OAuth2HttpAuthRef {
+  readonly kind: "oauth2";
+  readonly auth: Oauth2Auth<OAuth2Flow[]>;
+  readonly scopes: string[];
+}
+
+export interface AuthenticationReference {
+  /**
+   * Either one of those options can be used independently to authenticate.
+   */
+  readonly options: AuthenticationOptionReference[];
+}
+
+export interface AuthenticationOptionReference {
+  /**
+   * For this authentication option all the given auth have to be used together.
+   */
+  readonly all: HttpAuthRef[];
+}
+
+export interface HttpServiceAuthentication {
+  /**
+   * All the authentication schemes used in this service.
+   * Some might only be used in certain operations.
+   */
+  readonly schemes: HttpAuth[];
+
+  /**
+   * Default authentication for operations in this service.
+   */
+  readonly defaultAuth: AuthenticationReference;
+
+  /**
+   * Authentication overrides for individual operations.
+   */
+  readonly operationsAuth: Map<Operation, AuthenticationReference>;
+}
+
 export type OperationContainer = Namespace | Interface;
 
 export type OperationVerbSelector = (
   program: Program,
-  operation: Operation
+  operation: Operation,
 ) => HttpVerb | undefined;
 
 export interface OperationParameterOptions {
@@ -191,7 +277,7 @@ export interface RouteResolutionOptions extends RouteOptions {
 }
 
 export interface RouteProducerResult {
-  segments: string[];
+  uriTemplate: string;
   parameters: HttpOperationParameters;
 }
 
@@ -200,7 +286,7 @@ export type RouteProducer = (
   operation: Operation,
   parentSegments: string[],
   overloadBase: HttpOperation | undefined,
-  options: RouteOptions
+  options: RouteOptions,
 ) => DiagnosticResult<RouteProducerResult>;
 
 export interface HeaderFieldOptions {
@@ -213,45 +299,49 @@ export interface HeaderFieldOptions {
   format?: "csv" | "multi" | "ssv" | "tsv" | "pipes" | "simple" | "form";
 }
 
-export interface QueryParameterOptions {
+export interface QueryParameterOptions extends Required<Omit<QueryOptions, "format">> {
   type: "query";
-  name: string;
   /**
-   * The string format of the array. "csv" and "simple" are used interchangeably, as are
-   * "multi" and "form".
+   * @deprecated use explode and `@encode` decorator instead.
    */
-  format?: "multi" | "csv" | "ssv" | "tsv" | "pipes" | "simple" | "form";
+  format?: "csv" | "multi" | "ssv" | "tsv" | "pipes" | "simple" | "form";
 }
 
-export interface PathParameterOptions {
+export interface PathParameterOptions extends Required<PathOptions> {
   type: "path";
-  name: string;
 }
 
-export type HttpOperationParameter = (
-  | HeaderFieldOptions
-  | QueryParameterOptions
-  | PathParameterOptions
-) & {
+export type HttpOperationParameter =
+  | HttpOperationHeaderParameter
+  | HttpOperationQueryParameter
+  | HttpOperationPathParameter;
+
+export type HttpOperationHeaderParameter = HeaderFieldOptions & {
+  param: ModelProperty;
+};
+export type HttpOperationQueryParameter = QueryParameterOptions & {
+  param: ModelProperty;
+};
+export type HttpOperationPathParameter = PathParameterOptions & {
   param: ModelProperty;
 };
 
 /**
- * Represent the body information for an http request.
- *
- * @note the `type` must be a `Model` if the content type is multipart.
+ * @deprecated use {@link HttpOperationBody}
  */
-export interface HttpOperationRequestBody extends HttpOperationBody {
-  /**
-   * If the body was explicitly set as a property. Correspond to the property with `@body`
-   */
-  parameter?: ModelProperty;
-}
+export type HttpOperationRequestBody = HttpOperationBody;
+/**
+ * @deprecated use {@link HttpOperationBody}
+ */
+export type HttpOperationResponseBody = HttpOperationBody;
 
 export interface HttpOperationParameters {
+  /** Http properties */
+  readonly properties: HttpProperty[];
+
   parameters: HttpOperationParameter[];
 
-  body?: HttpOperationRequestBody;
+  body?: HttpOperationBody | HttpOperationMultipartBody;
 
   /** @deprecated use {@link body.type} */
   bodyType?: Type;
@@ -271,16 +361,26 @@ export interface HttpOperationParameters {
 export interface HttpService {
   namespace: Namespace;
   operations: HttpOperation[];
+  authentication?: Authentication;
 }
 
 export interface HttpOperation {
   /**
-   * Route path
+   * The fully resolved uri template as defined by http://tools.ietf.org/html/rfc6570.
+   * @example "/foo/{bar}/baz{?qux}"
+   * @example "/foo/{+path}"
+   */
+  readonly uriTemplate: string;
+
+  /**
+   * Route path.
+   * Not recommended use {@link uriTemplate} instead. This will not work for complex cases like not-escaping reserved chars.
    */
   path: string;
 
   /**
    * Path segments
+   * @deprecated use {@link uriTemplate} instead
    */
   pathSegments: string[];
 
@@ -310,6 +410,11 @@ export interface HttpOperation {
   operation: Operation;
 
   /**
+   * Operation authentication. Overrides HttpService authentication
+   */
+  authentication?: Authentication;
+
+  /**
    * Overload this operation
    */
   overloading?: HttpOperation;
@@ -327,7 +432,7 @@ export interface RoutePath {
 
 export interface HttpOperationResponse {
   /** @deprecated use {@link statusCodes} */
-  // eslint-disable-next-line deprecation/deprecation
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
   statusCode: StatusCode;
 
   /**
@@ -336,7 +441,7 @@ export interface HttpOperationResponse {
   statusCodes: HttpStatusCodeRange | number | "*";
 
   /**
-   * Response typespec type.
+   * Response TypeSpec type.
    */
   type: Type;
 
@@ -352,20 +457,67 @@ export interface HttpOperationResponse {
 }
 
 export interface HttpOperationResponseContent {
+  /** Http properties for this response */
+  readonly properties: HttpProperty[];
+
   headers?: Record<string, ModelProperty>;
-  body?: HttpOperationBody;
+  body?: HttpOperationBody | HttpOperationMultipartBody;
 }
 
-export interface HttpOperationBody {
-  /**
-   * Content types.
-   */
-  contentTypes: string[];
+export interface HttpOperationBodyBase {
+  /** Content types. */
+  readonly contentTypes: string[];
+  /** Property used to set the content type if exists */
+  readonly contentTypeProperty?: ModelProperty;
+}
+
+export interface HttpBody {
+  readonly type: Type;
+
+  /** If the body was explicitly set with `@body`. */
+  readonly isExplicit: boolean;
+
+  /** If the body contains metadata annotations to ignore. For example `@header`. */
+  readonly containsMetadataAnnotations: boolean;
 
   /**
-   * Type of the operation body.
+   * @deprecated use {@link property}
    */
-  type: Type;
+  parameter?: ModelProperty;
+
+  /**
+   * If the body was explicitly set as a property. Correspond to the property with `@body` or `@bodyRoot`
+   */
+  readonly property?: ModelProperty;
+}
+
+export interface HttpOperationBody extends HttpOperationBodyBase, HttpBody {
+  readonly bodyKind: "single";
+}
+
+/** Body marked with `@multipartBody` */
+export interface HttpOperationMultipartBody extends HttpOperationBodyBase {
+  readonly bodyKind: "multipart";
+  readonly type: Model | Tuple;
+  /** Property annotated with `@multipartBody` */
+  readonly property: ModelProperty;
+  readonly parts: HttpOperationPart[];
+}
+
+/** Represent an part in a multipart body. */
+export interface HttpOperationPart {
+  /** Part name */
+  readonly name?: string;
+  /** If the part is optional */
+  readonly optional: boolean;
+  /** Part body */
+  readonly body: HttpOperationBody;
+  /** If the Part is an HttpFile this is the property defining the filename */
+  readonly filename?: ModelProperty;
+  /** Part headers */
+  readonly headers: HeaderProperty[];
+  /** If there can be multiple of that part */
+  readonly multi: boolean;
 }
 
 export interface HttpStatusCodeRange {

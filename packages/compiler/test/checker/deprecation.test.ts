@@ -1,14 +1,15 @@
+import { beforeEach, describe, it } from "vitest";
 import { Diagnostic } from "../../src/index.js";
 import {
   BasicTestRunner,
+  DiagnosticMatch,
+  TestHost,
   createTestHost,
   createTestRunner,
   createTestWrapper,
-  DiagnosticMatch,
   expectDiagnosticEmpty,
   expectDiagnostics,
   extractCursor,
-  TestHost,
 } from "../../src/testing/index.js";
 
 describe("compiler: checker: deprecation", () => {
@@ -21,7 +22,7 @@ describe("compiler: checker: deprecation", () => {
   async function expectDeprecations(
     source: string,
     deprecations: string[],
-    testRunner: BasicTestRunner = runner
+    testRunner: BasicTestRunner = runner,
   ) {
     const expectedDiagnostics: DiagnosticMatch[] = [];
     for (const deprecation of deprecations) {
@@ -53,7 +54,7 @@ describe("compiler: checker: deprecation", () => {
             foo: string | ┆OldFoo;
           }
         `,
-        ["OldFoo is deprecated", "OldFoo is deprecated"]
+        ["OldFoo is deprecated", "OldFoo is deprecated"],
       );
     });
 
@@ -67,7 +68,7 @@ describe("compiler: checker: deprecation", () => {
           model IsFoo is ┆NewFoo {}
           model NewIsFoo is IsFoo {}
           `,
-        ["OldFoo is deprecated", "OldFoo is deprecated"]
+        ["OldFoo is deprecated", "OldFoo is deprecated"],
       );
     });
 
@@ -85,7 +86,7 @@ describe("compiler: checker: deprecation", () => {
 
           op get(name: ┆Foo.name): string;
         `,
-        ["Use id instead", "Use id instead"]
+        ["Use id instead", "Use id instead"],
       );
     });
 
@@ -105,7 +106,7 @@ describe("compiler: checker: deprecation", () => {
           op put(name: ┆Baz.name): string;
           op delete(name: ┆Buz.name): string;
         `,
-        ["Use id instead", "Use id instead", "Use id instead"]
+        ["Use id instead", "Use id instead", "Use id instead"],
       );
     });
 
@@ -119,7 +120,7 @@ describe("compiler: checker: deprecation", () => {
           foo: ┆Foo<string>;
         }
         `,
-        ["Foo is deprecated"]
+        ["Foo is deprecated"],
       );
     });
 
@@ -135,7 +136,7 @@ describe("compiler: checker: deprecation", () => {
             otherName: ┆OtherName;
           }
           `,
-        ["Name is deprecated", "Name is deprecated", "Name is deprecated"]
+        ["Name is deprecated", "Name is deprecated", "Name is deprecated"],
       );
     });
 
@@ -148,7 +149,7 @@ describe("compiler: checker: deprecation", () => {
           op someGet is ┆oldGet;
           op newGet is someGet; // No diagnostic here
          `,
-        ["oldGet is deprecated"]
+        ["oldGet is deprecated"],
       );
     });
 
@@ -164,7 +165,7 @@ describe("compiler: checker: deprecation", () => {
 
           op baz is ┆Bar.foo;
         `,
-        ["Foo is deprecated"]
+        ["Foo is deprecated"],
       );
     });
 
@@ -185,7 +186,7 @@ describe("compiler: checker: deprecation", () => {
             foo: ┆StringFoo;
           }
         `,
-        ["StringFoo is deprecated", "StringFoo is deprecated", "StringFoo is deprecated"]
+        ["StringFoo is deprecated", "StringFoo is deprecated", "StringFoo is deprecated"],
       );
     });
 
@@ -206,7 +207,7 @@ describe("compiler: checker: deprecation", () => {
         model Foo {}
         `,
         ["testDec is deprecated"],
-        runner
+        runner,
       );
     });
 
@@ -229,7 +230,7 @@ describe("compiler: checker: deprecation", () => {
             
             model Bar<T extends ┆OldFoo> {}
           `,
-          ["OldFoo is deprecated"]
+          ["OldFoo is deprecated"],
         );
       });
 
@@ -244,7 +245,7 @@ describe("compiler: checker: deprecation", () => {
             alias T1 = Bar<{one: string}>;
             alias T2 = Bar<{two: string}>;
           `,
-          ["OldFoo is deprecated"]
+          ["OldFoo is deprecated"],
         );
       });
 
@@ -272,7 +273,7 @@ describe("compiler: checker: deprecation", () => {
 
             alias T1 = Bar<┆OldFoo>;
           `,
-          ["OldFoo is deprecated"]
+          ["OldFoo is deprecated"],
         );
       });
 
@@ -359,7 +360,7 @@ describe("compiler: checker: deprecation", () => {
               op oldBazThree(): OldFoo & { bar: string };
             }
           `,
-          []
+          [],
         );
       });
 
@@ -377,7 +378,7 @@ describe("compiler: checker: deprecation", () => {
               op oldBaz is oldBar;
             }
           `,
-          []
+          [],
         );
       });
     });
@@ -385,7 +386,7 @@ describe("compiler: checker: deprecation", () => {
 
   describe("@deprecated decorator", () => {
     function omitDeprecatedDecoratorDeprecatedDiag(
-      diagnostics: readonly Diagnostic[]
+      diagnostics: readonly Diagnostic[],
     ): readonly Diagnostic[] {
       return diagnostics.filter(
         (x) =>
@@ -393,7 +394,7 @@ describe("compiler: checker: deprecation", () => {
             x.code === "deprecated" &&
             x.message ===
               "Deprecated: @deprecated decorator is deprecated. Use the `#deprecated` directive instead."
-          )
+          ),
       );
     }
     it("doesn't emit warning until it is used", async () => {
@@ -477,7 +478,7 @@ describe("compiler: checker: deprecation", () => {
       `,
         {
           ignoreDeprecated: true,
-        }
+        },
       );
 
       expectDiagnosticEmpty(diagnostics);

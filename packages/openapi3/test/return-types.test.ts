@@ -1,8 +1,27 @@
 import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
+import { describe, expect, it } from "vitest";
 import { checkFor, openApiFor } from "./test-host.js";
 
 describe("openapi3: return types", () => {
+  it("model used with @body and without shouldn't conflict if it contains no metadata", async () => {
+    const res = await openApiFor(
+      `
+      model Foo {
+        name: string;
+      }
+      @route("c1") op c1(): Foo;
+      @route("c2") op c2(): {@body _: Foo};
+      `,
+    );
+    deepStrictEqual(res.paths["/c1"].get.responses["200"].content["application/json"].schema, {
+      $ref: "#/components/schemas/Foo",
+    });
+    deepStrictEqual(res.paths["/c2"].get.responses["200"].content["application/json"].schema, {
+      $ref: "#/components/schemas/Foo",
+    });
+  });
+
   it("defines responses with response headers", async () => {
     const res = await openApiFor(
       `
@@ -13,7 +32,7 @@ describe("openapi3: return types", () => {
         key: string;
       }
       @get() op read(): Key & ETagHeader;
-      `
+      `,
     );
     ok(res.paths["/"].get.responses["200"].headers);
     ok(res.paths["/"].get.responses["200"].headers["e-tag"]);
@@ -32,7 +51,7 @@ describe("openapi3: return types", () => {
         }
         @put op create(): CreatedResponse & Key;  
       }
-      `
+      `,
     );
     ok(res.paths["/"].put.responses["201"]);
     ok(res.paths["/"].put.responses["201"].content["application/json"].schema);
@@ -51,7 +70,7 @@ describe("openapi3: return types", () => {
         }
         @put op create(): CreatedResponse & Key;
       }
-      `
+      `,
     );
     ok(res.paths["/"].put.responses["201"]);
     ok(res.paths["/"].put.responses["201"].content["application/json"].schema);
@@ -73,7 +92,7 @@ describe("openapi3: return types", () => {
         }
         @put op create(): { ...CreatedResponse, ...ETagHeader, @body body: Key};
       }
-      `
+      `,
     );
     ok(res.paths["/"].put.responses["201"]);
     ok(res.paths["/"].put.responses["201"].headers["e-tag"]);
@@ -86,22 +105,22 @@ describe("openapi3: return types", () => {
     const res = await openApiFor(
       `
       @put op create(): {@header eTag: string};
-      `
+      `,
     );
-    ok(res.paths["/"].put.responses["204"]);
-    ok(res.paths["/"].put.responses["204"].headers["e-tag"]);
-    strictEqual(res.paths["/"].put.responses["204"].headers["e-tag"].required, true);
+    ok(res.paths["/"].put.responses["200"]);
+    ok(res.paths["/"].put.responses["200"].headers["e-tag"]);
+    strictEqual(res.paths["/"].put.responses["200"].headers["e-tag"].required, true);
   });
 
   it("optional response header are marked required: false", async () => {
     const res = await openApiFor(
       `
       @put op create(): {@header eTag?: string};
-      `
+      `,
     );
-    ok(res.paths["/"].put.responses["204"]);
-    ok(res.paths["/"].put.responses["204"].headers["e-tag"]);
-    strictEqual(res.paths["/"].put.responses["204"].headers["e-tag"].required, false);
+    ok(res.paths["/"].put.responses["200"]);
+    ok(res.paths["/"].put.responses["200"].headers["e-tag"]);
+    strictEqual(res.paths["/"].put.responses["200"].headers["e-tag"].required, false);
   });
 
   it("defines responses with headers and status codes in base model", async () => {
@@ -122,7 +141,7 @@ describe("openapi3: return types", () => {
         }
         @put op create(): CreatePageResponse;
       }
-      `
+      `,
     );
     ok(res.paths["/"].put.responses["201"]);
     ok(res.paths["/"].put.responses["201"].headers["location"]);
@@ -144,18 +163,18 @@ describe("openapi3: return types", () => {
         key: string;
       }
       @put op create(): CreatedOrUpdatedResponse & DateHeader & Key;
-      `
+      `,
     );
     ok(res.paths["/"].put.responses["200"]);
     ok(res.paths["/"].put.responses["201"]);
     // Note: 200 and 201 response should be equal except for description
     deepStrictEqual(
       res.paths["/"].put.responses["200"].headers,
-      res.paths["/"].put.responses["201"].headers
+      res.paths["/"].put.responses["201"].headers,
     );
     deepStrictEqual(
       res.paths["/"].put.responses["200"].content,
-      res.paths["/"].put.responses["201"].content
+      res.paths["/"].put.responses["201"].content,
     );
   });
 
@@ -172,7 +191,7 @@ describe("openapi3: return types", () => {
         key: string;
       }
       @get op read(): Key | Error;
-      `
+      `,
     );
     ok(res.paths["/"].get.responses["200"]);
     ok(res.components.schemas.Key);
@@ -203,7 +222,7 @@ describe("openapi3: return types", () => {
       
       // Note: & takes precedence over |
       @get op read(): Key & TextPlain | Error;
-      `
+      `,
     );
     ok(res.paths["/"].get.responses["200"]);
     ok(res.paths["/"].get.responses["200"].content["text/plain"].schema);
@@ -220,7 +239,7 @@ describe("openapi3: return types", () => {
         @header contentType: "text/plain" | "text/html" | "text/csv";
       }
       @get op read(): { ...TextMulti, @body body: string };
-    `
+    `,
     );
     ok(res.paths["/"].get.responses["200"]);
     ok(res.paths["/"].get.responses["200"].content["text/plain"]);
@@ -236,7 +255,7 @@ describe("openapi3: return types", () => {
     ok(res.paths["/"].get.responses["200"].content);
     strictEqual(
       res.paths["/"].get.responses["200"].content["application/json"].schema.type,
-      "string"
+      "string",
     );
   });
 
@@ -247,57 +266,21 @@ describe("openapi3: return types", () => {
         foo: string;
       }
       @get() op read(): Foo[];
-      `
+      `,
     );
     ok(res.paths["/"].get.responses["200"]);
     ok(res.paths["/"].get.responses["200"].content);
     strictEqual(
       res.paths["/"].get.responses["200"].content["application/json"].schema.type,
-      "array"
+      "array",
     );
-  });
-
-  it("return type with no properties should be 200 with empty object as type", async () => {
-    const res = await openApiFor(
-      `
-      @get op test(): {};
-      `
-    );
-
-    const responses = res.paths["/"].get.responses;
-    ok(responses["200"]);
-    deepStrictEqual(responses["200"].content, {
-      "application/json": {
-        schema: {
-          type: "object",
-        },
-      },
-    });
-  });
-
-  it("{} return type should produce 200 ", async () => {
-    const res = await openApiFor(
-      `
-      @get op test(): {};
-      `
-    );
-
-    const responses = res.paths["/"].get.responses;
-    ok(responses["200"]);
-    deepStrictEqual(responses["200"].content, {
-      "application/json": {
-        schema: {
-          type: "object",
-        },
-      },
-    });
   });
 
   it("produce additionalProperties schema if response is Record<T>", async () => {
     const res = await openApiFor(
       `
       @get op test(): Record<string>;
-      `
+      `,
     );
 
     const responses = res.paths["/"].get.responses;
@@ -320,20 +303,9 @@ describe("openapi3: return types", () => {
     `);
 
     const responses = res.paths["/"].get.responses;
-    ok(responses["204"]);
-    ok(responses["204"].content === undefined, "response should have no content");
-    ok(responses["200"] === undefined);
-  });
-
-  it("defaults status code to 204 when implicit body has no content", async () => {
-    const res = await openApiFor(`
-      @delete op delete(): { @header date: string };
-      `);
-    const responses = res.paths["/"].delete.responses;
-    ok(responses["200"] === undefined);
-    ok(responses["204"]);
-    ok(responses["204"].headers["date"]);
-    ok(responses["204"].content === undefined);
+    ok(responses["200"]);
+    ok(responses["200"].content === undefined, "response should have no content");
+    ok(responses["204"] === undefined);
   });
 
   it("defaults status code to default when model has @error decorator", async () => {
@@ -349,7 +321,7 @@ describe("openapi3: return types", () => {
       }
 
       @get op get(): Foo | Error;
-      `
+      `,
     );
     const responses = res.paths["/"].get.responses;
     ok(responses["200"]);
@@ -377,7 +349,7 @@ describe("openapi3: return types", () => {
       }
 
       @get op get(): Foo | Error;
-      `
+      `,
     );
     const responses = res.paths["/"].get.responses;
     ok(responses["200"]);
@@ -406,7 +378,7 @@ describe("openapi3: return types", () => {
       }
 
       @get op get(): Foo | Error;
-      `
+      `,
     );
     const responses = res.paths["/"].get.responses;
     ok(responses["200"]);
@@ -426,7 +398,7 @@ describe("openapi3: return types", () => {
     const res = await openApiFor(
       `
       @delete op delete(): { @header date: string, @body body: {} };
-      `
+      `,
     );
     const responses = res.paths["/"].delete.responses;
     ok(responses["204"] === undefined);
@@ -452,9 +424,76 @@ describe("openapi3: return types", () => {
     ok(res.paths["/"].get.responses["204"]);
   });
 
-  it("defaults to 204 no content with void @body", async () => {
+  it("defaults to 200 no content with void @body", async () => {
     const res = await openApiFor(`@get op read(): {@body body: void};`);
-    ok(res.paths["/"].get.responses["204"]);
+    ok(res.paths["/"].get.responses["200"]);
+  });
+
+  it("using @body ignore any metadata property underneath", async () => {
+    const res = await openApiFor(`@get op read(): {
+      @body body: {
+        #suppress "@typespec/http/metadata-ignored"
+        @header header: string,
+        #suppress "@typespec/http/metadata-ignored"
+        @query query: string,
+        #suppress "@typespec/http/metadata-ignored"
+        @statusCode code: 201,
+      }
+    };`);
+    expect(res.paths["/"].get.responses["200"].content["application/json"].schema).toEqual({
+      type: "object",
+      properties: {
+        header: { type: "string" },
+        query: { type: "string" },
+        code: { type: "number", enum: [201] },
+      },
+      required: ["header", "query", "code"],
+    });
+  });
+
+  describe("response model resolving to no property in the body produce no body", () => {
+    it.each(["{}", "{@header prop: string}", `{@visibility("none") prop: string}`])(
+      "%s",
+      async (body) => {
+        const res = await openApiFor(`op test(): ${body};`);
+        strictEqual(res.paths["/"].get.responses["200"].content, undefined);
+      },
+    );
+  });
+
+  it("property in body with only metadata properties should still be included", async () => {
+    const res = await openApiFor(`op read(): {
+        headers: {
+          @header header1: string;
+          @header header2: string;
+        };
+        name: string;
+      };`);
+    expect(res.paths["/"].get.responses["200"].content["application/json"].schema).toEqual({
+      type: "object",
+      properties: {
+        headers: { type: "object" },
+        name: { type: "string" },
+      },
+      required: ["headers", "name"],
+    });
+  });
+
+  it("property in body with only metadata properties and @bodyIgnore should not be included", async () => {
+    const res = await openApiFor(`op read(): {
+        @bodyIgnore headers: {
+          @header header1: string;
+          @header header2: string;
+        };
+        name: string;
+    };`);
+    expect(res.paths["/"].get.responses["200"].content["application/json"].schema).toEqual({
+      type: "object",
+      properties: {
+        name: { type: "string" },
+      },
+      required: ["name"],
+    });
   });
 
   describe("multiple content types", () => {
@@ -463,7 +502,7 @@ describe("openapi3: return types", () => {
         `@get op read():
           | { @body body: {} }
           | {@header contentType: "text/plain", @body body: string };
-        `
+        `,
       );
       ok(res.paths["/"].get.responses[200].content["application/json"]);
       ok(res.paths["/"].get.responses[200].content["text/plain"]);
@@ -474,7 +513,7 @@ describe("openapi3: return types", () => {
         `@get op read():
           | { @body body: {}, @header foo: string }
           | {@header contentType: "text/plain", @body body: string, @header bar: string };
-        `
+        `,
       );
       ok(res.paths["/"].get.responses[200].headers["foo"]);
       ok(res.paths["/"].get.responses[200].headers["bar"]);
@@ -485,7 +524,7 @@ describe("openapi3: return types", () => {
         `@get op read():
           | { @body body: {}, @header foo: string }
           | {@header contentType: "text/plain", @body body: string, @header foo: int16 };
-        `
+        `,
       );
       expectDiagnostics(diagnostics, [{ code: "@typespec/openapi3/duplicate-header" }]);
     });
@@ -494,7 +533,7 @@ describe("openapi3: return types", () => {
       const diagnostics = await checkFor(
         `@get op read():
            {@header contentType: "text/plain" | "application/json", @body body: string, @header foo: string };
-        `
+        `,
       );
       expectDiagnosticEmpty(diagnostics);
     });

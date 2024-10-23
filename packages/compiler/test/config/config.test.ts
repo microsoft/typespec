@@ -1,16 +1,17 @@
 import { deepStrictEqual, strictEqual } from "assert";
-import { dirname, join } from "path";
-import { fileURLToPath } from "url";
+import { join } from "path";
+import { describe, it } from "vitest";
 import { TypeSpecConfigJsonSchema } from "../../src/config/config-schema.js";
 import { TypeSpecRawConfig, loadTypeSpecConfigForPath } from "../../src/config/index.js";
-import { createSourceFile } from "../../src/core/diagnostics.js";
 import { NodeHost } from "../../src/core/node-host.js";
 import { createJSONSchemaValidator } from "../../src/core/schema-validator.js";
+import { createSourceFile } from "../../src/core/source-file.js";
 import { resolvePath } from "../../src/index.js";
+import { findTestPackageRoot } from "../../src/testing/test-utils.js";
 
 const scenarioRoot = resolvePath(
-  dirname(fileURLToPath(import.meta.url)),
-  "../../../test/config/scenarios"
+  await findTestPackageRoot(import.meta.url),
+  "test/config/scenarios",
 );
 
 describe("compiler: config file loading", () => {
@@ -18,14 +19,14 @@ describe("compiler: config file loading", () => {
     const loadTestConfig = async (
       path: string,
       lookup: boolean = true,
-      errorIfNotFound: boolean = true
+      errorIfNotFound: boolean = true,
     ) => {
       const fullPath = join(scenarioRoot, path);
       const { filename, projectRoot, file, ...config } = await loadTypeSpecConfigForPath(
         NodeHost,
         fullPath,
         errorIfNotFound,
-        lookup
+        lookup,
       );
       return config;
     };

@@ -1,0 +1,30 @@
+jobs:
+  - job: e2e
+    displayName: E2E Tests
+
+    variables:
+      TYPESPEC_VS_CI_BUILD: false # Enable official Visual Studio extension build
+      TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
+
+    pool:
+      name: $(LINUXPOOL)
+      image: $(LINUXVMIMAGE)
+      os: linux
+
+    steps:
+      - template: /eng/tsp-core/pipelines/templates/install.yml
+      - template: /eng/tsp-core/pipelines/templates/install-browsers.yml
+      - template: /eng/tsp-core/pipelines/templates/build.yml
+
+      - script: pnpm run test:e2e
+        displayName: E2E Tests
+
+      - task: 1ES.PublishPipelineArtifact@1
+        inputs:
+          path: ./packages/playground-website/test-results
+          artifact: "uitestresults-${{ parameters.os }}-node-${{ parameters.nodeVersion }}"
+        displayName: Publish UI tests artifacts
+        condition: ne(variables['Agent.OS'], 'Windows_NT')
+
+      - script: node eng/common/scripts/check-for-changed-files.js
+        displayName: Check Git Status For Changed Files

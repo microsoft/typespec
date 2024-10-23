@@ -1,4 +1,5 @@
-import { createTestHost, expectDiagnostics, TestHost } from "../../src/testing/index.js";
+import { beforeEach, describe, it } from "vitest";
+import { TestHost, createTestHost, expectDiagnostics } from "../../src/testing/index.js";
 
 describe("compiler: semantic checks on source with parse errors", () => {
   let testHost: TestHost;
@@ -13,7 +14,7 @@ describe("compiler: semantic checks on source with parse errors", () => {
       `model M extends Q {
         a: B;
         a: C;
-      `
+      `,
     );
 
     const diagnostics = await testHost.diagnose("./");

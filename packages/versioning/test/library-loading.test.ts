@@ -1,7 +1,8 @@
-import { Namespace, projectProgram } from "@typespec/compiler";
-import { BasicTestRunner, createTestWrapper } from "@typespec/compiler/testing";
+import { projectProgram, type Namespace } from "@typespec/compiler";
+import { createTestWrapper, type BasicTestRunner } from "@typespec/compiler/testing";
 import { notStrictEqual, strictEqual } from "assert";
-import { buildVersionProjections } from "../src/versioning.js";
+import { beforeEach, describe, it } from "vitest";
+import { buildVersionProjections } from "../src/projection.js";
 import { createVersioningTestHost } from "./test-host.js";
 
 describe("versioning: library loading", () => {
@@ -29,25 +30,25 @@ describe("versioning: library loading", () => {
     };
     // Force loading a different version
     const { buildVersionProjections: buildVersionProjectionsDifferent } = await import(
-      "../src/versioning.js?different=1" as any
+      "../src/projection.js?different=1" as any
     );
     notStrictEqual(
       buildVersionProjections,
       buildVersionProjectionsDifferent,
-      "The instance of the function loaded should have been different"
+      "The instance of the function loaded should have been different",
     );
     const versions = buildVersionProjectionsDifferent(runner.program, TestService);
 
     const v1Program = projectProgram(runner.program, versions[0].projections);
     strictEqual(
       v1Program.getGlobalNamespaceType().namespaces.get("TestService")!.models.has("Foo"),
-      false
+      false,
     );
 
     const v2Program = projectProgram(runner.program, versions[1].projections);
     strictEqual(
       v2Program.getGlobalNamespaceType().namespaces.get("TestService")!.models.has("Foo"),
-      true
+      true,
     );
   });
 });

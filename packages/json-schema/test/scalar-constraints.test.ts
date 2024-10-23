@@ -1,4 +1,5 @@
-import assert from "assert";
+import assert, { strictEqual } from "assert";
+import { describe, it } from "vitest";
 import { emitSchema } from "./utils.js";
 
 describe("jsonschema: scalar constraints", () => {
@@ -51,6 +52,36 @@ describe("jsonschema: scalar constraints", () => {
     `);
         assertNumericConstraints(schemas["Test.json"]);
       });
+    });
+
+    describe("@minValueExclusive/@maxValueExclusive", () => {
+      for (const numType of scalarNumberTypes) {
+        it(numType, async () => {
+          const schemas = await emitSchema(
+            `
+            @minValueExclusive(1)
+            @maxValueExclusive(2)
+            scalar Test extends ${numType};
+          `,
+          );
+
+          strictEqual(schemas["Test.json"].exclusiveMinimum, 1);
+          strictEqual(schemas["Test.json"].exclusiveMaximum, 2);
+        });
+
+        it("can be applied on a union", async () => {
+          const schemas = await emitSchema(
+            `
+            @minValueExclusive(1)
+            @maxValueExclusive(2)
+            union Test {int32, string, null};
+          `,
+          );
+
+          strictEqual(schemas["Test.json"].exclusiveMinimum, 1);
+          strictEqual(schemas["Test.json"].exclusiveMaximum, 2);
+        });
+      }
     });
 
     describe("on property", () => {
@@ -133,5 +164,17 @@ describe("jsonschema: scalar constraints", () => {
     `);
       assertStringConstraints(schemas["Test.json"].properties.prop);
     });
+  });
+
+  it("combine with constraint of base scalar", async () => {
+    const schemas = await emitSchema(`
+        @minValue(1)
+        scalar base extends int32;
+
+        @maxValue(2)
+        scalar test extends base;
+      `);
+    strictEqual(schemas["test.json"].minimum, 1);
+    strictEqual(schemas["test.json"].maximum, 2);
   });
 });

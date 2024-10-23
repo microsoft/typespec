@@ -4,27 +4,41 @@ title: Scalars
 
 # Scalars
 
-These are types without any fields(For example `string`, `int32`, `boolean`, etc.)
+Scalars are simple types that don't have any fields. Examples of these include `string`, `int32`, `boolean`, and so on.
 
-Scalar can be declared using the `scalar` keyword
+You can declare a scalar by using the `scalar` keyword. Its name must be an [`identifier`](./identifiers.md).
 
 ```typespec
 scalar ternary;
 ```
 
-## Extend another scalar
+## Extending a scalar
 
-Scalar can be extended using the `extends` keyword.
+You can create a new scalar that extends an existing one by using the `extends` keyword.
 
 ```typespec
 scalar Password extends string;
 ```
 
-## Template scalar
+## Scalars with template parameters
 
-Scalar support template parameters. Note: the only use for those template are decorators.
+Scalars can also support template parameters. These template parameters are primarily used for decorators.
 
 ```typespec
-@doc(T)
-scalar Unreal<T extends string>;
+@doc(Type)
+scalar Unreal<Type extends string>;
 ```
+
+## Scalar initializers
+
+Scalars can be declared with an initializer for creating specific scalar values based on other values. For example:
+
+```typespec
+scalar ipv4 extends string {
+  init fromInt(value: uint32);
+}
+
+const homeIp = ipv4.fromInt(2130706433);
+```
+
+Initializers do not have any runtime code associated with them. Instead, they merely record the scalar initializer invoked along with the arguments passed so that emitters can construct the proper value when needed.

@@ -3,15 +3,15 @@ jsApi: true
 title: "[I] DecoratorParamDefinition"
 
 ---
-## Type parameters
+## Type Parameters
 
-| Parameter |
-| :------ |
-| `K` extends [`TypeKind`](../type-aliases/TypeKind.md) |
+| Type Parameter |
+| ------ |
+| `K` *extends* [`TypeKind`](../type-aliases/TypeKind.md) |
 
 ## Properties
 
-| Modifier | Property | Type | Description |
-| :------ | :------ | :------ | :------ |
-| `readonly` | `kind` | `K` \| readonly `K`[] | Kind of the parameter |
-| `readonly` | `optional?` | `boolean` | Is the parameter optional. |
+| Property | Modifier | Type | Description |
+| ------ | ------ | ------ | ------ |
+| `kind` | `readonly` | `K` \| readonly `K`[] | Kind of the parameter |
+| `optional?` | `readonly` | `boolean` | Is the parameter optional. |

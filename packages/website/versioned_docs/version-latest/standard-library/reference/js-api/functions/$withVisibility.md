@@ -4,7 +4,7 @@ title: "[F] $withVisibility"
 
 ---
 ```ts
-$withVisibility(
+function $withVisibility(
    context, 
    target, ...
    visibilities): void
@@ -13,7 +13,11 @@ $withVisibility(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`Model`](../interfaces/Model.md) |
 | ...`visibilities` | `string`[] |
+
+## Returns
+
+`void`

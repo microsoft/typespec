@@ -1,6 +1,7 @@
-import { resolvePath } from "../core/index.js";
+import { fileURLToPath } from "url";
+import { NodeHost, resolvePath } from "../core/index.js";
 import { CompilerOptions } from "../core/options.js";
-import { StandardTestLibrary } from "./test-host.js";
+import { findProjectRoot } from "../utils/misc.js";
 import {
   BasicTestRunner,
   TestHost,
@@ -8,6 +9,18 @@ import {
   TypeSpecTestLibraryInit,
 } from "./types.js";
 
+export function resolveVirtualPath(path: string, ...paths: string[]) {
+  // NB: We should always resolve an absolute path, and there is no absolute
+  // path that works across OSes. This ensures that we can still rely on API
+  // like pathToFileURL in tests.
+  const rootDir = process.platform === "win32" ? "Z:/test" : "/test";
+  return resolvePath(rootDir, path, ...paths);
+}
+
+/** Find the package root from the provided file */
+export function findTestPackageRoot(fileUrl: string): Promise<string> {
+  return findProjectRoot(NodeHost.stat, fileURLToPath(fileUrl)) as Promise<string>;
+}
 /**
  * Define a test library defaulting to the most common library structure.
  * @param init Library configuration.
@@ -24,7 +37,7 @@ export function createTestLibrary(init: TypeSpecTestLibraryInit): TypeSpecTestLi
       { realDir: "", pattern: "package.json", virtualPath: `./node_modules/${name}` },
       {
         realDir: typespecFileFolder,
-        pattern: "*.tsp",
+        pattern: "**/*.tsp",
         virtualPath: resolvePath(`./node_modules/${name}`, typespecFileFolder),
       },
       {
@@ -53,7 +66,7 @@ export interface TestWrapperOptions {
 }
 export function createTestWrapper(
   host: TestHost,
-  testWrapperOptions: TestWrapperOptions = {}
+  testWrapperOptions: TestWrapperOptions = {},
 ): BasicTestRunner {
   const {
     autoImports,
@@ -63,7 +76,8 @@ export function createTestWrapper(
   } = testWrapperOptions;
   const autoCode = [
     ...(
-      autoImports ?? host.libraries.filter((x) => x !== StandardTestLibrary).map((x) => x.name)
+      autoImports ??
+      host.libraries.filter((x) => x.name !== "@typespec/compiler").map((x) => x.name)
     ).map((x) => `import "${x}";`),
     ...(autoUsings ?? []).map((x) => `using ${x};`),
   ].join("\n");
@@ -92,4 +106,31 @@ export function createTestWrapper(
       return host.compileAndDiagnose("./main.tsp", { ...defaultCompilerOptions, ...options });
     },
   };
+}
+
+export function trimBlankLines(code: string) {
+  let start = 0;
+  for (let i = 0; i < code.length; i++) {
+    if (code[i] === " ") {
+      start++;
+    } else if (code[i] === "\n") {
+      break;
+    } else {
+      start = 0;
+      break;
+    }
+  }
+  let end = 0;
+  for (let i = code.length - 1; i >= 0; i--) {
+    if (code[i] === " ") {
+      end--;
+    } else if (code[i] === "\n") {
+      break;
+    } else {
+      end = 0;
+      break;
+    }
+  }
+
+  return code.slice(start, end);
 }

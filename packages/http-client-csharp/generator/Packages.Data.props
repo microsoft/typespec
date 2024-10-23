@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <PackageReference Update="Moq" Version="[4.20.70]" />
+    <PackageReference Update="NUnit" Version="3.13.2" />
+    <PackageReference Update="NUnit3TestAdapter" Version="4.5.0" />
+    <PackageReference Update="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Update="BenchmarkDotNet" Version="0.13.4" />
+    <PackageReference Update="BenchmarkDotNet.Diagnostics.Windows" Version="0.13.4" />
+    <PackageReference Update="CommandLineParser" Version="2.9.1" />
+    <PackageReference Update="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.8.0" />
+    <PackageReference Update="Microsoft.Build" Version="17.9.5" />
+    <PackageReference Update="NuGet.Configuration" Version="6.9.1" />
+    <PackageReference Update="System.ComponentModel.Composition" Version="8.0.0" />
+    <PackageReference Update="System.ClientModel" Version="1.1.0-beta.7" />
+    <PackageReference Update="System.Memory.Data" Version="8.0.0" />
+  </ItemGroup>
+</Project>

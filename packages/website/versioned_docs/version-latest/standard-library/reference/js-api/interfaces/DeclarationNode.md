@@ -3,7 +3,7 @@ jsApi: true
 title: "[I] DeclarationNode"
 
 ---
-## Extended By
+## Extended by
 
 - [`TypeSpecScriptNode`](TypeSpecScriptNode.md)
 - [`NamespaceStatementNode`](NamespaceStatementNode.md)
@@ -14,6 +14,7 @@ title: "[I] DeclarationNode"
 - [`UnionStatementNode`](UnionStatementNode.md)
 - [`EnumStatementNode`](EnumStatementNode.md)
 - [`AliasStatementNode`](AliasStatementNode.md)
+- [`ConstStatementNode`](ConstStatementNode.md)
 - [`TemplateParameterDeclarationNode`](TemplateParameterDeclarationNode.md)
 - [`DecoratorDeclarationStatementNode`](DecoratorDeclarationStatementNode.md)
 - [`FunctionDeclarationStatementNode`](FunctionDeclarationStatementNode.md)
@@ -25,6 +26,6 @@ title: "[I] DeclarationNode"
 
 ## Properties
 
-| Modifier | Property | Type | Description |
-| :------ | :------ | :------ | :------ |
-| `readonly` | `id` | [`IdentifierNode`](IdentifierNode.md) | - |
+| Property | Modifier | Type |
+| ------ | ------ | ------ |
+| `id` | `readonly` | [`IdentifierNode`](IdentifierNode.md) |

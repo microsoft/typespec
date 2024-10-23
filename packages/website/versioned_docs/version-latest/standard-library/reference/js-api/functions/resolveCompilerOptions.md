@@ -4,7 +4,7 @@ title: "[F] resolveCompilerOptions"
 
 ---
 ```ts
-resolveCompilerOptions(host, options): Promise<[CompilerOptions, readonly Diagnostic[]]>
+function resolveCompilerOptions(host, options): Promise<[CompilerOptions, readonly Diagnostic[]]>
 ```
 
 Resolve the compiler options for the given entrypoint by resolving the tspconfig.yaml.
@@ -12,6 +12,10 @@ Resolve the compiler options for the given entrypoint by resolving the tspconfig
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `host` | [`CompilerHost`](../interfaces/CompilerHost.md) | Compiler host |
-| `options` | [`ResolveCompilerOptionsOptions`](../interfaces/ResolveCompilerOptionsOptions.md) | - |
+| `options` | [`ResolveCompilerOptionsOptions`](../interfaces/ResolveCompilerOptionsOptions.md) |  |
+
+## Returns
+
+`Promise`<[[`CompilerOptions`](../interfaces/CompilerOptions.md), readonly [`Diagnostic`](../interfaces/Diagnostic.md)[]]\>

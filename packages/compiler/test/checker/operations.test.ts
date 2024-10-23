@@ -1,4 +1,5 @@
 import { deepStrictEqual, notStrictEqual, ok, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { DecoratorContext, IntrinsicType, Operation, Type } from "../../src/core/types.js";
 import { getDoc } from "../../src/index.js";
 import { TestHost, createTestHost, expectDiagnostics } from "../../src/testing/index.js";
@@ -15,7 +16,7 @@ describe("compiler: operations", () => {
       "main.tsp",
       `
       @test op foo(): void;
-    `
+    `,
     );
 
     const { foo } = (await testHost.compile("./main.tsp")) as { foo: Operation };
@@ -29,7 +30,7 @@ describe("compiler: operations", () => {
       `
       @test op a(): void;
       @test op b is a;
-      `
+      `,
     );
     const { a, b } = (await testHost.compile("main.tsp")) as { a: Operation; b: Operation };
     strictEqual(b.sourceOperation, a);
@@ -41,7 +42,7 @@ describe("compiler: operations", () => {
       `
       @test op a(one: string, two: string): void;
       @test op b is a;
-      `
+      `,
     );
     const { a, b } = (await testHost.compile("main.tsp")) as { a: Operation; b: Operation };
     notStrictEqual(b.parameters, a.parameters);
@@ -49,12 +50,25 @@ describe("compiler: operations", () => {
     notStrictEqual(b.parameters.properties.get("two"), a.parameters.properties.get("two"));
     strictEqual(
       b.parameters.properties.get("one")?.sourceProperty,
-      a.parameters.properties.get("one")
+      a.parameters.properties.get("one"),
     );
     strictEqual(
       b.parameters.properties.get("two")?.sourceProperty,
-      a.parameters.properties.get("two")
+      a.parameters.properties.get("two"),
     );
+  });
+
+  describe("js special words for parameter names", () => {
+    it.each(["constructor", "toString"])("%s", async (name) => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        @test op a(${name}: string): void;
+        `,
+      );
+      const { a } = (await testHost.compile("main.tsp")) as { a: Operation };
+      ok(a.parameters.properties.has(name));
+    });
   });
 
   it("can decorate operation parameters independently", async () => {
@@ -65,7 +79,7 @@ describe("compiler: operations", () => {
       @test op b is a;
 
       @@doc(b::parameters.one, "override for b");
-      `
+      `,
     );
     const { a, b } = (await testHost.compile("main.tsp")) as { a: Operation; b: Operation };
     strictEqual(getDoc(testHost.program, b.parameters.properties.get("one")!), "override for b");
@@ -81,7 +95,7 @@ describe("compiler: operations", () => {
       @test op c is a<string>;
 
       @@doc(b::parameters.one, "override for b");
-      `
+      `,
     );
     const { b, c } = (await testHost.compile("main.tsp")) as { b: Operation; c: Operation };
     strictEqual(getDoc(testHost.program, b.parameters.properties.get("one")!), "override for b");
@@ -94,7 +108,7 @@ describe("compiler: operations", () => {
       `op Foo<TName, TPayload>(name: TName, payload: TPayload): boolean;
 
       @test
-      op newFoo is Foo<string, string>;`
+      op newFoo is Foo<string, string>;`,
     );
 
     const [result, diagnostics] = await testHost.compileAndDiagnose("./main.tsp");
@@ -117,7 +131,7 @@ describe("compiler: operations", () => {
       op NewFooBase<TPayload> is Foo<string, TPayload>;
 
       @test
-      op newFoo is NewFooBase<string>;`
+      op newFoo is NewFooBase<string>;`,
     );
 
     const [result, diagnostics] = await testHost.compileAndDiagnose("./main.tsp");
@@ -141,7 +155,7 @@ describe("compiler: operations", () => {
       interface Test {
         @test
         newFoo is Foo<string, string>;
-      }`
+      }`,
     );
 
     const { newFoo } = (await testHost.compile("./main.tsp")) as { newFoo: Operation };
@@ -163,7 +177,7 @@ describe("compiler: operations", () => {
       }
       
       @test op newFoo is Foo.bar;
-      `
+      `,
     );
 
     const { newFoo } = (await testHost.compile("./main.tsp")) as { newFoo: Operation };
@@ -180,7 +194,7 @@ describe("compiler: operations", () => {
         bar(): boolean;
         @test op newFoo is Foo.bar;
       }
-      `
+      `,
     );
 
     const { newFoo } = (await testHost.compile("./main.tsp")) as { newFoo: Operation };
@@ -205,13 +219,13 @@ describe("compiler: operations", () => {
 
       @beta
       op bar is Foo<string>;
-      `
+      `,
     );
 
     const { Foo } = (await testHost.compile("./main.tsp")) as { Foo: Operation };
     deepStrictEqual(
       Foo.decorators.map((x) => x.decorator.name),
-      ["$test", "$alpha"]
+      ["$test", "$alpha"],
     );
   });
 
@@ -246,7 +260,7 @@ describe("compiler: operations", () => {
 
       @test
       @gamma
-      op newFoo is NewFooBase<string>;`
+      op newFoo is NewFooBase<string>;`,
     );
 
     const { newFoo } = (await testHost.compile("./main.tsp")) as { newFoo: Operation };
@@ -258,12 +272,43 @@ describe("compiler: operations", () => {
     ok(gammaTargets.has(newFoo));
   });
 
+  // Regression test for https://github.com/microsoft/typespec/issues/3199
+  it("produce an empty interface operation in template when op is reference is invalid", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      @test op test is IFace.Action<int32>;
+
+      interface IFace {
+        Action<T> is string;
+      }
+      `,
+    );
+
+    const [{ test }, diagnostics] = await testHost.compileAndDiagnose("./main.tsp");
+    expectDiagnostics(diagnostics, [
+      {
+        code: "is-operation",
+        message: "Operation can only reuse the signature of another operation.",
+      },
+      {
+        code: "is-operation",
+        message: "Operation can only reuse the signature of another operation.",
+      },
+    ]);
+    strictEqual(test.kind, "Operation");
+    strictEqual(test.parameters.name, "");
+    strictEqual(test.parameters.properties.size, 0);
+    strictEqual(test.returnType.kind, "Intrinsic");
+    strictEqual((test.returnType as IntrinsicType).name, "void");
+  });
+
   it("emit diagnostic when operation is referencing itself as signature", async () => {
     testHost.addTypeSpecFile(
       "main.tsp",
       `
       op foo is foo;
-      `
+      `,
     );
     const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, [
@@ -281,7 +326,7 @@ describe("compiler: operations", () => {
       interface Group {
         foo is Group.foo;
       }
-      `
+      `,
     );
     const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, [
@@ -298,17 +343,13 @@ describe("compiler: operations", () => {
       `
       op foo is bar;
       op bar is foo;
-      `
+      `,
     );
     const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, [
       {
         code: "circular-op-signature",
         message: "Operation 'foo' recursively references itself.",
-      },
-      {
-        code: "circular-op-signature",
-        message: "Operation 'bar' recursively references itself.",
       },
     ]);
   });
@@ -321,17 +362,13 @@ describe("compiler: operations", () => {
         foo is Group.bar;
         bar is Group.foo;
       }
-      `
+      `,
     );
     const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, [
       {
         code: "circular-op-signature",
         message: "Operation 'foo' recursively references itself.",
-      },
-      {
-        code: "circular-op-signature",
-        message: "Operation 'bar' recursively references itself.",
       },
     ]);
   });
@@ -354,7 +391,7 @@ describe("compiler: operations", () => {
           import "./track.js";
           @test @track(foo)
           op foo(): void;
-        `
+        `,
       );
       const { foo } = await testHost.compile("main.tsp");
 
@@ -371,7 +408,7 @@ describe("compiler: operations", () => {
 
           @test @track(bar)
           op foo(): void;
-        `
+        `,
       );
       const { foo, bar } = await testHost.compile("main.tsp");
 

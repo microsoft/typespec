@@ -1,5 +1,6 @@
 import { deepStrictEqual } from "assert";
-import { resolveUsages, UsageFlags } from "../../src/core/helpers/usage-resolver.js";
+import { beforeEach, describe, it } from "vitest";
+import { UsageFlags, resolveUsages } from "../../src/core/helpers/usage-resolver.js";
 import { getTypeName } from "../../src/core/index.js";
 import { BasicTestRunner, createTestRunner } from "../../src/testing/index.js";
 
@@ -11,7 +12,7 @@ describe("compiler: helpers: usage resolver", () => {
 
   async function getUsages(
     code: string,
-    targetNames?: string | string[]
+    targetNames?: string | string[],
   ): Promise<{ inputs: string[]; outputs: string[] }> {
     const testTypes = await runner.compile(code);
     const targetNames2 = typeof targetNames === "string" ? [targetNames] : targetNames;
@@ -159,7 +160,7 @@ describe("compiler: helpers: usage resolver", () => {
           op set(): Bar;
           @test op get(): Foo; 
         `,
-          "get"
+          "get",
         );
 
         deepStrictEqual(usages, { inputs: [], outputs: ["Foo"] });
@@ -172,7 +173,7 @@ describe("compiler: helpers: usage resolver", () => {
           op set(input: Foo): void;
           @test op get(): Foo; 
         `,
-          "get"
+          "get",
         );
 
         deepStrictEqual(usages, { inputs: [], outputs: ["Foo"] });
@@ -193,7 +194,7 @@ describe("compiler: helpers: usage resolver", () => {
             other(input: Bar): void;
           }
         `,
-          "Two"
+          "Two",
         );
 
         deepStrictEqual(usages, { inputs: ["Bar"], outputs: ["Foo"] });
@@ -214,7 +215,7 @@ describe("compiler: helpers: usage resolver", () => {
             @test  other(input: Bar): void;
           }
         `,
-          ["set", "other"]
+          ["set", "other"],
         );
 
         deepStrictEqual(usages, { inputs: ["Foo", "Bar"], outputs: [] });

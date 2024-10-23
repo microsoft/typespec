@@ -1,7 +1,18 @@
-import { EmitContext, emitFile, resolvePath } from "@typespec/compiler";
-import { renderProgram } from "./ui.js";
-
-import { createTypeSpecLibrary, JSONSchemaType } from "@typespec/compiler";
+import { FluentProvider, webLightTheme } from "@fluentui/react-components";
+import {
+  createTypeSpecLibrary,
+  emitFile,
+  getDirectoryPath,
+  resolvePath,
+  type EmitContext,
+  type JSONSchemaType,
+  type Program,
+} from "@typespec/compiler";
+import { readFile } from "fs/promises";
+import { createElement } from "react";
+import ReactDOMServer from "react-dom/server";
+import { fileURLToPath } from "url";
+import { InspectType } from "./react/inspect-type/inspect-type.js";
 
 export interface HtmlProgramViewerOptions {
   /**
@@ -19,8 +30,18 @@ const EmitterOptionsSchema: JSONSchemaType<HtmlProgramViewerOptions> = {
   required: [],
 };
 
+export function renderProgram(program: Program) {
+  const html = ReactDOMServer.renderToString(
+    createElement(FluentProvider, {
+      theme: webLightTheme,
+      children: createElement(InspectType, { entity: program.getGlobalNamespaceType() }),
+    }), // [1
+  );
+  return html;
+}
+
 export const libDef = {
-  name: "@typespec/openapi3",
+  name: "@typespec/html-program-viewer",
   diagnostics: {},
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<HtmlProgramViewerOptions>,
@@ -36,5 +57,13 @@ export async function $onEmit(context: EmitContext<HtmlProgramViewerOptions>) {
   await emitFile(context.program, {
     path: htmlPath,
     content: `<!DOCTYPE html><html lang="en"><link rel="stylesheet" href="style.css"><body>${html}</body></html>`,
+  });
+
+  const css = await readFile(
+    resolvePath(getDirectoryPath(fileURLToPath(import.meta.url)), "style.css"),
+  );
+  await emitFile(context.program, {
+    path: resolvePath(outputDir, "style.css"),
+    content: css.toString(),
   });
 }

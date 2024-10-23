@@ -1,6 +1,8 @@
+import { describe, it } from "vitest";
+
 import { createLinterRule, createTypeSpecLibrary } from "../../src/core/library.js";
-import { Linter, createLinter } from "../../src/core/linter.js";
-import { LibraryInstance, LinterDefinition } from "../../src/index.js";
+import { Linter, createLinter, resolveLinterDefinition } from "../../src/core/linter.js";
+import type { LibraryInstance, LinterDefinition } from "../../src/index.js";
 import {
   createTestHost,
   expectDiagnosticEmpty,
@@ -30,7 +32,7 @@ const noModelFoo = createLinterRule({
 describe("compiler: linter", () => {
   async function createTestLinter(
     code: string | Record<string, string>,
-    linterDef: LinterDefinition
+    linterDef: LinterDefinition,
   ): Promise<Linter> {
     const host = await createTestHost();
     if (typeof code === "string") {
@@ -42,36 +44,36 @@ describe("compiler: linter", () => {
     }
 
     const library: LibraryInstance = {
-      entrypoint: undefined,
-      metadata: { type: "module", name: "@typespec/test" },
+      entrypoint: {} as any,
+      metadata: { type: "module", name: "@typespec/test-linter" },
       module: { type: "module", path: "", mainFile: "", manifest: { name: "", version: "" } },
       definition: createTypeSpecLibrary({
-        name: "@typespec/test",
+        name: "@typespec/test-linter",
         diagnostics: {},
-        linter: linterDef,
       }),
+      linter: resolveLinterDefinition("@typespec/test-linter", linterDef),
     };
 
     await host.compile("main.tsp");
 
     const linter = createLinter(host.program, (libName) =>
-      Promise.resolve(libName === "@typespec/test-linter" ? library : undefined)
+      Promise.resolve(libName === "@typespec/test-linter" ? library : undefined),
     );
     return linter;
   }
 
   async function createTestLinterAndEnableRules(
     code: string | Record<string, string>,
-    linterDef: LinterDefinition
+    linterDef: LinterDefinition,
   ): Promise<Linter> {
     const linter = await createTestLinter(code, linterDef);
 
     expectDiagnosticEmpty(
       await linter.extendRuleSet({
         enable: Object.fromEntries(
-          linterDef.rules.map((x) => [`@typespec/test-linter/${x.name}`, true])
+          linterDef.rules.map((x) => [`@typespec/test-linter/${x.name}`, true]),
         ),
-      })
+      }),
     );
     return linter;
   }
@@ -93,7 +95,7 @@ describe("compiler: linter", () => {
         severity: "error",
         code: "unknown-rule",
         message: `Rule "not-a-rule" is not found in library "@typespec/test-linter"`,
-      }
+      },
     );
   });
 
@@ -109,7 +111,7 @@ describe("compiler: linter", () => {
         severity: "error",
         code: "unknown-rule",
         message: `Rule "no-model-foo" is not found in library "@typespec/not-a-linter"`,
-      }
+      },
     );
   });
 
@@ -123,7 +125,7 @@ describe("compiler: linter", () => {
         severity: "error",
         code: "unknown-rule-set",
         message: `Rule set "not-a-rule" is not found in library "@typespec/test-linter"`,
-      }
+      },
     );
   });
 
@@ -140,7 +142,7 @@ describe("compiler: linter", () => {
         severity: "error",
         code: "rule-enabled-disabled",
         message: `Rule "@typespec/test-linter/no-model-foo" has been enabled and disabled in the same ruleset.`,
-      }
+      },
     );
   });
 
@@ -188,7 +190,7 @@ describe("compiler: linter", () => {
       expectDiagnosticEmpty(
         await linter.extendRuleSet({
           enable: { "@typespec/test-linter/no-model-foo": true },
-        })
+        }),
       );
       expectDiagnostics(linter.lint(), {
         severity: "warning",
@@ -204,9 +206,47 @@ describe("compiler: linter", () => {
       expectDiagnosticEmpty(
         await linter.extendRuleSet({
           enable: { "@typespec/test-linter/no-model-foo": true },
-        })
+        }),
       );
       expectDiagnosticEmpty(linter.lint());
+    });
+  });
+
+  describe("when enabling a ruleset", () => {
+    it("/all ruleset is automatically provided and include all rules", async () => {
+      const linter = await createTestLinter(`model Foo {}`, {
+        rules: [noModelFoo],
+      });
+      expectDiagnosticEmpty(
+        await linter.extendRuleSet({
+          extends: ["@typespec/test-linter/all"],
+        }),
+      );
+      expectDiagnostics(linter.lint(), {
+        severity: "warning",
+        code: "@typespec/test-linter/no-model-foo",
+        message: `Cannot call model 'Foo'`,
+      });
+    });
+    it("extending specific ruleset enable the rules inside", async () => {
+      const linter = await createTestLinter(`model Foo {}`, {
+        rules: [noModelFoo],
+        ruleSets: {
+          custom: {
+            enable: { "@typespec/test-linter/no-model-foo": true },
+          },
+        },
+      });
+      expectDiagnosticEmpty(
+        await linter.extendRuleSet({
+          extends: ["@typespec/test-linter/custom"],
+        }),
+      );
+      expectDiagnostics(linter.lint(), {
+        severity: "warning",
+        code: "@typespec/test-linter/no-model-foo",
+        message: `Cannot call model 'Foo'`,
+      });
     });
   });
 
@@ -216,7 +256,7 @@ describe("compiler: linter", () => {
       host.addTypeSpecFile("main.tsp", code);
       host.addTypeSpecFile(
         "node_modules/my-lib/package.json",
-        JSON.stringify({ name: "my-lib", main: "index.js" })
+        JSON.stringify({ name: "my-lib", main: "index.js" }),
       );
       host.addJsFile("node_modules/my-lib/index.js", {
         $lib: createTypeSpecLibrary({

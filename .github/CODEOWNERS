@@ -1,1 +1,31 @@
-* @bterlson @daviwil @markcowl @allenjzhang @timotheeguerin
+# Catch all
+*                                            @bterlson @markcowl @allenjzhang @timotheeguerin
+
+######################
+# CSharp
+######################
+/packages/http-client-csharp/                @m-nash @JoshLove-msft
+
+######################
+# Java
+######################
+/packages/http-client-java/                  @srnagar @weidongxu-microsoft @haolingdong-msft @XiaofeiCao
+
+######################
+# Python
+######################
+/packages/http-client-python/                @iscai-msft @tadelesh @msyyc
+
+######################
+# Emiter Shared
+######################
+/eng/emitters/                               @m-nash
+
+######################
+# IDE
+######################
+/packages/typespec-vs/                       @RodgeFu @bterlson @markcowl @allenjzhang @timotheeguerin
+/packages/typespec-vscode/                   @RodgeFu @bterlson @markcowl @allenjzhang @timotheeguerin
+/packages/compiler/src/server/               @RodgeFu @bterlson @markcowl @allenjzhang @timotheeguerin
+
+

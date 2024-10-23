@@ -1,14 +1,12 @@
 openapi: 3.0.0
 info:
   title: Grpc Kiosk sample
-  version: 0000-00-00
+  version: 0.0.0
 tags:
   - name: Display
 paths:
   /v1/kiosks:
     post:
-      tags:
-        - Display
       operationId: Display_createKiosk
       description: Create a kiosk. This enrolls the kiosk for sign display.
       parameters: []
@@ -25,6 +23,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
+      tags:
+        - Display
       requestBody:
         required: true
         content:
@@ -32,8 +32,6 @@ paths:
             schema:
               $ref: '#/components/schemas/Kiosk'
     get:
-      tags:
-        - Display
       operationId: Display_listKiosks
       description: List active kiosks.
       parameters: []
@@ -50,10 +48,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
-  /v1/kiosks/{id}:
-    get:
       tags:
         - Display
+  /v1/kiosks/{id}:
+    get:
       operationId: Display_getKiosk
       description: Get a kiosk.
       parameters:
@@ -76,9 +74,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
-    delete:
       tags:
         - Display
+    delete:
       operationId: Display_deleteKiosk
       description: Delete a kiosk.
       parameters:
@@ -97,10 +95,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
-  /v1/kiosks/{kiosk_id}/sign:
-    get:
       tags:
         - Display
+  /v1/kiosks/{kiosk_id}/sign:
+    get:
       operationId: Display_getSignIdForKioskId
       description: Get the sign that should be displayed on a kiosk.
       parameters:
@@ -123,10 +121,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
-  /v1/signs:
-    post:
       tags:
         - Display
+  /v1/signs:
+    post:
       operationId: Display_createSign
       description: Create a sign. This enrolls the sign for sign display.
       parameters: []
@@ -143,6 +141,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
+      tags:
+        - Display
       requestBody:
         required: true
         content:
@@ -150,8 +150,6 @@ paths:
             schema:
               $ref: '#/components/schemas/Sign'
     get:
-      tags:
-        - Display
       operationId: Display_listSigns
       description: List active signs.
       parameters: []
@@ -162,10 +160,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListSignsResponse'
-  /v1/signs/{id}:
-    get:
       tags:
         - Display
+  /v1/signs/{id}:
+    get:
       operationId: Display_getSign
       description: Get a sign.
       parameters:
@@ -188,9 +186,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
-    delete:
       tags:
         - Display
+    delete:
       operationId: Display_deleteSign
       description: Delete a sign.
       parameters:
@@ -209,10 +207,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
-  /v1/signs/{sign_id}:
-    post:
       tags:
         - Display
+  /v1/signs/{sign_id}:
+    post:
       operationId: Display_setSignIdForKioskIds
       description: Set a sign for display on one or more kiosks.
       parameters:
@@ -226,6 +224,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
+      tags:
+        - Display
       requestBody:
         required: true
         content:
@@ -255,14 +255,13 @@ components:
           format: int32
     GetSignIdResponse:
       type: object
-      description: A successful response.
       properties:
         sign_id:
           type: integer
           format: int32
+      description: A successful response.
     Kiosk:
       type: object
-      description: Describes a hardware device that can display signs.
       required:
         - name
         - size
@@ -285,14 +284,9 @@ components:
           description: kiosk location
         create_time:
           $ref: '#/components/schemas/Timestamp'
+      description: Describes a hardware device that can display signs.
     LatLng:
       type: object
-      description: |-
-        An object that represents a latitude/longitude pair. This is expressed as a
-        pair of doubles to represent degrees latitude and degrees longitude. Unless
-        specified otherwise, this must conform to the
-        <a href="http://www.unoosa.org/pdf/icg/2012/template/WGS_84.pdf">WGS84
-        standard</a>. Values must be within normalized ranges.
       required:
         - latitude
         - longitude
@@ -303,22 +297,28 @@ components:
         longitude:
           type: number
           format: double
+      description: |-
+        An object that represents a latitude/longitude pair. This is expressed as a
+        pair of doubles to represent degrees latitude and degrees longitude. Unless
+        specified otherwise, this must conform to the
+        <a href="http://www.unoosa.org/pdf/icg/2012/template/WGS_84.pdf">WGS84
+        standard</a>. Values must be within normalized ranges.
     ListKiosksResponse:
       type: object
-      description: A successful response.
       properties:
         kiosks:
           type: array
           items:
             $ref: '#/components/schemas/Kiosk'
+      description: A successful response.
     ListSignsResponse:
       type: object
-      description: A successful response.
       properties:
         signs:
           type: array
           items:
             $ref: '#/components/schemas/Sign'
+      description: A successful response.
     ProtobufAny:
       type: object
       properties:
@@ -328,7 +328,6 @@ components:
           type: string
     RpcStatus:
       type: object
-      description: An unexpected error response.
       properties:
         code:
           type: integer
@@ -339,9 +338,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ProtobufAny'
+      description: An unexpected error response.
     ScreenSize:
       type: object
-      description: Represents the size of a screen in pixels.
       required:
         - width
         - height
@@ -352,11 +351,9 @@ components:
         height:
           type: integer
           format: int32
+      description: Represents the size of a screen in pixels.
     Sign:
       type: object
-      description: |-
-        Describes a digital sign.
-        Signs can include text, images, or both.
       required:
         - name
         - text
@@ -376,9 +373,11 @@ components:
           type: string
           format: byte
           description: image to display
+      description: |-
+        Describes a digital sign.
+        Signs can include text, images, or both.
     Timestamp:
       type: object
-      description: A timestamp
       required:
         - seconds
         - nanos
@@ -389,3 +388,4 @@ components:
         nanos:
           type: integer
           format: int32
+      description: A timestamp

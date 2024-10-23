@@ -1,4 +1,4 @@
-import { Enum, Interface, Model, Union } from "@typespec/compiler";
+import type { Enum, Interface, Model, Union } from "@typespec/compiler";
 import { ok, strictEqual } from "assert";
 
 export function assertHasProperties(model: Model, props: string[]) {
@@ -19,7 +19,7 @@ export function assertHasOperations(iface: Interface, operations: string[]) {
   for (const operationName of operations) {
     ok(
       iface.operations.has(operationName),
-      `Interface ${iface.name} should have operation ${operationName}`
+      `Interface ${iface.name} should have operation ${operationName}`,
     );
   }
 }
@@ -31,7 +31,7 @@ export function assertHasMembers(enumType: Enum, members: string[]) {
       enumType.members.has(member),
       `Enum ${enumType.name} should have member ${member} but only has ${[
         ...enumType.members.keys(),
-      ]}`
+      ]}`,
     );
   }
 }

@@ -3,49 +3,62 @@ id: imports
 title: Imports
 ---
 
-# Import
+# Importing files and libraries in TypeSpec
 
-Imports add files or libraries to your TypeSpec program. When you compile a TypeSpec file, you provide a path to your root TypeSpec file, by convention called "main.tsp". From there, any files you import are added to your program. If you import a directory, TypeSpec will look for a `main.tsp` file inside that directory.
+Imports are used to include files or libraries into your TypeSpec program. When compiling a TypeSpec file, you specify the path to your root TypeSpec file, typically named "main.tsp". From this root file, any imported files are added to your program. If a directory is imported, TypeSpec will search for a `main.tsp` file within that directory.
 
-The path you import must either begin with `"./"` or `"../"` or otherwise be an absolute path. The path must either refer to a directory, or else have an extension of either ".tsp" or ".js". The following demonstrates how to use imports to assemble a TypeSpec program from multiple files:
+The path specified in the import must either start with `"./"` or `"../"`, or be an absolute path. The path should either point to a directory, or have an extension of either ".tsp" or ".js". The examples below illustrate how to use imports to assemble a TypeSpec program from multiple files:
 
-## Import TypeSpec file
+## Importing a TypeSpec file
 
 ```typespec
 import "./models/foo.tsp";
 ```
 
-## Import Js file
+## Importing a JavaScript file
 
 ```typespec
 import "./decorators.js";
 ```
 
-## Import a library
+## Importing a library
 
-The import value can be name one of the package dependencies. In that case typespec will lookup for the `package.json` file and check the `tspMain` entry (or default to `main` if absent) to decide what is the library entrypoint to load.
+The import value can be the name of one of the package dependencies.
 
 ```typespec
-import "@typespec/rest";
+import "/rest";
 ```
 
 ```json
 // ./node_modules/@typespec/rest/package.json
 {
-  "tspMain": "./lib/main.tsp"
+  "exports": {
+    ".": { "typespec": "./lib/main.tsp" }
+  }
 }
 ```
 
-which result in `./node_modules/@typespec/rest/lib/main.tsp` to be imported
+This results in `./node_modules/@typespec/rest/lib/main.tsp` being imported.
 
-## Import a directory
+### Package resolution algorithm
 
-If the import value is a directory it will lookup if that directory is a node package and follow the npm package [lookup logic](#import-a-library) or if the directory contains a `main.tsp`.
+When trying to import a package TypeSpec follows the following logic
+
+1. Parse the package name from the import specificier into `pkgName` and `subPath` (e.g. `@scope/lib/named` => pkgName: `@scope/lib` subpath: `named` )
+1. Look to see if `pkgName` is itself(Containing package)
+1. Otherwise lookup for a parent folder with a `node_modules/${pkgName}` sub folder
+1. Reading the `package.json` of the package
+   a. If `exports` is defined respect the [ESM logic](https://github.com/nodejs/node/blob/main/doc/api/esm.md) to resolve the `typespec` condition(TypeSpec will not respect the `default` condition)
+   b. If `exports` is not found or for back compat the `.` export is missing the `typespec` condition fallback to checking `tspMain` or `main`
+
+## Importing a directory
+
+If the import value is a directory, TypeSpec will check if that directory is a Node package and follow the npm package [lookup logic](#importing-a-library), or if the directory contains a `main.tsp` file.
 
 ```typespec
-import "./models"; // same as `import "./models/main.tsp";
+import "./models"; // equivalent to `import "./models/main.tsp";
 ```
 
 ```typespec
-import "./path/to/local/module"; // Assuming this path is a typespec package, it will load it using the tspMain file.
+import "./path/to/local/module"; // Assuming this path is a TypeSpec package, it will load it using the tspMain file.
 ```

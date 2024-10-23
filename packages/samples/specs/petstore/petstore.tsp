@@ -6,7 +6,6 @@ using TypeSpec.Http;
 
 @service({
   title: "Pet Store Service",
-  version: "2021-03-25",
 })
 @doc("This is a sample server Petstore server.  You can find out more about Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).  For this sample, you can use the api key `special-key` to test the authorization filters.")
 namespace PetStore;
@@ -35,14 +34,14 @@ model Error {
 }
 
 @doc("Not modified")
-model NotModified<T> {
+model NotModified<Body> {
   @statusCode _: 304;
-  @body body: T;
+  @body body: Body;
 }
 
-@friendlyName("{name}ListResults", T)
-model ResponsePage<T> {
-  items: T[];
+@friendlyName("{name}ListResults", Item)
+model ResponsePage<Item> {
+  items: Item[];
   nextLink?: string;
 }
 

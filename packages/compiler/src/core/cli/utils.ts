@@ -28,7 +28,7 @@ export interface CliHostArgs {
 }
 
 export function withCliHost<T extends CliHostArgs>(
-  fn: (host: CliCompilerHost, args: T) => void | Promise<void>
+  fn: (host: CliCompilerHost, args: T) => void | Promise<void>,
 ): (args: T) => void | Promise<void> {
   return (args: T) => {
     const host = createCLICompilerHost(args);
@@ -40,7 +40,7 @@ export function withCliHost<T extends CliHostArgs>(
  * Resolve Cli host automatically using cli args and handle diagnostics returned by the action.
  */
 export function withCliHostAndDiagnostics<T extends CliHostArgs>(
-  fn: (host: CliCompilerHost, args: T) => readonly Diagnostic[] | Promise<readonly Diagnostic[]>
+  fn: (host: CliCompilerHost, args: T) => readonly Diagnostic[] | Promise<readonly Diagnostic[]>,
 ): (args: T) => void | Promise<void> {
   return async (args: T) => {
     const host = createCLICompilerHost(args);
@@ -63,7 +63,7 @@ export function run(
   host: CliCompilerHost,
   command: string,
   commandArgs: string[],
-  options?: RunOptions
+  options?: RunOptions,
 ) {
   const logger = host.logger;
   if (options) {
@@ -83,13 +83,23 @@ export function run(
     command += ".cmd";
   }
 
+  const useShell = process.platform === "win32";
+  const hasSpace = command.includes(" ");
+  let commandToSpawn = command;
+  if (useShell && hasSpace) {
+    // for command having space (which should be a path), we need to wrap it into " for it to be executed properly in shell
+    // but for short command like 'npm', we shouldn't wrap it which would trigger error
+    commandToSpawn = `"${command}"`;
+    logger.trace(`Command to spawn updated to: ${commandToSpawn}\n`);
+  }
   const finalOptions: SpawnSyncOptionsWithStringEncoding = {
     encoding: "utf-8",
     stdio: "inherit",
+    shell: useShell,
     ...(options ?? {}),
   };
 
-  const proc = spawnSync(command, commandArgs, finalOptions);
+  const proc = spawnSync(commandToSpawn, commandArgs, finalOptions);
   logger.trace(inspect(proc, { depth: null }));
 
   if (proc.error) {
@@ -108,7 +118,7 @@ export function run(
     logger.error(
       `error: Command '${baseCommandName} ${commandArgs.join(" ")}' failed with exit code ${
         proc.status
-      }.`
+      }.`,
     );
     process.exit(proc.status || 1);
   }
@@ -117,6 +127,9 @@ export function run(
 }
 
 export function logDiagnosticCount(diagnostics: readonly Diagnostic[]) {
+  if (diagnostics.length === 0) {
+    return;
+  }
   const errorCount = diagnostics.filter((x) => x.severity === "error").length;
   const warningCount = diagnostics.filter((x) => x.severity === "warning").length;
 
@@ -129,17 +142,7 @@ export function logDiagnosticCount(diagnostics: readonly Diagnostic[]) {
   console.log(`\nFound ${[errorText, warningText].filter((x) => x !== undefined).join(", ")}.`);
 }
 
-/**
- * Handle an internal compiler error.
- *
- * NOTE: An expected error, like one thrown for bad input, shouldn't reach
- * here, but be handled somewhere else. If we reach here, it should be
- * considered a bug and therefore we should not suppress the stack trace as
- * that risks losing it in the case of a bug that does not repro easily.
- *
- * @param error error thrown
- */
-export function handleInternalCompilerError(error: unknown): never {
+export function logInternalCompilerError(error: unknown) {
   /* eslint-disable no-console */
   if (error instanceof ExternalError) {
     // ExternalError should already have all the relevant information needed when thrown.
@@ -151,7 +154,19 @@ export function handleInternalCompilerError(error: unknown): never {
     console.error(error);
   }
   /* eslint-enable no-console */
-
+}
+/**
+ * Handle an internal compiler error.
+ *
+ * NOTE: An expected error, like one thrown for bad input, shouldn't reach
+ * here, but be handled somewhere else. If we reach here, it should be
+ * considered a bug and therefore we should not suppress the stack trace as
+ * that risks losing it in the case of a bug that does not repro easily.
+ *
+ * @param error error thrown
+ */
+export function handleInternalCompilerError(error: unknown) {
+  logInternalCompilerError(error);
   process.exit(1);
 }
 

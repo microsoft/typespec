@@ -4,12 +4,16 @@ title: "[F] getEncode"
 
 ---
 ```ts
-getEncode(program, target): EncodeData | undefined
+function getEncode(program, type): undefined | EncodeData
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | [`Program`](../interfaces/Program.md) |
-| `target` | [`ModelProperty`](../interfaces/ModelProperty.md) \| [`Scalar`](../interfaces/Scalar.md) |
+| `type` | [`ModelProperty`](../interfaces/ModelProperty.md) \| [`Scalar`](../interfaces/Scalar.md) |
+
+## Returns
+
+`undefined` \| [`EncodeData`](../interfaces/EncodeData.md)

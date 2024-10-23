@@ -8,6 +8,7 @@ type DocTag:
   | DocReturnsTagNode
   | DocErrorsTagNode
   | DocParamTagNode
+  | DocPropTagNode
   | DocTemplateTagNode
   | DocUnknownTagNode;
 ```

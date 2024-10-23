@@ -1,0 +1,85 @@
+parameters:
+  # Whether to build alpha versions of the packages. This is passed as a flag to the build script.
+  - name: BuildPrereleaseVersion
+    type: boolean
+
+  # Whether to use the `next` version of TypeSpec. This is passed as a flag to the initialize script.
+  - name: UseTypeSpecNext
+    type: boolean
+
+  # Custom steps to run in the Build and Test stages after the repositories are cloned.
+  - name: AdditionalInitializeSteps
+    type: stepList
+    default: []
+
+  # Whether to publish to the internal feed.
+  - name: Publish
+    type: string
+    default: "none"
+
+  # List of packages to publish. Each package is an object with the following properties:
+  #   name: The name of the package. This is used to determine the name of the file to publish.
+  #   type: The type of package. Currently supported values are 'npm' and 'nuget'.
+  #   file: The path to the file to publish. This is relative to the packages directory in the build artifacts directory.
+  - name: Packages
+    type: object
+    default: []
+
+  # Location of emitter package path
+  - name: PackagePath
+    type: string
+
+  # Node version
+  #  Currently not installing node in this template, but keeping this parameter for future use
+  - name: NodeVersion
+    type: string
+
+  # Language short name
+  - name: LanguageShortName
+    type: string
+
+steps:
+  - ${{ if notIn(parameters.Publish, 'none', 'internal', 'public') }}:
+      - script: |
+          echo "Publish parameter has unsupported type: '${{ parameters.Publish }}'"
+          echo "Supported types are 'none', 'internal', 'public'"
+          exit 1
+  # Validate parameters and fail early if invalid
+  - ${{ each package in parameters.Packages }}:
+      - ${{ if notIn(package.type, 'npm', 'nuget') }}:
+          - script: |
+              echo "Package ${{ package.name }} has unsupported type: ${{ package.type }}"
+              exit 1
+            displayName: "Unsupported package type"
+            condition: always()
+
+  - checkout: self
+
+  - task: NodeTool@0
+    displayName: Install Node.js
+    retryCountOnTaskFailure: 3
+    inputs:
+      versionSpec: ${{ parameters.NodeVersion }}
+
+  - ${{ parameters.AdditionalInitializeSteps }}
+
+  - task: PowerShell@2
+    displayName: "Run initialize script"
+    inputs:
+      pwsh: true
+      filePath: $(selfRepositoryPath)${{ parameters.PackagePath }}/eng/scripts/Initialize-Repository.ps1
+      arguments: -UseTypeSpecNext:$${{ parameters.UseTypeSpecNext }}
+      workingDirectory: $(selfRepositoryPath)
+
+  - task: PowerShell@2
+    displayName: "Run build script"
+    name: ci_build
+    inputs:
+      pwsh: true
+      filePath: $(selfRepositoryPath)${{ parameters.PackagePath }}/eng/scripts/Build-Packages.ps1
+      arguments: >
+        -BuildNumber "$(Build.BuildNumber)"
+        -Output "$(Build.ArtifactStagingDirectory)"
+        -PublishType:"${{ parameters.Publish }}"
+        -Prerelease:$${{ parameters.BuildPrereleaseVersion }}
+      workingDirectory: $(selfRepositoryPath)

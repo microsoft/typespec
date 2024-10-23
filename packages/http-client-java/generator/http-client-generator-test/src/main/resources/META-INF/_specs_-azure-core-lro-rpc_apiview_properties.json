@@ -1,0 +1,14 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com._specs_.azure.core.lro.rpc.RpcAsyncClient": "_Specs_.Azure.Core.Lro.Rpc",
+    "com._specs_.azure.core.lro.rpc.RpcAsyncClient.beginLongRunningRpc": "_Specs_.Azure.Core.Lro.Rpc.longRunningRpc",
+    "com._specs_.azure.core.lro.rpc.RpcAsyncClient.beginLongRunningRpcWithModel": "_Specs_.Azure.Core.Lro.Rpc.longRunningRpc",
+    "com._specs_.azure.core.lro.rpc.RpcClient": "_Specs_.Azure.Core.Lro.Rpc",
+    "com._specs_.azure.core.lro.rpc.RpcClient.beginLongRunningRpc": "_Specs_.Azure.Core.Lro.Rpc.longRunningRpc",
+    "com._specs_.azure.core.lro.rpc.RpcClient.beginLongRunningRpcWithModel": "_Specs_.Azure.Core.Lro.Rpc.longRunningRpc",
+    "com._specs_.azure.core.lro.rpc.RpcClientBuilder": "_Specs_.Azure.Core.Lro.Rpc",
+    "com._specs_.azure.core.lro.rpc.models.GenerationOptions": "_Specs_.Azure.Core.Lro.Rpc.GenerationOptions",
+    "com._specs_.azure.core.lro.rpc.models.GenerationResult": "_Specs_.Azure.Core.Lro.Rpc.GenerationResult"
+  }
+}

@@ -1,14 +1,15 @@
 import { ok } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import {
   Enum,
   Interface,
+  Model,
+  Namespace,
+  Operation,
   isDeclaredInNamespace,
   isTemplateDeclaration,
   isTemplateDeclarationOrInstance,
   isTemplateInstance,
-  Model,
-  Namespace,
-  Operation,
 } from "../src/core/index.js";
 import { BasicTestRunner, createTestRunner } from "../src/testing/index.js";
 
@@ -43,6 +44,36 @@ describe("compiler: type-utils", () => {
       ok(isTemplateDeclarationOrInstance(Foo));
       ok(isTemplateInstance(Foo), "Should BE a template instance");
       ok(!isTemplateDeclaration(Foo), "Should NOT be a template declaration");
+    });
+
+    it("check model expression inside a template instance is also a template instance", async () => {
+      const { Bar } = (await runner.compile(`
+      model Foo<T> {a: { b: T }};
+
+      @test model Bar {
+        foo: Foo<string> 
+      }
+      `)) as { Bar: Model };
+      const Foo = Bar.properties.get("foo")!.type as Model;
+      const expr = Foo.properties.get("a")!.type;
+
+      ok(isTemplateInstance(expr), "Should BE a template instance");
+      ok(!isTemplateDeclaration(expr), "Should NOT be a template declaration");
+    });
+
+    it("check union expression inside a template instance is also a template instance", async () => {
+      const { Bar } = (await runner.compile(`
+      model Foo<T> {a: int32 | T};
+
+      @test model Bar {
+        foo: Foo<string> 
+      }
+      `)) as { Bar: Model };
+      const Foo = Bar.properties.get("foo")!.type as Model;
+      const expr = Foo.properties.get("a")!.type;
+
+      ok(isTemplateInstance(expr), "Should BE a template instance");
+      ok(!isTemplateDeclaration(expr), "Should NOT be a template declaration");
     });
   });
 
@@ -101,11 +132,11 @@ describe("compiler: type-utils", () => {
         ok(isDeclaredInNamespace(type, SubAlpha), `${name} was not found under SubAlpha`);
         ok(
           !isDeclaredInNamespace(type, Alpha, { recursive: false }),
-          `${name} should not be found when recursive: false`
+          `${name} should not be found when recursive: false`,
         );
         ok(
           !isDeclaredInNamespace(type, Beta, { recursive: false }),
-          `${name} should not be found in namespace Beta`
+          `${name} should not be found in namespace Beta`,
         );
       }
     });

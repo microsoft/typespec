@@ -4,10 +4,10 @@ title: "[F] $overload"
 
 ---
 ```ts
-$overload(
+function $overload(
    context, 
    target, 
-   overloadBase): void
+   overloadbase): void
 ```
 
 `@overload` - Indicate that the target overloads (specializes) the overloads type.
@@ -15,7 +15,11 @@ $overload(
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) | DecoratorContext |
 | `target` | [`Operation`](../interfaces/Operation.md) | The specializing operation declaration |
-| `overloadBase` | [`Operation`](../interfaces/Operation.md) | The operation to be overloaded. |
+| `overloadbase` | [`Operation`](../interfaces/Operation.md) | - |
+
+## Returns
+
+`void`

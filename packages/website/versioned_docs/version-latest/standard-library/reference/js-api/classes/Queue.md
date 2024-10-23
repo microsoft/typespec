@@ -3,15 +3,15 @@ jsApi: true
 title: "[C] Queue"
 
 ---
-## Type parameters
+## Type Parameters
 
-| Parameter |
-| :------ |
+| Type Parameter |
+| ------ |
 | `T` |
 
 ## Constructors
 
-### new Queue(elements)
+### new Queue()
 
 ```ts
 new Queue<T>(elements?): Queue<T>
@@ -20,15 +20,12 @@ new Queue<T>(elements?): Queue<T>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `elements`? | `T`[] |
 
-## Properties
+#### Returns
 
-| Modifier | Property | Type | Description |
-| :------ | :------ | :------ | :------ |
-| `private` | `#elements` | `T`[] | - |
-| `private` | `#headIndex` | `number` | - |
+[`Queue`](Queue.md)<`T`\>
 
 ## Methods
 
@@ -37,6 +34,10 @@ new Queue<T>(elements?): Queue<T>
 ```ts
 dequeue(): T
 ```
+
+#### Returns
+
+`T`
 
 ***
 
@@ -49,8 +50,12 @@ enqueue(...items): void
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | ...`items` | `T`[] |
+
+#### Returns
+
+`void`
 
 ***
 
@@ -59,3 +64,7 @@ enqueue(...items): void
 ```ts
 isEmpty(): boolean
 ```
+
+#### Returns
+
+`boolean`

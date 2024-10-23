@@ -1,14 +1,17 @@
 {
-  "extends": "../tsconfig.json",
+  "extends": "../../tsconfig.base.json",
   "references": [{ "path": "../tmlanguage-generator/tsconfig.json" }],
   "compilerOptions": {
-    "outDir": "dist-dev",
-    "rootDir": ".",
-    "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo",
-    "module": "CommonJS",
-    "moduleResolution": "Node",
+    "incremental": false,
+    "composite": false,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "sourceMap": false,
+    "resolveJsonModule": true,
+    "outDir": "dist",
     "skipLibCheck": true,
-    "types": ["node", "mocha"]
+    "types": ["mocha"],
+    "rootDir": "."
   },
-  "include": ["src/**/*.ts", "test/**/*.ts"]
+  "include": ["rollup.config.ts", "src/**/*.ts", "test/**/*.ts"]
 }

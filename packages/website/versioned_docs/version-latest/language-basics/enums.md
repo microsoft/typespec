@@ -5,12 +5,11 @@ title: Enums
 
 # Enums
 
-Enums allow a developer to define a set of named constants. Using enums can make it easier to document intent, or create a set of distinct cases. Enums can either be numeric or string-based. For other types, look into [union](./unions.md)
+Enums, short for enumerations, provide a way for developers to define a collection of named constants. They are useful for documenting the purpose of the code or for establishing a set of distinct scenarios. Enums can be either numeric or string-based. For other data types, consider using [unions](./unions.md).
 
-## Basics
+## The basics
 
-Enums are declared using the `enum` keyword.
-The enums members are comma `,` separated and can be typespec `identifier`s or `string literal`s.
+You can declare enums using the `enum` keyword. The members of an enum are separated by commas `,` and can be either [`identifier`](./identifiers.md) TypeSpecs or `string literal`s.
 
 ```typespec
 enum Direction {
@@ -21,11 +20,11 @@ enum Direction {
 }
 ```
 
-In this case, we haven't specified how the constants will be represented. Different scenarios might handle the enums differently.
+In the above example, we haven't defined the representation of the constants. Depending on the context, enums might be handled differently.
 
-## Values
+## Assigning values to enums
 
-Enums members can have a custom value that can be assigned using the `:` operator.
+You can assign custom values to enum members using the `:` operator.
 
 ```typespec
 enum Direction {
@@ -36,7 +35,7 @@ enum Direction {
 }
 ```
 
-Values can also be integers.
+These values can also be integers.
 
 ```typespec
 enum Foo {
@@ -47,7 +46,7 @@ enum Foo {
 }
 ```
 
-or float
+Or even floating-point numbers.
 
 ```typespec
 enum Hour {
@@ -58,9 +57,9 @@ enum Hour {
 }
 ```
 
-## Composing enums
+## Combining enums
 
-Enums can be reused using the spread `...` pattern. All the members of the source enums will be copied in the target enum but it doesn't create any reference between the source and target enums.
+You can combine enums using the spread `...` pattern. This copies all the members from the source enum to the target enum, but it doesn't establish any reference between the source and target enums.
 
 ```typespec
 enum DirectionExt {
@@ -72,9 +71,9 @@ enum DirectionExt {
 }
 ```
 
-## Referencing enum members
+## How to reference enum members
 
-Enum members can be referenced using the `.` operator for identifiers.
+You can reference enum members using the `.` operator for identifiers.
 
 ```typespec
 alias North = Direction.North;

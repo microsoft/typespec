@@ -1,0 +1,81 @@
+openapi: 3.0.0
+info:
+  title: OneAnyAll Service
+  version: 0.0.0
+tags: []
+paths:
+  /any:
+    post:
+      operationId: putAny
+      parameters: []
+      responses:
+        "204":
+          description: "There is no content to send for this request, but the headers may be useful. "
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pet:
+                  anyOf:
+                    - $ref: "#/components/schemas/Dog"
+                    - $ref: "#/components/schemas/Cat"
+              required:
+                - pet
+  /one:
+    post:
+      operationId: putOne
+      parameters: []
+      responses:
+        "204":
+          description: "There is no content to send for this request, but the headers may be useful. "
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pet:
+                  oneOf:
+                    - $ref: "#/components/schemas/Dog"
+                    - $ref: "#/components/schemas/Cat"
+              required:
+                - pet
+components:
+  schemas:
+    Cat:
+      type: object
+      required:
+        - hunts
+      properties:
+        hunts:
+          type: boolean
+      allOf:
+        - $ref: "#/components/schemas/Pet"
+    Dog:
+      type: object
+      required:
+        - bark
+        - breed
+      properties:
+        bark:
+          type: boolean
+        breed:
+          type: string
+          enum:
+            - Husky
+            - Corgi
+            - Terrier
+      allOf:
+        - $ref: "#/components/schemas/Pet"
+    Pet:
+      type: object
+      required:
+        - age
+      properties:
+        age:
+          type: integer
+          format: int32

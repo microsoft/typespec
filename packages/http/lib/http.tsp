@@ -1,5 +1,6 @@
-import "../dist/src/index.js";
-import "./http-decorators.tsp";
+import "../dist/src/tsp-index.js";
+import "./decorators.tsp";
+import "./private.decorators.tsp";
 import "./auth.tsp";
 
 namespace TypeSpec.Http;
@@ -21,16 +22,16 @@ model Response<Status> {
 /**
  * Defines a model with a single property of the given type, marked with `@body`.
  *
- * This can be useful in situations where you cannot use a bare T as the body
+ * This can be useful in situations where you cannot use a bare type as the body
  * and it is awkward to add a property.
  *
- * @template T The type of the model's `body` property.
+ * @template Type The type of the model's `body` property.
  */
 @doc("")
-model Body<T> {
+model Body<Type> {
   @body
   @doc("The body type of the operation request or response.")
-  body: T;
+  body: Type;
 }
 
 /**
@@ -97,9 +98,25 @@ model ConflictResponse is Response<409>;
 /**
  * Produces a new model with the same properties as T, but with `@query`,
  * `@header`, `@body`, and `@path` decorators removed from all properties.
- * @template T The model to spread as the plain data.
+ *
+ * @template Data The model to spread as the plain data.
  */
 @plainData
-model PlainData<T> {
-  ...T;
+model PlainData<Data> {
+  ...Data;
 }
+
+@Private.httpFile
+model File {
+  contentType?: string;
+  filename?: string;
+  contents: bytes;
+}
+
+model HttpPartOptions {
+  /** Name of the part when using the array form. */
+  name?: string;
+}
+
+@Private.httpPart(Type, Options)
+model HttpPart<Type, Options extends valueof HttpPartOptions = #{}> {}

@@ -47,6 +47,7 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 test-results.xml
+test-results/
 
 # Translations
 *.mo
@@ -83,7 +84,8 @@ celerybeat-schedule
 *.sage.py
 
 # Environments
-.env
+/.env
+.env.local
 .venv
 env/
 venv/
@@ -124,6 +126,8 @@ lib-cov
 
 # Coverage directory used by tools like istanbul
 coverage
+!packages/spector/src/coverage
+spec-coverage.json
 
 # nyc test coverage
 .nyc_output
@@ -159,9 +163,6 @@ jspm_packages/
 # Yarn Integrity file
 .yarn-integrity
 
-# dotenv environment variables file
-.env
-
 # next.js build output
 .next
 
@@ -181,6 +182,14 @@ obj/
 .vs/
 *.binlog
 
+# User-specific files
+*.suo
+*.user
+*.idea
+*.sln.docstates
+*.lock.json
+developer/
+
 # tsc incremental build files
 *.tsbuildinfo
 
@@ -189,6 +198,30 @@ obj/
 
 *.vsix
 *.zip
+vite.config.ts.timestamp-*
 
 
+# Astro
+.astro/
+
+# Api extractor
+packages/*/etc/
 docs/**/js-api/
+packages/website-astro/src/content/docs/current/**/js-api/
+
+# VS Code test web temp files
+.vscode-test-web/
+
+# csharp emitter
+!packages/http-client-csharp/package-lock.json
+packages/http-client-csharp/generator/artifacts/
+BenchmarkDotnet.Artifacts/
+
+# java emitter
+!packages/http-client-java/package-lock.json
+
+# python emitter
+packages/http-client-python/generator/test/**/generated/
+packages/http-client-python/generator/test/**/cadl-ranch-coverage.json
+!packages/http-client-python/package-lock.json
+

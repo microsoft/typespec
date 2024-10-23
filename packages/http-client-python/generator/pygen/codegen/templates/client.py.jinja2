@@ -1,0 +1,37 @@
+{{ serializer.class_definition() }}
+    """{{ op_tools.wrap_string(client.description, "\n") | indent }}
+
+    {{ op_tools.serialize_with_wrap(serializer.property_descriptions(async_mode), "\n ") | indent }}
+    {{ serializer.init_signature_and_response_type_annotation(async_mode) | indent }}
+    {% if serializer.should_init_super %}
+        super().__init__()
+    {% endif %}
+        {% if client.has_parameterized_host %}
+        {{ serializer.host_variable_name }} = {{ keywords.escape_str(client.url) }}{{ client.url_pylint_disable }}
+        {% endif %}
+        {{ serializer.initialize_config() }}
+        {{ op_tools.serialize(serializer.initialize_pipeline_client(async_mode)) | indent(8) }}
+
+        {{ op_tools.serialize(serializer.serializers_and_operation_groups_properties()) | indent(8) }}
+
+    {% set http_response = keywords.async_class + "HttpResponse" %}
+    {{ serializer.send_request_signature_and_response_type_annotation(async_mode) | indent }}
+        {{ op_tools.serialize(serializer.send_request_description(async_mode)) | indent(8) }}
+        request_copy = deepcopy(request)
+        {% if client.parameters.path %}
+        {{ op_tools.serialize(serializer.serialize_path()) | indent(8) }}
+        request_copy.url = self._client.format_url(request_copy.url, **path_format_arguments)
+        {% else %}
+        request_copy.url = self._client.format_url(request_copy.url)
+        {% endif %}
+        return self._client.send_request(request_copy, stream=stream, **kwargs)  # type: ignore
+
+    {{ keywords.def }} close(self) -> None:
+        {{ keywords.await }}self._client.close()
+
+    {{ keywords.def }} __{{ keywords.async_prefix }}enter__(self) -> Self:
+        {{ keywords.await }}self._client.__{{ keywords.async_prefix }}enter__()
+        return self
+
+    {{ keywords.def }} __{{ keywords.async_prefix }}exit__(self, *exc_details: Any) -> None:
+        {{ keywords.await }}self._client.__{{ keywords.async_prefix }}exit__(*exc_details)

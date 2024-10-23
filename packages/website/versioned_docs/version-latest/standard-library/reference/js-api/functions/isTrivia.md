@@ -4,11 +4,15 @@ title: "[F] isTrivia"
 
 ---
 ```ts
-isTrivia(token): boolean
+function isTrivia(token): boolean
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `token` | [`Token`](../enumerations/Token.md) |
+
+## Returns
+
+`boolean`

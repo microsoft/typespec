@@ -11,7 +11,7 @@ Represents a failure while interpreting a projection.
 
 ## Constructors
 
-### new ProjectionError(message)
+### new ProjectionError()
 
 ```ts
 new ProjectionError(message): ProjectionError
@@ -20,22 +20,27 @@ new ProjectionError(message): ProjectionError
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `message` | `string` |
+
+#### Returns
+
+[`ProjectionError`](ProjectionError.md)
 
 #### Overrides
 
-Error.constructor
+`Error.constructor`
 
 ## Properties
 
-| Modifier | Property | Type | Description | Inheritance |
-| :------ | :------ | :------ | :------ | :------ |
-| `public` | `message` | `string` | - | Error.message |
-| `public` | `name` | `string` | - | Error.name |
-| `public` | `stack?` | `string` | - | Error.stack |
-| `static` | `prepareStackTrace?` | (`err`, `stackTraces`) => `any` | - | Error.prepareStackTrace |
-| `static` | `stackTraceLimit` | `number` | - | Error.stackTraceLimit |
+| Property | Modifier | Type | Description | Inherited from |
+| ------ | ------ | ------ | ------ | ------ |
+| `cause?` | `public` | `unknown` | - | `Error.cause` |
+| `message` | `public` | `string` | - | `Error.message` |
+| `name` | `public` | `string` | - | `Error.name` |
+| `stack?` | `public` | `string` | - | `Error.stack` |
+| `prepareStackTrace?` | `static` | (`err`: `Error`, `stackTraces`: `CallSite`[]) => `any` | Optional override for formatting stack traces **See** https://v8.dev/docs/stack-trace-api#customizing-stack-traces | `Error.prepareStackTrace` |
+| `stackTraceLimit` | `static` | `number` | - | `Error.stackTraceLimit` |
 
 ## Methods
 
@@ -50,10 +55,14 @@ Create .stack property on a target object
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `targetObject` | `object` |
 | `constructorOpt`? | `Function` |
 
+#### Returns
+
+`void`
+
 #### Inherited from
 
-Error.captureStackTrace
+`Error.captureStackTrace`

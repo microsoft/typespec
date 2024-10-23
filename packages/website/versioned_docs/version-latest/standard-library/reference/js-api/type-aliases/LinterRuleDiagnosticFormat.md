@@ -7,9 +7,9 @@ title: "[T] LinterRuleDiagnosticFormat"
 type LinterRuleDiagnosticFormat<T, M>: T[M] extends CallableMessage<infer A> ? object : Record<string, unknown>;
 ```
 
-## Type parameters
+## Type Parameters
 
-| Parameter | Default |
-| :------ | :------ |
-| `T` extends [`DiagnosticMessages`](../interfaces/DiagnosticMessages.md) | - |
-| `M` extends keyof `T` | `"default"` |
+| Type Parameter | Default type |
+| ------ | ------ |
+| `T` *extends* [`DiagnosticMessages`](../interfaces/DiagnosticMessages.md) | - |
+| `M` *extends* keyof `T` | `"default"` |

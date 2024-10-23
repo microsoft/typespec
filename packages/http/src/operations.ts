@@ -15,6 +15,8 @@ import {
   Program,
   SyntaxKind,
 } from "@typespec/compiler";
+import { getAuthenticationForOperation } from "./auth.js";
+import { getAuthentication } from "./decorators.js";
 import { createDiagnostic, reportDiagnostic } from "./lib.js";
 import { getResponsesForOperation } from "./responses.js";
 import { isSharedRoute, resolvePathAndParameters } from "./route.js";
@@ -34,7 +36,7 @@ import {
 export function getHttpOperation(
   program: Program,
   operation: Operation,
-  options?: RouteResolutionOptions
+  options?: RouteResolutionOptions,
 ): [HttpOperation, readonly Diagnostic[]] {
   return getHttpOperationInternal(program, operation, options, new Map());
 }
@@ -49,13 +51,13 @@ export function getHttpOperation(
 export function listHttpOperationsIn(
   program: Program,
   container: OperationContainer,
-  options?: RouteResolutionOptions
+  options?: RouteResolutionOptions,
 ): [HttpOperation[], readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const operations = listOperationsIn(container, options?.listOptions);
   const cache = new Map();
   const httpOperations = operations.map((x) =>
-    diagnostics.pipe(getHttpOperationInternal(program, x, options, cache))
+    diagnostics.pipe(getHttpOperationInternal(program, x, options, cache)),
   );
   return diagnostics.wrap(httpOperations);
 }
@@ -65,17 +67,17 @@ export function listHttpOperationsIn(
  */
 export function getAllHttpServices(
   program: Program,
-  options?: RouteResolutionOptions
+  options?: RouteResolutionOptions,
 ): [HttpService[], readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const serviceNamespaces = listServices(program);
 
   const services: HttpService[] = serviceNamespaces.map((x) =>
-    diagnostics.pipe(getHttpService(program, x.type, options))
+    diagnostics.pipe(getHttpService(program, x.type, options)),
   );
   if (serviceNamespaces.length === 0) {
     services.push(
-      diagnostics.pipe(getHttpService(program, program.getGlobalNamespaceType(), options))
+      diagnostics.pipe(getHttpService(program, program.getGlobalNamespaceType(), options)),
     );
   }
   return diagnostics.wrap(services);
@@ -84,7 +86,7 @@ export function getAllHttpServices(
 export function getHttpService(
   program: Program,
   serviceNamespace: Namespace,
-  options?: RouteResolutionOptions
+  options?: RouteResolutionOptions,
 ): [HttpService, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const httpOperations = diagnostics.pipe(
@@ -93,8 +95,9 @@ export function getHttpService(
       listOptions: {
         recursive: serviceNamespace !== program.getGlobalNamespaceType(),
       },
-    })
+    }),
   );
+  const authentication = getAuthentication(program, serviceNamespace);
 
   validateProgram(program, diagnostics);
   validateRouteUnique(program, diagnostics, httpOperations);
@@ -102,6 +105,7 @@ export function getHttpService(
   const service: HttpService = {
     namespace: serviceNamespace,
     operations: httpOperations,
+    authentication: authentication,
   };
   return diagnostics.wrap(service);
 }
@@ -111,7 +115,7 @@ export function getHttpService(
  */
 export function getAllRoutes(
   program: Program,
-  options?: RouteResolutionOptions
+  options?: RouteResolutionOptions,
 ): [HttpOperation[], readonly Diagnostic[]] {
   const [services, diagnostics] = getAllHttpServices(program, options);
   return [services[0].operations, diagnostics];
@@ -119,9 +123,18 @@ export function getAllRoutes(
 
 export function reportIfNoRoutes(program: Program, routes: HttpOperation[]) {
   if (routes.length === 0) {
-    reportDiagnostic(program, {
-      code: "no-routes",
-      target: program.getGlobalNamespaceType(),
+    navigateProgram(program, {
+      namespace: (namespace) => {
+        if (namespace.operations.size > 0) {
+          reportDiagnostic(program, {
+            code: "no-service-found",
+            format: {
+              namespace: namespace.name,
+            },
+            target: namespace,
+          });
+        }
+      },
     });
   }
 }
@@ -129,7 +142,7 @@ export function reportIfNoRoutes(program: Program, routes: HttpOperation[]) {
 export function validateRouteUnique(
   program: Program,
   diagnostics: DiagnosticCollector,
-  operations: HttpOperation[]
+  operations: HttpOperation[],
 ) {
   const grouped = new Map<string, Map<HttpVerb, HttpOperation[]>>();
 
@@ -166,7 +179,7 @@ export function validateRouteUnique(
               code: "duplicate-operation",
               format: { path, verb, operationName: route.operation.name },
               target: route.operation,
-            })
+            }),
           );
         }
       }
@@ -182,7 +195,7 @@ function getHttpOperationInternal(
   program: Program,
   operation: Operation,
   options: RouteResolutionOptions | undefined,
-  cache: Map<Operation, HttpOperation>
+  cache: Map<Operation, HttpOperation>,
 ): [HttpOperation, readonly Diagnostic[]] {
   const existing = cache.get(operation);
   if (existing) {
@@ -196,30 +209,33 @@ function getHttpOperationInternal(
   let overloading;
   if (overloadBase) {
     overloading = httpOperationRef.overloading = diagnostics.pipe(
-      getHttpOperationInternal(program, overloadBase, options, cache)
+      getHttpOperationInternal(program, overloadBase, options, cache),
     );
   }
 
   const route = diagnostics.pipe(
-    resolvePathAndParameters(program, operation, overloading, options ?? {})
+    resolvePathAndParameters(program, operation, overloading, options ?? {}),
   );
   const responses = diagnostics.pipe(getResponsesForOperation(program, operation));
+  const authentication = getAuthenticationForOperation(program, operation);
 
   const httpOperation: HttpOperation = {
     path: route.path,
-    pathSegments: route.pathSegments,
+    uriTemplate: route.uriTemplate,
+    pathSegments: [],
     verb: route.parameters.verb,
     container: operation.interface ?? operation.namespace ?? program.getGlobalNamespaceType(),
     parameters: route.parameters,
-    operation,
     responses,
+    operation,
+    authentication,
   };
   Object.assign(httpOperationRef, httpOperation);
 
   const overloads = getOverloads(program, operation);
   if (overloads) {
     httpOperationRef.overloads = overloads.map((x) =>
-      diagnostics.pipe(getHttpOperationInternal(program, x, options, cache))
+      diagnostics.pipe(getHttpOperationInternal(program, x, options, cache)),
     );
   }
 
@@ -242,7 +258,7 @@ function validateProgram(program: Program, diagnostics: DiagnosticCollector) {
       // to deal with multiple copies of core being used.
       const decorator = property.decorators.find((d) => d.decorator.name === $visibility.name);
       const arg = decorator?.args.find(
-        (a) => a.node?.kind === SyntaxKind.StringLiteral && a.node.value === "write"
+        (a) => a.node?.kind === SyntaxKind.StringLiteral && a.node.value === "write",
       );
       const target = arg?.node ?? property;
       diagnostics.add(createDiagnostic({ code: "write-visibility-not-supported", target }));

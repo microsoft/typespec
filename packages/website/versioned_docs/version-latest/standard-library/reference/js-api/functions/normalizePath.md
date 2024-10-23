@@ -4,11 +4,15 @@ title: "[F] normalizePath"
 
 ---
 ```ts
-normalizePath(path): string
+function normalizePath(path): string
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `path` | `string` |
+
+## Returns
+
+`string`

@@ -2,6 +2,156 @@
   "name": "@typespec/compiler",
   "entries": [
     {
+      "version": "0.52.0",
+      "tag": "@typespec/compiler_v0.52.0",
+      "date": "Wed, 24 Jan 2024 05:46:53 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "add bytes encode to the general encode type"
+          },
+          {
+            "comment": "Added support for named template arguments (#2340)"
+          },
+          {
+            "comment": "Feature: Added encoded name decorator"
+          },
+          {
+            "comment": "Add a new init template for creating a new emitter"
+          },
+          {
+            "comment": "Added new `--template` option to `tsp init` command line action which lets user specify which template to choose from in the template list."
+          },
+          {
+            "comment": "IDE: Performance improvements to the language server."
+          },
+          {
+            "comment": "Fix: Compiler couldn't resolve files at a long path(256+) on windows"
+          },
+          {
+            "comment": "Stop warning user when `tsp init` a template without `compilerVersion` specified"
+          },
+          {
+            "comment": "Library declaration: Deprecated linter property on `$lib` in favor of a new `$linter` variable that can be exported. This was done to prevent circular reference caused by referencing linter rules in $lib."
+          },
+          {
+            "comment": "Library declaration: State symbols can now be declared in the library declaration(Prefereably internal declaration added above) to have a central place to define state symbols used in your libraries."
+          },
+          {
+            "comment": "Add a new `tsp init` template for setting up a library"
+          },
+          {
+            "comment": "Rename template parameters in preparation for named template argument instantiation."
+          },
+          {
+            "comment": "Add ability to use another template parameter as a constraint. e.g. `model Foo<A, B extends A>`"
+          },
+          {
+            "comment": "Add new helper function to change casing to the init templates"
+          },
+          {
+            "comment": "Update dependencies"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"tmlanguage-generator\" from `~0.5.1` to `~0.5.2`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.51.0",
+      "tag": "@typespec/compiler_v0.51.0",
+      "date": "Wed, 06 Dec 2023 19:40:58 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "[API] Emitter framework: `emitTypeReference` function takes an optional reference context that can be used to patch the context for the target."
+          },
+          {
+            "comment": "Emitter API: Added `absolute-path` as a known format for emitter options which will validate the value passed by the user resolve to an absolute path."
+          },
+          {
+            "comment": "Linter rules can provide a url to the full documentation"
+          },
+          {
+            "comment": "**New language feature** **BREAKING** Added string template literal in typespec. Single and multi-line strings can be interpolated with `${` and `}`. Example `\\`Doc for url ${url} is here: ${location}\\``"
+          },
+          {
+            "comment": "Formatter: Fix: `valueof` expression with parentheses around will preserve them when they are meaningful(For example inside a union or array expression)"
+          },
+          {
+            "comment": "Emitter framework: allows scalar and enum declaration to provide a reference context."
+          },
+          {
+            "comment": "Fix: Union variant are now assignable to the parent union"
+          },
+          {
+            "comment": "Emitter framework: Allow passing a custom context when calling `emitType` "
+          },
+          {
+            "comment": "Upgrade formatter to prettier 3.1"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"tmlanguage-generator\" from `~0.5.0` to `~0.5.1`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.50.0",
+      "tag": "@typespec/compiler_v0.50.0",
+      "date": "Wed, 08 Nov 2023 00:07:17 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add new `unixTimestamp32` scalar to standard library"
+          },
+          {
+            "comment": "Fixing @doc and /** */ disappears from multi-segment or nested namespaces. #2642"
+          },
+          {
+            "comment": "Fix issue where using `@overload` could result in incorrect `unassignable` type errors."
+          },
+          {
+            "comment": "Add new hook for handling circular references"
+          },
+          {
+            "comment": "Fix: Issue where referencing a template in an alias might cause augment decorators to not be applied on types referenced in the aliased type."
+          },
+          {
+            "comment": "[Internal] Fix: `RekeyableMap` kept track of old value if rekeying to an existing item"
+          },
+          {
+            "comment": "Fix: Properties filtered with `@withVisibility` will have their visibility removed. This prevent visibility from being applied twice and rendering invalid models"
+          },
+          {
+            "comment": "`TypeEmitter` now supports Tuples."
+          },
+          {
+            "comment": "Issue error if a model spreads itself within its declaration."
+          },
+          {
+            "comment": "Stop showing empty code frame when diagnostic has no location"
+          },
+          {
+            "comment": "`TypeScript` use `types` entry under `exports` of `package.json` instead of legacy `typesVersions` to provide the definition files"
+          },
+          {
+            "comment": "**BREAKING CHANGE** Dropped support for node 16, minimum node version is now 18"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"tmlanguage-generator\" from `~0.4.5` to `~0.5.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.49.0",
       "tag": "@typespec/compiler_v0.49.0",
       "date": "Wed, 11 Oct 2023 23:31:35 GMT",

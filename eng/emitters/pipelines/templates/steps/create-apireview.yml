@@ -1,0 +1,42 @@
+parameters:
+  Artifacts: []
+  MarkPackageAsShipped: false
+  GenerateApiReviewForManualOnly: false
+  ArtifactName: "packages"
+  PackageName: ""
+  LanguageShortName: "Unknown"
+
+steps:
+  # ideally this should be done as initial step of a job in caller template
+  # We can remove this step later once it is added in caller
+  - template: /eng/emitters/pipelines/templates/steps/set-default-branch.yml
+
+  # Automatic API review is generated for a package when pipeline runs irrespective of how pipeline gets triggered.
+  # Below condition ensures that API review is generated only for manual pipeline runs when flag GenerateApiReviewForManualOnly is set to true.
+  - ${{ if or(ne(parameters.GenerateApiReviewForManualOnly, true), eq(variables['Build.Reason'], 'Manual')) }}:
+      - task: Powershell@2
+        inputs:
+          filePath: $(Build.SourcesDirectory)/eng/emitters/scripts/Create-APIReview.ps1
+          arguments: >
+            -ArtifactList ('${{ convertToJson(parameters.Artifacts) }}' | ConvertFrom-Json | Select-Object Name)
+            -ArtifactPath $(Agent.BuildDirectory)/${{ parameters.ArtifactName }}
+            -ArtifactName ${{ parameters.ArtifactName }}
+            -APIKey $(azuresdk-apiview-apikey)
+            -PackageName '${{parameters.PackageName}}'
+            -SourceBranch $(Build.SourceBranchName)
+            -DefaultBranch $(DefaultBranch)
+            -BuildId $(Build.BuildId)
+            -RepoName '$(Build.Repository.Name)'    
+            -MarkPackageAsShipped $${{parameters.MarkPackageAsShipped}}
+            -LanguageShortName ${{parameters.LanguageShortName}}
+          pwsh: true
+          workingDirectory: $(Pipeline.Workspace)
+        displayName: Create API Review
+        condition: >-
+          and(
+            succeededOrFailed(),
+            ne(variables['Skip.CreateApiReview'], 'true'),
+            ne(variables['Build.Reason'],'PullRequest'),
+            eq(variables['System.TeamProject'], 'internal'),
+            not(endsWith(variables['Build.Repository.Name'], '-pr'))
+          )

@@ -1,8 +1,12 @@
 {
-  "extends": "@tsconfig/docusaurus/tsconfig.json",
+  "extends": "@docusaurus/tsconfig",
   "compilerOptions": {
     "baseUrl": ".",
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "target": "ES2022",
+    "paths": {
+      "@site/*": ["./*"]
+    }
   },
   "include": ["**/*.tsx", "**/*.ts", "**/*.js"],
   "exclude": ["build/**/*.js", ".scripts/**/*.mjs"]

@@ -1,5 +1,6 @@
 import {
   CharCode,
+  codePointBefore,
   isAsciiIdentifierContinue,
   isAsciiIdentifierStart,
   isBinaryDigit,
@@ -15,9 +16,11 @@ import {
   isWhiteSpaceSingleLine,
   utf16CodeUnits,
 } from "./charcode.js";
-import { DiagnosticHandler, compilerAssert, createSourceFile } from "./diagnostics.js";
+import { DiagnosticHandler, compilerAssert } from "./diagnostics.js";
 import { CompilerDiagnostics, createDiagnostic } from "./messages.js";
-import { DiagnosticReport, SourceFile, TextRange } from "./types.js";
+import { getCommentAtPosition } from "./parser-utils.js";
+import { createSourceFile } from "./source-file.js";
+import { DiagnosticReport, SourceFile, TextRange, TypeSpecScriptNode } from "./types.js";
 
 // All conflict markers consist of the same character repeated seven times.  If it is
 // a <<<<<<< or >>>>>>> marker then it is also followed by a space.
@@ -30,11 +33,14 @@ export enum Token {
   Identifier,
   NumericLiteral,
   StringLiteral,
+  StringTemplateHead,
+  StringTemplateMiddle,
+  StringTemplateTail,
   // Add new tokens above if they don't fit any of the categories below
 
   ///////////////////////////////////////////////////////////////
   // Trivia
-  /**@internal */ __StartTrivia,
+  /** @internal */ __StartTrivia,
 
   SingleLineComment = __StartTrivia,
   MultiLineComment,
@@ -80,6 +86,8 @@ export enum Token {
   At,
   AtAt,
   Hash,
+  HashBrace,
+  HashBracket,
   Star,
   ForwardSlash,
   Plus,
@@ -118,7 +126,8 @@ export enum Token {
   IfKeyword,
   DecKeyword,
   FnKeyword,
-  ValueOfKeyword,
+  ConstKeyword,
+  InitKeyword,
   // Add new statement keyword above
 
   /** @internal */ __EndStatementKeyword,
@@ -143,6 +152,8 @@ export enum Token {
   VoidKeyword,
   NeverKeyword,
   UnknownKeyword,
+  ValueOfKeyword,
+  TypeOfKeyword,
   // Add new non-statement keyword above
 
   /** @internal */ __EndKeyword,
@@ -165,6 +176,11 @@ export type DocToken =
   | Token.DocCodeFenceDelimiter
   | Token.EndOfFile;
 
+export type StringTemplateToken =
+  | Token.StringTemplateHead
+  | Token.StringTemplateMiddle
+  | Token.StringTemplateTail;
+
 /** @internal */
 export const TokenDisplay = getTokenDisplayTable([
   [Token.None, "none"],
@@ -175,6 +191,9 @@ export const TokenDisplay = getTokenDisplayTable([
   [Token.ConflictMarker, "conflict marker"],
   [Token.NumericLiteral, "numeric literal"],
   [Token.StringLiteral, "string literal"],
+  [Token.StringTemplateHead, "string template head"],
+  [Token.StringTemplateMiddle, "string template middle"],
+  [Token.StringTemplateTail, "string template tail"],
   [Token.NewLine, "newline"],
   [Token.Whitespace, "whitespace"],
   [Token.DocCodeFenceDelimiter, "doc code fence delimiter"],
@@ -201,6 +220,8 @@ export const TokenDisplay = getTokenDisplayTable([
   [Token.At, "'@'"],
   [Token.AtAt, "'@@'"],
   [Token.Hash, "'#'"],
+  [Token.HashBrace, "'#{'"],
+  [Token.HashBracket, "'#['"],
   [Token.Star, "'*'"],
   [Token.ForwardSlash, "'/'"],
   [Token.Plus, "'+'"],
@@ -231,6 +252,9 @@ export const TokenDisplay = getTokenDisplayTable([
   [Token.DecKeyword, "'dec'"],
   [Token.FnKeyword, "'fn'"],
   [Token.ValueOfKeyword, "'valueof'"],
+  [Token.TypeOfKeyword, "'typeof'"],
+  [Token.ConstKeyword, "'const'"],
+  [Token.InitKeyword, "'init'"],
   [Token.ExtendsKeyword, "'extends'"],
   [Token.TrueKeyword, "'true'"],
   [Token.FalseKeyword, "'false'"],
@@ -261,6 +285,9 @@ export const Keywords: ReadonlyMap<string, Token> = new Map([
   ["dec", Token.DecKeyword],
   ["fn", Token.FnKeyword],
   ["valueof", Token.ValueOfKeyword],
+  ["typeof", Token.TypeOfKeyword],
+  ["const", Token.ConstKeyword],
+  ["init", Token.InitKeyword],
   ["true", Token.TrueKeyword],
   ["false", Token.FalseKeyword],
   ["return", Token.ReturnKeyword],
@@ -298,6 +325,31 @@ export interface Scanner {
   /** Advance one token inside DocComment. Use inside {@link scanRange} callback over DocComment range. */
   scanDoc(): DocToken;
 
+  /**
+   * Unconditionally back up and scan a template expression portion.
+   * @param tokenFlags Token Flags for head StringTemplateToken
+   */
+  reScanStringTemplate(tokenFlags: TokenFlags): StringTemplateToken;
+
+  /**
+   * Finds the indent for the given triple quoted string.
+   * @param start
+   * @param end
+   */
+  findTripleQuotedStringIndent(start: number, end: number): [number, number];
+
+  /**
+   * Unindent and unescape the triple quoted string rawText
+   */
+  unindentAndUnescapeTripleQuotedString(
+    start: number,
+    end: number,
+    indentationStart: number,
+    indentationEnd: number,
+    token: Token.StringLiteral | StringTemplateToken,
+    tokenFlags: TokenFlags,
+  ): string;
+
   /** Reset the scanner to the given start and end positions, invoke the callback, and then restore scanner state. */
   scanRange<T>(range: TextRange, callback: () => T): T;
 
@@ -331,7 +383,7 @@ export function isTrivia(token: Token) {
   return token >= Token.__StartTrivia && token < Token.__EndTrivia;
 }
 
-export function isComment(token: Token) {
+export function isComment(token: Token): boolean {
   return token === Token.SingleLineComment || token === Token.MultiLineComment;
 }
 
@@ -353,7 +405,7 @@ export function isStatementKeyword(token: Token) {
 
 export function createScanner(
   source: string | SourceFile,
-  diagnosticHandler: DiagnosticHandler
+  diagnosticHandler: DiagnosticHandler,
 ): Scanner {
   const file = typeof source === "string" ? createSourceFile(source, "<anonymous file>") : source;
   const input = file.text;
@@ -384,6 +436,9 @@ export function createScanner(
     scan,
     scanRange,
     scanDoc,
+    reScanStringTemplate,
+    findTripleQuotedStringIndent,
+    unindentAndUnescapeTripleQuotedString,
     eof,
     getTokenText,
     getTokenValue,
@@ -400,9 +455,14 @@ export function createScanner(
   function getTokenValue() {
     switch (token) {
       case Token.StringLiteral:
-        return getStringTokenValue();
+      case Token.StringTemplateHead:
+      case Token.StringTemplateMiddle:
+      case Token.StringTemplateTail:
+        return getStringTokenValue(token, tokenFlags);
       case Token.Identifier:
         return getIdentifierTokenValue();
+      case Token.DocText:
+        return getDocTextValue();
       default:
         return getTokenText();
     }
@@ -468,7 +528,15 @@ export function createScanner(
           return lookAhead(1) === CharCode.At ? next(Token.AtAt, 2) : next(Token.At);
 
         case CharCode.Hash:
-          return next(Token.Hash);
+          const ahead = lookAhead(1);
+          switch (ahead) {
+            case CharCode.OpenBrace:
+              return next(Token.HashBrace, 2);
+            case CharCode.OpenBracket:
+              return next(Token.HashBracket, 2);
+            default:
+              return next(Token.Hash);
+          }
 
         case CharCode.Plus:
           return isDigit(lookAhead(1)) ? scanSignedNumber() : next(Token.Plus);
@@ -549,8 +617,8 @@ export function createScanner(
 
         case CharCode.DoubleQuote:
           return lookAhead(1) === CharCode.DoubleQuote && lookAhead(2) === CharCode.DoubleQuote
-            ? scanTripleQuotedString()
-            : scanString();
+            ? scanString(TokenFlags.TripleQuoted)
+            : scanString(TokenFlags.None);
 
         case CharCode.Exclamation:
           return lookAhead(1) === CharCode.Equals
@@ -591,6 +659,13 @@ export function createScanner(
         // fallthrough
         case CharCode.LineFeed:
           return next(Token.NewLine);
+
+        case CharCode.Backslash:
+          if (lookAhead(1) === CharCode.At) {
+            tokenFlags |= TokenFlags.Escaped;
+            return next(Token.DocText, 2);
+          }
+          return next(Token.DocText);
 
         case CharCode.Space:
         case CharCode.Tab:
@@ -640,6 +715,12 @@ export function createScanner(
     }
 
     return (token = Token.EndOfFile);
+  }
+
+  function reScanStringTemplate(lastTokenFlags: TokenFlags): StringTemplateToken {
+    position = tokenPosition;
+    tokenFlags = TokenFlags.None;
+    return scanStringTemplateSpan(lastTokenFlags);
   }
 
   function scanRange<T>(range: TextRange, callback: () => T): T {
@@ -707,10 +788,14 @@ export function createScanner(
   function error<
     C extends keyof CompilerDiagnostics,
     M extends keyof CompilerDiagnostics[C] = "default",
-  >(report: Omit<DiagnosticReport<CompilerDiagnostics, C, M>, "target">) {
+  >(
+    report: Omit<DiagnosticReport<CompilerDiagnostics, C, M>, "target">,
+    pos?: number,
+    end?: number,
+  ) {
     const diagnostic = createDiagnostic({
       ...report,
-      target: { file, pos: tokenPosition, end: position },
+      target: { file, pos: pos ?? tokenPosition, end: end ?? position },
     } as any);
     diagnosticHandler(diagnostic);
   }
@@ -820,9 +905,31 @@ export function createScanner(
     return unterminated(Token.DocCodeSpan);
   }
 
-  function scanString(): Token.StringLiteral {
-    position++; // consume '"'
+  function scanString(tokenFlags: TokenFlags): Token.StringLiteral | Token.StringTemplateHead {
+    if (tokenFlags & TokenFlags.TripleQuoted) {
+      position += 3; // consume '"""'
+    } else {
+      position++; // consume '"'
+    }
 
+    return scanStringLiteralLike(tokenFlags, Token.StringTemplateHead, Token.StringLiteral);
+  }
+
+  function scanStringTemplateSpan(
+    tokenFlags: TokenFlags,
+  ): Token.StringTemplateMiddle | Token.StringTemplateTail {
+    position++; // consume '{'
+
+    return scanStringLiteralLike(tokenFlags, Token.StringTemplateMiddle, Token.StringTemplateTail);
+  }
+
+  function scanStringLiteralLike<M extends Token, T extends Token>(
+    requestedTokenFlags: TokenFlags,
+    template: M,
+    tail: T,
+  ): M | T {
+    const multiLine = requestedTokenFlags & TokenFlags.TripleQuoted;
+    tokenFlags = requestedTokenFlags;
     loop: for (; !eof(); position++) {
       const ch = input.charCodeAt(position);
       switch (ch) {
@@ -834,43 +941,87 @@ export function createScanner(
           }
           continue;
         case CharCode.DoubleQuote:
-          position++;
-          return (token = Token.StringLiteral);
+          if (multiLine) {
+            if (lookAhead(1) === CharCode.DoubleQuote && lookAhead(2) === CharCode.DoubleQuote) {
+              position += 3;
+              token = tail;
+              return tail;
+            } else {
+              continue;
+            }
+          } else {
+            position++;
+            token = tail;
+            return tail;
+          }
+        case CharCode.$:
+          if (lookAhead(1) === CharCode.OpenBrace) {
+            position += 2;
+            token = template;
+            return template;
+          }
+          continue;
         case CharCode.CarriageReturn:
         case CharCode.LineFeed:
-          break loop;
+          if (multiLine) {
+            continue;
+          } else {
+            break loop;
+          }
       }
     }
 
-    return unterminated(Token.StringLiteral);
+    return unterminated(tail);
   }
 
-  function scanTripleQuotedString(): Token.StringLiteral {
-    tokenFlags |= TokenFlags.TripleQuoted;
-    position += 3; // consume '"""'
-
-    for (; !eof(); position++) {
-      if (
-        input.charCodeAt(position) === CharCode.DoubleQuote &&
-        lookAhead(1) === CharCode.DoubleQuote &&
-        lookAhead(2) === CharCode.DoubleQuote
-      ) {
-        position += 3;
-        return (token = Token.StringLiteral);
-      }
+  function getStringLiteralOffsetStart(
+    token: Token.StringLiteral | StringTemplateToken,
+    tokenFlags: TokenFlags,
+  ) {
+    switch (token) {
+      case Token.StringLiteral:
+      case Token.StringTemplateHead:
+        return tokenFlags & TokenFlags.TripleQuoted ? 3 : 1; // """ or "
+      default:
+        return 1; // {
     }
-
-    return unterminated(Token.StringLiteral);
   }
 
-  function getStringTokenValue(): string {
-    const quoteLength = tokenFlags & TokenFlags.TripleQuoted ? 3 : 1;
-    const start = tokenPosition + quoteLength;
-    const end = tokenFlags & TokenFlags.Unterminated ? position : position - quoteLength;
+  function getStringLiteralOffsetEnd(
+    token: Token.StringLiteral | StringTemplateToken,
+    tokenFlags: TokenFlags,
+  ) {
+    switch (token) {
+      case Token.StringLiteral:
+      case Token.StringTemplateTail:
+        return tokenFlags & TokenFlags.TripleQuoted ? 3 : 1; // """ or "
+      default:
+        return 2; // ${
+    }
+  }
 
+  function getStringTokenValue(
+    token: Token.StringLiteral | StringTemplateToken,
+    tokenFlags: TokenFlags,
+  ): string {
     if (tokenFlags & TokenFlags.TripleQuoted) {
-      return unindentAndUnescapeTripleQuotedString(start, end);
+      const start = tokenPosition;
+      const end = position;
+      const [indentationStart, indentationEnd] = findTripleQuotedStringIndent(start, end);
+      return unindentAndUnescapeTripleQuotedString(
+        start,
+        end,
+        indentationStart,
+        indentationEnd,
+        token,
+        tokenFlags,
+      );
     }
+
+    const startOffset = getStringLiteralOffsetStart(token, tokenFlags);
+    const endOffset = getStringLiteralOffsetEnd(token, tokenFlags);
+    const start = tokenPosition + startOffset;
+    const end = tokenFlags & TokenFlags.Unterminated ? position : position - endOffset;
 
     if (tokenFlags & TokenFlags.Escaped) {
       return unescapeString(start, end);
@@ -896,22 +1047,46 @@ export function createScanner(
     return text;
   }
 
-  function unindentAndUnescapeTripleQuotedString(start: number, end: number): string {
-    // ignore leading whitespace before required initial line break
-    while (start < end && isWhiteSpaceSingleLine(input.charCodeAt(start))) {
-      start++;
-    }
+  function getDocTextValue(): string {
+    if (tokenFlags & TokenFlags.Escaped) {
+      let start = tokenPosition;
+      const end = position;
 
-    // remove required initial line break
-    if (isLineBreak(input.charCodeAt(start))) {
-      if (isCrlf(start, start, end)) {
-        start++;
+      let result = "";
+      let pos = start;
+
+      while (pos < end) {
+        const ch = input.charCodeAt(pos);
+        if (ch !== CharCode.Backslash) {
+          pos++;
+          continue;
+        }
+
+        if (pos === end - 1) {
+          break;
+        }
+
+        result += input.substring(start, pos);
+        switch (input.charCodeAt(pos + 1)) {
+          case CharCode.At:
+            result += "@";
+            break;
+          default:
+            result += input.substring(pos, pos + 2);
+        }
+        pos += 2;
+        start = pos;
       }
-      start++;
-    } else {
-      error({ code: "no-new-line-start-triple-quote" });
-    }
 
+      result += input.substring(start, end);
+      return result;
+    } else {
+      return input.substring(tokenPosition, position);
+    }
+  }
+
+  function findTripleQuotedStringIndent(start: number, end: number): [number, number] {
+    end = end - 3; // Remove the """
     // remove whitespace before closing delimiter and record it as required
     // indentation for all lines
     const indentationEnd = end;
@@ -922,7 +1097,7 @@ export function createScanner(
 
     // remove required final line break
     if (isLineBreak(input.charCodeAt(end - 1))) {
-      if (isCrlf(end - 2, start, end)) {
+      if (isCrlf(end - 2, 0, end)) {
         end--;
       }
       end--;
@@ -930,13 +1105,70 @@ export function createScanner(
       error({ code: "no-new-line-end-triple-quote" });
     }
 
+    return [indentationStart, indentationEnd];
+  }
+
+  function unindentAndUnescapeTripleQuotedString(
+    start: number,
+    end: number,
+    indentationStart: number,
+    indentationEnd: number,
+    token: Token.StringLiteral | StringTemplateToken,
+    tokenFlags: TokenFlags,
+  ): string {
+    const startOffset = getStringLiteralOffsetStart(token, tokenFlags);
+    const endOffset = getStringLiteralOffsetEnd(token, tokenFlags);
+    start = start + startOffset;
+    end = tokenFlags & TokenFlags.Unterminated ? end : end - endOffset;
+
+    if (token === Token.StringLiteral || token === Token.StringTemplateHead) {
+      // ignore leading whitespace before required initial line break
+      while (start < end && isWhiteSpaceSingleLine(input.charCodeAt(start))) {
+        start++;
+      }
+      // remove required initial line break
+      if (isLineBreak(input.charCodeAt(start))) {
+        if (isCrlf(start, start, end)) {
+          start++;
+        }
+        start++;
+      } else {
+        error({ code: "no-new-line-start-triple-quote" });
+      }
+    }
+
+    if (token === Token.StringLiteral || token === Token.StringTemplateTail) {
+      while (end > start && isWhiteSpaceSingleLine(input.charCodeAt(end - 1))) {
+        end--;
+      }
+
+      // remove required final line break
+      if (isLineBreak(input.charCodeAt(end - 1))) {
+        if (isCrlf(end - 2, start, end)) {
+          end--;
+        }
+        end--;
+      } else {
+        error({ code: "no-new-line-end-triple-quote" });
+      }
+    }
+
+    let skipUnindentOnce = false;
+    // We are resuming from the middle of a line so we want to keep text as it is from there.
+    if (token === Token.StringTemplateMiddle || token === Token.StringTemplateTail) {
+      skipUnindentOnce = true;
+    }
     // remove required matching indentation from each line and unescape in the
     // process of doing so
     let result = "";
     let pos = start;
     while (pos < end) {
-      // skip indentation at start of line
-      start = skipMatchingIndentation(pos, end, indentationStart, indentationEnd);
+      if (skipUnindentOnce) {
+        skipUnindentOnce = false;
+      } else {
+        // skip indentation at start of line
+        start = skipMatchingIndentation(pos, end, indentationStart, indentationEnd);
+      }
       let ch;
 
       while (pos < end && !isLineBreak((ch = input.charCodeAt(pos)))) {
@@ -946,7 +1178,7 @@ export function createScanner(
         }
         result += input.substring(start, pos);
         if (pos === end - 1) {
-          error({ code: "invalid-escape-sequence" });
+          error({ code: "invalid-escape-sequence" }, pos, pos);
           pos++;
         } else {
           result += unescapeOne(pos);
@@ -954,7 +1186,6 @@ export function createScanner(
         }
         start = pos;
       }
-
       if (pos < end) {
         if (isCrlf(pos, start, end)) {
           // CRLF in multi-line string is normalized to LF in string value.
@@ -969,7 +1200,6 @@ export function createScanner(
         start = pos;
       }
     }
-
     result += input.substring(start, pos);
     return result;
   }
@@ -987,7 +1217,7 @@ export function createScanner(
     pos: number,
     end: number,
     indentationStart: number,
-    indentationEnd: number
+    indentationEnd: number,
   ): number {
     let indentationPos = indentationStart;
     end = Math.min(end, pos + (indentationEnd - indentationStart));
@@ -1021,7 +1251,7 @@ export function createScanner(
       }
 
       if (pos === end - 1) {
-        error({ code: "invalid-escape-sequence" });
+        error({ code: "invalid-escape-sequence" }, pos, pos);
         break;
       }
 
@@ -1048,10 +1278,14 @@ export function createScanner(
         return '"';
       case CharCode.Backslash:
         return "\\";
+      case CharCode.$:
+        return "$";
+      case CharCode.At:
+        return "@";
       case CharCode.Backtick:
         return "`";
       default:
-        error({ code: "invalid-escape-sequence" });
+        error({ code: "invalid-escape-sequence" }, pos, pos + 2);
         return String.fromCharCode(ch);
     }
   }
@@ -1189,7 +1423,54 @@ export function createScanner(
   }
 }
 
+/**
+ *
+ * @param script
+ * @param position
+ * @param endPosition exclude
+ * @returns return === endPosition (or -1) means not found non-trivia until endPosition + 1
+ */
+export function skipTriviaBackward(
+  script: TypeSpecScriptNode,
+  position: number,
+  endPosition = -1,
+): number {
+  endPosition = endPosition < -1 ? -1 : endPosition;
+  const input = script.file.text;
+  if (position === input.length) {
+    // it's possible if the pos is at the end of the file, just treat it as trivia
+    position--;
+  } else if (position > input.length) {
+    compilerAssert(false, "position out of range");
+  }
+
+  while (position > endPosition) {
+    const ch = input.charCodeAt(position);
+
+    if (isWhiteSpace(ch)) {
+      position--;
+    } else {
+      const comment = getCommentAtPosition(script, position);
+      if (comment) {
+        position = comment.pos - 1;
+      } else {
+        break;
+      }
+    }
+  }
+
+  return position;
+}
+
+/**
+ *
+ * @param input
+ * @param position
+ * @param endPosition exclude
+ * @returns return === endPosition (or input.length) means not found non-trivia until endPosition - 1
+ */
 export function skipTrivia(input: string, position: number, endPosition = input.length): number {
+  endPosition = endPosition > input.length ? input.length : endPosition;
   while (position < endPosition) {
     const ch = input.charCodeAt(position);
 
@@ -1218,7 +1499,7 @@ export function skipTrivia(input: string, position: number, endPosition = input.
 export function skipWhiteSpace(
   input: string,
   position: number,
-  endPosition = input.length
+  endPosition = input.length,
 ): number {
   while (position < endPosition) {
     const ch = input.charCodeAt(position);
@@ -1235,7 +1516,7 @@ export function skipWhiteSpace(
 function skipSingleLineComment(
   input: string,
   position: number,
-  endPosition = input.length
+  endPosition = input.length,
 ): number {
   position += 2; // consume '//'
 
@@ -1251,7 +1532,7 @@ function skipSingleLineComment(
 function skipMultiLineComment(
   input: string,
   position: number,
-  endPosition = input.length
+  endPosition = input.length,
 ): [position: number, terminated: boolean] {
   position += 2; // consume '/*'
 
@@ -1265,6 +1546,20 @@ function skipMultiLineComment(
   }
 
   return [position, false];
+}
+
+export function skipContinuousIdentifier(input: string, position: number, isBackward = false) {
+  let cur = position;
+  const direction = isBackward ? -1 : 1;
+  const bar = isBackward ? (p: number) => p >= 0 : (p: number) => p < input.length;
+  while (bar(cur)) {
+    const { char: cp, size } = codePointBefore(input, cur);
+    cur += direction * size;
+    if (!cp || !isIdentifierContinue(cp)) {
+      break;
+    }
+  }
+  return cur;
 }
 
 function isConflictMarker(input: string, position: number, endPosition = input.length): boolean {
@@ -1293,11 +1588,11 @@ function getTokenDisplayTable(entries: [Token, string][]): readonly string[] {
   for (const [token, display] of entries) {
     compilerAssert(
       token >= 0 && token < Token.__Count,
-      `Invalid entry in token display table, ${token}, ${Token[token]}, ${display}`
+      `Invalid entry in token display table, ${token}, ${Token[token]}, ${display}`,
     );
     compilerAssert(
       !table[token],
-      `Duplicate entry in token display table for: ${token}, ${Token[token]}, ${display}`
+      `Duplicate entry in token display table for: ${token}, ${Token[token]}, ${display}`,
     );
     table[token] = display;
   }

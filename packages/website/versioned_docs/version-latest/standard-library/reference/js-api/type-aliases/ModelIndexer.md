@@ -9,7 +9,7 @@ type ModelIndexer: object;
 
 ## Type declaration
 
-| Member | Type | Description |
-| :------ | :------ | :------ |
-| `key` | [`Scalar`](../interfaces/Scalar.md) | - |
-| `value` | [`Type`](Type.md) | - |
+| Name | Type |
+| ------ | ------ |
+| `key` | [`Scalar`](../interfaces/Scalar.md) |
+| `value` | [`Type`](Type.md) |

@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Nested sample
-  version: 0000-00-00
+  version: 0.0.0
 tags: []
 paths:
   /:
@@ -21,14 +21,14 @@ paths:
           application/json:
             schema:
               type: object
-              required:
-                - thing
-                - thing2
               properties:
                 thing:
                   $ref: '#/components/schemas/SubA.Thing'
                 thing2:
                   $ref: '#/components/schemas/SubA.Thing'
+              required:
+                - thing
+                - thing2
   /sub/a/subsub:
     post:
       operationId: SubSubA_doSomething

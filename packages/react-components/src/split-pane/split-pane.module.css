@@ -1,0 +1,76 @@
+.split-pane {
+  flex: 1;
+  height: 100%;
+  position: relative;
+  width: 100%;
+}
+
+.split-disabled {
+  user-select: none;
+}
+
+.split-pane-dragging.react-split-vertical {
+  cursor: col-resize;
+}
+
+.split-pane-dragging.react-split-horizontal {
+  cursor: row-resize;
+}
+
+.sash {
+  height: 100%;
+  position: absolute;
+  top: 0;
+  transition: background-color 0.1s;
+  width: 100%;
+  z-index: 2;
+}
+
+.sash-disabled {
+  pointer-events: none;
+}
+
+.sash-vertical {
+  cursor: col-resize;
+}
+
+.sash-horizontal {
+  cursor: row-resize;
+}
+
+.sash-content {
+  width: 100%;
+  height: 100%;
+  background-color: var(--colorNeutralStroke2);
+}
+
+.sash-content-dragging,
+.sash-content:hover {
+  background-color: var(--colorNeutralStroke1Pressed);
+}
+
+.sash-vertical .sash-content {
+  width: 1px;
+  margin-left: 1px;
+}
+
+.sash-horizontal .sash-content {
+  height: 1px;
+  margin-top: 1px;
+}
+
+.sash-vertical .sash-content-dragging {
+  width: 100%;
+}
+
+.sash-horizontal .sash-content-dragging {
+  height: 100%;
+}
+
+.pane {
+  height: 100%;
+  position: absolute;
+  white-space: normal;
+  width: 100%;
+  overflow: hidden;
+}

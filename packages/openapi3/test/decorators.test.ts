@@ -4,6 +4,7 @@ import {
   expectDiagnostics,
 } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { getRef } from "../src/decorators.js";
 import { createOpenAPITestRunner } from "./test-host.js";
 
@@ -35,7 +36,6 @@ describe("openapi3: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' is not assignable to parameter of type 'valueof string'",
       });
     });
 
@@ -59,7 +59,7 @@ describe("openapi3: decorators", () => {
         model Foo {}
       `);
 
-      expectDiagnosticEmpty(diagnostics.filter((d) => d.code !== "@typespec/http/no-routes"));
+      expectDiagnosticEmpty(diagnostics);
 
       strictEqual(getRef(runner.program, Foo), "../common.json#/definitions/Foo");
     });

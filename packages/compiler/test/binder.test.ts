@@ -1,10 +1,11 @@
 import { ok, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { Binder, createBinder } from "../src/core/binder.js";
-import { createSourceFile } from "../src/core/diagnostics.js";
 import { createLogger } from "../src/core/logger/logger.js";
 import { createTracer } from "../src/core/logger/tracer.js";
 import { parse } from "../src/core/parser.js";
-import { Program } from "../src/core/program.js";
+import type { Program } from "../src/core/program.js";
+import { createSourceFile } from "../src/core/source-file.js";
 import {
   AliasStatementNode,
   InterfaceStatementNode,
@@ -52,6 +53,44 @@ describe("compiler: binder", () => {
               },
               D: {
                 flags: SymbolFlags.Model,
+              },
+            },
+          },
+        },
+      },
+    });
+  });
+
+  it("namespace inside blockless namespace with the same name", () => {
+    const code = `
+      namespace A.B;
+      namespace A.B {
+        model D { }
+      }
+    `;
+    const script = bindTypeSpec(code);
+    strictEqual(script.namespaces.length, 4);
+    assertBindings("root", script.symbol.exports!, {
+      A: {
+        declarations: [SyntaxKind.NamespaceStatement],
+        flags: SymbolFlags.Namespace,
+        exports: {
+          B: {
+            flags: SymbolFlags.Namespace,
+            exports: {
+              A: {
+                declarations: [SyntaxKind.NamespaceStatement],
+                flags: SymbolFlags.Namespace,
+                exports: {
+                  B: {
+                    flags: SymbolFlags.Namespace,
+                    exports: {
+                      D: {
+                        flags: SymbolFlags.Model,
+                      },
+                    },
+                  },
+                },
               },
             },
           },
@@ -419,6 +458,39 @@ describe("compiler: binder", () => {
     });
   });
 
+  it("binds $decorators in JS file", () => {
+    const exports = {
+      $decorators: {
+        "Foo.Bar": { myDec2: () => {} },
+        Foo: { myDec: () => {} },
+      },
+    };
+
+    const sourceFile = bindJs(exports);
+    assertBindings("jsFile", sourceFile.symbol.exports!, {
+      Foo: {
+        flags: SymbolFlags.Namespace,
+        declarations: [SyntaxKind.JsNamespaceDeclaration],
+        exports: {
+          Bar: {
+            flags: SymbolFlags.Namespace,
+            declarations: [SyntaxKind.JsNamespaceDeclaration],
+            exports: {
+              "@myDec2": {
+                flags: SymbolFlags.Decorator | SymbolFlags.Implementation,
+                declarations: [SyntaxKind.JsSourceFile],
+              },
+            },
+          },
+          "@myDec": {
+            flags: SymbolFlags.Decorator | SymbolFlags.Implementation,
+            declarations: [SyntaxKind.JsSourceFile],
+          },
+        },
+      },
+    });
+  });
+
   function bindTypeSpec(code: string) {
     const sourceFile = parse(code);
     expectDiagnosticEmpty(sourceFile.parseDiagnostics);
@@ -461,7 +533,7 @@ function assertBindings(path: string, table: SymbolTable, descriptor: BindTest, 
       for (const exportBindingName of binding.exports.keys()) {
         if (expectedBindingNames.indexOf(exportBindingName) === -1) {
           throw new Error(
-            `Unexpected binding '${exportBindingName}' at ${subpath}, expected bindings are ${expectedBindingNames}`
+            `Unexpected binding '${exportBindingName}' at ${subpath}, expected bindings are ${expectedBindingNames}`,
           );
         }
       }
@@ -475,7 +547,7 @@ function assertBindings(path: string, table: SymbolTable, descriptor: BindTest, 
       strictEqual(
         binding.declarations.length,
         value.declarations.length,
-        `declaration count for ${subpath}`
+        `declaration count for ${subpath}`,
       );
       for (const [i, kind] of value.declarations.entries()) {
         strictEqual(binding.declarations[i].kind, kind, `declaration ${i} of ${subpath}`);

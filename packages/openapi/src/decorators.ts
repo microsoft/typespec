@@ -1,5 +1,12 @@
 import {
+  compilerAssert,
   DecoratorContext,
+  Diagnostic,
+  DiagnosticTarget,
+  getDoc,
+  getProperty,
+  getService,
+  getSummary,
   Model,
   Namespace,
   Operation,
@@ -9,10 +16,15 @@ import {
   TypeSpecValue,
 } from "@typespec/compiler";
 import { setStatusCode } from "@typespec/http";
-import { createStateSymbol, reportDiagnostic } from "./lib.js";
-import { AdditionalInfo, ExtensionKey } from "./types.js";
-
-export const namespace = "TypeSpec.OpenAPI";
+import {
+  DefaultResponseDecorator,
+  ExtensionDecorator,
+  ExternalDocsDecorator,
+  InfoDecorator,
+  OperationIdDecorator,
+} from "../generated-defs/TypeSpec.OpenAPI.js";
+import { createDiagnostic, createStateSymbol, reportDiagnostic } from "./lib.js";
+import { AdditionalInfo, ExtensionKey, ExternalDocs } from "./types.js";
 
 const operationIdsKey = createStateSymbol("operationIds");
 /**
@@ -21,12 +33,16 @@ const operationIdsKey = createStateSymbol("operationIds");
  * @param entity Decorator target
  * @param opId Operation ID.
  */
-export function $operationId(context: DecoratorContext, entity: Operation, opId: string) {
+export const $operationId: OperationIdDecorator = (
+  context: DecoratorContext,
+  entity: Operation,
+  opId: string,
+) => {
   context.program.stateMap(operationIdsKey).set(entity, opId);
-}
+};
 
 /**
- * @returns operationId set via the @operationId decorator or `undefined`
+ * Returns operationId set via the `@operationId` decorator or `undefined`
  */
 export function getOperationId(program: Program, entity: Operation): string | undefined {
   return program.stateMap(operationIdsKey).get(entity);
@@ -34,12 +50,13 @@ export function getOperationId(program: Program, entity: Operation): string | un
 
 const openApiExtensionKey = createStateSymbol("openApiExtension");
 
-export function $extension(
+/** {@inheritdoc ExtensionDecorator} */
+export const $extension: ExtensionDecorator = (
   context: DecoratorContext,
   entity: Type,
   extensionName: string,
-  value: TypeSpecValue
-) {
+  value: TypeSpecValue,
+) => {
   if (!isOpenAPIExtensionKey(extensionName)) {
     reportDiagnostic(context.program, {
       code: "invalid-extension-key",
@@ -53,21 +70,46 @@ export function $extension(
     context.program.reportDiagnostics(diagnostics);
   }
   setExtension(context.program, entity, extensionName as ExtensionKey, data);
+};
+
+/**
+ * Set the OpenAPI info node on for the given service namespace.
+ * @param program Program
+ * @param entity Service namespace
+ * @param data OpenAPI Info object
+ */
+export function setInfo(
+  program: Program,
+  entity: Namespace,
+  data: AdditionalInfo & Record<ExtensionKey, unknown>,
+) {
+  program.stateMap(infoKey).set(entity, data);
 }
 
+/**
+ *  Set OpenAPI extension on the given type. Equivalent of using `@extension` decorator
+ * @param program Program
+ * @param entity Type to annotate
+ * @param extensionName Extension key
+ * @param data Extension value
+ */
 export function setExtension(
   program: Program,
   entity: Type,
   extensionName: ExtensionKey,
-  data: unknown
+  data: unknown,
 ) {
   const openApiExtensions = program.stateMap(openApiExtensionKey);
   const typeExtensions = openApiExtensions.get(entity) ?? new Map<string, any>();
   typeExtensions.set(extensionName, data);
-
   openApiExtensions.set(entity, typeExtensions);
 }
 
+/**
+ * Get extensions set for the given type.
+ * @param program Program
+ * @param entity Type
+ */
 export function getExtensions(program: Program, entity: Type): ReadonlyMap<ExtensionKey, any> {
   return program.stateMap(openApiExtensionKey).get(entity) ?? new Map<ExtensionKey, any>();
 }
@@ -82,11 +124,15 @@ function isOpenAPIExtensionKey(key: string): key is ExtensionKey {
  *
  */
 const defaultResponseKey = createStateSymbol("defaultResponse");
-export function $defaultResponse(context: DecoratorContext, entity: Model) {
-  // eslint-disable-next-line deprecation/deprecation
+/** {@inheritdoc DefaultResponseDecorator} */
+export const $defaultResponse: DefaultResponseDecorator = (
+  context: DecoratorContext,
+  entity: Model,
+) => {
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
   setStatusCode(context.program, entity, ["*"]);
   context.program.stateSet(defaultResponseKey).add(entity);
-}
+};
 
 /**
  * Check if the given model has been mark as a default response.
@@ -98,41 +144,145 @@ export function isDefaultResponse(program: Program, entity: Type): boolean {
   return program.stateSet(defaultResponseKey).has(entity);
 }
 
-export interface ExternalDocs {
-  url: string;
-  description?: string;
-}
 const externalDocsKey = createStateSymbol("externalDocs");
 
 /**
  * Allows referencing an external resource for extended documentation.
  * @param url The URL for the target documentation. Value MUST be in the format of a URL.
- * @param @optional description A short description of the target documentation.
+ * @param description A short description of the target documentation.
  */
-export function $externalDocs(
+export const $externalDocs: ExternalDocsDecorator = (
   context: DecoratorContext,
   target: Type,
   url: string,
-  description?: string
-) {
+  description?: string,
+) => {
   const doc: ExternalDocs = { url };
   if (description) {
     doc.description = description;
   }
   context.program.stateMap(externalDocsKey).set(target, doc);
-}
+};
 
+/**
+ * Return external doc info set via the `@externalDocs` decorator.
+ * @param program Program
+ * @param entity Type
+ */
 export function getExternalDocs(program: Program, entity: Type): ExternalDocs | undefined {
   return program.stateMap(externalDocsKey).get(entity);
 }
 
 const infoKey = createStateSymbol("info");
-export function $info(context: DecoratorContext, entity: Namespace, model: Model) {
-  const [data, diagnostics] = typespecTypeToJson(model, context.getArgumentTarget(0)!);
-  context.program.reportDiagnostics(diagnostics);
-  context.program.stateMap(infoKey).set(entity, data);
-}
 
+/** {@inheritdoc InfoDecorator} */
+export const $info: InfoDecorator = (
+  context: DecoratorContext,
+  entity: Namespace,
+  model: TypeSpecValue,
+) => {
+  const [data, diagnostics] = typespecTypeToJson<AdditionalInfo & Record<ExtensionKey, unknown>>(
+    model,
+    context.getArgumentTarget(0)!,
+  );
+  context.program.reportDiagnostics(diagnostics);
+  if (data === undefined) {
+    return;
+  }
+  validateAdditionalInfoModel(context, model);
+  if (data.termsOfService) {
+    if (!validateIsUri(context, data.termsOfService, "TermsOfService")) {
+      return;
+    }
+  }
+  setInfo(context.program, entity, data);
+};
+
+/**
+ * Get the info entry for the given service namespace.
+ * @param program Program
+ * @param entity Service namespace
+ */
 export function getInfo(program: Program, entity: Namespace): AdditionalInfo | undefined {
   return program.stateMap(infoKey).get(entity);
+}
+
+/** Resolve the info entry by merging data specified with `@service`, `@summary` and `@info`. */
+export function resolveInfo(program: Program, entity: Namespace): AdditionalInfo | undefined {
+  const info = getInfo(program, entity);
+  const service = getService(program, entity);
+  return omitUndefined({
+    ...info,
+    title: info?.title ?? service?.title,
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
+    version: info?.version ?? service?.version,
+    summary: info?.summary ?? getSummary(program, entity),
+    description: info?.description ?? getDoc(program, entity),
+  });
+}
+
+function omitUndefined<T extends Record<string, unknown>>(data: T): T {
+  return Object.fromEntries(Object.entries(data).filter(([k, v]) => v !== undefined)) as any;
+}
+
+function validateIsUri(context: DecoratorContext, url: string, propertyName: string) {
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    reportDiagnostic(context.program, {
+      code: "not-url",
+      target: context.getArgumentTarget(0)!,
+      format: { property: propertyName, value: url },
+    });
+    return false;
+  }
+}
+
+function validateAdditionalInfoModel(context: DecoratorContext, typespecType: TypeSpecValue) {
+  const propertyModel = context.program.resolveTypeReference(
+    "TypeSpec.OpenAPI.AdditionalInfo",
+  )[0]! as Model;
+
+  if (typeof typespecType === "object" && propertyModel) {
+    const diagnostics = checkNoAdditionalProperties(
+      typespecType,
+      context.getArgumentTarget(0)!,
+      propertyModel,
+    );
+    context.program.reportDiagnostics(diagnostics);
+  }
+}
+
+function checkNoAdditionalProperties(
+  typespecType: Type,
+  target: DiagnosticTarget,
+  source: Model,
+): Diagnostic[] {
+  const diagnostics: Diagnostic[] = [];
+  compilerAssert(typespecType.kind === "Model", "Expected type to be a Model.");
+
+  for (const [name, type] of typespecType.properties.entries()) {
+    const sourceProperty = getProperty(source, name);
+    if (sourceProperty) {
+      if (sourceProperty.type.kind === "Model") {
+        const nestedDiagnostics = checkNoAdditionalProperties(
+          type.type,
+          target,
+          sourceProperty.type,
+        );
+        diagnostics.push(...nestedDiagnostics);
+      }
+    } else if (!isOpenAPIExtensionKey(name)) {
+      diagnostics.push(
+        createDiagnostic({
+          code: "invalid-extension-key",
+          format: { value: name },
+          target,
+        }),
+      );
+    }
+  }
+
+  return diagnostics;
 }

@@ -1,4 +1,5 @@
 import { LinterRuleTester, createLinterRuleTester } from "@typespec/compiler/testing";
+import { beforeEach, describe, it } from "vitest";
 import { opReferenceContainerRouteRule } from "../../src/rules/op-reference-container-route.js";
 import { createHttpTestRunner } from "../test-host.js";
 
@@ -38,7 +39,7 @@ describe("operation reference route container rule", () => {
           @route("/get3") op get3 is Bar.IBar.get;
           @route("/get4") op get4 is get3; // Follow reference chain to find parent container
         }
-      `
+      `,
       )
       .toEmitDiagnostics([
         {
@@ -81,7 +82,7 @@ describe("operation reference route container rule", () => {
         namespace Foo {
           @route("/get2") op get2 is Foo.get;
         }
-      `
+      `,
       )
       .toEmitDiagnostics([
         {

@@ -1,0 +1,37 @@
+parameters:
+  path: ""
+  pattern: "**/*.vsix"
+
+steps:
+  - task: EsrpCodeSigning@5
+    displayName: Sign VSIX
+    inputs:
+      ConnectedServiceName: "Azure SDK Engineering System"
+      AppRegistrationClientId: "5e796b8d-3c4d-4e28-93f6-12a44f4368a0"
+      AppRegistrationTenantId: "72f988bf-86f1-41af-91ab-2d7cd011db47"
+      AuthAKVName: "AzureSDKEngKeyVault"
+      AuthCertName: "azure-sdk-esrp-signing-auth-certificate"
+      AuthSignCertName: "azure-sdk-esrp-signing-certificate"
+      FolderPath: ${{ parameters.path }}
+      Pattern: ${{ parameters.pattern }}
+      UseMinimatch: true
+      signConfigType: inlineSignParams
+      inlineOperation: |
+        [
+            {
+                "KeyCode" : "CP-233016",
+                "OperationCode" : "OpcSign",
+                "Parameters" : {
+                    "FileDigest" : "/fd SHA256"
+                },
+                "ToolName" : "sign",
+                "ToolVersion" : "1.0"
+            },
+            {
+                "KeyCode" : "CP-233016",
+                "OperationCode" : "OpcVerify",
+                "Parameters" : {},
+                "ToolName" : "sign",
+                "ToolVersion" : "1.0"
+            }
+        ]

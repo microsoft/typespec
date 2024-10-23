@@ -1,1 +1,1 @@
-/test/main.tsp:5:10 - error invalid-argument: Argument '(anonymous model)' is not assignable to parameter of type 'TypeSpec.Protobuf.PackageDetails'
+/test/main.tsp:5:10 - error invalid-argument: Argument of type '{ name: "com.azure.Test", options: { java_package: {} } }' is not assignable to parameter of type 'TypeSpec.Protobuf.PackageDetails'

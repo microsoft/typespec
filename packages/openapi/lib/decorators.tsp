@@ -63,6 +63,15 @@ extern dec externalDocs(target: unknown, url: valueof string, description?: valu
 
 /** Additional information for the OpenAPI document. */
 model AdditionalInfo {
+  /** The title of the API. Overrides the `@service` title. */
+  title?: string;
+
+  /** A short summary of the API. Overrides the `@summary` provided on the service namespace. */
+  summary?: string;
+
+  /** The version of the OpenAPI document (which is distinct from the OpenAPI Specification version or the API implementation version). */
+  version?: string;
+
   /** A URL to the Terms of Service for the API. MUST be in the format of a URL. */
   termsOfService?: url;
 

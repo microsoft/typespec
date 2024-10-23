@@ -22,23 +22,13 @@
     },
     {
       "type": "node",
-      "request": "attach",
-      "name": "Tests",
-      "port": 9229,
-      "smartStep": true,
-      "sourceMaps": true,
-      "continueOnAttach": true,
-      "skipFiles": [
-        "<node_internals>/**/*.js",
-        "**/.vscode/extensions/hbenl.vscode-mocha-test-adapter-*/**.js"
-      ],
-      "outFiles": [
-        "${workspaceFolder}/packages/*/dist/**/*.js",
-        "${workspaceFolder}/packages/*/dist-dev/**/*.js"
-      ],
-      "presentation": {
-        "hidden": true
-      }
+      "request": "launch",
+      "name": "Debug Current Test File",
+      "autoAttachChildProcesses": true,
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "program": "${workspaceRoot}/packages/compiler/node_modules/vitest/vitest.mjs",
+      "args": ["run", "${relativeFile}"],
+      "smartStep": true
     },
     {
       "name": "Attach to Language Server",
@@ -118,6 +108,7 @@
       "type": "extensionHost",
       "request": "launch",
       "args": ["--extensionDevelopmentPath=${workspaceFolder}/packages/typespec-vscode"],
+      "outFiles": ["${workspaceFolder}/packages/typespec-vscode/dist/**/*.cjs"],
       "env": {
         // Log elapsed time for each call to server.
         //"TYPESPEC_SERVER_LOG_TIMING": "true",
@@ -153,6 +144,17 @@
       "smartStep": true,
       "sourceMaps": true,
       "skipFiles": ["<node_internals>/**/*.js"]
+    },
+    {
+      "name": "Run Web Extension in VS Code",
+      "type": "extensionHost",
+      "debugWebWorkerHost": true,
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}/packages/typespec-vscode",
+        "--extensionDevelopmentKind=web"
+      ],
+      "outFiles": ["${workspaceFolder}/dist/src/web/**/*.js"]
     }
   ],
   "compounds": [

@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Nullable sample
-  version: 0000-00-00
+  version: 0.0.0
 tags: []
 paths:
   /test:
@@ -14,6 +14,7 @@ paths:
           schema:
             type: string
             nullable: true
+          explode: false
       responses:
         '200':
           description: The request has succeeded.

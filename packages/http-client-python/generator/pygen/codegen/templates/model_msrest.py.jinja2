@@ -1,0 +1,92 @@
+{# actual template starts here #}
+{% import "macros.jinja2" as macros %}
+{% set initialize_properties = serializer.initialize_properties(model) %}
+{% set exist_constant = (model.properties | selectattr('constant') | first) is defined %}
+
+{{ serializer.declare_model(model) }}
+    """{{ op_tools.wrap_string(model.description(is_operation_file=False), "\n    ") }}
+    {% if model.discriminated_subtypes %}
+
+    {{ serializer.discriminator_docstring(model) | wordwrap(width=95, break_long_words=False, break_on_hyphens=False, wrapstring='\n    ') }}
+    {% endif %}
+    {% if model.has_readonly_or_constant_property %}
+
+    Variables are only populated by the server, and will be ignored when sending a request.
+    {% endif %}
+    {% if (model.properties | selectattr('optional', "equalto", false) | first) is defined %}
+
+    All required parameters must be populated in order to send to server.
+    {% endif %}
+
+    {% if model.properties != None %}
+        {% for p in model.properties %}
+            {% for line in serializer.variable_documentation_string(p) %}
+                {% for doc_string in line.replace('\n', '\n ').split('\n') %}
+    {{ macros.wrap_model_string(doc_string, '\n     ') -}}
+                {% endfor %}
+            {% endfor %}
+        {% endfor %}
+    {% endif %}
+    """
+{% if initialize_properties or exist_constant %}
+    {% if (model.properties | selectattr('validation') ) | first %}
+
+    _validation = {
+        {% for p in model.properties | selectattr('validation')%}
+        '{{ p.client_name }}': {{ str(p.validation) }},
+        {% endfor %}
+    }
+    {% endif %}
+
+    _attribute_map = {
+        {% if model.properties %}
+            {% for p in model.properties %}
+        {{ serializer.declare_property(p) }}
+            {% endfor %}
+        {% endif %}
+    }
+    {% if model.discriminated_subtypes %}
+
+    _subtype_map = {
+        '{{ model.discriminator.client_name }}': {{ str(model.discriminated_subtypes_name_mapping) }}
+    }
+    {% endif %}
+    {% if model.xml_map_content %}
+    _xml_map = {
+        {{ model.xml_map_content }}
+    }
+    {% endif %}
+    {% if exist_constant %}
+
+        {% for p in model.properties | selectattr('constant')%}
+    {{ p.client_name }} = {{ p.type.get_declaration() }}
+        {% endfor %}
+    {% endif %}
+
+    def __init__({{ model.init_pylint_disable }}
+        self,
+        {% for param_signature in serializer.init_line(model) %}
+        {{ param_signature }}
+        {% endfor %}
+        **kwargs: Any
+    ) -> None:
+        """
+    {% if model.properties %}
+        {% for p in model.properties %}
+            {% if p.is_input %}
+                {% for line in serializer.input_documentation_string(p) %}
+                    {% for doc_string in line.replace('\n', '\n ').split('\n') %}
+        {{ macros.wrap_model_string(doc_string, '\n         ') -}}
+                    {% endfor %}
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+        """
+    {% for line in serializer.super_call(model) %}
+        {{ line }}
+    {% endfor %}
+    {% for initialize_property in initialize_properties %}
+        {{ initialize_property }}
+    {% endfor %}
+{% endif %}

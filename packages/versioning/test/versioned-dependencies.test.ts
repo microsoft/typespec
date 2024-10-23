@@ -1,12 +1,14 @@
-import { Model, Namespace, Operation, Program, projectProgram } from "@typespec/compiler";
+import type { Model, Namespace, Operation, Program } from "@typespec/compiler";
+import { projectProgram } from "@typespec/compiler";
 import {
-  BasicTestRunner,
   createTestWrapper,
   expectDiagnosticEmpty,
   expectDiagnostics,
+  type BasicTestRunner,
 } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
-import { buildVersionProjections } from "../src/versioning.js";
+import { beforeEach, describe, it } from "vitest";
+import { buildVersionProjections } from "../src/projection.js";
 import { createVersioningTestHost, createVersioningTestRunner } from "./test-host.js";
 import { assertHasProperties } from "./utils.js";
 
@@ -105,8 +107,6 @@ describe("versioning: reference versioned library", () => {
     `);
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message:
-          "Argument '[[VersionedLib.Versions.l1, VersionedLib.Versions.l1]]' is not assignable to parameter of type 'EnumMember'",
       });
     });
   });
@@ -207,6 +207,48 @@ describe("versioning: reference versioned library", () => {
         message:
           "The provided version 'v2' from 'TestServiceVersions' is not declared as a version enum. Use '@versioned(TestServiceVersions)' on the containing namespace.",
       });
+    });
+
+    it("doesn't emit diagnostic when library template with model expression instantiated with user model", async () => {
+      const diagnostics = await runner.diagnose(`
+        namespace Library {
+        model Template<T> {
+            a: {
+              b: T;
+            };
+          }
+        }
+
+        @versioned(Versions)
+        namespace Api {
+          enum Versions { v1 }
+
+          model Model {}
+
+          model Issue is Library.Template<Model>;
+        }
+    `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("doesn't emit diagnostic when library template with union expression instantiated with user model", async () => {
+      const diagnostics = await runner.diagnose(`
+        namespace Library {
+        model Template<T> {
+            a: string | T;
+          }
+        }
+
+        @versioned(Versions)
+        namespace Api {
+          enum Versions { v1 }
+
+          model Model {}
+
+          model Issue is Library.Template<Model>;
+        }
+    `);
+      expectDiagnosticEmpty(diagnostics);
     });
   });
 
@@ -372,6 +414,23 @@ describe("versioning: reference versioned library", () => {
       expectDiagnosticEmpty(diagnostics);
     });
 
+    it("doesn't emit diagnostic when referencing different sub namespace", async () => {
+      const diagnostics = await runner.diagnose(`
+        @versioned(Versions)
+        namespace DemoService {
+          enum Versions {v1, v2}
+          
+          namespace A {
+            model Foo {}
+          }
+          namespace B {
+            op use(): A.Foo;
+          }
+        }
+    `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
     it("doesn't emit diagnostic when referencing to versioned library from subnamespace with parent namespace with versioned dependency", async () => {
       const diagnostics = await runner.diagnose(`
         @versioned(Versions)
@@ -384,6 +443,24 @@ describe("versioning: reference versioned library", () => {
         namespace MyService {
           namespace SubNamespace {
             op use(): Lib.Foo;
+          }
+        }
+    `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    // LEGACY test due to arm depending on it. Should remove when we relax using-versioned-library rule
+    it("doesn't emit diagnostic when parent namespace reference sub namespace that is versioned differently", async () => {
+      const diagnostics = await runner.diagnose(`
+        @versioned(Versions)
+        namespace MyService {
+          enum Versions {m1}
+          model Foo is SubNamespace.Bar;
+          
+          @versioned(SubNamespace.Versions)
+          namespace SubNamespace {
+            enum Versions { s1 }
+            model Bar {}
           }
         }
     `);
@@ -472,6 +549,32 @@ describe("versioning: dependencies", () => {
 
   beforeEach(async () => {
     runner = await createVersioningTestRunner();
+  });
+
+  it("cross namespace operation", async () => {
+    const diagnostics = await runner.diagnose(`
+      @versioned(Versions)
+      namespace Service {
+        enum Versions {
+          v1,
+          v2,
+        }
+
+        @added(Versions.v2)
+        op test(purpose: FilePurpose): void;
+
+        @added(Versions.v2)
+        model FilePurpose {
+          a: string;
+        }
+      }
+
+      @useDependency(Service.Versions.v2)
+      namespace Client {
+        op testClient is Service.test;
+      }
+    `);
+    expectDiagnosticEmpty(diagnostics);
   });
 
   it("use model defined in non versioned library spreading properties", async () => {
@@ -784,6 +887,32 @@ describe("versioning: dependencies", () => {
           }
         }
       `)) as { MyService: Namespace };
+
+    const [v1] = runProjections(runner.program, MyService);
+    ok(v1.projectedTypes.get(MyService));
+  });
+
+  // Regression test for https://github.com/microsoft/typespec/issues/3263
+  it("service is a nested namespace inside a versioned namespace", async () => {
+    const { MyService } = (await runner.compile(`
+      @versioned(Versions)
+      namespace My.Service {
+        enum Versions {
+          @useDependency(Lib.Versions.v1) v1
+        }
+      
+        @service
+        @test("MyService")
+        namespace Sub {
+          model Foo is Lib.Bar;
+        }
+      }
+      @versioned(Versions)
+      namespace Lib {
+        enum Versions { v1 }
+        model Bar {}
+      }
+    `)) as { MyService: Namespace };
 
     const [v1] = runProjections(runner.program, MyService);
     ok(v1.projectedTypes.get(MyService));

@@ -8,6 +8,7 @@ type Node:
   | TypeSpecScriptNode
   | JsSourceFileNode
   | JsNamespaceDeclarationNode
+  | TemplateArgumentNode
   | TemplateParameterDeclarationNode
   | ProjectionParameterDeclarationNode
   | ProjectionLambdaParameterDeclarationNode
@@ -24,6 +25,10 @@ type Node:
   | Statement
   | Expression
   | FunctionParameterNode
+  | StringTemplateSpanNode
+  | StringTemplateHeadNode
+  | StringTemplateMiddleNode
+  | StringTemplateTailNode
   | Modifier
   | DocNode
   | DocContent
@@ -32,6 +37,7 @@ type Node:
   | ProjectionExpression
   | ProjectionModelSelectorNode
   | ProjectionModelPropertySelectorNode
+  | ProjectionScalarSelectorNode
   | ProjectionInterfaceSelectorNode
   | ProjectionOperationSelectorNode
   | ProjectionEnumSelectorNode
@@ -41,5 +47,10 @@ type Node:
   | ProjectionModelPropertyNode
   | ProjectionModelSpreadPropertyNode
   | ProjectionStatementNode
-  | ProjectionNode;
+  | ProjectionNode
+  | ObjectLiteralNode
+  | ObjectLiteralPropertyNode
+  | ObjectLiteralSpreadPropertyNode
+  | ScalarConstructorNode
+  | ArrayLiteralNode;
 ```

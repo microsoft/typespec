@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Polymorphism sample
-  version: 0000-00-00
+  version: 0.0.0
 tags: []
 paths:
   /Pets:
@@ -22,8 +22,6 @@ components:
       required:
         - kind
         - meow
-      allOf:
-        - $ref: '#/components/schemas/Pet'
       properties:
         kind:
           type: string
@@ -32,13 +30,13 @@ components:
         meow:
           type: integer
           format: int32
+      allOf:
+        - $ref: '#/components/schemas/Pet'
     Dog:
       type: object
       required:
         - kind
         - bark
-      allOf:
-        - $ref: '#/components/schemas/Pet'
       properties:
         kind:
           type: string
@@ -46,21 +44,24 @@ components:
             - dog
         bark:
           type: string
+      allOf:
+        - $ref: '#/components/schemas/Pet'
     Pet:
       type: object
-      discriminator:
-        propertyName: kind
-        mapping:
-          cat: '#/components/schemas/Cat'
-          dog: '#/components/schemas/Dog'
       required:
         - name
+        - kind
       properties:
-        kind:
-          type: string
-          description: Discriminator property for Pet.
         name:
           type: string
         weight:
           type: number
           format: float
+        kind:
+          type: string
+          description: Discriminator property for Pet.
+      discriminator:
+        propertyName: kind
+        mapping:
+          cat: '#/components/schemas/Cat'
+          dog: '#/components/schemas/Dog'

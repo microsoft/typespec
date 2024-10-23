@@ -1,0 +1,21 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com._specs_.azure.core.model.ModelAsyncClient": "null",
+    "com._specs_.azure.core.model.ModelAsyncClient.get": "_Specs_.Azure.Core.Model.AzureCoreEmbeddingVector.get",
+    "com._specs_.azure.core.model.ModelAsyncClient.getWithResponse": "_Specs_.Azure.Core.Model.AzureCoreEmbeddingVector.get",
+    "com._specs_.azure.core.model.ModelAsyncClient.post": "_Specs_.Azure.Core.Model.AzureCoreEmbeddingVector.post",
+    "com._specs_.azure.core.model.ModelAsyncClient.postWithResponse": "_Specs_.Azure.Core.Model.AzureCoreEmbeddingVector.post",
+    "com._specs_.azure.core.model.ModelAsyncClient.put": "_Specs_.Azure.Core.Model.AzureCoreEmbeddingVector.put",
+    "com._specs_.azure.core.model.ModelAsyncClient.putWithResponse": "_Specs_.Azure.Core.Model.AzureCoreEmbeddingVector.put",
+    "com._specs_.azure.core.model.ModelClient": "null",
+    "com._specs_.azure.core.model.ModelClient.get": "_Specs_.Azure.Core.Model.AzureCoreEmbeddingVector.get",
+    "com._specs_.azure.core.model.ModelClient.getWithResponse": "_Specs_.Azure.Core.Model.AzureCoreEmbeddingVector.get",
+    "com._specs_.azure.core.model.ModelClient.post": "_Specs_.Azure.Core.Model.AzureCoreEmbeddingVector.post",
+    "com._specs_.azure.core.model.ModelClient.postWithResponse": "_Specs_.Azure.Core.Model.AzureCoreEmbeddingVector.post",
+    "com._specs_.azure.core.model.ModelClient.put": "_Specs_.Azure.Core.Model.AzureCoreEmbeddingVector.put",
+    "com._specs_.azure.core.model.ModelClient.putWithResponse": "_Specs_.Azure.Core.Model.AzureCoreEmbeddingVector.put",
+    "com._specs_.azure.core.model.ModelClientBuilder": "_Specs_.Azure.Core.Model",
+    "com._specs_.azure.core.model.models.AzureEmbeddingModel": "_Specs_.Azure.Core.Model.AzureEmbeddingModel"
+  }
+}

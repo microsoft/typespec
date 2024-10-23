@@ -31,7 +31,6 @@ const config = definePlaygroundViteConfig({
     },
   },
   links: {
-    githubIssueUrl: `<link to your website>`,
     documentationUrl: "<link to your website>",
   },
 });
@@ -42,10 +41,15 @@ export default config;
 In `src/main.tsx`:
 
 ```tsx
+import { registerMonacoDefaultWorkersForVite } from "@typespec/playground";
 import PlaygroundManifest from "@typespec/playground/manifest";
 import { renderReactPlayground } from "@typespec/playground/react";
 import { SwaggerUIViewer } from "@typespec/playground/react/viewers";
-import "./style.css";
+
+// Import styles
+import "@typespec/playground/styles.css";
+
+registerMonacoDefaultWorkersForVite();
 
 await renderReactPlayground({
   ...PlaygroundManifest,
@@ -57,8 +61,8 @@ await renderReactPlayground({
 
 ### Individual components
 
-Playground react components can be used individually. The things to watch out for is for the TypeSpec compiler to be working correctly it needs:
+Playground react components can be used individually. For the TypeSpec compiler to be working correctly, the following conditions need to be met:
 
-- The libraries to be loaded and registered
+- The libraries **MUST** be loaded and registered
 - The libraries **MUST** be importable by their name this means an import map must be setup. https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script/type/importmap
 - The libraries **MUST** have been bundled using `@typespec/bundler`

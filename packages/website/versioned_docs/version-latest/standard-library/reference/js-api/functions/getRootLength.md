@@ -4,7 +4,7 @@ title: "[F] getRootLength"
 
 ---
 ```ts
-getRootLength(path): number
+function getRootLength(path): number
 ```
 
 Returns length of the root part of a path or URL (i.e. length of "/", "x:/", "//server/share/, file:///user/files").
@@ -34,5 +34,9 @@ getRootLength("http://server/path") === 14 // "http://server/"
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `path` | `string` |
+
+## Returns
+
+`number`

@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>Microsoft.Generator.CSharp.Input</PackageId>
+    <Version>1.0.0-beta.1</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Memory.Data" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)..\..\Microsoft.Generator.CSharp\src\Shared\StringExtensions.cs" LinkBase="Shared" />
+  </ItemGroup>
+
+</Project>

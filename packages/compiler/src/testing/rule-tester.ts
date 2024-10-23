@@ -1,4 +1,7 @@
+import { ok, strictEqual } from "assert";
+import { applyCodeFix as applyCodeFixReal } from "../core/code-fixes.js";
 import {
+  CompilerHost,
   Diagnostic,
   DiagnosticMessages,
   LinterRuleDefinition,
@@ -7,6 +10,7 @@ import {
 } from "../core/index.js";
 import { createLinterRuleContext } from "../core/linter.js";
 import { DiagnosticMatch, expectDiagnosticEmpty, expectDiagnostics } from "./expect.js";
+import { resolveVirtualPath, trimBlankLines } from "./test-utils.js";
 import { BasicTestRunner } from "./types.js";
 
 export interface LinterRuleTester {
@@ -16,12 +20,17 @@ export interface LinterRuleTester {
 export interface LinterRuleTestExpect {
   toBeValid(): Promise<void>;
   toEmitDiagnostics(diagnostics: DiagnosticMatch | DiagnosticMatch[]): Promise<void>;
+  applyCodeFix(codeFixId: string): ApplyCodeFixExpect;
+}
+
+export interface ApplyCodeFixExpect {
+  toEqual(code: string): Promise<void>;
 }
 
 export function createLinterRuleTester(
   runner: BasicTestRunner,
   ruleDef: LinterRuleDefinition<string, DiagnosticMessages>,
-  libraryName: string
+  libraryName: string,
 ): LinterRuleTester {
   return {
     expect,
@@ -31,6 +40,7 @@ export function createLinterRuleTester(
     return {
       toBeValid,
       toEmitDiagnostics,
+      applyCodeFix,
     };
 
     async function toBeValid() {
@@ -42,10 +52,33 @@ export function createLinterRuleTester(
       const diagnostics = await diagnose(code);
       expectDiagnostics(diagnostics, match);
     }
+
+    function applyCodeFix(fixId: string) {
+      return { toEqual };
+
+      async function toEqual(expectedCode: string) {
+        const diagnostics = await diagnose(code);
+        const codefix = diagnostics[0].codefixes?.find((x) => x.id === fixId);
+        ok(codefix, `Codefix with id "${fixId}" not found.`);
+        let content: string | undefined;
+        const host: CompilerHost = {
+          ...runner.program.host,
+          writeFile: (name, newContent) => {
+            content = newContent;
+            return Promise.resolve();
+          },
+        };
+        await applyCodeFixReal(host, codefix);
+
+        ok(content, "No content was written to the host.");
+        const offset = runner.fs.get(resolveVirtualPath("./main.tsp"))?.indexOf(code);
+        strictEqual(trimBlankLines(content.slice(offset)), trimBlankLines(expectedCode));
+      }
+    }
   }
 
   async function diagnose(code: string): Promise<readonly Diagnostic[]> {
-    await runner.diagnose(code);
+    await runner.diagnose(code, { parseOptions: { comments: true } });
 
     const diagnostics = createDiagnosticCollector();
     const rule = { ...ruleDef, id: `${libraryName}/${ruleDef.name}` };

@@ -1,0 +1,70 @@
+resources:
+  repositories:
+    - repository: 1ESPipelineTemplates
+      type: git
+      name: 1ESPipelineTemplates/1ESPipelineTemplates
+      ref: refs/tags/release
+
+parameters:
+  - name: stages
+    type: stageList
+    default: []
+  - name: variables
+    type: object
+    default: {}
+  - name: Use1ESOfficial
+    type: boolean
+    default: true
+  - name: BinSkimSettings
+    type: object
+    default: {}
+
+extends:
+  ${{ if and(parameters.Use1ESOfficial, eq(variables['System.TeamProject'], 'internal')) }}:
+    template: v1/1ES.Official.PipelineTemplate.yml@1ESPipelineTemplates
+  ${{ else }}:
+    template: v1/1ES.Unofficial.PipelineTemplate.yml@1ESPipelineTemplates
+  parameters:
+    settings:
+      skipBuildTagsForGitHubPullRequests: true
+    sdl:
+      codeql:
+        compiled:
+          enabled: false
+          justificationForDisabling: CodeQL times our pipelines out by running for 2+ hours before being force canceled.
+      sourceAnalysisPool:
+        name: azsdk-pool-mms-win-2022-general
+        image: azsdk-pool-mms-win-2022-1espt
+        os: windows
+      credscan:
+        suppressionsFile: $(Build.SourcesDirectory)/eng/common/CredScanSuppression.json
+      psscriptanalyzer:
+        compiled: true
+        break: true
+      ${{ if parameters.BinSkimSettings }}:
+        binskim: ${{ parameters.BinSkimSettings }}
+
+    stages:
+      - ${{ each stage in parameters.stages }}:
+          - ${{ each pair in stage }}:
+              ${{ if ne(pair.key, 'variables') }}:
+                ${{ pair.key }}: ${{ pair.value }}
+
+            variables:
+              - template: /eng/common/pipelines/templates/variables/image.yml@self
+              - ${{ each variable in parameters.variables }}:
+                  - ${{ if variable.key }}:
+                      # turn objects into name/value lists
+                      - name: ${{ variable.key }}
+                        value: ${{ variable.value }}
+                  - ${{ else }}:
+                      # preserve all other variables
+                      - ${{ variable }}
+              - ${{ each variable in stage.variables }}:
+                  - ${{ if variable.key }}:
+                      # turn objects into name/value lists
+                      - name: ${{ variable.key }}
+                        value: ${{ variable.value }}
+                  - ${{ else }}:
+                      # preserve all other variables
+                      - ${{ variable }}

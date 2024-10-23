@@ -17,8 +17,9 @@
       "type": "process",
       "command": "node",
       "args": [
-        "${workspaceFolder}/packages/compiler/node_modules/typescript/lib/tsc.js",
+        "${workspaceFolder}/node_modules/typescript/lib/tsc.js",
         "--build",
+        "./tsconfig.ws.json",
         "--watch"
       ],
       "isBackground": true,

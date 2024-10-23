@@ -4,23 +4,25 @@ title: "[F] $doc"
 
 ---
 ```ts
-$doc(
+function $doc(
    context, 
    target, 
-   text, 
-   sourceObject?): void
+   doc, 
+   formatArgs?): void
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`Type`](../type-aliases/Type.md) |
-| `text` | `string` |
-| `sourceObject`? | [`Type`](../type-aliases/Type.md) |
+| `doc` | `string` |
+| `formatArgs`? | [`Type`](../type-aliases/Type.md) |
 
 ## Returns
+
+`void`
 
 ## Doc
 

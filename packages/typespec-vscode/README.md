@@ -1,12 +1,23 @@
 # TypeSpec Language Support for VS Code
 
+[Repository](https://github.com/microsoft/typespec) | [Documentation](https://typespec.io/docs) | [Issues](https://github.com/microsoft/typespec/issues) | [Samples](https://github.com/microsoft/typespec/tree/main/packages/samples/specs)
+
 This provides provides [TypeSpec](https://github.com/microsoft/typespec) language support for VS Code.
 
-See https://github.com/microsoft/typespec#installing-vs-code-extension for installation instructions.
+![](https://raw.githubusercontent.com/microsoft/typespec/main/docs/images/vscode.gif)
 
-**NOTE**: The npm package is used as an implementation detail of the `tsp vscode` command that installs the Visual Studio TypeSpec extension, and not intended to be used for other purposes.
+## Features
 
-## Configure VSCode extension
+- Live diagnostic reporting
+- Syntax highlighting
+- Code completion
+- Code folding
+- Formatting
+- Hover info
+- Rename refactoring
+- Go to definition
+
+## Configure
 
 TypeSpec wil interpolate a few variables using this pattern `${<name>}`. For example `${workspaceFolder}`.
 

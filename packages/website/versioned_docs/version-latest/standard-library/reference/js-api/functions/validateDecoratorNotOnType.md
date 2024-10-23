@@ -4,7 +4,7 @@ title: "[F] validateDecoratorNotOnType"
 
 ---
 ```ts
-validateDecoratorNotOnType(
+function validateDecoratorNotOnType(
    context, 
    type, 
    badDecorator, 
@@ -17,12 +17,14 @@ Useful to check for decorator usage that conflicts with another decorator.
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) | Decorator context |
 | `type` | [`Type`](../type-aliases/Type.md) | The type to check |
 | `badDecorator` | [`DecoratorFunction`](../interfaces/DecoratorFunction.md) | The decorator we don't want present |
 | `givenDecorator` | [`DecoratorFunction`](../interfaces/DecoratorFunction.md) | The decorator that is the reason why we don't want the bad decorator present |
 
 ## Returns
+
+`boolean`
 
 Whether the decorator application is valid

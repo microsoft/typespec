@@ -9,11 +9,11 @@ title: "[I] ServerSourceFile"
 
 ## Properties
 
-| Modifier | Property | Type | Description | Inheritance |
-| :------ | :------ | :------ | :------ | :------ |
-| `readonly` | `document?` | `TextDocument` | - | - |
-| `readonly` | `path` | `string` | The source file path.<br /><br />This is used only for diagnostics. The command line compiler will populate<br />it with the actual path from which the file was read, but it can actually<br />be an arbitrary name for other scenarios. | [`SourceFile`](SourceFile.md).`path` |
-| `readonly` | `text` | `string` | The source code text. | [`SourceFile`](SourceFile.md).`text` |
+| Property | Modifier | Type | Description | Inherited from |
+| ------ | ------ | ------ | ------ | ------ |
+| `document?` | `readonly` | `TextDocument` | - | - |
+| `path` | `readonly` | `string` | The source file path. This is used only for diagnostics. The command line compiler will populate it with the actual path from which the file was read, but it can actually be an arbitrary name for other scenarios. | [`SourceFile`](SourceFile.md).`path` |
+| `text` | `readonly` | `string` | The source code text. | [`SourceFile`](SourceFile.md).`text` |
 
 ## Methods
 
@@ -29,8 +29,12 @@ code units) to line number and offset from line start.
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `position` | `number` |
+
+#### Returns
+
+[`LineAndCharacter`](LineAndCharacter.md)
 
 #### Inherited from
 
@@ -47,6 +51,10 @@ getLineStarts(): readonly number[]
 Array of positions in the text where each line begins. There is one entry
 per line, in order of lines, and each entry represents the offset in UTF-16
 code units from the start of the document to the beginning of the line.
+
+#### Returns
+
+readonly `number`[]
 
 #### Inherited from
 

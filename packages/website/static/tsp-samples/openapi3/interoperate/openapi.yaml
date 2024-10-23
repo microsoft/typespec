@@ -1,0 +1,14 @@
+openapi: 3.0.0
+info:
+  title: Pet Store Service
+  version: 2021-03-25
+tags: []
+paths:
+  /:
+    get:
+      operationId: ping
+      parameters: []
+      responses:
+        "204":
+          description: "There is no content to send for this request, but the headers may be useful. "
+components: {}

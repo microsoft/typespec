@@ -1,4 +1,5 @@
 import assert from "assert";
+import { describe, it } from "vitest";
 import { emitSchema } from "./utils.js";
 
 describe("emitting models to yaml", () => {
@@ -9,7 +10,7 @@ describe("emitting models to yaml", () => {
         x: string;
       }
     `,
-      { "file-type": "yaml" }
+      { "file-type": "yaml" },
     );
     const Foo = schemas["Foo.yaml"];
 

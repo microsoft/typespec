@@ -1,4 +1,5 @@
 // @ts-check
+/* eslint-disable no-console */
 import {
   ensureDotnetVersion,
   getVisualStudioMsBuildPath,
@@ -31,7 +32,7 @@ async function main() {
       ["build", "--configuration", "Release", `-p:Version=${version}`, "-clp:NoSummary"],
       {
         cwd: pkgRoot,
-      }
+      },
     );
   } else {
     await buildWithMsbuild(result.path, pkgRoot, version);

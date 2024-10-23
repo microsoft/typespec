@@ -1,4 +1,5 @@
 import { deepStrictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { Interface, Namespace, Operation } from "../../src/core/types.js";
 import { getAllTags } from "../../src/lib/decorators.js";
 import { TestHost, createTestHost } from "../../src/testing/index.js";
@@ -48,7 +49,7 @@ describe("compiler: tag decorator", () => {
           RecursiveOperation(): string;
         }
       }
-      `
+      `,
     );
 
     const {

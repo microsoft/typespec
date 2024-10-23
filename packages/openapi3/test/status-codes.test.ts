@@ -1,5 +1,6 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual } from "assert";
+import { describe, it } from "vitest";
 import { diagnoseOpenApiFor, openApiFor } from "./test-host.js";
 
 describe("openapi3: response status codes", () => {
@@ -12,7 +13,7 @@ describe("openapi3: response status codes", () => {
       `
       op read(): {@statusCode _: 200, content: string};
       `,
-      ["200"]
+      ["200"],
     );
   });
 
@@ -21,7 +22,7 @@ describe("openapi3: response status codes", () => {
       `
       op read(): {@statusCode _: 200 | 201 | 204, content: string};
       `,
-      ["200", "201", "204"]
+      ["200", "201", "204"],
     );
   });
 
@@ -30,7 +31,7 @@ describe("openapi3: response status codes", () => {
       `
       op read(): {@minValue(400) @maxValue(499) @statusCode _: int32, content: string};
       `,
-      ["4XX"]
+      ["4XX"],
     );
   });
 
@@ -39,7 +40,7 @@ describe("openapi3: response status codes", () => {
       `
       op read(): {@minValue(400) @maxValue(599) @statusCode _: int32, content: string};
       `,
-      ["4XX", "5XX"]
+      ["4XX", "5XX"],
     );
   });
 
@@ -47,7 +48,7 @@ describe("openapi3: response status codes", () => {
     const diagnostics = await diagnoseOpenApiFor(
       `
       op read(): {@minValue(455) @maxValue(495) @statusCode _: int32, content: string};
-      `
+      `,
     );
     expectDiagnostics(diagnostics, [
       {

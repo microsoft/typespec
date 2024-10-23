@@ -9,18 +9,18 @@ title: "[I] ModelPropertyNode"
 
 ## Properties
 
-| Modifier | Property | Type | Description | Inheritance |
-| :------ | :------ | :------ | :------ | :------ |
-| `readonly` | `decorators` | readonly [`DecoratorExpressionNode`](DecoratorExpressionNode.md)[] | - | - |
-| `readonly` | `default?` | [`Expression`](../type-aliases/Expression.md) | - | - |
-| `readonly` | `directives?` | readonly [`DirectiveExpressionNode`](DirectiveExpressionNode.md)[] | - | [`BaseNode`](BaseNode.md).`directives` |
-| `readonly` | `docs?` | readonly [`DocNode`](DocNode.md)[] | - | [`BaseNode`](BaseNode.md).`docs` |
-| `readonly` | `end` | `number` | The ending position measured in UTF-16 code units from the start of the<br />full string. Exclusive. | [`BaseNode`](BaseNode.md).`end` |
-| `readonly` | `flags` | [`NodeFlags`](../enumerations/NodeFlags.md) | - | [`BaseNode`](BaseNode.md).`flags` |
-| `readonly` | `id` | [`IdentifierNode`](IdentifierNode.md) | - | - |
-| `readonly` | `kind` | `ModelProperty` | - | [`BaseNode`](BaseNode.md).`kind` |
-| `readonly` | `optional` | `boolean` | - | - |
-| `readonly` | `parent?` | [`ModelStatementNode`](ModelStatementNode.md) \| [`ModelExpressionNode`](ModelExpressionNode.md) | - | [`BaseNode`](BaseNode.md).`parent` |
-| `readonly` | `pos` | `number` | The starting position of the ranger measured in UTF-16 code units from the<br />start of the full string. Inclusive. | [`BaseNode`](BaseNode.md).`pos` |
-| `readonly` | `symbol` | [`Sym`](Sym.md) | Could be undefined but making this optional creates a lot of noise. In practice,<br />you will likely only access symbol in cases where you know the node has a symbol. | [`BaseNode`](BaseNode.md).`symbol` |
-| `readonly` | `value` | [`Expression`](../type-aliases/Expression.md) | - | - |
+| Property | Modifier | Type | Description | Overrides | Inherited from |
+| ------ | ------ | ------ | ------ | ------ | ------ |
+| `decorators` | `readonly` | readonly [`DecoratorExpressionNode`](DecoratorExpressionNode.md)[] | - | - | - |
+| `default?` | `readonly` | [`Expression`](../type-aliases/Expression.md) | - | - | - |
+| `directives?` | `readonly` | readonly [`DirectiveExpressionNode`](DirectiveExpressionNode.md)[] | - | - | [`BaseNode`](BaseNode.md).`directives` |
+| `docs?` | `readonly` | readonly [`DocNode`](DocNode.md)[] | - | - | [`BaseNode`](BaseNode.md).`docs` |
+| `end` | `readonly` | `number` | The ending position measured in UTF-16 code units from the start of the full string. Exclusive. | - | [`BaseNode`](BaseNode.md).`end` |
+| `flags` | `readonly` | [`NodeFlags`](../enumerations/NodeFlags.md) | - | - | [`BaseNode`](BaseNode.md).`flags` |
+| `id` | `readonly` | [`IdentifierNode`](IdentifierNode.md) | - | - | - |
+| `kind` | `readonly` | `ModelProperty` | - | [`BaseNode`](BaseNode.md).`kind` | - |
+| `optional` | `readonly` | `boolean` | - | - | - |
+| `parent?` | `readonly` | [`ModelStatementNode`](ModelStatementNode.md) \| [`ModelExpressionNode`](ModelExpressionNode.md) | - | [`BaseNode`](BaseNode.md).`parent` | - |
+| `pos` | `readonly` | `number` | The starting position of the ranger measured in UTF-16 code units from the start of the full string. Inclusive. | - | [`BaseNode`](BaseNode.md).`pos` |
+| `symbol` | `readonly` | [`Sym`](Sym.md) | Could be undefined but making this optional creates a lot of noise. In practice, you will likely only access symbol in cases where you know the node has a symbol. | - | [`BaseNode`](BaseNode.md).`symbol` |
+| `value` | `readonly` | [`Expression`](../type-aliases/Expression.md) | - | - | - |

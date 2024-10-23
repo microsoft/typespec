@@ -1,4 +1,5 @@
-import { deepStrictEqual, strictEqual } from "assert";
+import { deepStrictEqual, ok, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { stringify } from "yaml";
 import { TypeSpecRawConfig } from "../src/config/types.js";
 import { CompileCliArgs, getCompilerOptions } from "../src/core/cli/actions/compile/args.js";
@@ -28,10 +29,12 @@ describe("compiler: cli", () => {
         "ws/main.tsp",
         cwd,
         args,
-        env
+        env,
       );
       expectDiagnosticEmpty(diagnostics);
-      return options;
+      ok(options, "Options should have been set.");
+      const { configFile: config, ...rest } = options;
+      return rest;
     }
 
     it("no args and config: return empty options with output-dir at {cwd}/tsp-output", async () => {
@@ -51,7 +54,7 @@ describe("compiler: cli", () => {
       deepStrictEqual(options?.options, {});
     });
 
-    context("config file with emitters", () => {
+    describe("config file with emitters", () => {
       beforeEach(() => {
         host.addTypeSpecFile(
           "ws/tspconfig.yaml",
@@ -70,7 +73,7 @@ describe("compiler: cli", () => {
                 "emitter-output-dir": "{custom-arg}/custom",
               },
             },
-          })
+          }),
         );
       });
 
@@ -79,7 +82,7 @@ describe("compiler: cli", () => {
 
         strictEqual(
           options?.options?.["@typespec/openapi3"]?.["emitter-output-dir"],
-          `${cwd}/tsp-output/custom`
+          `${cwd}/tsp-output/custom`,
         );
       });
 
@@ -88,7 +91,7 @@ describe("compiler: cli", () => {
 
         strictEqual(
           options?.options?.["@typespec/openapi3"]?.["emitter-output-dir"],
-          `${cwd}/my-output-dir/custom`
+          `${cwd}/my-output-dir/custom`,
         );
       });
 
@@ -99,7 +102,7 @@ describe("compiler: cli", () => {
 
         strictEqual(
           options?.options?.["@typespec/openapi3"]?.["emitter-output-dir"],
-          `${cwd}/relative-to-cwd`
+          `${cwd}/relative-to-cwd`,
         );
       });
 
@@ -110,7 +113,7 @@ describe("compiler: cli", () => {
 
         strictEqual(
           options?.options?.["path/to/emitter.js"]?.["emitter-output-dir"],
-          `${cwd}/relative-to-cwd`
+          `${cwd}/relative-to-cwd`,
         );
       });
 
@@ -120,7 +123,7 @@ describe("compiler: cli", () => {
 
           strictEqual(
             options?.options?.["@typespec/with-args"]?.["emitter-output-dir"],
-            `/default-arg-value/custom`
+            `/default-arg-value/custom`,
           );
         });
 
@@ -131,7 +134,7 @@ describe("compiler: cli", () => {
 
           strictEqual(
             options?.options?.["@typespec/with-args"]?.["emitter-output-dir"],
-            `/my-updated-arg-value/custom`
+            `/my-updated-arg-value/custom`,
           );
         });
       });
@@ -144,7 +147,7 @@ describe("compiler: cli", () => {
           {
             args: ["not-defined-arg=my-value"],
           },
-          {}
+          {},
         );
 
         expectDiagnostics(diagnostics, {
@@ -158,14 +161,14 @@ describe("compiler: cli", () => {
           "ws/tspconfig.yaml",
           stringify({
             "output-dir": "./my-output",
-          })
+          }),
         );
         const [_, diagnostics] = await getCompilerOptions(
           host.compilerHost,
           "ws/main.tsp",
           cwd,
           {},
-          {}
+          {},
         );
 
         expectDiagnostics(diagnostics, {
@@ -188,7 +191,7 @@ describe("compiler: cli", () => {
 
     interface TestUnifiedOptions<
       K extends keyof CompileCliArgs & keyof TypeSpecRawConfig,
-      T extends keyof CompilerOptions,
+      T extends Exclude<keyof CompilerOptions, "configFile">,
     > {
       default: CompileCliArgs[K];
       set: { in: CompileCliArgs[K]; alt: CompileCliArgs[K]; expected: CompilerOptions[T] }[];
@@ -196,7 +199,7 @@ describe("compiler: cli", () => {
 
     function testUnifiedOptions<
       K extends keyof CompileCliArgs & keyof TypeSpecRawConfig,
-      T extends keyof CompilerOptions,
+      T extends Exclude<keyof CompilerOptions, "configFile">,
     >(name: K, resolvedName: T, data: TestUnifiedOptions<K, T>) {
       describe(name, () => {
         it("default", async () => {

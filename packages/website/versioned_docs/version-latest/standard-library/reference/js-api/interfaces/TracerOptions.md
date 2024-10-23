@@ -5,6 +5,6 @@ title: "[I] TracerOptions"
 ---
 ## Properties
 
-| Property | Type | Description |
-| :------ | :------ | :------ |
-| `filter?` | `string`[] | - |
+| Property | Type |
+| ------ | ------ |
+| `filter?` | `string`[] |

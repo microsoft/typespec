@@ -1,0 +1,13 @@
+
+class {{ enum.name }}({{ enum.value_type.type_annotation(is_operation_file=False) }}, Enum, metaclass=CaseInsensitiveEnumMeta):
+    {% if enum.yaml_data.get("description") %}
+    """{{ op_tools.wrap_string(enum.yaml_data["description"], "\n    ") }}
+    """
+    {% endif %}
+
+    {% for value in enum.values %}
+    {{ value.name }} = {{ enum.value_type.get_declaration(value.value) }}
+    {% if value.description(is_operation_file=False) %}
+    """{{ op_tools.wrap_string(value.description(is_operation_file=False), "\n    ") }}"""
+    {% endif %}
+    {% endfor %}

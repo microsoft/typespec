@@ -1,12 +1,16 @@
+import { createRekeyableMap, mutate } from "../utils/misc.js";
 import { finishTypeForProgram } from "./checker.js";
 import { compilerAssert } from "./diagnostics.js";
-import { createStateAccessors, isProjectedProgram, Program, ProjectedProgram } from "./program.js";
-import { getParentTemplateNode, isNeverType, isTemplateInstance } from "./type-utils.js";
-import {
+import type { Program, ProjectedProgram } from "./program.js";
+import { isProjectedProgram } from "./projected-program.js";
+import { createStateAccessors } from "./state-accessors.js";
+import { getParentTemplateNode, isNeverType, isTemplateInstance, isValue } from "./type-utils.js";
+import type {
   DecoratorApplication,
   DecoratorArgument,
   Enum,
   EnumMember,
+  IndeterminateEntity,
   Interface,
   Model,
   ModelProperty,
@@ -20,8 +24,8 @@ import {
   TypeMapper,
   Union,
   UnionVariant,
+  Value,
 } from "./types.js";
-import { createRekeyableMap, mutate } from "./util.js";
 
 /**
  * Creates a projector which returns a projected view of either the global namespace or the
@@ -48,7 +52,7 @@ import { createRekeyableMap, mutate } from "./util.js";
 export function createProjector(
   program: Program,
   projections: ProjectionApplication[],
-  startNode?: Type
+  startNode?: Type,
 ): ProjectedProgram {
   const projectedTypes = new Map<Type, Type>();
   const checker = program.checker;
@@ -94,7 +98,22 @@ export function createProjector(
 
   return projectedProgram;
 
-  function projectType(type: Type): Type {
+  function projectType(type: Type): Type;
+  function projectType(type: Value): Value;
+  function projectType(type: IndeterminateEntity): IndeterminateEntity;
+  function projectType(type: Type | Value): Type | Value;
+  function projectType(
+    type: Type | Value | IndeterminateEntity,
+  ): Type | Value | IndeterminateEntity;
+  function projectType(
+    type: Type | Value | IndeterminateEntity,
+  ): Type | Value | IndeterminateEntity {
+    if (isValue(type)) {
+      return type;
+    }
+    if (type.entityKind === "Indeterminate") {
+      return { entityKind: "Indeterminate", type: projectType(type.type) as any };
+    }
     if (projectedTypes.has(type)) {
       return projectedTypes.get(type)!;
     }
@@ -113,7 +132,7 @@ export function createProjector(
       case "Namespace":
         compilerAssert(
           projectingNamespaces,
-          `Namespace ${type.name} should have already been projected.`
+          `Namespace ${type.name} should have already been projected.`,
         );
         projected = projectNamespace(type, false);
         break;
@@ -272,7 +291,7 @@ export function createProjector(
 
     if (model.templateMapper) {
       projectedModel.templateMapper = projectTemplateMapper(model.templateMapper);
-      // eslint-disable-next-line deprecation/deprecation
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
       projectedModel.templateArguments = mutate(projectedModel.templateMapper.args);
     }
 
@@ -283,10 +302,15 @@ export function createProjector(
       projectedModel.sourceModel = projectType(model.sourceModel) as Model;
     }
 
+    projectedModel.sourceModels = model.sourceModels.map((source) => {
+      return { ...source, model: projectType(source.model) as Model };
+    });
+
     if (model.indexer) {
+      const projectedValue = projectType(model.indexer.value);
       projectedModel.indexer = {
         key: projectType(model.indexer.key) as Scalar,
-        value: projectType(model.indexer.value),
+        value: projectedValue,
       };
     }
 
@@ -337,7 +361,7 @@ export function createProjector(
 
     if (scalar.templateMapper) {
       projectedScalar.templateMapper = projectTemplateMapper(scalar.templateMapper);
-      // eslint-disable-next-line deprecation/deprecation
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
       projectedScalar.templateArguments = mutate(projectedScalar.templateMapper.args);
     }
 
@@ -368,7 +392,7 @@ export function createProjector(
    * a template type, because we don't want to run decorators for templates.
    */
   function shouldFinishType(type: Type) {
-    const parentTemplate = getParentTemplateNode(type.node!);
+    const parentTemplate = type.node && getParentTemplateNode(type.node);
     return !parentTemplate || isTemplateInstance(type);
   }
 
@@ -403,7 +427,7 @@ export function createProjector(
 
     if (op.templateMapper) {
       projectedOp.templateMapper = projectTemplateMapper(op.templateMapper);
-      // eslint-disable-next-line deprecation/deprecation
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
       projectedOp.templateArguments = mutate(projectedOp.templateMapper.args);
     }
 
@@ -415,7 +439,9 @@ export function createProjector(
       projectedOp.namespace = projectedNamespaceScope();
     }
 
-    finishTypeForProgram(projectedProgram, projectedOp);
+    if (op.isFinished) {
+      finishTypeForProgram(projectedProgram, projectedOp);
+    }
     if (op.interface) {
       projectedOp.interface = projectType(op.interface) as Interface;
     }
@@ -433,7 +459,7 @@ export function createProjector(
 
     if (iface.templateMapper) {
       projectedIface.templateMapper = projectTemplateMapper(iface.templateMapper);
-      // eslint-disable-next-line deprecation/deprecation
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
       projectedIface.templateArguments = mutate(projectedIface.templateMapper.args);
     }
 
@@ -464,7 +490,7 @@ export function createProjector(
 
     if (union.templateMapper) {
       projectedUnion.templateMapper = projectTemplateMapper(union.templateMapper);
-      // eslint-disable-next-line deprecation/deprecation
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
       projectedUnion.templateArguments = mutate(projectedUnion.templateMapper.args);
     }
 
@@ -544,7 +570,10 @@ export function createProjector(
     for (const dec of decs) {
       const args: DecoratorArgument[] = [];
       for (const arg of dec.args) {
-        const jsValue = typeof arg.jsValue === "object" ? projectType(arg.jsValue) : arg.jsValue;
+        const jsValue =
+          typeof arg.jsValue === "object" && arg.jsValue !== null && "kind" in arg.jsValue
+            ? projectType(arg.jsValue as any)
+            : arg.jsValue;
         args.push({ ...arg, value: projectType(arg.value), jsValue });
       }
 
@@ -606,7 +635,7 @@ export function createProjector(
         const projected = checker.project(
           projectedType,
           targetNode,
-          projectionApplication.arguments
+          projectionApplication.arguments,
         );
         if (projected !== projectedType) {
           // override the projected type cache with the returned type

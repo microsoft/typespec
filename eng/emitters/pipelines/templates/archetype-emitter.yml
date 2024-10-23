@@ -1,0 +1,78 @@
+parameters:
+  # Whether to build alpha versions of the packages. This is passed as a flag to the build script.
+  - name: BuildPrereleaseVersion
+    type: boolean
+
+  # Whether to use the `next` version of TypeSpec. This is passed as a flag to the initialize script.
+  - name: UseTypeSpecNext
+    type: boolean
+
+  # Whether to publish to the internal feed.
+  - name: Publish
+    type: string
+    default: "none"
+
+  # Path to the emitter package's package.json file. If specified, it will be used to generate emitter-package.json in the artifact `build_artifacts`.
+  - name: EmitterPackageJsonPath
+    type: string
+    default: "not-specified"
+
+  # Custom steps to run in the Build and Test stages after the repositories are cloned.
+  - name: AdditionalInitializeSteps
+    type: stepList
+    default: []
+
+  # List of packages to publish. Each package is an object with the following properties:
+  #   name: The name of the package. This is used to determine the name of the file to publish.
+  #   type: The type of package. Currently supported values are 'npm' and 'nuget'.
+  #   file: The path to the file to publish. This is relative to the packages directory in the build artifacts directory.
+  - name: Packages
+    type: object
+    default: []
+
+  # Arguments needed to run unit tests
+  - name: UnitTestArgs
+    type: string
+    default: ""
+
+  # Indicates the build matrix to use for post-build autorest validation
+  - name: TestMatrix
+    type: object
+    default: {}
+
+  # Indicates the build matrix to use for post-build autorest validation
+  - name: PublishDependsOnTest
+    type: boolean
+    default: false
+
+  # Location of emitter package path
+  - name: PackagePath
+    type: string
+
+  # Pass through for 1es-redirect.yml
+  - name: Use1ESOfficial
+    type: boolean
+    default: true
+  - name: BinSkimSettings
+    type: object
+    default: {}
+
+extends:
+  template: /eng/common/pipelines/templates/1es-redirect.yml
+
+  parameters:
+    Use1ESOfficial: ${{ parameters.Use1ESOfficial }}
+    BinSkimSettings: ${{ parameters.BinSkimSettings }}
+    stages:
+      - tempate: /eng/emitters/pipelines/templates/stages/emitter-stages.yml
+        parameters:
+          UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
+          Publish: ${{ parameters.Publish }}
+          EmitterPackageJsonPath: ${{ parameters.EmitterPackageJsonPath }}
+          AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
+          Packages: ${{ parameters.Packages }}
+          UnitTestArgs: ${{ parameters.UnitTestArgs }}
+          TestMatrix: ${{ parameters.TestMatrix }}
+          PublishDependsOnTest: ${{ parameters.PublishDependsOnTest }}
+          PackagePath: ${{ parameters.PackagePath }}
+          BuildPrereleaseVersion: ${{ parameters.BuildPrereleaseVersion }}

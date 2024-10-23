@@ -3,9 +3,9 @@ import { globby } from "globby";
 import { resolveConfig } from "prettier";
 import { PrettierParserError } from "../formatter/parser.js";
 import { checkFormatTypeSpec, formatTypeSpec } from "./formatter.js";
-import { Diagnostic, NoTarget } from "./index.js";
 import { createDiagnostic } from "./messages.js";
 import { normalizePath } from "./path-utils.js";
+import { Diagnostic, NoTarget } from "./types.js";
 
 export interface TypeSpecFormatOptions {
   exclude?: string[];
@@ -26,7 +26,7 @@ export interface TypeSpecFormatResult {
  */
 export async function formatTypeSpecFiles(
   patterns: string[],
-  { exclude, debug }: TypeSpecFormatOptions
+  { exclude, debug }: TypeSpecFormatOptions,
 ): Promise<[TypeSpecFormatResult, readonly Diagnostic[]]> {
   const files = await findFiles(patterns, exclude);
   const diagnostics: Diagnostic[] = [];
@@ -43,7 +43,7 @@ export async function formatTypeSpecFiles(
             code: "format-failed",
             format: { file, details },
             target: NoTarget,
-          })
+          }),
         );
       } else {
         throw e;
@@ -60,7 +60,7 @@ export async function formatTypeSpecFiles(
  */
 export async function findUnformattedTypeSpecFiles(
   patterns: string[],
-  { exclude, debug }: TypeSpecFormatOptions
+  { exclude, debug }: TypeSpecFormatOptions,
 ): Promise<string[]> {
   const files = await findFiles(patterns, exclude);
   const unformatted = [];
@@ -91,7 +91,7 @@ export async function formatTypeSpecFile(filename: string) {
 }
 
 /**
- * Check the given typespec file is correctly formatted.
+ * Check the given TypeSpec file is correctly formatted.
  * @returns true if code is formatted correctly.
  */
 export async function checkFormatTypeSpecFile(filename: string): Promise<boolean> {

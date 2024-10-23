@@ -1,163 +1,79 @@
-# Prerequisites
+# Developer guide
 
-- Install [Node.js](https://nodejs.org/) 14 LTS or 16 LTS
-- Install [Rush](https://rushjs.io/)
+This section goes over the setup of the repo for development.
 
-```bash
-npm install -g @microsoft/rush
-```
+## Repo setup
 
-# Installing NPM dependencies
+- Install [Node.js](https://nodejs.org/) 20 LTS
+- Install [pnpm](https://pnpm.io/)
 
 ```bash
-rush update
-
-# To force rush to refetch the correct version of the packages
-rush update --recheck
+npm install -g pnpm
 ```
 
-This will install all of the npm dependencies of all projects in the
-repo. Do this whenever you `git pull` or your workspace is freshly
-cleaned/cloned.
-
-Note that `rush update` must be done before building in VS Code or
-using the command line.
-
-# Using command line
-
-## Rebuild the whole repo
+- Install dependencies
 
 ```bash
-rush rebuild
+pnpm install
 ```
 
-This will build all projects in the correct dependency order.
-
-## Build the whole repo incrementally
+- Build the dependencies
 
 ```bash
-rush build
+pnpm build
 ```
 
-This will build all projects that have changed since the last `rush build` in
-dependency order.
-
-## Build an individual package on the command line
+- (Optional) Install [Playwright](https://playwright.dev/) browsers for UI testing
 
 ```bash
-cd packages/<project>
-rushx build
+npx playwright install
 ```
 
-## Run all tests for the whole repo
+- Start the build in watch mode to automatically rebuild on save
 
 ```bash
-rush test
+pnpm run watch
 ```
 
-## Start compile on save
+## Using command line
 
-Starting this command will rebuild the typescript files on save.
+**If you are not at the root of the repo you have to use `-w` option to specify you want to run the command for the workspace. `pnpm -w <command>`.**
+Those commands can be run on the workspace or in a specific package(`cd ./packages/<pkg>`).
 
-```bash
-rush watch
-```
+| Command                     | Description                                                                                                                                               |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm build`                | Build                                                                                                                                                     |
+| `pnpm test`                 | Test                                                                                                                                                      |
+| `pnpm test:watch`           | Run test in watch mode(only when inside a package)                                                                                                        |
+| `pnpm watch`                | Build in watch mode, Starting this command will rebuild the typescript files on save.                                                                     |
+| `pnpm clean`                | Clean, sometimes there are ghost files left in the dist folder (common when renaming or deleting a TypeScript file), running this will get a clean state. |
+| `pnpm format`               | Format                                                                                                                                                    |
+| `pnpm format:check`         | Validate files are formatted                                                                                                                              |
+| `pnpm gen-extern-signature` | Regenerate TypeScript signature for decorators(except compiler)                                                                                           |
+| `pnpm change add`           | Add a change description                                                                                                                                  |
+| `pnpm lint`                 | Run linters                                                                                                                                               |
+| `pnpm lint:fix`             | Fix autofixable issues                                                                                                                                    |
+| `pnpm regen-samples`        | Regen the samples(when the samples test fail)                                                                                                             |
+| `pnpm regen-docs`           | Regen the reference docs                                                                                                                                  |
 
-## Cleanup
-
-Sometimes there are ghost files left in the dist folder (common when renaming or deleting a TypeScript file), running this will get a clean state.
-
-```bash
-rush clean
-```
-
-## Run tests for an individual package
-
-```bash
-cd packages/<project>
-rushx test
-```
-
-## Verbose test logging
+### Verbose test logging
 
 Tests sometimes log extra info using `logVerboseTestOutput` To see
 this output on the command line, set environment variable
 TYPESPEC_VERBOSE_TEST_OUTPUT=true.
 
-## Reformat source code
+**For the compiler you will need to run it manually or run the whole workspace build. This is because for the tool to run it needs the compiler to build first.**
 
-```bash
-rush format
-```
+## Using VS Code
 
-PR validation enforces code formatting style rules for the repo. This
-command will reformat code automatically so that it passes.
+### Recommended extensions
 
-You can also check if your code is formatted correctly without
-reformatting anything using `rush check-format`.
+1. [Vitest Test Explorer](https://marketplace.visualstudio.com/items?itemName=vitest.explorer): Run tests from the IDE.
+2. [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode): Automatically keep code formatted correctly on save.
+3. [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint): Show eslint errors in warnings in UI.
+4. [Code Spell Checker](https://marketplace.visualstudio.com/items?itemName=streetsidesoftware.code-spell-checker): Show spell check errors in document.
 
-See also below for having this happen automatically in VS Code
-whenever you save.
-
-## Generate changelogs
-
-```bash
-rush change
-```
-
-PR validation enforces every changes to packages have a changelog entry.
-
-Rush change will ask for the following questions for each modified packages:
-
-- message: This should be a good description of what the changes are to this package
-- type:
-  - `major`: For a breaking change. **DO NOT USE All versions remain in 0.x stage until GA.**
-  - `minor`: A new functionality.
-  - `patch`: A bug fix.
-  - `none`: Not relevant to the consumer of the packages. For example some added tests.
-
-## Linting
-
-```bash
-rush lint
-```
-
-PR validation enforces linting rules for the repo. This
-command will run the linter on all packages.
-
-## Regenerate Samples
-
-```bash
-rush regen-samples
-```
-
-PR validation runs OpenAPI emitters on samples and compares them to known,
-reviewed, checked-in versions. If your PR would change the generated output,
-run this command to regenerate any samples and check those files in with
-your PR. Carefully review whether the changes are intentional.
-
-## Regenerate Reference Docs
-
-```bash
-rush regen-docs
-```
-
-PR validation will ensure that reference docs are up to date.
-
-# Using VS Code
-
-## Recommended extensions
-
-1. [Mocha Test Explorer](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-mocha-test-adapter):
-   Run tests from the IDE.
-2. [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode):
-   Automatically keep code formatted correctly on save.
-3. [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint):
-   Show eslint errors in warnings in UI.
-4. [Code Spell Checker](https://marketplace.visualstudio.com/items?itemName=streetsidesoftware.code-spell-checker):
-   Show spell check errors in document.
-
-## Opening the repo as workspace
+### Opening the repo as workspace
 
 Always open the root of the repo as the workspace. Things are setup to
 allow easy development across packages rather than opening one package
@@ -167,7 +83,7 @@ at a time in the IDE.
   cloned
 - Or run `code /path/to/repo/root` on the command line
 
-## Building
+### Building
 
 - Terminal -> Run Build Task (`Ctrl+Shift+B`)
 
@@ -183,21 +99,17 @@ Terminal pane will have three parallel watch tasks running:
 - `watch-tmlanguage`: process that regenerates typespec.tmlanguage when
   tmlanguage.ts changes
 
-## Testing
+### Testing
 
-With [Mocha Test
-Explorer](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-mocha-test-adapter)
-installed, click on its icon in the sidebar, then click on the play
-button at the top or on any individual test or test group to run just
-one test or just one group. You can also click on the bug icon next to
-an individual test to debug it.
+```bash
+# Run all the tests
+pnpm test
 
-You can see additional information logged by each test using
-`logVerboseTestOutput` by clicking on the test and looking at the
-output pane. Unlike the command line, no environment variable is
-needed.
+# Run in a specific package tests in watch mode
+pnpm test:watch
+```
 
-## Debugging
+### Debugging
 
 There are several "Run and Debug" tasks set up. Click on the Run and
 Debug icon on the sidebar, pick one from its down, and press F5 to
@@ -224,16 +136,16 @@ debug the last one you chose.
    typespec.tmlanguage file that provides syntax highlighting of TypeSpec in VS
    and VS Code. Select this to debug its build process.
 
-# Developing the Visual Studio Extension
+## Developing the Visual Studio Extension
 
-## Prerequisites
+### Prerequisites
 
 Install [Visual Studio](https://visualstudio.microsoft.com/vs/) 17.0
 or later. It is not currently possible to build the VS extension
 without it, and of course you'll need Visual Studio to run and debug
 the Visual Studio extension.
 
-## Build VS extension on the command line
+### Build VS extension on the command line
 
 See the command line build steps above. If you have VS installed,
 the VS extension will be included in your command line full repo
@@ -243,7 +155,7 @@ If you do not have VS installed the command line build steps above
 will simply skip building the VS extension and only build the VS Code
 extension.
 
-## Build VS extension in VS
+### Build VS extension in VS
 
 - Open packages/typespec-vs/Microsoft.TypeSpec.VisualStudio.sln in Visual Studio
 - Build -> Build solution (`Ctrl+Shift+B`)
@@ -252,7 +164,7 @@ Unlike TypeScript in VS Code above, this is not a watching build, but
 it is relatively fast to run. Press Ctrl+Shift+B again to build any
 changes after you make them.
 
-## Debug VS extension
+### Debug VS extension
 
 - Click on the play icon in the toolbar or press `F5`
 
@@ -264,10 +176,10 @@ The VS debugger will attach only to the VS client process. Use "Attach
 to Language Server" described above to debug the language server in
 VS Code.
 
-# Installing your build
+### Installing your build
 
-```
-rush dogfood
+```bash
+pnpm dogfood
 ```
 
 This will globally install the @typespec/compiler package, putting your
@@ -289,40 +201,198 @@ configuration in Visual Studio, then you can install it by
 double-clicking on packages/typespec-vs/Microsoft.TypeSpec.VisualStudio.vsix
 that gets produced.
 
+## TypeSpec website
+
+### Run locally
+
+Go to `packages/website` and run the command:
+
+```bash
+pnpm start
+```
+
 # Pull request
 
 ## Trigger TypeSpec Playground Try It build
 
 For contributors of the repo the build will trigger automatically but for other's forks it will need a manual trigger from a contributor.
-As a contributor you can run the following command to trigger the build and create a typespec playground link for this PR.
+As a contributor you can run the following command to trigger the build and create a TypeSpec playground link for this PR.
 
-```
-/azp run TypeSpec Pull Request Try It
-```
-
-## Run formatter
-
-Trigger a workflow that will format the code, commit and push.
-
-```
-/typespeceng format
+```bash
+/azp run typespec - pr tools
 ```
 
-# TypeSpec website
+# Issue and Pr processes
 
-## Run locally
+## Triage process
 
-Go to `packages/website` and run the command:
+Each team might use their own way of triaging issues however figuring out the area is a common process.
 
+```mermaid
+flowchart TD
+    classDef bot fill:#69f
+    classDef user fill:#9c6
+
+
+    subgraph "Legend"
+      a([User action])
+      b[\Automation detect/]:::bot
+      c[Automation action]:::bot
+      d{{state}}
+    end
+
+    subgraph "Issue creation"
+        select_template([User select template])
+
+        select_template --> bug_template
+        select_template --> feature_template
+        select_template --> plain
+
+        bug_template([Bug]) --> add_bug_label[🤖 add `bug` label]:::bot --> start
+        feature_template([Feature]) --> add_feature_label["🤖 add `feature` label"]:::bot --> start
+        plain([Plain]) --> start
+        start{{"✅ Issue created"}}
+    end
+
+
+
+    subgraph "Area triage"
+        auto-triage[\🤖 Detect if issue has area checkbox/]:::bot
+        add-needs-area[🤖 label 'needs-area']:::bot
+        auto-area-label["🤖 label '{area}'"]:::bot
+        add-area-label(["Issue is labelled with {area}"])
+        remove-needs-area[🤖 Remove 'needs-area']:::bot
+    end
+
+    subgraph "Team triage"
+
+        team-triage{{Issue Labeled with Team area}}
+        team-triage -- wrong area --> remove_area([Remove area label])
+        team-triage -- correct area --> triage([Triage/add to project])
+
+    end
+
+
+
+
+    start --> auto-triage
+
+    auto-triage -- no --> add-needs-area
+    auto-triage -- yes --> auto-area-label
+
+    auto-area-label --> remove-needs-area
+
+    add-needs-area --> add-area-label
+    add-area-label --> remove-needs-area
+    remove-needs-area ---> team-triage
+    remove_area --> add-needs-area
 ```
-npm start
-```
 
-## Publish website to github.io
+## Labels
 
-The website on github.io should be published when releasing new packages.
+TypeSpec repo use labels to help categorize and manage issues and PRs. The following is a list of labels and their descriptions.
 
-To release:
+<!-- LABEL GENERATED REF START -->
+<!-- DO NOT EDIT: This section is automatically generated by eng/common/scripts/sync-labels.ts, update eng/common/config/labels.ts run pnpm sync-labels to update -->
 
-- Go to https://github.com/microsoft/typespec/actions/workflows/website-gh-pages.yml
-- Click the `Run workflow` dropdown and select the `main` branch.
+### Labels reference
+
+#### area
+
+Area of the codebase
+
+| Name                         | Color   | Description                                                       |
+| ---------------------------- | ------- | ----------------------------------------------------------------- |
+| `compiler:core`              | #453261 | Issues for @typespec/compiler                                     |
+| `compiler:emitter-framework` | #453261 | Issues for the emitter framework                                  |
+| `ide`                        | #846da1 | Issues for VS, VSCode, Monaco, etc.                               |
+| `lib:http`                   | #c7aee6 |                                                                   |
+| `lib:openapi`                | #c7aee6 |                                                                   |
+| `lib:rest`                   | #c7aee6 |                                                                   |
+| `lib:versioning`             | #c7aee6 |                                                                   |
+| `meta:blog`                  | #007dc8 | Blog updates                                                      |
+| `meta:website`               | #007dc8 | TypeSpec.io updates                                               |
+| `tspd`                       | #004185 | Issues for the tspd tool                                          |
+| `emitter:client:csharp`      | #e1b300 | Issue for the C# client emitter: @typespec/http-client-csharp     |
+| `emitter:client:java`        | #e1b300 | Issue for the Java client emitter: @typespec/http-client-java     |
+| `emitter:client:python`      | #e1b300 | Issue for the Python client emitter: @typespec/http-client-python |
+| `emitter:json-schema`        | #957300 |                                                                   |
+| `emitter:protobuf`           | #957300 | The protobuf emitter                                              |
+| `emitter:openapi3`           | #957300 | Issues for @typespec/openapi3 emitter                             |
+| `openapi3:converter`         | #957300 | Issues for @typespec/openapi3 openapi to typespec converter       |
+| `emitter:service:csharp`     | #967200 |                                                                   |
+| `emitter:service:js`         | #967200 |                                                                   |
+| `eng`                        | #65bfff |                                                                   |
+| `ui:playground`              | #3256a8 |                                                                   |
+| `ui:type-graph-viewer`       | #3256a8 |                                                                   |
+
+#### issue_kinds
+
+Issue kinds
+
+| Name      | Color   | Description                                |
+| --------- | ------- | ------------------------------------------ |
+| `bug`     | #d93f0b | Something isn't working                    |
+| `feature` | #cccccc | New feature or request                     |
+| `docs`    | #cccccc | Improvements or additions to documentation |
+| `epic`    | #cccccc |                                            |
+
+#### breaking-change
+
+Labels around annotating issues and PR if they contain breaking change or deprecation
+
+| Name              | Color   | Description                                                                        |
+| ----------------- | ------- | ---------------------------------------------------------------------------------- |
+| `breaking-change` | #B60205 | A change that might cause specs or code to break                                   |
+| `deprecation`     | #760205 | A previously supported feature will now report a warning and eventually be removed |
+
+#### design-issues
+
+Design issue management
+
+| Name              | Color   | Description                                            |
+| ----------------- | ------- | ------------------------------------------------------ |
+| `design:accepted` | #1a4421 | Proposal for design has been discussed and accepted.   |
+| `design:needed`   | #96c499 | A design request has been raised that needs a proposal |
+| `design:proposed` | #56815a | Proposal has been added and ready for discussion       |
+
+#### process
+
+Process labels
+
+| Name           | Color   | Description                                                                       |
+| -------------- | ------- | --------------------------------------------------------------------------------- |
+| `needs-area`   | #ffffff |                                                                                   |
+| `needs-info`   | #ffffff | Mark an issue that needs reply from the author or it will be closed automatically |
+| `triaged:core` | #5319e7 |                                                                                   |
+
+#### misc
+
+Misc labels
+
+| Name                       | Color   | Description        |
+| -------------------------- | ------- | ------------------ |
+| `Client Emitter Migration` | #FD92F0 |                    |
+| `good first issue`         | #7057ff | Good for newcomers |
+
+<!-- LABEL GENERATED REF END -->
+
+### Updating labels
+
+Labels are configured in `eng/common/config/labels.ts`. To update labels, edit this file and run `pnpm sync-labels`.
+**If you create a new label in github UI without updating the `labels.ts` file, it WILL be automatically removed**
+
+# TypeSpec Emitters
+
+The various language emitters will live in the in the repo under the following directory structure
+
+- `packages/{protocol}-{client|server}-{language}` - Contains the `@typespec/{protocol}-{client|server}-{language}` package which is intended to be consumed by customers in their tsconfig.yaml file.
+- `packages/{protocol}-{client|server}-{language}-generator` - Contains the `@typespec/{protocol}-{client|server}-{language}-generator` package which is the backend implementation of for a given emitter and usually contains code
+  languages such as .NET, Python, or Java. This package is only intended to be used as a dependency of the root emitter package.
+- `packages/{protocol}-{client|server}-{language}-generator\**` - This directory will contain whatever is needed to build the backend emitter code generator. It will contain whatever folder structure is needed to build
+  that specific native code. It will also contain an isolated ci.yml file which will be the build pipeline for this package.
+
+There is a goal to be able to ship these emitter packages independent from the rest of the packages in this repo as such they by default be excluded from the root pnpm workspace. Any npm package work
+will be isolated to those directories with a goal of eventually moving to a consistent model so that we can both work in isolation as well as work as a E2E.
+
+For language specific contributing information look for the contributing.md file in that specific lanague emitter folder.

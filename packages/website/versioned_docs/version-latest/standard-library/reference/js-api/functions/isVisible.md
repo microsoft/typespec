@@ -4,7 +4,7 @@ title: "[F] isVisible"
 
 ---
 ```ts
-isVisible(
+function isVisible(
    program, 
    property, 
    visibilities): boolean
@@ -13,7 +13,11 @@ isVisible(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | [`Program`](../interfaces/Program.md) |
 | `property` | [`ModelProperty`](../interfaces/ModelProperty.md) |
 | `visibilities` | readonly `string`[] |
+
+## Returns
+
+`boolean`

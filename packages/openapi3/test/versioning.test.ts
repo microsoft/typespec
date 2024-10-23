@@ -1,6 +1,7 @@
-import { DecoratorContext, getNamespaceFullName, Namespace } from "@typespec/compiler";
+import { DecoratorContext, Namespace, getNamespaceFullName } from "@typespec/compiler";
 import { createTestWrapper, expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
+import { describe, it } from "vitest";
 import { createOpenAPITestHost, createOpenAPITestRunner, openApiFor } from "./test-host.js";
 
 describe("openapi3: versioning", () => {
@@ -41,7 +42,7 @@ describe("openapi3: versioning", () => {
         }
       }
     `,
-      ["v1", "v2", "v3"]
+      ["v1", "v2", "v3"],
     );
 
     strictEqual(v1.info.version, "v1");

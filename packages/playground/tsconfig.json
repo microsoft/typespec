@@ -1,27 +1,28 @@
 {
-  "extends": "../tsconfig.json",
-  "references": [
-    { "path": "../compiler/tsconfig.json" },
-    { "path": "../rest/tsconfig.json" },
-    { "path": "../openapi/tsconfig.json" },
-    { "path": "../openapi3/tsconfig.json" }
-  ],
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "incremental": false,
+    "composite": false,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "sourceMap": false,
+    "resolveJsonModule": true,
     "outDir": "dist",
     "rootDir": ".",
-    "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo",
     "skipLibCheck": true,
+    "verbatimModuleSyntax": true,
     "jsx": "react-jsx",
-    "jsxImportSource": "@emotion/react",
-    "lib": ["DOM"],
-    "types": ["@emotion/react"]
+    "lib": ["DOM"]
   },
+  "references": [{ "path": "../compiler/tsconfig.json" }],
   "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
+    ".storybook/**/*.ts",
+    ".storybook/**/*.tsx",
+    "src/",
     "test/**/*.ts",
     "e2e/**/*.ts",
     "vite.config.ts",
-    "definitions/*.d.ts"
+    "definitions/*.d.ts",
+    "stories/"
   ]
 }

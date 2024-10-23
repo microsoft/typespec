@@ -1,28 +1,28 @@
-import { compilerAssert } from "./diagnostics.js";
-import {
-  EnumMemberNode,
-  FileLibraryMetadata,
-  JsNamespaceDeclarationNode,
-  ModelPropertyNode,
-  NodeFlags,
-  UnionVariantNode,
-  getLocationContext,
-} from "./index.js";
+import { mutate } from "../utils/misc.js";
+import { compilerAssert, reportDeprecated } from "./diagnostics.js";
+import { getLocationContext } from "./helpers/location-context.js";
 import { visitChildren } from "./parser.js";
-import { Program } from "./program.js";
+import type { Program } from "./program.js";
 import {
   AliasStatementNode,
+  ConstStatementNode,
   Declaration,
   DecoratorDeclarationStatementNode,
+  DecoratorImplementations,
+  EnumMemberNode,
   EnumStatementNode,
+  FileLibraryMetadata,
   FunctionDeclarationStatementNode,
   FunctionParameterNode,
   InterfaceStatementNode,
+  JsNamespaceDeclarationNode,
   JsSourceFileNode,
   ModelExpressionNode,
+  ModelPropertyNode,
   ModelStatementNode,
   NamespaceStatementNode,
   Node,
+  NodeFlags,
   OperationStatementNode,
   ProjectionLambdaExpressionNode,
   ProjectionLambdaParameterDeclarationNode,
@@ -38,9 +38,9 @@ import {
   TemplateParameterDeclarationNode,
   TypeSpecScriptNode,
   UnionStatementNode,
+  UnionVariantNode,
   UsingStatementNode,
 } from "./types.js";
-import { mutate } from "./util.js";
 
 // Use a regular expression to define the prefix for TypeSpec-exposed functions
 // defined in JavaScript modules
@@ -126,22 +126,47 @@ export function createBinder(program: Program): Binder {
     if ((sourceFile.symbol as any) !== undefined) {
       return;
     }
-    const tracer = program.tracer.sub("bind.js");
 
     fileNamespace = undefined;
     mutate(sourceFile).symbol = createSymbol(
       sourceFile,
       sourceFile.file.path,
-      SymbolFlags.SourceFile
+      SymbolFlags.SourceFile,
     );
     const rootNs = sourceFile.esmExports["namespace"];
 
     for (const [key, member] of Object.entries(sourceFile.esmExports)) {
       let name: string;
       let kind: "decorator" | "function";
-      let containerSymbol = sourceFile.symbol;
-
-      if (typeof member === "function") {
+      if (key === "$flags") {
+        const context = getLocationContext(program, sourceFile);
+        if (context.type === "library" || context.type === "project") {
+          mutate(context).flags = member as any;
+          if ((member as any).decoratorArgMarshalling === "legacy") {
+            reportDeprecated(
+              program,
+              [
+                `decoratorArgMarshalling: "legacy" flag is deprecated and will be removed in a future release.`,
+                'Change value to "new" or remove the flag to use the current default behavior.',
+              ].join("\n"),
+              sourceFile,
+            );
+          }
+        }
+      } else if (key === "$decorators") {
+        const value: DecoratorImplementations = member as any;
+        for (const [namespaceName, decorators] of Object.entries(value)) {
+          for (const [decoratorName, decorator] of Object.entries(decorators)) {
+            bindFunctionImplementation(
+              namespaceName === "" ? [] : namespaceName.split("."),
+              "decorator",
+              decoratorName,
+              decorator,
+              sourceFile,
+            );
+          }
+        }
+      } else if (typeof member === "function") {
         // lots of 'any' casts here because control flow narrowing `member` to Function
         // isn't particularly useful it turns out.
         if (isFunctionName(key)) {
@@ -163,73 +188,78 @@ export function createBinder(program: Program): Binder {
           name = key;
           kind = "function";
         }
-
         const nsParts = resolveJSMemberNamespaceParts(rootNs, member);
-        for (const part of nsParts) {
-          const existingBinding = containerSymbol.exports!.get(part);
-          const jsNamespaceNode: JsNamespaceDeclarationNode = {
-            kind: SyntaxKind.JsNamespaceDeclaration,
-            id: {
-              kind: SyntaxKind.Identifier,
-              sv: part,
-              pos: 0,
-              end: 0,
-              flags: NodeFlags.None,
-              symbol: undefined!,
-            },
-            pos: sourceFile.pos,
-            end: sourceFile.end,
-            parent: sourceFile,
-            flags: NodeFlags.None,
-            symbol: undefined!,
-          };
-          const sym = createSymbol(
-            jsNamespaceNode,
-            part,
-            SymbolFlags.Namespace | SymbolFlags.Declaration,
-            containerSymbol
-          );
-          mutate(jsNamespaceNode).symbol = sym;
-          if (existingBinding) {
-            if (existingBinding.flags & SymbolFlags.Namespace) {
-              // since the namespace was "declared" as part of this source file,
-              // we can simply re-use it.
-              containerSymbol = existingBinding;
-            } else {
-              // we have some conflict, lets report a duplicate binding error.
-              mutate(containerSymbol.exports)!.set(part, sym);
-            }
-          } else {
-            mutate(sym).exports = createSymbolTable();
-            mutate(containerSymbol.exports!).set(part, sym);
-            containerSymbol = sym;
-          }
-        }
-        let sym;
-        if (kind === "decorator") {
-          tracer.trace(
-            "decorator",
-            `Bound decorator "@${name}" in namespace "${nsParts.join(".")}".`
-          );
-          sym = createSymbol(
-            sourceFile,
-            "@" + name,
-            SymbolFlags.Decorator | SymbolFlags.Implementation,
-            containerSymbol
-          );
-        } else {
-          tracer.trace("function", `Bound function "${name}" in namespace "${nsParts.join(".")}".`);
-          sym = createSymbol(
-            sourceFile,
-            name,
-            SymbolFlags.Function | SymbolFlags.Implementation,
-            containerSymbol
-          );
-        }
-        mutate(sym).value = member as any;
-        mutate(containerSymbol.exports)!.set(sym.name, sym);
+        bindFunctionImplementation(nsParts, kind, name, member as any, sourceFile);
       }
     }
+  }
+
+  function bindFunctionImplementation(
+    nsParts: string[],
+    kind: "decorator" | "function",
+    name: string,
+    fn: (...args: any[]) => any,
+    sourceFile: JsSourceFileNode,
+  ) {
+    let containerSymbol = sourceFile.symbol;
+
+    const tracer = program.tracer.sub("bind.js");
+
+    for (const part of nsParts) {
+      const existingBinding = containerSymbol.exports!.get(part);
+      const jsNamespaceNode: JsNamespaceDeclarationNode = {
+        kind: SyntaxKind.JsNamespaceDeclaration,
+        id: {
+          kind: SyntaxKind.Identifier,
+          sv: part,
+          pos: 0,
+          end: 0,
+          flags: NodeFlags.None,
+          symbol: undefined!,
+        },
+        pos: sourceFile.pos,
+        end: sourceFile.end,
+        parent: sourceFile,
+        flags: NodeFlags.None,
+        symbol: undefined!,
+      };
+      const sym = createSymbol(jsNamespaceNode, part, SymbolFlags.Namespace, containerSymbol);
+      mutate(jsNamespaceNode).symbol = sym;
+      if (existingBinding) {
+        if (existingBinding.flags & SymbolFlags.Namespace) {
+          // since the namespace was "declared" as part of this source file,
+          // we can simply re-use it.
+          containerSymbol = existingBinding;
+        } else {
+          // we have some conflict, lets report a duplicate binding error.
+          mutate(containerSymbol.exports)!.set(part, sym);
+        }
+      } else {
+        mutate(sym).exports = createSymbolTable();
+        mutate(containerSymbol.exports!).set(part, sym);
+        containerSymbol = sym;
+      }
+    }
+    let sym;
+    if (kind === "decorator") {
+      tracer.trace("decorator", `Bound decorator "@${name}" in namespace "${nsParts.join(".")}".`);
+      sym = createSymbol(
+        sourceFile,
+        "@" + name,
+        SymbolFlags.Decorator | SymbolFlags.Implementation,
+        containerSymbol,
+      );
+    } else {
+      tracer.trace("function", `Bound function "${name}" in namespace "${nsParts.join(".")}".`);
+      sym = createSymbol(
+        sourceFile,
+        name,
+        SymbolFlags.Function | SymbolFlags.Implementation,
+        containerSymbol,
+      );
+    }
+    mutate(sym).value = fn;
+    mutate(containerSymbol.exports)!.set(sym.name, sym);
   }
 
   function resolveJSMemberNamespaceParts(rootNs: string | undefined, member: any) {
@@ -285,6 +315,9 @@ export function createBinder(program: Program): Binder {
         break;
       case SyntaxKind.AliasStatement:
         bindAliasStatement(node);
+        break;
+      case SyntaxKind.ConstStatement:
+        bindConstStatement(node);
         break;
       case SyntaxKind.EnumStatement:
         bindEnumStatement(node);
@@ -406,6 +439,9 @@ export function createBinder(program: Program): Binder {
         case SyntaxKind.ProjectionModelPropertySelector:
           selectorString = "modelproperty";
           break;
+        case SyntaxKind.ProjectionScalarSelector:
+          selectorString = "scalar";
+          break;
         case SyntaxKind.ProjectionOperationSelector:
           selectorString = "op";
           break;
@@ -449,7 +485,7 @@ export function createBinder(program: Program): Binder {
   }
 
   function bindProjectionLambdaParameterDeclaration(
-    node: ProjectionLambdaParameterDeclarationNode
+    node: ProjectionLambdaParameterDeclarationNode,
   ) {
     declareSymbol(node, SymbolFlags.FunctionParameter | SymbolFlags.Declaration);
   }
@@ -497,6 +533,9 @@ export function createBinder(program: Program): Binder {
     // Initialize locals for type parameters
     mutate(node).locals = new SymbolTable();
   }
+  function bindConstStatement(node: ConstStatementNode) {
+    declareSymbol(node, SymbolFlags.Const);
+  }
 
   function bindEnumStatement(node: EnumStatementNode) {
     declareSymbol(node, SymbolFlags.Enum | SymbolFlags.Declaration);
@@ -507,8 +546,9 @@ export function createBinder(program: Program): Binder {
   }
 
   function bindNamespaceStatement(statement: NamespaceStatementNode) {
+    const effectiveScope = fileNamespace ?? scope;
     // check if there's an existing symbol for this namespace
-    const existingBinding = (scope as NamespaceStatementNode).symbol.exports!.get(statement.id.sv);
+    const existingBinding = effectiveScope.symbol.exports!.get(statement.id.sv);
     if (existingBinding && existingBinding.flags & SymbolFlags.Namespace) {
       mutate(statement).symbol = existingBinding;
       // locals are never shared.
@@ -661,6 +701,7 @@ function hasScope(node: Node): node is ScopeNode {
     case SyntaxKind.ModelStatement:
     case SyntaxKind.ModelExpression:
     case SyntaxKind.ScalarStatement:
+    case SyntaxKind.ConstStatement:
     case SyntaxKind.AliasStatement:
     case SyntaxKind.TypeSpecScript:
     case SyntaxKind.InterfaceStatement:
@@ -682,7 +723,7 @@ export function createSymbol(
   name: string,
   flags: SymbolFlags,
   parent?: Sym,
-  value?: any
+  value?: any,
 ): Sym {
   let exports: SymbolTable | undefined;
   if (flags & SymbolFlags.ExportContainer) {

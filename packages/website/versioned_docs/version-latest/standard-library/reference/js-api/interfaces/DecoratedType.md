@@ -3,7 +3,7 @@ jsApi: true
 title: "[I] DecoratedType"
 
 ---
-## Extended By
+## Extended by
 
 - [`Model`](Model.md)
 - [`ModelProperty`](ModelProperty.md)
@@ -18,6 +18,6 @@ title: "[I] DecoratedType"
 
 ## Properties
 
-| Property | Type | Description |
-| :------ | :------ | :------ |
-| `decorators` | [`DecoratorApplication`](DecoratorApplication.md)[] | - |
+| Property | Type |
+| ------ | ------ |
+| `decorators` | [`DecoratorApplication`](DecoratorApplication.md)[] |

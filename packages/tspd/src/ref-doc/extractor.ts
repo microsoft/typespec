@@ -7,6 +7,8 @@ import {
   DocContent,
   DocUnknownTagNode,
   Enum,
+  EnumMember,
+  getDeprecated,
   getDoc,
   getLocationContext,
   getSourceLocation,
@@ -16,15 +18,19 @@ import {
   isTemplateDeclaration,
   joinPaths,
   JSONSchemaType,
+  LinterResolvedDefinition,
+  LinterRuleDefinition,
+  LinterRuleSet,
   Model,
+  ModelProperty,
   Namespace,
   navigateProgram,
   navigateTypesInNamespace,
   NodeHost,
-  NodePackage,
   NoTarget,
   Operation,
   Program,
+  resolveLinterDefinition,
   resolvePath,
   Scalar,
   SyntaxKind,
@@ -32,20 +38,29 @@ import {
   Type,
   TypeSpecLibrary,
   Union,
+  type PackageJson,
 } from "@typespec/compiler";
 import { readFile } from "fs/promises";
 import { pathToFileURL } from "url";
 import { reportDiagnostic } from "./lib.js";
 import {
   DecoratorRefDoc,
+  DeprecationNotice,
   EmitterOptionRefDoc,
+  EnumMemberRefDoc,
   EnumRefDoc,
   ExampleRefDoc,
   FunctionParameterRefDoc,
   InterfaceRefDoc,
+  LinterRefDoc,
+  LinterRuleRefDoc,
+  LinterRuleSetRefDoc,
+  ModelPropertyRefDoc,
   ModelRefDoc,
   NamespaceRefDoc,
   OperationRefDoc,
+  RefDocEntity,
+  ReferencableElement,
   ScalarRefDoc,
   TypeSpecLibraryRefDoc,
   TypeSpecRefDocBase,
@@ -53,22 +68,37 @@ import {
 } from "./types.js";
 import { getQualifier, getTypeSignature } from "./utils/type-signature.js";
 
+/**
+ * The mutable equivalent of a type.
+ */
+
+//prettier-ignore
+type Mutable<T> =
+  T extends ReadonlyMap<infer K, infer V> ? Map<K, V> :
+  T extends ReadonlySet<infer T> ? Set<Mutable<T>> :
+  T extends readonly (infer V)[] ? V[] :
+  // brand to force explicit conversion.
+  { -readonly [P in keyof T]: T[P]};
+
 export async function extractLibraryRefDocs(
-  libraryPath: string
+  libraryPath: string,
 ): Promise<[TypeSpecLibraryRefDoc, readonly Diagnostic[]]> {
   const diagnostics = createDiagnosticCollector();
   const pkgJson = await readPackageJson(libraryPath);
-  const refDoc: TypeSpecLibraryRefDoc = {
+  const refDoc: Mutable<TypeSpecLibraryRefDoc> = {
     name: pkgJson.name,
     description: pkgJson.description,
+    packageJson: pkgJson,
     namespaces: [],
+    getNamedTypeRefDoc: (type) => undefined,
   };
   if (pkgJson.tspMain) {
     const main = resolvePath(libraryPath, pkgJson.tspMain);
     const program = await compile(NodeHost, main, {
       parseOptions: { comments: true, docs: true },
     });
-    refDoc.namespaces = diagnostics.pipe(extractRefDocs(program)).namespaces;
+    const tspEmitter = diagnostics.pipe(extractRefDocs(program));
+    Object.assign(refDoc, tspEmitter);
     for (const diag of program.diagnostics ?? []) {
       diagnostics.add(diag);
     }
@@ -82,12 +112,17 @@ export async function extractLibraryRefDocs(
         options: extractEmitterOptionsRefDoc(lib.emitter.options),
       };
     }
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
+    const linter = entrypoint.$linter ?? lib?.linter;
+    if (lib && linter) {
+      refDoc.linter = extractLinterRefDoc(lib.name, resolveLinterDefinition(lib.name, linter));
+    }
   }
 
   return diagnostics.wrap(refDoc);
 }
 
-async function readPackageJson(libraryPath: string): Promise<NodePackage> {
+async function readPackageJson(libraryPath: string): Promise<PackageJson> {
   const buffer = await readFile(joinPaths(libraryPath, "package.json"));
   return JSON.parse(buffer.toString());
 }
@@ -101,7 +136,7 @@ export interface ExtractRefDocOptions {
 
 function resolveNamespaces(
   program: Program,
-  options: ExtractRefDocOptions
+  options: ExtractRefDocOptions,
 ): [Namespace[], readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   let namespaceTypes: Namespace[] = [];
@@ -131,20 +166,22 @@ function resolveNamespaces(
   }
   return diagnostics.wrap(namespaceTypes);
 }
+
 export function extractRefDocs(
   program: Program,
-  options: ExtractRefDocOptions = {}
+  options: ExtractRefDocOptions = {},
 ): [TypeSpecRefDocBase, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const namespaceTypes = diagnostics.pipe(resolveNamespaces(program, options));
-
-  const refDoc: TypeSpecRefDocBase = {
-    namespaces: [],
-  };
+  const typeMapping = new Map<Type, RefDocEntity>();
+  const namespaces: Mutable<NamespaceRefDoc>[] = [];
 
   for (const namespace of namespaceTypes) {
-    const namespaceDoc: NamespaceRefDoc = {
-      id: getTypeName(namespace),
+    const name = getTypeName(namespace);
+    const namespaceDoc: Mutable<NamespaceRefDoc> = {
+      kind: "namespace",
+      id: name,
+      name,
       decorators: [],
       operations: [],
       interfaces: [],
@@ -154,26 +191,35 @@ export function extractRefDocs(
       scalars: [],
     };
 
-    refDoc.namespaces.push(namespaceDoc);
+    namespaces.push(namespaceDoc);
+    function collectType<T extends RefDocEntity>(type: Type, refDoc: T, array: T[] | readonly T[]) {
+      typeMapping.set(type, refDoc);
+      (array as any).push(refDoc);
+    }
     navigateTypesInNamespace(
       namespace,
       {
         decorator(dec) {
-          namespaceDoc.decorators.push(extractDecoratorRefDoc(program, dec));
+          collectType(dec, extractDecoratorRefDoc(program, dec), namespaceDoc.decorators);
         },
         operation(operation) {
           if (!isDeclaredType(operation)) {
             return;
           }
+
           if (operation.interface === undefined) {
-            namespaceDoc.operations.push(extractOperationRefDoc(program, operation, undefined));
+            collectType(
+              operation,
+              extractOperationRefDoc(program, operation, undefined),
+              namespaceDoc.operations,
+            );
           }
         },
         interface(iface) {
           if (!isDeclaredType(iface)) {
             return;
           }
-          namespaceDoc.interfaces.push(extractInterfaceRefDocs(program, iface));
+          collectType(iface, extractInterfaceRefDocs(program, iface), namespaceDoc.interfaces);
         },
         model(model) {
           if (!isDeclaredType(model)) {
@@ -182,32 +228,32 @@ export function extractRefDocs(
           if (model.name === "") {
             return;
           }
-          namespaceDoc.models.push(extractModelRefDocs(program, model));
+          collectType(model, extractModelRefDocs(program, model), namespaceDoc.models);
         },
         enum(e) {
           if (!isDeclaredType(e)) {
             return;
           }
-          namespaceDoc.enums.push(extractEnumRefDoc(program, e));
+          collectType(e, extractEnumRefDoc(program, e), namespaceDoc.enums);
         },
         union(union) {
           if (!isDeclaredType(union)) {
             return;
           }
           if (union.name !== undefined) {
-            namespaceDoc.unions.push(extractUnionRefDocs(program, union as any));
+            collectType(union, extractUnionRefDocs(program, union as any), namespaceDoc.unions);
           }
         },
         scalar(scalar) {
-          namespaceDoc.scalars.push(extractScalarRefDocs(program, scalar as any));
+          collectType(scalar, extractScalarRefDocs(program, scalar), namespaceDoc.scalars);
         },
       },
-      { includeTemplateDeclaration: true, skipSubNamespaces: true }
+      { includeTemplateDeclaration: true, skipSubNamespaces: true },
     );
   }
 
-  sort(refDoc.namespaces);
-  for (const namespace of refDoc.namespaces) {
+  sort(namespaces);
+  for (const namespace of namespaces) {
     sort(namespace.decorators);
     sort(namespace.enums);
     sort(namespace.interfaces);
@@ -217,11 +263,14 @@ export function extractRefDocs(
     sort(namespace.scalars);
   }
 
-  function sort(arr: { id: string }[]) {
-    arr.sort((a, b) => a.id.localeCompare(b.id, "en"));
+  function sort(arr: { id: string }[] | readonly { id: string }[]) {
+    (arr as { id: string }[]).sort((a, b) => a.id.localeCompare(b.id, "en"));
   }
 
-  return diagnostics.wrap(refDoc);
+  return diagnostics.wrap({
+    namespaces,
+    getNamedTypeRefDoc: (type) => typeMapping.get(type),
+  });
 }
 
 function extractTemplateParameterDocs(program: Program, type: TemplatedType) {
@@ -258,23 +307,36 @@ function extractInterfaceRefDocs(program: Program, iface: Interface): InterfaceR
     });
   }
   return {
-    id: getNamedTypeId(iface),
-    name: iface.name,
+    kind: "interface",
+    ...extractBase(program, iface),
     signature: getTypeSignature(iface),
     type: iface,
     templateParameters: extractTemplateParameterDocs(program, iface),
     interfaceOperations: [...iface.operations.values()].map((x) =>
-      extractOperationRefDoc(program, x, iface.name)
+      extractOperationRefDoc(program, x, iface.name),
     ),
     doc: doc,
     examples: extractExamples(iface),
   };
 }
 
+function extractBase(
+  program: Program,
+  type: Type & { name: string },
+): ReferencableElement & { readonly deprecated?: DeprecationNotice } {
+  const deprecated = getDeprecated(program, type);
+
+  return {
+    id: getNamedTypeId(type),
+    name: type.name,
+    deprecated: deprecated ? { message: deprecated } : undefined,
+  };
+}
+
 function extractOperationRefDoc(
   program: Program,
   operation: Operation,
-  interfaceName: string | undefined
+  interfaceName: string | undefined,
 ): OperationRefDoc {
   const doc = extractMainDoc(program, operation);
   if (doc === undefined || doc === "") {
@@ -282,7 +344,7 @@ function extractOperationRefDoc(
       reportDiagnostic(program, {
         code: "documentation-missing",
         messageId: "interfaceOperation",
-        format: { name: `${operation.interface.name}.${operation.name}` ?? "" },
+        format: { name: `${operation.interface.name}.${operation.name}` },
         target: NoTarget,
       });
     } else {
@@ -295,7 +357,8 @@ function extractOperationRefDoc(
     }
   }
   return {
-    id: getNamedTypeId(operation),
+    kind: "operation",
+    ...extractBase(program, operation),
     name: interfaceName ? `${interfaceName}.${operation.name}` : operation.name,
     signature: getTypeSignature(operation),
     type: operation,
@@ -318,6 +381,7 @@ function extractDecoratorRefDoc(program: Program, decorator: Decorator): Decorat
       });
     }
     return {
+      kind: "decorator",
       type: x,
       doc: paramDoc.get(x.name) ?? "",
       name: x.name,
@@ -337,8 +401,8 @@ function extractDecoratorRefDoc(program: Program, decorator: Decorator): Decorat
     });
   }
   return {
-    id: getNamedTypeId(decorator),
-    name: decorator.name,
+    kind: "decorator",
+    ...extractBase(program, decorator),
     type: decorator,
     signature: getTypeSignature(decorator),
     doc: mainDoc,
@@ -366,11 +430,25 @@ function extractModelRefDocs(program: Program, type: Model): ModelRefDoc {
     });
   }
   return {
-    id: getNamedTypeId(type),
-    name: type.name,
+    kind: "model",
+    ...extractBase(program, type),
     signature: getTypeSignature(type),
     type,
     templateParameters: extractTemplateParameterDocs(program, type),
+    doc: doc,
+    examples: extractExamples(type),
+    properties: new Map(
+      [...type.properties.values()].map((x) => [x.name, extractModelPropertyRefDocs(program, x)]),
+    ),
+  };
+}
+
+function extractModelPropertyRefDocs(program: Program, type: ModelProperty): ModelPropertyRefDoc {
+  const doc = extractMainDoc(program, type);
+  return {
+    ...extractBase(program, type),
+    signature: getTypeSignature(type),
+    type,
     doc: doc,
     examples: extractExamples(type),
   };
@@ -387,14 +465,29 @@ function extractEnumRefDoc(program: Program, type: Enum): EnumRefDoc {
     });
   }
   return {
-    id: getNamedTypeId(type),
-    name: type.name,
+    kind: "enum",
+    ...extractBase(program, type),
+    signature: getTypeSignature(type),
+    type,
+    doc: doc,
+    examples: extractExamples(type),
+    members: new Map(
+      [...type.members.values()].map((x) => [x.name, extractEnumMemberRefDocs(program, x)]),
+    ),
+  };
+}
+
+function extractEnumMemberRefDocs(program: Program, type: EnumMember): EnumMemberRefDoc {
+  const doc = extractMainDoc(program, type);
+  return {
+    ...extractBase(program, type),
     signature: getTypeSignature(type),
     type,
     doc: doc,
     examples: extractExamples(type),
   };
 }
+
 function extractUnionRefDocs(program: Program, type: Union & { name: string }): UnionRefDoc {
   const doc = extractMainDoc(program, type);
   if (doc === undefined || doc === "") {
@@ -406,8 +499,8 @@ function extractUnionRefDocs(program: Program, type: Union & { name: string }): 
     });
   }
   return {
-    id: getNamedTypeId(type),
-    name: type.name,
+    kind: "union",
+    ...extractBase(program, type),
     signature: getTypeSignature(type),
     type,
     templateParameters: extractTemplateParameterDocs(program, type),
@@ -427,8 +520,8 @@ function extractScalarRefDocs(program: Program, type: Scalar): ScalarRefDoc {
     });
   }
   return {
-    id: getNamedTypeId(type),
-    name: type.name,
+    kind: "scalar",
+    ...extractBase(program, type),
     signature: getTypeSignature(type),
     type,
     doc: doc,
@@ -437,13 +530,13 @@ function extractScalarRefDocs(program: Program, type: Scalar): ScalarRefDoc {
 }
 
 function extractMainDoc(program: Program, type: Type): string {
-  let mainDoc: string = "";
+  const mainDocs: string[] = [];
   for (const doc of type.node?.docs ?? []) {
     for (const dContent of doc.content) {
-      mainDoc += dContent.text + "\n";
+      mainDocs.push(dContent.text);
     }
   }
-  return mainDoc !== "" ? mainDoc : getDoc(program, type) ?? "";
+  return mainDocs.length > 0 ? mainDocs.join("\n") : (getDoc(program, type) ?? "");
 }
 
 function extractExamples(type: Type): ExampleRefDoc[] {
@@ -535,7 +628,7 @@ function getDocContent(content: readonly DocContent[]) {
   for (const node of content) {
     compilerAssert(
       node.kind === SyntaxKind.DocText,
-      "No other doc content node kinds exist yet. Update this code appropriately when more are added."
+      "No other doc content node kinds exist yet. Update this code appropriately when more are added.",
     );
     docs.push(node.text);
   }
@@ -543,7 +636,7 @@ function getDocContent(content: readonly DocContent[]) {
 }
 
 function extractEmitterOptionsRefDoc(
-  options: JSONSchemaType<Record<string, never>>
+  options: JSONSchemaType<Record<string, never>>,
 ): EmitterOptionRefDoc[] {
   return Object.entries(options.properties).map(([name, value]: [string, any]) => {
     return {
@@ -554,4 +647,38 @@ function extractEmitterOptionsRefDoc(
       doc: value.description ?? "",
     };
   });
+}
+
+function extractLinterRefDoc(libName: string, linter: LinterResolvedDefinition): LinterRefDoc {
+  return {
+    ruleSets: linter.ruleSets && extractLinterRuleSetsRefDoc(libName, linter.ruleSets),
+    rules: linter.rules.map((rule) => extractLinterRuleRefDoc(libName, rule)),
+  };
+}
+
+function extractLinterRuleSetsRefDoc(
+  libName: string,
+  ruleSets: Record<string, LinterRuleSet>,
+): LinterRuleSetRefDoc[] {
+  return Object.entries(ruleSets).map(([name, ruleSet]) => {
+    const fullName = `${libName}/${name}`;
+    return {
+      kind: "ruleset",
+      id: fullName,
+      name: fullName,
+      ruleSet,
+    };
+  });
+}
+function extractLinterRuleRefDoc(
+  libName: string,
+  rule: LinterRuleDefinition<any, any>,
+): LinterRuleRefDoc {
+  const fullName = `${libName}/${rule.name}`;
+  return {
+    kind: "rule",
+    id: fullName,
+    name: fullName,
+    rule,
+  };
 }

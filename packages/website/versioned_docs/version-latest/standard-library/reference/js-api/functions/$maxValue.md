@@ -4,16 +4,20 @@ title: "[F] $maxValue"
 
 ---
 ```ts
-$maxValue(
+function $maxValue(
    context, 
    target, 
-   maxValue): void
+   value): void
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`ModelProperty`](../interfaces/ModelProperty.md) \| [`Scalar`](../interfaces/Scalar.md) |
-| `maxValue` | `number` |
+| `value` | [`Numeric`](../interfaces/Numeric.md) |
+
+## Returns
+
+`void`

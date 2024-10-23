@@ -1,11 +1,11 @@
-import { JSONSchemaType } from "ajv";
+import type { JSONSchemaType } from "ajv";
 import { TypeSpecConfigJsonSchema } from "../config/config-schema.js";
 import { TypeSpecRawConfig } from "../config/types.js";
 
 export interface InitTemplateFile {
   path: string;
   destination: string;
-  skipGeneration: boolean;
+  skipGeneration?: boolean;
 }
 
 export interface InitTemplateInput {
@@ -26,12 +26,12 @@ export interface InitTemplate {
   description: string;
 
   /** Minimum Compiler Support Version */
-  compilerVersion: string;
+  compilerVersion?: string;
 
   /**
    * List of libraries to include
    */
-  libraries: InitTemplateLibrary[];
+  libraries?: InitTemplateLibrary[];
 
   /**
    * Config
@@ -91,12 +91,13 @@ export const InitTemplateSchema: JSONSchemaType<InitTemplate> = {
   properties: {
     title: { type: "string" },
     description: { type: "string" },
-    compilerVersion: { type: "string" },
+    compilerVersion: { type: "string", nullable: true },
     libraries: {
       type: "array",
       items: {
         oneOf: [{ type: "string" }, InitTemplateLibrarySpecSchema],
       },
+      nullable: true,
     },
     skipCompilerPackage: { type: "boolean", nullable: true },
     config: { nullable: true, ...TypeSpecConfigJsonSchema },
@@ -122,11 +123,11 @@ export const InitTemplateSchema: JSONSchemaType<InitTemplate> = {
         properties: {
           path: { type: "string" },
           destination: { type: "string" },
-          skipGeneration: { type: "boolean" },
+          skipGeneration: { type: "boolean", nullable: true },
         },
         required: ["path", "destination"],
       },
     },
   },
-  required: ["title", "description", "compilerVersion"],
+  required: ["title", "description"],
 };

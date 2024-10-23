@@ -4,11 +4,15 @@ title: "[F] isModifier"
 
 ---
 ```ts
-isModifier(token): boolean
+function isModifier(token): boolean
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `token` | [`Token`](../enumerations/Token.md) |
+
+## Returns
+
+`boolean`

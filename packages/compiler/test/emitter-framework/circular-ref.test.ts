@@ -1,12 +1,13 @@
 import { deepStrictEqual, strictEqual } from "assert";
-import { Model, ModelProperty, Program, getTypeName } from "../../src/core/index.js";
+import { describe, it } from "vitest";
+import { Model, ModelProperty, Program, Type, getTypeName } from "../../src/core/index.js";
 import {
   ArrayBuilder,
   Context,
   EmitEntity,
   EmitterOutput,
   ObjectBuilder,
-  ReferenceChainEntry,
+  ReferenceCycle,
   Scope,
   TypeEmitter,
   createAssetEmitter,
@@ -15,13 +16,13 @@ import { getHostForTypeSpecFile } from "./host.js";
 
 describe("compiler: emitter-framework: circular references", () => {
   interface FindOptions {
-    noDeclaration: boolean;
+    modelsInline: boolean;
     circleReference: boolean;
   }
 
   interface CircularRefEntry {
     target: EmitEntity<any>;
-    circularChain: ReferenceChainEntry[];
+    cycle: ReferenceCycle;
   }
   async function findCircularReferences(code: string, options: FindOptions) {
     const invalidReferences: CircularRefEntry[] = [];
@@ -30,7 +31,7 @@ describe("compiler: emitter-framework: circular references", () => {
       modelDeclaration(model: Model, _: string): EmitterOutput<object> {
         const obj = new ObjectBuilder();
         obj.set("props", this.emitter.emitModelProperties(model));
-        if (options.noDeclaration) {
+        if (options.modelsInline) {
           return obj; // Never make a declaration
         } else {
           return this.emitter.result.declaration(model.name, obj);
@@ -55,21 +56,21 @@ describe("compiler: emitter-framework: circular references", () => {
         }
       }
 
+      arrayLiteral(array: Model, elementType: Type) {
+        return { type: "array", items: this.emitter.emitTypeReference(elementType) };
+      }
+
       programContext(program: Program): Context {
         const sourceFile = this.emitter.createSourceFile("main");
         return { scope: sourceFile.globalScope };
       }
 
-      circularReference(
-        target: EmitEntity<any>,
-        scope: Scope<any>,
-        circularChain: ReferenceChainEntry[]
-      ) {
-        if (target.kind !== "declaration") {
-          invalidReferences.push({ target, circularChain });
+      circularReference(target: EmitEntity<any>, scope: Scope<any>, cycle: ReferenceCycle) {
+        if (!cycle.containsDeclaration) {
+          invalidReferences.push({ target, cycle });
           return target;
         }
-        return super.circularReference(target, scope, circularChain);
+        return super.circularReference(target, scope, cycle);
       }
     };
 
@@ -86,7 +87,7 @@ describe("compiler: emitter-framework: circular references", () => {
   const selfRef = `model Foo { foo: Foo }`;
   it("self referencing with declaration works fine", async () => {
     const invalidReferences = await findCircularReferences(selfRef, {
-      noDeclaration: false,
+      modelsInline: false,
       circleReference: true,
     });
     strictEqual(invalidReferences.length, 0);
@@ -94,7 +95,7 @@ describe("compiler: emitter-framework: circular references", () => {
 
   it("self referencing without declaration report circular reference", async () => {
     const invalidReferences = await findCircularReferences(selfRef, {
-      noDeclaration: true,
+      modelsInline: true,
       circleReference: true,
     });
     strictEqual(invalidReferences.length, 1);
@@ -102,7 +103,7 @@ describe("compiler: emitter-framework: circular references", () => {
 
   it("without circular reference inline types cause no issue", async () => {
     const invalidReferences = await findCircularReferences(selfRef, {
-      noDeclaration: true,
+      modelsInline: true,
       circleReference: false,
     });
     strictEqual(invalidReferences.length, 0);
@@ -115,14 +116,40 @@ describe("compiler: emitter-framework: circular references", () => {
       model Bar { bar: Foo }
     `;
     const result = await findCircularReferences(code, {
-      noDeclaration: true,
+      modelsInline: true,
       circleReference: true,
     });
     strictEqual(result.length, 1);
 
+    deepStrictEqual(result[0].cycle.containsDeclaration, false);
     deepStrictEqual(
-      result[0].circularChain.map((x) => getTypeName(x.type)),
-      ["Foo", "Foo.foo", "Bar", "Bar.bar"]
+      [...result[0].cycle].map((x) => getTypeName(x.type)),
+      ["Foo", "Foo.foo", "Bar", "Bar.bar"],
     );
+  });
+
+  describe("cycle with declaration inside", () => {
+    it("doesn't report issue if referencing a declaration in the cycle", async () => {
+      const code = `
+        model First { foo: Foo }
+        model Foo { foo: Foo[] }
+      `;
+      const result = await findCircularReferences(code, {
+        modelsInline: false,
+        circleReference: true,
+      });
+      strictEqual(result.length, 0);
+    });
+    it("doesn't report issue if referencing an inline type in the cycle", async () => {
+      const code = `
+        model First { foo: Foo[] }
+        model Foo { foo: Foo[] }
+      `;
+      const result = await findCircularReferences(code, {
+        modelsInline: false,
+        circleReference: true,
+      });
+      strictEqual(result.length, 0);
+    });
   });
 });

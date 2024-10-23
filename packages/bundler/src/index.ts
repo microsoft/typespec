@@ -1,2 +1,7 @@
-export * from "./bundler.js";
-export * from "./vite-plugin.js";
+export {
+  BundleManifest,
+  TypeSpecBundle,
+  TypeSpecBundleDefinition,
+  TypeSpecBundleFile,
+  createTypeSpecBundle,
+} from "./bundler.js";

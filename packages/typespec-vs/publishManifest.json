@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json.schemastore.org/vsix-publish",
+  "categories": ["programming languages"], // The categories of the extension. Between 1 and 3 categories are required.
+  "identity": {
+    "internalName": "typespecvs"
+  },
+  "overview": "README.md", // Path to the "readme" file that gets uploaded to the Marketplace. Required.
+  "priceCategory": "free", // Either "free", "trial", or "paid". Defaults to "free".
+  "publisher": "typespec", // The name of the publisher. Required.
+  "private": false, // Specifies whether or not the extension should be public when uploaded. Defaults to false.
+  "qna": true, // Specifies whether or not the extension should have a Q&A section. Defaults to true.
+  "repo": "https://github.com/microsoft/typespec"
+}

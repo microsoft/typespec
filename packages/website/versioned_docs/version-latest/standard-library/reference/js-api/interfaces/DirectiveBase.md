@@ -3,13 +3,13 @@ jsApi: true
 title: "[I] DirectiveBase"
 
 ---
-## Extended By
+## Extended by
 
 - [`SuppressDirective`](SuppressDirective.md)
 - [`DeprecatedDirective`](DeprecatedDirective.md)
 
 ## Properties
 
-| Property | Type | Description |
-| :------ | :------ | :------ |
-| `node` | [`DirectiveExpressionNode`](DirectiveExpressionNode.md) | - |
+| Property | Type |
+| ------ | ------ |
+| `node` | [`DirectiveExpressionNode`](DirectiveExpressionNode.md) |

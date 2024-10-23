@@ -4,16 +4,20 @@ title: "[F] $returnTypeVisibility"
 
 ---
 ```ts
-$returnTypeVisibility(
+function $returnTypeVisibility(
    context, 
-   entity, ...
+   target, ...
    visibilities): void
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
-| `entity` | [`Operation`](../interfaces/Operation.md) |
+| `target` | [`Operation`](../interfaces/Operation.md) |
 | ...`visibilities` | `string`[] |
+
+## Returns
+
+`void`

@@ -1,5 +1,6 @@
 import { rejects, strictEqual } from "assert";
 import * as prettier from "prettier";
+import { describe, it } from "vitest";
 import * as plugin from "../../src/formatter/index.js";
 
 type TestParser = "typespec" | "markdown";
@@ -819,7 +820,103 @@ scalar Foo;
 `,
       });
     });
+
+    it("format with constructors", async () => {
+      await assertFormat({
+        code: `
+scalar
+   Foo { init fromFoo(
+    value:      string)}
+`,
+        expected: `
+scalar Foo {
+  init fromFoo(value: string);
+}
+`,
+      });
+    });
+    it("format with multiple constructors", async () => {
+      await assertFormat({
+        code: `
+scalar
+   Foo { init fromFoo(
+    value:      string);  init fromBar(
+      value:      string, other: string)}
+`,
+        expected: `
+scalar Foo {
+  init fromFoo(value: string);
+  init fromBar(value: string, other: string);
+}
+`,
+      });
+    });
   });
+
+  describe("scalar constructor call", () => {
+    it("call with no arguments", async () => {
+      await assertFormat({
+        code: `
+const foo     = utcDateTime.   now(
+    );
+`,
+        expected: `
+const foo = utcDateTime.now();
+`,
+      });
+    });
+
+    it("call with arguments", async () => {
+      await assertFormat({
+        code: `
+const foo     = utcDateTime.   fromISO(
+  "abc"  );
+`,
+        expected: `
+const foo = utcDateTime.fromISO("abc");
+`,
+      });
+    });
+
+    it("hug object literal", async () => {
+      await assertFormat({
+        code: `
+const foo     = utcDateTime.   fromFoo(#{ name: "abc",
+        multiline1: "abc",
+  multiline2: "abc",
+    multiline3: "abc",  });
+`,
+        expected: `
+const foo = utcDateTime.fromFoo(#{
+  name: "abc",
+  multiline1: "abc",
+  multiline2: "abc",
+  multiline3: "abc",
+});
+`,
+      });
+    });
+
+    it("hug array literal", async () => {
+      await assertFormat({
+        code: `
+const foo     = utcDateTime.   fromFoo(#[
+        "very very long array",
+    "very very long array",
+  "very very long array"
+]);
+`,
+        expected: `
+const foo = utcDateTime.fromFoo(#[
+  "very very long array",
+  "very very long array",
+  "very very long array"
+]);
+`,
+      });
+    });
+  });
+
   describe("comments", () => {
     it("format comment at position 0", async () => {
       await assertFormat({
@@ -959,6 +1056,22 @@ alias foo = ""; /* one */ /* two */ /* three */
       });
     });
 
+    it("format empty file with comment inside starting first line", async () => {
+      await assertFormat({
+        code: `
+  // empty file
+
+
+  // commented out things
+`,
+        expected: `
+// empty file
+
+// commented out things
+`,
+      });
+    });
+
     it("format empty model with comment inside", async () => {
       await assertFormat({
         code: `
@@ -990,6 +1103,42 @@ model Foo {
 model Foo {
   // empty model 1
   // empty model 2
+}
+`,
+      });
+    });
+
+    it("format empty scalar with comment inside", async () => {
+      await assertFormat({
+        code: `
+scalar foo {
+  // empty scalar
+
+  
+}
+`,
+        expected: `
+scalar foo {
+  // empty scalar
+}
+`,
+      });
+
+      await assertFormat({
+        code: `
+scalar foo {
+  // empty scalar 1
+
+
+     // empty scalar 2
+
+  
+}
+`,
+        expected: `
+scalar foo {
+  // empty scalar 1
+  // empty scalar 2
 }
 `,
       });
@@ -1723,7 +1872,7 @@ namespace Foo {
     });
   });
 
-  describe("string literals", () => {
+  describe("single line string literals", () => {
     it("format single line string literal", async () => {
       await assertFormat({
         code: `
@@ -1751,14 +1900,37 @@ model Foo {}
 `,
       });
     });
+  });
 
-    it("format multi line string literal", async () => {
+  describe("multi line string literals", () => {
+    it("keeps trailing whitespaces", async () => {
       await assertFormat({
         code: `
 @doc(   """
+3 whitespaces   
+
+and blank line above  
+"""
+ )
+model Foo {}
+`,
+        expected: `
+@doc("""
+  3 whitespaces   
   
-this is a doc.  
- that 
+  and blank line above  
+  """)
+model Foo {}
+`,
+      });
+    });
+
+    it("keeps indent relative to closing quotes", async () => {
+      await assertFormat({
+        code: `
+@doc(   """
+this is a doc.
+ that
  span
  multiple lines.
 """
@@ -1767,12 +1939,31 @@ model Foo {}
 `,
         expected: `
 @doc("""
-  
-this is a doc.  
- that 
- span
- multiple lines.
-""")
+  this is a doc.
+   that
+   span
+   multiple lines.
+  """)
+model Foo {}
+`,
+      });
+    });
+
+    it("keeps escaped charaters", async () => {
+      await assertFormat({
+        code: `
+@doc(   """
+with \\n
+and \\t
+"""
+ )
+model Foo {}
+`,
+        expected: `
+@doc("""
+  with \\n
+  and \\t
+  """)
 model Foo {}
 `,
       });
@@ -2295,6 +2486,18 @@ alias Foo = Bar<
 >;`,
       });
     });
+
+    it("handles nested named template args", async () => {
+      await assertFormat({
+        code: 'alias F=Foo<int32,V=Foo<V=unknown,T=null,U="test">,U=Foo<string,T=int32,V=never>>;',
+        expected: `
+alias F = Foo<
+  int32,
+  V = Foo<V = unknown, T = null, U = "test">,
+  U = Foo<string, T = int32, V = never>
+>;`,
+      });
+    });
   });
 
   describe("array expression", () => {
@@ -2424,6 +2627,30 @@ model Foo {
 `,
         expected: `
 @@doc(myOp::parameters.foo, "");
+`,
+      });
+    });
+  });
+
+  describe("valueof", () => {
+    it("format simple valueof", async () => {
+      await assertFormat({
+        code: `
+model Foo<T extends      valueof        string>{}
+`,
+        expected: `
+model Foo<T extends valueof string> {}
+`,
+      });
+    });
+
+    it("keeps parentheses around valueof inside a union", async () => {
+      await assertFormat({
+        code: `
+model Foo<T extends      (valueof        string) | Model   >{}
+`,
+        expected: `
+model Foo<T extends (valueof string) | Model> {}
 `,
       });
     });
@@ -2689,6 +2916,80 @@ This is markdown
 \`\`\`typespec
 op test(): string;
 \`\`\`
+`,
+      });
+    });
+  });
+
+  describe("string templates", () => {
+    describe("single line", () => {
+      it("format simple single line string template", async () => {
+        await assertFormat({
+          code: `alias T = "foo \${     "def" } baz";`,
+          expected: `alias T = "foo \${"def"} baz";`,
+        });
+      });
+
+      it("format simple single line string template with multiple interpolation", async () => {
+        await assertFormat({
+          code: `alias T = "foo \${     "one" } bar \${"two" } baz";`,
+          expected: `alias T = "foo \${"one"} bar \${"two"} baz";`,
+        });
+      });
+
+      it("format model expression in single line string template", async () => {
+        await assertFormat({
+          code: `alias T = "foo \${     {foo: 1, bar: 2} } baz";`,
+          expected: `
+alias T = "foo \${{
+  foo: 1;
+  bar: 2;
+}} baz";
+          `,
+        });
+      });
+    });
+    describe("triple quoted", () => {
+      it("format simple single line string template", async () => {
+        await assertFormat({
+          code: `
+alias T = """
+    This \${     "one" } goes over
+    multiple
+    \${     "two" }
+    lines
+    """;`,
+          expected: `
+alias T = """
+  This \${"one"} goes over
+  multiple
+  \${"two"}
+  lines
+  """;`,
+        });
+      });
+    });
+  });
+
+  describe("const", () => {
+    it("format const without type annotations", async () => {
+      await assertFormat({
+        code: `
+const     a  =   123;
+`,
+        expected: `
+const a = 123;
+`,
+      });
+    });
+
+    it("format const with type annotations", async () => {
+      await assertFormat({
+        code: `
+const     a  : in32=   123;
+`,
+        expected: `
+const a: in32 = 123;
 `,
       });
     });

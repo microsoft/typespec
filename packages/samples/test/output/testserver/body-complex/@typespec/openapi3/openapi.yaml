@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: sample
-  version: 0000-00-00
+  version: 0.0.0
 tags: []
 paths:
   /complex/array/valid:
@@ -512,7 +512,7 @@ components:
           type: string
           description: Name property with a very long description that does not fit on a single line and a line break.
         color:
-          $ref: '#/components/schemas/CMYKColors'
+          $ref: '#/components/schemas/Colors'
     BooleanWrapper:
       type: object
       required:
@@ -531,7 +531,7 @@ components:
         field:
           type: string
           format: byte
-    CMYKColors:
+    Colors:
       type: string
       enum:
         - cyan
@@ -581,12 +581,12 @@ components:
           format: duration
     Error:
       type: object
-      description: Error
       required:
         - message
       properties:
         message:
           type: string
+      description: Error
     FloatWrapper:
       type: object
       required:

@@ -1,14 +1,14 @@
-import { typespecBundlePlugin } from "@typespec/bundler";
+import { typespecBundlePlugin } from "@typespec/bundler/vite";
 import react from "@vitejs/plugin-react";
-import { Plugin, ResolvedConfig, UserConfig } from "vite";
-import { PlaygroundUserConfig } from "./types.js";
+import type { Plugin, ResolvedConfig, UserConfig } from "vite";
+import type { PlaygroundUserConfig } from "./types.js";
 
 export function definePlaygroundViteConfig(config: PlaygroundUserConfig): UserConfig {
   return {
     base: "./",
     build: {
       target: "esnext",
-      chunkSizeWarningLimit: 3000,
+      chunkSizeWarningLimit: 5000,
       rollupOptions: {
         output: {
           manualChunks(id) {
@@ -28,17 +28,14 @@ export function definePlaygroundViteConfig(config: PlaygroundUserConfig): UserCo
       exclude: ["swagger-ui"],
     },
     plugins: [
-      (react as any)({
-        jsxImportSource: "@emotion/react",
-        babel: {
-          plugins: ["@emotion/babel-plugin"],
-        },
-      }),
+      react({}),
       playgroundManifestPlugin(config),
-      typespecBundlePlugin({
-        folderName: "libs",
-        libraries: config.libraries,
-      }),
+      !config.skipBundleLibraries
+        ? typespecBundlePlugin({
+            folderName: "libs",
+            libraries: config.libraries,
+          })
+        : undefined,
     ],
     server: {
       fs: {
@@ -66,15 +63,15 @@ function playgroundManifestPlugin(config: PlaygroundUserConfig): Plugin {
     },
     load(id: string) {
       if (id === `@typespec/playground/manifest`) {
-        const sampleImport = Object.values(samples)
+        const sampleImport = Object.values(samples ?? {})
           .map(
             (sampleValue, index) =>
-              `import s${index} from "${viteConfig.root}/${sampleValue.filename}?raw"`
+              `import s${index} from "${viteConfig.root}/${sampleValue.filename}?raw"`,
           )
           .join("\n");
         const sampleObj = [
           "{",
-          ...Object.entries(samples).map(
+          ...Object.entries(samples ?? {}).map(
             ([label, config], index) =>
               `${JSON.stringify(label)}: {
                 fileName: ${JSON.stringify(config.filename)},
@@ -88,7 +85,7 @@ function playgroundManifestPlugin(config: PlaygroundUserConfig): Plugin {
                     : ""
                 }
 
-              }, `
+              }, `,
           ),
           "}",
         ].join("\n");

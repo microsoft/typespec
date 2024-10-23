@@ -1,0 +1,11 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com.payload.pageable.PageableAsyncClient": "Payload.Pageable",
+    "com.payload.pageable.PageableAsyncClient.list": "Payload.Pageable.list",
+    "com.payload.pageable.PageableClient": "Payload.Pageable",
+    "com.payload.pageable.PageableClient.list": "Payload.Pageable.list",
+    "com.payload.pageable.PageableClientBuilder": "Payload.Pageable",
+    "com.payload.pageable.models.User": "Payload.Pageable.User"
+  }
+}

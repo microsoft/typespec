@@ -12,8 +12,8 @@ Tuple composed of:
 - 0: Actual result of an accessor function
 - 1: List of diagnostics that were emitted while retrieving the data.
 
-## Type parameters
+## Type Parameters
 
-| Parameter |
-| :------ |
+| Type Parameter |
+| ------ |
 | `T` |

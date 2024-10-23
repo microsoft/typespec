@@ -1,8 +1,112 @@
 # Change Log - typespec-vscode
 
-This log was last generated on Wed, 11 Oct 2023 23:31:35 GMT and should not be manually modified.
+## 0.61.0
+
+### Bug Fixes
+
+- [#4430](https://github.com/microsoft/typespec/pull/4430) Use "shell" when spawning execution of .cmd file(i.e. tsp-server.cmd) in windows
+
+### Bump dependencies
+
+- [#4424](https://github.com/microsoft/typespec/pull/4424) Bump dependencies
+
+### Features
+
+- [#4330](https://github.com/microsoft/typespec/pull/4330) Support Compile Task and Watch Task in vscode.
+- [#4498](https://github.com/microsoft/typespec/pull/4498) Make extension web compatible with minimal functionality
+
+
+## 0.60.0
+
+No changes, version bump only.
+
+## 0.59.0
+
+### Bump dependencies
+
+- [#3948](https://github.com/microsoft/typespec/pull/3948) Update dependencies
+
+
+## 0.58.0
+
+### Bump dependencies
+
+- [#3718](https://github.com/microsoft/typespec/pull/3718) Dependency updates July 2024
+
+
+## 0.57.0
+
+### Bump dependencies
+
+- [#3401](https://github.com/microsoft/typespec/pull/3401) Update dependencies - May 2024
+
+### Features
+
+- [#3533](https://github.com/microsoft/typespec/pull/3533) Enhance logging and trace
+ 1. Support "Developer: Set Log Level..." command to filter logs in TypeSpec output channel
+ 2. Add "typespecLanguageServer.trace.server" config for whether and how to send the traces from TypeSpec language server to client. (It still depends on client to decide whether to show these traces based on the configured Log Level.)
+ 3. More logs and traces are added for diagnostic and troubleshooting
+- [#3385](https://github.com/microsoft/typespec/pull/3385) Add 'TypeSpec: Show Output Channel' command in VSCode extension
+
+
+## 0.56.0
+
+### Bump dependencies
+
+- [#3169](https://github.com/microsoft/typespec/pull/3169) Update dependencies
+
+
+## 0.55.0
+
+### Bump dependencies
+
+- [#3027](https://github.com/microsoft/typespec/pull/3027) Update dependencies
+
+
+## 0.54.0
+
+### Bump dependencies
+
+- [#2900](https://github.com/microsoft/typespec/pull/2900) Update dependencies
+
+
+## 0.53.0
+
+### Patch Changes
+
+- ba02533: Added icons to the extensions
+
+
+## 0.52.1
+
+Wed, 24 Jan 2024 05:46:53 GMT
+
+_Version update only_
+
+## 0.52.0
+
+Wed, 24 Jan 2024 05:46:53 GMT
+
+### Updates
+
+- Update dependencies
+
+## 0.51.0
+
+Wed, 06 Dec 2023 19:40:58 GMT
+
+_Version update only_
+
+## 0.50.0
+
+Wed, 08 Nov 2023 00:07:17 GMT
+
+### Updates
+
+- `TypeScript` use `types` entry under `exports` of `package.json` instead of legacy `typesVersions` to provide the definition files
 
 ## 0.49.0
+
 Wed, 11 Oct 2023 23:31:35 GMT
 
 ### Updates
@@ -10,6 +114,7 @@ Wed, 11 Oct 2023 23:31:35 GMT
 - Update dependencies
 
 ## 0.48.0
+
 Tue, 12 Sep 2023 21:47:11 GMT
 
 ### Updates
@@ -17,11 +122,13 @@ Tue, 12 Sep 2023 21:47:11 GMT
 - Add colors definition for `param`
 
 ## 0.47.0
+
 Tue, 08 Aug 2023 22:32:10 GMT
 
 _Version update only_
 
 ## 0.46.0
+
 Tue, 11 Jul 2023 22:06:00 GMT
 
 ### Updates
@@ -30,11 +137,13 @@ Tue, 11 Jul 2023 22:06:00 GMT
 - Update dependencies
 
 ## 0.45.0
+
 Tue, 06 Jun 2023 22:44:16 GMT
 
 _Version update only_
 
 ## 0.44.0
+
 Wed, 10 May 2023 21:24:00 GMT
 
 ### Updates
@@ -42,6 +151,7 @@ Wed, 10 May 2023 21:24:00 GMT
 - Update dependencies
 
 ## 0.43.0
+
 Tue, 11 Apr 2023 18:49:17 GMT
 
 ### Updates
@@ -49,11 +159,13 @@ Tue, 11 Apr 2023 18:49:17 GMT
 - Fix highlighting of TypeSpec code blocks in markdown.
 
 ## 0.42.0
+
 Mon, 13 Mar 2023 21:30:44 GMT
 
 _Version update only_
 
 ## 0.41.0
+
 Fri, 03 Mar 2023 19:59:17 GMT
 
 ### Updates
@@ -64,11 +176,13 @@ Fri, 03 Mar 2023 19:59:17 GMT
 - Update homepage link
 
 ## 0.40.0
+
 Tue, 07 Feb 2023 21:56:17 GMT
 
 _Version update only_
 
 ## 0.39.0
+
 Fri, 13 Jan 2023 00:05:26 GMT
 
 ### Updates
@@ -77,6 +191,7 @@ Fri, 13 Jan 2023 00:05:26 GMT
 - Internal: package with newest vsce
 
 ## 0.38.0
+
 Wed, 07 Dec 2022 17:21:52 GMT
 
 ### Patches
@@ -84,6 +199,7 @@ Wed, 07 Dec 2022 17:21:52 GMT
 - Update dependencies
 
 ## 0.17.0
+
 Sat, 12 Nov 2022 00:14:04 GMT
 
 ### Minor changes
@@ -95,6 +211,7 @@ Sat, 12 Nov 2022 00:14:04 GMT
 - Internal: Fix loading VS Code extension unbundled in F5 dev scenario
 
 ## 0.16.1
+
 Wed, 12 Oct 2022 21:12:35 GMT
 
 ### Patches
@@ -102,6 +219,7 @@ Wed, 12 Oct 2022 21:12:35 GMT
 - Fix preference documentation for cadl-server path configuration
 
 ## 0.16.0
+
 Thu, 08 Sep 2022 01:04:53 GMT
 
 ### Minor changes
@@ -113,6 +231,7 @@ Thu, 08 Sep 2022 01:04:53 GMT
 - Allow cadl.restartServer command to work when no .cadl file has been opened
 
 ## 0.15.2
+
 Thu, 11 Aug 2022 19:05:23 GMT
 
 ### Patches
@@ -120,11 +239,13 @@ Thu, 11 Aug 2022 19:05:23 GMT
 - Providing `cadl.cadl-server.path` option will force the specified compiler to be used
 
 ## 0.15.1
+
 Fri, 08 Jul 2022 23:22:58 GMT
 
 _Version update only_
 
 ## 0.15.0
+
 Mon, 13 Jun 2022 23:42:28 GMT
 
 ### Minor changes
@@ -142,6 +263,7 @@ Mon, 13 Jun 2022 23:42:28 GMT
 - Upgrade to TS4.7
 
 ## 0.14.0
+
 Fri, 06 May 2022 17:19:57 GMT
 
 ### Minor changes
@@ -153,11 +275,13 @@ Fri, 06 May 2022 17:19:57 GMT
 - Add command to restart language server
 
 ## 0.13.1
+
 Thu, 31 Mar 2022 17:10:49 GMT
 
 _Version update only_
 
 ## 0.13.0
+
 Wed, 09 Mar 2022 17:42:09 GMT
 
 ### Minor changes
@@ -166,6 +290,7 @@ Wed, 09 Mar 2022 17:42:09 GMT
 - Add punctuation and additional fine grain scopes to grammar
 
 ## 0.12.1
+
 Mon, 14 Feb 2022 03:01:08 GMT
 
 ### Patches
@@ -173,6 +298,7 @@ Mon, 14 Feb 2022 03:01:08 GMT
 - Bump dependency versions
 
 ## 0.12.0
+
 Fri, 04 Feb 2022 18:00:18 GMT
 
 ### Minor changes
@@ -180,6 +306,7 @@ Fri, 04 Feb 2022 18:00:18 GMT
 - Add cadl project file to list of files watched
 
 ## 0.11.0
+
 Wed, 01 Dec 2021 22:56:11 GMT
 
 ### Minor changes
@@ -193,6 +320,7 @@ Wed, 01 Dec 2021 22:56:11 GMT
 - Update README
 
 ## 0.10.0
+
 Thu, 11 Nov 2021 21:46:21 GMT
 
 ### Minor changes
@@ -200,6 +328,7 @@ Thu, 11 Nov 2021 21:46:21 GMT
 - **Change** `cadl.cadl-server.path` should point to the `@cadl-lang/compiler` package instead of `cadl-server` binary.
 
 ## 0.9.0
+
 Fri, 15 Oct 2021 21:33:37 GMT
 
 ### Minor changes
@@ -209,6 +338,7 @@ Fri, 15 Oct 2021 21:33:37 GMT
 - Add colorization of union declarations
 
 ## 0.8.0
+
 Tue, 10 Aug 2021 20:23:04 GMT
 
 ### Minor changes
@@ -216,6 +346,7 @@ Tue, 10 Aug 2021 20:23:04 GMT
 - React to package renames
 
 ## 0.7.0
+
 Mon, 02 Aug 2021 18:17:00 GMT
 
 ### Minor changes
@@ -223,6 +354,7 @@ Mon, 02 Aug 2021 18:17:00 GMT
 - Rename ADL to Cadl
 
 ## 0.6.0
+
 Fri, 09 Jul 2021 20:21:06 GMT
 
 ### Minor changes
@@ -230,6 +362,7 @@ Fri, 09 Jul 2021 20:21:06 GMT
 - Add semantic analysis to language server
 
 ## 0.5.2
+
 Thu, 24 Jun 2021 03:57:43 GMT
 
 ### Patches
@@ -237,6 +370,7 @@ Thu, 24 Jun 2021 03:57:43 GMT
 - Handle untitled source files in VS Code
 
 ## 0.5.1
+
 Tue, 18 May 2021 23:43:31 GMT
 
 ### Patches
@@ -244,6 +378,7 @@ Tue, 18 May 2021 23:43:31 GMT
 - Fix issue launching adl-server on Mac OS
 
 ## 0.5.0
+
 Thu, 06 May 2021 14:56:02 GMT
 
 ### Minor changes
@@ -255,6 +390,7 @@ Thu, 06 May 2021 14:56:02 GMT
 - Update syntax highlighting for string literal change
 
 ## 0.4.5
+
 Tue, 20 Apr 2021 15:23:29 GMT
 
 ### Patches
@@ -262,6 +398,7 @@ Tue, 20 Apr 2021 15:23:29 GMT
 - Fix syntax highlighting for tuple expressions
 
 ## 0.4.4
+
 Wed, 31 Mar 2021 22:00:43 GMT
 
 ### Patches
@@ -271,6 +408,7 @@ Wed, 31 Mar 2021 22:00:43 GMT
 - Use PList for textmate grammar
 
 ## 0.4.3
+
 Fri, 26 Mar 2021 17:06:33 GMT
 
 ### Patches
@@ -278,6 +416,7 @@ Fri, 26 Mar 2021 17:06:33 GMT
 - Fix commenting and indenting behaviors
 
 ## 0.4.2
+
 Wed, 24 Mar 2021 18:40:21 GMT
 
 ### Patches
@@ -285,6 +424,7 @@ Wed, 24 Mar 2021 18:40:21 GMT
 - Extract textmate generator to helper library
 
 ## 0.4.1
+
 Tue, 23 Mar 2021 01:06:29 GMT
 
 ### Patches
@@ -292,6 +432,7 @@ Tue, 23 Mar 2021 01:06:29 GMT
 - Remove unnecessary npm dependency
 
 ## 0.4.0
+
 Tue, 16 Mar 2021 23:13:42 GMT
 
 ### Minor changes
@@ -301,4 +442,3 @@ Tue, 16 Mar 2021 23:13:42 GMT
 ### Patches
 
 - Initial version of VS Code extension
-

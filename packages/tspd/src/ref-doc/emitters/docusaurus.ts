@@ -1,5 +1,7 @@
 import {
+  DeprecationNotice,
   NamedTypeRefDoc,
+  RefDocEntity,
   TypeSpecLibraryRefDoc,
   TypeSpecRefDoc,
   TypeSpecRefDocBase,
@@ -19,9 +21,9 @@ import { MarkdownRenderer, groupByNamespace } from "./markdown.js";
  * Render doc to a markdown using docusaurus addons.
  */
 export function renderToDocusaurusMarkdown(refDoc: TypeSpecRefDoc): Record<string, string> {
-  const renderer = new DocusaurusRenderer();
+  const renderer = new DocusaurusRenderer(refDoc);
   const files: Record<string, string> = {
-    "index.md": renderIndexFile(renderer, refDoc),
+    "index.mdx": renderIndexFile(renderer, refDoc),
   };
 
   const decoratorFile = renderDecoratorFile(renderer, refDoc);
@@ -43,6 +45,10 @@ export function renderToDocusaurusMarkdown(refDoc: TypeSpecRefDoc): Record<strin
   if (emitter) {
     files["emitter.md"] = emitter;
   }
+  const linter = renderLinter(renderer, refDoc);
+  if (linter) {
+    files["linter.md"] = linter;
+  }
 
   return files;
 }
@@ -59,41 +65,33 @@ function renderIndexFile(renderer: DocusaurusRenderer, refDoc: TypeSpecLibraryRe
     "import TabItem from '@theme/TabItem';",
     "",
 
-    section("Overview", [
-      refDoc.description ?? [],
-      renderer.install(refDoc),
-      refDoc.emitter?.options ? section("Emitter usage", `[See documentation](./emitter.md)`) : [],
+    refDoc.description ?? [],
+    renderer.install(refDoc),
+    refDoc.emitter?.options ? section("Emitter usage", `[See documentation](./emitter.md)`) : [],
 
-      groupByNamespace(refDoc.namespaces, (namespace) => {
-        const content = [];
+    groupByNamespace(refDoc.namespaces, (namespace) => {
+      const content = [];
 
-        if (namespace.decorators.length > 0) {
-          content.push(
-            section("Decorators", renderer.toc(namespace.decorators, "./decorators.md"))
-          );
-        }
+      if (namespace.decorators.length > 0) {
+        content.push(section("Decorators", renderer.toc(namespace.decorators)));
+      }
 
-        if (namespace.interfaces.length > 0) {
-          content.push(
-            section("Interfaces", renderer.toc(namespace.interfaces, "./interfaces.md"))
-          );
-        }
+      if (namespace.interfaces.length > 0) {
+        content.push(section("Interfaces", renderer.toc(namespace.interfaces)));
+      }
 
-        if (namespace.operations.length > 0) {
-          content.push(
-            section("Operations", renderer.toc(namespace.operations, "./interfaces.md"))
-          );
-        }
+      if (namespace.operations.length > 0) {
+        content.push(section("Operations", renderer.toc(namespace.operations)));
+      }
 
-        if (namespace.models.length > 0) {
-          content.push(section("Models", renderer.toc(namespace.models, "./data-types.md")));
-        }
-        return content;
-      }),
-    ]),
+      if (namespace.models.length > 0) {
+        content.push(section("Models", renderer.toc(namespace.models)));
+      }
+      return content;
+    }),
   ];
 
-  return renderMarkdowDoc(content);
+  return renderMarkdowDoc(content, 2);
 }
 
 export type DecoratorRenderOptions = {
@@ -103,7 +101,7 @@ export type DecoratorRenderOptions = {
 export function renderDecoratorFile(
   renderer: DocusaurusRenderer,
   refDoc: TypeSpecRefDocBase,
-  options?: DecoratorRenderOptions
+  options?: DecoratorRenderOptions,
 ): string | undefined {
   if (!refDoc.namespaces.some((x) => x.decorators.length > 0)) {
     return undefined;
@@ -117,13 +115,13 @@ export function renderDecoratorFile(
     "---",
   ];
 
-  content.push(section(title, renderer.decoratorsSection(refDoc)));
-  return renderMarkdowDoc(content);
+  content.push(renderer.decoratorsSection(refDoc));
+  return renderMarkdowDoc(content, 2);
 }
 
 function renderInterfacesFile(
   renderer: DocusaurusRenderer,
-  refDoc: TypeSpecRefDoc
+  refDoc: TypeSpecRefDoc,
 ): string | undefined {
   if (!refDoc.namespaces.some((x) => x.operations.length > 0 || x.interfaces.length > 0)) {
     return undefined;
@@ -137,26 +135,24 @@ function renderInterfacesFile(
   ];
 
   content.push(
-    section("Interfaces and Operations", [
-      groupByNamespace(refDoc.namespaces, (namespace) => {
-        if (namespace.operations.length === 0 && namespace.interfaces.length === 0) {
-          return undefined;
-        }
+    groupByNamespace(refDoc.namespaces, (namespace) => {
+      if (namespace.operations.length === 0 && namespace.interfaces.length === 0) {
+        return undefined;
+      }
 
-        const content: MarkdownDoc = [];
-        for (const iface of namespace.interfaces) {
-          content.push(renderer.interface(iface), "");
-        }
+      const content: MarkdownDoc = [];
+      for (const iface of namespace.interfaces) {
+        content.push(renderer.interface(iface), "");
+      }
 
-        for (const operation of namespace.operations) {
-          content.push(renderer.operation(operation), "");
-        }
-        return content;
-      }),
-    ])
+      for (const operation of namespace.operations) {
+        content.push(renderer.operation(operation), "");
+      }
+      return content;
+    }),
   );
 
-  return renderMarkdowDoc(content);
+  return renderMarkdowDoc(content, 2);
 }
 
 export type DataTypeRenderOptions = {
@@ -166,7 +162,7 @@ export type DataTypeRenderOptions = {
 export function renderDataTypes(
   renderer: DocusaurusRenderer,
   refDoc: TypeSpecRefDoc,
-  options?: DataTypeRenderOptions
+  options?: DataTypeRenderOptions,
 ): string | undefined {
   if (!refDoc.namespaces.some((x) => x.models.length > 0)) {
     return undefined;
@@ -181,41 +177,38 @@ export function renderDataTypes(
   ];
 
   content.push(
-    section(
-      "Data types",
-      groupByNamespace(refDoc.namespaces, (namespace) => {
-        const modelCount =
-          namespace.models.length +
-          namespace.enums.length +
-          namespace.unions.length +
-          namespace.scalars.length;
-        if (modelCount === 0) {
-          return undefined;
-        }
-        const content: MarkdownDoc = [];
-        for (const model of namespace.models) {
-          content.push(renderer.model(model), "");
-        }
-        for (const e of namespace.enums) {
-          content.push(renderer.enum(e), "");
-        }
-        for (const union of namespace.unions) {
-          content.push(renderer.union(union), "");
-        }
-        for (const scalar of namespace.scalars) {
-          content.push(renderer.scalar(scalar), "");
-        }
-        return content;
-      })
-    )
+    groupByNamespace(refDoc.namespaces, (namespace) => {
+      const modelCount =
+        namespace.models.length +
+        namespace.enums.length +
+        namespace.unions.length +
+        namespace.scalars.length;
+      if (modelCount === 0) {
+        return undefined;
+      }
+      const content: MarkdownDoc = [];
+      for (const model of namespace.models) {
+        content.push(renderer.model(model), "");
+      }
+      for (const e of namespace.enums) {
+        content.push(renderer.enum(e), "");
+      }
+      for (const union of namespace.unions) {
+        content.push(renderer.union(union), "");
+      }
+      for (const scalar of namespace.scalars) {
+        content.push(renderer.scalar(scalar), "");
+      }
+      return content;
+    }),
   );
 
-  return renderMarkdowDoc(content);
+  return renderMarkdowDoc(content, 2);
 }
 
 function renderEmitter(
   renderer: DocusaurusRenderer,
-  refDoc: TypeSpecLibraryRefDoc
+  refDoc: TypeSpecLibraryRefDoc,
 ): string | undefined {
   if (refDoc.emitter?.options === undefined) {
     return undefined;
@@ -229,7 +222,25 @@ function renderEmitter(
     renderer.emitterUsage(refDoc),
   ];
 
-  return renderMarkdowDoc(content);
+  return renderMarkdowDoc(content, 2);
+}
+function renderLinter(
+  renderer: DocusaurusRenderer,
+  refDoc: TypeSpecLibraryRefDoc,
+): string | undefined {
+  if (refDoc.linter === undefined) {
+    return undefined;
+  }
+  const content: MarkdownDoc = [
+    "---",
+    `title: "Linter usage"`,
+    "toc_min_heading_level: 2",
+    "toc_max_heading_level: 3",
+    "---",
+    renderer.linterUsage(refDoc),
+  ];
+
+  return renderMarkdowDoc(content, 2);
 }
 
 export class DocusaurusRenderer extends MarkdownRenderer {
@@ -256,7 +267,37 @@ export class DocusaurusRenderer extends MarkdownRenderer {
           label: "In a library",
           content: codeblock(`npm install --save-peer ${refDoc.name}`, "bash"),
         },
-      ])
+      ]),
     );
+  }
+
+  filename(type: RefDocEntity): string {
+    switch (type.kind) {
+      case "decorator":
+        return "./decorators.md";
+      case "operation":
+      case "interface":
+        return "./interfaces.md";
+      case "model":
+      case "enum":
+      case "union":
+        return "./data-types.md";
+      default:
+        return "";
+    }
+  }
+
+  linterRuleLink(url: string) {
+    const homepage = (this.refDoc.packageJson as any).docusaurusWebsite;
+    if (homepage && url.includes(homepage)) {
+      const fromRoot = url.replace(homepage, "");
+      return `${fromRoot}.md`;
+    } else {
+      return url;
+    }
+  }
+
+  deprecationNotice(notice: DeprecationNotice): MarkdownDoc {
+    return [":::warning", `**Deprecated**: ${notice.message}`, ":::"];
   }
 }

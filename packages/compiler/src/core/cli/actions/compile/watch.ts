@@ -1,7 +1,7 @@
 import { FSWatcher, WatchEventType, watch } from "fs";
 import { pathToFileURL } from "url";
-import { NodeHost } from "../../../node-host.js";
 import { CompilerHost } from "../../../types.js";
+import { CliCompilerHost } from "../../types.js";
 
 export interface ProjectWatcher {
   /** Set the files to watch. */
@@ -16,7 +16,7 @@ export interface WatchHost extends CompilerHost {
 }
 
 export function createWatcher(
-  onFileChanged: (event: WatchEventType, name: string) => void
+  onFileChanged: (event: WatchEventType, name: string) => void,
 ): ProjectWatcher {
   const current = new Map<string, FSWatcher>();
   const dupFilter = createDupsFilter();
@@ -25,9 +25,9 @@ export function createWatcher(
   function watchFile(file: string): FSWatcher {
     const watcher = watch(
       file,
-      dupFilter((event: WatchEventType, _name: string) => {
+      dupFilter((event: WatchEventType, _name: string | null) => {
         onFileChanged(event, file);
-      })
+      }),
     );
     return watcher;
   }
@@ -54,10 +54,10 @@ export function createWatcher(
   }
 }
 
-export function createWatchHost(): WatchHost {
+export function createWatchHost(host: CliCompilerHost): WatchHost {
   let count = 0;
   return {
-    ...NodeHost,
+    ...host,
     forceJSReload,
     getJsImport: (path: string) => import(pathToFileURL(path).href + `?=${count}`),
   };
@@ -67,8 +67,11 @@ export function createWatchHost(): WatchHost {
 }
 function createDupsFilter() {
   let memo: Record<string, [WatchEventType, string]> = {};
-  return function (fn: (e: WatchEventType, name: string) => void) {
-    return function (event: WatchEventType, name: string) {
+  return function (fn: (e: WatchEventType, name: string | null) => void) {
+    return function (event: WatchEventType, name: string | null) {
+      if (name === null) {
+        return;
+      }
       memo[name] = [event, name];
       setTimeout(function () {
         Object.values(memo).forEach((args) => {

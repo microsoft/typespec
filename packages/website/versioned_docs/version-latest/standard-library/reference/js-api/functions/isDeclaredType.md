@@ -4,7 +4,7 @@ title: "[F] isDeclaredType"
 
 ---
 ```ts
-isDeclaredType(type): boolean
+function isDeclaredType(type): boolean
 ```
 
 Check if the type is a declared type. This include:
@@ -14,5 +14,9 @@ Check if the type is a declared type. This include:
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `type` | [`Type`](../type-aliases/Type.md) |
+
+## Returns
+
+`boolean`

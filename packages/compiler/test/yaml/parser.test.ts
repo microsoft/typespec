@@ -1,4 +1,5 @@
 import { deepStrictEqual } from "assert";
+import { describe, it } from "vitest";
 import { expectDiagnosticEmpty, expectDiagnostics } from "../../src/testing/expect.js";
 import { extractCursor } from "../../src/testing/test-server-host.js";
 import { parseYaml } from "../../src/yaml/parser.js";

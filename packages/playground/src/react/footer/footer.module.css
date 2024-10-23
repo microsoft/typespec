@@ -1,0 +1,18 @@
+.footer {
+  grid-area: footer;
+  display: flex;
+  font-size: 14px;
+
+  background-color: #0073c1;
+}
+
+.footer-item {
+  text-decoration: none;
+  color: #fefefe;
+  border-right: 1px solid #d5d5d5;
+  padding: 0 5px;
+}
+
+.footer-item:hover {
+  background-color: #063a5c;
+}

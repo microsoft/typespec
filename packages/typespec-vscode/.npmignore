@@ -1,0 +1,9 @@
+# This file determines what goes in the npm. We use an opt-in rather than
+# opt-out approach to avoid accidentally shipping unwanted files.
+
+# Exclude everything by default.
+**/*
+
+# Then explicitly include what we want to ship in npm package
+!typespec-vscode-*.vsix
+!ThirdPartyNotices.txt

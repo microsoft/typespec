@@ -1,7 +1,14 @@
 import { Namespace } from "@typespec/compiler";
 import { BasicTestRunner, expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual } from "assert";
-import { getExtensions, getExternalDocs, getInfo } from "../src/decorators.js";
+import { beforeEach, describe, it } from "vitest";
+import {
+  getExtensions,
+  getExternalDocs,
+  getInfo,
+  resolveInfo,
+  setInfo,
+} from "../src/decorators.js";
 import { createOpenAPITestRunner } from "./test-host.js";
 
 describe("openapi: decorators", () => {
@@ -33,7 +40,6 @@ describe("openapi: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' is not assignable to parameter of type 'valueof string'",
       });
     });
   });
@@ -78,7 +84,6 @@ describe("openapi: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' is not assignable to parameter of type 'valueof string'",
       });
     });
 
@@ -107,7 +112,6 @@ describe("openapi: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' is not assignable to parameter of type 'valueof string'",
       });
     });
 
@@ -120,7 +124,6 @@ describe("openapi: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' is not assignable to parameter of type 'valueof string'",
       });
     });
 
@@ -149,6 +152,63 @@ describe("openapi: decorators", () => {
   });
 
   describe("@info", () => {
+    describe("emit diagnostics when passing extension key not starting with `x-` in additionalInfo", () => {
+      it.each([
+        ["root", `{ foo:"Bar" }`],
+        ["license", `{ license:{ name: "Apache 2.0", foo:"Bar"} }`],
+        ["contact", `{ contact:{ foo:"Bar"} }`],
+        ["complex", `{ contact:{ "x-custom": "string" }, foo:"Bar" }`],
+      ])("%s", async (_, code) => {
+        const diagnostics = await runner.diagnose(`
+        @info(${code})
+        @test namespace Service;
+      `);
+
+        expectDiagnostics(diagnostics, {
+          code: "@typespec/openapi/invalid-extension-key",
+          message: `OpenAPI extension must start with 'x-' but was 'foo'`,
+        });
+      });
+
+      it("multiple", async () => {
+        const diagnostics = await runner.diagnose(`
+          @info({
+            license:{ name: "Apache 2.0", foo1:"Bar"}, 
+            contact:{ "x-custom": "string", foo2:"Bar" }, 
+            foo3:"Bar" 
+          })
+          @test namespace Service;
+        `);
+
+        expectDiagnostics(diagnostics, [
+          {
+            code: "@typespec/openapi/invalid-extension-key",
+            message: `OpenAPI extension must start with 'x-' but was 'foo1'`,
+          },
+          {
+            code: "@typespec/openapi/invalid-extension-key",
+            message: `OpenAPI extension must start with 'x-' but was 'foo2'`,
+          },
+          {
+            code: "@typespec/openapi/invalid-extension-key",
+            message: `OpenAPI extension must start with 'x-' but was 'foo3'`,
+          },
+        ]);
+      });
+    });
+
+    it("emit diagnostic if termsOfService is not a valid url", async () => {
+      const diagnostics = await runner.diagnose(`
+        @info({termsOfService:"notvalidurl"})
+        @test namespace Service {}
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/openapi/not-url",
+        message: "TermsOfService: notvalidurl is not a valid URL.",
+      });
+    });
+
     it("emit diagnostic if use on non namespace", async () => {
       const diagnostics = await runner.diagnose(`
         @info({})
@@ -169,14 +229,15 @@ describe("openapi: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message:
-          "Argument '123' is not assignable to parameter of type 'TypeSpec.OpenAPI.AdditionalInfo'",
       });
     });
 
     it("set all properties", async () => {
       const { Service } = (await runner.compile(`
         @info({
+          title: "My API",
+          version: "1.0.0",
+          summary: "My API summary",
           termsOfService: "http://example.com/terms/",
           contact: {
             name: "API Support",
@@ -192,6 +253,9 @@ describe("openapi: decorators", () => {
       `)) as { Service: Namespace };
 
       deepStrictEqual(getInfo(runner.program, Service), {
+        title: "My API",
+        version: "1.0.0",
+        summary: "My API summary",
         termsOfService: "http://example.com/terms/",
         contact: {
           name: "API Support",
@@ -202,6 +266,76 @@ describe("openapi: decorators", () => {
           name: "Apache 2.0",
           url: "http://www.apache.org/licenses/LICENSE-2.0.html",
         },
+      });
+    });
+
+    it("resolveInfo() merge with data from @service and @summary", async () => {
+      const { Service } = (await runner.compile(`
+        @service({ 
+          title: "Service API", 
+          
+          #suppress "deprecated" "Test"
+          version: "2.0.0" 
+        })
+        @summary("My summary")
+        @info({
+          version: "1.0.0",
+          termsOfService: "http://example.com/terms/",
+        })
+        @test namespace Service {}
+      `)) as { Service: Namespace };
+
+      deepStrictEqual(resolveInfo(runner.program, Service), {
+        title: "Service API",
+        version: "1.0.0",
+        summary: "My summary",
+        termsOfService: "http://example.com/terms/",
+      });
+    });
+
+    it("resolveInfo() returns empty object if nothing is provided", async () => {
+      const { Service } = (await runner.compile(`
+        @test namespace Service {}
+      `)) as { Service: Namespace };
+
+      deepStrictEqual(resolveInfo(runner.program, Service), {});
+    });
+
+    it("setInfo() function for setting info object directly", async () => {
+      const { Service } = (await runner.compile(`
+        @test namespace Service {}
+      `)) as { Service: Namespace };
+      setInfo(runner.program, Service, {
+        title: "My API",
+        version: "1.0.0",
+        summary: "My API summary",
+        termsOfService: "http://example.com/terms/",
+        contact: {
+          name: "API Support",
+          url: "http://www.example.com/support",
+          email: "support@example.com",
+        },
+        license: {
+          name: "Apache 2.0",
+          url: "http://www.apache.org/licenses/LICENSE-2.0.html",
+        },
+        "x-custom": "Bar",
+      });
+      deepStrictEqual(getInfo(runner.program, Service), {
+        title: "My API",
+        version: "1.0.0",
+        summary: "My API summary",
+        termsOfService: "http://example.com/terms/",
+        contact: {
+          name: "API Support",
+          url: "http://www.example.com/support",
+          email: "support@example.com",
+        },
+        license: {
+          name: "Apache 2.0",
+          url: "http://www.apache.org/licenses/LICENSE-2.0.html",
+        },
+        "x-custom": "Bar",
       });
     });
   });

@@ -4,5 +4,11 @@ title: "[T] LiteralNode"
 
 ---
 ```ts
-type LiteralNode: StringLiteralNode | NumericLiteralNode | BooleanLiteralNode;
+type LiteralNode: 
+  | StringLiteralNode
+  | NumericLiteralNode
+  | BooleanLiteralNode
+  | StringTemplateHeadNode
+  | StringTemplateMiddleNode
+  | StringTemplateTailNode;
 ```

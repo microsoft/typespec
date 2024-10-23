@@ -1,0 +1,61 @@
+id: issues.inactivity
+name: GitOps.PullRequestIssueManagement
+description: Manage issues that need author response
+owner:
+resource: repository
+disabled: false
+where:
+configuration:
+  resourceManagementConfiguration:
+    scheduledSearches:
+      - description: Close issues needing author feedback that have been stale for 14 days
+        frequencies:
+          - hourly:
+              hour: 6
+        filters:
+          - isIssue
+          - isOpen
+          - hasLabel:
+              label: needs-info
+          - noActivitySince:
+              days: 14
+        actions:
+          - closeIssue
+          - addReply:
+              reply: >-
+                Hi @${issueAuthor}.
+                Since there hasn't been recent engagement, we're going to close this out.
+                Please feel free to reopen if you have any further questions or concerns.
+
+    eventResponderTasks:
+      - description: When the label "needs-info" is added to an issue assign back to the author
+        if:
+          - payloadType: Issues
+          - labelAdded:
+              label: needs-info
+          - isOpen
+        then:
+          - assignTo:
+              author: true
+        # The policy service should trigger even when the label was added by the policy service
+        triggerOnOwnActions: true
+
+      - description: Remove needs-info label when author comments on issue
+        if:
+          - payloadType: Issue_Comment
+          - isAction:
+              action: Created
+          - isActivitySender:
+              issueAuthor: True
+          - hasLabel:
+              label: needs-info
+          - isOpen
+        then:
+          - assignTo:
+              users: []
+          - addLabel:
+              label: needs-area
+          - removeLabel:
+              label: needs-info
+onFailure:
+onSuccess:

@@ -7,14 +7,18 @@ title: "[T] NodeCallback"
 type NodeCallback<T>: (c) => T;
 ```
 
-## Type parameters
+## Type Parameters
 
-| Parameter |
-| :------ |
+| Type Parameter |
+| ------ |
 | `T` |
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `c` | [`Node`](Node.md) |
+
+## Returns
+
+`T`

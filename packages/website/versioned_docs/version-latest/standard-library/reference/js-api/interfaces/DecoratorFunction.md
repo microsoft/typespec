@@ -4,7 +4,7 @@ title: "[I] DecoratorFunction"
 
 ---
 ```ts
-DecoratorFunction(
+interface DecoratorFunction(
    program, 
    target, ...
    customArgs): void
@@ -13,13 +13,17 @@ DecoratorFunction(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | [`DecoratorContext`](DecoratorContext.md) |
 | `target` | `any` |
 | ...`customArgs` | `any`[] |
 
+## Returns
+
+`void`
+
 ## Properties
 
-| Property | Type | Description |
-| :------ | :------ | :------ |
-| `namespace?` | `string` | - |
+| Property | Type |
+| ------ | ------ |
+| `namespace?` | `string` |

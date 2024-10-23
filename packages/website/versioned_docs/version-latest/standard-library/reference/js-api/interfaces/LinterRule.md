@@ -9,22 +9,23 @@ Resolved instance of a linter rule that will run.
 
 - [`LinterRuleDefinition`](LinterRuleDefinition.md)<`N`, `DM`\>
 
-## Type parameters
+## Type Parameters
 
-| Parameter |
-| :------ |
-| `N` extends `string` |
-| `DM` extends [`DiagnosticMessages`](DiagnosticMessages.md) |
+| Type Parameter |
+| ------ |
+| `N` *extends* `string` |
+| `DM` *extends* [`DiagnosticMessages`](DiagnosticMessages.md) |
 
 ## Properties
 
-| Property | Type | Description | Inheritance |
-| :------ | :------ | :------ | :------ |
-| `description` | `string` | - | [`LinterRuleDefinition`](LinterRuleDefinition.md).`description` |
+| Property | Type | Description | Inherited from |
+| ------ | ------ | ------ | ------ |
+| `description` | `string` | Short description of the rule | [`LinterRuleDefinition`](LinterRuleDefinition.md).`description` |
 | `id` | `string` | Expanded rule id in format `<library-name>:<rule-name>` | - |
-| `messages` | `DM` | - | [`LinterRuleDefinition`](LinterRuleDefinition.md).`messages` |
-| `name` | `N` | - | [`LinterRuleDefinition`](LinterRuleDefinition.md).`name` |
-| `severity` | `"warning"` | - | [`LinterRuleDefinition`](LinterRuleDefinition.md).`severity` |
+| `messages` | `DM` | Messages that can be reported with the diagnostic. | [`LinterRuleDefinition`](LinterRuleDefinition.md).`messages` |
+| `name` | `N` | Rule name (without the library name) | [`LinterRuleDefinition`](LinterRuleDefinition.md).`name` |
+| `severity` | `"warning"` | Rule default severity. | [`LinterRuleDefinition`](LinterRuleDefinition.md).`severity` |
+| `url?` | `string` | Specifies the URL at which the full documentation can be accessed. | [`LinterRuleDefinition`](LinterRuleDefinition.md).`url` |
 
 ## Methods
 
@@ -34,11 +35,17 @@ Resolved instance of a linter rule that will run.
 create(context): SemanticNodeListener
 ```
 
+Creator
+
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | [`LinterRuleContext`](LinterRuleContext.md)<`DM`\> |
+
+#### Returns
+
+[`SemanticNodeListener`](../type-aliases/SemanticNodeListener.md)
 
 #### Inherited from
 

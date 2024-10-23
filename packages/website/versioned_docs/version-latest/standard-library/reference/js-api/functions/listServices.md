@@ -4,17 +4,19 @@ title: "[F] listServices"
 
 ---
 ```ts
-listServices(program): Service[]
+function listServices(program): Service[]
 ```
 
-List all the services defined in the typespec program
+List all the services defined in the TypeSpec program
 
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `program` | [`Program`](../interfaces/Program.md) | Program |
 
 ## Returns
+
+[`Service`](../interfaces/Service.md)[]
 
 List of service.

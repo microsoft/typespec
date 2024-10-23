@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: sample
-  version: 0000-00-00
+  version: 0.0.0
 tags: []
 paths:
   /time:
@@ -47,7 +47,6 @@ components:
   schemas:
     Error:
       type: object
-      description: Error
       required:
         - status
         - message
@@ -57,3 +56,4 @@ components:
           format: int32
         message:
           type: string
+      description: Error

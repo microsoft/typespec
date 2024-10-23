@@ -5,6 +5,10 @@ export interface StateStorage<T extends object> {
   save(t: Partial<T>): void;
 }
 
+export interface UrlStateStorage<T extends object> extends StateStorage<T> {
+  resolveSearchParams(t: Partial<T>): URLSearchParams;
+}
+
 export type UrlStorageSchema<T> = {
   [key in keyof T]: UrlStorageItem;
 };
@@ -25,9 +29,9 @@ export interface UrlStorageItem {
  * @returns
  */
 export function createUrlStateStorage<const T extends object>(
-  schema: UrlStorageSchema<T>
-): StateStorage<T> {
-  return { load, save };
+  schema: UrlStorageSchema<T>,
+): UrlStateStorage<T> {
+  return { load, save, resolveSearchParams };
 
   function load(): Partial<T> {
     const result: Record<string, string> = {};
@@ -51,7 +55,7 @@ export function createUrlStateStorage<const T extends object>(
         // eslint-disable-next-line no-console
         console.error(
           `Error decompressing query parameter ${item.queryParam} with content:`,
-          value
+          value,
         );
         return undefined;
       }
@@ -68,7 +72,7 @@ export function createUrlStateStorage<const T extends object>(
         // eslint-disable-next-line no-console
         console.error(
           `Error decompressing query parameter ${item.queryParam} with content:`,
-          value
+          value,
         );
         return undefined;
       }
@@ -78,17 +82,24 @@ export function createUrlStateStorage<const T extends object>(
   }
 
   function save(data: T) {
-    const params = new URLSearchParams();
+    const params = resolveSearchParams(data, true);
+    history.pushState(null, "", window.location.pathname + "?" + params.toString());
+  }
+
+  function resolveSearchParams(data: T, mergeWithExisting = false): URLSearchParams {
+    const params = new URLSearchParams(mergeWithExisting ? location.search : undefined);
     for (const [key, item] of Object.entries<UrlStorageItem>(schema)) {
       const value = (data as any)[key];
 
       if (value) {
         const serialized = serialize(item, value);
         const compressed = compress(item, serialized);
-        params.append(item.queryParam, compressed);
+        params.set(item.queryParam, compressed);
+      } else {
+        params.delete(item.queryParam);
       }
     }
-    history.pushState(null, "", window.location.pathname + "?" + params.toString());
+    return params;
   }
 
   function compress(item: UrlStorageItem, value: string): string {

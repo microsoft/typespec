@@ -4,7 +4,7 @@ title: "[F] $visibility"
 
 ---
 ```ts
-$visibility(
+function $visibility(
    context, 
    target, ...
    visibilities): void
@@ -13,7 +13,11 @@ $visibility(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`ModelProperty`](../interfaces/ModelProperty.md) |
 | ...`visibilities` | `string`[] |
+
+## Returns
+
+`void`

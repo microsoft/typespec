@@ -4,11 +4,15 @@ title: "[F] isNeverType"
 
 ---
 ```ts
-isNeverType(type): type is NeverType
+function isNeverType(type): type is NeverType
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
-| `type` | [`Type`](../type-aliases/Type.md) |
+| ------ | ------ |
+| `type` | [`Entity`](../type-aliases/Entity.md) |
+
+## Returns
+
+`type is NeverType`

@@ -1,5 +1,7 @@
-import { Program } from "./program.js";
+import type { Program } from "./program.js";
 import {
+  ArrayModelType,
+  Entity,
   Enum,
   ErrorType,
   Interface,
@@ -17,27 +19,50 @@ import {
   Type,
   TypeMapper,
   UnknownType,
+  Value,
   VoidType,
 } from "./types.js";
 
-export function isErrorType(type: Type): type is ErrorType {
-  return type.kind === "Intrinsic" && type.name === "ErrorType";
+export function isErrorType(type: Entity): type is ErrorType {
+  return "kind" in type && type.kind === "Intrinsic" && type.name === "ErrorType";
 }
 
-export function isVoidType(type: Type): type is VoidType {
-  return type.kind === "Intrinsic" && type.name === "void";
+export function isVoidType(type: Entity): type is VoidType {
+  return "kind" in type && type.kind === "Intrinsic" && type.name === "void";
 }
 
-export function isNeverType(type: Type): type is NeverType {
-  return type.kind === "Intrinsic" && type.name === "never";
+export function isNeverType(type: Entity): type is NeverType {
+  return "kind" in type && type.kind === "Intrinsic" && type.name === "never";
 }
 
-export function isUnknownType(type: Type): type is UnknownType {
-  return type.kind === "Intrinsic" && type.name === "unknown";
+export function isUnknownType(type: Entity): type is UnknownType {
+  return "kind" in type && type.kind === "Intrinsic" && type.name === "unknown";
 }
 
-export function isNullType(type: Type): type is NullType {
-  return type.kind === "Intrinsic" && type.name === "null";
+export function isNullType(type: Entity): type is NullType {
+  return "kind" in type && type.kind === "Intrinsic" && type.name === "null";
+}
+
+export function isType(entity: Entity): entity is Type {
+  return entity.entityKind === "Type";
+}
+export function isValue(entity: Entity): entity is Value {
+  return entity.entityKind === "Value";
+}
+
+/**
+ * @param type Model type
+ */
+export function isArrayModelType(program: Program, type: Model): type is ArrayModelType {
+  return Boolean(type.indexer && type.indexer.key.name === "integer");
+}
+
+/**
+ * Check if a model is an array type.
+ * @param type Model type
+ */
+export function isRecordModelType(program: Program, type: Model): type is ArrayModelType {
+  return Boolean(type.indexer && type.indexer.key.name === "string");
 }
 
 /**
@@ -50,6 +75,7 @@ export function getParentTemplateNode(node: Node): (Node & TemplateDeclarationNo
     case SyntaxKind.ModelStatement:
     case SyntaxKind.ScalarStatement:
     case SyntaxKind.OperationStatement:
+    case SyntaxKind.UnionStatement:
     case SyntaxKind.InterfaceStatement:
       return node.templateParameters.length > 0 ? node : undefined;
     case SyntaxKind.OperationSignatureDeclaration:
@@ -65,7 +91,7 @@ export function getParentTemplateNode(node: Node): (Node & TemplateDeclarationNo
  * Check the given type is a finished template instance.
  */
 export function isTemplateInstance(
-  type: Type
+  type: Type,
 ): type is TemplatedType & { templateArguments: Type[]; templateMapper: TypeMapper } {
   const maybeTemplateType = type as TemplatedType;
   return (
@@ -94,7 +120,7 @@ export function isDeclaredType(type: Type): boolean {
  * Resolve if the type is a template type declaration(Non initialized template type).
  */
 export function isTemplateDeclaration(
-  type: TemplatedType
+  type: TemplatedType,
 ): type is TemplatedType & { node: TemplateDeclarationNode } {
   if (type.node === undefined) {
     return false;
@@ -126,7 +152,7 @@ export function isTemplateDeclarationOrInstance(type: TemplatedType): boolean {
  */
 export function isGlobalNamespace(
   program: Program,
-  namespace: Namespace
+  namespace: Namespace,
 ): namespace is Namespace & { name: ""; namespace: undefined } {
   return program.getGlobalNamespaceType() === namespace;
 }
@@ -140,7 +166,7 @@ export function isGlobalNamespace(
 export function isDeclaredInNamespace(
   type: Model | Operation | Interface | Namespace | Enum,
   namespace: Namespace,
-  options: { recursive?: boolean } = { recursive: true }
+  options: { recursive?: boolean } = { recursive: true },
 ) {
   let candidateNs = type.namespace;
   while (candidateNs) {
@@ -163,7 +189,7 @@ export function isDeclaredInNamespace(
 
 export function getFullyQualifiedSymbolName(
   sym: Sym | undefined,
-  options?: { useGlobalPrefixAtTopLevel?: boolean }
+  options?: { useGlobalPrefixAtTopLevel?: boolean },
 ): string {
   if (!sym) return "";
   if (sym.symbolSource) sym = sym.symbolSource;

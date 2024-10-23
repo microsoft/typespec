@@ -1,0 +1,82 @@
+name: PR Tools
+trigger: none
+pr:
+  branches:
+    include:
+      - main
+      - release/*
+  paths:
+    exclude:
+      - packages/http-client-csharp
+      - cspell.yaml
+      - eng/emitters
+
+extends:
+  template: /eng/common/pipelines/templates/1es-redirect.yml
+  parameters:
+    variables:
+      - template: /eng/tsp-core/pipelines/templates/variables/globals.yml@self
+    stages:
+      - stage: pr_tools
+        displayName: PR Tools
+        pool:
+          name: $(LINUXPOOL)
+          image: $(LINUXVMIMAGE)
+          os: linux
+        jobs:
+          - job: tryit
+            displayName: Setup Try It
+            variables:
+              TYPESPEC_WEBSITE_BASE_PATH: "/prs/$(System.PullRequest.PullRequestNumber)/"
+            steps:
+              - checkout: self
+                persistCredentials: true
+
+              - template: /eng/tsp-core/pipelines/templates/install.yml
+              - template: /eng/tsp-core/pipelines/templates/install-browsers.yml
+
+              - template: /eng/tsp-core/pipelines/templates/build.yml
+
+              - task: AzureCLI@1
+                displayName: "Publish playground to PR endpoint"
+                inputs:
+                  azureSubscription: "Azure SDK Engineering System"
+                  scriptLocation: inlineScript
+                  inlineScript: |
+                    az storage blob upload-batch \
+                      --auth-mode login \
+                      --destination \$web \
+                      --account-name "cadlplayground" \
+                      --destination-path $(TYPESPEC_WEBSITE_BASE_PATH) \
+                      --source "./packages/playground-website/dist/web/" \
+                      --overwrite
+
+              - task: AzureCLI@1
+                displayName: "Publish website to PR endpoint"
+                inputs:
+                  azureSubscription: "Azure SDK Engineering System"
+                  scriptLocation: inlineScript
+                  inlineScript: |
+                    az storage blob upload-batch \
+                      --auth-mode login \
+                      --destination \$web \
+                      --account-name "tspwebsitepr" \
+                      --destination-path $(TYPESPEC_WEBSITE_BASE_PATH) \
+                      --source "./packages/website-astro/dist/" \
+                      --overwrite
+
+              - script: npx tsx eng/tsp-core/scripts/create-tryit-comment.ts
+                displayName: Check already commented
+                env:
+                  GH_TOKEN: $(azuresdk-github-pat)
+
+          - job: change_comment
+            displayName: Describe changes on PR
+            condition: and(succeeded(), eq(startsWith(variables['System.PullRequest.SourceBranch'], 'publish/'), false))
+            steps:
+              - checkout: self
+
+              - script: npx -p @chronus/github-pr-commenter@0.5.0 chronus-github-pr-commenter
+                displayName: Make comment about changes
+                env:
+                  GITHUB_TOKEN: $(azuresdk-github-pat)

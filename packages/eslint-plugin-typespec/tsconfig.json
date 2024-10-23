@@ -1,5 +1,5 @@
 {
-  "extends": "../tsconfig.json",
+  "extends": "../../tsconfig.base.json",
   "references": [
     { "path": "../compiler/tsconfig.json" },
     { "path": "../rest/tsconfig.json" },
@@ -9,7 +9,7 @@
     "outDir": "dist",
     "rootDir": ".",
     "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo",
-    "types": ["node", "mocha"]
+    "skipLibCheck": true
   },
   "include": ["src/**/*.ts", "test/**/*.ts"]
 }

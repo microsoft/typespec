@@ -2,6 +2,7 @@
 import { NodeHost, logDiagnostics, resolvePath, typespecVersion } from "@typespec/compiler";
 import pc from "picocolors";
 import yargs from "yargs";
+import { generateExternSignatures } from "./gen-extern-signatures/gen-extern-signatures.js";
 import { generateLibraryDocs } from "./ref-doc/experimental.js";
 
 try {
@@ -20,8 +21,8 @@ function logExperimentalWarning(type: "log" | "error") {
   log("-".repeat(100));
   log(
     `tspd (TypeSpec Library Developer Cli) is experimental and might be ${pc.bold(
-      "BREAKING"
-    )} between versions.`
+      "BREAKING",
+    )} between versions.`,
   );
   if (type === "error") {
     log(`Add "--enable-experimental" flag to acknowledge this and continue.`);
@@ -84,13 +85,32 @@ async function main() {
         const host = NodeHost;
         const diagnostics = await generateLibraryDocs(
           resolvedRoot,
-          args["output-dir"] ?? resolvePath(resolvedRoot, "docs")
+          args["output-dir"] ?? resolvePath(resolvedRoot, "docs"),
         );
         // const diagnostics = await generateExternSignatures(host, resolvedRoot);
         if (diagnostics.length > 0) {
           logDiagnostics(diagnostics, host.logSink);
         }
-      }
+      },
+    )
+    .command(
+      "gen-extern-signature <entrypoint>",
+      "Format given list of TypeSpec files.",
+      (cmd) => {
+        return cmd.positional("entrypoint", {
+          description: "Path to the library entrypoint.",
+          type: "string",
+          demandOption: true,
+        });
+      },
+      async (args) => {
+        const resolvedRoot = resolvePath(process.cwd(), args.entrypoint);
+        const host = NodeHost;
+        const diagnostics = await generateExternSignatures(host, resolvedRoot);
+        if (diagnostics.length > 0) {
+          logDiagnostics(diagnostics, host.logSink);
+        }
+      },
     )
     .version(typespecVersion)
     .demandCommand(1, "You must use one of the supported commands.").argv;

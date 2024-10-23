@@ -4,23 +4,27 @@ title: "[F] isCadlValueTypeOf"
 
 ---
 ```ts
-isCadlValueTypeOf<K>(target, expectedType): target is InferredTypeSpecValue<K>
+function isCadlValueTypeOf<K>(target, expectedType): target is InferredTypeSpecValue<K>
 ```
 
-## Type parameters
+## Type Parameters
 
-| Parameter |
-| :------ |
-| `K` extends [`TypeKind`](../type-aliases/TypeKind.md) |
+| Type Parameter |
+| ------ |
+| `K` *extends* [`TypeKind`](../type-aliases/TypeKind.md) |
 
 ## Parameters
 
-| Parameter | Type |
-| :------ | :------ |
-| `target` | [`TypeSpecValue`](../type-aliases/TypeSpecValue.md) |
-| `expectedType` | `K` \| readonly `K`[] |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `target` | [`TypeSpecValue`](../type-aliases/TypeSpecValue.md) | Target to validate. |
+| `expectedType` | `K` \| readonly `K`[] | One or multiple allowed TypeSpec types. |
 
 ## Returns
+
+`target is InferredTypeSpecValue<K>`
+
+boolean if the target is of one of the allowed types.
 
 ## Deprecated
 

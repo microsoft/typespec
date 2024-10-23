@@ -13,9 +13,14 @@ export function needsParens(path: AstPath<Node>, options: TypeSpecPrettierOption
     return false;
   }
 
-  // eslint-disable-next-line deprecation/deprecation
-  const node = path.getValue();
+  const node = path.node;
   switch (node.kind) {
+    case SyntaxKind.ValueOfExpression:
+      return (
+        parent.kind === SyntaxKind.UnionExpression ||
+        parent.kind === SyntaxKind.ArrayExpression ||
+        parent.kind === SyntaxKind.IntersectionExpression
+      );
     case SyntaxKind.IntersectionExpression:
       return (
         parent.kind === SyntaxKind.UnionExpression || parent.kind === SyntaxKind.ArrayExpression

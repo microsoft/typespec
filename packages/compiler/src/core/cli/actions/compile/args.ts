@@ -1,11 +1,13 @@
 import { resolveCompilerOptions } from "../../../../config/config-to-options.js";
+import { omitUndefined } from "../../../../utils/misc.js";
 import { createDiagnosticCollector } from "../../../diagnostics.js";
 import { CompilerOptions } from "../../../options.js";
 import { resolvePath } from "../../../path-utils.js";
 import { CompilerHost, Diagnostic } from "../../../types.js";
-import { omitUndefined } from "../../../util.js";
 
 export interface CompileCliArgs {
+  path?: string;
+  pretty?: boolean;
   "output-dir"?: string;
   "output-path"?: string;
   nostdlib?: boolean;
@@ -27,7 +29,7 @@ export async function getCompilerOptions(
   entrypoint: string,
   cwd: string,
   args: CompileCliArgs,
-  env: Record<string, string | undefined>
+  env: Record<string, string | undefined>,
 ): Promise<[CompilerOptions | undefined, readonly Diagnostic[]]> {
   const diagnostics = createDiagnosticCollector();
 
@@ -54,13 +56,17 @@ export async function getCompilerOptions(
         emit: args.emit,
         options: cliOptions.options,
       }),
-    })
+    }),
   );
+  if (args["no-emit"]) {
+    resolvedOptions.noEmit = true;
+  }
+
   return diagnostics.wrap(
     omitUndefined({
       ...resolvedOptions,
       miscOptions: cliOptions.miscOptions,
-    })
+    }),
   );
 }
 
@@ -87,7 +93,7 @@ function resolveCliOptions(args: CompileCliArgs): {
     const optionParts = option.split("=");
     if (optionParts.length !== 2) {
       throw new Error(
-        `The --option parameter value "${option}" must be in the format: <emitterName>.some-options=value`
+        `The --option parameter value "${option}" must be in the format: <emitterName>.some-options=value`,
       );
     }
     let optionKeyParts = optionParts[0].split(".");

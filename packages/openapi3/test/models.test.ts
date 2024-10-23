@@ -1,5 +1,6 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
+import { describe, expect, it } from "vitest";
 import { diagnoseOpenApiFor, oapiForModel, openApiFor } from "./test-host.js";
 
 describe("openapi3: models", () => {
@@ -8,7 +9,7 @@ describe("openapi3: models", () => {
       "Foo",
       `model Foo {
         x: int32;
-      };`
+      };`,
     );
 
     ok(res.isRef);
@@ -21,22 +22,57 @@ describe("openapi3: models", () => {
     });
   });
 
-  it("uses json name specified", async () => {
+  it("uses json name specified via @projectedName (LEGACY)", async () => {
     const res = await oapiForModel(
       "Foo",
       `model Foo {
+        #suppress "deprecated" "for testing"
         @projectedName("json", "xJson")
         x: int32;
-      };`
+      };`,
     );
 
-    ok(res.isRef);
-    deepStrictEqual(res.schemas.Foo, {
-      type: "object",
+    expect(res.schemas.Foo).toMatchObject({
+      required: ["xJson"],
       properties: {
         xJson: { type: "integer", format: "int32" },
       },
+    });
+  });
+
+  it("uses json name specified via @encodedName", async () => {
+    const res = await oapiForModel(
+      "Foo",
+      `model Foo {
+        @encodedName("application/json", "xJson")
+        x: int32;
+      };`,
+    );
+
+    expect(res.schemas.Foo).toMatchObject({
       required: ["xJson"],
+      properties: {
+        xJson: { type: "integer", format: "int32" },
+      },
+    });
+  });
+
+  it("uses json name specified via @encodedName even if @projectedName is provided", async () => {
+    const res = await oapiForModel(
+      "Foo",
+      `model Foo {
+        #suppress "deprecated" "for testing"
+        @encodedName("application/json", "xJson")
+        @projectedName("json", "projectedJson")
+        x: int32;
+      };`,
+    );
+
+    expect(res.schemas.Foo).toMatchObject({
+      required: ["xJson"],
+      properties: {
+        xJson: { type: "integer", format: "int32" },
+      },
     });
   });
 
@@ -55,7 +91,7 @@ describe("openapi3: models", () => {
       @route("/test1")
       @get
       op test1(p: P): Q;
-      `
+      `,
     );
 
     expectDiagnostics(diagnostics, [
@@ -85,7 +121,7 @@ describe("openapi3: models", () => {
       "Foo<int32>",
       `model Foo<T> {
         x: T;
-      };`
+      };`,
     );
 
     ok(!res.isRef);
@@ -107,7 +143,7 @@ describe("openapi3: models", () => {
       }
       model Foo<T> {
         x: T;
-      };`
+      };`,
     );
 
     ok(!res.isRef);
@@ -127,7 +163,7 @@ describe("openapi3: models", () => {
       model Foo {
         y: int32;
       };
-      model Bar extends Foo {}`
+      model Bar extends Foo {}`,
     );
 
     ok(res.isRef);
@@ -157,7 +193,7 @@ describe("openapi3: models", () => {
         a: "a-value",
         b,
       }
-      `
+      `,
     );
 
     ok(res.isRef);
@@ -173,6 +209,33 @@ describe("openapi3: models", () => {
       },
     });
   });
+
+  it("specify default value on union with variant", async () => {
+    const res = await oapiForModel(
+      "Foo",
+      `
+      model Foo {
+        optionalUnion?: MyUnion = MyUnion.a;
+      };
+      
+      union MyUnion {
+        a: "a-value",
+        b: "b-value",
+      }
+      `,
+    );
+
+    deepStrictEqual(res.schemas.Foo, {
+      type: "object",
+      properties: {
+        optionalUnion: {
+          allOf: [{ $ref: "#/components/schemas/MyUnion" }],
+          default: "a-value",
+        },
+      },
+    });
+  });
+
   it("specify default value on nullable property", async () => {
     const res = await oapiForModel(
       "Foo",
@@ -180,7 +243,7 @@ describe("openapi3: models", () => {
       model Foo {
         optional?: string | null = null;
       };
-      `
+      `,
     );
 
     ok(res.schemas.Foo, "expected definition named Foo");
@@ -196,6 +259,58 @@ describe("openapi3: models", () => {
     });
   });
 
+  it("scalar used as a default value", async () => {
+    const res = await oapiForModel(
+      "Pet",
+      `
+        scalar shortName { init name(value: string);}
+
+        model Pet { name: shortName = shortName.name("Shorty"); }
+      `,
+    );
+
+    expect(res.schemas.Pet.properties.name.default).toEqual("Shorty");
+  });
+
+  it("encode know scalar as a default value", async () => {
+    const res = await oapiForModel(
+      "Test",
+      `
+        model Test { @encode("rfc7231") minDate: utcDateTime = utcDateTime.fromISO("2024-01-01T11:32:00Z"); }
+      `,
+    );
+
+    expect(res.schemas.Test.properties.minDate.default).toEqual("Mon, 01 Jan 2024 11:32:00 GMT");
+  });
+
+  it("object value used as a default value", async () => {
+    const res = await oapiForModel(
+      "Test",
+      `
+        model Test { Pet: {name: string;} = #{ name: "Dog"}; }
+      `,
+    );
+
+    expect(res.schemas.Test.properties.Pet.default.name).toEqual("Dog");
+  });
+
+  describe("numeric defaults", () => {
+    it.each([
+      ["0.01", 0.01],
+      ["1e-2", 0.01],
+    ])("%s => %s", async (value, expected) => {
+      const res = await openApiFor(
+        `
+      model Foo {
+        opt?: float = ${value};
+      };
+      `,
+      );
+
+      expect(res.components.schemas.Foo.properties.opt.default).toEqual(expected);
+    });
+  });
+
   it("emits models extended from models when parent is emitted", async () => {
     const res = await openApiFor(
       `
@@ -206,7 +321,7 @@ describe("openapi3: models", () => {
         y?: int32;
       }
       @route("/") op test(): Parent;
-      `
+      `,
     );
     deepStrictEqual(res.components.schemas.Parent, {
       type: "object",
@@ -233,11 +348,11 @@ describe("openapi3: models", () => {
         y?: int32;
       }
       @route("/") op test(): Parent;
-      `
+      `,
     );
     ok(
       !("TParent" in res.components.schemas),
-      "Parent templated type shouldn't be included in OpenAPI"
+      "Parent templated type shouldn't be included in OpenAPI",
     );
     deepStrictEqual(res.components.schemas.Parent, {
       type: "object",
@@ -269,11 +384,11 @@ describe("openapi3: models", () => {
         y?: int32;
       }
       @route("/") op test(): Parent;
-      `
+      `,
     );
     ok(
       !("TParent_string" in res.components.schemas),
-      "Parent instantiated templated type shouldn't be included in OpenAPI"
+      "Parent instantiated templated type shouldn't be included in OpenAPI",
     );
   });
 
@@ -286,7 +401,7 @@ describe("openapi3: models", () => {
       };
       model Bar extends Foo {
         x: int32;
-      }`
+      }`,
     );
 
     ok(res.isRef);
@@ -313,7 +428,7 @@ describe("openapi3: models", () => {
       model Foo<T> {
         y: T;
       };
-      model Bar extends Foo<int32> {}`
+      model Bar extends Foo<int32> {}`,
     );
 
     ok(res.isRef);
@@ -341,7 +456,7 @@ describe("openapi3: models", () => {
       };
       model Bar extends Foo<int32> {
         x: int32
-      }`
+      }`,
     );
 
     ok(res.isRef);
@@ -370,7 +485,7 @@ describe("openapi3: models", () => {
       };
       model Bar<T> extends Foo<T> {
         x: T
-      }`
+      }`,
     );
 
     ok(!res.isRef);
@@ -397,7 +512,7 @@ describe("openapi3: models", () => {
       "Bar",
       `
       model Foo {};
-      model Bar extends Foo {};`
+      model Bar extends Foo {};`,
     );
 
     ok(res.isRef);
@@ -419,7 +534,7 @@ describe("openapi3: models", () => {
       `
       model Foo { x: int32 };
       model Bar extends Foo {};
-      model Baz extends Bar {};`
+      model Baz extends Bar {};`,
     );
 
     ok(res.isRef);
@@ -456,7 +571,7 @@ describe("openapi3: models", () => {
         Dog, Cat
       }
       model Pet { type: PetType };
-      `
+      `,
     );
     ok(res.isRef);
     strictEqual(res.schemas.Pet.properties.type.$ref, "#/components/schemas/PetType");
@@ -471,7 +586,7 @@ describe("openapi3: models", () => {
         Dog: 0, Cat: 1
       }
       model Pet { type: PetType };
-      `
+      `,
     );
     ok(res.isRef);
     strictEqual(res.schemas.Pet.properties.type.$ref, "#/components/schemas/PetType");
@@ -486,10 +601,11 @@ describe("openapi3: models", () => {
         Dog, Cat
       }
 
+      #suppress "deprecated" "For testing"
       @knownValues(KnownPetType)
       scalar PetType extends string;
       model Pet { type: PetType };
-      `
+      `,
     );
     ok(res.isRef);
     strictEqual(res.schemas.Pet.properties.type.$ref, "#/components/schemas/PetType");
@@ -505,7 +621,7 @@ describe("openapi3: models", () => {
       model Pet {
         name: string | null;
       };
-      `
+      `,
     );
     ok(res.isRef);
     deepStrictEqual(res.schemas.Pet, {
@@ -527,7 +643,7 @@ describe("openapi3: models", () => {
       model Pet {
         name: int32[] | null;
       };
-      `
+      `,
     );
     ok(res.isRef);
     deepStrictEqual(res.schemas.Pet, {
@@ -741,7 +857,7 @@ describe("openapi3: models", () => {
       @route("/things/{id}")
       @get
       op get(@path id: string, @query test: string, ...Input): Output & { @header test: string; };
-      `
+      `,
     );
 
     deepStrictEqual(oapi.components.schemas.Input, {
@@ -770,7 +886,7 @@ describe("openapi3: models", () => {
       oapi.paths["/things/{id}"].get.responses["200"].content["application/json"].schema,
       {
         $ref: "#/components/schemas/Output",
-      }
+      },
     );
   });
 
@@ -780,7 +896,7 @@ describe("openapi3: models", () => {
       model Thing<T> { inner?: Thing<T>; }
       op get(): Thing<string>;
       `,
-      { "omit-unreachable-types": true }
+      { "omit-unreachable-types": true },
     );
 
     expectDiagnostics(diagnostics, [{ code: "@typespec/openapi3/inline-cycle" }]);
@@ -796,7 +912,7 @@ describe("openapi3: models", () => {
       };
       model Bar extends Foo {
         x: int32;
-      }`
+      }`,
     );
 
     ok(res.isRef);
@@ -825,7 +941,7 @@ describe("openapi3: models", () => {
         @summary("YProp")
         y: int32;
       };
-      `
+      `,
     );
     strictEqual(res.schemas.Foo.title, "FooModel");
     strictEqual(res.schemas.Foo.properties.y.title, "YProp");
@@ -841,7 +957,7 @@ describe("openapi3: models", () => {
         }
         model Bar {
           x: Foo.name
-        }`
+        }`,
       );
 
       ok(res.schemas.Bar, "expected definition named Bar");
@@ -860,7 +976,7 @@ describe("openapi3: models", () => {
         }
         model Bar {
           x: Foo.name
-        }`
+        }`,
       );
 
       ok(res.schemas.Bar, "expected definition named Bar");
@@ -880,7 +996,7 @@ describe("openapi3: models", () => {
         model Bar {
           @doc("My doc")
           x: Foo.name
-        }`
+        }`,
       );
 
       ok(res.schemas.Bar, "expected definition named Bar");
@@ -902,13 +1018,62 @@ describe("openapi3: models", () => {
         model Bar {
           @doc("My doc override")
           x: Foo.name
-        }`
+        }`,
       );
 
       ok(res.schemas.Bar, "expected definition named Bar");
       deepStrictEqual(res.schemas.Bar.properties.x, {
         type: "string",
         description: "My doc override",
+      });
+    });
+  });
+
+  it("@oneOf decorator can only be used on a union.", async () => {
+    const diagnostics = await diagnoseOpenApiFor(
+      `
+      model Foo {
+        @oneOf
+        bar: string;
+      }
+      `,
+    );
+
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/openapi3/oneof-union",
+      message: /type/,
+    });
+  });
+
+  describe("wraps property $ref in allOf when extra attributes", () => {
+    it("with doc", async () => {
+      const res = await openApiFor(
+        `
+        model Foo {
+          /** Some doc */ prop: Bar;
+        };
+        model Bar {}
+        `,
+      );
+
+      deepStrictEqual(res.components.schemas.Foo.properties.prop, {
+        allOf: [{ $ref: "#/components/schemas/Bar" }],
+        description: "Some doc",
+      });
+    });
+
+    it("circular reference", async () => {
+      const res = await openApiFor(
+        `
+        model Foo {
+          /** Some doc */ prop: Foo;
+        };
+        `,
+      );
+
+      deepStrictEqual(res.components.schemas.Foo.properties.prop, {
+        allOf: [{ $ref: "#/components/schemas/Foo" }],
+        description: "Some doc",
       });
     });
   });

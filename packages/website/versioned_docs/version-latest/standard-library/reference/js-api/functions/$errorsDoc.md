@@ -4,16 +4,20 @@ title: "[F] $errorsDoc"
 
 ---
 ```ts
-$errorsDoc(
+function $errorsDoc(
    context, 
    target, 
-   text): void
+   doc): void
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`Operation`](../interfaces/Operation.md) |
-| `text` | `string` |
+| `doc` | `string` |
+
+## Returns
+
+`void`

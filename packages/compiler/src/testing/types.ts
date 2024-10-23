@@ -2,8 +2,8 @@ import { CompilerHost, Diagnostic, Program, Type } from "../core/index.js";
 import { CompilerOptions } from "../core/options.js";
 
 export interface TestFileSystem {
-  compilerHost: CompilerHost;
-  fs: Map<string, string>;
+  readonly compilerHost: CompilerHost;
+  readonly fs: Map<string, string>;
 
   addTypeSpecFile(path: string, contents: string): void;
   addJsFile(path: string, contents: Record<string, any>): void;
@@ -21,7 +21,7 @@ export interface TestHost extends TestFileSystem {
   diagnose(main: string, options?: CompilerOptions): Promise<readonly Diagnostic[]>;
   compileAndDiagnose(
     main: string,
-    options?: CompilerOptions
+    options?: CompilerOptions,
   ): Promise<[Record<string, Type>, readonly Diagnostic[]]>;
 }
 
@@ -58,7 +58,7 @@ export interface TestHostConfig {
 export class TestHostError extends Error {
   constructor(
     message: string,
-    public code: "ENOENT" | "ERR_MODULE_NOT_FOUND"
+    public code: "ENOENT" | "ERR_MODULE_NOT_FOUND",
   ) {
     super(message);
   }
@@ -88,6 +88,6 @@ export interface BasicTestRunner {
    */
   compileAndDiagnose(
     code: string,
-    options?: CompilerOptions
+    options?: CompilerOptions,
   ): Promise<[Record<string, Type>, readonly Diagnostic[]]>;
 }

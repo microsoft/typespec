@@ -3,8 +3,7 @@ import { resolvePath } from "../../src/core/index.js";
 import { createAssetEmitter, TypeEmitter } from "../../src/emitter-framework/index.js";
 import { createTestHost, TypeSpecTestLibrary } from "../../src/testing/index.js";
 
-import assert from "assert";
-import { SinonSpy, spy } from "sinon";
+import { expect, MockInstance, vi } from "vitest";
 
 export const lib: TypeSpecTestLibrary = {
   name: "typespec-ts-interface-emitter",
@@ -40,7 +39,7 @@ export async function emitTypeSpec(
   Emitter: typeof TypeEmitter<any>,
   code: string,
   callCounts: Partial<Record<keyof TypeEmitter<any>, number>> = {},
-  validateCallCounts = true
+  validateCallCounts = true,
 ) {
   const host = await getHostForTypeSpecFile(code);
   const emitter = createAssetEmitter(host.program, Emitter, {
@@ -56,7 +55,7 @@ export async function emitTypeSpec(
   return emitter;
 }
 
-type EmitterSpies = Record<string, SinonSpy>;
+type EmitterSpies = Record<string, MockInstance>;
 function emitterSpies(emitter: typeof TypeEmitter<any, any>) {
   const spies: EmitterSpies = {};
   const methods = Object.getOwnPropertyNames(emitter.prototype);
@@ -67,7 +66,7 @@ function emitterSpies(emitter: typeof TypeEmitter<any, any>) {
       return spies;
     }
     if (typeof (emitter.prototype as any)[key] !== "function") continue;
-    spies[key] = spy(emitter.prototype, key as any);
+    spies[key] = vi.spyOn(emitter.prototype, key as any);
   }
 
   return spies;
@@ -75,14 +74,10 @@ function emitterSpies(emitter: typeof TypeEmitter<any, any>) {
 
 function assertSpiesCalled(
   spies: EmitterSpies,
-  callCounts: Partial<Record<keyof TypeEmitter<any>, number>>
+  callCounts: Partial<Record<keyof TypeEmitter<any>, number>>,
 ) {
   for (const [key, spy] of Object.entries(spies)) {
     const expectedCount = (callCounts as any)[key] ?? 1;
-    assert.equal(
-      spy.callCount,
-      expectedCount,
-      `Emitter method ${key} should called ${expectedCount} time(s), was called ${spy.callCount} time(s)`
-    );
+    expect(spy).toHaveBeenCalledTimes(expectedCount);
   }
 }

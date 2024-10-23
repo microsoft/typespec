@@ -1,14 +1,14 @@
 ---
-title: Discriminated types
+title: Discriminated Types
 ---
 
-TypeSpec can express unions and inheritance. However, when sending types over the wire many languages need a way to discriminate between the various union variants or models in an inheritance hierarchy.
+TypeSpec allows for the expression of unions and inheritance. However, when transmitting types over the network, many languages require a mechanism to distinguish between different union variants or models within an inheritance hierarchy.
 
-TypeSpec provide the [`@discriminator` decorator](./built-in-decorators#@discriminator) to be able to help with this pattern.
+To facilitate this, TypeSpec offers the [`@discriminator` decorator](./built-in-decorators#@discriminator).
 
-### Using polymorphism
+### Implementing Polymorphism
 
-#### `string` discriminator
+#### `string` Discriminator
 
 ```typespec
 @discriminator("kind")
@@ -26,7 +26,7 @@ model Dog extends Pet {
 }
 ```
 
-#### `enum` discriminator
+#### `enum` Discriminator
 
 ```typespec
 enum PetKind {
@@ -50,7 +50,7 @@ model Dog extends Pet {
 }
 ```
 
-#### Nested discriminator
+#### Nested Discriminator
 
 ```tsp
 @discriminator("kind")
@@ -83,7 +83,7 @@ model Dog extends Pet {
 }
 ```
 
-### Using unions
+### Implementing Unions
 
 ```typespec
 @discriminator("kind")

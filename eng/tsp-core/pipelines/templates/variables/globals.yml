@@ -1,0 +1,3 @@
+variables:
+  # Disable CodeQL by default to prevent build timeouts
+  Codeql.SkipTaskAutoInjection: true

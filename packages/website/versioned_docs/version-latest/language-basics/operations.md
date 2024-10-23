@@ -5,9 +5,9 @@ title: Operations
 
 # Operations
 
-Operations describe service endpoints and consist of an operation name, parameters, and return type.
+Operations are essentially service endpoints, characterized by an operation name, parameters, and a return type.
 
-Operations are declared using the `op` keyword:
+You can declare operations using the `op` keyword. Its name must be an [`identifier`](./identifiers.md).
 
 ```typespec
 op ping(): void;
@@ -15,7 +15,7 @@ op ping(): void;
 
 ## Parameters
 
-The operation's parameters describe a model, so anything you can do in a model you can do in a parameter list as well, including using the spread operator:
+The parameters of an operation represent a model. Therefore, you can perform any action with parameters that you can with a model, including the use of the spread operator:
 
 ```typespec
 op feedDog(...CommonParams, name: string): void;
@@ -23,7 +23,7 @@ op feedDog(...CommonParams, name: string): void;
 
 ## Return type
 
-Often an endpoint returns one of any number of models. For example, there might be a return type for when an item is found, and a return type for when an item isn't found. Unions are used to describe this pattern:
+Frequently, an endpoint may return one of several possible models. For instance, there could be a return type for when an item is located, and another for when it isn't. Unions are employed to express this scenario:
 
 ```typespec
 model DogNotFound {
@@ -33,33 +33,33 @@ model DogNotFound {
 op getDog(name: string): Dog | DogNotFound;
 ```
 
-## Reuse operations
+## Reusing operations
 
-Operation signatures can be reused using the `is` keyword. Given an operation
+You can reuse operation signatures with the `is` keyword. For example, given an operation
 
 ```typespec
 op Delete(id: string): void;
 ```
 
-its signature can be reused like this:
+You can reuse its signature like so:
 
 ```typespec
 op deletePet is Delete;
 ```
 
-This means that `deletePet` will have the same parameters, return type and decorators as the `Delete` operation.
+This implies that `deletePet` will inherit the same parameters, return type, and decorators as the `Delete` operation.
 
-This pattern is most commonly used in combination with [operation templates](#operations-templates)
+This practice is typically used in conjunction with [operation templates](#operation-templates)
 
-## Operations templates
+## Operation templates
 
-[See templates](./templates.md) for details on templates.
+For more information on templates, [see templates](./templates.md).
 
 ```typespec
 op ReadResource<T>(id: string): T;
 ```
 
-The operation template can then be referenced via `is`:
+You can reference the operation template using `is`:
 
 ```typespec
 op readPet is ReadResource<Pet>;
@@ -67,7 +67,7 @@ op readPet is ReadResource<Pet>;
 
 ## Referencing model properties
 
-Model properties can be referenced using the `.` operator for identifiers.
+You can reference model properties using the `.` operator for identifiers.
 
 ```tsp
 alias PetName = Pet.name;
@@ -75,9 +75,9 @@ alias PetName = Pet.name;
 
 ## Meta type references
 
-Some operation meta types can be referenced using `::`
+Certain operation meta types can be referenced using `::`
 
-| Name       | Example               | Description                               |
-| ---------- | --------------------- | ----------------------------------------- |
-| parameters | `readPet::parameters` | Reference the parameters model expression |
-| returnType | `readPet::returnType` | Reference the operation return type       |
+| Name       | Example               | Description                                |
+| ---------- | --------------------- | ------------------------------------------ |
+| parameters | `readPet::parameters` | References the parameters model expression |
+| returnType | `readPet::returnType` | References the operation return type       |

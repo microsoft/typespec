@@ -54,6 +54,14 @@ export interface OpenAPI3EmitterOptions {
    * @default "never"
    */
   "include-x-typespec-name"?: "inline-only" | "never";
+
+  /**
+   * How to handle safeint type. Options are:
+   *  - `double-int`: Will produce `type: integer, format: double-int`
+   *  - `int64`: Will produce `type: integer, format: int64`
+   * @default "int64"
+   */
+  "safeint-strategy"?: "double-int" | "int64";
 }
 
 const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
@@ -117,6 +125,19 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
       description:
         "If the generated openapi types should have the `x-typespec-name` extension set with the name of the TypeSpec type that created it.\nThis extension is meant for debugging and should not be depended on.",
     },
+    "safeint-strategy": {
+      type: "string",
+      enum: ["double-int", "int64"],
+      nullable: true,
+      default: "int64",
+      description: [
+        "How to handle safeint type. Options are:",
+        " - `double-int`: Will produce `type: integer, format: double-int`",
+        " - `int64`: Will produce `type: integer, format: int64`",
+        "",
+        "Default: `int64`",
+      ].join("\n"),
+    },
   },
   required: [],
 };
@@ -149,6 +170,18 @@ export const libDef = {
         default: paramMessage`Collection format '${"value"}' is not supported in OpenAPI3 ${"paramType"} parameters. Defaulting to type 'string'.`,
       },
     },
+    "invalid-style": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`Style '${"style"}' is not supported in OpenAPI3 ${"paramType"} parameters. Defaulting to style 'simple'.`,
+      },
+    },
+    "path-reserved-expansion": {
+      severity: "warning",
+      messages: {
+        default: `Reserved expansion of path parameter with '+' operator #{allowReserved: true} is not supported in OpenAPI3.`,
+      },
+    },
     "resource-namespace": {
       severity: "error",
       messages: {
@@ -159,12 +192,6 @@ export const libDef = {
       severity: "error",
       messages: {
         default: `OpenAPI does not allow paths containing a query string.`,
-      },
-    },
-    "duplicate-body": {
-      severity: "error",
-      messages: {
-        default: "Duplicate @body declarations on response type",
       },
     },
     "duplicate-header": {
@@ -212,12 +239,6 @@ export const libDef = {
         default: "Enums are not supported unless all options are literals of the same type.",
       },
     },
-    "invalid-default": {
-      severity: "error",
-      messages: {
-        default: paramMessage`Invalid type '${"type"}' for a default value`,
-      },
-    },
     "inline-cycle": {
       severity: "error",
       messages: {
@@ -230,6 +251,18 @@ export const libDef = {
         default: paramMessage`Status code range '${"start"} to '${"end"}' is not supported. OpenAPI 3.0 can only represent range 1XX, 2XX, 3XX, 4XX and 5XX. Example: \`@minValue(400) @maxValue(499)\` for 4XX.`,
       },
     },
+    "invalid-model-property": {
+      severity: "error",
+      messages: {
+        default: paramMessage`'${"type"}' cannot be specified as a model property.`,
+      },
+    },
+    "unsupported-auth": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`Authentication "${"authType"}" is not a known authentication by the openapi3 emitter, it will be ignored.`,
+      },
+    },
   },
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<OpenAPI3EmitterOptions>,
@@ -237,6 +270,6 @@ export const libDef = {
 } as const;
 
 export const $lib = createTypeSpecLibrary(libDef);
-export const { reportDiagnostic, createStateSymbol } = $lib;
+export const { createDiagnostic, reportDiagnostic, createStateSymbol } = $lib;
 
 export type OpenAPILibrary = typeof $lib;

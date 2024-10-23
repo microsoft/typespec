@@ -5,20 +5,25 @@ import {
   DecoratorContext,
   EmitContext,
   EmitOptionsFor,
-  EnumMember,
   Interface,
   Model,
   ModelProperty,
   Namespace,
-  NumericLiteral,
   Operation,
   Program,
   resolvePath,
   StringLiteral,
-  Tuple,
   Type,
 } from "@typespec/compiler";
 
+import {
+  FieldDecorator,
+  MessageDecorator,
+  PackageDecorator,
+  ReserveDecorator,
+  StreamDecorator,
+} from "../generated-defs/TypeSpec.Protobuf.js";
+import { ExternRefDecorator } from "../generated-defs/TypeSpec.Protobuf.Private.js";
 import { StreamingMode } from "./ast.js";
 import { ProtobufEmitterOptions, reportDiagnostic, state, TypeSpecProtobufLibrary } from "./lib.js";
 import { createProtobufEmitter } from "./transform/index.js";
@@ -67,9 +72,13 @@ export interface PackageDetails {
  * @param ctx - decorator context
  * @param target - target decorator namespace
  */
-export function $package(ctx: DecoratorContext, target: Namespace, details?: Model) {
+export const $package: PackageDecorator = (
+  ctx: DecoratorContext,
+  target: Namespace,
+  details?: Type,
+) => {
   ctx.program.stateMap(state.package).set(target, details);
-}
+};
 
 /**
  * Determines whether a type represents a Protobuf map.
@@ -92,61 +101,42 @@ export function $_map(ctx: DecoratorContext, target: Model) {
   ctx.program.stateSet(state._map).add(target);
 }
 
-export function $externRef(
+export const $externRef: ExternRefDecorator = (
   ctx: DecoratorContext,
   target: Model,
-  path: StringLiteral,
-  name: StringLiteral
-) {
-  ctx.program.stateMap(state.externRef).set(target, [path.value, name.value]);
-}
+  path: Type,
+  name: Type,
+) => {
+  ctx.program
+    .stateMap(state.externRef)
+    .set(target, [(path as StringLiteral).value, (name as StringLiteral).value]);
+};
 
-export function $stream(ctx: DecoratorContext, target: Operation, mode: EnumMember) {
+export const $stream: StreamDecorator = (ctx: DecoratorContext, target: Operation, mode: Type) => {
   const emitStreamingMode = {
     Duplex: StreamingMode.Duplex,
     In: StreamingMode.In,
     Out: StreamingMode.Out,
     None: StreamingMode.None,
-  }[mode.name as string];
+  }[(mode as any).name as string];
 
   ctx.program.stateMap(state.stream).set(target, emitStreamingMode);
-}
-
-function getTuple(program: Program, t: Type): [number, number] | null {
-  if (t.kind !== "Tuple" || t.values.some((v) => v.kind !== "Number") || t.values.length !== 2) {
-    reportDiagnostic(program, {
-      code: "illegal-reservation",
-      target: t,
-    });
-
-    return null;
-  }
-
-  return Object.assign(
-    (t as Tuple).values.map((v) => (v as NumericLiteral).value) as [number, number],
-    { type: t }
-  );
-}
+};
 
 export type Reservation = string | number | ([number, number] & { type: Type });
 
-export function $reserve(
+export const $reserve: ReserveDecorator = (
   ctx: DecoratorContext,
-  target: Model,
-  ...reservations: readonly (Type | number | string)[]
-) {
-  const finalReservations = reservations
-    .map((reservation) =>
-      typeof reservation === "object" ? getTuple(ctx.program, reservation) : reservation
-    )
-    .filter((v) => v != null);
-
+  target: Type,
+  ...reservations: readonly (unknown | number | string)[]
+) => {
+  const finalReservations = reservations.filter((v) => v != null);
   ctx.program.stateMap(state.reserve).set(target, finalReservations);
-}
+};
 
-export function $message(ctx: DecoratorContext, target: Model) {
+export const $message: MessageDecorator = (ctx: DecoratorContext, target: Type) => {
   ctx.program.stateSet(state.message).add(target);
-}
+};
 
 /**
  * Decorate a model property with a field index. Field indices are required for all fields of emitted messages.
@@ -156,7 +146,11 @@ export function $message(ctx: DecoratorContext, target: Model) {
  * @param fieldIndex
  * @returns
  */
-export function $field(ctx: DecoratorContext, target: ModelProperty, fieldIndex: number) {
+export const $field: FieldDecorator = (
+  ctx: DecoratorContext,
+  target: ModelProperty,
+  fieldIndex: number,
+) => {
   if (!Number.isInteger(fieldIndex) || fieldIndex <= 0) {
     reportDiagnostic(ctx.program, {
       code: "field-index",
@@ -193,7 +187,7 @@ export function $field(ctx: DecoratorContext, target: ModelProperty, fieldIndex:
   }
 
   ctx.program.stateMap(state.fieldIndex).set(target, fieldIndex);
-}
+};
 
 /**
  * Emitter main function.

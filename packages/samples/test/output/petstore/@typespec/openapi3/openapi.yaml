@@ -1,8 +1,8 @@
 openapi: 3.0.0
 info:
   title: Pet Store Service
-  version: 2021-03-25
   description: 'This is a sample server Petstore server.  You can find out more about Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).  For this sample, you can use the api key `special-key` to test the authorization filters.'
+  version: 0.0.0
 tags: []
 paths:
   /pets:
@@ -15,6 +15,7 @@ paths:
           required: false
           schema:
             type: string
+          explode: false
       responses:
         '200':
           description: The request has succeeded.
@@ -103,6 +104,7 @@ paths:
           required: true
           schema:
             type: string
+          explode: false
       responses:
         '200':
           description: The request has succeeded.
@@ -128,7 +130,6 @@ components:
   schemas:
     Error:
       type: object
-      description: Error
       required:
         - code
         - message
@@ -138,6 +139,7 @@ components:
           format: int32
         message:
           type: string
+      description: Error
     Pet:
       type: object
       required:

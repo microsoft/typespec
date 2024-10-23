@@ -4,9 +4,9 @@ title: "[F] resolveModule"
 
 ---
 ```ts
-resolveModule(
+function resolveModule(
    host, 
-   name, 
+   specifier, 
 options): Promise<ModuleResolutionResult>
 ```
 
@@ -15,9 +15,15 @@ Resolve a module
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `host` | [`ResolveModuleHost`](../interfaces/ResolveModuleHost.md) |  |
-| `name` | `string` |  |
+| `specifier` | `string` |  |
 | `options` | [`ResolveModuleOptions`](../interfaces/ResolveModuleOptions.md) |  |
 
 ## Returns
+
+`Promise`<[`ModuleResolutionResult`](../type-aliases/ModuleResolutionResult.md)\>
+
+## Throws
+
+When the module cannot be resolved.

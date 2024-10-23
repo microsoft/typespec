@@ -8,7 +8,9 @@
     "**/CHANGELOG.json": true,
     "docs/spec.html": true,
     "**/node_modules/**": true,
+    "packages/compiler/templates/__snapshots__/**": true,
     "packages/website/versioned_docs/**": true,
+    "packages/http-client-csharp/**/Generated/**": true,
     "packages/samples/scratch/**": false // Those files are in gitignore but we still want to search for them
   },
   "files.exclude": {
@@ -18,7 +20,6 @@
     "**/.git": true,
     "**/.DS_Store": true
   },
-
   "[javascript][javascriptreact][typescript][typescriptreact]": {
     "editor.formatOnSave": true,
     "editor.formatOnPaste": false, // work around https://github.com/simonhaenisch/prettier-plugin-organize-imports/issues/53
@@ -27,7 +28,7 @@
     "editor.detectIndentation": false,
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "[json][[jsonc][yaml][typespec][markdown]": {
+  "[json][[jsonc][yaml][typespec][markdown][css][astro]": {
     "editor.formatOnSave": true,
     "editor.formatOnPaste": true,
     "editor.insertSpaces": true,
@@ -52,27 +53,11 @@
     "pnpm-config.json": "jsonc",
     "version-policies.json": "jsonc"
   },
-  "typescript.tsdk": "./packages/compiler/node_modules/typescript/lib",
+  "typescript.tsdk": "./node_modules/typescript/lib",
   "git.ignoreLimitWarning": true,
-  "testExplorer.useNativeTesting": true,
-  "mochaExplorer.parallel": false,
-  "mochaExplorer.files": [
-    "./packages/*/dist/test/**/*.test.js",
-    "./packages/*/dist/test/**/*.e2e.js",
-    "./packages/*/dist-dev/test/**/*.test.js",
-    "./packages/*/test/**/*.test.js"
-  ],
-  "mochaExplorer.ignore": "./packages/*/dist/test/manual/**/*.js",
-  "mochaExplorer.mochaPath": "./packages/compiler/node_modules/mocha",
-  "mochaExplorer.timeout": 500000,
-  "mochaExplorer.require": "source-map-support/register",
-  "mochaExplorer.debuggerConfig": "Tests",
-  "mochaExplorer.env": {
-    "TYPESPEC_VERBOSE_TEST_OUTPUT": "true",
-    "NODE_OPTIONS": "--stack-trace-limit=50"
-  },
-  "prettier.prettierPath": "./packages/compiler/node_modules/prettier/index.cjs",
-  "prettier.documentSelectors": ["**/*.tsp"],
-  "testExplorer.errorDecoration": false,
+  "vitest.enable": true,
+  "vitest.commandLine": "node ./node_modules/vitest/vitest.mjs",
+  "prettier.prettierPath": "./node_modules/prettier/index.cjs",
+  "prettier.documentSelectors": ["**/*.tsp", "**/*.astro"],
   "typespec.tsp-server.path": "${workspaceFolder}/packages/compiler"
 }

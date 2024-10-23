@@ -1,4 +1,5 @@
 import { strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { SourceLocationOptions, getSourceLocation } from "../../src/index.js";
 import { createTestRunner } from "../../src/testing/test-host.js";
 import { extractSquiggles } from "../../src/testing/test-server-host.js";
@@ -39,7 +40,7 @@ describe("compiler: diagnostics", () => {
       }
     
     `,
-        { locateId: true }
+        { locateId: true },
       ));
   });
 });

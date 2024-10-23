@@ -1,5 +1,6 @@
 import assert from "assert";
 import * as prettier from "prettier";
+import { describe, it } from "vitest";
 import {
   Enum,
   Interface,
@@ -306,7 +307,7 @@ describe("emitter-framework: typescript emitter", () => {
     `,
       {
         scalarDeclaration: 4,
-      }
+      },
     );
   });
 
@@ -551,7 +552,7 @@ it("handles circular references", async () => {
       modelDeclaration: 2,
       modelProperties: 2,
       modelPropertyLiteral: 2,
-    }
+    },
   );
 });
 
@@ -613,7 +614,7 @@ it("handles multiple circular references", async () => {
       modelDeclaration: 3,
       modelProperties: 3,
       modelPropertyLiteral: 6,
-    }
+    },
   );
 });
 
@@ -687,7 +688,7 @@ describe("emitter-framework: object emitter", () => {
       targetDeclaration: Declaration<object>,
       pathUp: Scope<object>[],
       pathDown: Scope<object>[],
-      commonScope: Scope<object> | null
+      commonScope: Scope<object> | null,
     ): object | EmitEntity<object> {
       return { $ref: targetDeclaration.name };
     }
@@ -724,7 +725,7 @@ describe("emitter-framework: object emitter", () => {
           x: Foo
         };
       };
-      `
+      `,
     );
     const assetEmitter = createAssetEmitter(host.program, TestEmitter, {
       emitterOutputDir: host.program.compilerOptions.outputDir!,

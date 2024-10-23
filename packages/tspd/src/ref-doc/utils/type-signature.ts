@@ -4,22 +4,20 @@ import {
   EnumMember,
   FunctionParameter,
   FunctionType,
+  getEntityName,
   getTypeName,
   Interface,
   Model,
   ModelProperty,
   Operation,
+  StringTemplate,
   TemplateParameterDeclarationNode,
   Type,
   UnionVariant,
-  ValueType,
 } from "@typespec/compiler";
 
 /** @internal */
-export function getTypeSignature(type: Type | ValueType): string {
-  if (type.kind === "Value") {
-    return `valueof ${getTypeSignature(type.target)}`;
-  }
+export function getTypeSignature(type: Type): string {
   if (isReflectionType(type)) {
     return type.name;
   }
@@ -46,9 +44,14 @@ export function getTypeSignature(type: Type | ValueType): string {
       return `(number) ${type.value.toString()}`;
     case "Intrinsic":
       return `(intrinsic) ${type.name}`;
-
     case "FunctionParameter":
       return getFunctionParameterSignature(type);
+    case "ScalarConstructor":
+      return `(scalar constructor) ${getTypeName(type)}`;
+    case "StringTemplate":
+      return `(string template)\n${getStringTemplateSignature(type)}`;
+    case "StringTemplateSpan":
+      return `(string template span)\n${getTypeName(type.type)}`;
     case "ModelProperty":
       return `(model property) ${`${type.name}: ${getTypeName(type.type)}`}`;
     case "EnumMember":
@@ -116,7 +119,19 @@ function getOperationSignature(type: Operation) {
 function getFunctionParameterSignature(parameter: FunctionParameter) {
   const rest = parameter.rest ? "..." : "";
   const optional = parameter.optional ? "?" : "";
-  return `${rest}${parameter.name}${optional}: ${getTypeName(parameter.type)}`;
+  return `${rest}${parameter.name}${optional}: ${getEntityName(parameter.type)}`;
+}
+
+function getStringTemplateSignature(stringTemplate: StringTemplate) {
+  return (
+    "`" +
+    [
+      stringTemplate.spans.map((span) => {
+        return span.isInterpolated ? "${" + getTypeName(span.type) + "}" : span.type.value;
+      }),
+    ].join("") +
+    "`"
+  );
 }
 
 function getModelPropertySignature(property: ModelProperty) {

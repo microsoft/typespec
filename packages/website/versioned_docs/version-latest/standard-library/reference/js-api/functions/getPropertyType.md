@@ -4,7 +4,7 @@ title: "[F] getPropertyType"
 
 ---
 ```ts
-getPropertyType(target): Type
+function getPropertyType(target): Type
 ```
 
 Return the type of the property or the model itself.
@@ -12,5 +12,9 @@ Return the type of the property or the model itself.
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `target` | [`ModelProperty`](../interfaces/ModelProperty.md) \| [`Scalar`](../interfaces/Scalar.md) |
+
+## Returns
+
+[`Type`](../type-aliases/Type.md)

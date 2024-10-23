@@ -1,12 +1,12 @@
 import { rejects } from "assert";
-import { dirname, resolve } from "path";
-import { fileURLToPath } from "url";
+import { resolve } from "path";
+import { describe, it } from "vitest";
 import { NodeHost, Program, compile, resolvePath } from "../../../src/core/index.js";
 import { CompilerOptions } from "../../../src/core/options.js";
 import { expectDiagnosticEmpty, expectDiagnostics } from "../../../src/testing/expect.js";
+import { findTestPackageRoot } from "../../../src/testing/test-utils.js";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const scenarioRoot = resolvePath(__dirname, "../../../../test/e2e/scenarios");
+const scenarioRoot = resolvePath(await findTestPackageRoot(import.meta.url), "test/e2e/scenarios");
 
 describe("compiler: entrypoints", () => {
   async function compileScenario(name: string, options: CompilerOptions = {}): Promise<Program> {
@@ -47,7 +47,7 @@ describe("compiler: entrypoints", () => {
       });
       expectDiagnostics(program.diagnostics, {
         code: "library-invalid",
-        message: `Library "my-lib" has an invalid tspMain file.`,
+        message: `Library "my-lib" is invalid: Package @typespec/my-lib main file "not-a-file.tsp" is not pointing to a valid file or directory.`,
       });
     });
 
@@ -57,7 +57,27 @@ describe("compiler: entrypoints", () => {
       });
       expectDiagnostics(program.diagnostics, {
         code: "library-invalid",
-        message: `Library "my-lib" has an invalid main file.`,
+        message: `Library "my-lib" is invalid: Package @typespec/my-lib main file "not-a-file.js" is not pointing to a valid file or directory.`,
+      });
+    });
+
+    it("emit diagnostics if imported library has js load error", async () => {
+      const program = await compileScenario("import-library-js-error", {
+        additionalImports: ["my-lib"],
+      });
+      expectDiagnostics(program.diagnostics, {
+        code: "js-error",
+        message: `Failed to load ${scenarioRoot}/import-library-js-error/node_modules/my-lib/index.js due to the following JS error: Cannot find module '${scenarioRoot}/import-library-js-error/node_modules/my-lib/invalid-file-not-exists.js' imported from ${scenarioRoot}/import-library-js-error/node_modules/my-lib/index.js`,
+      });
+    });
+
+    it("emit diagnostics if emitter has js load error", async () => {
+      const program = await compileScenario("import-library-js-error", {
+        emit: ["my-lib"],
+      });
+      expectDiagnostics(program.diagnostics, {
+        code: "js-error",
+        message: `Failed to load ${scenarioRoot}/import-library-js-error/node_modules/my-lib/index.js due to the following JS error: Cannot find module '${scenarioRoot}/import-library-js-error/node_modules/my-lib/invalid-file-not-exists.js' imported from ${scenarioRoot}/import-library-js-error/node_modules/my-lib/index.js`,
       });
     });
 
@@ -83,8 +103,8 @@ describe("compiler: entrypoints", () => {
             `Please file an issue at https://github.com/microsoft/my-emitter/issues`,
             ``,
             `Error: This is bad`,
-          ].join("\n")
-        )
+          ].join("\n"),
+        ),
       );
     });
 
@@ -97,8 +117,8 @@ describe("compiler: entrypoints", () => {
             `Please file an issue at https://github.com/microsoft/my-validator/issues`,
             ``,
             `Error: This is bad`,
-          ].join("\n")
-        )
+          ].join("\n"),
+        ),
       );
     });
 

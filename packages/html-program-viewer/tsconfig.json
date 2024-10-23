@@ -1,19 +1,17 @@
 {
-  "extends": "../tsconfig.json",
-  "references": [
-    { "path": "../compiler/tsconfig.json" },
-    { "path": "../rest/tsconfig.json" },
-    { "path": "../openapi/tsconfig.json" }
-  ],
+  "extends": "../../tsconfig.base.json",
+  "references": [{ "path": "../compiler/tsconfig.json" }],
   "compilerOptions": {
-    "outDir": "dist",
-    "rootDir": ".",
-    "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo",
+    "incremental": false,
+    "composite": false,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "sourceMap": false,
+    "resolveJsonModule": true,
     "skipLibCheck": true,
+    "verbatimModuleSyntax": true,
     "jsx": "react-jsx",
-    "jsxImportSource": "@emotion/react",
     "lib": ["DOM", "ES2022"],
-    "types": ["@emotion/react", "mocha"]
-  },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts"]
+    "types": ["vite/client", "@testing-library/jest-dom"]
+  }
 }

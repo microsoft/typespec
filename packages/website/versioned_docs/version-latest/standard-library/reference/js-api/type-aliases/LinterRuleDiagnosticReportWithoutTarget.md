@@ -9,13 +9,14 @@ type LinterRuleDiagnosticReportWithoutTarget<T, M>: object & LinterRuleDiagnosti
 
 ## Type declaration
 
-| Member | Type | Description |
-| :------ | :------ | :------ |
-| `messageId` | `M` | - |
+| Name | Type |
+| ------ | ------ |
+| `codefixes`? | [`CodeFix`](../interfaces/CodeFix.md)[] |
+| `messageId`? | `M` |
 
-## Type parameters
+## Type Parameters
 
-| Parameter | Default |
-| :------ | :------ |
-| `T` extends [`DiagnosticMessages`](../interfaces/DiagnosticMessages.md) | - |
-| `M` extends keyof `T` | `"default"` |
+| Type Parameter | Default type |
+| ------ | ------ |
+| `T` *extends* [`DiagnosticMessages`](../interfaces/DiagnosticMessages.md) | - |
+| `M` *extends* keyof `T` | `"default"` |

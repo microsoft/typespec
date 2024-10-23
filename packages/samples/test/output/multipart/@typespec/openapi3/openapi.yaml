@@ -1,0 +1,62 @@
+openapi: 3.0.0
+info:
+  title: (title)
+  version: 0.0.0
+tags: []
+paths:
+  /:
+    post:
+      operationId: basic
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Data'
+            encoding:
+              profileImage:
+                contentType: '*/*'
+              photos:
+                contentType: image/jpeg
+              address:
+                contentType: application/json
+components:
+  schemas:
+    Address:
+      type: object
+      required:
+        - city
+        - street
+      properties:
+        city:
+          type: string
+        street:
+          type: string
+    Data:
+      type: object
+      properties:
+        id:
+          type: string
+        profileImage:
+          type: string
+          format: binary
+        photos:
+          type: array
+          items:
+            type: string
+            format: binary
+        address:
+          $ref: '#/components/schemas/Address'
+      required:
+        - id
+        - profileImage
+        - photos
+        - address

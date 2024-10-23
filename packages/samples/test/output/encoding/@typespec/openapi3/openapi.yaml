@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: (title)
-  version: 0000-00-00
+  version: 0.0.0
 tags: []
 paths:
   /:
@@ -32,13 +32,6 @@ components:
       properties:
         datetime:
           type: object
-          required:
-            - default
-            - rfc3339
-            - rfc7231
-            - rfc7231ViaScalar
-            - unixtime
-            - unixtimeViaScalar
           properties:
             default:
               type: string
@@ -56,13 +49,15 @@ components:
               format: unixtime
             unixtimeViaScalar:
               $ref: '#/components/schemas/myUnixTimestamp'
-        duration:
-          type: object
           required:
             - default
-            - durationISO
-            - durationSecondsInt32
-            - durationSecondsFloat32
+            - rfc3339
+            - rfc7231
+            - rfc7231ViaScalar
+            - unixtime
+            - unixtimeViaScalar
+        duration:
+          type: object
           properties:
             default:
               type: string
@@ -76,12 +71,13 @@ components:
             durationSecondsFloat32:
               type: number
               format: float
-        bytes:
-          type: object
           required:
             - default
-            - base64
-            - base64url
+            - durationISO
+            - durationSecondsInt32
+            - durationSecondsFloat32
+        bytes:
+          type: object
           properties:
             default:
               type: string
@@ -92,6 +88,10 @@ components:
             base64url:
               type: string
               format: base64url
+          required:
+            - default
+            - base64
+            - base64url
     myRfc7231DateTime:
       type: string
       format: http-date

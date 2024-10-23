@@ -1,0 +1,44 @@
+openapi: 3.0.0
+info:
+  title: (title)
+  version: 0.0.0
+tags: []
+paths: {}
+components:
+  schemas:
+    Cat:
+      type: object
+      required:
+        - named
+      properties:
+        named:
+          type: string
+      description: 'Animal named: Cat'
+    Person:
+      type: object
+      required:
+        - simple
+        - multiline
+        - ref
+        - template
+      properties:
+        simple:
+          type: string
+          enum:
+            - Simple 123 end
+        multiline:
+          type: string
+          enum:
+            - |-
+              Multi 
+                 123 
+                true
+              line
+        ref:
+          type: string
+          enum:
+            - Ref this alias foobar end
+        template:
+          type: string
+          enum:
+            - Foo custom bar

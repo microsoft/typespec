@@ -4,11 +4,15 @@ title: "[F] formatDiagnostic"
 
 ---
 ```ts
-formatDiagnostic(diagnostic): string
+function formatDiagnostic(diagnostic): string
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `diagnostic` | [`Diagnostic`](../interfaces/Diagnostic.md) |
+
+## Returns
+
+`string`

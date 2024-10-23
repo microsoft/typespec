@@ -2,13 +2,17 @@
 **/dist-dev/
 **/test/output/
 **/bin/
+**/out/
 **/obj/
 **/.vs/
 **/.docusaurus/
-common/temp/
-common/scripts/
-common/changes/
-common/config/rush/pnpm-lock.yaml
+.chronus/changes/
+
+# Pnpm lock file
+pnpm-lock.yaml
+
+# Emu spec file, formatting is wrong
+packages/spec/src/spec.emu.html
 
 # Coverage report directory
 **/coverage/
@@ -39,5 +43,26 @@ packages/website/versioned_docs/**/reference/
 packages/website/versioned_docs/**/standard-library/built-in-decorators.md
 packages/website/versioned_docs/**/standard-library/built-in-data-types.md
 
+# Auto generated version list
+packages/website/playground-versions.json
+packages/website-astro/playground-versions.json
+
+# Auto generated built-in template list
+packages/compiler/templates/scaffolding.json
+packages/compiler/templates/__snapshots__/
+
 #.tsp init template
 eng/feeds/
+
+# Skip formatting tsp files
+
+*.noformat.tsp
+
+# Tm Grammars generated files
+grammars/
+
+# auto generated code model files
+packages/http-client-csharp/generator/TestProjects/**/tspCodeModel.json
+
+# auto generated api view properties files
+packages/http-client-java/generator/http-client-generator-test/src/main/**/*.json

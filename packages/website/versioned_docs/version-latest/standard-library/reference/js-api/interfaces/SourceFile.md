@@ -3,16 +3,16 @@ jsApi: true
 title: "[I] SourceFile"
 
 ---
-## Extended By
+## Extended by
 
 - [`ServerSourceFile`](ServerSourceFile.md)
 
 ## Properties
 
-| Modifier | Property | Type | Description |
-| :------ | :------ | :------ | :------ |
-| `readonly` | `path` | `string` | The source file path.<br /><br />This is used only for diagnostics. The command line compiler will populate<br />it with the actual path from which the file was read, but it can actually<br />be an arbitrary name for other scenarios. |
-| `readonly` | `text` | `string` | The source code text. |
+| Property | Modifier | Type | Description |
+| ------ | ------ | ------ | ------ |
+| `path` | `readonly` | `string` | The source file path. This is used only for diagnostics. The command line compiler will populate it with the actual path from which the file was read, but it can actually be an arbitrary name for other scenarios. |
+| `text` | `readonly` | `string` | The source code text. |
 
 ## Methods
 
@@ -28,8 +28,12 @@ code units) to line number and offset from line start.
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `position` | `number` |
+
+#### Returns
+
+[`LineAndCharacter`](LineAndCharacter.md)
 
 ***
 
@@ -42,3 +46,7 @@ getLineStarts(): readonly number[]
 Array of positions in the text where each line begins. There is one entry
 per line, in order of lines, and each entry represents the offset in UTF-16
 code units from the start of the document to the beginning of the line.
+
+#### Returns
+
+readonly `number`[]

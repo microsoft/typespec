@@ -1,9 +1,9 @@
 {
   "name": "@typespec/playground",
-  "version": "0.1.0-alpha.2",
+  "version": "0.5.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec playground UI components.",
-  "homepage": "https://microsoft.github.io/typespec",
+  "homepage": "https://typespec.io",
   "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
   "license": "MIT",
   "repository": {
@@ -19,26 +19,50 @@
   "type": "module",
   "main": "dist/src/index.js",
   "exports": {
-    ".": "./dist/src/index.js",
-    "./vite": "./dist/src/vite/index.js",
-    "./manifest": "./dist/src/manifest.js",
-    "./react": "./dist/src/react/index.js",
-    "./react/viewers": "./dist/src/react/viewers.js"
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./state-storage": {
+      "types": "./dist/src/state-storage.d.ts",
+      "default": "./dist/state-storage.js"
+    },
+    "./vite": {
+      "types": "./dist/src/vite/index.d.ts",
+      "default": "./dist/vite/index.js"
+    },
+    "./tooling": {
+      "types": "./dist/src/tooling/index.d.ts",
+      "default": "./dist/tooling/index.js"
+    },
+    "./manifest": {
+      "types": "./dist/src/manifest.d.ts",
+      "default": "./dist/manifest.js"
+    },
+    "./react": {
+      "types": "./dist/src/react/index.d.ts",
+      "default": "./dist/react/index.js"
+    },
+    "./react/viewers": {
+      "types": "./dist/src/react/viewers/index.d.ts",
+      "default": "./dist/react/viewers/index.js"
+    },
+    "./style.css": "./dist/style.css",
+    "./styles.css": "./dist/style.css"
   },
   "engines": {
     "node": ">=18.0.0"
   },
   "scripts": {
     "clean": "rimraf ./dist ./dist-dev ./temp ./typespecContents.json",
-    "build": "tsc -p . && npm run copy-css",
-    "watch": "npm run copy-css && tsc -p . --watch",
-    "copy-css": "copyfiles -u 1 src/**/*.module.css dist/src",
+    "build": "vite build",
+    "watch": "vite build --watch",
+    "storybook": "sb dev",
+    "build: storybook": "sb build",
     "preview": "npm run build && vite preview",
     "start": "vite",
-    "e2e": "cross-env PW_EXPERIMENTAL_TS_ESM=1 playwright test -c e2e ",
-    "e2e:headed": "cross-env PW_EXPERIMENTAL_TS_ESM=1 playwright test -c e2e --headed",
     "test": "echo 'no tests'",
-    "test-official": "echo 'no tests'",
+    "test:ci": "echo 'no tests'",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix"
   },
@@ -48,49 +72,52 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@emotion/react": "^11.11.1",
-    "@fluentui/react-components": "~9.32.1",
-    "@fluentui/react-icons": "~2.0.217",
-    "@typespec/compiler": "workspace:~0.49.0",
-    "@typespec/html-program-viewer": "workspace:~0.49.0",
-    "@typespec/http": "workspace:~0.49.0",
-    "@typespec/openapi": "workspace:~0.49.0",
-    "@typespec/openapi3": "workspace:~0.49.0",
-    "@typespec/protobuf": "workspace:~0.49.0",
-    "@typespec/rest": "workspace:~0.49.0",
-    "@typespec/versioning": "workspace:~0.49.0",
-    "debounce": "~1.2.1",
+    "@fluentui/react-components": "~9.55.0",
+    "@fluentui/react-icons": "^2.0.260",
+    "@typespec/bundler": "workspace:~",
+    "@typespec/compiler": "workspace:~",
+    "@typespec/html-program-viewer": "workspace:~",
+    "@typespec/http": "workspace:~",
+    "@typespec/openapi": "workspace:~",
+    "@typespec/openapi3": "workspace:~",
+    "@typespec/protobuf": "workspace:~",
+    "@typespec/rest": "workspace:~",
+    "@typespec/versioning": "workspace:~",
+    "clsx": "^2.1.1",
+    "debounce": "~2.1.1",
     "lzutf8": "0.6.3",
-    "monaco-editor": "~0.43.0",
-    "react-dom": "~18.2.0",
-    "react": "~18.2.0",
-    "swagger-ui-react": "~5.7.2",
-    "vscode-languageserver-textdocument": "~1.0.8",
-    "vscode-languageserver": "~9.0.0"
+    "monaco-editor": "~0.52.0",
+    "react": "~18.3.1",
+    "react-dom": "~18.3.1",
+    "react-error-boundary": "^4.0.13",
+    "swagger-ui-dist": "^5.17.14",
+    "vscode-languageserver": "~9.0.1",
+    "vscode-languageserver-textdocument": "~1.0.12"
   },
   "devDependencies": {
-    "@babel/core": "^7.22.20",
-    "@playwright/test": "~1.32.2",
-    "@types/debounce": "~1.2.1",
-    "@types/mocha": "~10.0.1",
-    "@types/node": "~18.11.9",
-    "@types/react-dom": "~18.2.7",
-    "@types/react": "~18.2.22",
-    "@types/swagger-ui-react": "^4.18.0",
-    "@types/swagger-ui": "~3.52.0",
-    "@typespec/bundler": "workspace:~0.1.0-alpha.2",
-    "@typespec/eslint-config-typespec": "workspace:~0.49.0",
-    "@vitejs/plugin-react": "~4.0.4",
-    "c8": "~8.0.1",
+    "@babel/core": "^7.25.2",
+    "@playwright/test": "^1.48.0",
+    "@storybook/addon-actions": "^8.3.5",
+    "@storybook/cli": "^8.3.5",
+    "@storybook/react": "^8.3.5",
+    "@storybook/react-vite": "^8.3.5",
+    "@storybook/test": "^8.3.5",
+    "@storybook/types": "^8.3.5",
+    "@types/debounce": "~1.2.4",
+    "@types/node": "~22.7.5",
+    "@types/react": "~18.3.11",
+    "@types/react-dom": "~18.3.0",
+    "@types/swagger-ui-dist": "~3.30.5",
+    "@typespec/bundler": "workspace:~",
+    "@typespec/react-components": "workspace:~",
+    "@vitejs/plugin-react": "~4.3.2",
+    "c8": "^10.1.2",
     "cross-env": "~7.0.3",
-    "eslint": "^8.49.0",
-    "mocha-junit-reporter": "~2.2.1",
-    "mocha-multi-reporters": "~1.5.1",
-    "mocha": "~10.2.0",
-    "rimraf": "~5.0.1",
-    "rollup-plugin-visualizer": "~5.9.2",
-    "typescript": "~5.2.2",
-    "vite": "^4.4.9",
-    "copyfiles": "~2.4.1"
+    "es-module-shims": "~1.10.0",
+    "rimraf": "~6.0.1",
+    "typescript": "~5.6.3",
+    "vite": "^5.4.8",
+    "vite-plugin-checker": "^0.8.0",
+    "vite-plugin-dts": "4.2.3"
   }
 }

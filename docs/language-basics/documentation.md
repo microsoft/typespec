@@ -3,15 +3,20 @@ id: documentation
 title: Documentation
 ---
 
-# Documentation
+Documentation is a vital aspect of any API. TypeSpec offers several ways to document your API, including doc comments and decorators.
 
-Documentation is crucial to any API. TypeSpec provides a number of ways to document your API using TSDoc doc comments and decorators.
+## Approaches to documenting APIs
 
-# Documenting APIs
+TypeSpec provides two primary methods for documenting your API:
 
-## `@doc` Decorator
+- `@doc` decorator
+- `/** */` Doc comments
 
-The `@doc` decorator can be used to attach documentation to most TypeSpec declarations. It most-commonly accepts a string argument that will be used as the documentation for the declaration.
+The latter is less intrusive to the specification and is often preferred.
+
+## The `@doc` decorator
+
+The `@doc` decorator can be used to attach documentation to most TypeSpec declarations. It typically accepts a string argument that serves as the documentation for the declaration.
 
 ```typespec
 @doc("This is a sample model")
@@ -21,44 +26,56 @@ model Dog {
 }
 ```
 
-The `@doc` decorator can also accept a source object which can be used, for example, to provide templated documentation for a generic type.
+The `@doc` decorator can also accept a source object, which can be used to provide templated documentation for a generic type, for example.
 
 ```typespec
-@doc("Templated {name}", T)
-model Template<T extends {}>  {
+@doc("Templated {name}", Type)
+model Template<Type extends {}>  {
 }
 
-// doc will read "Templated A"
+// The documentation will read "Templated A"
 model A is Template<A>
 ```
 
-## TSDoc Doc Comments
+## Doc comments
 
-TSDoc doc comments are a standard way to document TypeScript code. They are supported by many IDEs and can be used to generate external documentation using tools like [TypeDoc](https://typedoc.org/).
+You can annotate objects in your TypeSpec specification with doc comments. These comments are treated as if they were attached using the `@doc` decorator and can be used to generate external documentation.
 
-You can annotate objects in your TypeSpec spec with TSDoc doc comments. These comments will be considered the same as if they were attached using the `@doc` decorator and can be used to generate external documentation.
+Doc comments start with `/**` and continue until the closing `*/` is encountered. [Tags](#doc-comment-tags) can be used to provide additional documentation context.
 
 ```typespec
 /**
  * Get a widget.
  * @param widgetId The ID of the widget to retrieve.
- * /
-op @get create(@path widgetId: string): Widget | Error;
+ */
+op read(@path widgetId: string): Widget | Error;
 ```
 
 This is functionally equivalent to:
 
 ```typespec
 @doc("Get a widget.")
-op @get create(
+op read(
   @doc("The ID of the widget to retrieve.")
   @path
-  widgetId: string): Widget | Error;
+  widgetId: string,
+): Widget | Error;
 ```
 
-The benefit to using TSDoc doc comment syntax is that it keeps all of the documentation for a declaration in one place, making it easier to read and maintain. Additionally, it allows the generation of documentation using tools like TypeDoc without having to write a custom emitter to examine the `@doc` metadata.
+The advantage of using doc comment syntax is that it keeps all of the documentation for a declaration in one place, making it easier to read and maintain. Additionally, it allows the generation of documentation using tools like TypeDoc without having to write a custom emitter to examine the `@doc` metadata.
 
-# Comments
+### Doc comment tags
+
+As shown in the previous example, doc comments can use certain tags to document additional elements or provide different documentation context.
+
+| Tag                     | Description                       | Example                                             |
+| ----------------------- | --------------------------------- | --------------------------------------------------- |
+| `@param`                | Documents a parameter.            | `@param widgetId The ID of the widget to retrieve.` |
+| `@returns`              | Documents the operation response. | `@returns The widget.`                              |
+| `@template`             | Document a template parameter     | `@template T the resource type`                     |
+| `@example` (unofficial) | Show examples                     | `@example \`model Foo {}\` `                        |
+
+## Comments
 
 TypeSpec supports both single-line and multi-line comments. Single-line comments start with `//` and continue until the end of the line. Multi-line comments start with `/*` and continue until the closing `*/` is encountered.
 
@@ -71,4 +88,4 @@ model Dog {
 }
 ```
 
-Comments are ignored by the compiler and are not included in the generated output. They are intended to be used to document your spec internally and are not suitable for generating external documentation.
+Comments are ignored by the compiler and do not appear in the generated output. They are intended for internal documentation of your spec and are not suitable for generating external documentation.

@@ -1,40 +1,63 @@
-import Ajv, { DefinedError, Options } from "ajv";
+import { Ajv, type ErrorObject, type Options } from "ajv";
 import { getLocationInYamlScript } from "../yaml/diagnostics.js";
-import { YamlScript } from "../yaml/types.js";
+import { YamlPathTarget, YamlScript } from "../yaml/types.js";
 import { compilerAssert } from "./diagnostics.js";
-import { Diagnostic, JSONSchemaType, JSONSchemaValidator, NoTarget, SourceFile } from "./types.js";
+import { createDiagnostic } from "./messages.js";
+import { isPathAbsolute } from "./path-utils.js";
+import {
+  Diagnostic,
+  DiagnosticTarget,
+  JSONSchemaType,
+  JSONSchemaValidator,
+  NoTarget,
+  SourceFile,
+} from "./types.js";
 
 export interface JSONSchemaValidatorOptions {
   coerceTypes?: boolean;
   strict?: boolean;
 }
 
+function absolutePathStatus(path: string): "valid" | "not-absolute" | "windows-style" {
+  if (path.startsWith(".") || !isPathAbsolute(path)) {
+    return "not-absolute";
+  }
+  // if (path.includes("\\")) {
+  //   return "windows-style";
+  // }
+  return "valid";
+}
+
 export function createJSONSchemaValidator<T>(
   schema: JSONSchemaType<T>,
-  options: JSONSchemaValidatorOptions = { strict: true }
+  options: JSONSchemaValidatorOptions = { strict: true },
 ): JSONSchemaValidator {
-  const ajv = new (Ajv as any)({
+  const ajv = new Ajv({
     strict: options.strict,
     coerceTypes: options.coerceTypes,
     allErrors: true,
   } satisfies Options);
 
+  ajv.addFormat("absolute-path", {
+    type: "string",
+    validate: (path) => absolutePathStatus(path) === "valid",
+  });
   return { validate };
 
   function validate(
     config: unknown,
-    target: YamlScript | SourceFile | typeof NoTarget
+    target: YamlScript | YamlPathTarget | SourceFile | typeof NoTarget,
   ): Diagnostic[] {
     const validate = ajv.compile(schema);
     const valid = validate(config);
     compilerAssert(
       !valid || !validate.errors,
-      "There should be errors reported if the schema is not valid."
+      "There should be errors reported if the schema is not valid.",
     );
 
     const diagnostics = [];
     for (const error of validate.errors ?? []) {
-      const diagnostic = ajvErrorToDiagnostic(error, target);
+      const diagnostic = ajvErrorToDiagnostic(config, error, target);
       diagnostics.push(diagnostic);
     }
 
@@ -45,12 +68,23 @@ export function createJSONSchemaValidator<T>(
 const IGNORED_AJV_PARAMS = new Set(["type", "errors"]);
 
 function ajvErrorToDiagnostic(
-  error: DefinedError,
-  target: YamlScript | SourceFile | typeof NoTarget
+  obj: unknown,
+  error: ErrorObject<string, Record<string, any>, unknown>,
+  target: YamlScript | YamlPathTarget | SourceFile | typeof NoTarget,
 ): Diagnostic {
+  const tspTarget = resolveTarget(error, target);
+  if (error.params.format === "absolute-path") {
+    const value = getErrorValue(obj, error) as any;
+    return createDiagnostic({
+      code: "config-path-absolute",
+      format: { path: value },
+      target: tspTarget,
+    });
+  }
+
   const messageLines = [`Schema violation: ${error.message} (${error.instancePath || "/"})`];
   for (const [name, value] of Object.entries(error.params).filter(
-    ([name]) => !IGNORED_AJV_PARAMS.has(name)
+    ([name]) => !IGNORED_AJV_PARAMS.has(name),
   )) {
     const formattedValue = Array.isArray(value) ? [...new Set(value)].join(", ") : value;
     messageLines.push(`  ${name}: ${formattedValue}`);
@@ -61,16 +95,33 @@ function ajvErrorToDiagnostic(
     code: "invalid-schema",
     message,
     severity: "error",
-    target:
-      target === NoTarget
-        ? target
-        : "kind" in target
-        ? getLocationInYamlScript(target, getErrorPath(error), "key")
-        : { file: target, pos: 0, end: 0 },
+    target: tspTarget,
   };
 }
 
-function getErrorPath(error: DefinedError): string[] {
+function resolveTarget(
+  error: ErrorObject<string, Record<string, any>, unknown>,
+  target: YamlScript | YamlPathTarget | SourceFile | typeof NoTarget,
+): DiagnosticTarget | typeof NoTarget {
+  if (target === NoTarget) {
+    return NoTarget;
+  }
+  if (!("kind" in target)) {
+    return { file: target, pos: 0, end: 0 };
+  }
+  switch (target.kind) {
+    case "yaml-script":
+      return getLocationInYamlScript(target, getErrorPath(error), "key");
+    case "path-target":
+      return getLocationInYamlScript(
+        target.script,
+        [...target.path, ...getErrorPath(error)],
+        "key",
+      );
+  }
+}
+
+function getErrorPath(error: ErrorObject<string, Record<string, any>, unknown>): string[] {
   const instancePath = parseJsonPointer(error.instancePath);
   switch (error.keyword) {
     case "additionalProperties":
@@ -78,6 +129,17 @@ function getErrorPath(error: DefinedError): string[] {
     default:
       return instancePath;
   }
+}
+function getErrorValue(
+  obj: any,
+  error: ErrorObject<string, Record<string, any>, unknown>,
+): unknown {
+  const path = getErrorPath(error);
+  let current = obj;
+  for (const segment of path) {
+    current = current[segment];
+  }
+  return current;
 }
 
 /**

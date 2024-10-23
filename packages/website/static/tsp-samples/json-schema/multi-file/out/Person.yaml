@@ -1,0 +1,24 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: Person.yaml
+type: object
+properties:
+  name:
+    type: string
+    description: The person's full name.
+  address:
+    $ref: Address.yaml
+    description: Person address
+  nickNames:
+    type: array
+    items:
+      type: string
+    uniqueItems: true
+    description: List of nick names
+  cars:
+    type: array
+    items:
+      $ref: Car.yaml
+    description: List of cars person owns
+required:
+  - name
+  - address

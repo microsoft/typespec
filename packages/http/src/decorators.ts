@@ -1,15 +1,15 @@
-import { createDiagnostic, reportDiagnostic } from "./lib.js";
-
 import {
   DecoratorContext,
   Diagnostic,
   DiagnosticTarget,
+  Interface,
   Model,
   ModelProperty,
   Namespace,
   Operation,
   Program,
   StringLiteral,
+  SyntaxKind,
   Tuple,
   Type,
   Union,
@@ -18,15 +18,36 @@ import {
   ignoreDiagnostics,
   isArrayModelType,
   reportDeprecated,
-  setTypeSpecNamespace,
   typespecTypeToJson,
   validateDecoratorTarget,
   validateDecoratorUniqueOnNode,
 } from "@typespec/compiler";
+import {
+  BodyDecorator,
+  BodyIgnoreDecorator,
+  BodyRootDecorator,
+  DeleteDecorator,
+  GetDecorator,
+  HeadDecorator,
+  HeaderDecorator,
+  MultipartBodyDecorator,
+  PatchDecorator,
+  PathDecorator,
+  PathOptions,
+  PostDecorator,
+  PutDecorator,
+  QueryDecorator,
+  QueryOptions,
+  RouteDecorator,
+  ServerDecorator,
+  SharedRouteDecorator,
+  StatusCodeDecorator,
+} from "../generated-defs/TypeSpec.Http.js";
+import { HttpStateKeys, createDiagnostic, reportDiagnostic } from "./lib.js";
 import { setRoute, setSharedRoute } from "./route.js";
-import { HttpStateKeys } from "./state.js";
 import { getStatusCodesFromType } from "./status-codes.js";
 import {
+  Authentication,
   AuthenticationOption,
   HeaderFieldOptions,
   HttpAuth,
@@ -35,17 +56,16 @@ import {
   HttpVerb,
   PathParameterOptions,
   QueryParameterOptions,
-  ServiceAuthentication,
 } from "./types.js";
 import { extractParamsFromPath } from "./utils.js";
 
 export const namespace = "TypeSpec.Http";
 
-export function $header(
+export const $header: HeaderDecorator = (
   context: DecoratorContext,
   entity: ModelProperty,
-  headerNameOrOptions?: StringLiteral | Model
-) {
+  headerNameOrOptions?: StringLiteral | Type,
+) => {
   const options: HeaderFieldOptions = {
     type: "header",
     name: entity.name.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase(),
@@ -53,7 +73,7 @@ export function $header(
   if (headerNameOrOptions) {
     if (headerNameOrOptions.kind === "String") {
       options.name = headerNameOrOptions.value;
-    } else {
+    } else if (headerNameOrOptions.kind === "Model") {
       const name = headerNameOrOptions.properties.get("name")?.type;
       if (name?.kind === "String") {
         options.name = name.value;
@@ -73,6 +93,8 @@ export function $header(
           options.format = val;
         }
       }
+    } else {
+      return;
     }
   }
   if (
@@ -85,11 +107,11 @@ export function $header(
       target: context.decoratorTarget,
     });
   }
-  context.program.stateMap(HttpStateKeys.headerFieldsKey).set(entity, options);
-}
+  context.program.stateMap(HttpStateKeys.header).set(entity, options);
+};
 
 export function getHeaderFieldOptions(program: Program, entity: Type): HeaderFieldOptions {
-  return program.stateMap(HttpStateKeys.headerFieldsKey).get(entity);
+  return program.stateMap(HttpStateKeys.header).get(entity);
 }
 
 export function getHeaderFieldName(program: Program, entity: Type): string {
@@ -97,47 +119,49 @@ export function getHeaderFieldName(program: Program, entity: Type): string {
 }
 
 export function isHeader(program: Program, entity: Type) {
-  return program.stateMap(HttpStateKeys.headerFieldsKey).has(entity);
+  return program.stateMap(HttpStateKeys.header).has(entity);
 }
 
-export function $query(
+export const $query: QueryDecorator = (
   context: DecoratorContext,
   entity: ModelProperty,
-  queryNameOrOptions?: StringLiteral | Model
-) {
+  queryNameOrOptions?: string | QueryOptions,
+) => {
+  const paramName =
+    typeof queryNameOrOptions === "string"
+      ? queryNameOrOptions
+      : (queryNameOrOptions?.name ?? entity.name);
+  const userOptions: QueryOptions =
+    typeof queryNameOrOptions === "object" ? queryNameOrOptions : {};
+  if (userOptions.format) {
+    reportDeprecated(
+      context.program,
+      "The `format` option of `@query` decorator is deprecated. Use `explode: true` instead of `form` and `multi`. `csv` or `simple` is the default now.",
+      entity,
+    );
+  }
   const options: QueryParameterOptions = {
     type: "query",
-    name: entity.name,
+    explode:
+      userOptions.explode ?? (userOptions.format === "multi" || userOptions.format === "form"),
+    format: userOptions.format,
+    name: paramName,
   };
-  if (queryNameOrOptions) {
-    if (queryNameOrOptions.kind === "String") {
-      options.name = queryNameOrOptions.value;
-    } else {
-      const name = queryNameOrOptions.properties.get("name")?.type;
-      if (name?.kind === "String") {
-        options.name = name.value;
-      }
-      const format = queryNameOrOptions.properties.get("format")?.type;
-      if (format?.kind === "String") {
-        options.format = format.value as any; // That value should have already been validated by the TypeSpec dec
-      }
-    }
-  }
+
   if (
     entity.type.kind === "Model" &&
     isArrayModelType(context.program, entity.type) &&
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     options.format === undefined
   ) {
-    reportDiagnostic(context.program, {
-      code: "query-format-required",
-      target: context.decoratorTarget,
-    });
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
+    options.format = userOptions.explode ? "multi" : "csv";
   }
-  context.program.stateMap(HttpStateKeys.queryFieldsKey).set(entity, options);
-}
+  context.program.stateMap(HttpStateKeys.query).set(entity, options);
+};
 
 export function getQueryParamOptions(program: Program, entity: Type): QueryParameterOptions {
-  return program.stateMap(HttpStateKeys.queryFieldsKey).get(entity);
+  return program.stateMap(HttpStateKeys.query).get(entity);
 }
 
 export function getQueryParamName(program: Program, entity: Type): string {
@@ -145,19 +169,32 @@ export function getQueryParamName(program: Program, entity: Type): string {
 }
 
 export function isQueryParam(program: Program, entity: Type) {
-  return program.stateMap(HttpStateKeys.queryFieldsKey).has(entity);
+  return program.stateMap(HttpStateKeys.query).has(entity);
 }
 
-export function $path(context: DecoratorContext, entity: ModelProperty, paramName?: string) {
+export const $path: PathDecorator = (
+  context: DecoratorContext,
+  entity: ModelProperty,
+  paramNameOrOptions?: string | PathOptions,
+) => {
+  const paramName =
+    typeof paramNameOrOptions === "string"
+      ? paramNameOrOptions
+      : (paramNameOrOptions?.name ?? entity.name);
+
+  const userOptions: PathOptions = typeof paramNameOrOptions === "object" ? paramNameOrOptions : {};
   const options: PathParameterOptions = {
     type: "path",
-    name: paramName ?? entity.name,
+    explode: userOptions.explode ?? false,
+    allowReserved: userOptions.allowReserved ?? false,
+    style: userOptions.style ?? "simple",
+    name: paramName,
   };
-  context.program.stateMap(HttpStateKeys.pathFieldsKey).set(entity, options);
-}
+  context.program.stateMap(HttpStateKeys.path).set(entity, options);
+};
 
 export function getPathParamOptions(program: Program, entity: Type): PathParameterOptions {
-  return program.stateMap(HttpStateKeys.pathFieldsKey).get(entity);
+  return program.stateMap(HttpStateKeys.path).get(entity);
 }
 
 export function getPathParamName(program: Program, entity: Type): string {
@@ -165,23 +202,56 @@ export function getPathParamName(program: Program, entity: Type): string {
 }
 
 export function isPathParam(program: Program, entity: Type) {
-  return program.stateMap(HttpStateKeys.pathFieldsKey).has(entity);
+  return program.stateMap(HttpStateKeys.path).has(entity);
 }
 
-export function $body(context: DecoratorContext, entity: ModelProperty) {
-  context.program.stateSet(HttpStateKeys.bodyFieldsKey).add(entity);
-}
+export const $body: BodyDecorator = (context: DecoratorContext, entity: ModelProperty) => {
+  context.program.stateSet(HttpStateKeys.body).add(entity);
+};
+
+export const $bodyRoot: BodyRootDecorator = (context: DecoratorContext, entity: ModelProperty) => {
+  context.program.stateSet(HttpStateKeys.bodyRoot).add(entity);
+};
+
+export const $bodyIgnore: BodyIgnoreDecorator = (
+  context: DecoratorContext,
+  entity: ModelProperty,
+) => {
+  context.program.stateSet(HttpStateKeys.bodyIgnore).add(entity);
+};
 
 export function isBody(program: Program, entity: Type): boolean {
-  return program.stateSet(HttpStateKeys.bodyFieldsKey).has(entity);
+  return program.stateSet(HttpStateKeys.body).has(entity);
 }
 
-export function $statusCode(context: DecoratorContext, entity: ModelProperty) {
-  context.program.stateSet(HttpStateKeys.statusCodeKey).add(entity);
+export function isBodyRoot(program: Program, entity: ModelProperty): boolean {
+  return program.stateSet(HttpStateKeys.bodyRoot).has(entity);
+}
 
-  // eslint-disable-next-line deprecation/deprecation
+export function isBodyIgnore(program: Program, entity: ModelProperty): boolean {
+  return program.stateSet(HttpStateKeys.bodyIgnore).has(entity);
+}
+
+export const $multipartBody: MultipartBodyDecorator = (
+  context: DecoratorContext,
+  entity: ModelProperty,
+) => {
+  context.program.stateSet(HttpStateKeys.multipartBody).add(entity);
+};
+
+export function isMultipartBodyProperty(program: Program, entity: Type): boolean {
+  return program.stateSet(HttpStateKeys.multipartBody).has(entity);
+}
+
+export const $statusCode: StatusCodeDecorator = (
+  context: DecoratorContext,
+  entity: ModelProperty,
+) => {
+  context.program.stateSet(HttpStateKeys.statusCode).add(entity);
+
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
   setLegacyStatusCodeState(context, entity);
-}
+};
 
 /**
  * To not break we keep the legacy behavior of resolving the discrete status code in the decorator and saving them in the state.
@@ -226,23 +296,23 @@ function setLegacyStatusCodeState(context: DecoratorContext, entity: ModelProper
     });
     return false;
   }
-  context.program.stateMap(HttpStateKeys.statusCodeKey).set(entity, codes);
+  context.program.stateMap(HttpStateKeys.statusCode).set(entity, codes);
 }
 
 /**
  * @deprecated DO NOT USE, for internal use only.
  */
 export function setStatusCode(program: Program, entity: Model | ModelProperty, codes: string[]) {
-  program.stateMap(HttpStateKeys.statusCodeKey).set(entity, codes);
+  program.stateMap(HttpStateKeys.statusCode).set(entity, codes);
 }
 
 export function isStatusCode(program: Program, entity: Type) {
-  return program.stateMap(HttpStateKeys.statusCodeKey).has(entity);
+  return program.stateMap(HttpStateKeys.statusCode).has(entity);
 }
 
 export function getStatusCodesWithDiagnostics(
   program: Program,
-  type: ModelProperty
+  type: ModelProperty,
 ): [HttpStatusCodes, readonly Diagnostic[]] {
   return getStatusCodesFromType(program, type, type);
 }
@@ -275,7 +345,7 @@ export function getStatusCodeDescription(statusCode: number | "*" | HttpStatusCo
     case 401:
       return "Access is unauthorized.";
     case 403:
-      return "Access is forbidden";
+      return "Access is forbidden.";
     case 404:
       return "The server cannot find the requested resource.";
     case 409:
@@ -304,53 +374,48 @@ function rangeDescription(start: number, end: number) {
   return undefined;
 }
 
-function setOperationVerb(program: Program, entity: Type, verb: HttpVerb): void {
-  if (entity.kind === "Operation") {
-    if (!program.stateMap(HttpStateKeys.operationVerbsKey).has(entity)) {
-      program.stateMap(HttpStateKeys.operationVerbsKey).set(entity, verb);
-    } else {
-      reportDiagnostic(program, {
-        code: "http-verb-duplicate",
-        format: { entityName: entity.name },
-        target: entity,
-      });
-    }
-  } else {
-    reportDiagnostic(program, {
-      code: "http-verb-wrong-type",
-      format: { verb, entityKind: entity.kind },
-      target: entity,
+function setOperationVerb(context: DecoratorContext, entity: Operation, verb: HttpVerb): void {
+  validateVerbUniqueOnNode(context, entity);
+  context.program.stateMap(HttpStateKeys.verbs).set(entity, verb);
+}
+
+function validateVerbUniqueOnNode(context: DecoratorContext, type: Operation) {
+  const verbDecorators = type.decorators.filter(
+    (x) =>
+      VERB_DECORATORS.includes(x.decorator) &&
+      x.node?.kind === SyntaxKind.DecoratorExpression &&
+      x.node?.parent === type.node,
+  );
+
+  if (verbDecorators.length > 1) {
+    reportDiagnostic(context.program, {
+      code: "http-verb-duplicate",
+      format: { entityName: type.name },
+      target: context.decoratorTarget,
     });
+    return false;
   }
+  return true;
 }
 
 export function getOperationVerb(program: Program, entity: Type): HttpVerb | undefined {
-  return program.stateMap(HttpStateKeys.operationVerbsKey).get(entity);
+  return program.stateMap(HttpStateKeys.verbs).get(entity);
 }
 
-export function $get(context: DecoratorContext, entity: Operation) {
-  setOperationVerb(context.program, entity, "get");
+function createVerbDecorator(verb: HttpVerb) {
+  return (context: DecoratorContext, entity: Operation) => {
+    setOperationVerb(context, entity, verb);
+  };
 }
 
-export function $put(context: DecoratorContext, entity: Operation) {
-  setOperationVerb(context.program, entity, "put");
-}
+export const $get: GetDecorator = createVerbDecorator("get");
+export const $put: PutDecorator = createVerbDecorator("put");
+export const $post: PostDecorator = createVerbDecorator("post");
+export const $patch: PatchDecorator = createVerbDecorator("patch");
+export const $delete: DeleteDecorator = createVerbDecorator("delete");
+export const $head: HeadDecorator = createVerbDecorator("head");
 
-export function $post(context: DecoratorContext, entity: Operation) {
-  setOperationVerb(context.program, entity, "post");
-}
-
-export function $patch(context: DecoratorContext, entity: Operation) {
-  setOperationVerb(context.program, entity, "patch");
-}
-
-export function $delete(context: DecoratorContext, entity: Operation) {
-  setOperationVerb(context.program, entity, "delete");
-}
-
-export function $head(context: DecoratorContext, entity: Operation) {
-  setOperationVerb(context.program, entity, "head");
-}
+const VERB_DECORATORS = [$get, $head, $post, $put, $patch, $delete];
 
 export interface HttpServer {
   url: string;
@@ -361,19 +426,19 @@ export interface HttpServer {
 /**
  * Configure the server url for the service.
  * @param context Decorator context
- * @param target Decorator target(Must be a namespace)
+ * @param target Decorator target (must be a namespace)
  * @param description Description for this server.
  * @param parameters @optional Parameters to interpolate in the server url.
  */
-export function $server(
+export const $server: ServerDecorator = (
   context: DecoratorContext,
   target: Namespace,
   url: string,
   description: string,
-  parameters?: Model
-): void {
+  parameters?: Type,
+) => {
   const params = extractParamsFromPath(url);
-  const parameterMap = new Map(parameters?.properties ?? []);
+  const parameterMap = new Map((parameters as Model)?.properties ?? []);
   for (const declaredParam of params) {
     const param = parameterMap.get(declaredParam);
     if (!param) {
@@ -386,76 +451,47 @@ export function $server(
     }
   }
 
-  let servers: HttpServer[] = context.program.stateMap(HttpStateKeys.serversKey).get(target);
+  let servers: HttpServer[] = context.program.stateMap(HttpStateKeys.servers).get(target);
   if (servers === undefined) {
     servers = [];
-    context.program.stateMap(HttpStateKeys.serversKey).set(target, servers);
+    context.program.stateMap(HttpStateKeys.servers).set(target, servers);
   }
   servers.push({
     url,
     description,
     parameters: parameterMap,
   });
-}
+};
 
 export function getServers(program: Program, type: Namespace): HttpServer[] | undefined {
-  return program.stateMap(HttpStateKeys.serversKey).get(type);
+  return program.stateMap(HttpStateKeys.servers).get(type);
 }
-
-export function $plainData(context: DecoratorContext, entity: Model) {
-  const { program } = context;
-
-  const decoratorsToRemove = ["$header", "$body", "$query", "$path", "$statusCode"];
-  const [headers, bodies, queries, paths, statusCodes] = [
-    program.stateMap(HttpStateKeys.headerFieldsKey),
-    program.stateSet(HttpStateKeys.bodyFieldsKey),
-    program.stateMap(HttpStateKeys.queryFieldsKey),
-    program.stateMap(HttpStateKeys.pathFieldsKey),
-    program.stateMap(HttpStateKeys.statusCodeKey),
-  ];
-
-  for (const property of entity.properties.values()) {
-    // Remove the decorators so that they do not run in the future, for example,
-    // if this model is later spread into another.
-    property.decorators = property.decorators.filter(
-      (d) => !decoratorsToRemove.includes(d.decorator.name)
-    );
-
-    // Remove the impact the decorators already had on this model.
-    headers.delete(property);
-    bodies.delete(property);
-    queries.delete(property);
-    paths.delete(property);
-    statusCodes.delete(property);
-  }
-}
-
-setTypeSpecNamespace("Private", $plainData);
 
 export function $useAuth(
   context: DecoratorContext,
-  serviceNamespace: Namespace,
-  authConfig: Model | Union | Tuple
+  entity: Namespace | Interface | Operation,
+  authConfig: Type,
 ) {
-  const [auth, diagnostics] = extractServiceAuthentication(context.program, authConfig);
+  validateDecoratorUniqueOnNode(context, entity, $useAuth);
+  const [auth, diagnostics] = extractAuthentication(context.program, authConfig);
   if (diagnostics.length > 0) context.program.reportDiagnostics(diagnostics);
   if (auth !== undefined) {
-    setAuthentication(context.program, serviceNamespace, auth);
+    setAuthentication(context.program, entity, auth);
   }
 }
 
 export function setAuthentication(
   program: Program,
-  serviceNamespace: Namespace,
-  auth: ServiceAuthentication
+  entity: Namespace | Interface | Operation,
+  auth: Authentication,
 ) {
-  program.stateMap(HttpStateKeys.authenticationKey).set(serviceNamespace, auth);
+  program.stateMap(HttpStateKeys.authentication).set(entity, auth);
 }
 
-function extractServiceAuthentication(
+function extractAuthentication(
   program: Program,
-  type: Model | Union | Tuple
-): [ServiceAuthentication | undefined, readonly Diagnostic[]] {
+  type: Type,
+): [Authentication | undefined, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
 
   switch (type.kind) {
@@ -468,14 +504,25 @@ function extractServiceAuthentication(
       return diagnostics.wrap({ options: [option] });
     case "Union":
       return extractHttpAuthenticationOptions(program, type, type);
+    default:
+      return [
+        undefined,
+        [
+          createDiagnostic({
+            code: "invalid-type-for-auth",
+            format: { kind: type.kind },
+            target: type,
+          }),
+        ],
+      ];
   }
 }
 
 function extractHttpAuthenticationOptions(
   program: Program,
   tuple: Union,
-  diagnosticTarget: DiagnosticTarget
-): [ServiceAuthentication, readonly Diagnostic[]] {
+  diagnosticTarget: DiagnosticTarget,
+): [Authentication, readonly Diagnostic[]] {
   const options: AuthenticationOption[] = [];
   const diagnostics = createDiagnosticCollector();
   for (const variant of tuple.variants.values()) {
@@ -483,7 +530,7 @@ function extractHttpAuthenticationOptions(
     switch (value.kind) {
       case "Model":
         const result = diagnostics.pipe(
-          extractHttpAuthentication(program, value, diagnosticTarget)
+          extractHttpAuthentication(program, value, diagnosticTarget),
         );
         if (result !== undefined) {
           options.push({ schemes: [result] });
@@ -491,7 +538,7 @@ function extractHttpAuthenticationOptions(
         break;
       case "Tuple":
         const option = diagnostics.pipe(
-          extractHttpAuthenticationOption(program, value, diagnosticTarget)
+          extractHttpAuthenticationOption(program, value, diagnosticTarget),
         );
         options.push(option);
         break;
@@ -501,7 +548,7 @@ function extractHttpAuthenticationOptions(
             code: "invalid-type-for-auth",
             format: { kind: value.kind },
             target: value,
-          })
+          }),
         );
     }
   }
@@ -511,7 +558,7 @@ function extractHttpAuthenticationOptions(
 function extractHttpAuthenticationOption(
   program: Program,
   tuple: Tuple,
-  diagnosticTarget: DiagnosticTarget
+  diagnosticTarget: DiagnosticTarget,
 ): [AuthenticationOption, readonly Diagnostic[]] {
   const schemes: HttpAuth[] = [];
   const diagnostics = createDiagnosticCollector();
@@ -519,7 +566,7 @@ function extractHttpAuthenticationOption(
     switch (value.kind) {
       case "Model":
         const result = diagnostics.pipe(
-          extractHttpAuthentication(program, value, diagnosticTarget)
+          extractHttpAuthentication(program, value, diagnosticTarget),
         );
         if (result !== undefined) {
           schemes.push(result);
@@ -531,7 +578,7 @@ function extractHttpAuthenticationOption(
             code: "invalid-type-for-auth",
             format: { kind: value.kind },
             target: value,
-          })
+          }),
         );
     }
   }
@@ -541,14 +588,17 @@ function extractHttpAuthenticationOption(
 function extractHttpAuthentication(
   program: Program,
   modelType: Model,
-  diagnosticTarget: DiagnosticTarget
+  diagnosticTarget: DiagnosticTarget,
 ): [HttpAuth | undefined, readonly Diagnostic[]] {
   const [result, diagnostics] = typespecTypeToJson<HttpAuth>(modelType, diagnosticTarget);
   if (result === undefined) {
     return [result, diagnostics];
   }
   const description = getDoc(program, modelType);
-  const auth = result.type === "oauth2" ? extractOAuth2Auth(result) : result;
+  const auth =
+    result.type === "oauth2"
+      ? extractOAuth2Auth(modelType, result)
+      : { ...result, model: modelType };
   return [
     {
       ...auth,
@@ -559,7 +609,7 @@ function extractHttpAuthentication(
   ];
 }
 
-function extractOAuth2Auth(data: any): HttpAuth {
+function extractOAuth2Auth(modelType: Model, data: any): HttpAuth {
   // Validation of OAuth2Flow models in this function is minimal because the
   // type system already validates whether the model represents a flow
   // configuration.  This code merely avoids runtime errors.
@@ -567,12 +617,17 @@ function extractOAuth2Auth(data: any): HttpAuth {
     Array.isArray(data.flows) && data.flows.every((x: any) => typeof x === "object")
       ? data.flows
       : [];
+
+  const defaultScopes = Array.isArray(data.defaultScopes) ? data.defaultScopes : [];
   return {
-    ...data,
+    id: data.id,
+    type: data.type,
+    model: modelType,
     flows: flows.map((flow: any) => {
+      const scopes: Array<string> = flow.scopes ? flow.scopes : defaultScopes;
       return {
         ...flow,
-        scopes: (flow.scopes || []).map((x: string) => ({ value: x })),
+        scopes: scopes.map((x: string) => ({ value: x })),
       };
     }),
   };
@@ -580,9 +635,9 @@ function extractOAuth2Auth(data: any): HttpAuth {
 
 export function getAuthentication(
   program: Program,
-  namespace: Namespace
-): ServiceAuthentication | undefined {
-  return program.stateMap(HttpStateKeys.authenticationKey).get(namespace);
+  entity: Namespace | Interface | Operation,
+): Authentication | undefined {
+  return program.stateMap(HttpStateKeys.authentication).get(entity);
 }
 
 /**
@@ -594,17 +649,22 @@ export function getAuthentication(
  *
  * `@route` can only be applied to operations, namespaces, and interfaces.
  */
-export function $route(context: DecoratorContext, entity: Type, path: string, parameters?: Model) {
+export const $route: RouteDecorator = (
+  context: DecoratorContext,
+  entity: Type,
+  path: string,
+  parameters?: Type,
+) => {
   validateDecoratorUniqueOnNode(context, entity, $route);
 
   // Handle the deprecated `shared` option
   let shared = false;
-  const sharedValue = parameters?.properties.get("shared")?.type;
+  const sharedValue = (parameters as Model)?.properties.get("shared")?.type;
   if (sharedValue !== undefined) {
     reportDeprecated(
       context.program,
       "The `shared` option is deprecated, use the `@sharedRoute` decorator instead.",
-      entity
+      entity,
     );
 
     // The type checker should have raised a diagnostic if the value isn't boolean
@@ -617,7 +677,7 @@ export function $route(context: DecoratorContext, entity: Type, path: string, pa
     path,
     shared,
   });
-}
+};
 
 /**
  * `@sharedRoute` marks the operation as sharing a route path with other operations.
@@ -627,9 +687,12 @@ export function $route(context: DecoratorContext, entity: Type, path: string, pa
  *
  * `@sharedRoute` can only be applied directly to operations.
  */
-export function $sharedRoute(context: DecoratorContext, entity: Operation) {
+export const $sharedRoute: SharedRouteDecorator = (
+  context: DecoratorContext,
+  entity: Operation,
+) => {
   setSharedRoute(context.program, entity);
-}
+};
 
 /**
  * Specifies if inapplicable metadata should be included in the payload for
@@ -645,11 +708,13 @@ export function $sharedRoute(context: DecoratorContext, entity: Operation) {
  *               exclude it.
  *
  * @see isApplicableMetadata
+ *
+ * @ignore Cause issue with conflicting function of same name for now
  */
 export function $includeInapplicableMetadataInPayload(
   context: DecoratorContext,
   entity: Type,
-  value: boolean
+  value: boolean,
 ) {
   if (
     !validateDecoratorTarget(context, entity, "@includeInapplicableMetadataInPayload", [
@@ -660,7 +725,7 @@ export function $includeInapplicableMetadataInPayload(
   ) {
     return;
   }
-  const state = context.program.stateMap(HttpStateKeys.includeInapplicableMetadataInPayloadKey);
+  const state = context.program.stateMap(HttpStateKeys.includeInapplicableMetadataInPayload);
   state.set(entity, value);
 }
 
@@ -673,11 +738,11 @@ export function $includeInapplicableMetadataInPayload(
  */
 export function includeInapplicableMetadataInPayload(
   program: Program,
-  property: ModelProperty
+  property: ModelProperty,
 ): boolean {
   let e: ModelProperty | Namespace | Model | undefined;
   for (e = property; e; e = e.kind === "ModelProperty" ? e.model : e.namespace) {
-    const value = program.stateMap(HttpStateKeys.includeInapplicableMetadataInPayloadKey).get(e);
+    const value = program.stateMap(HttpStateKeys.includeInapplicableMetadataInPayload).get(e);
     if (value !== undefined) {
       return value;
     }

@@ -1,0 +1,6 @@
+packages:
+  - "packages/*"
+  - "e2e"
+  - "!packages/http-client-csharp/**"
+  - "!packages/http-client-java/**"
+  - "!packages/http-client-python/**"

@@ -1,0 +1,44 @@
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - packages/http-client-csharp/
+
+pr: none
+
+extends:
+  template: /eng/common/pipelines/templates/1es-redirect.yml
+
+  parameters:
+    stages:
+      - template: /eng/emitters/pipelines/templates/stages/emitter-stages.yml
+        parameters:
+          BuildPrereleaseVersion: true
+          UseTypeSpecNext: false
+          Publish: ${{replace(replace('True',eq(variables['Build.SourceBranchName'], 'main'), 'public'),'True','internal')}}
+          PublishDependsOnTest: true
+          PackagePath: /packages/http-client-csharp
+          EmitterPackageJsonPath: packages/http-client-csharp/package.json
+          Packages:
+            - name: typespec-http-client-csharp
+              file: typespec-http-client-csharp-*.tgz
+              type: npm
+            - name: Microsoft.Generator.CSharp
+              file: Microsoft.Generator.CSharp.*.nupkg
+              type: nuget
+            - name: Microsoft.Generator.CSharp.ClientModel
+              file: Microsoft.Generator.CSharp.ClientModel.*.nupkg
+              type: nuget
+            - name: Microsoft.Generator.CSharp.Input
+              file: Microsoft.Generator.CSharp.Input.*.nupkg
+              type: nuget
+            - name: Microsoft.Generator.CSharp.Customization
+              file: Microsoft.Generator.CSharp.Customization.*.nupkg
+              type: nuget
+          UnitTestArgs: -UnitTests
+          StagePrefix: "CSharp"
+          LanguageShortName: "csharp"
+          HasNugetPackages: true
+          CadlRanchName: "@typespec/http-client-csharp"

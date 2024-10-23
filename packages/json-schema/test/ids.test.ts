@@ -1,16 +1,18 @@
+import { expectDiagnostics } from "@typespec/compiler/testing";
 import assert from "assert";
-import { emitSchema } from "./utils.js";
+import { describe, it } from "vitest";
+import { emitSchema, emitSchemaWithDiagnostics } from "./utils.js";
 
 describe("implicit ids", () => {
-  it("when bundling, sets the id based on the declaration name", async () => {
+  it("when bundling, sets the id based on the declaration name and file path", async () => {
     const schemas = await emitSchema(
       `
         model Foo {}
         `,
-      { bundleId: "types.json" }
+      { bundleId: "types.json" },
     );
 
-    assert.strictEqual(schemas["types.json"].$defs.Foo.$id, "Foo");
+    assert.strictEqual(schemas["types.json"].$defs.Foo.$id, "Foo.json");
   });
 
   it("when not bundling, sets the id based on the declaration name and file path", async () => {
@@ -32,9 +34,8 @@ describe("implicit ids", () => {
     assert.strictEqual(schemas["Foo.json"].$id, "http://example.org/Foo.json");
   });
 
-  it("throws errors on duplicate IDs", async () => {
-    await assert.rejects(async () => {
-      await emitSchema(`
+  it("emit diagnostic on duplicate IDs", async () => {
+    const [_, diagnostics] = await emitSchemaWithDiagnostics(`
         namespace Test1 {
           model Foo {}
         }
@@ -42,7 +43,16 @@ describe("implicit ids", () => {
           model Foo {}
         }
       `);
-    });
+    expectDiagnostics(diagnostics, [
+      {
+        code: "@typespec/json-schema/duplicate-id",
+        message: `There are multiple types with the same id "Foo.json".`,
+      },
+      {
+        code: "@typespec/json-schema/duplicate-id",
+        message: `There are multiple types with the same id "Foo.json".`,
+      },
+    ]);
   });
 });
 
@@ -77,7 +87,7 @@ describe("explicit ids with $id", () => {
         model Foo {}
       }
       `,
-      { bundleId: "types.json" }
+      { bundleId: "types.json" },
     );
 
     assert.strictEqual(schemas["types.json"].$defs.Foo.$id, "http://example.org/bar");

@@ -4,7 +4,7 @@ title: "[F] validateDecoratorParamCount"
 
 ---
 ```ts
-validateDecoratorParamCount(
+function validateDecoratorParamCount(
    context, 
    min, 
    max, 
@@ -14,8 +14,12 @@ validateDecoratorParamCount(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `min` | `number` |
 | `max` | `undefined` \| `number` |
 | `parameters` | `unknown`[] |
+
+## Returns
+
+`boolean`

@@ -1,6 +1,6 @@
 import { joinPaths } from "@typespec/compiler";
 import { writeFile } from "fs/promises";
-import { Application, DeclarationReflection, PageEvent, ReflectionKind } from "typedoc";
+import { Application, PageEvent, Reflection, ReflectionKind } from "typedoc";
 import { PluginOptions, load } from "typedoc-plugin-markdown";
 import { stringify } from "yaml";
 export async function generateJsApiDocs(libraryPath: string, outputDir: string) {
@@ -12,8 +12,6 @@ export async function generateJsApiDocs(libraryPath: string, outputDir: string) 
     typeDeclarationFormat: "table",
     hidePageTitle: true,
     hideBreadcrumbs: true,
-    titleTemplate: "{name}",
-    hideInPageTOC: true,
     hidePageHeader: true,
     useCodeBlocks: true,
   };
@@ -28,7 +26,7 @@ export async function generateJsApiDocs(libraryPath: string, outputDir: string) 
   load(app);
 
   setOptions(app, {
-    name: "JS Api",
+    name: "JS API",
     githubPages: false,
     readme: "none",
     hideGenerator: true,
@@ -48,12 +46,12 @@ export async function generateJsApiDocs(libraryPath: string, outputDir: string) 
   await writeFile(
     joinPaths(outputDir, "_category_.json"),
     JSON.stringify({
-      label: "JS Api",
+      label: "JS API",
       link: {
         type: "doc",
         id: "index",
       },
-    })
+    }),
   );
 }
 
@@ -64,19 +62,19 @@ function setOptions(app: Application, options: any, reportErrors = true) {
 }
 
 export function loadRenderer(app: Application) {
-  app.renderer.on(PageEvent.END, (page: PageEvent<DeclarationReflection>) => {
-    if (page.contents) {
+  app.renderer.on(PageEvent.END, (page: PageEvent<Reflection>) => {
+    if (page.contents && page) {
       const frontMatter = createFrontMatter(page.model);
       page.contents = frontMatter + page.contents.replace(/\\</g, "<");
     }
   });
 }
 
-function createFrontMatter(model: DeclarationReflection) {
+function createFrontMatter(model: Reflection) {
   return ["---", stringify(createFrontMatterData(model)), "---", ""].join("\n");
 }
 
-function createFrontMatterData(model: DeclarationReflection) {
+function createFrontMatterData(model: Reflection) {
   const kind = ReflectionKind.singularString(model.kind)[0];
 
   return {

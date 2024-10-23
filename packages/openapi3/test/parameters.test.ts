@@ -1,32 +1,70 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
+import { describe, expect, it } from "vitest";
+import { OpenAPI3PathParameter, OpenAPI3QueryParameter } from "../src/types.js";
 import { diagnoseOpenApiFor, openApiFor } from "./test-host.js";
 
-describe("openapi3: parameters", () => {
+describe("query parameters", () => {
+  async function getQueryParam(code: string): Promise<OpenAPI3QueryParameter> {
+    const res = await openApiFor(code);
+    const param = res.paths[`/`].get.parameters[0];
+    strictEqual(param.in, "query");
+    return param;
+  }
+
   it("create a query param", async () => {
-    const res = await openApiFor(
-      `
-      op test(@query arg1: string): void;
-      `
+    const param = await getQueryParam(
+      `op test(@query myParam: string): void;
+      `,
     );
-    strictEqual(res.paths["/"].get.parameters[0].in, "query");
-    strictEqual(res.paths["/"].get.parameters[0].name, "arg1");
-    deepStrictEqual(res.paths["/"].get.parameters[0].schema, { type: "string" });
+    strictEqual(param.name, "myParam");
+    deepStrictEqual(param.schema, { type: "string" });
   });
 
   it("create a query param with a different name", async () => {
-    const res = await openApiFor(
+    const param = await getQueryParam(
       `
       op test(@query("$select") select: string): void;
-      `
+      `,
     );
-    strictEqual(res.paths["/"].get.parameters[0].in, "query");
-    strictEqual(res.paths["/"].get.parameters[0].name, "$select");
+    strictEqual(param.in, "query");
+    strictEqual(param.name, "$select");
   });
 
-  it("create a query param of array type", async () => {
+  describe("doesn't set explode if explode: true (Openapi3.0 inverse default)", () => {
+    it("with option", async () => {
+      const param = await getQueryParam(`op test(@query(#{explode: true}) myParam: string): void;`);
+      expect(param).not.toHaveProperty("explode");
+    });
+
+    it("with uri template", async () => {
+      const param = await getQueryParam(`@route("{?myParam*}") op test(myParam: string): void;`);
+      expect(param).not.toHaveProperty("explode");
+    });
+  });
+
+  describe("set explode: false if explode is not set", () => {
+    it("with option", async () => {
+      const param = await getQueryParam(
+        `op test(@query(#{explode: false}) myParam: string): void;`,
+      );
+      expect(param).toMatchObject({
+        explode: false,
+      });
+    });
+
+    it("with uri template", async () => {
+      const param = await getQueryParam(`@route("{?myParam}") op test(myParam: string): void;`);
+      expect(param).toMatchObject({
+        explode: false,
+      });
+    });
+  });
+
+  it("LEGACY: specify the format", async () => {
     const res = await openApiFor(
       `
+      #suppress "deprecated" "test"
       op test(
         @query({name: "$multi", format: "multi"}) multis: string[],
         @query({name: "$csv", format: "csv"}) csvs: string[],
@@ -35,15 +73,13 @@ describe("openapi3: parameters", () => {
         @query({name: "$ssv", format: "ssv"}) ssvs: string[],
         @query({name: "$pipes", format: "pipes"}) pipes: string[]
       ): void;
-      `
+      `,
     );
     const params = res.paths["/"].get.parameters;
     deepStrictEqual(params[0], {
       in: "query",
       name: "$multi",
-      style: "form",
       required: true,
-      explode: true,
       schema: {
         type: "array",
         items: {
@@ -54,7 +90,6 @@ describe("openapi3: parameters", () => {
     deepStrictEqual(params[1], {
       in: "query",
       name: "$csv",
-      style: "form",
       explode: false,
       schema: {
         type: "array",
@@ -108,11 +143,12 @@ describe("openapi3: parameters", () => {
       model UserContext {
         id: string;
       }
-      `
+      `,
     );
     deepStrictEqual(res.paths["/"].get.parameters[0], {
       in: "query",
       name: "id",
+      explode: false,
       required: true,
       schema: {
         type: "string",
@@ -124,7 +160,7 @@ describe("openapi3: parameters", () => {
     const res = await openApiFor(
       `
       op test(@header arg1: string): void;
-      `
+      `,
     );
     strictEqual(res.paths["/"].get.parameters[0].in, "header");
     strictEqual(res.paths["/"].get.parameters[0].name, "arg1");
@@ -135,7 +171,7 @@ describe("openapi3: parameters", () => {
     const res = await openApiFor(
       `
       op test(@header("foo-bar") foo: string): void;
-      `
+      `,
     );
     strictEqual(res.paths["/"].get.parameters[0].in, "header");
     strictEqual(res.paths["/"].get.parameters[0].name, "foo-bar");
@@ -155,7 +191,7 @@ describe("openapi3: parameters", () => {
         #suppress "@typespec/openapi3/invalid-format" "test"
         @header({name: "$pipes", format: "pipes"}) pipes: string[]
       ): void;
-      `
+      `,
     );
     const params = res.paths["/"].get.parameters;
     deepStrictEqual(params[0], {
@@ -209,7 +245,7 @@ describe("openapi3: parameters", () => {
     const res = await openApiFor(
       `
       op test(@query @doc("my-doc") arg1: string): void;
-      `
+      `,
     );
     strictEqual(res.paths["/"].get.parameters[0].description, "my-doc");
     strictEqual(res.paths["/"].get.parameters[0].schema.description, undefined);
@@ -233,7 +269,7 @@ describe("openapi3: parameters", () => {
       @route("/test2")
       op test2(...Q): void;
       `,
-      { "omit-unreachable-types": true }
+      { "omit-unreachable-types": true },
     );
 
     expectDiagnostics(diagnostics, [
@@ -262,7 +298,7 @@ describe("openapi3: parameters", () => {
     ok(oapi.paths["/Pets/{petId}"].get);
     strictEqual(
       oapi.paths["/Pets/{petId}"].get.parameters[0]["$ref"],
-      "#/components/parameters/Pet%24Id"
+      "#/components/parameters/Pet%24Id",
     );
     strictEqual(oapi.components.parameters["Pet$Id"].name, "petId");
   });
@@ -272,7 +308,7 @@ describe("openapi3: parameters", () => {
       `
       op template<TParameters, TReturn>(...TParameters): TReturn;
       op instantiation is template<{@path id: string}, void>;
-      `
+      `,
     );
 
     ok(oapi.paths["/{id}"].get);
@@ -293,11 +329,83 @@ describe("openapi3: parameters", () => {
     const res = await openApiFor(
       `
       op test(@query select: never, @query top: int32): void;
-      `
+      `,
     );
     strictEqual(res.paths["/"].get.parameters.length, 1);
     strictEqual(res.paths["/"].get.parameters[0].in, "query");
     strictEqual(res.paths["/"].get.parameters[0].name, "top");
+  });
+
+  it("omit request body if type is void", async () => {
+    const res = await openApiFor(`op test(@body foo: void ): void;`);
+    strictEqual(res.paths["/"].post.requestBody, undefined);
+  });
+
+  it("using @body ignore any metadata property underneath", async () => {
+    const res = await openApiFor(`@get op read(
+      @body body: {
+        #suppress "@typespec/http/metadata-ignored"
+        @header header: string,
+        #suppress "@typespec/http/metadata-ignored"
+        @query query: string,
+        #suppress "@typespec/http/metadata-ignored"
+        @statusCode code: 201,
+      }
+    ): void;`);
+    expect(res.paths["/"].get.requestBody.content["application/json"].schema).toEqual({
+      type: "object",
+      properties: {
+        header: { type: "string" },
+        query: { type: "string" },
+        code: { type: "number", enum: [201] },
+      },
+      required: ["header", "query", "code"],
+    });
+  });
+
+  describe("request parameters resolving to no property in the body produce no body", () => {
+    it.each(["()", "(@header prop: string)", `(@visibility("none") prop: string)`])(
+      "%s",
+      async (params) => {
+        const res = await openApiFor(`op test${params}: void;`);
+        strictEqual(res.paths["/"].get.requestBody, undefined);
+      },
+    );
+  });
+
+  it("property in body with only metadata properties should still be included", async () => {
+    const res = await openApiFor(`op read(
+        headers: {
+          @header header1: string;
+          @header header2: string;
+        };
+        name: string;
+      ): void;`);
+    expect(res.paths["/"].post.requestBody.content["application/json"].schema).toEqual({
+      type: "object",
+      properties: {
+        headers: { type: "object" },
+        name: { type: "string" },
+      },
+      required: ["headers", "name"],
+    });
+  });
+
+  it("property in body with only metadata properties and @bodyIgnore should not be included", async () => {
+    const res = await openApiFor(`op read(
+        @bodyIgnore headers: {
+          @header header1: string;
+          @header header2: string;
+        };
+        name: string;
+    ): void;`);
+    expect(res.paths["/"].post.requestBody.content["application/json"].schema).toEqual({
+      type: "object",
+      properties: {
+        name: { type: "string" },
+      },
+      required: ["name"],
+    });
   });
 
   describe("content type parameter", () => {
@@ -308,7 +416,7 @@ describe("openapi3: parameters", () => {
           @header("Content-Type") explicitContentType: "application/octet-stream",
           @body foo: string
         ): void;
-        `
+        `,
       );
       ok(res.paths["/"].post.requestBody.content["application/octet-stream"]);
       deepStrictEqual(res.paths["/"].post.requestBody.content["application/octet-stream"].schema, {
@@ -323,25 +431,171 @@ describe("openapi3: parameters", () => {
           @header contentType: "application/octet-stream",
           @body foo: string
         ): void;
-        `
+        `,
       );
       ok(res.paths["/"].post.requestBody.content["application/octet-stream"]);
       deepStrictEqual(res.paths["/"].post.requestBody.content["application/octet-stream"].schema, {
         type: "string",
       });
+      strictEqual(res.paths["/"].post.parameters.length, 0);
     });
 
-    it("query named contentType doesn't get resolved as the content type parmaeter.", async () => {
+    it("query named contentType doesn't get resolved as the content type parameter.", async () => {
       const res = await openApiFor(
         `
         op test(
           @query contentType: "application/octet-stream",
           @body foo: string
         ): void;
-        `
+        `,
       );
       strictEqual(res.paths["/"].post.requestBody.content["application/octet-stream"], undefined);
       ok(res.paths["/"].post.requestBody.content["application/json"]);
+    });
+  });
+});
+
+describe("path parameters", () => {
+  async function getPathParam(code: string, name = "myParam"): Promise<OpenAPI3PathParameter> {
+    const res = await openApiFor(code);
+    return res.paths[`/{${name}}`].get.parameters[0];
+  }
+
+  it("figure out the route parameter from the name of the param", async () => {
+    const res = await openApiFor(`op test(@path myParam: string): void;`);
+    expect(res.paths).toHaveProperty("/{myParam}");
+  });
+
+  it("uses explicit name provided from @path", async () => {
+    const res = await openApiFor(`op test(@path("my-custom-path") myParam: string): void;`);
+    expect(res.paths).toHaveProperty("/{my-custom-path}");
+  });
+
+  it("inline adds an arbitrary extension to a parameter", async () => {
+    const oapi = await openApiFor(
+      `
+      op get(
+        @path
+        @extension("x-parameter-extension", "foobaz")
+        petId: string;
+      ): void;
+      `,
+    );
+    strictEqual(oapi.paths["/{petId}"].get.parameters[0]["x-parameter-extension"], "foobaz");
+  });
+
+  describe("set explode: true", () => {
+    it("with option", async () => {
+      const param = await getPathParam(`op test(@path(#{explode: true}) myParam: string[]): void;`);
+      expect(param).toMatchObject({
+        explode: true,
+        schema: {
+          type: "array",
+          items: { type: "string" },
+        },
+      });
+    });
+    it("with uri template", async () => {
+      const param = await getPathParam(`@route("{myParam*}") op test(myParam: string[]): void;`);
+      expect(param).toMatchObject({
+        explode: true,
+        schema: {
+          type: "array",
+          items: { type: "string" },
+        },
+      });
+    });
+  });
+
+  describe("set style: simple", () => {
+    it("with option", async () => {
+      const param = await getPathParam(`op test(@path(#{style: "simple"}) myParam: string): void;`);
+      expect(param).not.toHaveProperty("style");
+    });
+
+    it("with uri template", async () => {
+      const param = await getPathParam(`@route("{myParam}") op test(myParam: string): void;`);
+      expect(param).not.toHaveProperty("style");
+    });
+  });
+
+  describe("set style: label", () => {
+    it("with option", async () => {
+      const param = await getPathParam(`op test(@path(#{style: "label"}) myParam: string): void;`);
+      expect(param).toMatchObject({
+        style: "label",
+      });
+    });
+
+    it("with uri template", async () => {
+      const param = await getPathParam(`@route("{.myParam}") op test(myParam: string): void;`);
+      expect(param).toMatchObject({
+        style: "label",
+      });
+    });
+  });
+
+  describe("set style: matrix", () => {
+    it("with option", async () => {
+      const param = await getPathParam(`op test(@path(#{style: "matrix"}) myParam: string): void;`);
+      expect(param).toMatchObject({
+        style: "matrix",
+      });
+    });
+
+    it("with uri template", async () => {
+      const param = await getPathParam(`@route("{;myParam}") op test(myParam: string): void;`);
+      expect(param).toMatchObject({
+        style: "matrix",
+      });
+    });
+  });
+
+  describe("emit diagnostic when using style: path", () => {
+    it("with option", async () => {
+      const diagnostics = await diagnoseOpenApiFor(
+        `op test(@path(#{style: "path"}) myParam: string): void;`,
+      );
+      expectDiagnostics(diagnostics, { code: "@typespec/openapi3/invalid-style" });
+    });
+
+    it("with uri template", async () => {
+      const diagnostics = await diagnoseOpenApiFor(
+        `@route("{/myParam}") op test(myParam: string): void;`,
+      );
+      expectDiagnostics(diagnostics, { code: "@typespec/openapi3/invalid-style" });
+    });
+  });
+
+  describe("emit diagnostic when using style: fragment", () => {
+    it("with option", async () => {
+      const diagnostics = await diagnoseOpenApiFor(
+        `op test(@path(#{style: "fragment"}) myParam: string): void;`,
+      );
+      expectDiagnostics(diagnostics, { code: "@typespec/openapi3/invalid-style" });
+    });
+
+    it("with uri template", async () => {
+      const diagnostics = await diagnoseOpenApiFor(
+        `@route("{#myParam}") op test(myParam: string): void;`,
+      );
+      expectDiagnostics(diagnostics, { code: "@typespec/openapi3/invalid-style" });
+    });
+  });
+
+  describe("emit diagnostic when using reserved expansion", () => {
+    it("with option", async () => {
+      const diagnostics = await diagnoseOpenApiFor(
+        `op test(@path(#{allowReserved: true}) myParam: string): void;`,
+      );
+      expectDiagnostics(diagnostics, { code: "@typespec/openapi3/path-reserved-expansion" });
+    });
+
+    it("with uri template", async () => {
+      const diagnostics = await diagnoseOpenApiFor(
+        `@route("{+myParam}") op test(myParam: string): void;`,
+      );
+      expectDiagnostics(diagnostics, { code: "@typespec/openapi3/path-reserved-expansion" });
     });
   });
 });

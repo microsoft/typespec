@@ -1,0 +1,51 @@
+# Template installing all dependencies.
+parameters:
+  - name: nodeVersion
+    type: string
+    default: 20.x
+  - name: pnpmStorePath
+    type: string
+    default: $(Pipeline.Workspace)/.pnpm-store
+
+steps:
+  - task: NodeTool@0
+    displayName: Install Node.js
+    retryCountOnTaskFailure: 3
+    inputs:
+      versionSpec: ${{ parameters.nodeVersion }}
+
+  - task: UseDotNet@2
+    displayName: Install .NET
+    inputs:
+      version: 8.0.x
+
+  - task: Cache@2
+    inputs:
+      key: 'pnpm | "$(Agent.OS)" | pnpm-lock.yaml'
+      path: ${{ parameters.pnpmStorePath }}
+    displayName: Cache pnpm store
+
+  - script: |
+      corepack enable
+      corepack prepare pnpm --activate
+    displayName: Install pnpm
+  - script: pnpm config set store-dir ${{ parameters.pnpmStorePath }}
+    displayName: Setup pnpm cache dir
+
+  - script: |
+      echo "Node:"
+      node -v
+      echo "Pnpm:"
+      pnpm -v
+      echo "Dotnet:"
+      dotnet --version
+    displayName: "Log tool versions used"
+
+  # purge before install to ensure a clean state between retries
+  - script: pnpm install
+    displayName: Install JavaScript Dependencies
+    retryCountOnTaskFailure: 3
+
+  - script: dotnet restore
+    displayName: Restore .NET Dependencies
+    workingDirectory: packages/typespec-vs

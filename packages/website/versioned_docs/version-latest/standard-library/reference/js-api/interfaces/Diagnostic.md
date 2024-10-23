@@ -5,9 +5,10 @@ title: "[I] Diagnostic"
 ---
 ## Properties
 
-| Property | Type | Description |
-| :------ | :------ | :------ |
-| `code` | `string` | - |
-| `message` | `string` | - |
-| `severity` | [`DiagnosticSeverity`](../type-aliases/DiagnosticSeverity.md) | - |
-| `target` | [`DiagnosticTarget`](../type-aliases/DiagnosticTarget.md) \| *typeof* [`NoTarget`](../variables/NoTarget.md) | - |
+| Property | Modifier | Type |
+| ------ | ------ | ------ |
+| `code` | `public` | `string` |
+| `codefixes?` | `readonly` | readonly [`CodeFix`](CodeFix.md)[] |
+| `message` | `public` | `string` |
+| `severity` | `public` | [`DiagnosticSeverity`](../type-aliases/DiagnosticSeverity.md) |
+| `target` | `public` | [`DiagnosticTarget`](../type-aliases/DiagnosticTarget.md) \| *typeof* [`NoTarget`](../variables/NoTarget.md) |

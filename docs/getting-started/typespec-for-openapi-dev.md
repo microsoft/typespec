@@ -2,8 +2,6 @@
 title: TypeSpec For OpenAPI Developer
 ---
 
-# TypeSpec for the OpenAPI developer
-
 This guide is an introduction to TypeSpec using concepts that will be familiar to developers
 that either build or use API definitions in OpenAPI v2 or v3.
 
@@ -18,7 +16,7 @@ to the section of this document for that feature.
 
 In OpenAPI [v2](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#data-types)/[v3](https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.3.md#data-types), data types are specified using the `type` and `format` fields in a schema.
 
-The TypeSpec equivalent of OpenAPI data types are the TypeSpec primitive types or [built-in models](https://microsoft.github.io/typespec/docs/language-basics/built-in-types).
+The TypeSpec equivalent of OpenAPI data types are the TypeSpec primitive types or [built-in models](https://typespec.io/docs/language-basics/built-in-types).
 
 ### type and format
 
@@ -91,7 +89,7 @@ For `type: array` data types:
 
 ### enum
 
-There are two ways to define an `enum` data type. One is with the [TypeSpec `enum` statement](https://microsoft.github.io/typespec/docs/language-basics/enums), e.g.:
+There are two ways to define an `enum` data type. One is with the [TypeSpec `enum` statement](https://typespec.io/docs/language-basics/enums), e.g.:
 
 <!-- To retain the quotes from the enum values -->
 <!-- prettier-ignore-start -->
@@ -140,7 +138,7 @@ In OpenAPI v3, the top-level `servers` field specifies an array of `server` obje
 [v3-server]: https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.3.md#server-object
 
 In TypeSpec, the `host` in OpenAPI v2 or `servers` in OpenAPI v3 can be specified with the `@server` decorator
-on the namespace(From `@typespec/http` library). You can use this decorator multiple times to specify multiple servers.
+on the namespace (from `@typespec/http` library). You can use this decorator multiple times to specify multiple servers.
 
 ## Paths Object
 
@@ -228,7 +226,7 @@ The fields in an OpenAPI operation object are specified with the following TypeS
 | `callbacks`               |                                            | Not currently supported.                             |
 | `deprecated`              | `@deprecated` decorator                    |                                                      |
 | `security`                |                                            | Not currently supported.                             |
-| `servers`                 |                                            | Not currently supported.                             |
+| `servers`                 | `@server` decorator                        | Can be specified multiple times.                     |
 
 ### Tags
 
@@ -244,13 +242,13 @@ and can contain markdown formatting.
 
 ```typespec
 @doc("""
-Get status info for the service.
-The status includes the current version of the service.
-The status value may be one of:
-- `ok`: the service is operating normally
-- `degraded`: the service is operating in a degraded state
-- `down`: the service is not operating
-""")
+  Get status info for the service.
+  The status includes the current version of the service.
+  The status value may be one of:
+  - `ok`: the service is operating normally
+  - `degraded`: the service is operating in a degraded state
+  - `down`: the service is not operating
+  """)
 @tag("Status")
 @route("/status")
 @get
@@ -488,12 +486,12 @@ namespace ResponseContent {
 
 ## Schema Object
 
-OpenAPI schemas are represented in TypeSpec by [models](https://microsoft.github.io/typespec/docs/language-basics/models/).
+OpenAPI schemas are represented in TypeSpec by [models](https://typespec.io/docs/language-basics/models/).
 Models have any number of members and can extend and be composed with other models.
 
 Models can be defined with the `model` statement and then referenced by name, which generally results in a `$ref` to a schema for the model in the `definitions` or `components.schemas` section of the OpenAPI document.
 
-TypeSpec supports the ["spread" operator](https://microsoft.github.io/typespec/docs/language-basics/models/#spread) (`...`), which copies the members of the source model into the target model.
+TypeSpec supports the ["spread" operator](https://typespec.io/docs/language-basics/models/#spread) (`...`), which copies the members of the source model into the target model.
 But TypeSpec processes all spread transformations before emitters are invoked, so this form of reuse is not represented in the emitted OpenAPI.
 
 The spread operation is useful if you want one or more properties to be present in several different models but in a standard fashion. For example:
@@ -783,13 +781,12 @@ In TypeSpec this information is specified with [decorators on the namespace][typ
 | `license`            | `@info`                |                             |
 | `contact`            | `@info`                |                             |
 
-[typespec-service-metadata]: https://microsoft.github.io/typespec/docs/standard-library/http/#service-definition-and-metadata
+[typespec-service-metadata]: https://typespec.io/docs/libraries/http/#service-definition-and-metadata
 
 ```typespec
 @doc("The Contoso Widget Service provides access to the Contoso Widget API.")
 @service({
   title: "Widget Service",
-  version: "1.0.0",
 })
 @info({
   contact: {

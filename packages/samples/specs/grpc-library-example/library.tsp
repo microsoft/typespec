@@ -14,16 +14,16 @@ using TypeSpec.Http;
 namespace GrpcLibrarySample;
 
 @doc("""
-This API represents a simple digital library.  It lets you manage Shelf
-resources and Book resources in the library. It defines the following
-resource model:
-
-- The API has a collection of [Shelf][google.example.library.v1.Shelf]
-  resources, named `shelves/*`
-
-- Each Shelf has a collection of [Book][google.example.library.v1.Book]
-  resources, named `shelves/*/books/*`
-""")
+  This API represents a simple digital library.  It lets you manage Shelf
+  resources and Book resources in the library. It defines the following
+  resource model:
+  
+  - The API has a collection of [Shelf][google.example.library.v1.Shelf]
+    resources, named `shelves/*`
+  
+  - Each Shelf has a collection of [Book][google.example.library.v1.Book]
+    resources, named `shelves/*/books/*`
+  """)
 @route("/v1")
 @tag("LibraryService")
 namespace LibraryService {
@@ -37,9 +37,9 @@ namespace LibraryService {
   op getShelf(...GetShelfRequest): Shelf | RpcStatus;
 
   @doc("""
-Lists shelves. The order is unspecified but deterministic. Newly created
-shelves will not necessarily be added to the end of this list.
-""")
+    Lists shelves. The order is unspecified but deterministic. Newly created
+    shelves will not necessarily be added to the end of this list.
+    """)
   @route("shelves")
   op listShelves(...ListRequestBase): ListShelvesResponse | RpcStatus;
 
@@ -49,13 +49,13 @@ shelves will not necessarily be added to the end of this list.
   op deleteShelf(...DeleteShelfRequest): void | RpcStatus;
 
   @doc("""
-Merges two shelves by adding all books from the shelf named
-`other_shelf_name` to shelf `name`, and deletes
-`other_shelf_name`. Returns the updated shelf.
-The book ids of the moved books may not be the same as the original books.
-Returns NOT_FOUND if either shelf does not exist.
-This call is a no-op if the specified shelves are the same.
-""")
+    Merges two shelves by adding all books from the shelf named
+    `other_shelf_name` to shelf `name`, and deletes
+    `other_shelf_name`. Returns the updated shelf.
+    The book ids of the moved books may not be the same as the original books.
+    Returns NOT_FOUND if either shelf does not exist.
+    This call is a no-op if the specified shelves are the same.
+    """)
   @route("shelves/{name}:merge")
   @post
   op mergeShelves(...MergeShelvesRequest): Shelf | RpcStatus;
@@ -70,10 +70,10 @@ This call is a no-op if the specified shelves are the same.
   op getBook(...GetBookRequest): Book | RpcStatus;
 
   @doc("""
-Lists books in a shelf. The order is unspecified but deterministic. Newly
-created books will not necessarily be added to the end of this list.
-Returns NOT_FOUND if the shelf does not exist.
-""")
+    Lists books in a shelf. The order is unspecified but deterministic. Newly
+    created books will not necessarily be added to the end of this list.
+    Returns NOT_FOUND if the shelf does not exist.
+    """)
   @route("shelves/{name}/books")
   op listBooks(...ListBooksRequest): ListBooksResponse | RpcStatus;
 
@@ -84,19 +84,19 @@ Returns NOT_FOUND if the shelf does not exist.
 }
 
 @doc("""
-The name of a book.
-Book names have the form `shelves/{shelf_id}/books/{book_id}`
-""")
+  The name of a book.
+  Book names have the form `shelves/{shelf_id}/books/{book_id}`
+  """)
 @pattern("shelves/\\w+/books/\\w+")
 scalar book_name extends string;
 
 @doc("A single book in the library.")
 model Book {
   @doc("""
-The resource name of the book.
-Book names have the form `shelves/{shelf_id}/books/{book_id}`.
-The name is ignored when creating a book.
-""")
+    The resource name of the book.
+    Book names have the form `shelves/{shelf_id}/books/{book_id}`.
+    The name is ignored when creating a book.
+    """)
   name: book_name;
 
   @doc("The name of the book author.")
@@ -110,19 +110,19 @@ The name is ignored when creating a book.
 }
 
 @doc("""
-The name of a shelf.
-Shelf names have the form `shelves/{shelf_id}`.
-""")
+  The name of a shelf.
+  Shelf names have the form `shelves/{shelf_id}`.
+  """)
 @pattern("shelves/\\w+")
 scalar shelf_name extends string;
 
 @doc("A Shelf contains a collection of books with a theme.")
 model Shelf {
   @doc("""
-The resource name of the shelf.
-Shelf names have the form `shelves/{shelf_id}`.
-The name is ignored when creating a shelf.
-""")
+    The resource name of the shelf.
+    Shelf names have the form `shelves/{shelf_id}`.
+    The name is ignored when creating a shelf.
+    """)
   name: shelf_name;
 
   @doc("The theme of the shelf")
@@ -159,9 +159,9 @@ model DeleteShelfRequest {
 }
 
 @doc("""
-Describes the shelf being removed (other_shelf_name) and updated
-(name) in this merge
-""")
+  Describes the shelf being removed (other_shelf_name) and updated
+  (name) in this merge
+  """)
 model MergeShelvesRequest {
   @doc("The name of the shelf we're adding books to.")
   @path
@@ -229,9 +229,9 @@ model DeleteBookRequest {
 }
 
 @doc("""
-Describes what book to move (name) and what shelf we're moving it
-to (other_shelf_name).
-""")
+  Describes what book to move (name) and what shelf we're moving it
+  to (other_shelf_name).
+  """)
 model MoveBookRequest {
   @doc("The name of the book to move.")
   name: book_name;
@@ -246,30 +246,30 @@ model MoveBookRequest {
 
 model ListRequestBase {
   @doc("""
-Requested page size. Server may return fewer shelves than requested.
-If unspecified, server will pick an appropriate default.
-""")
+    Requested page size. Server may return fewer shelves than requested.
+    If unspecified, server will pick an appropriate default.
+    """)
   @query
   page_size?: int32;
 
   @doc("""
-A token identifying a page of results the server should return.
-Typically, this is the value of
-[ListShelvesResponse.next_page_token][google.example.library.v1.ListShelvesResponse.next_page_token]
-returned from the previous call to `ListShelves` method.
-""")
+    A token identifying a page of results the server should return.
+    Typically, this is the value of
+    [ListShelvesResponse.next_page_token][google.example.library.v1.ListShelvesResponse.next_page_token]
+    returned from the previous call to `ListShelves` method.
+    """)
   @query
   page_token?: string;
 }
 
 model ListResponseBase {
   @doc("""
-A token to retrieve next page of results.
-Pass this value in the
-[ListShelvesRequest.page_token][google.example.library.v1.ListShelvesRequest.page_token]
-field in the subsequent call to `ListShelves` method to retrieve the next
-page of results.
-""")
+    A token to retrieve next page of results.
+    Pass this value in the
+    [ListShelvesRequest.page_token][google.example.library.v1.ListShelvesRequest.page_token]
+    field in the subsequent call to `ListShelves` method to retrieve the next
+    page of results.
+    """)
   next_page_token?: string;
 }
 

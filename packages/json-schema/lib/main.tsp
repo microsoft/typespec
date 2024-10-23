@@ -1,4 +1,4 @@
-import "../dist/src/index.js";
+import "../dist/src/tsp-index.js";
 
 namespace TypeSpec.JsonSchema;
 
@@ -29,6 +29,11 @@ extern dec baseUri(target: Reflection.Namespace, baseUri: valueof string);
  * @param id the id of the JSON schema for this declaration.
  */
 extern dec id(target: unknown, id: valueof string);
+
+/**
+ * Specify that `oneOf` should be used instead of `anyOf` for that union.
+ */
+extern dec oneOf(target: Reflection.Union | Reflection.ModelProperty);
 
 /**
  * Specify that the numeric type must be a multiple of some numeric value.
@@ -111,15 +116,24 @@ extern dec contentSchema(target: string | Reflection.ModelProperty, value: unkno
 
 /**
  * Specify a custom property to add to the emitted schema. Useful for adding custom keywords
- * and other vendor-specific extensions. The value will be converted to a schema unless the parameter
- * is wrapped in the `Json<T>` template. For example, `@extension("x-schema", { x: "value" })` will
- * emit a JSON schema value for `x-schema`, whereas `@extension("x-schema", Json<{x: "value"}>)` will
- * emit the raw JSON code `{x: "value"}`.
+ * and other vendor-specific extensions. Scalar values need to be specified using `typeof` to be converted to a schema.
+ * 
+ * For example, `@extension("x-schema", typeof "foo")` will emit a JSON schema value for `x-schema`,
+ * whereas `@extension("x-schema", "foo")` will emit the raw code `"foo"`.
+ *
+ * The value will be treated as a raw value if any of the following are true:
+ * 1. The value is a scalar value (e.g. string, number, boolean, etc.)
+ * 2. The value is wrapped in the `Json<Data>` template
+ * 3. The value is provided using the value syntax (e.g. `#{}`, `#[]`)
+ 
+ * For example, `@extension("x-schema", { x: "value" })` will emit a JSON schema value for `x-schema`,
+ * whereas `@extension("x-schema", #{x: "value"})` and `@extension("x-schema", Json<{x: "value"}>)`
+ * will emit the raw JSON code `{x: "value"}`.
  *
  * @param key the name of the keyword of vendor extension, e.g. `x-custom`.
- * @param value the value of the keyword. Will be converted to a schema unless wrapped in `Json<T>`.
+ * @param value the value of the keyword.
  */
-extern dec extension(target: unknown, key: valueof string, value: unknown);
+extern dec extension(target: unknown, key: valueof string, value: (valueof unknown) | unknown);
 
 /**
  * Well-known JSON Schema formats.
@@ -152,11 +166,11 @@ enum Format {
  * whereas `@extension("x-schema", Json<{x: "value"}>)` will emit the raw JSON code
  * `{x: "value"}`.
  *
- * @template T the type to convert to raw JSON
+ * @template Data the type to convert to raw JSON
  */
-@Private.validatesRawJson(T)
-model Json<T> {
-  value: T;
+@Private.validatesRawJson(Data)
+model Json<Data> {
+  value: Data;
 }
 
 namespace Private {

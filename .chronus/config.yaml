@@ -1,0 +1,68 @@
+baseBranch: main
+
+changeKinds:
+  internal:
+    versionType: none
+    title: Internal
+    description: Internal changes that are not user facing
+
+  fix:
+    versionType: patch
+    title: Bug Fix
+    description: Fixes to existing features
+
+  dependencies:
+    versionType: patch
+    title: Bump dependencies
+    description: Bumps dependencies
+
+  feature:
+    versionType: minor
+    title: Feature
+    description: Adds new features
+
+  deprecation:
+    versionType: minor
+    title: Deprecation
+    description: Change that deprecate an existing feature but is not breaking.
+
+  breaking:
+    versionType: major
+    title: Breaking Change
+    description: Changes that break existing features
+
+versionPolicies:
+  - name: typespec
+    type: lockstep
+    step: minor
+    packages:
+      - "@typespec/compiler"
+      - "@typespec/http"
+      - "@typespec/versioning"
+      - "@typespec/rest"
+      - "@typespec/openapi"
+      - "@typespec/openapi3"
+      - "@typespec/protobuf"
+      - "@typespec/prettier-plugin-typespec"
+      - "@typespec/eslint-plugin"
+      - "@typespec/html-program-viewer"
+      - "@typespec/json-schema"
+      - "@typespec/internal-build-utils"
+      - "typespec-vs"
+      - "typespec-vscode"
+      - "@typespec/library-linter"
+      - "@typespec/events"
+      - "@typespec/sse"
+      - "@typespec/streams"
+      - "@typespec/xml"
+
+changelog: ["@chronus/github/changelog", { repo: "microsoft/typespec" }]
+
+ignore:
+  - "@typespec/http-client-csharp"
+  - "@typespec/http-client-java"
+  - "@typespec/http-client-python"
+
+changedFiles:
+  - "!**/*.md"
+  - "!**/*.test.ts"

@@ -1,25 +1,13 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok } from "assert";
-import { checkFor, createOpenAPITestRunner, openApiFor } from "./test-host.js";
+import { describe, it } from "vitest";
+import { checkFor, openApiFor } from "./test-host.js";
 
-describe("openapi3: discriminated unions", () => {
-  it("emit diagnostics if not used on model or property", async () => {
-    const runner = await createOpenAPITestRunner();
-    const diagnostics = await runner.diagnose(`
-      @discriminator("kind")
-      namespace Foo {}
-    `);
-    expectDiagnostics(diagnostics, {
-      code: "decorator-wrong-target",
-      message:
-        "Cannot apply @discriminator decorator to Foo since it is not assignable to Model | Union",
-    });
-  });
-
-  it("defines unions with discriminators", async () => {
+describe("openapi3: polymorphic model inheritance with discriminator", () => {
+  it("discriminator can be simple literals", async () => {
     const openApi = await openApiFor(`
       @discriminator("kind")
-      model Pet { }
+      model Pet { kind: string }
       model Cat extends Pet {
         kind: "cat";
         meow: int32;
@@ -28,23 +16,15 @@ describe("openapi3: discriminated unions", () => {
         kind: "dog";
         bark: string;
       }
-
-      op read(): { @body body: Pet };
       `);
-    ok(openApi.components.schemas.Pet, "expected definition named Pet");
-    ok(openApi.components.schemas.Cat, "expected definition named Cat");
-    ok(openApi.components.schemas.Dog, "expected definition named Dog");
-    deepStrictEqual(openApi.paths["/"].get.responses["200"].content["application/json"].schema, {
-      $ref: "#/components/schemas/Pet",
-    });
     deepStrictEqual(openApi.components.schemas.Pet, {
       type: "object",
       properties: {
         kind: {
           type: "string",
-          description: "Discriminator property for Pet.",
         },
       },
+      required: ["kind"],
       discriminator: {
         propertyName: "kind",
         mapping: {
@@ -55,6 +35,38 @@ describe("openapi3: discriminated unions", () => {
     });
     deepStrictEqual(openApi.components.schemas.Cat.allOf, [{ $ref: "#/components/schemas/Pet" }]);
     deepStrictEqual(openApi.components.schemas.Dog.allOf, [{ $ref: "#/components/schemas/Pet" }]);
+  });
+
+  it("discriminator can be a union", async () => {
+    const openApi = await openApiFor(`
+      union PetKind {cat: "cat-kind", dog: "dog-kind" }
+      @discriminator("kind")
+      model Pet { kind: PetKind }
+      model Cat extends Pet {
+        kind: PetKind.cat;
+        meow: int32;
+      }
+      model Dog extends Pet {
+        kind: PetKind.dog;
+        bark: string;
+      }
+      `);
+    deepStrictEqual(openApi.components.schemas.Pet, {
+      type: "object",
+      properties: {
+        kind: {
+          $ref: "#/components/schemas/PetKind",
+        },
+      },
+      required: ["kind"],
+      discriminator: {
+        propertyName: "kind",
+        mapping: {
+          "cat-kind": "#/components/schemas/Cat",
+          "dog-kind": "#/components/schemas/Dog",
+        },
+      },
+    });
   });
 
   it("defines discriminated unions with non-empty base type", async () => {
@@ -91,7 +103,7 @@ describe("openapi3: discriminated unions", () => {
         name: { type: "string" },
         weight: { type: "number", format: "float" },
       },
-      required: ["name"],
+      required: ["name", "kind"],
       discriminator: {
         propertyName: "kind",
         mapping: {
@@ -142,7 +154,7 @@ describe("openapi3: discriminated unions", () => {
         },
         weight: { type: "number", format: "float" },
       },
-      required: ["name"],
+      required: ["name", "kind"],
       discriminator: {
         propertyName: "kind",
         mapping: {
@@ -203,7 +215,7 @@ describe("openapi3: discriminated unions", () => {
         name: { type: "string" },
         weight: { type: "number", format: "float" },
       },
-      required: ["name"],
+      required: ["name", "kind"],
       discriminator: {
         propertyName: "kind",
         mapping: {
@@ -222,7 +234,7 @@ describe("openapi3: discriminated unions", () => {
         },
         bark: { type: "string" },
       },
-      required: ["kind", "bark"],
+      required: ["kind", "bark", "breed"],
       allOf: [{ $ref: "#/components/schemas/Pet" }],
       discriminator: {
         propertyName: "breed",
@@ -331,5 +343,19 @@ describe("openapi3: discriminated unions", () => {
         message: `Discriminator value "dog" is already used in another variant.`,
       },
     ]);
+  });
+
+  it("discriminator always needs to be marked as required", async () => {
+    const openApi = await openApiFor(`
+     @discriminator("kind")
+     model Animal {
+      id: string;
+      kind?: string;
+     }`);
+
+    deepStrictEqual(openApi.components.schemas.Animal.required, ["id", "kind"]);
+    deepStrictEqual(openApi.components.schemas.Animal.discriminator, {
+      propertyName: "kind",
+    });
   });
 });

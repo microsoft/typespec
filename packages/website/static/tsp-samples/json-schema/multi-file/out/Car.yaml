@@ -1,0 +1,23 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: Car.yaml
+type: object
+properties:
+  kind:
+    anyOf:
+      - type: string
+        const: ev
+      - type: string
+        const: ice
+    description: Kind of car
+  brand:
+    type: string
+    description: Brand of the car
+  year:
+    type: integer
+    minimum: 1900
+    maximum: 2147483647
+    description: Year the car was manufactured.
+required:
+  - kind
+  - brand
+  - year

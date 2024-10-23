@@ -4,16 +4,20 @@ title: "[F] $minLength"
 
 ---
 ```ts
-$minLength(
+function $minLength(
    context, 
    target, 
-   minLength): void
+   value): void
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`ModelProperty`](../interfaces/ModelProperty.md) \| [`Scalar`](../interfaces/Scalar.md) |
-| `minLength` | `number` |
+| `value` | [`Numeric`](../interfaces/Numeric.md) |
+
+## Returns
+
+`void`

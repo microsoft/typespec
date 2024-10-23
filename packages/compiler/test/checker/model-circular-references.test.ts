@@ -1,4 +1,5 @@
 import assert, { strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { Model, Type } from "../../src/core/types.js";
 import { TestHost, createTestHost } from "../../src/testing/index.js";
 
@@ -19,7 +20,7 @@ describe("compiler: model circular references", () => {
       `@test model M {
         self: M;
       }
-      `
+      `,
     );
     const records = await testHost.compile("./");
 
@@ -34,7 +35,7 @@ describe("compiler: model circular references", () => {
       `@test model M {
         selfs: M[];
       }
-      `
+      `,
     );
     const records = await testHost.compile("./");
 
@@ -56,7 +57,7 @@ describe("compiler: model circular references", () => {
       @test model Child {
         parent: Parent;
       }
-      `
+      `,
     );
     const records = await testHost.compile("./");
 
@@ -79,7 +80,7 @@ describe("compiler: model circular references", () => {
       }
 
       op test(): Templated<string>;
-      `
+      `,
     );
     const records = await testHost.compile("./");
     const model = records["Templated"];
@@ -103,7 +104,7 @@ describe("compiler: model circular references", () => {
       }
 
       op test(): A<string>;
-      `
+      `,
     );
     const records = await testHost.compile("./");
     const model = records["A"];
@@ -137,7 +138,7 @@ describe("compiler: model circular references", () => {
           }
         }
       }
-      `
+      `,
     );
 
     const records = await testHost.compile("./");

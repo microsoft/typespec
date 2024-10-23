@@ -1,19 +1,18 @@
 import {
-  DiagnosticTarget,
-  NoTarget,
-  ServerHost,
   TypeSpecLanguageConfiguration,
+  type DiagnosticTarget,
+  type NoTarget,
+  type ServerHost,
 } from "@typespec/compiler";
 import * as monaco from "monaco-editor";
-import { editor } from "monaco-editor";
 import * as lsp from "vscode-languageserver";
 import { DocumentHighlightKind, FormattingOptions } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { BrowserHost } from "./browser-host.js";
-import { importTypeSpecCompiler } from "./core.js";
+import { LspToMonaco } from "./lsp/lsp-to-monaco.js";
+import type { BrowserHost } from "./types.js";
 
 function getIndentAction(
-  value: "none" | "indent" | "indentOutdent" | "outdent"
+  value: "none" | "indent" | "indentOutdent" | "outdent",
 ): monaco.languages.IndentAction {
   switch (value) {
     case "none":
@@ -49,6 +48,11 @@ export async function registerMonacoLanguage(host: BrowserHost) {
   monaco.languages.register({ id: "typespec", extensions: [".tsp"] });
   monaco.languages.setLanguageConfiguration("typespec", getTypeSpecLanguageConfiguration());
 
+  if ((window as any).registeredServices) {
+    return;
+  }
+
+  (window as any).registeredServices = true;
   const serverHost: ServerHost = {
     compilerHost: host,
     getOpenDocumentByURL(url: string) {
@@ -56,11 +60,37 @@ export async function registerMonacoLanguage(host: BrowserHost) {
       return model ? textDocumentForModel(model) : undefined;
     },
     sendDiagnostics() {},
-    // eslint-disable-next-line no-console
-    log: console.log,
+    log: (log) => {
+      switch (log.level) {
+        case "error":
+          // eslint-disable-next-line no-console
+          console.error(log);
+          break;
+        case "warning":
+          // eslint-disable-next-line no-console
+          console.warn(log);
+          break;
+        case "info":
+          // eslint-disable-next-line no-console
+          console.info(log);
+          break;
+        case "debug":
+          // corresponding to Verbose LogLevel in Edge/Chrome which is off by default
+          // eslint-disable-next-line no-console
+          console.debug(log);
+          break;
+        case "trace":
+        default:
+          // just skip traces in playground
+          break;
+      }
+    },
+    applyEdit(param) {
+      return Promise.resolve({ applied: false });
+    },
   };
 
-  const { createServer } = await importTypeSpecCompiler();
+  const { createServer } = host.compiler;
   const serverLib = createServer(serverHost);
   const lsConfig = await serverLib.initialize({
     capabilities: {},
@@ -75,7 +105,7 @@ export async function registerMonacoLanguage(host: BrowserHost) {
       model.uri.toString(),
       "typespec",
       model.getVersionId(),
-      model.getValue()
+      model.getValue(),
     );
   }
 
@@ -106,15 +136,15 @@ export async function registerMonacoLanguage(host: BrowserHost) {
   function monacoLocation(loc: lsp.Location): monaco.languages.Location {
     return {
       uri: monaco.Uri.parse(loc.uri),
-      range: monacoRange(loc.range),
+      range: LspToMonaco.range(loc.range),
     };
   }
 
   function monacoDocumentHighlight(
-    highlight: lsp.DocumentHighlight
+    highlight: lsp.DocumentHighlight,
   ): monaco.languages.DocumentHighlight {
     return {
-      range: monacoRange(highlight.range),
+      range: LspToMonaco.range(highlight.range),
       kind: monacoDocumentHighlightKind(highlight.kind),
     };
   }
@@ -137,56 +167,14 @@ export async function registerMonacoLanguage(host: BrowserHost) {
   }
 
   function monacoHover(hover: lsp.Hover): monaco.languages.Hover {
-    // eslint-disable-next-line deprecation/deprecation
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     if (Array.isArray(hover.contents) || lsp.MarkedString.is(hover.contents)) {
       throw new Error("MarkedString (deprecated) not supported.");
     }
 
     return {
       contents: monacoHoverContents(hover.contents),
-      range: hover.range ? monacoRange(hover.range) : undefined,
-    };
-  }
-
-  function monacoSignatureHelp(
-    help: lsp.SignatureHelp | undefined
-  ): monaco.languages.SignatureHelp {
-    return {
-      signatures:
-        help?.signatures.map((x) => ({
-          ...x,
-          parameters: x.parameters ?? [],
-        })) ?? [],
-      activeSignature: help?.activeSignature ?? 0,
-      activeParameter: help?.activeParameter ?? 0,
-    };
-  }
-
-  function monacoRange(range: lsp.Range): monaco.IRange {
-    return {
-      startColumn: range.start.character + 1,
-      startLineNumber: range.start.line + 1,
-      endColumn: range.end.character + 1,
-      endLineNumber: range.end.line + 1,
-    };
-  }
-
-  function monacoFoldingRange(range: lsp.FoldingRange): monaco.languages.FoldingRange {
-    return {
-      start: range.startLine + 1,
-      end: range.endLine + 1,
-      kind: range.kind ? new monaco.languages.FoldingRangeKind(range.kind) : undefined,
-    };
-  }
-
-  function monacoTextEdits(edit: lsp.TextEdit[]): monaco.languages.TextEdit[] {
-    return edit.map(monacoTextEdit);
-  }
-
-  function monacoTextEdit(edit: lsp.TextEdit): monaco.languages.TextEdit {
-    return {
-      range: monacoRange(edit.range),
-      text: edit.newText,
+      range: hover.range ? LspToMonaco.range(hover.range) : undefined,
     };
   }
 
@@ -195,7 +183,7 @@ export async function registerMonacoLanguage(host: BrowserHost) {
     for (const [uri, changes] of Object.entries(edit.changes ?? {})) {
       const resource = monaco.Uri.parse(uri);
       for (const change of changes) {
-        edits.push({ resource, textEdit: monacoTextEdit(change), versionId: undefined });
+        edits.push({ resource, textEdit: LspToMonaco.textEdit(change), versionId: undefined });
       }
     }
     return { edits };
@@ -225,7 +213,7 @@ export async function registerMonacoLanguage(host: BrowserHost) {
       if (!text) {
         throw new Error("Failed to obtain word at position.");
       }
-      return { text, range: monacoRange(result) };
+      return { text, range: LspToMonaco.range(result) };
     },
 
     async provideRenameEdits(model, position, newName) {
@@ -237,7 +225,7 @@ export async function registerMonacoLanguage(host: BrowserHost) {
   monaco.languages.registerFoldingRangeProvider("typespec", {
     async provideFoldingRanges(model) {
       const ranges = await serverLib.getFoldingRanges(lspDocumentArgs(model));
-      const output = ranges.map(monacoFoldingRange);
+      const output = ranges.map(LspToMonaco.foldingRange);
       return output;
     },
   });
@@ -254,7 +242,7 @@ export async function registerMonacoLanguage(host: BrowserHost) {
     signatureHelpRetriggerCharacters: [")"],
     async provideSignatureHelp(model, position) {
       const help = await serverLib.getSignatureHelp(lspArgs(model, position));
-      return { value: monacoSignatureHelp(help), dispose: () => {} };
+      return { value: LspToMonaco.signatureHelp(help), dispose: () => {} };
     },
   });
 
@@ -264,7 +252,7 @@ export async function registerMonacoLanguage(host: BrowserHost) {
         ...lspDocumentArgs(model),
         options: lspFormattingOptions(options),
       });
-      return monacoTextEdits(edits);
+      return LspToMonaco.textEdits(edits);
     },
   });
 
@@ -289,12 +277,18 @@ export async function registerMonacoLanguage(host: BrowserHost) {
 
       const suggestions: monaco.languages.CompletionItem[] = [];
       for (const item of result.items) {
+        let itemRange = range;
+        let insertText = item.insertText ?? item.label;
+        if (item.textEdit && "range" in item.textEdit) {
+          itemRange = LspToMonaco.range(item.textEdit.range);
+          insertText = item.textEdit.newText;
+        }
         suggestions.push({
           label: item.label,
           kind: item.kind as any,
           documentation: item.documentation,
-          insertText: item.insertText!,
-          range,
+          insertText,
+          range: itemRange,
           commitCharacters:
             item.commitCharacters ?? lsConfig.capabilities.completionProvider!.allCommitCharacters,
           tags: item.tags,
@@ -305,6 +299,18 @@ export async function registerMonacoLanguage(host: BrowserHost) {
     },
   });
 
+  // This doesn't actually work because the lsp is not aware of the diagnostics here as we make our own compilation in the playground.
+  // monaco.languages.registerCodeActionProvider("typespec", {
+  //   async provideCodeActions(model, range, context, token) {
+  //     const result = await serverLib.getCodeActions({
+  //       range: MonacoToLsp.range(range),
+  //       context: MonacoToLsp.codeActionContext(context),
+  //       textDocument: textDocumentForModel(model),
+  //     });
+  //     return { actions: result.map(LspToMonaco.codeAction), dispose: () => {} };
+  //   },
+  // });
+
   monaco.editor.defineTheme("typespec", {
     base: "vs",
     inherit: true,
@@ -314,7 +320,15 @@ export async function registerMonacoLanguage(host: BrowserHost) {
       { token: "function", foreground: "#795E26" },
     ],
   });
-  monaco.editor.setTheme("typespec");
+  monaco.editor.defineTheme("typespec-dark", {
+    base: "vs-dark",
+    inherit: true,
+    colors: {},
+    rules: [
+      { token: "macro", foreground: "#E06C75" },
+      { token: "function", foreground: "#E06C75" },
+    ],
+  });
 
   monaco.languages.registerDocumentSemanticTokensProvider("typespec", {
     getLegend() {
@@ -352,10 +366,10 @@ export async function registerMonacoLanguage(host: BrowserHost) {
   });
 }
 
-export function getMarkerLocation(
+export function getMonacoRange(
   typespecCompiler: typeof import("@typespec/compiler"),
-  target: DiagnosticTarget | typeof NoTarget
-): Pick<editor.IMarkerData, "startLineNumber" | "startColumn" | "endLineNumber" | "endColumn"> {
+  target: DiagnosticTarget | typeof NoTarget,
+): monaco.IRange {
   const loc = typespecCompiler.getSourceLocation(target);
   if (loc === undefined || loc.file.path !== "/test/main.tsp") {
     return {

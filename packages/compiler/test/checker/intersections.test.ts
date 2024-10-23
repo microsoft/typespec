@@ -1,5 +1,6 @@
 import { ok, strictEqual } from "assert";
-import { Model } from "../../src/core/index.js";
+import { beforeEach, describe, expect, it } from "vitest";
+import { Model, ModelProperty } from "../../src/core/index.js";
 import {
   BasicTestRunner,
   createTestHost,
@@ -17,17 +18,38 @@ describe("compiler: intersections", () => {
   });
 
   it("intersect 2 models", async () => {
-    const { Foo } = (await runner.compile(`
-      @test model Foo {
-        prop: {a: string} & {b: string};
+    const { prop } = (await runner.compile(`
+      model Foo {
+        @test prop: {a: string} & {b: string};
       }
-    `)) as { Foo: Model };
+    `)) as { prop: ModelProperty };
 
-    const prop = Foo.properties.get("prop")!.type as Model;
-    strictEqual(prop.kind, "Model");
-    strictEqual(prop.properties.size, 2);
-    ok(prop.properties.has("a"));
-    ok(prop.properties.has("b"));
+    const propType = prop.type;
+    strictEqual(propType.kind, "Model");
+    strictEqual(propType.properties.size, 2);
+    ok(propType.properties.has("a"));
+    ok(propType.properties.has("b"));
+  });
+
+  it("keeps reference to source model in sourceModels", async () => {
+    const { A, B, prop } = (await runner.compile(`
+      @test model A { one: string }
+      @test model B { two: string }
+      model Foo {
+        @test prop: A & B;
+      }
+      `)) as {
+      A: Model;
+      B: Model;
+      prop: ModelProperty;
+    };
+    const intersection = prop.type;
+    strictEqual(intersection.kind, "Model");
+    expect(intersection.sourceModels).toHaveLength(2);
+    strictEqual(intersection.sourceModels[0].model, A);
+    strictEqual(intersection.sourceModels[0].usage, "intersection");
+    strictEqual(intersection.sourceModels[1].model, B);
+    strictEqual(intersection.sourceModels[1].usage, "intersection");
   });
 
   it("intersection type belong to namespace it is declared in", async () => {

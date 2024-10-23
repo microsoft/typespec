@@ -1,0 +1,94 @@
+name: Consistency
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  merge_group:
+  workflow_dispatch: {}
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  check-changes:
+    name: Check Changes
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 ## Needed for Changesets to find `main` branch
+          submodules: recursive
+
+      - uses: ./.github/actions/setup
+
+      - run: git pull --force --no-tags origin ${{ github.event.pull_request.base.ref }}:${{ github.event.pull_request.base.ref }}
+        name: Get ${{ github.event.pull_request.base.ref }} ref for ${{ github.ref}}, evt ${{ github.event_name }}
+
+      - run: pnpm install
+        name: Install dependencies
+
+      - run: npx chronus verify --since ${{ github.event.pull_request.base.ref }}
+        name: Check changelog
+        if: |
+          !startsWith(github.head_ref, 'publish/') &&
+          !startsWith(github.head_ref, 'dependabot/') &&
+          !startsWith(github.head_ref, 'backmerge/') &&
+          !startsWith(github.head_ref, 'revert-')
+
+  # Validate spell check
+  spellcheck:
+    name: Spell check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: ./.github/actions/setup
+
+      - run: pnpm install
+        name: Install dependencies
+
+      - run: pnpm run cspell
+        name: Spell check
+
+  # Validate formatting
+  format:
+    name: Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: ./.github/actions/setup
+
+      - run: pnpm install
+        name: Install dependencies
+
+      - run: pnpm --filter="@typespec/prettier-plugin-typespec..." run  build
+        name: Build prettier plugin
+
+      - run: pnpm run format:check
+        name: Check formatting
+
+  # Lint
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: ./.github/actions/setup
+
+      - run: pnpm install
+        name: Install dependencies
+
+      - run: pnpm --filter="@typespec/eslint-plugin..." run  build
+        name: Build prettier plugin
+
+      - run: pnpm run lint
+        name: Lint

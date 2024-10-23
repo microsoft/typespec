@@ -1,17 +1,15 @@
 ---
 id: type-relations
-title: Type relations
+title: Type Relations
 ---
-
-# Types Relations
 
 ## Type hierarchy
 
 ```mermaid
 graph RL
-    record["Record<T>"] --> unknown
+    record["Record<Element>"] --> unknown
     customModel["Custom model with properties"] --> record["Record<T>"]
-    array["Array<T>"] --> unknown
+    array["Array<Element>"] --> unknown
     tuple["Tuple"] --> array
     numeric --> unknown
     subgraph numerics[For numeric types, a narrower type can be assigned to a wider one]
@@ -43,9 +41,9 @@ graph RL
 
 ## Model with properties
 
-When checking if type `S` can be assigned to type `T`, if `T` is a model with properties, it will look for all those properties to be present inside of `S` and their type be assignable to the type of the property is T.
+When determining if type `S` can be assigned to type `T`, if `T` is a model with properties, it checks whether all those properties are present in `S` and if their types can be assigned to the type of the corresponding property in `T`.
 
-For example
+For instance,
 
 ```typespec
 model T {
@@ -85,7 +83,7 @@ model S {
 
 ## `Record<T>`
 
-A record is a model indexed with a string with value of T. This means that it represents a model where all properties(string key) are assignable to the type T. You can assign a model expression where all the properties are of type T or another model that `is` also a `Record<T>`
+A record is a model indexed with a string with a value of T. It represents a model where all properties (string keys) are assignable to the type T. You can assign a model expression where all the properties are of type T or another model that `is` also a `Record<T>`.
 
 ```typespec
 // Represent an object where all the values are int32.
@@ -120,9 +118,9 @@ model S {
 }
 ```
 
-#### Why is the last case not assignable to `Record<int32>`?
+#### Why isn't the last case assignable to `Record<int32>`?
 
-In this scenario
+In this scenario,
 
 ```typespec
 alias T = Record<int32>;
@@ -132,9 +130,9 @@ model S {
 }
 ```
 
-The reason is `model S` here is not assignable but the model expression `{ foo: 123; bar: 456; }` is, is that model S could be extended with additional properties that could then not be compatible.
+The reason why `model S` is not assignable, but the model expression `{ foo: 123; bar: 456; }` is, is because model S could be extended with additional properties that might not be compatible.
 
-If you for example now add a new model
+For instance, if you add a new model,
 
 ```typespec
 model Foo is S {
@@ -142,4 +140,4 @@ model Foo is S {
 }
 ```
 
-Now here `Foo` is assignable to `S` following the [model with property logic](#model-with-properties) and if `S` was assignable to `Record<int32>`, `Foo` would be able to be passed through as well but this is now invalid as `otherProp` is not an `int32` property.
+Here, `Foo` is assignable to `S` following the [model with property logic](#model-with-properties), and if `S` was assignable to `Record<int32>`, `Foo` would also be passable. However, this is now invalid as `otherProp` is not an `int32` property.

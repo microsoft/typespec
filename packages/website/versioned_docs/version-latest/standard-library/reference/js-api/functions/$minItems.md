@@ -4,16 +4,20 @@ title: "[F] $minItems"
 
 ---
 ```ts
-$minItems(
+function $minItems(
    context, 
    target, 
-   minItems): void
+   value): void
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
-| `target` | [`Model`](../interfaces/Model.md) \| [`ModelProperty`](../interfaces/ModelProperty.md) |
-| `minItems` | `number` |
+| `target` | [`Type`](../type-aliases/Type.md) |
+| `value` | [`Numeric`](../interfaces/Numeric.md) |
+
+## Returns
+
+`void`

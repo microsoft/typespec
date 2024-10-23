@@ -26,9 +26,7 @@ model Car {
 }
 ```
 
-## Emitter
-
-### Usage
+## Usage
 
 1. Via the command line
 
@@ -43,15 +41,25 @@ emit:
   - "@typespec/json-schema"
 ```
 
-### Emitter options
+The config can be extended with options as follows:
 
-#### `file-type`
+```yaml
+emit:
+  - "@typespec/json-schema"
+options:
+  "@typespec/json-schema":
+    option: value
+```
+
+## Emitter options
+
+### `file-type`
 
 **Type:** `"yaml" | "json"`
 
 Serialize the schema as either yaml or json.
 
-#### `int64-strategy`
+### `int64-strategy`
 
 **Type:** `"string" | "number"`
 
@@ -60,19 +68,19 @@ How to handle 64 bit integers on the wire. Options are:
 - string: serialize as a string (widely interoperable)
 - number: serialize as a number (not widely interoperable)
 
-#### `bundleId`
+### `bundleId`
 
 **Type:** `string`
 
 When provided, bundle all the schemas into a single json schema document with schemas under $defs. The provided id is the id of the root document and is also used for the file name.
 
-#### `emitAllModels`
+### `emitAllModels`
 
 **Type:** `boolean`
 
 When true, emit all model declarations to JSON Schema without requiring the @jsonSchema decorator.
 
-#### `emitAllRefs`
+### `emitAllRefs`
 
 **Type:** `boolean`
 
@@ -95,6 +103,7 @@ When true, emit all references as json schema files, even if the referenced type
 - [`@minContains`](#@mincontains)
 - [`@minProperties`](#@minproperties)
 - [`@multipleOf`](#@multipleof)
+- [`@oneOf`](#@oneof)
 - [`@prefixItems`](#@prefixitems)
 - [`@uniqueItems`](#@uniqueitems)
 
@@ -112,9 +121,9 @@ Set the base URI for any schemas emitted from types within this namespace.
 
 ##### Parameters
 
-| Name    | Type                    | Description                                                              |
-| ------- | ----------------------- | ------------------------------------------------------------------------ |
-| baseUri | `valueof scalar string` | the base URI. Schema IDs inside this namespace are relative to this URI. |
+| Name    | Type             | Description                                                              |
+| ------- | ---------------- | ------------------------------------------------------------------------ |
+| baseUri | `valueof string` | the base URI. Schema IDs inside this namespace are relative to this URI. |
 
 #### `@contains`
 
@@ -127,13 +136,13 @@ Use `@minContains` and `@maxContains` to customize how many instances to expect.
 
 ##### Target
 
-`union unknown[] | ModelProperty`
+`unknown[] | ModelProperty`
 
 ##### Parameters
 
-| Name  | Type                  | Description                      |
-| ----- | --------------------- | -------------------------------- |
-| value | `(intrinsic) unknown` | The type the array must contain. |
+| Name  | Type      | Description                      |
+| ----- | --------- | -------------------------------- |
+| value | `unknown` | The type the array must contain. |
 
 #### `@contentEncoding`
 
@@ -145,13 +154,13 @@ Specify the encoding used for the contents of a string.
 
 ##### Target
 
-`union string | ModelProperty`
+`string | ModelProperty`
 
 ##### Parameters
 
-| Name  | Type                    | Description |
-| ----- | ----------------------- | ----------- |
-| value | `valueof scalar string` | <br />      |
+| Name  | Type             | Description |
+| ----- | ---------------- | ----------- |
+| value | `valueof string` | <br />      |
 
 #### `@contentMediaType`
 
@@ -163,13 +172,13 @@ Specify the content type of content stored in a string.
 
 ##### Target
 
-`union string | ModelProperty`
+`string | ModelProperty`
 
 ##### Parameters
 
-| Name  | Type                    | Description                           |
-| ----- | ----------------------- | ------------------------------------- |
-| value | `valueof scalar string` | the media type of the string contents |
+| Name  | Type             | Description                           |
+| ----- | ---------------- | ------------------------------------- |
+| value | `valueof string` | the media type of the string contents |
 
 #### `@contentSchema`
 
@@ -182,36 +191,46 @@ media type and encoding.
 
 ##### Target
 
-`union string | ModelProperty`
+`string | ModelProperty`
 
 ##### Parameters
 
-| Name  | Type                  | Description                       |
-| ----- | --------------------- | --------------------------------- |
-| value | `(intrinsic) unknown` | the schema of the string contents |
+| Name  | Type      | Description                       |
+| ----- | --------- | --------------------------------- |
+| value | `unknown` | the schema of the string contents |
 
 #### `@extension`
 
 Specify a custom property to add to the emitted schema. Useful for adding custom keywords
-and other vendor-specific extensions. The value will be converted to a schema unless the parameter
-is wrapped in the `Json<T>` template. For example, `@extension("x-schema", { x: "value" })` will
-emit a JSON schema value for `x-schema`, whereas `@extension("x-schema", Json<{x: "value"}>)` will
-emit the raw JSON code `{x: "value"}`.
+and other vendor-specific extensions. Scalar values need to be specified using `typeof` to be converted to a schema.
+
+For example, `@extension("x-schema", typeof "foo")` will emit a JSON schema value for `x-schema`,
+whereas `@extension("x-schema", "foo")` will emit the raw code `"foo"`.
+
+The value will be treated as a raw value if any of the following are true:
+
+1. The value is a scalar value (e.g. string, number, boolean, etc.)
+2. The value is wrapped in the `Json<Data>` template
+3. The value is provided using the value syntax (e.g. `#{}`, `#[]`)
+
+For example, `@extension("x-schema", { x: "value" })` will emit a JSON schema value for `x-schema`,
+whereas `@extension("x-schema", #{x: "value"})` and `@extension("x-schema", Json<{x: "value"}>)`
+will emit the raw JSON code `{x: "value"}`.
 
 ```typespec
-@TypeSpec.JsonSchema.extension(key: valueof string, value: unknown)
+@TypeSpec.JsonSchema.extension(key: valueof string, value: unknown | valueof unknown)
 ```
 
 ##### Target
 
-`(intrinsic) unknown`
+`unknown`
 
 ##### Parameters
 
-| Name  | Type                    | Description                                                                          |
-| ----- | ----------------------- | ------------------------------------------------------------------------------------ |
-| key   | `valueof scalar string` | the name of the keyword of vendor extension, e.g. `x-custom`.                        |
-| value | `(intrinsic) unknown`   | the value of the keyword. Will be converted to a schema unless wrapped in `Json<T>`. |
+| Name  | Type                           | Description                                                   |
+| ----- | ------------------------------ | ------------------------------------------------------------- |
+| key   | `valueof string`               | the name of the keyword of vendor extension, e.g. `x-custom`. |
+| value | `unknown` \| `valueof unknown` | the value of the keyword.                                     |
 
 #### `@id`
 
@@ -226,13 +245,13 @@ By default, the id will be constructed based on the declaration's name.
 
 ##### Target
 
-`(intrinsic) unknown`
+`unknown`
 
 ##### Parameters
 
-| Name | Type                    | Description                                     |
-| ---- | ----------------------- | ----------------------------------------------- |
-| id   | `valueof scalar string` | the id of the JSON schema for this declaration. |
+| Name | Type             | Description                                     |
+| ---- | ---------------- | ----------------------------------------------- |
+| id   | `valueof string` | the id of the JSON schema for this declaration. |
 
 #### `@jsonSchema`
 
@@ -248,13 +267,13 @@ you can provide the id.
 
 ##### Target
 
-`(intrinsic) unknown`
+`unknown`
 
 ##### Parameters
 
-| Name    | Type                    | Description                                         |
-| ------- | ----------------------- | --------------------------------------------------- |
-| baseUri | `valueof scalar string` | Schema IDs are interpreted as relative to this URI. |
+| Name    | Type             | Description                                         |
+| ------- | ---------------- | --------------------------------------------------- |
+| baseUri | `valueof string` | Schema IDs are interpreted as relative to this URI. |
 
 #### `@maxContains`
 
@@ -267,13 +286,13 @@ by the contains decorator.
 
 ##### Target
 
-`union unknown[] | ModelProperty`
+`unknown[] | ModelProperty`
 
 ##### Parameters
 
-| Name  | Type                   | Description                                            |
-| ----- | ---------------------- | ------------------------------------------------------ |
-| value | `valueof scalar int32` | The maximum number of instances the array must contain |
+| Name  | Type            | Description                                            |
+| ----- | --------------- | ------------------------------------------------------ |
+| value | `valueof int32` | The maximum number of instances the array must contain |
 
 #### `@maxProperties`
 
@@ -285,13 +304,13 @@ Specify the maximum number of properties this object can have.
 
 ##### Target
 
-`union Record<unknown> | ModelProperty`
+`Record<unknown> | ModelProperty`
 
 ##### Parameters
 
-| Name  | Type                   | Description                                            |
-| ----- | ---------------------- | ------------------------------------------------------ |
-| value | `valueof scalar int32` | The maximum number of properties this object can have. |
+| Name  | Type            | Description                                            |
+| ----- | --------------- | ------------------------------------------------------ |
+| value | `valueof int32` | The maximum number of properties this object can have. |
 
 #### `@minContains`
 
@@ -304,13 +323,13 @@ by the contains decorator.
 
 ##### Target
 
-`union unknown[] | ModelProperty`
+`unknown[] | ModelProperty`
 
 ##### Parameters
 
-| Name  | Type                   | Description                                            |
-| ----- | ---------------------- | ------------------------------------------------------ |
-| value | `valueof scalar int32` | The minimum number of instances the array must contain |
+| Name  | Type            | Description                                            |
+| ----- | --------------- | ------------------------------------------------------ |
+| value | `valueof int32` | The minimum number of instances the array must contain |
 
 #### `@minProperties`
 
@@ -322,13 +341,13 @@ Specify the minimum number of properties this object can have.
 
 ##### Target
 
-`union Record<unknown> | ModelProperty`
+`Record<unknown> | ModelProperty`
 
 ##### Parameters
 
-| Name  | Type                   | Description                                            |
-| ----- | ---------------------- | ------------------------------------------------------ |
-| value | `valueof scalar int32` | The minimum number of properties this object can have. |
+| Name  | Type            | Description                                            |
+| ----- | --------------- | ------------------------------------------------------ |
+| value | `valueof int32` | The minimum number of properties this object can have. |
 
 #### `@multipleOf`
 
@@ -340,13 +359,29 @@ Specify that the numeric type must be a multiple of some numeric value.
 
 ##### Target
 
-`union numeric | ModelProperty`
+`numeric | ModelProperty`
 
 ##### Parameters
 
-| Name  | Type                     | Description                                        |
-| ----- | ------------------------ | -------------------------------------------------- |
-| value | `valueof scalar numeric` | The numeric type must be a multiple of this value. |
+| Name  | Type              | Description                                        |
+| ----- | ----------------- | -------------------------------------------------- |
+| value | `valueof numeric` | The numeric type must be a multiple of this value. |
+
+#### `@oneOf`
+
+Specify that `oneOf` should be used instead of `anyOf` for that union.
+
+```typespec
+@TypeSpec.JsonSchema.oneOf
+```
+
+##### Target
+
+`Union | ModelProperty`
+
+##### Parameters
+
+None
 
 #### `@prefixItems`
 
@@ -358,13 +393,13 @@ Specify that the target array must begin with the provided types.
 
 ##### Target
 
-`union unknown[] | ModelProperty`
+`unknown[] | ModelProperty`
 
 ##### Parameters
 
-| Name  | Type              | Description                                                                 |
-| ----- | ----------------- | --------------------------------------------------------------------------- |
-| value | `model unknown[]` | a tuple containing the types that must be present at the start of the array |
+| Name  | Type        | Description                                                                 |
+| ----- | ----------- | --------------------------------------------------------------------------- |
+| value | `unknown[]` | a tuple containing the types that must be present at the start of the array |
 
 #### `@uniqueItems`
 
@@ -376,7 +411,7 @@ Specify that every item in the array must be unique.
 
 ##### Target
 
-`union unknown[] | ModelProperty`
+`unknown[] | ModelProperty`
 
 ##### Parameters
 

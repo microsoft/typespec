@@ -1,18 +1,24 @@
 import assert, { deepStrictEqual, ok, strictEqual } from "assert";
+import { describe, it } from "vitest";
 import { CharCode } from "../src/core/charcode.js";
 import { formatDiagnostic, logVerboseTestOutput } from "../src/core/diagnostics.js";
 import { hasParseError, parse, visitChildren } from "../src/core/parser.js";
 import {
   IdentifierNode,
   Node,
-  NodeFlags,
   ParseOptions,
   SourceFile,
+  StringTemplateExpressionNode,
   SyntaxKind,
   TypeSpecScriptNode,
 } from "../src/core/types.js";
 import { DecorableNode } from "../src/formatter/print/types.js";
-import { DiagnosticMatch, expectDiagnostics } from "../src/testing/expect.js";
+import {
+  DiagnosticMatch,
+  expectDiagnosticEmpty,
+  expectDiagnostics,
+} from "../src/testing/expect.js";
+import { dumpAST } from "./ast-test-utils.js";
 
 describe("compiler: parser", () => {
   describe("import statements", () => {
@@ -26,8 +32,9 @@ describe("compiler: parser", () => {
     ]);
   });
 
-  describe("empty script", () =>
-    parseEach([["", (n) => assert.strictEqual(n.statements.length, 0)]]));
+  describe("empty script", () => {
+    parseEach([["", (n) => assert.strictEqual(n.statements.length, 0)]]);
+  });
 
   describe("model statements", () => {
     parseEach([
@@ -155,12 +162,15 @@ describe("compiler: parser", () => {
       `namespace Foo { 
         scalar uuid extends string;}
         `,
+      `scalar uuid {
+        init fromString(def: string)
+      }`,
+      `scalar bar extends uuid {
+        init fromOther(abc: string)
+      }`,
     ]);
 
-    parseErrorEach([
-      ["scalar uuid extends string { }", [/Statement expected./]],
-      ["scalar uuid is string;", [/Statement expected./]],
-    ]);
+    parseErrorEach([["scalar uuid is string;", [{ message: "'{' expected." }]]]);
   });
 
   describe("interface statements", () => {
@@ -216,12 +226,62 @@ describe("compiler: parser", () => {
     parseErrorEach([['union A { @myDec "x" x: number, y: string }', [/';' expected/]]]);
   });
 
+  describe("const statements", () => {
+    parseEach([
+      `const a = 123;`,
+      `const a: Info = 123;`,
+      `const a: {inline: string} = #{inline: "abc"};`,
+      `const a: string | int32 = int32;`,
+    ]);
+    parseErrorEach([
+      [`const = 123;`, [/Identifier expected/]],
+      [`const a`, [{ message: "'=' expected." }]],
+      [`const a =`, [/Expression expected./]],
+    ]);
+  });
+
+  describe("call expressions", () => {
+    parseEach([
+      `const a = int8(123);`,
+      `const a = utcDateTime.fromISO("abc");`,
+      `const a = utcDateTime.fromISO("abc", "def");`,
+    ]);
+    parseErrorEach([
+      [`const a = int8(123;`, [{ message: "')' expected." }]],
+      [`const a = utcDateTime.fromISO(;`, [{ message: "Expression expected." }]],
+    ]);
+  });
+
+  describe("object literals", () => {
+    parseEach([
+      `const A = #{a: "abc"};`,
+      `const A = #{a: "abc", b: "def"};`,
+      `const A = #{a: "abc", ...B};`,
+      `const A = #{a: "abc", ...B, c: "ghi"};`,
+    ]);
+  });
+
+  describe("array literals", () => {
+    parseEach([
+      `const A = #["abc"];`,
+      `const A = #["abc", 123];`,
+      `const A = #["abc", 123, #{nested: true}];`,
+    ]);
+  });
+
   describe("valueof expressions", () => {
     parseEach([
-      "alias A = valueof string;",
-      "alias A = valueof int32;",
-      "alias A = valueof {a: string, b: int32};",
-      "alias A = valueof int8[];",
+      "model Foo<T extends valueof string> {}",
+      "model Foo<T extends valueof int32> {}",
+      "model Foo<T extends valueof {a: string, b: int32}> {}",
+      "model Foo<T extends valueof int8[]> {}",
+    ]);
+  });
+
+  describe("typeof expressions", () => {
+    parseEach([`const a: typeof "123" = 123;`, `alias A = Foo<typeof "abc">;`]);
+    parseErrorEach([
+      [`alias A = typeof #{}`, [{ message: "Typeof expects a value literal or value reference." }]],
     ]);
   });
 
@@ -373,7 +433,7 @@ describe("compiler: parser", () => {
           assert(value.kind === SyntaxKind.StringLiteral, "string literal expected");
           assert.strictEqual(value.value, "banana");
         },
-      ])
+      ]),
     );
   });
 
@@ -512,10 +572,145 @@ describe("compiler: parser", () => {
             assert.strictEqual(statement.id.sv, expected);
           },
         ];
-      })
+      }),
     );
 
     parseErrorEach(bad.map((e) => [`model ${e[0]} {}`, [e[1]]]));
+  });
+
+  describe("string template expressions", () => {
+    function getNode(astNode: TypeSpecScriptNode): Node {
+      const statement = astNode.statements[0];
+      strictEqual(statement.kind, SyntaxKind.AliasStatement);
+      return statement.value;
+    }
+    function getStringTemplateNode(astNode: TypeSpecScriptNode): StringTemplateExpressionNode {
+      const node = getNode(astNode);
+      strictEqual(node.kind, SyntaxKind.StringTemplateExpression);
+      return node;
+    }
+
+    describe("single line", () => {
+      it("parse a single line template expression", () => {
+        const astNode = parseSuccessWithLog(`alias T = "Start \${"one"} middle \${23} end";`);
+        const node = getStringTemplateNode(astNode);
+        strictEqual(node.head.value, "Start ");
+        strictEqual(node.spans.length, 2);
+
+        const span0 = node.spans[0];
+        strictEqual(span0.literal.value, " middle ");
+        strictEqual(span0.expression.kind, SyntaxKind.StringLiteral);
+        strictEqual(span0.expression.value, "one");
+
+        const span1 = node.spans[1];
+        strictEqual(span1.literal.value, " end");
+        strictEqual(span1.expression.kind, SyntaxKind.NumericLiteral);
+        strictEqual(span1.expression.value, 23);
+      });
+
+      it("parse a single line template with a multi line model expression inside", () => {
+        const astNode = parseSuccessWithLog(
+          `alias T = "Start \${{ foo: "one",\nbar: "two" }} end";`,
+        );
+        const node = getStringTemplateNode(astNode);
+        strictEqual(node.head.value, "Start ");
+        strictEqual(node.spans.length, 1);
+
+        const span0 = node.spans[0];
+        strictEqual(span0.literal.value, " end");
+        strictEqual(span0.expression.kind, SyntaxKind.ModelExpression);
+        strictEqual(span0.expression.properties.length, 2);
+      });
+
+      it("can escape some ${}", () => {
+        const astNode = parseSuccessWithLog(`alias T = "Start \${"one"} middle \\\${23} end";`);
+        const node = getStringTemplateNode(astNode);
+        strictEqual(node.head.value, "Start ");
+        strictEqual(node.spans.length, 1);
+
+        const span0 = node.spans[0];
+        strictEqual(span0.literal.value, " middle ${23} end");
+        strictEqual(span0.expression.kind, SyntaxKind.StringLiteral);
+        strictEqual(span0.expression.value, "one");
+      });
+
+      it("can nest string templates", () => {
+        const astNode = parseSuccessWithLog(
+          'alias T = "Start ${"nested-start ${"hi"} nested-end"} end";',
+        );
+        const node = getStringTemplateNode(astNode);
+        strictEqual(node.head.value, "Start ");
+        strictEqual(node.spans.length, 1);
+
+        const span0 = node.spans[0];
+        strictEqual(span0.literal.value, " end");
+        strictEqual(span0.expression.kind, SyntaxKind.StringTemplateExpression);
+        strictEqual(span0.expression.head.value, "nested-start ");
+        strictEqual(span0.expression.spans.length, 1);
+
+        const nestedSpan0 = span0.expression.spans[0];
+        strictEqual(nestedSpan0.literal.value, " nested-end");
+        strictEqual(nestedSpan0.expression.kind, SyntaxKind.StringLiteral);
+        strictEqual(nestedSpan0.expression.value, "hi");
+      });
+
+      it("string with all ${} escape is still a StringLiteral", () => {
+        const astNode = parseSuccessWithLog(`alias T = "Start \\\${12} middle \\\${23} end";`);
+        const node = getNode(astNode);
+        strictEqual(node.kind, SyntaxKind.StringLiteral);
+        strictEqual(node.value, "Start ${12} middle ${23} end");
+      });
+    });
+
+    describe("multi line", () => {
+      it("parse a multiple line template expression", () => {
+        const astNode = parseSuccessWithLog(`alias T = """
+      Start \${"one"} 
+      middle \${23} 
+      end
+      """;`);
+        const node = getStringTemplateNode(astNode);
+        strictEqual(node.head.value, "Start ");
+        strictEqual(node.spans.length, 2);
+
+        const span0 = node.spans[0];
+        strictEqual(span0.literal.value, " \nmiddle ");
+        strictEqual(span0.expression.kind, SyntaxKind.StringLiteral);
+        strictEqual(span0.expression.value, "one");
+
+        const span1 = node.spans[1];
+        strictEqual(span1.literal.value, " \nend");
+        strictEqual(span1.expression.kind, SyntaxKind.NumericLiteral);
+        strictEqual(span1.expression.value, 23);
+      });
+
+      it("can escape some ${}", () => {
+        const astNode = parseSuccessWithLog(`alias T = """
+      Start \${"one"} 
+      middle \\\${23} 
+      end
+      """;`);
+        const node = getStringTemplateNode(astNode);
+        strictEqual(node.head.value, "Start ");
+        strictEqual(node.spans.length, 1);
+
+        const span0 = node.spans[0];
+        strictEqual(span0.literal.value, " \nmiddle ${23} \nend");
+        strictEqual(span0.expression.kind, SyntaxKind.StringLiteral);
+        strictEqual(span0.expression.value, "one");
+      });
+
+      it("escaping all ${} still produce a string literal", () => {
+        const astNode = parseSuccessWithLog(`alias T = """
+      Start \\\${12} 
+      middle \\\${23} 
+      end
+      """;`);
+        const node = getNode(astNode);
+        strictEqual(node.kind, SyntaxKind.StringLiteral);
+        strictEqual(node.value, "Start ${12} \nmiddle ${23} \nend");
+      });
+    });
   });
 
   // smaller repro of previous regen-samples baseline failures
@@ -568,8 +763,28 @@ describe("compiler: parser", () => {
           ["#suppress foo 123\nmodel Foo {}", [/Unexpected token NumericLiteral/]],
           ["#deprecated 321\nop doFoo(): string;", [/Unexpected token NumericLiteral/]],
         ],
-        { strict: true }
+        { strict: true },
       );
+    });
+
+    describe("ensure directives and decorators are applied to leaf node", () => {
+      parseEach([
+        [
+          `@doc("foo")\n#suppress "foo"\nnamespace Foo.Bar {}`,
+          (node) => {
+            const fooNs = node.statements[0];
+            strictEqual(fooNs.kind, SyntaxKind.NamespaceStatement);
+            const barNs = (fooNs as any).statements;
+            strictEqual(barNs.kind, SyntaxKind.NamespaceStatement);
+            strictEqual(fooNs.id.sv, "Foo");
+            strictEqual(barNs.id.sv, "Bar");
+            strictEqual(fooNs.directives?.length, 0);
+            strictEqual(fooNs.decorators.length, 0);
+            strictEqual(barNs.directives?.length, 1);
+            strictEqual(barNs.decorators.length, 1);
+          },
+        ],
+      ]);
     });
   });
 
@@ -682,7 +897,7 @@ describe("compiler: parser", () => {
 
   describe("projections", () => {
     describe("selectors", () => {
-      const selectors = ["model", "op", "interface", "union", "someId"];
+      const selectors = ["model", "op", "interface", "union", "scalar", "someId"];
       const codes = selectors.map((s) => `projection ${s}#tag { }`);
       parseEach(codes);
     });
@@ -750,7 +965,10 @@ describe("compiler: parser", () => {
 
     describe("recovery", () => {
       parseErrorEach([
-        [`projection `, [/identifier, 'model', 'op', 'interface', 'union', or 'enum' expected/]],
+        [
+          `projection `,
+          [/identifier, 'model', 'op', 'interface', 'union', 'enum', or 'scalar' expected./],
+        ],
         [`projection x `, [/'#' expected/]],
         [`projection x#`, [/Identifier expected/]],
         [`projection x#f`, [/'{' expected/]],
@@ -791,15 +1009,36 @@ describe("compiler: parser", () => {
         ],
         [
           `
+          /** Escape at the end \\*/
+          model M {}
+          `,
+          (script) => {
+            const docs = script.statements[0].docs;
+            strictEqual(docs?.length, 1);
+            strictEqual(docs[0].content.length, 1);
+            strictEqual(docs[0].content[0].text, "Escape at the end \\");
+            strictEqual(docs[0].tags.length, 0);
+          },
+        ],
+        [
+          `
           /**
            * This one has a \`code span\` and a code fence and it spreads over
            * more than one line.
            *
            * \`\`\`
            * This is not a @tag because we're in a code fence.
+           *   This is indented code.
            * \`\`\`
            *
+           *\`\`\`
+           *This code fence is glued
+           *to the stars
+           *\`\`\`
+           *
            * \`This is not a @tag either because we're in a code span\`.
+           *
+           * This is not a \\@tag because it is escaped.
            *
            * @param x the param
            * that continues on another line
@@ -818,7 +1057,19 @@ describe("compiler: parser", () => {
 
             strictEqual(
               docs[0].content[0].text,
-              "This one has a `code span` and a code fence and it spreads over\nmore than one line.\n\n```\nThis is not a @tag because we're in a code fence.\n```\n\n`This is not a @tag either because we're in a code span`."
+              "This one has a `code span` and a code fence and it spreads over\n" +
+                "more than one line.\n\n" +
+                "```\n" +
+                "This is not a @tag because we're in a code fence.\n" +
+                "  This is indented code.\n" +
+                "```\n\n" +
+                "```\n" +
+                "This code fence is glued\n" +
+                "to the stars\n" +
+                "```\n\n" +
+                "`This is not a @tag either because we're in a code span`.\n" +
+                "\n" +
+                "This is not a @tag because it is escaped.",
             );
             strictEqual(docs[0].tags.length, 6);
             const [xParam, yParam, tTemplate, uTemplate, returns, pretend] = docs[0].tags;
@@ -854,8 +1105,26 @@ describe("compiler: parser", () => {
             strictEqual(pretend.content[0].text, "this an unknown tag");
           },
         ],
+        [
+          `
+          /**
+           * Lines that end with \\
+           * don't create an extra star.
+           */
+          model M {}
+          `,
+          (script) => {
+            const docs = script.statements[0].docs;
+            strictEqual(docs?.length, 1);
+            strictEqual(docs[0].content.length, 1);
+            strictEqual(
+              docs[0].content[0].text,
+              "Lines that end with \\\ndon't create an extra star.",
+            );
+          },
+        ],
       ],
-      { docs: true }
+      { docs: true },
     );
 
     describe("relation with comments", () => {
@@ -865,7 +1134,7 @@ describe("compiler: parser", () => {
         /** One-liner */
         model M {}
       `,
-          { docs: true, comments: true }
+          { docs: true, comments: true },
         );
         const comments = script.comments;
         strictEqual(comments[0].kind, SyntaxKind.BlockComment);
@@ -878,7 +1147,7 @@ describe("compiler: parser", () => {
         /* One-liner */
         model M {}
       `,
-          { docs: true, comments: true }
+          { docs: true, comments: true },
         );
         const comments = script.comments;
         strictEqual(comments[0].kind, SyntaxKind.BlockComment);
@@ -890,7 +1159,7 @@ describe("compiler: parser", () => {
           `
         /** One-liner */
       `,
-          { docs: true, comments: true }
+          { docs: true, comments: true },
         );
         const comments = script.comments;
         strictEqual(comments[0].kind, SyntaxKind.BlockComment);
@@ -964,7 +1233,7 @@ describe("compiler: parser", () => {
       {
         docs: true,
         strict: true,
-      }
+      },
     );
   });
 
@@ -979,8 +1248,8 @@ describe("compiler: parser", () => {
       ok(
         directives?.some((x) => x.target.sv === id),
         `Should have found a directive with id ${id} but only has ${directives?.map(
-          (x) => x.target.sv
-        )}`
+          (x) => x.target.sv,
+        )}`,
       );
     }
 
@@ -989,8 +1258,8 @@ describe("compiler: parser", () => {
       ok(
         decorators?.some((x) => (x.target as IdentifierNode).sv === id),
         `Should have found a directive with id ${id} but only has ${decorators?.map(
-          (x) => (x.target as IdentifierNode).sv
-        )}`
+          (x) => (x.target as IdentifierNode).sv,
+        )}`,
       );
     }
 
@@ -1130,7 +1399,7 @@ ${">>>>>>>"} theirs`,
           ],
         ],
       ],
-      { strict: true }
+      { strict: true },
     );
   });
 });
@@ -1160,7 +1429,7 @@ function parseEach(cases: (string | [string, Callback])[], options?: ParseOption
           astNode.parseDiagnostics.some((e) => e.severity === "error"),
           "root node claims to have no parse errors, but these were reported:\n" +
             diagnostics +
-            "\n(If you've added new AST nodes or properties, make sure you implemented the new visitors)"
+            "\n(If you've added new AST nodes or properties, make sure you implemented the new visitors)",
         );
 
         assert.fail("Unexpected parse errors in test:\n" + diagnostics);
@@ -1205,7 +1474,7 @@ function checkVisitChildren(node: Node, file: SourceFile) {
   deepStrictEqual(
     Array.from(visited.values()),
     [],
-    `Nodes not visited by visitChildren of ${SyntaxKind[node.kind]}`
+    `Nodes not visited by visitChildren of ${SyntaxKind[node.kind]}`,
   );
 
   visitChildren(node, (child) => checkVisitChildren(child, file));
@@ -1225,6 +1494,33 @@ function checkPositioning(node: Node, file: SourceFile) {
 }
 
 /**
+ * Parse the given code and log debug information.
+ */
+function parseWithLog(code: string, options?: ParseOptions): TypeSpecScriptNode {
+  logVerboseTestOutput("=== Source ===");
+  logVerboseTestOutput(code);
+
+  const astNode = parse(code, options);
+  logVerboseTestOutput("\n=== Parse Result ===");
+  dumpAST(astNode);
+  return astNode;
+}
+/**
+ * Check the given code parse successfully and log debug information.
+ */
+function parseSuccessWithLog(code: string, options?: ParseOptions): TypeSpecScriptNode {
+  const astNode = parseWithLog(code, options);
+  logVerboseTestOutput("\n=== Diagnostics ===");
+  logVerboseTestOutput((log) => {
+    for (const each of astNode.parseDiagnostics) {
+      log(formatDiagnostic(each));
+    }
+  });
+  expectDiagnosticEmpty(astNode.parseDiagnostics);
+  return astNode;
+}
+
+/**
  *
  * @param cases Test cases
  * @param options {
@@ -1233,20 +1529,14 @@ function checkPositioning(node: Node, file: SourceFile) {
  */
 function parseErrorEach(
   cases: [string, (RegExp | DiagnosticMatch)[], Callback?][],
-  options: ParseOptions & { strict: boolean } = { strict: false }
+  options: ParseOptions & { strict: boolean } = { strict: false },
 ) {
   for (const [code, matches, callback] of cases) {
     it(`doesn't parse '${shorten(code)}'`, () => {
-      logVerboseTestOutput("=== Source ===");
-      logVerboseTestOutput(code);
-
-      const astNode = parse(code, options);
+      const astNode = parseWithLog(code, options);
       if (callback) {
         callback(astNode);
       }
-      logVerboseTestOutput("\n=== Parse Result ===");
-      dumpAST(astNode);
-
       logVerboseTestOutput("\n=== Diagnostics ===");
       logVerboseTestOutput((log) => {
         for (const each of astNode.parseDiagnostics) {
@@ -1258,108 +1548,30 @@ function parseErrorEach(
         assert.strictEqual(
           astNode.parseDiagnostics.length,
           matches.length,
-          "More diagnostics reported than expected."
+          "More diagnostics reported than expected.",
         );
       }
 
       const expected = matches.map<DiagnosticMatch>((m) =>
-        m instanceof RegExp ? { message: m } : m
+        m instanceof RegExp ? { message: m } : m,
       );
       expectDiagnostics(astNode.parseDiagnostics, expected, options);
 
       if (astNode.parseDiagnostics.some((e) => e.severity !== "warning")) {
         assert(
           hasParseError(astNode),
-          "node claims to have no parse errors, but above were reported."
+          "node claims to have no parse errors, but above were reported.",
         );
 
         assert(
           !astNode.printable ||
             !astNode.parseDiagnostics.some((d) => !/^'[,;:{}()]' expected\.$/.test(d.message)),
-          "parse tree with errors other than missing punctuation should not be printable"
+          "parse tree with errors other than missing punctuation should not be printable",
         );
       }
 
       checkInvariants(astNode);
     });
-  }
-}
-
-export function dumpAST(astNode: Node, file?: SourceFile) {
-  if (!file && astNode.kind === SyntaxKind.TypeSpecScript) {
-    file = astNode.file;
-  }
-  logVerboseTestOutput((log) => {
-    hasParseError(astNode); // force flags to initialize
-    const json = JSON.stringify(astNode, replacer, 2);
-    log(json);
-  });
-
-  function replacer(key: string, value: any) {
-    if (key === "parent") {
-      return undefined; // prevent cycles if run on bound nodes
-    }
-    if (key === "kind") {
-      // swap numeric kind for readable name
-      return SyntaxKind[value];
-    }
-
-    if (file && (key === "pos" || key === "end")) {
-      // include line and column numbers
-      const pos = file.getLineAndCharacterOfPosition(value);
-      const line = pos.line + 1;
-      const col = pos.character + 1;
-      return `${value} (line ${line}, column ${col})`;
-    }
-
-    if (key === "parseDiagnostics" || key === "file") {
-      // these will be logged separately in more readable form
-      return undefined;
-    }
-
-    if (Array.isArray(value) && value.length === 0) {
-      // hide empty arrays too
-      return undefined;
-    }
-
-    if (key === "flags") {
-      return [
-        value & NodeFlags.DescendantErrorsExamined ? "DescendantErrorsExamined" : "",
-        value & NodeFlags.ThisNodeHasError ? "ThisNodeHasError" : "",
-        value & NodeFlags.DescendantHasError ? "DescendantHasError" : "",
-      ].join(",");
-    }
-
-    if (value && typeof value === "object" && !Array.isArray(value)) {
-      // Show the text of the given node
-      if (file && "pos" in value && "end" in value) {
-        value.source = shorten(file.text.substring(value.pos, value.end));
-      }
-
-      // sort properties by type so that the short ones can be read without
-      // scrolling past the long ones and getting disoriented.
-      const sorted: any = {};
-      for (const prop of sortKeysByType(value)) {
-        sorted[prop] = value[prop];
-      }
-      return sorted;
-    }
-
-    return value;
-  }
-
-  function sortKeysByType(o: any) {
-    const score = {
-      undefined: 0,
-      string: 1,
-      boolean: 2,
-      number: 3,
-      bigint: 4,
-      symbol: 5,
-      function: 6,
-      object: 7,
-    };
-    return Object.keys(o).sort((x, y) => score[typeof o[x]] - score[typeof o[y]]);
   }
 }
 

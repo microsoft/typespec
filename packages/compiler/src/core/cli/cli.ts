@@ -7,8 +7,8 @@ try {
 }
 
 import yargs from "yargs";
+import { typespecVersion } from "../../utils/misc.js";
 import { installTypeSpecDependencies } from "../install.js";
-import { typespecVersion } from "../util.js";
 import { compileAction } from "./actions/compile/compile.js";
 import { formatAction } from "./actions/format.js";
 import { printInfoAction } from "./actions/info.js";
@@ -128,7 +128,7 @@ async function main() {
             describe: "Key/value of arguments that are used in the configuration.",
           });
       },
-      withCliHost((host, args) => compileAction(host, args))
+      withCliHost((host, args) => compileAction(host, args)),
     )
     .command("code", "Manage VS Code Extension.", (cmd) => {
       return cmd
@@ -143,16 +143,16 @@ async function main() {
           "Install VS Code Extension",
           () => {},
           withCliHostAndDiagnostics<CliHostArgs & InstallVSCodeExtensionOptions>((host, args) =>
-            installVSCodeExtension(host, args)
-          )
+            installVSCodeExtension(host, args),
+          ),
         )
         .command(
           "uninstall",
           "Uninstall VS Code Extension",
           () => {},
           withCliHostAndDiagnostics<CliHostArgs & UninstallVSCodeExtensionOptions>((host, args) =>
-            uninstallVSCodeExtension(host, args)
-          )
+            uninstallVSCodeExtension(host, args),
+          ),
         );
     })
     .command("vs", "Manage Visual Studio Extension.", (cmd) => {
@@ -162,13 +162,13 @@ async function main() {
           "install",
           "Install Visual Studio Extension.",
           () => {},
-          withCliHostAndDiagnostics((host) => installVSExtension(host))
+          withCliHostAndDiagnostics((host) => installVSExtension(host)),
         )
         .command(
           "uninstall",
           "Uninstall VS Extension",
           () => {},
-          withCliHostAndDiagnostics((host) => uninstallVSExtension(host))
+          withCliHostAndDiagnostics((host) => uninstallVSExtension(host)),
         );
     })
     .command(
@@ -194,29 +194,34 @@ async function main() {
             describe: "Verify the files are formatted.",
           });
       },
-      withCliHost((host, args) => formatAction(host, args))
+      withCliHost((host, args) => formatAction(host, args)),
     )
     .command(
       "init [templatesUrl]",
       "Create a new TypeSpec project.",
       (cmd) =>
-        cmd.positional("templatesUrl", {
-          description: "Url of the initialization template",
-          type: "string",
-        }),
-      withCliHostAndDiagnostics((host, args) => initAction(host, args))
+        cmd
+          .positional("templatesUrl", {
+            description: "Url of the initialization template",
+            type: "string",
+          })
+          .option("template", {
+            type: "string",
+            description: "Name of the template to use",
+          }),
+      withCliHostAndDiagnostics((host, args) => initAction(host, args)),
     )
     .command(
       "install",
-      "Install typespec dependencies",
+      "Install TypeSpec dependencies",
       () => {},
-      withCliHost((host) => installTypeSpecDependencies(host, process.cwd()))
+      withCliHost((host) => installTypeSpecDependencies(host, process.cwd())),
     )
     .command(
       "info",
-      "Show information about current TypeSpec compiler.",
+      "Show information about the current TypeSpec compiler.",
       () => {},
-      withCliHostAndDiagnostics((host) => printInfoAction(host))
+      withCliHostAndDiagnostics((host) => printInfoAction(host)),
     )
     .version(typespecVersion)
     .demandCommand(1, "You must use one of the supported commands.").argv;

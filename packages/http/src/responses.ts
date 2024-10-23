@@ -5,7 +5,6 @@ import {
   getDoc,
   getErrorsDoc,
   getReturnsDoc,
-  isArrayModelType,
   isErrorModel,
   isNullType,
   isVoidType,
@@ -14,20 +13,12 @@ import {
   Operation,
   Program,
   Type,
-  walkPropertiesInherited,
 } from "@typespec/compiler";
-import { getContentTypes, isContentTypeHeader } from "./content-types.js";
-import {
-  getHeaderFieldName,
-  getStatusCodeDescription,
-  getStatusCodesWithDiagnostics,
-  isBody,
-  isHeader,
-  isStatusCode,
-} from "./decorators.js";
-import { createDiagnostic, reportDiagnostic } from "./lib.js";
-import { gatherMetadata, isApplicableMetadata, Visibility } from "./metadata.js";
-import { HttpStateKeys } from "./state.js";
+import { getStatusCodeDescription, getStatusCodesWithDiagnostics } from "./decorators.js";
+import { HttpProperty } from "./http-property.js";
+import { HttpStateKeys, reportDiagnostic } from "./lib.js";
+import { Visibility } from "./metadata.js";
+import { resolveHttpPayload } from "./payload.js";
 import { HttpOperationResponse, HttpStatusCodes, HttpStatusCodesEntry } from "./types.js";
 
 /**
@@ -35,7 +26,7 @@ import { HttpOperationResponse, HttpStatusCodes, HttpStatusCodesEntry } from "./
  */
 export function getResponsesForOperation(
   program: Program,
-  operation: Operation
+  operation: Operation,
 ): [HttpOperationResponse[], readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const responseType = operation.returnType;
@@ -87,39 +78,33 @@ function processResponseType(
   diagnostics: DiagnosticCollector,
   operation: Operation,
   responses: ResponseIndex,
-  responseType: Type
+  responseType: Type,
 ) {
-  const metadata = gatherMetadata(program, diagnostics, responseType, Visibility.Read);
-
+  // Get body
+  let { body: resolvedBody, metadata } = diagnostics.pipe(
+    resolveHttpPayload(program, responseType, Visibility.Read, "response"),
+  );
   // Get explicity defined status codes
   const statusCodes: HttpStatusCodes = diagnostics.pipe(
-    getResponseStatusCodes(program, responseType, metadata)
+    getResponseStatusCodes(program, responseType, metadata),
   );
-
-  // Get explicitly defined content types
-  const contentTypes = getResponseContentTypes(program, diagnostics, metadata);
 
   // Get response headers
   const headers = getResponseHeaders(program, metadata);
 
-  // Get body
-  let bodyType = getResponseBody(program, diagnostics, responseType, metadata);
-
   // If there is no explicit status code, check if it should be 204
   if (statusCodes.length === 0) {
-    if (bodyType === undefined || isVoidType(bodyType)) {
-      bodyType = undefined;
-      statusCodes.push(204);
-    } else if (isErrorModel(program, responseType)) {
+    if (isErrorModel(program, responseType)) {
       statusCodes.push("*");
+    } else if (isVoidType(responseType)) {
+      resolvedBody = undefined;
+      statusCodes.push(204); // Only special case for 204 is op test(): void;
+    } else if (resolvedBody === undefined || isVoidType(resolvedBody.type)) {
+      resolvedBody = undefined;
+      statusCodes.push(200);
     } else {
       statusCodes.push(200);
     }
-  }
-
-  // If there is a body but no explicit content types, use application/json
-  if (bodyType && contentTypes.length === 0) {
-    contentTypes.push("application/json");
   }
 
   // Put them into currentEndpoint.responses
@@ -130,21 +115,18 @@ function processResponseType(
       statusCode: typeof statusCode === "object" ? "*" : (String(statusCode) as any),
       statusCodes: statusCode,
       type: responseType,
-      description: getResponseDescription(program, operation, responseType, statusCode, bodyType),
+      description: getResponseDescription(program, operation, responseType, statusCode, metadata),
       responses: [],
     };
 
-    if (bodyType !== undefined) {
-      response.responses.push({ body: { contentTypes: contentTypes, type: bodyType }, headers });
-    } else if (contentTypes.length > 0) {
-      diagnostics.add(
-        createDiagnostic({
-          code: "content-type-ignored",
-          target: responseType,
-        })
-      );
+    if (resolvedBody !== undefined) {
+      response.responses.push({
+        body: resolvedBody,
+        headers,
+        properties: metadata,
+      });
     } else {
-      response.responses.push({ headers });
+      response.responses.push({ headers, properties: metadata });
     }
     responses.set(statusCode, response);
   }
@@ -158,14 +140,14 @@ function processResponseType(
 function getResponseStatusCodes(
   program: Program,
   responseType: Type,
-  metadata: Set<ModelProperty>
+  metadata: HttpProperty[],
 ): [HttpStatusCodes, readonly Diagnostic[]] {
   const codes: HttpStatusCodes = [];
   const diagnostics = createDiagnosticCollector();
 
   let statusFound = false;
   for (const prop of metadata) {
-    if (isStatusCode(program, prop)) {
+    if (prop.kind === "statusCode") {
       if (statusFound) {
         reportDiagnostic(program, {
           code: "multiple-status-codes",
@@ -173,7 +155,7 @@ function getResponseStatusCodes(
         });
       }
       statusFound = true;
-      codes.push(...diagnostics.pipe(getStatusCodesWithDiagnostics(program, prop)));
+      codes.push(...diagnostics.pipe(getStatusCodesWithDiagnostics(program, prop.property)));
     }
   }
 
@@ -189,26 +171,7 @@ function getResponseStatusCodes(
 }
 
 function getExplicitSetStatusCode(program: Program, entity: Model | ModelProperty): "*"[] {
-  return program.stateMap(HttpStateKeys.statusCodeKey).get(entity) ?? [];
-}
-
-/**
- * Get explicity defined content-types from response metadata
- * Return is an array of strings, possibly empty, which indicates no explicitly defined content-type.
- * We do not check for duplicates here -- that will be done by the caller.
- */
-function getResponseContentTypes(
-  program: Program,
-  diagnostics: DiagnosticCollector,
-  metadata: Set<ModelProperty>
-): string[] {
-  const contentTypes: string[] = [];
-  for (const prop of metadata) {
-    if (isHeader(program, prop) && isContentTypeHeader(program, prop)) {
-      contentTypes.push(...diagnostics.pipe(getContentTypes(prop)));
-    }
-  }
-  return contentTypes;
+  return program.stateMap(HttpStateKeys.statusCode).get(entity) ?? [];
 }
 
 /**
@@ -216,58 +179,25 @@ function getResponseContentTypes(
  */
 function getResponseHeaders(
   program: Program,
-  metadata: Set<ModelProperty>
+  metadata: HttpProperty[],
 ): Record<string, ModelProperty> {
   const responseHeaders: Record<string, ModelProperty> = {};
   for (const prop of metadata) {
-    const headerName = getHeaderFieldName(program, prop);
-    if (isHeader(program, prop) && headerName !== "content-type") {
-      responseHeaders[headerName] = prop;
+    if (prop.kind === "header") {
+      responseHeaders[prop.options.name] = prop.property;
     }
   }
   return responseHeaders;
 }
 
-function getResponseBody(
-  program: Program,
-  diagnostics: DiagnosticCollector,
-  responseType: Type,
-  metadata: Set<ModelProperty>
-): Type | undefined {
-  // non-model or intrinsic/array model -> response body is response type
-  if (responseType.kind !== "Model" || isArrayModelType(program, responseType)) {
-    return responseType;
-  }
-
-  // look for explicit body
-  let bodyProperty: ModelProperty | undefined;
-  for (const property of metadata) {
-    if (isBody(program, property)) {
-      if (bodyProperty) {
-        diagnostics.add(createDiagnostic({ code: "duplicate-body", target: property }));
-      } else {
-        bodyProperty = property;
-      }
-    }
-  }
-  if (bodyProperty) {
-    return bodyProperty.type;
-  }
-
-  // Without an explicit body, response type is response model itself if
-  // there it has at least one non-metadata property, if it is an empty object or if it has derived
-  // models
-  if (responseType.derivedModels.length > 0 || responseType.properties.size === 0) {
-    return responseType;
-  }
-  for (const property of walkPropertiesInherited(responseType)) {
-    if (!isApplicableMetadata(program, property, Visibility.Read)) {
-      return responseType;
-    }
-  }
-
-  // Otherwise, there is no body
-  return undefined;
+function isResponseEnvelope(metadata: HttpProperty[]): boolean {
+  return metadata.some(
+    (prop) =>
+      prop.kind === "body" ||
+      prop.kind === "bodyRoot" ||
+      prop.kind === "multipartBody" ||
+      prop.kind === "statusCode",
+  );
 }
 
 function getResponseDescription(
@@ -275,7 +205,7 @@ function getResponseDescription(
   operation: Operation,
   responseType: Type,
   statusCode: HttpStatusCodes[number],
-  bodyType: Type | undefined
+  metadata: HttpProperty[],
 ): string | undefined {
   // NOTE: If the response type is an envelope and not the same as the body
   // type, then use its @doc as the response description. However, if the
@@ -284,7 +214,7 @@ function getResponseDescription(
   // as the response description. This allows more freedom to change how
   // TypeSpec is expressed in semantically equivalent ways without causing
   // the output to change unnecessarily.
-  if (responseType !== bodyType) {
+  if (isResponseEnvelope(metadata)) {
     const desc = getDoc(program, responseType);
     if (desc) {
       return desc;

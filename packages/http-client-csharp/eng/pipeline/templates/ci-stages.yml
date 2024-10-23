@@ -1,0 +1,40 @@
+parameters:
+  - name: Condition
+    type: string
+    default: true
+  - name: DependsOn
+    type: object
+    default: []
+
+stages:
+  - template: /eng/emitters/pipelines/templates/stages/emitter-stages.yml
+    parameters:
+      StagePrefix: CSharp
+      BuildPrereleaseVersion: true
+      UseTypeSpecNext: false
+      Publish: "none"
+      PackagePath: /packages/http-client-csharp
+      EmitterPackageJsonPath: packages/http-client-csharp/package.json
+      Packages:
+        - name: typespec-http-client-csharp
+          file: typespec-http-client-csharp-*.tgz
+          type: npm
+        - name: Microsoft.Generator.CSharp
+          file: Microsoft.Generator.CSharp.*.nupkg
+          type: nuget
+        - name: Microsoft.Generator.CSharp.ClientModel
+          file: Microsoft.Generator.CSharp.ClientModel.*.nupkg
+          type: nuget
+        - name: Microsoft.Generator.CSharp.Input
+          file: Microsoft.Generator.CSharp.Input.*.nupkg
+          type: nuget
+        - name: Microsoft.Generator.CSharp.Customization
+          file: Microsoft.Generator.CSharp.Customization.*.nupkg
+          type: nuget
+      UnitTestArgs: -UnitTests
+      TestMatrix:
+        RegenCheck:
+          TestArguments: -GenerationChecks
+      Condition: ${{ parameters.Condition }}
+      DependsOn: ${{ parameters.DependsOn }}
+      LanguageShortName: "csharp"

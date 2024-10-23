@@ -4,9 +4,9 @@ title: "[F] $key"
 
 ---
 ```ts
-$key(
+function $key(
    context, 
-   entity, 
+   target, 
    altName?): void
 ```
 
@@ -20,7 +20,11 @@ Otherwise, the name of the target property will be used.
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
-| `entity` | [`ModelProperty`](../interfaces/ModelProperty.md) |
+| `target` | [`ModelProperty`](../interfaces/ModelProperty.md) |
 | `altName`? | `string` |
+
+## Returns
+
+`void`

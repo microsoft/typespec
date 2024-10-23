@@ -4,18 +4,22 @@ title: "[F] createRekeyableMap"
 
 ---
 ```ts
-createRekeyableMap<K, V>(entries?): RekeyableMap<K, V>
+function createRekeyableMap<K, V>(entries?): RekeyableMap<K, V>
 ```
 
-## Type parameters
+## Type Parameters
 
-| Parameter |
-| :------ |
+| Type Parameter |
+| ------ |
 | `K` |
 | `V` |
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `entries`? | [`K`, `V`][] |
+
+## Returns
+
+`RekeyableMap`<`K`, `V`\>

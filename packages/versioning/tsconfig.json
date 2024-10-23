@@ -1,11 +1,11 @@
 {
-  "extends": "../tsconfig.json",
+  "extends": "../../tsconfig.base.json",
   "references": [{ "path": "../compiler/tsconfig.json" }, { "path": "../rest/tsconfig.json" }],
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": ".",
-    "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo",
-    "types": ["node", "mocha"]
+    "verbatimModuleSyntax": true,
+    "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo"
   },
-  "include": ["src/**/*.ts", "test/**/*.ts"]
+  "include": ["src/**/*.ts", "generated-defs/**/*.ts", "test/**/*.ts"]
 }

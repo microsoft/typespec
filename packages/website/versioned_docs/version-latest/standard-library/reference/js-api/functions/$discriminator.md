@@ -4,16 +4,20 @@ title: "[F] $discriminator"
 
 ---
 ```ts
-$discriminator(
+function $discriminator(
    context, 
-   entity, 
+   target, 
    propertyName): void
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
-| `entity` | [`Model`](../interfaces/Model.md) \| [`Union`](../interfaces/Union.md) |
+| `target` | [`Model`](../interfaces/Model.md) \| [`Union`](../interfaces/Union.md) |
 | `propertyName` | `string` |
+
+## Returns
+
+`void`

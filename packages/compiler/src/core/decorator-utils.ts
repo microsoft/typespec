@@ -1,8 +1,7 @@
-import { getPropertyType } from "../lib/decorators.js";
 import { compilerAssert, ignoreDiagnostics } from "./diagnostics.js";
 import { getTypeName } from "./helpers/type-name-utils.js";
 import { createDiagnostic, reportDiagnostic } from "./messages.js";
-import { Program } from "./program.js";
+import type { Program } from "./program.js";
 import {
   DecoratorContext,
   DecoratorFunction,
@@ -26,27 +25,27 @@ export type TypeSpecValue = Type | string | number | boolean;
 export type InferredCadlValue<K extends TypeKind> = InferredTypeSpecValue<K>;
 
 // prettier-ignore
-export type InferredTypeSpecValue<K extends TypeKind> = 
+export type InferredTypeSpecValue<K extends TypeKind> =
   K extends "Any" ? TypeSpecValue
   : K extends (infer T extends Type["kind"])[] ? InferredTypeSpecValue<T>
-  : K extends "String" ? string 
-  : K extends "Number" ? number 
-  : K extends "Boolean" ? boolean 
+  : K extends "String" ? string
+  : K extends "Number" ? number
+  : K extends "Boolean" ? boolean
   : Type & { kind: K };
 
 /**
  * Validate the decorator target is matching the expected value.
- * @param program
+ * @param context
  * @param target
- * @param expectedType
  * @param decoratorName
+ * @param expectedType
  * @returns
  */
 export function validateDecoratorTarget<K extends TypeKind>(
   context: DecoratorContext,
   target: Type,
   decoratorName: string,
-  expectedType: K | readonly K[]
+  expectedType: K | readonly K[],
 ): target is K extends "Any" ? Type : Type & { kind: K } {
   const isCorrectType = isTypeSpecValueTypeOf(target, expectedType);
   if (!isCorrectType) {
@@ -67,31 +66,31 @@ export function validateDecoratorTarget<K extends TypeKind>(
 export function isIntrinsicType(
   program: Program,
   type: Scalar,
-  kind: IntrinsicScalarName
+  kind: IntrinsicScalarName,
 ): boolean {
   return ignoreDiagnostics(
     program.checker.isTypeAssignableTo(
       type.projectionBase ?? type,
       program.checker.getStdType(kind),
-      type
-    )
+      type,
+    ),
   );
 }
 
 /**
- * @deprecated this function is deprecated use decorator definition in typespec instead or check assignability directly.
+ * @deprecated this function is deprecated use decorator definition in TypeSpec instead or check assignability directly.
  */
 export function validateDecoratorTargetIntrinsic(
   context: DecoratorContext,
   target: Scalar | ModelProperty,
   decoratorName: string,
-  expectedType: IntrinsicScalarName | IntrinsicScalarName[]
+  expectedType: IntrinsicScalarName | IntrinsicScalarName[],
 ): boolean {
   const expectedTypeStrs = typeof expectedType === "string" ? [expectedType] : expectedType;
   const expectedTypes = expectedTypeStrs.map((x) => context.program.checker.getStdType(x));
   const type = getPropertyType(target);
   const isCorrect = expectedTypes.some(
-    (x) => context.program.checker.isTypeAssignableTo(type, x, type)[0]
+    (x) => context.program.checker.isTypeAssignableTo(type, x, type)[0],
   );
   if (!isCorrect) {
     context.program.reportDiagnostic(
@@ -102,7 +101,7 @@ export function validateDecoratorTargetIntrinsic(
           to: `type it is not one of: ${expectedTypeStrs.join(", ")}`,
         },
         target: context.decoratorTarget,
-      })
+      }),
     );
     return false;
   }
@@ -113,14 +112,14 @@ export function validateDecoratorTargetIntrinsic(
 export const isCadlValueTypeOf = isTypeSpecValueTypeOf;
 
 /**
- * Check if the given target is of any of the typespec types.
+ * Check if the given target is of any of the TypeSpec types.
  * @param target Target to validate.
- * @param expectedType One or multiple allowed typespec types.
+ * @param expectedType One or multiple allowed TypeSpec types.
  * @returns boolean if the target is of one of the allowed types.
  */
 export function isTypeSpecValueTypeOf<K extends TypeKind>(
   target: TypeSpecValue,
-  expectedType: K | readonly K[]
+  expectedType: K | readonly K[],
 ): target is InferredTypeSpecValue<K> {
   const kind = getTypeKind(target);
   if (kind === undefined) {
@@ -160,7 +159,7 @@ export function validateDecoratorParamType<K extends Type["kind"]>(
   program: Program,
   target: Type,
   value: TypeSpecValue,
-  expectedType: K | K[]
+  expectedType: K | K[],
 ): value is InferredTypeSpecValue<K> {
   if (!isTypeSpecValueTypeOf(value, expectedType)) {
     reportDiagnostic(program, {
@@ -234,7 +233,7 @@ type InferParameter<P extends DecoratorParamDefinition<TypeKind>> = P["optional"
 
 // prettier-ignore
 type InferParameterKind<P extends TypeKind | readonly TypeKind[]> =
-  P extends readonly (infer T extends TypeKind)[] ? InferredTypeSpecValue<T> 
+  P extends readonly (infer T extends TypeKind)[] ? InferredTypeSpecValue<T>
   : P extends TypeKind ? InferredTypeSpecValue<P> : never
 
 export interface DecoratorValidator<
@@ -245,14 +244,14 @@ export interface DecoratorValidator<
   validate(
     context: DecoratorContext,
     target: InferredTypeSpecValue<T>,
-    parameters: InferParameters<P, S>
+    parameters: InferParameters<P, S>,
   ): boolean;
 }
 
 export type TypeKind = Type["kind"] | "Any";
 
 /**
- * @deprecated use extern dec definition in typespec instead.
+ * @deprecated use extern dec definition in TypeSpec instead.
  */
 export function createDecoratorDefinition<
   T extends TypeKind,
@@ -315,7 +314,7 @@ export function validateDecoratorParamCount(
   context: DecoratorContext,
   min: number,
   max: number | undefined,
-  parameters: unknown[]
+  parameters: unknown[],
 ): boolean {
   let missing = 0;
   for (let i = parameters.length - 1; i >= 0; i--) {
@@ -362,14 +361,14 @@ function prettyValue(program: Program, value: any) {
 export const cadlTypeToJson = typespecTypeToJson;
 
 /**
- * Convert a typespec type to a serializable Json object.
+ * Convert a TypeSpec type to a serializable Json object.
  * Emits diagnostics if the given type is invalid
  * @param typespecType The type to convert to Json data
  * @param target The diagnostic target in case of errors.
  */
 export function typespecTypeToJson<T>(
   typespecType: TypeSpecValue,
-  target: DiagnosticTarget
+  target: DiagnosticTarget,
 ): [T | undefined, Diagnostic[]] {
   if (typeof typespecType !== "object") {
     return [typespecType as any, []];
@@ -380,7 +379,7 @@ export function typespecTypeToJson<T>(
 function typespecTypeToJsonInternal(
   typespecType: Type,
   target: DiagnosticTarget,
-  path: string[]
+  path: string[],
 ): [any | undefined, Diagnostic[]] {
   switch (typespecType.kind) {
     case "String":
@@ -443,7 +442,7 @@ function typespecTypeToJsonInternal(
 export function validateDecoratorUniqueOnNode(
   context: DecoratorContext,
   type: Type,
-  decorator: DecoratorFunction
+  decorator: DecoratorFunction,
 ) {
   compilerAssert("decorators" in type, "Type should have decorators");
 
@@ -451,7 +450,7 @@ export function validateDecoratorUniqueOnNode(
     (x) =>
       x.decorator === decorator &&
       x.node?.kind === SyntaxKind.DecoratorExpression &&
-      x.node?.parent === type.node
+      x.node?.parent === type.node,
   );
 
   if (sameDecorators.length > 1) {
@@ -479,7 +478,7 @@ export function validateDecoratorNotOnType(
   context: DecoratorContext,
   type: Type,
   badDecorator: DecoratorFunction,
-  givenDecorator: DecoratorFunction
+  givenDecorator: DecoratorFunction,
 ) {
   compilerAssert("decorators" in type, "Type should have decorators");
   const decAppsToCheck = [];
@@ -514,5 +513,16 @@ export function validateDecoratorNotOnType(
     } else {
       return undefined;
     }
+  }
+}
+
+/**
+ * Return the type of the property or the model itself.
+ */
+export function getPropertyType(target: Scalar | ModelProperty): Type {
+  if (target.kind === "ModelProperty") {
+    return target.type;
+  } else {
+    return target;
   }
 }

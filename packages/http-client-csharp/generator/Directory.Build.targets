@@ -1,0 +1,32 @@
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <ItemGroup>
+        <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556" Condition="'$(IsTestProject)' != 'true'">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+        </PackageReference>
+        <AdditionalFiles Include="$(RepoEngPath)\stylecop.json">
+            <Visible>false</Visible>
+        </AdditionalFiles>
+    </ItemGroup>
+
+     <!-- Add Package Icon to Non-test Packages -->
+    <ItemGroup Condition="'$(IsSrcProject)' == 'true'">
+        <None Include="$(PackageIconPath)" Pack="true" PackagePath=""/>
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(IsPerfProject)' == 'true'">
+      <PackageReference Include="BenchmarkDotNet" />
+      <PackageReference Include="BenchmarkDotNet.Diagnostics.Windows" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(IsTestProject)' == 'true'">
+      <PackageReference Include="Microsoft.NET.Test.Sdk" />
+      <PackageReference Include="Moq" />
+      <PackageReference Include="NUnit" />
+      <PackageReference Include="NUnit3TestAdapter" />
+    </ItemGroup>
+
+    <Import Project="$(CentralPackagesFile)" Condition="'$(ShouldUseCentralVersions)' == 'true'" />
+
+</Project>

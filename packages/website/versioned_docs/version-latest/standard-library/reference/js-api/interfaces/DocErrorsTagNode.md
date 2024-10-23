@@ -9,15 +9,15 @@ title: "[I] DocErrorsTagNode"
 
 ## Properties
 
-| Modifier | Property | Type | Description | Inheritance |
-| :------ | :------ | :------ | :------ | :------ |
-| `readonly` | `content` | readonly [`DocTextNode`](DocTextNode.md)[] | - | [`DocTagBaseNode`](DocTagBaseNode.md).`content` |
-| `readonly` | `directives?` | readonly [`DirectiveExpressionNode`](DirectiveExpressionNode.md)[] | - | [`DocTagBaseNode`](DocTagBaseNode.md).`directives` |
-| `readonly` | `docs?` | readonly [`DocNode`](DocNode.md)[] | - | [`DocTagBaseNode`](DocTagBaseNode.md).`docs` |
-| `readonly` | `end` | `number` | The ending position measured in UTF-16 code units from the start of the<br />full string. Exclusive. | [`DocTagBaseNode`](DocTagBaseNode.md).`end` |
-| `readonly` | `flags` | [`NodeFlags`](../enumerations/NodeFlags.md) | - | [`DocTagBaseNode`](DocTagBaseNode.md).`flags` |
-| `readonly` | `kind` | `DocErrorsTag` | - | [`DocTagBaseNode`](DocTagBaseNode.md).`kind` |
-| `readonly` | `parent?` | [`Node`](../type-aliases/Node.md) | - | [`DocTagBaseNode`](DocTagBaseNode.md).`parent` |
-| `readonly` | `pos` | `number` | The starting position of the ranger measured in UTF-16 code units from the<br />start of the full string. Inclusive. | [`DocTagBaseNode`](DocTagBaseNode.md).`pos` |
-| `readonly` | `symbol` | [`Sym`](Sym.md) | Could be undefined but making this optional creates a lot of noise. In practice,<br />you will likely only access symbol in cases where you know the node has a symbol. | [`DocTagBaseNode`](DocTagBaseNode.md).`symbol` |
-| `readonly` | `tagName` | [`IdentifierNode`](IdentifierNode.md) | - | [`DocTagBaseNode`](DocTagBaseNode.md).`tagName` |
+| Property | Modifier | Type | Description | Overrides | Inherited from |
+| ------ | ------ | ------ | ------ | ------ | ------ |
+| `content` | `readonly` | readonly [`DocTextNode`](DocTextNode.md)[] | - | - | [`DocTagBaseNode`](DocTagBaseNode.md).`content` |
+| `directives?` | `readonly` | readonly [`DirectiveExpressionNode`](DirectiveExpressionNode.md)[] | - | - | [`DocTagBaseNode`](DocTagBaseNode.md).`directives` |
+| `docs?` | `readonly` | readonly [`DocNode`](DocNode.md)[] | - | - | [`DocTagBaseNode`](DocTagBaseNode.md).`docs` |
+| `end` | `readonly` | `number` | The ending position measured in UTF-16 code units from the start of the full string. Exclusive. | - | [`DocTagBaseNode`](DocTagBaseNode.md).`end` |
+| `flags` | `readonly` | [`NodeFlags`](../enumerations/NodeFlags.md) | - | - | [`DocTagBaseNode`](DocTagBaseNode.md).`flags` |
+| `kind` | `readonly` | `DocErrorsTag` | - | [`DocTagBaseNode`](DocTagBaseNode.md).`kind` | - |
+| `parent?` | `readonly` | [`Node`](../type-aliases/Node.md) | - | - | [`DocTagBaseNode`](DocTagBaseNode.md).`parent` |
+| `pos` | `readonly` | `number` | The starting position of the ranger measured in UTF-16 code units from the start of the full string. Inclusive. | - | [`DocTagBaseNode`](DocTagBaseNode.md).`pos` |
+| `symbol` | `readonly` | [`Sym`](Sym.md) | Could be undefined but making this optional creates a lot of noise. In practice, you will likely only access symbol in cases where you know the node has a symbol. | - | [`DocTagBaseNode`](DocTagBaseNode.md).`symbol` |
+| `tagName` | `readonly` | [`IdentifierNode`](IdentifierNode.md) | - | - | [`DocTagBaseNode`](DocTagBaseNode.md).`tagName` |

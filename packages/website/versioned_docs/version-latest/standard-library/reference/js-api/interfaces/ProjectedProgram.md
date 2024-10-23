@@ -9,22 +9,22 @@ title: "[I] ProjectedProgram"
 
 ## Properties
 
-| Modifier | Property | Type | Description | Inheritance |
-| :------ | :------ | :------ | :------ | :------ |
-| `public` | `checker` | [`Checker`](Checker.md) | - | [`Program`](Program.md).`checker` |
-| `public` | `compilerOptions` | [`CompilerOptions`](CompilerOptions.md) | - | [`Program`](Program.md).`compilerOptions` |
-| `readonly` | `diagnostics` | readonly [`Diagnostic`](Diagnostic.md)[] | - | [`Program`](Program.md).`diagnostics` |
-| `public` | `emitters` | `EmitterRef`[] | - | [`Program`](Program.md).`emitters` |
-| `public` | `host` | [`CompilerHost`](CompilerHost.md) | - | [`Program`](Program.md).`host` |
-| `public` | `jsSourceFiles` | `Map`<`string`, [`JsSourceFileNode`](JsSourceFileNode.md)\> | - | [`Program`](Program.md).`jsSourceFiles` |
-| `public` | `literalTypes` | `Map`<`string` \| `number` \| `boolean`, [`LiteralType`](../type-aliases/LiteralType.md)\> | - | [`Program`](Program.md).`literalTypes` |
-| `public` | `mainFile?` | [`TypeSpecScriptNode`](TypeSpecScriptNode.md) | - | [`Program`](Program.md).`mainFile` |
-| `readonly` | `projectRoot` | `string` | Project root. If a tsconfig was found/specified this is the directory for the tsconfig.json. Otherwise directory where the entrypoint is located. | [`Program`](Program.md).`projectRoot` |
-| `public` | `projector` | [`Projector`](Projector.md) | - | - |
-| `public` | `sourceFiles` | `Map`<`string`, [`TypeSpecScriptNode`](TypeSpecScriptNode.md)\> | All source files in the program, keyed by their file path. | [`Program`](Program.md).`sourceFiles` |
-| `public` | `stateMaps` | `Map`<`symbol`, `StateMap`\> | - | [`Program`](Program.md).`stateMaps` |
-| `public` | `stateSets` | `Map`<`symbol`, `StateSet`\> | - | [`Program`](Program.md).`stateSets` |
-| `public` | `tracer` | [`Tracer`](Tracer.md) | - | [`Program`](Program.md).`tracer` |
+| Property | Modifier | Type | Description | Inherited from |
+| ------ | ------ | ------ | ------ | ------ |
+| `checker` | `public` | [`Checker`](Checker.md) | - | [`Program`](Program.md).`checker` |
+| `compilerOptions` | `public` | [`CompilerOptions`](CompilerOptions.md) | - | [`Program`](Program.md).`compilerOptions` |
+| `diagnostics` | `readonly` | readonly [`Diagnostic`](Diagnostic.md)[] | - | [`Program`](Program.md).`diagnostics` |
+| `emitters` | `public` | `EmitterRef`[] | - | [`Program`](Program.md).`emitters` |
+| `host` | `public` | [`CompilerHost`](CompilerHost.md) | - | [`Program`](Program.md).`host` |
+| `jsSourceFiles` | `public` | `Map`<`string`, [`JsSourceFileNode`](JsSourceFileNode.md)\> | - | [`Program`](Program.md).`jsSourceFiles` |
+| `literalTypes` | `public` | `Map`<`string` \| `number` \| `boolean`, [`LiteralType`](../type-aliases/LiteralType.md)\> | - | [`Program`](Program.md).`literalTypes` |
+| `mainFile?` | `public` | [`TypeSpecScriptNode`](TypeSpecScriptNode.md) | - | [`Program`](Program.md).`mainFile` |
+| `projector` | `public` | [`Projector`](Projector.md) | - | - |
+| `projectRoot` | `readonly` | `string` | Project root. If a tsconfig was found/specified this is the directory for the tsconfig.json. Otherwise directory where the entrypoint is located. | [`Program`](Program.md).`projectRoot` |
+| `sourceFiles` | `public` | `Map`<`string`, [`TypeSpecScriptNode`](TypeSpecScriptNode.md)\> | All source files in the program, keyed by their file path. | [`Program`](Program.md).`sourceFiles` |
+| `stateMaps` | `public` | `Map`<`symbol`, `StateMap`\> | - | [`Program`](Program.md).`stateMaps` |
+| `stateSets` | `public` | `Map`<`symbol`, `StateSet`\> | - | [`Program`](Program.md).`stateSets` |
+| `tracer` | `public` | [`Tracer`](Tracer.md) | - | [`Program`](Program.md).`tracer` |
 
 ## Methods
 
@@ -33,6 +33,10 @@ title: "[I] ProjectedProgram"
 ```ts
 getGlobalNamespaceType(): Namespace
 ```
+
+#### Returns
+
+[`Namespace`](Namespace.md)
 
 #### Inherited from
 
@@ -49,8 +53,12 @@ getOption(key): undefined | string
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `key` | `string` |
+
+#### Returns
+
+`undefined` \| `string`
 
 #### Inherited from
 
@@ -69,8 +77,12 @@ Return location context of the given source file.
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `sourceFile` | [`SourceFile`](SourceFile.md) |
+
+#### Returns
+
+[`LocationContext`](../type-aliases/LocationContext.md)
 
 #### Inherited from
 
@@ -83,6 +95,10 @@ Return location context of the given source file.
 ```ts
 hasError(): boolean
 ```
+
+#### Returns
+
+`boolean`
 
 #### Inherited from
 
@@ -99,8 +115,12 @@ loadTypeSpecScript(typespecScript): Promise<TypeSpecScriptNode>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `typespecScript` | [`SourceFile`](SourceFile.md) |
+
+#### Returns
+
+`Promise`<[`TypeSpecScriptNode`](TypeSpecScriptNode.md)\>
 
 #### Inherited from
 
@@ -117,9 +137,13 @@ onValidate(cb, LibraryMetadata): void
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `cb` | (`program`) => `void` \| `Promise`<`void`\> |
 | `LibraryMetadata` | [`LibraryMetadata`](../type-aliases/LibraryMetadata.md) |
+
+#### Returns
+
+`void`
 
 #### Inherited from
 
@@ -136,8 +160,12 @@ reportDiagnostic(diagnostic): void
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `diagnostic` | [`Diagnostic`](Diagnostic.md) |
+
+#### Returns
+
+`void`
 
 #### Inherited from
 
@@ -154,8 +182,12 @@ reportDiagnostics(diagnostics): void
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `diagnostics` | readonly [`Diagnostic`](Diagnostic.md)[] |
+
+#### Returns
+
+`void`
 
 #### Inherited from
 
@@ -172,8 +204,12 @@ reportDuplicateSymbols(symbols): void
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `symbols` | `undefined` \| `SymbolTable` |
+
+#### Returns
+
+`void`
 
 #### Inherited from
 
@@ -190,8 +226,12 @@ resolveTypeReference(reference): [undefined | Type, readonly Diagnostic[]]
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `reference` | `string` |
+
+#### Returns
+
+[`undefined` \| [`Type`](../type-aliases/Type.md), readonly [`Diagnostic`](Diagnostic.md)[]]
 
 #### Inherited from
 
@@ -208,8 +248,12 @@ stateMap(key): Map<Type, any>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `key` | `symbol` |
+
+#### Returns
+
+`Map`<[`Type`](../type-aliases/Type.md), `any`\>
 
 #### Inherited from
 
@@ -226,8 +270,12 @@ stateSet(key): Set<Type>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `key` | `symbol` |
+
+#### Returns
+
+`Set`<[`Type`](../type-aliases/Type.md)\>
 
 #### Inherited from
 
@@ -244,9 +292,13 @@ trace(area, message): void
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `area` | `string` |
 | `message` | `string` |
+
+#### Returns
+
+`void`
 
 #### Inherited from
 

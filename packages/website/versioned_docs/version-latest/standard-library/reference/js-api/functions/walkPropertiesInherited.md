@@ -4,7 +4,7 @@ title: "[F] walkPropertiesInherited"
 
 ---
 ```ts
-walkPropertiesInherited(model): Generator<ModelProperty, void, unknown>
+function walkPropertiesInherited(model): Generator<ModelProperty, void, unknown>
 ```
 
 Enumerates the properties declared by model or inherited from its base.
@@ -17,5 +17,9 @@ Properties that are overridden are not enumerated.
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `model` | [`Model`](../interfaces/Model.md) |
+
+## Returns
+
+`Generator`<[`ModelProperty`](../interfaces/ModelProperty.md), `void`, `unknown`\>

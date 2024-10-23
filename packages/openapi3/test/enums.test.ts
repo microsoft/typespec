@@ -1,5 +1,6 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
+import { describe, it } from "vitest";
 import { diagnoseOpenApiFor, oapiForModel } from "./test-host.js";
 
 describe("openapi3: enums", () => {
@@ -29,7 +30,7 @@ describe("openapi3: enums", () => {
       enum Foo {
         y: 0;
       };
-      `
+      `,
     );
     strictEqual(res.schemas.Foo.title, "FooEnum");
   });

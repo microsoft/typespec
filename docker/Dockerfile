@@ -8,9 +8,9 @@ COPY . /app
 
 WORKDIR /app
 ENV TYPESPEC_SKIP_VS_BUILD=1
-RUN npm install -g @microsoft/rush
-RUN rush install
-RUN rush rebuild --to @typespec/compiler
+RUN corepack enable && corepack prepare
+RUN pnpm install --frozen-lockfile
+RUN pnpm --filter "@typespec/compiler..." run build
 
 WORKDIR /app/packages/compiler
 RUN npm pack

@@ -1,3 +1,5 @@
+import { HttpOperation } from "@typespec/http";
+
 /**
  * Checks if two objects are deeply equal.
  *
@@ -28,7 +30,7 @@ export type EqualityComparer<T> = (x: T, y: T) => boolean;
 export function arrayEquals<T>(
   left: T[],
   right: T[],
-  equals: EqualityComparer<T> = (x, y) => x === y
+  equals: EqualityComparer<T> = (x, y) => x === y,
 ): boolean {
   if (left === right) {
     return true;
@@ -54,7 +56,7 @@ export function arrayEquals<T>(
 export function mapEquals<K, V>(
   left: Map<K, V>,
   right: Map<K, V>,
-  equals: EqualityComparer<V> = (x, y) => x === y
+  equals: EqualityComparer<V> = (x, y) => x === y,
 ): boolean {
   if (left === right) {
     return true;
@@ -68,4 +70,20 @@ export function mapEquals<K, V>(
     }
   }
   return true;
+}
+/**
+ * Check if argument is not undefined.
+ */
+export function isDefined<T>(arg: T | undefined): arg is T {
+  return arg !== undefined;
+}
+
+export interface SharedHttpOperation {
+  kind: "shared";
+  operations: HttpOperation[];
+}
+export function isSharedHttpOperation(
+  operation: HttpOperation | SharedHttpOperation,
+): operation is SharedHttpOperation {
+  return (operation as SharedHttpOperation).kind === "shared";
 }

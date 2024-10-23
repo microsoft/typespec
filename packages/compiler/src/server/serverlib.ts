@@ -1,5 +1,8 @@
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
+  CodeAction,
+  CodeActionKind,
+  CodeActionParams,
   CompletionList,
   CompletionParams,
   DefinitionParams,
@@ -12,7 +15,7 @@ import {
   DocumentHighlightParams,
   DocumentSymbol,
   DocumentSymbolParams,
-  FileEvent,
+  ExecuteCommandParams,
   FoldingRange,
   FoldingRangeParams,
   Hover,
@@ -25,7 +28,6 @@ import {
   MarkupKind,
   ParameterInformation,
   PrepareRenameParams,
-  PublishDiagnosticsParams,
   Range,
   ReferenceParams,
   RenameParams,
@@ -37,204 +39,91 @@ import {
   SignatureHelp,
   SignatureHelpParams,
   TextDocumentChangeEvent,
-  TextDocumentIdentifier,
   TextDocumentSyncKind,
   TextEdit,
   Diagnostic as VSDiagnostic,
   WorkspaceEdit,
-  WorkspaceFolder,
   WorkspaceFoldersChangeEvent,
 } from "vscode-languageserver/node.js";
-import {
-  defaultConfig,
-  findTypeSpecConfigPath,
-  loadTypeSpecConfigFile,
-} from "../config/config-loader.js";
-import { resolveOptionsFromConfig } from "../config/config-to-options.js";
-import { TypeSpecConfig } from "../config/types.js";
-import { CharCode, codePointBefore, isIdentifierContinue } from "../core/charcode.js";
-import {
-  compilerAssert,
-  createSourceFile,
-  formatDiagnostic,
-  getSourceLocation,
-} from "../core/diagnostics.js";
+import { CharCode } from "../core/charcode.js";
+import { resolveCodeFix } from "../core/code-fixes.js";
+import { compilerAssert, getSourceLocation } from "../core/diagnostics.js";
 import { formatTypeSpec } from "../core/formatter.js";
-import { getTypeName } from "../core/helpers/type-name-utils.js";
-import { CompilerOptions } from "../core/options.js";
-import { getNodeAtPosition, visitChildren } from "../core/parser.js";
-import {
-  ensureTrailingDirectorySeparator,
-  getDirectoryPath,
-  joinPaths,
-} from "../core/path-utils.js";
-import { Program, compile as compileProgram } from "../core/program.js";
-import {
-  Token,
-  TokenFlags,
-  createScanner,
-  isKeyword,
-  isPunctuation,
-  skipTrivia,
-  skipWhiteSpace,
-} from "../core/scanner.js";
+import { getEntityName, getTypeName } from "../core/helpers/type-name-utils.js";
+import { ResolveModuleHost, resolveModule } from "../core/index.js";
+import { getPositionBeforeTrivia } from "../core/parser-utils.js";
+import { getNodeAtPosition, getNodeAtPositionDetail, visitChildren } from "../core/parser.js";
+import { ensureTrailingDirectorySeparator, getDirectoryPath } from "../core/path-utils.js";
+import type { Program } from "../core/program.js";
+import { skipTrivia, skipWhiteSpace } from "../core/scanner.js";
+import { createSourceFile, getSourceFileKindFromExt } from "../core/source-file.js";
 import {
   AugmentDecoratorStatementNode,
+  CodeFixEdit,
   CompilerHost,
   DecoratorDeclarationStatementNode,
   DecoratorExpressionNode,
+  Diagnostic,
   DiagnosticTarget,
   IdentifierNode,
   Node,
+  PositionDetail,
   SourceFile,
-  StringLiteralNode,
   SyntaxKind,
   TextRange,
   TypeReferenceNode,
-  Diagnostic as TypeSpecDiagnostic,
   TypeSpecScriptNode,
 } from "../core/types.js";
-import {
-  doIO,
-  getNormalizedRealPath,
-  getSourceFileKindFromExt,
-  loadFile,
-  resolveTspMain,
-} from "../core/util.js";
+import { getNormalizedRealPath, resolveTspMain } from "../utils/misc.js";
+import { getSemanticTokens } from "./classify.js";
+import { createCompileService } from "./compile-service.js";
 import { resolveCompletion } from "./completion.js";
-import { getPositionBeforeTrivia } from "./server-utils.js";
+import { Commands } from "./constants.js";
+import { createFileService } from "./file-service.js";
+import { createFileSystemCache } from "./file-system-cache.js";
 import { getSymbolStructure } from "./symbol-structure.js";
 import {
   getParameterDocumentation,
   getSymbolDetails,
   getTemplateParameterDocumentation,
 } from "./type-details.js";
-
-export interface ServerHost {
-  compilerHost: CompilerHost;
-  throwInternalErrors?: boolean;
-  getOpenDocumentByURL(url: string): TextDocument | undefined;
-  sendDiagnostics(params: PublishDiagnosticsParams): void;
-  log(message: string): void;
-}
-
-export interface Server {
-  readonly pendingMessages: readonly string[];
-  readonly workspaceFolders: readonly ServerWorkspaceFolder[];
-  compile(document: TextDocument | TextDocumentIdentifier): Promise<Program | undefined>;
-  initialize(params: InitializeParams): Promise<InitializeResult>;
-  initialized(params: InitializedParams): void;
-  workspaceFoldersChanged(e: WorkspaceFoldersChangeEvent): Promise<void>;
-  watchedFilesChanged(params: DidChangeWatchedFilesParams): void;
-  formatDocument(params: DocumentFormattingParams): Promise<TextEdit[]>;
-  gotoDefinition(params: DefinitionParams): Promise<Location[]>;
-  complete(params: CompletionParams): Promise<CompletionList>;
-  findReferences(params: ReferenceParams): Promise<Location[]>;
-  findDocumentHighlight(params: DocumentHighlightParams): Promise<DocumentHighlight[]>;
-  prepareRename(params: PrepareRenameParams): Promise<Range | undefined>;
-  rename(params: RenameParams): Promise<WorkspaceEdit>;
-  getSemanticTokens(params: SemanticTokensParams): Promise<SemanticToken[]>;
-  buildSemanticTokens(params: SemanticTokensParams): Promise<SemanticTokens>;
-  checkChange(change: TextDocumentChangeEvent<TextDocument>): Promise<void>;
-  getHover(params: HoverParams): Promise<Hover>;
-  getSignatureHelp(params: SignatureHelpParams): Promise<SignatureHelp | undefined>;
-  getFoldingRanges(getFoldingRanges: FoldingRangeParams): Promise<FoldingRange[]>;
-  getDocumentSymbols(params: DocumentSymbolParams): Promise<DocumentSymbol[]>;
-  documentClosed(change: TextDocumentChangeEvent<TextDocument>): void;
-  log(message: string, details?: any): void;
-}
-
-export interface ServerSourceFile extends SourceFile {
-  // Keep track of the open document (if any) associated with a source file.
-  readonly document?: TextDocument;
-}
-
-export interface ServerWorkspaceFolder extends WorkspaceFolder {
-  // Remember path to URL conversion for workspace folders. This path must
-  // be resolved and normalized as other paths and have a trailing separator
-  // character so that we can test if a path is within a workspace using
-  // startsWith.
-  path: string;
-}
-
-export enum SemanticTokenKind {
-  Namespace,
-  Type,
-  Class,
-  Enum,
-  Interface,
-  Struct,
-  TypeParameter,
-  Parameter,
-  Variable,
-  Property,
-  EnumMember,
-  Event,
-  Function,
-  Method,
-  Macro,
-  Keyword,
-  Comment,
-  String,
-  Number,
-  Regexp,
-  Operator,
-
-  DocCommentTag,
-}
-
-export interface SemanticToken {
-  kind: SemanticTokenKind;
-  pos: number;
-  end: number;
-}
-
-interface CachedFile {
-  type: "file";
-  file: SourceFile;
-  version?: number;
-
-  // Cache additional data beyond the raw text of the source file. Currently
-  // used only for JSON.parse result of package.json.
-  data?: any;
-}
-
-interface CachedError {
-  type: "error";
-  error: unknown;
-  data?: any;
-  version?: undefined;
-}
-
-const serverOptions: CompilerOptions = {
-  noEmit: true,
-  designTimeBuild: true,
-  parseOptions: {
-    comments: true,
-    docs: true,
-  },
-};
+import {
+  CompileResult,
+  SemanticTokenKind,
+  Server,
+  ServerHost,
+  ServerLog,
+  ServerSourceFile,
+  ServerWorkspaceFolder,
+} from "./types.js";
 
 export function createServer(host: ServerHost): Server {
-  // Remember original URL when we convert it to a local path so that we can
-  // get it back. We can't convert it back because things like URL-encoding
-  // could give us back an equivalent but non-identical URL but the original
-  // URL is used as a key into the opened documents and so we must reproduce
-  // it exactly.
-  const pathToURLMap = new Map<string, string>();
+  const fileService = createFileService({ serverHost: host });
 
   // Cache all file I/O. Only open documents are sent over the LSP pipe. When
   // the compiler reads a file that isn't open, we use this cache to avoid
   // hitting the disk. Entries are invalidated when LSP client notifies us of
   // a file change.
-  const fileSystemCache = createFileSystemCache();
+  const fileSystemCache = createFileSystemCache({
+    fileService,
+    log,
+  });
   const compilerHost = createCompilerHost();
 
-  const oldPrograms = new Map<string, Program>();
+  const compileService = createCompileService({
+    fileService,
+    fileSystemCache,
+    compilerHost,
+    serverHost: host,
+    log,
+  });
+  const currentDiagnosticIndex = new Map<number, Diagnostic>();
+  let diagnosticIdCounter = 0;
+  compileService.on("compileEnd", (result) => reportDiagnostics(result));
 
   let workspaceFolders: ServerWorkspaceFolder[] = [];
   let isInitialized = false;
-  let pendingMessages: string[] = [];
+  let pendingMessages: ServerLog[] = [];
 
   return {
     get pendingMessages() {
@@ -243,7 +132,7 @@ export function createServer(host: ServerHost): Server {
     get workspaceFolders() {
       return workspaceFolders;
     },
-    compile,
+    compile: compileService.compile,
     initialize,
     initialized,
     workspaceFoldersChanged,
@@ -256,13 +145,15 @@ export function createServer(host: ServerHost): Server {
     findDocumentHighlight,
     prepareRename,
     rename,
-    getSemanticTokens,
+    getSemanticTokens: getSemanticTokensForDocument,
     buildSemanticTokens,
     checkChange,
     getFoldingRanges,
     getHover,
     getSignatureHelp,
     getDocumentSymbols,
+    getCodeActions,
+    executeCommand,
     log,
   };
 
@@ -298,13 +189,19 @@ export function createServer(host: ServerHost): Server {
         triggerCharacters: ["(", ",", "<"],
         retriggerCharacters: [")"],
       },
+      codeActionProvider: {
+        codeActionKinds: ["quickfix"],
+      },
+      executeCommandProvider: {
+        commands: [Commands.APPLY_CODE_FIX],
+      },
     };
 
     if (params.capabilities.workspace?.workspaceFolders) {
       for (const w of params.workspaceFolders ?? []) {
         workspaceFolders.push({
           ...w,
-          path: ensureTrailingDirectorySeparator(await fileURLToRealPath(w.uri)),
+          path: ensureTrailingDirectorySeparator(await fileService.fileURLToRealPath(w.uri)),
         });
       }
       capabilities.workspace = {
@@ -313,43 +210,45 @@ export function createServer(host: ServerHost): Server {
           changeNotifications: true,
         },
       };
-      // eslint-disable-next-line deprecation/deprecation
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
     } else if (params.rootUri) {
       workspaceFolders = [
         {
           name: "<root>",
-          // eslint-disable-next-line deprecation/deprecation
+          // eslint-disable-next-line @typescript-eslint/no-deprecated
           uri: params.rootUri,
-          // eslint-disable-next-line deprecation/deprecation
-          path: ensureTrailingDirectorySeparator(await fileURLToRealPath(params.rootUri)),
+          path: ensureTrailingDirectorySeparator(
+            // eslint-disable-next-line @typescript-eslint/no-deprecated
+            await fileService.fileURLToRealPath(params.rootUri),
+          ),
         },
       ];
-      // eslint-disable-next-line deprecation/deprecation
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
     } else if (params.rootPath) {
       workspaceFolders = [
         {
           name: "<root>",
-          // eslint-disable-next-line deprecation/deprecation
+          // eslint-disable-next-line @typescript-eslint/no-deprecated
           uri: compilerHost.pathToFileURL(params.rootPath),
           path: ensureTrailingDirectorySeparator(
-            // eslint-disable-next-line deprecation/deprecation
-            await getNormalizedRealPath(compilerHost, params.rootPath)
+            // eslint-disable-next-line @typescript-eslint/no-deprecated
+            await getNormalizedRealPath(compilerHost, params.rootPath),
           ),
         },
       ];
     }
 
-    log("Workspace Folders", workspaceFolders);
+    log({ level: "info", message: `Workspace Folders`, detail: workspaceFolders });
     return { capabilities };
   }
 
   function initialized(params: InitializedParams): void {
     isInitialized = true;
-    log("Initialization complete.");
+    log({ level: "info", message: "Initialization complete." });
   }
 
   async function workspaceFoldersChanged(e: WorkspaceFoldersChangeEvent) {
-    log("Workspace Folders Changed", e);
+    log({ level: "info", message: "Workspace Folders Changed", detail: e });
     const map = new Map(workspaceFolders.map((f) => [f.uri, f]));
     for (const folder of e.removed) {
       map.delete(folder.uri);
@@ -357,127 +256,19 @@ export function createServer(host: ServerHost): Server {
     for (const folder of e.added) {
       map.set(folder.uri, {
         ...folder,
-        path: ensureTrailingDirectorySeparator(await fileURLToRealPath(folder.uri)),
+        path: ensureTrailingDirectorySeparator(await fileService.fileURLToRealPath(folder.uri)),
       });
     }
     workspaceFolders = Array.from(map.values());
-    log("Workspace Folders", workspaceFolders);
+    log({ level: "info", message: `Workspace Folders`, detail: workspaceFolders });
   }
 
   function watchedFilesChanged(params: DidChangeWatchedFilesParams) {
     fileSystemCache.notify(params.changes);
   }
 
-  type CompileCallback<T> = (
-    program: Program,
-    document: TextDocument,
-    script: TypeSpecScriptNode
-  ) => (T | undefined) | Promise<T | undefined>;
-
-  async function compile(
-    document: TextDocument | TextDocumentIdentifier
-  ): Promise<Program | undefined>;
-
-  async function compile<T>(
-    document: TextDocument | TextDocumentIdentifier,
-    callback: CompileCallback<T>
-  ): Promise<T | undefined>;
-
-  async function compile<T>(
-    document: TextDocument | TextDocumentIdentifier,
-    callback?: CompileCallback<T>
-  ): Promise<T | Program | undefined> {
-    const path = await getPath(document);
-    const mainFile = await getMainFileForDocument(path);
-    const config = await getConfig(mainFile);
-
-    const [optionsFromConfig, _] = resolveOptionsFromConfig(config, { cwd: path });
-    const options: CompilerOptions = {
-      ...optionsFromConfig,
-      ...serverOptions,
-    };
-
-    if (!upToDate(document)) {
-      return undefined;
-    }
-
-    let program: Program;
-    try {
-      program = await compileProgram(compilerHost, mainFile, options, oldPrograms.get(mainFile));
-      oldPrograms.set(mainFile, program);
-      if (!upToDate(document)) {
-        return undefined;
-      }
-
-      if (mainFile !== path && !program.sourceFiles.has(path)) {
-        // If the file that changed wasn't imported by anything from the main
-        // file, retry using the file itself as the main file.
-        program = await compileProgram(compilerHost, path, options, oldPrograms.get(path));
-        oldPrograms.set(path, program);
-      }
-
-      if (!upToDate(document)) {
-        return undefined;
-      }
-
-      if (callback) {
-        const doc = "version" in document ? document : host.getOpenDocumentByURL(document.uri);
-        compilerAssert(doc, "Failed to get document.");
-        const path = await getPath(doc);
-        const script = program.sourceFiles.get(path);
-        compilerAssert(script, "Failed to get script.");
-        return await callback(program, doc, script);
-      }
-
-      return program;
-    } catch (err: any) {
-      if (host.throwInternalErrors) {
-        throw err;
-      }
-      host.sendDiagnostics({
-        uri: document.uri,
-        diagnostics: [
-          {
-            severity: DiagnosticSeverity.Error,
-            range: Range.create(0, 0, 0, 0),
-            message:
-              `Internal compiler error!\nFile issue at https://github.com/microsoft/typespec\n\n` +
-              err.stack,
-          },
-        ],
-      });
-
-      return undefined;
-    }
-  }
-
-  async function getConfig(mainFile: string): Promise<TypeSpecConfig> {
-    const entrypointStat = await host.compilerHost.stat(mainFile);
-
-    const lookupDir = entrypointStat.isDirectory() ? mainFile : getDirectoryPath(mainFile);
-    const configPath = await findTypeSpecConfigPath(compilerHost, lookupDir, true);
-    if (!configPath) {
-      return { ...defaultConfig, projectRoot: getDirectoryPath(mainFile) };
-    }
-
-    const cached = await fileSystemCache.get(configPath);
-    if (cached?.data) {
-      return cached.data;
-    }
-
-    const config = await loadTypeSpecConfigFile(compilerHost, configPath);
-    await fileSystemCache.setData(configPath, config);
-    return config;
-  }
-
-  async function getScript(document: TextDocument | TextDocumentIdentifier) {
-    const file = await compilerHost.readFile(await getPath(document));
-    const cached = compilerHost.parseCache?.get(file);
-    return cached ?? (await compile<TypeSpecScriptNode>(document, (_, __, script) => script));
-  }
-
   async function getFoldingRanges(params: FoldingRangeParams): Promise<FoldingRange[]> {
-    const ast = await getScript(params.textDocument);
+    const ast = await compileService.getScript(params.textDocument);
     if (!ast) {
       return [];
     }
@@ -533,7 +324,7 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function getDocumentSymbols(params: DocumentSymbolParams): Promise<DocumentSymbol[]> {
-    const ast = await getScript(params.textDocument);
+    const ast = await compileService.getScript(params.textDocument);
     if (!ast) {
       return [];
     }
@@ -542,30 +333,30 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function findDocumentHighlight(
-    params: DocumentHighlightParams
+    params: DocumentHighlightParams,
   ): Promise<DocumentHighlight[]> {
-    let highlights: DocumentHighlight[] = [];
-    await compile(params.textDocument, (program, document, file) => {
-      const identifiers = findReferenceIdentifiers(
-        program,
-        file,
-        document.offsetAt(params.position),
-        [file]
-      );
-      highlights = identifiers.map((identifier) => ({
-        range: getRange(identifier, file.file),
-        kind: DocumentHighlightKind.Read,
-      }));
-    });
-    return highlights;
+    const result = await compileService.compile(params.textDocument);
+    if (result === undefined) {
+      return [];
+    }
+    const { program, document, script } = result;
+    const identifiers = findReferenceIdentifiers(
+      program,
+      script,
+      document.offsetAt(params.position),
+      [script],
+    );
+    return identifiers.map((identifier) => ({
+      range: getRange(identifier, script.file),
+      kind: DocumentHighlightKind.Read,
+    }));
   }
 
   async function checkChange(change: TextDocumentChangeEvent<TextDocument>) {
-    const program = await compile(change.document);
-    if (!program) {
-      return;
-    }
-
+    compileService.notifyChange(change.document);
+  }
+  async function reportDiagnostics({ program, document }: CompileResult) {
+    currentDiagnosticIndex.clear();
     // Group diagnostics by file.
     //
     // Initialize diagnostics for all source files in program to empty array
@@ -573,7 +364,7 @@ export function createServer(host: ServerHost): Server {
     // stale diagnostics from a previous run will stick around in the IDE.
     //
     const diagnosticMap: Map<TextDocument, VSDiagnostic[]> = new Map();
-    diagnosticMap.set(change.document, []);
+    diagnosticMap.set(document, []);
     for (const each of program.sourceFiles.values()) {
       const document = (each.file as ServerSourceFile)?.document;
       if (document) {
@@ -582,38 +373,47 @@ export function createServer(host: ServerHost): Server {
     }
 
     for (const each of program.diagnostics) {
-      let document: TextDocument | undefined;
+      let diagDocument: TextDocument | undefined;
 
       const location = getSourceLocation(each.target, { locateId: true });
       if (location?.file) {
-        document = (location.file as ServerSourceFile).document;
+        diagDocument = (location.file as ServerSourceFile).document;
       } else {
         // https://github.com/microsoft/language-server-protocol/issues/256
         //
         // LSP does not currently allow sending a diagnostic with no location so
         // we report diagnostics with no location on the document that changed to
         // trigger.
-        document = change.document;
+        diagDocument = document;
+        log({ level: "debug", message: `Diagnostic with no location: ${each.message}` });
       }
 
-      if (!document || !upToDate(document)) {
+      if (!diagDocument || !fileService.upToDate(diagDocument)) {
         continue;
       }
 
-      const start = document.positionAt(location?.pos ?? 0);
-      const end = document.positionAt(location?.end ?? 0);
+      const start = diagDocument.positionAt(location?.pos ?? 0);
+      const end = diagDocument.positionAt(location?.end ?? 0);
       const range = Range.create(start, end);
       const severity = convertSeverity(each.severity);
       const diagnostic = VSDiagnostic.create(range, each.message, severity, each.code, "TypeSpec");
+
+      if (each.url) {
+        diagnostic.codeDescription = {
+          href: each.url,
+        };
+      }
       if (each.code === "deprecated") {
         diagnostic.tags = [DiagnosticTag.Deprecated];
       }
-      const diagnostics = diagnosticMap.get(document);
+      diagnostic.data = { id: diagnosticIdCounter++ };
+      const diagnostics = diagnosticMap.get(diagDocument);
       compilerAssert(
         diagnostics,
-        "Diagnostic reported against a source file that was not added to the program."
+        "Diagnostic reported against a source file that was not added to the program.",
       );
       diagnostics.push(diagnostic);
+      currentDiagnosticIndex.set(diagnostic.data.id, each);
     }
 
     for (const [document, diagnostics] of diagnosticMap) {
@@ -622,19 +422,19 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function getHover(params: HoverParams): Promise<Hover> {
-    const docString = await compile(params.textDocument, (program, document, file) => {
-      const id = getNodeAtPosition(file, document.offsetAt(params.position));
-      const sym =
-        id?.kind === SyntaxKind.Identifier ? program.checker.resolveIdentifier(id) : undefined;
-      if (sym) {
-        return getSymbolDetails(program, sym);
-      }
-      return undefined;
-    });
+    const result = await compileService.compile(params.textDocument);
+    if (result === undefined) {
+      return { contents: [] };
+    }
+    const { program, document, script } = result;
+
+    const id = getNodeAtPosition(script, document.offsetAt(params.position));
+    const sym =
+      id?.kind === SyntaxKind.Identifier ? program.checker.resolveIdentifier(id) : undefined;
 
     const markdown: MarkupContent = {
       kind: MarkupKind.Markdown,
-      value: docString ?? "",
+      value: sym ? getSymbolDetails(program, sym) : "",
     };
     return {
       contents: markdown,
@@ -642,32 +442,35 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function getSignatureHelp(params: SignatureHelpParams): Promise<SignatureHelp | undefined> {
-    return await compile(params.textDocument, (program, document, file) => {
-      const data = getSignatureHelpNodeAtPosition(file, document.offsetAt(params.position));
-      if (data === undefined) {
-        return undefined;
-      }
-      const { node, argumentIndex } = data;
-      switch (node.kind) {
-        case SyntaxKind.TypeReference:
-          return getSignatureHelpForTemplate(program, node, argumentIndex);
-        case SyntaxKind.DecoratorExpression:
-        case SyntaxKind.AugmentDecoratorStatement:
-          return getSignatureHelpForDecorator(program, node, argumentIndex);
-        default:
-          const _assertNever: never = node;
-          compilerAssert(false, "Unreachable");
-      }
-    });
+    const result = await compileService.compile(params.textDocument);
+    if (result === undefined) {
+      return undefined;
+    }
+    const { script, document, program } = result;
+    const data = getSignatureHelpNodeAtPosition(script, document.offsetAt(params.position));
+    if (data === undefined) {
+      return undefined;
+    }
+    const { node, argumentIndex } = data;
+    switch (node.kind) {
+      case SyntaxKind.TypeReference:
+        return getSignatureHelpForTemplate(program, node, argumentIndex);
+      case SyntaxKind.DecoratorExpression:
+      case SyntaxKind.AugmentDecoratorStatement:
+        return getSignatureHelpForDecorator(program, node, argumentIndex);
+      default:
+        const _assertNever: never = node;
+        compilerAssert(false, "Unreachable");
+    }
   }
 
   function getSignatureHelpForTemplate(
     program: Program,
     node: TypeReferenceNode,
-    argumentIndex: number
+    argumentIndex: number,
   ): SignatureHelp | undefined {
     const sym = program.checker.resolveIdentifier(
-      node.target.kind === SyntaxKind.MemberExpression ? node.target.id : node.target
+      node.target.kind === SyntaxKind.MemberExpression ? node.target.id : node.target,
     );
     const templateDeclNode = sym?.declarations[0];
     if (
@@ -714,10 +517,10 @@ export function createServer(host: ServerHost): Server {
   function getSignatureHelpForDecorator(
     program: Program,
     node: DecoratorExpressionNode | AugmentDecoratorStatementNode,
-    argumentIndex: number
+    argumentIndex: number,
   ): SignatureHelp | undefined {
     const sym = program.checker.resolveIdentifier(
-      node.target.kind === SyntaxKind.MemberExpression ? node.target.id : node.target
+      node.target.kind === SyntaxKind.MemberExpression ? node.target.id : node.target,
     );
     if (!sym) {
       return undefined;
@@ -725,7 +528,7 @@ export function createServer(host: ServerHost): Server {
 
     const decoratorDeclNode: DecoratorDeclarationStatementNode | undefined = sym.declarations.find(
       (x): x is DecoratorDeclarationStatementNode =>
-        x.kind === SyntaxKind.DecoratorDeclarationStatement
+        x.kind === SyntaxKind.DecoratorDeclarationStatement,
     );
     if (decoratorDeclNode === undefined) {
       return undefined;
@@ -755,14 +558,14 @@ export function createServer(host: ServerHost): Server {
       ...type.parameters.map((x) => {
         const info: ParameterInformation = {
           // prettier-ignore
-          label: `${x.rest ? "..." : ""}${x.name}${x.optional ? "?" : ""}: ${getTypeName(x.type)}`,
+          label: `${x.rest ? "..." : ""}${x.name}${x.optional ? "?" : ""}: ${getEntityName(x.type)}`,
         };
         const doc = parameterDocs.get(x.name);
         if (doc) {
           info.documentation = { kind: MarkupKind.Markdown, value: doc };
         }
         return info;
-      })
+      }),
     );
 
     const help: SignatureHelp = {
@@ -793,11 +596,28 @@ export function createServer(host: ServerHost): Server {
     if (document === undefined) {
       return [];
     }
-    const formattedText = await formatTypeSpec(document.getText(), {
+    const path = await fileService.fileURLToRealPath(params.textDocument.uri);
+    const prettierConfig = await resolvePrettierConfig(path);
+    const resolvedConfig = prettierConfig ?? {
       tabWidth: params.options.tabSize,
       useTabs: !params.options.insertSpaces,
+    };
+    log({
+      level: "info",
+      message: `Formatting TypeSpec document: ${JSON.stringify({ fileUri: params.textDocument.uri, vscodeOptions: params.options, prettierConfig, resolvedConfig }, null, 2)}`,
     });
+    const formattedText = await formatTypeSpec(document.getText(), resolvedConfig);
     return [minimalEdit(document, formattedText)];
+  }
+
+  async function resolvePrettierConfig(path: string) {
+    try {
+      // Resolve prettier if it is installed.
+      const prettier = await import("prettier");
+      return prettier.resolveConfig(path);
+    } catch (e) {
+      return null;
+    }
   }
 
   function minimalEdit(document: TextDocument, string1: string): TextEdit {
@@ -824,55 +644,105 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function gotoDefinition(params: DefinitionParams): Promise<Location[]> {
-    const sym = await compile(params.textDocument, (program, document, file) => {
-      const id = getNodeAtPosition(file, document.offsetAt(params.position));
-      return id?.kind === SyntaxKind.Identifier ? program.checker.resolveIdentifier(id) : undefined;
-    });
-
-    return getLocations(sym?.declarations);
+    const result = await compileService.compile(params.textDocument);
+    if (result === undefined) {
+      return [];
+    }
+    const node = getNodeAtPosition(result.script, result.document.offsetAt(params.position));
+    switch (node?.kind) {
+      case SyntaxKind.Identifier:
+        const sym = result.program.checker.resolveIdentifier(node);
+        return getLocations(sym?.declarations);
+      case SyntaxKind.StringLiteral:
+        if (node.parent?.kind === SyntaxKind.ImportStatement) {
+          return [await getImportLocation(node.value, result.script)];
+        } else {
+          return [];
+        }
+    }
+    return [];
   }
+
+  async function getImportLocation(
+    importPath: string,
+    currentFile: TypeSpecScriptNode,
+  ): Promise<Location> {
+    const host: ResolveModuleHost = {
+      realpath: compilerHost.realpath,
+      readFile: async (path) => {
+        const file = await compilerHost.readFile(path);
+        return file.text;
+      },
+      stat: compilerHost.stat,
+    };
+    const resolved = await resolveModule(host, importPath, {
+      baseDir: getDirectoryPath(currentFile.file.path),
+      resolveMain(pkg) {
+        // this lets us follow node resolve semantics more-or-less exactly
+        // but using tspMain instead of main.
+        return resolveTspMain(pkg) ?? pkg.main;
+      },
+    });
+    return {
+      uri: fileService.getURL(resolved.type === "file" ? resolved.path : resolved.mainFile),
+      range: Range.create(0, 0, 0, 0),
+    };
+  }
+
   async function complete(params: CompletionParams): Promise<CompletionList> {
     const completions: CompletionList = {
       isIncomplete: false,
       items: [],
     };
-    await compile(params.textDocument, async (program, document, file) => {
-      const node = getCompletionNodeAtPosition(file, document.offsetAt(params.position));
+    const result = await compileService.compile(params.textDocument);
+    if (result) {
+      const { script, document, program } = result;
+      const posDetail = getCompletionNodeAtPosition(script, document.offsetAt(params.position));
 
-      await resolveCompletion(
+      return await resolveCompletion(
         {
           program,
-          file,
+          file: script,
           completions,
           params,
         },
-        node
+        posDetail,
       );
-    });
+    }
+
     return completions;
   }
 
   async function findReferences(params: ReferenceParams): Promise<Location[]> {
-    const identifiers = await compile(params.textDocument, (program, document, file) =>
-      findReferenceIdentifiers(program, file, document.offsetAt(params.position))
+    const result = await compileService.compile(params.textDocument);
+    if (result === undefined) {
+      return [];
+    }
+    const identifiers = findReferenceIdentifiers(
+      result.program,
+      result.script,
+      result.document.offsetAt(params.position),
     );
     return getLocations(identifiers);
   }
 
   async function prepareRename(params: PrepareRenameParams): Promise<Range | undefined> {
-    return await compile(params.textDocument, (_, document, file) => {
-      const id = getNodeAtPosition(file, document.offsetAt(params.position));
-      return id?.kind === SyntaxKind.Identifier ? getLocation(id)?.range : undefined;
-    });
+    const result = await compileService.compile(params.textDocument);
+    if (result === undefined) {
+      return undefined;
+    }
+    const id = getNodeAtPosition(result.script, result.document.offsetAt(params.position));
+    return id?.kind === SyntaxKind.Identifier ? getLocation(id)?.range : undefined;
   }
 
   async function rename(params: RenameParams): Promise<WorkspaceEdit> {
     const changes: Record<string, TextEdit[]> = {};
-    await compile(params.textDocument, (program, document, file) => {
+    const result = await compileService.compile(params.textDocument);
+    if (result) {
       const identifiers = findReferenceIdentifiers(
-        program,
-        file,
-        document.offsetAt(params.position)
+        result.program,
+        result.script,
+        result.document.offsetAt(params.position),
       );
       for (const id of identifiers) {
         const location = getLocation(id);
@@ -886,7 +756,7 @@ export function createServer(host: ServerHost): Server {
           changes[location.uri] = [change];
         }
       }
-    });
+    }
     return { changes };
   }
 
@@ -894,7 +764,7 @@ export function createServer(host: ServerHost): Server {
     program: Program,
     file: TypeSpecScriptNode,
     pos: number,
-    searchFiles: Iterable<TypeSpecScriptNode> = program.sourceFiles.values()
+    searchFiles: Iterable<TypeSpecScriptNode> = program.sourceFiles.values(),
   ): IdentifierNode[] {
     const id = getNodeAtPosition(file, pos);
     if (id?.kind !== SyntaxKind.Identifier) {
@@ -921,247 +791,19 @@ export function createServer(host: ServerHost): Server {
     return references;
   }
 
-  async function getSemanticTokens(params: SemanticTokensParams): Promise<SemanticToken[]> {
-    const ignore = -1;
-    const defer = -2;
-
-    const ast = await getScript(params.textDocument);
+  async function getSemanticTokensForDocument(params: SemanticTokensParams) {
+    const ast = await compileService.getScript(params.textDocument);
     if (!ast) {
       return [];
     }
-    const file = ast.file;
-    const tokens = mapTokens();
-    classifyNode(ast);
-    return Array.from(tokens.values()).filter((t) => t.kind !== undefined);
 
-    function mapTokens() {
-      const tokens = new Map<number, SemanticToken>();
-      const scanner = createScanner(file, () => {});
-
-      while (scanner.scan() !== Token.EndOfFile) {
-        if (scanner.tokenFlags & TokenFlags.DocComment) {
-          classifyDocComment({ pos: scanner.tokenPosition, end: scanner.position });
-        } else {
-          const kind = classifyToken(scanner.token);
-          if (kind === ignore) {
-            continue;
-          }
-          tokens.set(scanner.tokenPosition, {
-            kind: kind === defer ? undefined! : kind,
-            pos: scanner.tokenPosition,
-            end: scanner.position,
-          });
-        }
-      }
-      return tokens;
-
-      function classifyDocComment(range: TextRange) {
-        scanner.scanRange(range, () => {
-          while (scanner.scanDoc() !== Token.EndOfFile) {
-            const kind = classifyDocToken(scanner.token);
-            if (kind === ignore) {
-              continue;
-            }
-            tokens.set(scanner.tokenPosition, {
-              kind: kind === defer ? undefined! : kind,
-              pos: scanner.tokenPosition,
-              end: scanner.position,
-            });
-          }
-        });
-      }
-    }
-
-    function classifyToken(token: Token): SemanticTokenKind | typeof defer | typeof ignore {
-      switch (token) {
-        case Token.Identifier:
-          return defer;
-        case Token.StringLiteral:
-          return SemanticTokenKind.String;
-        case Token.NumericLiteral:
-          return SemanticTokenKind.Number;
-        case Token.MultiLineComment:
-        case Token.SingleLineComment:
-          return SemanticTokenKind.Comment;
-        default:
-          if (isKeyword(token)) {
-            return SemanticTokenKind.Keyword;
-          }
-          if (isPunctuation(token)) {
-            return SemanticTokenKind.Operator;
-          }
-          return ignore;
-      }
-    }
-
-    /** Classify tokens when scanning doc comment. */
-    function classifyDocToken(token: Token): SemanticTokenKind | typeof defer | typeof ignore {
-      switch (token) {
-        case Token.NewLine:
-        case Token.Whitespace:
-          return ignore;
-        case Token.DocText:
-        case Token.Star:
-        case Token.Identifier:
-          return SemanticTokenKind.Comment;
-        case Token.At:
-          return defer;
-        default:
-          return ignore;
-      }
-    }
-
-    function classifyNode(node: Node) {
-      switch (node.kind) {
-        case SyntaxKind.DirectiveExpression:
-          classify(node.target, SemanticTokenKind.Keyword);
-          break;
-        case SyntaxKind.TemplateParameterDeclaration:
-          classify(node.id, SemanticTokenKind.TypeParameter);
-          break;
-        case SyntaxKind.ModelProperty:
-        case SyntaxKind.UnionVariant:
-          if (node.id) {
-            classify(node.id, SemanticTokenKind.Property);
-          }
-          break;
-        case SyntaxKind.AliasStatement:
-          classify(node.id, SemanticTokenKind.Struct);
-          break;
-        case SyntaxKind.ModelStatement:
-          classify(node.id, SemanticTokenKind.Struct);
-          break;
-        case SyntaxKind.ScalarStatement:
-          classify(node.id, SemanticTokenKind.Type);
-          break;
-        case SyntaxKind.EnumStatement:
-          classify(node.id, SemanticTokenKind.Enum);
-          break;
-        case SyntaxKind.EnumMember:
-          classify(node.id, SemanticTokenKind.EnumMember);
-          break;
-        case SyntaxKind.NamespaceStatement:
-          classify(node.id, SemanticTokenKind.Namespace);
-          break;
-        case SyntaxKind.InterfaceStatement:
-          classify(node.id, SemanticTokenKind.Interface);
-          break;
-        case SyntaxKind.OperationStatement:
-          classify(node.id, SemanticTokenKind.Function);
-          break;
-        case SyntaxKind.DecoratorDeclarationStatement:
-          classify(node.id, SemanticTokenKind.Function);
-          break;
-        case SyntaxKind.FunctionDeclarationStatement:
-          classify(node.id, SemanticTokenKind.Function);
-          break;
-        case SyntaxKind.FunctionParameter:
-          classify(node.id, SemanticTokenKind.Parameter);
-          break;
-        case SyntaxKind.AugmentDecoratorStatement:
-          classifyReference(node.targetType, SemanticTokenKind.Type);
-          classifyReference(node.target, SemanticTokenKind.Macro);
-          break;
-        case SyntaxKind.DecoratorExpression:
-          classifyReference(node.target, SemanticTokenKind.Macro);
-          break;
-
-        case SyntaxKind.TypeReference:
-          classifyReference(node.target);
-          break;
-        case SyntaxKind.MemberExpression:
-          classifyReference(node);
-          break;
-        case SyntaxKind.ProjectionStatement:
-          classifyReference(node.selector);
-          classify(node.id, SemanticTokenKind.Variable);
-          break;
-        case SyntaxKind.Projection:
-          classify(node.directionId, SemanticTokenKind.Keyword);
-          for (const modifierId of node.modifierIds) {
-            classify(modifierId, SemanticTokenKind.Keyword);
-          }
-          break;
-        case SyntaxKind.ProjectionParameterDeclaration:
-          classifyReference(node.id, SemanticTokenKind.Parameter);
-          break;
-        case SyntaxKind.ProjectionCallExpression:
-          classifyReference(node.target, SemanticTokenKind.Function);
-          for (const arg of node.arguments) {
-            classifyReference(arg);
-          }
-          break;
-        case SyntaxKind.ProjectionMemberExpression:
-          classifyReference(node.id);
-          break;
-        case SyntaxKind.DocParamTag:
-        case SyntaxKind.DocTemplateTag:
-          classifyDocTag(node.tagName, SemanticTokenKind.DocCommentTag);
-          classifyOverride(node.paramName, SemanticTokenKind.Variable);
-          break;
-        case SyntaxKind.DocReturnsTag:
-          classifyDocTag(node.tagName, SemanticTokenKind.DocCommentTag);
-          break;
-        case SyntaxKind.DocUnknownTag:
-          classifyDocTag(node.tagName, SemanticTokenKind.Macro);
-          break;
-        default:
-          break;
-      }
-      visitChildren(node, classifyNode);
-    }
-
-    function classifyDocTag(node: IdentifierNode, kind: SemanticTokenKind) {
-      classifyOverride(node, kind);
-      const token = tokens.get(node.pos - 1); // Get the `@` token
-      if (token) {
-        token.kind = kind;
-      }
-    }
-
-    function classify(node: IdentifierNode | StringLiteralNode, kind: SemanticTokenKind) {
-      const token = tokens.get(node.pos);
-      if (token && token.kind === undefined) {
-        token.kind = kind;
-      }
-    }
-    function classifyOverride(node: IdentifierNode | StringLiteralNode, kind: SemanticTokenKind) {
-      const token = tokens.get(node.pos);
-      if (token) {
-        token.kind = kind;
-      }
-    }
-
-    function classifyReference(node: Node, kind = SemanticTokenKind.Type) {
-      switch (node.kind) {
-        case SyntaxKind.MemberExpression:
-          classifyIdentifier(node.base, SemanticTokenKind.Namespace);
-          classifyIdentifier(node.id, kind);
-          break;
-        case SyntaxKind.ProjectionMemberExpression:
-          classifyReference(node.base, SemanticTokenKind.Namespace);
-          classifyIdentifier(node.id, kind);
-          break;
-        case SyntaxKind.TypeReference:
-          classifyIdentifier(node.target, kind);
-          break;
-        case SyntaxKind.Identifier:
-          classify(node, kind);
-          break;
-      }
-    }
-
-    function classifyIdentifier(node: Node, kind: SemanticTokenKind) {
-      if (node.kind === SyntaxKind.Identifier) {
-        classify(node, kind);
-      }
-    }
+    return getSemanticTokens(ast);
   }
 
   async function buildSemanticTokens(params: SemanticTokensParams): Promise<SemanticTokens> {
     const builder = new SemanticTokensBuilder();
-    const tokens = await getSemanticTokens(params);
-    const file = await compilerHost.readFile(await getPath(params.textDocument));
+    const tokens = await getSemanticTokensForDocument(params);
+    const file = await compilerHost.readFile(await fileService.getPath(params.textDocument));
     const starts = file.getLineStarts();
 
     for (const token of tokens) {
@@ -1177,6 +819,58 @@ export function createServer(host: ServerHost): Server {
     }
 
     return builder.build();
+  }
+
+  async function getCodeActions(params: CodeActionParams): Promise<CodeAction[]> {
+    const actions = [];
+    for (const vsDiag of params.context.diagnostics) {
+      const tspDiag = currentDiagnosticIndex.get(vsDiag.data?.id);
+      if (tspDiag === undefined || tspDiag.codefixes === undefined) continue;
+
+      for (const fix of tspDiag.codefixes ?? []) {
+        const codeAction: CodeAction = {
+          ...CodeAction.create(
+            fix.label,
+            {
+              title: fix.label,
+              command: Commands.APPLY_CODE_FIX,
+              arguments: [params.textDocument.uri, vsDiag.data?.id, fix.id],
+            },
+            CodeActionKind.QuickFix,
+          ),
+          diagnostics: [vsDiag],
+        };
+        actions.push(codeAction);
+      }
+    }
+
+    return actions;
+  }
+
+  async function executeCommand(params: ExecuteCommandParams) {
+    if (params.command === Commands.APPLY_CODE_FIX) {
+      const [documentUri, diagId, fixId] = params.arguments ?? [];
+      if (documentUri && diagId && fixId) {
+        const diag = currentDiagnosticIndex.get(diagId);
+        const codeFix = diag?.codefixes?.find((x) => x.id === fixId);
+        if (codeFix) {
+          const edits = await resolveCodeFix(codeFix);
+          const vsEdits = convertCodeFixEdits(edits);
+          await host.applyEdit({ changes: { [documentUri]: vsEdits } });
+        }
+      }
+    }
+  }
+  function convertCodeFixEdits(edits: CodeFixEdit[]): TextEdit[] {
+    return edits.map(convertCodeFixEdit);
+  }
+  function convertCodeFixEdit(edit: CodeFixEdit): TextEdit {
+    switch (edit.kind) {
+      case "insert-text":
+        return TextEdit.insert(edit.file.getLineAndCharacterOfPosition(edit.pos), edit.text);
+      case "replace-text":
+        return TextEdit.replace(getRange(edit, edit.file), edit.text);
+    }
   }
 
   function documentClosed(change: TextDocumentChangeEvent<TextDocument>) {
@@ -1195,7 +889,7 @@ export function createServer(host: ServerHost): Server {
     }
 
     return {
-      uri: getURL(location.file.path),
+      uri: fileService.getURL(location.file.path),
       range: getRange(location, location.file),
     };
   }
@@ -1215,14 +909,9 @@ export function createServer(host: ServerHost): Server {
     }
   }
 
-  function log(message: string, details: any = undefined) {
-    message = `[${new Date().toLocaleTimeString()}] ${message}`;
-    if (details) {
-      message += ": " + JSON.stringify(details, undefined, 2);
-    }
-
+  function log(log: ServerLog) {
     if (!isInitialized) {
-      pendingMessages.push(message);
+      pendingMessages.push(log);
       return;
     }
 
@@ -1231,7 +920,7 @@ export function createServer(host: ServerHost): Server {
     }
 
     pendingMessages = [];
-    host.log(message);
+    host.log(log);
   }
 
   function sendDiagnostics(document: TextDocument, diagnostics: VSDiagnostic[]) {
@@ -1240,151 +929,6 @@ export function createServer(host: ServerHost): Server {
       version: document.version,
       diagnostics,
     });
-  }
-
-  /**
-   * Determine if the given document is the latest version.
-   *
-   * A document can become out-of-date if a change comes in during an async
-   * operation.
-   */
-  function upToDate(document: TextDocument | TextDocumentIdentifier) {
-    if (!("version" in document)) {
-      return true;
-    }
-    return document.version === host.getOpenDocumentByURL(document.uri)?.version;
-  }
-
-  /**
-   * Infer the appropriate entry point (a.k.a. "main file") for analyzing a
-   * change to the file at the given path. This is necessary because different
-   * results can be obtained from compiling the same file with different entry
-   * points.
-   *
-   * Walk directory structure upwards looking for package.json with tspMain or
-   * main.tsp file. Stop search when reaching a workspace root. If a root is
-   * reached without finding an entry point, use the given path as its own
-   * entry point.
-   *
-   * Untitled documents are always treated as their own entry points as they
-   * do not exist in a directory that could pull them in via another entry
-   * point.
-   */
-  async function getMainFileForDocument(path: string) {
-    if (path.startsWith("untitled:")) {
-      return path;
-    }
-
-    let dir = getDirectoryPath(path);
-    const options = { allowFileNotFound: true };
-
-    while (true) {
-      let mainFile = "main.tsp";
-      let pkg: any;
-      const pkgPath = joinPaths(dir, "package.json");
-      const cached = await fileSystemCache.get(pkgPath);
-
-      if (cached?.data) {
-        pkg = cached.data;
-      } else {
-        [pkg] = await loadFile(
-          compilerHost,
-          pkgPath,
-          JSON.parse,
-          logMainFileSearchDiagnostic,
-          options
-        );
-        await fileSystemCache.setData(pkgPath, pkg ?? {});
-      }
-
-      const tspMain = resolveTspMain(pkg);
-      if (typeof tspMain === "string") {
-        mainFile = tspMain;
-      }
-
-      const candidate = joinPaths(dir, mainFile);
-      const stat = await doIO(
-        () => compilerHost.stat(candidate),
-        candidate,
-        logMainFileSearchDiagnostic,
-        options
-      );
-
-      if (stat?.isFile()) {
-        return candidate;
-      }
-
-      const parentDir = getDirectoryPath(dir);
-      if (parentDir === dir) {
-        break;
-      }
-      dir = parentDir;
-    }
-
-    return path;
-
-    function logMainFileSearchDiagnostic(diagnostic: TypeSpecDiagnostic) {
-      log(
-        `Unexpected diagnostic while looking for main file of ${path}`,
-        formatDiagnostic(diagnostic)
-      );
-    }
-  }
-
-  async function getPath(document: TextDocument | TextDocumentIdentifier) {
-    if (isUntitled(document.uri)) {
-      return document.uri;
-    }
-    const path = await fileURLToRealPath(document.uri);
-    pathToURLMap.set(path, document.uri);
-    return path;
-  }
-
-  function getURL(path: string) {
-    if (isUntitled(path)) {
-      return path;
-    }
-    return pathToURLMap.get(path) ?? compilerHost.pathToFileURL(path);
-  }
-
-  function isUntitled(pathOrUrl: string) {
-    return pathOrUrl.startsWith("untitled:");
-  }
-
-  function getOpenDocument(path: string) {
-    const url = getURL(path);
-    return url ? host.getOpenDocumentByURL(url) : undefined;
-  }
-
-  async function fileURLToRealPath(url: string) {
-    return getNormalizedRealPath(compilerHost, compilerHost.fileURLToPath(url));
-  }
-
-  function createFileSystemCache() {
-    const cache = new Map<string, CachedFile | CachedError>();
-    let changes: FileEvent[] = [];
-    return {
-      async get(path: string) {
-        for (const change of changes) {
-          const path = await fileURLToRealPath(change.uri);
-          cache.delete(path);
-        }
-        changes = [];
-        return cache.get(path);
-      },
-      set(path: string, entry: CachedFile | CachedError) {
-        cache.set(path, entry);
-      },
-      async setData(path: string, data: any) {
-        const entry = await this.get(path);
-        if (entry) {
-          entry.data = data;
-        }
-      },
-      notify(changes: FileEvent[]) {
-        changes.push(...changes);
-      },
-    };
   }
 
   function createCompilerHost(): CompilerHost {
@@ -1398,7 +942,7 @@ export function createServer(host: ServerHost): Server {
     };
 
     async function readFile(path: string): Promise<ServerSourceFile> {
-      const document = getOpenDocument(path);
+      const document = fileService.getOpenDocument(path);
       const cached = await fileSystemCache.get(path);
 
       // Try cache
@@ -1434,7 +978,7 @@ export function createServer(host: ServerHost): Server {
     async function stat(path: string): Promise<{ isDirectory(): boolean; isFile(): boolean }> {
       // if we have an open document for the path or a cache entry, then we know
       // it's a file and not a directory and needn't hit the disk.
-      if (getOpenDocument(path) || (await fileSystemCache.get(path))?.type === "file") {
+      if (fileService.getOpenDocument(path) || (await fileSystemCache.get(path))?.type === "file") {
         return {
           isFile() {
             return true;
@@ -1448,7 +992,7 @@ export function createServer(host: ServerHost): Server {
     }
 
     function getSourceFileKind(path: string) {
-      const document = getOpenDocument(path);
+      const document = fileService.getOpenDocument(path);
       if (document?.languageId === "typespec") {
         return "typespec";
       }
@@ -1464,7 +1008,7 @@ type SignatureHelpNode =
 
 function getSignatureHelpNodeAtPosition(
   script: TypeSpecScriptNode,
-  position: number
+  position: number,
 ): { node: SignatureHelpNode; argumentIndex: number } | undefined {
   // Move back over any trailing trivia. Otherwise, if there is no
   // closing paren/angle bracket, we can find ourselves outside the desired
@@ -1501,7 +1045,7 @@ function getSignatureHelpNodeAtPosition(
         default:
           return false;
       }
-    }
+    },
   );
 
   if (!node) {
@@ -1519,7 +1063,7 @@ function getSignatureHelpNodeAtPosition(
 function getSignatureHelpArgumentIndex(
   script: TypeSpecScriptNode,
   node: SignatureHelpNode,
-  position: number
+  position: number,
 ) {
   // Normalize arguments into a single list to avoid special case for
   // augment decorators.
@@ -1553,22 +1097,7 @@ function getSignatureHelpArgumentIndex(
 export function getCompletionNodeAtPosition(
   script: TypeSpecScriptNode,
   position: number,
-  filter: (node: Node) => boolean = (node: Node) => true
-): Node | undefined {
-  const realNode = getNodeAtPosition(script, position, filter);
-  if (realNode?.kind === SyntaxKind.StringLiteral) {
-    return realNode;
-  }
-  // If we're not immediately after an identifier character, then advance
-  // the position past any trivia. This is done because a zero-width
-  // inserted missing identifier that the user is now trying to complete
-  // starts after the trivia following the cursor.
-  const cp = codePointBefore(script.file.text, position);
-  if (!cp || !isIdentifierContinue(cp)) {
-    const newPosition = skipTrivia(script.file.text, position);
-    if (newPosition !== position) {
-      return getNodeAtPosition(script, newPosition, filter);
-    }
-  }
-  return realNode;
+  filter: (node: Node) => boolean = (node: Node) => true,
+): PositionDetail {
+  return getNodeAtPositionDetail(script, position, filter);
 }

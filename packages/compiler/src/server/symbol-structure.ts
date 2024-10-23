@@ -12,7 +12,7 @@ import {
   UnionStatementNode,
 } from "../core/index.js";
 import { NamespaceStatementNode, Node, SyntaxKind } from "../core/types.js";
-import { isArray, isDefined } from "../core/util.js";
+import { isArray, isDefined } from "../utils/misc.js";
 
 export function getSymbolStructure(ast: TypeSpecScriptNode): DocumentSymbol[] {
   const file = ast.file;
@@ -23,13 +23,13 @@ export function getSymbolStructure(ast: TypeSpecScriptNode): DocumentSymbol[] {
   }
   const fileNamespaceSymbol = getForNamespace(fileNamespace);
   fileNamespaceSymbol.children = getForStatements(
-    ast.statements.filter((x) => x !== fileNamespace)
+    ast.statements.filter((x) => x !== fileNamespace),
   );
   return [fileNamespaceSymbol];
 
   function findFileNamespace(ast: TypeSpecScriptNode): NamespaceStatementNode | undefined {
     const firstNamespace: NamespaceStatementNode | undefined = ast.statements.find(
-      (x) => x.kind === SyntaxKind.NamespaceStatement
+      (x) => x.kind === SyntaxKind.NamespaceStatement,
     ) as any;
     if (firstNamespace === undefined) {
       return undefined;
@@ -104,7 +104,7 @@ export function getSymbolStructure(ast: TypeSpecScriptNode): DocumentSymbol[] {
     node: Node,
     name: string,
     kind: SymbolKind,
-    symbols?: DocumentSymbol[]
+    symbols?: DocumentSymbol[],
   ) {
     const start = file.getLineAndCharacterOfPosition(node.pos);
     const end = file.getLineAndCharacterOfPosition(node.end);

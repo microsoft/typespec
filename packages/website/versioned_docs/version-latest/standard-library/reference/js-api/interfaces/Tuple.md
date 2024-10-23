@@ -9,16 +9,17 @@ title: "[I] Tuple"
 
 ## Properties
 
-| Property | Type | Description | Inheritance |
-| :------ | :------ | :------ | :------ |
-| `instantiationParameters?` | [`Type`](../type-aliases/Type.md)[] | - | [`BaseType`](BaseType.md).`instantiationParameters` |
-| `isFinished` | `boolean` | Reflect if a type has been finished(Decorators have been called).<br />There is multiple reasons a type might not be finished:<br />- a template declaration will not<br />- a template instance that argument that are still template parameters<br />- a template instance that is only partially instantiated(like a templated operation inside a templated interface) | [`BaseType`](BaseType.md).`isFinished` |
-| `kind` | `"Tuple"` | - | [`BaseType`](BaseType.md).`kind` |
-| `node` | [`TupleExpressionNode`](TupleExpressionNode.md) | - | [`BaseType`](BaseType.md).`node` |
-| `projectionBase?` | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionBase` |
-| `projectionSource?` | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionSource` |
-| `projector?` | [`Projector`](Projector.md) | - | [`BaseType`](BaseType.md).`projector` |
-| `values` | [`Type`](../type-aliases/Type.md)[] | - | - |
+| Property | Modifier | Type | Description | Overrides | Inherited from |
+| ------ | ------ | ------ | ------ | ------ | ------ |
+| `entityKind` | `readonly` | `"Type"` | - | - | [`BaseType`](BaseType.md).`entityKind` |
+| `instantiationParameters?` | `public` | [`Type`](../type-aliases/Type.md)[] | - | - | [`BaseType`](BaseType.md).`instantiationParameters` |
+| `isFinished` | `public` | `boolean` | Reflect if a type has been finished(Decorators have been called). There is multiple reasons a type might not be finished: - a template declaration will not - a template instance that argument that are still template parameters - a template instance that is only partially instantiated(like a templated operation inside a templated interface) | - | [`BaseType`](BaseType.md).`isFinished` |
+| `kind` | `public` | `"Tuple"` | - | [`BaseType`](BaseType.md).`kind` | - |
+| `node` | `public` | [`ArrayLiteralNode`](ArrayLiteralNode.md) \| [`TupleExpressionNode`](TupleExpressionNode.md) | - | [`BaseType`](BaseType.md).`node` | - |
+| `projectionBase?` | `public` | [`Type`](../type-aliases/Type.md) | - | - | [`BaseType`](BaseType.md).`projectionBase` |
+| `projectionSource?` | `public` | [`Type`](../type-aliases/Type.md) | - | - | [`BaseType`](BaseType.md).`projectionSource` |
+| `projector?` | `public` | [`Projector`](Projector.md) | - | - | [`BaseType`](BaseType.md).`projector` |
+| `values` | `public` | [`Type`](../type-aliases/Type.md)[] | - | - | - |
 
 ## Accessors
 
@@ -27,6 +28,14 @@ title: "[I] Tuple"
 ```ts
 get projections(): ProjectionStatementNode[]
 ```
+
+#### Returns
+
+[`ProjectionStatementNode`](ProjectionStatementNode.md)[]
+
+#### Inherited from
+
+[`BaseType`](BaseType.md).[`projections`](BaseType.md#projections)
 
 ## Methods
 
@@ -39,8 +48,12 @@ projectionsByName(name): ProjectionStatementNode[]
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `name` | `string` |
+
+#### Returns
+
+[`ProjectionStatementNode`](ProjectionStatementNode.md)[]
 
 #### Inherited from
 

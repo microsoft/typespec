@@ -1,5 +1,3 @@
-# `call-decorator`
-
 Enforces calling other TypeSpec decorator using `context.call` instead of calling the decorator function directly.
 
 Calling the decorator function directly can result in diagnostics with incorrect location.
@@ -10,7 +8,7 @@ Calling the decorator function directly can result in diagnostics with incorrect
 
 ```jsonc
 {
-  "@typespec/call-decorator": "warn"
+  "@typespec/call-decorator": "warn",
 }
 ```
 

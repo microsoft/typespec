@@ -1,6 +1,6 @@
 import { callDecoratorRule } from "./rules/call-decorator.js";
 
-export const rules = {
+export const rules: Record<string, unknown> = {
   "call-decorator": callDecoratorRule,
 };
 

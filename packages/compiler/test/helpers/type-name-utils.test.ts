@@ -1,5 +1,6 @@
 import { strictEqual } from "assert";
-import { getTypeName, TypeNameOptions } from "../../src/core/index.js";
+import { describe, it } from "vitest";
+import { TypeNameOptions, getTypeName } from "../../src/core/index.js";
 import { createTestRunner } from "../../src/testing/test-host.js";
 
 describe("compiler: TypeNameUtils", () => {
@@ -36,12 +37,12 @@ describe("compiler: TypeNameUtils", () => {
     it("keeps TypeSpec as top level namespace", () =>
       assertNameFor(
         `namespace TypeSpec.Foo {@test("target") scalar unreal; }`,
-        "TypeSpec.Foo.unreal"
+        "TypeSpec.Foo.unreal",
       ));
     it("keeps TypeSpec as bottom level namespace", () =>
       assertNameFor(
         `namespace Foo.TypeSpec {@test("target") scalar unreal; }`,
-        "Foo.TypeSpec.unreal"
+        "Foo.TypeSpec.unreal",
       ));
   });
 

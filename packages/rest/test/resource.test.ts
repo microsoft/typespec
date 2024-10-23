@@ -1,6 +1,7 @@
 import { Model } from "@typespec/compiler";
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
+import { describe, it } from "vitest";
 import { getResourceTypeKey } from "../src/resource.js";
 import { getSegment } from "../src/rest.js";
 import { compileOperations, createRestTestRunner, getRoutesFor } from "./test-host.js";
@@ -75,7 +76,7 @@ describe("rest: resources", () => {
       @error model Error {}
 
       interface Things extends ResourceRead<Thing, Error> {}
-      `
+      `,
     );
 
     deepStrictEqual(routes, [
@@ -111,7 +112,7 @@ describe("rest: resources", () => {
         interface Things extends ResourceOperations<Thing, Error> {}
         interface Subthings extends ResourceOperations<Subthing, Error> {}
       }
-      `
+      `,
     );
 
     deepStrictEqual(routes, [
@@ -190,7 +191,7 @@ describe("rest: resources", () => {
         @actionSeparator(":")
         op exportThingWithColon2(): {};
       }
-      `
+      `,
     );
 
     deepStrictEqual(routes, [
@@ -293,7 +294,7 @@ describe("rest: resources", () => {
 
       interface Things extends ResourceOperations<Thing, Error>, ResourceCreateOrReplace<Thing, Error> {
       }
-      `
+      `,
     );
 
     deepStrictEqual(routes, [
@@ -352,7 +353,7 @@ describe("rest: resources", () => {
         interface Things extends ResourceRead<Thing, Error> {}
         interface ThingsSingleton extends SingletonResourceOperations<Singleton, Thing, Error> {}
       }
-      `
+      `,
     );
 
     deepStrictEqual(routes, [
@@ -404,7 +405,7 @@ describe("rest: resources", () => {
         interface ThingsExtension extends ExtensionResourceOperations<Exthing, Thing, Error> {}
         interface SubthingsExtension extends ExtensionResourceOperations<Exthing, Subthing, Error> {}
       }
-      `
+      `,
     );
 
     deepStrictEqual(routes, [
@@ -471,7 +472,7 @@ describe("rest: resources", () => {
 
       model Dog {}
       @error model Error {code: string}
-      `
+      `,
     );
     expectDiagnostics(diagnostics, {
       code: "@typespec/rest/resource-missing-key",
@@ -492,7 +493,7 @@ describe("rest: resources", () => {
         @key foo: string
       }
       model Error {code: string}
-      `
+      `,
     );
     expectDiagnostics(diagnostics, {
       code: "@typespec/rest/resource-missing-error",

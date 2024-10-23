@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Pet Store Service
-  version: 0000-00-00
+  version: 0.0.0
 tags: []
 paths:
   /:

@@ -1,6 +1,7 @@
 import { Operation } from "@typespec/compiler";
 import { BasicTestRunner, expectDiagnostics } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { getHttpOperation, listHttpOperationsIn } from "../src/index.js";
 import { createHttpTestRunner } from "./test-host.js";
 
@@ -72,7 +73,7 @@ describe("http: overloads", () => {
 
     const [[overload, uploadString, uploadBytes]] = listHttpOperationsIn(
       runner.program,
-      runner.program.getGlobalNamespaceType()
+      runner.program.getGlobalNamespaceType(),
     );
 
     strictEqual(uploadString.overloading, overload);

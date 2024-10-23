@@ -4,8 +4,8 @@
   "version": "1.0.0",
   "author": "Microsoft Corporation",
   "description": "Samples for TypeSpec",
-  "homepage": "https://microsoft.github.io/typespec",
-  "readme": "https://github.com/microsoft/typespec/blob/master/readme.md",
+  "homepage": "https://typespec.io",
+  "readme": "https://github.com/microsoft/typespec/blob/main/readme.md",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -21,8 +21,8 @@
   "type": "module",
   "exports": {
     ".": {
-      "default": "./dist/src/index.js",
-      "types": "./dist/src/index.d.ts"
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
     }
   },
   "engines": {
@@ -32,10 +32,10 @@
     "clean": "rimraf ./dist ./temp",
     "build": "tsc -p .",
     "watch": "tsc -p . --watch",
-    "test": "mocha",
-    "test-official": "mocha --forbid-only",
-    "test:regen": "cross-env RECORD=true mocha",
-    "regen-samples": "cross-env RECORD=true mocha"
+    "test": "vitest run",
+    "test:ci": "vitest run --reporter=junit --reporter=default",
+    "test:regen": "cross-env RECORD=true vitest run",
+    "regen-samples": "cross-env RECORD=true vitest run"
   },
   "files": [
     "lib/*.tsp",
@@ -43,26 +43,30 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@typespec/best-practices": "workspace:~0.45.0",
-    "@typespec/compiler": "workspace:~0.49.0",
-    "@typespec/html-program-viewer": "workspace:~0.49.0",
-    "@typespec/http": "workspace:~0.49.0",
-    "@typespec/json-schema": "workspace:~0.49.0",
-    "@typespec/openapi": "workspace:~0.49.0",
-    "@typespec/openapi3": "workspace:~0.49.0",
-    "@typespec/rest": "workspace:~0.49.0",
-    "@typespec/versioning": "workspace:~0.49.0"
+    "@typespec/best-practices": "workspace:~",
+    "@typespec/compiler": "workspace:~",
+    "@typespec/events": "workspace:~",
+    "@typespec/html-program-viewer": "workspace:~",
+    "@typespec/http": "workspace:~",
+    "@typespec/http-server-javascript": "workspace:~",
+    "@typespec/json-schema": "workspace:~",
+    "@typespec/openapi": "workspace:~",
+    "@typespec/openapi3": "workspace:~",
+    "@typespec/protobuf": "workspace:~",
+    "@typespec/rest": "workspace:~",
+    "@typespec/sse": "workspace:~",
+    "@typespec/streams": "workspace:~",
+    "@typespec/versioning": "workspace:~"
   },
   "devDependencies": {
-    "@types/mocha": "~10.0.1",
-    "@types/node": "~18.11.9",
-    "@typespec/eslint-config-typespec": "workspace:~0.49.0",
-    "@typespec/internal-build-utils": "workspace:~0.49.0",
-    "autorest": "~3.3.2",
+    "@types/node": "~22.7.5",
+    "@typespec/internal-build-utils": "workspace:~",
+    "@vitest/coverage-v8": "^2.1.2",
+    "@vitest/ui": "^2.1.2",
+    "autorest": "~3.7.1",
     "cross-env": "~7.0.3",
-    "eslint": "^8.49.0",
-    "mocha": "~10.2.0",
-    "rimraf": "~5.0.1",
-    "typescript": "~5.2.2"
+    "rimraf": "~6.0.1",
+    "typescript": "~5.6.3",
+    "vitest": "^2.1.2"
   }
 }

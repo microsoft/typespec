@@ -10,5 +10,9 @@ type WriteLine: (text?) => void;
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `text`? | `string` |
+
+## Returns
+
+`void`

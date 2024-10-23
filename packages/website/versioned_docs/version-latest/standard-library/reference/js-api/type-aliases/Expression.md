@@ -8,15 +8,19 @@ type Expression:
   | ArrayExpressionNode
   | MemberExpressionNode
   | ModelExpressionNode
+  | ObjectLiteralNode
+  | ArrayLiteralNode
   | TupleExpressionNode
   | UnionExpressionNode
   | IntersectionExpressionNode
   | TypeReferenceNode
   | ValueOfExpressionNode
-  | IdentifierNode
+  | TypeOfExpressionNode
+  | CallExpressionNode
   | StringLiteralNode
   | NumericLiteralNode
   | BooleanLiteralNode
+  | StringTemplateExpressionNode
   | VoidKeywordNode
   | NeverKeywordNode
   | AnyKeywordNode;

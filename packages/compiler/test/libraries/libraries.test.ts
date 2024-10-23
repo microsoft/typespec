@@ -1,11 +1,13 @@
-import { fileURLToPath, URL } from "url";
+import { describe, it } from "vitest";
 import { NodeHost } from "../../src/core/node-host.js";
 import { compile } from "../../src/core/program.js";
+import { resolvePath } from "../../src/index.js";
 import { MANIFEST } from "../../src/manifest.js";
 import {
   createTestHost,
   expectDiagnosticEmpty,
   expectDiagnostics,
+  findTestPackageRoot,
 } from "../../src/testing/index.js";
 
 const libs = [
@@ -13,13 +15,12 @@ const libs = [
   "library-dev/samples", // Load library defined in parent folder.
 ];
 
+const pkgRoot = await findTestPackageRoot(import.meta.url);
 describe("compiler: libraries", () => {
   for (const lib of libs) {
     describe(lib, () => {
       it("compiles without error", async () => {
-        const mainFile = fileURLToPath(
-          new URL(`../../../test/libraries/${lib}/main.tsp`, import.meta.url)
-        );
+        const mainFile = resolvePath(pkgRoot, `test/libraries/${lib}/main.tsp`);
         const program = await compile(NodeHost, mainFile, { noEmit: true });
         expectDiagnosticEmpty(program.diagnostics);
       });
@@ -35,7 +36,7 @@ describe("compiler: libraries", () => {
         name: "@typespec/compiler",
         main: "index.js",
         version: "0.1.0-notthesame.1",
-      })
+      }),
     );
     testHost.addJsFile("./node_modules/@typespec/compiler/index.js", {});
     const diagnostics = await testHost.diagnose("main.tsp");
@@ -51,7 +52,7 @@ describe("compiler: libraries", () => {
     testHost.addTypeSpecFile("main.tsp", "");
     testHost.addTypeSpecFile(
       "./node_modules/@typespec/compiler/package.json",
-      JSON.stringify({ name: "@typespec/compiler", main: "index.js", version: MANIFEST.version })
+      JSON.stringify({ name: "@typespec/compiler", main: "index.js", version: MANIFEST.version }),
     );
     testHost.addJsFile("./node_modules/@typespec/compiler/index.js", {});
     const diagnostics = await testHost.diagnose("main.tsp");
@@ -67,7 +68,7 @@ describe("compiler: libraries", () => {
       `
     import "./lib1.js";
     import "./lib2.js";
-    `
+    `,
     );
     const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, [

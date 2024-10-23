@@ -4,7 +4,7 @@ title: "[F] getDeprecationDetails"
 
 ---
 ```ts
-getDeprecationDetails(program, typeOrNode): DeprecationDetails | undefined
+function getDeprecationDetails(program, typeOrNode): DeprecationDetails | undefined
 ```
 
 Returns complete deprecation details for the given type or node
@@ -12,6 +12,10 @@ Returns complete deprecation details for the given type or node
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `program` | [`Program`](../interfaces/Program.md) | Program |
-| `typeOrNode` | [`Node`](../type-aliases/Node.md) \| [`Type`](../type-aliases/Type.md) | A Type or Node to check for deprecation |
+| `typeOrNode` | [`Type`](../type-aliases/Type.md) \| [`Node`](../type-aliases/Node.md) | A Type or Node to check for deprecation |
+
+## Returns
+
+[`DeprecationDetails`](../interfaces/DeprecationDetails.md) \| `undefined`

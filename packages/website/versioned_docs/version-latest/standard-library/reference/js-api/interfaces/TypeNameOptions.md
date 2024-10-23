@@ -5,7 +5,7 @@ title: "[I] TypeNameOptions"
 ---
 ## Properties
 
-| Property | Type | Description |
-| :------ | :------ | :------ |
-| `namespaceFilter?` | (`ns`) => `boolean` | - |
-| `printable?` | `boolean` | - |
+| Property | Type |
+| ------ | ------ |
+| `namespaceFilter?` | (`ns`: [`Namespace`](Namespace.md)) => `boolean` |
+| `printable?` | `boolean` |

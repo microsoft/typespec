@@ -18,6 +18,7 @@ import {
   getVisibilitySuffix,
   HttpOperation,
   HttpOperationBody,
+  HttpOperationMultipartBody,
   HttpOperationResponse,
   resolveRequestVisibility,
   Visibility,
@@ -51,7 +52,7 @@ export async function $onEmit(context: EmitContext): Promise<void> {
           projectedProgram,
           serviceNamespace,
           details?.title,
-          versionProjection.version ?? details?.version
+          versionProjection.version ?? details?.version,
         );
       }
     }
@@ -62,7 +63,7 @@ export async function $onEmit(context: EmitContext): Promise<void> {
     program: Program,
     serviceNamespace: Namespace,
     title: string | undefined,
-    version: string | undefined
+    version: string | undefined,
   ): void {
     const [service] = getHttpService(program, serviceNamespace);
 
@@ -121,8 +122,8 @@ export async function $onEmit(context: EmitContext): Promise<void> {
         writeLine(
           `${parameter.type} ${parameter.name}: ${getTypeReference(
             parameter.param.type,
-            visibility
-          )}`
+            visibility,
+          )}`,
         );
       }
 
@@ -164,8 +165,8 @@ export async function $onEmit(context: EmitContext): Promise<void> {
           writeLine(
             `${name}: ${getTypeName(property.type)}${getPropertyVisibilityRemark(
               property,
-              visibilities
-            )}`
+              visibilities,
+            )}`,
           );
         }
         unindent();
@@ -216,7 +217,7 @@ export async function $onEmit(context: EmitContext): Promise<void> {
 
     function getPropertyVisibilityRemark(
       property: ModelProperty,
-      visibilities: Set<Visibility>
+      visibilities: Set<Visibility>,
     ): string {
       const remarks: string[] = [];
 
@@ -235,7 +236,7 @@ export async function $onEmit(context: EmitContext): Promise<void> {
         // If it's never in the payload, it is only ever communicated in
         // metadata: header/path/query param, or status code.
         remarks.push("Metadata only");
-      } else if (inPayloadVisibilities.length == visibilities.size) {
+      } else if (inPayloadVisibilities.length === visibilities.size) {
         // it's always in the payload, common case.
       } else {
         // it's in the payload for certain visibilities only.
@@ -245,7 +246,9 @@ export async function $onEmit(context: EmitContext): Promise<void> {
       return remarks.length === 0 ? "" : ` (${remarks.join(", ")})`;
     }
 
-    function getContentTypeRemark(body: HttpOperationBody | undefined) {
+    function getContentTypeRemark(
+      body: HttpOperationBody | HttpOperationMultipartBody | undefined,
+    ) {
       const ct = body?.contentTypes;
       if (!ct || ct.length === 0 || (ct.length === 1 && ct[0] === "application/json")) {
         return "";

@@ -4,24 +4,26 @@ title: "[F] isTypeSpecValueTypeOf"
 
 ---
 ```ts
-isTypeSpecValueTypeOf<K>(target, expectedType): target is InferredTypeSpecValue<K>
+function isTypeSpecValueTypeOf<K>(target, expectedType): target is InferredTypeSpecValue<K>
 ```
 
-Check if the given target is of any of the typespec types.
+Check if the given target is of any of the TypeSpec types.
 
-## Type parameters
+## Type Parameters
 
-| Parameter |
-| :------ |
-| `K` extends [`TypeKind`](../type-aliases/TypeKind.md) |
+| Type Parameter |
+| ------ |
+| `K` *extends* [`TypeKind`](../type-aliases/TypeKind.md) |
 
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `target` | [`TypeSpecValue`](../type-aliases/TypeSpecValue.md) | Target to validate. |
-| `expectedType` | `K` \| readonly `K`[] | One or multiple allowed typespec types. |
+| `expectedType` | `K` \| readonly `K`[] | One or multiple allowed TypeSpec types. |
 
 ## Returns
+
+`target is InferredTypeSpecValue<K>`
 
 boolean if the target is of one of the allowed types.

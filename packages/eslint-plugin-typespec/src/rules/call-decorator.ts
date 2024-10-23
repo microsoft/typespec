@@ -9,15 +9,20 @@ const messages = {
 
 export const callDecoratorRule = createRule<never[], keyof typeof messages>({
   create(context) {
-    const parserServices = context.getSourceCode().parserServices;
+    const parserServices = context.sourceCode.parserServices;
+    if (parserServices === undefined || !parserServices.program) {
+      return {};
+    }
     const checker = parserServices.program.getTypeChecker();
     return {
       CallExpression(node) {
         if (node.callee.type === TSESTree.AST_NODE_TYPES.Identifier) {
           const functionName = node.callee.name;
           if (functionName.startsWith("$")) {
-            const tsNode = parserServices.esTreeNodeToTSNodeMap.get(node);
-
+            const tsNode = parserServices.esTreeNodeToTSNodeMap?.get(node);
+            if (tsNode === undefined) {
+              return;
+            }
             const signature = checker.getResolvedSignature(tsNode);
             if (signature === undefined) {
               return;
@@ -49,7 +54,6 @@ export const callDecoratorRule = createRule<never[], keyof typeof messages>({
   meta: {
     docs: {
       description: "Calling a TypeSpec decorator from JS/TS code should be done with context.call",
-      recommended: "warn",
     },
     hasSuggestions: true,
     messages,
@@ -62,7 +66,7 @@ export const callDecoratorRule = createRule<never[], keyof typeof messages>({
 function isTypeSpecFunctionSignature(
   checker: ts.TypeChecker,
   signature: ts.Signature,
-  tsNode: ts.Node
+  tsNode: ts.Node,
 ): boolean {
   if (signature.parameters.length < 2) {
     return false;

@@ -43,27 +43,27 @@ Specify this operation is an action. (Scoped to a resource item /pets/{petId}/my
 
 ##### Parameters
 
-| Name | Type                    | Description                                                                   |
-| ---- | ----------------------- | ----------------------------------------------------------------------------- |
-| name | `valueof scalar string` | Name of the action. If not specified, the name of the operation will be used. |
+| Name | Type             | Description                                                                   |
+| ---- | ---------------- | ----------------------------------------------------------------------------- |
+| name | `valueof string` | Name of the action. If not specified, the name of the operation will be used. |
 
 #### `@actionSeparator`
 
 Defines the separator string that is inserted before the action name in auto-generated routes for actions.
 
 ```typespec
-@TypeSpec.Rest.actionSeparator(seperator: valueof / | : | /:)
+@TypeSpec.Rest.actionSeparator(seperator: valueof "/" | ":" | "/:")
 ```
 
 ##### Target
 
-`union Model | ModelProperty | Operation`
+`Model | ModelProperty | Operation`
 
 ##### Parameters
 
 | Name      | Type                         | Description                                                      |
 | --------- | ---------------------------- | ---------------------------------------------------------------- |
-| seperator | `valueof union / \| : \| /:` | Seperator seperating the action segment from the rest of the url |
+| seperator | `valueof "/" \| ":" \| "/:"` | Seperator seperating the action segment from the rest of the url |
 
 #### `@autoRoute`
 
@@ -75,7 +75,7 @@ This interface or operation should resolve its route automatically. To be used w
 
 ##### Target
 
-`union Interface | Operation`
+`Interface | Operation`
 
 ##### Parameters
 
@@ -104,10 +104,10 @@ Specify this operation is a collection action. (Scopped to a resource, /pets/my-
 
 ##### Parameters
 
-| Name         | Type                    | Description                                                                   |
-| ------------ | ----------------------- | ----------------------------------------------------------------------------- |
-| resourceType | `Model`                 | Resource marked with                                                          |
-| name         | `valueof scalar string` | Name of the action. If not specified, the name of the operation will be used. |
+| Name         | Type             | Description                                                                   |
+| ------------ | ---------------- | ----------------------------------------------------------------------------- |
+| resourceType | `Model`          | Resource marked with                                                          |
+| name         | `valueof string` | Name of the action. If not specified, the name of the operation will be used. |
 
 #### `@copyResourceKeyParameters`
 
@@ -123,9 +123,9 @@ Copy the resource key parameters on the model
 
 ##### Parameters
 
-| Name   | Type                    | Description                           |
-| ------ | ----------------------- | ------------------------------------- |
-| filter | `valueof scalar string` | Filter to exclude certain properties. |
+| Name   | Type             | Description                           |
+| ------ | ---------------- | ------------------------------------- |
+| filter | `valueof string` | Filter to exclude certain properties. |
 
 #### `@createsOrReplacesResource`
 
@@ -267,9 +267,9 @@ Mark this model as a resource type with a name.
 
 ##### Parameters
 
-| Name           | Type                    | Description            |
-| -------------- | ----------------------- | ---------------------- |
-| collectionName | `valueof scalar string` | type's collection name |
+| Name           | Type             | Description            |
+| -------------- | ---------------- | ---------------------- |
+| collectionName | `valueof string` | type's collection name |
 
 #### `@segment`
 
@@ -281,13 +281,13 @@ Defines the preceding path segment for a
 
 ##### Target
 
-`union Model | ModelProperty | Operation`
+`Model | ModelProperty | Operation`
 
 ##### Parameters
 
-| Name | Type                    | Description                                                                                    |
-| ---- | ----------------------- | ---------------------------------------------------------------------------------------------- |
-| name | `valueof scalar string` | Segment that will be inserted into the operation route before the path parameter's name field. |
+| Name | Type             | Description                                                                                    |
+| ---- | ---------------- | ---------------------------------------------------------------------------------------------- |
+| name | `valueof string` | Segment that will be inserted into the operation route before the path parameter's name field. |
 
 ##### Examples
 

@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: sample
-  version: 0000-00-00
+  version: 0.0.0
 tags: []
 paths:
   /bool/false:
@@ -130,7 +130,6 @@ components:
   schemas:
     Error:
       type: object
-      description: Error
       required:
         - code
         - message
@@ -140,3 +139,4 @@ components:
           format: int32
         message:
           type: string
+      description: Error

@@ -4,12 +4,16 @@ title: "[F] isSecret"
 
 ---
 ```ts
-isSecret(program, target): boolean | undefined
+function isSecret(program, type): boolean
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | [`Program`](../interfaces/Program.md) |
-| `target` | [`Type`](../type-aliases/Type.md) |
+| `type` | [`Type`](../type-aliases/Type.md) |
+
+## Returns
+
+`boolean`

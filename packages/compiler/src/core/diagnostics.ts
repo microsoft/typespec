@@ -1,91 +1,20 @@
-import { CharCode } from "./charcode.js";
-import { formatLog } from "./logger/index.js";
-import { reportDiagnostic } from "./messages.js";
-import { Program } from "./program.js";
+import { formatLog } from "./logger/console-sink.js";
+import type { Program } from "./program.js";
+import { createSourceFile } from "./source-file.js";
 import {
+  CodeFix,
   Diagnostic,
-  DiagnosticCreator,
-  DiagnosticMap,
-  DiagnosticMessages,
-  DiagnosticReport,
   DiagnosticResult,
   DiagnosticTarget,
   LogSink,
   Node,
   NodeFlags,
   NoTarget,
-  SourceFile,
   SourceLocation,
   SymbolFlags,
   SyntaxKind,
   Type,
 } from "./types.js";
-
-/**
- * Create a new diagnostics creator.
- * @param diagnostics Map of the potential diagnostics.
- * @param libraryName Optional name of the library if in the scope of a library.
- * @returns @see DiagnosticCreator
- */
-export function createDiagnosticCreator<T extends { [code: string]: DiagnosticMessages }>(
-  diagnostics: DiagnosticMap<T>,
-  libraryName?: string
-): DiagnosticCreator<T> {
-  const errorMessage = libraryName
-    ? `It must match one of the code defined in the library '${libraryName}'`
-    : "It must match one of the code defined in the compiler.";
-
-  function createDiagnostic<C extends keyof T, M extends keyof T[C] = "default">(
-    diagnostic: DiagnosticReport<T, C, M>
-  ): Diagnostic {
-    const diagnosticDef = diagnostics[diagnostic.code];
-
-    if (!diagnosticDef) {
-      const codeStr = Object.keys(diagnostics)
-        .map((x) => ` - ${x}`)
-        .join("\n");
-      const code = String(diagnostic.code);
-      throw new Error(
-        `Unexpected diagnostic code '${code}'. ${errorMessage}. Defined codes:\n${codeStr}`
-      );
-    }
-
-    const message = diagnosticDef.messages[diagnostic.messageId ?? "default"];
-    if (!message) {
-      const codeStr = Object.keys(diagnosticDef.messages)
-        .map((x) => ` - ${x}`)
-        .join("\n");
-      const messageId = String(diagnostic.messageId);
-      const code = String(diagnostic.code);
-      throw new Error(
-        `Unexpected message id '${messageId}'. ${errorMessage} for code '${code}'. Defined codes:\n${codeStr}`
-      );
-    }
-
-    const messageStr = typeof message === "string" ? message : message((diagnostic as any).format);
-
-    return {
-      code: libraryName ? `${libraryName}/${String(diagnostic.code)}` : diagnostic.code.toString(),
-      severity: diagnosticDef.severity,
-      message: messageStr,
-      target: diagnostic.target,
-    };
-  }
-
-  function reportDiagnostic<C extends keyof T, M extends keyof T[C] = "default">(
-    program: Program,
-    diagnostic: DiagnosticReport<T, C, M>
-  ) {
-    const diag = createDiagnostic(diagnostic);
-    program.reportDiagnostic(diag);
-  }
-
-  return {
-    diagnostics,
-    createDiagnostic,
-    reportDiagnostic,
-  } as any;
-}
 
 /**
  * Represents a failure while interpreting a projection.
@@ -106,6 +35,7 @@ export function logDiagnostics(diagnostics: readonly Diagnostic[], logger: LogSi
       level: diagnostic.severity,
       message: diagnostic.message,
       code: diagnostic.code,
+      url: diagnostic.url,
       sourceLocation: getSourceLocation(diagnostic.target, { locateId: true }),
     });
   }
@@ -117,46 +47,11 @@ export function formatDiagnostic(diagnostic: Diagnostic) {
       code: diagnostic.code,
       level: diagnostic.severity,
       message: diagnostic.message,
+      url: diagnostic.url,
       sourceLocation: getSourceLocation(diagnostic.target, { locateId: true }),
     },
-    { pretty: false }
+    { pretty: false },
   );
-}
-
-export function createSourceFile(text: string, path: string): SourceFile {
-  let lineStarts: number[] | undefined = undefined;
-
-  return {
-    text,
-    path,
-    getLineStarts,
-    getLineAndCharacterOfPosition,
-  };
-
-  function getLineStarts() {
-    return (lineStarts = lineStarts ?? scanLineStarts(text));
-  }
-
-  function getLineAndCharacterOfPosition(position: number) {
-    const starts = getLineStarts();
-
-    let line = binarySearch(starts, position);
-
-    // When binarySearch returns < 0 indicating that the value was not found, it
-    // returns the bitwise complement of the index where the value would need to
-    // be inserted to keep the array sorted. So flipping the bits back to this
-    // positive index tells us what the line number would be if we were to
-    // create a new line starting at the given position, and subtracting 1 from
-    // that therefore gives us the line number we're after.
-    if (line < 0) {
-      line = ~line - 1;
-    }
-
-    return {
-      line,
-      character: position - starts[line],
-    };
-  }
 }
 
 export interface SourceLocationOptions {
@@ -168,19 +63,19 @@ export interface SourceLocationOptions {
 }
 export function getSourceLocation(
   target: DiagnosticTarget,
-  options?: SourceLocationOptions
+  options?: SourceLocationOptions,
 ): SourceLocation;
 export function getSourceLocation(
   target: typeof NoTarget | undefined,
-  options?: SourceLocationOptions
+  options?: SourceLocationOptions,
 ): undefined;
 export function getSourceLocation(
   target: DiagnosticTarget | typeof NoTarget | undefined,
-  options?: SourceLocationOptions
+  options?: SourceLocationOptions,
 ): SourceLocation | undefined;
 export function getSourceLocation(
   target: DiagnosticTarget | typeof NoTarget | undefined,
-  options: SourceLocationOptions = {}
+  options: SourceLocationOptions = {},
 ): SourceLocation | undefined {
   if (target === NoTarget || target === undefined) {
     return undefined;
@@ -190,7 +85,7 @@ export function getSourceLocation(
     return target;
   }
 
-  if (!("kind" in target)) {
+  if (!("kind" in target) && !("valueKind" in target) && !("entityKind" in target)) {
     // symbol
     if (target.flags & SymbolFlags.Using) {
       target = target.symbolSource!;
@@ -201,7 +96,7 @@ export function getSourceLocation(
     }
 
     return getSourceLocationOfNode(target.declarations[0], options);
-  } else if (typeof target.kind === "number") {
+  } else if ("kind" in target && typeof target.kind === "number") {
     // node
     return getSourceLocationOfNode(target as Node, options);
   } else {
@@ -236,7 +131,7 @@ function getSourceLocationOfNode(node: Node, options: SourceLocationOptions): So
     return createSyntheticSourceLocation(
       node.flags & NodeFlags.Synthetic
         ? undefined
-        : "<unknown location - cannot obtain source location of unbound node - file bug at https://github.com/microsoft/typespec>"
+        : "<unknown location - cannot obtain source location of unbound node - file bug at https://github.com/microsoft/typespec>",
     );
   }
 
@@ -261,7 +156,7 @@ function getSourceLocationOfNode(node: Node, options: SourceLocationOptions): So
  * when verbose output is disabled.
  */
 export function logVerboseTestOutput(
-  messageOrCallback: string | ((log: (message: string) => void) => void)
+  messageOrCallback: string | ((log: (message: string) => void) => void),
 ) {
   if (process.env.TYPESPEC_VERBOSE_TEST_OUTPUT) {
     if (typeof messageOrCallback === "string") {
@@ -288,7 +183,7 @@ export function logVerboseTestOutput(
 export function compilerAssert(
   condition: any,
   message: string,
-  target?: DiagnosticTarget
+  target?: DiagnosticTarget,
 ): asserts condition {
   if (condition) {
     return;
@@ -310,55 +205,6 @@ export function compilerAssert(
   }
 
   throw new Error(message);
-}
-
-function scanLineStarts(text: string): number[] {
-  const starts = [];
-  let start = 0;
-  let pos = 0;
-
-  while (pos < text.length) {
-    const ch = text.charCodeAt(pos);
-    pos++;
-    switch (ch) {
-      case CharCode.CarriageReturn:
-        if (text.charCodeAt(pos) === CharCode.LineFeed) {
-          pos++;
-        }
-      // fallthrough
-      case CharCode.LineFeed:
-        starts.push(start);
-        start = pos;
-        break;
-    }
-  }
-
-  starts.push(start);
-  return starts;
-}
-
-/**
- * Search sorted array of numbers for the given value. If found, return index
- * in array where value was found. If not found, return a negative number that
- * is the bitwise complement of the index where value would need to be inserted
- * to keep the array sorted.
- */
-function binarySearch(array: readonly number[], value: number) {
-  let low = 0;
-  let high = array.length - 1;
-  while (low <= high) {
-    const middle = low + ((high - low) >> 1);
-    const v = array[middle];
-    if (v < value) {
-      low = middle + 1;
-    } else if (v > value) {
-      high = middle - 1;
-    } else {
-      return middle;
-    }
-  }
-
-  return ~low;
 }
 
 /**
@@ -383,13 +229,12 @@ export function assertType<TKind extends Type["kind"][]>(
 export function reportDeprecated(
   program: Program,
   message: string,
-  target: DiagnosticTarget | typeof NoTarget
+  target: DiagnosticTarget | typeof NoTarget,
 ): void {
-  reportDiagnostic(program, {
+  program.reportDiagnostic({
+    severity: "warning",
     code: "deprecated",
-    format: {
-      message,
-    },
+    message: `Deprecated: ${message}`,
     target,
   });
 }
@@ -452,9 +297,13 @@ export function createDiagnosticCollector(): DiagnosticCollector {
 
 /**
  * Ignore the diagnostics emitted by the diagnostic accessor pattern and just return the actual result.
- * @param result: Accessor pattern tuple result including the actual result and the list of diagnostics.
+ * @param result Accessor pattern tuple result including the actual result and the list of diagnostics.
  * @returns Actual result.
  */
 export function ignoreDiagnostics<T>(result: DiagnosticResult<T>): T {
   return result[0];
+}
+
+export function defineCodeFix(fix: CodeFix): CodeFix {
+  return fix;
 }

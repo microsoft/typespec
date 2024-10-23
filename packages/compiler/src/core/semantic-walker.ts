@@ -1,4 +1,4 @@
-import { Program } from "./program.js";
+import type { Program } from "./program.js";
 import { isTemplateDeclaration } from "./type-utils.js";
 import {
   Decorator,
@@ -10,7 +10,10 @@ import {
   Namespace,
   Operation,
   Scalar,
+  ScalarConstructor,
   SemanticNodeListener,
+  StringTemplate,
+  StringTemplateSpan,
   TemplateParameter,
   Tuple,
   Type,
@@ -47,7 +50,7 @@ const defaultOptions = {
 export function navigateProgram(
   program: Program,
   listeners: SemanticNodeListener,
-  options: NavigationOptions = {}
+  options: NavigationOptions = {},
 ) {
   const context = createNavigationContext(listeners, options);
   context.emit("root", program);
@@ -64,7 +67,7 @@ export function navigateProgram(
 export function navigateType(
   type: Type,
   listeners: SemanticNodeListener,
-  options: NavigationOptions
+  options: NavigationOptions,
 ) {
   const context = createNavigationContext(listeners, options);
   navigateTypeInternal(type, context);
@@ -80,7 +83,7 @@ export function navigateType(
 export function scopeNavigationToNamespace<T extends TypeListeners>(
   namespace: Namespace,
   listeners: T,
-  options: NamespaceNavigationOptions = {}
+  options: NamespaceNavigationOptions = {},
 ): T {
   const wrappedListeners: TypeListeners = {};
   for (const [name, callback] of Object.entries(listeners)) {
@@ -93,7 +96,7 @@ export function scopeNavigationToNamespace<T extends TypeListeners>(
           return ListenerFlow.NoRecursion;
         }
       }
-      return callback(x as any);
+      return (callback as any)(x);
     };
   }
   return wrappedListeners as any;
@@ -102,7 +105,7 @@ export function scopeNavigationToNamespace<T extends TypeListeners>(
 export function navigateTypesInNamespace(
   namespace: Namespace,
   listeners: TypeListeners,
-  options: NamespaceNavigationOptions & NavigationOptions = {}
+  options: NamespaceNavigationOptions & NavigationOptions = {},
 ) {
   navigateType(namespace, scopeNavigationToNamespace(namespace, listeners, options), options);
 }
@@ -113,7 +116,7 @@ export function navigateTypesInNamespace(
  * @returns Semantic node listener.
  */
 export function mapEventEmitterToNodeListener(
-  eventEmitter: EventEmitter<SemanticNodeListener>
+  eventEmitter: EventEmitter<SemanticNodeListener>,
 ): SemanticNodeListener {
   const listener: SemanticNodeListener = {};
   for (const eventName of eventNames) {
@@ -137,11 +140,11 @@ function isSubNamespace(subNamespace: Namespace, namespace: Namespace): boolean 
 }
 function createNavigationContext(
   listeners: SemanticNodeListener,
-  options: NavigationOptions = {}
+  options: NavigationOptions = {},
 ): NavigationContext {
   return {
     visited: new Set(),
-    emit: (key, ...args) => listeners[key]?.(...(args as [any])),
+    emit: (key, ...args) => (listeners as any)[key]?.(...(args as [any])),
     options: computeOptions(options),
   };
 }
@@ -191,6 +194,8 @@ function navigateNamespaceType(namespace: Namespace, context: NavigationContext)
   for (const decorator of namespace.decoratorDeclarations.values()) {
     navigateDecoratorDeclaration(decorator, context);
   }
+
+  context.emit("exitNamespace", namespace);
 }
 
 function checkVisited(visited: Set<any>, item: Type) {
@@ -203,7 +208,7 @@ function checkVisited(visited: Set<any>, item: Type) {
 
 function shouldNavigateTemplatableType(
   context: NavigationContext,
-  type: Operation | Interface | Model | Union
+  type: Operation | Interface | Model | Union,
 ) {
   if (context.options.includeTemplateDeclaration) {
     return type.isFinished || isTemplateDeclaration(type);
@@ -226,6 +231,7 @@ function navigateOperationType(operation: Operation, context: NavigationContext)
   if (operation.sourceOperation) {
     navigateTypeInternal(operation.sourceOperation, context);
   }
+  context.emit("exitOperation", operation);
 }
 
 function navigateModelType(model: Model, context: NavigationContext) {
@@ -254,6 +260,7 @@ function navigateModelTypeProperty(property: ModelProperty, context: NavigationC
   }
   if (context.emit("modelProperty", property) === ListenerFlow.NoRecursion) return;
   navigateTypeInternal(property.type, context);
+  context.emit("exitModelProperty", property);
 }
 
 function navigateScalarType(scalar: Scalar, context: NavigationContext) {
@@ -263,6 +270,9 @@ function navigateScalarType(scalar: Scalar, context: NavigationContext) {
   if (context.emit("scalar", scalar) === ListenerFlow.NoRecursion) return;
   if (scalar.baseScalar) {
     navigateScalarType(scalar.baseScalar, context);
+  }
+  for (const constructor of scalar.constructors.values()) {
+    navigateScalarConstructor(constructor, context);
   }
 
   context.emit("exitScalar", scalar);
@@ -280,6 +290,8 @@ function navigateInterfaceType(type: Interface, context: NavigationContext) {
   for (const op of type.operations.values()) {
     navigateOperationType(op, context);
   }
+
+  context.emit("exitInterface", type);
 }
 
 function navigateEnumType(type: Enum, context: NavigationContext) {
@@ -288,6 +300,11 @@ function navigateEnumType(type: Enum, context: NavigationContext) {
   }
 
   context.emit("enum", type);
+  for (const member of type.members.values()) {
+    navigateTypeInternal(member, context);
+  }
+
+  context.emit("exitEnum", type);
 }
 
 function navigateUnionType(type: Union, context: NavigationContext) {
@@ -301,6 +318,8 @@ function navigateUnionType(type: Union, context: NavigationContext) {
   for (const variant of type.variants.values()) {
     navigateUnionTypeVariant(variant, context);
   }
+
+  context.emit("exitUnion", type);
 }
 
 function navigateUnionTypeVariant(type: UnionVariant, context: NavigationContext) {
@@ -309,6 +328,8 @@ function navigateUnionTypeVariant(type: UnionVariant, context: NavigationContext
   }
   if (context.emit("unionVariant", type) === ListenerFlow.NoRecursion) return;
   navigateTypeInternal(type.type, context);
+
+  context.emit("exitUnionVariant", type);
 }
 
 function navigateTupleType(type: Tuple, context: NavigationContext) {
@@ -319,6 +340,24 @@ function navigateTupleType(type: Tuple, context: NavigationContext) {
   for (const value of type.values) {
     navigateTypeInternal(value, context);
   }
+
+  context.emit("exitTuple", type);
+}
+function navigateStringTemplate(type: StringTemplate, context: NavigationContext) {
+  if (checkVisited(context.visited, type)) {
+    return;
+  }
+  if (context.emit("stringTemplate", type) === ListenerFlow.NoRecursion) return;
+  for (const value of type.spans) {
+    navigateTypeInternal(value, context);
+  }
+}
+function navigateStringTemplateSpan(type: StringTemplateSpan, context: NavigationContext) {
+  if (checkVisited(context.visited, type)) {
+    return;
+  }
+  if (context.emit("stringTemplateSpan", type as any) === ListenerFlow.NoRecursion) return;
+  navigateTypeInternal(type.type, context);
 }
 
 function navigateTemplateParameter(type: TemplateParameter, context: NavigationContext) {
@@ -333,6 +372,13 @@ function navigateDecoratorDeclaration(type: Decorator, context: NavigationContex
     return;
   }
   if (context.emit("decorator", type) === ListenerFlow.NoRecursion) return;
+}
+
+function navigateScalarConstructor(type: ScalarConstructor, context: NavigationContext) {
+  if (checkVisited(context.visited, type)) {
+    return;
+  }
+  if (context.emit("scalarConstructor", type) === ListenerFlow.NoRecursion) return;
 }
 
 function navigateTypeInternal(type: Type, context: NavigationContext) {
@@ -357,10 +403,16 @@ function navigateTypeInternal(type: Type, context: NavigationContext) {
       return navigateUnionTypeVariant(type, context);
     case "Tuple":
       return navigateTupleType(type, context);
+    case "StringTemplate":
+      return navigateStringTemplate(type, context);
+    case "StringTemplateSpan":
+      return navigateStringTemplateSpan(type, context);
     case "TemplateParameter":
       return navigateTemplateParameter(type, context);
     case "Decorator":
       return navigateDecoratorDeclaration(type, context);
+    case "ScalarConstructor":
+      return navigateScalarConstructor(type, context);
     case "Object":
     case "Projection":
     case "Function":

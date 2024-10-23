@@ -1,15 +1,18 @@
-import { PlaygroundLinks } from "../react/playground.js";
-import { PlaygroundSample } from "../types.js";
+import type { PlaygroundLinks } from "../react/playground.js";
+import type { PlaygroundSampleConfig } from "../tooling/types.js";
+import type { PlaygroundSample } from "../types.js";
 
-type PlaygroundSampleConfig = Omit<PlaygroundSample, "content">;
 export interface PlaygroundUserConfig extends Omit<PlaygroundConfig, "samples"> {
-  samples: Record<string, PlaygroundSampleConfig>;
+  /**
+   * If the bundle library plugin should be loaded.
+   */
+  readonly skipBundleLibraries?: boolean;
+  readonly samples?: Record<string, PlaygroundSampleConfig>;
 }
 
 export interface PlaygroundConfig {
-  defaultEmitter: string;
-  libraries: string[];
-  samples: Record<string, PlaygroundSample>;
-  enableSwaggerUI: boolean;
-  links?: PlaygroundLinks;
+  readonly defaultEmitter: string;
+  readonly libraries: readonly string[];
+  readonly samples: Record<string, PlaygroundSample>;
+  readonly links?: PlaygroundLinks;
 }

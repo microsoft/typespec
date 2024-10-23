@@ -1,0 +1,30 @@
+{
+  "references": [
+    { "path": "packages/compiler/tsconfig.json" },
+    { "path": "packages/versioning/tsconfig.json" },
+    { "path": "packages/http/tsconfig.json" },
+    { "path": "packages/rest/tsconfig.json" },
+    { "path": "packages/library-linter/tsconfig.json" },
+    { "path": "packages/eslint-plugin-typespec/tsconfig.json" },
+    { "path": "packages/openapi/tsconfig.json" },
+    { "path": "packages/openapi3/tsconfig.json" },
+    { "path": "packages/internal-build-utils/tsconfig.json" },
+    { "path": "packages/bundle-uploader/tsconfig.json" },
+    { "path": "packages/tmlanguage-generator/tsconfig.json" },
+    { "path": "packages/protobuf/tsconfig.json" },
+    { "path": "packages/openapi3/tsconfig.json" },
+    { "path": "packages/spec-api/tsconfig.build.json" },
+    { "path": "packages/spector/tsconfig.build.json" },
+    { "path": "packages/http-specs/tsconfig.build.json" },
+    { "path": "packages/monarch/tsconfig.json" },
+    { "path": "packages/bundler/tsconfig.json" },
+    { "path": "packages/tspd/tsconfig.json" },
+    { "path": "packages/samples/tsconfig.json" },
+    { "path": "packages/json-schema/tsconfig.json" },
+    { "path": "packages/best-practices/tsconfig.json" },
+    { "path": "packages/xml/tsconfig.json" },
+    { "path": "packages/http-server-javascript/tsconfig.json" },
+    { "path": "packages/http-server-csharp/tsconfig.json" }
+  ],
+  "files": []
+}

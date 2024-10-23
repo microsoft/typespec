@@ -1,31 +1,28 @@
 {
   "name": "@typespec/prettier-plugin-typespec",
-  "version": "0.49.0",
+  "version": "0.61.0",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
     "build": "rollup --config 2>&1 && npm run generate-third-party-notices",
-    "test": "mocha --timeout 5000 'test/**/*.js'",
-    "test-official": "mocha --timeout 5000 --forbid-only 'test/**/*.js'",
+    "test": "vitest run",
+    "test:ci": "vitest run",
     "generate-third-party-notices": "typespec-build-tool generate-third-party-notices"
   },
   "author": "Microsoft Corporation",
   "license": "MIT",
   "dependencies": {
-    "prettier": "~3.0.3"
+    "prettier": "~3.3.3"
   },
   "devDependencies": {
-    "prettier_2": "npm:prettier@2.8.7",
-    "@typespec/compiler": "workspace:~0.49.0",
-    "@typespec/internal-build-utils": "workspace:~0.49.0",
-    "@rollup/plugin-commonjs": "~25.0.4",
-    "@rollup/plugin-json": "~6.0.0",
-    "@rollup/plugin-node-resolve": "~15.2.1",
-    "@rollup/plugin-replace": "~5.0.2",
-    "mocha": "~10.2.0",
-    "mocha-junit-reporter": "~2.2.1",
-    "mocha-multi-reporters": "~1.5.1",
-    "rollup": "~3.29.2"
+    "@rollup/plugin-commonjs": "~28.0.0",
+    "@rollup/plugin-json": "~6.1.0",
+    "@rollup/plugin-node-resolve": "~15.3.0",
+    "@rollup/plugin-replace": "~6.0.1",
+    "@typespec/compiler": "workspace:~",
+    "@typespec/internal-build-utils": "workspace:~",
+    "rollup": "~4.24.0",
+    "vitest": "^2.1.2"
   },
   "files": [
     "dist/**/*",

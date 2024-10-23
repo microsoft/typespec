@@ -18,6 +18,8 @@ type Statement:
   | DecoratorDeclarationStatementNode
   | FunctionDeclarationStatementNode
   | AugmentDecoratorStatementNode
+  | ConstStatementNode
+  | CallExpressionNode
   | EmptyStatementNode
   | InvalidStatementNode
   | ProjectionStatementNode;

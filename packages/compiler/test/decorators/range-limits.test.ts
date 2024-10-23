@@ -1,5 +1,5 @@
 import { strictEqual } from "assert";
-import { Model } from "../../src/core/types.js";
+import { beforeEach, describe, it } from "vitest";
 import {
   getMaxItems,
   getMaxLength,
@@ -7,7 +7,8 @@ import {
   getMinItems,
   getMinLength,
   getMinValue,
-} from "../../src/lib/decorators.js";
+} from "../../src/core/intrinsic-type-state.js";
+import { Model } from "../../src/core/types.js";
 import { BasicTestRunner, createTestRunner, expectDiagnostics } from "../../src/testing/index.js";
 
 describe("compiler: range limiting decorators", () => {
@@ -22,7 +23,7 @@ describe("compiler: range limiting decorators", () => {
       `
       @test model A { @minValue(15) foo: int32; @maxValue(55) boo: float32; }
       @test model B { @maxValue(20) bar: int64; @minValue(23) car: float64; }
-      `
+      `,
     )) as { A: Model; B: Model };
 
     strictEqual(getMinValue(runner.program, A.properties.get("foo")!), 15);
@@ -32,7 +33,7 @@ describe("compiler: range limiting decorators", () => {
   });
 
   describe("@minValue, @maxValue", () => {
-    it("applies @minLength and @maxLength decorators on ints", async () => {
+    it("applies on ints", async () => {
       const { Foo } = (await runner.compile(`
         @test model Foo {
           @minValue(2)
@@ -46,7 +47,7 @@ describe("compiler: range limiting decorators", () => {
       strictEqual(getMaxValue(runner.program, floorProp), 10);
     });
 
-    it("applies @minLength and @maxLength decorators on float", async () => {
+    it("applies on float", async () => {
       const { Foo } = (await runner.compile(`
         @test model Foo {
           @minValue(2.5)
@@ -60,7 +61,7 @@ describe("compiler: range limiting decorators", () => {
       strictEqual(getMaxValue(runner.program, percentProp), 32.9);
     });
 
-    it("applies @minLength and @maxLength decorators on nullable numeric", async () => {
+    it("applies on nullable numeric", async () => {
       const { Foo } = (await runner.compile(`
         @test model Foo {
           @minValue(2.5)

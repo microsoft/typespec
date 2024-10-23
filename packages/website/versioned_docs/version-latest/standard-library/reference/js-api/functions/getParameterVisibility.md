@@ -4,20 +4,16 @@ title: "[F] getParameterVisibility"
 
 ---
 ```ts
-getParameterVisibility(program, entity): string[] | undefined
+function getParameterVisibility(program, type): undefined | string[]
 ```
-
-Returns the visibilities of the parameters of the given operation, if provided with `@parameterVisibility`.
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | [`Program`](../interfaces/Program.md) |
-| `entity` | [`Operation`](../interfaces/Operation.md) |
+| `type` | [`Type`](../type-aliases/Type.md) |
 
 ## Returns
 
-## See
-
-[$parameterVisibility]($parameterVisibility.md)
+`undefined` \| `string`[]

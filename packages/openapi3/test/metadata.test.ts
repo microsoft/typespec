@@ -1,7 +1,96 @@
 import { deepStrictEqual } from "assert";
+import { describe, it } from "vitest";
 import { openApiFor } from "./test-host.js";
 
 describe("openapi3: metadata", () => {
+  it("will expose all properties on unreferenced models but filter properties on referenced models", async () => {
+    const res = await openApiFor(`
+      model M {
+        @visibility("read") r: string;
+        @visibility("create", "update") uc?: string;
+        @visibility("read", "create") rc?: string;
+        @visibility("read", "update", "create") ruc?: string;
+      }
+    `);
+
+    deepStrictEqual(res.components.schemas, {
+      M: {
+        type: "object",
+        properties: {
+          r: { type: "string", readOnly: true },
+          uc: { type: "string" },
+          rc: { type: "string" },
+          ruc: { type: "string" },
+        },
+        required: ["r"],
+      },
+    });
+  });
+
+  it("prioritizes read visibility when referenced and unreferenced models share schemas", async () => {
+    const res = await openApiFor(`
+      model Shared {
+        @visibility("create", "update") password: string;
+        prop: string;
+      }
+
+      model Unreferenced {
+        @visibility("read") r: string;
+        @visibility("create") c: string;
+        shared: Shared;
+      }
+
+      model Referenced {
+        @visibility("read") r: string;
+        @visibility("create") c: string;
+        shared: Shared;
+      }
+
+      @get op get(): Referenced;
+    `);
+
+    deepStrictEqual(res.components.schemas, {
+      Referenced: {
+        type: "object",
+        properties: {
+          r: { type: "string", readOnly: true },
+          shared: { $ref: "#/components/schemas/Shared" },
+        },
+        required: ["r", "shared"],
+      },
+      Shared: {
+        type: "object",
+        required: ["prop"],
+        properties: {
+          prop: {
+            type: "string",
+          },
+        },
+      },
+      SharedReadOrCreateOrUpdateOrDeleteOrQuery: {
+        type: "object",
+        required: ["password", "prop"],
+        properties: {
+          password: {
+            type: "string",
+          },
+          prop: {
+            type: "string",
+          },
+        },
+      },
+      Unreferenced: {
+        type: "object",
+        properties: {
+          c: { type: "string" },
+          r: { type: "string", readOnly: true },
+          shared: { $ref: "#/components/schemas/SharedReadOrCreateOrUpdateOrDeleteOrQuery" },
+        },
+        required: ["r", "c", "shared"],
+      },
+    });
+  });
+
   it("will expose create visibility properties on PATCH model using @requestVisibility", async () => {
     const res = await openApiFor(`
       model M {
@@ -198,6 +287,43 @@ describe("openapi3: metadata", () => {
     });
   });
 
+  it("emits the appropriate properties for ResourceCreateModel", async () => {
+    const res = await openApiFor(`
+    using TypeSpec.Rest.Resource;
+
+    model M {
+      @visibility("read") r?: string;
+      @visibility("create") c?: string;
+      @visibility("update") u?: string;
+      all: string;
+    }
+
+    model MCreate is ResourceCreateModel<M>;
+
+    @route("/") @post op create(...MCreate): M; 
+    `);
+
+    deepStrictEqual(res.components.schemas, {
+      MCreate: {
+        type: "object",
+        description: "Resource create operation model.",
+        properties: {
+          c: { type: "string" },
+          all: { type: "string" },
+        },
+        required: ["all"],
+      },
+      M: {
+        type: "object",
+        properties: {
+          r: { type: "string", readOnly: true },
+          all: { type: "string" },
+        },
+        required: ["all"],
+      },
+    });
+  });
+
   it("bubbles up visibility changes to referencers", async () => {
     const res = await openApiFor(
       `
@@ -263,7 +389,7 @@ describe("openapi3: metadata", () => {
     }
     `,
       undefined,
-      { "omit-unreachable-types": true }
+      { "omit-unreachable-types": true },
     );
 
     deepStrictEqual(res.components.schemas, {
@@ -486,8 +612,8 @@ describe("openapi3: metadata", () => {
        @header h: string;
       }
       @route("/single") @get op single(...Parameters): string;
-      @route("/batch") @get op batch(...Body<Parameters[]>): string;
-      `
+      @route("/batch") @get op batch(@bodyRoot _: Parameters[]): string;
+      `,
     );
     deepStrictEqual(res.paths, {
       "/single/{p}": {
@@ -517,7 +643,6 @@ describe("openapi3: metadata", () => {
             },
           },
           requestBody: {
-            description: "The body type of the operation request or response.",
             required: true,
             content: {
               "application/json": {
@@ -536,6 +661,7 @@ describe("openapi3: metadata", () => {
         "Parameters.q": {
           name: "q",
           in: "query",
+          explode: false,
           required: true,
           schema: { type: "string" },
         },
@@ -581,7 +707,7 @@ describe("openapi3: metadata", () => {
         foo: string;
         bar: int32;
       ): string;
-      `
+      `,
     );
     deepStrictEqual(res.paths, {
       "/test": {
@@ -592,6 +718,7 @@ describe("openapi3: metadata", () => {
               name: "q",
               in: "query",
               required: true,
+              explode: false,
               schema: { type: "string" },
             },
             {
@@ -640,8 +767,8 @@ describe("openapi3: metadata", () => {
         @path p: string;
         @header h: string;
       }
-      @route("/batch") @post op batch(@body body?: Parameters[]): string;
-      `
+      @route("/batch") @post op batch(@bodyRoot body?: Parameters[]): string;
+      `,
     );
     deepStrictEqual(res.paths, {
       "/batch": {
@@ -698,7 +825,7 @@ describe("openapi3: metadata", () => {
         @visibility("delete") d: string;
       }
       @route("/") @post op createMultiple(...Thing): Thing[];
-      `
+      `,
     );
 
     const request = res.paths["/"].post.requestBody.content["application/json"].schema;
@@ -746,7 +873,7 @@ describe("openapi3: metadata", () => {
        inner?: Thing;
       }
       @route("/") @get op get(): Thing;
-      `
+      `,
     );
 
     const response = res.paths["/"].get.responses["200"].content["application/json"].schema;
@@ -774,7 +901,7 @@ describe("openapi3: metadata", () => {
       }
 
       @route("/") @post op create(...Thing): Thing;
-      `
+      `,
     );
 
     const request = res.paths["/"].post.requestBody.content["application/json"].schema;
@@ -800,7 +927,7 @@ describe("openapi3: metadata", () => {
     });
   });
 
-  it("supports nested metadata and removes emptied properties", async () => {
+  it("supports nested metadata", async () => {
     const res = await openApiFor(
       `
       model Pet {
@@ -818,7 +945,7 @@ describe("openapi3: metadata", () => {
       
       @route("/pets")
       @post op create(...Pet): Pet;
-      `
+      `,
     );
 
     deepStrictEqual(res.paths, {
@@ -826,9 +953,6 @@ describe("openapi3: metadata", () => {
         post: {
           operationId: "create",
           parameters: [
-            {
-              $ref: "#/components/parameters/Pet.id",
-            },
             {
               name: "h1",
               in: "header",
@@ -844,6 +968,9 @@ describe("openapi3: metadata", () => {
               schema: {
                 type: "string",
               },
+            },
+            {
+              $ref: "#/components/parameters/Pet.id",
             },
           ],
           responses: {
@@ -890,15 +1017,33 @@ describe("openapi3: metadata", () => {
       PetCreate: {
         type: "object",
         properties: {
+          headers: {
+            type: "object",
+            properties: {
+              moreHeaders: {
+                type: "object",
+              },
+            },
+            required: ["moreHeaders"],
+          },
           name: {
             type: "string",
           },
         },
-        required: ["name"],
+        required: ["headers", "name"],
       },
       Pet: {
         type: "object",
         properties: {
+          headers: {
+            type: "object",
+            properties: {
+              moreHeaders: {
+                type: "object",
+              },
+            },
+            required: ["moreHeaders"],
+          },
           id: {
             type: "string",
           },
@@ -906,7 +1051,7 @@ describe("openapi3: metadata", () => {
             type: "string",
           },
         },
-        required: ["id", "name"],
+        required: ["headers", "id", "name"],
       },
     });
   });
@@ -919,7 +1064,7 @@ describe("openapi3: metadata", () => {
         @body body: bytes;
       }
       op doStuffWithBytes(data: Image): int32;
-      `
+      `,
     );
 
     const requestSchema =
@@ -936,12 +1081,140 @@ describe("openapi3: metadata", () => {
         moreNesting: { @body body: bytes };
       }
       op doStuffWithBytes(data: Image): int32;
-      `
+      `,
     );
 
     const requestSchema =
       res.paths["/"].post.requestBody.content["application/octet-stream"].schema;
 
     deepStrictEqual(requestSchema, { format: "binary", type: "string" });
+  });
+
+  it("don't create multiple scalars with different visibility if they are the same", async () => {
+    const res = await openApiFor(`
+      scalar uuid extends string;
+
+      model Bar {
+        id: uuid;
+      }
+      
+      @patch op test(...Bar): Bar;
+    `);
+
+    deepStrictEqual(Object.keys(res.components.schemas), ["Bar", "BarUpdate", "uuid"]);
+    deepStrictEqual(res.components.schemas.uuid, {
+      type: "string",
+    });
+  });
+
+  it("model referenced via a patch operation and an unreachable types does create 2 schemas", async () => {
+    const res = await openApiFor(`
+      model Bar {
+        id: string;
+      }
+      
+      @patch op test(bar: Bar): void;
+
+      model Foo {
+        bar: Bar;
+      }
+    `);
+
+    deepStrictEqual(res.components.schemas, {
+      Bar: {
+        type: "object",
+        required: ["id"],
+        properties: {
+          id: {
+            type: "string",
+          },
+        },
+      },
+      BarUpdate: {
+        type: "object",
+        properties: {
+          id: {
+            type: "string",
+          },
+        },
+      },
+      Foo: {
+        type: "object",
+        required: ["bar"],
+        properties: {
+          bar: {
+            $ref: "#/components/schemas/Bar",
+          },
+        },
+      },
+    });
+  });
+
+  it("base models used in different visibility gets distinct names", async () => {
+    const res = await openApiFor(`
+      model Widget {
+        @visibility("read", "update")
+        @path
+        id: string;
+      
+        weight: int32;
+      }
+      
+      model CreatedWidget extends Widget {}
+      
+      @post op create(widget: Widget): CreatedWidget;
+    `);
+
+    deepStrictEqual(Object.keys(res.components.schemas), [
+      "CreatedWidget",
+      "CreatedWidgetCreate",
+      "Widget",
+      "WidgetCreate",
+    ]);
+  });
+
+  it("unreachable models include @path properties", async () => {
+    const res = await openApiFor(`
+      model Unreachable {
+        @path name: string;
+      }
+    `);
+
+    deepStrictEqual(res.components.schemas.Unreachable, {
+      type: "object",
+      properties: {
+        name: {
+          type: "string",
+        },
+      },
+      required: ["name"],
+    });
+  });
+
+  it("inheritance tree unreachable with @path doesn't get conflicts", async () => {
+    const res = await openApiFor(`
+      model Base {
+      }
+
+      model Child extends Base {
+        @path name: string;
+      }
+    `);
+
+    deepStrictEqual(Object.keys(res.components.schemas), ["Base", "Child"]);
+    deepStrictEqual(res.components.schemas.Child, {
+      type: "object",
+      allOf: [
+        {
+          $ref: "#/components/schemas/Base",
+        },
+      ],
+      properties: {
+        name: {
+          type: "string",
+        },
+      },
+      required: ["name"],
+    });
   });
 });

@@ -2,24 +2,15 @@ import { deepStrictEqual, ok } from "assert";
 import { readFile } from "fs/promises";
 import { createRequire } from "module";
 import { dirname, resolve } from "path";
-import { fileURLToPath } from "url";
+import { describe, it } from "vitest";
 import vscode_oniguruma from "vscode-oniguruma";
 import vscode_textmate, { IOnigLib, StateStack } from "vscode-textmate";
-import { createSourceFile } from "../../src/core/diagnostics.js";
-import { SemanticToken, SemanticTokenKind } from "../../src/server/serverlib.js";
+import { createSourceFile } from "../../src/core/source-file.js";
 import { TypeSpecScope } from "../../src/server/tmlanguage.js";
+import { SemanticToken, SemanticTokenKind } from "../../src/server/types.js";
 import { createTestServerHost } from "../../src/testing/test-server-host.js";
-
-// vscode-oniguruma depends on those type from the DOM library.
-// As we are only using this in this test it is better to not add the whole DOM library just for this.
-declare global {
-  type Response = any;
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace WebAssembly {
-    type WebAssemblyInstantiatedSource = any;
-    type ImportValue = any;
-  }
-}
+import { findTestPackageRoot } from "../../src/testing/test-utils.js";
+import { deepEquals } from "../../src/utils/index.js";
 
 const { parseRawGrammar, Registry } = vscode_textmate;
 const { createOnigScanner, createOnigString, loadWASM } = vscode_oniguruma;
@@ -42,6 +33,9 @@ const Token = {
   keywords: {
     model: createToken("model", "keyword.other.tsp"),
     scalar: createToken("scalar", "keyword.other.tsp"),
+    init: createToken("init", "keyword.other.tsp"),
+    enum: createToken("enum", "keyword.other.tsp"),
+    union: createToken("union", "keyword.other.tsp"),
     operation: createToken("op", "keyword.other.tsp"),
     namespace: createToken("namespace", "keyword.other.tsp"),
     interface: createToken("interface", "keyword.other.tsp"),
@@ -57,6 +51,9 @@ const Token = {
     to: createToken("to", "keyword.other.tsp"),
     from: createToken("from", "keyword.other.tsp"),
     valueof: createToken("valueof", "keyword.other.tsp"),
+    typeof: createToken("typeof", "keyword.other.tsp"),
+    const: createToken("const", "keyword.other.tsp"),
+    using: createToken("using", "keyword.other.tsp"),
     other: (text: string) => createToken(text, "keyword.other.tsp"),
   },
 
@@ -91,18 +88,26 @@ const Token = {
     closeBrace: createToken("}", "punctuation.curlybrace.close.tsp"),
     openParen: createToken("(", "punctuation.parenthesis.open.tsp"),
     closeParen: createToken(")", "punctuation.parenthesis.close.tsp"),
+    openHashBrace: createToken("#{", "punctuation.hashcurlybrace.open.tsp"),
+    openHashBracket: createToken("#[", "punctuation.hashsquarebracket.open.tsp"),
     semicolon: createToken(";", "punctuation.terminator.statement.tsp"),
 
     typeParameters: {
       begin: createToken("<", "punctuation.definition.typeparameters.begin.tsp"),
       end: createToken(">", "punctuation.definition.typeparameters.end.tsp"),
     },
+    templateExpression: {
+      begin: createToken("${", "punctuation.definition.template-expression.begin.tsp"),
+      end: createToken("}", "punctuation.definition.template-expression.end.tsp"),
+    },
   },
 
   literals: {
+    escape: (char: string) => createToken(`\\${char}`, "constant.character.escape.tsp"),
     numeric: (text: string) => createToken(text, "constant.numeric.tsp"),
-    string: (text: string) =>
-      createToken(text.startsWith('"') ? text : '"' + text + '"', "string.quoted.double.tsp"),
+    stringQuoted: (text: string) => createToken('"' + text + '"', "string.quoted.double.tsp"),
+    string: (text: string) => createToken(text, "string.quoted.double.tsp"),
+    stringTriple: (text: string) => createToken(text, "string.quoted.triple.tsp"),
   },
   comment: {
     block: (text: string) => createToken(text, "comment.block.tsp"),
@@ -114,7 +119,165 @@ testColorization("semantic colorization", tokenizeSemantic);
 testColorization("tmlanguage", tokenizeTMLanguage);
 
 function testColorization(description: string, tokenize: Tokenize) {
+  function joinTokensInSemantic<T extends Token>(tokens: T[], separator: "" | "\n" = ""): T[] {
+    if (tokenize === tokenizeSemantic) {
+      return [createToken(tokens.map((x) => x.text).join(separator), tokens[0].scope)] as any;
+    }
+    return tokens;
+  }
+
   describe(`compiler: server: ${description}`, () => {
+    describe("strings", () => {
+      function templateTripleOrDouble(text: string): Token {
+        return tokenize === tokenizeSemantic
+          ? Token.literals.string(text)
+          : Token.literals.stringTriple(text);
+      }
+
+      describe("single line", () => {
+        it("tokenize template", async () => {
+          const tokens = await tokenize(`"Start \${123} end"`);
+          deepStrictEqual(tokens, [
+            ...joinTokensInSemantic([Token.literals.string('"'), Token.literals.string("Start ")]),
+            Token.punctuation.templateExpression.begin,
+            Token.literals.numeric("123"),
+            Token.punctuation.templateExpression.end,
+            ...joinTokensInSemantic([Token.literals.string(" end"), Token.literals.string('"')]),
+          ]);
+        });
+
+        it("tokenize template with multiple interpolation", async () => {
+          const tokens = await tokenize(`"Start \${123} middle \${456} end"`);
+          deepStrictEqual(tokens, [
+            ...joinTokensInSemantic([Token.literals.string('"'), Token.literals.string("Start ")]),
+            Token.punctuation.templateExpression.begin,
+            Token.literals.numeric("123"),
+            Token.punctuation.templateExpression.end,
+            Token.literals.string(" middle "),
+            Token.punctuation.templateExpression.begin,
+            Token.literals.numeric("456"),
+            Token.punctuation.templateExpression.end,
+            ...joinTokensInSemantic([Token.literals.string(" end"), Token.literals.string('"')]),
+          ]);
+        });
+
+        it("tokenize as a string if the template expression are escaped", async () => {
+          const tokens = await tokenize(`"Start \\\${123} end"`);
+          deepStrictEqual(tokens, [
+            ...joinTokensInSemantic([
+              Token.literals.string('"'),
+              Token.literals.string("Start "),
+              Token.literals.escape("$"),
+              Token.literals.string("{123} end"),
+              Token.literals.string('"'),
+            ]),
+          ]);
+        });
+
+        it("tokenize as a string if it is a simple string", async () => {
+          const tokens = await tokenize(`"Start end"`);
+          deepStrictEqual(tokens, [Token.literals.stringQuoted("Start end")]);
+        });
+      });
+
+      describe("multi line", () => {
+        it("tokenize template", async () => {
+          const tokens = await tokenize(`"""
+          Start \${123} 
+          end
+          """`);
+          deepStrictEqual(tokens, [
+            ...joinTokensInSemantic(
+              [Token.literals.stringTriple('"""'), Token.literals.stringTriple("          Start ")],
+              "\n",
+            ),
+            Token.punctuation.templateExpression.begin,
+            Token.literals.numeric("123"),
+            Token.punctuation.templateExpression.end,
+            ...joinTokensInSemantic(
+              [
+                templateTripleOrDouble(" "),
+                templateTripleOrDouble("          end"),
+                ...joinTokensInSemantic([
+                  templateTripleOrDouble("          "),
+                  templateTripleOrDouble('"""'),
+                ]),
+              ],
+              "\n",
+            ),
+          ]);
+        });
+
+        it("tokenize as a string if the template expression are escaped", async () => {
+          const tokens = await tokenize(`"""
+          Start \\\${123} 
+          end
+          """`);
+          deepStrictEqual(tokens, [
+            ...joinTokensInSemantic(
+              [
+                Token.literals.stringTriple('"""'),
+                ...joinTokensInSemantic([
+                  Token.literals.stringTriple("          Start "),
+                  Token.literals.escape("$"),
+                  Token.literals.stringTriple("{123} "),
+                ]),
+                Token.literals.stringTriple("          end"),
+                ...joinTokensInSemantic([
+                  Token.literals.stringTriple("          "),
+                  Token.literals.stringTriple('"""'),
+                ]),
+              ],
+              "\n",
+            ),
+          ]);
+        });
+
+        it("tokenize as a simple string", async () => {
+          const tokens = await tokenize(`"""
+          Start
+          end
+          """`);
+          deepStrictEqual(tokens, [
+            ...joinTokensInSemantic(
+              [
+                Token.literals.stringTriple(`"""`),
+                Token.literals.stringTriple("          Start"),
+                Token.literals.stringTriple("          end"),
+                ...joinTokensInSemantic([
+                  Token.literals.stringTriple("          "),
+                  Token.literals.stringTriple(`"""`),
+                ]),
+              ],
+              "\n",
+            ),
+          ]);
+        });
+      });
+    });
+
+    describe("using", () => {
+      it("single namespace", async () => {
+        const tokens = await tokenize("using foo;");
+        deepStrictEqual(tokens, [
+          Token.keywords.using,
+          Token.identifiers.type("foo"),
+          Token.punctuation.semicolon,
+        ]);
+      });
+
+      it("nested namespace", async () => {
+        const tokens = await tokenize("using foo.bar;");
+        deepStrictEqual(tokens, [
+          Token.keywords.using,
+          Token.identifiers.type("foo"),
+          Token.punctuation.accessor,
+          Token.identifiers.type("bar"),
+          Token.punctuation.semicolon,
+        ]);
+      });
+    });
+
     describe("aliases", () => {
       it("simple alias", async () => {
         const tokens = await tokenize("alias Foo = string");
@@ -187,6 +350,23 @@ function testColorization(description: string, tokenize: Tokenize) {
       });
     });
 
+    describe("typeof", () => {
+      it("simple typeof", async () => {
+        const tokens = await tokenize(`alias B = Foo<typeof "abc">;`);
+        deepStrictEqual(tokens, [
+          Token.keywords.alias,
+          Token.identifiers.type("B"),
+          Token.operators.assignment,
+          Token.identifiers.type("Foo"),
+          Token.punctuation.typeParameters.begin,
+          Token.keywords.typeof,
+          Token.literals.stringQuoted("abc"),
+          Token.punctuation.typeParameters.end,
+          Token.punctuation.semicolon,
+        ]);
+      });
+    });
+
     describe("decorators", () => {
       it("simple parameterless decorator", async () => {
         const tokens = await tokenize("@foo");
@@ -213,7 +393,7 @@ function testColorization(description: string, tokenize: Tokenize) {
           Token.identifiers.tag("@"),
           Token.identifiers.tag("foo"),
           Token.punctuation.openParen,
-          Token.literals.string("param1"),
+          Token.literals.stringQuoted("param1"),
           Token.punctuation.comma,
           Token.literals.numeric("123"),
           Token.punctuation.closeParen,
@@ -226,7 +406,7 @@ function testColorization(description: string, tokenize: Tokenize) {
         Token.punctuation.openParen,
         Token.identifiers.type("MyModel"),
         Token.punctuation.comma,
-        Token.literals.string("param1"),
+        Token.literals.stringQuoted("param1"),
         Token.punctuation.comma,
         Token.literals.numeric("123"),
         Token.punctuation.closeParen,
@@ -532,7 +712,7 @@ function testColorization(description: string, tokenize: Tokenize) {
           Token.operators.typeAnnotation,
           Token.identifiers.type("string"),
           Token.operators.assignment,
-          Token.literals.string("my-default"),
+          Token.literals.stringQuoted("my-default"),
           Token.punctuation.semicolon,
           Token.punctuation.closeBrace,
         ]);
@@ -609,6 +789,212 @@ function testColorization(description: string, tokenize: Tokenize) {
           Token.identifiers.type("T"),
           Token.punctuation.typeParameters.end,
           Token.punctuation.semicolon,
+        ]);
+      });
+
+      it("scalar with constructor", async () => {
+        const tokens = await tokenize("scalar foo { init fromFoo(value: string); }");
+        deepStrictEqual(tokens, [
+          Token.keywords.scalar,
+          Token.identifiers.type("foo"),
+          Token.punctuation.openBrace,
+          Token.keywords.init,
+          Token.identifiers.functionName("fromFoo"),
+          Token.punctuation.openParen,
+          Token.identifiers.variable("value"),
+          Token.operators.typeAnnotation,
+          Token.identifiers.type("string"),
+          Token.punctuation.closeParen,
+          Token.punctuation.semicolon,
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
+      it("scalar with body doesn't need semi colon for next statement", async () => {
+        const tokens = await tokenize(`
+          scalar foo { }
+          scalar bar;
+        `);
+        deepStrictEqual(tokens, [
+          Token.keywords.scalar,
+          Token.identifiers.type("foo"),
+          Token.punctuation.openBrace,
+          Token.punctuation.closeBrace,
+          Token.keywords.scalar,
+          Token.identifiers.type("bar"),
+          Token.punctuation.semicolon,
+        ]);
+      });
+    });
+
+    describe("template argument", () => {
+      it("multiple named arguments", async () => {
+        const tokens = await tokenize("alias X = Foo<boolean, T = string, U = int32>;");
+        deepStrictEqual(tokens, [
+          Token.keywords.alias,
+          Token.identifiers.type("X"),
+          Token.operators.assignment,
+          Token.identifiers.type("Foo"),
+          Token.punctuation.typeParameters.begin,
+          Token.identifiers.type("boolean"),
+          Token.punctuation.comma,
+          Token.identifiers.type("T"),
+          Token.operators.assignment,
+          Token.identifiers.type("string"),
+          Token.punctuation.comma,
+          Token.identifiers.type("U"),
+          Token.operators.assignment,
+          Token.identifiers.type("int32"),
+          Token.punctuation.typeParameters.end,
+          Token.punctuation.semicolon,
+        ]);
+      });
+
+      it("multiple references", async () => {
+        const tokens = await tokenize(`
+          alias A = Foo<Parameters=string>;
+          alias B = Foo<Parameters=string>;  
+        `);
+        deepStrictEqual(tokens, [
+          Token.keywords.alias,
+          Token.identifiers.type("A"),
+          Token.operators.assignment,
+          Token.identifiers.type("Foo"),
+          Token.punctuation.typeParameters.begin,
+          Token.identifiers.type("Parameters"),
+          Token.operators.assignment,
+          Token.identifiers.type("string"),
+          Token.punctuation.typeParameters.end,
+          Token.punctuation.semicolon,
+          // --
+          Token.keywords.alias,
+          Token.identifiers.type("B"),
+          Token.operators.assignment,
+          Token.identifiers.type("Foo"),
+          Token.punctuation.typeParameters.begin,
+          Token.identifiers.type("Parameters"),
+          Token.operators.assignment,
+          Token.identifiers.type("string"),
+          Token.punctuation.typeParameters.end,
+          Token.punctuation.semicolon,
+        ]);
+      });
+    });
+
+    describe("enums", () => {
+      it("simple enum", async () => {
+        const tokens = await tokenize("enum Foo {}");
+        deepStrictEqual(tokens, [
+          Token.keywords.enum,
+          Token.identifiers.type("Foo"),
+          Token.punctuation.openBrace,
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
+      it("enum with simple members", async () => {
+        const tokens = await tokenize("enum Direction { up, down}");
+        deepStrictEqual(tokens, [
+          Token.keywords.enum,
+          Token.identifiers.type("Direction"),
+          Token.punctuation.openBrace,
+          Token.identifiers.variable("up"),
+          Token.punctuation.comma,
+          Token.identifiers.variable("down"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
+      it("enum with escaped identifiers", async () => {
+        const tokens = await tokenize("enum Direction { `North West`, `North West`}");
+        deepStrictEqual(tokens, [
+          Token.keywords.enum,
+          Token.identifiers.type("Direction"),
+          Token.punctuation.openBrace,
+          Token.identifiers.variable("`North West`"),
+          Token.punctuation.comma,
+          Token.identifiers.variable("`North West`"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
+      it("enum with string values", async () => {
+        const tokens = await tokenize(`enum Direction { up: "Up", down: "Down"}`);
+        deepStrictEqual(tokens, [
+          Token.keywords.enum,
+          Token.identifiers.type("Direction"),
+          Token.punctuation.openBrace,
+          Token.identifiers.variable("up"),
+          Token.operators.typeAnnotation,
+          Token.literals.stringQuoted("Up"),
+          Token.punctuation.comma,
+          Token.identifiers.variable("down"),
+          Token.operators.typeAnnotation,
+          Token.literals.stringQuoted("Down"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
+    });
+
+    describe("union statements", () => {
+      it("simple union", async () => {
+        const tokens = await tokenize("union Foo {}");
+        deepStrictEqual(tokens, [
+          Token.keywords.union,
+          Token.identifiers.type("Foo"),
+          Token.punctuation.openBrace,
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
+      it("union with unamed variants", async () => {
+        const tokens = await tokenize(`union Direction { "up", string, 123 }`);
+        deepStrictEqual(tokens, [
+          Token.keywords.union,
+          Token.identifiers.type("Direction"),
+          Token.punctuation.openBrace,
+          Token.literals.stringQuoted("up"),
+          Token.punctuation.comma,
+          Token.identifiers.type("string"),
+          Token.punctuation.comma,
+          Token.literals.numeric("123"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
+      it("union with named variants", async () => {
+        const tokens = await tokenize(`union Direction { up: "Up", down: "Down" }`);
+        deepStrictEqual(tokens, [
+          Token.keywords.union,
+          Token.identifiers.type("Direction"),
+          Token.punctuation.openBrace,
+          Token.identifiers.variable("up"),
+          Token.operators.typeAnnotation,
+          Token.literals.stringQuoted("Up"),
+          Token.punctuation.comma,
+          Token.identifiers.variable("down"),
+          Token.operators.typeAnnotation,
+          Token.literals.stringQuoted("Down"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
+      it("union with named variants with escaped identifier", async () => {
+        const tokens = await tokenize(
+          `union Direction { \`north east\`: "North East", \`north west\`: "North West" }`,
+        );
+        deepStrictEqual(tokens, [
+          Token.keywords.union,
+          Token.identifiers.type("Direction"),
+          Token.punctuation.openBrace,
+          Token.identifiers.variable("`north east`"),
+          Token.operators.typeAnnotation,
+          Token.literals.stringQuoted("North East"),
+          Token.punctuation.comma,
+          Token.identifiers.variable("`north west`"),
+          Token.operators.typeAnnotation,
+          Token.literals.stringQuoted("North West"),
+          Token.punctuation.closeBrace,
         ]);
       });
     });
@@ -714,7 +1100,7 @@ function testColorization(description: string, tokenize: Tokenize) {
           Token.operators.typeAnnotation,
           Token.identifiers.type("string"),
           Token.operators.assignment,
-          Token.literals.string("my-default"),
+          Token.literals.stringQuoted("my-default"),
 
           Token.punctuation.closeParen,
           Token.operators.typeAnnotation,
@@ -724,7 +1110,7 @@ function testColorization(description: string, tokenize: Tokenize) {
 
       it("operation with decorated parameters", async () => {
         const tokens = await tokenize(
-          "op foo(@path param1: string, @query param2?: int32): string"
+          "op foo(@path param1: string, @query param2?: int32): string",
         );
         deepStrictEqual(tokens, [
           Token.keywords.operation,
@@ -766,7 +1152,7 @@ function testColorization(description: string, tokenize: Tokenize) {
 
       it("defining a templated operation signature", async () => {
         const tokens = await tokenize(
-          "op ResourceRead<TResource> is ResourceReadBase<TResource, DefaultOptions>"
+          "op ResourceRead<TResource> is ResourceReadBase<TResource, DefaultOptions>",
         );
         deepStrictEqual(tokens, [
           Token.keywords.operation,
@@ -781,6 +1167,146 @@ function testColorization(description: string, tokenize: Tokenize) {
           Token.punctuation.comma,
           Token.identifiers.type("DefaultOptions"),
           Token.punctuation.typeParameters.end,
+        ]);
+      });
+    });
+
+    describe("const", () => {
+      it("without type annotation", async () => {
+        const tokens = await tokenize("const foo = 123;");
+        deepStrictEqual(tokens, [
+          Token.keywords.const,
+          Token.identifiers.variable("foo"),
+          Token.operators.assignment,
+          Token.literals.numeric("123"),
+          Token.punctuation.semicolon,
+        ]);
+      });
+
+      it("with type annotation", async () => {
+        const tokens = await tokenize("const foo: int32 = 123;");
+        deepStrictEqual(tokens, [
+          Token.keywords.const,
+          Token.identifiers.variable("foo"),
+          Token.operators.typeAnnotation,
+          Token.identifiers.type("int32"),
+          Token.operators.assignment,
+          Token.literals.numeric("123"),
+          Token.punctuation.semicolon,
+        ]);
+      });
+    });
+
+    describe("call expressions", () => {
+      it("without parameters", async () => {
+        const tokens = await tokenizeWithConst("foo()");
+        deepStrictEqual(tokens, [
+          Token.identifiers.functionName("foo"),
+          Token.punctuation.openParen,
+          Token.punctuation.closeParen,
+        ]);
+      });
+    });
+
+    describe("object literals", () => {
+      it("empty", async () => {
+        const tokens = await tokenizeWithConst("#{}");
+        deepStrictEqual(tokens, [Token.punctuation.openHashBrace, Token.punctuation.closeBrace]);
+      });
+
+      it("single prop", async () => {
+        const tokens = await tokenizeWithConst(`#{name: "John"}`);
+        deepStrictEqual(tokens, [
+          Token.punctuation.openHashBrace,
+          Token.identifiers.variable("name"),
+          Token.operators.typeAnnotation,
+          Token.literals.stringQuoted("John"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
+      it("multiple prop", async () => {
+        const tokens = await tokenizeWithConst(`#{name: "John", age: 21}`);
+        deepStrictEqual(tokens, [
+          Token.punctuation.openHashBrace,
+          Token.identifiers.variable("name"),
+          Token.operators.typeAnnotation,
+          Token.literals.stringQuoted("John"),
+          Token.punctuation.comma,
+          Token.identifiers.variable("age"),
+          Token.operators.typeAnnotation,
+          Token.literals.numeric("21"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
+      it("spreading prop", async () => {
+        const tokens = await tokenizeWithConst(`#{name: "John", ...Common}`);
+        deepStrictEqual(tokens, [
+          Token.punctuation.openHashBrace,
+          Token.identifiers.variable("name"),
+          Token.operators.typeAnnotation,
+          Token.literals.stringQuoted("John"),
+          Token.punctuation.comma,
+          Token.operators.spread,
+          Token.identifiers.type("Common"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
+      it("nested prop", async () => {
+        const tokens = await tokenizeWithConst(`#{prop: #{age: 21}}`);
+        deepStrictEqual(tokens, [
+          Token.punctuation.openHashBrace,
+          Token.identifiers.variable("prop"),
+          Token.operators.typeAnnotation,
+          Token.punctuation.openHashBrace,
+          Token.identifiers.variable("age"),
+          Token.operators.typeAnnotation,
+          Token.literals.numeric("21"),
+          Token.punctuation.closeBrace,
+          Token.punctuation.closeBrace,
+        ]);
+      });
+    });
+
+    describe("array literals", () => {
+      it("empty", async () => {
+        const tokens = await tokenizeWithConst("#[]");
+        deepStrictEqual(tokens, [
+          Token.punctuation.openHashBracket,
+          Token.punctuation.closeBracket,
+        ]);
+      });
+
+      it("single value", async () => {
+        const tokens = await tokenizeWithConst(`#["John"]`);
+        deepStrictEqual(tokens, [
+          Token.punctuation.openHashBracket,
+          Token.literals.stringQuoted("John"),
+          Token.punctuation.closeBracket,
+        ]);
+      });
+
+      it("multiple values", async () => {
+        const tokens = await tokenizeWithConst(`#["John", 21]`);
+        deepStrictEqual(tokens, [
+          Token.punctuation.openHashBracket,
+          Token.literals.stringQuoted("John"),
+          Token.punctuation.comma,
+          Token.literals.numeric("21"),
+          Token.punctuation.closeBracket,
+        ]);
+      });
+
+      it("nested tuple", async () => {
+        const tokens = await tokenizeWithConst(`#[#[21]]`);
+        deepStrictEqual(tokens, [
+          Token.punctuation.openHashBracket,
+          Token.punctuation.openHashBracket,
+          Token.literals.numeric("21"),
+          Token.punctuation.closeBracket,
+          Token.punctuation.closeBracket,
         ]);
       });
     });
@@ -875,6 +1401,49 @@ function testColorization(description: string, tokenize: Tokenize) {
             Token.comment.block("*/"),
           ]);
         });
+
+        describe("in template parameters", () => {
+          it.each([
+            [
+              "alias",
+              `alias Foo<T // comment
+                > = T`,
+            ],
+            [
+              "model",
+              `model Foo<T // comment
+                > {}`,
+            ],
+            [
+              "union",
+              `union Foo<T // comment
+                > {}`,
+            ],
+            [
+              "interface",
+              `interface Foo<T // comment
+                > {}`,
+            ],
+            [
+              "operation",
+              `op foo<T // comment
+                >(): void;`,
+            ],
+          ])("%s", async () => {
+            const tokens = await tokenize(`alias Foo<T // comment
+            > = T`);
+
+            const index = tokens.findIndex((x) =>
+              deepEquals(x, Token.punctuation.typeParameters.begin),
+            );
+            deepStrictEqual(tokens.slice(index, index + 4), [
+              Token.punctuation.typeParameters.begin,
+              Token.identifiers.type("T"),
+              Token.comment.line("// comment"),
+              Token.punctuation.typeParameters.end,
+            ]);
+          });
+        });
       });
     }
 
@@ -901,7 +1470,7 @@ function testColorization(description: string, tokenize: Tokenize) {
             * Doc comment
             * @param foo Foo desc
             */
-          alias A = 1;`
+          alias A = 1;`,
         );
 
         deepStrictEqual(tokens, [
@@ -918,12 +1487,29 @@ function testColorization(description: string, tokenize: Tokenize) {
             * Doc comment
             * @template foo Foo desc
             */
-          alias A = 1;`
+          alias A = 1;`,
         );
 
         deepStrictEqual(tokens, [
           Token.tspdoc.tag("@"),
           Token.tspdoc.tag("template"),
+          Token.identifiers.variable("foo"),
+          ...common,
+        ]);
+      });
+
+      it("tokenize @prop", async () => {
+        const tokens = await tokenizeDocComment(
+          `/**
+            * Doc comment
+            * @prop foo Foo desc
+            */
+          alias A = 1;`,
+        );
+
+        deepStrictEqual(tokens, [
+          Token.tspdoc.tag("@"),
+          Token.tspdoc.tag("prop"),
           Token.identifiers.variable("foo"),
           ...common,
         ]);
@@ -935,7 +1521,7 @@ function testColorization(description: string, tokenize: Tokenize) {
             * Doc comment
             * @returns Foo desc
             */
-          alias A = 1;`
+          alias A = 1;`,
         );
 
         deepStrictEqual(tokens, [Token.tspdoc.tag("@"), Token.tspdoc.tag("returns"), ...common]);
@@ -946,7 +1532,7 @@ function testColorization(description: string, tokenize: Tokenize) {
             * Doc comment
             * @custom Foo desc
             */
-          alias A = 1;`
+          alias A = 1;`,
         );
 
         deepStrictEqual(tokens, [
@@ -1033,7 +1619,7 @@ function testColorization(description: string, tokenize: Tokenize) {
             Token.punctuation.semicolon,
             Token.punctuation.closeBrace,
             Token.punctuation.semicolon,
-          ]
+          ],
         );
       });
 
@@ -1066,7 +1652,7 @@ function testColorization(description: string, tokenize: Tokenize) {
             Token.punctuation.closeBrace,
 
             Token.punctuation.semicolon,
-          ]
+          ],
         );
       });
 
@@ -1083,11 +1669,25 @@ function testColorization(description: string, tokenize: Tokenize) {
             Token.identifiers.type("name"),
             Token.punctuation.closeParen,
             Token.punctuation.semicolon,
-          ]
+          ],
         );
       });
     });
   });
+
+  async function tokenizeWithConst(text: string) {
+    const common = [
+      Token.keywords.const,
+      Token.identifiers.variable("a"),
+      Token.operators.assignment,
+    ];
+    const tokens = await tokenize(`const a = ${text}`);
+    for (let i = 0; i < common.length; i++) {
+      deepStrictEqual(tokens[i], common[i]);
+    }
+
+    return tokens.slice(common.length);
+  }
 }
 
 const punctuationMap = getPunctuationMap();
@@ -1099,11 +1699,24 @@ export async function tokenizeSemantic(input: string): Promise<Token[]> {
   const semanticTokens = await host.server.getSemanticTokens({ textDocument: document });
   const tokens = [];
 
+  let templateStack = 0;
   for (const semanticToken of semanticTokens) {
     const text = file.text.substring(semanticToken.pos, semanticToken.end);
-    const token = convertSemanticToken(semanticToken, text);
-    if (token) {
-      tokens.push(token);
+    if (text === "${" && semanticToken.kind === SemanticTokenKind.Operator) {
+      templateStack++;
+      tokens.push(Token.punctuation.templateExpression.begin);
+    } else if (
+      templateStack > 0 &&
+      text === "}" &&
+      semanticToken.kind === SemanticTokenKind.Operator
+    ) {
+      templateStack--;
+      tokens.push(Token.punctuation.templateExpression.end);
+    } else {
+      const token = convertSemanticToken(semanticToken, text);
+      if (token) {
+        tokens.push(token);
+      }
     }
   }
 
@@ -1131,7 +1744,9 @@ export async function tokenizeSemantic(input: string): Promise<Token[]> {
       case SemanticTokenKind.Keyword:
         return Token.keywords.other(text);
       case SemanticTokenKind.String:
-        return Token.literals.string(text);
+        return text.startsWith(`"""`)
+          ? Token.literals.stringTriple(text)
+          : Token.literals.string(text);
       case SemanticTokenKind.Comment:
         return Token.comment.block(text);
       case SemanticTokenKind.Number:
@@ -1166,8 +1781,8 @@ const registry = new Registry({
   onigLib: createOnigLib(),
   loadGrammar: async () => {
     const data = await readFile(
-      resolve(dirname(fileURLToPath(import.meta.url)), "../../typespec.tmLanguage"),
-      "utf-8"
+      resolve(await findTestPackageRoot(import.meta.url), "dist/typespec.tmLanguage"),
+      "utf-8",
     );
     return parseRawGrammar(data);
   },
@@ -1241,7 +1856,7 @@ interface Span {
 class Input {
   private constructor(
     public lines: string[],
-    public span: Span
+    public span: Span,
   ) {}
 
   public static fromText(text: string) {
@@ -1269,7 +1884,9 @@ function getPunctuationMap(): ReadonlyMap<string, Token> {
       if ("text" in value) {
         map.set(value.text, value);
       } else {
-        visit(value);
+        if (value !== Token.punctuation.templateExpression) {
+          visit(value);
+        }
       }
     }
   }

@@ -1,18 +1,14 @@
 import {
-  BooleanLiteral,
   compilerAssert,
-  DiagnosticTarget,
-  DiscriminatedUnion,
+  createDiagnosticCollector,
+  Diagnostic,
+  DiagnosticCollector,
   EmitContext,
   emitFile,
-  Enum,
-  EnumMember,
+  Example,
   getAllTags,
   getAnyExtensionFromPath,
-  getDiscriminatedUnion,
-  getDiscriminator,
   getDoc,
-  getEncode,
   getFormat,
   getKnownValues,
   getMaxItems,
@@ -29,111 +25,138 @@ import {
   getSummary,
   ignoreDiagnostics,
   interpolatePath,
-  IntrinsicScalarName,
-  IntrinsicType,
-  isArrayModelType,
   isDeprecated,
-  isErrorType,
   isGlobalNamespace,
   isNeverType,
-  isNullType,
-  isRecordModelType,
   isSecret,
-  isTemplateDeclaration,
+  isVoidType,
   listServices,
-  Model,
   ModelProperty,
   Namespace,
   navigateTypesInNamespace,
   NewLine,
-  NumericLiteral,
-  Operation,
   Program,
   ProjectionApplication,
   projectProgram,
   resolvePath,
-  Scalar,
   Service,
-  StringLiteral,
-  TwoLevelMap,
   Type,
   TypeNameOptions,
-  Union,
-  UnionVariant,
 } from "@typespec/compiler";
 
+import { AssetEmitter, createAssetEmitter, EmitEntity } from "@typespec/compiler/emitter-framework";
+import {} from "@typespec/compiler/utils";
 import {
+  AuthenticationOptionReference,
+  AuthenticationReference,
   createMetadataInfo,
-  getAuthentication,
   getHttpService,
   getServers,
   getStatusCodeDescription,
-  getVisibilitySuffix,
   HeaderFieldOptions,
   HttpAuth,
   HttpOperation,
+  HttpOperationBody,
+  HttpOperationMultipartBody,
   HttpOperationParameter,
-  HttpOperationParameters,
-  HttpOperationRequestBody,
+  HttpOperationPart,
   HttpOperationResponse,
   HttpOperationResponseContent,
   HttpServer,
-  HttpStatusCodeRange,
-  HttpStatusCodesEntry,
-  HttpVerb,
+  HttpServiceAuthentication,
   isContentTypeHeader,
+  isOrExtendsHttpFile,
   isOverloadSameEndpoint,
   MetadataInfo,
-  QueryParameterOptions,
   reportIfNoRoutes,
+  resolveAuthentication,
   resolveRequestVisibility,
-  ServiceAuthentication,
   Visibility,
 } from "@typespec/http";
 import {
-  checkDuplicateTypeName,
   getExtensions,
   getExternalDocs,
-  getInfo,
   getOpenAPITypeName,
   getParameterKey,
-  isDefaultResponse,
   isReadonlyProperty,
+  resolveInfo,
   resolveOperationId,
   shouldInline,
 } from "@typespec/openapi";
-import { buildVersionProjections } from "@typespec/versioning";
+import { buildVersionProjections, VersionProjections } from "@typespec/versioning";
 import { stringify } from "yaml";
-import { getOneOf, getRef } from "./decorators.js";
-import { FileType, OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
+import { getRef } from "./decorators.js";
+import { applyEncoding } from "./encoding.js";
+import { getExampleOrExamples, OperationExamples, resolveOperationExamples } from "./examples.js";
+import { createDiagnostic, FileType, OpenAPI3EmitterOptions } from "./lib.js";
+import { getDefaultValue, isBytesKeptRaw, OpenAPI3SchemaEmitter } from "./schema-emitter.js";
+import { getOpenAPI3StatusCodes } from "./status-codes.js";
 import {
-  OpenAPI3Discriminator,
   OpenAPI3Document,
+  OpenAPI3Encoding,
   OpenAPI3Header,
+  OpenAPI3MediaType,
   OpenAPI3OAuthFlows,
   OpenAPI3Operation,
   OpenAPI3Parameter,
   OpenAPI3ParameterBase,
+  OpenAPI3RequestBody,
+  OpenAPI3Response,
   OpenAPI3Schema,
-  OpenAPI3SchemaProperty,
   OpenAPI3SecurityScheme,
   OpenAPI3Server,
   OpenAPI3ServerVariable,
+  OpenAPI3ServiceRecord,
   OpenAPI3StatusCode,
+  OpenAPI3VersionedServiceRecord,
+  Refable,
 } from "./types.js";
-import { deepEquals } from "./util.js";
+import { deepEquals, isSharedHttpOperation, SharedHttpOperation } from "./util.js";
+import { resolveVisibilityUsage, VisibilityUsageTracker } from "./visibility-usage.js";
 
 const defaultFileType: FileType = "yaml";
 const defaultOptions = {
   "new-line": "lf",
   "omit-unreachable-types": false,
   "include-x-typespec-name": "never",
+  "safeint-strategy": "int64",
 } as const;
 
 export async function $onEmit(context: EmitContext<OpenAPI3EmitterOptions>) {
   const options = resolveOptions(context);
-  const emitter = createOAPIEmitter(context.program, options);
+  const emitter = createOAPIEmitter(context, options);
   await emitter.emitOpenAPI();
+}
+
+type IrrelevantOpenAPI3EmitterOptionsForObject = "file-type" | "output-file" | "new-line";
+
+/**
+ * Get the OpenAPI 3 document records from the given program. The documents are
+ * returned as a JS object.
+ *
+ * @param program The program to emit to OpenAPI 3
+ * @param options OpenAPI 3 emit options
+ * @returns An array of OpenAPI 3 document records.
+ */
+export async function getOpenAPI3(
+  program: Program,
+  options: Omit<OpenAPI3EmitterOptions, IrrelevantOpenAPI3EmitterOptionsForObject> = {},
+): Promise<OpenAPI3ServiceRecord[]> {
+  const context: EmitContext<any> = {
+    program,
+
+    // this value doesn't matter for getting the OpenAPI3 objects
+    emitterOutputDir: "tsp-output",
+
+    options: options,
+    getAssetEmitter(TypeEmitterClass) {
+      return createAssetEmitter(program, TypeEmitterClass, this);
+    },
+  };
+
+  const resolvedOptions = resolveOptions(context);
+  const emitter = createOAPIEmitter(context, resolvedOptions);
+  return emitter.getOpenAPI();
 }
 
 function findFileTypeFromFilename(filename: string | undefined): FileType {
@@ -151,7 +174,7 @@ function findFileTypeFromFilename(filename: string | undefined): FileType {
   }
 }
 export function resolveOptions(
-  context: EmitContext<OpenAPI3EmitterOptions>
+  context: EmitContext<OpenAPI3EmitterOptions>,
 ): ResolvedOpenAPI3EmitterOptions {
   const resolvedOptions = { ...defaultOptions, ...context.options };
 
@@ -165,6 +188,7 @@ export function resolveOptions(
     newLine: resolvedOptions["new-line"],
     omitUnreachableTypes: resolvedOptions["omit-unreachable-types"],
     includeXTypeSpecName: resolvedOptions["include-x-typespec-name"],
+    safeintStrategy: resolvedOptions["safeint-strategy"],
     outputFile: resolvePath(context.emitterOutputDir, outputFile),
   };
 }
@@ -175,70 +199,26 @@ export interface ResolvedOpenAPI3EmitterOptions {
   newLine: NewLine;
   omitUnreachableTypes: boolean;
   includeXTypeSpecName: "inline-only" | "never";
+  safeintStrategy: "double-int" | "int64";
 }
 
-/**
- * Represents a node that will hold a JSON reference. The value is computed
- * at the end so that we can defer decisions about the name that is
- * referenced.
- */
-class Ref {
-  value?: string;
-  toJSON() {
-    compilerAssert(this.value, "Reference value never set.");
-    return this.value;
-  }
-}
+function createOAPIEmitter(
+  context: EmitContext<OpenAPI3EmitterOptions>,
+  options: ResolvedOpenAPI3EmitterOptions,
+) {
+  let program = context.program;
+  let schemaEmitter: AssetEmitter<OpenAPI3Schema, OpenAPI3EmitterOptions>;
 
-/**
- * Represents a non-inlined schema that will be emitted as a definition.
- * Computation of the OpenAPI schema object is deferred.
- */
-interface PendingSchema {
-  /** The TYPESPEC type for the schema */
-  type: Type;
-
-  /** The visibility to apply when computing the schema */
-  visibility: Visibility;
-
-  /**
-   * The JSON reference to use to point to this schema.
-   *
-   * Note that its value will not be computed until all schemas have been
-   * computed as we will add a suffix to the name if more than one schema
-   * must be emitted for the type for different visibilities.
-   */
-  ref: Ref;
-}
-
-/**
- * Represents a schema that is ready to emit as its OpenAPI representation
- * has been produced.
- */
-interface ProcessedSchema extends PendingSchema {
-  schema: OpenAPI3Schema | undefined;
-}
-
-function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOptions) {
   let root: OpenAPI3Document;
-
+  let diagnostics: DiagnosticCollector;
+  let currentService: Service;
+  let serviceAuth: HttpServiceAuthentication;
   // Get the service namespace string for use in name shortening
-  let serviceNamespace: string | undefined;
+  let serviceNamespaceName: string | undefined;
   let currentPath: any;
-  let currentEndpoint: OpenAPI3Operation;
 
   let metadataInfo: MetadataInfo;
-
-  // Keep a map of all Types+Visibility combinations that were encountered
-  // that need schema definitions.
-  let pendingSchemas = new TwoLevelMap<Type, Visibility, PendingSchema>();
-
-  // Reuse a single ref object per Type+Visibility combination.
-  let refs = new TwoLevelMap<Type, Visibility, Ref>();
-
-  // Keep track of inline types still in the process of having their schema computed
-  // This is used to detect cycles in inline types, which is an
-  let inProgressInlineTypes = new Set<Type>();
+  let visibilityUsage: VisibilityUsageTracker;
 
   // Map model properties that represent shared parameters to their parameter
   // definition that will go in #/components/parameters. Inlined parameters do not go in
@@ -256,50 +236,112 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     // shorten type names by removing TypeSpec and service namespace
     namespaceFilter(ns) {
       const name = getNamespaceFullName(ns);
-      return name !== serviceNamespace;
+      return name !== serviceNamespaceName;
     },
   };
 
-  return { emitOpenAPI };
+  return { emitOpenAPI, getOpenAPI };
 
-  function initializeEmitter(service: Service, version?: string) {
-    const auth = processAuth(service.type);
+  async function emitOpenAPI() {
+    const services = await getOpenAPI();
+    // first, emit diagnostics
+    for (const serviceRecord of services) {
+      if (serviceRecord.versioned) {
+        for (const documentRecord of serviceRecord.versions) {
+          program.reportDiagnostics(documentRecord.diagnostics);
+        }
+      } else {
+        program.reportDiagnostics(serviceRecord.diagnostics);
+      }
+    }
 
+    if (program.compilerOptions.noEmit || program.hasError()) {
+      return;
+    }
+
+    const multipleService = services.length > 1;
+
+    for (const serviceRecord of services) {
+      if (serviceRecord.versioned) {
+        for (const documentRecord of serviceRecord.versions) {
+          await emitFile(program, {
+            path: resolveOutputFile(serviceRecord.service, multipleService, documentRecord.version),
+            content: serializeDocument(documentRecord.document, options.fileType),
+            newLine: options.newLine,
+          });
+        }
+      } else {
+        await emitFile(program, {
+          path: resolveOutputFile(serviceRecord.service, multipleService),
+          content: serializeDocument(serviceRecord.document, options.fileType),
+          newLine: options.newLine,
+        });
+      }
+    }
+  }
+
+  function initializeEmitter(
+    service: Service,
+    allHttpAuthentications: HttpAuth[],
+    defaultAuth: AuthenticationReference,
+    version?: string,
+  ) {
+    diagnostics = createDiagnosticCollector();
+    currentService = service;
+    metadataInfo = createMetadataInfo(program, {
+      canonicalVisibility: Visibility.Read,
+      canShareProperty: (p) => isReadonlyProperty(program, p),
+    });
+    visibilityUsage = resolveVisibilityUsage(
+      program,
+      metadataInfo,
+      service.type,
+      options.omitUnreachableTypes,
+    );
+    schemaEmitter = createAssetEmitter(
+      program,
+      class extends OpenAPI3SchemaEmitter {
+        constructor(emitter: AssetEmitter<Record<string, any>, OpenAPI3EmitterOptions>) {
+          super(emitter, metadataInfo, visibilityUsage, options);
+        }
+      } as any,
+      context,
+    );
+
+    const securitySchemes = getOpenAPISecuritySchemes(allHttpAuthentications);
+    const security = getOpenAPISecurity(defaultAuth);
+
+    const info = resolveInfo(program, service.type);
     root = {
       openapi: "3.0.0",
       info: {
-        title: service.title ?? "(title)",
-        version: version ?? service.version ?? "0000-00-00",
-        description: getDoc(program, service.type),
-        ...getInfo(program, service.type),
+        title: "(title)",
+        ...info,
+        version: version ?? info?.version ?? "0.0.0",
       },
       externalDocs: getExternalDocs(program, service.type),
       tags: [],
       paths: {},
-      security: auth?.security,
+      security: security.length > 0 ? security : undefined,
       components: {
         parameters: {},
         requestBodies: {},
         responses: {},
         schemas: {},
         examples: {},
-        securitySchemes: auth?.securitySchemes ?? {},
+        securitySchemes: securitySchemes,
       },
     };
+
     const servers = getServers(program, service.type);
     if (servers) {
       root.servers = resolveServers(servers);
     }
 
-    serviceNamespace = getNamespaceFullName(service.type);
+    attachExtensions(program, service.type, root);
+    serviceNamespaceName = getNamespaceFullName(service.type);
     currentPath = root.paths;
-    pendingSchemas = new TwoLevelMap();
-    refs = new TwoLevelMap();
-    metadataInfo = createMetadataInfo(program, {
-      canonicalVisibility: Visibility.Read,
-      canShareProperty: (p) => isReadonlyProperty(program, p),
-    });
-    inProgressInlineTypes = new Set();
+
     params = new Map();
     paramModels = new Set();
     tags = new Set();
@@ -314,8 +356,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
           program.checker.isTypeAssignableTo(
             type.projectionBase ?? type,
             program.checker.getStdType("string"),
-            type
-          )
+            type,
+          ),
         );
       case "Enum":
         for (const member of type.members.values()) {
@@ -333,11 +375,13 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     const isValid = isValidServerVariableType(program, prop.type);
 
     if (!isValid) {
-      reportDiagnostic(program, {
-        code: "invalid-server-variable",
-        format: { propName: prop.name },
-        target: prop,
-      });
+      diagnostics.add(
+        createDiagnostic({
+          code: "invalid-server-variable",
+          format: { propName: prop.name },
+          target: prop,
+        }),
+      );
     }
     return isValid;
   }
@@ -351,14 +395,16 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         }
 
         const variable: OpenAPI3ServerVariable = {
-          default: prop.default ? getDefaultValue(prop.type, prop.default) : "",
+          default: prop.defaultValue ? getDefaultValue(program, prop.defaultValue, prop) : "",
           description: getDoc(program, prop),
         };
 
         if (prop.type.kind === "Enum") {
-          variable.enum = getSchemaForEnum(prop.type).enum;
+          variable.enum = getSchemaValue(prop.type, Visibility.Read, "application/json")
+            .enum as any;
         } else if (prop.type.kind === "Union") {
-          variable.enum = getSchemaForUnion(prop.type, Visibility.Read).enum as any;
+          variable.enum = getSchemaValue(prop.type, Visibility.Read, "application/json")
+            .enum as any;
         } else if (prop.type.kind === "String") {
           variable.enum = [prop.type.value];
         }
@@ -373,12 +419,57 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     });
   }
 
-  async function emitOpenAPI() {
+  async function getOpenAPI(): Promise<OpenAPI3ServiceRecord[]> {
+    const serviceRecords: OpenAPI3ServiceRecord[] = [];
     const services = listServices(program);
     if (services.length === 0) {
       services.push({ type: program.getGlobalNamespaceType() });
     }
     for (const service of services) {
+      const versions = buildVersionProjections(program, service.type);
+      if (versions.length === 1 && versions[0].version === undefined) {
+        // non-versioned spec
+        const document = await getProjectedOpenAPIDocument(service, versions[0]);
+        if (document === undefined) {
+          // an error occurred producing this document, so don't return it
+          return serviceRecords;
+        }
+
+        serviceRecords.push({
+          service,
+          versioned: false,
+          document: document[0],
+          diagnostics: document[1],
+        });
+      } else {
+        // versioned spec
+        const serviceRecord: OpenAPI3VersionedServiceRecord = {
+          service,
+          versioned: true,
+          versions: [],
+        };
+        serviceRecords.push(serviceRecord);
+
+        for (const record of versions) {
+          const document = await getProjectedOpenAPIDocument(service, record);
+          if (document === undefined) {
+            // an error occurred producing this document
+            continue;
+          }
+
+          serviceRecord.versions.push({
+            service,
+            version: record.version!,
+            document: document[0],
+            diagnostics: document[1],
+          });
+        }
+      }
+    }
+
+    return serviceRecords;
+
+    async function getProjectedOpenAPIDocument(service: Service, record: VersionProjections) {
       const commonProjections: ProjectionApplication[] = [
         {
           projectionName: "target",
@@ -386,24 +477,22 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         },
       ];
       const originalProgram = program;
-      const versions = buildVersionProjections(program, service.type);
-      for (const record of versions) {
-        const projectedProgram = (program = projectProgram(originalProgram, [
-          ...commonProjections,
-          ...record.projections,
-        ]));
-        const projectedServiceNs: Namespace = projectedProgram.projector.projectedTypes.get(
-          service.type
-        ) as Namespace;
+      const projectedProgram = (program = projectProgram(originalProgram, [
+        ...commonProjections,
+        ...record.projections,
+      ]));
+      const projectedServiceNs: Namespace = projectedProgram.projector.projectedTypes.get(
+        service.type,
+      ) as Namespace;
 
-        await emitOpenAPIFromVersion(
-          projectedServiceNs === projectedProgram.getGlobalNamespaceType()
-            ? { type: projectedProgram.getGlobalNamespaceType() }
-            : getService(program, projectedServiceNs)!,
-          services.length > 1,
-          record.version
-        );
-      }
+      const document = await getOpenApiFromVersion(
+        projectedServiceNs === projectedProgram.getGlobalNamespaceType()
+          ? { type: projectedProgram.getGlobalNamespaceType() }
+          : getService(program, projectedServiceNs)!,
+        record.version,
+      );
+
+      return document;
     }
   }
 
@@ -417,18 +506,9 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   /**
    * Validates that common responses are consistent and returns the minimal set that describes the differences.
    */
-  function validateCommonResponses(
-    statusCode: string,
-    ops: HttpOperation[]
+  function deduplicateCommonResponses(
+    statusCodeResponses: HttpOperationResponse[],
   ): HttpOperationResponse[] {
-    const statusCodeResponses: HttpOperationResponse[] = [];
-    for (const op of ops) {
-      for (const response of op.responses) {
-        if (getOpenAPI3StatusCodes(response.statusCodes, response.type).includes(statusCode)) {
-          statusCodeResponses.push(response);
-        }
-      }
-    }
     const ref = statusCodeResponses[0];
     const sameTypeKind = statusCodeResponses.every((r) => r.type.kind === ref.type.kind);
     const sameTypeValue = statusCodeResponses.every((r) => r.type === ref.type);
@@ -441,184 +521,64 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   }
 
   /**
-   * Validates that common bodies are consistent and returns the minimal set that describes the differences.
-   */
-  function validateCommonBodies(ops: HttpOperation[]): HttpOperationRequestBody[] | undefined {
-    const allBodies = ops.map((op) => op.parameters.body) as HttpOperationRequestBody[];
-    return [...new Set(allBodies)];
-  }
-
-  /**
    * Validates that common parameters are consistent and returns the minimal set that describes the differences.
    */
-  function validateCommonParameters(
-    ops: HttpOperation[],
-    name: string,
-    totalOps: number
-  ): HttpOperationParameter[] {
+  function resolveSharedRouteParameters(ops: HttpOperation[]): HttpOperationParameter[] {
     const finalParams: HttpOperationParameter[] = [];
-    const commonParams: HttpOperationParameter[] = [];
+    const parameters = new Map<string, HttpOperationParameter[]>();
     for (const op of ops) {
-      const param = op.parameters.parameters.find((p) => p.name === name);
-      if (param) {
-        commonParams.push(param);
+      for (const parameter of op.parameters.parameters) {
+        const existing = parameters.get(parameter.name);
+        if (existing) {
+          existing.push(parameter);
+        } else {
+          parameters.set(parameter.name, [parameter]);
+        }
       }
     }
-    const reference = commonParams[0];
-    if (!reference) {
+
+    if (parameters.size === 0) {
       return [];
     }
-    const inAllOps = ops.length === totalOps;
-    const sameLocations = commonParams.every((p) => p.type === reference.type);
-    const sameOptionality = commonParams.every(
-      (p) => p.param.optional === reference.param.optional
-    );
-    const sameTypeKind = commonParams.every((p) => p.param.type.kind === reference.param.type.kind);
-    const sameTypeValue = commonParams.every((p) => p.param.type === reference.param.type);
+    for (const sharedParams of parameters.values()) {
+      const reference = sharedParams[0];
 
-    if (inAllOps && sameLocations && sameOptionality && sameTypeKind && sameTypeValue) {
-      // param is consistent and in all shared operations. Only need one copy.
-      finalParams.push(reference);
-    } else if (!inAllOps && sameLocations && sameOptionality && sameTypeKind && sameTypeValue) {
-      // param is consistent when used, but does not appear in all shared operations. Only need one copy, but it must be optional.
-      reference.param.optional = true;
-      finalParams.push(reference);
-    } else if (inAllOps && !(sameLocations && sameOptionality && sameTypeKind)) {
-      // param is in all shared operations, but is not consistent. Need multiple copies, which must be optional.
-      // exception allowed when the params only differ by their value (e.g. string enum values)
-      commonParams.forEach((p) => {
-        p.param.optional = true;
-      });
-      finalParams.push(...commonParams);
-    } else {
-      finalParams.push(...commonParams);
+      const inAllOps = ops.length === sharedParams.length;
+      const sameLocations = sharedParams.every((p) => p.type === reference.type);
+      const sameOptionality = sharedParams.every(
+        (p) => p.param.optional === reference.param.optional,
+      );
+      const sameTypeKind = sharedParams.every(
+        (p) => p.param.type.kind === reference.param.type.kind,
+      );
+      const sameTypeValue = sharedParams.every((p) => p.param.type === reference.param.type);
+
+      if (inAllOps && sameLocations && sameOptionality && sameTypeKind && sameTypeValue) {
+        // param is consistent and in all shared operations. Only need one copy.
+        finalParams.push(reference);
+      } else if (!inAllOps && sameLocations && sameOptionality && sameTypeKind && sameTypeValue) {
+        // param is consistent when used, but does not appear in all shared operations. Only need one copy, but it must be optional.
+        reference.param.optional = true;
+        finalParams.push(reference);
+      } else if (inAllOps && !(sameLocations && sameOptionality && sameTypeKind)) {
+        // param is in all shared operations, but is not consistent. Need multiple copies, which must be optional.
+        // exception allowed when the params only differ by their value (e.g. string enum values)
+        sharedParams.forEach((p) => {
+          p.param.optional = true;
+        });
+        finalParams.push(...sharedParams);
+      } else {
+        finalParams.push(...sharedParams);
+      }
     }
     return finalParams;
   }
 
-  interface SharedHttpOperation {
-    kind: "shared";
-    path: string;
-    operationId: string;
-    description: string | undefined;
-    summary: string | undefined;
-    verb: HttpVerb;
-    parameters: HttpOperationParameters;
-    bodies: HttpOperationRequestBody[] | undefined;
-    responses: Map<string, HttpOperationResponse[]>;
-    operations: Operation[];
-  }
-
-  function getOpenAPI3StatusCodes(
-    statusCodes: HttpStatusCodesEntry,
-    response: Type
-  ): OpenAPI3StatusCode[] {
-    if (isDefaultResponse(program, response) || statusCodes === "*") {
-      return ["default"];
-    } else if (typeof statusCodes === "number") {
-      return [String(statusCodes)];
-    } else {
-      return rangeToOpenAPI(statusCodes, response);
-    }
-  }
-
-  function rangeToOpenAPI(
-    range: HttpStatusCodeRange,
-    diagnosticTarget: DiagnosticTarget
-  ): OpenAPI3StatusCode[] {
-    const reportInvalid = () =>
-      reportDiagnostic(program, {
-        code: "unsupported-status-code-range",
-        format: { start: String(range.start), end: String(range.end) },
-        target: diagnosticTarget,
-      });
-
-    const codes: OpenAPI3StatusCode[] = [];
-    let start = range.start;
-    let end = range.end;
-
-    if (range.start < 100) {
-      reportInvalid();
-      start = 100;
-      codes.push("default");
-    } else if (range.end > 599) {
-      reportInvalid();
-      codes.push("default");
-      end = 599;
-    }
-    const groups = [1, 2, 3, 4, 5];
-
-    for (const group of groups) {
-      if (start > end) {
-        break;
-      }
-      const groupStart = group * 100;
-      const groupEnd = groupStart + 99;
-      if (start >= groupStart && start <= groupEnd) {
-        codes.push(`${group}XX`);
-        if (start !== groupStart || end < groupEnd) {
-          reportInvalid();
-        }
-
-        start = groupStart + 100;
-      }
-    }
-
-    return codes;
-  }
-
-  function buildSharedOperations(operations: HttpOperation[]): SharedHttpOperation[] {
-    const results: SharedHttpOperation[] = [];
-    const paramMap = new Map<string, HttpOperation[]>();
-    const responseMap = new Map<string, HttpOperation[]>();
-
-    for (const op of operations) {
-      // determine which parameters are shared by shared route operations
-      for (const param of op.parameters.parameters) {
-        if (paramMap.has(param.name)) {
-          paramMap.get(param.name)!.push(op);
-        } else {
-          paramMap.set(param.name, [op]);
-        }
-      }
-      // determine which responses are shared by shared route operations
-      for (const response of op.responses) {
-        const statusCodes = getOpenAPI3StatusCodes(response.statusCodes, op.operation);
-        for (const statusCode of statusCodes) {
-          if (responseMap.has(statusCode)) {
-            responseMap.get(statusCode)!.push(op);
-          } else {
-            responseMap.set(statusCode, [op]);
-          }
-        }
-      }
-    }
-
-    const totalOps = operations.length;
-    const shared: SharedHttpOperation = {
+  function buildSharedOperation(operations: HttpOperation[]): SharedHttpOperation {
+    return {
       kind: "shared",
-      operationId: operations.map((op) => resolveOperationId(program, op.operation)).join("_"),
-      description: joinOps(operations, getDoc, " "),
-      summary: joinOps(operations, getSummary, " "),
-      path: operations[0].path,
-      verb: operations[0].verb,
-      operations: operations.map((op) => op.operation),
-      parameters: {
-        parameters: [],
-      },
-      bodies: undefined,
-      responses: new Map<string, HttpOperationResponse[]>(),
+      operations: operations,
     };
-    for (const [paramName, ops] of paramMap) {
-      const commonParams = validateCommonParameters(ops, paramName, totalOps);
-      shared.parameters.parameters.push(...commonParams);
-    }
-    shared.bodies = validateCommonBodies(operations);
-    for (const [statusCode, ops] of responseMap) {
-      shared.responses.set(statusCode, validateCommonResponses(statusCode, ops));
-    }
-    results.push(shared);
-    return results;
   }
 
   /**
@@ -641,30 +601,29 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       if (ops.length === 1) {
         result.push(ops[0]);
       } else {
-        const sharedOps = buildSharedOperations(ops);
-        for (const op of sharedOps) {
-          result.push(op);
-        }
+        result.push(buildSharedOperation(ops));
       }
     }
     return result;
   }
 
-  async function emitOpenAPIFromVersion(
+  async function getOpenApiFromVersion(
     service: Service,
-    multipleService: boolean,
-    version?: string
-  ) {
-    initializeEmitter(service, version);
+    version?: string,
+  ): Promise<[OpenAPI3Document, Readonly<Diagnostic[]>] | undefined> {
     try {
       const httpService = ignoreDiagnostics(getHttpService(program, service.type));
+      const auth = (serviceAuth = resolveAuthentication(httpService));
+
+      initializeEmitter(service, auth.schemes, auth.defaultAuth, version);
       reportIfNoRoutes(program, httpService.operations);
 
       for (const op of resolveOperations(httpService.operations)) {
-        if ((op as SharedHttpOperation).kind === "shared") {
-          emitSharedOperation(op as SharedHttpOperation);
-        } else {
-          emitOperation(op as HttpOperation);
+        const result = getOperationOrSharedOperation(op);
+        if (result) {
+          const { operation, path, verb } = result;
+          currentPath[path] ??= {};
+          currentPath[path][verb] = operation;
         }
       }
       emitParameters();
@@ -680,15 +639,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         }
       }
 
-      if (!program.compilerOptions.noEmit && !program.hasError()) {
-        // Write out the OpenAPI document to the output path
-
-        await emitFile(program, {
-          path: resolveOutputFile(service, multipleService, version),
-          content: serializeDocument(root, options.fileType),
-          newLine: options.newLine,
-        });
-      }
+      return [root, diagnostics.diagnostics];
     } catch (err) {
       if (err instanceof ErrorTypeFoundError) {
         // Return early, there must be a parse error if an ErrorType was
@@ -703,7 +654,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   function joinOps(
     operations: HttpOperation[],
     func: (program: Program, type: Type) => string | undefined,
-    joinChar: string
+    joinChar: string,
   ): string | undefined {
     const values = operations
       .map((op) => func(program, op.operation))
@@ -715,25 +666,58 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
   }
 
-  function emitSharedOperation(shared: SharedHttpOperation): void {
-    const { path: fullPath, verb: verb, operations: ops } = shared;
-    if (!root.paths[fullPath]) {
-      root.paths[fullPath] = {};
+  function computeSharedOperationId(shared: SharedHttpOperation) {
+    return shared.operations.map((op) => resolveOperationId(program, op.operation)).join("_");
+  }
+
+  function getOperationOrSharedOperation(operation: HttpOperation | SharedHttpOperation):
+    | {
+        operation: OpenAPI3Operation;
+        path: string;
+        verb: string;
+      }
+    | undefined {
+    if (isSharedHttpOperation(operation)) {
+      return getSharedOperation(operation);
+    } else {
+      return getOperation(operation);
     }
-    currentPath = root.paths[fullPath];
-    if (!currentPath[verb]) {
-      currentPath[verb] = {};
+  }
+
+  function getSharedOperation(shared: SharedHttpOperation): {
+    operation: OpenAPI3Operation;
+    path: string;
+    verb: string;
+  } {
+    const operations = shared.operations;
+    const verb = operations[0].verb;
+    const path = operations[0].path;
+    const examples = resolveOperationExamples(program, shared);
+    const oai3Operation: OpenAPI3Operation = {
+      operationId: computeSharedOperationId(shared),
+      parameters: [],
+      description: joinOps(operations, getDoc, " "),
+      summary: joinOps(operations, getSummary, " "),
+      responses: getSharedResponses(shared, examples),
+    };
+
+    for (const op of operations) {
+      applyExternalDocs(op.operation, oai3Operation);
+      attachExtensions(program, op.operation, oai3Operation);
+      if (isDeprecated(program, op.operation)) {
+        oai3Operation.deprecated = true;
+      }
     }
-    currentEndpoint = currentPath[verb];
-    for (const op of ops) {
-      const opTags = getAllTags(program, op);
+
+    for (const op of operations) {
+      const opTags = getAllTags(program, op.operation);
       if (opTags) {
-        const currentTags = currentEndpoint.tags;
+        const currentTags = oai3Operation.tags;
         if (currentTags) {
           // combine tags but eliminate duplicates
-          currentEndpoint.tags = [...new Set([...currentTags, ...opTags])];
+          oai3Operation.tags = [...new Set([...currentTags, ...opTags])];
         } else {
-          currentEndpoint.tags = opTags;
+          oai3Operation.tags = opTags;
         }
         for (const tag of opTags) {
           // Add to root tags if not already there
@@ -741,100 +725,134 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         }
       }
     }
-    // Set up basic endpoint fields
-    currentEndpoint.operationId = shared.operationId;
-    for (const op of ops) {
-      applyExternalDocs(op, currentEndpoint);
-    }
-    currentEndpoint.summary = shared.summary;
-    currentEndpoint.description = shared.description;
-    currentEndpoint.parameters = [];
-    currentEndpoint.responses = {};
+
     // Error out if shared routes do not have consistent `@parameterVisibility`. We can
     // lift this restriction in the future if a use case develops.
-    const visibilities = shared.operations.map((op) => {
-      return resolveRequestVisibility(program, op, verb);
-    });
+    const visibilities = operations.map((op) =>
+      resolveRequestVisibility(program, op.operation, verb),
+    );
     if (visibilities.some((v) => v !== visibilities[0])) {
-      reportDiagnostic(program, {
-        code: "inconsistent-shared-route-request-visibility",
-        target: ops[0],
-      });
+      diagnostics.add(
+        createDiagnostic({
+          code: "inconsistent-shared-route-request-visibility",
+          target: operations[0].operation,
+        }),
+      );
     }
-    const visibility = resolveRequestVisibility(program, shared.operations[0], verb);
-    emitEndpointParameters(shared.parameters.parameters, visibility);
-    if (shared.bodies) {
-      if (shared.bodies.length === 1) {
-        emitRequestBody(shared.bodies[0], visibility);
-      } else if (shared.bodies.length > 1) {
-        emitMergedRequestBody(shared.bodies, visibility);
-      }
+    const visibility = visibilities[0];
+    oai3Operation.parameters = getEndpointParameters(
+      resolveSharedRouteParameters(operations),
+      visibility,
+    );
+
+    const bodies = [
+      ...new Set(operations.map((op) => op.parameters.body).filter((x) => x !== undefined)),
+    ];
+    if (bodies) {
+      oai3Operation.requestBody = getRequestBody(bodies, visibility, examples);
     }
-    emitSharedResponses(shared.responses);
-    for (const op of ops) {
-      if (isDeprecated(program, op)) {
-        currentEndpoint.deprecated = true;
-      }
-      attachExtensions(program, op, currentEndpoint);
+    const authReference = serviceAuth.operationsAuth.get(shared.operations[0].operation);
+    if (authReference) {
+      oai3Operation.security = getEndpointSecurity(authReference);
     }
+
+    return { operation: oai3Operation, verb, path };
   }
 
-  function emitOperation(operation: HttpOperation): void {
+  function getOperation(
+    operation: HttpOperation,
+  ): { operation: OpenAPI3Operation; path: string; verb: string } | undefined {
     const { path: fullPath, operation: op, verb, parameters } = operation;
     // If path contains a query string, issue msg and don't emit this endpoint
     if (fullPath.indexOf("?") > 0) {
-      reportDiagnostic(program, { code: "path-query", target: op });
-      return;
+      diagnostics.add(createDiagnostic({ code: "path-query", target: op }));
+      return undefined;
     }
-    if (!root.paths[fullPath]) {
-      root.paths[fullPath] = {};
-    }
-    currentPath = root.paths[fullPath];
-    if (!currentPath[verb]) {
-      currentPath[verb] = {};
-    }
-    currentEndpoint = currentPath[verb];
+    const visibility = resolveRequestVisibility(program, operation.operation, verb);
+    const examples = resolveOperationExamples(program, operation);
+    const oai3Operation: OpenAPI3Operation = {
+      operationId: resolveOperationId(program, operation.operation),
+      summary: getSummary(program, operation.operation),
+      description: getDoc(program, operation.operation),
+      parameters: getEndpointParameters(parameters.parameters, visibility),
+      responses: getResponses(operation, operation.responses, examples),
+    };
     const currentTags = getAllTags(program, op);
     if (currentTags) {
-      currentEndpoint.tags = currentTags;
+      oai3Operation.tags = currentTags;
       for (const tag of currentTags) {
         // Add to root tags if not already there
         tags.add(tag);
       }
     }
-    currentEndpoint.operationId = resolveOperationId(program, operation.operation);
-    applyExternalDocs(op, currentEndpoint);
+    applyExternalDocs(op, oai3Operation);
     // Set up basic endpoint fields
-    currentEndpoint.summary = getSummary(program, operation.operation);
-    currentEndpoint.description = getDoc(program, operation.operation);
-    currentEndpoint.parameters = [];
-    currentEndpoint.responses = {};
-    const visibility = resolveRequestVisibility(program, operation.operation, verb);
-    emitEndpointParameters(parameters.parameters, visibility);
-    emitRequestBody(parameters.body, visibility);
-    emitResponses(operation.responses);
+
+    if (parameters.body) {
+      oai3Operation.requestBody = getRequestBody(
+        parameters.body && [parameters.body],
+        visibility,
+        examples,
+      );
+    }
+    const authReference = serviceAuth.operationsAuth.get(operation.operation);
+    if (authReference) {
+      oai3Operation.security = getEndpointSecurity(authReference);
+    }
     if (isDeprecated(program, op)) {
-      currentEndpoint.deprecated = true;
+      oai3Operation.deprecated = true;
     }
-    attachExtensions(program, op, currentEndpoint);
+    attachExtensions(program, op, oai3Operation);
+    return { operation: oai3Operation, path: fullPath, verb };
   }
 
-  function emitSharedResponses(responses: Map<string, HttpOperationResponse[]>) {
-    for (const [statusCode, statusCodeResponses] of responses) {
-      if (statusCodeResponses.length === 1) {
-        emitResponseObject(statusCode, statusCodeResponses[0]);
-      } else {
-        emitMergedResponseObject(statusCode, statusCodeResponses);
+  function getSharedResponses(
+    operation: SharedHttpOperation,
+    examples: OperationExamples,
+  ): Record<string, Refable<OpenAPI3Response>> {
+    const responseMap = new Map<string, HttpOperationResponse[]>();
+    for (const op of operation.operations) {
+      for (const response of op.responses) {
+        const statusCodes = diagnostics.pipe(
+          getOpenAPI3StatusCodes(program, response.statusCodes, op.operation),
+        );
+        for (const statusCode of statusCodes) {
+          if (responseMap.has(statusCode)) {
+            responseMap.get(statusCode)!.push(response);
+          } else {
+            responseMap.set(statusCode, [response]);
+          }
+        }
       }
     }
+    const result: Record<string, Refable<OpenAPI3Response>> = {};
+
+    for (const [statusCode, statusCodeResponses] of responseMap) {
+      const dedupeResponses = deduplicateCommonResponses(statusCodeResponses);
+      result[statusCode] = getResponseForStatusCode(
+        operation,
+        statusCode,
+        dedupeResponses,
+        examples,
+      );
+    }
+    return result;
   }
 
-  function emitResponses(responses: HttpOperationResponse[]) {
+  function getResponses(
+    operation: HttpOperation,
+    responses: HttpOperationResponse[],
+    examples: OperationExamples,
+  ): Record<string, Refable<OpenAPI3Response>> {
+    const result: Record<string, Refable<OpenAPI3Response>> = {};
     for (const response of responses) {
-      for (const statusCode of getOpenAPI3StatusCodes(response.statusCodes, response.type)) {
-        emitResponseObject(statusCode, response);
+      for (const statusCode of diagnostics.pipe(
+        getOpenAPI3StatusCodes(program, response.statusCodes, response.type),
+      )) {
+        result[statusCode] = getResponseForStatusCode(operation, statusCode, [response], examples);
       }
     }
+    return result;
   }
 
   function isBinaryPayload(body: Type, contentType: string) {
@@ -846,40 +864,41 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     );
   }
 
-  function emitMergedResponseObject(
+  function getResponseForStatusCode(
+    operation: HttpOperation | SharedHttpOperation,
     statusCode: OpenAPI3StatusCode,
-    responses: HttpOperationResponse[]
-  ) {
-    const openApiResponse: any = {
-      description: undefined,
-      content: {},
+    responses: HttpOperationResponse[],
+    examples: OperationExamples,
+  ): Refable<OpenAPI3Response> {
+    const openApiResponse: OpenAPI3Response = {
+      description: "",
     };
     const schemaMap = new Map<string, any[]>();
     for (const response of responses) {
+      const refUrl = getRef(program, response.type);
+      if (refUrl) {
+        return { $ref: refUrl };
+      }
       if (response.description && response.description !== openApiResponse.description) {
         openApiResponse.description = openApiResponse.description
           ? `${openApiResponse.description} ${response.description}`
           : response.description;
       }
       emitResponseHeaders(openApiResponse, response.responses, response.type);
-      emitResponseContent(openApiResponse, response.responses, schemaMap);
+      emitResponseContent(
+        operation,
+        openApiResponse,
+        response.responses,
+        statusCode,
+        examples,
+        schemaMap,
+      );
       if (!openApiResponse.description) {
         openApiResponse.description = getResponseDescriptionForStatusCode(statusCode);
       }
-      currentEndpoint.responses[statusCode] = openApiResponse;
     }
-  }
 
-  function emitResponseObject(
-    statusCode: OpenAPI3StatusCode,
-    response: Readonly<HttpOperationResponse>
-  ) {
-    const openApiResponse = currentEndpoint.responses[statusCode] ?? {
-      description: response.description ?? getResponseDescriptionForStatusCode(statusCode),
-    };
-    emitResponseHeaders(openApiResponse, response.responses, response.type);
-    emitResponseContent(openApiResponse, response.responses);
-    currentEndpoint.responses[statusCode] = openApiResponse;
+    return openApiResponse;
   }
 
   function emitResponseHeaders(obj: any, responses: HttpOperationResponseContent[], target: Type) {
@@ -893,11 +912,13 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
           const existing = obj.headers[key];
           if (existing) {
             if (!deepEquals(existing, headerVal)) {
-              reportDiagnostic(program, {
-                code: "duplicate-header",
-                format: { header: key },
-                target: target,
-              });
+              diagnostics.add(
+                createDiagnostic({
+                  code: "duplicate-header",
+                  format: { header: key },
+                  target: target,
+                }),
+              );
             }
             continue;
           }
@@ -908,33 +929,39 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   }
 
   function emitResponseContent(
-    obj: any,
+    operation: HttpOperation | SharedHttpOperation,
+    obj: OpenAPI3Response,
     responses: HttpOperationResponseContent[],
-    schemaMap: Map<string, any[]> | undefined = undefined
+    statusCode: OpenAPI3StatusCode,
+    examples: OperationExamples,
+    schemaMap: Map<string, OpenAPI3MediaType[]> | undefined = undefined,
   ) {
-    schemaMap ??= new Map<string, any[]>();
+    schemaMap ??= new Map<string, OpenAPI3MediaType[]>();
     for (const data of responses) {
       if (data.body === undefined) {
         continue;
       }
       obj.content ??= {};
       for (const contentType of data.body.contentTypes) {
-        const isBinary = isBinaryPayload(data.body.type, contentType);
-        const schema = isBinary
-          ? { type: "string", format: "binary" }
-          : getSchemaOrRef(data.body.type, Visibility.Read);
+        const contents = getBodyContentEntry(
+          data.body,
+          Visibility.Read,
+          contentType,
+          examples.responses[statusCode]?.[contentType],
+        );
         if (schemaMap.has(contentType)) {
-          schemaMap.get(contentType)!.push(schema);
+          schemaMap.get(contentType)!.push(contents);
         } else {
-          schemaMap.set(contentType, [schema]);
+          schemaMap.set(contentType, [contents]);
         }
       }
-      for (const [contentType, schema] of schemaMap) {
-        if (schema.length === 1) {
-          obj.content[contentType] = { schema: schema[0] };
+
+      for (const [contentType, contents] of schemaMap) {
+        if (contents.length === 1) {
+          obj.content[contentType] = contents[0];
         } else {
           obj.content[contentType] = {
-            schema: { anyOf: schema },
+            schema: { anyOf: contents.map((x) => x.schema) as any },
           };
         }
       }
@@ -952,90 +979,350 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     return getOpenAPIParameterBase(prop, Visibility.Read);
   }
 
-  function getSchemaOrRef(type: Type, visibility: Visibility): any {
-    const refUrl = getRef(program, type);
-    if (refUrl) {
-      return {
-        $ref: refUrl,
-      };
+  function callSchemaEmitter(
+    type: Type,
+    visibility: Visibility,
+    ignoreMetadataAnnotations?: boolean,
+    contentType?: string,
+  ): Refable<OpenAPI3Schema> {
+    const result = emitTypeWithSchemaEmitter(
+      type,
+      visibility,
+      ignoreMetadataAnnotations,
+      contentType,
+    );
+
+    switch (result.kind) {
+      case "code":
+        return result.value as any;
+      case "declaration":
+        return { $ref: `#/components/schemas/${result.name}` };
+      case "circular":
+        diagnostics.add(
+          createDiagnostic({
+            code: "inline-cycle",
+            format: { type: getOpenAPITypeName(program, type, typeNameOptions) },
+            target: type,
+          }),
+        );
+        return {};
+      case "none":
+        return {};
     }
+  }
 
-    if (type.kind === "Scalar" && program.checker.isStdType(type)) {
-      return getSchemaForScalar(type);
+  function getSchemaValue(type: Type, visibility: Visibility, contentType: string): OpenAPI3Schema {
+    const result = emitTypeWithSchemaEmitter(type, visibility, false, contentType);
+
+    switch (result.kind) {
+      case "code":
+      case "declaration":
+        return result.value as any;
+      case "circular":
+        diagnostics.add(
+          createDiagnostic({
+            code: "inline-cycle",
+            format: { type: getOpenAPITypeName(program, type, typeNameOptions) },
+            target: type,
+          }),
+        );
+        return {};
+      case "none":
+        return {};
     }
+  }
 
-    if (type.kind === "String" || type.kind === "Number" || type.kind === "Boolean") {
-      // For literal types, we just want to emit them directly as well.
-      return getSchemaForLiterals(type);
+  function emitTypeWithSchemaEmitter(
+    type: Type,
+    visibility: Visibility,
+    ignoreMetadataAnnotations?: boolean,
+    contentType?: string,
+  ): EmitEntity<OpenAPI3Schema> {
+    if (!metadataInfo.isTransformed(type, visibility)) {
+      visibility = Visibility.Read;
     }
-
-    if (type.kind === "Intrinsic" && type.name === "unknown") {
-      return getSchemaForIntrinsicType(type);
-    }
-
-    if (type.kind === "EnumMember") {
-      // Enum members are just the OA representation of their values.
-      if (typeof type.value === "number") {
-        return { type: "number", enum: [type.value] };
-      } else {
-        return { type: "string", enum: [type.value ?? type.name] };
-      }
-    }
-
-    if (type.kind === "ModelProperty") {
-      return resolveProperty(type, visibility);
-    }
-
-    type = metadataInfo.getEffectivePayloadType(type, visibility);
-
-    const name = getOpenAPITypeName(program, type, typeNameOptions);
-    if (shouldInline(program, type)) {
-      const schema = getSchemaForInlineType(type, visibility, name);
-
-      if (schema === undefined && isErrorType(type)) {
-        // Exit early so that syntax errors are exposed.  This error will
-        // be caught and handled in emitOpenAPI.
-        throw new ErrorTypeFoundError();
-      }
-
-      // helps to read output and correlate to TypeSpec
-      if (schema && options.includeXTypeSpecName !== "never") {
-        schema["x-typespec-name"] = name;
-      }
-      return schema;
-    } else {
-      // Use shared schema when type is not transformed by visibility from the canonical read visibility.
-      if (!metadataInfo.isTransformed(type, visibility)) {
-        visibility = Visibility.Read;
-      }
-      const pending = pendingSchemas.getOrAdd(type, visibility, () => ({
-        type,
+    contentType = contentType === "application/json" ? undefined : contentType;
+    return schemaEmitter.emitType(type, {
+      referenceContext: {
         visibility,
-        ref: refs.getOrAdd(type, visibility, () => new Ref()),
-      }));
-      return {
-        $ref: pending.ref,
+        serviceNamespaceName: serviceNamespaceName,
+        ignoreMetadataAnnotations: ignoreMetadataAnnotations ?? false,
+        contentType,
+      },
+    }) as any;
+  }
+
+  function getBodyContentEntry(
+    body: HttpOperationBody | HttpOperationMultipartBody,
+    visibility: Visibility,
+    contentType: string,
+    examples?: [Example, Type][],
+  ): OpenAPI3MediaType {
+    const isBinary = isBinaryPayload(body.type, contentType);
+    if (isBinary) {
+      return { schema: { type: "string", format: "binary" } };
+    }
+
+    const oai3Examples = examples && getExampleOrExamples(program, examples);
+    switch (body.bodyKind) {
+      case "single":
+        return {
+          schema: getSchemaForSingleBody(
+            body.type,
+            visibility,
+            body.isExplicit && body.containsMetadataAnnotations,
+            contentType.startsWith("multipart/") ? contentType : undefined,
+          ),
+          ...oai3Examples,
+        };
+      case "multipart":
+        return {
+          ...getBodyContentForMultipartBody(body, visibility, contentType),
+          ...oai3Examples,
+        };
+    }
+  }
+
+  function getSchemaForSingleBody(
+    type: Type,
+    visibility: Visibility,
+    ignoreMetadataAnnotations: boolean,
+    multipart: string | undefined,
+  ): any {
+    const effectiveType = metadataInfo.getEffectivePayloadType(type, visibility);
+    return callSchemaEmitter(
+      effectiveType,
+      visibility,
+      ignoreMetadataAnnotations,
+      multipart ?? "application/json",
+    );
+  }
+
+  function getBodyContentForMultipartBody(
+    body: HttpOperationMultipartBody,
+    visibility: Visibility,
+    contentType: string,
+  ): OpenAPI3MediaType {
+    const properties: Record<string, OpenAPI3Schema> = {};
+    const requiredProperties: string[] = [];
+    const encodings: Record<string, OpenAPI3Encoding> = {};
+    for (const [partIndex, part] of body.parts.entries()) {
+      const partName = part.name ?? `part${partIndex}`;
+      let schema = isBytesKeptRaw(program, part.body.type)
+        ? { type: "string", format: "binary" }
+        : getSchemaForSingleBody(
+            part.body.type,
+            visibility,
+            part.body.isExplicit && part.body.containsMetadataAnnotations,
+            part.body.type.kind === "Union" ? contentType : undefined,
+          );
+
+      if (part.multi) {
+        schema = {
+          type: "array",
+          items: schema,
+        };
+      }
+      properties[partName] = schema;
+
+      const encoding = resolveEncodingForMultipartPart(part, visibility, schema);
+      if (encoding) {
+        encodings[partName] = encoding;
+      }
+      if (!part.optional) {
+        requiredProperties.push(partName);
+      }
+    }
+
+    const schema: OpenAPI3Schema = {
+      type: "object",
+      properties,
+      required: requiredProperties,
+    };
+
+    const name =
+      "name" in body.type && body.type.name !== ""
+        ? getOpenAPITypeName(program, body.type, typeNameOptions)
+        : undefined;
+    if (name) {
+      root.components!.schemas![name] = schema;
+    }
+    const result: OpenAPI3MediaType = {
+      schema: name ? { $ref: "#/components/schemas/" + name } : schema,
+    };
+
+    if (Object.keys(encodings).length > 0) {
+      result.encoding = encodings;
+    }
+    return result;
+  }
+
+  function resolveEncodingForMultipartPart(
+    part: HttpOperationPart,
+    visibility: Visibility,
+    schema: OpenAPI3Schema,
+  ): OpenAPI3Encoding | undefined {
+    const encoding: OpenAPI3Encoding = {};
+    if (!isDefaultContentTypeForOpenAPI3(part.body.contentTypes, schema)) {
+      encoding.contentType = part.body.contentTypes.join(", ");
+    }
+    const headers = part.headers;
+    if (headers.length > 0) {
+      encoding.headers = {};
+      for (const header of headers) {
+        const schema = getOpenAPIParameterBase(header.property, visibility);
+        if (schema !== undefined) {
+          encoding.headers[header.options.name] = schema;
+        }
+      }
+    }
+    if (Object.keys(encoding).length === 0) {
+      return undefined;
+    }
+    return encoding;
+  }
+
+  function isDefaultContentTypeForOpenAPI3(
+    contentTypes: string[],
+    schema: OpenAPI3Schema,
+  ): boolean {
+    if (contentTypes.length === 0) {
+      return false;
+    }
+    if (contentTypes.length > 1) {
+      return false;
+    }
+    const contentType = contentTypes[0];
+
+    switch (contentType) {
+      case "text/plain":
+        return schema.type === "string" || schema.type === "number";
+      case "application/octet-stream":
+        return (
+          (schema.type === "string" && schema.format === "binary") ||
+          (schema.type === "array" &&
+            (schema.items as any)?.type === "string" &&
+            (schema.items as any)?.format === "binary")
+        );
+      case "application/json":
+        return schema.type === "object";
+    }
+
+    return false;
+  }
+
+  function getParameter(
+    parameter: HttpOperationParameter,
+    visibility: Visibility,
+  ): OpenAPI3Parameter {
+    const param: OpenAPI3Parameter = {
+      name: parameter.name,
+      in: parameter.type,
+      ...getOpenAPIParameterBase(parameter.param, visibility),
+    } as any;
+
+    const attributes = getParameterAttributes(parameter);
+    if (attributes === undefined) {
+      param.schema = {
+        type: "string",
       };
+    } else {
+      Object.assign(param, attributes);
     }
+
+    return param;
   }
 
-  function getSchemaForInlineType(type: Type, visibility: Visibility, name: string) {
-    if (inProgressInlineTypes.has(type)) {
-      reportDiagnostic(program, {
-        code: "inline-cycle",
-        format: { type: name },
-        target: type,
-      });
-      return {};
+  function getEndpointParameters(
+    parameters: HttpOperationParameter[],
+    visibility: Visibility,
+  ): Refable<OpenAPI3Parameter>[] {
+    const result: Refable<OpenAPI3Parameter>[] = [];
+    for (const httpOpParam of parameters) {
+      if (params.has(httpOpParam.param)) {
+        result.push(params.get(httpOpParam.param));
+        continue;
+      }
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
+      if (httpOpParam.type === "header" && isContentTypeHeader(program, httpOpParam.param)) {
+        continue;
+      }
+      const param = getParameterOrRef(httpOpParam, visibility);
+      if (param) {
+        const existing = result.find(
+          (x) => !("$ref" in param) && !("$ref" in x) && x.name === param.name && x.in === param.in,
+        );
+        if (existing && !("$ref" in param) && !("$ref" in existing)) {
+          mergeOpenApiParameters(existing, param);
+        } else {
+          result.push(param);
+        }
+      }
     }
-    inProgressInlineTypes.add(type);
-    const schema = getSchemaForType(type, visibility);
-    inProgressInlineTypes.delete(type);
-    return schema;
+    return result;
   }
 
-  function getParamPlaceholder(property: ModelProperty) {
+  function getRequestBody(
+    bodies: (HttpOperationBody | HttpOperationMultipartBody)[] | undefined,
+    visibility: Visibility,
+    examples: OperationExamples,
+  ): OpenAPI3RequestBody | undefined {
+    if (bodies === undefined || bodies.every((x) => isVoidType(x.type))) {
+      return undefined;
+    }
+    const requestBody: OpenAPI3RequestBody = {
+      required: bodies.every((body) => (body.property ? !body.property.optional : true)),
+      content: {},
+    };
+    const schemaMap = new Map<string, OpenAPI3MediaType[]>();
+    for (const body of bodies.filter((x) => !isVoidType(x.type))) {
+      const desc = body.property ? getDoc(program, body.property) : undefined;
+      if (desc) {
+        requestBody.description = requestBody.description
+          ? `${requestBody.description} ${desc}`
+          : desc;
+      }
+      const contentTypes = body.contentTypes.length > 0 ? body.contentTypes : ["application/json"];
+      for (const contentType of contentTypes) {
+        const existing = schemaMap.get(contentType);
+        const entry = getBodyContentEntry(
+          body,
+          visibility,
+          contentType,
+          examples.requestBody[contentType],
+        );
+        if (existing) {
+          existing.push(entry);
+        } else {
+          schemaMap.set(contentType, [entry]);
+        }
+      }
+    }
+
+    for (const [contentType, schemaArray] of schemaMap) {
+      if (schemaArray.length === 1) {
+        requestBody.content[contentType] = schemaArray[0];
+      } else {
+        requestBody.content[contentType] = {
+          schema: { anyOf: schemaArray.map((x) => x.schema).filter((x) => x !== undefined) },
+          encoding: schemaArray.find((x) => x.encoding)?.encoding,
+        };
+      }
+    }
+
+    return requestBody;
+  }
+
+  function getParameterOrRef(
+    parameter: HttpOperationParameter,
+    visibility: Visibility,
+  ): Refable<OpenAPI3Parameter> | undefined {
+    if (isNeverType(parameter.param.type)) {
+      return undefined;
+    }
+
     let spreadParam = false;
+    let property = parameter.param;
 
     if (property.sourceProperty) {
       // chase our sources all the way back to the first place this property
@@ -1058,133 +1345,33 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       return params.get(property);
     }
 
-    const placeholder = {};
+    const param = getParameter(parameter, visibility);
 
     // only parameters inherited by spreading from non-inlined type are shared in #/components/parameters
     if (spreadParam && property.model && !shouldInline(program, property.model)) {
-      params.set(property, placeholder);
+      params.set(property, param);
       paramModels.add(property.model);
     }
 
-    return placeholder;
-  }
-
-  function emitEndpointParameters(parameters: HttpOperationParameter[], visibility: Visibility) {
-    for (const httpOpParam of parameters) {
-      if (params.has(httpOpParam.param)) {
-        currentEndpoint.parameters.push(params.get(httpOpParam.param));
-        continue;
-      }
-      if (httpOpParam.type === "header" && isContentTypeHeader(program, httpOpParam.param)) {
-        continue;
-      }
-      emitParameter(httpOpParam, visibility);
-    }
-  }
-
-  function emitMergedRequestBody(
-    bodies: HttpOperationRequestBody[] | undefined,
-    visibility: Visibility
-  ) {
-    if (bodies === undefined) {
-      return;
-    }
-    const requestBody: any = {
-      description: undefined,
-      content: {},
-    };
-    const schemaMap = new Map<string, any[]>();
-    for (const body of bodies) {
-      const desc = body.parameter ? getDoc(program, body.parameter) : undefined;
-      if (desc) {
-        requestBody.description = requestBody.description
-          ? `${requestBody.description} ${desc}`
-          : desc;
-      }
-      const contentTypes = body.contentTypes.length > 0 ? body.contentTypes : ["application/json"];
-      for (const contentType of contentTypes) {
-        const isBinary = isBinaryPayload(body.type, contentType);
-        const bodySchema = isBinary
-          ? { type: "string", format: "binary" }
-          : getSchemaOrRef(body.type, visibility);
-        if (schemaMap.has(contentType)) {
-          schemaMap.get(contentType)!.push(bodySchema);
-        } else {
-          schemaMap.set(contentType, [bodySchema]);
-        }
-      }
-    }
-    const content: any = {};
-    for (const [contentType, schemaArray] of schemaMap) {
-      if (schemaArray.length === 1) {
-        content[contentType] = { schema: schemaArray[0] };
-      } else {
-        content[contentType] = {
-          schema: { anyOf: schemaArray },
-        };
-      }
-    }
-    requestBody.content = content;
-    currentEndpoint.requestBody = requestBody;
-  }
-
-  function emitRequestBody(body: HttpOperationRequestBody | undefined, visibility: Visibility) {
-    if (body === undefined) {
-      return;
-    }
-
-    const requestBody: any = {
-      description: body.parameter ? getDoc(program, body.parameter) : undefined,
-      required: body.parameter ? !body.parameter.optional : true,
-      content: {},
-    };
-
-    const contentTypes = body.contentTypes.length > 0 ? body.contentTypes : ["application/json"];
-    for (const contentType of contentTypes) {
-      const isBinary = isBinaryPayload(body.type, contentType);
-      const bodySchema = isBinary
-        ? { type: "string", format: "binary" }
-        : getSchemaOrRef(body.type, visibility);
-      const contentEntry: any = {
-        schema: bodySchema,
-      };
-      requestBody.content[contentType] = contentEntry;
-    }
-
-    currentEndpoint.requestBody = requestBody;
-  }
-
-  function emitParameter(parameter: HttpOperationParameter, visibility: Visibility) {
-    if (isNeverType(parameter.param.type)) {
-      return;
-    }
-    const existing = currentEndpoint.parameters.find(
-      (p) => p.name === parameter.name && p.in === parameter.type
-    );
-    if (existing) {
-      populateParameter(existing, parameter, visibility);
-    } else {
-      const ph = getParamPlaceholder(parameter.param);
-      currentEndpoint.parameters.push(ph);
-
-      // If the parameter already has a $ref, don't bother populating it
-      if (!("$ref" in ph)) {
-        populateParameter(ph, parameter, visibility);
-      }
-    }
+    return param;
   }
 
   function getOpenAPIParameterBase(
     param: ModelProperty,
-    visibility: Visibility
+    visibility: Visibility,
   ): OpenAPI3ParameterBase | undefined {
     const typeSchema = getSchemaForType(param.type, visibility);
     if (!typeSchema) {
       return undefined;
     }
-    const schema = applyEncoding(param, applyIntrinsicDecorators(param, typeSchema));
-    if (param.default) {
-      schema.default = getDefaultValue(param.type, param.default);
+    const schema = applyEncoding(
+      program,
+      param,
+      applyIntrinsicDecorators(param, typeSchema),
+      options,
+    );
+    if (param.defaultValue) {
+      schema.default = getDefaultValue(program, param.defaultValue, param);
     }
     // Description is already provided in the parameter itself.
     delete schema.description;
@@ -1201,61 +1388,113 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   }
 
   function mergeOpenApiParameters(
-    param: OpenAPI3Parameter,
-    base: OpenAPI3ParameterBase
+    target: OpenAPI3Parameter,
+    apply: OpenAPI3Parameter,
   ): OpenAPI3Parameter {
-    if (param.schema) {
-      const schema = param.schema;
-      if (schema.enum && base.schema.enum) {
-        schema.enum = [...new Set([...schema.enum, ...base.schema.enum])];
+    if (target.schema) {
+      const schema = target.schema;
+      if (schema.enum && apply.schema.enum) {
+        schema.enum = [...new Set([...schema.enum, ...apply.schema.enum])];
       }
-      param.schema = schema;
+      target.schema = schema;
     } else {
-      Object.assign(param, base);
+      Object.assign(target, apply);
     }
-    return param;
+    return target;
   }
 
-  function populateParameter(
-    ph: OpenAPI3Parameter,
+  function getParameterAttributes(
     parameter: HttpOperationParameter,
-    visibility: Visibility
-  ) {
-    ph.name = parameter.name;
-    ph.in = parameter.type;
-
-    const paramBase = getOpenAPIParameterBase(parameter.param, visibility);
-    if (paramBase) {
-      ph = mergeOpenApiParameters(ph, paramBase);
-    }
-
-    const format = mapParameterFormat(parameter);
-    if (format === undefined) {
-      ph.schema = {
-        type: "string",
-      };
-    } else {
-      Object.assign(ph, format);
-    }
-  }
-
-  function mapParameterFormat(
-    parameter: HttpOperationParameter
   ): { style?: string; explode?: boolean } | undefined {
     switch (parameter.type) {
       case "header":
         return mapHeaderParameterFormat(parameter);
       case "query":
-        return mapQueryParameterFormat(parameter);
+        return getQueryParameterAttributes(parameter);
       case "path":
-        return {};
+        return getPathParameterAttributes(parameter);
+    }
+  }
+
+  function getPathParameterAttributes(parameter: HttpOperationParameter & { type: "path" }) {
+    if (parameter.allowReserved) {
+      diagnostics.add(
+        createDiagnostic({
+          code: "path-reserved-expansion",
+          target: parameter.param,
+        }),
+      );
+    }
+
+    const attributes: { style?: string; explode?: boolean } = {};
+
+    if (parameter.explode) {
+      attributes.explode = true;
+    }
+
+    switch (parameter.style) {
+      case "label":
+        attributes.style = "label";
+        break;
+      case "matrix":
+        attributes.style = "matrix";
+        break;
+      case "simple":
+        break;
+      default:
+        diagnostics.add(
+          createDiagnostic({
+            code: "invalid-style",
+            format: { style: parameter.style, paramType: "path" },
+            target: parameter.param,
+          }),
+        );
+    }
+
+    return attributes;
+  }
+
+  function getQueryParameterAttributes(parameter: HttpOperationParameter & { type: "query" }) {
+    const attributes: { style?: string; explode?: boolean } = {};
+
+    if (parameter.explode !== true) {
+      // For query parameters(style: form) the default is explode: true https://spec.openapis.org/oas/v3.0.2#fixed-fields-9
+      attributes.explode = false;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
+    switch (parameter.format) {
+      case "ssv":
+        return { style: "spaceDelimited", explode: false };
+      case "pipes":
+        return { style: "pipeDelimited", explode: false };
+      case "csv":
+      case "simple":
+        return { explode: false };
+      case undefined:
+      case "multi":
+      case "form":
+        return attributes;
+      default:
+        diagnostics.add(
+          createDiagnostic({
+            code: "invalid-format",
+            format: {
+              paramType: "query",
+              // eslint-disable-next-line @typescript-eslint/no-deprecated
+              value: parameter.format,
+            },
+            target: parameter.param,
+          }),
+        );
+        return undefined;
     }
   }
 
   function mapHeaderParameterFormat(
     parameter: HeaderFieldOptions & {
       param: ModelProperty;
-    }
+    },
   ): { style?: string; explode?: boolean } | undefined {
     switch (parameter.format) {
       case undefined:
@@ -1264,45 +1503,16 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       case "simple":
         return { style: "simple" };
       default:
-        reportDiagnostic(program, {
-          code: "invalid-format",
-          format: {
-            paramType: "header",
-            value: parameter.format,
-          },
-          target: parameter.param,
-        });
-        return undefined;
-    }
-  }
-  function mapQueryParameterFormat(
-    parameter: QueryParameterOptions & {
-      param: ModelProperty;
-    }
-  ): { style?: string; explode?: boolean } | undefined {
-    switch (parameter.format) {
-      case undefined:
-        return {};
-      case "csv":
-      case "simple":
-        return { style: "form", explode: false };
-      case "multi":
-      case "form":
-        return { style: "form", explode: true };
-      case "ssv":
-        return { style: "spaceDelimited", explode: false };
-      case "pipes":
-        return { style: "pipeDelimited", explode: false };
-
-      default:
-        reportDiagnostic(program, {
-          code: "invalid-format",
-          format: {
-            paramType: "query",
-            value: parameter.format,
-          },
-          target: parameter.param,
-        });
+        diagnostics.add(
+          createDiagnostic({
+            code: "invalid-format",
+            format: {
+              paramType: "header",
+              value: parameter.format,
+            },
+            target: parameter.param,
+          }),
+        );
         return undefined;
     }
   }
@@ -1314,7 +1524,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         property,
         param,
         root.components!.parameters!,
-        typeNameOptions
+        typeNameOptions,
       );
 
       root.components!.parameters![key] = { ...param };
@@ -1327,51 +1537,34 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   }
 
   function emitSchemas(serviceNamespace: Namespace) {
-    const processedSchemas = new TwoLevelMap<Type, Visibility, ProcessedSchema>();
-
-    processSchemas();
     if (!options.omitUnreachableTypes) {
       processUnreferencedSchemas();
     }
 
-    // Emit the processed schemas. Only now can we compute the names as it
-    // depends on whether we have produced multiple schemas for a single
-    // TYPESPEC type.
-    for (const group of processedSchemas.values()) {
-      for (const [visibility, processed] of group) {
-        let name = getOpenAPITypeName(program, processed.type, typeNameOptions);
-        if (group.size > 1) {
-          name += getVisibilitySuffix(visibility, Visibility.Read);
-        }
-        checkDuplicateTypeName(program, processed.type, name, root.components!.schemas);
-        processed.ref.value = "#/components/schemas/" + encodeURIComponent(name);
-        if (processed.schema) {
-          root.components!.schemas![name] = processed.schema;
-        }
-      }
-    }
-
-    function processSchemas() {
-      // Process pending schemas. Note that getSchemaForType may pull in new
-      // pending schemas so we iterate until there are no pending schemas
-      // remaining.
-      while (pendingSchemas.size > 0) {
-        for (const [type, group] of pendingSchemas) {
-          for (const [visibility, pending] of group) {
-            processedSchemas.getOrAdd(type, visibility, () => ({
-              ...pending,
-              schema: getSchemaForType(type, visibility),
-            }));
-          }
-          pendingSchemas.delete(type);
-        }
+    const files = schemaEmitter.getSourceFiles();
+    if (files.length > 0) {
+      compilerAssert(
+        files.length === 1,
+        `Should only have a single file for now but got ${files.length}`,
+      );
+      const schemas = root.components!.schemas!;
+      const declarations = files[0].globalScope.declarations;
+      for (const declaration of declarations) {
+        schemas[declaration.name] = declaration.value as any;
       }
     }
 
     function processUnreferencedSchemas() {
       const addSchema = (type: Type) => {
-        if (!processedSchemas.has(type) && !paramModels.has(type) && !shouldInline(program, type)) {
-          getSchemaOrRef(type, Visibility.Read);
+        if (isOrExtendsHttpFile(program, type)) {
+          return;
+        }
+        if (
+          visibilityUsage.isUnreachable(type) &&
+          !paramModels.has(type) &&
+          !shouldInline(program, type)
+        ) {
+          callSchemaEmitter(type, Visibility.All);
         }
       };
       const skipSubNamespaces = isGlobalNamespace(program, serviceNamespace);
@@ -1383,9 +1576,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
           enum: addSchema,
           union: addSchema,
         },
-        { skipSubNamespaces }
+        { skipSubNamespaces },
       );
-      processSchemas();
     }
   }
 
@@ -1396,375 +1588,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   }
 
   function getSchemaForType(type: Type, visibility: Visibility): OpenAPI3Schema | undefined {
-    const builtinType = getSchemaForLiterals(type);
-    if (builtinType !== undefined) return builtinType;
-
-    switch (type.kind) {
-      case "Intrinsic":
-        return getSchemaForIntrinsicType(type);
-      case "Model":
-        return getSchemaForModel(type, visibility);
-      case "ModelProperty":
-        return getSchemaForType(type.type, visibility);
-      case "Scalar":
-        return getSchemaForScalar(type);
-      case "Union":
-        return getSchemaForUnion(type, visibility);
-      case "UnionVariant":
-        return getSchemaForUnionVariant(type, visibility);
-      case "Enum":
-        return getSchemaForEnum(type);
-      case "Tuple":
-        return { type: "array", items: {} };
-      case "TemplateParameter":
-        // Note: This should never happen if it does there is a bug in the compiler.
-        reportDiagnostic(program, {
-          code: "invalid-schema",
-          format: { type: `${type.node.id.sv} (template parameter)` },
-          target: type,
-        });
-        return undefined;
-    }
-
-    reportDiagnostic(program, {
-      code: "invalid-schema",
-      format: { type: type.kind },
-      target: type,
-    });
-    return undefined;
-  }
-
-  function getSchemaForIntrinsicType(type: IntrinsicType): OpenAPI3Schema {
-    switch (type.name) {
-      case "unknown":
-        return {};
-    }
-
-    reportDiagnostic(program, {
-      code: "invalid-schema",
-      format: { type: type.name },
-      target: type,
-    });
-    return {};
-  }
-
-  function getSchemaForEnum(e: Enum) {
-    const values = [];
-    if (e.members.size === 0) {
-      reportDiagnostic(program, { code: "empty-enum", target: e });
-
-      return {};
-    }
-    const type = enumMemberType(e.members.values().next().value);
-    for (const option of e.members.values()) {
-      if (type !== enumMemberType(option)) {
-        reportDiagnostic(program, { code: "enum-unique-type", target: e });
-        continue;
-      }
-
-      values.push(option.value ?? option.name);
-    }
-
-    const schema: any = { type, description: getDoc(program, e) };
-    if (values.length > 0) {
-      schema.enum = values;
-    }
-
-    const title = getSummary(program, e);
-    if (title) {
-      schema.title = title;
-    }
-
-    return schema;
-    function enumMemberType(member: EnumMember) {
-      if (typeof member.value === "number") {
-        return "number";
-      }
-      return "string";
-    }
-  }
-
-  /**
-   * A TypeSpec union maps to a variety of OA3 structures according to the following rules:
-   *
-   * * A union containing `null` makes a `nullable` schema comprised of the remaining
-   *   union variants.
-   * * A union containing literal types are converted to OA3 enums. All literals of the
-   *   same type are combined into single enums.
-   * * A union that contains multiple items (after removing null and combining like-typed
-   *   literals into enums) is an `anyOf` union unless `oneOf` is applied to the union
-   *   declaration.
-   */
-  function getSchemaForUnion(union: Union, visibility: Visibility): OpenAPI3Schema {
-    if (union.variants.size === 0) {
-      reportDiagnostic(program, { code: "empty-union", target: union });
-      return {};
-    }
-    const variants = Array.from(union.variants.values());
-    const literalVariantEnumByType: Record<string, any> = {};
-    const ofType = getOneOf(program, union) ? "oneOf" : "anyOf";
-    const schemaMembers: { schema: any; type: Type | null }[] = [];
-    let nullable = false;
-    const discriminator = getDiscriminator(program, union);
-
-    for (const variant of variants) {
-      if (isNullType(variant.type)) {
-        nullable = true;
-        continue;
-      }
-
-      if (isLiteralType(variant.type)) {
-        if (!literalVariantEnumByType[variant.type.kind]) {
-          const enumSchema = getSchemaForLiterals(variant.type);
-          literalVariantEnumByType[variant.type.kind] = enumSchema;
-          schemaMembers.push({ schema: enumSchema, type: null });
-        } else {
-          literalVariantEnumByType[variant.type.kind].enum.push(variant.type.value);
-        }
-        continue;
-      }
-
-      schemaMembers.push({ schema: getSchemaOrRef(variant.type, visibility), type: variant.type });
-    }
-
-    if (schemaMembers.length === 0) {
-      if (nullable) {
-        // This union is equivalent to just `null` but OA3 has no way to specify
-        // null as a value, so we throw an error.
-        reportDiagnostic(program, { code: "union-null", target: union });
-        return {};
-      } else {
-        // completely empty union can maybe only happen with bugs?
-        compilerAssert(false, "Attempting to emit an empty union");
-      }
-    }
-
-    if (schemaMembers.length === 1) {
-      // we can just return the single schema member after applying nullable
-      const schema = schemaMembers[0].schema;
-      applyIntrinsicDecorators(union, schema);
-      const title = getSummary(program, union);
-      if (title) {
-        schema.title = title;
-      }
-      const type = schemaMembers[0].type;
-
-      if (nullable) {
-        if (schema.$ref) {
-          // but we can't make a ref "nullable", so wrap in an allOf (for models)
-          // or oneOf (for all other types)
-          if (type && type.kind === "Model") {
-            return { type: "object", allOf: [schema], nullable: true };
-          } else {
-            return { oneOf: [schema], nullable: true };
-          }
-        } else {
-          schema.nullable = true;
-        }
-      }
-
-      return schema;
-    }
-
-    const schema: any = {
-      [ofType]: schemaMembers.map((m) => m.schema),
-    };
-
-    if (nullable) {
-      schema.nullable = true;
-    }
-
-    if (discriminator) {
-      // the decorator validates that all the variants will be a model type
-      // with the discriminator field present.
-      schema.discriminator = { ...discriminator };
-      // Diagnostic already reported in compiler for unions
-      const discriminatedUnion = ignoreDiagnostics(getDiscriminatedUnion(union, discriminator));
-      if (discriminatedUnion.variants.size > 0) {
-        schema.discriminator.mapping = getDiscriminatorMapping(discriminatedUnion, visibility);
-      }
-    }
-
-    return applyIntrinsicDecorators(union, schema);
-  }
-
-  function getSchemaForUnionVariant(variant: UnionVariant, visibility: Visibility) {
-    const schema: any = getSchemaForType(variant.type, visibility);
-    return schema;
-  }
-
-  function isLiteralType(type: Type): type is StringLiteral | NumericLiteral | BooleanLiteral {
-    return type.kind === "Boolean" || type.kind === "String" || type.kind === "Number";
-  }
-
-  function getDefaultValue(type: Type, defaultType: Type): any {
-    switch (defaultType.kind) {
-      case "String":
-        return defaultType.value;
-      case "Number":
-        return defaultType.value;
-      case "Boolean":
-        return defaultType.value;
-      case "Tuple":
-        compilerAssert(
-          type.kind === "Tuple" || (type.kind === "Model" && isArrayModelType(program, type)),
-          "setting tuple default to non-tuple value"
-        );
-
-        if (type.kind === "Tuple") {
-          return defaultType.values.map((defaultTupleValue, index) =>
-            getDefaultValue(type.values[index], defaultTupleValue)
-          );
-        } else {
-          return defaultType.values.map((defaultTuplevalue) =>
-            getDefaultValue(type.indexer!.value, defaultTuplevalue)
-          );
-        }
-
-      case "Intrinsic":
-        return isNullType(defaultType)
-          ? null
-          : reportDiagnostic(program, {
-              code: "invalid-default",
-              format: { type: defaultType.kind },
-              target: defaultType,
-            });
-      case "EnumMember":
-        return defaultType.value ?? defaultType.name;
-      default:
-        reportDiagnostic(program, {
-          code: "invalid-default",
-          format: { type: defaultType.kind },
-          target: defaultType,
-        });
-    }
-  }
-
-  function includeDerivedModel(model: Model): boolean {
-    return (
-      !isTemplateDeclaration(model) &&
-      (model.templateMapper?.args === undefined ||
-        model.templateMapper.args?.length === 0 ||
-        model.derivedModels.length > 0)
-    );
-  }
-
-  function getSchemaForModel(model: Model, visibility: Visibility) {
-    const array = getArrayType(model, visibility);
-    if (array) {
-      return array;
-    }
-
-    const modelSchema: OpenAPI3Schema = {
-      type: "object",
-      description: getDoc(program, model),
-    };
-    const properties: OpenAPI3Schema["properties"] = {};
-
-    if (isRecordModelType(program, model)) {
-      modelSchema.additionalProperties = getSchemaOrRef(model.indexer.value, visibility);
-    }
-
-    const derivedModels = model.derivedModels.filter(includeDerivedModel);
-    // getSchemaOrRef on all children to push them into components.schemas
-    for (const child of derivedModels) {
-      getSchemaOrRef(child, visibility);
-    }
-
-    const discriminator = getDiscriminator(program, model);
-    if (discriminator) {
-      const [union] = getDiscriminatedUnion(model, discriminator);
-
-      const openApiDiscriminator: OpenAPI3Discriminator = { ...discriminator };
-      if (union.variants.size > 0) {
-        openApiDiscriminator.mapping = getDiscriminatorMapping(union, visibility);
-      }
-
-      modelSchema.discriminator = openApiDiscriminator;
-      properties[discriminator.propertyName] = {
-        type: "string",
-        description: `Discriminator property for ${model.name}.`,
-      };
-    }
-
-    applyExternalDocs(model, modelSchema);
-
-    for (const [name, prop] of model.properties) {
-      if (!metadataInfo.isPayloadProperty(prop, visibility)) {
-        continue;
-      }
-
-      if (isNeverType(prop.type)) {
-        // If the property has a type of 'never', don't include it in the schema
-        continue;
-      }
-
-      if (!metadataInfo.isOptional(prop, visibility)) {
-        if (!modelSchema.required) {
-          modelSchema.required = [];
-        }
-        modelSchema.required.push(name);
-      }
-
-      properties[name] = resolveProperty(prop, visibility);
-    }
-
-    if (model.baseModel) {
-      const baseSchema = getSchemaOrRef(model.baseModel, visibility);
-      modelSchema.allOf = [baseSchema];
-    }
-
-    if (Object.keys(properties).length > 0) {
-      modelSchema.properties = properties;
-    }
-    const title = getSummary(program, model);
-    if (title) {
-      modelSchema.title = title;
-    }
-
-    // Attach any OpenAPI extensions
-    attachExtensions(program, model, modelSchema);
-    return modelSchema;
-  }
-
-  function resolveProperty(prop: ModelProperty, visibility: Visibility): OpenAPI3SchemaProperty {
-    const description = getDoc(program, prop);
-
-    const schema = applyEncoding(prop, getSchemaOrRef(prop.type, visibility));
-    // Apply decorators on the property to the type's schema
-    const additionalProps: Partial<OpenAPI3Schema> = applyIntrinsicDecorators(prop, {});
-    if (description) {
-      additionalProps.description = description;
-    }
-
-    if (prop.default) {
-      additionalProps.default = getDefaultValue(prop.type, prop.default);
-    }
-
-    if (isReadonlyProperty(program, prop)) {
-      additionalProps.readOnly = true;
-    }
-
-    // Attach any additional OpenAPI extensions
-    attachExtensions(program, prop, additionalProps);
-
-    if (schema && "$ref" in schema) {
-      if (Object.keys(additionalProps).length === 0) {
-        return schema;
-      } else {
-        return {
-          allOf: [schema],
-          ...additionalProps,
-        };
-      }
-    } else {
-      if (getOneOf(program, prop) && schema.anyOf) {
-        schema.oneOf = schema.anyOf;
-        delete schema.anyOf;
-      }
-
-      return { ...schema, ...additionalProps };
-    }
+    return callSchemaEmitter(type, visibility) as any;
   }
 
   function attachExtensions(program: Program, type: Type, emitObject: any) {
@@ -1775,14 +1599,6 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         emitObject[key] = extensions.get(key);
       }
     }
-  }
-
-  function getDiscriminatorMapping(union: DiscriminatedUnion, visibility: Visibility) {
-    const mapping: Record<string, string> | undefined = {};
-    for (const [key, model] of union.variants.entries()) {
-      mapping[key] = getSchemaOrRef(model, visibility).$ref;
-    }
-    return mapping;
   }
 
   function applyIntrinsicDecorators(typespecType: Type, target: OpenAPI3Schema): OpenAPI3Schema {
@@ -1856,63 +1672,13 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     const values = getKnownValues(program, typespecType as any);
     if (values) {
       return {
-        oneOf: [newTarget, getSchemaForEnum(values)],
+        oneOf: [newTarget, callSchemaEmitter(values, Visibility.Read, false, "application/json")],
       };
     }
 
     attachExtensions(program, typespecType, newTarget);
 
     return newTarget;
-  }
-
-  function applyEncoding(
-    typespecType: Scalar | ModelProperty,
-    target: OpenAPI3Schema
-  ): OpenAPI3Schema {
-    const encodeData = getEncode(program, typespecType);
-    if (encodeData) {
-      const newTarget = { ...target };
-      const newType = getSchemaForScalar(encodeData.type);
-      newTarget.type = newType.type;
-      // If the target already has a format it takes priority. (e.g. int32)
-      newTarget.format = mergeFormatAndEncoding(
-        newTarget.format,
-        encodeData.encoding,
-        newType.format
-      );
-      return newTarget;
-    }
-    return target;
-  }
-  function mergeFormatAndEncoding(
-    format: string | undefined,
-    encoding: string,
-    encodeAsFormat: string | undefined
-  ): string {
-    switch (format) {
-      case undefined:
-        return encodeAsFormat ?? encoding;
-      case "date-time":
-        switch (encoding) {
-          case "rfc3339":
-            return "date-time";
-          case "unixTimestamp":
-            return "unixtime";
-          case "rfc7231":
-            return "http-date";
-          default:
-            return encoding;
-        }
-      case "duration":
-        switch (encoding) {
-          case "ISO8601":
-            return "duration";
-          default:
-            return encodeAsFormat ?? encoding;
-        }
-      default:
-        return encodeAsFormat ?? encoding;
-    }
   }
 
   function applyExternalDocs(typespecType: Type, target: Record<string, unknown>) {
@@ -1922,152 +1688,66 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
   }
 
-  // Map an TypeSpec type to an OA schema. Returns undefined when the resulting
-  // OA schema is just a regular object schema.
-  function getSchemaForLiterals(
-    typespecType: NumericLiteral | StringLiteral | BooleanLiteral
-  ): OpenAPI3Schema;
-  function getSchemaForLiterals(typespecType: Type): OpenAPI3Schema | undefined;
-  function getSchemaForLiterals(typespecType: Type): OpenAPI3Schema | undefined {
-    switch (typespecType.kind) {
-      case "Number":
-        return { type: "number", enum: [typespecType.value] };
-      case "String":
-        return { type: "string", enum: [typespecType.value] };
-      case "Boolean":
-        return { type: "boolean", enum: [typespecType.value] };
-      default:
-        return undefined;
+  function getOpenAPISecuritySchemes(
+    httpAuthentications: HttpAuth[],
+  ): Record<string, OpenAPI3SecurityScheme> {
+    const schemes: Record<string, OpenAPI3SecurityScheme> = {};
+    for (const httpAuth of httpAuthentications) {
+      const scheme = getOpenAPI3Scheme(httpAuth);
+      if (scheme) {
+        schemes[httpAuth.id] = scheme;
+      }
     }
+    return schemes;
   }
 
-  /**
-   * Map TypeSpec intrinsic models to open api definitions
-   */
-  function getArrayType(typespecType: Model, visibility: Visibility): OpenAPI3Schema | undefined {
-    if (isArrayModelType(program, typespecType)) {
-      const array: OpenAPI3Schema = {
-        type: "array",
-        items: getSchemaOrRef(typespecType.indexer.value!, visibility | Visibility.Item),
-      };
-      return applyIntrinsicDecorators(typespecType, array);
+  function getOpenAPISecurity(authReference: AuthenticationReference) {
+    const security = authReference.options.map((authOption: AuthenticationOptionReference) => {
+      const securityOption: Record<string, string[]> = {};
+      for (const httpAuthRef of authOption.all) {
+        switch (httpAuthRef.kind) {
+          case "noAuth":
+            // should emit "{}" as a security option https://github.com/OAI/OpenAPI-Specification/issues/14#issuecomment-297457320
+            continue;
+          case "oauth2":
+            securityOption[httpAuthRef.auth.id] = httpAuthRef.scopes;
+            continue;
+          default:
+            securityOption[httpAuthRef.auth.id] = [];
+        }
+      }
+      return securityOption;
+    });
+    return security;
+  }
+
+  function getEndpointSecurity(
+    authReference: AuthenticationReference,
+  ): Record<string, string[]>[] | undefined {
+    const security = getOpenAPISecurity(authReference);
+    if (deepEquals(security, root.security)) {
+      return undefined;
+    }
+    if (security.length > 0) {
+      return security;
     }
     return undefined;
   }
 
-  function getSchemaForScalar(scalar: Scalar): OpenAPI3Schema {
-    let result: OpenAPI3Schema = {};
-    const isStd = program.checker.isStdType(scalar);
-    if (isStd) {
-      result = getSchemaForStdScalars(scalar);
-    } else if (scalar.baseScalar) {
-      result = getSchemaForScalar(scalar.baseScalar);
-    }
-    const withDecorators = applyEncoding(scalar, applyIntrinsicDecorators(scalar, result));
-    if (isStd) {
-      // Standard types are going to be inlined in the spec and we don't want the description of the scalar to show up
-      delete withDecorators.description;
-    }
-    return withDecorators;
-  }
+  function getOpenAPI3Scheme(auth: HttpAuth): OpenAPI3SecurityScheme | undefined {
+    const scheme = getOpenAPI3SchemeInternal(auth);
 
-  function getSchemaForStdScalars(scalar: Scalar & { name: IntrinsicScalarName }): OpenAPI3Schema {
-    switch (scalar.name) {
-      case "bytes":
-        return { type: "string", format: "byte" };
-      case "numeric":
-        return { type: "number" };
-      case "integer":
-        return { type: "integer" };
-      case "int8":
-        return { type: "integer", format: "int8" };
-      case "int16":
-        return { type: "integer", format: "int16" };
-      case "int32":
-        return { type: "integer", format: "int32" };
-      case "int64":
-        return { type: "integer", format: "int64" };
-      case "safeint":
-        return { type: "integer", format: "int64" };
-      case "uint8":
-        return { type: "integer", format: "uint8" };
-      case "uint16":
-        return { type: "integer", format: "uint16" };
-      case "uint32":
-        return { type: "integer", format: "uint32" };
-      case "uint64":
-        return { type: "integer", format: "uint64" };
-      case "float":
-        return { type: "number" };
-      case "float64":
-        return { type: "number", format: "double" };
-      case "float32":
-        return { type: "number", format: "float" };
-      case "decimal":
-        return { type: "number", format: "decimal" };
-      case "decimal128":
-        return { type: "number", format: "decimal128" };
-      case "string":
-        return { type: "string" };
-      case "boolean":
-        return { type: "boolean" };
-      case "plainDate":
-        return { type: "string", format: "date" };
-      case "utcDateTime":
-      case "offsetDateTime":
-        return { type: "string", format: "date-time" };
-      case "plainTime":
-        return { type: "string", format: "time" };
-      case "duration":
-        return { type: "string", format: "duration" };
-      case "url":
-        return { type: "string", format: "uri" };
-      default:
-        const _assertNever: never = scalar.name;
-        return {};
+    if (scheme) {
+      attachExtensions(program, auth.model, scheme);
     }
+    return scheme;
   }
-
-  function processAuth(serviceNamespace: Namespace):
-    | {
-        securitySchemes: Record<string, OpenAPI3SecurityScheme>;
-        security: Record<string, string[]>[];
-      }
-    | undefined {
-    const authentication = getAuthentication(program, serviceNamespace);
-    if (authentication) {
-      return processServiceAuthentication(authentication);
-    }
-    return undefined;
-  }
-
-  function processServiceAuthentication(authentication: ServiceAuthentication): {
-    securitySchemes: Record<string, OpenAPI3SecurityScheme>;
-    security: Record<string, string[]>[];
-  } {
-    const oaiSchemes: Record<string, OpenAPI3SecurityScheme> = {};
-    const security: Record<string, string[]>[] = [];
-    for (const option of authentication.options) {
-      const oai3SecurityOption: Record<string, string[]> = {};
-      for (const scheme of option.schemes) {
-        const [oaiScheme, scopes] = getOpenAPI3Scheme(scheme);
-        oaiSchemes[scheme.id] = oaiScheme;
-        oai3SecurityOption[scheme.id] = scopes;
-      }
-      security.push(oai3SecurityOption);
-    }
-    return { securitySchemes: oaiSchemes, security };
-  }
-
-  function getOpenAPI3Scheme(auth: HttpAuth): [OpenAPI3SecurityScheme, string[]] {
+  function getOpenAPI3SchemeInternal(auth: HttpAuth): OpenAPI3SecurityScheme | undefined {
     switch (auth.type) {
       case "http":
-        return [{ type: "http", scheme: auth.scheme, description: auth.description }, []];
+        return { type: "http", scheme: auth.scheme, description: auth.description };
       case "apiKey":
-        return [
-          { type: "apiKey", in: auth.in, name: auth.name, description: auth.description },
-          [],
-        ];
+        return { type: "apiKey", in: auth.in, name: auth.name, description: auth.description };
       case "oauth2":
         const flows: OpenAPI3OAuthFlows = {};
         const scopes: string[] = [];
@@ -2080,10 +1760,24 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
             scopes: Object.fromEntries(flow.scopes.map((x) => [x.value, x.description ?? ""])),
           };
         }
-        return [{ type: "oauth2", flows, description: auth.description }, scopes];
+        return { type: "oauth2", flows, description: auth.description };
+      case "openIdConnect":
+        return {
+          type: "openIdConnect",
+          openIdConnectUrl: auth.openIdConnectUrl,
+          description: auth.description,
+        };
+      case "noAuth":
+        return undefined;
       default:
-        const _assertNever: never = auth;
-        compilerAssert(false, "Unreachable");
+        diagnostics.add(
+          createDiagnostic({
+            code: "unsupported-auth",
+            format: { authType: (auth as any).type },
+            target: currentService.type,
+          }),
+        );
+        return undefined;
     }
   }
 }
@@ -2094,17 +1788,11 @@ function serializeDocument(root: OpenAPI3Document, fileType: FileType): string {
     case "json":
       return prettierOutput(JSON.stringify(root, null, 2));
     case "yaml":
-      return stringify(
-        root,
-        (key, value) => {
-          return value instanceof Ref ? value.toJSON() : value;
-        },
-        {
-          singleQuote: true,
-          aliasDuplicateObjects: false,
-          lineWidth: 0,
-        }
-      );
+      return stringify(root, {
+        singleQuote: true,
+        aliasDuplicateObjects: false,
+        lineWidth: 0,
+      });
   }
 }
 

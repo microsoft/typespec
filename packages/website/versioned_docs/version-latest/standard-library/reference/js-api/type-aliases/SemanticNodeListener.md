@@ -9,6 +9,6 @@ type SemanticNodeListener: object & TypeListeners;
 
 ## Type declaration
 
-| Member | Type | Description |
-| :------ | :------ | :------ |
-| `root` | (`context`) => `void` \| `undefined` | - |
+| Name | Type |
+| ------ | ------ |
+| `root`? | (`context`) => `void` \| `undefined` |

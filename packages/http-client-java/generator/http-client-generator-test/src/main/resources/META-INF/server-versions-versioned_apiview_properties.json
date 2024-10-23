@@ -1,0 +1,24 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com.server.versions.versioned.VersionedAsyncClient": "Server.Versions.Versioned",
+    "com.server.versions.versioned.VersionedAsyncClient.withPathApiVersion": "Server.Versions.Versioned.withPathApiVersion",
+    "com.server.versions.versioned.VersionedAsyncClient.withPathApiVersionWithResponse": "Server.Versions.Versioned.withPathApiVersion",
+    "com.server.versions.versioned.VersionedAsyncClient.withQueryApiVersion": "Server.Versions.Versioned.withQueryApiVersion",
+    "com.server.versions.versioned.VersionedAsyncClient.withQueryApiVersionWithResponse": "Server.Versions.Versioned.withQueryApiVersion",
+    "com.server.versions.versioned.VersionedAsyncClient.withQueryOldApiVersion": "Server.Versions.Versioned.withQueryOldApiVersion",
+    "com.server.versions.versioned.VersionedAsyncClient.withQueryOldApiVersionWithResponse": "Server.Versions.Versioned.withQueryOldApiVersion",
+    "com.server.versions.versioned.VersionedAsyncClient.withoutApiVersion": "Server.Versions.Versioned.withoutApiVersion",
+    "com.server.versions.versioned.VersionedAsyncClient.withoutApiVersionWithResponse": "Server.Versions.Versioned.withoutApiVersion",
+    "com.server.versions.versioned.VersionedClient": "Server.Versions.Versioned",
+    "com.server.versions.versioned.VersionedClient.withPathApiVersion": "Server.Versions.Versioned.withPathApiVersion",
+    "com.server.versions.versioned.VersionedClient.withPathApiVersionWithResponse": "Server.Versions.Versioned.withPathApiVersion",
+    "com.server.versions.versioned.VersionedClient.withQueryApiVersion": "Server.Versions.Versioned.withQueryApiVersion",
+    "com.server.versions.versioned.VersionedClient.withQueryApiVersionWithResponse": "Server.Versions.Versioned.withQueryApiVersion",
+    "com.server.versions.versioned.VersionedClient.withQueryOldApiVersion": "Server.Versions.Versioned.withQueryOldApiVersion",
+    "com.server.versions.versioned.VersionedClient.withQueryOldApiVersionWithResponse": "Server.Versions.Versioned.withQueryOldApiVersion",
+    "com.server.versions.versioned.VersionedClient.withoutApiVersion": "Server.Versions.Versioned.withoutApiVersion",
+    "com.server.versions.versioned.VersionedClient.withoutApiVersionWithResponse": "Server.Versions.Versioned.withoutApiVersion",
+    "com.server.versions.versioned.VersionedClientBuilder": "Server.Versions.Versioned"
+  }
+}

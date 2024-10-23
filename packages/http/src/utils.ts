@@ -5,5 +5,5 @@
  * @example "foo/{name}/bar" -> ["name"]
  */
 export function extractParamsFromPath(path: string): string[] {
-  return path.match(/\{\w+\}/g)?.map((s) => s.slice(1, -1)) ?? [];
+  return path.match(/\{[^}]+\}/g)?.map((s) => s.slice(1, -1)) ?? [];
 }

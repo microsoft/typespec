@@ -31,10 +31,7 @@ components:
       in: header
       required: true
       schema:
-        type: string
-        enum:
-          - v1
-          - v2
+        $ref: '#/components/schemas/Versions'
   schemas:
     Dog:
       type: object
@@ -42,8 +39,6 @@ components:
         - type
         - nextWalkTime
         - walkerName
-      allOf:
-        - $ref: '#/components/schemas/PetBase'
       properties:
         type:
           type: string
@@ -54,6 +49,8 @@ components:
           format: date-time
         walkerName:
           type: string
+      allOf:
+        - $ref: '#/components/schemas/PetBase'
     Library.PetToy:
       type: object
       required:
@@ -63,23 +60,24 @@ components:
           type: string
     PetBase:
       type: object
-      discriminator:
-        propertyName: type
-        mapping:
-          dog: '#/components/schemas/Dog'
       required:
         - name
         - favoriteToys
+        - type
       properties:
-        type:
-          type: string
-          description: Discriminator property for PetBase.
         name:
           type: string
         favoriteToys:
           type: array
           items:
             $ref: '#/components/schemas/Library.PetToy'
+        type:
+          type: string
+          description: Discriminator property for PetBase.
+      discriminator:
+        propertyName: type
+        mapping:
+          dog: '#/components/schemas/Dog'
     Versions:
       type: string
       enum:

@@ -1,4 +1,5 @@
 import { ok, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { Model, Union, UnionVariant } from "../../src/core/types.js";
 import { TestHost, createTestHost } from "../../src/testing/index.js";
 
@@ -21,7 +22,7 @@ describe("compiler: union declarations", () => {
       `
       import "./test.js";
       @test @blue union Foo { @blue x: int32; y: int16 };
-      `
+      `,
     );
 
     const { Foo } = (await testHost.compile("./")) as { Foo: Union };
@@ -59,7 +60,7 @@ describe("compiler: union declarations", () => {
       };
 
       alias T = Foo<string>;
-      `
+      `,
     );
 
     const { Foo } = (await testHost.compile("./")) as { Foo: Union };
@@ -79,7 +80,7 @@ describe("compiler: union declarations", () => {
       `
       @test union Foo<T> { x: T };
       alias T = Foo<int32>;
-      `
+      `,
     );
 
     const { Foo } = (await testHost.compile("./")) as { Foo: Union };
@@ -98,7 +99,7 @@ describe("compiler: union declarations", () => {
       `
       @test model Foo<T, U> { x: T | U };
       alias T = Foo<int16 | int32, string | int8>;
-      `
+      `,
     );
 
     const { Foo } = (await testHost.compile("./")) as { Foo: Model };
@@ -116,7 +117,7 @@ describe("compiler: union declarations", () => {
       @test model Foo<T, U> { x: T | U };
       union Bar { x: int16, y: int32 };
       alias T = Foo<Bar, string | int8>;
-      `
+      `,
     );
 
     const { Foo } = (await testHost.compile("./")) as { Foo: Model };
@@ -132,7 +133,7 @@ describe("compiler: union declarations", () => {
       "main.tsp",
       `
       @test model Foo { x: int32 | never };
-      `
+      `,
     );
 
     const { Foo } = (await testHost.compile("./")) as { Foo: Model };

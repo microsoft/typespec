@@ -3,17 +3,17 @@ jsApi: true
 title: "[I] LinterRuleContext"
 
 ---
-## Type parameters
+## Type Parameters
 
-| Parameter |
-| :------ |
-| `DM` extends [`DiagnosticMessages`](DiagnosticMessages.md) |
+| Type Parameter |
+| ------ |
+| `DM` *extends* [`DiagnosticMessages`](DiagnosticMessages.md) |
 
 ## Properties
 
-| Modifier | Property | Type | Description |
-| :------ | :------ | :------ | :------ |
-| `readonly` | `program` | [`Program`](Program.md) | - |
+| Property | Modifier | Type |
+| ------ | ------ | ------ |
+| `program` | `readonly` | [`Program`](Program.md) |
 
 ## Methods
 
@@ -23,14 +23,18 @@ title: "[I] LinterRuleContext"
 reportDiagnostic<M>(diag): void
 ```
 
-#### Type parameters
+#### Type Parameters
 
-| Parameter |
-| :------ |
-| `M` extends `string` \| `number` \| `symbol` |
+| Type Parameter |
+| ------ |
+| `M` *extends* `string` \| `number` \| `symbol` |
 
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `diag` | [`LinterRuleDiagnosticReport`](../type-aliases/LinterRuleDiagnosticReport.md)<`DM`, `M`\> |
+
+#### Returns
+
+`void`

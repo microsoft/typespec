@@ -17,6 +17,26 @@ export const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../
 
 const diagnostics = new Map();
 
+class CompilerDocusaurusRenderer extends DocusaurusRenderer {
+  /**
+   * @param {import("../../tspd/dist/src/ref-doc/types.js").RefDocEntity} type
+   */
+  filename(type) {
+    switch (type.kind) {
+      case "decorator":
+        return "./built-in-decorators.md";
+      case "model":
+      case "enum":
+      case "union":
+        return "./built-in-data-types.md";
+      case "operation":
+      case "interface":
+      default:
+        return "";
+    }
+  }
+}
+
 // Compiler
 const compilerDiag = await generateCompilerDocs();
 if (compilerDiag.length) {
@@ -39,9 +59,10 @@ async function generateCompilerDocs() {
   const results = await resolveLibraryRefDocsBase(compilerPath, {
     namespaces: { include: ["TypeSpec"] },
   });
-  const renderer = new DocusaurusRenderer();
   assert(results, "Unexpected ref doc should have been resolved for compiler.");
+  /** @type {*} */
   const [refDoc, diagnostics] = results;
+  const renderer = new CompilerDocusaurusRenderer(refDoc);
   const decoratorContent = renderDecoratorFile(renderer, refDoc, { title: "Built-in Decorators" });
   assert(decoratorContent, "Unexpected decorator file shouldn't be empty for compiler.");
   await writeFile(join(outputDir, "built-in-decorators.md"), decoratorContent);

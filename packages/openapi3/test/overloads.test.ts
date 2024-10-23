@@ -1,9 +1,10 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { OpenAPI3Document } from "../src/types.js";
 import { openApiFor } from "./test-host.js";
 
 describe("openapi3: overloads", () => {
-  context("overloads use same endpoint", () => {
+  describe("overloads use same endpoint", () => {
     let res: OpenAPI3Document;
     beforeEach(async () => {
       res = await openApiFor(
@@ -14,7 +15,7 @@ describe("openapi3: overloads", () => {
         op uploadString(data: string, @header contentType: "text/plain" ): void;
         @overload(upload)
         op uploadBytes(data: bytes, @header contentType: "application/octet-stream"): void;
-      `
+      `,
       );
     });
 
@@ -23,14 +24,14 @@ describe("openapi3: overloads", () => {
       const operation = res.paths["/upload"].post;
       ok(operation);
       strictEqual(operation.operationId, "upload");
-      deepStrictEqual(Object.keys(operation.requestBody.content), [
+      deepStrictEqual(Object.keys(operation.requestBody!.content), [
         "text/plain",
         "application/octet-stream",
       ]);
     });
   });
 
-  context("overloads all use different endpoint", () => {
+  describe("overloads all use different endpoint", () => {
     let res: OpenAPI3Document;
     beforeEach(async () => {
       res = await openApiFor(
@@ -43,7 +44,7 @@ describe("openapi3: overloads", () => {
         @overload(upload)
         @route("/uploadBytes")
         op uploadBytes(data: bytes, @header contentType: "application/octet-stream"): void;
-      `
+      `,
       );
     });
 
@@ -55,8 +56,8 @@ describe("openapi3: overloads", () => {
       strictEqual(stringOperation.operationId, "uploadString");
       strictEqual(bytesOperation.operationId, "uploadBytes");
 
-      deepStrictEqual(Object.keys(stringOperation.requestBody.content), ["text/plain"]);
-      deepStrictEqual(Object.keys(bytesOperation.requestBody.content), [
+      deepStrictEqual(Object.keys(stringOperation.requestBody!.content), ["text/plain"]);
+      deepStrictEqual(Object.keys(bytesOperation.requestBody!.content), [
         "application/octet-stream",
       ]);
     });
@@ -66,14 +67,14 @@ describe("openapi3: overloads", () => {
       ok(baseOperation);
       strictEqual(baseOperation.operationId, "upload");
 
-      deepStrictEqual(Object.keys(baseOperation.requestBody.content), [
+      deepStrictEqual(Object.keys(baseOperation.requestBody!.content), [
         "text/plain",
         "application/octet-stream",
       ]);
     });
   });
 
-  context("some overload all use different endpoint", () => {
+  describe("some overload all use different endpoint", () => {
     let res: OpenAPI3Document;
     beforeEach(async () => {
       res = await openApiFor(
@@ -85,7 +86,7 @@ describe("openapi3: overloads", () => {
         op uploadString(data: string, @header contentType: "text/plain" ): void;
         @overload(upload)
         op uploadBytes(data: bytes, @header contentType: "application/octet-stream"): void;
-      `
+      `,
       );
     });
 

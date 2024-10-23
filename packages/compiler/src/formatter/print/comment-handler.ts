@@ -1,8 +1,9 @@
 import type { Printer } from "prettier";
-import { Node, SyntaxKind, TypeSpecScriptNode } from "../../core/types.js";
+import { Node, SyntaxKind, TextRange, TypeSpecScriptNode } from "../../core/types.js";
 import { util } from "./util.js";
 
-interface CommentNode {
+interface CommentNode extends TextRange {
+  readonly kind: SyntaxKind.LineComment | SyntaxKind.BlockComment;
   precedingNode?: Node;
   enclosingNode?: Node;
   followingNode?: Node;
@@ -16,9 +17,18 @@ export const commentHandler: Printer<Node>["handleComments"] = {
     [
       addEmptyInterfaceComment,
       addEmptyModelComment,
+      addEmptyScalarComment,
       addCommentBetweenAnnotationsAndNode,
       handleOnlyComments,
     ].some((x) => x({ comment, text, options, ast: ast as TypeSpecScriptNode, isLastComment })),
+  remaining: (comment, text, options, ast, isLastComment) =>
+    [handleOnlyComments].some((x) =>
+      x({ comment, text, options, ast: ast as TypeSpecScriptNode, isLastComment }),
+    ),
+  endOfLine: (comment, text, options, ast, isLastComment) =>
+    [handleOnlyComments].some((x) =>
+      x({ comment, text, options, ast: ast as TypeSpecScriptNode, isLastComment }),
+    ),
 };
 
 interface CommentContext {
@@ -109,6 +119,31 @@ function addEmptyModelComment({ comment }: CommentContext) {
     (precedingNode === enclosingNode.is ||
       precedingNode === enclosingNode.id ||
       precedingNode === enclosingNode.extends)
+  ) {
+    util.addDanglingComment(enclosingNode, comment, undefined);
+    return true;
+  }
+  return false;
+}
+
+/**
+ * When a comment is on an empty scalar make sure it gets added as a dangling comment on it and not on the identifier.
+ *
+ * @example
+ *
+ * scalar foo {
+ *   // My comment
+ * }
+ */
+function addEmptyScalarComment({ comment }: CommentContext) {
+  const { precedingNode, enclosingNode } = comment;
+
+  if (
+    enclosingNode &&
+    enclosingNode.kind === SyntaxKind.ScalarStatement &&
+    enclosingNode.members.length === 0 &&
+    precedingNode &&
+    (precedingNode === enclosingNode.id || precedingNode === enclosingNode.extends)
   ) {
     util.addDanglingComment(enclosingNode, comment, undefined);
     return true;

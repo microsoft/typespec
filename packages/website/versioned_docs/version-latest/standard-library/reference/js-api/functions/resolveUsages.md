@@ -4,7 +4,7 @@ title: "[F] resolveUsages"
 
 ---
 ```ts
-resolveUsages(types): UsageTracker
+function resolveUsages(types): UsageTracker
 ```
 
 Resolve usage(input, output or both) of various types in the given namespace.
@@ -13,9 +13,11 @@ Will recursively scan all namespace, interfaces and operations contained inside 
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `types` | [`OperationContainer`](../type-aliases/OperationContainer.md) \| [`OperationContainer`](../type-aliases/OperationContainer.md)[] | Entrypoint(s) namespace, interface or operations to get usage from. |
 
 ## Returns
+
+[`UsageTracker`](../interfaces/UsageTracker.md)
 
 Map of types to usage.

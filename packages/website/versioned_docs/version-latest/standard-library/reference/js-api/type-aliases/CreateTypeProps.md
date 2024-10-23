@@ -4,5 +4,5 @@ title: "[T] CreateTypeProps"
 
 ---
 ```ts
-type CreateTypeProps: Omit<Type, "isFinished" | keyof TypePrototype>;
+type CreateTypeProps: Omit<Type, "isFinished" | "entityKind" | keyof TypePrototype>;
 ```

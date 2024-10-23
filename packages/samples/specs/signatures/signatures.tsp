@@ -17,14 +17,14 @@ model AccountProfile {
 }
 
 @get
-@doc("Reads an instance of the {name} resource.", TResource)
-op ResourceReadBase<TResource extends {}, TError>(@path name: string): TResource | TError;
-op ResourceRead<TResource extends {}> is ResourceReadBase<TResource, ErrorDetails>;
+@doc("Reads an instance of the {name} resource.", Resource)
+op ResourceReadBase<Resource extends {}, Error>(@path name: string): Resource | Error;
+op ResourceRead<Resource extends {}> is ResourceReadBase<Resource, ErrorDetails>;
 
 @post
-@doc("Reads an instance of the {name} resource.", TResource)
-op ResourceCreateBase<TResource extends {}, TError>(@body resource: TResource): TResource | TError;
-op ResourceCreate<TResource extends {}> is ResourceCreateBase<TResource, ErrorDetails>;
+@doc("Reads an instance of the {name} resource.", Resource)
+op ResourceCreateBase<Resource extends {}, Error>(@body resource: Resource): Resource | Error;
+op ResourceCreate<Resource extends {}> is ResourceCreateBase<Resource, ErrorDetails>;
 
 @route("codeSignAccounts")
 interface CodeSignAccounts {
@@ -32,9 +32,9 @@ interface CodeSignAccounts {
   create is ResourceCreate<CodeSignAccount>;
 }
 
-interface ResourceOperations<TResource extends {}> {
-  get is ResourceRead<TResource>;
-  create is ResourceCreate<TResource>;
+interface ResourceOperations<Resource extends {}> {
+  get is ResourceRead<Resource>;
+  create is ResourceCreate<Resource>;
 }
 
 @route("accountProfiles")

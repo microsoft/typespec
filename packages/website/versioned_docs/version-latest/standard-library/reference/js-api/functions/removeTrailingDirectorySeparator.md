@@ -4,7 +4,7 @@ title: "[F] removeTrailingDirectorySeparator"
 
 ---
 ```ts
-removeTrailingDirectorySeparator(path): string
+function removeTrailingDirectorySeparator(path): string
 ```
 
 Removes a trailing directory separator from a path, if it does not already have one.
@@ -17,5 +17,9 @@ removeTrailingDirectorySeparator("/path/to/file.ext/") === "/path/to/file.ext"
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `path` | `string` |
+
+## Returns
+
+`string`

@@ -13,9 +13,13 @@ sub(subarea): Tracer
 
 #### Parameters
 
-| Parameter | Type |
-| :------ | :------ |
-| `subarea` | `string` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `subarea` | `string` |  |
+
+#### Returns
+
+[`Tracer`](Tracer.md)
 
 ***
 
@@ -33,7 +37,11 @@ Trace
 #### Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `area` | `string` |  |
 | `message` | `string` |  |
 | `target`? | [`DiagnosticTarget`](../type-aliases/DiagnosticTarget.md) | - |
+
+#### Returns
+
+`void`

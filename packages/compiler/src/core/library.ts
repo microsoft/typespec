@@ -1,14 +1,19 @@
-import { compilerAssert, createDiagnosticCreator } from "./diagnostics.js";
-import { Program } from "./program.js";
+import { createDiagnosticCreator } from "./diagnostic-creator.js";
+import { compilerAssert } from "./diagnostics.js";
+import type { Program } from "./program.js";
 import { createJSONSchemaValidator } from "./schema-validator.js";
 import {
-  CallableMessage,
   DiagnosticMessages,
   JSONSchemaValidator,
+  LinterDefinition,
   LinterRuleDefinition,
+  PackageFlags,
+  StateDef,
   TypeSpecLibrary,
   TypeSpecLibraryDef,
 } from "./types.js";
+
+export { paramMessage } from "./param-message.js";
 
 const globalLibraryUrlsLoadedSym = Symbol.for("TYPESPEC_LIBRARY_URLS_LOADED");
 if ((globalThis as any)[globalLibraryUrlsLoadedSym] === undefined) {
@@ -26,6 +31,18 @@ export function getLibraryUrlsLoaded(): Set<string> {
 
 /** @deprecated use createTypeSpecLibrary */
 export const createCadlLibrary = createTypeSpecLibrary;
+
+function createStateKeys<T extends string>(
+  libName: string,
+  state: Record<T, StateDef> | undefined,
+): Record<T, symbol> {
+  const result: Record<string, symbol> = {};
+
+  for (const key of Object.keys(state ?? {})) {
+    result[key] = Symbol.for(`${libName}/${key}`);
+  }
+  return result as Record<T, symbol>;
+}
 
 /**
  * Create a new TypeSpec library definition.
@@ -46,12 +63,14 @@ export const createCadlLibrary = createTypeSpecLibrary;
  * const lib = createTypeSpecLibrary(libDef);
  */
 export function createTypeSpecLibrary<
-  T extends { [code: string]: DiagnosticMessages },
-  E extends Record<string, any>,
->(lib: Readonly<TypeSpecLibraryDef<T, E>>): TypeSpecLibrary<T, E> {
+  const T extends { [code: string]: DiagnosticMessages },
+  const E extends Record<string, any>,
+  const State extends string = never,
+>(lib: Readonly<TypeSpecLibraryDef<T, E, State>>): TypeSpecLibrary<T, E, State> {
   let emitterOptionValidator: JSONSchemaValidator;
 
   const { reportDiagnostic, createDiagnostic } = createDiagnosticCreator(lib.diagnostics, lib.name);
+
   function createStateSymbol(name: string): symbol {
     return Symbol.for(`${lib.name}.${name}`);
   }
@@ -60,8 +79,11 @@ export function createTypeSpecLibrary<
   if (caller) {
     loadedUrls.add(caller);
   }
+
   return {
     ...lib,
+    diagnostics: lib.diagnostics,
+    stateKeys: createStateKeys(lib.name, lib.state),
     reportDiagnostic,
     createDiagnostic,
     createStateSymbol,
@@ -81,28 +103,17 @@ export function createTypeSpecLibrary<
   }
 }
 
-export function paramMessage<T extends string[]>(
-  strings: readonly string[],
-  ...keys: T
-): CallableMessage<T> {
-  const template = (dict: Record<T[number], string>) => {
-    const result = [strings[0]];
-    keys.forEach((key, i) => {
-      const value = (dict as any)[key];
-      if (value !== undefined) {
-        result.push(value);
-      }
-      result.push(strings[i + 1]);
-    });
-    return result.join("");
-  };
-  template.keys = keys;
-  return template;
+export function definePackageFlags(flags: PackageFlags): PackageFlags {
+  return flags;
+}
+
+export function defineLinter(def: LinterDefinition): LinterDefinition {
+  return def;
 }
 
 /** Create a new linter rule. */
 export function createLinterRule<const N extends string, const T extends DiagnosticMessages>(
-  definition: LinterRuleDefinition<N, T>
+  definition: LinterRuleDefinition<N, T>,
 ) {
   compilerAssert(!definition.name.includes("/"), "Rule name cannot contain a '/'.");
   return definition;
@@ -131,7 +142,7 @@ function getCaller() {
 function getCallStack() {
   const _prepareStackTrace = Error.prepareStackTrace;
   Error.prepareStackTrace = (_, stack) => stack;
-  const stack = (new Error() as any).stack.slice(1); // eslint-disable-line unicorn/error-message
+  const stack = (new Error() as any).stack.slice(1);
   Error.prepareStackTrace = _prepareStackTrace;
   return stack;
 }

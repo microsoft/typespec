@@ -4,11 +4,15 @@ title: "[F] isKeyword"
 
 ---
 ```ts
-isKeyword(token): boolean
+function isKeyword(token): boolean
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `token` | [`Token`](../enumerations/Token.md) |
+
+## Returns
+
+`boolean`

@@ -1,7 +1,6 @@
 import {
   CompletionItem,
   CompletionItemKind,
-  CompletionItemTag,
   CompletionList,
   CompletionParams,
   MarkupKind,
@@ -9,14 +8,21 @@ import {
 } from "vscode-languageserver";
 import { getDeprecationDetails } from "../core/deprecation.js";
 import {
+  CompilerHost,
   IdentifierNode,
   Node,
+  NodeFlags,
+  PositionDetail,
   Program,
   StringLiteralNode,
   SymbolFlags,
   SyntaxKind,
   Type,
   TypeSpecScriptNode,
+  compilerAssert,
+  getFirstAncestor,
+  positionInRange,
+  printIdentifier,
 } from "../core/index.js";
 import {
   getAnyExtensionFromPath,
@@ -25,8 +31,8 @@ import {
   hasTrailingDirectorySeparator,
   resolvePath,
 } from "../core/path-utils.js";
-import { findProjectRoot, loadFile, resolveTspMain } from "../core/util.js";
-import { printId } from "../formatter/print/printer.js";
+import { PackageJson } from "../types/package-json.js";
+import { findProjectRoot, loadFile, resolveTspMain } from "../utils/misc.js";
 import { getSymbolDetails } from "./type-details.js";
 
 export type CompletionContext = {
@@ -38,20 +44,135 @@ export type CompletionContext = {
 
 export async function resolveCompletion(
   context: CompletionContext,
-  node: Node | undefined
+  posDetail: PositionDetail,
 ): Promise<CompletionList> {
-  const completions: CompletionList = {
-    isIncomplete: false,
-    items: [],
+  let node: Node | undefined = posDetail.node;
+
+  if (!node) {
+    if (
+      posDetail.triviaStartPosition === 0 ||
+      !addCompletionByLookingBackward(posDetail, context)
+    ) {
+      addKeywordCompletion("root", context.completions);
+    }
+  } else {
+    // look back first to see whether we can get some completion from the previous statement, e.g. `model Foo |`
+    if (!addCompletionByLookingBackward(posDetail, context)) {
+      if (posDetail.inTrivia) {
+        // If we're not immediately after an identifier character, then advance
+        // the position past any trivia. This is done because a zero-width
+        // inserted missing identifier that the user is now trying to complete
+        // starts after the trivia following the cursor.
+        node = posDetail.getPositionDetailAfterTrivia().node;
+      }
+      await AddCompletionNonTrivia(node, context, posDetail);
+    } else {
+      if (!posDetail.inTrivia) {
+        await AddCompletionNonTrivia(node, context, posDetail);
+      }
+    }
+  }
+
+  return context.completions;
+}
+
+function addCompletionByLookingBackward(
+  posDetail: PositionDetail,
+  context: CompletionContext,
+): boolean {
+  if (posDetail.triviaStartPosition === 0) {
+    return false;
+  }
+  const preDetail = posDetail.getPositionDetailBeforeTrivia();
+  if (!preDetail.node) {
+    return false;
+  }
+
+  const node = getFirstAncestor(
+    preDetail.node,
+    (n) =>
+      n.kind === SyntaxKind.ModelStatement ||
+      n.kind === SyntaxKind.ScalarStatement ||
+      n.kind === SyntaxKind.OperationStatement ||
+      n.kind === SyntaxKind.InterfaceStatement ||
+      n.kind === SyntaxKind.TemplateParameterDeclaration,
+    true /*includeSelf*/,
+  );
+
+  return node !== undefined && addCompletionByLookingBackwardNode(node, posDetail, context);
+}
+
+function addCompletionByLookingBackwardNode(
+  preNode: Node,
+  posDetail: PositionDetail,
+  context: CompletionContext,
+): boolean {
+  const getIdentifierEndPos = (n: IdentifierNode) => {
+    // n.pos === n.end, it means it's a missing identifier, just return -1;
+    return n.pos === n.end ? -1 : n.end;
   };
-  if (node === undefined) {
-    addKeywordCompletion("root", completions);
+  const map: { [key in SyntaxKind]?: keyof KeywordArea } = {
+    [SyntaxKind.ModelStatement]: "modelHeader",
+    [SyntaxKind.ScalarStatement]: "scalarHeader",
+    [SyntaxKind.OperationStatement]: "operationHeader",
+    [SyntaxKind.InterfaceStatement]: "interfaceHeader",
+  };
+  switch (preNode?.kind) {
+    case SyntaxKind.ModelStatement:
+    case SyntaxKind.ScalarStatement:
+    case SyntaxKind.OperationStatement:
+    case SyntaxKind.InterfaceStatement:
+      const idEndPos =
+        preNode.templateParametersRange.end >= 0
+          ? preNode.templateParametersRange.end
+          : getIdentifierEndPos(preNode.id);
+      if (posDetail.triviaStartPosition === idEndPos) {
+        const key = map[preNode.kind];
+        if (!key) {
+          compilerAssert(false, "KeywordArea missing in keyarea map.");
+        }
+        addKeywordCompletion(key, context.completions);
+        return true;
+      }
+      break;
+    case SyntaxKind.TemplateParameterDeclaration:
+      if (posDetail.triviaStartPosition === getIdentifierEndPos(preNode.id)) {
+        addKeywordCompletion("templateParameter", context.completions);
+        return true;
+      } else if (preNode.parent?.templateParametersRange.end === posDetail.triviaStartPosition) {
+        return addCompletionByLookingBackwardNode(preNode.parent, posDetail, context);
+      }
+      break;
+  }
+  return false;
+}
+
+async function AddCompletionNonTrivia(
+  node: Node | undefined,
+  context: CompletionContext,
+  posDetail: PositionDetail,
+  lookBackward: boolean = true,
+) {
+  if (
+    node === undefined ||
+    node.kind === SyntaxKind.InvalidStatement ||
+    (node.kind === SyntaxKind.Identifier &&
+      (node.parent?.kind === SyntaxKind.TypeSpecScript ||
+        node.parent?.kind === SyntaxKind.NamespaceStatement))
+  ) {
+    addKeywordCompletion("root", context.completions);
   } else {
     switch (node.kind) {
       case SyntaxKind.NamespaceStatement:
-        addKeywordCompletion("namespace", completions);
+        addKeywordCompletion("namespace", context.completions);
+        break;
+      case SyntaxKind.ScalarStatement:
+        if (positionInRange(posDetail.position, node.bodyRange)) {
+          addKeywordCompletion("scalarBody", context.completions);
+        }
         break;
       case SyntaxKind.Identifier:
+        addDirectiveCompletion(context, node);
         addIdentifierCompletion(context, node);
         break;
       case SyntaxKind.StringLiteral:
@@ -59,16 +180,25 @@ export async function resolveCompletion(
           await addImportCompletion(context, node);
         }
         break;
+      case SyntaxKind.ModelStatement:
+      case SyntaxKind.ObjectLiteral:
+      case SyntaxKind.ModelExpression:
+        addModelCompletion(context, posDetail);
+        break;
     }
   }
-  return completions;
 }
 
 interface KeywordArea {
   root?: boolean;
   namespace?: boolean;
-  model?: boolean;
+  modelHeader?: boolean;
   identifier?: boolean;
+  scalarHeader?: boolean;
+  scalarBody?: boolean;
+  templateParameter?: boolean;
+  operationHeader?: boolean;
+  interfaceHeader?: boolean;
 }
 
 const keywords = [
@@ -87,10 +217,14 @@ const keywords = [
   ["op", { root: true, namespace: true }],
   ["dec", { root: true, namespace: true }],
   ["fn", { root: true, namespace: true }],
+  ["const", { root: true, namespace: true }],
 
   // On model `model Foo <keyword> ...`
-  ["extends", { model: true }],
-  ["is", { model: true }],
+  [
+    "extends",
+    { modelHeader: true, scalarHeader: true, templateParameter: true, interfaceHeader: true },
+  ],
+  ["is", { modelHeader: true, operationHeader: true }],
 
   // On identifier
   ["true", { identifier: true }],
@@ -101,6 +235,9 @@ const keywords = [
 
   // Modifiers
   ["extern", { root: true, namespace: true }],
+
+  // Scalars
+  ["init", { scalarBody: true }],
 ] as const;
 
 function addKeywordCompletion(area: keyof KeywordArea, completions: CompletionList) {
@@ -113,18 +250,27 @@ function addKeywordCompletion(area: keyof KeywordArea, completions: CompletionLi
   }
 }
 
+async function loadPackageJson(host: CompilerHost, path: string): Promise<PackageJson> {
+  const [libPackageJson] = await loadFile(host, path, JSON.parse, () => {});
+  return libPackageJson;
+}
+/** Check if the folder given has a package.json which has a tspMain. */
+async function isTspLibraryPackage(host: CompilerHost, dir: string) {
+  const libPackageJson = await loadPackageJson(host, resolvePath(dir, "package.json"));
+
+  return resolveTspMain(libPackageJson) !== undefined;
+}
+
 async function addLibraryImportCompletion(
   { program, file, completions }: CompletionContext,
-  node: StringLiteralNode
+  node: StringLiteralNode,
 ) {
   const documentPath = file.file.path;
-  const projectRoot = await findProjectRoot(program.host, documentPath);
+  const projectRoot = await findProjectRoot(program.host.stat, documentPath);
   if (projectRoot !== undefined) {
-    const [packagejson] = await loadFile(
+    const packagejson = await loadPackageJson(
       program.host,
       resolvePath(projectRoot, "package.json"),
-      JSON.parse,
-      program.reportDiagnostic
     );
     let dependencies: string[] = [];
     if (packagejson.dependencies !== undefined) {
@@ -134,15 +280,8 @@ async function addLibraryImportCompletion(
       dependencies = dependencies.concat(Object.keys(packagejson.peerDependencies));
     }
     for (const dependency of dependencies) {
-      const nodeProjectRoot = resolvePath(projectRoot, "node_modules", dependency);
-      const [libPackageJson] = await loadFile(
-        program.host,
-        resolvePath(nodeProjectRoot, "package.json"),
-        JSON.parse,
-        program.reportDiagnostic
-      );
-
-      if (resolveTspMain(libPackageJson) !== undefined) {
+      const dependencyDir = resolvePath(projectRoot, "node_modules", dependency);
+      if (await isTspLibraryPackage(program.host, dependencyDir)) {
         const range = {
           start: file.file.getLineAndCharacterOfPosition(node.pos + 1),
           end: file.file.getLineAndCharacterOfPosition(node.end - 1),
@@ -165,40 +304,95 @@ async function addImportCompletion(context: CompletionContext, node: StringLiter
   }
 }
 
+async function tryListItemInDir(host: CompilerHost, path: string): Promise<string[]> {
+  try {
+    return await host.readDir(path);
+  } catch (e: any) {
+    if (e.code === "ENOENT") {
+      return [];
+    }
+    throw e;
+  }
+}
+
 async function addRelativePathCompletion(
   { program, completions, file }: CompletionContext,
-  node: StringLiteralNode
+  node: StringLiteralNode,
 ) {
   const documentPath = file.file.path;
   const documentFile = getBaseFileName(documentPath);
   const documentDir = getDirectoryPath(documentPath);
-  const nodevalueDir = hasTrailingDirectorySeparator(node.value)
+  const currentRelativePath = hasTrailingDirectorySeparator(node.value)
     ? node.value
     : getDirectoryPath(node.value);
-  const mainTypeSpec = resolvePath(documentDir, nodevalueDir);
-  const files = (await program.host.readDir(mainTypeSpec)).filter(
-    (x) => x !== documentFile && x !== "node_modules"
+  const currentAbsolutePath = resolvePath(documentDir, currentRelativePath);
+  const files = (await tryListItemInDir(program.host, currentAbsolutePath)).filter(
+    (x) => x !== documentFile && x !== "node_modules",
   );
+
+  const lastSlash = node.value.lastIndexOf("/");
+  const offset = lastSlash === -1 ? 0 : lastSlash + 1;
+  const range = {
+    start: file.file.getLineAndCharacterOfPosition(node.pos + 1 + offset),
+    end: file.file.getLineAndCharacterOfPosition(node.end - 1),
+  };
   for (const file of files) {
     const extension = getAnyExtensionFromPath(file);
+
     switch (extension) {
       case ".tsp":
       case ".js":
       case ".mjs":
         completions.items.push({
           label: file,
-          commitCharacters: [],
           kind: CompletionItemKind.File,
+          textEdit: TextEdit.replace(range, file),
         });
         break;
       case "":
         completions.items.push({
           label: file,
-          commitCharacters: [],
           kind: CompletionItemKind.Folder,
+          textEdit: TextEdit.replace(range, file),
         });
         break;
     }
+  }
+}
+
+function addModelCompletion(context: CompletionContext, posDetail: PositionDetail) {
+  const node = posDetail.node;
+  if (
+    !node ||
+    (node.kind !== SyntaxKind.ModelStatement &&
+      node.kind !== SyntaxKind.ModelExpression &&
+      node.kind !== SyntaxKind.ObjectLiteral)
+  ) {
+    return;
+  }
+
+  if (posDetail.position === node.bodyRange.end) {
+    // skip the scenario like `{ ... }|`
+    return;
+  } else {
+    // create a fake identifier node to further resolve the completions for the model/object
+    // it's a little tricky but can help to keep things clean and simple while the cons. is limited
+    // TODO: consider adding support in resolveCompletions for non-identifier-node directly when we find more scenario and worth the cost
+    const fakeProp = {
+      kind:
+        node.kind === SyntaxKind.ObjectLiteral
+          ? SyntaxKind.ObjectLiteralProperty
+          : SyntaxKind.ModelProperty,
+      flags: NodeFlags.None,
+      parent: node,
+    };
+    const fakeId = {
+      kind: SyntaxKind.Identifier,
+      sv: "",
+      flags: NodeFlags.None,
+      parent: fakeProp,
+    };
+    addIdentifierCompletion(context, fakeId as IdentifierNode);
   }
 }
 
@@ -207,13 +401,13 @@ async function addRelativePathCompletion(
  */
 function addIdentifierCompletion(
   { program, completions }: CompletionContext,
-  node: IdentifierNode
+  node: IdentifierNode,
 ) {
   const result = program.checker.resolveCompletions(node);
   if (result.size === 0) {
     return;
   }
-  for (const [key, { sym, label }] of result) {
+  for (const [key, { sym, label, suffix }] of result) {
     let kind: CompletionItemKind;
     let deprecated = false;
     const type = sym.type ?? program.checker.getTypeForNode(sym.declarations[0]);
@@ -241,16 +435,32 @@ function addIdentifierCompletion(
           }
         : undefined,
       kind,
-      insertText: printId(key),
+      insertText: printIdentifier(key) + (suffix ?? ""),
     };
     if (deprecated) {
-      item.tags = [CompletionItemTag.Deprecated];
+      // hide these deprecated items to discourage the usage
+      // not using CompletionItemTag.Deprecated because the strike-through is a little confusing
+      // and also it's not supported in vs extension
+      continue;
     }
     completions.items.push(item);
   }
 
   if (node.parent?.kind === SyntaxKind.TypeReference) {
     addKeywordCompletion("identifier", completions);
+  }
+}
+
+const directiveNames = ["suppress", "deprecated"];
+function addDirectiveCompletion({ completions }: CompletionContext, node: IdentifierNode) {
+  if (!(node.parent?.kind === SyntaxKind.DirectiveExpression && node.parent.target === node)) {
+    return;
+  }
+  for (const directive of directiveNames) {
+    completions.items.push({
+      label: directive,
+      kind: CompletionItemKind.Keyword,
+    });
   }
 }
 

@@ -44,20 +44,26 @@ export type TypeSpecScope =
   | "punctuation.terminator.statement.tsp"
   | "punctuation.definition.typeparameters.begin.tsp"
   | "punctuation.definition.typeparameters.end.tsp"
+  | "punctuation.definition.template-expression.begin.tsp"
+  | "punctuation.definition.template-expression.end.tsp"
   | "punctuation.squarebracket.open.tsp"
   | "punctuation.squarebracket.close.tsp"
   | "punctuation.curlybrace.open.tsp"
   | "punctuation.curlybrace.close.tsp"
   | "punctuation.parenthesis.open.tsp"
-  | "punctuation.parenthesis.close.tsp";
+  | "punctuation.parenthesis.close.tsp"
+  | "punctuation.hashcurlybrace.open.tsp"
+  | "punctuation.hashsquarebracket.open.tsp";
 
 const meta: typeof tm.meta = tm.meta;
 const identifierStart = "[_$[:alpha:]]";
 // cspell:disable-next-line
 const identifierContinue = "[_$[:alnum:]]";
 const beforeIdentifier = `(?=${identifierStart})`;
-const identifier = `\\b${identifierStart}${identifierContinue}*\\b`;
-const qualifiedIdentifier = `\\b${identifierStart}(${identifierContinue}|\\.${identifierStart})*\\b`;
+const escapedIdentifier = "`(?:[^`\\\\]|\\\\.)*`";
+const simpleIdentifier = `\\b${identifierStart}${identifierContinue}*\\b`;
+const identifier = `${simpleIdentifier}|${escapedIdentifier}`;
+const qualifiedIdentifier = `\\b${identifierStart}(?:${identifierContinue}|\\.${identifierStart})*\\b`;
 const stringPattern = '\\"(?:[^\\"\\\\]|\\\\.)*\\"';
 const modifierKeyword = `\\b(?:extern)\\b`;
 const statementKeyword = `\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b`;
@@ -109,12 +115,26 @@ const escapeChar: MatchRule = {
   match: "\\\\.",
 };
 
+const templateExpression: BeginEndRule = {
+  key: "template-expression",
+  scope: meta,
+  begin: "\\$\\{",
+  beginCaptures: {
+    "0": { scope: "punctuation.definition.template-expression.begin.tsp" },
+  },
+  end: "\\}",
+  endCaptures: {
+    "0": { scope: "punctuation.definition.template-expression.end.tsp" },
+  },
+  patterns: [expression],
+};
+
 const stringLiteral: BeginEndRule = {
   key: "string-literal",
   scope: "string.quoted.double.tsp",
   begin: '"',
   end: '"|$',
-  patterns: [escapeChar],
+  patterns: [templateExpression, escapeChar],
 };
 
 const tripleQuotedStringLiteral: BeginEndRule = {
@@ -122,7 +142,7 @@ const tripleQuotedStringLiteral: BeginEndRule = {
   scope: "string.quoted.triple.tsp",
   begin: '"""',
   end: '"""',
-  patterns: [escapeChar],
+  patterns: [templateExpression, escapeChar],
 };
 
 const punctuationComma: MatchRule = {
@@ -171,13 +191,14 @@ const blockComment: BeginEndRule = {
 const docCommentParam: MatchRule = {
   key: "doc-comment-param",
   scope: "comment.block.tsp",
-  match: `(?x)((@)(?:param|template))\\s+(${identifier})\\b`,
+  match: `(?x)((@)(?:param|template|prop))\\s+(${identifier})\\b`,
   captures: {
     "1": { scope: "keyword.tag.tspdoc" },
     "2": { scope: "keyword.tag.tspdoc" },
     "3": { scope: "variable.name.tsp" },
   },
 };
+
 const docCommentReturn: MatchRule = {
   key: "doc-comment-return-tag",
   scope: "comment.block.tsp",
@@ -187,6 +208,7 @@ const docCommentReturn: MatchRule = {
     "2": { scope: "keyword.tag.tspdoc" },
   },
 };
+
 const docCommentUnknownTag: MatchRule = {
   key: "doc-comment-unknown-tag",
   scope: "comment.block.tsp",
@@ -247,6 +269,21 @@ const parenthesizedExpression: BeginEndRule = {
   patterns: [expression, punctuationComma],
 };
 
+const callExpression: BeginEndRule = {
+  key: "callExpression",
+  scope: meta,
+  begin: `(${qualifiedIdentifier})\\s*(\\()`,
+  beginCaptures: {
+    "1": { scope: "entity.name.function.tsp" },
+    "2": { scope: "punctuation.parenthesis.open.tsp" },
+  },
+  end: "\\)",
+  endCaptures: {
+    "0": { scope: "punctuation.parenthesis.close.tsp" },
+  },
+  patterns: [token, expression, punctuationComma],
+};
+
 const decorator: BeginEndRule = {
   key: "decorator",
   scope: meta,
@@ -287,7 +324,31 @@ const valueOfExpression: BeginEndRule = {
   end: `(?=>)|${universalEnd}`,
   patterns: [expression],
 };
+const typeOfExpression: BeginEndRule = {
+  key: "typeof",
+  scope: meta,
+  begin: `\\b(typeof)`,
+  beginCaptures: {
+    "1": { scope: "keyword.other.tsp" },
+  },
+  end: `(?=>)|${universalEnd}`,
+  patterns: [expression],
+};
 
+const typeArgument: BeginEndRule = {
+  key: "type-argument",
+  scope: meta,
+  begin: `(?:(${identifier})\\s*(=))`,
+  beginCaptures: {
+    "1": { scope: "entity.name.type.tsp" },
+    "2": { scope: "keyword.operator.assignment.tsp" },
+  },
+  end: `(?=>)|${universalEnd}`,
+  endCaptures: {
+    "0": { scope: "keyword.operator.assignment.tsp" },
+  },
+  patterns: [token, expression, punctuationComma],
+};
 const typeArguments: BeginEndRule = {
   key: "type-arguments",
   scope: meta,
@@ -299,7 +360,7 @@ const typeArguments: BeginEndRule = {
   endCaptures: {
     "0": { scope: "punctuation.definition.typeparameters.end.tsp" },
   },
-  patterns: [expression, punctuationComma],
+  patterns: [typeArgument, expression, punctuationComma],
 };
 
 const typeParameterConstraint: BeginEndRule = {
@@ -332,7 +393,7 @@ const typeParameter: BeginEndRule = {
     "1": { scope: "entity.name.type.tsp" },
   },
   end: `(?=>)|${universalEnd}`,
-  patterns: [typeParameterConstraint, typeParameterDefault],
+  patterns: [token, typeParameterConstraint, typeParameterDefault],
 };
 
 const typeParameters: BeginEndRule = {
@@ -347,6 +408,20 @@ const typeParameters: BeginEndRule = {
     "0": { scope: "punctuation.definition.typeparameters.end.tsp" },
   },
   patterns: [typeParameter, punctuationComma],
+};
+
+const tupleLiteral: BeginEndRule = {
+  key: "tuple-literal",
+  scope: meta,
+  begin: "#\\[",
+  beginCaptures: {
+    "0": { scope: "punctuation.hashsquarebracket.open.tsp" },
+  },
+  end: "\\]",
+  endCaptures: {
+    "0": { scope: "punctuation.squarebracket.close.tsp" },
+  },
+  patterns: [expression, punctuationComma],
 };
 
 const tupleExpression: BeginEndRule = {
@@ -387,8 +462,8 @@ const modelProperty: BeginEndRule = {
   patterns: [token, typeAnnotation, operatorAssignment, expression],
 };
 
-const modelSpreadProperty: BeginEndRule = {
-  key: "model-spread-property",
+const spreadExpression: BeginEndRule = {
+  key: "spread-operator",
   scope: meta,
   begin: "\\.\\.\\.",
   beginCaptures: {
@@ -401,7 +476,7 @@ const modelSpreadProperty: BeginEndRule = {
 const directive: BeginEndRule = {
   key: "directive",
   scope: meta,
-  begin: `\\s*(#${identifier})`,
+  begin: `\\s*(#${simpleIdentifier})`,
   beginCaptures: {
     "1": { scope: "keyword.directive.name.tsp" },
   },
@@ -428,9 +503,35 @@ const modelExpression: BeginEndRule = {
     token,
     directive,
     decorator,
-    modelSpreadProperty,
+    spreadExpression,
     punctuationSemicolon,
   ],
+};
+
+const objectLiteralProperty: BeginEndRule = {
+  key: "object-literal-property",
+  scope: meta,
+  begin: `(?:(${identifier})\\s*(:))`,
+  beginCaptures: {
+    "1": { scope: "variable.name.tsp" },
+    "2": { scope: "keyword.operator.type.annotation.tsp" },
+  },
+  end: universalEnd,
+  patterns: [token, expression],
+};
+
+const objectLiteral: BeginEndRule = {
+  key: "object-literal",
+  scope: meta,
+  begin: "#\\{",
+  beginCaptures: {
+    "0": { scope: "punctuation.hashcurlybrace.open.tsp" },
+  },
+  end: "\\}",
+  endCaptures: {
+    "0": { scope: "punctuation.curlybrace.close.tsp" },
+  },
+  patterns: [token, objectLiteralProperty, directive, spreadExpression, punctuationComma],
 };
 
 const modelHeritage: BeginEndRule = {
@@ -460,6 +561,20 @@ const modelStatement: BeginEndRule = {
   ],
 };
 
+const operationParameters: BeginEndRule = {
+  key: "operation-parameters",
+  scope: meta,
+  begin: "\\(",
+  beginCaptures: {
+    "0": { scope: "punctuation.parenthesis.open.tsp" },
+  },
+  end: "\\)",
+  endCaptures: {
+    "0": { scope: "punctuation.parenthesis.close.tsp" },
+  },
+  patterns: [token, decorator, modelProperty, spreadExpression, punctuationComma],
+};
+
 const scalarExtends: BeginEndRule = {
   key: "scalar-extends",
   scope: meta,
@@ -471,53 +586,158 @@ const scalarExtends: BeginEndRule = {
   patterns: [expression, punctuationComma],
 };
 
+const scalarConstructor: BeginEndRule = {
+  key: "scalar-constructor",
+  scope: meta,
+  begin: `\\b(init)\\b\\s+(${identifier})`,
+  beginCaptures: {
+    "1": { scope: "keyword.other.tsp" },
+    "2": { scope: "entity.name.function.tsp" },
+  },
+  end: universalEnd,
+  patterns: [token, operationParameters],
+};
+
+const scalarBody: BeginEndRule = {
+  key: "scalar-body",
+  scope: meta,
+  begin: "\\{",
+  beginCaptures: {
+    "0": { scope: "punctuation.curlybrace.open.tsp" },
+  },
+  end: "\\}",
+  endCaptures: {
+    "0": { scope: "punctuation.curlybrace.close.tsp" },
+  },
+  patterns: [token, directive, scalarConstructor, punctuationSemicolon],
+};
+
 const scalarStatement: BeginEndRule = {
   key: "scalar-statement",
   scope: meta,
-  begin: "\\b(scalar)\\b",
+  begin: `\\b(scalar)\\b\\s+(${identifier})`,
   beginCaptures: {
     "1": { scope: "keyword.other.tsp" },
+    "2": { scope: "entity.name.type.tsp" },
   },
-  end: universalEnd,
+  end: `(?<=\\})|${universalEnd}`,
   patterns: [
     token,
     typeParameters,
     scalarExtends, // before expression or `extends` will look like type name
-    expression, // enough to match name, type parameters, and body.
+    scalarBody,
   ],
+};
+
+const enumMember: BeginEndRule = {
+  key: "enum-member",
+  scope: meta,
+  begin: `(?:(${identifier})\\s*(:?))`,
+  beginCaptures: {
+    "1": { scope: "variable.name.tsp" },
+    "2": { scope: "keyword.operator.type.annotation.tsp" },
+  },
+  end: universalEnd,
+  patterns: [token, typeAnnotation],
+};
+
+const enumBody: BeginEndRule = {
+  key: "enum-body",
+  scope: meta,
+  begin: "\\{",
+  beginCaptures: {
+    "0": { scope: "punctuation.curlybrace.open.tsp" },
+  },
+  end: "\\}",
+  endCaptures: {
+    "0": { scope: "punctuation.curlybrace.close.tsp" },
+  },
+  patterns: [enumMember, token, directive, decorator, punctuationComma],
 };
 
 const enumStatement: BeginEndRule = {
   key: "enum-statement",
   scope: meta,
-  begin: "\\b(enum)\\b",
+  begin: `\\b(enum)\\b\\s+(${identifier})`,
   beginCaptures: {
     "1": { scope: "keyword.other.tsp" },
+    "2": { scope: "entity.name.type.tsp" },
   },
   end: `(?<=\\})|${universalEnd}`,
+  patterns: [token, enumBody],
+};
+
+const namedUnionVariant: BeginEndRule = {
+  key: "union-variant",
+  scope: meta,
+  begin: `(?:(${identifier})\\s*(:))`,
+  beginCaptures: {
+    "1": { scope: "variable.name.tsp" },
+    "2": { scope: "keyword.operator.type.annotation.tsp" },
+  },
+  end: universalEnd,
   patterns: [token, expression],
+};
+
+const unionBody: BeginEndRule = {
+  key: "union-body",
+  scope: meta,
+  begin: "\\{",
+  beginCaptures: {
+    "0": { scope: "punctuation.curlybrace.open.tsp" },
+  },
+  end: "\\}",
+  endCaptures: {
+    "0": { scope: "punctuation.curlybrace.close.tsp" },
+  },
+  patterns: [namedUnionVariant, token, directive, decorator, expression, punctuationComma],
 };
 
 const unionStatement: BeginEndRule = {
   key: "union-statement",
   scope: meta,
-  begin: "\\b(union)\\b",
+  begin: `\\b(union)\\b\\s+(${identifier})`,
   beginCaptures: {
     "1": { scope: "keyword.other.tsp" },
+    "2": { scope: "entity.name.type.tsp" },
   },
   end: `(?<=\\})|${universalEnd}`,
-  patterns: [token, expression],
+  patterns: [token, unionBody],
+};
+
+const aliasAssignment: BeginEndRule = {
+  key: "alias-id",
+  scope: meta,
+  begin: `(=)\\s*`,
+  beginCaptures: {
+    "1": { scope: "keyword.operator.assignment.tsp" },
+  },
+  end: universalEnd,
+  patterns: [expression],
 };
 
 const aliasStatement: BeginEndRule = {
   key: "alias-statement",
   scope: meta,
-  begin: "\\b(alias)\\b",
+  begin: `\\b(alias)\\b\\s+(${identifier})\\s*`,
   beginCaptures: {
     "1": { scope: "keyword.other.tsp" },
+    "2": { scope: "entity.name.type.tsp" },
   },
   end: universalEnd,
-  patterns: [typeParameters, operatorAssignment, expression],
+  patterns: [aliasAssignment, typeParameters],
+};
+
+const constStatement: BeginEndRule = {
+  key: "const-statement",
+  scope: meta,
+  begin: `\\b(const)\\b\\s+(${identifier})`,
+  beginCaptures: {
+    "1": { scope: "keyword.other.tsp" },
+    "2": { scope: "variable.name.tsp" },
+  },
+  end: universalEnd,
+  patterns: [typeAnnotation, operatorAssignment, expression],
 };
 
 const namespaceName: BeginEndRule = {
@@ -551,20 +771,6 @@ const namespaceStatement: BeginEndRule = {
   },
   end: `((?<=\\})|${universalEnd})`,
   patterns: [token, namespaceName, namespaceBody],
-};
-
-const operationParameters: BeginEndRule = {
-  key: "operation-parameters",
-  scope: meta,
-  begin: "\\(",
-  beginCaptures: {
-    "0": { scope: "punctuation.parenthesis.open.tsp" },
-  },
-  end: "\\)",
-  endCaptures: {
-    "0": { scope: "punctuation.parenthesis.close.tsp" },
-  },
-  patterns: [token, decorator, modelProperty, modelSpreadProperty, punctuationComma],
 };
 
 const operationHeritage: BeginEndRule = {
@@ -647,6 +853,7 @@ const interfaceStatement: BeginEndRule = {
   end: `(?<=\\})|${universalEnd}`,
   patterns: [
     token,
+    typeParameters,
     interfaceHeritage, // before expression or extends will look like type name
     interfaceBody, // before expression or { will match model expression
     expression, // enough to match name and type parameters
@@ -672,7 +879,7 @@ const usingStatement: BeginEndRule = {
     "1": { scope: "keyword.other.tsp" },
   },
   end: universalEnd,
-  patterns: [token, identifierExpression],
+  patterns: [token, identifierExpression, punctuationAccessor],
 };
 
 const decoratorDeclarationStatement: BeginEndRule = {
@@ -848,9 +1055,13 @@ expression.patterns = [
   directive,
   parenthesizedExpression,
   valueOfExpression,
+  typeOfExpression,
   typeArguments,
+  objectLiteral,
+  tupleLiteral,
   tupleExpression,
   modelExpression,
+  callExpression,
   identifierExpression,
 ];
 
@@ -865,6 +1076,7 @@ statement.patterns = [
   interfaceStatement,
   enumStatement,
   aliasStatement,
+  constStatement,
   namespaceStatement,
   operationStatement,
   importStatement,
@@ -879,7 +1091,7 @@ const grammar: Grammar = {
   $schema: tm.schema,
   name: "TypeSpec",
   scopeName: "source.tsp",
-  fileTypes: [".tsp"],
+  fileTypes: ["tsp"],
   patterns: [statement],
 };
 
@@ -887,6 +1099,11 @@ export async function main() {
   const plist = await tm.emitPList(grammar, {
     errorSourceFilePath: resolve("./src/tmlanguage.ts"),
   });
+  const json = await tm.emitJSON(grammar, {
+    errorSourceFilePath: resolve("./src/tmlanguage.ts"),
+  });
   await mkdir("./dist", { recursive: true });
   await writeFile("./dist/typespec.tmLanguage", plist);
+  await mkdir("../../grammars", { recursive: true });
+  await writeFile("../../grammars/typespec.json", json);
 }

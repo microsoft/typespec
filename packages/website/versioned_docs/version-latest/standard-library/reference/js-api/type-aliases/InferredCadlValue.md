@@ -7,12 +7,12 @@ title: "[T] InferredCadlValue"
 type InferredCadlValue<K>: InferredTypeSpecValue<K>;
 ```
 
+## Type Parameters
+
+| Type Parameter |
+| ------ |
+| `K` *extends* [`TypeKind`](TypeKind.md) |
+
 ## Deprecated
 
 Use InferredTypeSpecValue
-
-## Type parameters
-
-| Parameter |
-| :------ |
-| `K` extends [`TypeKind`](TypeKind.md) |

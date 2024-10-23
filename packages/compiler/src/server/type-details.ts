@@ -1,6 +1,8 @@
 import {
   compilerAssert,
   DocContent,
+  getDocData,
+  isType,
   Node,
   Program,
   Sym,
@@ -8,7 +10,6 @@ import {
   TemplateDeclarationNode,
   Type,
 } from "../core/index.js";
-import { getDocData } from "../lib/decorators.js";
 import { getSymbolSignature } from "./type-signature.js";
 
 /**
@@ -22,7 +23,7 @@ export function getSymbolDetails(
   options = {
     includeSignature: true,
     includeParameterTags: true,
-  }
+  },
 ): string {
   const lines = [];
   if (options.includeSignature) {
@@ -43,7 +44,7 @@ export function getSymbolDetails(
         }
         lines.push(
           //prettier-ignore
-          `_@${tag.tagName.sv}_${"paramName" in tag ? ` \`${tag.paramName.sv}\`` : ""} —\n${getDocContent(tag.content)}`
+          `_@${tag.tagName.sv}_${"paramName" in tag ? ` \`${tag.paramName.sv}\`` : ""} —\n${getDocContent(tag.content)}`,
         );
       }
     }
@@ -62,11 +63,19 @@ function getSymbolDocumentation(program: Program, symbol: Sym) {
   }
 
   // Add @doc(...) API docs
-  const type = symbol.type ?? program.checker.getTypeForNode(symbol.declarations[0]);
-  const apiDocs = getDocData(program, type);
-  // The doc comment is already included above we don't want to duplicate
-  if (apiDocs && apiDocs.source === "comment") {
-    docs.push(apiDocs.value);
+  let type = symbol.type;
+  if (!type) {
+    const entity = program.checker.getTypeOrValueForNode(symbol.declarations[0]);
+    if (entity && isType(entity)) {
+      type = entity;
+    }
+  }
+  if (type) {
+    const apiDocs = getDocData(program, type);
+    // The doc comment is already included above we don't want to duplicate. Only include if it was specificed via `@doc`
+    if (apiDocs && apiDocs.source === "decorator") {
+      docs.push(apiDocs.value);
+    }
   }
 
   return docs.join("\n\n");
@@ -87,7 +96,7 @@ export function getParameterDocumentation(program: Program, type: Type): Map<str
 
 /** @internal */
 export function getTemplateParameterDocumentation(
-  node: Node & TemplateDeclarationNode
+  node: Node & TemplateDeclarationNode,
 ): Map<string, string> {
   const map = new Map<string, string>();
   for (const d of node?.docs ?? []) {
@@ -105,7 +114,7 @@ function getDocContent(content: readonly DocContent[]) {
   for (const node of content) {
     compilerAssert(
       node.kind === SyntaxKind.DocText,
-      "No other doc content node kinds exist yet. Update this code appropriately when more are added."
+      "No other doc content node kinds exist yet. Update this code appropriately when more are added.",
     );
     docs.push(node.text);
   }

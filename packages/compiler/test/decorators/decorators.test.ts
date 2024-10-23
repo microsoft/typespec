@@ -1,5 +1,14 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { Model, Operation, Scalar, getVisibility, isSecret } from "../../src/index.js";
+import { beforeEach, describe, it } from "vitest";
+import {
+  Model,
+  ModelProperty,
+  Namespace,
+  Operation,
+  Scalar,
+  getVisibility,
+  isSecret,
+} from "../../src/index.js";
 import {
   getDoc,
   getEncode,
@@ -9,16 +18,93 @@ import {
   getKnownValues,
   getOverloadedOperation,
   getOverloads,
+  getPattern,
+  getPatternData,
   getReturnsDoc,
   isErrorModel,
+  resolveEncodedName,
 } from "../../src/lib/decorators.js";
-import { BasicTestRunner, createTestRunner, expectDiagnostics } from "../../src/testing/index.js";
+import {
+  BasicTestRunner,
+  createTestRunner,
+  expectDiagnosticEmpty,
+  expectDiagnostics,
+} from "../../src/testing/index.js";
 
 describe("compiler: built-in decorators", () => {
   let runner: BasicTestRunner;
 
   beforeEach(async () => {
     runner = await createTestRunner();
+  });
+
+  describe("dev comment /** */", () => {
+    it("applies /** */ on blockless namespace", async () => {
+      const { Foo } = await runner.compile(
+        `
+        @test
+        /** doc for namespace Foo */
+        namespace TestDoc.Foo;
+
+        model A {}
+        `,
+      );
+
+      strictEqual(getDoc(runner.program, Foo), "doc for namespace Foo");
+    });
+
+    it("applies /** */ on enclosed namespace", async () => {
+      const { Foo } = await runner.compile(
+        `
+        @test
+        /** doc for namespace Foo */
+        namespace TestDoc.Foo {
+           model A {}
+        }
+        `,
+      );
+
+      strictEqual(getDoc(runner.program, Foo), "doc for namespace Foo");
+    });
+
+    it("applies /** */ on nested enclosed namespace", async () => {
+      const { Foo } = await runner.compile(
+        // const { Foo, Foo_Bar } = await runner.compile(
+        `
+        @test
+        /** doc for namespace Foo */
+        namespace TestDoc.Foo {
+          /** doc for namespace Bar */       
+          namespace Bar {
+            model A {};
+          }
+        }
+        `,
+      );
+
+      const Bar = (Foo as Namespace).namespaces.get("Bar")!;
+      strictEqual(getDoc(runner.program, Foo), "doc for namespace Foo");
+      strictEqual(getDoc(runner.program, Bar), "doc for namespace Bar");
+    });
+
+    it("applies /** */ on nested blockless + enclosed namespace", async () => {
+      const { Foo } = await runner.compile(
+        `
+        @test
+        /** doc for namespace Foo */
+        namespace TestDoc.Foo;
+
+        /** doc for namespace Bar */       
+        namespace Bar {
+          model A {}
+        }
+        `,
+      );
+
+      const Bar = (Foo as Namespace).namespaces.get("Bar")!;
+      strictEqual(getDoc(runner.program, Foo), "doc for namespace Foo");
+      strictEqual(getDoc(runner.program, Bar), "doc for namespace Bar");
+    });
   });
 
   describe("@doc", () => {
@@ -28,7 +114,7 @@ describe("compiler: built-in decorators", () => {
         @test
         @doc("My Doc")
         model A { }
-        `
+        `,
       );
 
       strictEqual(getDoc(runner.program, A), "My Doc");
@@ -48,7 +134,7 @@ describe("compiler: built-in decorators", () => {
         @test
         model B is Template<B> {
         }
-        `
+        `,
       );
       strictEqual(getDoc(runner.program, A), "Model A");
       strictEqual(getDoc(runner.program, B), "Templated B");
@@ -59,9 +145,9 @@ describe("compiler: built-in decorators", () => {
         `
         @test
         @doc("doc for namespace")
-        namespace TestDoc {
+        namespace Foo.TestDoc {
         }
-        `
+        `,
       );
 
       strictEqual(getDoc(runner.program, TestDoc), "doc for namespace");
@@ -77,7 +163,7 @@ describe("compiler: built-in decorators", () => {
           @doc("doc for enum element")
           Red: "red",
         }
-        `
+        `,
       );
 
       strictEqual(getDoc(runner.program, Color), "doc for enum");
@@ -93,7 +179,7 @@ describe("compiler: built-in decorators", () => {
         @test
         @doc("doc for union")
         union AB { a: A, b: B }
-        `
+        `,
       );
 
       strictEqual(getDoc(runner.program, AB), "doc for union");
@@ -109,7 +195,7 @@ describe("compiler: built-in decorators", () => {
           @doc("doc for interface operation")
           a(): string;
         }
-        `
+        `,
       );
 
       strictEqual(getDoc(runner.program, TestDoc), "doc for interface");
@@ -122,7 +208,7 @@ describe("compiler: built-in decorators", () => {
         @test
         @doc("doc for an operation")
         op b(): string;
-        `
+        `,
       );
 
       strictEqual(getDoc(runner.program, b), "doc for an operation");
@@ -136,8 +222,77 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: `Argument '123' is not assignable to parameter of type 'valueof string'`,
       });
+    });
+  });
+
+  describe("@pattern", () => {
+    it("applies @pattern to scalar", async () => {
+      const { A } = (await runner.compile(
+        `
+        @test
+        @pattern("^[a-z]+$")
+        scalar A extends string;
+        `,
+      )) as { A: Scalar };
+
+      strictEqual(getPattern(runner.program, A), "^[a-z]+$");
+    });
+
+    it("applies @pattern to model property", async () => {
+      const { A } = (await runner.compile(
+        `
+        @test
+        model A {
+          @test
+          @pattern("^[a-z]+$")
+          prop: string;
+        }
+        `,
+      )) as { A: Model };
+
+      const prop = A.properties.get("prop") as ModelProperty;
+      strictEqual(prop.kind, "ModelProperty");
+      strictEqual(getPattern(runner.program, prop), "^[a-z]+$");
+    });
+
+    it("emit diagnostic if pattern is not a string", async () => {
+      const diagnostics = await runner.diagnose(`
+        model A {
+          @pattern(123)
+          prop: string;
+        }
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-argument",
+      });
+    });
+
+    it("optionally allows specifying a pattern validation message", async () => {
+      const { A, B } = (await runner.compile(
+        `
+        @test
+        @pattern("^[a-z]+$", "Must be all lowercase.")
+        scalar A extends string;
+
+        @test
+        @pattern("^[a-z]+$")
+        scalar B extends string;
+        `,
+      )) as { A: Scalar; B: Scalar };
+
+      const pattern = getPattern(runner.program, A);
+      strictEqual(pattern, "^[a-z]+$");
+      const data = getPatternData(runner.program, A);
+      strictEqual(data?.pattern, pattern);
+      strictEqual(data?.validationMessage, "Must be all lowercase.");
+
+      const pattern2 = getPattern(runner.program, B);
+      strictEqual(pattern2, "^[a-z]+$");
+      const data2 = getPatternData(runner.program, B);
+      strictEqual(data2?.pattern, pattern2);
+      strictEqual(data2?.validationMessage, undefined);
     });
   });
 
@@ -148,7 +303,7 @@ describe("compiler: built-in decorators", () => {
         @test
         @returnsDoc("A string")
         op test(): string;
-        `
+        `,
       )) as { test: Operation };
 
       strictEqual(getReturnsDoc(runner.program, test), "A string");
@@ -163,7 +318,6 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: `Argument '123' is not assignable to parameter of type 'valueof string'`,
       });
     });
   });
@@ -175,7 +329,7 @@ describe("compiler: built-in decorators", () => {
         @test
         @errorsDoc("An error")
         op test(): string;
-        `
+        `,
       )) as { test: Operation };
 
       strictEqual(getErrorsDoc(runner.program, test), "An error");
@@ -190,14 +344,13 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: `Argument '123' is not assignable to parameter of type 'valueof string'`,
       });
     });
   });
 
   describe("@friendlyName", () => {
     it("applies @friendlyName on model", async () => {
-      const { A, B, C } = await runner.compile(`
+      const { A, B } = await runner.compile(`
         @test
         @friendlyName("MyNameIsA")
         model A { }
@@ -210,13 +363,22 @@ describe("compiler: built-in decorators", () => {
         model Templated<T> {
           prop: T;
         }
-
-        @test
-        model C is Templated<B>{};
         `);
       strictEqual(getFriendlyName(runner.program, A), "MyNameIsA");
       strictEqual(getFriendlyName(runner.program, B), "BModel");
-      strictEqual(getFriendlyName(runner.program, C), "TemplatedB");
+    });
+
+    it(" @friendlyName doesn't carry over to derived models", async () => {
+      const { A, B } = await runner.compile(`
+        @test
+        @friendlyName("MyNameIsA")
+        model A<T> { t: T; }
+
+        @test
+        model B is A<string> { }
+        `);
+      strictEqual(getFriendlyName(runner.program, A), "MyNameIsA");
+      strictEqual(getFriendlyName(runner.program, B), undefined);
     });
   });
 
@@ -230,6 +392,16 @@ describe("compiler: built-in decorators", () => {
       ok(isErrorModel(runner.program, A), "isError should be true");
     });
 
+    it("applies @error on derived models", async () => {
+      const { B, C } = await runner.compile(`
+        @error model A { }
+        @test model B extends A { }
+        @test model C extends B { }
+      `);
+      ok(isErrorModel(runner.program, B), "isError should be true");
+      ok(isErrorModel(runner.program, C), "isError should be true");
+    });
+
     it("emit diagnostic if error is not applied to a model", async () => {
       const diagnostics = await runner.diagnose(`
         @error
@@ -240,7 +412,7 @@ describe("compiler: built-in decorators", () => {
       strictEqual(diagnostics[0].code, "decorator-wrong-target");
       strictEqual(
         diagnostics[0].message,
-        `Cannot apply @error decorator to A since it is not assignable to Model`
+        `Cannot apply @error decorator to A since it is not assignable to Model`,
       );
     });
   });
@@ -249,6 +421,7 @@ describe("compiler: built-in decorators", () => {
     it("assign the known values to string scalar", async () => {
       const { Bar } = (await runner.compile(`
         enum Foo {one: "one", two: "two"}
+        #suppress "deprecated" "For testing"
         @test
         @knownValues(Foo)
         scalar Bar extends string;
@@ -266,6 +439,7 @@ describe("compiler: built-in decorators", () => {
           one: 1; 
           two: 2;
         }
+        #suppress "deprecated" "For testing"
         @test
         @knownValues(Foo)
         scalar Bar extends int32;
@@ -280,6 +454,7 @@ describe("compiler: built-in decorators", () => {
     it("emit diagnostics when used on non model", async () => {
       const diagnostics = await runner.diagnose(`
         enum Foo {one, two}
+        #suppress "deprecated" "For testing"
         @knownValues(Foo)
         enum Bar {}
       `);
@@ -297,6 +472,7 @@ describe("compiler: built-in decorators", () => {
           one: 1; 
           two: 2;
         }
+        #suppress "deprecated" "For testing"
         @knownValues(Foo)
         scalar Bar extends string;
       `);
@@ -309,6 +485,7 @@ describe("compiler: built-in decorators", () => {
 
     it("emit diagnostics when used on non string model", async () => {
       const diagnostics = await runner.diagnose(`
+        #suppress "deprecated" "For testing"
         enum Foo {one, two}
         @knownValues(Foo)
         model Bar {}
@@ -324,13 +501,14 @@ describe("compiler: built-in decorators", () => {
     it("emit diagnostics when known values is not an enum", async () => {
       const diagnostics = await runner.diagnose(`
         model Foo {}
+        #suppress "deprecated" "For testing"
         @knownValues(Foo)
         scalar Bar extends string;
       `);
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument 'Foo' is not assignable to parameter of type 'Enum'",
+        message: "Argument of type 'Foo' is not assignable to parameter of type 'Enum'",
       });
     });
   });
@@ -341,13 +519,12 @@ describe("compiler: built-in decorators", () => {
         `model M {
           @key(4)
           prop: string;
-        }`
+        }`,
       );
 
       expectDiagnostics(diagnostics, [
         {
           code: "invalid-argument",
-          message: "Argument '4' is not assignable to parameter of type 'valueof string'",
         },
       ]);
     });
@@ -355,7 +532,7 @@ describe("compiler: built-in decorators", () => {
     it("emits diagnostic when not applied to model property", async () => {
       const diagnostics = await runner.diagnose(
         `@key
-        model M {}`
+        model M {}`,
       );
 
       expectDiagnostics(diagnostics, [
@@ -372,7 +549,7 @@ describe("compiler: built-in decorators", () => {
           @test
           @key
           prop: string;
-        }`
+        }`,
       );
 
       strictEqual(prop.kind, "ModelProperty" as const);
@@ -385,11 +562,22 @@ describe("compiler: built-in decorators", () => {
           @test
           @key("alternateName")
           prop: string;
-        }`
+        }`,
       );
 
       strictEqual(prop.kind, "ModelProperty" as const);
       strictEqual(getKeyName(runner.program, prop), "alternateName");
+    });
+
+    it("getKeyName returns undefined if used on property not annotated with @key", async () => {
+      const { prop } = await runner.compile(
+        `model M {
+          @test prop: string;
+        }`,
+      );
+
+      strictEqual(prop.kind, "ModelProperty" as const);
+      strictEqual(getKeyName(runner.program, prop), undefined);
     });
 
     it("emits diagnostic when key property is marked as optional", async () => {
@@ -397,7 +585,7 @@ describe("compiler: built-in decorators", () => {
         `model M {
           @key
           prop?: string;
-        }`
+        }`,
       );
 
       expectDiagnostics(diagnostics, [
@@ -418,6 +606,30 @@ describe("compiler: built-in decorators", () => {
       `)) as { s: Scalar };
 
       strictEqual(getEncode(runner.program, s)?.encoding, "rfc3339");
+    });
+
+    it(`set encoding on model property`, async () => {
+      const { prop } = (await runner.compile(`
+        model Foo {
+          @encode("rfc3339")
+          @test
+          prop: utcDateTime;
+        }
+      `)) as { prop: ModelProperty };
+
+      strictEqual(getEncode(runner.program, prop)?.encoding, "rfc3339");
+    });
+
+    it(`set encoding on model property of union type`, async () => {
+      const { prop } = (await runner.compile(`
+        model Foo {
+          @encode("rfc3339")
+          @test
+          prop: utcDateTime | null; 
+        }
+      `)) as { prop: ModelProperty };
+
+      strictEqual(getEncode(runner.program, prop)?.encoding, "rfc3339");
     });
 
     it(`encode type default to string`, async () => {
@@ -511,7 +723,7 @@ describe("compiler: built-in decorators", () => {
           '"int32"',
           // TODO: Arguably this should be improved.
           "invalid-argument",
-          `Argument 'int32' is not assignable to parameter of type 'Scalar'`,
+          `Argument of type '"int32"' is not assignable to parameter of type 'Scalar'`,
         ],
       ];
       describe("valid", () => {
@@ -529,6 +741,19 @@ describe("compiler: built-in decorators", () => {
             strictEqual(encodeData.encoding, encoding);
             strictEqual(encodeData.type.name, encodeAs ?? "string");
           });
+        });
+
+        it(`@encode(string) on numeric scalar`, async () => {
+          const { s } = (await runner.compile(`
+            @encode(string)
+            @test
+            scalar s extends int64;
+          `)) as { s: Scalar };
+
+          const encodeData = getEncode(runner.program, s);
+          ok(encodeData);
+          strictEqual(encodeData.encoding, undefined);
+          strictEqual(encodeData.type.name, "string");
         });
       });
       describe("invalid", () => {
@@ -549,6 +774,20 @@ describe("compiler: built-in decorators", () => {
             });
           });
         });
+
+        it(`@encode(string) on non-numeric scalar`, async () => {
+          const diagnostics = await runner.diagnose(`
+            @encode(string)
+            @test
+            scalar s extends utcDateTime;
+          `);
+
+          expectDiagnostics(diagnostics, {
+            code: "invalid-encode",
+            severity: "error",
+            message: "Encoding 'string' cannot be used on type 's'. Expected: numeric.",
+          });
+        });
       });
     });
   });
@@ -564,7 +803,7 @@ describe("compiler: built-in decorators", () => {
 
         @test
         model TestModel is OmitProperties<OriginalModel, "removeMe"> {
-        }`
+        }`,
       );
 
       const properties = TestModel.kind === "Model" ? Array.from(TestModel.properties.keys()) : [];
@@ -582,11 +821,48 @@ describe("compiler: built-in decorators", () => {
 
         @test
         model TestModel is OmitProperties<OriginalModel, "removeMe" | "removeMeToo"> {
-        }`
+        }`,
       );
 
       const properties = TestModel.kind === "Model" ? Array.from(TestModel.properties.keys()) : [];
       deepStrictEqual(properties, ["notMe"]);
+    });
+  });
+
+  describe("@withPickedProperties", () => {
+    it("picks a model property when given a string literal", async () => {
+      const { TestModel } = await runner.compile(
+        `
+        model OriginalModel {
+          pickMe: string;
+          notMe: string;
+        }
+
+        @test
+        model TestModel is PickProperties<OriginalModel, "pickMe"> {
+        }`,
+      );
+
+      const properties = TestModel.kind === "Model" ? Array.from(TestModel.properties.keys()) : [];
+      deepStrictEqual(properties, ["pickMe"]);
+    });
+
+    it("picks model properties when given a union containing strings", async () => {
+      const { TestModel } = await runner.compile(
+        `
+        model OriginalModel {
+          pickMe: string;
+          pickMeToo: string;
+          notMe: string;
+        }
+
+        @test
+        model TestModel is PickProperties<OriginalModel, "pickMe" | "pickMeToo"> {
+        }`,
+      );
+
+      const properties = TestModel.kind === "Model" ? Array.from(TestModel.properties.keys()) : [];
+      deepStrictEqual(properties, ["pickMe", "pickMeToo"]);
     });
   });
 
@@ -601,7 +877,7 @@ describe("compiler: built-in decorators", () => {
 
         @test
         model TestModel is DefaultKeyVisibility<OriginalModel, "read"> {
-        } `
+        } `,
       )) as { TestModel: Model };
 
       deepStrictEqual(getVisibility(runner.program, TestModel.properties.get("name")!), ["read"]);
@@ -618,7 +894,7 @@ describe("compiler: built-in decorators", () => {
 
         @test
         model TestModel is DefaultKeyVisibility<OriginalModel, "create"> {
-        } `
+        } `,
       )) as { TestModel: Model };
 
       deepStrictEqual(getVisibility(runner.program, TestModel.properties.get("name")!), [
@@ -637,7 +913,7 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument 'foo' is not assignable to parameter of type 'Operation'",
+        message: `Argument of type '"foo"' is not assignable to parameter of type 'Operation'`,
         severity: "error",
       });
     });
@@ -660,7 +936,7 @@ describe("compiler: built-in decorators", () => {
         {
           code: "missing-property",
           message:
-            "Property 'param' is missing on type '(anonymous model)' but required in '(anonymous model)'",
+            "Property 'param' is missing on type '{ foo: boolean }' but required in '{ param: string | int32 }'",
           severity: "error",
         },
         {
@@ -856,7 +1132,7 @@ describe("compiler: built-in decorators", () => {
         @test
         @secret
         scalar A extends string;
-        `
+        `,
       );
 
       ok(isSecret(runner.program, A));
@@ -870,7 +1146,7 @@ describe("compiler: built-in decorators", () => {
           @secret
           a: string;
         }
-        `
+        `,
       )) as { A: Model };
 
       ok(isSecret(runner.program, A.properties.get("a")!));
@@ -886,7 +1162,7 @@ describe("compiler: built-in decorators", () => {
           @secret
           a: CustomStr;
         }
-        `
+        `,
       )) as { A: Model };
 
       ok(isSecret(runner.program, A.properties.get("a")!));
@@ -898,7 +1174,7 @@ describe("compiler: built-in decorators", () => {
         @test
         @secret
         model A {}
-        `
+        `,
       );
 
       expectDiagnostics(diagnostics, {
@@ -914,7 +1190,7 @@ describe("compiler: built-in decorators", () => {
         @test
         @secret
         scalar A extends int32;
-        `
+        `,
       );
 
       expectDiagnostics(diagnostics, {
@@ -932,7 +1208,7 @@ describe("compiler: built-in decorators", () => {
           @secret
           a: int32;
         }
-        `
+        `,
       );
 
       expectDiagnostics(diagnostics, {
@@ -995,6 +1271,114 @@ describe("compiler: built-in decorators", () => {
           message: `Variant "a" type's discriminant property "kind" must be a string literal or string enum member.`,
         },
       ]);
+    });
+  });
+
+  describe("@encodedName", () => {
+    it("emit error if passing invalid mime type", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Cert {
+          @encodedName("foo/bar/baz", "exp")
+          expireAt: utcDateTime;
+        }
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-mime-type",
+        message: `Invalid mime type 'foo/bar/baz'`,
+      });
+    });
+
+    it("emit error if passing mime type with suffix", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Cert {
+          @encodedName("application/merge-patch+json", "exp")
+          expireAt: utcDateTime;
+        }
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "no-mime-type-suffix",
+        message:
+          "Cannot use mime type 'application/merge-patch+json' with suffix 'json'. Use a simple mime `type/subtype` instead.",
+      });
+    });
+
+    describe("detect conflicts", () => {
+      it("emit error if encoded name is same as existing property ", async () => {
+        const diagnostics = await runner.diagnose(`
+          model Cert {
+            @encodedName("application/json", "exp")
+            expireAt: utcDateTime;
+            exp: string;
+          }
+        `);
+
+        expectDiagnostics(diagnostics, {
+          code: "encoded-name-conflict",
+          message:
+            "Encoded name 'exp' conflicts with existing member name for mime type 'application/json'",
+        });
+      });
+
+      it("emit error if 2 properties use the same encoded name with the same mimeType ", async () => {
+        const diagnostics = await runner.diagnose(`
+          model Cert {
+            @encodedName("application/json", "exp")
+            expireAt: utcDateTime;
+            @encodedName("application/json", "exp")
+            expireIn: string;
+          }
+        `);
+
+        expectDiagnostics(diagnostics, [
+          {
+            code: "encoded-name-conflict",
+            message: "Same encoded name 'exp' is used for 2 members 'application/json'",
+          },
+          {
+            code: "encoded-name-conflict",
+            message: "Same encoded name 'exp' is used for 2 members 'application/json'",
+          },
+        ]);
+      });
+
+      it("is ok if 2 different mime type have the same encoded name", async () => {
+        const diagnostics = await runner.diagnose(`
+          model Cert {
+            @encodedName("application/json", "exp")
+            expireAt: utcDateTime;
+            @encodedName("application/xml", "exp")
+            expireIn: string;
+          }
+        `);
+
+        expectDiagnosticEmpty(diagnostics);
+      });
+    });
+
+    it("resolve explicit encoded name", async () => {
+      const { expireAt } = (await runner.compile(`
+        model Cert {
+          @encodedName("application/json", "exp")
+          @test expireAt: utcDateTime;
+        }
+      `)) as { expireAt: ModelProperty };
+      strictEqual(resolveEncodedName(runner.program, expireAt, "application/json"), "exp");
+      strictEqual(
+        resolveEncodedName(runner.program, expireAt, "application/merge-patch+json"),
+        "exp",
+      );
+    });
+
+    it("resolve default name if no explicit encoded name", async () => {
+      const { expireAt } = (await runner.compile(`
+        model Cert {
+          @encodedName("application/json", "exp")
+          @test expireAt: utcDateTime;
+        }
+      `)) as { expireAt: ModelProperty };
+      strictEqual(resolveEncodedName(runner.program, expireAt, "application/xml"), "expireAt");
     });
   });
 });

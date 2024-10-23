@@ -1,0 +1,59 @@
+---
+import FluentImg from "./fluent-img.astro";
+import Link from "./link.astro";
+import { NeutralText, DescriptionText, Text } from "./text/text";
+import type { FluentImageName } from "./types";
+
+export interface Props {
+  title: string;
+  description?: string;
+  image?: FluentImageName;
+  link: string;
+}
+
+const { image, title, description, link } = Astro.props;
+---
+
+<style>
+  .item {
+    width: 100%;
+    text-decoration: none;
+    border-radius: 14px;
+    background-color: var(--colorNeutralBackground1);
+    padding: 20px;
+    display: flex;
+    gap: 12px;
+    border: 2px solid transparent;
+  }
+
+  .item:hover {
+    text-decoration: none;
+    border-color: var(--colorBrandForeground1);
+  }
+
+  .item:active {
+    text-decoration: none;
+    background-color: var(--colorNeutralBackground2);
+  }
+
+  .item-image {
+    width: 52px;
+    height: 52px;
+    max-width: 64px;
+  }
+
+  .item-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+</style>
+
+<Link href={link} class="item">
+  {image && <FluentImg class="item-image" name={image} />}
+  <div class={"item-content"}>
+    <NeutralText>{title}</NeutralText>
+    <DescriptionText>{description}</DescriptionText>
+    <Text>Learn more →</Text>
+  </div>
+</Link>

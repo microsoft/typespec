@@ -1,4 +1,5 @@
 import { ok, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import {
   BasicTestRunner,
   createTestHost,
@@ -35,7 +36,7 @@ describe("compiler: resolveTypeReference", () => {
       "MyService",
       `
       @test("target") namespace MyService {}
-    `
+    `,
     );
   });
 
@@ -58,7 +59,7 @@ describe("compiler: resolveTypeReference", () => {
       "MyOrg.MyService",
       `
       @test("target") namespace MyOrg.MyService {}
-    `
+    `,
     );
   });
 
@@ -67,7 +68,7 @@ describe("compiler: resolveTypeReference", () => {
       "Pet",
       `
       @test("target") model Pet {}
-    `
+    `,
     );
   });
 
@@ -77,7 +78,7 @@ describe("compiler: resolveTypeReference", () => {
       `
       namespace MyOrg.MyService;
       @test("target") model Pet {}
-    `
+    `,
     );
   });
 
@@ -86,7 +87,7 @@ describe("compiler: resolveTypeReference", () => {
       "Pet.name",
       `
       model Pet { @test("target") name: string}
-    `
+    `,
     );
   });
 
@@ -105,7 +106,7 @@ describe("compiler: resolveTypeReference", () => {
       "Pet.home::type.street",
       `
       model Pet { home: { @test("target") street: string}}
-    `
+    `,
     );
   });
 
@@ -119,7 +120,7 @@ describe("compiler: resolveTypeReference", () => {
       "Direction.up",
       `
       enum Direction { @test("target") up}
-    `
+    `,
     );
   });
 
@@ -140,7 +141,7 @@ describe("compiler: resolveTypeReference", () => {
       model Pet { @test("target") name: string}
 
       alias PetName = Pet.name;
-    `
+    `,
     );
   });
 

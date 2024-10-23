@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Pet Store Service
-  version: 2021-03-25
+  version: 0.0.0
 tags: []
 paths:
   /:
@@ -30,8 +30,6 @@ components:
       required:
         - type
         - catnipDose
-      allOf:
-        - $ref: '#/components/schemas/PetBase'
       properties:
         type:
           type: string
@@ -40,13 +38,13 @@ components:
         catnipDose:
           type: integer
           format: int32
+      allOf:
+        - $ref: '#/components/schemas/PetBase'
     Dog:
       type: object
       required:
         - type
         - nextWalkTime
-      allOf:
-        - $ref: '#/components/schemas/PetBase'
       properties:
         type:
           type: string
@@ -55,6 +53,8 @@ components:
         nextWalkTime:
           type: string
           format: date-time
+      allOf:
+        - $ref: '#/components/schemas/PetBase'
     Pet:
       anyOf:
         - $ref: '#/components/schemas/Cat'

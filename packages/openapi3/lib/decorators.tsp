@@ -1,4 +1,4 @@
-import "../dist/src/index.js";
+import "../dist/src/tsp-index.js";
 
 namespace TypeSpec.OpenAPI;
 

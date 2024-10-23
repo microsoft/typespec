@@ -1,5 +1,5 @@
-import { compilerAssert, getTypeName, Namespace, Program } from "@typespec/compiler";
-import { Version } from "./types.js";
+import { compilerAssert, getTypeName, type Namespace, type Program } from "@typespec/compiler";
+import type { Version } from "./types.js";
 import { getVersions } from "./versioning.js";
 
 /**
@@ -125,8 +125,8 @@ export class VersioningTimeline {
         compilerAssert(
           false,
           `Version "${version?.name}" from ${getTypeName(
-            version.namespace
-          )} should have been resolved. ${this.prettySerialize()}`
+            version.namespace,
+          )} should have been resolved. ${this.prettySerialize()}`,
         );
       }
     }
@@ -177,7 +177,7 @@ export class TimelineMoment {
 
   public constructor(versionMap: Map<Namespace, Version>) {
     this.#versionMap = versionMap;
-    this.name = versionMap.values().next().value ?? "";
+    this.name = versionMap.values().next().value?.name ?? "";
   }
 
   getVersion(namespace: Namespace): Version | undefined {

@@ -30,13 +30,13 @@ model PersonRelative {
 }
 
 @withVisibility("read")
-model Readable<T> {
-  ...T;
+model Readable<Data> {
+  ...Data;
 }
 
 @withVisibility("create")
-model Writable<T> {
-  ...T;
+model Writable<Data> {
+  ...Data;
 }
 
 model ReadablePerson {
@@ -55,8 +55,8 @@ model WriteableOptionalPerson {
   ...OptionalProperties<WritablePerson>;
 }
 
-model ListResult<T> {
-  items: T[];
+model ListResult<Item> {
+  items: Item[];
 }
 
 @route("/hello")
@@ -64,9 +64,7 @@ namespace Hello {
   @get op read(
     @path id: string,
 
-    @query({
-      format: "multi",
-    })
+    @query(#{ explode: true })
     fieldMask: string[],
   ): ReadablePerson;
   @post op create(@body person: WritablePerson): ReadablePerson;

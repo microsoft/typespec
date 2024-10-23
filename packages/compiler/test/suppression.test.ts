@@ -1,9 +1,10 @@
+import { beforeEach, describe, it } from "vitest";
 import { navigateProgram } from "../src/core/semantic-walker.js";
 import {
+  TestHost,
   createTestHost,
   expectDiagnosticEmpty,
   expectDiagnostics,
-  TestHost,
 } from "../src/testing/index.js";
 
 describe("compiler: suppress", () => {

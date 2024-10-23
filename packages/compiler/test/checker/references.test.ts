@@ -1,4 +1,6 @@
+/* eslint-disable vitest/valid-describe-callback */
 import { ok, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { Enum, Interface, Model, Operation, Type } from "../../src/core/types.js";
 import { TestHost, createTestHost, expectDiagnostics } from "../../src/testing/index.js";
 
@@ -42,6 +44,18 @@ describe("compiler: references", () => {
         @test("target") x: string;
       }`,
         ref: "MyModel.x",
+      }));
+
+    describe("member of alias of alias of model", () =>
+      itCanReference({
+        code: `
+          model MyModel {
+            @test("target") x: string;
+          }
+          alias Alias1  = MyModel;
+          alias MyModelAlias  = Alias1;
+        `,
+        ref: "MyModelAlias.x",
       }));
 
     describe("spread property from model defined before", () =>
@@ -232,7 +246,7 @@ describe("compiler: references", () => {
         a: Foo.b;
         b: string;
       }
-      `
+      `,
         );
 
         const { Foo } = (await testHost.compile("./main.tsp")) as {
@@ -318,7 +332,7 @@ describe("compiler: references", () => {
 
           @collect(Template<My>)
           namespace Test { }
-      `
+      `,
         );
 
         const { MyEnum } = (await testHost.compile("./main.tsp")) as { MyEnum: Enum };
@@ -350,7 +364,7 @@ describe("compiler: references", () => {
           a,
         }
         
-      `
+      `,
         );
 
         const { Foo } = (await testHost.compile("./main.tsp")) as {
@@ -421,6 +435,18 @@ describe("compiler: references", () => {
         ref: "MyInterfaceAlias.operation",
       }));
 
+    describe("member of alias of alias of interface", () =>
+      itCanReference({
+        code: `
+          interface MyInterface {
+            @test("target") operation(): void;
+          }
+          alias MyInterfaceAlias1  = MyInterface;
+          alias MyInterfaceAlias  = MyInterfaceAlias1;
+        `,
+        ref: "MyInterfaceAlias.operation",
+      }));
+
     describe("member of templated interface instance", () =>
       itCanReference({
         code: `
@@ -451,9 +477,7 @@ describe("compiler: references", () => {
       let linkedValue: Operation | undefined;
       beforeEach(() => {
         testHost.addJsFile("./test-link.js", {
-          $testLink: (_: any, t: any, value: Operation) => {
-            linkedValue;
-          },
+          $testLink: (_: any, t: any, value: Operation) => {},
         });
       });
       it("defined before", async () => {
@@ -466,7 +490,7 @@ describe("compiler: references", () => {
           @testLink(Foo.one)
           two(): void;
         }
-      `
+      `,
         );
 
         const { Foo } = (await testHost.compile("./main.tsp")) as {
@@ -485,7 +509,7 @@ describe("compiler: references", () => {
           one(): void;
           two(): void;
         }
-      `
+      `,
         );
 
         const { Foo } = (await testHost.compile("./main.tsp")) as {
@@ -511,7 +535,7 @@ describe("compiler: references", () => {
         u: U.x;
         e: E.x;
       }
-      `
+      `,
     );
 
     const diagnostics = await testHost.diagnose("./main.tsp");
@@ -542,7 +566,7 @@ describe("compiler: references", () => {
       `
       alias A = NotDefined;
       alias B = A;
-      `
+      `,
     );
 
     const diagnostics = await testHost.diagnose("./main.tsp");
@@ -619,7 +643,7 @@ describe("compiler: references", () => {
         }
 
         op testOp(...B::foo): void;
-        `
+        `,
       );
 
       const diagnostics = await testHost.diagnose("./main.tsp");
@@ -647,7 +671,7 @@ describe("compiler: references", () => {
         @test model Spread {
           ... B.a::type;
         }
-        `
+        `,
       );
 
       const { Spread } = (await testHost.compile("./main.tsp")) as { Spread: Model };

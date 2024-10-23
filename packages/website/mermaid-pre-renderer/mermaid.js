@@ -1,7 +1,7 @@
 // @ts-check
-const { chromium } = require("playwright");
-const path = require("path");
-const url = require("url");
+import { join } from "path";
+import { chromium } from "playwright";
+import { pathToFileURL } from "url";
 
 /**
  *
@@ -12,8 +12,8 @@ async function renderMermaid(definition) {
   const browser = await chromium.launch();
   const context = await browser.newContext();
   const page = await context.newPage();
-  const mermaidHTMLPath = path.join(__dirname, "index.html");
-  await page.goto(url.pathToFileURL(mermaidHTMLPath).href);
+  const mermaidHTMLPath = join(__dirname, "index.html");
+  await page.goto(pathToFileURL(mermaidHTMLPath).href);
 
   const svg = await page.evaluateHandle((definition) => {
     /** @type {import("mermaid").default } */
@@ -39,4 +39,4 @@ async function renderMermaid(definition) {
   return svg;
 }
 
-module.exports = { renderMermaid };
+export default { renderMermaid };

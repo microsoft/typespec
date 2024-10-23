@@ -1,8 +1,614 @@
 # Change Log - @typespec/compiler
 
-This log was last generated on Wed, 11 Oct 2023 23:31:35 GMT and should not be manually modified.
+## 0.61.2
+
+### Bug Fixes
+
+- [#4704](https://github.com/microsoft/typespec/pull/4704) Fix order of resolution from node_modules and parent package
+
+
+## 0.61.1
+
+### Bug Fixes
+
+- [#4697](https://github.com/microsoft/typespec/pull/4697) Fix module resolution when resolving self from within another package
+
+
+## 0.61.0
+
+### Bug Fixes
+
+- [#4626](https://github.com/microsoft/typespec/pull/4626) [API] Add missing exit callback
+- [#4513](https://github.com/microsoft/typespec/pull/4513) Fixes issue with the semantic walker where `exitTuple` was not being emitted.
+- [#4462](https://github.com/microsoft/typespec/pull/4462) Fix examples with enums inside of unions
+- [#4574](https://github.com/microsoft/typespec/pull/4574) Fix: Passing `const` of model type to `@example`
+- [#4551](https://github.com/microsoft/typespec/pull/4551) Json serialization of example respect `@encodedName`
+- [#4514](https://github.com/microsoft/typespec/pull/4514) Fix issue with decimal numeric and leading `0.0` with multiple digit
+- [#4445](https://github.com/microsoft/typespec/pull/4445) [API] model `sourceModels` property are now projected correctly
+- [#4467](https://github.com/microsoft/typespec/pull/4467) Changing tspconfig.yaml won't take effect in LSP server because of the cache
+- [#4563](https://github.com/microsoft/typespec/pull/4563) `tsp compile --watch` reread from `tspconfig.yaml` file
+
+### Bump dependencies
+
+- [#4424](https://github.com/microsoft/typespec/pull/4424) Bump dependencies
+
+### Features
+
+- [#4442](https://github.com/microsoft/typespec/pull/4442) Library diagnostic can now define a `description` and `url` that links to a more detailed doc for this diagnostic
+- [#4290](https://github.com/microsoft/typespec/pull/4290) Adding experimental (unstable) API fro Type Mutators
+- [#4595](https://github.com/microsoft/typespec/pull/4595) Expose more accurate `PackageJson` type and deprecate `NodePackage`
+- [#4606](https://github.com/microsoft/typespec/pull/4606) Add support for node `exports` field. Specific typespec exports can be provided with the `typespec` field
+
+```json
+"exports": {
+  ".": {
+    "typespec": "./lib/main.tsp",
+  },
+  "./named": {
+    "typespec": "./lib/named.tsp",
+  }
+}
+```
+- [#4539](https://github.com/microsoft/typespec/pull/4539) Support nested emitter options
+
+### Breaking Changes
+
+- [#4539](https://github.com/microsoft/typespec/pull/4539) Config parameters and emitters options cannot contains `.`. This conflict with newly added support for nested options.
+- [#4500](https://github.com/microsoft/typespec/pull/4500) API: Update default of `decoratorArgMarshalling` from `legacy` to `new`
+
+To revert to the old behavior export the following. **Highly discouraged, this will be removed in a few versions.**
+
+```ts
+export const $flags = definePackageFlags({
+  decoratorArgMarshalling: "legacy",
+});
+```
+
+
+## 0.60.1
+
+### Bug Fixes
+
+- [#4420](https://github.com/microsoft/typespec/pull/4420) Fix: Numeric values defined with e-notation incorrectly resolved
+
+
+## 0.60.0
+
+### Bug Fixes
+
+- [#4381](https://github.com/microsoft/typespec/pull/4381) Fix Semantic walker doesn't fire exitOperation or exitModelProperty
+- [#4146](https://github.com/microsoft/typespec/pull/4146) Fix model expression defined in alias will resolve its namespace from the namespace where the alias was declared
+- [#4147](https://github.com/microsoft/typespec/pull/4147) Fix examples with models using `extends`
+- [#4144](https://github.com/microsoft/typespec/pull/4144) Fix: Model and union expression in template were not considered as template instances
+- [#4135](https://github.com/microsoft/typespec/pull/4135) Fix numeric 0 stringify producing 0.0
+- [#4064](https://github.com/microsoft/typespec/pull/4064) IDE: Formatting command will use prettier config if provided over the editor's configuration.
+- [#4089](https://github.com/microsoft/typespec/pull/4089) Fix tmlanguage for named type argument in type reference.
+- [#4324](https://github.com/microsoft/typespec/pull/4324) API: Extract source resolution logic into its own source loader
+
+### Features
+
+- [#4139](https://github.com/microsoft/typespec/pull/4139) Add new way to define decorator implementation with `$decorators` export.
+```ts
+export const $decorators = {
+  "TypeSpec.OpenAPI": {
+    useRef: $useRef,
+    oneOf: $oneOf,
+  },
+};
+```
+- [#4148](https://github.com/microsoft/typespec/pull/4148) Diagnostics logged to the terminal now have a clickable hyperlink to the diagnostic documentation url if applicable.
+- [#4141](https://github.com/microsoft/typespec/pull/4141) Diagnostic code in IDE now link to the linter rule documentation url if applicable
+- [#4357](https://github.com/microsoft/typespec/pull/4357) Improvements to type relation errors: Show stack when it happens in a nested property otherwise show up in the correct location.
+
+
+## 0.59.1
+
+### Bug Fixes
+
+- [#4173](https://github.com/microsoft/typespec/pull/4173) Fix: Revert `unix-style` warning that was preventing windows path via the CLI as well
+
+
+## 0.59.0
+
+### Bug Fixes
+
+- [#3881](https://github.com/microsoft/typespec/pull/3881) Fixes a bug where ending a non-terminal line in a multi-line comment with a backslash caused the next star to show up in the parsed doc string.
+- [#4050](https://github.com/microsoft/typespec/pull/4050) Allow using compact namespace form `Foo.Bar` when inside another namespace
+  ```tsp
+  namespace MyOrg.MyProject {
+    namespace MyModule.MySubmodule { // <-- this used to emit an error
+      // ...
+    }
+  }
+  ```
+- [#3898](https://github.com/microsoft/typespec/pull/3898) Fix decimal numeric with leading zeros
+- [#4046](https://github.com/microsoft/typespec/pull/4046) Fix type comparison of literal and scalar when in projection context
+- [#4022](https://github.com/microsoft/typespec/pull/4022) `tsp compile --watch` will not stop when a crash happens during compilation
+- [#3933](https://github.com/microsoft/typespec/pull/3933) Add `const` template parameter to get the precise lib type
+
+### Bump dependencies
+
+- [#3948](https://github.com/microsoft/typespec/pull/3948) Update dependencies
+
+### Features
+
+- [#3906](https://github.com/microsoft/typespec/pull/3906) Support completion for template parameter extending model or object value
+
+  Example
+  ```tsp
+  model User<T extends {name: string, age: int16}> {
+  }
+  alias user = User< {┆
+                      | [age]
+                      | [name]
+  ```
+- [#4020](https://github.com/microsoft/typespec/pull/4020) Add support for encoding numeric types as string
+- [#4023](https://github.com/microsoft/typespec/pull/4023) Warn when using `\` in config file field that expect a path.
+- [#3932](https://github.com/microsoft/typespec/pull/3932) Add `ArrayEncoding` enum to define simple serialization of arrays
+
+### Breaking Changes
+
+- [#4050](https://github.com/microsoft/typespec/pull/4050) Fix issue where naming a namespace with the same name as the blockless namespace would merge with it instead of creating a subnamespace like any other name would.
+
+  ```tsp
+  namespace MyOrg.MyProject;
+
+  namespace MyOrg.MyProject.MyArea {
+    model A {}
+  }
+
+  namespace MyArea2 {
+    model B {}
+  }
+  ```
+
+  Previously model `A` would end-up in namespace `MyOrg.MyProject.MyArea` and model `B` in `MyOrg.MyProject.MyArea2`. With this change model `A` will now be in `MyOrg.MyProject.MyOrg.MyProject.MyArea`. To achieve the previous behavior the above code should be written as:
+
+  ```tsp
+  namespace MyOrg.MyProject;
+
+  namespace MyArea {
+    model A {}
+  }
+
+  namespace MyArea2 {
+    model B {}
+  }
+  ```
+
+
+## 0.58.1
+
+### Bug Fixes
+
+- [#3875](https://github.com/microsoft/typespec/pull/3875) Fix issues with examples not working with `Array`, `Record`, `Union` and `unknown` types
+
+
+## 0.58.0
+
+### Bug Fixes
+
+- [#3623](https://github.com/microsoft/typespec/pull/3623) Fix crash of language server on firefox
+- [#3516](https://github.com/microsoft/typespec/pull/3516) Deprecate getAssetEmitter and recommend calling `createAssetEmitter` directly
+- [#3767](https://github.com/microsoft/typespec/pull/3767) Fix semantic highlighting of using of single namespace
+- [#3824](https://github.com/microsoft/typespec/pull/3824) Do not cast model expression to object value if the constraint is allowing the type
+- [#3577](https://github.com/microsoft/typespec/pull/3577) Fix formatting of object and array literal in decorator to hug parenthesis
+- [#3823](https://github.com/microsoft/typespec/pull/3823) Fix formatting of scalar constructor called with no args
+- [#3743](https://github.com/microsoft/typespec/pull/3743) Fix 'typespec vs install' command on windows
+- [#3605](https://github.com/microsoft/typespec/pull/3605) Fix templates initialized on node 22
+
+### Bump dependencies
+
+- [#3718](https://github.com/microsoft/typespec/pull/3718) Dependency updates July 2024
+
+### Features
+
+- [#3699](https://github.com/microsoft/typespec/pull/3699) Moved compiler dependencies to peer and dev for scaffolded projects.
+- [#3572](https://github.com/microsoft/typespec/pull/3572) Add new `@example` and `@opExample` decorator to provide examples on types and operations.
+
+  ```tsp
+  @example(#{
+    id: "some",
+    date: utcDateTime.fromISO("2020-01-01T00:00:00Z"),
+    timeout: duration.fromISO("PT1M"),
+  })
+  model Foo {
+    id: string;
+    date: utcDateTime;
+  
+    @encode("seconds", int32) timeout: duration;
+  }
+  ```
+  
+  ```tsp
+  @opExample(
+    #{
+      parameters: #{
+        pet: #{
+          id: "some",
+          name: "Fluffy",
+          dob: plainDate.fromISO("2020-01-01"),
+        },
+      },
+      returnType: #{
+        id: "some",
+        name: "Fluffy",
+        dob: plainDate.fromISO("2020-01-01"),
+      },
+    },
+    #{ title: "First", description: "Show creating a pet" }
+  )
+  op createPet(pet: Pet): Pet;
+  ```
+- [#3751](https://github.com/microsoft/typespec/pull/3751) Adds option to `tsp init` to generate .gitignore file
+
+### Breaking Changes
+
+- [#3793](https://github.com/microsoft/typespec/pull/3793) Do not carry over `@friendlyName` with `model is` or `op is`
+
+  ```tsp
+  @friendlyName("Abc{T}", T)
+  model Foo<T> {}
+  
+  model Bar is Foo<string>;
+  
+  // This can be changed to
+  model Abcstring is Foo<string>;
+  ```
+- [#3659](https://github.com/microsoft/typespec/pull/3659) Disallows overriding a required inherited property with an optional property.
+
+In previous versions of TypeSpec, it was possible to override a required property with an optional property. This is no longer allowed. This change may result in errors in your code if you were relying on this bug, but specifications that used this behavior are likely to have been exposed to errors resulting from incoherent type checking behavior.
+
+The following example demonstrates the behavior that is no longer allowed:
+
+```tsp
+model Base {
+  example: string;
+}
+
+model Child extends Base {
+  example?: string;
+}
+```
+
+In this example, the `Child` model overrides the `example` property from the `Base` model with an optional property. This is no longer allowed.
+
+
+## 0.57.0
+
+
+### Breaking changes
+
+- [#3022](https://github.com/microsoft/typespec/pull/3022) Addition of new `const` keyword means using `const` as a property name or decorator name will result in an error. This can be fixed by wrapping the property in backtick.
+
+```tsp
+model Test {
+  // error
+  const: string;
+
+  // correct
+  `const`: string;
+
+}
+```
+
+### Bug Fixes
+
+- [#3399](https://github.com/microsoft/typespec/pull/3399) Preserve leading whitespace in fenced blocks in doc comments
+- [#3566](https://github.com/microsoft/typespec/pull/3566) [API] Do not run decorators on cloned type if the original type wasn't finished
+- [#3522](https://github.com/microsoft/typespec/pull/3522) Fix EINVAL error when running `tsp code install`
+- [#3371](https://github.com/microsoft/typespec/pull/3371) Numeric not handling trailing zeros and causing freeze(e.g. `const a = 100.0`)
+- [#3451](https://github.com/microsoft/typespec/pull/3451) Emitter framework: fix losing context when referencing circular types
+- [#3517](https://github.com/microsoft/typespec/pull/3517) Fix application of `@param` doc tag on operation create with `op is` to override upstream doc
+- [#3488](https://github.com/microsoft/typespec/pull/3488) Add `PickProperties` type to dynamically select a subset of a model
+
+### Bump dependencies
+
+- [#3401](https://github.com/microsoft/typespec/pull/3401) Update dependencies - May 2024
+
+### Features
+
+- [#3280](https://github.com/microsoft/typespec/pull/3280) Support completion for Model with extended properties
+
+  Example
+  ```tsp
+  model Device {
+    name: string;
+    description: string;
+  }
+
+  model Phone extends Device {
+    ┆
+  } | [name]
+    | [description]
+  ```
+- [#3280](https://github.com/microsoft/typespec/pull/3280) Support completion for object values and model expression properties.
+
+  Example
+  ```tsp
+  model User {
+    name: string;
+    age: int32;
+    address: string;
+  }
+
+  const user: User = #{name: "Bob", ┆}
+                                    | [age]
+                                    | [address]
+  ```
+- [#3375](https://github.com/microsoft/typespec/pull/3375) Allow `@` to be escaped in doc comment with `\`
+- [#3022](https://github.com/microsoft/typespec/pull/3022) Add syntax for declaring values. [See docs](https://typespec.io/docs/language-basics/values).
+
+Object and array values
+```tsp
+@dummy(#{
+  name: "John",
+  age: 48,
+  address: #{ city: "London" }
+  aliases: #["Bob", "Frank"]
+})
+```
+
+Scalar constructors
+
+```tsp
+scalar utcDateTime {
+  init fromISO(value: string);
+}
+
+model DateRange {
+  minDate: utcDateTime = utcDateTime.fromISO("2024-02-15T18:36:03Z");
+}
+```
+- [#3527](https://github.com/microsoft/typespec/pull/3527) Add support for `@prop` doc comment tag to describe model properties
+- [#3422](https://github.com/microsoft/typespec/pull/3422) Formatter: Indent or dedent multiline strings to the current indentation
+- [#3460](https://github.com/microsoft/typespec/pull/3460) Hide deprecated items from completion list
+- [#3443](https://github.com/microsoft/typespec/pull/3443) Support completion for keyword 'extends' and 'is'
+
+  Example
+  ```tsp
+  model Dog ┆ {}
+            | [extends]
+            | [is]
+  
+  scalar Addresss ┆ 
+                  | [extends]
+
+  op jump ┆ 
+          | [is]
+  
+  interface ResourceA ┆ {}
+                      | [extends]
+
+  model Cat<T ┆> {}
+              | [extends]
+  ```
+- [#3462](https://github.com/microsoft/typespec/pull/3462) Linter `all` rulesets is automatically created if not explicitly provided
+- [#3533](https://github.com/microsoft/typespec/pull/3533) More logs and traces are added for diagnostic and troubleshooting in TypeSpec language server
+
+### Deprecations
+
+- [#3022](https://github.com/microsoft/typespec/pull/3022) Using a tuple type as a value is deprecated. Tuple types in contexts where values are expected must be updated to be array values instead. A codefix is provided to automatically convert tuple types into array values.
+
+```tsp
+model Test {
+  // Deprecated
+  values: string[] = ["a", "b", "c"];
+  
+  // Correct
+  values: string[] = #["a", "b", "c"];
+```
+- [#3022](https://github.com/microsoft/typespec/pull/3022) Using a model type as a value is deprecated. Model types in contexts where values are expected must be updated to be object values instead. A codefix is provided to automatically convert model types into object values.
+
+```tsp
+model Test {
+  // Deprecated
+  user: {name: string} = {name: "System"};
+  
+  // Correct
+  user: {name: string} = #{name: "System"};
+```
+- [#3022](https://github.com/microsoft/typespec/pull/3022) Decorator API: Legacy marshalling logic
+
+With the introduction of values, the decorator marshalling behavior has changed in some cases. This behavior is opt-in by setting the `valueMarshalling` package flag to `"new"`, but will be the default behavior in future versions. It is strongly recommended to adopt this new behavior as soon as possible.
+
+
+  Example: 
+  ```tsp
+  extern dec multipleOf(target: numeric | Reflection.ModelProperty, value: valueof numeric);
+  ```
+  Will now emit a deprecated warning because `value` is of type `valueof string` which would marshall to `Numeric` under the new logic but as `number` previously.
+
+  To opt-in you can add the following to your library js/ts files.
+  ```ts
+  export const $flags = definePackageFlags({
+    decoratorArgMarshalling: "new",
+  });
+  ```
+
+
+## 0.56.0
+
+### Bug Fixes
+
+- [#3170](https://github.com/microsoft/typespec/pull/3170) `--nostdlib` flag will now work by only applying to optional standard library types
+- [#3212](https://github.com/microsoft/typespec/pull/3212) Fix: augmenting template model property could result in sending invalid argument to decorator
+- [#3188](https://github.com/microsoft/typespec/pull/3188) Fix: Do not crash when trying to access member of aliased expressions
+- [#3185](https://github.com/microsoft/typespec/pull/3185) Fix tsp init hanging when done due to unclosed connection
+- [#3151](https://github.com/microsoft/typespec/pull/3151) IDE: Fix completion of statement keywords
+- [#3287](https://github.com/microsoft/typespec/pull/3287) Templated interface extending another templated interface shouldn't run decorator on their operations
+- [#3290](https://github.com/microsoft/typespec/pull/3290) Model with an optional property should not satisfy a constraint with that property required. (`{foo?: string}` cannot be assigned to a constraint of `{foo: string}`)
+- [#3163](https://github.com/microsoft/typespec/pull/3163) Fix: Model with spread indexer shouldn't validate explicit properties
+- [#3227](https://github.com/microsoft/typespec/pull/3227) Stop running decorators on partially instantiated operations(When interface is instantiated but not the operation)
+- [#3180](https://github.com/microsoft/typespec/pull/3180) Fix issue where directives were not parsed to the leaf node in multi-segment Namespace segments.
+- [#3243](https://github.com/microsoft/typespec/pull/3243) Fix calling `tsp install` on windows due to recent NodeJS breaking change to fix vulnerability.
+- [#3216](https://github.com/microsoft/typespec/pull/3216) Fix compiler crash when using an invalid `is` target in an interface operation template
+- [#3246](https://github.com/microsoft/typespec/pull/3246) Internals: Use node built-in `fetch` API that is now stable since node `18.13.0`
+
+### Bump dependencies
+
+- [#3169](https://github.com/microsoft/typespec/pull/3169) Update dependencies
+
+### Features
+
+- [#3035](https://github.com/microsoft/typespec/pull/3035) `getEncode` returns the fully qualified enum member name if using a custom enum.
+- [#3183](https://github.com/microsoft/typespec/pull/3183) Show template parameters when hovering on an operation template
+- [#3191](https://github.com/microsoft/typespec/pull/3191) [API] Add new `sourceModels` property to model
+
+
+## 0.55.0
+
+### Bug Fixes
+
+- [#3018](https://github.com/microsoft/typespec/pull/3018) Grammar: Fix comments in template params not tokenized
+- [#3052](https://github.com/microsoft/typespec/pull/3052) Fix: Union template declaration were incorrectly being finished in projection
+- [#2983](https://github.com/microsoft/typespec/pull/2983) Warnings converted to error with `warn-as-error` do not prevent compilation from moving to the next stage like regular warnings
+- [#3041](https://github.com/microsoft/typespec/pull/3041) Improve relability of application of codefixes in IDE, often it would not do anything
+- [#3069](https://github.com/microsoft/typespec/pull/3069) TmLanguage: Fix tokenization of escaped identifiers, enums and unions
+
+### Bump dependencies
+
+- [#3027](https://github.com/microsoft/typespec/pull/3027) Update dependencies
+
+### Features
+
+- [#2992](https://github.com/microsoft/typespec/pull/2992) Enable the use of `@encode` for model properties that have a union type. This supports cases like `@encode("rfc3339") prop: utcDateTime | null`
+- [#3053](https://github.com/microsoft/typespec/pull/3053) Experimental projection: Add support for scalars
+
+### Deprecations
+
+- [#3094](https://github.com/microsoft/typespec/pull/3094) Deprecate `@knownValues` decorator. Use a named union of string literal with a string variant to achieve the same result without a decorator
+
+Example:
+```diff
+-enum FooKV { a, b, c}
+-@knownValues(FooKV)
+-scalar foo extends string;
++union Foo { "a", "b", "c", string }
+```
+- [#2910](https://github.com/microsoft/typespec/pull/2910) Deprecate `@projectedName` decorator. `@encodedName` should be used instead.
+
+Example:
+```diff
+-@projectedName("json", "exp")
++@encodedName("application/json", "exp")
+```
+
+
+## 0.54.0
+
+### Bug Fixes
+
+- [#2932](https://github.com/microsoft/typespec/pull/2932) Report error when having a circular template constraint e.g. `model Example<T extends T>`
+- [#2955](https://github.com/microsoft/typespec/pull/2955) [Formatter] Formatting file with only comments would reorder the first line.
+- [#2934](https://github.com/microsoft/typespec/pull/2934) [IDE] Fix issue when deleting an open file outside the IDE that would crash the language server
+- [#2959](https://github.com/microsoft/typespec/pull/2959) Decorators that have missing arguments will not run. This is inline with passing invalid argument to a decorator that would prevent it from running.
+- [#2976](https://github.com/microsoft/typespec/pull/2976) [IDE] Fix type documentation shown twice when hovering symbols or in completion details.
+- [#2929](https://github.com/microsoft/typespec/pull/2929) [API] Add `Scalar` to TS `TemplatedType` type
+- [#2978](https://github.com/microsoft/typespec/pull/2978) [IDE] Go to imports
+- [#2936](https://github.com/microsoft/typespec/pull/2936) [IDE] Autocompleting file or folder with non alpha numeric charachter completes correctly
+- [#2936](https://github.com/microsoft/typespec/pull/2936) [IDE] Fix crashing when trying to autocomplete an invalid folder
+- [#2951](https://github.com/microsoft/typespec/pull/2951) Wrap string in quotes in errors
+- [#2886](https://github.com/microsoft/typespec/pull/2886) Fix: `tsp compile --watch` was missing coloring and error previews
+
+### Bump dependencies
+
+- [#2900](https://github.com/microsoft/typespec/pull/2900) Update dependencies
+
+### Features
+
+- [#2888](https://github.com/microsoft/typespec/pull/2888) Add support for codefixes
+- [#2920](https://github.com/microsoft/typespec/pull/2920) Add support for `...Record<T>` to define the type of remaining properties
+- [#2968](https://github.com/microsoft/typespec/pull/2968) Any subtype of an error(marked with `@error`) is now an error.
+
+### Deprecations
+
+- [#2919](https://github.com/microsoft/typespec/pull/2919) [API] Create a new export `@typespec/compiler/utils` exports. Deprecate export from `@typespec/compiler` of utils like `DuplicateTracker`, `Queue`, `createTwoKeyMap`, etc.
+- [#2902](https://github.com/microsoft/typespec/pull/2902) Deprecate `@service` version property. If wanting to describe a service versioning you can use the `@typespec/versioning` library. If wanting to describe the project version you can use the package.json version. For OpenAPI generation. the `@OpenAPI.info` nows decorator allows providing the document version.
+
+### Breaking Changes
+
+- [#2920](https://github.com/microsoft/typespec/pull/2920) Intersecting Record<T> with incompatible properties will now emit an error
+
+
+## 0.53.1
+
+### Patch Changes
+
+- e6a045b: Allow using default values for union property types
+
+## 0.53.0
+
+### Minor Changes
+
+- 15f6dbe: Added an optional validation message to the @pattern decorator.
+- 9726b3d: Emitter framework: `ObjectBuilder` will keep track when built using a `Placeholder` allowing data to be carried over when chaining `ObjectBuilder`
+
+### Patch Changes
+
+- cc2723a: Template instantiated with ErrorType will get the arg changed to unknown
+- fd4fdfb: Fix: Error out when using properties in array model
+
+
+## 0.52.0
+
+Wed, 24 Jan 2024 05:46:53 GMT
+
+### Updates
+
+- add bytes encode to the general encode type
+- Added support for named template arguments (#2340)
+- Feature: Added encoded name decorator
+- Add a new init template for creating a new emitter
+- Added new `--template` option to `tsp init` command line action which lets user specify which template to choose from in the template list.
+- IDE: Performance improvements to the language server.
+- Fix: Compiler couldn't resolve files at a long path(256+) on windows
+- Stop warning user when `tsp init` a template without `compilerVersion` specified
+- Library declaration: Deprecated linter property on `$lib` in favor of a new `$linter` variable that can be exported. This was done to prevent circular reference caused by referencing linter rules in $lib.
+- Library declaration: State symbols can now be declared in the library declaration(Prefereably internal declaration added above) to have a central place to define state symbols used in your libraries.
+- Add a new `tsp init` template for setting up a library
+- Rename template parameters in preparation for named template argument instantiation.
+- Add ability to use another template parameter as a constraint. e.g. `model Foo<A, B extends A>`
+- Add new helper function to change casing to the init templates
+- Update dependencies
+
+## 0.51.0
+
+Wed, 06 Dec 2023 19:40:58 GMT
+
+### Updates
+
+- [API] Emitter framework: `emitTypeReference` function takes an optional reference context that can be used to patch the context for the target.
+- Emitter API: Added `absolute-path` as a known format for emitter options which will validate the value passed by the user resolve to an absolute path.
+- Linter rules can provide a url to the full documentation
+- **New language feature** **BREAKING** Added string template literal in typespec. Single and multi-line strings can be interpolated with `${` and `}`. Example `\`Doc for url ${url} is here: ${location}\``
+- Formatter: Fix: `valueof` expression with parentheses around will preserve them when they are meaningful(For example inside a union or array expression)
+- Emitter framework: allows scalar and enum declaration to provide a reference context.
+- Fix: Union variant are now assignable to the parent union
+- Emitter framework: Allow passing a custom context when calling `emitType`
+- Upgrade formatter to prettier 3.1
+
+## 0.50.0
+
+Wed, 08 Nov 2023 00:07:17 GMT
+
+### Updates
+
+- Add new `unixTimestamp32` scalar to standard library
+- Fixing @doc and /\*\* \*/ disappears from multi-segment or nested namespaces. #2642
+- Fix issue where using `@overload` could result in incorrect `unassignable` type errors.
+- Add new hook for handling circular references
+- Fix: Issue where referencing a template in an alias might cause augment decorators to not be applied on types referenced in the aliased type.
+- [Internal] Fix: `RekeyableMap` kept track of old value if rekeying to an existing item
+- Fix: Properties filtered with `@withVisibility` will have their visibility removed. This prevent visibility from being applied twice and rendering invalid models
+- `TypeEmitter` now supports Tuples.
+- Issue error if a model spreads itself within its declaration.
+- Stop showing empty code frame when diagnostic has no location
+- `TypeScript` use `types` entry under `exports` of `package.json` instead of legacy `typesVersions` to provide the definition files
+- **BREAKING CHANGE** Dropped support for node 16, minimum node version is now 18
 
 ## 0.49.0
+
 Wed, 11 Oct 2023 23:31:35 GMT
 
 ### Updates
@@ -29,6 +635,7 @@ Wed, 11 Oct 2023 23:31:35 GMT
 - Remove `decorators` export, import decorators individually
 
 ## 0.48.1
+
 Tue, 19 Sep 2023 19:28:32 GMT
 
 ### Patches
@@ -40,12 +647,13 @@ Tue, 19 Sep 2023 19:28:32 GMT
 - Add typesVersions metadata for the emitter framework to package.json
 
 ## 0.48.0
+
 Tue, 12 Sep 2023 21:47:11 GMT
 
 ### Updates
 
-- **Breaking Change** A semicolon is now required after augment decorator  statements.
-- Added decorators `@parameterVisibility` and `@returnTypeVisibility`. Added methods `getParameterVisibility` and `getReturnTypeVisibility`. 
+- **Breaking Change** A semicolon is now required after augment decorator statements.
+- Added decorators `@parameterVisibility` and `@returnTypeVisibility`. Added methods `getParameterVisibility` and `getReturnTypeVisibility`.
 - Fix issue where --config would search the folder hierarchy looking for `tspconfig.yaml`.
 - **Deprecation** `@deprecated` decorator has been marked as deprecated. Use `#deprecated` directive instead.
 - **IDE** Add coloring for doc comment
@@ -62,6 +670,7 @@ Tue, 12 Sep 2023 21:47:11 GMT
 - Diagnostics reported on nodes with an `id` will see the diagnostic highlight the id instead of the whole node. For example it will show the error on the model name instead of highlighting the entire model.
 
 ## 0.47.1
+
 Thu, 10 Aug 2023 20:18:00 GMT
 
 ### Patches
@@ -69,6 +678,7 @@ Thu, 10 Aug 2023 20:18:00 GMT
 - **Fix**: `--config` flag was being ignored.
 
 ## 0.47.0
+
 Tue, 08 Aug 2023 22:32:10 GMT
 
 ### Updates
@@ -94,6 +704,7 @@ Tue, 08 Aug 2023 22:32:10 GMT
 - Update init template version compare to be greaterThanAndEqual instead of greaterThan.
 
 ## 0.46.0
+
 Tue, 11 Jul 2023 22:06:00 GMT
 
 ### Updates
@@ -102,7 +713,7 @@ Tue, 11 Jul 2023 22:06:00 GMT
 - Internal: Reorganize sources inside `src/` folder
 - Fix: Doc comment `/** */` should override base type doc in `model is` or `op is`
 - Emitter Framework: add support for emitting enum member references.
-- **Feature** New built-in linter system. Typespec libraries are able to define linting rules which can be configured in `tspconfig.yaml`. See documentation for configuring a [linter](https://microsoft.github.io/typespec/introduction/configuration#linter---configuring-linters) and [writing a linter](https://microsoft.github.io/typespec/extending-typespec/linters)
+- **Feature** New built-in linter system. Typespec libraries are able to define linting rules which can be configured in `tspconfig.yaml`. See documentation for configuring a [linter](https://typespec.io/docs/handbook/configuration#linter---configuring-linters) and [writing a linter](https://typespec.io/docs/extending-typespec/linters)
 - **Breaking** Minimum version of TypeScript updated to 5.0. TypeSpec is using new features available in TypeScript 5.0 which result in a definition file not parsable by older version. Note that this only affect compiling TypeScript code and is not breaking any JS or TypeSpec code. [See more information on typescript 5.0](https://devblogs.microsoft.com/typescript/announcing-typescript-5-0/)
 - Remove `mkdirp` dependencies and replace with built-in `mkdir({recursive: true})`.
 - Compiler keeps track of the scope where a file is declared(User project, a library or the compiler)
@@ -111,7 +722,7 @@ Tue, 11 Jul 2023 22:06:00 GMT
 - Fix: `entrypoints` folder wasn't included in package causing failure to resolve cli.js
 - Fix: Formatter incorrectly formatting `::` to `.`
 - Fix formatting issue with comment between decorator and scalar or interface
-- Fix: Stack overflow crash when having circular reference with `op is` inside an interface. 
+- Fix: Stack overflow crash when having circular reference with `op is` inside an interface.
 - Fix IDE issue with squiggles in library code if the library had an entry point named something other than `main.tsp` and a library document was opened after another document that imported the library.
 - Fix: Referencing decorator target in argument cause stack overflow for enum and union in checker and interface and operations in projection.
 - **Fix** `getTypeName` include namespace prefix for unions as well
@@ -132,6 +743,7 @@ Tue, 11 Jul 2023 22:06:00 GMT
 - Update dependencies
 
 ## 0.45.2
+
 Thu, 15 Jun 2023 17:00:33 GMT
 
 ### Patches
@@ -139,6 +751,7 @@ Thu, 15 Jun 2023 17:00:33 GMT
 - Fix: Formatter crash when using comment in empty statement, after an augment decorator or in an empty file
 
 ## 0.45.1
+
 Wed, 14 Jun 2023 17:05:12 GMT
 
 ### Patches
@@ -146,6 +759,7 @@ Wed, 14 Jun 2023 17:05:12 GMT
 - Fix: Formatter moves all comments in flattened namespace to the top
 
 ## 0.45.0
+
 Tue, 06 Jun 2023 22:44:16 GMT
 
 ### Updates
@@ -177,6 +791,7 @@ Tue, 06 Jun 2023 22:44:16 GMT
 - Show alias doc comments in IDE
 
 ## 0.44.0
+
 Wed, 10 May 2023 21:24:00 GMT
 
 ### Patches
@@ -209,6 +824,7 @@ Wed, 10 May 2023 21:24:00 GMT
 - Update dependencies
 
 ## 0.43.0
+
 Tue, 11 Apr 2023 18:49:17 GMT
 
 ### Updates
@@ -232,6 +848,7 @@ Tue, 11 Apr 2023 18:49:17 GMT
 - Replaced zonedDateTime with utcDateTime and offsetDateTime
 
 ## 0.42.0
+
 Mon, 13 Mar 2023 21:30:44 GMT
 
 ### Updates
@@ -241,6 +858,7 @@ Mon, 13 Mar 2023 21:30:44 GMT
 - Add `--config` option to `tsp compile`.
 
 ## 0.41.0
+
 Fri, 03 Mar 2023 19:59:17 GMT
 
 ### Updates
@@ -262,6 +880,7 @@ Fri, 03 Mar 2023 19:59:17 GMT
 - Fixing cli help message, package homepage link
 
 ## 0.40.0
+
 Tue, 07 Feb 2023 21:56:17 GMT
 
 ### Updates
@@ -271,9 +890,10 @@ Tue, 07 Feb 2023 21:56:17 GMT
 - Add `arrayDeclaration` and `arrayLiteral` methods to emitter framework's TypeEmitter
 - Bug: properly parse logical and (`&&`) expressions in projections
 - Support --option=path/to/emitter.js.option=value in cli args
-- Removed all *Type aliases (ModelType for Model, etc.). Removed `uri` scalar. Removed `Map<K, V>` model. Removed `@serviceTitle` and `@serviceVersion` decorators. Removed `getServiceNamespace`, `getServiceTitle`, `getServiceVersion`, `getServiceNamespaceString` and `setServiceNamespace` functions.
+- Removed all \*Type aliases (ModelType for Model, etc.). Removed `uri` scalar. Removed `Map<K, V>` model. Removed `@serviceTitle` and `@serviceVersion` decorators. Removed `getServiceNamespace`, `getServiceTitle`, `getServiceVersion`, `getServiceNamespaceString` and `setServiceNamespace` functions.
 
 ## 0.39.0
+
 Fri, 13 Jan 2023 00:05:26 GMT
 
 ### Updates
@@ -302,6 +922,7 @@ Fri, 13 Jan 2023 00:05:26 GMT
 - Improve visibility decorator documentation
 
 ## 0.38.5
+
 Fri, 16 Dec 2022 22:02:45 GMT
 
 ### Patches
@@ -309,6 +930,7 @@ Fri, 16 Dec 2022 22:02:45 GMT
 - emitter not found validation in emitter options is a warning
 
 ## 0.38.4
+
 Thu, 15 Dec 2022 02:21:08 GMT
 
 ### Patches
@@ -316,6 +938,7 @@ Thu, 15 Dec 2022 02:21:08 GMT
 - Fix: `--arg` wasn't being picked up
 
 ## 0.38.3
+
 Fri, 09 Dec 2022 22:03:04 GMT
 
 ### Patches
@@ -323,6 +946,7 @@ Fri, 09 Dec 2022 22:03:04 GMT
 - Fix: `constants` not available in `fs/promise`
 
 ## 0.38.2
+
 Fri, 09 Dec 2022 20:43:01 GMT
 
 ### Patches
@@ -330,6 +954,7 @@ Fri, 09 Dec 2022 20:43:01 GMT
 - Fix: Revert breaking change to global cli usage
 
 ## 0.38.1
+
 Thu, 08 Dec 2022 22:04:15 GMT
 
 ### Patches
@@ -337,6 +962,7 @@ Thu, 08 Dec 2022 22:04:15 GMT
 - Fix: `scalar` can be used inside of namespace block
 
 ## 0.38.0
+
 Wed, 07 Dec 2022 17:21:52 GMT
 
 ### Minor changes
@@ -346,11 +972,11 @@ Wed, 07 Dec 2022 17:21:52 GMT
 - Show developer docs in IDE features
 - Doc: Add Doc comments to built-in types and decorators
 - **Deprecation** Split `emitters` in cadl-project.yaml and compiler in 2 option `emit` and `options` that makes it consistent with the CLI
-- Extract `getTypeName` and `getNamespaceString` outside of the checker into standalone helper function 
+- Extract `getTypeName` and `getNamespaceString` outside of the checker into standalone helper function
 - Add new helper `validateDecoratorUniqueOnNode` that validate the decorator is not being used twice on the same node
 - Add variable interpolation functionality in the cadl-project.yaml
 - Add built-in `emitter-output-dir` options for all emitter.
-- **Api Breaking change** $onEmit signature was updated to take an EmitContext object as only parmaeter.
+- **Api Breaking change** $onEmit signature was updated to take an EmitContext object as only parameter.
 - Fix typing and export format command
 - **Api Breaking** Multiple `@service` per specs are now allowed.
 - Add new `program.resolveTypeReference` helper to resolve a type in the cadl program using fully qualified name
@@ -374,6 +1000,7 @@ Wed, 07 Dec 2022 17:21:52 GMT
 - Update dependencies
 
 ## 0.37.0
+
 Sat, 12 Nov 2022 00:14:04 GMT
 
 ### Minor changes
@@ -390,6 +1017,7 @@ Sat, 12 Nov 2022 00:14:04 GMT
 - Add `isDeclaredInNamespace` utility function that checks if a definable type exists under a namespace or its children
 
 ## 0.36.1
+
 Wed, 19 Oct 2022 19:36:13 GMT
 
 ### Patches
@@ -397,6 +1025,7 @@ Wed, 19 Oct 2022 19:36:13 GMT
 - **Fix** augment decorators can be applied on namespace
 
 ## 0.36.0
+
 Wed, 12 Oct 2022 21:12:35 GMT
 
 ### Minor changes
@@ -407,7 +1036,7 @@ Wed, 12 Oct 2022 21:12:35 GMT
 - Expose module resolver
 - Add support for augment decorators.
 - Language server provide document formatting using Cadl formatter
-- **Deprecation** Replace `@serviceTitle` and `@serviceVersion` with a single `@service` decorator. 
+- **Deprecation** Replace `@serviceTitle` and `@serviceVersion` with a single `@service` decorator.
 - `API` Replaced logger (now internal) with new tracer module. Where trace have to be explicity enabled with `--trace`.
 - Add `uri` built-in type
 - Allow referencing global namespace as `global` for disambiguation
@@ -436,6 +1065,7 @@ Wed, 12 Oct 2022 21:12:35 GMT
 - Minor improvemens to decorator definitions
 
 ## 0.35.0
+
 Thu, 08 Sep 2022 01:04:53 GMT
 
 ### Minor changes
@@ -468,6 +1098,7 @@ Thu, 08 Sep 2022 01:04:53 GMT
 - Internal: Make scanner capable of scanning future keywords that are longer than 10 characters.
 
 ## 0.34.0
+
 Thu, 11 Aug 2022 19:05:23 GMT
 
 ### Minor changes
@@ -515,6 +1146,7 @@ Thu, 11 Aug 2022 19:05:23 GMT
 - Fix error location of duplicate property from spread
 
 ## 0.33.0
+
 Fri, 08 Jul 2022 23:22:57 GMT
 
 ### Minor changes
@@ -534,6 +1166,7 @@ Fri, 08 Jul 2022 23:22:57 GMT
 - Improved the error message shown when an `onEmit` function is not found in the requested emitter package
 
 ## 0.32.0
+
 Mon, 13 Jun 2022 23:42:28 GMT
 
 ### Minor changes
@@ -573,6 +1206,7 @@ Mon, 13 Jun 2022 23:42:28 GMT
 - Upgrade to TS4.7
 
 ## 0.31.0
+
 Fri, 06 May 2022 17:19:57 GMT
 
 ### Minor changes
@@ -618,6 +1252,7 @@ Fri, 06 May 2022 17:19:57 GMT
 - Add `CadlLanguageConfiguration` containing the configuration used by editor (vscode, monaco)
 
 ## 0.30.0
+
 Thu, 31 Mar 2022 17:10:49 GMT
 
 ### Minor changes
@@ -642,13 +1277,14 @@ Thu, 31 Mar 2022 17:10:49 GMT
 - Fix cascade of error when having unexpected token in directive
 
 ## 0.29.0
+
 Wed, 09 Mar 2022 17:42:09 GMT
 
 ### Minor changes
 
 - Move @key decorator to core
 - Replace findChildModels with mapChildModels
-- **Exports** `NodeHost` for programmatic usage of Cadl 
+- **Exports** `NodeHost` for programmatic usage of Cadl
 - **Added** `@knownValues` decorator providing set of known options for a string type
 - Using `extends` with intrinsic types will emit diagnostic.
 - Allow `op` in interfaces
@@ -666,6 +1302,7 @@ Wed, 09 Mar 2022 17:42:09 GMT
 - refactor symbols and other improvements
 
 ## 0.28.0
+
 Tue, 15 Feb 2022 22:35:02 GMT
 
 ### Minor changes
@@ -680,6 +1317,7 @@ Tue, 15 Feb 2022 22:35:02 GMT
 - Add support for separate `@summary` from `@doc`
 
 ## 0.27.0
+
 Mon, 14 Feb 2022 03:01:07 GMT
 
 ### Minor changes
@@ -695,6 +1333,7 @@ Mon, 14 Feb 2022 03:01:07 GMT
 - Bump dependency versions
 
 ## 0.26.0
+
 Fri, 04 Feb 2022 18:00:18 GMT
 
 ### Minor changes
@@ -725,6 +1364,7 @@ Fri, 04 Feb 2022 18:00:18 GMT
 - Fix completion icon for symbols pulled in via using
 
 ## 0.25.0
+
 Thu, 16 Dec 2021 08:02:20 GMT
 
 ### Minor changes
@@ -752,6 +1392,7 @@ Thu, 16 Dec 2021 08:02:20 GMT
 - Improve getTypeName support for Unions and UnionVariants
 
 ## 0.24.1
+
 Wed, 01 Dec 2021 22:56:11 GMT
 
 ### Patches
@@ -764,6 +1405,7 @@ Wed, 01 Dec 2021 22:56:11 GMT
 - Update README
 
 ## 0.24.0
+
 Thu, 18 Nov 2021 13:58:15 GMT
 
 ### Minor changes
@@ -779,6 +1421,7 @@ Thu, 18 Nov 2021 13:58:15 GMT
 - Add setDecoratorNamespace helper function
 
 ## 0.23.0
+
 Thu, 11 Nov 2021 21:46:21 GMT
 
 ### Minor changes
@@ -796,6 +1439,7 @@ Thu, 11 Nov 2021 21:46:21 GMT
 - Add new --import CLI parameter to add a global import via the command line
 
 ## 0.22.0
+
 Thu, 28 Oct 2021 21:17:50 GMT
 
 ### Minor changes
@@ -812,6 +1456,7 @@ Thu, 28 Oct 2021 21:17:50 GMT
 - **Improve** decorator formatting
 
 ## 0.21.0
+
 Fri, 15 Oct 2021 21:33:37 GMT
 
 ### Minor changes
@@ -836,10 +1481,11 @@ Fri, 15 Oct 2021 21:33:37 GMT
 - fix using a namespace merged after current namespace
 - Fix namespace synthesis in certain contexts
 - Make nextLink optional in pageable response
-- Stop running decorators and emitters in language server again, fix language server crash. 
+- Stop running decorators and emitters in language server again, fix language server crash.
 - regenerate samples
 
 ## 0.20.0
+
 Fri, 17 Sep 2021 00:49:37 GMT
 
 ### Minor changes
@@ -861,6 +1507,7 @@ Fri, 17 Sep 2021 00:49:37 GMT
 - Update sample generation
 
 ## 0.19.0
+
 Sat, 21 Aug 2021 00:04:02 GMT
 
 ### Minor changes
@@ -872,6 +1519,7 @@ Sat, 21 Aug 2021 00:04:02 GMT
 - Update test output
 
 ## 0.18.0
+
 Fri, 13 Aug 2021 19:10:21 GMT
 
 ### Minor changes
@@ -884,6 +1532,7 @@ Fri, 13 Aug 2021 19:10:21 GMT
 - Fix error in `cadl vs uninstall` command
 
 ## 0.17.0
+
 Tue, 10 Aug 2021 20:23:04 GMT
 
 ### Minor changes
@@ -891,6 +1540,7 @@ Tue, 10 Aug 2021 20:23:04 GMT
 - Rename package to @cadl-lang/compiler
 
 ## 0.16.0
+
 Mon, 09 Aug 2021 21:14:12 GMT
 
 ### Minor changes
@@ -904,6 +1554,7 @@ Mon, 09 Aug 2021 21:14:12 GMT
 - Report errors for duplicate model and enum members
 
 ## 0.15.0
+
 Mon, 02 Aug 2021 18:17:00 GMT
 
 ### Minor changes
@@ -911,6 +1562,7 @@ Mon, 02 Aug 2021 18:17:00 GMT
 - Rename ADL to Cadl
 
 ## 0.14.0
+
 Wed, 28 Jul 2021 19:40:06 GMT
 
 ### Minor changes
@@ -924,6 +1576,7 @@ Wed, 28 Jul 2021 19:40:06 GMT
 - Use newer version of autorest from `adl generate`
 
 ## 0.13.0
+
 Fri, 09 Jul 2021 20:21:06 GMT
 
 ### Minor changes
@@ -938,6 +1591,7 @@ Fri, 09 Jul 2021 20:21:06 GMT
 - Use LSP to log messages from client to server
 
 ## 0.12.0
+
 Thu, 24 Jun 2021 03:57:43 GMT
 
 ### Minor changes
@@ -955,6 +1609,7 @@ Thu, 24 Jun 2021 03:57:43 GMT
 - Add support for Visual Studio 2022
 
 ## 0.11.0
+
 Tue, 18 May 2021 23:43:31 GMT
 
 ### Minor changes
@@ -972,6 +1627,7 @@ Tue, 18 May 2021 23:43:31 GMT
 - Prefer local install of adl package when running global `adl`
 
 ## 0.10.0
+
 Thu, 06 May 2021 14:56:02 GMT
 
 ### Minor changes
@@ -992,6 +1648,7 @@ Thu, 06 May 2021 14:56:02 GMT
 - Fix parsing edge cases and optimize parsing slightly
 
 ## 0.9.0
+
 Tue, 20 Apr 2021 15:23:29 GMT
 
 ### Minor changes
@@ -1004,6 +1661,7 @@ Tue, 20 Apr 2021 15:23:29 GMT
 - Virtualize writting to filesystem to enable programtic usage of adl
 
 ## 0.8.0
+
 Tue, 06 Apr 2021 01:23:07 GMT
 
 ### Minor changes
@@ -1022,6 +1680,7 @@ Tue, 06 Apr 2021 01:23:07 GMT
 - remove parenless decorators
 
 ## 0.7.0
+
 Wed, 31 Mar 2021 22:00:43 GMT
 
 ### Minor changes
@@ -1036,6 +1695,7 @@ Wed, 31 Mar 2021 22:00:43 GMT
 - Add support for OpenAPI operation overloads using x-ms-paths
 
 ## 0.6.0
+
 Fri, 26 Mar 2021 17:06:33 GMT
 
 ### Minor changes
@@ -1046,12 +1706,12 @@ Fri, 26 Mar 2021 17:06:33 GMT
 
 - Emit `readOnly: true` for model properties marked with `@visibility("read")`
 - The `visibility` decorator now accepts multiple values; the Swagger emitter will write these out as an `x-ms-mutability` field.
-- Adding sample generated controller for _____ service
+- Adding sample generated controller for **\_** service
 - Add back post operation
 - Add standard ARM operation and error model types
 - Fix id lookup bug
-- Initial check-in of adl spec and generated swagger for _____
-- Update _____ spec with user comments.
+- Initial check-in of adl spec and generated swagger for **\_**
+- Update **\_** spec with user comments.
 - Fixing formatting to match repo prettier config
 - Add `@minValue` and `@maxValue` decorators for specifying the value range of numeric types
 - Allow the use of recursive type references in model definitions
@@ -1059,6 +1719,7 @@ Fri, 26 Mar 2021 17:06:33 GMT
 - Add missing metadata for ARM library types
 
 ## 0.5.0
+
 Tue, 23 Mar 2021 01:06:29 GMT
 
 ### Minor changes
@@ -1072,6 +1733,7 @@ Tue, 23 Mar 2021 01:06:29 GMT
 - Automatically mark named enum types with `x-ms-enum` and `modelAsString: true`
 
 ## 0.4.0
+
 Tue, 16 Mar 2021 23:13:42 GMT
 
 ### Minor changes
@@ -1079,6 +1741,7 @@ Tue, 16 Mar 2021 23:13:42 GMT
 - Introduce language server and add live parse errors to VS Code
 
 ## 0.3.0
+
 Thu, 11 Mar 2021 19:14:29 GMT
 
 ### Minor changes
@@ -1117,6 +1780,7 @@ Thu, 11 Mar 2021 19:14:29 GMT
 - Implement nostdlib option
 
 ## 0.2.1
+
 Thu, 28 Jan 2021 21:30:01 GMT
 
 ### Patches
@@ -1124,9 +1788,9 @@ Thu, 28 Jan 2021 21:30:01 GMT
 - Fixed standard library decorator module resolution
 
 ## 0.2.0
+
 Wed, 27 Jan 2021 21:48:34 GMT
 
 ### Minor changes
 
 - Initial ADL compiler preview release
-

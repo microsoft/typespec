@@ -1,5 +1,6 @@
 import { TestHost } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { isBody, isHeader, isPathParam, isQueryParam } from "../src/decorators.js";
 import { createHttpTestHost } from "./test-host.js";
 
@@ -32,7 +33,7 @@ describe("http: plain data", () => {
       model Spread {
         ...After
       }
-      `
+      `,
     );
 
     const { Before, After, Spread } = await testHost.compile("main.tsp");
@@ -50,11 +51,11 @@ describe("http: plain data", () => {
       ok(!isBody(program, model.properties.get("d")!), `body not expected in ${model.name}`);
       ok(
         !isQueryParam(testHost.program, model.properties.get("b")!),
-        `query not expected in ${model.name}`
+        `query not expected in ${model.name}`,
       );
       ok(
         !isPathParam(testHost.program, model.properties.get("c")!),
-        `path not expected in ${model.name}`
+        `path not expected in ${model.name}`,
       );
     }
   });

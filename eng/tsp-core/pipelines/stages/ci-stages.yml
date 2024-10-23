@@ -1,0 +1,74 @@
+stages:
+  - stage: Build_Core
+    displayName: Core - Build
+    dependsOn: InitStage
+    condition: eq('true', stageDependencies.InitStage.outputs['InitJob.InitStep.RunCore'])
+    variables:
+      - template: /eng/tsp-core/pipelines/templates/variables/globals.yml@self
+    jobs:
+      - job: windows
+        displayName: Windows
+
+        variables:
+          TYPESPEC_VS_CI_BUILD: true # Enable official Visual Studio extension build
+          TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
+
+        strategy:
+          matrix:
+            "Node 18.x":
+              nodeVersion: 18.x
+
+            "Node 20.x":
+              nodeVersion: 20.x
+
+            "Node 22.x":
+              nodeVersion: 22.x
+
+        pool:
+          name: $(WINDOWSPOOL)
+          image: $(WINDOWSVMIMAGE)
+          os: windows
+
+        steps:
+          - template: /eng/tsp-core/pipelines/jobs/build-and-test.yml
+            parameters:
+              nodeVersion: $(nodeVersion)
+              os: linux
+
+      - job: linux
+        displayName: Linux
+
+        variables:
+          TYPESPEC_VS_CI_BUILD: true # Enable official Visual Studio extension build
+          TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
+
+        strategy:
+          matrix:
+            "Node 18.x":
+              nodeVersion: 18.x
+
+            "Node 20.x":
+              nodeVersion: 20.x
+
+        pool:
+          name: $(LINUXPOOL)
+          image: $(LINUXVMIMAGE)
+          os: linux
+
+        steps:
+          - template: /eng/tsp-core/pipelines/jobs/build-and-test.yml
+            parameters:
+              nodeVersion: $(nodeVersion)
+              os: linux
+
+      - template: /eng/tsp-core/pipelines/jobs/publish-artifacts.yml
+      - template: /eng/tsp-core/pipelines/jobs/e2e.yml
+
+      - job: docker_build
+        pool:
+          name: $(LINUXPOOL)
+          image: $(LINUXVMIMAGE)
+          os: linux
+        steps:
+          - script: docker build -f ./docker/Dockerfile .
+            displayName: Docker build

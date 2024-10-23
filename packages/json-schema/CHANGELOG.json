@@ -2,6 +2,69 @@
   "name": "@typespec/json-schema",
   "entries": [
     {
+      "version": "0.52.0",
+      "tag": "@typespec/json-schema_v0.52.0",
+      "date": "Wed, 24 Jan 2024 05:46:53 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Rename template parameters in preparation for named template argument instantiation."
+          },
+          {
+            "comment": "Update dependencies"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.51.0",
+      "tag": "@typespec/json-schema_v0.51.0",
+      "date": "Wed, 06 Dec 2023 19:40:58 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add support for simple literal default on model properties"
+          },
+          {
+            "comment": "Added support for string template literals"
+          },
+          {
+            "comment": "Fix: Enum with a value of `0` would have resulting in `type` of `string` and `number`"
+          },
+          {
+            "comment": "Fix: Scalar constraints combine with base scalar constraints"
+          },
+          {
+            "comment": "JsonSchema: Fix `@maxValueExclusive` setting `minimumExclusive` instead of `maximumExclusive`"
+          },
+          {
+            "comment": "Report diagnostic instead of throwing errors in the case of duplicate ids or unknown scalar"
+          },
+          {
+            "comment": "Add support for templated scalars."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.50.0",
+      "tag": "@typespec/json-schema_v0.50.0",
+      "date": "Wed, 08 Nov 2023 00:07:17 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add TupleLiteral support."
+          },
+          {
+            "comment": "`TypeScript` use `types` entry under `exports` of `package.json` instead of legacy `typesVersions` to provide the definition files"
+          },
+          {
+            "comment": "**BREAKING CHANGE** Dropped support for node 16, minimum node version is now 18"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.49.0",
       "tag": "@typespec/json-schema_v0.49.0",
       "date": "Wed, 11 Oct 2023 23:31:35 GMT",

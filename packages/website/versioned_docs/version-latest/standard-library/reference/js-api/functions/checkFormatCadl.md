@@ -4,17 +4,21 @@ title: "[F] checkFormatCadl"
 
 ---
 ```ts
-checkFormatCadl(code, prettierConfig?): Promise<boolean>
+function checkFormatCadl(code, prettierConfig?): Promise<boolean>
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `code` | `string` |
 | `prettierConfig`? | `Options` |
 
 ## Returns
+
+`Promise`<`boolean`\>
+
+true if code is formatted correctly.
 
 ## Deprecated
 

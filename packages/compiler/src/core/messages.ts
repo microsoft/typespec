@@ -1,8 +1,7 @@
 // Static assert: this won't compile if one of the entries above is invalid.
-
-import { createDiagnosticCreator } from "./diagnostics.js";
-import { paramMessage } from "./library.js";
-import { TypeOfDiagnostics } from "./types.js";
+import { createDiagnosticCreator } from "./diagnostic-creator.js";
+import { paramMessage } from "./param-message.js";
+import type { TypeOfDiagnostics } from "./types.js";
 
 const diagnostics = {
   /**
@@ -65,6 +64,9 @@ const diagnostics = {
 
   "triple-quote-indent": {
     severity: "error",
+    description:
+      "Report when a triple-quoted string has lines with less indentation as the closing triple quotes.",
+    url: "https://typespec.io/docs/standard-library/diags/triple-quote-indent",
     messages: {
       default:
         "All lines in triple-quoted string lines must have the same indentation as closing triple quotes.",
@@ -145,6 +147,7 @@ const diagnostics = {
       statement: "Statement expected.",
       property: "Property expected.",
       enumMember: "Enum member expected.",
+      typeofTarget: "Typeof expects a value literal or value reference.",
     },
   },
   "trailing-token": {
@@ -211,6 +214,12 @@ const diagnostics = {
       default: "Required template parameters must not follow optional template parameters",
     },
   },
+  "invalid-template-argument-name": {
+    severity: "error",
+    messages: {
+      default: "Template parameter argument names must be valid, bare identifiers.",
+    },
+  },
   "invalid-template-default": {
     severity: "error",
     messages: {
@@ -246,6 +255,7 @@ const diagnostics = {
       default: "Invalid identifier.",
       tag: "Invalid tag name. Use backticks around code if this was not meant to be a tag.",
       param: "Invalid parameter name.",
+      prop: "Invalid property name.",
       templateParam: "Invalid template parameter name.",
     },
   },
@@ -271,8 +281,12 @@ const diagnostics = {
     messages: {
       default: "Invalid template arguments.",
       notTemplate: "Can't pass template arguments to non-templated type",
-      tooFew: "Too few template arguments provided.",
       tooMany: "Too many template arguments provided.",
+      unknownName: paramMessage`No parameter named '${"name"}' exists in the target template.`,
+      positionalAfterNamed:
+        "Positional template arguments cannot follow named arguments in the same argument list.",
+      missing: paramMessage`Template argument '${"name"}' is required and not specified.`,
+      specifiedAgain: paramMessage`Cannot specify template argument '${"name"}' again.`,
     },
   },
   "intersect-non-model": {
@@ -287,6 +301,18 @@ const diagnostics = {
       default: "Cannot intersect incompatible models.",
       never: "Cannot intersect a model that cannot hold properties.",
       array: "Cannot intersect an array model.",
+    },
+  },
+  "incompatible-indexer": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Property is incompatible with indexer:\n${"message"}`,
+    },
+  },
+  "no-array-properties": {
+    severity: "error",
+    messages: {
+      default: "Array models cannot have any properties.",
     },
   },
   "intersect-duplicate-property": {
@@ -334,6 +360,7 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Model has an inherited property named ${"propName"} of type ${"propType"} which cannot override type ${"parentType"}`,
+      disallowedOptionalOverride: paramMessage`Model has a required inherited property named ${"propName"} which cannot be overridden as optional`,
     },
   },
   "extend-scalar": {
@@ -370,17 +397,78 @@ const diagnostics = {
       selfSpread: "Cannot spread type within its own declaration.",
     },
   },
+
   "unsupported-default": {
     severity: "error",
     messages: {
       default: paramMessage`Default must be have a value type but has type '${"type"}'.`,
     },
   },
+  "spread-object": {
+    severity: "error",
+    messages: {
+      default: "Cannot spread properties of non-object type.",
+    },
+  },
+  "expect-value": {
+    severity: "error",
+    messages: {
+      default: paramMessage`${"name"} refers to a type, but is being used as a value here.`,
+      model: paramMessage`${"name"} refers to a model type, but is being used as a value here. Use #{} to create an object value.`,
+      tuple: paramMessage`${"name"} refers to a tuple type, but is being used as a value here. Use #[] to create an array value.`,
+      templateConstraint: paramMessage`${"name"} template parameter can be a type but is being used as a value here.`,
+    },
+  },
+  "non-callable": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Type ${"type"} is not is not callable.`,
+    },
+  },
+  "named-init-required": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Only scalar deriving from 'string', 'numeric' or 'boolean' can be instantited without a named constructor.`,
+    },
+  },
+  "invalid-primitive-init": {
+    severity: "error",
+    messages: {
+      default: `Instantiating scalar deriving from 'string', 'numeric' or 'boolean' can only take a single argument.`,
+      invalidArg: paramMessage`Expected a single argument of type ${"expected"} but got ${"actual"}.`,
+    },
+  },
+  "ambiguous-scalar-type": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Value ${"value"} type is ambiguous between ${"types"}. To resolve be explicit when instantiating this value(e.g. '${"example"}(${"value"})').`,
+    },
+  },
   unassignable: {
     severity: "error",
     messages: {
-      default: paramMessage`Type '${"value"}' is not assignable to type '${"targetType"}'`,
-      withDetails: paramMessage`Type '${"sourceType"}' is not assignable to type '${"targetType"}'\n  ${"details"}`,
+      default: paramMessage`Type '${"sourceType"}' is not assignable to type '${"targetType"}'`,
+    },
+  },
+  "property-unassignable": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Types of property '${"propName"}' are incompatible`,
+    },
+  },
+  "property-required": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Property '${"propName"}' is required in type '${"targetType"}' but here is optional.`,
+    },
+  },
+  "value-in-type": {
+    severity: "error",
+    messages: {
+      default: "A value cannot be used as a type.",
+      referenceTemplate: "Template parameter can be passed values but is used as a type.",
+      noTemplateConstraint:
+        "Template parameter has no constraint but a value is passed. Add `extends valueof unknown` to accept any value.",
     },
   },
   "no-prop": {
@@ -399,6 +487,12 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Property '${"propertyName"}' is missing on type '${"sourceType"}' but required in '${"targetType"}'`,
+    },
+  },
+  "unexpected-property": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Object value may only specify known properties, and '${"propertyName"}' does not exist in type '${"type"}'.`,
     },
   },
   "extends-interface": {
@@ -429,6 +523,12 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Enum already has a member named ${"name"}`,
+    },
+  },
+  "constructor-duplicate": {
+    severity: "error",
+    messages: {
+      default: paramMessage`A constructor already exists with name ${"name"}`,
     },
   },
   "spread-enum": {
@@ -476,7 +576,7 @@ const diagnostics = {
   shadow: {
     severity: "warning",
     messages: {
-      default: paramMessage`Shadowing parent template parmaeter with the same name "${"name"}"`,
+      default: paramMessage`Shadowing parent template parameter with the same name "${"name"}"`,
     },
   },
   "invalid-deprecation-argument": {
@@ -512,6 +612,18 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Path "${"path"}" cannot be relative. Use {cwd} or {project-root} to specify what the path should be relative to.`,
+    },
+  },
+  "config-invalid-name": {
+    severity: "error",
+    messages: {
+      default: paramMessage`The configuration name "${"name"}" is invalid because it contains a dot ("."). Using a dot will conflict with using nested configuration values.`,
+    },
+  },
+  "path-unix-style": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`Path should use unix style separators. Use "/" instead of "\\".`,
     },
   },
   "config-path-not-found": {
@@ -550,8 +662,7 @@ const diagnostics = {
   "library-invalid": {
     severity: "error",
     messages: {
-      tspMain: paramMessage`Library "${"path"}" has an invalid tspMain file.`,
-      default: paramMessage`Library "${"path"}" has an invalid main file.`,
+      default: paramMessage`Library "${"path"}" is invalid: ${"message"}`,
     },
   },
   "incompatible-library": {
@@ -586,6 +697,20 @@ const diagnostics = {
         "Projections are experimental - your code will need to change as this feature evolves.",
     },
   },
+  "mixed-string-template": {
+    severity: "error",
+    messages: {
+      default:
+        "String template is interpolating values and types. It must be either all values to produce a string value or or all types for string template type.",
+    },
+  },
+  "non-literal-string-template": {
+    severity: "error",
+    messages: {
+      default:
+        "Value interpolated in this string template cannot be converted to a string. Only literal types can be automatically interpolated.",
+    },
+  },
 
   /**
    * Binder
@@ -615,7 +740,13 @@ const diagnostics = {
   "invalid-emitter": {
     severity: "error",
     messages: {
-      default: paramMessage`Requested emitter package ${"emitterPackage"} does not provide an "onEmit" function.`,
+      default: paramMessage`Requested emitter package ${"emitterPackage"} does not provide an "$onEmit" function.`,
+    },
+  },
+  "js-error": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Failed to load ${"specifier"} due to the following JS error: ${"error"}`,
     },
   },
   "missing-import": {
@@ -676,7 +807,7 @@ const diagnostics = {
   "invalid-argument": {
     severity: "error",
     messages: {
-      default: paramMessage`Argument '${"value"}' is not assignable to parameter of type '${"expected"}'`,
+      default: paramMessage`Argument of type '${"value"}' is not assignable to parameter of type '${"expected"}'`,
     },
   },
   "invalid-argument-count": {
@@ -748,6 +879,27 @@ const diagnostics = {
       wrongType: paramMessage`Encoding '${"encoding"}' cannot be used on type '${"type"}'. Expected: ${"expected"}.`,
       wrongEncodingType: paramMessage`Encoding '${"encoding"}' on type '${"type"}' is expected to be serialized as '${"expected"}' but got '${"actual"}'.`,
       wrongNumericEncodingType: paramMessage`Encoding '${"encoding"}' on type '${"type"}' is expected to be serialized as '${"expected"}' but got '${"actual"}'. Set '@encode' 2nd parameter to be of type ${"expected"}. e.g. '@encode("${"encoding"}", int32)'`,
+      firstArg: `First argument of "@encode" must be the encoding name or the string type when encoding numeric types.`,
+    },
+  },
+
+  "invalid-mime-type": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Invalid mime type '${"mimeType"}'`,
+    },
+  },
+  "no-mime-type-suffix": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Cannot use mime type '${"mimeType"}' with suffix '${"suffix"}'. Use a simple mime \`type/subtype\` instead.`,
+    },
+  },
+  "encoded-name-conflict": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Encoded name '${"name"}' conflicts with existing member name for mime type '${"mimeType"}'`,
+      duplicate: paramMessage`Same encoded name '${"name"}' is used for 2 members '${"mimeType"}'`,
     },
   },
 
@@ -812,6 +964,12 @@ const diagnostics = {
       default: paramMessage`Type '${"typeName"}' recursively references itself as a base type.`,
     },
   },
+  "circular-constraint": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Type parameter '${"typeName"}' has a circular constraint.`,
+    },
+  },
   "circular-op-signature": {
     severity: "error",
     messages: {
@@ -822,6 +980,12 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Alias type '${"typeName"}' recursively references itself.`,
+    },
+  },
+  "circular-const": {
+    severity: "error",
+    messages: {
+      default: paramMessage`const '${"name"}' recursively references itself.`,
     },
   },
   "circular-prop": {

@@ -154,14 +154,39 @@ BinaryDigit : one of
 StringLiteral :
     `"` StringCharacters? `"`
     `"""` TripleQuotedStringCharacters? `"""`
+    StringTemplate
+
+StringTemplate : 
+  TemplateHead Expression TemplateSpans
+
+TemplateSpans : 
+  TemplateTail
+  TemplateMiddleList TemplateTail
+
+TemplateMiddleList : 
+  StringTemplateMiddle Expression 
+  StringTemplateMiddle Expression TemplateMiddleList
+
+StringTemplateHead :
+    `"` StringCharacters? `${`
+    `"""` TripleQuotedStringCharacters? `${`
+      
+StringTemplateMiddle :
+      `}` TemplateCharacters? `${`
+
+
+StringTemplateTail :
+      `}` TemplateCharacters? `"`
+      `}` TemplateCharacters? `"""`
 
 StringCharacters :
     StringCharacter StringCharacters?
 
 StringCharacter :
+    `$` [lookahead != `{`]
     SourceCharacter but not one of `"` or `\` or LineTerminator
     `\` EscapeCharacter
-    
+
 ///
 // BUG: This does not specify the extra rules about `"""`s going
 // on their own lines and having consistent indentation.
@@ -306,10 +331,21 @@ IsModelHeritage :
     `is` Expression
 
 ScalarStatement :
-    DecoratorList? `scalar` Identifier TemplateParameters? ScalarExtends `;`
+    DecoratorList? `scalar` Identifier TemplateParameters? ScalarExtends? `;`
+    DecoratorList? `scalar` Identifier TemplateParameters? ScalarExtends? `{` ScalarBody? `}`
 
 ScalarExtends :
     `extends` Expression
+
+ScalarBody : 
+  ScalarMemberList `;`?
+
+ScalarMemberList : 
+  ScalarMember
+  ScalarMemberList `;` ScalarMember
+
+ScalarMember:
+  `init` Identifier `(` FunctionParameterList? `)`
 
 ExtendsModelHeritage :
     `extends` Expression
@@ -405,8 +441,13 @@ TemplateParameter :
     Identifier TemplateParameterConstraint? TemplateParameterDefault?
 
 TemplateParameterConstraint :
-    `extends` Expression
-    
+    `extends` MixedParameterConstraint
+
+MixedParameterConstraint :
+  UnionExpressionOrHigher[+InParameter]
+  valueof UnionExpressionOrHigher
+
+  
 TemplateParameterDefault :
     `=` Expression
 
@@ -433,26 +474,33 @@ OperationStatement :
 Expression :
     UnionExpressionOrHigher
 
-UnionExpressionOrHigher :
-    IntersectionExpressionOrHigher
-    `|`? UnionExpressionOrHigher `|` IntersectionExpressionOrHigher
+UnionExpressionOrHigher[InParameter] :
+    IntersectionExpressionOrHigher[?InParameter]
+    `|`? UnionExpressionOrHigher[?InParameter] `|` IntersectionExpressionOrHigher[?InParameter]
 
-IntersectionExpressionOrHigher :
-  ValueOfExpressionOrHigher
-    `&`? IntersectionExpressionOrHigher `&` ValueOfExpressionOrHigher
+IntersectionExpressionOrHigher[InParameter] :
+    ArrayExpressionOrHigher[?InParameter]
+    `&`? IntersectionExpressionOrHigher[?InParameter] `&` ArrayExpressionOrHigher[?InParameter]
 
-ValueOfExpressionOrHigher :
-    ArrayExpressionOrHigher
-    `valueof` ArrayExpressionOrHigher
+ValueOfExpression :
+  `valueof` Expression
 
-ArrayExpressionOrHigher :
-    PrimaryExpression
-    ArrayExpressionOrHigher `[` `]`
+TypeOfExpression :
+    `typeof` Literal
+    `typeof` ReferenceExpression
+    `typeof` ParenthesizedExpression
 
-PrimaryExpression :
+ArrayExpressionOrHigher[InParameter] :
+    PrimaryExpression[?InParameter]
+    ArrayExpressionOrHigher[?InParameter] `[` `]`
+
+PrimaryExpression[InParameter] :
+    TypeOfExpression
     Literal
-    ReferenceExpression
-    ParenthesizedExpression
+    CallOrReferenceExpression
+    ParenthesizedExpression[?InParameter]
+    ObjectLiteral
+    ArrayLiteral
     ModelExpression
     TupleExpression
 
@@ -461,7 +509,13 @@ Literal :
     BooleanLiteral
     NumericLiteral
 
-ReferenceExpression :
+CallOrReferenceExpression :
+    CallExpression
+    ReferenceExpression
+CallExpression
+    IdentifierOrMemberExpression CallArguments
+
+ReferenceExpression
     IdentifierOrMemberExpression TemplateArguments?
 
 ReferenceExpressionList :
@@ -478,8 +532,29 @@ TemplateArguments :
 ProjectionArguments :
     `(` ExpressionList? `)`
 
-ParenthesizedExpression : 
-    `(` Expression `)`
+ParenthesizedExpression[InParameter] :
+    [~InParameter] `(` Expression `)`
+    [+InParameter] `(` MixedParameterConstraint `)`
+
+ObjectLiteral :
+    `#{` ObjectLiteralBody? `}`
+
+ObjectLiteralBody : 
+    ModelPropertyList `,`?
+
+ObjectLiteralPropertyList :
+    ObjectLiteralProperty
+    ObjectLiteralPropertyList `,` ObjectLiteralProperty
+
+ObjectLiteralProperty :
+    ObjectLiteralSpreadProperty
+    Identifier `:` Expression
+
+ObjectLiteralSpreadProperty :
+    `...` ReferenceExpression
+
+ArrayLiteral :
+    `#[` ExpressionList? `]`
 
 ModelExpression :
     `{` ModelBody? `}`
@@ -500,6 +575,10 @@ Decorator :
 DecoratorArguments :
     `(` ExpressionList? `)`
 
+CallExpression :
+    IdentifierOrMemberExpression `(` ExpressionList? `)`
+
+
 AugmentDecoratorStatement :
     `@@` IdentifierOrMemberExpression DecoratorArguments?
 
@@ -517,7 +596,7 @@ FunctionDeclarationStatement :
   FunctionModifiers? `fn` `(` FunctionParameterList? `)` TypeAnnotation?
 
 TypeAnnotation:
-  `:` Expression
+  `:` MixedParameterConstraint
 
 FunctionModifiers:
   `extern`

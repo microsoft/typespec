@@ -1,6 +1,7 @@
-import { printId } from "../../formatter/print/printer.js";
-import { isTemplateInstance } from "../type-utils.js";
-import {
+import { isDefined } from "../../utils/misc.js";
+import { isTemplateInstance, isType, isValue } from "../type-utils.js";
+import type {
+  Entity,
   Enum,
   Interface,
   Model,
@@ -9,17 +10,19 @@ import {
   Namespace,
   Operation,
   Scalar,
+  StringTemplate,
   Type,
   Union,
-  ValueType,
+  Value,
 } from "../types.js";
+import { printIdentifier } from "./syntax-utils.js";
 
 export interface TypeNameOptions {
   namespaceFilter?: (ns: Namespace) => boolean;
   printable?: boolean;
 }
 
-export function getTypeName(type: Type | ValueType, options?: TypeNameOptions): string {
+export function getTypeName(type: Type, options?: TypeNameOptions): string {
   switch (type.kind) {
     case "Namespace":
       return getNamespaceFullName(type, options);
@@ -45,17 +48,60 @@ export function getTypeName(type: Type | ValueType, options?: TypeNameOptions): 
       return getTypeName(type.type, options);
     case "Tuple":
       return "[" + type.values.map((x) => getTypeName(x, options)).join(", ") + "]";
+    case "StringTemplate":
+      return getStringTemplateName(type);
     case "String":
+      return `"${type.value}"`;
     case "Number":
+      return type.valueAsString;
     case "Boolean":
       return type.value.toString();
     case "Intrinsic":
       return type.name;
-    case "Value":
-      return `valueof ${getTypeName(type.target, options)}`;
+    default:
+      return `(unnamed type)`;
   }
+}
 
-  return "(unnamed type)";
+function getValuePreview(value: Value, options?: TypeNameOptions): string {
+  switch (value.valueKind) {
+    case "ObjectValue":
+      return `#{${[...value.properties.entries()].map(([name, value]) => `${name}: ${getValuePreview(value.value, options)}`).join(", ")}}`;
+    case "ArrayValue":
+      return `#[${value.values.map((x) => getValuePreview(x, options)).join(", ")}]`;
+    case "StringValue":
+      return `"${value.value}"`;
+    case "BooleanValue":
+      return `${value.value}`;
+    case "NumericValue":
+      return `${value.value.toString()}`;
+    case "EnumValue":
+      return getTypeName(value.value);
+    case "NullValue":
+      return "null";
+    case "ScalarValue":
+      return `${getTypeName(value.type, options)}.${value.value.name}(${value.value.args.map((x) => getValuePreview(x, options)).join(", ")}})`;
+  }
+}
+
+export function getEntityName(entity: Entity, options?: TypeNameOptions): string {
+  if (isValue(entity)) {
+    return getValuePreview(entity, options);
+  } else if (isType(entity)) {
+    return getTypeName(entity, options);
+  } else {
+    switch (entity.entityKind) {
+      case "MixedParameterConstraint":
+        return [
+          entity.type && getEntityName(entity.type),
+          entity.valueType && `valueof ${getEntityName(entity.valueType)}`,
+        ]
+          .filter(isDefined)
+          .join(" | ");
+      case "Indeterminate":
+        return getTypeName(entity.type, options);
+    }
+  }
 }
 
 export function isStdNamespace(namespace: Namespace): boolean {
@@ -103,7 +149,7 @@ function getEnumName(e: Enum, options: TypeNameOptions | undefined): string {
 function getScalarName(scalar: Scalar, options: TypeNameOptions | undefined): string {
   return `${getNamespacePrefix(scalar.namespace, options)}${getIdentifierName(
     scalar.name,
-    options
+    options,
   )}`;
 }
 
@@ -119,17 +165,20 @@ function getModelName(model: Model, options: TypeNameOptions | undefined) {
   }
 
   if (model.name === "") {
-    return nsPrefix + "(anonymous model)";
+    return (
+      nsPrefix +
+      `{ ${[...model.properties.values()].map((prop) => `${prop.name}: ${getTypeName(prop.type, options)}`).join(", ")} }`
+    );
   }
   const modelName = nsPrefix + getIdentifierName(model.name, options);
   if (isTemplateInstance(model)) {
     // template instantiation
-    const args = model.templateMapper.args.map((x) => getTypeName(x, options));
+    const args = model.templateMapper.args.map((x) => getEntityName(x, options));
     return `${modelName}<${args.join(", ")}>`;
   } else if ((model.node as ModelStatementNode)?.templateParameters?.length > 0) {
     // template
     const params = (model.node as ModelStatementNode).templateParameters.map((t) =>
-      getIdentifierName(t.id.sv, options)
+      getIdentifierName(t.id.sv, options),
     );
     return `${modelName}<${params.join(", ")}>`;
   } else {
@@ -150,7 +199,7 @@ function getUnionName(type: Union, options: TypeNameOptions | undefined): string
  * Check if the given namespace is the standard library `TypeSpec` namespace.
  */
 function isTypeSpecNamespace(
-  namespace: Namespace
+  namespace: Namespace,
 ): namespace is Namespace & { name: "TypeSpec"; namespace: Namespace } {
   return namespace.name === "TypeSpec" && namespace.namespace?.name === "";
 }
@@ -172,16 +221,32 @@ function getInterfaceName(iface: Interface, options: TypeNameOptions | undefined
   let interfaceName = getIdentifierName(iface.name, options);
   if (isTemplateInstance(iface)) {
     interfaceName += `<${iface.templateMapper.args
-      .map((x) => getTypeName(x, options))
+      .map((x) => getEntityName(x, options))
       .join(", ")}>`;
   }
   return `${getNamespacePrefix(iface.namespace, options)}${interfaceName}`;
 }
 
 function getOperationName(op: Operation, options: TypeNameOptions | undefined) {
-  return `${getNamespacePrefix(op.namespace, options)}${getIdentifierName(op.name, options)}`;
+  let opName = getIdentifierName(op.name, options);
+  if (op.node.templateParameters.length > 0) {
+    // template
+    const params = op.node.templateParameters.map((t) => getIdentifierName(t.id.sv, options));
+    opName += `<${params.join(", ")}>`;
+  }
+  const prefix = op.interface
+    ? getInterfaceName(op.interface, options) + "."
+    : getNamespacePrefix(op.namespace, options);
+  return `${prefix}${opName}`;
 }
 
 function getIdentifierName(name: string, options: TypeNameOptions | undefined) {
-  return options?.printable ? printId(name) : name;
+  return options?.printable ? printIdentifier(name) : name;
+}
+
+function getStringTemplateName(type: StringTemplate): string {
+  if (type.stringValue) {
+    return `"${type.stringValue}"`;
+  }
+  return "string";
 }

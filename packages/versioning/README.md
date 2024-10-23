@@ -50,6 +50,7 @@ If the emitter needs to have the whole picture of the service evolution across t
 
 - [`@added`](#@added)
 - [`@madeOptional`](#@madeoptional)
+- [`@madeRequired`](#@maderequired)
 - [`@removed`](#@removed)
 - [`@renamedFrom`](#@renamedfrom)
 - [`@returnTypeChangedFrom`](#@returntypechangedfrom)
@@ -67,7 +68,7 @@ Identifies when the target was added.
 
 ##### Target
 
-`union Model | ModelProperty | Operation | Enum | EnumMember | Union | UnionVariant | Scalar | Interface`
+`Model | ModelProperty | Operation | Enum | EnumMember | Union | UnionVariant | Scalar | Interface`
 
 ##### Parameters
 
@@ -117,6 +118,35 @@ model Foo {
   name: string;
 
   @madeOptional(Versions.v2)
+  nickname?: string;
+}
+```
+
+#### `@madeRequired`
+
+Identifies when a target was made required.
+
+```typespec
+@TypeSpec.Versioning.madeRequired(version: EnumMember)
+```
+
+##### Target
+
+`ModelProperty`
+
+##### Parameters
+
+| Name    | Type         | Description                                       |
+| ------- | ------------ | ------------------------------------------------- |
+| version | `EnumMember` | The version that the target was made required in. |
+
+##### Examples
+
+```tsp
+model Foo {
+  name: string;
+
+  @madeRequired(Versions.v2)
   nickname: string;
 }
 ```
@@ -131,7 +161,7 @@ Identifies when the target was removed.
 
 ##### Target
 
-`union Model | ModelProperty | Operation | Enum | EnumMember | Union | UnionVariant | Scalar | Interface`
+`Model | ModelProperty | Operation | Enum | EnumMember | Union | UnionVariant | Scalar | Interface`
 
 ##### Parameters
 
@@ -166,14 +196,14 @@ Identifies when the target has been renamed.
 
 ##### Target
 
-`union Model | ModelProperty | Operation | Enum | EnumMember | Union | UnionVariant | Scalar | Interface`
+`Model | ModelProperty | Operation | Enum | EnumMember | Union | UnionVariant | Scalar | Interface`
 
 ##### Parameters
 
-| Name    | Type                    | Description                                 |
-| ------- | ----------------------- | ------------------------------------------- |
-| version | `EnumMember`            | The version that the target was renamed in. |
-| oldName | `valueof scalar string` | The previous name of the target.            |
+| Name    | Type             | Description                                 |
+| ------- | ---------------- | ------------------------------------------- |
+| version | `EnumMember`     | The version that the target was renamed in. |
+| oldName | `valueof string` | The previous name of the target.            |
 
 ##### Examples
 
@@ -196,10 +226,10 @@ Identifies when the target type changed.
 
 ##### Parameters
 
-| Name    | Type                  | Description                                  |
-| ------- | --------------------- | -------------------------------------------- |
-| version | `EnumMember`          | The version that the target type changed in. |
-| oldType | `(intrinsic) unknown` | The previous type of the target.             |
+| Name    | Type         | Description                                  |
+| ------- | ------------ | -------------------------------------------- |
+| version | `EnumMember` | The version that the target type changed in. |
+| oldType | `unknown`    | The previous type of the target.             |
 
 #### `@typeChangedFrom`
 
@@ -215,10 +245,10 @@ Identifies when the target type changed.
 
 ##### Parameters
 
-| Name    | Type                  | Description                                  |
-| ------- | --------------------- | -------------------------------------------- |
-| version | `EnumMember`          | The version that the target type changed in. |
-| oldType | `(intrinsic) unknown` | The previous type of the target.             |
+| Name    | Type         | Description                                  |
+| ------- | ------------ | -------------------------------------------- |
+| version | `EnumMember` | The version that the target type changed in. |
+| oldType | `unknown`    | The previous type of the target.             |
 
 #### `@useDependency`
 
@@ -230,13 +260,13 @@ Identifies that a namespace or a given versioning enum member relies upon a vers
 
 ##### Target
 
-`union EnumMember | Namespace`
+`EnumMember | Namespace`
 
 ##### Parameters
 
-| Name           | Type                 | Description                                                           |
-| -------------- | -------------------- | --------------------------------------------------------------------- |
-| versionRecords | `model EnumMember[]` | The dependent library version(s) for the target namespace or version. |
+| Name           | Type           | Description                                                           |
+| -------------- | -------------- | --------------------------------------------------------------------- |
+| versionRecords | `EnumMember[]` | The dependent library version(s) for the target namespace or version. |
 
 ##### Examples
 

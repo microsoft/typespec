@@ -8,9 +8,7 @@ TypeSpec library and emitter for Protobuf (gRPC)
 npm install @typespec/protobuf
 ```
 
-## Emitter
-
-### Usage
+## Usage
 
 1. Via the command line
 
@@ -25,15 +23,25 @@ emit:
   - "@typespec/protobuf"
 ```
 
-### Emitter options
+The config can be extended with options as follows:
 
-#### `noEmit`
+```yaml
+emit:
+  - "@typespec/protobuf"
+options:
+  "@typespec/protobuf":
+    option: value
+```
+
+## Emitter options
+
+### `noEmit`
 
 **Type:** `boolean`
 
 If set to `true`, this emitter will not write any files. It will still validate the TypeSpec sources to ensure they are compatible with Protobuf, but the files will simply not be written to the output directory.
 
-#### `omit-unreachable-types`
+### `omit-unreachable-types`
 
 **Type:** `boolean`
 
@@ -71,9 +79,9 @@ The field index of a Protobuf message must:
 
 ##### Parameters
 
-| Name  | Type                    | Description                          |
-| ----- | ----------------------- | ------------------------------------ |
-| index | `valueof scalar uint32` | The whole-number index of the field. |
+| Name  | Type             | Description                          |
+| ----- | ---------------- | ------------------------------------ |
+| index | `valueof uint32` | The whole-number index of the field. |
 
 ##### Examples
 
@@ -101,7 +109,7 @@ This decorator will force the emitter to check and emit a model.
 
 ##### Target
 
-`model {}`
+`{}`
 
 ##### Parameters
 
@@ -122,9 +130,9 @@ single Protobuf file.
 
 ##### Parameters
 
-| Name    | Type                                     | Description                         |
-| ------- | ---------------------------------------- | ----------------------------------- |
-| details | `model TypeSpec.Protobuf.PackageDetails` | the optional details of the package |
+| Name    | Type                                | Description                         |
+| ------- | ----------------------------------- | ----------------------------------- |
+| details | [`PackageDetails`](#packagedetails) | the optional details of the package |
 
 #### `@reserve`
 
@@ -155,13 +163,13 @@ information.
 
 ##### Target
 
-`model {}`
+`{}`
 
 ##### Parameters
 
-| Name         | Type                                                   | Description                  |
-| ------------ | ------------------------------------------------------ | ---------------------------- |
-| reservations | `valueof model string \| [uint32, uint32] \| uint32[]` | a list of field reservations |
+| Name         | Type                                             | Description                  |
+| ------------ | ------------------------------------------------ | ---------------------------- |
+| reservations | `valueof string \| [uint32, uint32] \| uint32[]` | a list of field reservations |
 
 ##### Examples
 
@@ -204,9 +212,9 @@ Set the streaming mode of an operation. See [StreamMode](./data-types#TypeSpec.P
 
 ##### Parameters
 
-| Name | Type                                | Description                                    |
-| ---- | ----------------------------------- | ---------------------------------------------- |
-| mode | `enum TypeSpec.Protobuf.StreamMode` | The streaming mode to apply to this operation. |
+| Name | Type                        | Description                                    |
+| ---- | --------------------------- | ---------------------------------------------- |
+| mode | [`StreamMode`](#streammode) | The streaming mode to apply to this operation. |
 
 ##### Examples
 

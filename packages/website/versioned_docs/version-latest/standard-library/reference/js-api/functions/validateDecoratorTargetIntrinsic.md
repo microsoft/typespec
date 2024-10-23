@@ -4,7 +4,7 @@ title: "[F] validateDecoratorTargetIntrinsic"
 
 ---
 ```ts
-validateDecoratorTargetIntrinsic(
+function validateDecoratorTargetIntrinsic(
    context, 
    target, 
    decoratorName, 
@@ -14,7 +14,7 @@ validateDecoratorTargetIntrinsic(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`ModelProperty`](../interfaces/ModelProperty.md) \| [`Scalar`](../interfaces/Scalar.md) |
 | `decoratorName` | `string` |
@@ -22,6 +22,8 @@ validateDecoratorTargetIntrinsic(
 
 ## Returns
 
+`boolean`
+
 ## Deprecated
 
-this function is deprecated use decorator definition in typespec instead or check assignability directly.
+this function is deprecated use decorator definition in TypeSpec instead or check assignability directly.

@@ -4,7 +4,7 @@ title: "[F] joinPaths"
 
 ---
 ```ts
-joinPaths(path, ...paths): string
+function joinPaths(path, ...paths): string
 ```
 
 Combines paths. If a path is absolute, it replaces any previous path. Relative paths are not simplified.
@@ -27,6 +27,10 @@ joinPaths("file:///path", "file:///to", "file.ext") === "file:///to/file.ext"
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `path` | `string` |
 | ...`paths` | (`undefined` \| `string`)[] |
+
+## Returns
+
+`string`

@@ -29,8 +29,8 @@ namespace BytesMethod {
   @route("binaryFile")
   @post
   op genericBinaryFile(
-    ...BytesBody<"application/octect-stream">,
-  ): BytesBody<"application/octect-stream">;
+    ...BytesBody<"application/octet-stream">,
+  ): BytesBody<"application/octet-stream">;
 
   @route("imagePng")
   @post

@@ -1,5 +1,6 @@
 import { ok, strictEqual } from "assert";
-import { Model, NumericLiteral } from "../../src/core/index.js";
+import { beforeEach, describe, it } from "vitest";
+import { Model } from "../../src/core/index.js";
 import {
   BasicTestRunner,
   createTestHost,
@@ -21,7 +22,7 @@ describe("compiler: scalars", () => {
       @test scalar A;
     `);
 
-    strictEqual(A.kind, "Scalar" as const);
+    strictEqual(A.kind, "Scalar");
     strictEqual(A.name, "A");
     strictEqual(A.baseScalar, undefined);
   });
@@ -31,7 +32,7 @@ describe("compiler: scalars", () => {
       @test scalar A extends numeric;
     `);
 
-    strictEqual(A.kind, "Scalar" as const);
+    strictEqual(A.kind, "Scalar");
     strictEqual(A.name, "A");
     strictEqual(A.baseScalar, runner.program.checker.getStdType("numeric"));
   });
@@ -45,7 +46,7 @@ describe("compiler: scalars", () => {
       alias B = A<"123">;
     `);
 
-    strictEqual(A.kind, "Scalar" as const);
+    strictEqual(A.kind, "Scalar");
     strictEqual(A.name, "A");
   });
 
@@ -59,8 +60,8 @@ describe("compiler: scalars", () => {
       alias BIns = B<"">;
     `);
 
-    strictEqual(A.kind, "Scalar" as const);
-    strictEqual(B.kind, "Scalar" as const);
+    strictEqual(A.kind, "Scalar");
+    strictEqual(B.kind, "Scalar");
   });
 
   it("allows a decimal to have a default value", async () => {
@@ -70,10 +71,9 @@ describe("compiler: scalars", () => {
       }
     `)) as { A: Model };
 
-    const def = A.properties.get("x")!.default! as NumericLiteral;
-    strictEqual(def.kind, "Number" as const);
-    strictEqual(def.value, 42);
-    strictEqual(def.valueAsString, "42");
+    const def = A.properties.get("x")!.defaultValue!;
+    strictEqual(def.valueKind, "NumericValue");
+    strictEqual(def.value.asNumber(), 42);
   });
 
   describe("custom scalars and default values", () => {
@@ -83,13 +83,13 @@ describe("compiler: scalars", () => {
       @test model M { p?: S = 42; }
     `);
 
-      strictEqual(S.kind, "Scalar" as const);
-      strictEqual(M.kind, "Model" as const);
+      strictEqual(S.kind, "Scalar");
+      strictEqual(M.kind, "Model");
       const p = M.properties.get("p");
       ok(p);
       expectIdenticalTypes(p.type, S);
-      strictEqual(p.default?.kind, "Number" as const);
-      strictEqual(p.default.value, 42);
+      strictEqual(p.defaultValue?.valueKind, "NumericValue");
+      strictEqual(p.defaultValue.value.asNumber(), 42);
     });
 
     it("allows custom boolean scalar to have a default value", async () => {
@@ -98,13 +98,13 @@ describe("compiler: scalars", () => {
       @test model M { p?: S = true; }
     `);
 
-      strictEqual(S.kind, "Scalar" as const);
-      strictEqual(M.kind, "Model" as const);
+      strictEqual(S.kind, "Scalar");
+      strictEqual(M.kind, "Model");
       const p = M.properties.get("p");
       ok(p);
       expectIdenticalTypes(p.type, S);
-      strictEqual(p.default?.kind, "Boolean" as const);
-      strictEqual(p.default.value, true);
+      strictEqual(p.defaultValue?.valueKind, "BooleanValue");
+      strictEqual(p.defaultValue.value, true);
     });
 
     it("allows custom string scalar to have a default value", async () => {
@@ -113,13 +113,13 @@ describe("compiler: scalars", () => {
       @test model M { p?: S = "hello"; }
     `);
 
-      strictEqual(S.kind, "Scalar" as const);
-      strictEqual(M.kind, "Model" as const);
+      strictEqual(S.kind, "Scalar");
+      strictEqual(M.kind, "Model");
       const p = M.properties.get("p");
       ok(p);
       expectIdenticalTypes(p.type, S);
-      strictEqual(p.default?.kind, "String" as const);
-      strictEqual(p.default.value, "hello");
+      strictEqual(p.defaultValue?.valueKind, "StringValue");
+      strictEqual(p.defaultValue.value, "hello");
     });
 
     it("does not allow custom numeric scalar to have a default outside range", async () => {

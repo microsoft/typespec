@@ -13,6 +13,7 @@ import { expectDiagnosticEmpty } from "@typespec/compiler/testing";
 import { fail, ok, strictEqual } from "assert";
 import { readdirSync } from "fs";
 import { mkdir, readFile, readdir, rm, writeFile } from "fs/promises";
+import { RunnerTestFile, RunnerTestSuite, afterAll, beforeAll, it } from "vitest";
 
 const shouldUpdateSnapshots = process.env.RECORD === "true";
 
@@ -44,17 +45,13 @@ export function defineSampleSnaphotTests(config: SampleSnapshotTestOptions) {
       writtenSnapshots.push(filename);
     },
   };
-  before(async () => {
+  beforeAll(async () => {
     existingSnapshots = await readFilesInDirRecursively(config.outputDir);
   });
 
-  after(async function (this: any) {
-    if (context.runCount !== samples.length) {
+  afterAll(async function (context: Readonly<RunnerTestSuite | RunnerTestFile>) {
+    if (context.tasks.some((x) => x.mode === "skip")) {
       return; // Not running the full test suite, so don't bother checking snapshots.
-    }
-
-    if (this.test.parent.tests.some((x: any) => x.state === "failed")) {
-      return; // Do not check snapshots if the test failed so we don't get a confusing error message about the missing snapshot if there is already a failure.
     }
 
     const missingSnapshots = new Set<string>(existingSnapshots);
@@ -69,7 +66,7 @@ export function defineSampleSnaphotTests(config: SampleSnapshotTestOptions) {
       } else {
         const snapshotList = [...missingSnapshots].map((x) => `  ${x}`).join("\n");
         fail(
-          `The following snapshot are still present in the output dir but were not generated:\n${snapshotList}\n Run with RECORD=true to regenerate them.`
+          `The following snapshot are still present in the output dir but were not generated:\n${snapshotList}\n Run with RECORD=true to regenerate them.`,
         );
       }
     }
@@ -80,7 +77,7 @@ export function defineSampleSnaphotTests(config: SampleSnapshotTestOptions) {
 function defineSampleSnaphotTest(
   context: TestContext,
   config: SampleSnapshotTestOptions,
-  sample: Sample
+  sample: Sample,
 ) {
   it(sample.name, async () => {
     context.runCount++;
@@ -104,7 +101,7 @@ function defineSampleSnaphotTest(
     const emit = options.emit;
     if (emit === undefined || emit.length === 0) {
       fail(
-        `No emitters configured for sample "${sample.name}". Make sure the  config at: "${options.config}" is correct.`
+        `No emitters configured for sample "${sample.name}". Make sure the  config at: "${options.config}" is correct.`,
       );
     }
 
@@ -148,7 +145,7 @@ function defineSampleSnaphotTest(
         const snapshotPath = resolvePath(outputDir, filename);
         ok(
           host.outputs.has(snapshotPath),
-          `Snapshot for "${snapshotPath}" was not emitted. Run with RECORD=true to remove it.`
+          `Snapshot for "${snapshotPath}" was not emitted. Run with RECORD=true to remove it.`,
         );
       }
     }
@@ -207,7 +204,7 @@ function resolveSamples(config: SampleSnapshotTestOptions): Sample[] {
   walk("");
   return samples;
 
-  async function walk(relativeDir: string) {
+  function walk(relativeDir: string) {
     if (excludes.has(relativeDir)) {
       return;
     }

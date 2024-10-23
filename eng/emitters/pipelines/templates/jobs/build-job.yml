@@ -1,0 +1,81 @@
+parameters:
+  # Whether to build alpha versions of the packages. This is passed as a flag to the build script.
+  - name: BuildPrereleaseVersion
+    type: boolean
+
+  # Whether to use the `next` version of TypeSpec. This is passed as a flag to the initialize script.
+  - name: UseTypeSpecNext
+    type: boolean
+
+  # Custom steps to run in the Build and Test stages after the repositories are cloned.
+  - name: AdditionalInitializeSteps
+    type: stepList
+    default: []
+
+  # Whether to publish to the internal feed.
+  - name: Publish
+    type: string
+    default: "none"
+
+  # List of packages to publish. Each package is an object with the following properties:
+  #   name: The name of the package. This is used to determine the name of the file to publish.
+  #   type: The type of package. Currently supported values are 'npm' and 'nuget'.
+  #   file: The path to the file to publish. This is relative to the packages directory in the build artifacts directory.
+  - name: Packages
+    type: object
+    default: []
+
+  # Location of emitter package path
+  - name: PackagePath
+    type: string
+
+  # Node version
+  - name: NodeVersion
+    type: string
+
+  # Operation system to use
+  - name: Os
+    type: string
+
+  # Emit artifacts
+  - name: EmitArtifacts
+    type: boolean
+    default: false
+
+  # Language short name
+  - name: LanguageShortName
+    type: string
+
+  - name: BuildArtifactName
+    type: string
+    default: ""
+
+jobs:
+  - job: Build_${{ parameters.Os }}_${{ split(parameters.NodeVersion, '.')[0] }}
+    ${{ if eq(parameters.Os, 'linux') }}:
+      pool:
+        name: $(LINUXPOOL)
+        image: $(LINUXVMIMAGE)
+        os: linux
+    ${{ else }}:
+      pool:
+        name: $(WINDOWSPOOL)
+        image: $(WINDOWSVMIMAGE)
+        os: windows
+    steps:
+      - template: /eng/emitters/pipelines/templates/steps/build-step.yml
+        parameters:
+          BuildPrereleaseVersion: ${{ parameters.BuildPrereleaseVersion }}
+          UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
+          Publish: ${{ parameters.Publish }}
+          AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
+          Packages: ${{ parameters.Packages }}
+          LanguageShortName: ${{ parameters.LanguageShortName }}
+          PackagePath: ${{ parameters.PackagePath }}
+          NodeVersion: ${{ parameters.NodeVersion }}
+    ${{ if parameters.EmitArtifacts }}:
+      templateContext:
+        outputs:
+          - output: pipelineArtifact
+            path: $(Build.ArtifactStagingDirectory)
+            artifact: ${{ parameters.BuildArtifactName }}

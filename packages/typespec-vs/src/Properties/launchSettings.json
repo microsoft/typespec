@@ -3,7 +3,7 @@
     "Visual Studio Extension": {
       "commandName": "Executable",
       "executablePath": "$(DevEnvDir)devenv.exe",
-      "commandLineArgs": "/rootSuffix Exp ../../../../samples/petstore",
+      "commandLineArgs": "/rootSuffix Exp ../../../../samples",
       "environmentVariables": {
         "TYPESPEC_SERVER_NODE_OPTIONS": "--nolazy --inspect=4242",
         "TYPESPEC_DEVELOPMENT_MODE": "true"

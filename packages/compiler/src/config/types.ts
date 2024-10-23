@@ -1,5 +1,5 @@
-import { Diagnostic, RuleRef } from "../core/index.js";
-import { YamlScript } from "../yaml/types.js";
+import type { Diagnostic, RuleRef } from "../core/index.js";
+import type { YamlScript } from "../yaml/types.js";
 
 /**
  * Represent the normalized user configuration.
@@ -24,7 +24,7 @@ export interface TypeSpecConfig {
   diagnostics: Diagnostic[];
 
   /**
-   * Path to another typespec config to extend.
+   * Path to another TypeSpec config to extend.
    */
   extends?: string;
 

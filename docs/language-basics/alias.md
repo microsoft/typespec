@@ -1,15 +1,10 @@
 ---
-id: aliases
 title: Aliases
 ---
 
-# Alias
+Aliases are a convenient way to define shorthand for types, especially when dealing with complex expressions. They simplify the syntax but don't have a representation in the type graph. As a result, you can't decorate aliases. If you need to give an alternate name to a model, use [`model is`](./models.md).
 
-Aliases can be defined for types. This can be helpful to reuse a complex expression.
-
-Alias is only a syntax helper, and it has no representation in the type graph. This means that aliases cannot be decorated. Use [`model is`](./models.md) to provide an alternate name for a model.
-
-Alias can be defined using the `alias` keyword
+You can define an alias using the `alias` keyword.
 
 ```typespec
 alias Options = "one" | "two";

@@ -9,16 +9,17 @@ title: "[I] StringLiteral"
 
 ## Properties
 
-| Property | Type | Description | Inheritance |
-| :------ | :------ | :------ | :------ |
-| `instantiationParameters?` | [`Type`](../type-aliases/Type.md)[] | - | [`BaseType`](BaseType.md).`instantiationParameters` |
-| `isFinished` | `boolean` | Reflect if a type has been finished(Decorators have been called).<br />There is multiple reasons a type might not be finished:<br />- a template declaration will not<br />- a template instance that argument that are still template parameters<br />- a template instance that is only partially instantiated(like a templated operation inside a templated interface) | [`BaseType`](BaseType.md).`isFinished` |
-| `kind` | `"String"` | - | [`BaseType`](BaseType.md).`kind` |
-| `node?` | [`StringLiteralNode`](StringLiteralNode.md) | - | [`BaseType`](BaseType.md).`node` |
-| `projectionBase?` | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionBase` |
-| `projectionSource?` | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionSource` |
-| `projector?` | [`Projector`](Projector.md) | - | [`BaseType`](BaseType.md).`projector` |
-| `value` | `string` | - | - |
+| Property | Modifier | Type | Description | Overrides | Inherited from |
+| ------ | ------ | ------ | ------ | ------ | ------ |
+| `entityKind` | `readonly` | `"Type"` | - | - | [`BaseType`](BaseType.md).`entityKind` |
+| `instantiationParameters?` | `public` | [`Type`](../type-aliases/Type.md)[] | - | - | [`BaseType`](BaseType.md).`instantiationParameters` |
+| `isFinished` | `public` | `boolean` | Reflect if a type has been finished(Decorators have been called). There is multiple reasons a type might not be finished: - a template declaration will not - a template instance that argument that are still template parameters - a template instance that is only partially instantiated(like a templated operation inside a templated interface) | - | [`BaseType`](BaseType.md).`isFinished` |
+| `kind` | `public` | `"String"` | - | [`BaseType`](BaseType.md).`kind` | - |
+| `node?` | `public` | [`StringLiteralNode`](StringLiteralNode.md) | - | [`BaseType`](BaseType.md).`node` | - |
+| `projectionBase?` | `public` | [`Type`](../type-aliases/Type.md) | - | - | [`BaseType`](BaseType.md).`projectionBase` |
+| `projectionSource?` | `public` | [`Type`](../type-aliases/Type.md) | - | - | [`BaseType`](BaseType.md).`projectionSource` |
+| `projector?` | `public` | [`Projector`](Projector.md) | - | - | [`BaseType`](BaseType.md).`projector` |
+| `value` | `public` | `string` | - | - | - |
 
 ## Accessors
 
@@ -27,6 +28,14 @@ title: "[I] StringLiteral"
 ```ts
 get projections(): ProjectionStatementNode[]
 ```
+
+#### Returns
+
+[`ProjectionStatementNode`](ProjectionStatementNode.md)[]
+
+#### Inherited from
+
+[`BaseType`](BaseType.md).[`projections`](BaseType.md#projections)
 
 ## Methods
 
@@ -39,8 +48,12 @@ projectionsByName(name): ProjectionStatementNode[]
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `name` | `string` |
+
+#### Returns
+
+[`ProjectionStatementNode`](ProjectionStatementNode.md)[]
 
 #### Inherited from
 

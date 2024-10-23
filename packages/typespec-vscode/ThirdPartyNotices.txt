@@ -10,10 +10,8 @@ granted herein, whether by implication, estoppel or otherwise.
 
 1. balanced-match version 1.0.2 (https://github.com/juliangruber/balanced-match)
 2. brace-expansion version 2.0.1 (https://github.com/juliangruber/brace-expansion)
-3. lru-cache version 6.0.0 (https://github.com/isaacs/node-lru-cache)
-4. minimatch version 5.1.6 (https://github.com/isaacs/minimatch)
-5. semver version 7.5.4 (https://github.com/npm/node-semver)
-6. yallist version 4.0.0 (https://github.com/isaacs/yallist)
+3. minimatch version 5.1.6 (https://github.com/isaacs/minimatch)
+4. semver version 7.6.3 (https://github.com/npm/node-semver)
 
 
 %% balanced-match NOTICES AND INFORMATION BEGIN HERE
@@ -72,28 +70,6 @@ SOFTWARE.
 END OF brace-expansion NOTICES AND INFORMATION
 
 
-%% lru-cache NOTICES AND INFORMATION BEGIN HERE
-=====================================================
-The ISC License
-
-Copyright (c) Isaac Z. Schlueter and Contributors
-
-Permission to use, copy, modify, and/or distribute this software for any
-purpose with or without fee is hereby granted, provided that the above
-copyright notice and this permission notice appear in all copies.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
-IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-
-=====================================================");
-END OF lru-cache NOTICES AND INFORMATION
-
-
 %% minimatch NOTICES AND INFORMATION BEGIN HERE
 =====================================================
 The ISC License
@@ -136,25 +112,3 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 =====================================================");
 END OF semver NOTICES AND INFORMATION
-
-
-%% yallist NOTICES AND INFORMATION BEGIN HERE
-=====================================================
-The ISC License
-
-Copyright (c) Isaac Z. Schlueter and Contributors
-
-Permission to use, copy, modify, and/or distribute this software for any
-purpose with or without fee is hereby granted, provided that the above
-copyright notice and this permission notice appear in all copies.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
-IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-
-=====================================================");
-END OF yallist NOTICES AND INFORMATION

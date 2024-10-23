@@ -4,16 +4,22 @@ title: "[F] $pattern"
 
 ---
 ```ts
-$pattern(
+function $pattern(
    context, 
    target, 
-   pattern): void
+   pattern, 
+   validationMessage?): void
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`ModelProperty`](../interfaces/ModelProperty.md) \| [`Scalar`](../interfaces/Scalar.md) |
 | `pattern` | `string` |
+| `validationMessage`? | `string` |
+
+## Returns
+
+`void`

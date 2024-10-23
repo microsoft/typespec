@@ -3,7 +3,7 @@ jsApi: true
 title: "[I] TemplateDeclarationNode"
 
 ---
-## Extended By
+## Extended by
 
 - [`OperationStatementNode`](OperationStatementNode.md)
 - [`ModelStatementNode`](ModelStatementNode.md)
@@ -14,7 +14,8 @@ title: "[I] TemplateDeclarationNode"
 
 ## Properties
 
-| Modifier | Property | Type | Description |
-| :------ | :------ | :------ | :------ |
-| `readonly` | `locals?` | `SymbolTable` | - |
-| `readonly` | `templateParameters` | readonly [`TemplateParameterDeclarationNode`](TemplateParameterDeclarationNode.md)[] | - |
+| Property | Modifier | Type |
+| ------ | ------ | ------ |
+| `locals?` | `readonly` | `SymbolTable` |
+| `templateParameters` | `readonly` | readonly [`TemplateParameterDeclarationNode`](TemplateParameterDeclarationNode.md)[] |
+| `templateParametersRange` | `readonly` | [`TextRange`](TextRange.md) |

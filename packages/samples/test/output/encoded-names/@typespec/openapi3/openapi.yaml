@@ -1,0 +1,42 @@
+openapi: 3.0.0
+info:
+  title: Sample showcasing encoded names
+  description: |-
+    This example showcase providing a different name over the wire.
+    In this example the `WithEncodedNames` model has a `notBefore` property that should get serialized as `nbf` when serialized as json.
+  version: 0.0.0
+tags: []
+paths:
+  /:
+    get:
+      operationId: test
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WithEncodedNames'
+components:
+  schemas:
+    WithEncodedNames:
+      type: object
+      required:
+        - nbf
+        - exp
+        - created
+        - updated
+      properties:
+        nbf:
+          type: integer
+          format: int32
+        exp:
+          type: integer
+          format: int32
+        created:
+          type: integer
+          format: int32
+        updated:
+          type: integer
+          format: int32

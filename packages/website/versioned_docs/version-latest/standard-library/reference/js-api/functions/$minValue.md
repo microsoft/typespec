@@ -4,16 +4,20 @@ title: "[F] $minValue"
 
 ---
 ```ts
-$minValue(
+function $minValue(
    context, 
    target, 
-   minValue): void
+   value): void
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`ModelProperty`](../interfaces/ModelProperty.md) \| [`Scalar`](../interfaces/Scalar.md) |
-| `minValue` | `number` |
+| `value` | [`Numeric`](../interfaces/Numeric.md) |
+
+## Returns
+
+`void`

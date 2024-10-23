@@ -4,7 +4,7 @@ title: "[F] isDeclaredInNamespace"
 
 ---
 ```ts
-isDeclaredInNamespace(
+function isDeclaredInNamespace(
    type, 
    namespace, 
    options): boolean
@@ -15,10 +15,12 @@ Check if the given type is declared in the specified namespace or, optionally, i
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
-| `type` |    \| [`Model`](../interfaces/Model.md)   \| [`Interface`](../interfaces/Interface.md)   \| [`Enum`](../interfaces/Enum.md)   \| [`Namespace`](../interfaces/Namespace.md)   \| [`Operation`](../interfaces/Operation.md) | Type |
+| ------ | ------ | ------ |
+| `type` | \| [`Enum`](../interfaces/Enum.md) \| [`Interface`](../interfaces/Interface.md) \| [`Model`](../interfaces/Model.md) \| [`Namespace`](../interfaces/Namespace.md) \| [`Operation`](../interfaces/Operation.md) | Type |
 | `namespace` | [`Namespace`](../interfaces/Namespace.md) | Namespace |
 | `options` | `object` | - |
 | `options.recursive`? | `boolean` | - |
 
 ## Returns
+
+`boolean`

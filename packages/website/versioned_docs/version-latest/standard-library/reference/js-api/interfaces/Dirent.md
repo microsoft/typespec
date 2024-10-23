@@ -5,9 +5,9 @@ title: "[I] Dirent"
 ---
 ## Properties
 
-| Property | Type | Description |
-| :------ | :------ | :------ |
-| `name` | `string` | - |
+| Property | Type |
+| ------ | ------ |
+| `name` | `string` |
 
 ## Methods
 
@@ -17,6 +17,10 @@ title: "[I] Dirent"
 isDirectory(): boolean
 ```
 
+#### Returns
+
+`boolean`
+
 ***
 
 ### isFile()
@@ -24,3 +28,7 @@ isDirectory(): boolean
 ```ts
 isFile(): boolean
 ```
+
+#### Returns
+
+`boolean`

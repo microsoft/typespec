@@ -4,7 +4,7 @@ title: "[F] $service"
 
 ---
 ```ts
-$service(
+function $service(
    context, 
    target, 
    options?): void
@@ -13,7 +13,11 @@ $service(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`Namespace`](../interfaces/Namespace.md) |
-| `options`? | [`Model`](../interfaces/Model.md) |
+| `options`? | [`Type`](../type-aliases/Type.md) |
+
+## Returns
+
+`void`

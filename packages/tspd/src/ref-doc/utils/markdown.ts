@@ -22,8 +22,12 @@ export function inlinecode(code: string) {
   return "`" + code + "`";
 }
 
+export function link(text: string, url: string) {
+  return `[${text}](${url})`;
+}
+
 function escapeMarkdownTable(text: string) {
-  return text.replace(/(\|)/g, "\\$1").replace(/\n/g, "<br />");
+  return text.replace(/([^\\])(\|)/g, "$1\\$2").replace(/\n/g, "<br />");
 }
 
 export function table([header, ...rows]: string[][]) {
@@ -50,7 +54,7 @@ export function tabs(tabs: Tab[]) {
       "",
       tab.content,
       "",
-      "</TabItem>"
+      "</TabItem>",
     );
   }
   result.push("</Tabs>", "");

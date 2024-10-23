@@ -4,7 +4,7 @@ title: "[F] resolvePath"
 
 ---
 ```ts
-resolvePath(path, ...paths): string
+function resolvePath(path, ...paths): string
 ```
 
 Combines and resolves paths. If a path is absolute, it replaces any previous path. Any
@@ -19,6 +19,10 @@ resolvePath("/path", "dir", "..", "to", "file.ext") === "path/to/file.ext"
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `path` | `string` |
 | ...`paths` | (`undefined` \| `string`)[] |
+
+## Returns
+
+`string`

@@ -4,16 +4,20 @@ title: "[F] $maxValueExclusive"
 
 ---
 ```ts
-$maxValueExclusive(
+function $maxValueExclusive(
    context, 
    target, 
-   maxValueExclusive): void
+   value): void
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`ModelProperty`](../interfaces/ModelProperty.md) \| [`Scalar`](../interfaces/Scalar.md) |
-| `maxValueExclusive` | `number` |
+| `value` | [`Numeric`](../interfaces/Numeric.md) |
+
+## Returns
+
+`void`

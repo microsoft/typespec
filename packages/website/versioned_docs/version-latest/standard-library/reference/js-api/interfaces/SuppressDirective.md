@@ -9,9 +9,9 @@ title: "[I] SuppressDirective"
 
 ## Properties
 
-| Property | Type | Description | Inheritance |
-| :------ | :------ | :------ | :------ |
-| `code` | `string` | - | - |
-| `message` | `string` | - | - |
-| `name` | `"suppress"` | - | - |
-| `node` | [`DirectiveExpressionNode`](DirectiveExpressionNode.md) | - | [`DirectiveBase`](DirectiveBase.md).`node` |
+| Property | Type | Inherited from |
+| ------ | ------ | ------ |
+| `code` | `string` | - |
+| `message` | `string` | - |
+| `name` | `"suppress"` | - |
+| `node` | [`DirectiveExpressionNode`](DirectiveExpressionNode.md) | [`DirectiveBase`](DirectiveBase.md).`node` |

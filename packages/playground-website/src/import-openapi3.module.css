@@ -1,0 +1,5 @@
+.import-editor-container {
+  height: 600px;
+  border: 1px solid var(--colorNeutralStroke1);
+  margin-bottom: 20px;
+}

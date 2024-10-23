@@ -31,18 +31,13 @@ components:
       in: header
       required: true
       schema:
-        type: string
-        enum:
-          - v1
-          - v2
+        $ref: '#/components/schemas/Versions'
   schemas:
     Cat:
       type: object
       required:
         - type
         - catnipDose
-      allOf:
-        - $ref: '#/components/schemas/PetBase'
       properties:
         type:
           type: string
@@ -51,14 +46,14 @@ components:
         catnipDose:
           type: integer
           format: int32
+      allOf:
+        - $ref: '#/components/schemas/PetBase'
     Dog:
       type: object
       required:
         - type
         - nextWalkTime
         - commandList
-      allOf:
-        - $ref: '#/components/schemas/PetBase'
       properties:
         type:
           type: string
@@ -73,6 +68,8 @@ components:
           type: array
           items:
             type: string
+      allOf:
+        - $ref: '#/components/schemas/PetBase'
     Library.PetToy:
       type: object
       required:
@@ -85,24 +82,25 @@ components:
           type: string
     PetBase:
       type: object
-      discriminator:
-        propertyName: type
-        mapping:
-          dog: '#/components/schemas/Dog'
-          cat: '#/components/schemas/Cat'
       required:
         - name
         - favoriteToys
+        - type
       properties:
-        type:
-          type: string
-          description: Discriminator property for PetBase.
         name:
           type: string
         favoriteToys:
           type: array
           items:
             $ref: '#/components/schemas/Library.PetToy'
+        type:
+          type: string
+          description: Discriminator property for PetBase.
+      discriminator:
+        propertyName: type
+        mapping:
+          dog: '#/components/schemas/Dog'
+          cat: '#/components/schemas/Cat'
     Versions:
       type: string
       enum:

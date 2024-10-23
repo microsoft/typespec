@@ -1,10 +1,11 @@
 import { setTypeSpecNamespace } from "@typespec/compiler";
 import {
   BasicTestRunner,
+  TestHost,
   createTestWrapper,
   expectDiagnostics,
-  TestHost,
 } from "@typespec/compiler/testing";
+import { beforeEach, describe, it } from "vitest";
 import { createLibraryLinterTestHost } from "./test-host.js";
 
 describe("library-linter", () => {

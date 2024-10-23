@@ -1,14 +1,14 @@
 import { deepStrictEqual } from "assert";
-import { dirname } from "path";
-import { fileURLToPath } from "url";
+import { describe, it } from "vitest";
 import { resolveCompilerOptions } from "../../src/config/index.js";
 import { NodeHost } from "../../src/core/node-host.js";
 import { normalizePath, resolvePath } from "../../src/index.js";
 import { expectDiagnosticEmpty, expectDiagnostics } from "../../src/testing/expect.js";
+import { findTestPackageRoot } from "../../src/testing/test-utils.js";
 
 const scenarioRoot = resolvePath(
-  dirname(fileURLToPath(import.meta.url)),
-  "../../../test/config/scenarios"
+  await findTestPackageRoot(import.meta.url),
+  "test/config/scenarios",
 );
 
 describe("compiler: resolve compiler options", () => {
@@ -16,11 +16,15 @@ describe("compiler: resolve compiler options", () => {
   describe("specifying explicit config file", () => {
     const resolveOptions = async (path: string) => {
       const fullPath = resolvePath(scenarioRoot, path);
-      return await resolveCompilerOptions(NodeHost, {
-        cwd: normalizePath(process.cwd()),
-        entrypoint: fullPath, // not really used here
-        configPath: fullPath,
-      });
+      const [{ configFile: config, ...options }, diagnostics] = await resolveCompilerOptions(
+        NodeHost,
+        {
+          cwd: normalizePath(process.cwd()),
+          entrypoint: fullPath, // not really used here
+          configPath: fullPath,
+        },
+      );
+      return [options, diagnostics] as const;
     };
 
     it("loads config at the given path", async () => {
@@ -31,6 +35,23 @@ describe("compiler: resolve compiler options", () => {
         config: resolvePath(scenarioRoot, "custom/myConfig.yaml"),
         emit: ["openapi"],
         options: {},
+        outputDir: tspOutputPath,
+      });
+    });
+
+    it("loads config with nested parameters", async () => {
+      const [options, diagnostics] = await resolveOptions("custom/myConfigNested.yaml");
+      expectDiagnosticEmpty(diagnostics);
+
+      deepStrictEqual(options, {
+        config: resolvePath(scenarioRoot, "custom/myConfigNested.yaml"),
+        emit: ["openapi"],
+        options: {
+          description: {
+            name: "Testing name: Sphere",
+            details: { one: "Type: Bar", two: { "two-one": "Default: Metadata default" } },
+          },
+        },
         outputDir: tspOutputPath,
       });
     });

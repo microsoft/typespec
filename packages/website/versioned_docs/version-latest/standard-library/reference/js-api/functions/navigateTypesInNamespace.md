@@ -4,7 +4,7 @@ title: "[F] navigateTypesInNamespace"
 
 ---
 ```ts
-navigateTypesInNamespace(
+function navigateTypesInNamespace(
    namespace, 
    listeners, 
    options): void
@@ -13,7 +13,11 @@ navigateTypesInNamespace(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `namespace` | [`Namespace`](../interfaces/Namespace.md) |
-| `listeners` | `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` |
+| `listeners` | `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` |
 | `options` | [`NamespaceNavigationOptions`](../interfaces/NamespaceNavigationOptions.md) & [`NavigationOptions`](../interfaces/NavigationOptions.md) |
+
+## Returns
+
+`void`

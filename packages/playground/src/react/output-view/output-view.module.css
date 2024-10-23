@@ -1,0 +1,32 @@
+.output-view {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+}
+.file-viewer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.output-content {
+  flex: 1;
+  min-width: 0;
+}
+.file-viewer-content {
+  flex: 1;
+  min-height: 0;
+}
+
+.type-graph-viewer {
+  height: 100%;
+  overflow-y: auto;
+}
+
+.viewer-tabs-container {
+  background-color: var(--colorNeutralBackground3);
+}
+
+.viewer-error {
+  padding: 20px;
+}

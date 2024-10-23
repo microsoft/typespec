@@ -1,15 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="88b9492f-c019-492c-8aeb-f325a7e4cf23" Version="|%CurrentProject%;GetPackageVersionForVsixManifest|" Language="en-US" Publisher="Microsoft" />
-    <DisplayName>TypeSpec Language Support</DisplayName>
-    <Description>TypeSpec Language Support for Visual Studio</Description>
+    <Identity Id="typespec.typespecvs" Version="|%CurrentProject%;GetPackageVersionForVsixManifest|" Language="en-US" Publisher="typespec" />
+    <DisplayName>TypeSpec for Visual Studio</DisplayName>
+    <Description>TypeSpec language support for Visual Studio</Description>
     <MoreInfo>https://github.com/microsoft/typespec</MoreInfo>
     <License>LICENSE</License>
+    <Icon>Icons/logo.png</Icon>
+    <Preview>true</Preview>
   </Metadata>
   <Installation>
     <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[17.0,)">
       <ProductArchitecture>amd64</ProductArchitecture>
+    </InstallationTarget>
+    <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[17.0,)">
+      <ProductArchitecture>arm64</ProductArchitecture>
     </InstallationTarget>
   </Installation>
   <Dependencies>

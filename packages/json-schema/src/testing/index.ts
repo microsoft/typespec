@@ -1,8 +1,10 @@
-import { resolvePath } from "@typespec/compiler";
-import { createTestLibrary, TypeSpecTestLibrary } from "@typespec/compiler/testing";
-import { fileURLToPath } from "url";
+import {
+  createTestLibrary,
+  findTestPackageRoot,
+  type TypeSpecTestLibrary,
+} from "@typespec/compiler/testing";
 
 export const JsonSchemaTestLibrary: TypeSpecTestLibrary = createTestLibrary({
   name: "@typespec/json-schema",
-  packageRoot: resolvePath(fileURLToPath(import.meta.url), "../../../../"),
+  packageRoot: await findTestPackageRoot(import.meta.url),
 });

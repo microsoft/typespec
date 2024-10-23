@@ -12,19 +12,35 @@ import {
   Type,
 } from "@typespec/compiler";
 import {
+  addQueryParamsToUriTemplate,
   DefaultRouteProducer,
   getOperationParameters,
   getOperationVerb,
   getRoutePath,
   getRouteProducer,
+  getUriTemplatePathParam,
   HttpOperation,
   HttpOperationParameter,
   HttpOperationParameters,
   HttpVerb,
+  joinPathSegments,
   RouteOptions,
   RouteProducerResult,
   setRouteProducer,
 } from "@typespec/http";
+import {
+  ActionDecorator,
+  AutoRouteDecorator,
+  CollectionActionDecorator,
+  ListsResourceDecorator,
+  ReadsResourceDecorator,
+  ResourceDecorator,
+  SegmentOfDecorator,
+} from "../generated-defs/TypeSpec.Rest.js";
+import {
+  ActionSegmentDecorator,
+  ResourceLocationDecorator,
+} from "../generated-defs/TypeSpec.Rest.Private.js";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
 import { getResourceTypeKey } from "./resource.js";
 
@@ -72,7 +88,7 @@ const resourceOperationToVerb: any = {
 
 function getResourceOperationHttpVerb(
   program: Program,
-  operation: Operation
+  operation: Operation,
 ): HttpVerb | undefined {
   const resourceOperation = getResourceOperation(program, operation);
   return (
@@ -89,7 +105,7 @@ function autoRouteProducer(
   operation: Operation,
   parentSegments: string[],
   overloadBase: HttpOperation | undefined,
-  options: RouteOptions
+  options: RouteOptions,
 ): DiagnosticResult<RouteProducerResult> {
   const diagnostics = createDiagnosticCollector();
   const routePath = getRoutePath(program, operation)?.path;
@@ -101,7 +117,7 @@ function autoRouteProducer(
   };
 
   const parameters: HttpOperationParameters = diagnostics.pipe(
-    getOperationParameters(program, operation, undefined, [], paramOptions)
+    getOperationParameters(program, operation, "", undefined, paramOptions),
   );
 
   for (const httpParam of parameters.parameters) {
@@ -123,7 +139,7 @@ function autoRouteProducer(
           segments.push(`/${param.type.value}`);
           continue; // Skip adding to the parameter list
         } else {
-          segments.push(`/{${param.name}}`);
+          segments.push(`/${getUriTemplatePathParam(httpParam)}`);
         }
       }
     }
@@ -141,8 +157,10 @@ function autoRouteProducer(
   // Add the operation's action segment if present
   addActionFragment(program, operation, segments);
 
+  const pathPart = joinPathSegments(segments);
+
   return diagnostics.wrap({
-    segments,
+    uriTemplate: addQueryParamsToUriTemplate(pathPart, filteredParameters),
     parameters: {
       ...parameters,
       parameters: filteredParameters,
@@ -159,7 +177,10 @@ const autoRouteKey = createStateSymbol("autoRoute");
  * metadata.  When applied to an interface, it causes all operations under that scope to have
  * auto-generated routes.
  */
-export function $autoRoute(context: DecoratorContext, entity: Interface | Operation) {
+export const $autoRoute: AutoRouteDecorator = (
+  context: DecoratorContext,
+  entity: Interface | Operation,
+) => {
   if (entity.kind === "Operation") {
     setRouteProducer(context.program, entity, autoRouteProducer);
   } else {
@@ -177,7 +198,7 @@ export function $autoRoute(context: DecoratorContext, entity: Interface | Operat
   }
 
   context.program.stateSet(autoRouteKey).add(entity);
-}
+};
 
 export function isAutoRoute(program: Program, entity: Operation | Interface): boolean {
   return program.stateSet(autoRouteKey).has(entity);
@@ -198,7 +219,7 @@ const segmentsKey = createStateSymbol("segments");
 export function $segment(
   context: DecoratorContext,
   entity: Model | ModelProperty | Operation,
-  name: string
+  name: string,
 ) {
   context.program.stateMap(segmentsKey).set(entity, name);
 }
@@ -211,7 +232,11 @@ function getResourceSegment(program: Program, resourceType: Model): string | und
     : getSegment(program, resourceType);
 }
 
-export function $segmentOf(context: DecoratorContext, entity: Operation, resourceType: Model) {
+export const $segmentOf: SegmentOfDecorator = (
+  context: DecoratorContext,
+  entity: Operation,
+  resourceType: Model,
+) => {
   if ((resourceType.kind as any) === "TemplateParameter") {
     // Skip it, this operation is in a templated interface
     return;
@@ -222,7 +247,7 @@ export function $segmentOf(context: DecoratorContext, entity: Operation, resourc
   if (segment) {
     context.call($segment, entity, segment);
   }
-}
+};
 
 export function getSegment(program: Program, entity: Type): string | undefined {
   return program.stateMap(segmentsKey).get(entity);
@@ -239,7 +264,7 @@ const actionSeparatorKey = createStateSymbol("actionSeparator");
 export function $actionSeparator(
   context: DecoratorContext,
   entity: Model | ModelProperty | Operation,
-  separator: "/" | ":" | "/:"
+  separator: "/" | ":" | "/:",
 ) {
   context.program.stateMap(actionSeparatorKey).set(entity, separator);
 }
@@ -262,7 +287,11 @@ export function getActionSeparator(program: Program, entity: Type): string | und
  *
  * `@resource` can only be applied to models.
  */
-export function $resource(context: DecoratorContext, entity: Model, collectionName: string) {
+export const $resource: ResourceDecorator = (
+  context: DecoratorContext,
+  entity: Model,
+  collectionName: string,
+) => {
   // Ensure type has a key property
   const key = getResourceTypeKey(context.program, entity);
 
@@ -289,7 +318,7 @@ export function $resource(context: DecoratorContext, entity: Model, collectionNa
       { value: context.program.checker.createLiteralType(collectionName), jsValue: collectionName },
     ],
   });
-}
+};
 
 export type ResourceOperations =
   | "read"
@@ -312,7 +341,7 @@ function resourceRouteProducer(
   operation: Operation,
   parentSegments: string[],
   overloadBase: HttpOperation | undefined,
-  options: RouteOptions
+  options: RouteOptions,
 ): DiagnosticResult<RouteProducerResult> {
   // NOTE: The purpose of this producer is to pass along the behavior of the
   // DefaultRouteProducer while setting the appropriate HTTP verb based on any
@@ -336,7 +365,7 @@ export function setResourceOperation(
   context: DecoratorContext,
   entity: Operation,
   resourceType: Model,
-  operation: ResourceOperations
+  operation: ResourceOperations,
 ) {
   if ((resourceType as any).kind === "TemplateParameter") {
     // Skip it, this operation is in a templated interface
@@ -358,19 +387,23 @@ export function setResourceOperation(
 
 export function getResourceOperation(
   program: Program,
-  typespecOperation: Operation
+  typespecOperation: Operation,
 ): ResourceOperation | undefined {
   return program.stateMap(resourceOperationsKey).get(typespecOperation);
 }
 
-export function $readsResource(context: DecoratorContext, entity: Operation, resourceType: Model) {
+export const $readsResource: ReadsResourceDecorator = (
+  context: DecoratorContext,
+  entity: Operation,
+  resourceType: Model,
+) => {
   setResourceOperation(context, entity, resourceType, "read");
-}
+};
 
 export function $createsResource(
   context: DecoratorContext,
   entity: Operation,
-  resourceType: Model
+  resourceType: Model,
 ) {
   // Add path segment for resource type key
   context.call($segmentOf, entity, resourceType);
@@ -381,7 +414,7 @@ export function $createsResource(
 export function $createsOrReplacesResource(
   context: DecoratorContext,
   entity: Operation,
-  resourceType: Model
+  resourceType: Model,
 ) {
   setResourceOperation(context, entity, resourceType, "createOrReplace");
 }
@@ -389,7 +422,7 @@ export function $createsOrReplacesResource(
 export function $createsOrUpdatesResource(
   context: DecoratorContext,
   entity: Operation,
-  resourceType: Model
+  resourceType: Model,
 ) {
   setResourceOperation(context, entity, resourceType, "createOrUpdate");
 }
@@ -397,7 +430,7 @@ export function $createsOrUpdatesResource(
 export function $updatesResource(
   context: DecoratorContext,
   entity: Operation,
-  resourceType: Model
+  resourceType: Model,
 ) {
   setResourceOperation(context, entity, resourceType, "update");
 }
@@ -405,17 +438,21 @@ export function $updatesResource(
 export function $deletesResource(
   context: DecoratorContext,
   entity: Operation,
-  resourceType: Model
+  resourceType: Model,
 ) {
   setResourceOperation(context, entity, resourceType, "delete");
 }
 
-export function $listsResource(context: DecoratorContext, entity: Operation, resourceType: Model) {
+export const $listsResource: ListsResourceDecorator = (
+  context: DecoratorContext,
+  entity: Operation,
+  resourceType: Model,
+) => {
   // Add path segment for resource type key
   context.call($segmentOf, entity, resourceType);
 
   setResourceOperation(context, entity, resourceType, "list");
-}
+};
 
 /**
  * Returns `true` if the given operation is marked as a list operation.
@@ -440,9 +477,13 @@ function makeActionName(op: Operation, name: string | undefined): ActionDetails 
 
 const actionsSegmentKey = createStateSymbol("actionSegment");
 
-export function $actionSegment(context: DecoratorContext, entity: Operation, name: string) {
+export const $actionSegment: ActionSegmentDecorator = (
+  context: DecoratorContext,
+  entity: Operation,
+  name: string,
+) => {
   context.program.stateMap(actionsSegmentKey).set(entity, name);
-}
+};
 
 export function getActionSegment(program: Program, entity: Type): string | undefined {
   return program.stateMap(actionsSegmentKey).get(entity);
@@ -465,7 +506,11 @@ export interface ActionDetails {
 }
 
 const actionsKey = createStateSymbol("actions");
-export function $action(context: DecoratorContext, entity: Operation, name?: string) {
+export const $action: ActionDecorator = (
+  context: DecoratorContext,
+  entity: Operation,
+  name?: string,
+) => {
   if (name === "") {
     reportDiagnostic(context.program, {
       code: "invalid-action-name",
@@ -477,14 +522,14 @@ export function $action(context: DecoratorContext, entity: Operation, name?: str
   const action = makeActionName(entity, name);
   context.call($actionSegment, entity, action.name);
   context.program.stateMap(actionsKey).set(entity, action);
-}
+};
 
 /**
  * Gets the ActionDetails for the specified operation if it has previously been marked with @action.
  */
 export function getActionDetails(
   program: Program,
-  operation: Operation
+  operation: Operation,
 ): ActionDetails | undefined {
   return program.stateMap(actionsKey).get(operation);
 }
@@ -498,12 +543,12 @@ export function getAction(program: Program, operation: Operation): string | null
 
 const collectionActionsKey = createStateSymbol("collectionActions");
 
-export function $collectionAction(
+export const $collectionAction: CollectionActionDecorator = (
   context: DecoratorContext,
   entity: Operation,
   resourceType: Model,
-  name?: string
-) {
+  name?: string,
+) => {
   if ((resourceType as Type).kind === "TemplateParameter") {
     // Skip it, this operation is in a templated interface
     return;
@@ -521,14 +566,14 @@ export function $collectionAction(
   // Update the final name and store it
   action.name = `${segment}/${action.name}`;
   context.program.stateMap(collectionActionsKey).set(entity, action);
-}
+};
 
 /**
  * Gets the ActionDetails for the specified operation if it has previously been marked with @collectionAction.
  */
 export function getCollectionActionDetails(
   program: Program,
-  operation: Operation
+  operation: Operation,
 ): ActionDetails | undefined {
   return program.stateMap(collectionActionsKey).get(operation);
 }
@@ -538,25 +583,25 @@ export function getCollectionActionDetails(
  */
 export function getCollectionAction(
   program: Program,
-  operation: Operation
+  operation: Operation,
 ): string | null | undefined {
   return getCollectionActionDetails(program, operation)?.name;
 }
 
 const resourceLocationsKey = createStateSymbol("resourceLocations");
 
-export function $resourceLocation(
+export const $resourceLocation: ResourceLocationDecorator = (
   context: DecoratorContext,
-  entity: Model,
-  resourceType: Model
-): void {
+  entity: Scalar,
+  resourceType: Model,
+) => {
   if ((resourceType as Type).kind === "TemplateParameter") {
     // Skip it, this operation is in a templated interface
     return;
   }
 
   context.program.stateMap(resourceLocationsKey).set(entity, resourceType);
-}
+};
 
 export function getResourceLocationType(program: Program, entity: Scalar): Model | undefined {
   return program.stateMap(resourceLocationsKey).get(entity);

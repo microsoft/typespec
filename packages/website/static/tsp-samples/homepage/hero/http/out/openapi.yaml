@@ -1,0 +1,62 @@
+openapi: 3.0.0
+info:
+  title: (title)
+  version: 0.0.0
+tags: []
+paths:
+  /stores:
+    get:
+      operationId: Stores_list
+      parameters:
+        - name: filter
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Store'
+  /stores/{id}:
+    get:
+      operationId: Stores_read
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/Store'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Store'
+components:
+  schemas:
+    Address:
+      type: object
+      required:
+        - street
+        - city
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+    Store:
+      type: object
+      required:
+        - name
+        - address
+      properties:
+        name:
+          type: string
+        address:
+          $ref: '#/components/schemas/Address'

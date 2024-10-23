@@ -23,7 +23,7 @@ const MAX_UNICODE_CODEPOINT = 0x10ffff;
 
 const disallowedRegex = new RegExp(
   `[${disallowedProperties.map((p) => `\\p{${p}}`).join("")}]`,
-  "u"
+  "u",
 );
 
 const map = computeMap();

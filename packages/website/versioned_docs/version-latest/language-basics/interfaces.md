@@ -5,9 +5,9 @@ title: Interfaces
 
 # Interfaces
 
-Interfaces can be used to group and reuse [operations](./operations.md).
+Interfaces are useful for grouping and reusing [operations](./operations.md).
 
-Interfaces are declared using the `interface` keyword.
+You can declare interfaces using the `interface` keyword. Its name must be an [`identifier`](./identifiers.md).
 
 ```typespec
 interface SampleInterface {
@@ -18,9 +18,9 @@ interface SampleInterface {
 
 ## Composing interfaces
 
-The keyword `extends` can be used to compose operations from other interfaces into a new interface.
+You can use the `extends` keyword to incorporate operations from other interfaces into a new interface.
 
-Given the following interfaces
+Consider the following interfaces:
 
 ```typespec
 interface A {
@@ -32,7 +32,7 @@ interface B {
 }
 ```
 
-a new interface `C` can be created including all operations from `A` and `B`
+You can create a new interface `C` that includes all operations from `A` and `B`:
 
 ```typespec
 interface C extends A, B {
@@ -40,7 +40,7 @@ interface C extends A, B {
 }
 ```
 
-which is equivalent to
+This is equivalent to:
 
 ```typespec
 interface C {
@@ -50,9 +50,9 @@ interface C {
 }
 ```
 
-## Interface template
+## Interface templates
 
-Interfaces can be templated, [see templates](./templates.md) for details on templates.
+Interfaces can be templated. For more details on templates, [see templates](./templates.md).
 
 ```typespec
 interface ReadWrite<T> {
@@ -61,9 +61,9 @@ interface ReadWrite<T> {
 }
 ```
 
-## Interface operation templates
+## Templating interface operations
 
-Operations defined inside of an interface can also be templated. ([see templates](./templates.md) for details on templates.)
+Operations defined within an interface can also be templated. For more details on templates, [see templates](./templates.md).
 
 ```typespec
 interface ReadWrite<T> {
@@ -77,7 +77,7 @@ op myWrite is MyReadWrite.write<int32>;
 ```
 
 :::caution
-Any uninstantiated, templated operation defined in an interface will be excluded from the list of service operations.
+Any templated operation defined in an interface that is not instantiated will be omitted from the list of service operations.
 
 This also applies when using `extends` on an interface that contains templated operations with unfilled template arguments.
 
@@ -87,10 +87,10 @@ interface ReadWrite<T> {
   write<R>(t: T): R;
 }
 
-interface MyReadWrite extends ReadWrite<string> {} // Here the `read()` operation is fully instantiated and will be included in a service definition. `write()` however isn't.
+interface MyReadWrite extends ReadWrite<string> {} // Here, the `read()` operation is fully instantiated and will be included in a service definition. However, `write()` is not.
 ```
 
-When working with building block interface like this use alias to create your interface building block instead of `interface extends`. This way the instantiated interface and its member will not be resolved in the service definition.
+When working with building block interfaces like this, use an alias to create your interface building block instead of `interface extends`. This way, the instantiated interface and its members will not be resolved in the service definition.
 
 ```typespec
 alias MyReadWrite = ReadWrite<string>;

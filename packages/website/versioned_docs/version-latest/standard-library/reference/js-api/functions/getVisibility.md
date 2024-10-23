@@ -4,12 +4,16 @@ title: "[F] getVisibility"
 
 ---
 ```ts
-getVisibility(program, target): string[] | undefined
+function getVisibility(program, type): undefined | string[]
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | [`Program`](../interfaces/Program.md) |
-| `target` | [`Type`](../type-aliases/Type.md) |
+| `type` | [`Type`](../type-aliases/Type.md) |
+
+## Returns
+
+`undefined` \| `string`[]

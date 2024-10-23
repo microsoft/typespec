@@ -1,6 +1,6 @@
 import { Select } from "@fluentui/react-components";
-import { FunctionComponent, useCallback } from "react";
-import { PlaygroundSample } from "../types.js";
+import { useCallback, type FunctionComponent } from "react";
+import type { PlaygroundSample } from "../types.js";
 
 export interface SamplesDropdownProps {
   samples: Record<string, PlaygroundSample>;
@@ -23,10 +23,15 @@ export const SamplesDropdown: FunctionComponent<SamplesDropdownProps> = ({
         onSelectedSampleNameChange(evt.target.value);
       }
     },
-    [onSelectedSampleNameChange]
+    [onSelectedSampleNameChange, samples],
   );
   return (
-    <Select className="sample-dropdown" onChange={handleSelected} value={selectedSampleName ?? ""}>
+    <Select
+      className="sample-dropdown"
+      onChange={handleSelected}
+      value={selectedSampleName ?? ""}
+      aria-label="Select a sample"
+    >
       <option value="" disabled>
         Select sample...
       </option>

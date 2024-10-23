@@ -7,10 +7,14 @@
 # Then explicitly include what we want to ship in VSIX
 !dist/**/*.tmLanguage
 !dist/**/*.js
+!dist/**/*.cjs
 !dist/**/*.js.map
 !dist/**/language-configuration.json
-!extension-shim.js
+dist/test/
+
 !markdown-typespec.json
 !README.md
 !ThirdPartyNotices.txt
 !LICENSE
+!icons/
+!snippets.json

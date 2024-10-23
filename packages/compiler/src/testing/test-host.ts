@@ -1,18 +1,19 @@
 import assert from "assert";
-import { RmOptions } from "fs";
+import type { RmOptions } from "fs";
 import { readFile } from "fs/promises";
 import { globby } from "globby";
 import { fileURLToPath, pathToFileURL } from "url";
-import { createSourceFile, logDiagnostics, logVerboseTestOutput } from "../core/diagnostics.js";
+import { logDiagnostics, logVerboseTestOutput } from "../core/diagnostics.js";
 import { createLogger } from "../core/logger/logger.js";
 import { NodeHost } from "../core/node-host.js";
 import { CompilerOptions } from "../core/options.js";
 import { getAnyExtensionFromPath, resolvePath } from "../core/path-utils.js";
 import { Program, compile as compileProgram } from "../core/program.js";
-import { CompilerHost, Diagnostic, StringLiteral, Type } from "../core/types.js";
-import { createStringMap, getSourceFileKindFromExt } from "../core/util.js";
+import type { CompilerHost, Diagnostic, StringLiteral, Type } from "../core/types.js";
+import { createSourceFile, getSourceFileKindFromExt } from "../index.js";
+import { createStringMap } from "../utils/misc.js";
 import { expectDiagnosticEmpty } from "./expect.js";
-import { createTestWrapper } from "./test-utils.js";
+import { createTestWrapper, findTestPackageRoot, resolveVirtualPath } from "./test-utils.js";
 import {
   BasicTestRunner,
   TestFileSystem,
@@ -28,20 +29,12 @@ export interface TestHostOptions {
   compilerHostOverrides?: Partial<CompilerHost>;
 }
 
-export function resolveVirtualPath(path: string, ...paths: string[]) {
-  // NB: We should always resolve an absolute path, and there is no absolute
-  // path that works across OSes. This ensures that we can still rely on API
-  // like pathToFileURL in tests.
-  const rootDir = process.platform === "win32" ? "Z:/test" : "/test";
-  return resolvePath(rootDir, path, ...paths);
-}
-
 function createTestCompilerHost(
   virtualFs: Map<string, string>,
   jsImports: Map<string, Record<string, any>>,
-  options?: TestHostOptions
+  options?: TestHostOptions,
 ): CompilerHost {
-  const libDirs = [resolveVirtualPath(".tsp/lib")];
+  const libDirs = [resolveVirtualPath(".tsp/lib/std")];
   if (!options?.excludeTestLib) {
     libDirs.push(resolveVirtualPath(".tsp/test-lib"));
   }
@@ -220,10 +213,10 @@ export async function createTestFileSystem(options?: TestHostOptions): Promise<T
 
 export const StandardTestLibrary: TypeSpecTestLibrary = {
   name: "@typespec/compiler",
-  packageRoot: resolvePath(fileURLToPath(import.meta.url), "../../../../"),
+  packageRoot: await findTestPackageRoot(import.meta.url),
   files: [
     { virtualPath: "./.tsp/dist/src/lib", realDir: "./dist/src/lib", pattern: "*" },
-    { virtualPath: "./.tsp/lib", realDir: "./lib", pattern: "*" },
+    { virtualPath: "./.tsp/lib", realDir: "./lib", pattern: "**" },
   ],
 };
 
@@ -293,7 +286,7 @@ async function createTestHostInternal(): Promise<TestHost> {
     get program() {
       assert(
         program,
-        "Program cannot be accessed without calling compile, diagnose, or compileAndDiagnose."
+        "Program cannot be accessed without calling compile, diagnose, or compileAndDiagnose.",
       );
       return program;
     },
@@ -312,16 +305,16 @@ async function createTestHostInternal(): Promise<TestHost> {
 
   async function compileAndDiagnose(
     mainFile: string,
-    options: CompilerOptions = {}
+    options: CompilerOptions = {},
   ): Promise<[Record<string, Type>, readonly Diagnostic[]]> {
     if (options.noEmit === undefined) {
       // default for tests is noEmit
       options = { ...options, noEmit: true };
     }
-    const p = await compileProgram(fileSystem.compilerHost, mainFile, options);
+    const p = await compileProgram(fileSystem.compilerHost, resolveVirtualPath(mainFile), options);
     program = p;
     logVerboseTestOutput((log) =>
-      logDiagnostics(p.diagnostics, createLogger({ sink: fileSystem.compilerHost.logSink }))
+      logDiagnostics(p.diagnostics, createLogger({ sink: fileSystem.compilerHost.logSink })),
     );
     return [testTypes, p.diagnostics];
   }

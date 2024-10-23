@@ -4,7 +4,7 @@ title: "[F] logVerboseTestOutput"
 
 ---
 ```ts
-logVerboseTestOutput(messageOrCallback): void
+function logVerboseTestOutput(messageOrCallback): void
 ```
 
 Verbose output is enabled by default for runs in mocha explorer in VS Code,
@@ -18,5 +18,9 @@ when verbose output is disabled.
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `messageOrCallback` | `string` \| (`log`) => `void` |
+
+## Returns
+
+`void`

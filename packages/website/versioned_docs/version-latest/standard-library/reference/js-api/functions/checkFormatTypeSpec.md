@@ -4,7 +4,7 @@ title: "[F] checkFormatTypeSpec"
 
 ---
 ```ts
-checkFormatTypeSpec(code, prettierConfig?): Promise<boolean>
+function checkFormatTypeSpec(code, prettierConfig?): Promise<boolean>
 ```
 
 Check the given is correctly formatted.
@@ -12,10 +12,12 @@ Check the given is correctly formatted.
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `code` | `string` |
 | `prettierConfig`? | `Options` |
 
 ## Returns
+
+`Promise`<`boolean`\>
 
 true if code is formatted correctly.

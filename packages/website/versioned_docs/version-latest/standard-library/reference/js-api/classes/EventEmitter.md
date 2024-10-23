@@ -3,11 +3,11 @@ jsApi: true
 title: "[C] EventEmitter"
 
 ---
-## Type parameters
+## Type Parameters
 
-| Parameter |
-| :------ |
-| `T` extends `object` |
+| Type Parameter |
+| ------ |
+| `T` *extends* `object` |
 
 ## Constructors
 
@@ -17,11 +17,9 @@ title: "[C] EventEmitter"
 new EventEmitter<T>(): EventEmitter<T>
 ```
 
-## Properties
+#### Returns
 
-| Modifier | Property | Type | Description |
-| :------ | :------ | :------ | :------ |
-| `private` | `listeners` | `Map`<keyof `T`, (...`args`) => `any`[]\> | - |
+[`EventEmitter`](EventEmitter.md)<`T`\>
 
 ## Methods
 
@@ -31,18 +29,22 @@ new EventEmitter<T>(): EventEmitter<T>
 emit<K>(name, ...args): void
 ```
 
-#### Type parameters
+#### Type Parameters
 
-| Parameter |
-| :------ |
-| `K` extends `string` \| `number` \| `symbol` |
+| Type Parameter |
+| ------ |
+| `K` *extends* `string` \| `number` \| `symbol` |
 
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `name` | `K` |
-| ...`args` | `Parameters`<`T`[`K`]\> |
+| ...`args` | `Parameters`<`T`\[`K`\]\> |
+
+#### Returns
+
+`void`
 
 ***
 
@@ -52,15 +54,19 @@ emit<K>(name, ...args): void
 on<K>(name, listener): void
 ```
 
-#### Type parameters
+#### Type Parameters
 
-| Parameter |
-| :------ |
-| `K` extends `string` \| `number` \| `symbol` |
+| Type Parameter |
+| ------ |
+| `K` *extends* `string` \| `number` \| `symbol` |
 
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `name` | `K` |
 | `listener` | (...`args`) => `any` |
+
+#### Returns
+
+`void`

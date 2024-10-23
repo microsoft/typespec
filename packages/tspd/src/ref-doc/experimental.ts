@@ -4,13 +4,13 @@ import {
   Diagnostic,
   joinPaths,
   NodeHost,
-  NodePackage,
+  type PackageJson,
 } from "@typespec/compiler";
 import { mkdir, readFile, writeFile } from "fs/promises";
 import prettier from "prettier";
 import { generateJsApiDocs } from "./api-docs.js";
-import { renderToDocusaurusMarkdown } from "./emitters/docusaurus.js";
 import { renderReadme } from "./emitters/markdown.js";
+import { renderToAstroStarlightMarkdown } from "./emitters/starlight.js";
 import { extractLibraryRefDocs, ExtractRefDocOptions, extractRefDocs } from "./extractor.js";
 import { TypeSpecRefDocBase } from "./types.js";
 
@@ -20,12 +20,12 @@ import { TypeSpecRefDocBase } from "./types.js";
 export async function generateLibraryDocs(
   libraryPath: string,
   outputDir: string,
-  skipJSApi: boolean = false
+  skipJSApi: boolean = false,
 ): Promise<readonly Diagnostic[]> {
   const diagnostics = createDiagnosticCollector();
   const pkgJson = await readPackageJson(libraryPath);
   const refDoc = diagnostics.pipe(await extractLibraryRefDocs(libraryPath));
-  const files = renderToDocusaurusMarkdown(refDoc);
+  const files = renderToAstroStarlightMarkdown(refDoc);
   await mkdir(outputDir, { recursive: true });
   const config = await prettier.resolveConfig(libraryPath);
   for (const [name, content] of Object.entries(files)) {
@@ -35,7 +35,7 @@ export async function generateLibraryDocs(
   const readme = await formatMarkdown(
     joinPaths(libraryPath, "README.md"),
     await renderReadme(refDoc, libraryPath),
-    config ?? {}
+    config ?? {},
   );
   await writeFile(joinPaths(libraryPath, "README.md"), readme);
   if (pkgJson.main && !skipJSApi) {
@@ -46,7 +46,7 @@ export async function generateLibraryDocs(
 
 export async function resolveLibraryRefDocsBase(
   libraryPath: string,
-  options: ExtractRefDocOptions = {}
+  options: ExtractRefDocOptions = {},
 ): Promise<[TypeSpecRefDocBase, readonly Diagnostic[]] | undefined> {
   const diagnostics = createDiagnosticCollector();
   const pkgJson = await readPackageJson(libraryPath);
@@ -64,14 +64,14 @@ export async function resolveLibraryRefDocsBase(
   return undefined;
 }
 
-async function readPackageJson(libraryPath: string): Promise<NodePackage> {
+async function readPackageJson(libraryPath: string): Promise<PackageJson> {
   const buffer = await readFile(joinPaths(libraryPath, "package.json"));
   return JSON.parse(buffer.toString());
 }
 async function formatMarkdown(
   filename: string,
   content: string,
-  options: prettier.Options | null
+  options: prettier.Options | null,
 ): Promise<string> {
   try {
     return await prettier.format(content, {
@@ -80,7 +80,7 @@ async function formatMarkdown(
     });
   } catch (e) {
     // eslint-disable-next-line no-console
-    console.error(`Cannot format with prettier ${filename}`);
+    console.error(`Cannot format with prettier ${filename}`, e);
     return content;
   }
 }

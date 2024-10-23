@@ -1,13 +1,14 @@
 import { resolvePath } from "@typespec/compiler";
 import { expectDiagnosticEmpty } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
+import { describe, it } from "vitest";
 import { OpenAPI3EmitterOptions } from "../src/lib.js";
 import { OpenAPI3Document } from "../src/types.js";
 import { createOpenAPITestRunner, oapiForModel, openApiFor } from "./test-host.js";
 
 async function openapiWithOptions(
   code: string,
-  options: OpenAPI3EmitterOptions
+  options: OpenAPI3EmitterOptions,
 ): Promise<OpenAPI3Document> {
   const runner = await createOpenAPITestRunner();
 
@@ -19,7 +20,7 @@ async function openapiWithOptions(
     options: { "@typespec/openapi3": { ...options, "output-file": outPath } },
   });
 
-  expectDiagnosticEmpty(diagnostics.filter((x) => x.code !== "@typespec/http/no-routes"));
+  expectDiagnosticEmpty(diagnostics);
 
   const content = runner.fs.get(outPath)!;
   return JSON.parse(content);
@@ -34,7 +35,7 @@ describe("openapi3: types included", () => {
 
       op test(): Referenced;
     `,
-      {}
+      {},
     );
     deepStrictEqual(Object.keys(output.components!.schemas!), ["NotReferenced", "Referenced"]);
   });
@@ -49,7 +50,7 @@ describe("openapi3: types included", () => {
     `,
       {
         "omit-unreachable-types": true,
-      }
+      },
     );
     deepStrictEqual(Object.keys(output.components!.schemas!), ["Referenced"]);
   });
@@ -61,7 +62,7 @@ describe("openapi3: x-typespec-name", () => {
       `
       model Foo {names: string[]}
     `,
-      {}
+      {},
     );
     ok(!("x-typespec-name" in output.components!.schemas!.Foo.properties!.names));
   });
@@ -71,7 +72,7 @@ describe("openapi3: x-typespec-name", () => {
       `
       model Foo {names: string[]}
     `,
-      { "include-x-typespec-name": "never" }
+      { "include-x-typespec-name": "never" },
     );
     ok(!("x-typespec-name" in output.components!.schemas!.Foo.properties!.names));
   });
@@ -81,7 +82,7 @@ describe("openapi3: x-typespec-name", () => {
       `
       model Foo {names: string[]}
     `,
-      { "include-x-typespec-name": "inline-only" }
+      { "include-x-typespec-name": "inline-only" },
     );
     const prop: any = output.components!.schemas!.Foo.properties!.names;
     strictEqual(prop["x-typespec-name"], `string[]`);
@@ -102,7 +103,7 @@ describe("openapi3: literals", () => {
         "Pet",
         `
         model Pet { name: ${test[0]} };
-        `
+        `,
       );
 
       const schema = res.schemas.Pet.properties.name;
@@ -118,7 +119,7 @@ describe("openapi3: operations", () => {
       @route("/")
       @get()
       op read(@query queryWithDefault?: string = "defaultValue"): string;
-      `
+      `,
     );
 
     strictEqual(res.paths["/"].get.operationId, "read");
@@ -138,7 +139,7 @@ describe("openapi3: operations", () => {
         @maxValue(10)
         @query count: int32
       ): string;
-      `
+      `,
     );
 
     const getThing = res.paths["/thing/{name}"].get;
@@ -162,7 +163,7 @@ describe("openapi3: operations", () => {
       `
       #deprecated "use something else"
       op read(@query query: string): string;
-      `
+      `,
     );
 
     strictEqual(res.paths["/"].get.deprecated, true);
@@ -217,7 +218,7 @@ describe("openapi3: extension decorator", () => {
       @get()
       @extension("x-operation-extension", "barbaz")
       op list(): Pet[];
-      `
+      `,
     );
     ok(oapi.paths["/"].get);
     strictEqual(oapi.paths["/"].get["x-operation-extension"], "barbaz");
@@ -237,15 +238,26 @@ describe("openapi3: extension decorator", () => {
       @route("/Pets")
       @get()
       op get(... PetId): Pet;
-      `
+      `,
     );
     ok(oapi.paths["/Pets/{petId}"].get);
     strictEqual(
       oapi.paths["/Pets/{petId}"].get.parameters[0]["$ref"],
-      "#/components/parameters/PetId"
+      "#/components/parameters/PetId",
     );
     strictEqual(oapi.components.parameters.PetId.name, "petId");
     strictEqual(oapi.components.parameters.PetId["x-parameter-extension"], "foobaz");
+  });
+
+  it("adds an extension to a namespace", async () => {
+    const oapi = await openApiFor(
+      `
+      @extension("x-namespace-extension", "foobar")
+      @service namespace Service {};
+      `,
+    );
+
+    strictEqual(oapi["x-namespace-extension"], "foobar");
   });
 
   it("check format and pattern decorator on model", async () => {
@@ -264,16 +276,53 @@ describe("openapi3: extension decorator", () => {
       @route("/Pets")
       @get()
       op get(... PetId): Pet;
-      `
+      `,
     );
     ok(oapi.paths["/Pets/{petId}"].get);
     strictEqual(
       oapi.paths["/Pets/{petId}"].get.parameters[0]["$ref"],
-      "#/components/parameters/PetId"
+      "#/components/parameters/PetId",
     );
     strictEqual(oapi.components.parameters.PetId.name, "petId");
     strictEqual(oapi.components.schemas.Pet.properties.name.pattern, "^[a-zA-Z0-9-]{3,24}$");
     strictEqual(oapi.components.parameters.PetId.schema.format, "UUID");
     strictEqual(oapi.components.parameters.PetId.schema.pattern, "^[a-zA-Z0-9-]{3,24}$");
+  });
+});
+
+describe("openapi3: useRef decorator", () => {
+  it("adds a ref extension to a model", async () => {
+    const oapi = await openApiFor(`
+      @test @useRef("../common.json#/definitions/Foo")
+      model Foo {
+        @statusCode
+        status: 200;
+        name: string;
+      }
+      @get op get(): Foo;
+    `);
+    ok(oapi.paths["/"].get);
+    strictEqual(oapi.paths["/"].get.responses["200"]["$ref"], "../common.json#/definitions/Foo");
+  });
+
+  it("adds a ref extension to a multiple models", async () => {
+    const oapi = await openApiFor(`
+      @test @useRef("../common.json#/definitions/Foo")
+      model Foo {
+        @statusCode
+        status: 200;
+        name: string;
+      }
+      @test @useRef("https://example.com/example.yml")
+      model Foo2 {
+        @statusCode
+        status: 201;
+        name: string;
+      }
+      @get op get(): Foo | Foo2;
+    `);
+    ok(oapi.paths["/"].get);
+    strictEqual(oapi.paths["/"].get.responses["200"]["$ref"], "../common.json#/definitions/Foo");
+    strictEqual(oapi.paths["/"].get.responses["201"]["$ref"], "https://example.com/example.yml");
   });
 });

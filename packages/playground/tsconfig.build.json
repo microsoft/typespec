@@ -1,0 +1,10 @@
+// tsconfig for building the playground
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "sourceMap": true,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext"
+  },
+  "include": ["src/**/*.{ts,tsx}", ".storybook/**/*.{ts,tsx}", "definitions/*.d.ts"]
+}

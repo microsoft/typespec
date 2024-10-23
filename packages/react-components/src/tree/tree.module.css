@@ -1,0 +1,44 @@
+.tree {
+  outline: none;
+}
+.tree-row {
+  cursor: pointer;
+  display: block;
+  height: 22px;
+  line-height: 22px;
+  user-select: none;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 12px;
+  display: flex;
+}
+
+.tree-row:hover,
+.tree-row.focus {
+  background: var(--colorNeutralBackground4);
+}
+
+.tree-row.active {
+  background: var(--colorNeutralBackground2Selected);
+}
+
+.tree-row .caret {
+  width: 16px;
+  display: flex;
+  align-items: center;
+}
+
+.tree-row .icon {
+  width: 16px;
+  display: flex;
+  align-items: center;
+}
+
+.tree-row .label {
+  flex: 1;
+}
+
+.tree-row .column:last-child {
+  margin-right: 5px;
+}

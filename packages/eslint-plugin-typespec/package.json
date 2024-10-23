@@ -1,9 +1,9 @@
 {
   "name": "@typespec/eslint-plugin",
-  "version": "0.49.0",
+  "version": "0.61.0",
   "author": "Microsoft Corporation",
   "description": "Eslint plugin providing set of rules to be used in the JS/TS code of TypeSpec libraries",
-  "homepage": "https://microsoft.github.io/typespec",
+  "homepage": "https://typespec.io",
   "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
   "license": "MIT",
   "repository": {
@@ -25,10 +25,11 @@
     "clean": "rimraf ./dist ./temp",
     "build": "tsc -p .",
     "watch": "tsc -p . --watch",
-    "test": "mocha",
-    "test-official": "c8 mocha --forbid-only --reporter mocha-multi-reporters",
-    "lint": "eslint . --ext .ts --max-warnings=0",
-    "lint:fix": "eslint . --fix --ext .ts"
+    "test": "vitest run",
+    "test:ui": "vitest --ui",
+    "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix"
   },
   "files": [
     "lib/*.tsp",
@@ -36,22 +37,22 @@
     "!dist/test/**"
   ],
   "peerDependencies": {
-    "eslint": ">=0.8.0"
+    "eslint": "^9.12.0"
   },
   "devDependencies": {
-    "@types/mocha": "~10.0.1",
-    "@types/node": "~18.11.9",
-    "@typespec/eslint-config-typespec": "workspace:~0.49.0",
-    "@typescript-eslint/parser": "^6.2.1",
-    "eslint": "^8.49.0",
-    "mocha": "~10.2.0",
-    "mocha-junit-reporter": "~2.2.1",
-    "mocha-multi-reporters": "~1.5.1",
-    "c8": "~8.0.1",
-    "rimraf": "~5.0.1",
-    "typescript": "~5.2.2"
+    "@types/node": "~22.7.5",
+    "@typescript-eslint/parser": "^8.8.1",
+    "@typescript-eslint/rule-tester": "^8.8.1",
+    "@typescript-eslint/types": "^8.8.1",
+    "@vitest/coverage-v8": "^2.1.2",
+    "@vitest/ui": "^2.1.2",
+    "c8": "^10.1.2",
+    "eslint": "^9.12.0",
+    "rimraf": "~6.0.1",
+    "typescript": "~5.6.3",
+    "vitest": "^2.1.2"
   },
   "dependencies": {
-    "@typescript-eslint/utils": "~5.59.11"
+    "@typescript-eslint/utils": "^8.8.1"
   }
 }
