@@ -377,8 +377,10 @@ export function createResolver(program: Program): NameResolver {
   function resolveExport(baseSym: Sym, id: IdentifierNode): ResolutionResult {
     const node = baseSym.declarations[0];
     compilerAssert(
-      node.kind === SyntaxKind.NamespaceStatement || node.kind === SyntaxKind.TypeSpecScript,
-      "Unexpected node kind",
+      node.kind === SyntaxKind.NamespaceStatement ||
+        node.kind === SyntaxKind.TypeSpecScript ||
+        node.kind === SyntaxKind.JsNamespaceDeclaration,
+      `Unexpected node kind ${SyntaxKind[node.kind]}`,
     );
 
     const exportSym = tableLookup(baseSym.exports!, id);

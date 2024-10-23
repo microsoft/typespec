@@ -231,7 +231,7 @@ export async function compile(
   }
 
   const resolver = createResolver(program);
-  // resolver.resolveProgram();
+  resolver.resolveProgram();
   program.checker = createChecker(program, resolver);
   program.checker.checkProgram();
 

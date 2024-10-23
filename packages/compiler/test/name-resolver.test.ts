@@ -1,20 +1,23 @@
-import { NodeFlags, SymbolLinks, SyntaxKind } from "@typespec/compiler";
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { Binder, createBinder } from "../src/core/binder.js";
 import { inspectSymbolFlags } from "../src/core/inspector.js";
 import { createLogger } from "../src/core/logger/logger.js";
 import { createTracer } from "../src/core/logger/tracer.js";
-import { createResolver } from "../src/core/name-resolver.js";
+import { createResolver, NameResolver } from "../src/core/name-resolver.js";
 import { getNodeAtPosition, parse } from "../src/core/parser.js";
 import {
+  JsSourceFileNode,
   Node,
+  NodeFlags,
   ResolutionResult,
   ResolutionResultFlags,
   SymbolFlags,
+  SymbolLinks,
+  SyntaxKind,
   TypeReferenceNode,
 } from "../src/core/types.js";
-import { Program, Sym } from "../src/index.js";
+import { createSourceFile, Program, Sym } from "../src/index.js";
 
 let binder: Binder;
 let resolver: ReturnType<typeof createResolver>;
@@ -760,6 +763,94 @@ describe("namespaces", () => {
   });
 });
 
+describe.only("js namespaces", () => {
+  describe("binding", () => {
+    it("merges across files", () => {
+      const sym = getGlobalSymbol([
+        {
+          $decorators: { Foo: { testDec1: () => null } },
+        },
+        {
+          $decorators: { "Foo.Bar": { testDec2: () => null } },
+        },
+        {
+          $decorators: { "Foo.Bar": { testDec3: () => null } },
+        },
+      ]);
+
+      assertSymbol(sym, {
+        exports: {
+          Foo: {
+            flags: SymbolFlags.Namespace,
+            exports: {
+              "@testDec1": {
+                flags: SymbolFlags.Decorator,
+              },
+              Bar: {
+                flags: SymbolFlags.Namespace,
+                exports: {
+                  "@testDec2": {
+                    flags: SymbolFlags.Decorator,
+                  },
+                  "@testDec3": {
+                    flags: SymbolFlags.Decorator,
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+    });
+    it("merges with tsp namespace", () => {
+      const sym = getGlobalSymbol([
+        `
+          namespace Foo {
+            model FooModel {}
+
+            namespace Bar {
+              model BarModel {}
+            }
+          }  
+        `,
+        {
+          $decorators: { Foo: { testDec1: () => null } },
+        },
+        {
+          $decorators: { "Foo.Bar": { testDec2: () => null } },
+        },
+      ]);
+
+      assertSymbol(sym, {
+        exports: {
+          Foo: {
+            flags: SymbolFlags.Namespace,
+            exports: {
+              "@testDec1": {
+                flags: SymbolFlags.Decorator,
+              },
+              FooModel: {
+                flags: SymbolFlags.Model,
+              },
+              Bar: {
+                flags: SymbolFlags.Namespace,
+                exports: {
+                  "@testDec2": {
+                    flags: SymbolFlags.Decorator,
+                  },
+                  BarModel: {
+                    flags: SymbolFlags.Model,
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+    });
+  });
+});
+
 describe("aliases", () => {
   describe("binding", () => {
     it("binds aliases to symbols", () => {
@@ -1002,7 +1093,7 @@ function getParentTypeRef(node: Node | undefined) {
     throw new Error("Can't find parent of undefined node.");
   }
   if (node.kind !== SyntaxKind.MemberExpression && node.kind !== SyntaxKind.Identifier) {
-    throw new Error("Can't find parent of non-reference node.");
+    throw new Error(`Can't find parent of non-reference node. ${SyntaxKind[node.kind]}`);
   }
 
   if (!node.parent) {
@@ -1016,15 +1107,26 @@ function getParentTypeRef(node: Node | undefined) {
   return getParentTypeRef(node.parent);
 }
 
-function getGlobalSymbol(typespecSources: string[]): Sym {
+function resolve(sources: (string | Record<string, unknown>)[]): NameResolver {
   let index = 0;
-  for (const source of typespecSources) {
-    const sf = parse(source);
-    program.sourceFiles.set(String(index++), sf);
-    binder.bindSourceFile(sf);
+  for (const source of sources) {
+    if (typeof source === "string") {
+      const sf = parse(source);
+      program.sourceFiles.set(String(index++), sf);
+      binder.bindSourceFile(sf);
+    } else {
+      const sf: JsSourceFileNode = createJsSourceFile(source);
+      program.jsSourceFiles.set(String(index++), sf);
+      binder.bindJsSourceFile(sf);
+    }
   }
 
   resolver.resolveProgram();
+  return resolver;
+}
+
+function getGlobalSymbol(sources: (string | Record<string, unknown>)[]): Sym {
+  const resolver = resolve(sources);
   return resolver.getGlobalNamespaceSymbol();
 }
 
@@ -1064,7 +1166,10 @@ function assertSymbol(
 
     for (const [name, descriptor] of Object.entries(record.exports)) {
       const exportSym = exports.get(name);
-      ok(exportSym, `Expected symbol ${sym.name} to have export ${name}`);
+      ok(
+        exportSym,
+        `Expected symbol ${sym.name} to have export ${name} but only has ${[...exports.keys()].join(", ")}`,
+      );
       assertSymbol(exportSym, descriptor);
     }
   }
@@ -1121,4 +1226,26 @@ function createProgramShim(): Program {
     sourceFiles: new Map(),
     jsSourceFiles: new Map(),
   } as any;
+}
+
+function createJsSourceFile(exports: any): JsSourceFileNode {
+  const file = createSourceFile("", "path");
+  return {
+    kind: SyntaxKind.JsSourceFile,
+    id: {
+      kind: SyntaxKind.Identifier,
+      sv: "",
+      pos: 0,
+      end: 0,
+      symbol: undefined!,
+      flags: NodeFlags.Synthetic,
+    },
+    esmExports: exports,
+    file,
+    namespaceSymbols: [],
+    symbol: undefined!,
+    pos: 0,
+    end: 0,
+    flags: NodeFlags.None,
+  };
 }
