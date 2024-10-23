@@ -94,7 +94,17 @@ import {
   TypeSpecScriptNode,
 } from "./types.js";
 
-export function createResolver(program: Program) {
+export interface NameResolver {
+  // TODO: add docs
+  resolveProgram(): void;
+  getMergedSymbol(sym: Sym | undefined): Sym | undefined;
+
+  getAugmentedSymbolTable(table: SymbolTable): Mutable<SymbolTable>;
+  getNodeLinks(n: Node): NodeLinks;
+  getSymbolLinks(s: Sym): SymbolLinks;
+  getGlobalNamespaceSymbol(): Sym;
+}
+export function createResolver(program: Program): NameResolver {
   const mergedSymbols = new Map<Sym, Sym>();
   const augmentedSymbolTables = new Map<SymbolTable, SymbolTable>();
   const nodeLinks = new Map<number, NodeLinks>();

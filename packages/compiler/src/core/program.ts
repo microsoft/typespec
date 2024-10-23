@@ -23,6 +23,7 @@ import { createLinter, resolveLinterDefinition } from "./linter.js";
 import { createLogger } from "./logger/index.js";
 import { createTracer } from "./logger/tracer.js";
 import { createDiagnostic } from "./messages.js";
+import { createResolver } from "./name-resolver.js";
 import { CompilerOptions } from "./options.js";
 import { parse, parseStandaloneTypeReference } from "./parser.js";
 import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
@@ -228,7 +229,10 @@ export async function compile(
   if (options.linterRuleSet) {
     program.reportDiagnostics(await linter.extendRuleSet(options.linterRuleSet));
   }
-  program.checker = createChecker(program);
+
+  const resolver = createResolver(program);
+  // resolver.resolveProgram();
+  program.checker = createChecker(program, resolver);
   program.checker.checkProgram();
 
   if (!continueToNextStage) {

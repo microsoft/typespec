@@ -21,6 +21,7 @@ import {
 } from "./helpers/type-name-utils.js";
 import { legacyMarshallTypeForJS, marshallTypeForJS } from "./js-marshaller.js";
 import { createDiagnostic } from "./messages.js";
+import { NameResolver } from "./name-resolver.js";
 import { Numeric } from "./numeric.js";
 import {
   exprIsBareIdentifier,
@@ -336,7 +337,7 @@ const TypeInstantiationMap = class
 
 let currentSymbolId = 0;
 
-export function createChecker(program: Program): Checker {
+export function createChecker(program: Program, resolver: NameResolver): Checker {
   const stdTypes: Partial<StdTypes> = {};
   const symbolLinks = new Map<number, SymbolLinks>();
   const mergedSymbols = new Map<Sym, Sym>();
