@@ -55,13 +55,17 @@ versionPolicies:
       - "@typespec/sse"
       - "@typespec/streams"
       - "@typespec/xml"
+  - name: python-client
+    type: independent
+    step: patch
+    packages:
+      - "@typespec/http-client-python"
 
 changelog: ["@chronus/github/changelog", { repo: "microsoft/typespec" }]
 
 ignore:
   - "@typespec/http-client-csharp"
   - "@typespec/http-client-java"
-  - "@typespec/http-client-python"
 
 changedFiles:
   - "!**/*.md"
