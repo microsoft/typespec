@@ -1159,11 +1159,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 {
                     var arrayVar = new VariableExpression(new CSharpType(valueType.ElementType.FrameworkType.MakeArrayType()), "array");
                     var index = new VariableExpression(typeof(int), "index");
-                    var indexer = New.Array(valueType.ElementType, jsonElement.GetArrayLength());
                     var deserializeReadOnlyMemory = new MethodBodyStatement[]
                     {
                         Declare(index, Int(0)),
-                        Declare(arrayVar, indexer),
+                        Declare(arrayVar, New.Array(valueType.ElementType, jsonElement.GetArrayLength())),
                         ForeachStatement.Create("item", jsonElement.EnumerateArray(), out ScopedApi<JsonElement> item).Add(new MethodBodyStatement[]
                         {
                              NullCheckCollectionItemIfRequired(valueType.ElementType, item, item.Assign(Null).Terminate(),
