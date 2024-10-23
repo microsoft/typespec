@@ -6,6 +6,7 @@ package com.type.property.additionalproperties.models;
 
 import com.azure.core.annotation.Fluent;
 import com.azure.core.annotation.Generated;
+import com.azure.core.util.BinaryData;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
@@ -29,7 +30,7 @@ public class IsUnknownAdditionalProperties implements JsonSerializable<IsUnknown
      * The model is from Record<unknown> type.
      */
     @Generated
-    private Map<String, Object> additionalProperties;
+    private Map<String, BinaryData> additionalProperties;
 
     /**
      * Creates an instance of IsUnknownAdditionalProperties class.
@@ -57,7 +58,7 @@ public class IsUnknownAdditionalProperties implements JsonSerializable<IsUnknown
      * @return the additionalProperties value.
      */
     @Generated
-    public Map<String, Object> getAdditionalProperties() {
+    public Map<String, BinaryData> getAdditionalProperties() {
         return this.additionalProperties;
     }
 
@@ -68,7 +69,7 @@ public class IsUnknownAdditionalProperties implements JsonSerializable<IsUnknown
      * @return the IsUnknownAdditionalProperties object itself.
      */
     @Generated
-    public IsUnknownAdditionalProperties setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public IsUnknownAdditionalProperties setAdditionalProperties(Map<String, BinaryData> additionalProperties) {
         this.additionalProperties = additionalProperties;
         return this;
     }
@@ -82,8 +83,11 @@ public class IsUnknownAdditionalProperties implements JsonSerializable<IsUnknown
         jsonWriter.writeStartObject();
         jsonWriter.writeStringField("name", this.name);
         if (additionalProperties != null) {
-            for (Map.Entry<String, Object> additionalProperty : additionalProperties.entrySet()) {
-                jsonWriter.writeUntypedField(additionalProperty.getKey(), additionalProperty.getValue());
+            for (Map.Entry<String, BinaryData> additionalProperty : additionalProperties.entrySet()) {
+                jsonWriter.writeUntypedField(additionalProperty.getKey(),
+                    additionalProperty.getValue() == null
+                        ? null
+                        : additionalProperty.getValue().toObject(Object.class));
             }
         }
         return jsonWriter.writeEndObject();
@@ -102,7 +106,7 @@ public class IsUnknownAdditionalProperties implements JsonSerializable<IsUnknown
     public static IsUnknownAdditionalProperties fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             String name = null;
-            Map<String, Object> additionalProperties = null;
+            Map<String, BinaryData> additionalProperties = null;
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
@@ -114,7 +118,8 @@ public class IsUnknownAdditionalProperties implements JsonSerializable<IsUnknown
                         additionalProperties = new LinkedHashMap<>();
                     }
 
-                    additionalProperties.put(fieldName, reader.readUntyped());
+                    additionalProperties.put(fieldName,
+                        reader.getNullable(nonNullReader -> BinaryData.fromObject(nonNullReader.readUntyped())));
                 }
             }
             IsUnknownAdditionalProperties deserializedIsUnknownAdditionalProperties

@@ -1,0 +1,35 @@
+---
+import IllustrationCard from "../illustration-card.astro";
+import LightDarkImg from "../light-dark-img.astro";
+import Terminal from "../terminal.astro";
+import Window from "../window.astro";
+import { OverviewIllustrationTerminalContent } from "./overview-illustration-terminal-content";
+---
+
+<style>
+  .card {
+    width: 723px;
+    height: 542px;
+    position: relative;
+  }
+
+  .terminal {
+    position: absolute;
+    top: 60px;
+    left: 50px;
+    width: 420px;
+    height: 320px;
+  }
+
+  .ide {
+    position: absolute;
+    top: 226px;
+    left: 183px;
+  }
+</style>
+<IllustrationCard blend class="card">
+  <Terminal class="terminal"><OverviewIllustrationTerminalContent /></Terminal>
+  <Window class="ide">
+    <LightDarkImg src="illustrations/overview-ide" />
+  </Window>
+</IllustrationCard>

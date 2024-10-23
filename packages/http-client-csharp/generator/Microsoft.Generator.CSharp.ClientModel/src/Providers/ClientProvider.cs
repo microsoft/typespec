@@ -2,13 +2,11 @@
 // Licensed under the MIT License.
 
 using System;
-using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using Microsoft.Generator.CSharp.ClientModel.Primitives;
-using Microsoft.Generator.CSharp.ClientModel.Snippets;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
@@ -25,6 +23,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private const string AuthorizationApiKeyPrefixConstName = "AuthorizationApiKeyPrefix";
         private const string ApiKeyCredentialFieldName = "_keyCredential";
         private const string EndpointFieldName = "_endpoint";
+        private const string ClientSuffix = "Client";
         private readonly FormattableString _publicCtorDescription;
         private readonly InputClient _inputClient;
         private readonly InputAuth? _inputAuth;
@@ -429,10 +428,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 var interlockedCompareExchange = Static(typeof(Interlocked)).Invoke(
                     nameof(Interlocked.CompareExchange),
                     [cachedClientFieldVar, New.Instance(subClientInstance.Type, subClientConstructorArgs), Null]);
+                var factoryMethodName = subClient.Value.Name.EndsWith(ClientSuffix, StringComparison.OrdinalIgnoreCase)
+                    ? $"Get{subClient.Value.Name}"
+                    : $"Get{subClient.Value.Name}{ClientSuffix}";
 
                 var factoryMethod = new MethodProvider(
                     new(
-                        $"Get{subClient.Value.Name}Client",
+                        factoryMethodName,
                         $"Initializes a new instance of {subClientInstance.Type.Name}",
                         MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual,
                         subClientInstance.Type,
