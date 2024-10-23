@@ -34,7 +34,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Client.Structure.ClientOperationGrou
             Assert.AreEqual(2, methodsOfGroup4.Where(method => method.Name.EndsWith("Async")).ToArray().Length);
             Assert.IsNotNull(typeof(Group4).GetMethods().Where(m => m.Name == "FourAsync").FirstOrDefault());
 
-            /*cheeck methods in SecondClient. */
+            /*check methods in SecondClient. */
             var methodsOfSecondClient = typeof(SubNamespaceSecondClient).GetMethods();
             Assert.IsNotNull(methodsOfSecondClient);
             Assert.AreEqual(2, methodsOfSecondClient.Where(method => method.Name.EndsWith("Async")).Count());
