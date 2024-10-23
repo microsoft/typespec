@@ -1,5 +1,6 @@
 import { NodeFlags, SymbolLinks, SyntaxKind } from "@typespec/compiler";
 import { ok, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { Binder, createBinder } from "../src/core/binder.js";
 import { inspectSymbolFlags } from "../src/core/inspector.js";
 import { createLogger } from "../src/core/logger/logger.js";
@@ -14,23 +15,22 @@ import {
   TypeReferenceNode,
 } from "../src/core/types.js";
 import { Program, Sym } from "../src/index.js";
-import { beforeEach, describe, it } from "vitest";
 
-  let binder: Binder;
-  let resolver: ReturnType<typeof createResolver>;
-  let program: Program;
+let binder: Binder;
+let resolver: ReturnType<typeof createResolver>;
+let program: Program;
 
-  beforeEach(() => {
-    program = createProgramShim();
-    binder = createBinder(program);
-    resolver = createResolver(program);
-  });
+beforeEach(() => {
+  program = createProgramShim();
+  binder = createBinder(program);
+  resolver = createResolver(program);
+});
 
-  describe("model statements", () => {
-    describe("binding", () => {
-      it("binds is members", () => {
-        const sym = getGlobalSymbol([
-          `
+describe("model statements", () => {
+  describe("binding", () => {
+    it("binds is members", () => {
+      const sym = getGlobalSymbol([
+        `
           model M1 {
             x: "x";
           }
@@ -39,34 +39,34 @@ import { beforeEach, describe, it } from "vitest";
             y: "y";
           }
           `,
-        ]);
+      ]);
 
-        assertSymbol(sym, {
-          exports: {
-            M1: {
-              members: {
-                x: {
-                  flags: SymbolFlags.Member,
-                },
-              },
-            },
-            M2: {
-              members: {
-                x: {
-                  flags: SymbolFlags.Member,
-                },
-                y: {
-                  flags: SymbolFlags.Member,
-                },
+      assertSymbol(sym, {
+        exports: {
+          M1: {
+            members: {
+              x: {
+                flags: SymbolFlags.Member,
               },
             },
           },
-        });
+          M2: {
+            members: {
+              x: {
+                flags: SymbolFlags.Member,
+              },
+              y: {
+                flags: SymbolFlags.Member,
+              },
+            },
+          },
+        },
       });
+    });
 
-      it("binds spread members", () => {
-        const sym = getGlobalSymbol([
-          `
+    it("binds spread members", () => {
+      const sym = getGlobalSymbol([
+        `
           model M1 {
             x: "x";
           }
@@ -76,34 +76,34 @@ import { beforeEach, describe, it } from "vitest";
             y: "y";
           }
           `,
-        ]);
+      ]);
 
-        assertSymbol(sym, {
-          exports: {
-            M1: {
-              members: {
-                x: {
-                  flags: SymbolFlags.Member,
-                },
-              },
-            },
-            M2: {
-              members: {
-                x: {
-                  flags: SymbolFlags.Member,
-                },
-                y: {
-                  flags: SymbolFlags.Member,
-                },
+      assertSymbol(sym, {
+        exports: {
+          M1: {
+            members: {
+              x: {
+                flags: SymbolFlags.Member,
               },
             },
           },
-        });
+          M2: {
+            members: {
+              x: {
+                flags: SymbolFlags.Member,
+              },
+              y: {
+                flags: SymbolFlags.Member,
+              },
+            },
+          },
+        },
       });
+    });
 
-      it("binds spread members of templates", () => {
-        const sym = getGlobalSymbol([
-          `
+    it("binds spread members of templates", () => {
+      const sym = getGlobalSymbol([
+        `
           model M1<T> {
             x: "x";
             ... T;
@@ -114,27 +114,27 @@ import { beforeEach, describe, it } from "vitest";
             y: "y";
           }
           `,
-        ]);
+      ]);
 
-        assertSymbol(sym, {
-          exports: {
-            M2: {
-              members: {
-                x: {
-                  flags: SymbolFlags.Member,
-                },
-                y: {
-                  flags: SymbolFlags.Member,
-                },
+      assertSymbol(sym, {
+        exports: {
+          M2: {
+            members: {
+              x: {
+                flags: SymbolFlags.Member,
+              },
+              y: {
+                flags: SymbolFlags.Member,
               },
             },
           },
-        });
+        },
       });
+    });
 
-      it("binds spread members of templates with constraints", () => {
-        const sym = getGlobalSymbol([
-          `
+    it("binds spread members of templates with constraints", () => {
+      const sym = getGlobalSymbol([
+        `
           model M1<T extends {z: "z"}> {
             x: "x";
             ... T;
@@ -145,24 +145,24 @@ import { beforeEach, describe, it } from "vitest";
             y: "y";
           }
           `,
-        ]);
-        const memberFlags = { flags: SymbolFlags.Member };
-        assertSymbol(sym, {
-          exports: {
-            M2: {
-              members: {
-                x: memberFlags,
-                y: memberFlags,
-                z: memberFlags,
-              },
+      ]);
+      const memberFlags = { flags: SymbolFlags.Member };
+      assertSymbol(sym, {
+        exports: {
+          M2: {
+            members: {
+              x: memberFlags,
+              y: memberFlags,
+              z: memberFlags,
             },
           },
-        });
+        },
       });
+    });
 
-      it("sets containsUnknownMembers flag with spread/extends of instantiations", () => {
-        const sym = getGlobalSymbol([
-          `
+    it("sets containsUnknownMembers flag with spread/extends of instantiations", () => {
+      const sym = getGlobalSymbol([
+        `
           model Template<T> { ... T };
   
           model M1 extends Template<{}> {}
@@ -176,62 +176,62 @@ import { beforeEach, describe, it } from "vitest";
             ... M1;
           }
           `,
-        ]);
+      ]);
 
-        const hasUnknownMembers = { links: { hasUnknownMembers: true } };
-        assertSymbol(sym, {
-          exports: {
-            M1: hasUnknownMembers,
-            M2: hasUnknownMembers,
-            M3: hasUnknownMembers,
-            M4: hasUnknownMembers,
-          },
-        });
+      const hasUnknownMembers = { links: { hasUnknownMembers: true } };
+      assertSymbol(sym, {
+        exports: {
+          M1: hasUnknownMembers,
+          M2: hasUnknownMembers,
+          M3: hasUnknownMembers,
+          M4: hasUnknownMembers,
+        },
       });
+    });
 
-      it("binds members of templates", () => {
-        const sym = getGlobalSymbol([
-          `
+    it("binds members of templates", () => {
+      const sym = getGlobalSymbol([
+        `
           model Template<T> {
             x: "x";
           }
           `,
-        ]);
+      ]);
 
-        assertSymbol(sym, {
-          exports: {
-            Template: {
-              members: {
-                x: {
-                  flags: SymbolFlags.Member,
-                },
+      assertSymbol(sym, {
+        exports: {
+          Template: {
+            members: {
+              x: {
+                flags: SymbolFlags.Member,
               },
             },
           },
-        });
+        },
       });
     });
+  });
 
-    describe("resolution", () => {
-      it("resolves model members", () => {
-        const { "Foo.prop": prop } = getResolutions(
-          [
-            `
+  describe("resolution", () => {
+    it("resolves model members", () => {
+      const { "Foo.prop": prop } = getResolutions(
+        [
+          `
             model Foo {
               prop: "prop";
             }
             ┆
             `,
-          ],
-          "Foo.prop"
-        );
-        assertSymbol(prop, { name: "prop", flags: SymbolFlags.Member });
-      });
+        ],
+        "Foo.prop",
+      );
+      assertSymbol(prop, { name: "prop", flags: SymbolFlags.Member });
+    });
 
-      it("resolves model members from spread", () => {
-        const { "Foo.prop": prop } = getResolutions(
-          [
-            `
+    it("resolves model members from spread", () => {
+      const { "Foo.prop": prop } = getResolutions(
+        [
+          `
             model Bar {
               prop: "prop";
             }
@@ -241,16 +241,16 @@ import { beforeEach, describe, it } from "vitest";
             }
             ┆
             `,
-          ],
-          "Foo.prop"
-        );
-        assertSymbol(prop, { name: "prop", flags: SymbolFlags.Member });
-      });
+        ],
+        "Foo.prop",
+      );
+      assertSymbol(prop, { name: "prop", flags: SymbolFlags.Member });
+    });
 
-      it("resolves model members from extends", () => {
-        const { "Foo.prop": prop, Bar } = getResolutions(
-          [
-            `
+    it("resolves model members from extends", () => {
+      const { "Foo.prop": prop, Bar } = getResolutions(
+        [
+          `
             model Bar {
               prop: "prop";
             }
@@ -258,18 +258,18 @@ import { beforeEach, describe, it } from "vitest";
             model Foo extends Bar {}
             ┆
             `,
-          ],
-          "Foo.prop",
-          "Bar"
-        );
-        assertSymbol(prop, { name: "prop", flags: SymbolFlags.Member });
-        ok(prop[0].parent === Bar[0]);
-      });
+        ],
+        "Foo.prop",
+        "Bar",
+      );
+      assertSymbol(prop, { name: "prop", flags: SymbolFlags.Member });
+      ok(prop[0].parent === Bar[0]);
+    });
 
-      it("resolves model members from extends with unknown spreads to unknown not inherited member", () => {
-        const { "Foo.prop": prop } = getResolutions(
-          [
-            `
+    it("resolves model members from extends with unknown spreads to unknown not inherited member", () => {
+      const { "Foo.prop": prop } = getResolutions(
+        [
+          `
             model Bar {
               prop: "prop";
             }
@@ -284,16 +284,16 @@ import { beforeEach, describe, it } from "vitest";
   
             ┆
             `,
-          ],
-          "Foo.prop"
-        );
-        ok(prop[1] & ResolutionResultFlags.Unknown);
-      });
+        ],
+        "Foo.prop",
+      );
+      ok(prop[1] & ResolutionResultFlags.Unknown);
+    });
 
-      it("model members should be unknown with an unknown spread", () => {
-        const { "Foo.prop": prop } = getResolutions(
-          [
-            `
+    it("model members should be unknown with an unknown spread", () => {
+      const { "Foo.prop": prop } = getResolutions(
+        [
+          `
             model Foo {
               ... Baz<{}>;
             }
@@ -304,16 +304,16 @@ import { beforeEach, describe, it } from "vitest";
   
             ┆
             `,
-          ],
-          "Foo.prop"
-        );
-        ok(prop[1] & ResolutionResultFlags.Unknown);
-      });
+        ],
+        "Foo.prop",
+      );
+      ok(prop[1] & ResolutionResultFlags.Unknown);
+    });
 
-      it("model members should be unknown with an unknown base class", () => {
-        const { "Foo.prop": prop } = getResolutions(
-          [
-            `
+    it("model members should be unknown with an unknown base class", () => {
+      const { "Foo.prop": prop } = getResolutions(
+        [
+          `
             model Foo extends Baz<{}> {
             }
   
@@ -323,38 +323,38 @@ import { beforeEach, describe, it } from "vitest";
   
             ┆
             `,
-          ],
-          "Foo.prop"
-        );
-        ok(prop[1] & ResolutionResultFlags.Unknown);
-      });
+        ],
+        "Foo.prop",
+      );
+      ok(prop[1] & ResolutionResultFlags.Unknown);
     });
   });
+});
 
-  describe.skip("model expressions", () => {});
+describe.skip("model expressions", () => {});
 
-  describe("model properties", () => {
-    it("resolves meta properties", () => {
-      const { "Foo.prop::type": propType, Bar } = getResolutions(
-        [
-          `
+describe("model properties", () => {
+  it("resolves meta properties", () => {
+    const { "Foo.prop::type": propType, Bar } = getResolutions(
+      [
+        `
           model Foo {
             prop: Bar;
           }
           model Bar { }
           ┆
           `,
-        ],
-        "Foo.prop::type",
-        "Bar"
-      );
-      ok(propType[0] === Bar[0], "should resolve to Bar");
-    });
+      ],
+      "Foo.prop::type",
+      "Bar",
+    );
+    ok(propType[0] === Bar[0], "should resolve to Bar");
+  });
 
-    it("resolves meta properties of nested model types", () => {
-      const { "Foo.prop::type.nestedProp::type": propType, Bar } = getResolutions(
-        [
-          `
+  it("resolves meta properties of nested model types", () => {
+    const { "Foo.prop::type.nestedProp::type": propType, Bar } = getResolutions(
+      [
+        `
           model Foo {
             prop: {
               nestedProp: Bar;
@@ -363,17 +363,17 @@ import { beforeEach, describe, it } from "vitest";
           model Bar { }
           ┆
           `,
-        ],
-        "Foo.prop::type.nestedProp::type",
-        "Bar"
-      );
-      ok(propType[0] === Bar[0], "should resolve to Bar");
-    });
+      ],
+      "Foo.prop::type.nestedProp::type",
+      "Bar",
+    );
+    ok(propType[0] === Bar[0], "should resolve to Bar");
+  });
 
-    it("resolves meta properties of aliased model properties", () => {
-      const { "FooProp::type": propType, Bar } = getResolutions(
-        [
-          `
+  it("resolves meta properties of aliased model properties", () => {
+    const { "FooProp::type": propType, Bar } = getResolutions(
+      [
+        `
           model Foo {
             prop: Bar;
           }
@@ -381,18 +381,18 @@ import { beforeEach, describe, it } from "vitest";
           alias FooProp = Foo.prop;
           ┆
           `,
-        ],
-        "FooProp::type",
-        "Bar"
-      );
-      ok(propType[0] === Bar[0], "should resolve to Bar");
-    });
+      ],
+      "FooProp::type",
+      "Bar",
+    );
+    ok(propType[0] === Bar[0], "should resolve to Bar");
   });
-  describe("interfaces", () => {
-    describe("binding", () => {
-      it("binds interface members from extends", () => {
-        const sym = getGlobalSymbol([
-          `
+});
+describe("interfaces", () => {
+  describe("binding", () => {
+    it("binds interface members from extends", () => {
+      const sym = getGlobalSymbol([
+        `
           interface Bar {
             x(): void;
           }
@@ -402,27 +402,27 @@ import { beforeEach, describe, it } from "vitest";
           }
           interface Foo extends Bar, Baz {}
           `,
-        ]);
+      ]);
 
-        assertSymbol(sym, {
-          exports: {
-            Foo: {
-              members: {
-                x: {
-                  flags: SymbolFlags.Member | SymbolFlags.Operation,
-                },
-                y: {
-                  flags: SymbolFlags.Member | SymbolFlags.Operation,
-                },
+      assertSymbol(sym, {
+        exports: {
+          Foo: {
+            members: {
+              x: {
+                flags: SymbolFlags.Member | SymbolFlags.Operation,
+              },
+              y: {
+                flags: SymbolFlags.Member | SymbolFlags.Operation,
               },
             },
           },
-        });
+        },
       });
+    });
 
-      it("binds interface members from extends templates", () => {
-        const sym = getGlobalSymbol([
-          `
+    it("binds interface members from extends templates", () => {
+      const sym = getGlobalSymbol([
+        `
           interface Template<T> {
             x(): void;
           }
@@ -431,24 +431,24 @@ import { beforeEach, describe, it } from "vitest";
 
           }
           `,
-        ]);
+      ]);
 
-        assertSymbol(sym, {
-          exports: {
-            Foo: {
-              members: {
-                x: {
-                  flags: SymbolFlags.Member | SymbolFlags.Operation,
-                },
+      assertSymbol(sym, {
+        exports: {
+          Foo: {
+            members: {
+              x: {
+                flags: SymbolFlags.Member | SymbolFlags.Operation,
               },
             },
           },
-        });
+        },
       });
+    });
 
-      it("binds interface members from multiple extends templates", () => {
-        const sym = getGlobalSymbol([
-          `
+    it("binds interface members from multiple extends templates", () => {
+      const sym = getGlobalSymbol([
+        `
           interface Template1<T> {
             x(): void;
           }
@@ -465,106 +465,106 @@ import { beforeEach, describe, it } from "vitest";
 
           }
           `,
-        ]);
+      ]);
 
-        assertSymbol(sym, {
-          exports: {
-            Foo: {
-              members: {
-                x: {
-                  flags: SymbolFlags.Member | SymbolFlags.Operation,
-                },
-                y: {
-                  flags: SymbolFlags.Member | SymbolFlags.Operation,
-                },
-                z: {
-                  flags: SymbolFlags.Member | SymbolFlags.Operation,
-                },
+      assertSymbol(sym, {
+        exports: {
+          Foo: {
+            members: {
+              x: {
+                flags: SymbolFlags.Member | SymbolFlags.Operation,
+              },
+              y: {
+                flags: SymbolFlags.Member | SymbolFlags.Operation,
+              },
+              z: {
+                flags: SymbolFlags.Member | SymbolFlags.Operation,
               },
             },
           },
-        });
+        },
       });
     });
-    describe("resolution", () => {
-      it("resolves interface members", () => {
-        const { "Foo.x": x } = getResolutions(
-          [
-            `
+  });
+  describe("resolution", () => {
+    it("resolves interface members", () => {
+      const { "Foo.x": x } = getResolutions(
+        [
+          `
             interface Foo {
               x(): void;
             }
             ┆
             `,
-          ],
-          "Foo.x"
-        );
-        assertSymbol(x, { name: "x", flags: SymbolFlags.Member | SymbolFlags.Operation });
-      });
+        ],
+        "Foo.x",
+      );
+      assertSymbol(x, { name: "x", flags: SymbolFlags.Member | SymbolFlags.Operation });
+    });
 
-      it("resolves interface members from templates", () => {
-        const { "Foo.x": x, "Template.x": tx } = getResolutions(
-          [
-            `
+    it("resolves interface members from templates", () => {
+      const { "Foo.x": x, "Template.x": tx } = getResolutions(
+        [
+          `
             interface Template<T> {
               x(): void;
             }
             interface Foo extends Template<{}> {}
             ┆
             `,
-          ],
-          "Foo.x",
-          "Template.x"
-        );
+        ],
+        "Foo.x",
+        "Template.x",
+      );
 
-        assertSymbol(x, { name: "x", flags: SymbolFlags.Member | SymbolFlags.Operation });
-        assertSymbol(tx, { name: "x", flags: SymbolFlags.Member | SymbolFlags.Operation });
-      });
+      assertSymbol(x, { name: "x", flags: SymbolFlags.Member | SymbolFlags.Operation });
+      assertSymbol(tx, { name: "x", flags: SymbolFlags.Member | SymbolFlags.Operation });
     });
   });
+});
 
-  describe("operations", () => {
-    describe("resolution", () => {
-      it("resolves parameters meta property", () => {
-        const { "Foo::parameters.x::type": x, Bar: Bar } = getResolutions(
-          [
-            `
+describe("operations", () => {
+  describe("resolution", () => {
+    it("resolves parameters meta property", () => {
+      const { "Foo::parameters.x::type": x, Bar: Bar } = getResolutions(
+        [
+          `
             model Bar { }
             op Foo(x: Bar): void;
             ┆
             `,
-          ],
-          "Foo::parameters.x::type",
-          "Bar"
-        );
+        ],
+        "Foo::parameters.x::type",
+        "Bar",
+      );
 
-        ok(x[0] === Bar[0], "Should resolve to Bar");
-      });
+      ok(x[0] === Bar[0], "Should resolve to Bar");
+    });
 
-      it("resolves parameters meta property with is ops", () => {
-        const { "Baz::parameters.x::type": x, Bar: Bar } = getResolutions(
-          [
-            `
+    it("resolves parameters meta property with is ops", () => {
+      const { "Baz::parameters.x::type": x, Bar: Bar } = getResolutions(
+        [
+          `
             model Bar { }
             op Foo(x: Bar): void;
             op Baz is Foo;
             ┆
             `,
-          ],
-          "Baz::parameters.x::type",
-          "Bar"
-        );
+        ],
+        "Baz::parameters.x::type",
+        "Bar",
+      );
 
-        ok(x[0] === Bar[0], "Should resolve to Bar");
-      });
+      ok(x[0] === Bar[0], "Should resolve to Bar");
     });
   });
+});
 
-  describe("enums", () => {
-    describe("binding", () => {
-      it("binds enum members from spread", () => {
-        const sym = getGlobalSymbol([
-          `
+describe("enums", () => {
+  describe("binding", () => {
+    it("binds enum members from spread", () => {
+      const sym = getGlobalSymbol([
+        `
           enum A {
             x;
             ... B;
@@ -574,52 +574,52 @@ import { beforeEach, describe, it } from "vitest";
             y: 2;
           }
           `,
-        ]);
+      ]);
 
-        assertSymbol(sym, {
-          exports: {
-            A: {
-              members: {
-                x: {
-                  flags: SymbolFlags.Member,
-                },
-                y: {
-                  flags: SymbolFlags.Member,
-                },
+      assertSymbol(sym, {
+        exports: {
+          A: {
+            members: {
+              x: {
+                flags: SymbolFlags.Member,
               },
-            },
-            B: {
-              members: {
-                y: {
-                  flags: SymbolFlags.Member,
-                },
+              y: {
+                flags: SymbolFlags.Member,
               },
             },
           },
-        });
+          B: {
+            members: {
+              y: {
+                flags: SymbolFlags.Member,
+              },
+            },
+          },
+        },
       });
     });
+  });
 
-    describe("resolution", () => {
-      it("resolves enum members", () => {
-        const { "Foo.x": x } = getResolutions(
-          [
-            `
+  describe("resolution", () => {
+    it("resolves enum members", () => {
+      const { "Foo.x": x } = getResolutions(
+        [
+          `
             enum Foo {
               x;
             }
             ┆
             `,
-          ],
-          "Foo.x"
-        );
-        assertSymbol(x, { name: "x", flags: SymbolFlags.Member });
-      });
+        ],
+        "Foo.x",
+      );
+      assertSymbol(x, { name: "x", flags: SymbolFlags.Member });
+    });
 
-      it("resolves enum members from spread", () => {
-        const { "Foo.x": x, "Bar.y": y } = getResolutions(
-          [
-            `
+    it("resolves enum members from spread", () => {
+      const { "Foo.x": x, "Bar.y": y } = getResolutions(
+        [
+          `
             enum Foo {
               x;
             }
@@ -629,120 +629,120 @@ import { beforeEach, describe, it } from "vitest";
             }
             ┆
             `,
-          ],
-          "Foo.x",
-          "Bar.y"
-        );
-        assertSymbol(x, { name: "x", flags: SymbolFlags.Member });
-        assertSymbol(y, { name: "y", flags: SymbolFlags.Member });
-      });
+        ],
+        "Foo.x",
+        "Bar.y",
+      );
+      assertSymbol(x, { name: "x", flags: SymbolFlags.Member });
+      assertSymbol(y, { name: "y", flags: SymbolFlags.Member });
     });
   });
+});
 
-  describe.only("unions", () => {
-    describe("binding", () => {
-      it("binds union members", () => {
-        const sym = getGlobalSymbol([
-          `
+describe("unions", () => {
+  describe("binding", () => {
+    it("binds union members", () => {
+      const sym = getGlobalSymbol([
+        `
           union Foo {
             x: "x";
           }
           `,
-        ]);
+      ]);
 
-        assertSymbol(sym, {
-          exports: {
-            Foo: {
-              members: {
-                x: {
-                  flags: SymbolFlags.Member,
-                },
+      assertSymbol(sym, {
+        exports: {
+          Foo: {
+            members: {
+              x: {
+                flags: SymbolFlags.Member,
               },
             },
           },
-        });
+        },
       });
     });
-    describe("resolution", () => {
-      it("resolves named union variants", () => {
-        const { "Foo.x": x } = getResolutions(
-          [
-            `
+  });
+  describe("resolution", () => {
+    it("resolves named union variants", () => {
+      const { "Foo.x": x } = getResolutions(
+        [
+          `
             union Foo {
               x: "x";
             }
             ┆
             `,
-          ],
-          "Foo.x"
-        );
-        assertSymbol(x, { name: "x", flags: SymbolFlags.Member });
-      });
+        ],
+        "Foo.x",
+      );
+      assertSymbol(x, { name: "x", flags: SymbolFlags.Member });
     });
   });
+});
 
-  describe("namespaces", () => {
-    describe("binding", () => {
-      it("merges across the same file", () => {
-        const sym = getGlobalSymbol([
-          `namespace Foo {
+describe("namespaces", () => {
+  describe("binding", () => {
+    it("merges across the same file", () => {
+      const sym = getGlobalSymbol([
+        `namespace Foo {
             model M { }  
           }
           namespace Foo {
             model N { }
           }`,
-        ]);
+      ]);
 
-        assertSymbol(sym, {
-          exports: {
-            Foo: {
-              flags: SymbolFlags.Namespace,
-              exports: {
-                M: {
-                  flags: SymbolFlags.Model,
-                },
-                N: {
-                  flags: SymbolFlags.Model,
-                },
+      assertSymbol(sym, {
+        exports: {
+          Foo: {
+            flags: SymbolFlags.Namespace,
+            exports: {
+              M: {
+                flags: SymbolFlags.Model,
+              },
+              N: {
+                flags: SymbolFlags.Model,
               },
             },
           },
-        });
-      });
-
-      it("merges across files", () => {
-        const sym = getGlobalSymbol([
-          `namespace Foo {
-            model M { }  
-          }`,
-          `namespace Foo {
-            model N { }
-          }`,
-        ]);
-
-        assertSymbol(sym, {
-          exports: {
-            Foo: {
-              flags: SymbolFlags.Namespace,
-              exports: {
-                M: {
-                  flags: SymbolFlags.Model,
-                },
-                N: {
-                  flags: SymbolFlags.Model,
-                },
-              },
-            },
-          },
-        });
+        },
       });
     });
 
-    describe("resolution", () => {
-      it("resolves namespace members", () => {
-        const { "Foo.Bar.M": M, "Foo.N": N } = getResolutions(
-          [
-            `namespace Foo {
+    it("merges across files", () => {
+      const sym = getGlobalSymbol([
+        `namespace Foo {
+            model M { }  
+          }`,
+        `namespace Foo {
+            model N { }
+          }`,
+      ]);
+
+      assertSymbol(sym, {
+        exports: {
+          Foo: {
+            flags: SymbolFlags.Namespace,
+            exports: {
+              M: {
+                flags: SymbolFlags.Model,
+              },
+              N: {
+                flags: SymbolFlags.Model,
+              },
+            },
+          },
+        },
+      });
+    });
+  });
+
+  describe("resolution", () => {
+    it("resolves namespace members", () => {
+      const { "Foo.Bar.M": M, "Foo.N": N } = getResolutions(
+        [
+          `namespace Foo {
               namespace Bar {
                 model M {}
               }
@@ -750,53 +750,53 @@ import { beforeEach, describe, it } from "vitest";
             }
             ┆
             `,
-          ],
-          "Foo.Bar.M",
-          "Foo.N"
-        );
-        assertSymbol(M, { name: "M" });
-        assertSymbol(N, { name: "N" });
-      });
+        ],
+        "Foo.Bar.M",
+        "Foo.N",
+      );
+      assertSymbol(M, { name: "M" });
+      assertSymbol(N, { name: "N" });
     });
   });
+});
 
-  describe("aliases", () => {
-    describe("binding", () => {
-      it("binds aliases to symbols", () => {
-        // this is just handled by the binder, but verifying here.
-        const sym = getGlobalSymbol([
-          `namespace Foo {
+describe("aliases", () => {
+  describe("binding", () => {
+    it("binds aliases to symbols", () => {
+      // this is just handled by the binder, but verifying here.
+      const sym = getGlobalSymbol([
+        `namespace Foo {
             model M { }  
           }
           namespace Bar {
             alias M = Foo.M;
           }`,
-        ]);
+      ]);
 
-        assertSymbol(sym, {
-          exports: {
-            Foo: {
-              flags: SymbolFlags.Namespace,
-              exports: {
-                M: {
-                  flags: SymbolFlags.Model,
-                },
-              },
-            },
-            Bar: {
-              flags: SymbolFlags.Namespace,
-              exports: {
-                M: {
-                  flags: SymbolFlags.Alias,
-                },
+      assertSymbol(sym, {
+        exports: {
+          Foo: {
+            flags: SymbolFlags.Namespace,
+            exports: {
+              M: {
+                flags: SymbolFlags.Model,
               },
             },
           },
-        });
+          Bar: {
+            flags: SymbolFlags.Namespace,
+            exports: {
+              M: {
+                flags: SymbolFlags.Alias,
+              },
+            },
+          },
+        },
       });
-      it("resolves aliases to their aliased symbol", () => {
-        const sym = getGlobalSymbol([
-          `
+    });
+    it("resolves aliases to their aliased symbol", () => {
+      const sym = getGlobalSymbol([
+        `
             model M1 {
               x: "x";
             }
@@ -804,44 +804,44 @@ import { beforeEach, describe, it } from "vitest";
             alias M2 = M1;
             alias M3 = M2;
             `,
-        ]);
+      ]);
 
-        const m1Sym = sym.exports?.get("M1");
-        assertSymbol(sym, {
-          exports: {
-            M1: {
-              members: {
-                x: {
-                  flags: SymbolFlags.Member,
-                },
-              },
-            },
-            M2: {
-              flags: SymbolFlags.Alias,
-              links: {
-                aliasedSymbol: m1Sym,
-              },
-            },
-            M3: {
-              flags: SymbolFlags.Alias,
-              links: {
-                aliasedSymbol: m1Sym,
+      const m1Sym = sym.exports?.get("M1");
+      assertSymbol(sym, {
+        exports: {
+          M1: {
+            members: {
+              x: {
+                flags: SymbolFlags.Member,
               },
             },
           },
-        });
+          M2: {
+            flags: SymbolFlags.Alias,
+            links: {
+              aliasedSymbol: m1Sym,
+            },
+          },
+          M3: {
+            flags: SymbolFlags.Alias,
+            links: {
+              aliasedSymbol: m1Sym,
+            },
+          },
+        },
       });
     });
+  });
 
-    describe("resolution", () => {
-      it("resolves aliases", () => {
-        const {
-          "Foo.Bar.M": M,
-          "Baz.AliasM": AliasM,
-          "Baz.AliasAliasM": AliasAliasM,
-        } = getResolutions(
-          [
-            `namespace Foo {
+  describe("resolution", () => {
+    it("resolves aliases", () => {
+      const {
+        "Foo.Bar.M": M,
+        "Baz.AliasM": AliasM,
+        "Baz.AliasAliasM": AliasAliasM,
+      } = getResolutions(
+        [
+          `namespace Foo {
                 namespace Bar {
                   model M {}
                 }
@@ -852,86 +852,86 @@ import { beforeEach, describe, it } from "vitest";
               }
               ┆
               `,
-          ],
-          "Foo.Bar.M",
-          "Baz.AliasM",
-          "Baz.AliasAliasM"
-        );
-        assertSymbol(M, { name: "M", flags: SymbolFlags.Model });
-        assertSymbol(AliasM, { name: "M", flags: SymbolFlags.Model });
-        assertSymbol(AliasAliasM, { name: "M", flags: SymbolFlags.Model });
-      });
+        ],
+        "Foo.Bar.M",
+        "Baz.AliasM",
+        "Baz.AliasAliasM",
+      );
+      assertSymbol(M, { name: "M", flags: SymbolFlags.Model });
+      assertSymbol(AliasM, { name: "M", flags: SymbolFlags.Model });
+      assertSymbol(AliasAliasM, { name: "M", flags: SymbolFlags.Model });
+    });
 
-      it("resolves known members of aliased things with members", () => {
-        const {
-          "Foo.x": x,
-          "Bar.x": aliasX,
-          Baz: aliasAliasX,
-        } = getResolutions(
-          [
-            `
+    it("resolves known members of aliased things with members", () => {
+      const {
+        "Foo.x": x,
+        "Bar.x": aliasX,
+        Baz: aliasAliasX,
+      } = getResolutions(
+        [
+          `
             model Foo { x: "hi" }
             alias Bar = Foo;
             alias Baz = Bar.x;
             ┆
             `,
-          ],
-          "Foo.x",
-          "Bar.x",
-          "Baz"
-        );
-        const xDescriptor = { name: "x", flags: SymbolFlags.Member };
-        assertSymbol(x, xDescriptor);
-        assertSymbol(aliasX, xDescriptor);
-        assertSymbol(aliasAliasX, xDescriptor);
-      });
+        ],
+        "Foo.x",
+        "Bar.x",
+        "Baz",
+      );
+      const xDescriptor = { name: "x", flags: SymbolFlags.Member };
+      assertSymbol(x, xDescriptor);
+      assertSymbol(aliasX, xDescriptor);
+      assertSymbol(aliasAliasX, xDescriptor);
+    });
 
-      it("resolves unknown members of aliased things with members", () => {
-        const { Baz: yResult } = getResolutions(
-          [
-            `
+    it("resolves unknown members of aliased things with members", () => {
+      const { Baz: yResult } = getResolutions(
+        [
+          `
             model Template<T> { ... T };
             model Foo { x: "hi", ... Template<{}> }
             alias Bar = Foo;
             alias Baz = Bar.y;
             ┆
             `,
-          ],
-          "Foo.x",
-          "Bar.x",
-          "Baz"
-        );
-        ok(yResult[1] & ResolutionResultFlags.Unknown, "Baz alias should be unknown");
+        ],
+        "Foo.x",
+        "Bar.x",
+        "Baz",
+      );
+      ok(yResult[1] & ResolutionResultFlags.Unknown, "Baz alias should be unknown");
+    });
+  });
+});
+
+describe("usings", () => {
+  describe("binding", () => {
+    it("binds usings to locals", () => {
+      const sym = getGlobalSymbol(["namespace Foo { model M { }} namespace Bar { using Foo; }"]);
+      assertSymbol(sym, {
+        exports: {
+          Foo: {
+            flags: SymbolFlags.Namespace,
+          },
+          Bar: {
+            flags: SymbolFlags.Namespace,
+            locals: {
+              M: {
+                flags: SymbolFlags.Model | SymbolFlags.Using,
+              },
+            },
+          },
+        },
       });
     });
   });
 
-  describe("usings", () => {
-    describe("binding", () => {
-      it("binds usings to locals", () => {
-        const sym = getGlobalSymbol(["namespace Foo { model M { }} namespace Bar { using Foo; }"]);
-        assertSymbol(sym, {
-          exports: {
-            Foo: {
-              flags: SymbolFlags.Namespace,
-            },
-            Bar: {
-              flags: SymbolFlags.Namespace,
-              locals: {
-                M: {
-                  flags: SymbolFlags.Model | SymbolFlags.Using,
-                },
-              },
-            },
-          },
-        });
-      });
-    });
-
-    describe("resolution", () => {
-      it("resolves usings", () => {
-        const sources = [
-          `
+  describe("resolution", () => {
+    it("resolves usings", () => {
+      const sources = [
+        `
           namespace Foo {
             model M { }
           }
@@ -941,167 +941,167 @@ import { beforeEach, describe, it } from "vitest";
             ┆
           }
         `,
-        ];
+      ];
 
-        const { M } = getResolutions(sources, "M");
-        assertSymbol(M[0], { name: "M", flags: SymbolFlags.Using });
-      });
+      const { M } = getResolutions(sources, "M");
+      assertSymbol(M[0], { name: "M", flags: SymbolFlags.Using });
     });
   });
+});
 
-  type StringTuplesToSymbolRecord<T extends string[]> = {
-    [K in T[number]]: ResolutionResult;
-  };
+type StringTuplesToSymbolRecord<T extends string[]> = {
+  [K in T[number]]: ResolutionResult;
+};
 
-  function getResolutions<T extends string[]>(
-    sources: string[],
-    ...names: T
-  ): StringTuplesToSymbolRecord<T> {
-    let index = 0;
-    const symbols = {} as any;
-    const referenceNodes: TypeReferenceNode[] = [];
+function getResolutions<T extends string[]>(
+  sources: string[],
+  ...names: T
+): StringTuplesToSymbolRecord<T> {
+  let index = 0;
+  const symbols = {} as any;
+  const referenceNodes: TypeReferenceNode[] = [];
 
-    for (let source of sources) {
-      const cursorPos = source.indexOf("┆");
-      if (cursorPos >= 0) {
-        const aliasCodes = names.map(
-          (name) => `alias test${name.replace(/\.|(::)/g, "")} = ${name};`
-        );
-        const aliasOffsets: number[] = [];
-        let prevOffset = 0;
-        for (let i = 0; i < names.length; i++) {
-          aliasOffsets.push(prevOffset + aliasCodes[i].length - 1);
-          prevOffset += aliasCodes[i].length;
-        }
-        source = source.slice(0, cursorPos) + aliasCodes.join("") + source.slice(cursorPos + 1);
-        const sf = parse(source);
-        program.sourceFiles.set(String(index++), sf);
-        binder.bindSourceFile(sf);
-
-        for (let i = 0; i < names.length; i++) {
-          const node = getNodeAtPosition(sf, cursorPos + aliasOffsets[i]);
-          referenceNodes.push(getParentTypeRef(node));
-        }
+  for (let source of sources) {
+    const cursorPos = source.indexOf("┆");
+    if (cursorPos >= 0) {
+      const aliasCodes = names.map(
+        (name) => `alias test${name.replace(/\.|(::)/g, "")} = ${name};`,
+      );
+      const aliasOffsets: number[] = [];
+      let prevOffset = 0;
+      for (let i = 0; i < names.length; i++) {
+        aliasOffsets.push(prevOffset + aliasCodes[i].length - 1);
+        prevOffset += aliasCodes[i].length;
       }
-    }
-
-    resolver.resolveProgram();
-    for (let i = 0; i < names.length; i++) {
-      const nodeLinks = resolver.getNodeLinks(referenceNodes[i]);
-      if (!nodeLinks.resolutionResult) {
-        throw new Error(`Reference ${names[i]} hasn't been resolved`);
-      }
-
-      symbols[names[i]] = [nodeLinks.resolvedSymbol, nodeLinks.resolutionResult];
-    }
-    return symbols;
-  }
-
-  function getParentTypeRef(node: Node | undefined) {
-    if (!node) {
-      throw new Error("Can't find parent of undefined node.");
-    }
-    if (node.kind !== SyntaxKind.MemberExpression && node.kind !== SyntaxKind.Identifier) {
-      throw new Error("Can't find parent of non-reference node.");
-    }
-
-    if (!node.parent) {
-      throw new Error("can't find parent.");
-    }
-
-    if (node.parent.kind === SyntaxKind.TypeReference) {
-      return node.parent;
-    }
-
-    return getParentTypeRef(node.parent);
-  }
-
-  function getGlobalSymbol(typespecSources: string[]): Sym {
-    let index = 0;
-    for (const source of typespecSources) {
+      source = source.slice(0, cursorPos) + aliasCodes.join("") + source.slice(cursorPos + 1);
       const sf = parse(source);
       program.sourceFiles.set(String(index++), sf);
       binder.bindSourceFile(sf);
-    }
 
-    resolver.resolveProgram();
-    return resolver.getGlobalNamespaceSymbol();
-  }
-
-  function assertSymbol(
-    sym: ResolutionResult | Sym | undefined,
-    record: SymbolDescriptor = {}
-  ): asserts sym is [Sym, ResolutionResultFlags] | Sym {
-    if (Array.isArray(sym)) {
-      sym = sym[0];
-    }
-    if (!sym) {
-      throw new Error(`Symbol not found.`);
-    }
-    if (record.flags) {
-      ok(
-        sym.flags & record.flags,
-        `Expected symbol ${sym.name} to have flags ${inspectSymbolFlags(
-          record.flags
-        )} but got ${inspectSymbolFlags(sym.flags)}`
-      );
-    }
-
-    if (record.nodeFlags) {
-      ok(
-        sym.declarations[0].flags & record.nodeFlags,
-        `Expected symbol ${sym.name} to have node flags ${record.nodeFlags} but got ${sym.declarations[0].flags}`
-      );
-    }
-
-    if (record.name) {
-      strictEqual(sym.name, record.name);
-    }
-
-    if (record.exports) {
-      ok(sym.exports, `Expected symbol ${sym.name} to have exports`);
-      const exports = resolver.getAugmentedSymbolTable(sym.exports);
-
-      for (const [name, descriptor] of Object.entries(record.exports)) {
-        const exportSym = exports.get(name);
-        ok(exportSym, `Expected symbol ${sym.name} to have export ${name}`);
-        assertSymbol(exportSym, descriptor);
-      }
-    }
-
-    if (record.locals) {
-      const node = sym.declarations[0] as any;
-      ok(node.locals, `Expected symbol ${sym.name} to have locals`);
-      const locals = resolver.getAugmentedSymbolTable(node.locals);
-
-      for (const [name, descriptor] of Object.entries(record.locals)) {
-        const localSym = locals.get(name);
-        ok(localSym, `Expected symbol ${sym.name} to have local ${name}`);
-        assertSymbol(localSym, descriptor);
-      }
-    }
-
-    if (record.members) {
-      ok(sym.members, `Expected symbol ${sym.name} to have exports`);
-      const members = resolver.getAugmentedSymbolTable(sym.members);
-
-      for (const [name, descriptor] of Object.entries(record.members)) {
-        const exportSym = members.get(name);
-        ok(exportSym, `Expected symbol ${sym.name} to have member ${name}`);
-        assertSymbol(exportSym, descriptor);
-      }
-    }
-
-    if (record.links) {
-      const links = resolver.getSymbolLinks(sym);
-      for (const [key, value] of Object.entries(record.links) as [keyof SymbolLinks, any][]) {
-        if (value) {
-          ok(links[key], `Expected symbol ${sym.name} to have link ${key}`);
-          strictEqual(links[key], value);
-        }
+      for (let i = 0; i < names.length; i++) {
+        const node = getNodeAtPosition(sf, cursorPos + aliasOffsets[i]);
+        referenceNodes.push(getParentTypeRef(node));
       }
     }
   }
+
+  resolver.resolveProgram();
+  for (let i = 0; i < names.length; i++) {
+    const nodeLinks = resolver.getNodeLinks(referenceNodes[i]);
+    if (!nodeLinks.resolutionResult) {
+      throw new Error(`Reference ${names[i]} hasn't been resolved`);
+    }
+
+    symbols[names[i]] = [nodeLinks.resolvedSymbol, nodeLinks.resolutionResult];
+  }
+  return symbols;
+}
+
+function getParentTypeRef(node: Node | undefined) {
+  if (!node) {
+    throw new Error("Can't find parent of undefined node.");
+  }
+  if (node.kind !== SyntaxKind.MemberExpression && node.kind !== SyntaxKind.Identifier) {
+    throw new Error("Can't find parent of non-reference node.");
+  }
+
+  if (!node.parent) {
+    throw new Error("can't find parent.");
+  }
+
+  if (node.parent.kind === SyntaxKind.TypeReference) {
+    return node.parent;
+  }
+
+  return getParentTypeRef(node.parent);
+}
+
+function getGlobalSymbol(typespecSources: string[]): Sym {
+  let index = 0;
+  for (const source of typespecSources) {
+    const sf = parse(source);
+    program.sourceFiles.set(String(index++), sf);
+    binder.bindSourceFile(sf);
+  }
+
+  resolver.resolveProgram();
+  return resolver.getGlobalNamespaceSymbol();
+}
+
+function assertSymbol(
+  sym: ResolutionResult | Sym | undefined,
+  record: SymbolDescriptor = {},
+): asserts sym is [Sym, ResolutionResultFlags] | Sym {
+  if (Array.isArray(sym)) {
+    sym = sym[0];
+  }
+  if (!sym) {
+    throw new Error(`Symbol not found.`);
+  }
+  if (record.flags) {
+    ok(
+      sym.flags & record.flags,
+      `Expected symbol ${sym.name} to have flags ${inspectSymbolFlags(
+        record.flags,
+      )} but got ${inspectSymbolFlags(sym.flags)}`,
+    );
+  }
+
+  if (record.nodeFlags) {
+    ok(
+      sym.declarations[0].flags & record.nodeFlags,
+      `Expected symbol ${sym.name} to have node flags ${record.nodeFlags} but got ${sym.declarations[0].flags}`,
+    );
+  }
+
+  if (record.name) {
+    strictEqual(sym.name, record.name);
+  }
+
+  if (record.exports) {
+    ok(sym.exports, `Expected symbol ${sym.name} to have exports`);
+    const exports = resolver.getAugmentedSymbolTable(sym.exports);
+
+    for (const [name, descriptor] of Object.entries(record.exports)) {
+      const exportSym = exports.get(name);
+      ok(exportSym, `Expected symbol ${sym.name} to have export ${name}`);
+      assertSymbol(exportSym, descriptor);
+    }
+  }
+
+  if (record.locals) {
+    const node = sym.declarations[0] as any;
+    ok(node.locals, `Expected symbol ${sym.name} to have locals`);
+    const locals = resolver.getAugmentedSymbolTable(node.locals);
+
+    for (const [name, descriptor] of Object.entries(record.locals)) {
+      const localSym = locals.get(name);
+      ok(localSym, `Expected symbol ${sym.name} to have local ${name}`);
+      assertSymbol(localSym, descriptor);
+    }
+  }
+
+  if (record.members) {
+    ok(sym.members, `Expected symbol ${sym.name} to have exports`);
+    const members = resolver.getAugmentedSymbolTable(sym.members);
+
+    for (const [name, descriptor] of Object.entries(record.members)) {
+      const exportSym = members.get(name);
+      ok(exportSym, `Expected symbol ${sym.name} to have member ${name}`);
+      assertSymbol(exportSym, descriptor);
+    }
+  }
+
+  if (record.links) {
+    const links = resolver.getSymbolLinks(sym);
+    for (const [key, value] of Object.entries(record.links) as [keyof SymbolLinks, any][]) {
+      if (value) {
+        ok(links[key], `Expected symbol ${sym.name} to have link ${key}`);
+        strictEqual(links[key], value);
+      }
+    }
+  }
+}
 
 interface SymbolDescriptor {
   name?: string;
