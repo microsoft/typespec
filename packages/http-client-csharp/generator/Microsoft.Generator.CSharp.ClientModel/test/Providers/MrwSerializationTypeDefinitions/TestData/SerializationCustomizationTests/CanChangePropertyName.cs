@@ -91,7 +91,6 @@ namespace Sample.Models
                 {
                     if ((prop.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
                     {
-                        prop2 = null;
                         continue;
                     }
                     global::System.Collections.Generic.List<string> array = new global::System.Collections.Generic.List<string>();
