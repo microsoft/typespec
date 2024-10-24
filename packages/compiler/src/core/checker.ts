@@ -1,8 +1,4 @@
-import {
-  docFromCommentDecorator,
-  getIndexer,
-  isPrototypeGetter,
-} from "../lib/intrinsic-decorators.js";
+import { docFromCommentDecorator, getIndexer } from "../lib/intrinsic-decorators.js";
 import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { createChangeIdentifierCodeFix } from "./compiler-code-fixes/change-identifier.codefix.js";
@@ -10,6 +6,7 @@ import { createModelToObjectValueCodeFix } from "./compiler-code-fixes/model-to-
 import { createTupleToArrayValueCodeFix } from "./compiler-code-fixes/tuple-to-array-value.codefix.js";
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
 import { ProjectionError, compilerAssert, ignoreDiagnostics } from "./diagnostics.js";
+import { printNodeInfo } from "./helpers/debug.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
 import { getLocationContext } from "./helpers/location-context.js";
 import { explainStringTemplateNotSerializable } from "./helpers/string-template-utils.js";
@@ -93,8 +90,6 @@ import {
   MemberExpressionNode,
   MemberNode,
   MemberType,
-  MetaMemberKey,
-  MetaMembersTable,
   MixedFunctionParameter,
   MixedParameterConstraint,
   Model,
@@ -419,7 +414,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     setUsingsForFile(file);
   }
   let evalContext: EvalContext | undefined = undefined;
-  const metaMembersTable: MetaMembersTable = createMetaMembersTable();
 
   const checker: Checker = {
     getTypeForNode,
@@ -486,19 +480,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     // Until we have an `unit` type for `null`
     mutate(resolver.intrinsicSymbols.null).type = nullType;
     getSymbolLinks(nullSym).type = nullType;
-  }
-
-  function createMetaMembersTable(): MetaMembersTable {
-    const table: MetaMembersTable = { type: {} };
-    if (!typespecNamespaceBinding) return table;
-    const tns = typespecNamespaceBinding.exports!.get("Prototypes")!.exports!.get("Types")!;
-    for (const [name, sym] of tns.exports!) {
-      if (sym.flags & SymbolFlags.Interface) {
-        table.type[name as MetaMemberKey] = sym;
-      }
-    }
-
-    return table;
   }
 
   function getStdType<T extends keyof StdTypes>(name: T): StdTypes[T] {
@@ -1667,9 +1648,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const argumentNodes = node.kind === SyntaxKind.TypeReference ? node.arguments : [];
     const symbolLinks = getSymbolLinks(sym);
     let baseType: Type | IndeterminateEntity;
-    if (sym.type) {
-      baseType = sym.type;
-    } else if (
+    if (
       sym.flags & SymbolFlags.Declaration &&
       sym.flags &
         (SymbolFlags.Model |
@@ -2608,7 +2587,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       pendingResolutions.start(opSymId, ResolutionKind.BaseType);
     }
 
+    if (operation.id.sv === "b") {
+      console.log("Will check op ref", printNodeInfo(opReference));
+    }
     const target = resolveTypeReferenceSym(opReference, mapper);
+
+    console.log("Got", target?.id);
+
     if (target === undefined) {
       return undefined;
     }
@@ -3494,99 +3479,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
       return undefined;
     }
-  }
-  function resolveMetaProperty(
-    node: MemberExpressionNode,
-    base: Sym,
-    mapper: TypeMapper | undefined,
-  ) {
-    const baseType =
-      base.flags & SymbolFlags.LateBound
-        ? base.type!
-        : checkTypeReferenceSymbol(base, node, mapper);
-    const table = getSymbolTableForMetaMembers(baseType, mapper);
-    if (!table) {
-      reportInvalidRef();
-      return undefined;
-    }
-
-    const resolved = table.get(node.id.sv);
-
-    if (!resolved) {
-      reportInvalidRef();
-      return undefined;
-    }
-
-    const operationType = getTypeForNode(resolved.declarations[0], mapper) as Operation;
-    if (isPrototypeGetter(program, operationType)) {
-      if (operationType.interface!.name === "ModelProperty" && operationType.name === "type") {
-        const referencedType = (baseType as ModelProperty).type;
-        return getMetaPropTargetSymbol(referencedType);
-      } else if (
-        operationType.interface!.name === "Operation" &&
-        operationType.name === "returnType"
-      ) {
-        const referencedType = (baseType as Operation).returnType;
-        return getMetaPropTargetSymbol(referencedType);
-      } else if (
-        operationType.interface!.name === "Operation" &&
-        operationType.name === "parameters"
-      ) {
-        const referencedType = (baseType as Operation).parameters;
-        return getMetaPropTargetSymbol(referencedType);
-      } else {
-        compilerAssert(false, "Getter not implemented for meta property " + operationType.name);
-      }
-    }
-    return resolved;
-
-    function reportInvalidRef() {
-      reportCheckerDiagnostic(
-        createDiagnostic({
-          code: "invalid-ref",
-          messageId: "metaProperty",
-          format: { kind: getMemberKindName(base.declarations[0]), id: node.id.sv },
-          target: node,
-        }),
-      );
-    }
-
-    function getMetaPropTargetSymbol(referencedType: Type) {
-      if ("symbol" in referencedType && referencedType.symbol) {
-        return referencedType.symbol!;
-      }
-
-      return getMergedSymbol(referencedType.node!.symbol) ?? resolved;
-    }
-  }
-
-  function getSymbolTableForMetaMembers(baseType: Type, mapper: TypeMapper | undefined) {
-    const key = metaMemberKey(baseType);
-    const ifaceSym = metaMembersTable.type[key];
-    if (!ifaceSym) {
-      return undefined;
-    }
-
-    if (key === "Array") {
-      // Array needs instantiated.
-      const ifaceNode = ifaceSym.declarations[0] as InterfaceStatementNode;
-      const param: TemplateParameter = getTypeForNode(ifaceNode.templateParameters[0]) as any;
-      const ifaceType = getOrInstantiateTemplate(
-        ifaceNode,
-        [param],
-        [(baseType as Model).indexer!.value],
-        mapper,
-      ) as Interface;
-      return getOrCreateAugmentedSymbolTable(ifaceType.symbol!.members!);
-    } else {
-      return getOrCreateAugmentedSymbolTable(ifaceSym.members!);
-    }
-  }
-
-  function metaMemberKey(baseType: Type): MetaMemberKey {
-    return baseType.kind === "Model" && isArrayModelType(program, baseType)
-      ? ("Array" as const)
-      : baseType.kind;
   }
 
   function getMemberKindName(node: Node) {
@@ -4783,6 +4675,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    */
   function lateBindMemberContainer(type: Type) {
     if ((type as any).symbol) return;
+
     switch (type.kind) {
       case "Model":
         type.symbol = createSymbol(type.node, type.name, SymbolFlags.Model | SymbolFlags.LateBound);
@@ -4794,6 +4687,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           type.name,
           SymbolFlags.Interface | SymbolFlags.LateBound,
         );
+        if (isTemplateInstance(type) && type.name === "Foo") {
+          getSymbolLinks(type.symbol);
+          console.log("Late bind container", type.name, type.symbol.id);
+        }
         mutate(type.symbol).type = type;
         break;
       case "Union":
@@ -4804,10 +4701,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
   }
   function lateBindMembers(type: Interface | Model | Union | Enum | Scalar) {
+    if (isTemplateInstance(type) && type.name === "Foo") {
+      console.log("Late bind", type.name);
+    }
     compilerAssert(type.symbol, "Type must have a symbol to late bind members");
     const containerSym = type.symbol;
     compilerAssert(containerSym.members, "Container symbol didn't have members at late-bind");
-    const containerMembers: Mutable<SymbolTable> = getOrCreateAugmentedSymbolTable(
+    const containerMembers: Mutable<SymbolTable> = resolver.getAugmentedSymbolTable(
       containerSym.members,
     );
 
@@ -5719,6 +5619,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     pendingResolutions.start(aliasSymId, ResolutionKind.Type);
     const type = checkNode(node.value, mapper);
+    console.log("GOt alias", (type as any)?.symbol?.id);
     if (type === null) {
       links.declaredType = errorType;
       return errorType;
