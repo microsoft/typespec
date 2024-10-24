@@ -601,5 +601,31 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.AreEqual(1, ctorParams.Count);
             Assert.AreEqual("prop2", ctorParams[0].Name);
         }
+
+        [Test]
+        public async Task CanChangeModelToAbstract()
+        {
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModelTypes: new[] {
+                    InputFactory.Model(
+                        "mockInputModel",
+                        // use Input so that we generate a public ctor
+                        usage: InputModelTypeUsage.Input,
+                        properties: []),
+                },
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var csharpGen = new CSharpGen();
+
+            await csharpGen.ExecuteAsync();
+
+            // The generated type should be abstract
+            var modelProvider = plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+            Assert.IsTrue(modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract));
+            Assert.IsTrue(modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsFalse(modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Sealed));
+
+            // There should be no model factory as there are no constructible models
+            Assert.IsEmpty(plugin.Object.OutputLibrary.TypeProviders.Where(t => t is ModelFactoryProvider));
+        }
     }
 }
