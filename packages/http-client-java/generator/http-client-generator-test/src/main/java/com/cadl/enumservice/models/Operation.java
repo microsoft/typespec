@@ -4,8 +4,8 @@
 
 package com.cadl.enumservice.models;
 
-import com.azure.core.annotation.Fluent;
 import com.azure.core.annotation.Generated;
+import com.azure.core.annotation.Immutable;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
@@ -15,7 +15,7 @@ import java.io.IOException;
 /**
  * The Operation model.
  */
-@Fluent
+@Immutable
 public final class Operation implements JsonSerializable<Operation> {
     /*
      * The name property.
@@ -98,7 +98,7 @@ public final class Operation implements JsonSerializable<Operation> {
      * @param unit the unit value to set.
      */
     @Generated
-    public Operation(OperationName name, Priority priority, ColorModel color, Unit unit) {
+    private Operation(OperationName name, Priority priority, ColorModel color, Unit unit) {
         this.name = name;
         this.priority = priority;
         this.color = color;
@@ -206,18 +206,6 @@ public final class Operation implements JsonSerializable<Operation> {
     }
 
     /**
-     * Set the unitValue property: The unitValue property.
-     * 
-     * @param unitValue the unitValue value to set.
-     * @return the Operation object itself.
-     */
-    @Generated
-    public Operation setUnitValue(Unit unitValue) {
-        this.unitValue = unitValue;
-        return this;
-    }
-
-    /**
      * Get the olympicRecord property: The olympicRecord property.
      * 
      * @return the olympicRecord value.
@@ -228,18 +216,6 @@ public final class Operation implements JsonSerializable<Operation> {
     }
 
     /**
-     * Set the olympicRecord property: The olympicRecord property.
-     * 
-     * @param olympicRecord the olympicRecord value to set.
-     * @return the Operation object itself.
-     */
-    @Generated
-    public Operation setOlympicRecord(OlympicRecordModel olympicRecord) {
-        this.olympicRecord = olympicRecord;
-        return this;
-    }
-
-    /**
      * Get the olympicRecordValue property: The olympicRecordValue property.
      * 
      * @return the olympicRecordValue value.
@@ -247,18 +223,6 @@ public final class Operation implements JsonSerializable<Operation> {
     @Generated
     public OlympicRecordModel getOlympicRecordValue() {
         return this.olympicRecordValue;
-    }
-
-    /**
-     * Set the olympicRecordValue property: The olympicRecordValue property.
-     * 
-     * @param olympicRecordValue the olympicRecordValue value to set.
-     * @return the Operation object itself.
-     */
-    @Generated
-    public Operation setOlympicRecordValue(OlympicRecordModel olympicRecordValue) {
-        this.olympicRecordValue = olympicRecordValue;
-        return this;
     }
 
     /**

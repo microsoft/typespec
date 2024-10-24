@@ -21,7 +21,6 @@
     "com.cadl.longrunning.models.JobResultResult": "Cadl.LongRunning.JobResult.result.anonymous",
     "com.cadl.longrunning.models.JobStatus": "Cadl.LongRunning.JobStatus",
     "com.cadl.longrunning.models.LroOperationStatusError": "Cadl.LongRunning.LroOperationStatus",
-    "com.cadl.longrunning.models.OperationState": "Azure.Core.Foundations.OperationState",
     "com.cadl.longrunning.models.PollResponse": "Cadl.LongRunning.PollResponse",
     "com.cadl.longrunning.models.RepeatabilityResult": "Azure.Core.RepeatabilityResult"
   }

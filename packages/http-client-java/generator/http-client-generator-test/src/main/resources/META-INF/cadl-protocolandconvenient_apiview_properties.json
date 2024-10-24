@@ -20,11 +20,9 @@
     "com.cadl.protocolandconvenient.ProtocolAndConvenientClientBuilder": "Cadl.ProtocolAndConvenient",
     "com.cadl.protocolandconvenient.models.ResourceA": "Cadl.ProtocolAndConvenient.ResourceA",
     "com.cadl.protocolandconvenient.models.ResourceB": "Cadl.ProtocolAndConvenient.ResourceB",
-    "com.cadl.protocolandconvenient.models.ResourceC": "Cadl.ProtocolAndConvenient.ResourceC",
     "com.cadl.protocolandconvenient.models.ResourceD": "Cadl.ProtocolAndConvenient.ResourceD",
     "com.cadl.protocolandconvenient.models.ResourceE": "Cadl.ProtocolAndConvenient.ResourceE",
     "com.cadl.protocolandconvenient.models.ResourceF": "Cadl.ProtocolAndConvenient.ResourceF",
-    "com.cadl.protocolandconvenient.models.ResourceG": "Cadl.ProtocolAndConvenient.ResourceG",
     "com.cadl.protocolandconvenient.models.ResourceH": "Cadl.ProtocolAndConvenient.ResourceH",
     "com.cadl.protocolandconvenient.models.ResourceI": "Cadl.ProtocolAndConvenient.ResourceI",
     "com.cadl.protocolandconvenient.models.ResourceJ": "Cadl.ProtocolAndConvenient.ResourceJ"

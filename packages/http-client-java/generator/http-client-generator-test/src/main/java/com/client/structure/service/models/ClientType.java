@@ -26,7 +26,12 @@ public enum ClientType {
     /**
      * Enum value two-operation-group.
      */
-    TWO_OPERATION_GROUP("two-operation-group");
+    TWO_OPERATION_GROUP("two-operation-group"),
+
+    /**
+     * Enum value client-operation-group.
+     */
+    CLIENT_OPERATION_GROUP("client-operation-group");
 
     /**
      * The actual serialized value for a ClientType instance.
