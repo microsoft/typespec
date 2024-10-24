@@ -5,11 +5,7 @@
     "com.cadl.multicontenttypes.MultiContentTypesClient": "Cadl.MultiContentTypes",
     "com.cadl.multicontenttypes.MultiContentTypesClientBuilder": "Cadl.MultiContentTypes",
     "com.cadl.multicontenttypes.MultipleContentTypesOnRequestAsyncClient": "null",
-    "com.cadl.multicontenttypes.MultipleContentTypesOnRequestAsyncClient.uploadJsonWithMultiBodyTypesForMultiContentTypes": "Cadl.MultiContentTypes.MultipleContentTypesOnRequest.uploadJsonWithMultiBodyTypesForMultiContentTypes",
-    "com.cadl.multicontenttypes.MultipleContentTypesOnRequestAsyncClient.uploadJsonWithMultiBodyTypesForMultiContentTypesWithResponse": "Cadl.MultiContentTypes.MultipleContentTypesOnRequest.uploadJsonWithMultiBodyTypesForMultiContentTypes",
     "com.cadl.multicontenttypes.MultipleContentTypesOnRequestClient": "null",
-    "com.cadl.multicontenttypes.MultipleContentTypesOnRequestClient.uploadJsonWithMultiBodyTypesForMultiContentTypes": "Cadl.MultiContentTypes.MultipleContentTypesOnRequest.uploadJsonWithMultiBodyTypesForMultiContentTypes",
-    "com.cadl.multicontenttypes.MultipleContentTypesOnRequestClient.uploadJsonWithMultiBodyTypesForMultiContentTypesWithResponse": "Cadl.MultiContentTypes.MultipleContentTypesOnRequest.uploadJsonWithMultiBodyTypesForMultiContentTypes",
     "com.cadl.multicontenttypes.SingleContentTypeAsyncClient": "null",
     "com.cadl.multicontenttypes.SingleContentTypeAsyncClient.downloadImageForSingleContentType": "Cadl.MultiContentTypes.SingleContentType.downloadImageForSingleContentType",
     "com.cadl.multicontenttypes.SingleContentTypeAsyncClient.downloadImageForSingleContentTypeWithResponse": "Cadl.MultiContentTypes.SingleContentType.downloadImageForSingleContentType",
@@ -21,9 +17,6 @@
     "com.cadl.multicontenttypes.SingleContentTypeClient.uploadImageForSingleContentType": "Cadl.MultiContentTypes.SingleContentType.uploadImageForSingleContentType",
     "com.cadl.multicontenttypes.SingleContentTypeClient.uploadImageForSingleContentTypeWithResponse": "Cadl.MultiContentTypes.SingleContentType.uploadImageForSingleContentType",
     "com.cadl.multicontenttypes.models.Resource": "Cadl.MultiContentTypes.Resource",
-    "com.cadl.multicontenttypes.models.UploadBytesWithMultiBodyTypesForMultiContentTypesRequestContentType": "uploadBytesWithMultiBodyTypesForMultiContentTypes.RequestContentType.anonymous",
-    "com.cadl.multicontenttypes.models.UploadBytesWithSingleBodyTypeForMultiContentTypesRequestContentType": "uploadBytesWithSingleBodyTypeForMultiContentTypes.RequestContentType.anonymous",
-    "com.cadl.multicontenttypes.models.UploadJsonOrBytesWithMultiBodyTypesForMultiContentTypesRequestContentType": "uploadJsonOrBytesWithMultiBodyTypesForMultiContentTypes.RequestContentType.anonymous",
     "com.cadl.multicontenttypes.models.UploadWithOverloadRequestContentType": "uploadWithOverload.RequestContentType.anonymous"
   }
 }
