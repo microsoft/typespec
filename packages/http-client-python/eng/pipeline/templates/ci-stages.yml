@@ -26,3 +26,8 @@ stages:
       Condition: ${{ parameters.Condition }}
       DependsOn: ${{ parameters.DependsOn }}
       LanguageShortName: "python"
+
+  - stage: GeneratePRForTypespecPython
+    template: /packages/http-client-python/eng/pipeline/templates/gen-pr-for-typespec-python.yml
+    displayName: Generate PR for typespec-python
+    condition: and(succeeded(), contains($(System.PullRequest.SourceBranch), 'python-'))
