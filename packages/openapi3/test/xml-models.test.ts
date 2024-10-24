@@ -13,11 +13,24 @@ describe("@name", () => {
         };`,
     );
 
-    expect(res.schemas.Book).toMatchObject({
-      xml: {
-        name: "xmlBook",
-      },
-    });
+    expect(res.schemas.Book).toMatchInlineSnapshot(
+      `
+      {
+        "properties": {
+          "content": {
+            "type": "string",
+          },
+        },
+        "required": [
+          "content",
+        ],
+        "type": "object",
+        "xml": {
+          "name": "xmlBook",
+        },
+      }
+    `,
+    );
   });
 
   it("set the element value for array property via @name", async () => {
@@ -30,24 +43,31 @@ describe("@name", () => {
         };`,
     );
 
-    expect(res.schemas.Book).toMatchObject({
-      type: "object",
-      properties: {
-        tags: {
-          type: "array",
-          items: {
-            type: "string",
-          },
-          xml: {
-            wrapped: true,
+    expect(res.schemas.Book).toMatchInlineSnapshot(`
+      {
+        "properties": {
+          "tags": {
+            "items": {
+              "type": "string",
+              "xml": {
+                "name": "string",
+              },
+            },
+            "type": "array",
+            "xml": {
+              "wrapped": true,
+            },
           },
         },
-      },
-      required: ["tags"],
-      xml: {
-        name: "xmlBook",
-      },
-    });
+        "required": [
+          "tags",
+        ],
+        "type": "object",
+        "xml": {
+          "name": "xmlBook",
+        },
+      }
+    `);
   });
 
   it.each([
@@ -63,7 +83,7 @@ describe("@name", () => {
           content: ${type};
         };`,
     );
-    expect(res.schemas.Book).toMatchObject({
+    expect(res.schemas.Book).toMatchSnapshot({
       properties: {
         content: { type: `${output}`, xml: { name: "xmlcontent" } },
       },
@@ -82,7 +102,7 @@ describe("@name", () => {
           content: ${type};
         };`,
     );
-    expect(res.schemas.Book).toMatchObject({
+    expect(res.schemas.Book).toMatchSnapshot({
       properties: {
         content: { xml: { name: "xmlcontent" } },
       },
@@ -98,9 +118,14 @@ describe("@name", () => {
         scalar Book extends string;`,
     );
 
-    expect(res.schemas.Book).toMatchObject({
-      type: "string",
-    });
+    expect(res.schemas.Book).toMatchInlineSnapshot(`
+      {
+        "type": "string",
+        "xml": {
+          "name": "xmlBook",
+        },
+      }
+    `);
   });
 
   it("compare with the json name", async () => {
@@ -114,12 +139,22 @@ describe("@name", () => {
         };`,
     );
 
-    expect(res.schemas.Book).toMatchObject({
-      properties: {
-        jsonContent: { type: "string", xml: { name: "xmlContent" } },
-      },
-      required: ["jsonContent"],
-    });
+    expect(res.schemas.Book).toMatchInlineSnapshot(`
+      {
+        "properties": {
+          "jsonContent": {
+            "type": "string",
+            "xml": {
+              "name": "xmlContent",
+            },
+          },
+        },
+        "required": [
+          "jsonContent",
+        ],
+        "type": "object",
+      }
+    `);
   });
 
   it("set the json name and no xml name", async () => {
@@ -132,12 +167,19 @@ describe("@name", () => {
         };`,
     );
 
-    expect(res.schemas.Book).toMatchObject({
-      properties: {
-        jsonContent: { type: "string" },
-      },
-      required: ["jsonContent"],
-    });
+    expect(res.schemas.Book).toMatchInlineSnapshot(`
+      {
+        "properties": {
+          "jsonContent": {
+            "type": "string",
+          },
+        },
+        "required": [
+          "jsonContent",
+        ],
+        "type": "object",
+      }
+    `);
   });
 });
 
@@ -156,7 +198,7 @@ describe("@attribute", () => {
           id: ${type};
         };`,
     );
-    expect(res.schemas.Book).toMatchObject({
+    expect(res.schemas.Book).toMatchSnapshot({
       properties: {
         id: { xml: { attribute: true } },
       },
@@ -195,11 +237,22 @@ describe("@attribute", () => {
       code: "@typespec/openapi3/xml-attribute-invalid-property-type",
       message: `XML \`@attribute\` can only be primitive types in the OpenAPI 3 emitter, Property 'tags' type will be changed to type: string.`,
     });
-    expect(res.components?.schemas?.Pet).toMatchObject({
-      properties: {
-        tags: { type: "string", xml: { attribute: true } },
-      },
-    });
+    expect(res.components?.schemas?.Pet).toMatchInlineSnapshot(`
+      {
+        "properties": {
+          "tags": {
+            "type": "string",
+            "xml": {
+              "attribute": true,
+            },
+          },
+        },
+        "required": [
+          "tags",
+        ],
+        "type": "object",
+      }
+    `);
   });
 });
 
@@ -229,19 +282,23 @@ describe("@ns", () => {
           id: string;
         };`,
     );
-    expect(res.schemas.Book).toMatchObject({
-      type: "object",
-      properties: {
-        id: {
-          type: "string",
+    expect(res.schemas.Book).toMatchInlineSnapshot(`
+      {
+        "properties": {
+          "id": {
+            "type": "string",
+          },
         },
-      },
-      required: ["id"],
-      xml: {
-        namespace: "https://example.com/ns1",
-        prefix: "ns1",
-      },
-    });
+        "required": [
+          "id",
+        ],
+        "type": "object",
+        "xml": {
+          "namespace": "https://example.com/ns1",
+          "prefix": "ns1",
+        },
+      }
+    `);
   });
 
   it("provide the namespace and prefix using string", async () => {
@@ -252,19 +309,23 @@ describe("@ns", () => {
           id: string;
         };`,
     );
-    expect(res.schemas.Book).toMatchObject({
-      type: "object",
-      properties: {
-        id: {
-          type: "string",
-          xml: {
-            namespace: "https://example.com/ns1",
-            prefix: "ns1",
+    expect(res.schemas.Book).toMatchInlineSnapshot(`
+      {
+        "properties": {
+          "id": {
+            "type": "string",
+            "xml": {
+              "namespace": "https://example.com/ns1",
+              "prefix": "ns1",
+            },
           },
         },
-      },
-      required: ["id"],
-    });
+        "required": [
+          "id",
+        ],
+        "type": "object",
+      }
+    `);
   });
 
   it("provide the namespace and prefix using enum on model", async () => {
@@ -281,19 +342,23 @@ describe("@ns", () => {
           id: string;
         };`,
     );
-    expect(res.schemas.Book).toMatchObject({
-      type: "object",
-      properties: {
-        id: {
-          type: "string",
+    expect(res.schemas.Book).toMatchInlineSnapshot(`
+      {
+        "properties": {
+          "id": {
+            "type": "string",
+          },
         },
-      },
-      required: ["id"],
-      xml: {
-        namespace: "http://example.com/schema",
-        prefix: "smp",
-      },
-    });
+        "required": [
+          "id",
+        ],
+        "type": "object",
+        "xml": {
+          "namespace": "http://example.com/schema",
+          "prefix": "smp",
+        },
+      }
+    `);
   });
 
   it("provide the namespace and prefix using enum on model and properties", async () => {
@@ -315,33 +380,39 @@ describe("@ns", () => {
           author: string;
         };`,
     );
-    expect(res.schemas.Book).toMatchObject({
-      type: "object",
-      properties: {
-        id: {
-          type: "string",
-        },
-        title: {
-          type: "string",
-          xml: {
-            namespace: "http://example.com/schema",
-            prefix: "smp",
+    expect(res.schemas.Book).toMatchInlineSnapshot(`
+      {
+        "properties": {
+          "author": {
+            "type": "string",
+            "xml": {
+              "namespace": "http://example.com/ns2",
+              "prefix": "ns2",
+            },
+          },
+          "id": {
+            "type": "string",
+          },
+          "title": {
+            "type": "string",
+            "xml": {
+              "namespace": "http://example.com/schema",
+              "prefix": "smp",
+            },
           },
         },
-        author: {
-          type: "string",
-          xml: {
-            namespace: "http://example.com/ns2",
-            prefix: "ns2",
-          },
+        "required": [
+          "id",
+          "title",
+          "author",
+        ],
+        "type": "object",
+        "xml": {
+          "namespace": "http://example.com/schema",
+          "prefix": "smp",
         },
-      },
-      required: ["id", "title", "author"],
-      xml: {
-        namespace: "http://example.com/schema",
-        prefix: "smp",
-      },
-    });
+      }
+    `);
   });
 });
 describe("Array of primitive types", () => {
@@ -356,22 +427,28 @@ describe("Array of primitive types", () => {
       };`,
     );
 
-    expect(res.schemas.Book).toMatchObject({
-      type: "object",
-      properties: {
-        tags: {
-          type: "array",
-          items: {
-            type: "string",
-            xml: { name: "tags" },
+    expect(res.schemas.Book).toMatchInlineSnapshot(`
+      {
+        "properties": {
+          "tags": {
+            "items": {
+              "type": "string",
+              "xml": {
+                "name": "tags",
+              },
+            },
+            "type": "array",
           },
         },
-      },
-      required: ["tags"],
-      xml: {
-        name: "xmlBook",
-      },
-    });
+        "required": [
+          "tags",
+        ],
+        "type": "object",
+        "xml": {
+          "name": "xmlBook",
+        },
+      }
+    `);
   });
 
   it("wrapped tags array in the xmlBook model.", async () => {
@@ -385,28 +462,32 @@ describe("Array of primitive types", () => {
       };`,
     );
 
-    expect(res.schemas.Book).toMatchObject({
-      type: "object",
-      properties: {
-        tags: {
-          type: "array",
-          xml: {
-            name: "ItemsTags",
-            wrapped: true,
-          },
-          items: {
-            type: "string",
-            xml: {
-              name: "string",
+    expect(res.schemas.Book).toMatchInlineSnapshot(`
+      {
+        "properties": {
+          "tags": {
+            "items": {
+              "type": "string",
+              "xml": {
+                "name": "string",
+              },
+            },
+            "type": "array",
+            "xml": {
+              "name": "ItemsTags",
+              "wrapped": true,
             },
           },
         },
-      },
-      required: ["tags"],
-      xml: {
-        name: "xmlBook",
-      },
-    });
+        "required": [
+          "tags",
+        ],
+        "type": "object",
+        "xml": {
+          "name": "xmlBook",
+        },
+      }
+    `);
   });
 
   describe("scalar, @xml.unwrapped=true, and rename xml name.", () => {
@@ -428,14 +509,14 @@ describe("Array of primitive types", () => {
           tags: tag[]
         };`,
       );
-      expect(res.schemas.tag).toMatchObject({
+      expect(res.schemas.tag).toMatchSnapshot({
         type: `${type}`,
         xml: {
           name: "ItemsName",
         },
       });
 
-      expect(res.schemas.Book).toMatchObject({
+      expect(res.schemas.Book).toMatchSnapshot({
         type: "object",
         properties: {
           tags: {
@@ -473,14 +554,14 @@ describe("Array of primitive types", () => {
           tags: tag[]
         };`,
       );
-      expect(res.schemas.tag).toMatchObject({
+      expect(res.schemas.tag).toMatchSnapshot({
         type: `${type}`,
         xml: {
           name: "ItemsName",
         },
       });
 
-      expect(res.schemas.Book).toMatchObject({
+      expect(res.schemas.Book).toMatchSnapshot({
         type: "object",
         properties: {
           tags: {
@@ -523,34 +604,48 @@ describe("Complex array types", () => {
         }`,
     );
 
-    expect(res.schemas.Tag).toMatchObject({
-      type: "object",
-      properties: {
-        name: {
-          type: "string",
-        },
-      },
-      required: ["name"],
-      xml: {
-        name: "XmlTag",
-      },
-    });
-    expect(res.schemas.Pet).toMatchObject({
-      type: "object",
-      properties: {
-        tags: {
-          type: "array",
-          items: {
-            allOf: [{ $ref: "#/components/schemas/Tag" }],
-            xml: { name: "tags" },
+    expect(res.schemas.Tag).toMatchInlineSnapshot(`
+      {
+        "properties": {
+          "name": {
+            "type": "string",
           },
         },
-      },
-      required: ["tags"],
-      xml: {
-        name: "XmlPet",
-      },
-    });
+        "required": [
+          "name",
+        ],
+        "type": "object",
+        "xml": {
+          "name": "XmlTag",
+        },
+      }
+    `);
+    expect(res.schemas.Pet).toMatchInlineSnapshot(`
+      {
+        "properties": {
+          "tags": {
+            "items": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Tag",
+                },
+              ],
+              "xml": {
+                "name": "tags",
+              },
+            },
+            "type": "array",
+          },
+        },
+        "required": [
+          "tags",
+        ],
+        "type": "object",
+        "xml": {
+          "name": "XmlPet",
+        },
+      }
+    `);
   });
 
   it("wrapped the tags object array in the XmlPet model.", async () => {
@@ -569,45 +664,53 @@ describe("Complex array types", () => {
         }`,
     );
 
-    expect(res.schemas.Tag).toMatchObject({
-      type: "object",
-      properties: {
-        name: {
-          type: "string",
-        },
-      },
-      required: ["name"],
-      xml: {
-        name: "XmlTag",
-      },
-    });
-
-    expect(res.schemas.Pet).toMatchObject({
-      type: "object",
-      properties: {
-        tags: {
-          type: "array",
-          xml: {
-            name: "ItemsTags",
-            wrapped: true,
+    expect(res.schemas.Tag).toMatchInlineSnapshot(`
+      {
+        "properties": {
+          "name": {
+            "type": "string",
           },
-          items: {
-            allOf: [
-              {
-                $ref: "#/components/schemas/Tag",
+        },
+        "required": [
+          "name",
+        ],
+        "type": "object",
+        "xml": {
+          "name": "XmlTag",
+        },
+      }
+    `);
+
+    expect(res.schemas.Pet).toMatchInlineSnapshot(`
+      {
+        "properties": {
+          "tags": {
+            "items": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Tag",
+                },
+              ],
+              "xml": {
+                "name": "XmlTag",
               },
-            ],
-            xml: {
-              name: "XmlTag",
+            },
+            "type": "array",
+            "xml": {
+              "name": "ItemsTags",
+              "wrapped": true,
             },
           },
         },
-      },
-      required: ["tags"],
-      xml: {
-        name: "XmlPet",
-      },
-    });
+        "required": [
+          "tags",
+        ],
+        "type": "object",
+        "xml": {
+          "name": "XmlPet",
+        },
+      }
+    `);
   });
 
   it("unwrapped and renamed Tags object array in xmlPet Model.", async () => {
@@ -626,34 +729,48 @@ describe("Complex array types", () => {
           name: string;
         }`,
     );
-    expect(res.schemas.Tag).toMatchObject({
-      type: "object",
-      properties: {
-        name: {
-          type: "string",
-        },
-      },
-      required: ["name"],
-      xml: {
-        name: "XmlTag",
-      },
-    });
-    expect(res.schemas.Pet).toMatchObject({
-      type: "object",
-      properties: {
-        tags: {
-          type: "array",
-          items: {
-            allOf: [{ $ref: "#/components/schemas/Tag" }],
-            xml: { name: "ItemsTags" },
+    expect(res.schemas.Tag).toMatchInlineSnapshot(`
+      {
+        "properties": {
+          "name": {
+            "type": "string",
           },
         },
-      },
-      required: ["tags"],
-      xml: {
-        name: "XmlPet",
-      },
-    });
+        "required": [
+          "name",
+        ],
+        "type": "object",
+        "xml": {
+          "name": "XmlTag",
+        },
+      }
+    `);
+    expect(res.schemas.Pet).toMatchInlineSnapshot(`
+      {
+        "properties": {
+          "tags": {
+            "items": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Tag",
+                },
+              ],
+              "xml": {
+                "name": "ItemsTags",
+              },
+            },
+            "type": "array",
+          },
+        },
+        "required": [
+          "tags",
+        ],
+        "type": "object",
+        "xml": {
+          "name": "XmlPet",
+        },
+      }
+    `);
   });
 
   it("rename all names in array model.", async () => {
@@ -672,40 +789,52 @@ describe("Complex array types", () => {
         }`,
     );
 
-    expect(res.schemas.Tag).toMatchObject({
-      type: "object",
-      properties: {
-        name: {
-          type: "string",
-        },
-      },
-      required: ["name"],
-      xml: {
-        name: "XmlTag",
-      },
-    });
-    expect(res.schemas.Pet).toMatchObject({
-      type: "object",
-      properties: {
-        tags: {
-          type: "array",
-          xml: {
-            name: "ItemsTags",
-            wrapped: true,
+    expect(res.schemas.Tag).toMatchInlineSnapshot(`
+      {
+        "properties": {
+          "name": {
+            "type": "string",
           },
-          items: {
-            allOf: [{ $ref: "#/components/schemas/Tag" }],
-            xml: {
-              name: "XmlTag",
+        },
+        "required": [
+          "name",
+        ],
+        "type": "object",
+        "xml": {
+          "name": "XmlTag",
+        },
+      }
+    `);
+    expect(res.schemas.Pet).toMatchInlineSnapshot(`
+      {
+        "properties": {
+          "tags": {
+            "items": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Tag",
+                },
+              ],
+              "xml": {
+                "name": "XmlTag",
+              },
+            },
+            "type": "array",
+            "xml": {
+              "name": "ItemsTags",
+              "wrapped": true,
             },
           },
         },
-      },
-      required: ["tags"],
-      xml: {
-        name: "XmlPet",
-      },
-    });
+        "required": [
+          "tags",
+        ],
+        "type": "object",
+        "xml": {
+          "name": "XmlPet",
+        },
+      }
+    `);
   });
 });
 
@@ -767,7 +896,7 @@ describe("set xml name in items if that object is used in an xml payload.", () =
        ${refModel}`,
     );
 
-    expect(res.schemas.Book).toMatchObject({
+    expect(res.schemas.Book).toMatchSnapshot({
       type: "object",
       properties: {
         author,
