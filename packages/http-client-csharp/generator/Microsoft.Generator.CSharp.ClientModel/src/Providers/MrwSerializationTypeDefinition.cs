@@ -1104,12 +1104,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             ];
         }
 
-        /// <summary>
-        /// This method constructs the deserialization property null check statement for the json property
-        /// <paramref name="jsonProperty"/>. If the property is required, the method will return a null check
-        /// with an assignment to the property variable. If the property is not required, the method will simply
-        /// return a null check for the json property.
-        /// </summary>
         private static MethodBodyStatement DeserializationPropertyNullCheckStatement(
             CSharpType propertyType,
             PropertyWireInformation wireInfo,
