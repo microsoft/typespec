@@ -12,6 +12,8 @@
     "build:web": "pnpm copy && astro check --minimumFailingSeverity warning && astro build",
     "preview": "astro preview",
     "astro": "astro",
+    "update-playground-versions": "tsx ./.scripts/update-playground-versions.ts",
+    "regen-docs": "tsx ./.scripts/regen-compiler-docs.ts",
     "regen-all-packages-docs": "pnpm -w --filter \"@typespec/website-astro...\" --filter \"!@typespec/monorepo\" run regen-docs"
   },
   "imports": {
