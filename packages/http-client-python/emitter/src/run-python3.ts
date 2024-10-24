@@ -9,17 +9,18 @@
 import cp from "child_process";
 import { patchPythonPath } from "./system-requirements.js";
 
-async function runPython3(...args: string[]) {
+export async function runPython3(...args: string[]) {
   const command = await patchPythonPath(["python", ...args], {
     version: ">=3.8",
     environmentVariable: "AUTOREST_PYTHON_EXE",
   });
-  cp.execSync(command.join(" "), {
-    stdio: [0, 1, 2],
+  cp.exec(command.join(" "), 
+  (error: cp.ExecException | null, stdout: string, stderr: string) => {
+    if (error) {
+      console.error(`Error: ${error.message}`); // eslint-disable-line no-console
+      console.error(`stderr: ${stderr}`); // eslint-disable-line no-console
+      process.exit(1);
+    }
+    console.log(`stdout: ${stdout}`); // eslint-disable-line no-console
   });
 }
-
-runPython3(...process.argv.slice(2)).catch((err) => {
-  console.error(err.toString()); // eslint-disable-line no-console
-  process.exit(1);
-});

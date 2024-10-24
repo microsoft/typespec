@@ -35,8 +35,6 @@
     "lint": "eslint . --max-warnings=0",
     "lint:py": "tsx ./eng/scripts/ci/lint.ts --folderName generator",
     "format": "pnpm -w format:dir packages/http-client-python && tsx ./eng/scripts/ci/format.ts",
-    "install": "tsx ./eng/scripts/setup/run-python3.ts ./eng/scripts/setup/install.py",
-    "prepare": "tsx ./eng/scripts/setup/run-python3.ts ./eng/scripts/setup/prepare.py",
     "regenerate": "tsx ./eng/scripts/ci/regenerate.ts",
     "ci": "npm run test:emitter && npm run ci:generator --",
     "ci:generator": "tsx ./eng/scripts/ci/run-ci.ts",
@@ -64,7 +62,8 @@
   },
   "dependencies": {
     "js-yaml": "~4.1.0",
-    "semver": "~7.6.2"
+    "semver": "~7.6.2",
+    "pyodide": "0.26.2"
   },
   "devDependencies": {
     "@azure-tools/typespec-azure-resource-manager": "~0.47.0",
