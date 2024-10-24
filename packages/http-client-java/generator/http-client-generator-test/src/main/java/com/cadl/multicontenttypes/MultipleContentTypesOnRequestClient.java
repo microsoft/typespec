@@ -16,7 +16,6 @@ import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import com.cadl.multicontenttypes.implementation.MultipleContentTypesOnRequestsImpl;
-import com.cadl.multicontenttypes.models.Resource;
 
 /**
  * Initializes a new instance of the synchronous MultiContentTypesClient type.
@@ -60,8 +59,6 @@ public final class MultipleContentTypesOnRequestClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> uploadBytesWithSingleBodyTypeForMultiContentTypesWithResponse(String contentType,
         BinaryData data, RequestOptions requestOptions) {
-        // Convenience API is not generated, as operation 'uploadBytesWithSingleBodyTypeForMultiContentTypes' is
-        // multiple content-type
         return this.serviceClient.uploadBytesWithSingleBodyTypeForMultiContentTypesWithResponse(contentType, data,
             requestOptions);
     }
@@ -90,8 +87,6 @@ public final class MultipleContentTypesOnRequestClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> uploadBytesWithMultiBodyTypesForMultiContentTypesWithResponse(String contentType,
         BinaryData data, RequestOptions requestOptions) {
-        // Convenience API is not generated, as operation 'uploadBytesWithMultiBodyTypesForMultiContentTypes' is
-        // multiple content-type
         return this.serviceClient.uploadBytesWithMultiBodyTypesForMultiContentTypesWithResponse(contentType, data,
             requestOptions);
     }
@@ -148,29 +143,7 @@ public final class MultipleContentTypesOnRequestClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> uploadJsonOrBytesWithMultiBodyTypesForMultiContentTypesWithResponse(String contentType,
         BinaryData data, RequestOptions requestOptions) {
-        // Convenience API is not generated, as operation 'uploadJsonOrBytesWithMultiBodyTypesForMultiContentTypes' is
-        // multiple content-type
         return this.serviceClient.uploadJsonOrBytesWithMultiBodyTypesForMultiContentTypesWithResponse(contentType, data,
             requestOptions);
-    }
-
-    /**
-     * multiple data types map to multiple content types using shared route.
-     * 
-     * @param data The data parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void uploadJsonWithMultiBodyTypesForMultiContentTypes(Resource data) {
-        // Generated convenience method for uploadJsonWithMultiBodyTypesForMultiContentTypesWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        uploadJsonWithMultiBodyTypesForMultiContentTypesWithResponse(BinaryData.fromObject(data), requestOptions)
-            .getValue();
     }
 }

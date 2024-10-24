@@ -7,6 +7,7 @@
     "com.specialheaders.repeatability.RepeatabilityClient": "SpecialHeaders.Repeatability",
     "com.specialheaders.repeatability.RepeatabilityClient.immediateSuccess": "SpecialHeaders.Repeatability.immediateSuccess",
     "com.specialheaders.repeatability.RepeatabilityClient.immediateSuccessWithResponse": "SpecialHeaders.Repeatability.immediateSuccess",
-    "com.specialheaders.repeatability.RepeatabilityClientBuilder": "SpecialHeaders.Repeatability"
+    "com.specialheaders.repeatability.RepeatabilityClientBuilder": "SpecialHeaders.Repeatability",
+    "com.specialheaders.repeatability.models.ImmediateSuccessResponseRepeatabilityResult": "immediateSuccess.ResponseRepeatabilityResult.anonymous"
   }
 }

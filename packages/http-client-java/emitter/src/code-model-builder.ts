@@ -30,6 +30,7 @@ import {
   Response,
   Schema,
   SchemaResponse,
+  Schemas,
   SchemaType,
   Security,
   SecurityScheme,
@@ -152,7 +153,9 @@ import {
   getUsage,
   isStable,
   modelIs,
+  processSchemaUsageFromSdkType,
   pushDistinct,
+  trackSchemaUsage,
 } from "./type-utils.js";
 import {
   getNamespace,
@@ -265,7 +268,8 @@ export class CodeModelBuilder {
 
     this.processModels();
 
-    this.processSchemaUsage();
+    this.postProcessSchemaUsage();
+
 
     this.deduplicateSchemaName();
 
@@ -280,7 +284,7 @@ export class CodeModelBuilder {
         parameter = this.createApiVersionParameter(arg.name, ParameterLocation.Uri);
       } else {
         const schema = this.processSchema(arg.type, arg.name);
-        this.trackSchemaUsage(schema, {
+        trackSchemaUsage(schema, {
           usage: [SchemaContext.Input, SchemaContext.Output /*SchemaContext.Public*/],
         });
         parameter = new Parameter(arg.name, arg.doc ?? "", schema, {
@@ -393,7 +397,7 @@ export class CodeModelBuilder {
         } else if (access === "internal") {
           const schema = this.processSchema(model, model.name);
 
-          this.trackSchemaUsage(schema, {
+          trackSchemaUsage(schema, {
             usage: [SchemaContext.Internal],
           });
         }
@@ -402,9 +406,9 @@ export class CodeModelBuilder {
         if (usage) {
           const schema = this.processSchema(model, "");
 
-          this.trackSchemaUsage(schema, {
-            usage: usage,
-          });
+          // trackSchemaUsage(schema, {
+          //   usage: usage,
+          // });
         }
 
         processedSdkModels.add(model);
@@ -412,17 +416,17 @@ export class CodeModelBuilder {
     }
   }
 
-  private processSchemaUsage() {
-    this.codeModel.schemas.objects?.forEach((it) => this.propagateSchemaUsage(it));
+  // private processSchemaUsage() {
+  //   this.codeModel.schemas.objects?.forEach((it) => this.propagateSchemaUsage(it));
 
-    // post process for schema usage
-    this.codeModel.schemas.objects?.forEach((it) => this.resolveSchemaUsage(it));
-    this.codeModel.schemas.groups?.forEach((it) => this.resolveSchemaUsage(it));
-    this.codeModel.schemas.choices?.forEach((it) => this.resolveSchemaUsage(it));
-    this.codeModel.schemas.sealedChoices?.forEach((it) => this.resolveSchemaUsage(it));
-    this.codeModel.schemas.ors?.forEach((it) => this.resolveSchemaUsage(it));
-    this.codeModel.schemas.constants?.forEach((it) => this.resolveSchemaUsage(it));
-  }
+  //   // post process for schema usage
+  //   this.codeModel.schemas.objects?.forEach((it) => this.resolveSchemaUsage(it));
+  //   this.codeModel.schemas.groups?.forEach((it) => this.resolveSchemaUsage(it));
+  //   this.codeModel.schemas.choices?.forEach((it) => this.resolveSchemaUsage(it));
+  //   this.codeModel.schemas.sealedChoices?.forEach((it) => this.resolveSchemaUsage(it));
+  //   this.codeModel.schemas.ors?.forEach((it) => this.resolveSchemaUsage(it));
+  //   this.codeModel.schemas.constants?.forEach((it) => this.resolveSchemaUsage(it));
+  // }
 
   private deduplicateSchemaName() {
     // deduplicate model name
@@ -923,7 +927,7 @@ export class CodeModelBuilder {
 
             op.responses?.forEach((r) => {
               if (r instanceof SchemaResponse) {
-                this.trackSchemaUsage(r.schema, { usage: [SchemaContext.Paged] });
+                trackSchemaUsage(r.schema, { usage: [SchemaContext.Paged] });
               }
             });
             break;
@@ -997,7 +1001,6 @@ export class CodeModelBuilder {
         }
       }
 
-      // track usage
       if (pollingSchema) {
         this.trackSchemaUsage(pollingSchema, { usage: [SchemaContext.Output] });
         if (trackConvenienceApi) {
@@ -1193,13 +1196,13 @@ export class CodeModelBuilder {
         clientContext.addGlobalParameter(parameter);
       }
 
-      this.trackSchemaUsage(schema, { usage: [SchemaContext.Input] });
+      // this.trackSchemaUsage(schema, { usage: [SchemaContext.Input] });
 
-      if (op.convenienceApi) {
-        this.trackSchemaUsage(schema, {
-          usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
-        });
-      }
+      // if (op.convenienceApi) {
+      //   this.trackSchemaUsage(schema, {
+      //     usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
+      //   });
+      // }
     }
   }
 
@@ -1300,12 +1303,12 @@ export class CodeModelBuilder {
           },
         );
 
-        this.trackSchemaUsage(requestConditionsSchema, { usage: [SchemaContext.Input] });
-        if (op.convenienceApi) {
-          this.trackSchemaUsage(requestConditionsSchema, {
-            usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
-          });
-        }
+        // this.trackSchemaUsage(requestConditionsSchema, { usage: [SchemaContext.Input] });
+        // if (op.convenienceApi) {
+        //   this.trackSchemaUsage(requestConditionsSchema, {
+        //     usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
+        //   });
+        // }
 
         // update group schema for properties
         for (const parameter of request.parameters) {
@@ -1378,20 +1381,23 @@ export class CodeModelBuilder {
 
     const jsonMergePatch = operationIsJsonMergePatch(sdkHttpOperation);
 
-    const schemaIsPublicBeforeProcess =
-      schema instanceof ObjectSchema &&
-      (schema as SchemaUsage).usage?.includes(SchemaContext.Public);
+    // const schemaIsPublicBeforeProcess =
+    //   schema instanceof ObjectSchema &&
+    //   (schema as SchemaUsage).usage?.includes(SchemaContext.Public);
 
-    this.trackSchemaUsage(schema, { usage: [SchemaContext.Input] });
+    // this.trackSchemaUsage(schema, { usage: [SchemaContext.Input] });
 
-    if (op.convenienceApi) {
-      // model/schema does not need to be Public or Internal, if it is not to be used in convenience API
-      this.trackSchemaUsage(schema, {
-        usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
-      });
-    }
+    // if (op.convenienceApi) {
+    //   // model/schema does not need to be Public or Internal, if it is not to be used in convenience API
+    //   this.trackSchemaUsage(schema, {
+    //     usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
+    //   });
+    // }
+
 
     if (jsonMergePatch) {
+      // TODO haoling: consider move it out
+      this.trackSchemaUsage(schema, { usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public] });
       this.trackSchemaUsage(schema, { usage: [SchemaContext.JsonMergePatch] });
     }
     if (op.convenienceApi && operationIsMultipart(sdkHttpOperation)) {
@@ -1423,16 +1429,20 @@ export class CodeModelBuilder {
           if (sdkType.isGeneratedName) {
             schema.language.default.name = pascalCase(op.language.default.name) + "PatchRequest";
           }
+          // // TODO haoling: maybe put to a global post processing
+          // this.postProcessSchemaUsage(schema);
           return;
         }
 
         const schemaUsage = (schema as SchemaUsage).usage;
-        if (!schemaIsPublicBeforeProcess && schemaUsage?.includes(SchemaContext.Public)) {
-          // Public added in this op, change it to PublicSpread
-          // This means that if this op would originally add Public to this schema, it adds PublicSpread instead
-          schemaUsage?.splice(schemaUsage?.indexOf(SchemaContext.Public), 1);
-          this.trackSchemaUsage(schema, { usage: [SchemaContext.PublicSpread] });
-        }
+        trackSchemaUsage(schema, { usage: schemaUsage });
+        // if (!schemaIsPublicBeforeProcess && schemaUsage?.includes(SchemaContext.Public)) {
+        //   // Public added in this op, change it to PublicSpread
+        //   // This means that if this op would originally add Public to this schema, it adds PublicSpread instead
+        //   schemaUsage?.splice(schemaUsage?.indexOf(SchemaContext.Public), 1);
+        //   trackSchemaUsage(schema, { usage: [SchemaContext.Public] });
+        // }
+
 
         if (op.convenienceApi && op.parameters) {
           op.convenienceApi.requests = [];
@@ -1621,6 +1631,10 @@ export class CodeModelBuilder {
     if (sdkResponse.headers) {
       for (const header of sdkResponse.headers) {
         const schema = this.processSchema(header.type, header.serializedName);
+        // // TODO haoling: why header schema do not need usage tracking? no usage tracking for header schema?
+        // trackSchemaUsage(schema, {
+        //   usage: [SchemaContext.None]
+        // });
         headers.push(
           new HttpHeader(header.serializedName, schema, {
             language: {
@@ -1714,13 +1728,18 @@ export class CodeModelBuilder {
       op.addResponse(response);
 
       if (response instanceof SchemaResponse) {
+        // if (!trackConvenienceApi) {
+        //   trackSchemaUsage(response.schema, {
+        //     usage: [SchemaContext.None]
+        //   });
+        // }
         this.trackSchemaUsage(response.schema, { usage: [SchemaContext.Output] });
 
         if (trackConvenienceApi) {
           this.trackSchemaUsage(response.schema, {
             usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
           });
-        }
+        } 
       }
     }
   }
@@ -1957,6 +1976,7 @@ export class CodeModelBuilder {
       },
     });
     schema.crossLanguageDefinitionId = type.crossLanguageDefinitionId;
+    schema.usage = processSchemaUsageFromSdkType(type, schema.usage);
     return this.codeModel.schemas.add(schema);
   }
 
@@ -2059,6 +2079,8 @@ export class CodeModelBuilder {
     (objectSchema as CrossLanguageDefinition).crossLanguageDefinitionId =
       type.crossLanguageDefinitionId;
     this.codeModel.schemas.add(objectSchema);
+    // TODO haoling: fix as any
+    objectSchema.usage = processSchemaUsageFromSdkType(type, objectSchema.usage) as any;
 
     // cache this now before we accidentally recurse on this type.
     if (!this.schemaCache.has(type)) {
@@ -2618,7 +2640,7 @@ export class CodeModelBuilder {
     const processedSchemas = new Set<Schema>();
 
     const innerApplySchemaUsage = (schema: Schema, schemaUsage: SchemaUsage) => {
-      this.trackSchemaUsage(schema, schemaUsage);
+      trackSchemaUsage(schema, schemaUsage);
       innerPropagateSchemaUsage(schema, schemaUsage);
     };
 
@@ -2691,6 +2713,39 @@ export class CodeModelBuilder {
     };
     // Propagate the usage of the initial schema itself
     innerPropagateSchemaUsage(schema, schemaUsage);
+  }
+
+  // private postProcessSchemaUsage(schemaUsage: SchemaUsage): void {
+  //   if (schemaUsage.usage?.includes(SchemaContext.Public) && schemaUsage.usage?.includes(SchemaContext.Internal)) {
+  //       // remove internal
+  //       schemaUsage.usage.splice(schemaUsage.usage.indexOf(SchemaContext.Internal), 1);
+  //   }
+  // }
+
+  private postProcessSchemaUsage(): void {
+    const innerProcessUsage = (schema: Schema) => {
+      const usages = (schema as SchemaUsage).usage;
+      // if (usages && usages.includes(SchemaContext.Public) && usages.includes(SchemaContext.Internal)) { // TODO haoling: add check to apply only to json-merge-patch and multipart
+      //   // remove internal
+      //   if (usages.includes(SchemaContext.JsonMergePatch) || schema.serializationFormats?.includes(KnownMediaType.Multipart)) {
+      //     usages.splice(usages.indexOf(SchemaContext.Internal), 1);
+      //   }
+      // }
+      if (usages && usages.includes(SchemaContext.Public) && usages.includes(SchemaContext.Internal)) { // TODO haoling: add check to apply only to json-merge-patch and multipart
+        // remove internal
+          usages.splice(usages.indexOf(SchemaContext.Internal), 1);
+      }
+      // if (usages && usages.includes(SchemaContext.None)) {
+      //   // no usage
+      //   (schema as SchemaUsage).usage = [];
+      // }
+    };
+    this.codeModel.schemas.choices?.forEach(innerProcessUsage);
+    this.codeModel.schemas.objects?.forEach(innerProcessUsage);
+    this.codeModel.schemas.sealedChoices?.forEach(innerProcessUsage);
+    this.codeModel.schemas.constants?.forEach(innerProcessUsage);
+    this.codeModel.schemas.groups?.forEach(innerProcessUsage);
+    this.codeModel.schemas.ors?.forEach(innerProcessUsage);
   }
 
   private trackSchemaUsage(schema: Schema, schemaUsage: SchemaUsage): void {

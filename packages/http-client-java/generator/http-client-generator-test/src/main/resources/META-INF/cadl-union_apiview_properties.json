@@ -24,6 +24,8 @@
     "com.cadl.union.implementation.models.SendRequest": "send.Request.anonymous",
     "com.cadl.union.implementation.models.SubResult": "Cadl.Union.SubResult",
     "com.cadl.union.models.ArrayData": "Cadl.Union.ArrayData",
+    "com.cadl.union.models.OperationState": "Azure.Core.Foundations.OperationState",
+    "com.cadl.union.models.ResourceOperationStatusOperationStatusResultError": "Azure.Core.ResourceOperationStatus",
     "com.cadl.union.models.Result": "Cadl.Union.Result",
     "com.cadl.union.models.SendLongOptions": "null",
     "com.cadl.union.models.User": "Cadl.Union.User"

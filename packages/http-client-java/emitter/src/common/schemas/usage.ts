@@ -24,6 +24,9 @@ export enum SchemaContext {
 
   /** Schema is used in json-merge-patch operation */
   JsonMergePatch = "json-merge-patch",
+
+  /** Schema is not used */
+  None = "None"
 }
 
 export interface SchemaUsage {
