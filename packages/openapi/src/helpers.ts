@@ -213,3 +213,31 @@ export function checkNoAdditionalProperties(
 
   return diagnostics;
 }
+
+/**
+ * Validate a string as a URI.
+ * @param target The target of the diagnostic
+ * @param url The URL to validate
+ * @param propertyName The name of the property being validated
+ */
+export function validateIsUri(
+  target: DiagnosticTarget,
+  url: string,
+  propertyName: string,
+): Diagnostic[] {
+  const diagnostics: Diagnostic[] = [];
+  try {
+    // Attempt to construct a new URL
+    new URL(url);
+  } catch {
+    // If the construction fails, create a diagnostic
+    diagnostics.push(
+      createDiagnostic({
+        code: "not-url",
+        format: { property: propertyName, value: url },
+        target,
+      }),
+    );
+  }
+  return diagnostics;
+}

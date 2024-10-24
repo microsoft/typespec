@@ -19,7 +19,7 @@ import {
   InfoDecorator,
   OperationIdDecorator,
 } from "../generated-defs/TypeSpec.OpenAPI.js";
-import { checkNoAdditionalProperties, isOpenAPIExtensionKey } from "./helpers.js";
+import { checkNoAdditionalProperties, isOpenAPIExtensionKey, validateIsUri } from "./helpers.js";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
 import { AdditionalInfo, ExtensionKey, ExternalDocs } from "./types.js";
 
@@ -184,9 +184,12 @@ export const $info: InfoDecorator = (
   }
   validateAdditionalInfoModel(context, model);
   if (data.termsOfService) {
-    if (!validateIsUri(context, data.termsOfService, "TermsOfService")) {
-      return;
-    }
+    const diagnostics = validateIsUri(
+      context.getArgumentTarget(0)!,
+      data.termsOfService,
+      "TermsOfService",
+    );
+    context.program.reportDiagnostics(diagnostics);
   }
   setInfo(context.program, entity, data);
 };
@@ -216,20 +219,6 @@ export function resolveInfo(program: Program, entity: Namespace): AdditionalInfo
 
 function omitUndefined<T extends Record<string, unknown>>(data: T): T {
   return Object.fromEntries(Object.entries(data).filter(([k, v]) => v !== undefined)) as any;
-}
-
-function validateIsUri(context: DecoratorContext, url: string, propertyName: string) {
-  try {
-    new URL(url);
-    return true;
-  } catch {
-    reportDiagnostic(context.program, {
-      code: "not-url",
-      target: context.getArgumentTarget(0)!,
-      format: { property: propertyName, value: url },
-    });
-    return false;
-  }
 }
 
 function validateAdditionalInfoModel(context: DecoratorContext, typespecType: TypeSpecValue) {

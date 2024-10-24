@@ -10,7 +10,7 @@ import {
   typespecTypeToJson,
 } from "@typespec/compiler";
 import { unsafe_useStateMap } from "@typespec/compiler/experimental";
-import { ExtensionKey, checkNoAdditionalProperties } from "@typespec/openapi";
+import { ExtensionKey, checkNoAdditionalProperties, validateIsUri } from "@typespec/openapi";
 import {
   OneOfDecorator,
   TagMetadataDecorator,
@@ -59,6 +59,18 @@ export const $tagMetadata: TagMetadataDecorator = (
   name: string,
   tagMetadata?: TypeSpecValue,
 ) => {
+  const tags = getTagsMetadataState(context.program, entity);
+  if (tags) {
+    const tagNamesSet = new Set(tags.map((t) => t.name));
+    if (tagNamesSet.has(name)) {
+      reportDiagnostic(context.program, {
+        code: "duplicate-tag",
+        format: { tagName: name },
+        target: context.getArgumentTarget(0)!,
+      });
+    }
+  }
+
   let metadata: OpenAPI3Tag = { name };
   if (tagMetadata) {
     const [data, diagnostics] = typespecTypeToJson<OpenAPI3Tag & Record<ExtensionKey, unknown>>(
@@ -70,10 +82,18 @@ export const $tagMetadata: TagMetadataDecorator = (
       return;
     }
     validateAdditionalInfoModel(context, tagMetadata);
-    metadata = { ...data, ...metadata };
+    if (data.externalDocs?.url) {
+      const diagnostics = validateIsUri(
+        context.getArgumentTarget(0)!,
+        data.externalDocs?.url,
+        "externalDocs.url",
+      );
+      context.program.reportDiagnostics(diagnostics);
+    }
+
+    metadata = { ...data, name };
   }
 
-  const tags = getTagsMetadataState(context.program, entity);
   if (tags) {
     tags.push(metadata);
   } else {

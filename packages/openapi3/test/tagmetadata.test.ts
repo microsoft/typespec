@@ -1,14 +1,19 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual } from "assert";
-import { it } from "vitest";
-import { diagnoseOpenApiFor, openApiFor } from "./test-host.js";
+import { describe, it } from "vitest";
+import { getTagsMetadata } from "../src/decorators.js";
+import { createOpenAPITestRunner, diagnoseOpenApiFor, openApiFor } from "./test-host.js";
 
-it("emit diagnostic if tagName is not a string", async () => {
+it.each([
+  ["tagName is not a string", `@tagMetadata(123)`],
+  ["tagMetdata parameter is not an object", `@tagMetadata("tagName", 123)`],
+  ["description is not a string", `@tagMetadata("tagName", { description: 123, })`],
+])("%s", async (_, code) => {
   const diagnostics = await diagnoseOpenApiFor(
     `
-      @tagMetadata(123)
-      namespace PetStore{};
-      `,
+    ${code}
+    namespace PetStore{};
+    `,
   );
 
   expectDiagnostics(diagnostics, {
@@ -16,48 +21,215 @@ it("emit diagnostic if tagName is not a string", async () => {
   });
 });
 
-it("emit diagnostic if description is not a string", async () => {
+it("emit diagnostic if dup tagName", async () => {
   const diagnostics = await diagnoseOpenApiFor(
     `
-      @tagMetadata("tagName", { description: 123, })
-      namespace PetStore{};
-      `,
+    @tagMetadata("tagName")
+    @tagMetadata("tagName")
+    namespace PetStore{};
+    `,
   );
 
   expectDiagnostics(diagnostics, {
-    code: "invalid-argument",
+    code: "@typespec/openapi3/duplicate-tag",
   });
 });
 
-it("set the additional information with @tagMetadata decorator", async () => {
-  const res = await openApiFor(
+describe("emit diagnostics when passing extension key not starting with `x-` in additionalInfo", () => {
+  it.each([
+    ["root", `{ foo:"Bar" }`],
+    ["externalDocs", `{ externalDocs:{ url: "https://example.com", foo:"Bar"} }`],
+    ["complex", `{ externalDocs:{ url: "https://example.com", "x-custom": "string" }, foo:"Bar" }`],
+  ])("%s", async (_, code) => {
+    const diagnostics = await diagnoseOpenApiFor(
+      `
+      @tagMetadata("tagName", ${code})
+      namespace PetStore{};
+      `,
+    );
+
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/openapi/invalid-extension-key",
+      message: `OpenAPI extension must start with 'x-' but was 'foo'`,
+    });
+  });
+
+  it("multiple", async () => {
+    const diagnostics = await diagnoseOpenApiFor(
+      `
+      @tagMetadata("tagName",{
+        externalDocs: { url: "https://example.com", foo1:"Bar" }, 
+        foo2:"Bar" 
+      })
+      @test namespace Service{};
+      `,
+    );
+
+    expectDiagnostics(diagnostics, [
+      {
+        code: "@typespec/openapi/invalid-extension-key",
+        message: `OpenAPI extension must start with 'x-' but was 'foo1'`,
+      },
+      {
+        code: "@typespec/openapi/invalid-extension-key",
+        message: `OpenAPI extension must start with 'x-' but was 'foo2'`,
+      },
+    ]);
+  });
+});
+
+it("emit diagnostic if externalDocs.url is not a valid url", async () => {
+  const diagnostics = await diagnoseOpenApiFor(
     `
-      @service
-      @tagMetadata(
-        "pet",
+    @tagMetadata("tagName", {
+        externalDocs: { url: "notvalidurl"}, 
+    })
+    @test namespace Service {}
+    `,
+  );
+
+  expectDiagnostics(diagnostics, {
+    code: "@typespec/openapi/not-url",
+    message: "externalDocs.url: notvalidurl is not a valid URL.",
+  });
+});
+
+it("emit diagnostic if use on non namespace", async () => {
+  const diagnostics = await diagnoseOpenApiFor(
+    `
+    @tagMetadata("tagName",{})
+    model Foo {}
+    `,
+  );
+
+  expectDiagnostics(diagnostics, {
+    code: "decorator-wrong-target",
+    message: "Cannot apply @tagMetadata decorator to Foo since it is not assignable to Namespace",
+  });
+});
+
+it("set the tagMetadata with @tagMetadata", async () => {
+  const runner = await createOpenAPITestRunner();
+  const { PetStore } = await runner.compile(
+    `
+     @tagMetadata(
+        "tagName1",
         {
           description: "Pets operations",
           externalDocs: {
             url: "https://example.com",
             description: "More info.",
-          },
+            "x-custom": "string"
+          },          
         }
       )
-      namespace PetStore {
-        @tag("pet")
-        op NamespaceOperation(): string;
-      }
-      `,
+      @tagMetadata(
+        "tagName2",
+        {
+          description: "Pets operations",
+          externalDocs: {
+            url: "https://example.com",
+            description: "More info.",           
+          },
+          "x-custom": "string"
+        }
+      )
+    @test 
+    namespace PetStore {}
+    `,
   );
-  deepStrictEqual(res.paths["/"].get.tags, ["pet"]);
-  deepStrictEqual(res.tags, [
+
+  deepStrictEqual(getTagsMetadata(runner.program, PetStore), [
     {
-      name: "pet",
+      name: "tagName2",
       description: "Pets operations",
       externalDocs: {
-        description: "More info.",
         url: "https://example.com",
+        description: "More info.",
+      },
+      "x-custom": "string",
+    },
+    {
+      name: "tagName1",
+      description: "Pets operations",
+      externalDocs: {
+        url: "https://example.com",
+        description: "More info.",
+        "x-custom": "string",
       },
     },
   ]);
+});
+
+it.each([
+  [
+    "set the additional information with @tagMetadata decorator",
+    `@tag("TagName") op NamespaceOperation(): string;`,
+    [
+      {
+        name: "TagName",
+        description: "Pets operations",
+        externalDocs: {
+          description: "More info.",
+          url: "https://example.com",
+          "x-custom": "string",
+        },
+        "x-custom": "string",
+      },
+    ],
+  ],
+  [
+    "add tag with @tagMetadata decorator",
+    ``,
+    [
+      {
+        name: "TagName",
+        description: "Pets operations",
+        externalDocs: {
+          description: "More info.",
+          url: "https://example.com",
+          "x-custom": "string",
+        },
+        "x-custom": "string",
+      },
+    ],
+  ],
+  [
+    "add tags with @tagMetadata decorator and @tag decorator",
+    `@tag("opTag") op NamespaceOperation(): string;`,
+    [
+      { name: "opTag" },
+      {
+        name: "TagName",
+        description: "Pets operations",
+        externalDocs: {
+          description: "More info.",
+          url: "https://example.com",
+          "x-custom": "string",
+        },
+        "x-custom": "string",
+      },
+    ],
+  ],
+])("%s", async (_, code, expected) => {
+  const res = await openApiFor(
+    `
+    @service
+    @tagMetadata(
+      "TagName",
+      {
+        description: "Pets operations",
+        externalDocs: {
+          url: "https://example.com",
+          description: "More info.",
+          "x-custom": "string"
+        },
+        "x-custom": "string"
+      }
+    )      
+    namespace PetStore{${code}};
+    `,
+  );
+
+  deepStrictEqual(res.tags, expected);
 });
