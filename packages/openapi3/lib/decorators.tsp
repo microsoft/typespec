@@ -15,13 +15,15 @@ extern dec oneOf(target: Union | ModelProperty);
 extern dec useRef(target: Model | ModelProperty, ref: valueof string);
 
 /** Additional information for the OpenAPI document. */
-model AdditionalTag {
+model TagMetadata {
   /** A description of the API. */
   description?: string;
 
+  /** a external Docs information of the API. */
   externalDocs?: ExternalDocs;
 }
 
+/** External Docs information. */
 model ExternalDocs {
   /** Documentation url */
   url: string;
@@ -35,8 +37,4 @@ model ExternalDocs {
  * @param name tag name
  * @param additionalTag Additional information
  */
-extern dec tagMetadata(
-  target: Namespace | Interface | Operation,
-  name: valueof string,
-  additionalTag?: AdditionalTag
-);
+extern dec tagMetadata(target: Namespace, name: valueof string, tagMetadata?: TagMetadata);

@@ -85,7 +85,7 @@ import {
 } from "@typespec/openapi";
 import { buildVersionProjections, VersionProjections } from "@typespec/versioning";
 import { stringify } from "yaml";
-import { getAllTagsMetadata, getRef } from "./decorators.js";
+import { getRef, getTagsMetadata } from "./decorators.js";
 import { applyEncoding } from "./encoding.js";
 import { getExampleOrExamples, OperationExamples, resolveOperationExamples } from "./examples.js";
 import { createDiagnostic, FileType, OpenAPI3EmitterOptions } from "./lib.js";
@@ -233,8 +233,6 @@ function createOAPIEmitter(
   // De-dupe the per-endpoint tags that will be added into the #/tags
   let tags: Set<string>;
 
-  let tagsMetadata: Set<OpenAPI3Tag>;
-
   const typeNameOptions: TypeNameOptions = {
     // shorten type names by removing TypeSpec and service namespace
     namespaceFilter(ns) {
@@ -348,7 +346,6 @@ function createOAPIEmitter(
     params = new Map();
     paramModels = new Set();
     tags = new Set();
-    tagsMetadata = new Set();
   }
 
   function isValidServerVariableType(program: Program, type: Type): boolean {
@@ -632,8 +629,9 @@ function createOAPIEmitter(
       }
       emitParameters();
       emitSchemas(service.type);
-      emitTags();
-      emitTagsMetadata();
+
+      const tagsMetadata = getTagsMetadata(program, service.type);
+      emitTags(tagsMetadata);
 
       // Clean up empty entries
       if (root.components) {
@@ -729,22 +727,6 @@ function createOAPIEmitter(
           tags.add(tag);
         }
       }
-
-      const opTagsMetadata = getAllTagsMetadata(program, op.operation);
-      if (opTagsMetadata) {
-        const opTagNames = opTagsMetadata.map((tag) => tag.name);
-        const currentTags = oai3Operation.tags;
-        if (currentTags) {
-          // combine tags but eliminate duplicates
-          oai3Operation.tags = [...new Set([...currentTags, ...opTagNames])];
-        } else {
-          oai3Operation.tags = opTagNames;
-        }
-        for (const tag of opTagsMetadata) {
-          // Add to root tags if not already there
-          tagsMetadata.add(tag);
-        }
-      }
     }
 
     // Error out if shared routes do not have consistent `@parameterVisibility`. We can
@@ -804,16 +786,6 @@ function createOAPIEmitter(
       for (const tag of currentTags) {
         // Add to root tags if not already there
         tags.add(tag);
-      }
-    }
-
-    const currentTagsMetadata = getAllTagsMetadata(program, op);
-    if (currentTagsMetadata) {
-      const currentTagNames = currentTagsMetadata.map((tag) => tag.name);
-      oai3Operation.tags = currentTagNames;
-      for (const tag of currentTagsMetadata) {
-        // Add to root tags if not already there
-        tagsMetadata.add(tag);
       }
     }
 
@@ -1613,13 +1585,15 @@ function createOAPIEmitter(
     }
   }
 
-  function emitTags() {
+  function emitTags(tagsMetadata: OpenAPI3Tag[]) {
+    const tagSet = new Set(tagsMetadata.map((t) => t.name));
+    // emit Tag from op
     for (const tag of tags) {
-      root.tags!.push({ name: tag });
+      if (!tagSet.has(tag)) {
+        root.tags!.push({ name: tag });
+      }
     }
-  }
 
-  function emitTagsMetadata() {
     for (const tag of tagsMetadata) {
       root.tags!.push(tag);
     }

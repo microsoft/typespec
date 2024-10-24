@@ -1,5 +1,5 @@
 import { Diagnostic, Service } from "@typespec/compiler";
-import { Contact, ExtensionKey, ExternalDocs, License } from "@typespec/openapi";
+import { Contact, ExtensionKey, License } from "@typespec/openapi";
 
 export type Extensions = {
   [key in ExtensionKey]?: any;
@@ -684,14 +684,3 @@ export interface Ref<T> {
 }
 
 export type Refable<T> = Ref<T> | T;
-
-/**
- * OpenAPI additional Tag information
- */
-export interface AdditionalTag {
-  /** A description of the API. */
-  description?: string;
-
-  /** The external information for the exposed API. */
-  externalDocs?: ExternalDocs;
-}

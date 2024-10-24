@@ -1,10 +1,8 @@
 import {
   DecoratorContext,
-  Interface,
   Model,
   ModelProperty,
   Namespace,
-  Operation,
   Program,
   Type,
   TypeSpecValue,
@@ -19,7 +17,7 @@ import {
   UseRefDecorator,
 } from "../generated-defs/TypeSpec.OpenAPI.js";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
-import { AdditionalTag, OpenAPI3Tag } from "./types.js";
+import { OpenAPI3Tag } from "./types.js";
 
 const refTargetsKey = createStateSymbol("refs");
 export const $useRef: UseRefDecorator = (
@@ -57,25 +55,22 @@ const [getTagsMetadataState, setTagsMetadata] = unsafe_useStateMap<Type, OpenAPI
 );
 export const $tagMetadata: TagMetadataDecorator = (
   context: DecoratorContext,
-  entity: Namespace | Interface | Operation,
+  entity: Namespace,
   name: string,
-  additionalTag?: TypeSpecValue,
+  tagMetadata?: TypeSpecValue,
 ) => {
-  const metadata: OpenAPI3Tag = { name };
-  if (additionalTag) {
-    const [data, diagnostics] = typespecTypeToJson<AdditionalTag & Record<ExtensionKey, unknown>>(
-      additionalTag,
+  let metadata: OpenAPI3Tag = { name };
+  if (tagMetadata) {
+    const [data, diagnostics] = typespecTypeToJson<OpenAPI3Tag & Record<ExtensionKey, unknown>>(
+      tagMetadata,
       context.getArgumentTarget(0)!,
     );
     context.program.reportDiagnostics(diagnostics);
     if (data === undefined) {
       return;
     }
-    validateAdditionalInfoModel(context, additionalTag);
-    if (data) {
-      metadata.description = data.description;
-      metadata.externalDocs = data.externalDocs;
-    }
+    validateAdditionalInfoModel(context, tagMetadata);
+    metadata = { ...data, ...metadata };
   }
 
   const tags = getTagsMetadataState(context.program, entity);
@@ -86,39 +81,13 @@ export const $tagMetadata: TagMetadataDecorator = (
   }
 };
 
-export function getTagMetadata(program: Program, entity: Type): OpenAPI3Tag[] {
+export function getTagsMetadata(program: Program, entity: Type): OpenAPI3Tag[] {
   return getTagsMetadataState(program, entity) || [];
-}
-
-// Merge the tags for a operation with the tags that are on the namespace or
-// interface it resides within.
-export function getAllTagsMetadata(
-  program: Program,
-  target: Namespace | Interface | Operation,
-): OpenAPI3Tag[] | undefined {
-  const tags = new Set<OpenAPI3Tag>();
-
-  let current: Namespace | Interface | Operation | undefined = target;
-  while (current !== undefined) {
-    for (const t of getTagMetadata(program, current)) {
-      tags.add(t);
-    }
-
-    // Move up to the parent
-    if (current.kind === "Operation") {
-      current = current.interface ?? current.namespace;
-    } else {
-      // Type is a namespace or interface
-      current = current.namespace;
-    }
-  }
-
-  return tags.size > 0 ? Array.from(tags).reverse() : undefined;
 }
 
 function validateAdditionalInfoModel(context: DecoratorContext, typespecType: TypeSpecValue) {
   const propertyModel = context.program.resolveTypeReference(
-    "TypeSpec.OpenAPI.AdditionalTag",
+    "TypeSpec.OpenAPI.TagMetadata",
   )[0]! as Model;
 
   if (typeof typespecType === "object" && propertyModel) {
