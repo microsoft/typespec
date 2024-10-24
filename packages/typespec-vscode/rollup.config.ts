@@ -1,13 +1,8 @@
 import commonjs from "@rollup/plugin-commonjs";
 import resolve from "@rollup/plugin-node-resolve";
 import typescript from "@rollup/plugin-typescript";
-import path from "path";
 
 import { defineConfig } from "rollup";
-import { fileURLToPath } from "url";
-
-const curFile = fileURLToPath(import.meta.url);
-const curDir = path.dirname(curFile);
 
 const plugins = [(resolve as any)({ preferBuiltins: true }), (commonjs as any)()];
 const baseConfig = defineConfig({
@@ -58,24 +53,17 @@ export default defineConfig([
   },
   {
     ...baseConfig,
-    input: "test/web/suite.ts",
+    input: "test/suite.ts",
     output: {
-      file: "dist/test/web/suite.js", // VSCode web will add extra .js if you use .cjs
+      file: "dist/test/suite.js", // VSCode web will add extra .js if you use .cjs
       format: "commonjs",
       sourcemap: true,
       inlineDynamicImports: true,
     },
-    plugins: [...plugins, ts("dist/test/web")],
+    plugins: [...plugins, ts("dist/test")],
   },
 ]);
 
 function ts(outDir: string) {
-  return (typescript as any)({
-    compilerOptions: {
-      // set sourceRoot to absolute path, otherwise the path in the map file generated is incorrect when outDir is given
-      sourceRoot: curDir,
-    },
-    tsconfig: "./tsconfig.build.json",
-    outDir,
-  });
+  return (typescript as any)({ tsconfig: "./tsconfig.build.json", outDir });
 }

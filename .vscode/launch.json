@@ -94,16 +94,6 @@
       }
     },
     {
-      "type": "node",
-      "request": "launch",
-      "name": "Generate-third-party-notices for vscode extension",
-      "program": "${workspaceFolder}/packages/internal-build-utils/dist/src/cli.js",
-      "args": ["generate-third-party-notices"],
-      "sourceMaps": true,
-      "skipFiles": ["<node_internals>/**/*.js"],
-      "cwd": "${workspaceFolder}/packages/typespec-vscode"
-    },
-    {
       "name": "Regenerate .tmlanguage",
       "type": "node",
       "program": "${workspaceFolder}/packages/typespec-vscode/scripts/generate-tmlanguage.js",

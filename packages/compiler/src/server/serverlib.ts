@@ -79,7 +79,6 @@ import {
 import { getNormalizedRealPath, resolveTspMain } from "../utils/misc.js";
 import { getSemanticTokens } from "./classify.js";
 import { createCompileService } from "./compile-service.js";
-import { provideTspconfigCompletionItems } from "./completion-tspconfig.js";
 import { resolveCompletion } from "./completion.js";
 import { Commands } from "./constants.js";
 import { EmitterProvider } from "./emitter-provider.js";
@@ -87,6 +86,7 @@ import { createFileService } from "./file-service.js";
 import { createFileSystemCache } from "./file-system-cache.js";
 import { NpmPackageProvider } from "./npm-package-provider.js";
 import { getSymbolStructure } from "./symbol-structure.js";
+import { provideTspconfigCompletionItems } from "./tspconfig/completion.js";
 import {
   getParameterDocumentation,
   getSymbolDetails,

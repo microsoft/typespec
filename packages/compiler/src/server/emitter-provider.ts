@@ -4,29 +4,6 @@ import { NpmPackage, NpmPackageProvider } from "./npm-package-provider.js";
 export class EmitterProvider {
   constructor(private npmPackageProvider: NpmPackageProvider) {}
 
-  private static async isEmitter(pkg: NpmPackage) {
-    const data = await pkg.getPackageJsonData();
-    if (!data) return false;
-    const dep = {
-      ...data.dependencies,
-      ...data.devDependencies,
-    };
-    if (dep["@typespec/compiler"]) {
-      const exports = await pkg.getModuleExports();
-      return exports && exports.$onEmit;
-    }
-    return false;
-  }
-
-  private async getEmitterFromDep(packageJsonFolder: string, depName: string) {
-    const depFolder = joinPaths(packageJsonFolder, "node_modules", depName);
-    const depPkg = await this.npmPackageProvider.get(depFolder);
-    if (depPkg && (await EmitterProvider.isEmitter(depPkg))) {
-      return depPkg;
-    }
-    return undefined;
-  }
-
   /**
    *
    * @param startFolder folder starts to search for package.json with emitters defined as dependencies
@@ -66,5 +43,25 @@ export class EmitterProvider {
       return undefined;
     }
     return this.getEmitterFromDep(packageJsonFolder, emitterName);
+  }
+
+  private static async isEmitter(pkg: NpmPackage) {
+    const data = await pkg.getPackageJsonData();
+    if (!data) return false;
+    if ((data.devDependencies && data.devDependencies["@typespec/compiler"]) ||
+      (data.dependencies && data.dependencies["@typespec/compiler"])) {
+      const exports = await pkg.getModuleExports();
+      return exports && exports.$onEmit;
+    }
+    return false;
+  }
+
+  private async getEmitterFromDep(packageJsonFolder: string, depName: string) {
+    const depFolder = joinPaths(packageJsonFolder, "node_modules", depName);
+    const depPkg = await this.npmPackageProvider.get(depFolder);
+    if (depPkg && (await EmitterProvider.isEmitter(depPkg))) {
+      return depPkg;
+    }
+    return undefined;
   }
 }

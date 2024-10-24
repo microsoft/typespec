@@ -20,8 +20,7 @@
   "publisher": "typespec",
   "displayName": "TypeSpec for VS Code",
   "categories": [
-    "Programming Languages",
-    "Snippets"
+    "Programming Languages"
   ],
   "type": "module",
   "main": "./dist/src/extension.cjs",
@@ -143,12 +142,6 @@
           }
         }
       }
-    ],
-    "snippets": [
-      {
-        "language": "typespec",
-        "path": "./snippets.json"
-      }
     ]
   },
   "scripts": {
@@ -164,7 +157,7 @@
     "deploy": "vsce publish",
     "open-in-browser": "vscode-test-web --extensionDevelopmentPath=. .",
     "test:e2e": "pnpm test:web",
-    "test:web": "vscode-test-web --extensionDevelopmentPath=. --headless --extensionTestsPath=dist/test/web/suite.js ./test/web/data"
+    "test:web": "vscode-test-web --extensionDevelopmentPath=. --headless --extensionTestsPath=dist/test/suite.js ./test/data"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "~28.0.0",

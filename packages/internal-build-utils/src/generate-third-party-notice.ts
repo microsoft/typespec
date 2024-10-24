@@ -98,10 +98,6 @@ async function getPackageRoot(filename: string): Promise<string | undefined> {
   try {
     const pkgPath = join(dir, "package.json");
     await stat(pkgPath);
-    const pkg = JSON.parse(await readFile(pkgPath, "utf-8"));
-    if (!pkg.name) {
-      return getPackageRoot(dir);
-    }
     return dir;
   } catch (e: any) {
     if (e.code === "ENOENT") {

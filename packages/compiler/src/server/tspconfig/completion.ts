@@ -1,11 +1,11 @@
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { CompletionItem, CompletionItemKind, Position } from "vscode-languageserver/node.js";
-import { emitterOptionsSchema, TypeSpecConfigJsonSchema } from "../config/config-schema.js";
-import { JSONSchemaType, ServerLog } from "../index.js";
-import { distinctArray } from "../utils/misc.js";
-import { EmitterProvider } from "./emitter-provider.js";
-import { FileService } from "./file-service.js";
-import { resolveYamlScalarTarget, YamlScalarTarget } from "./yaml-resolver.js";
+import { emitterOptionsSchema, TypeSpecConfigJsonSchema } from "../../config/config-schema.js";
+import { JSONSchemaType, ServerLog } from "../../index.js";
+import { distinctArray } from "../../utils/misc.js";
+import { EmitterProvider } from "../emitter-provider.js";
+import { FileService } from "../file-service.js";
+import { resolveYamlScalarTarget, YamlScalarTarget } from "../yaml-resolver.js";
 
 type ObjectJSONSchemaType = JSONSchemaType<object>;
 
