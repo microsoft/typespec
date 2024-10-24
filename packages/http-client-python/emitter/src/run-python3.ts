@@ -14,7 +14,13 @@ export async function runPython3(...args: string[]) {
     version: ">=3.8",
     environmentVariable: "AUTOREST_PYTHON_EXE",
   });
-  cp.execSync(command.join(" "), {
-    stdio: [0, 1, 2],
+  cp.exec(command.join(" "), 
+  (error: cp.ExecException | null, stdout: string, stderr: string) => {
+    if (error) {
+      console.error(`Error: ${error.message}`); // eslint-disable-line no-console
+      console.error(`stderr: ${stderr}`); // eslint-disable-line no-console
+      process.exit(1);
+    }
+    console.log(`stdout: ${stdout}`); // eslint-disable-line no-console
   });
 }
