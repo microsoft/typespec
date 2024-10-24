@@ -61,6 +61,8 @@ import { Mutable, mutate } from "../utils/misc.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import {
   AliasStatementNode,
+  AugmentDecoratorStatementNode,
+  DecoratorExpressionNode,
   EnumStatementNode,
   Expression,
   InterfaceStatementNode,
@@ -103,7 +105,15 @@ export interface NameResolver {
   getNodeLinks(n: Node): NodeLinks;
   getSymbolLinks(s: Sym): SymbolLinks;
   getGlobalNamespaceSymbol(): Sym;
+
+  // TODO: do we need this one, should that be the signature.
+  resolveMetaMemberByName(sym: Sym, name: string): ResolutionResult;
+
+  readonly intrinsicSymbols: {
+    readonly null: Sym;
+  };
 }
+
 export function createResolver(program: Program): NameResolver {
   const mergedSymbols = new Map<Sym, Sym>();
   const augmentedSymbolTables = new Map<SymbolTable, SymbolTable>();
@@ -113,11 +123,19 @@ export function createResolver(program: Program): NameResolver {
   let currentSymbolId = 0;
 
   const globalNamespaceNode = createGlobalNamespaceNode();
-  const globalNamespaceSym = createSymbol(globalNamespaceNode, "global", SymbolFlags.Namespace);
+  const globalNamespaceSym = createSymbol(
+    globalNamespaceNode,
+    "global",
+    SymbolFlags.Namespace | SymbolFlags.Declaration,
+  );
   mutate(globalNamespaceNode).symbol = globalNamespaceSym;
+  mutate(globalNamespaceSym.exports).set(globalNamespaceNode.id.sv, globalNamespaceSym);
+
   const metaTypePrototypes = createMetaTypePrototypes();
 
+  const nullSym = createSymbol(undefined, "null", SymbolFlags.None);
   return {
+    intrinsicSymbols: { null: nullSym },
     resolveProgram() {
       // Merge namespace symbols and decorator implementation/declaration symbols
       for (const file of program.jsSourceFiles.values()) {
@@ -126,6 +144,16 @@ export function createResolver(program: Program): NameResolver {
 
       for (const file of program.sourceFiles.values()) {
         mergeSymbolTable(file.symbol.exports!, mutate(globalNamespaceSym.exports!));
+      }
+
+      const typespecNamespaceBinding = globalNamespaceSym.exports!.get("TypeSpec");
+      if (typespecNamespaceBinding) {
+        // TODO:?
+        // initializeTypeSpecIntrinsics();
+        mutate(typespecNamespaceBinding!.exports).set("null", nullSym);
+        for (const file of program.sourceFiles.values()) {
+          addUsingSymbols(typespecNamespaceBinding.exports!, file.locals);
+        }
       }
 
       // Bind usings to namespaces, create namespace-local bindings for used symbols
@@ -148,6 +176,7 @@ export function createResolver(program: Program): NameResolver {
     getGlobalNamespaceSymbol() {
       return globalNamespaceSym;
     },
+    resolveMetaMemberByName,
   };
 
   function getMergedSymbol(sym: Sym) {
@@ -201,15 +230,19 @@ export function createResolver(program: Program): NameResolver {
     return s.id!;
   }
 
+  interface ResolveTypReferenceOptions {
+    resolveDecorators?: boolean;
+  }
   function resolveTypeReference(
     node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
+    options: ResolveTypReferenceOptions = {},
   ): ResolutionResult {
     const links = getNodeLinks(node);
     if (links.resolutionResult) {
       return [links.resolvedSymbol, links.resolutionResult];
     }
 
-    let result = resolveTypeReferenceWorker(node);
+    let result = resolveTypeReferenceWorker(node, options);
 
     const [resolvedSym, resolvedSymResult] = result;
 
@@ -245,20 +278,24 @@ export function createResolver(program: Program): NameResolver {
 
   function resolveTypeReferenceWorker(
     node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
+    options: ResolveTypReferenceOptions,
   ): ResolutionResult {
     if (node.kind === SyntaxKind.TypeReference) {
-      return resolveTypeReference(node.target);
+      return resolveTypeReference(node.target, options);
     } else if (node.kind === SyntaxKind.MemberExpression) {
-      return resolveMemberExpression(node);
+      return resolveMemberExpression(node, options);
     } else if (node.kind === SyntaxKind.Identifier) {
-      return resolveIdentifier(node);
+      return resolveIdentifier(node, options);
     }
 
     compilerAssert(false, "Unexpected node kind");
   }
 
-  function resolveMemberExpression(node: MemberExpressionNode): ResolutionResult {
-    const [baseSym, baseResult] = resolveTypeReference(node.base);
+  function resolveMemberExpression(
+    node: MemberExpressionNode,
+    options: ResolveTypReferenceOptions,
+  ): ResolutionResult {
+    const [baseSym, baseResult] = resolveTypeReference(node.base, options);
     if (baseResult & ResolutionResultFlags.ResolutionFailed) {
       return [undefined, baseResult];
     }
@@ -464,8 +501,10 @@ export function createResolver(program: Program): NameResolver {
   }
 
   function resolveMetaMember(baseSym: Sym, id: IdentifierNode): ResolutionResult {
-    const baseNode =
-      baseSym.flags & SymbolFlags.Declaration ? baseSym.declarations[0] : baseSym.node;
+    return resolveMetaMemberByName(baseSym, id.sv);
+  }
+  function resolveMetaMemberByName(baseSym: Sym, sv: string): ResolutionResult {
+    const baseNode = getSymNode(baseSym);
 
     const prototype = metaTypePrototypes.get(baseNode.kind);
 
@@ -473,7 +512,7 @@ export function createResolver(program: Program): NameResolver {
       return [undefined, ResolutionResultFlags.NotFound];
     }
 
-    const getter = prototype.get(id.sv);
+    const getter = prototype.get(sv);
 
     if (!getter) {
       return [undefined, ResolutionResultFlags.NotFound];
@@ -526,6 +565,35 @@ export function createResolver(program: Program): NameResolver {
       case SyntaxKind.UnionStatement:
         bindUnionMembers(node);
         return;
+    }
+  }
+
+  // TODO: had to keep the metaTypeMembers which this pr originally tried to get rid as we need for ops parameters to be cloned and have a new reference
+  function bindOperationStatementParameters(node: OperationStatementNode) {
+    const targetTable = getAugmentedSymbolTable(node.symbol!.metatypeMembers!);
+    if (node.signature.kind === SyntaxKind.OperationSignatureDeclaration) {
+      const [sym] = resolveExpression(node.signature.parameters);
+      if (sym) {
+        targetTable.set("parameters", sym);
+      }
+    } else {
+      const [sig] = resolveTypeReference(node.signature.baseOperation);
+      if (sig) {
+        const sigTable = getAugmentedSymbolTable(sig.metatypeMembers!);
+        const sigParameterSym = sigTable.get("parameters")!;
+        if (sigParameterSym !== undefined) {
+          const parametersSym = createSymbol(
+            sigParameterSym.node,
+            "parameters",
+            SymbolFlags.Model & SymbolFlags.MemberContainer,
+          );
+          getAugmentedSymbolTable(parametersSym.members!).include(
+            getAugmentedSymbolTable(sigParameterSym.members!),
+          );
+          targetTable.set("parameters", parametersSym);
+          targetTable.set("returnType", sigTable.get("returnType")!);
+        }
+      }
     }
   }
 
@@ -667,19 +735,22 @@ export function createResolver(program: Program): NameResolver {
     links.hasUnknownMembers = true;
   }
 
-  function resolveIdentifier(node: IdentifierNode): ResolutionResult {
+  function resolveIdentifier(
+    node: IdentifierNode,
+    options: ResolveTypReferenceOptions,
+  ): ResolutionResult {
     let scope: Node | undefined = node.parent;
     let binding: Sym | undefined;
 
     while (scope && scope.kind !== SyntaxKind.TypeSpecScript) {
       if (scope.symbol && scope.symbol.flags & SymbolFlags.ExportContainer) {
         const mergedSymbol = getMergedSymbol(scope.symbol);
-        binding = tableLookup(mergedSymbol.exports!, node);
+        binding = tableLookup(mergedSymbol.exports!, node, options.resolveDecorators);
         if (binding) return [binding, ResolutionResultFlags.Resolved];
       }
 
       if ("locals" in scope && scope.locals !== undefined) {
-        binding = tableLookup(scope.locals, node);
+        binding = tableLookup(scope.locals, node, options.resolveDecorators);
         if (binding) {
           return [binding, ResolutionResultFlags.Resolved];
         }
@@ -692,16 +763,20 @@ export function createResolver(program: Program): NameResolver {
       // check any blockless namespace decls
       for (const ns of scope.inScopeNamespaces) {
         const mergedSymbol = getMergedSymbol(ns.symbol);
-        binding = tableLookup(mergedSymbol.exports!, node);
+        binding = tableLookup(mergedSymbol.exports!, node, options.resolveDecorators);
 
         if (binding) return [binding, ResolutionResultFlags.Resolved];
       }
 
       // check "global scope" declarations
-      const globalBinding = tableLookup(globalNamespaceNode.symbol.exports!, node);
+      const globalBinding = tableLookup(
+        globalNamespaceNode.symbol.exports!,
+        node,
+        options.resolveDecorators,
+      );
 
       // check using types
-      const usingBinding = tableLookup(scope.locals, node);
+      const usingBinding = tableLookup(scope.locals, node, options.resolveDecorators);
 
       if (globalBinding && usingBinding) {
         return [undefined, ResolutionResultFlags.Ambiguous];
@@ -897,15 +972,31 @@ export function createResolver(program: Program): NameResolver {
       case SyntaxKind.UnionStatement:
         bindMemberContainer(node);
         break;
+      case SyntaxKind.OperationStatement:
+        bindOperationStatementParameters(node);
+        break;
       case SyntaxKind.AliasStatement:
         resolveAlias(node);
         break;
       case SyntaxKind.TemplateParameterDeclaration:
         bindTemplateParameter(node);
         break;
+      case SyntaxKind.DecoratorExpression:
+      case SyntaxKind.AugmentDecoratorStatement:
+        resolveDecoratorTarget(node);
+        break;
+      case SyntaxKind.CallExpression:
+        resolveTypeReference(node.target); // TODO: should this not have been a type reference
+        break;
     }
 
     visitChildren(node, bindAndResolveNode);
+  }
+
+  function resolveDecoratorTarget(
+    decorator: DecoratorExpressionNode | AugmentDecoratorStatementNode,
+  ) {
+    resolveTypeReference(decorator.target, { resolveDecorators: true });
   }
 
   type SymbolGetter = (baseSym: Sym) => ResolutionResult;
@@ -926,18 +1017,11 @@ export function createResolver(program: Program): NameResolver {
     // operations
     const operationPrototype: TypePrototype = new Map();
     operationPrototype.set("parameters", (baseSym) => {
-      let node = baseSym.declarations[0] as OperationStatementNode;
-      while (node.signature.kind === SyntaxKind.OperationSignatureReference) {
-        const [baseSym, baseResult] = resolveTypeReference(node.signature.baseOperation);
-        if (baseResult & ResolutionResultFlags.Resolved) {
-          node = baseSym!.declarations[0] as OperationStatementNode;
-          continue;
-        }
-
-        return [undefined, baseResult];
-      }
-
-      return resolveExpression(node.signature.parameters);
+      const sym = getAugmentedSymbolTable(baseSym.metatypeMembers!)?.get("parameters");
+      return [
+        sym,
+        sym === undefined ? ResolutionResultFlags.ResolutionFailed : ResolutionResultFlags.Resolved,
+      ];
     });
     nodeInterfaces.set(SyntaxKind.OperationStatement, operationPrototype);
 
@@ -946,4 +1030,9 @@ export function createResolver(program: Program): NameResolver {
 }
 function reportCheckerDiagnostic(arg0: any) {
   throw new Error("Function not implemented.");
+}
+
+// TODO: better place?
+export function getSymNode(sym: Sym): Node {
+  return sym.flags & SymbolFlags.Declaration ? sym.declarations[0] : sym.node;
 }
