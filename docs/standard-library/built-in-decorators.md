@@ -632,7 +632,7 @@ Provide example values for an operation's parameters and corresponding return ty
 #### Examples
 
 ```tsp
-@example(#{parameters: #{name: "Fluffy", age: 2}, returnType: #{name: "Fluffy", age: 2, id: "abc"})
+@opExample(#{parameters: #{name: "Fluffy", age: 2}, returnType: #{name: "Fluffy", age: 2, id: "abc"})
 op createPet(pet: Pet): Pet;
 ```
 
