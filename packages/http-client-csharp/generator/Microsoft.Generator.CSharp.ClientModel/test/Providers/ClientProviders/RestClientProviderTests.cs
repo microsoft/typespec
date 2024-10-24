@@ -114,7 +114,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             var pipelineMessageClassifier201 = propertyHash["PipelineMessageClassifier201"];
             Assert.AreEqual("PipelineMessageClassifier", pipelineMessageClassifier201.Type.Name);
             Assert.AreEqual("PipelineMessageClassifier201", pipelineMessageClassifier201.Name);
-            Assert.AreEqual(MethodSignatureModifiers.Private | MethodSignatureModifiers.Static, pipelineMessageClassifier200.Modifiers);
+            Assert.AreEqual(MethodSignatureModifiers.Private | MethodSignatureModifiers.Static, pipelineMessageClassifier201.Modifiers);
             Assert.IsFalse(pipelineMessageClassifier201.Body.HasSetter);
 
             //validate _pipelineMessageClassifier204
