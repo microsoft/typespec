@@ -100,6 +100,12 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`${"kind"} property will be ignored as it is inside of a @body property. Use @bodyRoot instead if wanting to mix.`,
       },
     },
+    "response-cookie-not-supported": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`@cookie on response is not supported. Property '${"propName"}' will be ignored in the body. If you need 'Set-Cookie', use @header instead.`,
+      },
+    },
     "no-service-found": {
       severity: "warning",
       messages: {
@@ -170,6 +176,7 @@ export const $lib = createTypeSpecLibrary({
   state: {
     authentication: { description: "State for the @auth decorator" },
     header: { description: "State for the @header decorator" },
+    cookie: { description: "State for the @cookie decorator" },
     query: { description: "State for the @query decorator" },
     path: { description: "State for the @path decorator" },
     body: { description: "State for the @body decorator" },

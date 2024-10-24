@@ -187,6 +187,20 @@ model TypeSpec.Http.ConflictResponse
 | ---------- | ----- | ---------------- |
 | statusCode | `409` | The status code. |
 
+### `CookieOptions` {#TypeSpec.Http.CookieOptions}
+
+Cookie Options.
+
+```typespec
+model TypeSpec.Http.CookieOptions
+```
+
+#### Properties
+
+| Name  | Type     | Description         |
+| ----- | -------- | ------------------- |
+| name? | `string` | Name in the cookie. |
+
 ### `CreatedResponse` {#TypeSpec.Http.CreatedResponse}
 
 The request has succeeded and a new resource has been created as a result.
