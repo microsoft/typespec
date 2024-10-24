@@ -1,10 +1,6 @@
 import {
-  compilerAssert,
   DecoratorContext,
-  Diagnostic,
-  DiagnosticTarget,
   getDoc,
-  getProperty,
   getService,
   getSummary,
   Model,
@@ -23,7 +19,8 @@ import {
   InfoDecorator,
   OperationIdDecorator,
 } from "../generated-defs/TypeSpec.OpenAPI.js";
-import { createDiagnostic, createStateSymbol, reportDiagnostic } from "./lib.js";
+import { checkNoAdditionalProperties, isOpenAPIExtensionKey, validateIsUri } from "./helpers.js";
+import { createStateSymbol, reportDiagnostic } from "./lib.js";
 import { AdditionalInfo, ExtensionKey, ExternalDocs } from "./types.js";
 
 const operationIdsKey = createStateSymbol("operationIds");
@@ -114,10 +111,6 @@ export function getExtensions(program: Program, entity: Type): ReadonlyMap<Exten
   return program.stateMap(openApiExtensionKey).get(entity) ?? new Map<ExtensionKey, any>();
 }
 
-function isOpenAPIExtensionKey(key: string): key is ExtensionKey {
-  return key.startsWith("x-");
-}
-
 /**
  * The @defaultResponse decorator can be applied to a model. When that model is used
  * as the return type of an operation, this return type will be the default response.
@@ -191,9 +184,12 @@ export const $info: InfoDecorator = (
   }
   validateAdditionalInfoModel(context, model);
   if (data.termsOfService) {
-    if (!validateIsUri(context, data.termsOfService, "TermsOfService")) {
-      return;
-    }
+    const diagnostics = validateIsUri(
+      context.getArgumentTarget(0)!,
+      data.termsOfService,
+      "TermsOfService",
+    );
+    context.program.reportDiagnostics(diagnostics);
   }
   setInfo(context.program, entity, data);
 };
@@ -225,20 +221,6 @@ function omitUndefined<T extends Record<string, unknown>>(data: T): T {
   return Object.fromEntries(Object.entries(data).filter(([k, v]) => v !== undefined)) as any;
 }
 
-function validateIsUri(context: DecoratorContext, url: string, propertyName: string) {
-  try {
-    new URL(url);
-    return true;
-  } catch {
-    reportDiagnostic(context.program, {
-      code: "not-url",
-      target: context.getArgumentTarget(0)!,
-      format: { property: propertyName, value: url },
-    });
-    return false;
-  }
-}
-
 function validateAdditionalInfoModel(context: DecoratorContext, typespecType: TypeSpecValue) {
   const propertyModel = context.program.resolveTypeReference(
     "TypeSpec.OpenAPI.AdditionalInfo",
@@ -252,37 +234,4 @@ function validateAdditionalInfoModel(context: DecoratorContext, typespecType: Ty
     );
     context.program.reportDiagnostics(diagnostics);
   }
-}
-
-function checkNoAdditionalProperties(
-  typespecType: Type,
-  target: DiagnosticTarget,
-  source: Model,
-): Diagnostic[] {
-  const diagnostics: Diagnostic[] = [];
-  compilerAssert(typespecType.kind === "Model", "Expected type to be a Model.");
-
-  for (const [name, type] of typespecType.properties.entries()) {
-    const sourceProperty = getProperty(source, name);
-    if (sourceProperty) {
-      if (sourceProperty.type.kind === "Model") {
-        const nestedDiagnostics = checkNoAdditionalProperties(
-          type.type,
-          target,
-          sourceProperty.type,
-        );
-        diagnostics.push(...nestedDiagnostics);
-      }
-    } else if (!isOpenAPIExtensionKey(name)) {
-      diagnostics.push(
-        createDiagnostic({
-          code: "invalid-extension-key",
-          format: { value: name },
-          target,
-        }),
-      );
-    }
-  }
-
-  return diagnostics;
 }

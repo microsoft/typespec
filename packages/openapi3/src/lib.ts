@@ -263,6 +263,12 @@ export const libDef = {
         default: paramMessage`Authentication "${"authType"}" is not a known authentication by the openapi3 emitter, it will be ignored.`,
       },
     },
+    "duplicate-tag": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Duplicate tag ${"tagName"}`,
+      },
+    },
   },
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<OpenAPI3EmitterOptions>,

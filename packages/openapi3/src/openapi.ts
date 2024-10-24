@@ -85,7 +85,7 @@ import {
 } from "@typespec/openapi";
 import { buildVersionProjections, VersionProjections } from "@typespec/versioning";
 import { stringify } from "yaml";
-import { getRef } from "./decorators.js";
+import { getRef, getTagsMetadata } from "./decorators.js";
 import { applyEncoding } from "./encoding.js";
 import { getExampleOrExamples, OperationExamples, resolveOperationExamples } from "./examples.js";
 import { createDiagnostic, FileType, OpenAPI3EmitterOptions } from "./lib.js";
@@ -108,6 +108,7 @@ import {
   OpenAPI3ServerVariable,
   OpenAPI3ServiceRecord,
   OpenAPI3StatusCode,
+  OpenAPI3Tag,
   OpenAPI3VersionedServiceRecord,
   Refable,
 } from "./types.js";
@@ -232,6 +233,9 @@ function createOAPIEmitter(
   // De-dupe the per-endpoint tags that will be added into the #/tags
   let tags: Set<string>;
 
+  // The per-endpoint tags that will be added into the #/tags
+  let tagsMetadata: OpenAPI3Tag[];
+
   const typeNameOptions: TypeNameOptions = {
     // shorten type names by removing TypeSpec and service namespace
     namespaceFilter(ns) {
@@ -345,6 +349,7 @@ function createOAPIEmitter(
     params = new Map();
     paramModels = new Set();
     tags = new Set();
+    tagsMetadata = getTagsMetadata(program, service.type);
   }
 
   function isValidServerVariableType(program: Program, type: Type): boolean {
@@ -785,6 +790,7 @@ function createOAPIEmitter(
         tags.add(tag);
       }
     }
+
     applyExternalDocs(op, oai3Operation);
     // Set up basic endpoint fields
 
@@ -1582,8 +1588,16 @@ function createOAPIEmitter(
   }
 
   function emitTags() {
+    const tagsNameSet = new Set(tagsMetadata.map((t) => t.name));
+    // emit Tag from op
     for (const tag of tags) {
-      root.tags!.push({ name: tag });
+      if (!tagsNameSet.has(tag)) {
+        root.tags!.push({ name: tag });
+      }
+    }
+
+    for (const tag of tagsMetadata) {
+      root.tags!.push(tag);
     }
   }
 

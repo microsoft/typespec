@@ -21,11 +21,13 @@ export {
 } from "./decorators.js";
 export {
   checkDuplicateTypeName,
+  checkNoAdditionalProperties,
   getOpenAPITypeName,
   getParameterKey,
   isReadonlyProperty,
   resolveOperationId,
   shouldInline,
+  validateIsUri,
 } from "./helpers.js";
 export { AdditionalInfo, Contact, ExtensionKey, ExternalDocs, License } from "./types.js";
 
