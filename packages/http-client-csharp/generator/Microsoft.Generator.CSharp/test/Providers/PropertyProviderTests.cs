@@ -94,6 +94,19 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             Assert.AreEqual(expectedHasSetter, property.Body.HasSetter);
         }
 
+        [Test]
+        public void AsParameterRespectsChangesToPropertyType()
+        {
+            InputModelProperty inputModelProperty = InputFactory.Property("prop", InputPrimitiveType.String, wireName: "prop", isRequired: true);
+            InputFactory.Model("TestModel", properties: [inputModelProperty]);
+
+            var property = new PropertyProvider(inputModelProperty, new TestTypeProvider());
+            property.Type = new CSharpType(typeof(int));
+            var parameter = property.AsParameter;
+
+            Assert.IsTrue(parameter.Type.Equals(typeof(int)));
+        }
+
         private static IEnumerable<TestCaseData> CollectionPropertyTestCases()
         {
             // List<string> -> IReadOnlyList<string>

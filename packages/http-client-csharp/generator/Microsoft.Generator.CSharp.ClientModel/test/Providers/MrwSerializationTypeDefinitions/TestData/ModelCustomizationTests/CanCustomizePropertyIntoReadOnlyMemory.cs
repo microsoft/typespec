@@ -30,11 +30,13 @@ namespace Sample.Models
             {
                 throw new global::System.FormatException($"The model {nameof(global::Sample.Models.MockInputModel)} does not support writing '{format}' format.");
             }
-            if (global::Sample.Optional.IsDefined(_prop1))
+            writer.WritePropertyName("prop1"u8);
+            writer.WriteStartArray();
+            foreach (byte item in Prop1.Span)
             {
-                writer.WritePropertyName("prop1"u8);
-                writer.WriteObjectValue<object>(_prop1, options);
+                writer.WriteNumberValue(item);
             }
+            writer.WriteEndArray();
             if (((options.Format != "W") && (_additionalBinaryDataProperties != null)))
             {
                 foreach (var item in _additionalBinaryDataProperties)
@@ -73,7 +75,7 @@ namespace Sample.Models
             {
                 return null;
             }
-            object prop1 = default;
+            global::System.ReadOnlyMemory<byte> prop1 = default;
             global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new global::Sample.ChangeTrackingDictionary<string, global::System.BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
@@ -83,7 +85,14 @@ namespace Sample.Models
                     {
                         continue;
                     }
-                    prop1 = prop.Value.GetObject();
+                    int index = 0;
+                    global::System.Byte[] array = new byte[prop.Value.GetArrayLength()];
+                    foreach (var item in prop.Value.EnumerateArray())
+                    {
+                        array[index] = item.GetByte();
+                        index++;
+                    }
+                    prop1 = new global::System.ReadOnlyMemory<byte>(array);
                     continue;
                 }
                 if ((options.Format != "W"))

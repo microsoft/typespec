@@ -359,5 +359,33 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             Assert.IsTrue(fullCtor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
             Assert.AreEqual(2, fullCtor.Signature.Parameters.Count);
         }
+
+        [Test]
+        public async Task CanChangeToNonNullableProp()
+        {
+            var props = new[]
+            {
+                InputFactory.Property("Prop1", new InputNullableType(InputPrimitiveType.String))
+            };
+
+            var inputModel = InputFactory.Model("Model", properties: props, usage: InputModelTypeUsage.Json);
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModels: () => [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = plugin.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            Assert.IsNotNull(serializationProvider);
+
+            var deserializationMethod = serializationProvider!.Methods.Where(m => m.Signature.Name.StartsWith("Deserialize")).FirstOrDefault();
+            Assert.IsNotNull(deserializationMethod);
+
+            var deserializationStatements = deserializationMethod!.BodyStatements;
+
+            Assert.IsTrue(deserializationStatements!.ToDisplayString().Contains(
+                "if ((prop.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))"));
+            // since the customized property is non-nullable, the assignment to null should not be present
+            Assert.IsFalse(deserializationStatements!.ToDisplayString().Contains("prop1 = null;"));
+        }
     }
 }
