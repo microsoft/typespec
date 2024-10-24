@@ -1,4 +1,4 @@
-import { strictEqual } from "assert";
+import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import {
   BasicTestRunner,
@@ -21,7 +21,7 @@ describe("compiler: resolveTypeReference", () => {
     }
     const [resolved, diagnostics] = runner.program.resolveTypeReference(reference);
     expectDiagnosticEmpty(diagnostics);
-    strictEqual(resolved, target);
+    ok(resolved === target, `Exected to resolve ${reference} to same type as ${code}`);
   }
 
   async function diagnoseResolution(reference: string, code: string) {
@@ -91,6 +91,16 @@ describe("compiler: resolveTypeReference", () => {
     );
   });
 
+  it("resolve model property from base class", async () => {
+    await expectResolve(
+      "Pet.name",
+      `
+      model Animal { @test("target") name: string}
+      model Pet extends Animal { }
+    `
+    );
+  });
+
   it("resolve metatype", async () => {
     await expectResolve(
       "Pet.home::type.street",
@@ -111,6 +121,16 @@ describe("compiler: resolveTypeReference", () => {
       `
       enum Direction { @test("target") up}
     `,
+    );
+  });
+
+  it("resolve enum member with spread", async () => {
+    await expectResolve(
+      "Direction.up",
+      `
+      enum Foo { @test("target") up }
+      enum Direction { ... Foo }
+    `
     );
   });
 

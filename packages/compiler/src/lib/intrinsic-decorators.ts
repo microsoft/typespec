@@ -1,11 +1,15 @@
+import { TypeSpecPrototypesDecorators } from "../../generated-defs/TypeSpec.Prototypes.js";
 import { DocTarget, setDocData } from "../core/intrinsic-type-state.js";
 import type { Program } from "../core/program.js";
 import type { DecoratorContext, ModelIndexer, Scalar, Type } from "../core/types.js";
 
-export const namespace = "TypeSpec";
-
 const indexTypeKey = Symbol.for(`TypeSpec.index`);
-export const $indexer = (context: DecoratorContext, target: Type, key: Scalar, value: Type) => {
+export const indexerDecorator = (
+  context: DecoratorContext,
+  target: Type,
+  key: Scalar,
+  value: Type,
+) => {
   const indexer: ModelIndexer = { key, value };
   context.program.stateMap(indexTypeKey).set(target, indexer);
 };
@@ -17,11 +21,32 @@ export function getIndexer(program: Program, target: Type): ModelIndexer | undef
 /**
  * @internal to be used to set the `@doc` from doc comment.
  */
-export const $docFromComment = (
+export const docFromCommentDecorator = (
   context: DecoratorContext,
   target: Type,
   key: DocTarget,
   text: string,
 ) => {
   setDocData(context.program, target, key, { value: text, source: "comment" });
+};
+
+const prototypeGetterKey = Symbol.for(`TypeSpec.Prototypes.getter`);
+/** @internal */
+export function getterDecorator(context: DecoratorContext, target: Type) {
+  context.program.stateMap(prototypeGetterKey).set(target, true);
+}
+
+/** @internal */
+export function isPrototypeGetter(program: Program, target: Type): ModelIndexer | undefined {
+  return program.stateMap(prototypeGetterKey).get(target) ?? false;
+}
+
+export const $decorators = {
+  TypeSpec: {
+    indexer: indexerDecorator,
+    docFromComment: docFromCommentDecorator,
+  },
+  "TypeSpec.Prototypes": {
+    getter: getterDecorator,
+  } as TypeSpecPrototypesDecorators,
 };

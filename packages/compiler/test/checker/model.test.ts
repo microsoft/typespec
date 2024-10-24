@@ -103,8 +103,8 @@ describe("compiler: models", () => {
     const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, [
       {
-        code: "unknown-identifier",
-        message: "Unknown identifier notValidType",
+        code: "invalid-ref",
+        message: "Cannot resolve notValidType",
       },
     ]);
   });
@@ -288,9 +288,7 @@ describe("compiler: models", () => {
       `,
     );
     const diagnostics = await testHost.diagnose("main.tsp");
-    expectDiagnostics(diagnostics, [
-      { code: "unknown-identifier", message: "Unknown identifier bool" },
-    ]);
+    expectDiagnostics(diagnostics, [{ code: "invalid-ref", message: "Cannot resolve bool" }]);
   });
 
   describe("link model with its properties", () => {

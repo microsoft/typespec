@@ -9,6 +9,7 @@ import {
   Declaration,
   DecoratorDeclarationStatementNode,
   DecoratorImplementations,
+  EnumMemberNode,
   EnumStatementNode,
   FileLibraryMetadata,
   FunctionDeclarationStatementNode,
@@ -17,6 +18,7 @@ import {
   JsNamespaceDeclarationNode,
   JsSourceFileNode,
   ModelExpressionNode,
+  ModelPropertyNode,
   ModelStatementNode,
   NamespaceStatementNode,
   Node,
@@ -27,6 +29,7 @@ import {
   ProjectionNode,
   ProjectionParameterDeclarationNode,
   ProjectionStatementNode,
+  ScalarConstructorNode,
   ScalarStatementNode,
   ScopeNode,
   Sym,
@@ -36,6 +39,7 @@ import {
   TemplateParameterDeclarationNode,
   TypeSpecScriptNode,
   UnionStatementNode,
+  UnionVariantNode,
   UsingStatementNode,
 } from "./types.js";
 
@@ -48,13 +52,19 @@ const SymbolTable = class extends Map<string, Sym> implements SymbolTable {
   constructor(source?: SymbolTable) {
     super();
     if (source) {
-      for (const [key, value] of source) {
-        // Note: shallow copy of value here so we can mutate flags on set.
-        super.set(key, { ...value });
-      }
-      for (const [key, value] of source.duplicates) {
-        this.duplicates.set(key, new Set(value));
-      }
+      this.include(source);
+    }
+  }
+
+  /**
+   * Put the symbols in the source table into this table.
+   */
+  include(source: SymbolTable) {
+    for (const [key, value] of source) {
+      super.set(key, { ...value });
+    }
+    for (const [key, value] of source.duplicates) {
+      this.duplicates.set(key, new Set(value));
     }
   }
 
@@ -64,10 +74,6 @@ const SymbolTable = class extends Map<string, Sym> implements SymbolTable {
     if (existing === undefined) {
       super.set(key, value);
     } else {
-      if (existing.flags & SymbolFlags.Using) {
-        mutate(existing).flags |= SymbolFlags.DuplicateUsing;
-      }
-
       const duplicateArray = this.duplicates.get(existing);
       if (duplicateArray) {
         duplicateArray.add(value);
@@ -218,7 +224,12 @@ export function createBinder(program: Program): Binder {
         flags: NodeFlags.None,
         symbol: undefined!,
       };
-      const sym = createSymbol(jsNamespaceNode, part, SymbolFlags.Namespace, containerSymbol);
+      const sym = createSymbol(
+        jsNamespaceNode,
+        part,
+        SymbolFlags.Namespace | SymbolFlags.Declaration,
+        containerSymbol,
+      );
       mutate(jsNamespaceNode).symbol = sym;
       if (existingBinding) {
         if (existingBinding.flags & SymbolFlags.Namespace) {
@@ -241,7 +252,7 @@ export function createBinder(program: Program): Binder {
       sym = createSymbol(
         sourceFile,
         "@" + name,
-        SymbolFlags.Decorator | SymbolFlags.Implementation,
+        SymbolFlags.Decorator | SymbolFlags.Declaration | SymbolFlags.Implementation,
         containerSymbol,
       );
     } else {
@@ -249,7 +260,7 @@ export function createBinder(program: Program): Binder {
       sym = createSymbol(
         sourceFile,
         name,
-        SymbolFlags.Function | SymbolFlags.Implementation,
+        SymbolFlags.Function | SymbolFlags.Declaration | SymbolFlags.Implementation,
         containerSymbol,
       );
     }
@@ -296,8 +307,14 @@ export function createBinder(program: Program): Binder {
       case SyntaxKind.ModelExpression:
         bindModelExpression(node);
         break;
+      case SyntaxKind.ModelProperty:
+        bindModelProperty(node);
+        break;
       case SyntaxKind.ScalarStatement:
         bindScalarStatement(node);
+        break;
+      case SyntaxKind.ScalarConstructor:
+        bindScalarConstructor(node);
         break;
       case SyntaxKind.InterfaceStatement:
         bindInterfaceStatement(node);
@@ -313,6 +330,9 @@ export function createBinder(program: Program): Binder {
         break;
       case SyntaxKind.EnumStatement:
         bindEnumStatement(node);
+        break;
+      case SyntaxKind.EnumMember:
+        bindEnumMember(node);
         break;
       case SyntaxKind.NamespaceStatement:
         bindNamespaceStatement(node);
@@ -405,7 +425,12 @@ export function createBinder(program: Program): Binder {
       }
       mutate(sym.declarations).push(node);
     } else {
-      sym = createSymbol(node, name, SymbolFlags.Projection, scope.symbol);
+      sym = createSymbol(
+        node,
+        name,
+        SymbolFlags.Projection | SymbolFlags.Declaration,
+        scope.symbol,
+      );
       mutate(table).set(name, sym);
     }
 
@@ -465,13 +490,13 @@ export function createBinder(program: Program): Binder {
   }
 
   function bindProjectionParameterDeclaration(node: ProjectionParameterDeclarationNode) {
-    declareSymbol(node, SymbolFlags.ProjectionParameter);
+    declareSymbol(node, SymbolFlags.ProjectionParameter | SymbolFlags.Declaration);
   }
 
   function bindProjectionLambdaParameterDeclaration(
     node: ProjectionLambdaParameterDeclarationNode,
   ) {
-    declareSymbol(node, SymbolFlags.FunctionParameter);
+    declareSymbol(node, SymbolFlags.FunctionParameter | SymbolFlags.Declaration);
   }
 
   function bindProjectionLambdaExpression(node: ProjectionLambdaExpressionNode) {
@@ -479,11 +504,11 @@ export function createBinder(program: Program): Binder {
   }
 
   function bindTemplateParameterDeclaration(node: TemplateParameterDeclarationNode) {
-    declareSymbol(node, SymbolFlags.TemplateParameter);
+    declareSymbol(node, SymbolFlags.TemplateParameter | SymbolFlags.Declaration);
   }
 
   function bindModelStatement(node: ModelStatementNode) {
-    declareSymbol(node, SymbolFlags.Model);
+    declareSymbol(node, SymbolFlags.Model | SymbolFlags.Declaration);
     // Initialize locals for type parameters
     mutate(node).locals = new SymbolTable();
   }
@@ -492,33 +517,45 @@ export function createBinder(program: Program): Binder {
     bindSymbol(node, SymbolFlags.Model);
   }
 
+  function bindModelProperty(node: ModelPropertyNode) {
+    declareMember(node, SymbolFlags.Member, node.id.sv);
+  }
+
   function bindScalarStatement(node: ScalarStatementNode) {
-    declareSymbol(node, SymbolFlags.Scalar);
+    declareSymbol(node, SymbolFlags.Scalar | SymbolFlags.Declaration);
     // Initialize locals for type parameters
     mutate(node).locals = new SymbolTable();
   }
 
+  function bindScalarConstructor(node: ScalarConstructorNode) {
+    declareMember(node, SymbolFlags.Member, node.id.sv);
+  }
+
   function bindInterfaceStatement(node: InterfaceStatementNode) {
-    declareSymbol(node, SymbolFlags.Interface);
+    declareSymbol(node, SymbolFlags.Interface | SymbolFlags.Declaration);
     mutate(node).locals = new SymbolTable();
   }
 
   function bindUnionStatement(node: UnionStatementNode) {
-    declareSymbol(node, SymbolFlags.Union);
+    declareSymbol(node, SymbolFlags.Union | SymbolFlags.Declaration);
     mutate(node).locals = new SymbolTable();
   }
 
   function bindAliasStatement(node: AliasStatementNode) {
-    declareSymbol(node, SymbolFlags.Alias);
+    declareSymbol(node, SymbolFlags.Alias | SymbolFlags.Declaration);
     // Initialize locals for type parameters
     mutate(node).locals = new SymbolTable();
   }
   function bindConstStatement(node: ConstStatementNode) {
-    declareSymbol(node, SymbolFlags.Const);
+    declareSymbol(node, SymbolFlags.Const | SymbolFlags.Declaration);
   }
 
   function bindEnumStatement(node: EnumStatementNode) {
-    declareSymbol(node, SymbolFlags.Enum);
+    declareSymbol(node, SymbolFlags.Enum | SymbolFlags.Declaration);
+  }
+
+  function bindEnumMember(node: EnumMemberNode) {
+    declareMember(node, SymbolFlags.Member, node.id.sv);
   }
 
   function bindNamespaceStatement(statement: NamespaceStatementNode) {
@@ -533,7 +570,7 @@ export function createBinder(program: Program): Binder {
     } else {
       // Initialize locals for non-exported symbols
       mutate(statement).locals = createSymbolTable();
-      declareSymbol(statement, SymbolFlags.Namespace);
+      declareSymbol(statement, SymbolFlags.Namespace | SymbolFlags.Declaration);
     }
 
     currentFile.namespaces.push(statement);
@@ -553,8 +590,14 @@ export function createBinder(program: Program): Binder {
   }
 
   function bindOperationStatement(statement: OperationStatementNode) {
-    if (scope.kind !== SyntaxKind.InterfaceStatement) {
-      declareSymbol(statement, SymbolFlags.Operation);
+    if (scope.kind === SyntaxKind.InterfaceStatement) {
+      declareMember(
+        statement,
+        SymbolFlags.Operation | SymbolFlags.Member | SymbolFlags.Declaration,
+        statement.id.sv,
+      );
+    } else {
+      declareSymbol(statement, SymbolFlags.Operation | SymbolFlags.Declaration);
     }
     mutate(statement).locals = createSymbolTable();
   }
@@ -568,18 +611,24 @@ export function createBinder(program: Program): Binder {
   }
 
   function bindFunctionParameter(node: FunctionParameterNode) {
-    const symbol = createSymbol(node, node.id.sv, SymbolFlags.FunctionParameter, scope.symbol);
+    const symbol = createSymbol(
+      node,
+      node.id.sv,
+      SymbolFlags.FunctionParameter | SymbolFlags.Declaration,
+      scope.symbol,
+    );
     mutate(node).symbol = symbol;
   }
 
   /**
-   * Declare a symbole for the given node in the current scope.
+   * Declare a symbol for the given node in the current scope.
    * @param node Node
    * @param flags Symbol flags
    * @param name Optional symbol name, default to the node id.
    * @returns Created Symbol
    */
   function declareSymbol(node: Declaration, flags: SymbolFlags, name?: string) {
+    compilerAssert(flags & SymbolFlags.Declaration, `Expected declaration symbol: ${name}`, node);
     switch (scope.kind) {
       case SyntaxKind.NamespaceStatement:
         return declareNamespaceMember(node, flags, name);
@@ -630,6 +679,28 @@ export function createBinder(program: Program): Binder {
     return symbol;
   }
 
+  /**
+   * Declare a member of a model, enum, union, or interface.
+   * @param node node of the member
+   * @param flags symbol flags
+   * @param name name of the symbol
+   */
+  function declareMember(
+    node:
+      | ModelPropertyNode
+      | OperationStatementNode
+      | EnumMemberNode
+      | UnionVariantNode
+      | ScalarConstructorNode,
+    flags: SymbolFlags,
+    name: string,
+  ) {
+    const symbol = createSymbol(node, name, flags, scope.symbol);
+    mutate(node).symbol = symbol;
+    mutate(scope.symbol.members!).set(name, symbol);
+    return symbol;
+  }
+
   function mergeNamespaceDeclarations(node: NamespaceStatementNode, scope: ScopeNode) {
     // we are declaring a namespace in either global scope, or a blockless namespace.
     const existingBinding = scope.symbol.exports!.get(node.id.sv);
@@ -646,6 +717,7 @@ export function createBinder(program: Program): Binder {
 function hasScope(node: Node): node is ScopeNode {
   switch (node.kind) {
     case SyntaxKind.ModelStatement:
+    case SyntaxKind.ModelExpression:
     case SyntaxKind.ScalarStatement:
     case SyntaxKind.ConstStatement:
     case SyntaxKind.AliasStatement:
@@ -655,6 +727,7 @@ function hasScope(node: Node): node is ScopeNode {
     case SyntaxKind.UnionStatement:
     case SyntaxKind.Projection:
     case SyntaxKind.ProjectionLambdaExpression:
+    case SyntaxKind.EnumStatement:
       return true;
     case SyntaxKind.NamespaceStatement:
       return node.statements !== undefined;
@@ -679,8 +752,14 @@ export function createSymbol(
     members = createSymbolTable();
   }
 
+  compilerAssert(
+    !(flags & SymbolFlags.Declaration) || node !== undefined,
+    "Declaration without node",
+  );
+
   return {
-    declarations: node ? [node] : [],
+    declarations: flags & SymbolFlags.Declaration ? [node!] : [],
+    node: !(flags & SymbolFlags.Declaration) ? node : (undefined as any),
     name,
     exports,
     members,
