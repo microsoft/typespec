@@ -866,44 +866,13 @@
      "Parameters": [
       {
        "$id": "87",
-       "Name": "endpoint",
-       "NameInRequest": "endpoint",
-       "Description": "Service host",
-       "Type": {
-        "$id": "88",
-        "kind": "url",
-        "name": "url",
-        "crossLanguageDefinitionId": "TypeSpec.url"
-       },
-       "Location": "Uri",
-       "IsApiVersion": false,
-       "IsResourceParameter": false,
-       "IsContentType": false,
-       "IsRequired": true,
-       "IsEndpoint": true,
-       "SkipUrlEncoding": false,
-       "Explode": false,
-       "Kind": "Client",
-       "DefaultValue": {
-        "$id": "89",
-        "Type": {
-         "$id": "90",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string"
-        },
-        "Value": "http://localhost:3000"
-       }
-      },
-      {
-       "$id": "91",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Type": {
-        "$id": "92",
+        "$id": "88",
         "kind": "constant",
         "valueType": {
-         "$id": "93",
+         "$id": "89",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -923,7 +892,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "94",
+       "$id": "90",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -942,7 +911,7 @@
      ],
      "Responses": [
       {
-       "$id": "95",
+       "$id": "91",
        "StatusCodes": [
         204
        ],
@@ -965,24 +934,21 @@
      "Decorators": []
     },
     {
-     "$id": "96",
+     "$id": "92",
      "Name": "fileArrayAndBasic",
      "ResourceName": "FormData",
      "Description": "Test content-type: multipart/form-data for mixed scenarios",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "87"
-      },
-      {
-       "$id": "97",
+       "$id": "93",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Type": {
-        "$id": "98",
+        "$id": "94",
         "kind": "constant",
         "valueType": {
-         "$id": "99",
+         "$id": "95",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1002,7 +968,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "100",
+       "$id": "96",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -1021,7 +987,7 @@
      ],
      "Responses": [
       {
-       "$id": "101",
+       "$id": "97",
        "StatusCodes": [
         204
        ],
@@ -1044,24 +1010,21 @@
      "Decorators": []
     },
     {
-     "$id": "102",
+     "$id": "98",
      "Name": "jsonPart",
      "ResourceName": "FormData",
      "Description": "Test content-type: multipart/form-data for scenario contains json part and binary part ",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "87"
-      },
-      {
-       "$id": "103",
+       "$id": "99",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Type": {
-        "$id": "104",
+        "$id": "100",
         "kind": "constant",
         "valueType": {
-         "$id": "105",
+         "$id": "101",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1081,7 +1044,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "106",
+       "$id": "102",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -1100,7 +1063,7 @@
      ],
      "Responses": [
       {
-       "$id": "107",
+       "$id": "103",
        "StatusCodes": [
         204
        ],
@@ -1123,24 +1086,21 @@
      "Decorators": []
     },
     {
-     "$id": "108",
+     "$id": "104",
      "Name": "binaryArrayParts",
      "ResourceName": "FormData",
      "Description": "Test content-type: multipart/form-data for scenario contains multi binary parts",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "87"
-      },
-      {
-       "$id": "109",
+       "$id": "105",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Type": {
-        "$id": "110",
+        "$id": "106",
         "kind": "constant",
         "valueType": {
-         "$id": "111",
+         "$id": "107",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1160,7 +1120,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "112",
+       "$id": "108",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -1179,7 +1139,7 @@
      ],
      "Responses": [
       {
-       "$id": "113",
+       "$id": "109",
        "StatusCodes": [
         204
        ],
@@ -1202,24 +1162,21 @@
      "Decorators": []
     },
     {
-     "$id": "114",
+     "$id": "110",
      "Name": "multiBinaryParts",
      "ResourceName": "FormData",
      "Description": "Test content-type: multipart/form-data for scenario contains multi binary parts",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "87"
-      },
-      {
-       "$id": "115",
+       "$id": "111",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Type": {
-        "$id": "116",
+        "$id": "112",
         "kind": "constant",
         "valueType": {
-         "$id": "117",
+         "$id": "113",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1239,7 +1196,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "118",
+       "$id": "114",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -1258,7 +1215,7 @@
      ],
      "Responses": [
       {
-       "$id": "119",
+       "$id": "115",
        "StatusCodes": [
         204
        ],
@@ -1281,24 +1238,21 @@
      "Decorators": []
     },
     {
-     "$id": "120",
+     "$id": "116",
      "Name": "checkFileNameAndContentType",
      "ResourceName": "FormData",
      "Description": "Test content-type: multipart/form-data",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "87"
-      },
-      {
-       "$id": "121",
+       "$id": "117",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Type": {
-        "$id": "122",
+        "$id": "118",
         "kind": "constant",
         "valueType": {
-         "$id": "123",
+         "$id": "119",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1318,7 +1272,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "124",
+       "$id": "120",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -1337,7 +1291,7 @@
      ],
      "Responses": [
       {
-       "$id": "125",
+       "$id": "121",
        "StatusCodes": [
         204
        ],
@@ -1360,24 +1314,21 @@
      "Decorators": []
     },
     {
-     "$id": "126",
+     "$id": "122",
      "Name": "anonymousModel",
      "ResourceName": "FormData",
      "Description": "Test content-type: multipart/form-data",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "87"
-      },
-      {
-       "$id": "127",
+       "$id": "123",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Type": {
-        "$id": "128",
+        "$id": "124",
         "kind": "constant",
         "valueType": {
-         "$id": "129",
+         "$id": "125",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1397,7 +1348,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "130",
+       "$id": "126",
        "Name": "anonymousModelRequest",
        "NameInRequest": "anonymousModelRequest",
        "Type": {
@@ -1416,7 +1367,7 @@
      ],
      "Responses": [
       {
-       "$id": "131",
+       "$id": "127",
        "StatusCodes": [
         204
        ],
@@ -1440,12 +1391,40 @@
     }
    ],
    "Protocol": {
-    "$id": "132"
+    "$id": "128"
    },
    "Parent": "MultiPartClient",
    "Parameters": [
     {
-     "$ref": "87"
+     "$id": "129",
+     "Name": "endpoint",
+     "NameInRequest": "endpoint",
+     "Description": "Service host",
+     "Type": {
+      "$id": "130",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": true,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client",
+     "DefaultValue": {
+      "$id": "131",
+      "Type": {
+       "$id": "132",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "Value": "http://localhost:3000"
+     }
     }
    ],
    "Decorators": []
@@ -1463,44 +1442,13 @@
      "Parameters": [
       {
        "$id": "135",
-       "Name": "endpoint",
-       "NameInRequest": "endpoint",
-       "Description": "Service host",
-       "Type": {
-        "$id": "136",
-        "kind": "url",
-        "name": "url",
-        "crossLanguageDefinitionId": "TypeSpec.url"
-       },
-       "Location": "Uri",
-       "IsApiVersion": false,
-       "IsResourceParameter": false,
-       "IsContentType": false,
-       "IsRequired": true,
-       "IsEndpoint": true,
-       "SkipUrlEncoding": false,
-       "Explode": false,
-       "Kind": "Client",
-       "DefaultValue": {
-        "$id": "137",
-        "Type": {
-         "$id": "138",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string"
-        },
-        "Value": "http://localhost:3000"
-       }
-      },
-      {
-       "$id": "139",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Type": {
-        "$id": "140",
+        "$id": "136",
         "kind": "constant",
         "valueType": {
-         "$id": "141",
+         "$id": "137",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1520,7 +1468,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "142",
+       "$id": "138",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -1539,7 +1487,7 @@
      ],
      "Responses": [
       {
-       "$id": "143",
+       "$id": "139",
        "StatusCodes": [
         204
        ],
@@ -1563,12 +1511,40 @@
     }
    ],
    "Protocol": {
-    "$id": "144"
+    "$id": "140"
    },
    "Parent": "FormData",
    "Parameters": [
     {
-     "$ref": "135"
+     "$id": "141",
+     "Name": "endpoint",
+     "NameInRequest": "endpoint",
+     "Description": "Service host",
+     "Type": {
+      "$id": "142",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": true,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client",
+     "DefaultValue": {
+      "$id": "143",
+      "Type": {
+       "$id": "144",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "Value": "http://localhost:3000"
+     }
     }
    ],
    "Decorators": []
@@ -1586,44 +1562,13 @@
      "Parameters": [
       {
        "$id": "147",
-       "Name": "endpoint",
-       "NameInRequest": "endpoint",
-       "Description": "Service host",
-       "Type": {
-        "$id": "148",
-        "kind": "url",
-        "name": "url",
-        "crossLanguageDefinitionId": "TypeSpec.url"
-       },
-       "Location": "Uri",
-       "IsApiVersion": false,
-       "IsResourceParameter": false,
-       "IsContentType": false,
-       "IsRequired": true,
-       "IsEndpoint": true,
-       "SkipUrlEncoding": false,
-       "Explode": false,
-       "Kind": "Client",
-       "DefaultValue": {
-        "$id": "149",
-        "Type": {
-         "$id": "150",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string"
-        },
-        "Value": "http://localhost:3000"
-       }
-      },
-      {
-       "$id": "151",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Type": {
-        "$id": "152",
+        "$id": "148",
         "kind": "constant",
         "valueType": {
-         "$id": "153",
+         "$id": "149",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1643,7 +1588,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "154",
+       "$id": "150",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -1662,7 +1607,7 @@
      ],
      "Responses": [
       {
-       "$id": "155",
+       "$id": "151",
        "StatusCodes": [
         204
        ],
@@ -1685,24 +1630,21 @@
      "Decorators": []
     },
     {
-     "$id": "156",
+     "$id": "152",
      "Name": "requiredContentType",
      "ResourceName": "ContentType",
      "Description": "Test content-type: multipart/form-data",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "147"
-      },
-      {
-       "$id": "157",
+       "$id": "153",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Type": {
-        "$id": "158",
+        "$id": "154",
         "kind": "constant",
         "valueType": {
-         "$id": "159",
+         "$id": "155",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1722,7 +1664,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "160",
+       "$id": "156",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -1741,7 +1683,7 @@
      ],
      "Responses": [
       {
-       "$id": "161",
+       "$id": "157",
        "StatusCodes": [
         204
        ],
@@ -1764,24 +1706,21 @@
      "Decorators": []
     },
     {
-     "$id": "162",
+     "$id": "158",
      "Name": "optionalContentType",
      "ResourceName": "ContentType",
      "Description": "Test content-type: multipart/form-data for optional content type",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "147"
-      },
-      {
-       "$id": "163",
+       "$id": "159",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Type": {
-        "$id": "164",
+        "$id": "160",
         "kind": "constant",
         "valueType": {
-         "$id": "165",
+         "$id": "161",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1801,7 +1740,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "166",
+       "$id": "162",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -1820,7 +1759,7 @@
      ],
      "Responses": [
       {
-       "$id": "167",
+       "$id": "163",
        "StatusCodes": [
         204
        ],
@@ -1844,12 +1783,40 @@
     }
    ],
    "Protocol": {
-    "$id": "168"
+    "$id": "164"
    },
    "Parent": "FormDataHttpParts",
    "Parameters": [
     {
-     "$ref": "147"
+     "$id": "165",
+     "Name": "endpoint",
+     "NameInRequest": "endpoint",
+     "Description": "Service host",
+     "Type": {
+      "$id": "166",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": true,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client",
+     "DefaultValue": {
+      "$id": "167",
+      "Type": {
+       "$id": "168",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "Value": "http://localhost:3000"
+     }
     }
    ],
    "Decorators": []
@@ -1867,44 +1834,13 @@
      "Parameters": [
       {
        "$id": "171",
-       "Name": "endpoint",
-       "NameInRequest": "endpoint",
-       "Description": "Service host",
-       "Type": {
-        "$id": "172",
-        "kind": "url",
-        "name": "url",
-        "crossLanguageDefinitionId": "TypeSpec.url"
-       },
-       "Location": "Uri",
-       "IsApiVersion": false,
-       "IsResourceParameter": false,
-       "IsContentType": false,
-       "IsRequired": true,
-       "IsEndpoint": true,
-       "SkipUrlEncoding": false,
-       "Explode": false,
-       "Kind": "Client",
-       "DefaultValue": {
-        "$id": "173",
-        "Type": {
-         "$id": "174",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string"
-        },
-        "Value": "http://localhost:3000"
-       }
-      },
-      {
-       "$id": "175",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Type": {
-        "$id": "176",
+        "$id": "172",
         "kind": "constant",
         "valueType": {
-         "$id": "177",
+         "$id": "173",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1924,7 +1860,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "178",
+       "$id": "174",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -1943,7 +1879,7 @@
      ],
      "Responses": [
       {
-       "$id": "179",
+       "$id": "175",
        "StatusCodes": [
         204
        ],
@@ -1967,12 +1903,40 @@
     }
    ],
    "Protocol": {
-    "$id": "180"
+    "$id": "176"
    },
    "Parent": "FormDataHttpParts",
    "Parameters": [
     {
-     "$ref": "171"
+     "$id": "177",
+     "Name": "endpoint",
+     "NameInRequest": "endpoint",
+     "Description": "Service host",
+     "Type": {
+      "$id": "178",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": true,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client",
+     "DefaultValue": {
+      "$id": "179",
+      "Type": {
+       "$id": "180",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "Value": "http://localhost:3000"
+     }
     }
    ],
    "Decorators": []
