@@ -103,11 +103,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     }
                 }
 
-                // handle customized enums - we need to pull the type information from the spec property
-                customProperty.Type = EnsureEnum(specProperty, customProperty.Type);
-
-                // ensure literal types are correctly represented in the custom property using the info from the spec property
-                customProperty.Type = EnsureLiteral(specProperty, customProperty.Type);
+                customProperty.Type = EnsureType(specProperty, customProperty.Type);
             }
 
             return [..generatedProperties, ..customProperties];
@@ -171,11 +167,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     }
                 }
 
-                // handle customized enums - we need to pull the type information from the spec property
-                customField.Type = EnsureEnum(specProperty, customField.Type);
-
-                // ensure literal types are correctly represented in the custom field using the info from the spec property
-                customField.Type = EnsureLiteral(specProperty, customField.Type);
+                customField.Type = EnsureType(specProperty, customField.Type);
             }
 
             return [..generatedFields, ..customFields];
@@ -199,6 +191,29 @@ namespace Microsoft.Generator.CSharp.Providers
             }
             specValueType = null;
             return false;
+        }
+
+        /// <summary>
+        /// Handles collection types, enums, and literal types
+        /// and ensures that the types are correctly represented using the info from the spec property.
+        /// </summary>
+        private static CSharpType EnsureType(InputModelProperty? specProperty, CSharpType customType)
+        {
+            if (customType.IsCollection)
+            {
+                var elementType = EnsureType(specProperty, customType.ElementType);
+                if (customType.IsList)
+                {
+                    customType = new CSharpType(customType.FrameworkType, [elementType], customType.IsNullable);
+                }
+                else if (customType.IsDictionary)
+                {
+                    customType = new CSharpType(customType.FrameworkType, [customType.Arguments[0], elementType], customType.IsNullable);
+                }
+            }
+
+            customType = EnsureEnum(specProperty, customType);
+            return EnsureLiteral(specProperty, customType);
         }
 
         private static CSharpType EnsureLiteral(InputModelProperty? specProperty, CSharpType customType)
@@ -237,6 +252,8 @@ namespace Microsoft.Generator.CSharp.Providers
                 InputNullableType nullableType => GetEnumValueType(nullableType.Type),
                 InputEnumType enumType => enumType.ValueType,
                 InputLiteralType { ValueType: InputEnumType enumTypeFromLiteral } => enumTypeFromLiteral.ValueType,
+                InputArrayType arrayType => GetEnumValueType(arrayType.ValueType),
+                InputDictionaryType dictionaryType => GetEnumValueType(dictionaryType.ValueType),
                 _ => null
             };
         }
