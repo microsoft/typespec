@@ -97,7 +97,7 @@ import {
 export interface NameResolver {
   // TODO: add docs
   resolveProgram(): void;
-  getMergedSymbol(sym: Sym | undefined): Sym | undefined;
+  getMergedSymbol(sym: Sym): Sym;
 
   getAugmentedSymbolTable(table: SymbolTable): Mutable<SymbolTable>;
   getNodeLinks(n: Node): NodeLinks;
@@ -763,17 +763,10 @@ export function createResolver(program: Program): NameResolver {
           // this will set a duplicate error
           target.set(key, sourceBinding);
         }
-      } else if (
-        sourceBinding.flags & SymbolFlags.Declaration ||
-        sourceBinding.flags & SymbolFlags.Implementation
-      ) {
-        if (sourceBinding.flags & SymbolFlags.Decorator) {
-          mergeDeclarationOrImplementation(key, sourceBinding, target, SymbolFlags.Decorator);
-        } else if (sourceBinding.flags & SymbolFlags.Function) {
-          mergeDeclarationOrImplementation(key, sourceBinding, target, SymbolFlags.Function);
-        } else {
-          target.set(key, sourceBinding);
-        }
+      } else if (sourceBinding.flags & SymbolFlags.Decorator) {
+        mergeDeclarationOrImplementation(key, sourceBinding, target, SymbolFlags.Decorator);
+      } else if (sourceBinding.flags & SymbolFlags.Function) {
+        mergeDeclarationOrImplementation(key, sourceBinding, target, SymbolFlags.Function);
       } else {
         target.set(key, sourceBinding);
       }
@@ -791,19 +784,14 @@ export function createResolver(program: Program): NameResolver {
       target.set(key, sourceBinding);
       return;
     }
-    const isSourceDeclaration = sourceBinding.flags & SymbolFlags.Declaration;
     const isSourceImplementation = sourceBinding.flags & SymbolFlags.Implementation;
-    const isTargetDeclaration = targetBinding.flags & SymbolFlags.Declaration;
     const isTargetImplementation = targetBinding.flags & SymbolFlags.Implementation;
-    if (isTargetDeclaration && isTargetImplementation) {
-      // If the target already has both a declaration and implementation set the symbol which will mark it as duplicate
-      target.set(key, sourceBinding);
-    } else if (isTargetDeclaration && isSourceImplementation) {
+    if (!isTargetImplementation && isSourceImplementation) {
       mergedSymbols.set(sourceBinding, targetBinding);
       mutate(targetBinding).value = sourceBinding.value;
       mutate(targetBinding).flags |= sourceBinding.flags;
       mutate(targetBinding.declarations).push(...sourceBinding.declarations);
-    } else if (isTargetImplementation && isSourceDeclaration) {
+    } else if (isTargetImplementation && !isSourceImplementation) {
       mergedSymbols.set(sourceBinding, targetBinding);
       mutate(targetBinding).flags |= sourceBinding.flags;
       mutate(targetBinding.declarations).unshift(...sourceBinding.declarations);
