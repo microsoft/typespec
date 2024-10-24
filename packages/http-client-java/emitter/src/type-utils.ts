@@ -348,8 +348,10 @@ export function processSchemaUsageFromSdkType(sdkType: SdkModelType | SdkEnumTyp
     return usage;
   }
   if (usageFlags & UsageFlags.ApiVersionEnum) {
-    usage = [];
-    return usage;
+    return [];
+  }
+  if (usageFlags === 0) {
+    return [];
   }
   if (usageFlags & UsageFlags.Input) 
     usage = pushDistinct(usage, SchemaContext.Input);
