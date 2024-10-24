@@ -1065,6 +1065,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             ScopedApi<JsonProperty> jsonProperty,
             IEnumerable<AttributeData> serializationAttributes)
         {
+            bool useCustomDeserializationHook = false;
             var serializationFormat = wireInfo.SerializationFormat;
             var propertyVarReference = variableExpression;
             var deserializationStatements = new MethodBodyStatement[2]
@@ -1088,13 +1089,16 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                             deserializationHook,
                             jsonProperty,
                             ByRef(propertyVarReference)).Terminate()];
+                    useCustomDeserializationHook = true;
                     break;
                 }
             }
 
             return
             [
-                DeserializationPropertyNullCheckStatement(propertyType, wireInfo, jsonProperty, propertyVarReference),
+                useCustomDeserializationHook
+                    ? MethodBodyStatement.Empty
+                    : DeserializationPropertyNullCheckStatement(propertyType, wireInfo, jsonProperty, propertyVarReference),
                 deserializationStatements,
                 Continue
             ];
@@ -1117,7 +1121,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             CSharpType serializedType = propertyType;
             var propertyIsRequired = wireInfo.IsRequired;
 
-            if (serializedType.IsNullable || !propertyIsRequired)
+            if ((serializedType.IsNullable || !serializedType.IsValueType) && wireInfo.IsNullable)
             {
                 if (!serializedType.IsCollection)
                 {

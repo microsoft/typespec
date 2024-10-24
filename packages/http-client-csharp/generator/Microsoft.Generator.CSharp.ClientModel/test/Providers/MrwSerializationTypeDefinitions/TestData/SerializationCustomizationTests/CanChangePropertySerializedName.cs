@@ -91,31 +91,16 @@ namespace Sample.Models
             {
                 if (prop.NameEquals("customName"u8))
                 {
-                    if ((prop.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
-                    {
-                        name = null;
-                        continue;
-                    }
                     name = prop.Value.GetString();
                     continue;
                 }
                 if (prop.NameEquals("flavor"u8))
                 {
-                    if ((prop.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
-                    {
-                        flavor = null;
-                        continue;
-                    }
                     flavor = prop.Value.GetString();
                     continue;
                 }
                 if (prop.NameEquals("customColor2"u8))
                 {
-                    if ((prop.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
-                    {
-                        customColor = null;
-                        continue;
-                    }
                     customColor = prop.Value.GetString();
                     continue;
                 }
