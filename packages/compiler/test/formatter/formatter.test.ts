@@ -910,7 +910,7 @@ const foo     = utcDateTime.   fromFoo(#[
 const foo = utcDateTime.fromFoo(#[
   "very very long array",
   "very very long array",
-  "very very long array"
+  "very very long array",
 ]);
 `,
       });
@@ -2556,7 +2556,7 @@ alias Foo = ["very long text that will overflow 1","very long text that will ove
 alias Foo = [
   "very long text that will overflow 1",
   "very long text that will overflow 2",
-  "very long text that will overflow 3"
+  "very long text that will overflow 3",
 ];
 `,
       });
