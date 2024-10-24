@@ -134,19 +134,19 @@ None
 Specify OpenAPI additional information.
 
 ```typespec
-@TypeSpec.OpenAPI.tagMetadata(name: valueof string, additionalTag?: TypeSpec.OpenAPI.AdditionalTag)
+@TypeSpec.OpenAPI.tagMetadata(name: valueof string, tagMetadata?: TypeSpec.OpenAPI.TagMetadata)
 ```
 
 ##### Target
 
-`Namespace | Interface | Operation`
+`Namespace`
 
 ##### Parameters
 
-| Name          | Type                              | Description            |
-| ------------- | --------------------------------- | ---------------------- |
-| name          | `valueof string`                  | tag name               |
-| additionalTag | [`AdditionalTag`](#additionaltag) | Additional information |
+| Name        | Type                          | Description |
+| ----------- | ----------------------------- | ----------- |
+| name        | `valueof string`              | tag name    |
+| tagMetadata | [`TagMetadata`](#tagmetadata) |             |
 
 #### `@useRef`
 

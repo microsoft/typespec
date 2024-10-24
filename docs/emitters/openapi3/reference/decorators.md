@@ -27,19 +27,19 @@ None
 Specify OpenAPI additional information.
 
 ```typespec
-@TypeSpec.OpenAPI.tagMetadata(name: valueof string, additionalTag?: TypeSpec.OpenAPI.AdditionalTag)
+@TypeSpec.OpenAPI.tagMetadata(name: valueof string, tagMetadata?: TypeSpec.OpenAPI.TagMetadata)
 ```
 
 #### Target
 
-`Namespace | Interface | Operation`
+`Namespace`
 
 #### Parameters
 
-| Name          | Type                                                              | Description            |
-| ------------- | ----------------------------------------------------------------- | ---------------------- |
-| name          | `valueof string`                                                  | tag name               |
-| additionalTag | [`AdditionalTag`](./data-types.md#TypeSpec.OpenAPI.AdditionalTag) | Additional information |
+| Name        | Type                                                          | Description |
+| ----------- | ------------------------------------------------------------- | ----------- |
+| name        | `valueof string`                                              | tag name    |
+| tagMetadata | [`TagMetadata`](./data-types.md#TypeSpec.OpenAPI.TagMetadata) |             |
 
 ### `@useRef` {#@TypeSpec.OpenAPI.useRef}
 

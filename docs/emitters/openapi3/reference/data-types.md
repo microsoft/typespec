@@ -1,21 +1,35 @@
 ---
 title: "Data types"
-toc_min_heading_level: 2
-toc_max_heading_level: 3
 ---
 
 ## TypeSpec.OpenAPI
 
-### `AdditionalTag` {#TypeSpec.OpenAPI.AdditionalTag}
+### `ExternalDocs` {#TypeSpec.OpenAPI.ExternalDocs}
 
-Additional information for the OpenAPI document.
+External Docs information.
 
 ```typespec
-model TypeSpec.OpenAPI.AdditionalTag
+model TypeSpec.OpenAPI.ExternalDocs
 ```
 
 #### Properties
 
-| Name         | Type     | Description               |
-| ------------ | -------- | ------------------------- |
-| description? | `string` | A description of the API. |
+| Name         | Type     | Description          |
+| ------------ | -------- | -------------------- |
+| url          | `string` | Documentation url    |
+| description? | `string` | Optional description |
+
+### `TagMetadata` {#TypeSpec.OpenAPI.TagMetadata}
+
+Additional information for the OpenAPI document.
+
+```typespec
+model TypeSpec.OpenAPI.TagMetadata
+```
+
+#### Properties
+
+| Name          | Type                                                            | Description                             |
+| ------------- | --------------------------------------------------------------- | --------------------------------------- |
+| description?  | `string`                                                        | A description of the API.               |
+| externalDocs? | [`ExternalDocs`](./data-types.md#TypeSpec.OpenAPI.ExternalDocs) | a external Docs information of the API. |
