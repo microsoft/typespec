@@ -4,14 +4,15 @@
   "private": true,
   "version": "0.0.1",
   "scripts": {
-    "copy": "cp -r ../docs/. ./src/content/docs/docs && cp -r ../packages/website/static/. ./src/assets  && cp -r ../packages/website/static/img/. ./public/img  && cp ../packages/website/static/1ds-init.js ./public/1ds-init.js && cp -r ../blog/. ./src/content/blog",
+    "copy": "cp -r ../docs/. ./src/content/docs/docs && cp -r ../blog/. ./src/content/blog",
     "clean": "rimraf ./dist ./temp ./.astro",
     "dev": "astro dev",
     "start": "astro dev",
     "build": "tsx ./.scripts/build.ts",
     "build:web": "pnpm copy && astro check --minimumFailingSeverity warning && astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "regen-all-packages-docs": "pnpm -w --filter \"@typespec/website-astro...\" --filter \"!@typespec/monorepo\" run regen-docs"
   },
   "imports": {
     "@theme/TabItem": "./src/components/docusaurus/tab-item.ts"

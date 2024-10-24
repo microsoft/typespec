@@ -7,7 +7,7 @@
   "scripts": {
     "docusaurus": "docusaurus",
     "start": "docusaurus start",
-    "build": "npm run regen-all-packages-docs && node  .scripts/docusaurus-build.mjs 2>&1",
+    "build:skip": "npm run regen-all-packages-docs && node  .scripts/docusaurus-build.mjs 2>&1",
     "swizzle": "docusaurus swizzle",
     "clear": "docusaurus clear",
     "clean": "docusaurus clear",
