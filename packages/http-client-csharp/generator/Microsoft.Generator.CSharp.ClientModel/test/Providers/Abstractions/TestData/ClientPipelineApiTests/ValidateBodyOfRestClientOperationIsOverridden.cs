@@ -1,4 +1,4 @@
-global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.GetFakeCreateMessage();
+global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.GetFakeCreateMessage(options, PipelineMessageClassifier200);
 message.ResponseClassifier = PipelineMessageClassifier200;
 global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
 request.Method = "GET";

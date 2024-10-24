@@ -161,7 +161,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 signature,
                 new MethodBodyStatements(
                 [
-                    Declare("message", pipelineField.CreateMessage().ToApi<HttpMessageApi>(), out HttpMessageApi message),
+                    Declare("message", pipelineField.CreateMessage(options, classifier).ToApi<HttpMessageApi>(), out HttpMessageApi message),
                     message.ResponseClassifier().Assign(classifier).Terminate(),
                     Declare("request", message.Request().ToApi<HttpRequestApi>(), out HttpRequestApi request), // ScopedApi<PipelineRequest>
                     request.SetMethod(operation.HttpMethod).Terminate(),
