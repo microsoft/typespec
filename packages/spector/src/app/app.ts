@@ -8,6 +8,12 @@ import { loadScenarioMockApis } from "../scenarios-resolver.js";
 import { MockApiServer } from "../server/index.js";
 import { ApiMockAppConfig } from "./config.js";
 import { processRequest } from "./request-processor.js";
+import { ScenariosMetadata } from "@typespec/spec-coverage-sdk";
+
+export interface ScenariosAndScenariosMetadata {
+  scenarios: Record<string, ScenarioMockApi>, 
+  scenariosMetadata: ScenariosMetadata
+}
 
 export class MockApiApp {
   private router = Router();
@@ -22,14 +28,29 @@ export class MockApiApp {
   public async start(): Promise<void> {
     this.server.use("/", internalRouter);
 
-    const scenarios = await loadScenarioMockApis(this.config.scenarioPath);
-    this.coverageTracker.setScenarios(
-      await getScenarioMetadata(this.config.scenarioPath),
-      scenarios,
-    );
-    for (const [name, scenario] of Object.entries(scenarios)) {
-      this.registerScenario(name, scenario);
+    const ScenariosAndScenariosMetadata: ScenariosAndScenariosMetadata[] = [];
+    if(Array.isArray(this.config.scenarioPath)) {
+      for (let idx = 0; idx < this.config.scenarioPath.length; idx++) {
+        const scenarios = await loadScenarioMockApis(this.config.scenarioPath[idx]);
+        const scenariosMetadata = await getScenarioMetadata(this.config.scenarioPath[idx]);
+        ScenariosAndScenariosMetadata.push({scenarios, scenariosMetadata});
+      }
+    } else {
+      const scenarios = await loadScenarioMockApis(this.config.scenarioPath);
+      const scenariosMetadata = await getScenarioMetadata(this.config.scenarioPath);
+      ScenariosAndScenariosMetadata.push({scenarios, scenariosMetadata});
     }
+
+    this.coverageTracker.setScenarios(
+      ScenariosAndScenariosMetadata
+    );
+
+    for (const {scenarios} of ScenariosAndScenariosMetadata) {
+      for (const [name, scenario] of Object.entries(scenarios)) {
+        this.registerScenario(name, scenario);
+      }
+    }
+
     this.router.get("/.coverage", (req, res) => {
       res.json(this.coverageTracker.computeCoverage());
     });

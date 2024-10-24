@@ -6,9 +6,11 @@ import { createDiagnosticReporter } from "../utils/diagnostic-reporter.js";
 
 export interface ValidateMockApisConfig {
   scenariosPath: string;
+  exitDueToPreviousError?: boolean;
+  hasMoreScenarios?: boolean;
 }
 
-export async function validateMockApis({ scenariosPath }: ValidateMockApisConfig) {
+export async function validateMockApis({ scenariosPath, exitDueToPreviousError, hasMoreScenarios }: ValidateMockApisConfig) {
   const mockApis = await loadScenarioMockApiFiles(scenariosPath);
   const scenarioFiles = await findScenarioSpecFiles(scenariosPath);
 
@@ -69,7 +71,16 @@ export async function validateMockApis({ scenariosPath }: ValidateMockApisConfig
     }
   }
 
-  if (diagnostics.diagnostics.length) {
-    process.exit(1);
+  if (diagnostics.diagnostics.length === 0) {
+    if (exitDueToPreviousError) {
+      process.exit(1);
+    }
+    return false;
+  } else {
+    if (hasMoreScenarios) {
+      return true;
+    } else {
+      process.exit(1);
+    }
   }
 }
