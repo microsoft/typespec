@@ -233,6 +233,9 @@ function createOAPIEmitter(
   // De-dupe the per-endpoint tags that will be added into the #/tags
   let tags: Set<string>;
 
+  // The per-endpoint tags that will be added into the #/tags
+  let tagsMetadata: OpenAPI3Tag[];
+
   const typeNameOptions: TypeNameOptions = {
     // shorten type names by removing TypeSpec and service namespace
     namespaceFilter(ns) {
@@ -346,6 +349,7 @@ function createOAPIEmitter(
     params = new Map();
     paramModels = new Set();
     tags = new Set();
+    tagsMetadata = getTagsMetadata(program, service.type);
   }
 
   function isValidServerVariableType(program: Program, type: Type): boolean {
@@ -629,9 +633,7 @@ function createOAPIEmitter(
       }
       emitParameters();
       emitSchemas(service.type);
-
-      const tagsMetadata = getTagsMetadata(program, service.type);
-      emitTags(tagsMetadata);
+      emitTags();
 
       // Clean up empty entries
       if (root.components) {
@@ -1585,11 +1587,11 @@ function createOAPIEmitter(
     }
   }
 
-  function emitTags(tagsMetadata: OpenAPI3Tag[]) {
-    const tagSet = new Set(tagsMetadata.map((t) => t.name));
+  function emitTags() {
+    const tagsNameSet = new Set(tagsMetadata.map((t) => t.name));
     // emit Tag from op
     for (const tag of tags) {
-      if (!tagSet.has(tag)) {
+      if (!tagsNameSet.has(tag)) {
         root.tags!.push({ name: tag });
       }
     }
