@@ -74,8 +74,10 @@ namespace Microsoft.Generator.CSharp.Providers
                     continue;
 
                 var typeToInstantiate = modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract)
-                    ? modelProvider.DerivedModels.First(m => m.IsUnknownDiscriminatorModel)
+                    ? modelProvider.DerivedModels.FirstOrDefault(m => m.IsUnknownDiscriminatorModel)
                     : modelProvider;
+                if (typeToInstantiate is null)
+                    continue;
 
                 var modelCtor = modelProvider.FullConstructor;
                 var signature = new MethodSignature(
@@ -120,7 +122,6 @@ namespace Microsoft.Generator.CSharp.Providers
                 if (factoryParam == null && ctorParam.Property?.IsDiscriminator == true && modelProvider.DiscriminatorValueExpression != null)
                 {
                     expressions.Add(modelProvider.DiscriminatorValueExpression);
-                    continue;
                 }
                 else if (factoryParam != null)
                 {

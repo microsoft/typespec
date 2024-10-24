@@ -53,7 +53,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: ./packages/website-astro/dist
+          path: ./website/dist
 
   # Deployment job
   deploy:

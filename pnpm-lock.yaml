@@ -2023,7 +2023,40 @@ importers:
         specifier: ~5.6.3
         version: 5.6.3
 
-  packages/website-astro:
+  packages/xml:
+    devDependencies:
+      '@types/node':
+        specifier: ~22.7.5
+        version: 22.7.5
+      '@typespec/compiler':
+        specifier: workspace:~
+        version: link:../compiler
+      '@typespec/library-linter':
+        specifier: workspace:~
+        version: link:../library-linter
+      '@typespec/tspd':
+        specifier: workspace:~
+        version: link:../tspd
+      '@vitest/coverage-v8':
+        specifier: ^2.1.2
+        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1))
+      '@vitest/ui':
+        specifier: ^2.1.2
+        version: 2.1.2(vitest@2.1.2)
+      c8:
+        specifier: ^10.1.2
+        version: 10.1.2
+      rimraf:
+        specifier: ~6.0.1
+        version: 6.0.1
+      typescript:
+        specifier: ~5.6.3
+        version: 5.6.3
+      vitest:
+        specifier: ^2.1.2
+        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
+
+  website:
     dependencies:
       '@astrojs/check':
         specifier: ^0.9.4
@@ -2057,10 +2090,10 @@ importers:
         version: 2.0.260(react@18.3.1)
       '@typespec/compiler':
         specifier: workspace:~
-        version: link:../compiler
+        version: link:../packages/compiler
       '@typespec/playground':
         specifier: workspace:~
-        version: link:../playground
+        version: link:../packages/playground
       astro:
         specifier: ^4.16.1
         version: 4.16.5(@types/node@22.7.5)(rollup@4.24.0)(terser@5.34.1)(typescript@5.6.3)
@@ -2106,13 +2139,13 @@ importers:
         version: 1.0.0
       '@typespec/internal-build-utils':
         specifier: workspace:~
-        version: link:../internal-build-utils
+        version: link:../packages/internal-build-utils
       '@typespec/playground-website':
         specifier: workspace:*
-        version: link:../playground-website
+        version: link:../packages/playground-website
       '@typespec/website':
         specifier: workspace:*
-        version: link:../website
+        version: link:../packages/website
       astro-expressive-code:
         specifier: ^0.37.0
         version: 0.37.0(astro@4.16.5(@types/node@22.7.5)(rollup@4.24.0)(terser@5.34.1)(typescript@5.6.3))
@@ -2125,39 +2158,6 @@ importers:
       rimraf:
         specifier: ~6.0.1
         version: 6.0.1
-
-  packages/xml:
-    devDependencies:
-      '@types/node':
-        specifier: ~22.7.5
-        version: 22.7.5
-      '@typespec/compiler':
-        specifier: workspace:~
-        version: link:../compiler
-      '@typespec/library-linter':
-        specifier: workspace:~
-        version: link:../library-linter
-      '@typespec/tspd':
-        specifier: workspace:~
-        version: link:../tspd
-      '@vitest/coverage-v8':
-        specifier: ^2.1.2
-        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1))
-      '@vitest/ui':
-        specifier: ^2.1.2
-        version: 2.1.2(vitest@2.1.2)
-      c8:
-        specifier: ^10.1.2
-        version: 10.1.2
-      rimraf:
-        specifier: ~6.0.1
-        version: 6.0.1
-      typescript:
-        specifier: ~5.6.3
-        version: 5.6.3
-      vitest:
-        specifier: ^2.1.2
-        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
 
 packages:
 
@@ -20588,16 +20588,6 @@ snapshots:
       postcss: 8.4.39
       postcss-value-parser: 4.2.0
 
-  autoprefixer@10.4.19(postcss@8.4.47):
-    dependencies:
-      browserslist: 4.24.0
-      caniuse-lite: 1.0.30001666
-      fraction.js: 4.3.7
-      normalize-range: 0.1.2
-      picocolors: 1.1.0
-      postcss: 8.4.47
-      postcss-value-parser: 4.2.0
-
   autoprefixer@10.4.20(postcss@8.4.47):
     dependencies:
       browserslist: 4.24.0
@@ -21586,7 +21576,7 @@ snapshots:
 
   cssnano-preset-advanced@6.1.2(postcss@8.4.47):
     dependencies:
-      autoprefixer: 10.4.19(postcss@8.4.47)
+      autoprefixer: 10.4.20(postcss@8.4.47)
       browserslist: 4.24.0
       cssnano-preset-default: 6.1.2(postcss@8.4.47)
       postcss: 8.4.47
@@ -27717,7 +27707,7 @@ snapshots:
   snake-case@3.0.4:
     dependencies:
       dot-case: 3.0.4
-      tslib: 2.6.2
+      tslib: 2.7.0
 
   sockjs@0.3.24:
     dependencies:
