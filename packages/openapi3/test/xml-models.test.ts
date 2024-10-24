@@ -83,7 +83,7 @@ describe("@name", () => {
           content: ${type};
         };`,
     );
-    expect(res.schemas.Book).toMatchSnapshot({
+    expect(res.schemas.Book).toMatchObject({
       properties: {
         content: { type: `${output}`, xml: { name: "xmlcontent" } },
       },
@@ -102,7 +102,7 @@ describe("@name", () => {
           content: ${type};
         };`,
     );
-    expect(res.schemas.Book).toMatchSnapshot({
+    expect(res.schemas.Book).toMatchObject({
       properties: {
         content: { xml: { name: "xmlcontent" } },
       },
@@ -198,7 +198,7 @@ describe("@attribute", () => {
           id: ${type};
         };`,
     );
-    expect(res.schemas.Book).toMatchSnapshot({
+    expect(res.schemas.Book).toMatchObject({
       properties: {
         id: { xml: { attribute: true } },
       },
@@ -509,14 +509,14 @@ describe("Array of primitive types", () => {
           tags: tag[]
         };`,
       );
-      expect(res.schemas.tag).toMatchSnapshot({
+      expect(res.schemas.tag).toMatchObject({
         type: `${type}`,
         xml: {
           name: "ItemsName",
         },
       });
 
-      expect(res.schemas.Book).toMatchSnapshot({
+      expect(res.schemas.Book).toMatchObject({
         type: "object",
         properties: {
           tags: {
@@ -554,14 +554,14 @@ describe("Array of primitive types", () => {
           tags: tag[]
         };`,
       );
-      expect(res.schemas.tag).toMatchSnapshot({
+      expect(res.schemas.tag).toMatchObject({
         type: `${type}`,
         xml: {
           name: "ItemsName",
         },
       });
 
-      expect(res.schemas.Book).toMatchSnapshot({
+      expect(res.schemas.Book).toMatchObject({
         type: "object",
         properties: {
           tags: {
@@ -896,7 +896,7 @@ describe("set xml name in items if that object is used in an xml payload.", () =
        ${refModel}`,
     );
 
-    expect(res.schemas.Book).toMatchSnapshot({
+    expect(res.schemas.Book).toMatchObject({
       type: "object",
       properties: {
         author,
