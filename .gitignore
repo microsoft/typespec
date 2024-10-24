@@ -48,6 +48,7 @@ coverage.xml
 .pytest_cache/
 test-results.xml
 test-results/
+__snapshots__/
 
 # Translations
 *.mo
@@ -224,4 +225,3 @@ BenchmarkDotnet.Artifacts/
 packages/http-client-python/generator/test/**/generated/
 packages/http-client-python/generator/test/**/cadl-ranch-coverage.json
 !packages/http-client-python/package-lock.json
-
