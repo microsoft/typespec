@@ -24,6 +24,12 @@ export interface OperationExample {
   readonly returnType?: unknown;
 }
 
+export interface VisibilityFilter {
+  readonly any?: readonly EnumValue[];
+  readonly all?: readonly EnumValue[];
+  readonly none?: readonly EnumValue[];
+}
+
 /**
  * Specify how to encode the target type.
  *
@@ -119,7 +125,7 @@ export type WithoutDefaultValuesDecorator = (context: DecoratorContext, target: 
 export type WithDefaultKeyVisibilityDecorator = (
   context: DecoratorContext,
   target: Model,
-  visibility: string,
+  visibility: string | EnumValue,
 ) => void;
 
 /**
@@ -630,6 +636,24 @@ export type OpExampleDecorator = (
 ) => void;
 
 /**
+ * A debugging decorator used to inspect a type.
+ *
+ * @param text Custom text to log
+ */
+export type InspectTypeDecorator = (context: DecoratorContext, target: Type, text: string) => void;
+
+/**
+ * A debugging decorator used to inspect a type name.
+ *
+ * @param text Custom text to log
+ */
+export type InspectTypeNameDecorator = (
+  context: DecoratorContext,
+  target: Type,
+  text: string,
+) => void;
+
+/**
  * Indicates that a property is only considered to be present or applicable ("visible") with
  * the in the given named contexts ("visibilities"). When a property has no visibilities applied
  * to it, it is implicitly visible always.
@@ -662,7 +686,28 @@ export type OpExampleDecorator = (
 export type VisibilityDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
-  ...visibilities: string[]
+  ...visibilities: (string | EnumValue)[]
+) => void;
+
+/**
+ * Indicates that a property is not visible in the given visibility class.
+ *
+ * This decorator removes all active visibility modifiers from the property within
+ * the given visibility class.
+ *
+ * @param visibilityClass The visibility class to make the property invisible within.
+ * @example
+ * ```typespec
+ * model Example {
+ *   @invisible(Lifecycle)
+ *   hidden_property: string;
+ * }
+ * ```
+ */
+export type InvisibleDecorator = (
+  context: DecoratorContext,
+  target: ModelProperty,
+  visibilityClass: Enum,
 ) => void;
 
 /**
@@ -707,25 +752,7 @@ export type VisibilityDecorator = (
 export type WithVisibilityDecorator = (
   context: DecoratorContext,
   target: Model,
-  ...visibilities: string[]
-) => void;
-
-/**
- * A debugging decorator used to inspect a type.
- *
- * @param text Custom text to log
- */
-export type InspectTypeDecorator = (context: DecoratorContext, target: Type, text: string) => void;
-
-/**
- * A debugging decorator used to inspect a type name.
- *
- * @param text Custom text to log
- */
-export type InspectTypeNameDecorator = (
-  context: DecoratorContext,
-  target: Type,
-  text: string,
+  ...visibilities: (string | EnumValue)[]
 ) => void;
 
 /**
@@ -736,7 +763,7 @@ export type InspectTypeNameDecorator = (
 export type ParameterVisibilityDecorator = (
   context: DecoratorContext,
   target: Operation,
-  ...visibilities: string[]
+  ...visibilities: (string | EnumValue)[]
 ) => void;
 
 /**
@@ -747,8 +774,78 @@ export type ParameterVisibilityDecorator = (
 export type ReturnTypeVisibilityDecorator = (
   context: DecoratorContext,
   target: Operation,
-  ...visibilities: string[]
+  ...visibilities: (string | EnumValue)[]
 ) => void;
+
+/**
+ * Declares the default visibility modifiers for a visibility class.
+ *
+ * The default modifiers are used when a property does not have any visibility decorators
+ * applied to it.
+ */
+export type DefaultVisibilityDecorator = (
+  context: DecoratorContext,
+  target: Enum,
+  ...visibilities: EnumValue[]
+) => void;
+
+/**
+ * Applies the given visibility filter to the properties of the target model.
+ *
+ * This transformation is recursive, so it will also apply the filter to any nested
+ * or referenced models that are the types of any properties in the `target`.
+ *
+ * @param target The model to apply the visibility filter to.
+ * @param filter The visibility filter to apply to the properties of the target model.
+ * @example
+ * ```typespec
+ * model Dog {
+ *   @visibility(Lifecycle.Read)
+ *   id: int32;
+ *
+ *   name: string;
+ * }
+ *
+ * @withVisibilityFilter(#{ all: #[Lifecycle.Read] })
+ * model DogRead {
+ *  ...Dog
+ * }
+ * ```
+ */
+export type WithVisibilityFilterDecorator = (
+  context: DecoratorContext,
+  target: Model,
+  filter: VisibilityFilter,
+) => void;
+
+/**
+ * Transforms the `target` model to include only properties that are visible during the
+ * "Update" lifecycle phase.
+ *
+ * Any nested models of optional properties will be transformed into the "CreateOrUpdate"
+ * lifecycle phase instead of the "Update" lifecycle phase, so that nested models may be
+ * fully updated.
+ *
+ * @param target The model to apply the transformation to.
+ * @example
+ * ```typespec
+ * model Dog {
+ *   @visibility(Lifecycle.Read)
+ *   id: int32;
+ *
+ *   @visibility(Lifecycle.Create, Lifecycle.Update)
+ *   secretName: string;
+ *
+ *   name: string;
+ * }
+ *
+ * @withLifecycleUpdate
+ * model DogUpdate {
+ *   ...Dog
+ * }
+ * ```
+ */
+export type WithLifecycleUpdateDecorator = (context: DecoratorContext, target: Model) => void;
 
 export type TypeSpecDecorators = {
   encode: EncodeDecorator;
@@ -787,10 +884,14 @@ export type TypeSpecDecorators = {
   discriminator: DiscriminatorDecorator;
   example: ExampleDecorator;
   opExample: OpExampleDecorator;
-  visibility: VisibilityDecorator;
-  withVisibility: WithVisibilityDecorator;
   inspectType: InspectTypeDecorator;
   inspectTypeName: InspectTypeNameDecorator;
+  visibility: VisibilityDecorator;
+  invisible: InvisibleDecorator;
+  withVisibility: WithVisibilityDecorator;
   parameterVisibility: ParameterVisibilityDecorator;
   returnTypeVisibility: ReturnTypeVisibilityDecorator;
+  defaultVisibility: DefaultVisibilityDecorator;
+  withVisibilityFilter: WithVisibilityFilterDecorator;
+  withLifecycleUpdate: WithLifecycleUpdateDecorator;
 };
