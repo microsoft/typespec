@@ -21,3 +21,11 @@
 ######################
 /eng/emitters/                               @m-nash
 
+######################
+# IDE
+######################
+/packages/typespec-vs/                       @RodgeFu @bterlson @markcowl @allenjzhang @timotheeguerin
+/packages/typespec-vscode/                   @RodgeFu @bterlson @markcowl @allenjzhang @timotheeguerin
+/packages/compiler/src/server/               @RodgeFu @bterlson @markcowl @allenjzhang @timotheeguerin
+
+

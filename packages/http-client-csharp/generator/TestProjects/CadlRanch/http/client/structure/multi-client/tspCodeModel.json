@@ -83,6 +83,23 @@
       "$ref": "2"
      },
      "decorators": []
+    },
+    {
+     "$id": "12",
+     "kind": "enumvalue",
+     "name": "ClientOperationGroup",
+     "value": "client-operation-group",
+     "valueType": {
+      "$id": "13",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "enumType": {
+      "$ref": "2"
+     },
+     "decorators": []
     }
    ],
    "isFixed": true,
@@ -94,22 +111,22 @@
  "Models": [],
  "Clients": [
   {
-   "$id": "12",
+   "$id": "14",
    "Name": "ClientAClient",
    "Operations": [
     {
-     "$id": "13",
+     "$id": "15",
      "Name": "renamedOne",
      "ResourceName": "ClientA",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "14",
+       "$id": "16",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
        "Description": "Need to be set as 'http://localhost:3000' in client.",
        "Type": {
-        "$id": "15",
+        "$id": "17",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -125,7 +142,7 @@
        "Kind": "Client"
       },
       {
-       "$id": "16",
+       "$id": "18",
        "Name": "client",
        "NameInRequest": "client",
        "Description": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",
@@ -145,7 +162,7 @@
      ],
      "Responses": [
       {
-       "$id": "17",
+       "$id": "19",
        "StatusCodes": [
         204
        ],
@@ -165,21 +182,21 @@
      "Decorators": []
     },
     {
-     "$id": "18",
+     "$id": "20",
      "Name": "renamedThree",
      "ResourceName": "ClientA",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "14"
+       "$ref": "16"
       },
       {
-       "$ref": "16"
+       "$ref": "18"
       }
      ],
      "Responses": [
       {
-       "$id": "19",
+       "$id": "21",
        "StatusCodes": [
         204
        ],
@@ -199,21 +216,21 @@
      "Decorators": []
     },
     {
-     "$id": "20",
+     "$id": "22",
      "Name": "renamedFive",
      "ResourceName": "ClientA",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "14"
+       "$ref": "16"
       },
       {
-       "$ref": "16"
+       "$ref": "18"
       }
      ],
      "Responses": [
       {
-       "$id": "21",
+       "$id": "23",
        "StatusCodes": [
         204
        ],
@@ -234,35 +251,35 @@
     }
    ],
    "Protocol": {
-    "$id": "22"
+    "$id": "24"
    },
    "Parameters": [
     {
-     "$ref": "14"
+     "$ref": "16"
     },
     {
-     "$ref": "16"
+     "$ref": "18"
     }
    ],
    "Decorators": []
   },
   {
-   "$id": "23",
+   "$id": "25",
    "Name": "ClientBClient",
    "Operations": [
     {
-     "$id": "24",
+     "$id": "26",
      "Name": "renamedTwo",
      "ResourceName": "ClientB",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "25",
+       "$id": "27",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
        "Description": "Need to be set as 'http://localhost:3000' in client.",
        "Type": {
-        "$id": "26",
+        "$id": "28",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -278,7 +295,7 @@
        "Kind": "Client"
       },
       {
-       "$id": "27",
+       "$id": "29",
        "Name": "client",
        "NameInRequest": "client",
        "Description": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",
@@ -298,7 +315,7 @@
      ],
      "Responses": [
       {
-       "$id": "28",
+       "$id": "30",
        "StatusCodes": [
         204
        ],
@@ -318,21 +335,21 @@
      "Decorators": []
     },
     {
-     "$id": "29",
+     "$id": "31",
      "Name": "renamedFour",
      "ResourceName": "ClientB",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "25"
+       "$ref": "27"
       },
       {
-       "$ref": "27"
+       "$ref": "29"
       }
      ],
      "Responses": [
       {
-       "$id": "30",
+       "$id": "32",
        "StatusCodes": [
         204
        ],
@@ -352,21 +369,21 @@
      "Decorators": []
     },
     {
-     "$id": "31",
+     "$id": "33",
      "Name": "renamedSix",
      "ResourceName": "ClientB",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "25"
+       "$ref": "27"
       },
       {
-       "$ref": "27"
+       "$ref": "29"
       }
      ],
      "Responses": [
       {
-       "$id": "32",
+       "$id": "34",
        "StatusCodes": [
         204
        ],
@@ -387,14 +404,14 @@
     }
    ],
    "Protocol": {
-    "$id": "33"
+    "$id": "35"
    },
    "Parameters": [
     {
-     "$ref": "25"
+     "$ref": "27"
     },
     {
-     "$ref": "27"
+     "$ref": "29"
     }
    ],
    "Decorators": []

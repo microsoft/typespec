@@ -1,13 +1,15 @@
 // @ts-check
 import react from "@astrojs/react";
 import starlight from "@astrojs/starlight";
+import astroExpressiveCode from "astro-expressive-code";
 import { defineConfig } from "astro/config";
 import { readFile } from "fs/promises";
 import { resolve } from "path";
 import rehypeMermaid from "rehype-mermaid";
 import remarkHeadingID from "remark-heading-id";
 import { resolveSideBars } from "./sidebars";
-import tspTryitCode from "./src/plugins/tsp-tryit-code";
+
+import tailwind from "@astrojs/tailwind";
 
 const base = process.env.TYPESPEC_WEBSITE_BASE_PATH ?? "/";
 
@@ -25,24 +27,20 @@ const typespecLang = {
 // https://astro.build/config
 export default defineConfig({
   base,
+  site: "https://typespec.io",
   trailingSlash: "always",
   integrations: [
+    astroExpressiveCode(),
     starlight({
       title: "TypeSpec",
       sidebar: await resolveSideBars(),
+      favicon: "/img/favicon.svg",
       customCss: ["./src/css/custom.css"],
       components: {
         Header: "./src/components/header/header.astro",
+        PageFrame: "./src/components/starlight-overrides/PageFrame.astro",
       },
-      expressiveCode: {
-        themes: ["one-light", "one-dark-pro"],
-        styleOverrides: {
-          frames: {
-            frameBoxShadowCssValue: "",
-          },
-        },
-        plugins: [tspTryitCode(base + "playground/")],
-      },
+      expressiveCode: false, // defined directly above
       head: [
         {
           tag: "script",
@@ -62,6 +60,7 @@ export default defineConfig({
       plugins: [],
     }),
     react(),
+    tailwind({ applyBaseStyles: false }),
   ],
   markdown: {
     // @ts-expect-error wrong type

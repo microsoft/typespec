@@ -12,7 +12,7 @@ namespace Sample.Models
     public readonly partial struct TestModel
     {
         /// <summary> Keeps track of any properties unknown to the library. </summary>
-        private protected global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> _additionalBinaryDataProperties;
+        private readonly global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> _additionalBinaryDataProperties;
 
         /// <summary> Initializes a new instance of <see cref="global::Sample.Models.TestModel"/>. </summary>
         /// <param name="requiredString"> Description for requiredString. </param>
@@ -34,9 +34,9 @@ namespace Sample.Models
         }
 
         /// <summary> Description for requiredString. </summary>
-        public string RequiredString { get; set; }
+        public string RequiredString { get; }
 
         /// <summary> Description for requiredInt. </summary>
-        public int RequiredInt { get; set; }
+        public int RequiredInt { get; }
     }
 }

@@ -1,17 +1,22 @@
 {% import 'keywords.jinja2' as keywords %}
 # coding=utf-8
 {{ code_model.options['license_header'] }}
+{{ keywords.path_type_checking_imports() }}
 {% if schemas %}
 
+from .{{ code_model.models_filename }} import (  # type: ignore
     {% for schema in schemas %}
-from .{{ code_model.models_filename }} import {{ schema }}
+    {{ schema }},
     {% endfor %}
+)
 {% endif %}
 {% if enums %}
 
+from .{{ code_model.enums_filename }} import (  # type: ignore
 {% for enum in enums %}
-from .{{ code_model.enums_filename }} import {{ enum }}
+    {{ enum }},
 {% endfor %}
+)
 {% endif %}
 {{ keywords.patch_imports() }}
 __all__ = [

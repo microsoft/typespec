@@ -1,5 +1,6 @@
 import {
   SdkBasicServiceMethod,
+  SdkBodyModelPropertyType,
   SdkBodyParameter,
   SdkClientType,
   SdkHeaderParameter,
@@ -14,6 +15,7 @@ import {
   SdkQueryParameter,
   SdkServiceMethod,
   SdkServiceResponseHeader,
+  SdkType,
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
 import { HttpStatusCodeRange } from "@typespec/http";
@@ -108,6 +110,14 @@ function addPagingInformation(
   }
   const itemType = getType(context, method.response.type!);
   const base = emitHttpOperation(context, rootClient, operationGroupName, method.operation, method);
+  const itemName = getPropertyWireName(
+    method.operation.responses[0].type,
+    method.response.resultPath,
+  );
+  const continuationTokenName = getPropertyWireName(
+    method.operation.responses[0].type,
+    method.nextLinkPath,
+  );
   base.responses.forEach((resp: Record<string, any>) => {
     resp.type = itemType;
   });
@@ -116,12 +126,22 @@ function addPagingInformation(
     name: camelToSnakeCase(method.name),
     discriminator: "paging",
     exposeStreamKeyword: false,
-    itemName: method.response.resultPath,
-    continuationTokenName: method.nextLinkPath,
+    itemName,
+    continuationTokenName,
     itemType,
     description: method.doc ?? "",
     summary: method.summary,
   };
+}
+
+function getPropertyWireName(type: SdkType | undefined, path?: string) {
+  if (!path || !type || type.kind !== "model") return path;
+  for (const property of type.properties) {
+    if (property.name === path) {
+      return (property as SdkBodyModelPropertyType).serializedName;
+    }
+  }
+  return path;
 }
 
 export function emitLroHttpMethod(

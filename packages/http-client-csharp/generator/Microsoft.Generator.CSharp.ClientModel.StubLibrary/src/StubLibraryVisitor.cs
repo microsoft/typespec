@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ClientModel.Primitives;
+using System.Linq;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
@@ -37,6 +39,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.StubLibrary
                 return null;
             }
 
+            /* remove constructors for ClientOptions */
+            if (type.Implements.Any(i => i.Equals(typeof(ClientPipelineOptions))))
+            {
+                type.Update(constructors: []);
+            }
             return type;
         }
 

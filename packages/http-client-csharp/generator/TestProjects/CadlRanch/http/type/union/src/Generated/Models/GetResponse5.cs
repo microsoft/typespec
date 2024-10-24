@@ -6,10 +6,6 @@ namespace _Type.Union.Models
 {
     public partial class GetResponse5
     {
-        public GetResponseProp1 Prop
-        {
-            get => throw null;
-            set => throw null;
-        }
+        public GetResponseProp1 Prop => throw null;
     }
 }
