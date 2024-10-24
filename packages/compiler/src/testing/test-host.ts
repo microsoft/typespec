@@ -110,7 +110,7 @@ function createTestCompilerHost(
       return {
         close() {
           const cbs = virtualFsWatchers.get(path);
-          if(cbs){
+          if (cbs) {
             const index = cbs.indexOf(onChanged);
             if (index !== -1) {
               cbs.splice(index, 1);

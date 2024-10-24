@@ -48,8 +48,10 @@ export class EmitterProvider {
   private static async isEmitter(pkg: NpmPackage) {
     const data = await pkg.getPackageJsonData();
     if (!data) return false;
-    if ((data.devDependencies && data.devDependencies["@typespec/compiler"]) ||
-      (data.dependencies && data.dependencies["@typespec/compiler"])) {
+    if (
+      (data.devDependencies && data.devDependencies["@typespec/compiler"]) ||
+      (data.dependencies && data.dependencies["@typespec/compiler"])
+    ) {
       const exports = await pkg.getModuleExports();
       return exports && exports.$onEmit;
     }
