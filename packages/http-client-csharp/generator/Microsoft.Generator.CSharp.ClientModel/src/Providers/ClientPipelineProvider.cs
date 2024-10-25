@@ -37,10 +37,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             => Static<ApiKeyAuthenticationPolicy>().Invoke(nameof(ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy), arguments).As<ApiKeyAuthenticationPolicy>();
 
         public override InvokeMethodExpression Send(HttpMessageApi message, HttpRequestOptionsApi options)
-            => Original.Invoke(nameof(ClientPipeline.Send), [message, options]);
+            => Original.Invoke(nameof(ClientPipeline.Send), [message]);
 
         public override InvokeMethodExpression SendAsync(HttpMessageApi message, HttpRequestOptionsApi options)
-            => Original.Invoke(nameof(ClientPipeline.SendAsync), [message, options], true);
+            => Original.Invoke(nameof(ClientPipeline.SendAsync), [message], true);
 
         public override ClientPipelineApi ToExpression() => this;
     }
