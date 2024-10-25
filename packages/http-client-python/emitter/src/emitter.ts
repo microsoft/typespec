@@ -146,6 +146,9 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
       const globals = pyodide.toPy({ outputFolder, yamlPath, commandArgs });
       const python = `
         async def main():
+            import warnings
+            with warnings.catch_warnings():
+              warnings.simplefilter("ignore", SyntaxWarning)
             from pygen import m2r, preprocess, codegen, black
 
             m2r.M2R(output_folder=outputFolder, cadl_file=yamlPath, **commandArgs).process()
