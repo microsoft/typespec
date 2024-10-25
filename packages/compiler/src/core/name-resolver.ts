@@ -73,6 +73,7 @@ import {
   Expression,
   IdentifierNode,
   InterfaceStatementNode,
+  IntersectionExpressionNode,
   MemberExpressionNode,
   ModelExpressionNode,
   ModelPropertyNode,
@@ -358,6 +359,7 @@ export function createResolver(program: Program): NameResolver {
     switch (baseNode.kind) {
       case SyntaxKind.ModelStatement:
       case SyntaxKind.ModelExpression:
+      case SyntaxKind.IntersectionExpression:
         return resolveModelMember(baseSym, baseNode, id);
       case SyntaxKind.InterfaceStatement:
         return resolveInterfaceMember(baseSym, id);
@@ -374,7 +376,7 @@ export function createResolver(program: Program): NameResolver {
 
   function resolveModelMember(
     modelSym: Sym,
-    modelNode: ModelStatementNode | ModelExpressionNode,
+    modelNode: ModelStatementNode | ModelExpressionNode | IntersectionExpressionNode,
     id: IdentifierNode,
   ): ResolutionResult {
     // step 1: check direct members
@@ -607,6 +609,9 @@ export function createResolver(program: Program): NameResolver {
       case SyntaxKind.ModelExpression:
         bindModelMembers(node);
         return;
+      case SyntaxKind.IntersectionExpression:
+        bindIntersectionMembers(node);
+        return;
       case SyntaxKind.InterfaceStatement:
         bindInterfaceMembers(node);
         return;
@@ -643,6 +648,7 @@ export function createResolver(program: Program): NameResolver {
           );
           getAugmentedSymbolTable(parametersSym.members!).include(
             getAugmentedSymbolTable(sigParameterSym.members!),
+            parametersSym,
           );
           targetTable.set("parameters", parametersSym);
           targetTable.set("returnType", sigTable.get("returnType")!);
@@ -665,7 +671,7 @@ export function createResolver(program: Program): NameResolver {
 
       if (isResult & ResolutionResultFlags.Resolved && isSym!.flags & SymbolFlags.Model) {
         const sourceTable = getAugmentedSymbolTable(isSym!.members!);
-        targetTable.include(sourceTable);
+        targetTable.include(sourceTable, modelSym);
       }
     }
 
@@ -698,7 +704,35 @@ export function createResolver(program: Program): NameResolver {
       }
 
       const sourceTable = getAugmentedSymbolTable(sourceSym.members!);
-      targetTable.include(sourceTable);
+      targetTable.include(sourceTable, modelSym);
+    }
+  }
+
+  function bindIntersectionMembers(node: IntersectionExpressionNode) {
+    const intersectionSym = node.symbol!;
+    const intersectionSymLinks = getSymbolLinks(intersectionSym);
+
+    const targetTable = getAugmentedSymbolTable(intersectionSym.members!);
+
+    // here we just need to include spread properties, since regular properties
+    // were bound by the binder.
+    for (const expr of node.options) {
+      const [sourceSym, sourceResult] = resolveExpression(expr);
+
+      setUnknownMembers(intersectionSymLinks, sourceSym, sourceResult);
+
+      if (~sourceResult & ResolutionResultFlags.Resolved) {
+        continue;
+      }
+      compilerAssert(sourceSym, "Spread symbol must be defined if resolution succeeded");
+
+      if (~sourceSym.flags & SymbolFlags.Model) {
+        // will be a checker error
+        continue;
+      }
+
+      const sourceTable = getAugmentedSymbolTable(sourceSym.members!);
+      targetTable.include(sourceTable, intersectionSym);
     }
   }
 
@@ -733,7 +767,7 @@ export function createResolver(program: Program): NameResolver {
 
       const sourceTable = getAugmentedSymbolTable(extendsSym.members!);
       const targetTable = getAugmentedSymbolTable(ifaceSym.members!);
-      targetTable.include(sourceTable);
+      targetTable.include(sourceTable, ifaceSym);
     }
   }
 
@@ -763,7 +797,7 @@ export function createResolver(program: Program): NameResolver {
       }
 
       const sourceTable = getAugmentedSymbolTable(sourceSym.members!);
-      targetTable.include(sourceTable);
+      targetTable.include(sourceTable, enumSym);
     }
   }
 
@@ -1060,6 +1094,7 @@ export function createResolver(program: Program): NameResolver {
       case SyntaxKind.InterfaceStatement:
       case SyntaxKind.EnumStatement:
       case SyntaxKind.UnionStatement:
+      case SyntaxKind.IntersectionExpression:
         bindMemberContainer(node);
         break;
       case SyntaxKind.OperationStatement:
@@ -1106,12 +1141,28 @@ export function createResolver(program: Program): NameResolver {
 
     // operations
     const operationPrototype: TypePrototype = new Map();
+    // For parameters it is a cloned symbol as all the params are spread
     operationPrototype.set("parameters", (baseSym) => {
       const sym = getAugmentedSymbolTable(baseSym.metatypeMembers!)?.get("parameters");
       return [
         sym,
         sym === undefined ? ResolutionResultFlags.ResolutionFailed : ResolutionResultFlags.Resolved,
       ];
+    });
+    // For returnType we just return the reference so we can just do it dynamically
+    operationPrototype.set("returnType", (baseSym) => {
+      let node = baseSym.declarations[0] as OperationStatementNode;
+      while (node.signature.kind === SyntaxKind.OperationSignatureReference) {
+        const [baseSym, baseResult] = resolveTypeReference(node.signature.baseOperation);
+        if (baseResult & ResolutionResultFlags.Resolved) {
+          node = baseSym!.declarations[0] as OperationStatementNode;
+          continue;
+        }
+
+        return [undefined, baseResult];
+      }
+
+      return resolveExpression(node.signature.returnType);
     });
     nodeInterfaces.set(SyntaxKind.OperationStatement, operationPrototype);
 

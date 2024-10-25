@@ -648,8 +648,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    */
   function checkMemberSym(sym: Sym, mapper: TypeMapper | undefined): Type {
     const symbolLinks = getSymbolLinks(sym);
-    const memberContainer = getTypeForNode(sym.parent!.declarations[0], mapper);
+    const memberContainer = getTypeForNode(getSymNode(sym.parent!), mapper);
     const type = symbolLinks.declaredType ?? symbolLinks.type;
+
     if (type) {
       return type;
     } else {
@@ -2004,8 +2005,17 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     node: IntersectionExpressionNode,
     mapper: TypeMapper | undefined,
   ) {
+    const links = getSymbolLinks(node.symbol);
+
+    if (links.declaredType && mapper === undefined) {
+      // we're not instantiating this model and we've already checked it
+      return links.declaredType as any;
+    }
+
     const options = node.options.map((o): [Expression, Type] => [o, getTypeForNode(o, mapper)]);
-    return mergeModelTypes(node, options, mapper);
+    const type = mergeModelTypes(node.symbol, node, options, mapper);
+    linkType(links, type, mapper);
+    return type;
   }
 
   function checkDecoratorDeclaration(
@@ -2194,11 +2204,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function mergeModelTypes(
-    node:
-      | ModelStatementNode
-      | ModelExpressionNode
-      | IntersectionExpressionNode
-      | ProjectionModelExpressionNode,
+    parentModelSym: Sym | undefined,
+    node: ModelStatementNode | ModelExpressionNode | IntersectionExpressionNode,
     options: [Node, Type][],
     mapper: TypeMapper | undefined,
   ) {
@@ -2259,11 +2266,17 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           continue;
         }
 
-        const newPropType = cloneType(prop, {
+        const memberSym = parentModelSym && getMemberSymbol(parentModelSym, prop.name);
+        const overrides: Partial<ModelProperty> = {
           sourceProperty: prop,
           model: intersection,
-        });
+        };
+        const newPropType = memberSym
+          ? cloneTypeForSymbol(memberSym, prop, overrides)
+          : cloneType(prop, overrides);
         properties.set(prop.name, newPropType);
+        linkIndirectMember(node, newPropType, mapper);
+
         for (const indexer of indexers.filter((x) => x !== option.indexer)) {
           checkPropertyCompatibleWithIndexer(indexer, prop, node);
         }
@@ -2276,6 +2289,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       intersection.indexer = {
         key: indexers[0].key,
         value: mergeModelTypes(
+          undefined,
           node,
           indexers.map((x) => [x.value.node!, x.value]),
           mapper,
@@ -3430,7 +3444,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       reportCheckerDiagnostic(
         createDiagnostic({
           code: "invalid-ref",
-          messageId: "underContainer",
+          messageId: node.selector === "." ? "member" : "metaProperty",
           format: { kind: getMemberKindName(getSymNode(base)), id: node.id.sv },
           target: node,
         }),
@@ -3893,6 +3907,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkModelExpression(node: ModelExpressionNode, mapper: TypeMapper | undefined) {
+    const links = getSymbolLinks(node.symbol);
+
+    if (links.declaredType && mapper === undefined) {
+      // we're not instantiating this model and we've already checked it
+      return links.declaredType as any;
+    }
+
     const properties = createRekeyableMap<string, ModelProperty>();
     const type: Model = createType({
       kind: "Model",
@@ -3905,6 +3926,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       derivedModels: [],
       sourceModels: [],
     });
+    linkType(links, type, mapper);
+
     linkMapper(type, mapper);
     checkModelProperties(node, properties, type, mapper);
     return finishType(type);

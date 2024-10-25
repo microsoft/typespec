@@ -2,7 +2,13 @@
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { Enum, Interface, Model, Operation, Type } from "../../src/core/types.js";
-import { TestHost, createTestHost, expectDiagnostics } from "../../src/testing/index.js";
+import { getDoc } from "../../src/lib/decorators.js";
+import {
+  TestHost,
+  createTestHost,
+  expectDiagnostics,
+  expectTypeEquals,
+} from "../../src/testing/index.js";
 
 describe("compiler: references", () => {
   let testHost: TestHost;
@@ -26,7 +32,7 @@ describe("compiler: references", () => {
         target: any;
       };
       const expectedTarget = resolveTarget ? resolveTarget(target) : target;
-      strictEqual(RefContainer.properties.get("y")!.type, expectedTarget);
+      expectTypeEquals(RefContainer.properties.get("y")!.type, expectedTarget);
     }
     const refCode = `
       @test model RefContainer { y: ${ref} }
@@ -229,7 +235,7 @@ describe("compiler: references", () => {
             a: string;
             b: Foo.a;
           }
-          `
+          `,
         );
 
         const { Foo } = (await testHost.compile("./main.tsp")) as {
@@ -573,8 +579,8 @@ describe("compiler: references", () => {
 
     expectDiagnostics(diagnostics, [
       {
-        code: "unknown-identifier",
-        message: `Unknown identifier NotDefined`,
+        code: "invalid-ref",
+        message: `Cannot resolve NotDefined`,
       },
     ]);
   });
@@ -591,16 +597,37 @@ describe("compiler: references", () => {
         `,
         ref: "Person.address::type.city",
       }));
-    describe("ModelProperty::type that is an intersection", () =>
+
+    describe("ModelProperty::type that is an anonymous model", () =>
       itCanReference({
         code: `
-          model A { @test("target") a: string }
+          model A {  a: string }
           model B { b: string }
           model Person {
-            address: A & B;
+            @test("target") address: { ...A, ...B };
           }
         `,
         ref: "Person.address::type.a",
+        resolveTarget: (prop) => {
+          // Abc
+          return prop.type.properties.get("a");
+        },
+      }));
+
+    describe("ModelProperty::type that is an intersection", () =>
+      itCanReference({
+        code: `
+          model A { a: string }
+          model B { b: string }
+          model Person {
+            @test("target") address: A & B;
+          }
+        `,
+        ref: "Person.address::type.a",
+        resolveTarget: (prop) => {
+          // Abc
+          return prop.type.properties.get("a");
+        },
       }));
     describe("ModelProperty::type that is a type reference", () =>
       itCanReference({
@@ -678,8 +705,8 @@ describe("compiler: references", () => {
       strictEqual(Spread.properties.size, 1);
       ok(Spread.properties.get("name"));
     });
-    /*
-    it.only("works with augments", async () => {
+    // TODO: is this supposed to work
+    it.skip("works with augments", async () => {
       testHost.addTypeSpecFile(
         "main.tsp",
         `
@@ -688,7 +715,7 @@ describe("compiler: references", () => {
 
 
         @@doc(Foo::parameters.a, "Foo's a");
-        `
+        `,
       );
       const { Foo, Bar } = (await testHost.compile("./main.tsp")) as {
         Foo: Operation;
@@ -702,7 +729,6 @@ describe("compiler: references", () => {
       strictEqual(getDoc(testHost.program, Bar.parameters.properties.get("a")!), "Bar's a");
       strictEqual(getDoc(testHost.program, Bar.returnType), "Bar's return type");
     });
-    */
 
     it("works with johan's case", async () => {
       testHost.addTypeSpecFile(
@@ -717,7 +743,7 @@ describe("compiler: references", () => {
         
         @test op azureVersion(... baseVersion::parameters, dataSources: string[]): baseVersion::returnType & { rai: string[] };
         
-        `
+        `,
       );
 
       const { azureVersion } = (await testHost.compile("./main.tsp")) as {

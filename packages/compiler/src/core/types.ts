@@ -1284,6 +1284,7 @@ export type MemberContainerNode =
   | InterfaceStatementNode
   | EnumStatementNode
   | UnionStatementNode
+  | IntersectionExpressionNode
   | ScalarStatementNode;
 
 export type MemberNode =

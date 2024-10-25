@@ -15,6 +15,7 @@ import {
   FunctionDeclarationStatementNode,
   FunctionParameterNode,
   InterfaceStatementNode,
+  IntersectionExpressionNode,
   JsNamespaceDeclarationNode,
   JsSourceFileNode,
   ModelExpressionNode,
@@ -315,6 +316,9 @@ export function createBinder(program: Program): Binder {
       case SyntaxKind.ModelProperty:
         bindModelProperty(node);
         break;
+      case SyntaxKind.IntersectionExpression:
+        bindIntersectionExpression(node);
+        break;
       case SyntaxKind.ScalarStatement:
         bindScalarStatement(node);
         break;
@@ -524,6 +528,10 @@ export function createBinder(program: Program): Binder {
 
   function bindModelProperty(node: ModelPropertyNode) {
     declareMember(node, SymbolFlags.Member, node.id.sv);
+  }
+
+  function bindIntersectionExpression(node: IntersectionExpressionNode) {
+    bindSymbol(node, SymbolFlags.Model);
   }
 
   function bindScalarStatement(node: ScalarStatementNode) {

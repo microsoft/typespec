@@ -321,6 +321,7 @@ const diagnostics = {
       default: paramMessage`Intersection contains duplicate property definitions for ${"propName"}`,
     },
   },
+  // TODO: remove redundent now
   "unknown-identifier": {
     severity: "error",
     messages: {
@@ -345,7 +346,7 @@ const diagnostics = {
       default: paramMessage`Cannot resolve ${"id"}`,
       inDecorator: paramMessage`Cannot resolve ${"id"} in decorator`,
       underNamespace: paramMessage`Namespace ${"namespace"} doesn't have member ${"id"}`,
-      underContainer: paramMessage`${"kind"} doesn't have member ${"id"}`,
+      member: paramMessage`${"kind"} doesn't have member ${"id"}`,
       metaProperty: paramMessage`${"kind"} doesn't have meta property ${"id"}`,
       node: paramMessage`Cannot resolve '${"id"}' in node ${"nodeName"} since it has no members. Did you mean to use "::" instead of "."?`,
     },
