@@ -175,6 +175,16 @@ export function createResolver(program: Program): NameResolver {
       for (const file of program.sourceFiles.values()) {
         bindAndResolveNode(file);
       }
+
+      // Report any duplicate symbol
+      // TODO: do we want this here?
+      program.reportDuplicateSymbols(globalNamespaceSym.exports);
+      for (const file of program.sourceFiles.values()) {
+        for (const ns of file.namespaces) {
+          const exports = mergedSymbols.get(ns.symbol)?.exports ?? ns.symbol.exports;
+          program.reportDuplicateSymbols(exports);
+        }
+      }
     },
 
     getMergedSymbol,
@@ -956,6 +966,7 @@ export function createResolver(program: Program): NameResolver {
         if (targetBinding.flags & SymbolFlags.Namespace) {
           mergedSymbols.set(sourceBinding, targetBinding);
           mutate(targetBinding.declarations).push(...sourceBinding.declarations);
+
           mergeSymbolTable(sourceBinding.exports!, mutate(targetBinding.exports!));
         } else {
           // this will set a duplicate error

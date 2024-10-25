@@ -339,7 +339,6 @@ const TypeInstantiationMap = class
 
 export function createChecker(program: Program, resolver: NameResolver): Checker {
   const stdTypes: Partial<StdTypes> = {};
-  const mergedSymbols = new Map<Sym, Sym>();
   const docFromCommentForSym = new Map<Sym, string>();
   const augmentDecoratorsForSym = new Map<Sym, AugmentDecoratorStatementNode[]>();
   const augmentedSymbolTables = new Map<SymbolTable, SymbolTable>();
@@ -3708,11 +3707,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkProgram() {
-    program.reportDuplicateSymbols(resolver.getGlobalNamespaceSymbol().exports);
     for (const file of program.sourceFiles.values()) {
       for (const ns of file.namespaces) {
-        const exports = mergedSymbols.get(ns.symbol)?.exports ?? ns.symbol.exports;
-        program.reportDuplicateSymbols(exports);
         initializeTypeForNamespace(ns);
       }
     }
