@@ -14,7 +14,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private VariableExpression? _variable;
         private Lazy<ParameterProvider> _parameter;
         public FormattableString? Description { get; }
-        public FieldModifiers Modifiers { get; }
+        public FieldModifiers Modifiers { get; set; }
         public CSharpType Type { get; internal set; }
         public string Name { get; }
         public ValueExpression? InitializationValue { get; }
