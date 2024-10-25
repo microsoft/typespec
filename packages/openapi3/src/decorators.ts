@@ -51,9 +51,11 @@ export function getOneOf(program: Program, entity: Type): boolean {
   return program.stateMap(oneOfKey).get(entity);
 }
 
-const [getTagsMetadata, setTagsMetadata] = unsafe_useStateMap<Type, OpenAPI3Tag[]>(
-  OpenAPI3Keys.tagsMetadata,
-);
+const [getTagsMetadata, setTagsMetadata] = unsafe_useStateMap<
+  Type,
+  { [name: string]: OpenAPI3Tag }
+>(OpenAPI3Keys.tagsMetadata);
+
 export const $tagMetadata: TagMetadataDecorator = (
   context: DecoratorContext,
   entity: Namespace,
@@ -61,17 +63,13 @@ export const $tagMetadata: TagMetadataDecorator = (
   tagMetadata?: TypeSpecValue,
 ) => {
   const tags = getTagsMetadata(context.program, entity);
-  if (tags) {
-    const tagNamesSet = new Set(tags.map((t) => t.name));
-    if (tagNamesSet.has(name)) {
-      reportDiagnostic(context.program, {
-        code: "duplicate-tag",
-        format: { tagName: name },
-        target: context.getArgumentTarget(0)!,
-      });
-    }
+  if (tags && tags[name]) {
+    reportDiagnostic(context.program, {
+      code: "duplicate-tag",
+      format: { tagName: name },
+      target: context.getArgumentTarget(0)!,
+    });
   }
-
   let metadata: OpenAPI3Tag = { name };
   if (tagMetadata) {
     const [data, diagnostics] = typespecTypeToJson<OpenAPI3Tag & Record<ExtensionKey, unknown>>(
@@ -86,11 +84,8 @@ export const $tagMetadata: TagMetadataDecorator = (
     metadata = { ...data, name };
   }
 
-  if (tags) {
-    tags.push(metadata);
-  } else {
-    setTagsMetadata(context.program, entity, [metadata]);
-  }
+  const newTags = { ...tags, [name]: metadata };
+  setTagsMetadata(context.program, entity, newTags);
 };
 
 export { getTagsMetadata };

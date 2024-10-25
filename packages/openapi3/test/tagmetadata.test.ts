@@ -139,17 +139,8 @@ it("set the tagMetadata with @tagMetadata", async () => {
     `,
   );
 
-  deepStrictEqual(getTagsMetadata(runner.program, PetStore), [
-    {
-      name: "tagName2",
-      description: "Pets operations",
-      externalDocs: {
-        url: "https://example.com",
-        description: "More info.",
-      },
-      "x-custom": "string",
-    },
-    {
+  deepStrictEqual(getTagsMetadata(runner.program, PetStore), {
+    tagName1: {
       name: "tagName1",
       description: "Pets operations",
       externalDocs: {
@@ -158,7 +149,17 @@ it("set the tagMetadata with @tagMetadata", async () => {
         "x-custom": "string",
       },
     },
-  ]);
+
+    tagName2: {
+      name: "tagName2",
+      description: "Pets operations",
+      externalDocs: {
+        url: "https://example.com",
+        description: "More info.",
+      },
+      "x-custom": "string",
+    },
+  });
 });
 
 it.each([
