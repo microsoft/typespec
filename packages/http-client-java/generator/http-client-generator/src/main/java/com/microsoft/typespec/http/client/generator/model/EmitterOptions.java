@@ -30,7 +30,7 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
     private String customizationClass;
     private Boolean includeApiViewProperties = true;
 
-    private Boolean useObjectForUnknown = false;
+    private Boolean useObjectForUnknown = true;
     private Map<String, JavaSettings.PollingDetails> polling = new HashMap<>();
     private Boolean arm = false;
     private String modelsSubpackage;
