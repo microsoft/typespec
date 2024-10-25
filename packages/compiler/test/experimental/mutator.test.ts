@@ -84,24 +84,24 @@ it("removes model reference from namespace", async () => {
   };
   `;
 
-const { Foo } = (await runner.compile(code)) as { Foo: Namespace, Bar: Model, Baz: Model };
-const mutator: Mutator = {
-  name: "test",
-  Namespace: {
-    mutate: (ns, clone, p, realm) => {
-      clone.models.delete("Bar");
-    }
-  },
-};
+  const { Foo } = (await runner.compile(code)) as { Foo: Namespace; Bar: Model; Baz: Model };
+  const mutator: Mutator = {
+    name: "test",
+    Namespace: {
+      mutate: (ns, clone, p, realm) => {
+        clone.models.delete("Bar");
+      },
+    },
+  };
 
-const {type} = mutateSubgraph(runner.program, [mutator], Foo);
+  const { type } = mutateSubgraph(runner.program, [mutator], Foo);
 
-const mutatedNs = type as Namespace;
+  const mutatedNs = type as Namespace;
 
-//Original namespace should have Bar model
-expect(Foo.models.has("Bar")).toBeTruthy();
-// Mutated namespace should not have Bar model
-expect(mutatedNs.models.has( "Bar")).toBeFalsy();
+  //Original namespace should have Bar model
+  expect(Foo.models.has("Bar")).toBeTruthy();
+  // Mutated namespace should not have Bar model
+  expect(mutatedNs.models.has("Bar")).toBeFalsy();
 });
 
 it("do not recurse the model", async () => {
