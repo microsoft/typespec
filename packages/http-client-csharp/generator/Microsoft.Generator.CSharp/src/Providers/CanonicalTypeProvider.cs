@@ -57,15 +57,16 @@ namespace Microsoft.Generator.CSharp.Providers
             }
 
             Dictionary<InputModelProperty, PropertyProvider> specToCustomPropertiesMap = BuildSpecToCustomPropertyMap(customProperties);
+            HashSet<string> renamedProperties = customProperties.Where(p => p.OriginalName != null).Select(p => p.OriginalName!).ToHashSet();
 
             foreach (var customProperty in customProperties)
             {
                 InputModelProperty? specProperty = null;
 
-                if (((customProperty.OriginalName != null && _specPropertiesMap.TryGetValue(customProperty.OriginalName, out var candidateSpecProperty))
-                     || _specPropertiesMap.TryGetValue(customProperty.Name, out candidateSpecProperty))
-                    // Ensure that the spec property is mapped to this custom property
-                    && specToCustomPropertiesMap.TryGetValue(candidateSpecProperty, out var mappedProperty) && mappedProperty == customProperty)
+                if ((customProperty.OriginalName != null && _specPropertiesMap.TryGetValue(customProperty.OriginalName, out var candidateSpecProperty))
+                    || (_specPropertiesMap.TryGetValue(customProperty.Name, out candidateSpecProperty) && !renamedProperties.Contains(customProperty.Name))
+                   // Ensure that the spec property is mapped to this custom property
+                   && specToCustomPropertiesMap.TryGetValue(candidateSpecProperty, out var mappedProperty) && mappedProperty == customProperty)
                 {
                     specProperty = candidateSpecProperty;
                     customProperty.IsDiscriminator = specProperty.IsDiscriminator;
@@ -123,12 +124,14 @@ namespace Microsoft.Generator.CSharp.Providers
                 }
             }
 
+            HashSet<string> renamedProperties = customFields.Where(p => p.OriginalName != null).Select(p => p.OriginalName!).ToHashSet();
+
             foreach (var customField in customFields)
             {
                 InputModelProperty? specProperty = null;
 
                 if (((customField.OriginalName != null && _specPropertiesMap.TryGetValue(customField.OriginalName, out var candidateSpecProperty))
-                     || _specPropertiesMap.TryGetValue(customField.Name, out candidateSpecProperty))
+                     || (_specPropertiesMap.TryGetValue(customField.Name, out candidateSpecProperty) && !renamedProperties.Contains(customField.Name)))
                     // Ensure that the spec property is mapped to this custom property
                     && _specToCustomFieldMap[candidateSpecProperty] == customField)
                 {
