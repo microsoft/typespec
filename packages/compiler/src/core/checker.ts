@@ -1,6 +1,6 @@
 import { docFromCommentDecorator, getIndexer } from "../lib/intrinsic-decorators.js";
 import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
-import { createSymbol, createSymbolTable } from "./binder.js";
+import { createSymbol } from "./binder.js";
 import { createChangeIdentifierCodeFix } from "./compiler-code-fixes/change-identifier.codefix.js";
 import { createModelToObjectValueCodeFix } from "./compiler-code-fixes/model-to-object-literal.codefix.js";
 import { createTupleToArrayValueCodeFix } from "./compiler-code-fixes/tuple-to-array-value.codefix.js";
@@ -102,7 +102,6 @@ import {
   NamespaceStatementNode,
   NeverType,
   Node,
-  NodeFlags,
   NullType,
   NullValue,
   NumericLiteral,
@@ -341,7 +340,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   const stdTypes: Partial<StdTypes> = {};
   const docFromCommentForSym = new Map<Sym, string>();
   const augmentDecoratorsForSym = new Map<Sym, AugmentDecoratorStatementNode[]>();
-  const augmentedSymbolTables = new Map<SymbolTable, SymbolTable>();
   const referenceSymCache = new WeakMap<
     TypeReferenceNode | MemberExpressionNode | IdentifierNode,
     Sym | undefined
@@ -399,9 +397,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   const typespecNamespaceBinding = resolver.getGlobalNamespaceSymbol().exports!.get("TypeSpec");
   if (typespecNamespaceBinding) {
     initializeTypeSpecIntrinsics();
-    for (const file of program.sourceFiles.values()) {
-      addUsingSymbols(typespecNamespaceBinding.exports!, file.locals);
-    }
   }
 
   let evalContext: EvalContext | undefined = undefined;
@@ -499,37 +494,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     resolver.bindAndResolveNode(file);
   }
 
-  function setUsingsForFile(file: TypeSpecScriptNode) {
-    const usedUsing = new Set<Sym>();
-
-    for (const using of file.usings) {
-      const parentNs = using.parent!;
-      const sym = resolveTypeReferenceSym(using.name, undefined);
-      if (!sym) {
-        continue;
-      }
-
-      if (!(sym.flags & SymbolFlags.Namespace)) {
-        reportCheckerDiagnostic(createDiagnostic({ code: "using-invalid-ref", target: using }));
-        continue;
-      }
-
-      const namespaceSym = getMergedSymbol(sym)!;
-
-      if (usedUsing.has(namespaceSym)) {
-        reportCheckerDiagnostic(
-          createDiagnostic({
-            code: "duplicate-using",
-            format: { usingName: memberExpressionToString(using.name) },
-            target: using,
-          }),
-        );
-        continue;
-      }
-      usedUsing.add(namespaceSym);
-      addUsingSymbols(sym.exports!, parentNs.locals!);
-    }
-  }
+  function setUsingsForFile(file: TypeSpecScriptNode) {}
 
   function applyAugmentDecorators(node: TypeSpecScriptNode | NamespaceStatementNode) {
     if (!node.statements || !isArray(node.statements)) {
@@ -588,20 +553,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           list.unshift(decNode);
         }
       }
-    }
-  }
-
-  function addUsingSymbols(source: SymbolTable, destination: SymbolTable): void {
-    const augmented = getOrCreateAugmentedSymbolTable(destination);
-    for (const symbolSource of source.values()) {
-      const sym: Sym = {
-        flags: SymbolFlags.Using,
-        declarations: [],
-        name: symbolSource.name,
-        symbolSource: symbolSource,
-        node: undefined as any, // TODO: is it ok?
-      };
-      augmented.set(sym.name, sym);
     }
   }
 
@@ -2650,129 +2601,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return resolver.getSymbolLinks(s);
   }
 
-  function resolveIdentifierInTable(
-    node: IdentifierNode,
-    table: SymbolTable | undefined,
-    options: SymbolResolutionOptions,
-  ): Sym | undefined {
-    if (!table) {
-      return undefined;
-    }
-    table = augmentedSymbolTables.get(table) ?? table;
-    let sym;
-    if (options.resolveDecorators) {
-      sym = table.get("@" + node.sv);
-    } else {
-      sym = table.get(node.sv);
-    }
-
-    if (!sym) return sym;
-
-    if (sym.flags & SymbolFlags.DuplicateUsing) {
-      reportAmbiguousIdentifier(node, [...((table.duplicates.get(sym) as any) ?? [])]);
-      return sym;
-    }
-    return getMergedSymbol(sym);
-  }
-
-  function reportAmbiguousIdentifier(node: IdentifierNode, symbols: Sym[]) {
-    const duplicateNames = symbols.map((s) =>
-      getFullyQualifiedSymbolName(s, { useGlobalPrefixAtTopLevel: true }),
-    );
-    reportCheckerDiagnostic(
-      createDiagnostic({
-        code: "ambiguous-symbol",
-        format: { name: node.sv, duplicateNames: duplicateNames.join(", ") },
-        target: node,
-      }),
-    );
-  }
-
   function resolveIdentifier(id: IdentifierNode, mapper?: TypeMapper): Sym | undefined {
-    let sym: Sym | undefined;
-    const { node, kind } = getIdentifierContext(id);
-
-    switch (kind) {
-      case IdentifierKind.ModelExpressionProperty:
-      case IdentifierKind.ObjectLiteralProperty:
-        const model = getReferencedModel(node as ModelPropertyNode | ObjectLiteralPropertyNode);
-        if (model) {
-          sym = getMemberSymbol(model.node!.symbol, id.sv);
-        } else {
-          return undefined;
-        }
-        break;
-      case IdentifierKind.ModelStatementProperty:
-      case IdentifierKind.Declaration:
-        if (node.symbol && (!isTemplatedNode(node) || mapper === undefined)) {
-          sym = getMergedSymbol(node.symbol);
-          break;
-        }
-
-        compilerAssert(node.parent, "Parent expected.");
-        const containerType = getTypeOrValueForNode(node.parent, mapper);
-        if (containerType === null || isValue(containerType)) {
-          return undefined;
-        }
-        if (isAnonymous(containerType)) {
-          return undefined; // member of anonymous type cannot be referenced.
-        }
-
-        lateBindMemberContainer(containerType);
-        let container = node.parent.symbol;
-        if (!container && "symbol" in containerType && containerType.symbol) {
-          container = containerType.symbol;
-        }
-
-        if (!container) {
-          return undefined;
-        }
-
-        sym = resolveIdentifierInTable(
-          id,
-          container.exports ?? container.members,
-          defaultSymbolResolutionOptions,
-        );
-        break;
-      case IdentifierKind.Other:
-        return undefined;
-
-      case IdentifierKind.Decorator:
-      case IdentifierKind.Function:
-      case IdentifierKind.Using:
-      case IdentifierKind.TypeReference:
-        let ref: MemberExpressionNode | IdentifierNode = id;
-        let resolveDecorator = kind === IdentifierKind.Decorator;
-        if (id.parent?.kind === SyntaxKind.MemberExpression) {
-          if (id.parent.id === id) {
-            // If the identifier is Y in X.Y, then resolve (X.Y).
-            ref = id.parent;
-          } else {
-            // If the identifier is X in X.Y then we are resolving a
-            // namespace, which is never a decorator.
-            resolveDecorator = false;
-          }
-        }
-        sym = resolveTypeReferenceSym(ref, mapper, resolveDecorator);
-        break;
-      case IdentifierKind.TemplateArgument:
-        const templates = getTemplateDeclarationsForArgument(node as TemplateArgumentNode, mapper);
-
-        const firstMatchingParameter = templates
-          .flatMap((t) => t.templateParameters)
-          .find((p) => p.id.sv === id.sv);
-
-        if (firstMatchingParameter) {
-          sym = getMergedSymbol(firstMatchingParameter.symbol);
-        }
-
-        break;
-      default:
-        const _assertNever: never = kind;
-        compilerAssert(false, "Unreachable");
-    }
-
-    return sym?.symbolSource ?? sym;
+    return resolver.getNodeLinks(id).resolvedSymbol;
   }
 
   function getTemplateDeclarationsForArgument(
@@ -3102,7 +2932,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         }
       }
     } else if (identifier.parent && identifier.parent.kind === SyntaxKind.MemberExpression) {
-      let base = resolveTypeReferenceSym(identifier.parent.base, undefined, false);
+      let base = resolver.getNodeLinks(identifier.parent.base).resolvedSymbol;
       if (base) {
         if (base.flags & SymbolFlags.Alias) {
           base = getAliasedSymbol(base, undefined, defaultSymbolResolutionOptions);
@@ -3166,7 +2996,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         return;
       }
 
-      table = augmentedSymbolTables.get(table) ?? table;
+      table = resolver.getAugmentedSymbolTable(table);
       for (const [key, sym] of table) {
         if (sym.flags & SymbolFlags.DuplicateUsing) {
           const duplicates = table.duplicates.get(sym)!;
@@ -3218,82 +3048,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           compilerAssert(false, "We should have bailed up-front on other kinds.");
       }
     }
-  }
-
-  function resolveIdentifierInScope(
-    node: IdentifierNode,
-    mapper: TypeMapper | undefined,
-    options: SymbolResolutionOptions,
-  ): Sym | undefined {
-    compilerAssert(
-      node.parent?.kind !== SyntaxKind.MemberExpression || node.parent.id !== node,
-      "This function should not be used to resolve Y in member expression X.Y. Use resolveIdentifier() to resolve an arbitrary identifier.",
-    );
-
-    if (hasParseError(node)) {
-      // Don't report synthetic identifiers used for parser error recovery.
-      // The parse error is the root cause and will already have been logged.
-      return undefined;
-    }
-
-    let scope: Node | undefined = node.parent;
-    let binding: Sym | undefined;
-
-    while (scope && scope.kind !== SyntaxKind.TypeSpecScript) {
-      if (scope.symbol && "exports" in scope.symbol) {
-        const mergedSymbol = getMergedSymbol(scope.symbol);
-        binding = resolveIdentifierInTable(node, mergedSymbol.exports, options);
-        if (binding) return binding;
-      }
-
-      if ("locals" in scope) {
-        binding = resolveIdentifierInTable(node, scope.locals, options);
-        if (binding) return binding;
-      }
-
-      scope = scope.parent;
-    }
-
-    if (!binding && scope && scope.kind === SyntaxKind.TypeSpecScript) {
-      // check any blockless namespace decls
-      for (const ns of scope.inScopeNamespaces) {
-        const mergedSymbol = getMergedSymbol(ns.symbol);
-        binding = resolveIdentifierInTable(node, mergedSymbol.exports, options);
-
-        if (binding) return binding;
-      }
-
-      // check "global scope" declarations
-      const globalBinding = resolveIdentifierInTable(
-        node,
-        resolver.getGlobalNamespaceSymbol().exports,
-        options,
-      );
-
-      // check using types
-      const usingBinding = resolveIdentifierInTable(node, scope.locals, options);
-
-      if (globalBinding && usingBinding) {
-        reportAmbiguousIdentifier(node, [globalBinding, usingBinding]);
-        return globalBinding;
-      } else if (globalBinding) {
-        return globalBinding;
-      } else if (usingBinding) {
-        return usingBinding.flags & SymbolFlags.DuplicateUsing ? undefined : usingBinding;
-      }
-    }
-
-    if (mapper === undefined) {
-      reportCheckerDiagnostic(
-        createDiagnostic({
-          code: "unknown-identifier",
-          format: { id: node.sv },
-          target: node,
-          codefixes: getCodefixesForUnknownIdentifier(node),
-        }),
-      );
-    }
-    return undefined;
   }
 
   function getCodefixesForUnknownIdentifier(node: IdentifierNode): CodeFix[] | undefined {
@@ -6123,32 +5877,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return resolver.getMergedSymbol(sym);
   }
 
-  function createGlobalNamespaceNode(): NamespaceStatementNode {
-    const nsId: IdentifierNode = {
-      kind: SyntaxKind.Identifier,
-      pos: 0,
-      end: 0,
-      sv: "global",
-      symbol: undefined!,
-      flags: NodeFlags.Synthetic,
-    };
-
-    const nsNode: NamespaceStatementNode = {
-      kind: SyntaxKind.NamespaceStatement,
-      decorators: [],
-      pos: 0,
-      end: 0,
-      id: nsId,
-      symbol: undefined!,
-      locals: createSymbolTable(),
-      flags: NodeFlags.Synthetic,
-    };
-
-    mutate(nsNode).symbol = createSymbol(nsNode, nsId.sv, SymbolFlags.Namespace);
-    mutate(nsNode.symbol.exports).set(nsId.sv, nsNode.symbol);
-    return nsNode;
-  }
-
   function createGlobalNamespaceType(): Namespace {
     const type: Namespace = createAndFinishType({
       kind: "Namespace",
@@ -7031,20 +6759,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     );
   }
 
-  function memberExpressionToString(expr: IdentifierNode | MemberExpressionNode) {
-    let current = expr;
-    const parts = [];
-
-    while (current.kind === SyntaxKind.MemberExpression) {
-      parts.push(current.id.sv);
-      current = current.base;
-    }
-
-    parts.push(current.sv);
-
-    return parts.reverse().join(".");
-  }
-
   /**
    * Check if the source type can be assigned to the target type and emit diagnostics
    * @param source Type of a value
@@ -7128,10 +6842,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function getValueExactType(value: Value): Type | undefined {
     return valueExactTypes.get(value);
   }
-}
-
-function isAnonymous(type: Type) {
-  return !("name" in type) || typeof type.name !== "string" || !type.name;
 }
 
 /**
