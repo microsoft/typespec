@@ -891,6 +891,10 @@ export interface NodeLinks {
   /** the result of resolving this reference node */
   resolvedSymbol?: Sym;
 
+  // TODO: check if we need/change + add docs
+  /** In the case where the resolution resolve to an alias. This is the alias symbol. */
+  nextSymbol?: Sym;
+
   /**
    * The result of resolution of this reference node.
    *
@@ -898,6 +902,8 @@ export interface NodeLinks {
    **/
   resolutionResult?: ResolutionResultFlags;
 }
+
+export type ResolutionResult = [sym: Sym | undefined, result: ResolutionResultFlags, nextSym?: Sym];
 
 export enum ResolutionResultFlags {
   None = 0,
@@ -908,8 +914,6 @@ export enum ResolutionResultFlags {
 
   ResolutionFailed = Unknown | Ambiguous | NotFound,
 }
-
-export type ResolutionResult = [sym: Sym | undefined, result: ResolutionResultFlags];
 
 /**
  * @hidden bug in typedoc

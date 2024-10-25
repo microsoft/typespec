@@ -6,7 +6,6 @@ import { createModelToObjectValueCodeFix } from "./compiler-code-fixes/model-to-
 import { createTupleToArrayValueCodeFix } from "./compiler-code-fixes/tuple-to-array-value.codefix.js";
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
 import { ProjectionError, compilerAssert, ignoreDiagnostics } from "./diagnostics.js";
-import { printNodeInfo } from "./helpers/debug.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
 import { getLocationContext } from "./helpers/location-context.js";
 import { explainStringTemplateNotSerializable } from "./helpers/string-template-utils.js";
@@ -2587,12 +2586,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       pendingResolutions.start(opSymId, ResolutionKind.BaseType);
     }
 
-    if (operation.id.sv === "b") {
-      console.log("Will check op ref", printNodeInfo(opReference));
-    }
     const target = resolveTypeReferenceSym(opReference, mapper);
-
-    console.log("Got", target?.id);
 
     if (target === undefined) {
       return undefined;
@@ -3338,72 +3332,59 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       // The parse error is the root cause and will already have been logged.
       return undefined;
     }
+    if (node.kind === SyntaxKind.TypeReference) {
+      return resolveTypeReferenceSym(node.target, mapper, options);
+    } else if (node.kind === SyntaxKind.Identifier) {
+      const links = resolver.getNodeLinks(node);
+      if (
+        mapper === undefined && // do not report error when instantiating
+        (links.resolutionResult === undefined ||
+          links.resolutionResult & ResolutionResultFlags.ResolutionFailed)
+      ) {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "invalid-ref",
+            format: { id: printTypeReferenceNode(node) },
+            target: node,
+          }),
+        );
+      }
 
-    const links = resolver.getNodeLinks(node);
-    const sym = links.resolvedSymbol;
+      const sym = links.nextSymbol ?? links.resolvedSymbol;
+      return sym?.symbolSource ?? sym;
+    } else if (node.kind === SyntaxKind.MemberExpression) {
+      let base = resolveTypeReferenceSym(node.base, mapper);
 
-    if (
-      mapper === undefined && // do not report error when instantiating
-      (links.resolutionResult === undefined ||
-        links.resolutionResult & ResolutionResultFlags.ResolutionFailed)
-    ) {
-      reportCheckerDiagnostic(
-        createDiagnostic({
-          code: "invalid-ref",
-          format: { id: printTypeReferenceNode(node) },
-          target: node,
-        }),
-      );
+      if (!base) {
+        return undefined;
+      }
+
+      // when resolving a type reference based on an alias, unwrap the alias.
+      if (base.flags & SymbolFlags.Alias) {
+        const aliasedSym = getAliasedSymbol(base, mapper, options);
+        if (!aliasedSym) {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "invalid-ref",
+              messageId: "node",
+              format: {
+                id: node.id.sv,
+                nodeName: base.declarations[0]
+                  ? SyntaxKind[base.declarations[0].kind]
+                  : "Unknown node",
+              },
+              target: node,
+            }),
+          );
+          return undefined;
+        }
+        base = aliasedSym;
+      }
+      const [sym, _result, nextSym] = resolver.resolveMemberExpressionForSym(base, node);
+      return nextSym ?? sym;
     }
-    return sym?.symbolSource ?? sym;
 
-    // if (node.kind === SyntaxKind.TypeReference) {
-    //   return resolveTypeReferenceSym(node.target, mapper, options);
-    // }
-
-    // if (node.kind === SyntaxKind.MemberExpression) {
-    //   let base = resolveTypeReferenceSym(node.base, mapper);
-    //   if (!base) {
-    //     return undefined;
-    //   }
-
-    //   // when resolving a type reference based on an alias, unwrap the alias.
-    //   if (base.flags & SymbolFlags.Alias) {
-    //     const aliasedSym = getAliasedSymbol(base, mapper, options);
-    //     if (!aliasedSym) {
-    //       reportCheckerDiagnostic(
-    //         createDiagnostic({
-    //           code: "invalid-ref",
-    //           messageId: "node",
-    //           format: {
-    //             id: node.id.sv,
-    //             nodeName: base.declarations[0]
-    //               ? SyntaxKind[base.declarations[0].kind]
-    //               : "Unknown node",
-    //           },
-    //           target: node,
-    //         }),
-    //       );
-    //       return undefined;
-    //     }
-    //     base = aliasedSym;
-    //   }
-
-    //   if (node.selector === ".") {
-    //     return resolveMemberInContainer(node, base, mapper, options);
-    //   } else {
-    //     return resolveMetaProperty(node, base, mapper);
-    //   }
-    // }
-
-    // if (node.kind === SyntaxKind.Identifier) {
-    //   const sym = resolveIdentifierInScope(node, mapper, options);
-    //   if (!sym) return undefined;
-
-    //   return sym.flags & SymbolFlags.Using ? sym.symbolSource : sym;
-    // }
-
-    // compilerAssert(false, `Unknown type reference kind "${SyntaxKind[(node as any).kind]}"`, node);
+    compilerAssert(false, `Unknown type reference kind "${SyntaxKind[(node as any).kind]}"`, node);
   }
 
   function resolveMemberInContainer(
@@ -3457,7 +3438,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           createDiagnostic({
             code: "invalid-ref",
             messageId: "underContainer",
-            format: { kind: getMemberKindName(base.declarations[0]), id: node.id.sv },
+            format: { kind: getMemberKindName(getSymNode(base)), id: node.id.sv },
             target: node,
           }),
         );
@@ -3465,13 +3446,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
       return sym;
     } else {
+      const symNode = getSymNode(base);
       reportCheckerDiagnostic(
         createDiagnostic({
           code: "invalid-ref",
           messageId: "node",
           format: {
             id: node.id.sv,
-            nodeName: base.declarations[0] ? SyntaxKind[base.declarations[0].kind] : "Unknown node",
+            nodeName: symNode ? SyntaxKind[symNode.kind] : "Unknown node",
           },
           target: node,
         }),
@@ -4689,7 +4671,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         );
         if (isTemplateInstance(type) && type.name === "Foo") {
           getSymbolLinks(type.symbol);
-          console.log("Late bind container", type.name, type.symbol.id);
         }
         mutate(type.symbol).type = type;
         break;
@@ -4701,9 +4682,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
   }
   function lateBindMembers(type: Interface | Model | Union | Enum | Scalar) {
-    if (isTemplateInstance(type) && type.name === "Foo") {
-      console.log("Late bind", type.name);
-    }
     compilerAssert(type.symbol, "Type must have a symbol to late bind members");
     const containerSym = type.symbol;
     compilerAssert(containerSym.members, "Container symbol didn't have members at late-bind");
@@ -5619,7 +5597,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     pendingResolutions.start(aliasSymId, ResolutionKind.Type);
     const type = checkNode(node.value, mapper);
-    console.log("GOt alias", (type as any)?.symbol?.id);
     if (type === null) {
       links.declaredType = errorType;
       return errorType;

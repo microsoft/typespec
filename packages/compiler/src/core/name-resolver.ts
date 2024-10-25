@@ -107,11 +107,16 @@ export interface NameResolver {
   getGlobalNamespaceSymbol(): Sym;
 
   // TODO: do we need this one, should that be the signature.
+  resolveMemberExpressionForSym(sym: Sym, node: MemberExpressionNode): ResolutionResult;
   resolveMetaMemberByName(sym: Sym, name: string): ResolutionResult;
 
   readonly intrinsicSymbols: {
     readonly null: Sym;
   };
+}
+
+interface ResolveTypReferenceOptions {
+  resolveDecorators?: boolean;
 }
 
 export function createResolver(program: Program): NameResolver {
@@ -176,6 +181,7 @@ export function createResolver(program: Program): NameResolver {
     getGlobalNamespaceSymbol() {
       return globalNamespaceSym;
     },
+    resolveMemberExpressionForSym,
     resolveMetaMemberByName,
   };
 
@@ -230,9 +236,6 @@ export function createResolver(program: Program): NameResolver {
     return s.id!;
   }
 
-  interface ResolveTypReferenceOptions {
-    resolveDecorators?: boolean;
-  }
   function resolveTypeReference(
     node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
     options: ResolveTypReferenceOptions = {},
@@ -244,17 +247,22 @@ export function createResolver(program: Program): NameResolver {
 
     let result = resolveTypeReferenceWorker(node, options);
 
-    const [resolvedSym, resolvedSymResult] = result;
+    const [resolvedSym, resolvedSymResult, nextSym] = result;
 
     if (resolvedSym) {
       links.resolvedSymbol = resolvedSym;
+    }
+    if (nextSym) {
+      links.nextSymbol = nextSym;
     }
     links.resolutionResult = resolvedSymResult;
 
     if (resolvedSym && resolvedSym.flags & SymbolFlags.Alias) {
       // unwrap aliases
       const aliasNode = resolvedSym.declarations[0];
-      result = resolveAlias(aliasNode as AliasStatementNode);
+      links.nextSymbol = resolvedSym;
+      const [resolveAliasSym, resolveAliasResult] = resolveAlias(aliasNode as AliasStatementNode);
+      result = [resolveAliasSym, resolveAliasResult, resolvedSym];
     } else if (resolvedSym && resolvedSym.flags & SymbolFlags.TemplateParameter) {
       // references to template parameters with constraints can reference the
       // constraint type members
@@ -301,7 +309,13 @@ export function createResolver(program: Program): NameResolver {
     }
 
     compilerAssert(baseSym, "Base symbol must be defined if resolution did not fail");
+    return resolveMemberExpressionForSym(baseSym, node);
+  }
 
+  function resolveMemberExpressionForSym(
+    baseSym: Sym,
+    node: MemberExpressionNode,
+  ): ResolutionResult {
     if (node.selector === ".") {
       if (baseSym.flags & SymbolFlags.MemberContainer) {
         return resolveMember(baseSym, node.id);
@@ -438,7 +452,6 @@ export function createResolver(program: Program): NameResolver {
 
     if (node.value.kind === SyntaxKind.TypeReference) {
       const result = resolveTypeReference(node.value);
-
       if (result[0] && result[0].flags & SymbolFlags.Alias) {
         const aliasLinks = getSymbolLinks(result[0]);
         slinks.aliasedSymbol = aliasLinks.aliasedSymbol ? aliasLinks.aliasedSymbol : result[0];
@@ -503,6 +516,7 @@ export function createResolver(program: Program): NameResolver {
   function resolveMetaMember(baseSym: Sym, id: IdentifierNode): ResolutionResult {
     return resolveMetaMemberByName(baseSym, id.sv);
   }
+
   function resolveMetaMemberByName(baseSym: Sym, sv: string): ResolutionResult {
     const baseNode = getSymNode(baseSym);
 
