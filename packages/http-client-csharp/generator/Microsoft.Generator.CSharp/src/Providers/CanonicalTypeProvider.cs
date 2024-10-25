@@ -103,7 +103,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     }
                 }
 
-                customProperty.Type = EnsureType(specProperty, customProperty.Type);
+                customProperty.Type = EnsureCorrectTypeRepresentation(specProperty, customProperty.Type);
             }
 
             return [..generatedProperties, ..customProperties];
@@ -167,7 +167,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     }
                 }
 
-                customField.Type = EnsureType(specProperty, customField.Type);
+                customField.Type = EnsureCorrectTypeRepresentation(specProperty, customField.Type);
             }
 
             return [..generatedFields, ..customFields];
@@ -193,15 +193,11 @@ namespace Microsoft.Generator.CSharp.Providers
             return false;
         }
 
-        /// <summary>
-        /// Handles collection types, enums, and literal types
-        /// and ensures that the types are correctly represented using the info from the spec property.
-        /// </summary>
-        private static CSharpType EnsureType(InputModelProperty? specProperty, CSharpType customType)
+        private static CSharpType EnsureCorrectTypeRepresentation(InputModelProperty? specProperty, CSharpType customType)
         {
             if (customType.IsCollection)
             {
-                var elementType = EnsureType(specProperty, customType.ElementType);
+                var elementType = EnsureCorrectTypeRepresentation(specProperty, customType.ElementType);
                 if (customType.IsList)
                 {
                     customType = new CSharpType(customType.FrameworkType, [elementType], customType.IsNullable);
@@ -212,7 +208,9 @@ namespace Microsoft.Generator.CSharp.Providers
                 }
             }
 
+            // handle customized enums - we need to pull the type information from the spec property
             customType = EnsureEnum(specProperty, customType);
+            // ensure literal types are correctly represented in the custom field using the info from the spec property
             return EnsureLiteral(specProperty, customType);
         }
 
