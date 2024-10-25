@@ -158,9 +158,11 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
       await pyodide.runPythonAsync(python, { globals });
     }
   } else {
-    await runPython3("./eng/scripts/setup/install.py");
-    await runPython3("./eng/scripts/setup/prepare.py");
     let venvPath = path.join(root, "venv");
+    if (!fs.existsSync(path.join(venvPath))) {
+      await runPython3("./eng/scripts/setup/install.py");
+      await runPython3("./eng/scripts/setup/prepare.py");
+    }
     if (fs.existsSync(path.join(venvPath, "bin"))) {
       venvPath = path.join(venvPath, "bin", "python");
     } else if (fs.existsSync(path.join(venvPath, "Scripts"))) {
