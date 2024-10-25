@@ -71,9 +71,14 @@ const SymbolTable = class extends Map<string, Sym> implements MutableSymbolTable
   // First set for a given key wins, but record all duplicates for diagnostics.
   set(key: string, value: Sym) {
     const existing = super.get(key);
+
     if (existing === undefined) {
       super.set(key, value);
     } else {
+      // TODO: this was removed from the binder explicitly, figure out why?
+      if (existing.flags & SymbolFlags.Using) {
+        mutate(existing).flags |= SymbolFlags.DuplicateUsing;
+      }
       const duplicateArray = this.duplicates.get(existing);
       if (duplicateArray) {
         duplicateArray.add(value);

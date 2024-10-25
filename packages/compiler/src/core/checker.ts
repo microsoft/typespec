@@ -191,13 +191,16 @@ export interface Checker {
   typePrototype: TypePrototype;
 
   getTypeForNode(node: Node): Type;
+
+  // TODO: decide if we expose resolver and deprecate those marked with @internal @deprecated
+  /** @internal @deprecated */
   setUsingsForFile(file: TypeSpecScriptNode): void;
   checkProgram(): void;
   checkSourceFile(file: TypeSpecScriptNode): void;
   getGlobalNamespaceType(): Namespace;
   /** @internal @deprecated */
   getGlobalNamespaceNode(): NamespaceStatementNode;
-  // TODO: decide if we expose resolver and deprecate those
+  /** @internal @deprecated */
   getMergedSymbol(sym: Sym | undefined): Sym | undefined;
 
   /** @internal @deprecated */
@@ -402,9 +405,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
   }
 
-  for (const file of program.sourceFiles.values()) {
-    setUsingsForFile(file);
-  }
   let evalContext: EvalContext | undefined = undefined;
 
   const checker: Checker = {
@@ -3330,18 +3330,21 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return resolveTypeReferenceSym(node.target, mapper, options);
     } else if (node.kind === SyntaxKind.Identifier) {
       const links = resolver.getNodeLinks(node);
-      if (
-        mapper === undefined && // do not report error when instantiating
-        (links.resolutionResult === undefined ||
-          links.resolutionResult & ResolutionResultFlags.ResolutionFailed)
-      ) {
-        reportCheckerDiagnostic(
-          createDiagnostic({
-            code: "invalid-ref",
-            format: { id: printTypeReferenceNode(node) },
-            target: node,
-          }),
-        );
+      if (mapper === undefined && links.resolutionResult) {
+        if (
+          mapper === undefined && // do not report error when instantiating
+          links.resolutionResult & (ResolutionResultFlags.NotFound | ResolutionResultFlags.Unknown)
+        ) {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "invalid-ref",
+              format: { id: printTypeReferenceNode(node) },
+              target: node,
+            }),
+          );
+        } else if (links.resolutionResult & ResolutionResultFlags.Ambiguous) {
+          // ignore reported in name resolver
+        }
       }
 
       const sym = links.nextSymbol ?? links.resolvedSymbol;

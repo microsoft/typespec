@@ -60,10 +60,12 @@
 import { Mutable, mutate } from "../utils/misc.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { compilerAssert } from "./diagnostics.js";
+import { printSymbolFlags } from "./helpers/debug.js";
 import { inspectSymbol } from "./inspector.js";
 import { createDiagnostic } from "./messages.js";
 import { visitChildren } from "./parser.js";
 import { Program } from "./program.js";
+import { getFullyQualifiedSymbolName } from "./type-utils.js";
 import {
   AliasStatementNode,
   AugmentDecoratorStatementNode,
@@ -157,8 +159,6 @@ export function createResolver(program: Program): NameResolver {
 
       const typespecNamespaceBinding = globalNamespaceSym.exports!.get("TypeSpec");
       if (typespecNamespaceBinding) {
-        // TODO:?
-        // initializeTypeSpecIntrinsics();
         mutate(typespecNamespaceBinding!.exports).set("null", nullSym);
         for (const file of program.sourceFiles.values()) {
           addUsingSymbols(typespecNamespaceBinding.exports!, file.locals);
@@ -837,18 +837,38 @@ export function createResolver(program: Program): NameResolver {
       const usingBinding = tableLookup(scope.locals, node, options.resolveDecorators);
 
       if (globalBinding && usingBinding) {
+        reportAmbiguousIdentifier(node, [globalBinding, usingBinding]);
+
         return [undefined, ResolutionResultFlags.Ambiguous];
       } else if (globalBinding) {
         return [globalBinding, ResolutionResultFlags.Resolved];
       } else if (usingBinding) {
         if (usingBinding.flags & SymbolFlags.DuplicateUsing) {
+          reportAmbiguousIdentifier(node, [
+            ...((augmentedSymbolTables.get(scope.locals)?.duplicates.get(usingBinding) as any) ??
+              []),
+          ]);
+
           return [undefined, ResolutionResultFlags.Ambiguous];
         }
-        return [usingBinding, ResolutionResultFlags.Resolved];
+        return [usingBinding.symbolSource, ResolutionResultFlags.Resolved];
       }
     }
 
     return [undefined, ResolutionResultFlags.Unknown];
+  }
+
+  function reportAmbiguousIdentifier(node: IdentifierNode, symbols: Sym[]) {
+    const duplicateNames = symbols.map((s) =>
+      getFullyQualifiedSymbolName(s, { useGlobalPrefixAtTopLevel: true }),
+    );
+    program.reportDiagnostic(
+      createDiagnostic({
+        code: "ambiguous-symbol",
+        format: { name: node.sv, duplicateNames: duplicateNames.join(", ") },
+        target: node,
+      }),
+    );
   }
   /**
    * We cannot inject symbols into the symbol tables hanging off syntax tree nodes as
@@ -942,8 +962,10 @@ export function createResolver(program: Program): NameResolver {
       if (~usedSymResult & ResolutionResultFlags.Resolved) {
         continue;
       }
+
       compilerAssert(usedSym, "Used symbol must be defined if resolution succeeded");
       if (~usedSym.flags & SymbolFlags.Namespace) {
+        console.log("Flags", usedSym.symbolSource && printSymbolFlags(usedSym.symbolSource));
         program.reportDiagnostic(createDiagnostic({ code: "using-invalid-ref", target: using }));
         continue;
       }
