@@ -77,6 +77,9 @@ importers:
       prettier:
         specifier: ~3.3.3
         version: 3.3.3
+      prettier-plugin-astro:
+        specifier: ^0.14.1
+        version: 0.14.1
       prettier-plugin-organize-imports:
         specifier: ~4.1.0
         version: 4.1.0(prettier@3.3.3)(typescript@5.6.3)
@@ -2020,11 +2023,44 @@ importers:
         specifier: ~5.6.3
         version: 5.6.3
 
-  packages/website-astro:
+  packages/xml:
+    devDependencies:
+      '@types/node':
+        specifier: ~22.7.5
+        version: 22.7.5
+      '@typespec/compiler':
+        specifier: workspace:~
+        version: link:../compiler
+      '@typespec/library-linter':
+        specifier: workspace:~
+        version: link:../library-linter
+      '@typespec/tspd':
+        specifier: workspace:~
+        version: link:../tspd
+      '@vitest/coverage-v8':
+        specifier: ^2.1.2
+        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1))
+      '@vitest/ui':
+        specifier: ^2.1.2
+        version: 2.1.2(vitest@2.1.2)
+      c8:
+        specifier: ^10.1.2
+        version: 10.1.2
+      rimraf:
+        specifier: ~6.0.1
+        version: 6.0.1
+      typescript:
+        specifier: ~5.6.3
+        version: 5.6.3
+      vitest:
+        specifier: ^2.1.2
+        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
+
+  website:
     dependencies:
       '@astrojs/check':
         specifier: ^0.9.4
-        version: 0.9.4(prettier@3.3.3)(typescript@5.6.3)
+        version: 0.9.4(prettier-plugin-astro@0.14.1)(prettier@3.3.3)(typescript@5.6.3)
       '@astrojs/react':
         specifier: ^3.6.2
         version: 3.6.2(@types/react-dom@18.3.0)(@types/react@18.3.11)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vite@5.4.9(@types/node@22.7.5)(terser@5.34.1))
@@ -2054,13 +2090,16 @@ importers:
         version: 2.0.260(react@18.3.1)
       '@typespec/compiler':
         specifier: workspace:~
-        version: link:../compiler
+        version: link:../packages/compiler
       '@typespec/playground':
         specifier: workspace:~
-        version: link:../playground
+        version: link:../packages/playground
       astro:
         specifier: ^4.16.1
         version: 4.16.5(@types/node@22.7.5)(rollup@4.24.0)(terser@5.34.1)(typescript@5.6.3)
+      astro-rehype-relative-markdown-links:
+        specifier: ^0.15.0
+        version: 0.15.0(astro@4.16.5(@types/node@22.7.5)(rollup@4.24.0)(terser@5.34.1)(typescript@5.6.3))
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -2100,13 +2139,13 @@ importers:
         version: 1.0.0
       '@typespec/internal-build-utils':
         specifier: workspace:~
-        version: link:../internal-build-utils
+        version: link:../packages/internal-build-utils
       '@typespec/playground-website':
         specifier: workspace:*
-        version: link:../playground-website
+        version: link:../packages/playground-website
       '@typespec/website':
         specifier: workspace:*
-        version: link:../website
+        version: link:../packages/website
       astro-expressive-code:
         specifier: ^0.37.0
         version: 0.37.0(astro@4.16.5(@types/node@22.7.5)(rollup@4.24.0)(terser@5.34.1)(typescript@5.6.3))
@@ -2119,39 +2158,6 @@ importers:
       rimraf:
         specifier: ~6.0.1
         version: 6.0.1
-
-  packages/xml:
-    devDependencies:
-      '@types/node':
-        specifier: ~22.7.5
-        version: 22.7.5
-      '@typespec/compiler':
-        specifier: workspace:~
-        version: link:../compiler
-      '@typespec/library-linter':
-        specifier: workspace:~
-        version: link:../library-linter
-      '@typespec/tspd':
-        specifier: workspace:~
-        version: link:../tspd
-      '@vitest/coverage-v8':
-        specifier: ^2.1.2
-        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1))
-      '@vitest/ui':
-        specifier: ^2.1.2
-        version: 2.1.2(vitest@2.1.2)
-      c8:
-        specifier: ^10.1.2
-        version: 10.1.2
-      rimraf:
-        specifier: ~6.0.1
-        version: 6.0.1
-      typescript:
-        specifier: ~5.6.3
-        version: 5.6.3
-      vitest:
-        specifier: ^2.1.2
-        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
 
 packages:
 
@@ -6715,6 +6721,11 @@ packages:
     peerDependencies:
       astro: ^4.0.0-beta || ^5.0.0-beta || ^3.3.0
 
+  astro-rehype-relative-markdown-links@0.15.0:
+    resolution: {integrity: sha512-+f4fg1Kc/7qeBoLQFKu0HAwsTiD8Ua7alLbMD57K/VH6b5i5Sd5FTVFZ4cO/43/S+E9bTmYmIq2LF6Hhkrnlhw==}
+    peerDependencies:
+      astro: '>=2.x <5'
+
   astro@4.16.5:
     resolution: {integrity: sha512-v8mKWcEPN7hkfyVsMFWV0F8UgL4GUJKT172KTB7dePO3yJb64HBwCckC0QnA60QQh3jK6+2xwyWEc5QvCeqjtg==}
     engines: {node: ^18.17.1 || ^20.3.0 || >=21.0.0, npm: '>=9.6.5', pnpm: '>=7.1.0'}
@@ -7031,6 +7042,9 @@ packages:
 
   caniuse-lite@1.0.30001666:
     resolution: {integrity: sha512-gD14ICmoV5ZZM1OdzPWmpx+q4GyefaK06zi8hmfHV5xe4/2nOQX3+Dw5o+fSqOws2xVwL9j+anOPFwHzdEdV4g==}
+
+  catch-unknown@2.0.0:
+    resolution: {integrity: sha512-4ELowf+Fp6Qwv77ZvRDto9oJMsOalEk8IYvS5KsmIhRZQWbfArlIhIOONJtmCzOeeqpip6JzYqAYaNR9sIyLVQ==}
 
   ccount@2.0.1:
     resolution: {integrity: sha512-eyrF0jiFpY+3drT6383f1qhkbGsLSifNAjA61IUjZjmLCWjItY6LB9ft9YhoDgwfmclB2zhu51Lc7+95b8NRAg==}
@@ -9339,6 +9353,10 @@ packages:
     resolution: {integrity: sha512-LlbxQ7xKzfBusov6UMi4MFpEg0m+mAm9xyNGEduwXMEDuf4WfzB/RZwMVYEd7IKGvh4IUkEXYxtAVu9T3OelJQ==}
     engines: {node: '>= 10'}
 
+  is-absolute-url@4.0.1:
+    resolution: {integrity: sha512-/51/TKE88Lmm7Gc4/8btclNXWS+g50wXhYJq8HWIBAGUBnoAdRu1aXeh364t/O7wXDAcTJDP8PNuNKWUDWie+A==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+
   is-alphabetical@2.0.1:
     resolution: {integrity: sha512-FWyyY60MeTNyeSRpkM2Iry0G9hpr7/9kD40mD/cGQEuilcZYS4okz8SN2Q6rLCJ8gbCt6fN+rC+6tMGS99LaxQ==}
 
@@ -11471,6 +11489,10 @@ packages:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
 
+  prettier-plugin-astro@0.14.1:
+    resolution: {integrity: sha512-RiBETaaP9veVstE4vUwSIcdATj6dKmXljouXc/DDNwBSPTp8FRkLGDSGFClKsAFeeg+13SB0Z1JZvbD76bigJw==}
+    engines: {node: ^14.15.0 || >=16.0.0}
+
   prettier-plugin-organize-imports@4.1.0:
     resolution: {integrity: sha512-5aWRdCgv645xaa58X8lOxzZoiHAldAPChljr/MT0crXVOWTZ+Svl4hIWlz+niYSlO6ikE5UXkN1JrRvIP2ut0A==}
     peerDependencies:
@@ -12107,6 +12129,9 @@ packages:
   rxjs@7.8.1:
     resolution: {integrity: sha512-AA3TVj+0A2iuIoQkWEK/tqFjBq2j+6PO6Y0zJcvzLAFhEFIO3HL0vls9hWLncZbAAbK0mar7oZ4V079I/qPMxg==}
 
+  s.color@0.0.15:
+    resolution: {integrity: sha512-AUNrbEUHeKY8XsYr/DYpl+qk5+aM+DChopnWOPEzn8YKzOhv4l2zH6LzZms3tOZP3wwdOyc0RmTciyi46HLIuA==}
+
   sade@1.8.1:
     resolution: {integrity: sha512-xal3CZX1Xlo/k4ApwCFrHVACi9fBqJ7V+mwhBsuf/1IOKbBy098Fex+Wa/5QMubw09pSZ/u8EY8PWgevJsXp1A==}
     engines: {node: '>=6'}
@@ -12135,6 +12160,9 @@ packages:
 
   safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
+
+  sass-formatter@0.7.9:
+    resolution: {integrity: sha512-CWZ8XiSim+fJVG0cFLStwDvft1VI7uvXdCNJYXhDvowiv+DsbD1nXLiQ4zrE5UBvj5DWZJ93cwN0NX5PMsr1Pw==}
 
   sax@1.3.0:
     resolution: {integrity: sha512-0s+oAmw9zLl1V1cS9BtZN7JAd0cW5e0QH4W3LWEK6a4LaLEA2OTpGYWDY+6XasBLtz6wkm3u1xRw95mRuJ59WA==}
@@ -12576,6 +12604,9 @@ packages:
     resolution: {integrity: sha512-8EbVDiu9iN/nESwxeSxDKe0dunta1GOlHufmSSXxMD2z2/tMZpDMpvXQGsc+ajGo8y2uYUmixaSRUc/QPoQ0GA==}
     engines: {node: '>=16 || 14 >=14.17'}
     hasBin: true
+
+  suf-log@2.5.3:
+    resolution: {integrity: sha512-KvC8OPjzdNOe+xQ4XWJV2whQA0aM1kGVczMQ8+dStAO6KfEB140JEVQ9dE76ONZ0/Ylf67ni4tILPJB41U0eow==}
 
   supports-color@5.5.0:
     resolution: {integrity: sha512-QjVjwdXIt408MIiAqCX4oUKsgU2EqAGzs2Ppkm4aQYbjm+ZEWEcW4SfFNTr4uMNZma0ey4f5lgLrkB0aX0QMow==}
@@ -14036,9 +14067,9 @@ snapshots:
 
   '@apidevtools/swagger-methods@3.0.2': {}
 
-  '@astrojs/check@0.9.4(prettier@3.3.3)(typescript@5.6.3)':
+  '@astrojs/check@0.9.4(prettier-plugin-astro@0.14.1)(prettier@3.3.3)(typescript@5.6.3)':
     dependencies:
-      '@astrojs/language-server': 2.15.0(prettier@3.3.3)(typescript@5.6.3)
+      '@astrojs/language-server': 2.15.0(prettier-plugin-astro@0.14.1)(prettier@3.3.3)(typescript@5.6.3)
       chokidar: 4.0.1
       kleur: 4.1.5
       typescript: 5.6.3
@@ -14051,7 +14082,7 @@ snapshots:
 
   '@astrojs/internal-helpers@0.4.1': {}
 
-  '@astrojs/language-server@2.15.0(prettier@3.3.3)(typescript@5.6.3)':
+  '@astrojs/language-server@2.15.0(prettier-plugin-astro@0.14.1)(prettier@3.3.3)(typescript@5.6.3)':
     dependencies:
       '@astrojs/compiler': 2.10.3
       '@astrojs/yaml2ts': 0.2.1
@@ -14073,6 +14104,7 @@ snapshots:
       vscode-uri: 3.0.8
     optionalDependencies:
       prettier: 3.3.3
+      prettier-plugin-astro: 0.14.1
     transitivePeerDependencies:
       - typescript
 
@@ -20447,6 +20479,20 @@ snapshots:
       astro: 4.16.5(@types/node@22.7.5)(rollup@4.24.0)(terser@5.34.1)(typescript@5.6.3)
       rehype-expressive-code: 0.37.0
 
+  astro-rehype-relative-markdown-links@0.15.0(astro@4.16.5(@types/node@22.7.5)(rollup@4.24.0)(terser@5.34.1)(typescript@5.6.3)):
+    dependencies:
+      astro: 4.16.5(@types/node@22.7.5)(rollup@4.24.0)(terser@5.34.1)(typescript@5.6.3)
+      catch-unknown: 2.0.0
+      debug: 4.3.7(supports-color@8.1.1)
+      github-slugger: 2.0.0
+      gray-matter: 4.0.3
+      is-absolute-url: 4.0.1
+      unified: 11.0.5
+      unist-util-visit: 5.0.0
+      zod: 3.23.8
+    transitivePeerDependencies:
+      - supports-color
+
   astro@4.16.5(@types/node@22.7.5)(rollup@4.24.0)(terser@5.34.1)(typescript@5.6.3):
     dependencies:
       '@astrojs/compiler': 2.10.3
@@ -20540,16 +20586,6 @@ snapshots:
       normalize-range: 0.1.2
       picocolors: 1.1.0
       postcss: 8.4.39
-      postcss-value-parser: 4.2.0
-
-  autoprefixer@10.4.19(postcss@8.4.47):
-    dependencies:
-      browserslist: 4.24.0
-      caniuse-lite: 1.0.30001666
-      fraction.js: 4.3.7
-      normalize-range: 0.1.2
-      picocolors: 1.1.0
-      postcss: 8.4.47
       postcss-value-parser: 4.2.0
 
   autoprefixer@10.4.20(postcss@8.4.47):
@@ -20922,6 +20958,8 @@ snapshots:
       lodash.uniq: 4.5.0
 
   caniuse-lite@1.0.30001666: {}
+
+  catch-unknown@2.0.0: {}
 
   ccount@2.0.1: {}
 
@@ -21538,7 +21576,7 @@ snapshots:
 
   cssnano-preset-advanced@6.1.2(postcss@8.4.47):
     dependencies:
-      autoprefixer: 10.4.19(postcss@8.4.47)
+      autoprefixer: 10.4.20(postcss@8.4.47)
       browserslist: 4.24.0
       cssnano-preset-default: 6.1.2(postcss@8.4.47)
       postcss: 8.4.47
@@ -23777,6 +23815,8 @@ snapshots:
   ipaddr.js@1.9.1: {}
 
   ipaddr.js@2.1.0: {}
+
+  is-absolute-url@4.0.1: {}
 
   is-alphabetical@2.0.1: {}
 
@@ -26573,6 +26613,12 @@ snapshots:
 
   prelude-ls@1.2.1: {}
 
+  prettier-plugin-astro@0.14.1:
+    dependencies:
+      '@astrojs/compiler': 2.10.3
+      prettier: 3.3.3
+      sass-formatter: 0.7.9
+
   prettier-plugin-organize-imports@4.1.0(prettier@3.3.3)(typescript@5.6.3):
     dependencies:
       prettier: 3.3.3
@@ -27347,6 +27393,8 @@ snapshots:
     dependencies:
       tslib: 2.6.2
 
+  s.color@0.0.15: {}
+
   sade@1.8.1:
     dependencies:
       mri: 1.2.0
@@ -27377,6 +27425,10 @@ snapshots:
   safe-stable-stringify@2.5.0: {}
 
   safer-buffer@2.1.2: {}
+
+  sass-formatter@0.7.9:
+    dependencies:
+      suf-log: 2.5.3
 
   sax@1.3.0: {}
 
@@ -27655,7 +27707,7 @@ snapshots:
   snake-case@3.0.4:
     dependencies:
       dot-case: 3.0.4
-      tslib: 2.6.2
+      tslib: 2.7.0
 
   sockjs@0.3.24:
     dependencies:
@@ -27921,6 +27973,10 @@ snapshots:
       mz: 2.7.0
       pirates: 4.0.6
       ts-interface-checker: 0.1.13
+
+  suf-log@2.5.3:
+    dependencies:
+      s.color: 0.0.15
 
   supports-color@5.5.0:
     dependencies:

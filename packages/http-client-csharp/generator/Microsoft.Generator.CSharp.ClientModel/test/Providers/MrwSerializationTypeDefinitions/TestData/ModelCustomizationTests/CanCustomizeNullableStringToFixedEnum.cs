@@ -85,7 +85,6 @@ namespace Sample.Models
                 {
                     if ((prop.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
                     {
-                        prop1 = null;
                         continue;
                     }
                     prop1 = prop.Value.GetString().ToMockInputEnum();
