@@ -108,17 +108,25 @@ it("emit diagnostic if use on non namespace", async () => {
   });
 });
 
-it("set the tagMetadata with @tagMetadata", async () => {
-  const runner = await createOpenAPITestRunner();
-  const { PetStore } = await runner.compile(
-    `
-     @tagMetadata(
+it.each([
+  [
+    "tagMetadata without additionalInfo",
+    `@tagMetadata("tagName")`,
+    { tagName: { name: "tagName" } },
+  ],
+  [
+    "tagMetadata without externalDocs",
+    `@tagMetadata("tagName",{description: "Pets operations"})`,
+    { tagName: { name: "tagName", description: "Pets operations" } },
+  ],
+  [
+    "multiple tagsMetadata",
+    `@tagMetadata(
         "tagName1",
         {
           description: "Pets operations",
           externalDocs: {
             url: "https://example.com",
-            description: "More info.",
             "x-custom": "string"
           },          
         }
@@ -133,33 +141,38 @@ it("set the tagMetadata with @tagMetadata", async () => {
           },
           "x-custom": "string"
         }
-      )
+      )`,
+    {
+      tagName1: {
+        name: "tagName1",
+        description: "Pets operations",
+        externalDocs: {
+          url: "https://example.com",
+          "x-custom": "string",
+        },
+      },
+
+      tagName2: {
+        name: "tagName2",
+        description: "Pets operations",
+        externalDocs: {
+          url: "https://example.com",
+          description: "More info.",
+        },
+        "x-custom": "string",
+      },
+    },
+  ],
+])("%s", async (_, code, expected) => {
+  const runner = await createOpenAPITestRunner();
+  const { PetStore } = await runner.compile(
+    `
+    ${code}
     @test 
     namespace PetStore {}
     `,
   );
-
-  deepStrictEqual(getTagsMetadata(runner.program, PetStore), {
-    tagName1: {
-      name: "tagName1",
-      description: "Pets operations",
-      externalDocs: {
-        url: "https://example.com",
-        description: "More info.",
-        "x-custom": "string",
-      },
-    },
-
-    tagName2: {
-      name: "tagName2",
-      description: "Pets operations",
-      externalDocs: {
-        url: "https://example.com",
-        description: "More info.",
-      },
-      "x-custom": "string",
-    },
-  });
+  deepStrictEqual(getTagsMetadata(runner.program, PetStore), expected);
 });
 
 it.each([
@@ -180,7 +193,7 @@ it.each([
     ],
   ],
   [
-    "add tag with @tagMetadata decorator",
+    "set tag with @tagMetadata decorator",
     ``,
     [
       {
@@ -196,7 +209,7 @@ it.each([
     ],
   ],
   [
-    "add tags with @tagMetadata decorator and @tag decorator",
+    "set tags with @tagMetadata decorator and @tag decorator",
     `@tag("opTag") op NamespaceOperation(): string;`,
     [
       { name: "opTag" },
