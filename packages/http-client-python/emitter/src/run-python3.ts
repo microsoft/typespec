@@ -7,6 +7,7 @@
 // Invoke it like so: "tsx run-python3.ts script.py"
 
 import cp from "child_process";
+import util from "util";
 import { patchPythonPath } from "./system-requirements.js";
 
 export async function runPython3(...args: string[]) {
@@ -14,13 +15,14 @@ export async function runPython3(...args: string[]) {
     version: ">=3.8",
     environmentVariable: "AUTOREST_PYTHON_EXE",
   });
-  cp.exec(command.join(" "), 
-  (error: cp.ExecException | null, stdout: string, stderr: string) => {
-    if (error) {
-      console.error(`Error: ${error.message}`); // eslint-disable-line no-console
-      console.error(`stderr: ${stderr}`); // eslint-disable-line no-console
-      process.exit(1);
+  const execPromise = util.promisify(cp.exec);
+  try {
+    const { stdout, stderr } = await execPromise(command.join(" "));
+    console.log('Output:', stdout);
+    if (stderr) {
+      console.error('Error:', stderr);
     }
-    console.log(`stdout: ${stdout}`); // eslint-disable-line no-console
-  });
+  } catch (error) {
+    console.error('Execution error:', error);
+  }
 }
