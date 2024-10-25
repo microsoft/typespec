@@ -17,7 +17,7 @@ export interface StopConfig {
 }
 
 export async function serve(config: ServeConfig) {
-  if(Array.isArray(config.scenariosPath)) {
+  if (Array.isArray(config.scenariosPath)) {
     for (let idx = 0; idx < config.scenariosPath.length; idx++) {
       config.scenariosPath[idx] = resolve(process.cwd(), config.scenariosPath[idx]);
       await ensureScenariosPathExists(config.scenariosPath[idx]);
@@ -38,7 +38,9 @@ export async function startInBackground(config: ServeConfig) {
   return new Promise<void>((resolve) => {
     const [nodeExe, entrypoint] = process.argv;
     logger.info(`Starting server in background at port ${config.port}`);
-    const scenariosPath = Array.isArray(config.scenariosPath)? config.scenariosPath.join(" "): config.scenariosPath;
+    const scenariosPath = Array.isArray(config.scenariosPath)
+      ? config.scenariosPath.join(" ")
+      : config.scenariosPath;
     const cp = spawn(
       nodeExe,
       [

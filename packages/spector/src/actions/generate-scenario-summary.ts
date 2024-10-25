@@ -29,7 +29,7 @@ export async function generateScenarioSummary({
     await writeFile(outputFile, `${existingContent}\n${summary}`);
   } else {
     await writeFile(outputFile, summary);
-  }  
+  }
   logger.info(`${pc.green("✓")} Scenario summary generated at ${outputFile}.`);
 }
 

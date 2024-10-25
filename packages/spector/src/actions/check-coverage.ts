@@ -83,7 +83,6 @@ export async function checkCoverage(config: CheckCoverageConfig): Promise<boolea
   const coverageReport = createCoverageReport(config.scenariosPath, results);
   await writeFile(config.mergedCoverageFile, JSON.stringify(coverageReport, null, 2));
 
-  
   if (diagnosticsReporter.diagnostics.length === 0) {
     if (config.exitDueToPreviousError) {
       process.exit(1);

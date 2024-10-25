@@ -236,7 +236,7 @@ async function main() {
       async (args) => {
         let exitDueToPreviousError = false;
         let hasMoreScenarios = true;
-        for (let idx = 0; idx < args.scenariosPaths.length; idx++) { 
+        for (let idx = 0; idx < args.scenariosPaths.length; idx++) {
           logger.info(`Checking coverage for scenarios at ${args.scenariosPaths[idx]}`);
           if (idx === args.scenariosPaths.length - 1) hasMoreScenarios = false;
           exitDueToPreviousError = await checkCoverage({

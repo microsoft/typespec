@@ -8,7 +8,11 @@ export interface ValidateScenarioConfig {
   hasMoreScenarios?: boolean;
 }
 
-export async function validateScenarios({ scenariosPath, exitDueToPreviousError, hasMoreScenarios }: ValidateScenarioConfig) {
+export async function validateScenarios({
+  scenariosPath,
+  exitDueToPreviousError,
+  hasMoreScenarios,
+}: ValidateScenarioConfig) {
   const [_, diagnostics] = await loadScenarios(scenariosPath);
 
   if (diagnostics.length === 0) {

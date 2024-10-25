@@ -10,7 +10,11 @@ export interface ValidateMockApisConfig {
   hasMoreScenarios?: boolean;
 }
 
-export async function validateMockApis({ scenariosPath, exitDueToPreviousError, hasMoreScenarios }: ValidateMockApisConfig) {
+export async function validateMockApis({
+  scenariosPath,
+  exitDueToPreviousError,
+  hasMoreScenarios,
+}: ValidateMockApisConfig) {
   const mockApis = await loadScenarioMockApiFiles(scenariosPath);
   const scenarioFiles = await findScenarioSpecFiles(scenariosPath);
 
