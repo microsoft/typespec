@@ -7,7 +7,7 @@
   "scripts": {
     "docusaurus": "docusaurus",
     "start": "docusaurus start",
-    "build": "npm run regen-all-packages-docs && node  .scripts/docusaurus-build.mjs 2>&1",
+    "build:skip": "npm run regen-all-packages-docs && node  .scripts/docusaurus-build.mjs 2>&1",
     "swizzle": "docusaurus swizzle",
     "clear": "docusaurus clear",
     "clean": "docusaurus clear",
@@ -18,7 +18,6 @@
     "update-playground-versions": "node ./.scripts/update-playground-versions.mjs",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
-    "regen-docs": "node ./.scripts/regen-compiler-docs.mjs",
     "regen-all-packages-docs": "pnpm -w --filter \"@typespec/website...\" --filter \"!@typespec/monorepo\" run regen-docs"
   },
   "keywords": [],
