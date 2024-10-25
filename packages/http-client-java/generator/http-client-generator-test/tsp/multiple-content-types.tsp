@@ -64,7 +64,6 @@ interface MultipleContentTypesOnRequest {
   @route("upload/multi-body-types")
   @sharedRoute
   @post
-  @convenientAPI(false)
   uploadJsonWithMultiBodyTypesForMultiContentTypes(
     @body data: Resource,
     @header contentType: "application/json",
