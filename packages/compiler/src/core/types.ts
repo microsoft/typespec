@@ -2232,6 +2232,11 @@ export interface RmOptions {
   recursive?: boolean;
 }
 
+export type OnChangedListener = (filename: string) => void;
+export interface Closable {
+  close(): void;
+}
+
 export interface CompilerHost {
   /** read a file at the given url. */
   readUrl(url: string): Promise<SourceFile>;
@@ -2269,6 +2274,13 @@ export interface CompilerHost {
    * @param path Path to the directory.
    */
   mkdirp(path: string): Promise<string | undefined>;
+
+  /**
+   * watch a file or directory for changes.
+   * @param path path to the file/dir to watch
+   * @param onChanged callback to be called when the file/dir changes
+   */
+  watch(path: string, onChanged: OnChangedListener): Closable;
 
   // get the directory TypeSpec is executing from
   getExecutionRoot(): string;

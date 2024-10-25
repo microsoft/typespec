@@ -1,15 +1,22 @@
 import assert from "assert";
 import type { RmOptions } from "fs";
-import { readFile } from "fs/promises";
+import { readdir, readFile, stat } from "fs/promises";
 import { globby } from "globby";
+import { join } from "path";
 import { fileURLToPath, pathToFileURL } from "url";
 import { logDiagnostics, logVerboseTestOutput } from "../core/diagnostics.js";
 import { createLogger } from "../core/logger/logger.js";
 import { NodeHost } from "../core/node-host.js";
 import { CompilerOptions } from "../core/options.js";
-import { getAnyExtensionFromPath, resolvePath } from "../core/path-utils.js";
-import { Program, compile as compileProgram } from "../core/program.js";
-import type { CompilerHost, Diagnostic, StringLiteral, Type } from "../core/types.js";
+import { getAnyExtensionFromPath, getDirectoryPath, resolvePath } from "../core/path-utils.js";
+import { compile as compileProgram, Program } from "../core/program.js";
+import type {
+  CompilerHost,
+  Diagnostic,
+  OnChangedListener,
+  StringLiteral,
+  Type,
+} from "../core/types.js";
 import { createSourceFile, getSourceFileKindFromExt } from "../index.js";
 import { createStringMap } from "../utils/misc.js";
 import { expectDiagnosticEmpty } from "./expect.js";
@@ -34,6 +41,14 @@ function createTestCompilerHost(
   jsImports: Map<string, Record<string, any>>,
   options?: TestHostOptions,
 ): CompilerHost {
+  const virtualFsWatchers = new Map<string, OnChangedListener[]>();
+  const triggerWatcher = (changedPath: string, watchers: Map<string, OnChangedListener[]>) => {
+    watchers.get(changedPath)?.forEach((cb) => cb(changedPath));
+    const dir = getDirectoryPath(changedPath);
+    if (dir !== changedPath) {
+      watchers.get(dir)?.forEach((cb) => cb(changedPath));
+    }
+  };
   const libDirs = [resolveVirtualPath(".tsp/lib/std")];
   if (!options?.excludeTestLib) {
     libDirs.push(resolveVirtualPath(".tsp/test-lib"));
@@ -59,6 +74,7 @@ function createTestCompilerHost(
     async writeFile(path: string, content: string) {
       path = resolveVirtualPath(path);
       virtualFs.set(path, content);
+      triggerWatcher(path, virtualFsWatchers);
     },
 
     async readDir(path: string) {
@@ -80,11 +96,28 @@ function createTestCompilerHost(
         for (const key of virtualFs.keys()) {
           if (key.startsWith(`${path}/`)) {
             virtualFs.delete(key);
+            triggerWatcher(key, virtualFsWatchers);
           }
         }
       } else {
         virtualFs.delete(path);
+        triggerWatcher(path, virtualFsWatchers);
       }
+    },
+
+    watch(path: string, onChanged: (filename: string) => void) {
+      virtualFsWatchers.set(path, [...(virtualFsWatchers.get(path) ?? []), onChanged]);
+      return {
+        close() {
+          const cbs = virtualFsWatchers.get(path);
+          if (cbs) {
+            const index = cbs.indexOf(onChanged);
+            if (index !== -1) {
+              cbs.splice(index, 1);
+            }
+          }
+        },
+      };
     },
 
     getLibDirs() {
@@ -161,6 +194,7 @@ export async function createTestFileSystem(options?: TestHostOptions): Promise<T
     addJsFile,
     addRealTypeSpecFile,
     addRealJsFile,
+    addRealFolder,
     addTypeSpecLibrary,
     compilerHost,
     fs: virtualFs,
@@ -178,6 +212,25 @@ export async function createTestFileSystem(options?: TestHostOptions): Promise<T
 
   async function addRealTypeSpecFile(path: string, existingPath: string) {
     virtualFs.set(resolveVirtualPath(path), await readFile(existingPath, "utf8"));
+  }
+
+  async function addRealFolder(folder: string, existingFolder: string) {
+    const entries = await readdir(existingFolder);
+    for (const entry of entries) {
+      const existingPath = join(existingFolder, entry);
+      const virtualPath = join(folder, entry);
+      const s = await stat(existingPath);
+      if (s.isFile()) {
+        if (existingPath.endsWith(".js")) {
+          await addRealJsFile(virtualPath, existingPath);
+        } else {
+          await addRealTypeSpecFile(virtualPath, existingPath);
+        }
+      }
+      if (s.isDirectory()) {
+        await addRealFolder(virtualPath, existingPath);
+      }
+    }
   }
 
   async function addRealJsFile(path: string, existingPath: string) {

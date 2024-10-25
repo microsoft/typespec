@@ -9,6 +9,7 @@ export interface TestFileSystem {
   addJsFile(path: string, contents: Record<string, any>): void;
   addRealTypeSpecFile(path: string, realPath: string): Promise<void>;
   addRealJsFile(path: string, realPath: string): Promise<void>;
+  addRealFolder(path: string, realPath: string): Promise<void>;
   addTypeSpecLibrary(testLibrary: TypeSpecTestLibrary): Promise<void>;
 }
 

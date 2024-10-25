@@ -176,6 +176,8 @@ async function launchLanguageClient(context: ExtensionContext) {
     documentSelector: [
       { scheme: "file", language: "typespec" },
       { scheme: "untitled", language: "typespec" },
+      { scheme: "file", language: "yaml", pattern: "**/tspconfig.yaml" },
+      { scheme: "untitled", language: "yaml", pattern: "**/tspconfig.yaml" },
     ],
     outputChannel,
   };
