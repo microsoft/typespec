@@ -59,41 +59,40 @@
 
 import { Mutable, mutate } from "../utils/misc.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
+import { compilerAssert } from "./diagnostics.js";
+import { inspectSymbol } from "./inspector.js";
+import { createDiagnostic } from "./messages.js";
+import { visitChildren } from "./parser.js";
+import { Program } from "./program.js";
 import {
   AliasStatementNode,
   AugmentDecoratorStatementNode,
   DecoratorExpressionNode,
   EnumStatementNode,
   Expression,
+  IdentifierNode,
   InterfaceStatementNode,
+  MemberExpressionNode,
   ModelExpressionNode,
   ModelPropertyNode,
   ModelStatementNode,
-  OperationStatementNode,
-  ResolutionResult,
-  TemplateParameterDeclarationNode,
-  UnionStatementNode,
-  compilerAssert,
-  visitChildren,
-} from "./index.js";
-import { inspectSymbol } from "./inspector.js";
-import { createDiagnostic } from "./messages.js";
-import { Program } from "./program.js";
-import {
-  IdentifierNode,
-  MemberExpressionNode,
   NamespaceStatementNode,
   Node,
   NodeFlags,
   NodeLinks,
+  OperationStatementNode,
+  ResolutionResult,
   ResolutionResultFlags,
+  ScalarStatementNode,
   Sym,
   SymbolFlags,
   SymbolLinks,
   SymbolTable,
   SyntaxKind,
+  TemplateParameterDeclarationNode,
   TypeReferenceNode,
   TypeSpecScriptNode,
+  UnionStatementNode,
 } from "./types.js";
 
 export interface NameResolver {
@@ -348,6 +347,8 @@ export function createResolver(program: Program): NameResolver {
         return resolveEnumMember(baseSym, id);
       case SyntaxKind.UnionStatement:
         return resolveUnionVariant(baseSym, id);
+      case SyntaxKind.ScalarStatement:
+        return resolveScalarConstructor(baseSym, id);
     }
 
     compilerAssert(false, "Unknown member container kind: " + SyntaxKind[baseNode.kind]);
@@ -358,14 +359,14 @@ export function createResolver(program: Program): NameResolver {
     modelNode: ModelStatementNode | ModelExpressionNode,
     id: IdentifierNode,
   ): ResolutionResult {
-    const modelSymLinks = getSymbolLinks(modelSym);
-
     // step 1: check direct members
     // spreads have already been bound
     const memberSym = tableLookup(modelSym.members!, id);
     if (memberSym) {
       return [memberSym, ResolutionResultFlags.Resolved];
     }
+
+    const modelSymLinks = getSymbolLinks(modelSym);
 
     // step 2: check extends. Don't look up to extends references if we have
     // unknown members, and resolve any property as unknown if we extend
@@ -421,6 +422,15 @@ export function createResolver(program: Program): NameResolver {
 
   function resolveUnionVariant(unionSym: Sym, id: IdentifierNode): ResolutionResult {
     const memberSym = tableLookup(unionSym.members!, id);
+    if (memberSym) {
+      return [memberSym, ResolutionResultFlags.Resolved];
+    }
+
+    return [undefined, ResolutionResultFlags.NotFound];
+  }
+
+  function resolveScalarConstructor(scalarSym: Sym, id: IdentifierNode): ResolutionResult {
+    const memberSym = tableLookup(scalarSym.members!, id);
     if (memberSym) {
       return [memberSym, ResolutionResultFlags.Resolved];
     }
@@ -581,6 +591,9 @@ export function createResolver(program: Program): NameResolver {
         return;
       case SyntaxKind.UnionStatement:
         bindUnionMembers(node);
+        return;
+      case SyntaxKind.ScalarStatement:
+        bindScalarMembers(node);
         return;
     }
   }
@@ -743,6 +756,21 @@ export function createResolver(program: Program): NameResolver {
         variantNode.id.sv,
         createSymbol(variantNode, variantNode.id.sv, SymbolFlags.Member),
       );
+    }
+  }
+  function bindScalarMembers(node: ScalarStatementNode) {
+    const scalarSym = node.symbol!;
+    const targetTable = getAugmentedSymbolTable(scalarSym.members!);
+    const scalarSymLinks = getSymbolLinks(scalarSym);
+
+    if (node.extends) {
+      const [extendsSym, extendsResult] = resolveTypeReference(node.extends);
+      setUnknownMembers(scalarSymLinks, extendsSym, extendsResult);
+
+      compilerAssert(extendsSym, "Scalar extends symbol must be defined if resolution succeeded");
+
+      const sourceTable = getAugmentedSymbolTable(extendsSym.members!);
+      targetTable.include(sourceTable, scalarSym);
     }
   }
 

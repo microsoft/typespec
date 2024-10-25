@@ -4346,6 +4346,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     mapper: TypeMapper | undefined,
   ): ScalarConstructor | Scalar | null {
     const target = checkTypeReference(node.target, mapper);
+
     if (target.kind === "Scalar" || target.kind === "ScalarConstructor") {
       return target;
     } else {

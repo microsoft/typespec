@@ -20,6 +20,7 @@ import {
   ModelExpressionNode,
   ModelPropertyNode,
   ModelStatementNode,
+  MutableSymbolTable,
   NamespaceStatementNode,
   Node,
   NodeFlags,
@@ -46,7 +47,8 @@ import {
 // Use a regular expression to define the prefix for TypeSpec-exposed functions
 // defined in JavaScript modules
 const DecoratorFunctionPattern = /^\$/;
-const SymbolTable = class extends Map<string, Sym> implements SymbolTable {
+// TODO: move to separate file
+const SymbolTable = class extends Map<string, Sym> implements MutableSymbolTable {
   duplicates = new Map<Sym, Set<Sym>>();
 
   constructor(source?: SymbolTable) {
@@ -56,12 +58,10 @@ const SymbolTable = class extends Map<string, Sym> implements SymbolTable {
     }
   }
 
-  /**
-   * Put the symbols in the source table into this table.
-   */
-  include(source: SymbolTable) {
+  /** {@inheritdoc MutableSymboleTable} */
+  include(source: SymbolTable, parentSym?: Sym) {
     for (const [key, value] of source) {
-      super.set(key, { ...value });
+      super.set(key, { ...value, parent: parentSym ?? value.parent });
     }
     for (const [key, value] of source.duplicates) {
       this.duplicates.set(key, new Set(value));

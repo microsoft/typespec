@@ -925,6 +925,17 @@ export interface SymbolTable extends ReadonlyMap<string, Sym> {
   readonly duplicates: ReadonlyMap<Sym, ReadonlySet<Sym>>;
 }
 
+export interface MutableSymbolTable extends SymbolTable {
+  set(key: string, value: Sym): void;
+
+  /**
+   * Put the symbols in the source table into this table.
+   * @param source table to copy
+   * @param parentSym Parent symbol that the source symbol should update to.
+   */
+  include(source: SymbolTable, parentSym?: Sym): void;
+}
+
 // prettier-ignore
 export const enum SymbolFlags {
   None                  = 0,
