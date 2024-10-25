@@ -1,5 +1,6 @@
 import {
   DecoratorContext,
+  Diagnostic,
   getDoc,
   getService,
   getSummary,
@@ -182,15 +183,7 @@ export const $info: InfoDecorator = (
   if (data === undefined) {
     return;
   }
-  validateAdditionalInfoModel(context, model);
-  if (data.termsOfService) {
-    const diagnostics = validateIsUri(
-      context.getArgumentTarget(0)!,
-      data.termsOfService,
-      "TermsOfService",
-    );
-    context.program.reportDiagnostics(diagnostics);
-  }
+  validateAdditionalInfoModel(context, model, data);
   setInfo(context.program, entity, data);
 };
 
@@ -221,17 +214,24 @@ function omitUndefined<T extends Record<string, unknown>>(data: T): T {
   return Object.fromEntries(Object.entries(data).filter(([k, v]) => v !== undefined)) as any;
 }
 
-function validateAdditionalInfoModel(context: DecoratorContext, typespecType: TypeSpecValue) {
+function validateAdditionalInfoModel(
+  context: DecoratorContext,
+  typespecType: TypeSpecValue,
+  data: AdditionalInfo & Record<`x-${string}`, unknown>,
+) {
   const propertyModel = context.program.resolveTypeReference(
     "TypeSpec.OpenAPI.AdditionalInfo",
   )[0]! as Model;
-
+  const diagnostics: Diagnostic[] = [];
   if (typeof typespecType === "object" && propertyModel) {
-    const diagnostics = checkNoAdditionalProperties(
-      typespecType,
-      context.getArgumentTarget(0)!,
-      propertyModel,
+    diagnostics.push(
+      ...checkNoAdditionalProperties(typespecType, context.getArgumentTarget(0)!, propertyModel),
     );
-    context.program.reportDiagnostics(diagnostics);
   }
+  if (data.termsOfService) {
+    diagnostics.push(
+      ...validateIsUri(context.getArgumentTarget(0)!, data.termsOfService, "TermsOfService"),
+    );
+  }
+  context.program.reportDiagnostics(diagnostics);
 }

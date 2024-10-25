@@ -1,5 +1,6 @@
 import {
   DecoratorContext,
+  Diagnostic,
   Model,
   ModelProperty,
   Namespace,
@@ -16,7 +17,7 @@ import {
   TagMetadataDecorator,
   UseRefDecorator,
 } from "../generated-defs/TypeSpec.OpenAPI.js";
-import { createStateSymbol, reportDiagnostic } from "./lib.js";
+import { OpenAPI3Keys, createStateSymbol, reportDiagnostic } from "./lib.js";
 import { OpenAPI3Tag } from "./types.js";
 
 const refTargetsKey = createStateSymbol("refs");
@@ -50,8 +51,8 @@ export function getOneOf(program: Program, entity: Type): boolean {
   return program.stateMap(oneOfKey).get(entity);
 }
 
-const [getTagsMetadataState, setTagsMetadata] = unsafe_useStateMap<Type, OpenAPI3Tag[]>(
-  Symbol.for("tagsMetadata"),
+const [getTagsMetadata, setTagsMetadata] = unsafe_useStateMap<Type, OpenAPI3Tag[]>(
+  OpenAPI3Keys.tagsMetadata,
 );
 export const $tagMetadata: TagMetadataDecorator = (
   context: DecoratorContext,
@@ -59,7 +60,7 @@ export const $tagMetadata: TagMetadataDecorator = (
   name: string,
   tagMetadata?: TypeSpecValue,
 ) => {
-  const tags = getTagsMetadataState(context.program, entity);
+  const tags = getTagsMetadata(context.program, entity);
   if (tags) {
     const tagNamesSet = new Set(tags.map((t) => t.name));
     if (tagNamesSet.has(name)) {
@@ -81,16 +82,7 @@ export const $tagMetadata: TagMetadataDecorator = (
     if (data === undefined) {
       return;
     }
-    validateAdditionalInfoModel(context, tagMetadata);
-    if (data.externalDocs?.url) {
-      const diagnostics = validateIsUri(
-        context.getArgumentTarget(0)!,
-        data.externalDocs?.url,
-        "externalDocs.url",
-      );
-      context.program.reportDiagnostics(diagnostics);
-    }
-
+    validateAdditionalInfoModel(context, tagMetadata, data);
     metadata = { ...data, name };
   }
 
@@ -101,21 +93,26 @@ export const $tagMetadata: TagMetadataDecorator = (
   }
 };
 
-export function getTagsMetadata(program: Program, entity: Type): OpenAPI3Tag[] {
-  return getTagsMetadataState(program, entity) || [];
-}
+export { getTagsMetadata };
 
-function validateAdditionalInfoModel(context: DecoratorContext, typespecType: TypeSpecValue) {
+function validateAdditionalInfoModel(
+  context: DecoratorContext,
+  typespecType: TypeSpecValue,
+  data: OpenAPI3Tag & Record<`x-${string}`, unknown>,
+) {
   const propertyModel = context.program.resolveTypeReference(
     "TypeSpec.OpenAPI.TagMetadata",
   )[0]! as Model;
-
+  const diagnostics: Diagnostic[] = [];
   if (typeof typespecType === "object" && propertyModel) {
-    const diagnostics = checkNoAdditionalProperties(
-      typespecType,
-      context.getArgumentTarget(0)!,
-      propertyModel,
+    diagnostics.push(
+      ...checkNoAdditionalProperties(typespecType, context.getArgumentTarget(0)!, propertyModel),
     );
-    context.program.reportDiagnostics(diagnostics);
   }
+  if (data.externalDocs?.url) {
+    diagnostics.push(
+      ...validateIsUri(context.getArgumentTarget(0)!, data.externalDocs?.url, "externalDocs.url"),
+    );
+  }
+  context.program.reportDiagnostics(diagnostics);
 }

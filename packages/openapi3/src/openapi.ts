@@ -349,7 +349,7 @@ function createOAPIEmitter(
     params = new Map();
     paramModels = new Set();
     tags = new Set();
-    tagsMetadata = getTagsMetadata(program, service.type);
+    tagsMetadata = getTagsMetadata(program, service.type) || [];
   }
 
   function isValidServerVariableType(program: Program, type: Type): boolean {

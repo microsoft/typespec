@@ -273,9 +273,17 @@ export const libDef = {
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<OpenAPI3EmitterOptions>,
   },
+  state: {
+    tagsMetadata: { description: "State for the @tagMetadata decorator." },
+  },
 } as const;
 
 export const $lib = createTypeSpecLibrary(libDef);
-export const { createDiagnostic, reportDiagnostic, createStateSymbol } = $lib;
+export const {
+  createDiagnostic,
+  reportDiagnostic,
+  createStateSymbol,
+  stateKeys: OpenAPI3Keys,
+} = $lib;
 
 export type OpenAPILibrary = typeof $lib;
