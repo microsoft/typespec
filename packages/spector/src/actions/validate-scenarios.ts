@@ -16,10 +16,10 @@ export async function validateScenarios({
   const [_, diagnostics] = await loadScenarios(scenariosPath);
 
   if (diagnostics.length === 0) {
-    if (exitDueToPreviousError) {
+    logger.info(`${pc.green("✓")} All scenarios are valid.`);
+    if (exitDueToPreviousError && !hasMoreScenarios) {
       process.exit(-1);
     }
-    logger.info(`${pc.green("✓")} All scenarios are valid.`);
     return false;
   } else {
     if (hasMoreScenarios) {

@@ -76,7 +76,7 @@ export async function validateMockApis({
   }
 
   if (diagnostics.diagnostics.length === 0) {
-    if (exitDueToPreviousError) {
+    if (exitDueToPreviousError && !hasMoreScenarios) {
       process.exit(1);
     }
     return false;
