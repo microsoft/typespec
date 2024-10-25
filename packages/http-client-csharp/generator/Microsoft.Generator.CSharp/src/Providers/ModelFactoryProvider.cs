@@ -125,7 +125,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 }
                 else if (factoryParam != null)
                 {
-                    if (factoryParam.Type.IsList)
+                    if (!factoryParam.Type.IsReadOnlyMemory && factoryParam.Type.IsList)
                     {
                         expressions.Add(factoryParam.NullConditional().ToList());
                     }
