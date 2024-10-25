@@ -20,7 +20,7 @@ export async function validateScenarios({
     if (exitDueToPreviousError && !hasMoreScenarios) {
       process.exit(-1);
     }
-    return false;
+    return exitDueToPreviousError;
   } else {
     if (hasMoreScenarios) {
       return true;
