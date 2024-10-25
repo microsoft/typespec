@@ -4,4 +4,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-Allow mutating namespaces
+[experimental] Mutators: Allow mutating namespaces
