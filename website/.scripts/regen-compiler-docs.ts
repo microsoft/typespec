@@ -11,7 +11,7 @@ import { writeFile } from "fs/promises";
 import { dirname, join, resolve } from "path";
 import { fileURLToPath } from "url";
 
-export const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
+export const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
 const diagnostics = new Map();
 
