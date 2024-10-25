@@ -1,4 +1,4 @@
-import { DecoratorApplication, isType, Numeric } from "@typespec/compiler";
+import { DecoratorApplication, isType, Numeric, typespecTypeToJson } from "@typespec/compiler";
 import { expect } from "vitest";
 
 export interface DecoratorMatch {
@@ -37,8 +37,18 @@ export function expectDecorators(
     }
 
     if (expectation.args) {
+      const actualArgs = decorator.args.map((arg: any) => {
+        if (isType(arg)) return arg;
+        if ("jsValue" in arg) {
+          if (isType(arg.jsValue) && arg.jsValue.kind === "Model") {
+            return typespecTypeToJson(arg.jsValue, arg.jsValue)[0];
+          }
+          return arg.jsValue;
+        }
+        return arg;
+      });
       const args = expectation.args.map(transformDecoratorArg);
-      expect(decorator.args).toMatchObject(args);
+      expect(actualArgs).toMatchObject(args);
     }
   }
 }
@@ -46,9 +56,6 @@ export function expectDecorators(
 function transformDecoratorArg(arg: any) {
   if (isType(arg)) return arg;
 
-  if (typeof arg === "string") {
-    return { jsValue: arg };
-  }
   if (typeof arg === "number") {
     return { jsValue: Numeric(`${arg}`) };
   }
