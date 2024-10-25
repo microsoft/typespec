@@ -397,9 +397,9 @@ export class CodeModelBuilder {
         } else if (access === "internal") {
           const schema = this.processSchema(model, model.name);
 
-          trackSchemaUsage(schema, {
-            usage: [SchemaContext.Internal],
-          });
+          // trackSchemaUsage(schema, {
+          //   usage: [SchemaContext.Internal],
+          // });
         }
 
         const usage = getUsage(model.__raw, usageCache);
@@ -1009,14 +1009,14 @@ export class CodeModelBuilder {
           });
         }
       }
-      if (finalSchema) {
-        this.trackSchemaUsage(finalSchema, { usage: [SchemaContext.Output] });
-        if (trackConvenienceApi) {
-          this.trackSchemaUsage(finalSchema, {
-            usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
-          });
-        }
-      }
+      // if (finalSchema) {
+      //   this.trackSchemaUsage(finalSchema, { usage: [SchemaContext.Output] });
+      //   if (trackConvenienceApi) {
+      //     this.trackSchemaUsage(finalSchema, {
+      //       usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
+      //     });
+      //   }
+      // }
 
       op.lroMetadata = new LongRunningMetadata(
         true,
@@ -1434,8 +1434,8 @@ export class CodeModelBuilder {
           return;
         }
 
-        const schemaUsage = (schema as SchemaUsage).usage;
-        trackSchemaUsage(schema, { usage: schemaUsage });
+        // const schemaUsage = (schema as SchemaUsage).usage;
+        // trackSchemaUsage(schema, { usage: schemaUsage });
         // if (!schemaIsPublicBeforeProcess && schemaUsage?.includes(SchemaContext.Public)) {
         //   // Public added in this op, change it to PublicSpread
         //   // This means that if this op would originally add Public to this schema, it adds PublicSpread instead
