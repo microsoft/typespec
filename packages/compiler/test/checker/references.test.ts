@@ -2,7 +2,6 @@
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { Enum, Interface, Model, Operation, Type } from "../../src/core/types.js";
-import { getDoc } from "../../src/lib/decorators.js";
 import {
   TestHost,
   createTestHost,
@@ -704,30 +703,6 @@ describe("compiler: references", () => {
       const { Spread } = (await testHost.compile("./main.tsp")) as { Spread: Model };
       strictEqual(Spread.properties.size, 1);
       ok(Spread.properties.get("name"));
-    });
-    // TODO: is this supposed to work
-    it.skip("works with augments", async () => {
-      testHost.addTypeSpecFile(
-        "main.tsp",
-        `
-        @test op Foo(a: string): { b: string };
-        @test op Bar is Foo;
-
-
-        @@doc(Foo::parameters.a, "Foo's a");
-        `,
-      );
-      const { Foo, Bar } = (await testHost.compile("./main.tsp")) as {
-        Foo: Operation;
-        Bar: Operation;
-      };
-
-      strictEqual(getDoc(testHost.program, Foo.parameters), "Foo's params");
-      strictEqual(getDoc(testHost.program, Foo.parameters.properties.get("a")!), "Foo's a");
-      strictEqual(getDoc(testHost.program, Foo.returnType), "Foo's return type");
-      strictEqual(getDoc(testHost.program, Bar.parameters), "Bar's params");
-      strictEqual(getDoc(testHost.program, Bar.parameters.properties.get("a")!), "Bar's a");
-      strictEqual(getDoc(testHost.program, Bar.returnType), "Bar's return type");
     });
 
     it("works with johan's case", async () => {
