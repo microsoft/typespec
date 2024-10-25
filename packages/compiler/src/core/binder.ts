@@ -132,7 +132,7 @@ export function createBinder(program: Program): Binder {
     mutate(sourceFile).symbol = createSymbol(
       sourceFile,
       sourceFile.file.path,
-      SymbolFlags.SourceFile,
+      SymbolFlags.SourceFile | SymbolFlags.Declaration,
     );
     const rootNs = sourceFile.esmExports["namespace"];
 

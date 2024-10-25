@@ -107,7 +107,11 @@ export interface NameResolver {
 
   // TODO: do we need those, should that be the signature.
   bindAndResolveNode(node: Node): void;
-  resolveMemberExpressionForSym(sym: Sym, node: MemberExpressionNode): ResolutionResult;
+  resolveMemberExpressionForSym(
+    sym: Sym,
+    node: MemberExpressionNode,
+    options?: ResolveTypReferenceOptions,
+  ): ResolutionResult;
   resolveMetaMemberByName(sym: Sym, name: string): ResolutionResult;
 
   readonly intrinsicSymbols: {
@@ -305,24 +309,30 @@ export function createResolver(program: Program): NameResolver {
     node: MemberExpressionNode,
     options: ResolveTypReferenceOptions,
   ): ResolutionResult {
-    const [baseSym, baseResult] = resolveTypeReference(node.base, options);
+    const [baseSym, baseResult] = resolveTypeReference(node.base, {
+      ...options,
+      resolveDecorators: false, // When resolving the base it can never be a decorator
+    });
+
     if (baseResult & ResolutionResultFlags.ResolutionFailed) {
       return [undefined, baseResult];
     }
 
     compilerAssert(baseSym, "Base symbol must be defined if resolution did not fail");
-    return resolveMemberExpressionForSym(baseSym, node);
+    return resolveMemberExpressionForSym(baseSym, node, options);
   }
 
   function resolveMemberExpressionForSym(
     baseSym: Sym,
     node: MemberExpressionNode,
+    options: ResolveTypReferenceOptions = {},
   ): ResolutionResult {
     if (node.selector === ".") {
       if (baseSym.flags & SymbolFlags.MemberContainer) {
         return resolveMember(baseSym, node.id);
       } else if (baseSym.flags & SymbolFlags.ExportContainer) {
-        return resolveExport(getMergedSymbol(baseSym), node.id);
+        const res = resolveExport(getMergedSymbol(baseSym), node.id, options);
+        return res;
       }
     } else {
       return resolveMetaMember(baseSym, node.id);
@@ -438,7 +448,11 @@ export function createResolver(program: Program): NameResolver {
     return [undefined, ResolutionResultFlags.NotFound];
   }
 
-  function resolveExport(baseSym: Sym, id: IdentifierNode): ResolutionResult {
+  function resolveExport(
+    baseSym: Sym,
+    id: IdentifierNode,
+    options: ResolveTypReferenceOptions,
+  ): ResolutionResult {
     const node = baseSym.declarations[0];
     compilerAssert(
       node.kind === SyntaxKind.NamespaceStatement ||
@@ -446,8 +460,7 @@ export function createResolver(program: Program): NameResolver {
         node.kind === SyntaxKind.JsNamespaceDeclaration,
       `Unexpected node kind ${SyntaxKind[node.kind]}`,
     );
-
-    const exportSym = tableLookup(baseSym.exports!, id);
+    const exportSym = tableLookup(baseSym.exports!, id, options.resolveDecorators);
     if (!exportSym) {
       return [undefined, ResolutionResultFlags.NotFound];
     }
@@ -931,14 +944,14 @@ export function createResolver(program: Program): NameResolver {
       }
       compilerAssert(usedSym, "Used symbol must be defined if resolution succeeded");
       if (~usedSym.flags & SymbolFlags.Namespace) {
-        reportCheckerDiagnostic(createDiagnostic({ code: "using-invalid-ref", target: using }));
+        program.reportDiagnostic(createDiagnostic({ code: "using-invalid-ref", target: using }));
         continue;
       }
 
       const namespaceSym = getMergedSymbol(usedSym)!;
 
       if (usedUsing.has(namespaceSym)) {
-        reportCheckerDiagnostic(
+        program.reportDiagnostic(
           createDiagnostic({
             code: "duplicate-using",
             format: { usingName: memberExpressionToString(using.name) },
@@ -1072,9 +1085,6 @@ export function createResolver(program: Program): NameResolver {
 
     return nodeInterfaces;
   }
-}
-function reportCheckerDiagnostic(arg0: any) {
-  throw new Error("Function not implemented.");
 }
 
 // TODO: better place?

@@ -23,6 +23,15 @@ function printNodeInfoInternal(node: Node): string {
       return node.sv;
     case SyntaxKind.DecoratorExpression:
       return `@${printNodeInfoInternal(node.target)}`;
+    case SyntaxKind.JsNamespaceDeclaration:
+    case SyntaxKind.NamespaceStatement:
+    case SyntaxKind.ModelStatement:
+    case SyntaxKind.OperationStatement:
+    case SyntaxKind.EnumStatement:
+    case SyntaxKind.AliasStatement:
+    case SyntaxKind.ConstStatement:
+    case SyntaxKind.UnionStatement:
+      return node.id.sv;
     default:
       return "";
   }
