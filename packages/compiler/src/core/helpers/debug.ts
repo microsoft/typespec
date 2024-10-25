@@ -1,7 +1,7 @@
 import { relative } from "path/posix";
 import pc from "picocolors";
 import { getSourceLocation } from "../diagnostics.js";
-import { SyntaxKind, type Node } from "../types.js";
+import { Sym, SymbolFlags, SyntaxKind, type Node } from "../types.js";
 
 export function printNodeInfo(node: Node): string {
   const loc = getSourceLocation(node);
@@ -26,4 +26,34 @@ function printNodeInfoInternal(node: Node): string {
     default:
       return "";
   }
+}
+
+const flagsNames = [
+  [SymbolFlags.Model, "Model"],
+  [SymbolFlags.Scalar, "Scalar"],
+  [SymbolFlags.Operation, "Operation"],
+  [SymbolFlags.Enum, "Enum"],
+  [SymbolFlags.Interface, "Interface"],
+  [SymbolFlags.Union, "Union"],
+  [SymbolFlags.Alias, "Alias"],
+  [SymbolFlags.Namespace, "Namespace"],
+  [SymbolFlags.Projection, "Projection"],
+  [SymbolFlags.Decorator, "Decorator"],
+  [SymbolFlags.TemplateParameter, "TemplateParameter"],
+  [SymbolFlags.ProjectionParameter, "ProjectionParameter"],
+  [SymbolFlags.Function, "Function"],
+  [SymbolFlags.FunctionParameter, "FunctionParameter"],
+  [SymbolFlags.Using, "Using"],
+  [SymbolFlags.DuplicateUsing, "DuplicateUsing"],
+  [SymbolFlags.SourceFile, "SourceFile"],
+  [SymbolFlags.Member, "Member"],
+  [SymbolFlags.Const, "Const"],
+] as const;
+
+export function printSymbolFlags(sym: Sym) {
+  const flags: string[] = [];
+  for (const [flag, name] of flagsNames) {
+    if (sym.flags & flag) flags.push(name);
+  }
+  return flags.join(", ");
 }
