@@ -1,10 +1,10 @@
 import { MockApiDefinition } from "@typespec/spec-api";
 import * as fs from "fs";
 import * as path from "path";
+import pc from "picocolors";
 import { logger } from "../logger.js";
 import { loadScenarioMockApis } from "../scenarios-resolver.js";
 import { makeServiceCall, uint8ArrayToString } from "./helper.js";
-import pc from "picocolors";
 
 const DEFAULT_BASE_URL = "http://localhost:3000";
 
@@ -12,7 +12,7 @@ export interface ServerTestDiagnostics {
   scenario_name: string;
   status: "success" | "failure";
   message: any;
-};
+}
 
 class ServerTestsGenerator {
   private name: string = "";
@@ -221,13 +221,13 @@ export async function serverTest(scenariosPath: string, options: ServerTestOptio
 
   // 4. Print diagnostics
   logger.info("Server Tests Diagnostics Summary");
-  
+
   if (success_diagnostics.length > 0) logger.info("Success Scenarios");
   success_diagnostics.forEach((diagnostic) => {
     logger.info(`${pc.green("✓")} Scenario: ${diagnostic.scenario_name} - ${diagnostic.message}`);
   });
 
-  if (failure_diagnostics.length > 0) logger.error("Failure Scenarios");  
+  if (failure_diagnostics.length > 0) logger.error("Failure Scenarios");
   if (failure_diagnostics.length > 0) {
     logger.error("Failed Scenario details");
     failure_diagnostics.forEach((diagnostic) => {
