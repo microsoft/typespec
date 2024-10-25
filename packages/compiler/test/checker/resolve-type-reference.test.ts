@@ -97,7 +97,7 @@ describe("compiler: resolveTypeReference", () => {
       `
       model Animal { @test("target") name: string}
       model Pet extends Animal { }
-    `
+    `,
     );
   });
 
@@ -130,7 +130,7 @@ describe("compiler: resolveTypeReference", () => {
       `
       enum Foo { @test("target") up }
       enum Direction { ... Foo }
-    `
+    `,
     );
   });
 
@@ -148,8 +148,8 @@ describe("compiler: resolveTypeReference", () => {
   it("emit diagnostic if not found", async () => {
     const diagnostics = await diagnoseResolution("Direction.up", "");
     expectDiagnostics(diagnostics, {
-      code: "unknown-identifier",
-      message: "Unknown identifier Direction",
+      code: "invalid-ref",
+      message: "Cannot resolve Direction",
     });
   });
 

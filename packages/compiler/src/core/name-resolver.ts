@@ -106,7 +106,8 @@ export interface NameResolver {
   getSymbolLinks(s: Sym): SymbolLinks;
   getGlobalNamespaceSymbol(): Sym;
 
-  // TODO: do we need this one, should that be the signature.
+  // TODO: do we need those, should that be the signature.
+  bindAndResolveNode(node: Node): void;
   resolveMemberExpressionForSym(sym: Sym, node: MemberExpressionNode): ResolutionResult;
   resolveMetaMemberByName(sym: Sym, name: string): ResolutionResult;
 
@@ -181,6 +182,8 @@ export function createResolver(program: Program): NameResolver {
     getGlobalNamespaceSymbol() {
       return globalNamespaceSym;
     },
+
+    bindAndResolveNode,
     resolveMemberExpressionForSym,
     resolveMetaMemberByName,
   };

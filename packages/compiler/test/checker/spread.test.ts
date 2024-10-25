@@ -39,7 +39,7 @@ describe("compiler: spread", () => {
     }
   });
 
-  it("doesn't emit additional diagnostic if spread reference is unknown-identifier", async () => {
+  it("doesn't emit additional diagnostic if spread reference is invalid-ref", async () => {
     const diagnostics = await runner.diagnose(`
       model Foo {
         ...NotDefined
@@ -47,8 +47,8 @@ describe("compiler: spread", () => {
       `);
 
     expectDiagnostics(diagnostics, {
-      code: "unknown-identifier",
-      message: "Unknown identifier NotDefined",
+      code: "invalid-ref",
+      message: "Cannot resolve NotDefined",
     });
   });
 
