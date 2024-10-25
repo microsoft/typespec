@@ -367,7 +367,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   const neverType = createType({ kind: "Intrinsic", name: "never" } as const);
   const unknownType = createType({ kind: "Intrinsic", name: "unknown" } as const);
   const nullType = createType({ kind: "Intrinsic", name: "null" } as const);
-  const nullSym = createSymbol(undefined, "null", SymbolFlags.None);
 
   const projectionsByTypeKind = new Map<Type["kind"], ProjectionStatementNode[]>([
     ["Model", []],
@@ -478,7 +477,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     // Until we have an `unit` type for `null`
     mutate(resolver.intrinsicSymbols.null).type = nullType;
-    getSymbolLinks(nullSym).type = nullType;
+    getSymbolLinks(resolver.intrinsicSymbols.null).type = nullType;
   }
 
   function getStdType<T extends keyof StdTypes>(name: T): StdTypes[T] {
@@ -1699,7 +1698,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         );
       }
     } else {
-      const symNode = sym.node ?? sym.declarations[0];
+      const symNode = getSymNode(sym);
       // some other kind of reference
       if (argumentNodes.length > 0) {
         reportCheckerDiagnostic(
@@ -1739,7 +1738,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     // Check for deprecations here, first on symbol, then on type.  However,
     // don't raise deprecation when the usage site is also a deprecated
     // declaration.
-    const declarationNode = sym?.declarations[0];
+    const declarationNode = getSymNode(sym);
     if (declarationNode && mapper === undefined && isType(baseType)) {
       if (!isTypeReferenceContextDeprecated(node.parent!)) {
         checkDeprecated(baseType, declarationNode, node);
