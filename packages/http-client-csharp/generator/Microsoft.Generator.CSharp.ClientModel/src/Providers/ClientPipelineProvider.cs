@@ -36,11 +36,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         public override ValueExpression PerRetryPolicy(params ValueExpression[] arguments)
             => Static<ApiKeyAuthenticationPolicy>().Invoke(nameof(ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy), arguments).As<ApiKeyAuthenticationPolicy>();
 
-        public override InvokeMethodExpression Send(HttpMessageApi message)
-            => Original.Invoke(nameof(ClientPipeline.Send), [message]);
+        public override InvokeMethodExpression Send(HttpMessageApi message, HttpRequestOptionsApi options)
+            => Original.Invoke(nameof(ClientPipeline.Send), [message, options]);
 
-        public override InvokeMethodExpression SendAsync(HttpMessageApi message)
-            => Original.Invoke(nameof(ClientPipeline.SendAsync), [message], true);
+        public override InvokeMethodExpression SendAsync(HttpMessageApi message, HttpRequestOptionsApi options)
+            => Original.Invoke(nameof(ClientPipeline.SendAsync), [message, options], true);
 
         public override ClientPipelineApi ToExpression() => this;
     }

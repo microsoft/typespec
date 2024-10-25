@@ -21,9 +21,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         public abstract ValueExpression CreateMessage(ParameterProvider requestOptions, ValueExpression responseClassifier);
 
-        public abstract InvokeMethodExpression Send(HttpMessageApi message);
+        public abstract InvokeMethodExpression Send(HttpMessageApi message, HttpRequestOptionsApi options);
 
-        public abstract InvokeMethodExpression SendAsync(HttpMessageApi message);
+        public abstract InvokeMethodExpression SendAsync(HttpMessageApi message, HttpRequestOptionsApi options);
 
         public abstract ValueExpression Create(ValueExpression options, ValueExpression perRetryPolicies);
 

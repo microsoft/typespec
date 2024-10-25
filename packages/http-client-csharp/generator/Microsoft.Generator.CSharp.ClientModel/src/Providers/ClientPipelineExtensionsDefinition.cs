@@ -27,7 +27,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             _pipelineParam = new ParameterProvider("pipeline", FormattableStringHelpers.Empty, ClientModelPlugin.Instance.TypeFactory.ClientPipelineApi.ClientPipelineType);
             _messageParam = new ParameterProvider("message", FormattableStringHelpers.Empty, ClientModelPlugin.Instance.TypeFactory.HttpMessageApi.HttpMessageType);
-            _requestOptionsParam = new ParameterProvider("options", FormattableStringHelpers.Empty, ClientModelPlugin.Instance.TypeFactory.HttpRequestOptionsApi.HttpRequestOptionsType);
+            _requestOptionsParam = new ParameterProvider(ClientModelPlugin.Instance.TypeFactory.HttpRequestOptionsApi.ParameterName, FormattableStringHelpers.Empty, ClientModelPlugin.Instance.TypeFactory.HttpRequestOptionsApi.HttpRequestOptionsType);
             _pipeline = _pipelineParam.AsExpression.ToApi<ClientPipelineApi>();
             _message = _messageParam.AsExpression.ToApi<HttpMessageApi>();
             _options = _requestOptionsParam.AsExpression.ToApi<HttpRequestOptionsApi>();
@@ -124,7 +124,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var clientErrorNoThrow = _options.NoThrow();
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                _pipeline.Send(_message).Terminate(),
+                _pipeline.Send(_message, _options).Terminate(),
                 MethodBodyStatement.EmptyLine,
                 new IfStatement(_message.Response().IsError().And(new BinaryOperatorExpression("&", _options.NullConditional().Property("ErrorOptions"), clientErrorNoThrow).NotEqual(clientErrorNoThrow)))
                 {
@@ -167,7 +167,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var clientErrorNoThrow = _options.NoThrow();
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                _pipeline.SendAsync(_message).Terminate(),
+                _pipeline.SendAsync(_message, _options).Terminate(),
                 MethodBodyStatement.EmptyLine,
                 new IfStatement(_message.Response().IsError().And(new BinaryOperatorExpression("&", _options.NullConditional().Property("ErrorOptions"), clientErrorNoThrow).NotEqual(clientErrorNoThrow)))
                 {

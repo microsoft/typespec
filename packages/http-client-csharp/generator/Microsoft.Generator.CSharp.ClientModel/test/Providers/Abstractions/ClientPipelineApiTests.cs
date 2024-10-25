@@ -68,11 +68,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.Abstractions
             public override ValueExpression PerRetryPolicy(params ValueExpression[] arguments)
                 => Original.Invoke("GetFakePerRetryPolicy", arguments);
 
-            public override InvokeMethodExpression Send(HttpMessageApi message)
-                => Original.Invoke("GetFakeSend", message);
+            public override InvokeMethodExpression Send(HttpMessageApi message, HttpRequestOptionsApi options)
+                => Original.Invoke("GetFakeSend", [message, options]);
 
-            public override InvokeMethodExpression SendAsync(HttpMessageApi message)
-                => Original.Invoke("GetFakeSendAsync", message);
+            public override InvokeMethodExpression SendAsync(HttpMessageApi message, HttpRequestOptionsApi options)
+                => Original.Invoke("GetFakeSendAsync", [message, options]);
 
             public override ClientPipelineApi ToExpression() => this;
         }
