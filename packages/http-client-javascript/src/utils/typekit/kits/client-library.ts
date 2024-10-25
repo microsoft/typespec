@@ -4,15 +4,10 @@ import {
   getClientNameOverride,
   SdkClient,
 } from "@azure-tools/typespec-client-generator-core";
-import { Enum, Interface, listServices, Model, Namespace } from "@typespec/compiler";
+import { Enum, listServices, Model, Namespace } from "@typespec/compiler";
 import { $, defineKit } from "@typespec/compiler/typekit";
+import { Client } from "./client.js";
 
-export interface Client {
-  kind: "Client";
-  name: string;
-  type: Namespace | Interface;
-  service: Namespace;
-}
 
 interface ClientLibraryKit {
   clientLibrary: {
