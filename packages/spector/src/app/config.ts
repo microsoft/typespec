@@ -7,7 +7,7 @@ export interface ApiMockAppConfig {
   /**
    * Path where are the scenarios.
    */
-  scenarioPath: string;
+  scenarioPath: string | string[];
 
   /**
    * Coverage file Path.

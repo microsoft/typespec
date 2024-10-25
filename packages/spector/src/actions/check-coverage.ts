@@ -11,9 +11,11 @@ export interface CheckCoverageConfig {
   coverageFiles: string[];
   mergedCoverageFile: string;
   ignoreNotImplemented?: boolean;
+  exitDueToPreviousError?: boolean;
+  hasMoreScenarios?: boolean;
 }
 
-export async function checkCoverage(config: CheckCoverageConfig) {
+export async function checkCoverage(config: CheckCoverageConfig): Promise<boolean> {
   const inputCoverageFiles = (
     await Promise.all(config.coverageFiles.map((x) => findFilesFromPattern(x)))
   ).flat();
@@ -81,7 +83,16 @@ export async function checkCoverage(config: CheckCoverageConfig) {
   const coverageReport = createCoverageReport(config.scenariosPath, results);
   await writeFile(config.mergedCoverageFile, JSON.stringify(coverageReport, null, 2));
 
-  if (diagnosticsReporter.diagnostics.length) {
-    process.exit(1);
+  if (diagnosticsReporter.diagnostics.length === 0) {
+    if (config.exitDueToPreviousError) {
+      process.exit(1);
+    }
+    return false;
+  } else {
+    if (config.hasMoreScenarios) {
+      return true;
+    } else {
+      process.exit(1);
+    }
   }
 }

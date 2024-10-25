@@ -1,6 +1,6 @@
 {
   "name": "@typespec/spector",
-  "version": "0.1.0",
+  "version": "0.1.0-alpha.0",
   "description": "Typespec Core Tool to validate, run mock api, collect coverage.",
   "exports": {
     ".": {
@@ -8,7 +8,6 @@
       "typespec": "./lib/main.tsp"
     }
   },
-  "private": true,
   "type": "module",
   "bin": {
     "tsp-spector": "./cmd/cli.mjs"
