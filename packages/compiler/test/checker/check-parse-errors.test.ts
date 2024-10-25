@@ -1,7 +1,7 @@
 import { beforeEach, describe, it } from "vitest";
 import { TestHost, createTestHost, expectDiagnostics } from "../../src/testing/index.js";
 
-describe("compiler: semantic checks on source with parse errors", () => {
+describe("compiler: semantic checks o`n source with parse errors", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {

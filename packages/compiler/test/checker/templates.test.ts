@@ -296,8 +296,8 @@ describe("compiler: templates", () => {
       const [{ prop }, diagnostics] = await testHost.compileAndDiagnose("main.tsp");
       // Only one error
       expectDiagnostics(diagnostics, {
-        code: "unknown-identifier",
-        message: "Unknown identifier notExists",
+        code: "invalid-ref",
+        message: "Cannot resolve notExists",
       });
 
       strictEqual(prop.kind, "ModelProperty");

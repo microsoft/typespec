@@ -542,9 +542,18 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     );
 
     for (const decNode of augmentDecorators) {
-      // TODO: this doesn't error if augment decorator resolve to invalid sym.
-      const ref = resolver.getNodeLinks(decNode.targetType).resolvedSymbol;
-      if (ref) {
+      const links = resolver.getNodeLinks(decNode.targetType);
+      const ref = links.resolvedSymbol;
+
+      if (links.isTemplate) {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "augment-decorator-target",
+            messageId: "noInstance",
+            target: decNode.target,
+          }),
+        );
+      } else if (ref) {
         let args: readonly TemplateArgumentNode[] = [];
         // TODO: do we still need this?
         if (ref.declarations[0]?.kind === SyntaxKind.AliasStatement) {
@@ -2468,20 +2477,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         }
       }
     }
-    // const parameterModelSym = getOrCreateAugmentedSymbolTable(symbol!.metatypeMembers!).get(
-    //   "parameters",
-    // );
-
-    // if (parameterModelSym?.members) {
-    //   const members = getOrCreateAugmentedSymbolTable(parameterModelSym.members);
-    //   const paramDocs = extractParamDocs(node);
-    //   for (const [name, memberSym] of members) {
-    //     const doc = paramDocs.get(name);
-    //     if (doc) {
-    //       docFromCommentForSym.set(memberSym, doc);
-    //     }
-    //   }
-    // }
 
     // Is this a definition or reference?
     let parameters: Model, returnType: Type, sourceOperation: Operation | undefined;
@@ -3391,7 +3386,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     node: MemberExpressionNode,
     options: SymbolResolutionOptions,
   ) {
-    const [sym, _result, nextSym] = resolver.resolveMemberExpressionForSym(base, node, options);
+    const [sym, _result, _isTemplate, nextSym] = resolver.resolveMemberExpressionForSym(
+      base,
+      node,
+      options,
+    );
     const symbol = nextSym ?? sym;
     if (symbol) {
       return symbol;
@@ -5911,7 +5910,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return (
       node.kind === SyntaxKind.ModelProperty ||
       node.kind === SyntaxKind.EnumMember ||
-      node.kind === SyntaxKind.OperationStatement ||
       node.kind === SyntaxKind.UnionVariant
     );
   }

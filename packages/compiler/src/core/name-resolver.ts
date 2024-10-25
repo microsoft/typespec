@@ -60,7 +60,6 @@
 import { Mutable, mutate } from "../utils/misc.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { compilerAssert } from "./diagnostics.js";
-import { printSymbolFlags } from "./helpers/debug.js";
 import { inspectSymbol } from "./inspector.js";
 import { createDiagnostic } from "./messages.js";
 import { visitChildren } from "./parser.js";
@@ -253,7 +252,7 @@ export function createResolver(program: Program): NameResolver {
 
     let result = resolveTypeReferenceWorker(node, options);
 
-    const [resolvedSym, resolvedSymResult, nextSym] = result;
+    const [resolvedSym, resolvedSymResult, isTemplate, nextSym] = result;
 
     if (resolvedSym) {
       links.resolvedSymbol = resolvedSym;
@@ -261,14 +260,22 @@ export function createResolver(program: Program): NameResolver {
     if (nextSym) {
       links.nextSymbol = nextSym;
     }
+    if (isTemplate) {
+      links.isTemplate = isTemplate;
+    }
     links.resolutionResult = resolvedSymResult;
 
     if (resolvedSym && resolvedSym.flags & SymbolFlags.Alias) {
       // unwrap aliases
       const aliasNode = resolvedSym.declarations[0];
       links.nextSymbol = resolvedSym;
-      const [resolveAliasSym, resolveAliasResult] = resolveAlias(aliasNode as AliasStatementNode);
-      result = [resolveAliasSym, resolveAliasResult, resolvedSym];
+      const [resolveAliasSym, resolveAliasResult, aliasIsTemplate] = resolveAlias(
+        aliasNode as AliasStatementNode,
+      );
+      if (aliasIsTemplate) {
+        links.isTemplate = true;
+      }
+      result = [resolveAliasSym, resolveAliasResult, isTemplate || aliasIsTemplate, resolvedSym];
     } else if (resolvedSym && resolvedSym.flags & SymbolFlags.TemplateParameter) {
       // references to template parameters with constraints can reference the
       // constraint type members
@@ -295,7 +302,8 @@ export function createResolver(program: Program): NameResolver {
     options: ResolveTypReferenceOptions,
   ): ResolutionResult {
     if (node.kind === SyntaxKind.TypeReference) {
-      return resolveTypeReference(node.target, options);
+      const [sym, result, isTemplate, nextSymbol] = resolveTypeReference(node.target, options);
+      return [sym, result, isTemplate || node.arguments.length > 0, nextSymbol];
     } else if (node.kind === SyntaxKind.MemberExpression) {
       return resolveMemberExpression(node, options);
     } else if (node.kind === SyntaxKind.Identifier) {
@@ -309,13 +317,13 @@ export function createResolver(program: Program): NameResolver {
     node: MemberExpressionNode,
     options: ResolveTypReferenceOptions,
   ): ResolutionResult {
-    const [baseSym, baseResult] = resolveTypeReference(node.base, {
+    const [baseSym, baseResult, isTemplate] = resolveTypeReference(node.base, {
       ...options,
       resolveDecorators: false, // When resolving the base it can never be a decorator
     });
 
     if (baseResult & ResolutionResultFlags.ResolutionFailed) {
-      return [undefined, baseResult];
+      return [undefined, baseResult, isTemplate];
     }
 
     compilerAssert(baseSym, "Base symbol must be defined if resolution did not fail");
@@ -405,6 +413,7 @@ export function createResolver(program: Program): NameResolver {
       modelSymLinks.hasUnknownMembers
         ? ResolutionResultFlags.Unknown
         : ResolutionResultFlags.NotFound,
+      false,
     ];
   }
 
@@ -418,6 +427,7 @@ export function createResolver(program: Program): NameResolver {
     return [
       undefined,
       slinks.hasUnknownMembers ? ResolutionResultFlags.Unknown : ResolutionResultFlags.NotFound,
+      false,
     ];
   }
 
@@ -473,7 +483,7 @@ export function createResolver(program: Program): NameResolver {
     const slinks = getSymbolLinks(symbol);
 
     if (slinks.aliasResolutionResult) {
-      return [slinks.aliasedSymbol, slinks.aliasResolutionResult];
+      return [slinks.aliasedSymbol, slinks.aliasResolutionResult, slinks.aliasResolutionIsTemplate];
     }
 
     if (node.value.kind === SyntaxKind.TypeReference) {
@@ -485,7 +495,8 @@ export function createResolver(program: Program): NameResolver {
         slinks.aliasedSymbol = result[0];
       }
       slinks.aliasResolutionResult = result[1];
-      return [slinks.aliasedSymbol, slinks.aliasResolutionResult];
+      slinks.aliasResolutionIsTemplate = result[2];
+      return [slinks.aliasedSymbol, slinks.aliasResolutionResult, result[2]];
     } else if (node.value.symbol) {
       // a type literal
       slinks.aliasedSymbol = node.value.symbol;
@@ -767,7 +778,7 @@ export function createResolver(program: Program): NameResolver {
 
       targetTable.set(
         variantNode.id.sv,
-        createSymbol(variantNode, variantNode.id.sv, SymbolFlags.Member),
+        createSymbol(variantNode, variantNode.id.sv, SymbolFlags.Member, unionSym),
       );
     }
   }
@@ -965,7 +976,6 @@ export function createResolver(program: Program): NameResolver {
 
       compilerAssert(usedSym, "Used symbol must be defined if resolution succeeded");
       if (~usedSym.flags & SymbolFlags.Namespace) {
-        console.log("Flags", usedSym.symbolSource && printSymbolFlags(usedSym.symbolSource));
         program.reportDiagnostic(createDiagnostic({ code: "using-invalid-ref", target: using }));
         continue;
       }

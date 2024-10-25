@@ -868,6 +868,9 @@ export interface SymbolLinks {
    */
   aliasResolutionResult?: ResolutionResultFlags;
 
+  // TODO: any better idea?
+  aliasResolutionIsTemplate?: boolean;
+
   /**
    * The symbol for the constraint of a type parameter. Will not be present when
    * the name resolver could not determine a symbol for the constraint, e.g.
@@ -888,8 +891,11 @@ export interface NodeLinks {
   /** the result of type checking this node */
   resolvedType?: Type;
 
-  /** the result of resolving this reference node */
+  /** The syntax symbol resolved by this node.  */
   resolvedSymbol?: Sym;
+
+  /** If the link involve template argument */
+  isTemplate?: boolean;
 
   // TODO: check if we need/change + add docs
   /** In the case where the resolution resolve to an alias. This is the alias symbol. */
@@ -903,7 +909,12 @@ export interface NodeLinks {
   resolutionResult?: ResolutionResultFlags;
 }
 
-export type ResolutionResult = [sym: Sym | undefined, result: ResolutionResultFlags, nextSym?: Sym];
+export type ResolutionResult = [
+  sym: Sym | undefined,
+  result: ResolutionResultFlags,
+  isTempate?: boolean,
+  nextSym?: Sym,
+];
 
 export enum ResolutionResultFlags {
   None = 0,

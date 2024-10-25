@@ -1148,7 +1148,7 @@ function getGlobalSymbol(sources: (string | Record<string, unknown>)[]): Sym {
 function assertSymbol(
   sym: ResolutionResult | Sym | undefined,
   record: SymbolDescriptor = {},
-): asserts sym is [Sym, ResolutionResultFlags] | Sym {
+): asserts sym is [Sym, ResolutionResultFlags, boolean] | Sym {
   if (Array.isArray(sym)) {
     sym = sym[0];
   }
