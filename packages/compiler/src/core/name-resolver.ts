@@ -1182,6 +1182,11 @@ export function createResolver(program: Program): NameResolver {
 }
 
 // TODO: better place?
+/**
+ * Get the node attached to this symbol.
+ * If a declaration symbol get the first one `.declarations[0]`
+ * Otherwise get `.node`
+ */
 export function getSymNode(sym: Sym): Node {
   return sym.flags & SymbolFlags.Declaration ? sym.declarations[0] : sym.node;
 }

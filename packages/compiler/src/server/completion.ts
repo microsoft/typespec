@@ -24,6 +24,7 @@ import {
   positionInRange,
   printIdentifier,
 } from "../core/index.js";
+import { getSymNode } from "../core/name-resolver.js";
 import {
   getAnyExtensionFromPath,
   getBaseFileName,
@@ -410,17 +411,15 @@ function addIdentifierCompletion(
   for (const [key, { sym, label, suffix }] of result) {
     let kind: CompletionItemKind;
     let deprecated = false;
-    const type = sym.type ?? program.checker.getTypeForNode(sym.declarations[0]);
+    const node = getSymNode(sym);
+    const type = sym.type ?? program.checker.getTypeForNode(node);
     if (sym.flags & (SymbolFlags.Function | SymbolFlags.Decorator)) {
       kind = CompletionItemKind.Function;
-    } else if (
-      sym.flags & SymbolFlags.Namespace &&
-      sym.declarations[0].kind !== SyntaxKind.NamespaceStatement
-    ) {
+    } else if (sym.flags & SymbolFlags.Namespace && node.kind !== SyntaxKind.NamespaceStatement) {
       kind = CompletionItemKind.Module;
-    } else if (sym.declarations[0]?.kind === SyntaxKind.AliasStatement) {
+    } else if (node?.kind === SyntaxKind.AliasStatement) {
       kind = CompletionItemKind.Variable;
-      deprecated = getDeprecationDetails(program, sym.declarations[0]) !== undefined;
+      deprecated = getDeprecationDetails(program, node) !== undefined;
     } else {
       kind = getCompletionItemKind(program, type);
       deprecated = getDeprecationDetails(program, type) !== undefined;

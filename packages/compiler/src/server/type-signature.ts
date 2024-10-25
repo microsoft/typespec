@@ -1,6 +1,7 @@
 import { compilerAssert } from "../core/diagnostics.js";
 import { printIdentifier } from "../core/helpers/syntax-utils.js";
 import { getEntityName, getTypeName, isStdNamespace } from "../core/helpers/type-name-utils.js";
+import { getSymNode } from "../core/name-resolver.js";
 import type { Program } from "../core/program.js";
 import { getFullyQualifiedSymbolName } from "../core/type-utils.js";
 import {
@@ -21,7 +22,7 @@ import {
 
 /** @internal */
 export function getSymbolSignature(program: Program, sym: Sym): string {
-  const decl = sym.declarations[0];
+  const decl = getSymNode(sym);
   switch (decl?.kind) {
     case SyntaxKind.AliasStatement:
       return fence(`alias ${getAliasSignature(decl)}`);
