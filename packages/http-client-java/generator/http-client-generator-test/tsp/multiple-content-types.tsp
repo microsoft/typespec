@@ -128,7 +128,7 @@ op uploadStringWithOverload(@body data: string, @header contentType: "text/plain
 @doc("multiple data types map to multiple content types using `@overload`")
 @route("upload/overload/multi-body-types")
 @post
-@overload(uploadWithOverload)  
+@overload(uploadWithOverload)
 op uploadImagesWithOverload(
   @body data: bytes,
   @header contentType: "image/jpeg" | "image/png",
