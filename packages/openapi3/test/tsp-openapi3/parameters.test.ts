@@ -1,6 +1,7 @@
-import { Numeric } from "@typespec/compiler";
+import { getDocData, Numeric } from "@typespec/compiler";
+import { ok } from "assert";
 import { assert, describe, expect, it } from "vitest";
-import { tspForOpenAPI3 } from "./utils/tsp-for-openapi3.js";
+import { tspForOpenAPI3, tspForOpenAPI3WithProgram } from "./utils/tsp-for-openapi3.js";
 
 describe("converts top-level parameters", () => {
   it.each(["query", "header", "path"] as const)(`Supports location: %s`, async (location) => {
@@ -158,7 +159,7 @@ describe("converts top-level parameters", () => {
   });
 
   it("supports doc generation", async () => {
-    const serviceNamespace = await tspForOpenAPI3({
+    const [serviceNamespace, program] = await tspForOpenAPI3WithProgram({
       parameters: {
         Foo: {
           name: "foo",
@@ -187,13 +188,14 @@ describe("converts top-level parameters", () => {
     assert(Foo, "Foo model not found");
     expect(Foo.properties.size).toBe(1);
     const foo = Foo.properties.get("foo");
+    ok(foo);
     expect(foo).toMatchObject({
       optional: true,
       type: { kind: "Scalar", name: "string" },
     });
-    expect(foo?.decorators.find((d) => d.definition?.name === "@query")).toBeTruthy();
-    const docDecorator = foo?.decorators.find((d) => d.decorator?.name === "$docFromComment");
-    expect(docDecorator?.args[1]).toMatchObject({ jsValue: "Docs for foo" });
+    expect(foo.decorators.find((d) => d.definition?.name === "@query")).toBeTruthy();
+    const data = getDocData(program, foo!);
+    expect(data).toMatchObject({ source: "comment", value: "Docs for foo" });
   });
 
   it("supports referenced schemas", async () => {

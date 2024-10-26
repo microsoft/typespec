@@ -24,7 +24,7 @@ export interface OpenAPI3Options {
   paths?: Record<string, OpenAPI3PathItem>;
 }
 
-export async function tspForOpenAPI3({ parameters, paths, schemas }: OpenAPI3Options) {
+export async function tspForOpenAPI3WithProgram({ parameters, paths, schemas }: OpenAPI3Options) {
   const openApi3Doc: OpenAPI3Document = {
     info: {
       title: "Test Service",
@@ -55,5 +55,8 @@ export async function tspForOpenAPI3({ parameters, paths, schemas }: OpenAPI3Opt
     TestService?.kind === "Namespace",
     `Expected TestService to be a namespace, instead got ${TestService?.kind}`,
   );
-  return TestService;
+  return [TestService, host.program] as const;
+}
+export async function tspForOpenAPI3(options: OpenAPI3Options) {
+  return (await tspForOpenAPI3WithProgram(options))[0];
 }
