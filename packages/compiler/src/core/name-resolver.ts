@@ -125,13 +125,15 @@ interface ResolveTypReferenceOptions {
   resolveDecorators?: boolean;
 }
 
+// This needs to be global to be sure to not reallocate per program.
+let currentSymbolId = 0;
+
 export function createResolver(program: Program): NameResolver {
   const mergedSymbols = new Map<Sym, Sym>();
   const augmentedSymbolTables = new Map<SymbolTable, SymbolTable>();
   const nodeLinks = new Map<number, NodeLinks>();
   let currentNodeId = 0;
   const symbolLinks = new Map<number, SymbolLinks>();
-  let currentSymbolId = 0;
 
   const globalNamespaceNode = createGlobalNamespaceNode();
   const globalNamespaceSym = createSymbol(
@@ -338,7 +340,20 @@ export function createResolver(program: Program): NameResolver {
     }
 
     compilerAssert(baseSym, "Base symbol must be defined if resolution did not fail");
-    return resolveMemberExpressionForSym(baseSym, node, options);
+    const result = resolveMemberExpressionForSym(baseSym, node, options);
+
+    // TODO: is it better to do this or just when you resolve identifier have to maybe check up the parent once.
+    // TODO: if keeping add test to make sure it always equals the container typereference/member expression
+    const idNodeLinks = getNodeLinks(node.id);
+    idNodeLinks.resolvedSymbol = result[0];
+    idNodeLinks.resolutionResult = result[1];
+    if (result[2]) {
+      idNodeLinks.isTemplate = result[2];
+    }
+    if (idNodeLinks.resolvedSymbol) {
+      (idNodeLinks.resolvedSymbol as any)._debug_set_via_member_res = true;
+    }
+    return result;
   }
 
   function resolveMemberExpressionForSym(
@@ -667,8 +682,29 @@ export function createResolver(program: Program): NameResolver {
     }
   }
 
+  function bindDeclarationIdentifier(node: Node & { id: IdentifierNode }) {
+    if (node.kind === SyntaxKind.TypeSpecScript || node.kind === SyntaxKind.JsSourceFile) return;
+    const links = getNodeLinks(node.id);
+    let sym;
+    if (node.symbol === undefined) {
+      return;
+    }
+    if (node.symbol.flags & SymbolFlags.Member) {
+      // TODO: we shouldn't probably have to get the parent, can we not do it when traversing down.
+      compilerAssert(node.parent, "Node should have a parent");
+      const parentSym = getMergedSymbol(node.parent.symbol);
+      const table = parentSym.exports ?? getAugmentedSymbolTable(parentSym.members!);
+      sym = table.get(node.id.sv);
+    } else {
+      sym = node.symbol;
+    }
+    compilerAssert(sym, "Should have a symbol");
+    links.resolvedSymbol = sym;
+    links.resolutionResult = ResolutionResultFlags.Resolved;
+  }
   function bindModelMembers(node: ModelStatementNode | ModelExpressionNode) {
     const modelSym = node.symbol!;
+
     const modelSymLinks = getSymbolLinks(modelSym);
 
     const targetTable = getAugmentedSymbolTable(modelSym.members!);
@@ -815,6 +851,7 @@ export function createResolver(program: Program): NameResolver {
     const unionSym = node.symbol!;
     const targetTable = getAugmentedSymbolTable(unionSym.members!);
 
+    // TODO: why is this not bound in the binder?? there is no reference to resolve
     for (const variantNode of node.options) {
       if (!variantNode.id) {
         continue;
@@ -835,6 +872,9 @@ export function createResolver(program: Program): NameResolver {
       const [extendsSym, extendsResult] = resolveTypeReference(node.extends);
       setUnknownMembers(scalarSymLinks, extendsSym, extendsResult);
 
+      if (~extendsResult & ResolutionResultFlags.Resolved) {
+        return;
+      }
       compilerAssert(extendsSym, "Scalar extends symbol must be defined if resolution succeeded");
 
       const sourceTable = getAugmentedSymbolTable(extendsSym.members!);
@@ -1104,6 +1144,7 @@ export function createResolver(program: Program): NameResolver {
       case SyntaxKind.ModelExpression:
       case SyntaxKind.InterfaceStatement:
       case SyntaxKind.EnumStatement:
+      case SyntaxKind.ScalarStatement:
       case SyntaxKind.UnionStatement:
       case SyntaxKind.IntersectionExpression:
         bindMemberContainer(node);
@@ -1124,6 +1165,10 @@ export function createResolver(program: Program): NameResolver {
       case SyntaxKind.CallExpression:
         resolveTypeReference(node.target); // TODO: should this not have been a type reference
         break;
+    }
+
+    if ("id" in node && node.kind !== SyntaxKind.MemberExpression && node.id) {
+      bindDeclarationIdentifier(node as any);
     }
 
     visitChildren(node, bindAndResolveNode);

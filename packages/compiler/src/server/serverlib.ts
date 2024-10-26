@@ -49,8 +49,10 @@ import { CharCode } from "../core/charcode.js";
 import { resolveCodeFix } from "../core/code-fixes.js";
 import { compilerAssert, getSourceLocation } from "../core/diagnostics.js";
 import { formatTypeSpec } from "../core/formatter.js";
+import { printNodeInfo } from "../core/helpers/debug.js";
 import { getEntityName, getTypeName } from "../core/helpers/type-name-utils.js";
 import { ResolveModuleHost, resolveModule } from "../core/index.js";
+import { getSymNode } from "../core/name-resolver.js";
 import { getPositionBeforeTrivia } from "../core/parser-utils.js";
 import { getNodeAtPosition, getNodeAtPositionDetail, visitChildren } from "../core/parser.js";
 import { ensureTrailingDirectorySeparator, getDirectoryPath } from "../core/path-utils.js";
@@ -771,16 +773,26 @@ export function createServer(host: ServerHost): Server {
       return [];
     }
 
+    console.log("Will try to find", printNodeInfo(id));
     const sym = program.checker.resolveIdentifier(id);
     if (!sym) {
       return [id];
     }
 
+    console.log("Found symbol", sym.name, printNodeInfo(getSymNode(sym)));
     const references: IdentifierNode[] = [];
     for (const searchFile of searchFiles) {
       visitChildren(searchFile, function visit(node) {
         if (node.kind === SyntaxKind.Identifier) {
           const s = program.checker.resolveIdentifier(node);
+          if (node.sv === "b") {
+            console.log("Trying", printNodeInfo(node));
+            console.log("Got sym", s?.name, s === sym);
+            if (s !== sym) {
+              console.log("impossibry");
+            }
+          }
+
           if (s === sym || (sym.type && s?.type === sym.type)) {
             references.push(node);
           }

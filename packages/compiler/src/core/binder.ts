@@ -343,6 +343,9 @@ export function createBinder(program: Program): Binder {
       case SyntaxKind.EnumMember:
         bindEnumMember(node);
         break;
+      case SyntaxKind.UnionVariant:
+        bindUnionVariant(node);
+        break;
       case SyntaxKind.NamespaceStatement:
         bindNamespaceStatement(node);
         break;
@@ -569,6 +572,12 @@ export function createBinder(program: Program): Binder {
 
   function bindEnumMember(node: EnumMemberNode) {
     declareMember(node, SymbolFlags.Member, node.id.sv);
+  }
+  function bindUnionVariant(node: UnionVariantNode) {
+    // cannot bind non named variant `union A { "a", "b"}`
+    if (node.id) {
+      declareMember(node, SymbolFlags.Member, node.id.sv);
+    }
   }
 
   function bindNamespaceStatement(statement: NamespaceStatementNode) {

@@ -6,6 +6,7 @@ import { createModelToObjectValueCodeFix } from "./compiler-code-fixes/model-to-
 import { createTupleToArrayValueCodeFix } from "./compiler-code-fixes/tuple-to-array-value.codefix.js";
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
 import { ProjectionError, compilerAssert, ignoreDiagnostics } from "./diagnostics.js";
+import { printNodeInfo } from "./helpers/debug.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
 import { getLocationContext } from "./helpers/location-context.js";
 import { explainStringTemplateNotSerializable } from "./helpers/string-template-utils.js";
@@ -2602,7 +2603,85 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function resolveIdentifier(id: IdentifierNode, mapper?: TypeMapper): Sym | undefined {
-    return resolver.getNodeLinks(id).resolvedSymbol;
+    let sym: Sym | undefined;
+    const { node, kind } = getIdentifierContext(id);
+
+    switch (kind) {
+      case IdentifierKind.ModelExpressionProperty:
+      case IdentifierKind.ObjectLiteralProperty:
+        const model = getReferencedModel(node as ModelPropertyNode | ObjectLiteralPropertyNode);
+        if (model) {
+          sym = getMemberSymbol(model.node!.symbol, id.sv);
+        } else {
+          return undefined;
+        }
+        break;
+      case IdentifierKind.ModelStatementProperty:
+      case IdentifierKind.Declaration:
+        const links = resolver.getNodeLinks(id);
+        console.log("KIND", printNodeInfo(id), links);
+        return links.resolvedSymbol;
+      case IdentifierKind.Other:
+        return undefined;
+
+      case IdentifierKind.Decorator:
+      case IdentifierKind.Function:
+      case IdentifierKind.Using:
+      case IdentifierKind.TypeReference:
+        let ref: MemberExpressionNode | IdentifierNode = id;
+        let resolveDecorator = kind === IdentifierKind.Decorator;
+        if (id.parent?.kind === SyntaxKind.MemberExpression) {
+          if (id.parent.id === id) {
+            // If the identifier is Y in X.Y, then resolve (X.Y).
+            ref = id.parent;
+          } else {
+            // If the identifier is X in X.Y then we are resolving a
+            // namespace, which is never a decorator.
+            resolveDecorator = false;
+          }
+        }
+        sym = resolveTypeReferenceSym(ref, mapper, resolveDecorator);
+        break;
+      case IdentifierKind.TemplateArgument:
+        const templates = getTemplateDeclarationsForArgument(node as TemplateArgumentNode, mapper);
+
+        const firstMatchingParameter = templates
+          .flatMap((t) => t.templateParameters)
+          .find((p) => p.id.sv === id.sv);
+
+        if (firstMatchingParameter) {
+          sym = getMergedSymbol(firstMatchingParameter.symbol);
+        }
+
+        break;
+      default:
+        const _assertNever: never = kind;
+        compilerAssert(false, "Unreachable");
+    }
+
+    return sym?.symbolSource ?? sym;
+  }
+
+  // TODO: should remove this
+  function resolveIdentifierInTable(
+    node: IdentifierNode,
+    table: SymbolTable | undefined,
+    options: SymbolResolutionOptions,
+  ): Sym | undefined {
+    if (!table) {
+      return undefined;
+    }
+    table = resolver.getAugmentedSymbolTable(table);
+    let sym;
+    if (options.resolveDecorators) {
+      sym = table.get("@" + node.sv);
+    } else {
+      sym = table.get(node.sv);
+    }
+
+    if (!sym) return sym;
+
+    return getMergedSymbol(sym);
   }
 
   function getTemplateDeclarationsForArgument(
@@ -6842,6 +6921,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function getValueExactType(value: Value): Type | undefined {
     return valueExactTypes.get(value);
   }
+}
+
+function isAnonymous(type: Type) {
+  return !("name" in type) || typeof type.name !== "string" || !type.name;
 }
 
 /**
