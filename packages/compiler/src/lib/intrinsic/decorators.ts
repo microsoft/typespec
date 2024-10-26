@@ -1,7 +1,6 @@
-import { TypeSpecPrototypesDecorators } from "../../generated-defs/TypeSpec.Prototypes.js";
-import { DocTarget, setDocData } from "../core/intrinsic-type-state.js";
-import type { Program } from "../core/program.js";
-import type { DecoratorContext, ModelIndexer, Scalar, Type } from "../core/types.js";
+import { DocTarget, setDocData } from "../../core/intrinsic-type-state.js";
+import type { Program } from "../../core/program.js";
+import type { DecoratorContext, ModelIndexer, Scalar, Type } from "../../core/types.js";
 
 const indexTypeKey = Symbol.for(`TypeSpec.index`);
 export const indexerDecorator = (
@@ -40,13 +39,3 @@ export function getterDecorator(context: DecoratorContext, target: Type) {
 export function isPrototypeGetter(program: Program, target: Type): ModelIndexer | undefined {
   return program.stateMap(prototypeGetterKey).get(target) ?? false;
 }
-
-export const $decorators = {
-  TypeSpec: {
-    indexer: indexerDecorator,
-    docFromComment: docFromCommentDecorator,
-  },
-  "TypeSpec.Prototypes": {
-    getter: getterDecorator,
-  } as TypeSpecPrototypesDecorators,
-};

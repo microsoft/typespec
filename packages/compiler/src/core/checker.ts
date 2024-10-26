@@ -1,4 +1,4 @@
-import { docFromCommentDecorator, getIndexer } from "../lib/intrinsic-decorators.js";
+import { docFromCommentDecorator, getIndexer } from "../lib/intrinsic/decorators.js";
 import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
 import { createSymbol } from "./binder.js";
 import { createChangeIdentifierCodeFix } from "./compiler-code-fixes/change-identifier.codefix.js";
