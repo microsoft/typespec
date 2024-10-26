@@ -83,6 +83,8 @@ import {
   NodeFlags,
   NodeLinks,
   OperationStatementNode,
+  ProjectionDecoratorReferenceExpressionNode,
+  ProjectionStatementNode,
   ResolutionResult,
   ResolutionResultFlags,
   ScalarStatementNode,
@@ -115,6 +117,10 @@ export interface NameResolver {
     options?: ResolveTypReferenceOptions,
   ): ResolutionResult;
   resolveMetaMemberByName(sym: Sym, name: string): ResolutionResult;
+  // TODO: probably don't need both this one a bindAndResolveNode
+  resolveTypeReference(
+    node: TypeReferenceNode | IdentifierNode | MemberExpressionNode,
+  ): ResolutionResult;
 
   readonly intrinsicSymbols: {
     readonly null: Sym;
@@ -201,6 +207,7 @@ export function createResolver(program: Program): NameResolver {
     bindAndResolveNode,
     resolveMemberExpressionForSym,
     resolveMetaMemberByName,
+    resolveTypeReference,
   };
 
   function getMergedSymbol(sym: Sym) {
@@ -1160,10 +1167,14 @@ export function createResolver(program: Program): NameResolver {
         break;
       case SyntaxKind.DecoratorExpression:
       case SyntaxKind.AugmentDecoratorStatement:
+      case SyntaxKind.ProjectionDecoratorReferenceExpression:
         resolveDecoratorTarget(node);
         break;
       case SyntaxKind.CallExpression:
-        resolveTypeReference(node.target); // TODO: should this not have been a type reference
+        resolveTypeReference(node.target);
+        break;
+      case SyntaxKind.ProjectionStatement:
+        resolveProjection(node);
         break;
     }
 
@@ -1174,8 +1185,19 @@ export function createResolver(program: Program): NameResolver {
     visitChildren(node, bindAndResolveNode);
   }
 
+  function resolveProjection(projection: ProjectionStatementNode) {
+    switch (projection.selector.kind) {
+      case SyntaxKind.Identifier:
+      case SyntaxKind.MemberExpression:
+        resolveTypeReference(projection.selector);
+    }
+  }
+
   function resolveDecoratorTarget(
-    decorator: DecoratorExpressionNode | AugmentDecoratorStatementNode,
+    decorator:
+      | DecoratorExpressionNode
+      | AugmentDecoratorStatementNode
+      | ProjectionDecoratorReferenceExpressionNode,
   ) {
     resolveTypeReference(decorator.target, { resolveDecorators: true });
   }

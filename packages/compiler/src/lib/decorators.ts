@@ -169,6 +169,7 @@ export const $doc: DocDecorator = (
   text: string,
   sourceObject?: Type,
 ) => {
+  console.log("Applying doc", text);
   validateDecoratorUniqueOnNode(context, target, $doc);
   if (sourceObject) {
     text = replaceTemplatedStringFromProperties(text, sourceObject);

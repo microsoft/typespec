@@ -6,6 +6,7 @@ import { createModelToObjectValueCodeFix } from "./compiler-code-fixes/model-to-
 import { createTupleToArrayValueCodeFix } from "./compiler-code-fixes/tuple-to-array-value.codefix.js";
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
 import { ProjectionError, compilerAssert, ignoreDiagnostics } from "./diagnostics.js";
+import { printNodeInfo } from "./helpers/debug.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
 import { getLocationContext } from "./helpers/location-context.js";
 import { explainStringTemplateNotSerializable } from "./helpers/string-template-utils.js";
@@ -6737,7 +6738,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     // next, resolve outside
-    const ref = resolveTypeReferenceSym(node, undefined);
+    const [ref] = resolver.resolveTypeReference(node);
     if (!ref) throw new ProjectionError("Unknown identifier " + node.sv);
 
     if (ref.flags & SymbolFlags.Decorator) {
