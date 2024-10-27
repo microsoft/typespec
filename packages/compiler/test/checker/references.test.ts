@@ -240,7 +240,7 @@ describe("compiler: references", () => {
         const { Foo } = (await testHost.compile("./main.tsp")) as {
           Foo: Model;
         };
-        ok(Foo.properties.get("b")!.type === Foo.properties.get("a"));
+        expectTypeEquals(Foo.properties.get("b")!.type, Foo.properties.get("a")!);
       });
 
       it("can reference sibling property defined after", async () => {
