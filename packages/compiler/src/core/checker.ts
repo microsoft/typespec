@@ -2660,28 +2660,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return sym?.symbolSource ?? sym;
   }
 
-  // TODO: should remove this
-  function resolveIdentifierInTable(
-    node: IdentifierNode,
-    table: SymbolTable | undefined,
-    options: SymbolResolutionOptions,
-  ): Sym | undefined {
-    if (!table) {
-      return undefined;
-    }
-    table = resolver.getAugmentedSymbolTable(table);
-    let sym;
-    if (options.resolveDecorators) {
-      sym = table.get("@" + node.sv);
-    } else {
-      sym = table.get(node.sv);
-    }
-
-    if (!sym) return sym;
-
-    return getMergedSymbol(sym);
-  }
-
   function getTemplateDeclarationsForArgument(
     node: TemplateArgumentNode,
     mapper: TypeMapper | undefined,
@@ -3179,6 +3157,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
               code: "invalid-ref",
               format: { id: printTypeReferenceNode(node) },
               target: node,
+              codefixes: getCodefixesForUnknownIdentifier(node),
             }),
           );
         } else if (links.resolutionResult & ResolutionResultFlags.Ambiguous) {
@@ -6915,10 +6894,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function getValueExactType(value: Value): Type | undefined {
     return valueExactTypes.get(value);
   }
-}
-
-function isAnonymous(type: Type) {
-  return !("name" in type) || typeof type.name !== "string" || !type.name;
 }
 
 /**
