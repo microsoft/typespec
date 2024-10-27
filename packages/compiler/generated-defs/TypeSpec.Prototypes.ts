@@ -1,6 +1,6 @@
-import type { DecoratorContext, Operation } from "../src/index.js";
+import type { DecoratorContext, Type } from "../src/index.js";
 
-export type GetterDecorator = (context: DecoratorContext, target: Operation) => void;
+export type GetterDecorator = (context: DecoratorContext, target: Type) => void;
 
 export type TypeSpecPrototypesDecorators = {
   getter: GetterDecorator;
