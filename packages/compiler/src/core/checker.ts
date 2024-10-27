@@ -518,32 +518,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           }),
         );
       } else if (ref) {
-        let args: readonly TemplateArgumentNode[] = [];
-        // TODO: do we still need this?
-        if (ref.declarations[0]?.kind === SyntaxKind.AliasStatement) {
-          const aliasNode = ref.declarations[0] as AliasStatementNode;
-          if (aliasNode.value.kind === SyntaxKind.TypeReference) {
-            args = aliasNode.value.arguments;
-          }
-        } else {
-          args = decNode.targetType.arguments;
-        }
         if (ref.flags & SymbolFlags.Namespace) {
-          const links = getSymbolLinks(getMergedSymbol(ref));
+          const links = getSymbolLinks(ref);
           const type: Type & DecoratedType = links.type! as any;
           const decApp = checkDecoratorApplication(type, decNode, undefined);
           if (decApp) {
             type.decorators.push(decApp);
             applyDecoratorToType(program, decApp, type);
           }
-        } else if (args.length > 0 || ref.flags & SymbolFlags.LateBound) {
-          reportCheckerDiagnostic(
-            createDiagnostic({
-              code: "augment-decorator-target",
-              messageId: "noInstance",
-              target: decNode.target,
-            }),
-          );
         } else {
           let list = augmentDecoratorsForSym.get(ref);
           if (list === undefined) {
