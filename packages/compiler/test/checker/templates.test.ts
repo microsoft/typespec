@@ -297,7 +297,7 @@ describe("compiler: templates", () => {
       // Only one error
       expectDiagnostics(diagnostics, {
         code: "invalid-ref",
-        message: "Cannot resolve notExists",
+        message: "Unknown identifier notExists",
       });
 
       strictEqual(prop.kind, "ModelProperty");

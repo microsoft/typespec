@@ -48,7 +48,7 @@ describe("compiler: spread", () => {
 
     expectDiagnostics(diagnostics, {
       code: "invalid-ref",
-      message: "Cannot resolve NotDefined",
+      message: "Unknown identifier NotDefined",
     });
   });
 

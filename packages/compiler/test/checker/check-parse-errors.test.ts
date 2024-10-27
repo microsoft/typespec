@@ -20,9 +20,9 @@ describe("compiler: semantic checks o`n source with parse errors", () => {
     const diagnostics = await testHost.diagnose("./");
     expectDiagnostics(diagnostics, [
       { message: /'}' expected/ },
-      { message: /Cannot resolve Q/ },
-      { message: /Cannot resolve B/ },
-      { message: /Cannot resolve C/ },
+      { message: /Unknown identifier Q/ },
+      { message: /Unknown identifier B/ },
+      { message: /Unknown identifier C/ },
       { message: /Model already has a property named a/ },
     ]);
   });

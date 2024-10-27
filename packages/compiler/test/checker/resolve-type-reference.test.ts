@@ -149,7 +149,7 @@ describe("compiler: resolveTypeReference", () => {
     const diagnostics = await diagnoseResolution("Direction.up", "");
     expectDiagnostics(diagnostics, {
       code: "invalid-ref",
-      message: "Cannot resolve Direction",
+      message: "Unknown identifier Direction",
     });
   });
 

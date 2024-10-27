@@ -579,7 +579,7 @@ describe("compiler: references", () => {
     expectDiagnostics(diagnostics, [
       {
         code: "invalid-ref",
-        message: `Cannot resolve NotDefined`,
+        message: `Unknown identifier NotDefined`,
       },
     ]);
   });

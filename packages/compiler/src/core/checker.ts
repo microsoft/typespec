@@ -3155,6 +3155,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           reportCheckerDiagnostic(
             createDiagnostic({
               code: "invalid-ref",
+              messageId: "identifier",
               format: { id: printTypeReferenceNode(node) },
               target: node,
               codefixes: getCodefixesForUnknownIdentifier(node),

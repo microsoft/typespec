@@ -344,6 +344,7 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Cannot resolve ${"id"}`,
+      identifier: paramMessage`Unknown identifier ${"id"}`,
       inDecorator: paramMessage`Cannot resolve ${"id"} in decorator`,
       underNamespace: paramMessage`Namespace ${"namespace"} doesn't have member ${"id"}`,
       member: paramMessage`${"kind"} doesn't have member ${"id"}`,
