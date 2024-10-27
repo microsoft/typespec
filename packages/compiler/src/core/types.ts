@@ -1169,7 +1169,7 @@ export interface BaseNode extends TextRange {
    * you will likely only access symbol in cases where you know the node has a symbol.
    */
   readonly symbol: Sym;
-  /** Unique id used to look up NodeLinks */
+  /** Unique id across the process used to look up NodeLinks */
   _id?: number;
 }
 

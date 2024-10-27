@@ -132,13 +132,13 @@ interface ResolveTypReferenceOptions {
 }
 
 // This needs to be global to be sure to not reallocate per program.
+let currentNodeId = 0;
 let currentSymbolId = 0;
 
 export function createResolver(program: Program): NameResolver {
   const mergedSymbols = new Map<Sym, Sym>();
   const augmentedSymbolTables = new Map<SymbolTable, SymbolTable>();
   const nodeLinks = new Map<number, NodeLinks>();
-  let currentNodeId = 0;
   const symbolLinks = new Map<number, SymbolLinks>();
 
   const globalNamespaceNode = createGlobalNamespaceNode();
