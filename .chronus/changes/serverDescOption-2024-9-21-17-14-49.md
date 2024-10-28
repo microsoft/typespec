@@ -4,4 +4,4 @@ packages:
   - "@typespec/http"
 ---
 
-The description parameter of @server should be optional.
+The description parameter of `@server` is now optional.
