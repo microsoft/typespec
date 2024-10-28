@@ -880,6 +880,9 @@ importers:
       '@typespec/versioning':
         specifier: workspace:~
         version: link:../versioning
+      '@typespec/xml':
+        specifier: workspace:~
+        version: link:../xml
       '@vitest/coverage-v8':
         specifier: ^2.1.2
         version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1))
