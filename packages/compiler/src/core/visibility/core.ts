@@ -21,14 +21,14 @@
 
 import { compilerAssert } from "../diagnostics.js";
 import { reportDiagnostic } from "../messages.js";
-import { Program } from "../program.js";
-import { DecoratorContext, Enum, EnumMember, ModelProperty } from "../types.js";
+import type { Program } from "../program.js";
+import type { DecoratorContext, Enum, EnumMember, ModelProperty } from "../types.js";
 import {
   getLifecycleVisibilityEnum,
   normalizeLegacyLifecycleVisibilityString,
 } from "./lifecycle.js";
 
-import { VisibilityFilter as GeneratedVisibilityFilter } from "../../../generated-defs/TypeSpec.js";
+import type { VisibilityFilter as GeneratedVisibilityFilter } from "../../../generated-defs/TypeSpec.js";
 import { useStateMap, useStateSet } from "../../lib/utils.js";
 
 /**

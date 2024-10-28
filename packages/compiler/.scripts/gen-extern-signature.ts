@@ -15,7 +15,10 @@ const program = await compile(NodeHost, root, {});
 
 const files = await generateExternDecorators(program, "@typespec/compiler");
 for (const [name, content] of Object.entries(files)) {
-  const updatedContent = content.replace(/from "\@typespec\/compiler"/g, `from "../src/index.js"`);
+  const updatedContent = content.replace(
+    /from "\@typespec\/compiler"/g,
+    `from "../src/core/index.js"`,
+  );
   const prettierConfig = await resolveConfig(root);
 
   await NodeHost.writeFile(

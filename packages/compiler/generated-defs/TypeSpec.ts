@@ -12,7 +12,7 @@ import type {
   Type,
   Union,
   UnionVariant,
-} from "../src/index.js";
+} from "../src/core/index.js";
 
 export interface ExampleOptions {
   readonly title?: string;

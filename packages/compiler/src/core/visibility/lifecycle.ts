@@ -2,8 +2,8 @@
 // Licensed under the MIT license.
 
 import { compilerAssert } from "../diagnostics.js";
-import { Program } from "../program.js";
-import { Enum, EnumMember } from "../types.js";
+import type { Program } from "../program.js";
+import type { Enum, EnumMember } from "../types.js";
 
 /**
  * A cache for the `TypeSpec.Visibility.Lifecycle` enum per Program instance.
