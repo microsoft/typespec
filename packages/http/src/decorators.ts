@@ -456,11 +456,10 @@ export const $server: ServerDecorator = (
     servers = [];
     context.program.stateMap(HttpStateKeys.servers).set(target, servers);
   }
-  servers.push({
-    url,
-    description,
-    parameters: parameterMap,
-  });
+  const server: HttpServer = description
+    ? { url, description, parameters: parameterMap }
+    : { url, parameters: parameterMap };
+  servers.push(server);
 };
 
 export function getServers(program: Program, type: Namespace): HttpServer[] | undefined {

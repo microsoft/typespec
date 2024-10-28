@@ -435,6 +435,8 @@ Specify an endpoint for this service. Multiple `@server` decorators can be used 
 namespace PetStore;
 ```
 
+##### With a description
+
 ```typespec
 @service
 @server("https://example.com", "Single server endpoint")

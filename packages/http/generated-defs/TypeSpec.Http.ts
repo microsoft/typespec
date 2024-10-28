@@ -218,7 +218,8 @@ export type HeadDecorator = (context: DecoratorContext, target: Operation) => vo
  * @server("https://example.com")
  * namespace PetStore;
  * ```
- * @example
+ * @example With a description
+ *
  * ```typespec
  * @service
  * @server("https://example.com", "Single server endpoint")
