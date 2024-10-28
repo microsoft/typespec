@@ -2140,15 +2140,51 @@ importers:
       '@types/remark-heading-id':
         specifier: ^1.0.0
         version: 1.0.0
+      '@typespec/events':
+        specifier: workspace:~
+        version: link:../packages/events
+      '@typespec/http':
+        specifier: workspace:~
+        version: link:../packages/http
       '@typespec/internal-build-utils':
         specifier: workspace:~
         version: link:../packages/internal-build-utils
+      '@typespec/json-schema':
+        specifier: workspace:~
+        version: link:../packages/json-schema
+      '@typespec/openapi':
+        specifier: workspace:~
+        version: link:../packages/openapi
+      '@typespec/openapi3':
+        specifier: workspace:~
+        version: link:../packages/openapi3
       '@typespec/playground-website':
         specifier: workspace:*
         version: link:../packages/playground-website
-      '@typespec/website':
+      '@typespec/protobuf':
+        specifier: workspace:~
+        version: link:../packages/protobuf
+      '@typespec/rest':
+        specifier: workspace:~
+        version: link:../packages/rest
+      '@typespec/spec':
         specifier: workspace:*
-        version: link:../packages/website
+        version: link:../packages/spec
+      '@typespec/sse':
+        specifier: workspace:~
+        version: link:../packages/sse
+      '@typespec/streams':
+        specifier: workspace:~
+        version: link:../packages/streams
+      '@typespec/tspd':
+        specifier: workspace:~
+        version: link:../packages/tspd
+      '@typespec/versioning':
+        specifier: workspace:~
+        version: link:../packages/versioning
+      '@typespec/xml':
+        specifier: workspace:~
+        version: link:../packages/xml
       astro-expressive-code:
         specifier: ^0.37.0
         version: 0.37.0(astro@4.16.5(@types/node@22.7.5)(rollup@4.24.0)(terser@5.34.1)(typescript@5.6.3))

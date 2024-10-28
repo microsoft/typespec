@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-// @ts-check
 import { NodeHost, joinPaths, logDiagnostics } from "@typespec/compiler";
 import { generateJsApiDocs, resolveLibraryRefDocsBase } from "@typespec/tspd/ref-doc";
 import {
@@ -13,7 +11,7 @@ import { writeFile } from "fs/promises";
 import { dirname, join, resolve } from "path";
 import { fileURLToPath } from "url";
 
-export const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
+export const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
 const diagnostics = new Map();
 
@@ -60,13 +58,14 @@ async function generateCompilerDocs() {
     namespaces: { include: ["TypeSpec"] },
   });
   assert(results, "Unexpected ref doc should have been resolved for compiler.");
-  /** @type {*} */
   const [refDoc, diagnostics] = results;
-  const renderer = new CompilerDocusaurusRenderer(refDoc);
+  const renderer = new CompilerDocusaurusRenderer(refDoc as any);
   const decoratorContent = renderDecoratorFile(renderer, refDoc, { title: "Built-in Decorators" });
   assert(decoratorContent, "Unexpected decorator file shouldn't be empty for compiler.");
   await writeFile(join(outputDir, "built-in-decorators.md"), decoratorContent);
-  const dataTypeContent = renderDataTypes(renderer, refDoc, { title: "Built-in Data types" });
+  const dataTypeContent = renderDataTypes(renderer, refDoc as any, {
+    title: "Built-in Data types",
+  });
   assert(dataTypeContent, "Unexpected data type file shouldn't be empty for compiler.");
   await writeFile(join(outputDir, "built-in-data-types.md"), dataTypeContent);
 
