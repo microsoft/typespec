@@ -216,28 +216,44 @@ function omitUndefined<T extends Record<string, unknown>>(data: T): T {
   return Object.fromEntries(Object.entries(data).filter(([k, v]) => v !== undefined)) as any;
 }
 
+/**
+ * Validates the additional information model for OpenAPI.
+ * Ensures that there are no additional properties and that specific fields are valid.
+ *
+ * @param context - The decorator context.
+ * @param typespecType - The type specification value to validate.
+ * @param data - The additional information data including custom extensions.
+ * @returns `true` if the validation is successful, `false` otherwise.
+ */
 function validateAdditionalInfoModel(
   context: DecoratorContext,
   typespecType: TypeSpecValue,
   data: AdditionalInfo & Record<`x-${string}`, unknown>,
 ): boolean {
+  const diagnostics: Diagnostic[] = [];
+
+  // Resolve the expected AdditionalInfo model
   const propertyModel = context.program.resolveTypeReference(
     "TypeSpec.OpenAPI.AdditionalInfo",
   )[0]! as Model;
-  const diagnostics: Diagnostic[] = [];
+
+  // Check for additional properties not defined in the model
   if (typeof typespecType === "object" && propertyModel) {
     diagnostics.push(
       ...checkNoAdditionalProperties(typespecType, context.getArgumentTarget(0)!, propertyModel),
     );
   }
+
+  // Validate the termsOfService field as a URI if it exists
   if (data.termsOfService) {
     diagnostics.push(
       ...validateIsUri(context.getArgumentTarget(0)!, data.termsOfService, "TermsOfService"),
     );
   }
+
+  // Report any diagnostics that were collected
   context.program.reportDiagnostics(diagnostics);
-  if (diagnostics.length > 0) {
-    return false;
-  }
-  return true;
+
+  // Return false if any diagnostics were found, true otherwise
+  return diagnostics.length === 0;
 }

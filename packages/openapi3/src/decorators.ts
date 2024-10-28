@@ -115,26 +115,43 @@ export const $tagMetadata: TagMetadataDecorator = (
 
 export { getTagsMetadata };
 
+/**
+ * Validates the additional information model for tags.
+ * @param context - The decorator context.
+ * @param typespecType - The type of the tag metadata.
+ * @param data - The tag metadata as an object.
+ * @returns `true` if the validation was successful, `false` otherwise.
+ */
 function validateAdditionalInfoModel(
   context: DecoratorContext,
   typespecType: TypeSpecValue,
   data: OpenAPI3Tag & Record<`x-${string}`, unknown>,
 ): boolean {
+  const diagnostics: Diagnostic[] = [];
+
+  // Resolve the TagMetadata model
   const propertyModel = context.program.resolveTypeReference(
     "TypeSpec.OpenAPI.TagMetadata",
   )[0]! as Model;
-  const diagnostics: Diagnostic[] = [];
+
+  // Check that the type matches the model
   if (typeof typespecType === "object" && propertyModel) {
     diagnostics.push(
       ...checkNoAdditionalProperties(typespecType, context.getArgumentTarget(0)!, propertyModel),
     );
   }
+
+  // Validate the externalDocs.url property
   if (data.externalDocs?.url) {
     diagnostics.push(
-      ...validateIsUri(context.getArgumentTarget(0)!, data.externalDocs?.url, "externalDocs.url"),
+      ...validateIsUri(context.getArgumentTarget(0)!, data.externalDocs.url, "externalDocs.url"),
     );
   }
+
+  // Report any diagnostics found during validation
   context.program.reportDiagnostics(diagnostics);
+
+  // Abort if any diagnostics were found
   if (diagnostics.length > 0) {
     return false;
   }

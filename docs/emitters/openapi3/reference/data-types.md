@@ -29,7 +29,7 @@ model TypeSpec.OpenAPI.TagMetadata
 
 #### Properties
 
-| Name          | Type                                                            | Description                             |
-| ------------- | --------------------------------------------------------------- | --------------------------------------- |
-| description?  | `string`                                                        | A description of the API.               |
-| externalDocs? | [`ExternalDocs`](./data-types.md#TypeSpec.OpenAPI.ExternalDocs) | a external Docs information of the API. |
+| Name          | Type                                                            | Description                              |
+| ------------- | --------------------------------------------------------------- | ---------------------------------------- |
+| description?  | `string`                                                        | A description of the API.                |
+| externalDocs? | [`ExternalDocs`](./data-types.md#TypeSpec.OpenAPI.ExternalDocs) | An external Docs information of the API. |
