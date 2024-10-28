@@ -3,7 +3,7 @@ import { createRekeyableMap } from "../../../utils/misc.js";
 import { defineKit } from "../define-kit.js";
 import { decoratorApplication, DecoratorArgs } from "../utils.js";
 
-interface ModelDescriptor {
+export interface ModelDescriptor {
   /**
    * The name of the Model. If name is provided, it is a Model  declaration.
    * Otherwise, it is a Model expression.
@@ -33,10 +33,10 @@ interface ModelDescriptor {
 
 export interface ModelKit {
   /**
-     * Create a model type.
-     *
-     * @param desc The descriptor of the model.
-     */
+   * Create a model type.
+   *
+   * @param desc The descriptor of the model.
+   */
   create(desc: ModelDescriptor): Model;
 
   /**
