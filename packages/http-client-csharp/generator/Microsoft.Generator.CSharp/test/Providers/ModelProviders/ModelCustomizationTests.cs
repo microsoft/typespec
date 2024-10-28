@@ -86,9 +86,18 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.AreEqual("Prop2", modelTypeProvider.CustomCodeView.Properties[0].Name);
             var wireInfo = modelTypeProvider.CustomCodeView.Properties[0].WireInfo;
             Assert.IsNotNull(wireInfo);
-            Assert.AreEqual( "prop1", wireInfo!.SerializedName);
+            Assert.AreEqual("prop1", wireInfo!.SerializedName);
             Assert.AreEqual("Prop1", modelTypeProvider.CustomCodeView.Properties[1].Name);
             Assert.IsNull(modelTypeProvider.CustomCodeView.Properties[1].WireInfo);
+
+            // validate canonical view
+            Assert.AreEqual(2, modelTypeProvider.CanonicalView!.Properties.Count);
+            Assert.AreEqual("Prop2", modelTypeProvider.CanonicalView.Properties[0].Name);
+            Assert.AreEqual("Prop1", modelTypeProvider.CanonicalView.Properties[1].Name);
+            wireInfo = modelTypeProvider.CanonicalView.Properties[0].WireInfo;
+            Assert.IsNotNull(wireInfo);
+            Assert.AreEqual("prop1", wireInfo!.SerializedName);
+            Assert.IsNull(modelTypeProvider.CanonicalView.Properties[1].WireInfo);
 
             Assert.AreEqual(0, modelTypeProvider.Properties.Count);
         }
