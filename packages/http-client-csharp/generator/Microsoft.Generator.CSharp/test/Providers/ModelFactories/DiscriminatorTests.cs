@@ -15,7 +15,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
         private static readonly InputModelType _catModel = InputFactory.Model("cat", discriminatedKind: "cat", properties:
         [
             InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
-            InputFactory.Property("willScratchOwner", InputPrimitiveType.Boolean, isRequired: true, isDiscriminator: true)
+            InputFactory.Property("willScratchOwner", InputFactory.Literal.String("yes"), isRequired: true, isDiscriminator: true)
         ]);
         private static readonly InputModelType _dogModel = InputFactory.Model("dog", discriminatedKind: "dog", properties:
         [
@@ -58,6 +58,11 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
             Assert.IsNotNull(catModelMethod);
             var discriminatorParameter = catModelMethod!.Signature.Parameters.FirstOrDefault(p => p.Name == "kind");
             Assert.IsNull(discriminatorParameter);
+
+            // ensure the signature is correct and includes the base discriminator value
+            // and the cat model's discriminator with literal value
+            Assert.IsTrue(catModelMethod!.BodyStatements!.ToDisplayString()
+                .Contains("return new global::Sample.Models.Cat(\"yes\", \"cat\", name, null);"));
         }
 
         private static ModelFactoryProvider SetupModelFactory()
