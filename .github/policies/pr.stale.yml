@@ -23,7 +23,7 @@ configuration:
           - addReply:
               reply: >-
                 Hi @${issueAuthor}.
-                Your PR has no update for 30 days and it is marked as stale PR. If no further update for over 14 days, the bot will close the PR.  If you want to refresh the PR, please remove `stale` label.
+                Your PR has no update for 30 days and it is marked as stale PR. If no further update for over 30 days, the bot will close the PR.  If you want to refresh the PR, please remove `stale` label.
 
       - description: Close prs that have not been updated in 60 days
         frequencies:
