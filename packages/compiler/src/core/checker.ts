@@ -51,7 +51,6 @@ import {
   CallExpressionNode,
   CodeFix,
   ConstStatementNode,
-  DecoratedType,
   Decorator,
   DecoratorApplication,
   DecoratorArgument,
@@ -339,7 +338,6 @@ const TypeInstantiationMap = class
 export function createChecker(program: Program, resolver: NameResolver): Checker {
   const stdTypes: Partial<StdTypes> = {};
   const docFromCommentForSym = new Map<Sym, string>();
-  const augmentDecoratorsForSym = new Map<Sym, AugmentDecoratorStatementNode[]>();
   const referenceSymCache = new WeakMap<
     TypeReferenceNode | MemberExpressionNode | IdentifierNode,
     Sym | undefined
@@ -495,48 +493,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function setUsingsForFile(file: TypeSpecScriptNode) {}
-
-  function applyAugmentDecorators(node: TypeSpecScriptNode | NamespaceStatementNode) {
-    if (!node.statements || !isArray(node.statements)) {
-      return;
-    }
-
-    const augmentDecorators = node.statements.filter(
-      (x): x is AugmentDecoratorStatementNode => x.kind === SyntaxKind.AugmentDecoratorStatement,
-    );
-
-    for (const decNode of augmentDecorators) {
-      const links = resolver.getNodeLinks(decNode.targetType);
-      const ref = links.resolvedSymbol;
-
-      if (links.isTemplate) {
-        reportCheckerDiagnostic(
-          createDiagnostic({
-            code: "augment-decorator-target",
-            messageId: "noInstance",
-            target: decNode.target,
-          }),
-        );
-      } else if (ref) {
-        if (ref.flags & SymbolFlags.Namespace) {
-          const links = getSymbolLinks(ref);
-          const type: Type & DecoratedType = links.type! as any;
-          const decApp = checkDecoratorApplication(type, decNode, undefined);
-          if (decApp) {
-            type.decorators.push(decApp);
-            applyDecoratorToType(program, decApp, type);
-          }
-        } else {
-          let list = augmentDecoratorsForSym.get(ref);
-          if (list === undefined) {
-            list = [];
-            augmentDecoratorsForSym.set(ref, list);
-          }
-          list.unshift(decNode);
-        }
-      }
-    }
-  }
 
   /**
    * We cannot inject symbols into the symbol tables hanging off syntax tree nodes as
@@ -3507,10 +3463,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     for (const file of program.sourceFiles.values()) {
-      applyAugmentDecoratorsInScope(file);
-    }
-
-    for (const file of program.sourceFiles.values()) {
       checkSourceFile(file);
     }
 
@@ -3522,23 +3474,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    */
   function internalDecoratorValidation() {
     validateInheritanceDiscriminatedUnions(program);
-  }
-
-  function applyAugmentDecoratorsInScope(scope: TypeSpecScriptNode | NamespaceStatementNode) {
-    applyAugmentDecorators(scope);
-    if (scope.statements === undefined) {
-      return;
-    }
-
-    if (isArray(scope.statements)) {
-      for (const statement of scope.statements) {
-        if (statement.kind === SyntaxKind.NamespaceStatement) {
-          applyAugmentDecoratorsInScope(statement);
-        }
-      }
-    } else {
-      applyAugmentDecoratorsInScope(scope.statements);
-    }
   }
 
   function checkSourceFile(file: TypeSpecScriptNode) {
@@ -5168,8 +5103,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return valid;
   }
 
-  function checkAugmentDecorators(sym: Sym, targetType: Type, mapper: TypeMapper | undefined) {
-    const augmentDecoratorNodes = augmentDecoratorsForSym.get(sym) ?? [];
+  function checkAugmentDecorators(
+    sym: Sym,
+    targetType: Type,
+    mapper: TypeMapper | undefined,
+  ): DecoratorApplication[] {
+    const augmentDecoratorNodes = resolver.getAugmentDecoratorForSym(sym);
     const decorators: DecoratorApplication[] = [];
 
     for (const decNode of augmentDecoratorNodes) {
@@ -5185,10 +5124,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     node: Node & { decorators: readonly DecoratorExpressionNode[] },
     mapper: TypeMapper | undefined,
   ) {
-    const sym = isMemberNode(node) ? (getSymbolForMember(node) ?? node.symbol) : node.symbol;
+    const sym = isMemberNode(node)
+      ? (getSymbolForMember(node) ?? node.symbol)
+      : getMergedSymbol(node.symbol);
     const decorators: DecoratorApplication[] = [];
 
-    const augmentDecoratorNodes = augmentDecoratorsForSym.get(sym) ?? [];
+    const augmentDecoratorNodes = resolver.getAugmentDecoratorForSym(sym);
     const decoratorNodes = [
       ...augmentDecoratorNodes, // the first decorator will be executed at last, so augmented decorator should be placed at first.
       ...node.decorators,
@@ -5913,7 +5854,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function createGlobalNamespaceType(): Namespace {
-    const type: Namespace = createAndFinishType({
+    const sym = resolver.getGlobalNamespaceSymbol();
+    const type: Namespace = createType({
       kind: "Namespace",
       name: "",
       node: getGlobalNamespaceNode(),
@@ -5928,8 +5870,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       functionDeclarations: new Map(),
       decorators: [],
     });
-    getSymbolLinks(resolver.getGlobalNamespaceSymbol()).type = type;
-    return type;
+    getSymbolLinks(sym).type = type;
+    type.decorators = checkAugmentDecorators(sym, type, undefined);
+    return finishType(type);
   }
 
   function initializeClone<T extends Type>(type: T, additionalProps: Partial<T>): T {

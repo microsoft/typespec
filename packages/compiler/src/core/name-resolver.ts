@@ -57,7 +57,7 @@
  * program.
  **/
 
-import { Mutable, mutate } from "../utils/misc.js";
+import { isArray, Mutable, mutate } from "../utils/misc.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { compilerAssert } from "./diagnostics.js";
 import { inspectSymbol } from "./inspector.js";
@@ -109,6 +109,9 @@ export interface NameResolver {
   getSymbolLinks(s: Sym): SymbolLinks;
   getGlobalNamespaceSymbol(): Sym;
 
+  /** Return augment decorator nodes that are bound to this symbol */
+  getAugmentDecoratorForSym(sym: Sym): AugmentDecoratorStatementNode[];
+
   // TODO: do we need those, should that be the signature.
   bindAndResolveNode(node: Node): void;
   resolveMemberExpressionForSym(
@@ -153,6 +156,8 @@ export function createResolver(program: Program): NameResolver {
   const metaTypePrototypes = createMetaTypePrototypes();
 
   const nullSym = createSymbol(undefined, "null", SymbolFlags.None);
+  const augmentDecoratorsForSym = new Map<Sym, AugmentDecoratorStatementNode[]>();
+
   return {
     intrinsicSymbols: { null: nullSym },
     resolveProgram() {
@@ -184,6 +189,10 @@ export function createResolver(program: Program): NameResolver {
         bindAndResolveNode(file);
       }
 
+      for (const file of program.sourceFiles.values()) {
+        applyAugmentDecoratorsInScope(file);
+      }
+
       // Report any duplicate symbol
       // TODO: do we want this here?
       program.reportDuplicateSymbols(globalNamespaceSym.exports);
@@ -208,7 +217,13 @@ export function createResolver(program: Program): NameResolver {
     resolveMemberExpressionForSym,
     resolveMetaMemberByName,
     resolveTypeReference,
+
+    getAugmentDecoratorForSym,
   };
+
+  function getAugmentDecoratorForSym(sym: Sym) {
+    return augmentDecoratorsForSym.get(sym) ?? [];
+  }
 
   function getMergedSymbol(sym: Sym) {
     if (!sym) return sym;
@@ -1253,6 +1268,55 @@ export function createResolver(program: Program): NameResolver {
     nodeInterfaces.set(SyntaxKind.OperationStatement, operationPrototype);
 
     return nodeInterfaces;
+  }
+
+  function applyAugmentDecoratorsInScope(scope: TypeSpecScriptNode | NamespaceStatementNode) {
+    applyAugmentDecorators(scope);
+    if (scope.statements === undefined) {
+      return;
+    }
+
+    if (isArray(scope.statements)) {
+      for (const statement of scope.statements) {
+        if (statement.kind === SyntaxKind.NamespaceStatement) {
+          applyAugmentDecoratorsInScope(statement);
+        }
+      }
+    } else {
+      applyAugmentDecoratorsInScope(scope.statements);
+    }
+  }
+
+  function applyAugmentDecorators(node: TypeSpecScriptNode | NamespaceStatementNode) {
+    if (!node.statements || !isArray(node.statements)) {
+      return;
+    }
+
+    const augmentDecorators = node.statements.filter(
+      (x): x is AugmentDecoratorStatementNode => x.kind === SyntaxKind.AugmentDecoratorStatement,
+    );
+
+    for (const decNode of augmentDecorators) {
+      const links = getNodeLinks(decNode.targetType);
+      const ref = links.resolvedSymbol;
+
+      if (links.isTemplate) {
+        program.reportDiagnostic(
+          createDiagnostic({
+            code: "augment-decorator-target",
+            messageId: "noInstance",
+            target: decNode.target,
+          }),
+        );
+      } else if (ref) {
+        let list = augmentDecoratorsForSym.get(ref);
+        if (list === undefined) {
+          list = [];
+          augmentDecoratorsForSym.set(ref, list);
+        }
+        list.unshift(decNode);
+      }
+    }
   }
 }
 
