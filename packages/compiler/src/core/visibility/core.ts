@@ -457,6 +457,28 @@ export function clearVisibilityModifiersForClass(
   modifierSet.clear();
 }
 
+export function resetVisibilityModifiersForClass(
+  program: Program,
+  property: ModelProperty,
+  visibilityClass: Enum,
+  context?: DecoratorContext,
+) {
+  const target = context?.decoratorTarget ?? property;
+
+  if (isSealed(program, property, visibilityClass)) {
+    reportDiagnostic(program, {
+      code: "visibility-sealed",
+      format: {
+        propName: property.name,
+      },
+      target,
+    });
+    return;
+  }
+
+  getOrInitializeVisibilityModifiers(program, property).delete(visibilityClass);
+}
+
 // #endregion
 
 // #region Visibility Analysis API

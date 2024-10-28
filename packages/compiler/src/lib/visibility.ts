@@ -22,6 +22,7 @@ import {
   getVisibility,
   isVisible,
   Program,
+  resetVisibilityModifiersForClass,
   setDefaultModifierSetForVisibilityClass,
   setLegacyVisibility,
   VisibilityFilter,
@@ -308,11 +309,7 @@ export const $withVisibility: WithVisibilityDecorator = (
       if (legacyModifiers && legacyModifiers.length > 0) {
         clearLegacyVisibility(context.program, p);
       } else {
-        clearVisibilityModifiersForClass(
-          context.program,
-          p,
-          getLifecycleVisibilityEnum(context.program),
-        );
+        resetVisibilityModifiersForClass(context.program, p, getLifecycleVisibilityEnum(context.program)); 
       }
     }
   } else {
@@ -324,7 +321,7 @@ export const $withVisibility: WithVisibilityDecorator = (
     filterModelPropertiesInPlace(target, (p) => isVisible(context.program, p, filter));
     for (const p of target.properties.values()) {
       for (const c of visibilityClasses) {
-        clearVisibilityModifiersForClass(context.program, p, c);
+        resetVisibilityModifiersForClass(context.program, p, c);
       }
     }
   }
