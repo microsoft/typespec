@@ -13,7 +13,7 @@ configuration:
           - daily:
               time: 13:0
         filters:
-          - isPr
+          - isPullRequest
           - isOpen
           - noActivitySince:
               days: 30
@@ -30,7 +30,7 @@ configuration:
           - daily:
               time: 13:0
         filters:
-          - isPr
+          - isPullRequest
           - isOpen
           - hasLabel:
               label: no-recent-activity
