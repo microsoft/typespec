@@ -1,4 +1,5 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
+import { deepStrictEqual } from "assert";
 import { describe, expect, it } from "vitest";
 import { createOpenAPITestRunner, emitOpenApiWithDiagnostics, oapiForModel } from "./test-host.js";
 
@@ -205,54 +206,42 @@ describe("@attribute", () => {
     });
   });
 
-  it("warning if attribute is array object", async () => {
-    const runner = await createOpenAPITestRunner();
-    const diagnostics = await runner.diagnose(
-      `model Tag {
-        name: string;
-      }
-      model Pet {
-        @attribute
-        tags: Tag[];
-      }`,
-    );
-    expectDiagnostics(diagnostics, {
-      code: "@typespec/openapi3/xml-attribute-ignored-property-type",
-      message: `XML \`@attribute\` cannot used on array properties or primitive ones in the OpenAPI 3 emitter, it will be ignored on property 'tags'.`,
-    });
-  });
+  describe("warning and change the type to be type: string if attribute is object/objects", () => {
+    it.each([
+      ["one", "Tag"],
+      ["ones", "Tag[]"],
+    ])(`%s => %s`, async (_, type) => {
+      const [res, diagnostics] = await emitOpenApiWithDiagnostics(`
+        model Tag {
+          name: string;
+        }
+        model Pet {
+          @attribute
+          tags: ${type};
+        }
+      `);
 
-  it("warning and change the type to be type: string if attribute is object", async () => {
-    const [res, diagnostics] = await emitOpenApiWithDiagnostics(`
-      model Tag {
-        name: string;
-      }
-      model Pet {
-        @attribute
-        tags: Tag;
-      }
-    `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/openapi3/xml-attribute-invalid-property-type",
+        message: `XML \`@attribute\` can only be primitive types in the OpenAPI 3 emitter, Property 'tags' type will be changed to type: string.`,
+      });
+      deepStrictEqual(
+        res.components?.schemas?.Pet,
 
-    expectDiagnostics(diagnostics, {
-      code: "@typespec/openapi3/xml-attribute-invalid-property-type",
-      message: `XML \`@attribute\` can only be primitive types in the OpenAPI 3 emitter, Property 'tags' type will be changed to type: string.`,
-    });
-    expect(res.components?.schemas?.Pet).toMatchInlineSnapshot(`
-      {
-        "properties": {
-          "tags": {
-            "type": "string",
-            "xml": {
-              "attribute": true,
+        {
+          properties: {
+            tags: {
+              type: "string",
+              xml: {
+                attribute: true,
+              },
             },
           },
+          required: ["tags"],
+          type: "object",
         },
-        "required": [
-          "tags",
-        ],
-        "type": "object",
-      }
-    `);
+      );
+    });
   });
 });
 

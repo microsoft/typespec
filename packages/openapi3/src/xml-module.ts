@@ -94,31 +94,24 @@ export async function resolveXmlModule(): Promise<XmlModule | undefined> {
       }
 
       // Set XML attribute if present
-      const isArrayProperty = prop.type?.kind === "Model" && isArrayModelType(program, prop.type);
       const isAttribute = xml.isAttribute(program, prop);
       if (isAttribute) {
-        if (prop.type?.kind === "Model" && isArrayProperty) {
+        if (prop.type?.kind === "Model") {
           reportDiagnostic(program, {
-            code: "xml-attribute-ignored-property-type",
+            code: "xml-attribute-invalid-property-type",
             format: { name: prop.name },
             target: prop,
           });
-        } else {
-          if (prop.type?.kind === "Model") {
-            reportDiagnostic(program, {
-              code: "xml-attribute-invalid-property-type",
-              format: { name: prop.name },
-              target: prop,
-            });
 
-            emitObject.type = "string";
-          }
-          xmlObject.attribute = true;
+          emitObject.type = "string";
+          delete refSchema.items;
         }
+        xmlObject.attribute = true;
       }
 
       // Handle array wrapping if necessary
       const hasUnwrappedDecorator = xml.isUnwrapped(program, prop);
+      const isArrayProperty = prop.type?.kind === "Model" && isArrayModelType(program, prop.type);
       if (!isArrayProperty && hasUnwrappedDecorator) {
         reportDiagnostic(program, {
           code: "xml-unwrapped-invalid-property-type",
@@ -127,7 +120,7 @@ export async function resolveXmlModule(): Promise<XmlModule | undefined> {
         });
       }
 
-      if (isArrayProperty && refSchema.items) {
+      if (isArrayProperty && refSchema.items && !isAttribute) {
         const propValue = (prop.type as ArrayModelType).indexer.value;
         const propXmlName = hasUnwrappedDecorator
           ? xmlName
