@@ -869,20 +869,7 @@ export function createResolver(program: Program): NameResolver {
   }
 
   function bindUnionMembers(node: UnionStatementNode) {
-    const unionSym = node.symbol!;
-    const targetTable = getAugmentedSymbolTable(unionSym.members!);
-
-    // TODO: why is this not bound in the binder?? there is no reference to resolve
-    for (const variantNode of node.options) {
-      if (!variantNode.id) {
-        continue;
-      }
-
-      targetTable.set(
-        variantNode.id.sv,
-        createSymbol(variantNode, variantNode.id.sv, SymbolFlags.Member, unionSym),
-      );
-    }
+    // Everything is already bound in binder.ts
   }
   function bindScalarMembers(node: ScalarStatementNode) {
     const scalarSym = node.symbol!;
