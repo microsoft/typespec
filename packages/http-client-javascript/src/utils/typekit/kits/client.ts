@@ -1,9 +1,11 @@
 import {
   createStateSymbol,
   createTCGCContext,
+  getClientInitialization as tcgcGetClientInitialization,
+  getClientNameOverride,
   SdkClient,
 } from "@azure-tools/typespec-client-generator-core";
-import { Interface, Model, Namespace, Operation } from "@typespec/compiler";
+import { Enum, Interface, listServices, Model, Namespace, Operation } from "@typespec/compiler";
 import { $, defineKit } from "@typespec/compiler/typekit";
 import { getServers } from "@typespec/http";
 
