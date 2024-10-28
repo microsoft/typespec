@@ -73,7 +73,7 @@ export const $tagMetadata: TagMetadataDecorator = (
   const tags = getTagsMetadata(context.program, entity) || {};
 
   // Check for duplicate tag names
-  if (tags && tags[name]) {
+  if (tags[name]) {
     reportDiagnostic(context.program, {
       code: "duplicate-tag",
       format: { tagName: name },
