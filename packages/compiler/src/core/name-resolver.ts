@@ -308,10 +308,13 @@ export function createResolver(program: Program): NameResolver {
     // make sure we've bound and fully resolved the referenced
     // node before returning it.
     if (resolvedSym) {
-      if (resolvedSym.flags & SymbolFlags.Declaration) {
+      if (
+        resolvedSym.flags & SymbolFlags.Declaration &&
+        ~resolvedSym.flags & SymbolFlags.Namespace // TODO: check, this breaks usings if we don't have that as we start checking before the usings have been resolved.
+      ) {
         bindAndResolveNode(resolvedSym.declarations[0]);
       }
-      // todo: non-declarations
+      // TODO: non-declarations - this doesn't seem needed
     }
 
     return result;
@@ -1063,6 +1066,7 @@ export function createResolver(program: Program): NameResolver {
       const parentNs = using.parent!;
       const [usedSym, usedSymResult] = resolveTypeReference(using.name);
       if (~usedSymResult & ResolutionResultFlags.Resolved) {
+        // TODO: should report diagnostics here?
         continue;
       }
 
@@ -1086,6 +1090,9 @@ export function createResolver(program: Program): NameResolver {
       }
       usedUsing.add(namespaceSym);
 
+      if (usedSym.name === "B") {
+        (parentNs.locals as any).__debug_set_B_usings = true;
+      }
       addUsingSymbols(namespaceSym.exports!, parentNs.locals!);
     }
   }
@@ -1100,6 +1107,7 @@ export function createResolver(program: Program): NameResolver {
         symbolSource: symbolSource,
         node: undefined as any,
       };
+
       augmented.set(sym.name, sym);
     }
   }

@@ -106,6 +106,29 @@ describe("compiler: using statements", () => {
     strictEqual(Y.properties.size, 1);
   });
 
+  // This is checking a case where when using a namespace it would start linking its content
+  // before the using of the file were resolved themself causing invalid refs.
+  it("using a namespace won't start linking it", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      import "./a.tsp";
+      using A;
+      `,
+    );
+    testHost.addTypeSpecFile(
+      "a.tsp",
+      `
+      import "./b.tsp";
+      using B;
+      namespace A { @test model AModel { b: BModel } }
+      `,
+    );
+    testHost.addTypeSpecFile("b.tsp", `namespace B { model BModel {} }`);
+
+    expectDiagnosticEmpty(await testHost.diagnose("./"));
+  });
+
   it("TypeSpec.Xyz namespace doesn't need TypeSpec prefix in using", async () => {
     testHost.addTypeSpecFile(
       "main.tsp",
