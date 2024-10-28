@@ -73,6 +73,7 @@ export interface Mutator {
   ScalarConstructor?: MutatorRecord<ScalarConstructor>;
   StringTemplate?: MutatorRecord<StringTemplate>;
   StringTemplateSpan?: MutatorRecord<StringTemplateSpan>;
+  Namespace?: MutatorRecord<Namespace>;
 }
 
 /** @experimental */
@@ -86,7 +87,6 @@ export enum MutatorFlow {
 export type MutableType = Exclude<
   Type,
   | TemplateParameter
-  | Namespace
   | IntrinsicType
   | FunctionType
   | Decorator
