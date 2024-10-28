@@ -33,7 +33,7 @@ configuration:
           - isPr
           - isOpen
           - hasLabel:
-            label: no-recent-activity
+              label: no-recent-activity
           - noActivitySince:
               days: 30
         actions:
