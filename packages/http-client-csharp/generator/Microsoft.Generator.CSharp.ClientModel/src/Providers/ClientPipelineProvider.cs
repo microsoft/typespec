@@ -27,7 +27,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         public override ValueExpression Create(ValueExpression options, ValueExpression perRetryPolicies)
             => Static<ClientPipeline>().Invoke(nameof(ClientPipeline.Create), [options, New.Array(ClientModelPlugin.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType), perRetryPolicies, New.Array(ClientModelPlugin.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType)]).As<ClientPipeline>();
 
-        public override ValueExpression CreateMessage(ParameterProvider requestOptions, ValueExpression responseClassifier)
+        public override ValueExpression CreateMessage(HttpRequestOptionsApi requestOptions, ValueExpression responseClassifier)
             => new PipelineMessageProvider(Original.Invoke(nameof(ClientPipeline.CreateMessage)));
 
         public override ClientPipelineApi FromExpression(ValueExpression expression)

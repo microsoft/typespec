@@ -72,8 +72,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.Abstractions
             public override HttpResponseApi Response()
                 => Original.Invoke("GetFakeResponse").ToApi<HttpResponseApi>();
 
-            public override ValueExpression ResponseClassifier()
-                => Original.Invoke("GetFakeResponseClassifier");
+            public override MethodBodyStatement Assign(StatusCodeClassifierApi statusCodeClassifier)
+                => Original.Invoke("GetFakeResponseClassifier", [statusCodeClassifier]).Terminate();
 
             public override HttpMessageApi ToExpression() => this;
         }

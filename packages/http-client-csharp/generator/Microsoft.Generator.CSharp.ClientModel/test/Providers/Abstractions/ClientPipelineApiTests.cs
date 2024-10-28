@@ -2,7 +2,6 @@ using System.Linq;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
-using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 
@@ -29,7 +28,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.Abstractions
 
             Assert.NotNull(method);
             Assert.NotNull(method!.BodyStatements);
-            var test = method!.BodyStatements!.ToDisplayString();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), method!.BodyStatements!.ToDisplayString());
         }
 
@@ -59,7 +57,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.Abstractions
             public override ValueExpression Create(ValueExpression options, ValueExpression perRetryPolicies)
                 => Original.Invoke("GetFakeCreate", [options, perRetryPolicies]);
 
-            public override ValueExpression CreateMessage(ParameterProvider requestOptions, ValueExpression responseClassifier)
+            public override ValueExpression CreateMessage(HttpRequestOptionsApi requestOptions, ValueExpression responseClassifier)
                 => Original.Invoke("GetFakeCreateMessage", [requestOptions, responseClassifier]);
 
             public override ClientPipelineApi FromExpression(ValueExpression expression)

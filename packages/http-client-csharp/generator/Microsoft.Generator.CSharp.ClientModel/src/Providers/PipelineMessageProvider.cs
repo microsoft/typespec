@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.ClientModel.Primitives;
+using Microsoft.CodeAnalysis.Classification;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Statements;
@@ -27,8 +28,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         public override HttpResponseApi Response()
             => new PipelineResponseProvider(Original.Property(nameof(PipelineMessage.Response)));
 
-        public override ValueExpression ResponseClassifier()
-            => Original.Property(nameof(PipelineMessage.ResponseClassifier));
+        public override MethodBodyStatement Assign(StatusCodeClassifierApi statusCodeClassifier)
+            => Original.Property(nameof(PipelineMessage.ResponseClassifier)).Assign(statusCodeClassifier).Terminate();
 
         public override MethodBodyStatement Apply(ValueExpression options)
             => Original.Invoke(nameof(PipelineMessage.Apply), options).Terminate();

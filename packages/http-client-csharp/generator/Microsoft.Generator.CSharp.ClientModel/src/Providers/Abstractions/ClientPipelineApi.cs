@@ -19,7 +19,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
         }
 
-        public abstract ValueExpression CreateMessage(ParameterProvider requestOptions, ValueExpression responseClassifier);
+        public abstract ValueExpression CreateMessage(HttpRequestOptionsApi requestOptions, ValueExpression responseClassifier);
 
         public abstract InvokeMethodExpression Send(HttpMessageApi message, HttpRequestOptionsApi options);
 
