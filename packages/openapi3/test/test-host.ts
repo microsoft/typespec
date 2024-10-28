@@ -9,6 +9,7 @@ import { HttpTestLibrary } from "@typespec/http/testing";
 import { OpenAPITestLibrary } from "@typespec/openapi/testing";
 import { RestTestLibrary } from "@typespec/rest/testing";
 import { VersioningTestLibrary } from "@typespec/versioning/testing";
+import { XmlTestLibrary } from "@typespec/xml/testing";
 import { ok } from "assert";
 import { OpenAPI3EmitterOptions } from "../src/lib.js";
 import { OpenAPI3TestLibrary } from "../src/testing/index.js";
@@ -20,6 +21,7 @@ export async function createOpenAPITestHost() {
       HttpTestLibrary,
       RestTestLibrary,
       VersioningTestLibrary,
+      XmlTestLibrary,
       OpenAPITestLibrary,
       OpenAPI3TestLibrary,
     ],
@@ -35,10 +37,12 @@ export async function createOpenAPITestRunner({
   import "@typespec/rest";
   import "@typespec/openapi";
   import "@typespec/openapi3"; 
+  import "@typespec/xml";
   ${withVersioning ? `import "@typespec/versioning"` : ""};
   using TypeSpec.Rest;
   using TypeSpec.Http;
   using TypeSpec.OpenAPI;
+  using TypeSpec.Xml;
   ${withVersioning ? "using TypeSpec.Versioning;" : ""}
 `;
   return createTestWrapper(host, {
@@ -86,9 +90,9 @@ export async function openApiFor(
   const outPath = resolveVirtualPath("{version}.openapi.json");
   host.addTypeSpecFile(
     "./main.tsp",
-    `import "@typespec/http"; import "@typespec/rest"; import "@typespec/openapi"; import "@typespec/openapi3"; ${
+    `import "@typespec/http"; import "@typespec/rest"; import "@typespec/openapi"; import "@typespec/openapi3";import "@typespec/xml"; ${
       versions ? `import "@typespec/versioning"; using TypeSpec.Versioning;` : ""
-    }using TypeSpec.Rest;using TypeSpec.Http;using TypeSpec.OpenAPI;${code}`,
+    }using TypeSpec.Rest;using TypeSpec.Http;using TypeSpec.OpenAPI;using TypeSpec.Xml;${code}`,
   );
   const diagnostics = await host.diagnose("./main.tsp", {
     noEmit: false,
