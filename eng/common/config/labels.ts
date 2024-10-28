@@ -163,6 +163,10 @@ export const CommonLabels = {
         description:
           "Mark an issue that needs reply from the author or it will be closed automatically",
       },
+      stale: {
+        color: "ffffff",
+        description: "Mark an PR that hasn't gotten update and will be closed.",
+      },
       "triaged:core": {
         color: "5319e7",
         description: "",
