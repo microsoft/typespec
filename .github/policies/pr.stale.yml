@@ -15,11 +15,13 @@ configuration:
         filters:
           - isPullRequest
           - isOpen
+          - isNotLabeledWith:
+              label: no-recent-activity
           - noActivitySince:
               days: 30
         actions:
           - addLabel:
-            label: stale
+              label: stale
           - addReply:
               reply: >-
                 Hi @${issueAuthor}.
