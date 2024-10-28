@@ -183,7 +183,9 @@ export const $info: InfoDecorator = (
   if (data === undefined) {
     return;
   }
-  validateAdditionalInfoModel(context, model, data);
+  if (!validateAdditionalInfoModel(context, model, data)) {
+    return;
+  }
   setInfo(context.program, entity, data);
 };
 
@@ -218,7 +220,7 @@ function validateAdditionalInfoModel(
   context: DecoratorContext,
   typespecType: TypeSpecValue,
   data: AdditionalInfo & Record<`x-${string}`, unknown>,
-) {
+): boolean {
   const propertyModel = context.program.resolveTypeReference(
     "TypeSpec.OpenAPI.AdditionalInfo",
   )[0]! as Model;
@@ -234,4 +236,8 @@ function validateAdditionalInfoModel(
     );
   }
   context.program.reportDiagnostics(diagnostics);
+  if (diagnostics.length > 0) {
+    return false;
+  }
+  return true;
 }

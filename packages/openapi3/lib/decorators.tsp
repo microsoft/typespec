@@ -19,7 +19,7 @@ model TagMetadata {
   /** A description of the API. */
   description?: string;
 
-  /** a external Docs information of the API. */
+  /** An external Docs information of the API. */
   externalDocs?: ExternalDocs;
 }
 

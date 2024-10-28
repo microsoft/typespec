@@ -266,7 +266,7 @@ export const libDef = {
     "duplicate-tag": {
       severity: "error",
       messages: {
-        default: paramMessage`Duplicate tag ${"tagName"}`,
+        default: paramMessage`"Duplicate tag '${"tagName"}' found. Tag names must be unique in OpenAPI3."`,
       },
     },
   },
