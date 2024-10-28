@@ -1,0 +1,249 @@
+---
+import ThemePicker from "../theme-picker.astro";
+import Link from "./link.astro";
+import { Icon } from "@astrojs/starlight/components";
+import Search from "./search.astro";
+export interface Props {
+  noDrawer?: boolean;
+}
+
+const { noDrawer } = Astro.props;
+---
+
+<style>
+  .navbar {
+    display: flex;
+    align-items: center;
+    background-color: var(--colorNeutralBackground3);
+    padding: 0.5rem 1rem;
+    margin: 0;
+    box-shadow: var(--shadow4);
+    height: var(--header-height);
+  }
+  #header-drawer-button {
+    display: flex;
+    align-items: center;
+    background: none;
+    border: none;
+  }
+
+  .nav-content {
+    display: none;
+  }
+
+  .brand-item {
+    flex: 1;
+  }
+
+  .brand {
+    color: var(--colorNeutralForeground1);
+  }
+
+  li {
+    list-style: none;
+  }
+
+  .group > summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .group > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .group-content {
+    padding: 0;
+    margin: 0;
+  }
+
+  .group-content .item:active {
+    background-color: var(--colorNeutralBackground1Pressed);
+  }
+
+  .item {
+    display: inline-block;
+  }
+
+  .item.link {
+    cursor: pointer;
+    color: var(--colorNeutralForeground1);
+  }
+
+  .icon {
+    font-size: 1.5rem;
+    color: var(--colorNeutralForeground1);
+  }
+
+  .icon:hover {
+    color: var(--colorNeutralForeground3);
+  }
+
+  .group .group-content {
+    opacity: 0;
+    transition: 0.2s ease-in-out;
+  }
+  .group[open] .group-content {
+    opacity: 1;
+  }
+  .group > summary {
+    cursor: pointer;
+    gap: 0.5rem;
+  }
+
+  .group-content .item {
+    display: flex;
+  }
+  .group-content .item:hover {
+    background-color: var(--colorNeutralBackground2);
+  }
+
+  @media screen and (max-width: 1023px) {
+    .nav-content[data-open="true"] {
+      display: block;
+      position: absolute;
+      top: var(--header-height);
+      left: 0;
+      background-color: var(--colorNeutralBackground2);
+      width: 100vw;
+      height: calc(100vh - var(--header-height));
+      overflow-y: auto;
+    }
+
+    .item {
+      display: flex;
+      border-bottom: 1px solid var(--colorNeutralStroke1);
+      padding: 1rem;
+    }
+
+    .item:active {
+      background-color: var(--colorNeutralBackground1Pressed);
+    }
+
+    .group-content .item {
+      padding-left: 2rem;
+    }
+
+    .group summary .icon {
+      font-size: 1.5rem;
+      transform: rotate(-90deg);
+      transition: 0.2s ease-in-out;
+    }
+    .group[open] summary .icon {
+      transform: rotate(0);
+    }
+  }
+
+  @media screen and (min-width: 1024px) {
+    #header-drawer-button {
+      display: none;
+    }
+
+    .nav-content {
+      display: flex;
+      flex: 1;
+      position: relative;
+    }
+
+    .nav-content .item {
+      padding: 0 0.5rem;
+    }
+
+    .brand-item {
+      flex: 0;
+      margin-right: 1rem;
+    }
+
+    .items {
+      display: flex;
+      align-items: center;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .items.right {
+      justify-content: flex-end;
+      flex: 0 0 auto;
+    }
+
+    .group-content {
+      position: absolute;
+      background: var(--colorNeutralBackground1);
+      padding: 0;
+      box-shadow: var(--shadow4);
+    }
+
+    .group-content .item {
+      padding: 0.5rem 1rem;
+    }
+  }
+</style>
+<nav aria-label="Main" class="navbar">
+  <li class="brand-item"><Link href="/" class="brand"><b>TypeSpec</b></Link></li>
+
+  <div id="header-nav-content" class="nav-content">
+    <div class="items">
+      <details id="use-cases-menu" class="group">
+        <summary class="item"
+          ><span>Use cases</span> <Icon class="icon" name="down-caret" /></summary
+        >
+        <ul class="group-content">
+          <li><Link class="item link" href="/openapi">OpenAPI</Link></li>
+          <li><Link class="item link" href="/data-validation">Data Validation</Link></li>
+          <li><Link class="item link" href="/tooling">Tooling support</Link></li>
+        </ul>
+      </details>
+      <Link class="item link" href="/docs">Docs</Link>
+      <Link class="item link" href="/playground">Playground</Link>
+      <Link class="item link" href="/blog">Blog</Link>
+      <Link class="item link" href="/community">Community</Link>
+    </div>
+    <div class="items right">
+      <Link
+        class="item icon link"
+        href="https://github.com/microsoft/typespec"
+        target="_blank"
+        rel="noopener noreferrer"><Icon name="github" /></Link
+      >
+      <Link
+        class="item icon link"
+        href="https://aka.ms/typespec/discord"
+        target="_blank"
+        rel="noopener noreferrer"><Icon name="discord" /></Link
+      >
+      <div class="item">
+        <ThemePicker />
+      </div>
+    </div>
+  </div>
+  <Search />
+  {
+    !noDrawer && (
+      <button id="header-drawer-button" type="button" class="lg:hidden icon" title="Show Menu">
+        <Icon name="bars" />
+      </button>
+    )
+  }
+</nav>
+
+<script>
+  const button = document.getElementById("header-drawer-button")!;
+  const navcontent = document.getElementById("header-nav-content")!;
+  button.addEventListener("click", () => {
+    if (navcontent.dataset.open === "true") {
+      navcontent.dataset.open = "false";
+    } else {
+      navcontent.dataset.open = "true";
+    }
+  });
+
+  const menu = document.querySelector<HTMLDetailsElement>("#use-cases-menu")!;
+  menu.addEventListener("focusout", () => {
+    if (!menu.matches(":focus-within")) {
+      // delay the transition on focustout so the menu doesn't immediately disappear
+      setTimeout(() => {
+        menu.open = false;
+      }, 200);
+    }
+  });
+</script>

@@ -26,27 +26,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Use Node.js node 18.x
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18.x
-
-      - uses: pnpm/action-setup@v2
+      - uses: ./.github/actions/setup
 
       - name: Install dependencies
         run: pnpm install
 
+      - name: Install browsers
+        run: pnpm exec playwright install
+        working-directory: packages/playground-website
+
       - name: Build
-        run: pnpm --filter "@typespec/website..." run build
-        env:
-          # Only when deploying to microsoft.github.io/typespec. For typespec.io use the default value.
-          # TYPESPEC_WEBSITE_BASE_PATH: "/typespec/"
-          NODE_OPTIONS: "--max_old_space_size=4096"
+        run: pnpm --filter "@typespec/website-astro..." run build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: ./packages/website/build
+          path: ./website/dist
 
   # Deployment job
   deploy:

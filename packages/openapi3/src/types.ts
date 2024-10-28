@@ -376,6 +376,14 @@ export type JsonType = "array" | "boolean" | "integer" | "number" | "object" | "
  */
 export type OpenAPI3SchemaProperty = Ref<OpenAPI3Schema> | OpenAPI3Schema;
 
+export type OpenAPI3XmlSchema = Extensions & {
+  name?: string;
+  namespace?: string;
+  prefix?: string;
+  attribute?: boolean;
+  wrapped?: boolean;
+};
+
 export type OpenAPI3Schema = Extensions & {
   /**
    * This attribute is a string that provides a short description of the instance property.
@@ -587,6 +595,9 @@ export type OpenAPI3Schema = Extensions & {
 
   /** Specifies that a schema is deprecated and SHOULD be transitioned out of usage.Default value is false. */
   deprecated?: boolean;
+
+  /** This MAY be used only on properties schemas. It has no effect on root schemas. Adds additional metadata to describe the XML representation of this property. */
+  xml?: OpenAPI3XmlSchema;
 };
 
 export type OpenAPI3ParameterBase = Extensions & {
