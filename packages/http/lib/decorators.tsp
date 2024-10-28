@@ -274,7 +274,7 @@ extern dec head(target: Operation);
  * namespace PetStore;
  * ```
  *
- * @example
+ * @example With a description
  *
  * ```typespec
  * @service
