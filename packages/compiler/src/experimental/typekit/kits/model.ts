@@ -32,28 +32,33 @@ interface ModelDescriptor {
 }
 
 export interface ModelKit {
-  model: {
-    /**
+  /**
      * Create a model type.
      *
      * @param desc The descriptor of the model.
      */
-    create(desc: ModelDescriptor): Model;
+  create(desc: ModelDescriptor): Model;
 
-    /**
-     * Check if the given `type` is a model..
-     *
-     * @param type The type to check.
-     */
-    is(type: Type): type is Model;
-  };
+  /**
+   * Check if the given `type` is a model..
+   *
+   * @param type The type to check.
+   */
+  is(type: Type): type is Model;
+}
+
+interface TypeKit {
+  /**
+   * Utilities for working with models.
+   */
+  model: ModelKit;
 }
 
 declare module "../define-kit.js" {
-  interface TypekitPrototype extends ModelKit {}
+  interface TypekitPrototype extends TypeKit {}
 }
 
-export const ModelKit = defineKit<ModelKit>({
+defineKit<TypeKit>({
   model: {
     create(desc) {
       const properties = createRekeyableMap(Array.from(Object.entries(desc.properties)));
