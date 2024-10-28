@@ -72,12 +72,9 @@ export async function resolveXmlModule(): Promise<XmlModule | undefined> {
       emitObject: OpenAPI3Schema,
       refSchema: OpenAPI3Schema,
     ) => {
-      const xmlObject: OpenAPI3XmlSchema = {};
+      if (!isXmlModelChecker(program, prop.model!, [])) return;
 
-      const isXmlModel = isXmlModelChecker(program, prop.model!, []);
-      if (!isXmlModel) {
-        return;
-      }
+      const xmlObject: OpenAPI3XmlSchema = {};
 
       // Resolve XML name
       const xmlName = resolveEncodedName(program, prop, "application/xml");
