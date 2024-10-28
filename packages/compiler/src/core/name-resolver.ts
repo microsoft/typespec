@@ -57,7 +57,7 @@
  * program.
  **/
 
-import { isArray, Mutable, mutate } from "../utils/misc.js";
+import { Mutable, mutate } from "../utils/misc.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { compilerAssert } from "./diagnostics.js";
 import { inspectSymbol } from "./inspector.js";
@@ -187,10 +187,6 @@ export function createResolver(program: Program): NameResolver {
       // references and types that need binding.
       for (const file of program.sourceFiles.values()) {
         bindAndResolveNode(file);
-      }
-
-      for (const file of program.sourceFiles.values()) {
-        applyAugmentDecoratorsInScope(file);
       }
 
       // Report any duplicate symbol
@@ -1189,9 +1185,11 @@ export function createResolver(program: Program): NameResolver {
         bindTemplateParameter(node);
         break;
       case SyntaxKind.DecoratorExpression:
-      case SyntaxKind.AugmentDecoratorStatement:
       case SyntaxKind.ProjectionDecoratorReferenceExpression:
         resolveDecoratorTarget(node);
+        break;
+      case SyntaxKind.AugmentDecoratorStatement:
+        resolveAugmentDecorator(node);
         break;
       case SyntaxKind.CallExpression:
         resolveTypeReference(node.target);
@@ -1270,52 +1268,27 @@ export function createResolver(program: Program): NameResolver {
     return nodeInterfaces;
   }
 
-  function applyAugmentDecoratorsInScope(scope: TypeSpecScriptNode | NamespaceStatementNode) {
-    applyAugmentDecorators(scope);
-    if (scope.statements === undefined) {
-      return;
-    }
+  function resolveAugmentDecorator(decNode: AugmentDecoratorStatementNode) {
+    resolveTypeReference(decNode.target, { resolveDecorators: true });
+    const [sym, result, isTemplate] = resolveTypeReference(decNode.targetType);
 
-    if (isArray(scope.statements)) {
-      for (const statement of scope.statements) {
-        if (statement.kind === SyntaxKind.NamespaceStatement) {
-          applyAugmentDecoratorsInScope(statement);
-        }
+    if (isTemplate) {
+      program.reportDiagnostic(
+        createDiagnostic({
+          code: "augment-decorator-target",
+          messageId: "noInstance",
+          target: decNode.target,
+        }),
+      );
+    } else if (sym) {
+      let list = augmentDecoratorsForSym.get(sym);
+      if (list === undefined) {
+        list = [];
+        augmentDecoratorsForSym.set(sym, list);
       }
+      list.unshift(decNode);
     } else {
-      applyAugmentDecoratorsInScope(scope.statements);
-    }
-  }
-
-  function applyAugmentDecorators(node: TypeSpecScriptNode | NamespaceStatementNode) {
-    if (!node.statements || !isArray(node.statements)) {
-      return;
-    }
-
-    const augmentDecorators = node.statements.filter(
-      (x): x is AugmentDecoratorStatementNode => x.kind === SyntaxKind.AugmentDecoratorStatement,
-    );
-
-    for (const decNode of augmentDecorators) {
-      const links = getNodeLinks(decNode.targetType);
-      const ref = links.resolvedSymbol;
-
-      if (links.isTemplate) {
-        program.reportDiagnostic(
-          createDiagnostic({
-            code: "augment-decorator-target",
-            messageId: "noInstance",
-            target: decNode.target,
-          }),
-        );
-      } else if (ref) {
-        let list = augmentDecoratorsForSym.get(ref);
-        if (list === undefined) {
-          list = [];
-          augmentDecoratorsForSym.set(ref, list);
-        }
-        list.unshift(decNode);
-      }
+      // TODO collect error?
     }
   }
 }
