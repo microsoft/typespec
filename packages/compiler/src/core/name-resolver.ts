@@ -973,6 +973,7 @@ export function createResolver(program: Program): NameResolver {
       }),
     );
   }
+
   /**
    * We cannot inject symbols into the symbol tables hanging off syntax tree nodes as
    * syntax tree nodes can be shared by other programs. This is called as a copy-on-write

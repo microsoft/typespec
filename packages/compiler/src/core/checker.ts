@@ -495,17 +495,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function setUsingsForFile(file: TypeSpecScriptNode) {}
 
   /**
-   * We cannot inject symbols into the symbol tables hanging off syntax tree nodes as
-   * syntax tree nodes can be shared by other programs. This is called as a copy-on-write
-   * to inject using and late-bound symbols, and then we use the copy when resolving
-   * in the table.
-   */
-  // TODO: this function needs to be removed
-  function getOrCreateAugmentedSymbolTable(table: SymbolTable): Mutable<SymbolTable> {
-    return resolver.getAugmentedSymbolTable(table);
-  }
-
-  /**
    * Create the link for the given type to the symbol links.
    * If currently instantiating a template it will link to the instantiations.
    * Else will link to the declaredType.
@@ -4671,15 +4660,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     if (containerNode.symbol === undefined) {
       return;
     }
-    compilerAssert(
-      containerNode.symbol.members,
-      `Expected container node ${SyntaxKind[containerNode.kind]} to have members.`,
-    );
-    const memberSym = getOrCreateAugmentedSymbolTable(containerNode.symbol.members).get(
-      member.name,
-    );
+
+    const memberSym = getMemberSymbol(containerNode.symbol, member.name);
     if (memberSym) {
-      const links = getSymbolLinks(memberSym);
+      const links = resolver.getSymbolLinks(memberSym);
       linkMemberType(links, member, mapper);
     }
   }
