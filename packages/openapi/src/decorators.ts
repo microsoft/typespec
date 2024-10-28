@@ -251,9 +251,11 @@ function validateAdditionalInfoModel(
     );
   }
 
-  // Report any diagnostics that were collected
-  context.program.reportDiagnostics(diagnostics);
-
   // Return false if any diagnostics were found, true otherwise
-  return diagnostics.length === 0;
+  if (diagnostics.length > 0) {
+    // Report any diagnostics that were collected
+    context.program.reportDiagnostics(diagnostics);
+    return false;
+  }
+  return true;
 }

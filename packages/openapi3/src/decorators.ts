@@ -148,11 +148,10 @@ function validateAdditionalInfoModel(
     );
   }
 
-  // Report any diagnostics found during validation
-  context.program.reportDiagnostics(diagnostics);
-
   // Abort if any diagnostics were found
   if (diagnostics.length > 0) {
+    // Report any diagnostics found during validation
+    context.program.reportDiagnostics(diagnostics);
     return false;
   }
   return true;
