@@ -166,7 +166,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 new MethodBodyStatements(
                 [
                     Declare("message", pipelineField.CreateMessage(options.AsExpression.ToApi<HttpRequestOptionsApi>(), classifier).ToApi<HttpMessageApi>(), out HttpMessageApi message),
-                    message.Assign(classifier.AsVariableExpression.ToApi<StatusCodeClassifierApi>()),
+                    message.Assign(((MemberExpression)classifier).ToApi<StatusCodeClassifierApi>()),
                     Declare("request", message.Request().ToApi<HttpRequestApi>(), out HttpRequestApi request),
                     request.SetMethod(operation.HttpMethod).Terminate(),
                     Declare("uri", New.Instance<ClientUriBuilderDefinition>(), out ScopedApi<ClientUriBuilderDefinition> uri),
