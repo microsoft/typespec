@@ -419,7 +419,7 @@ const VERB_DECORATORS = [$get, $head, $post, $put, $patch, $delete];
 
 export interface HttpServer {
   url: string;
-  description: string | undefined;
+  description?: string;
   parameters: Map<string, ModelProperty>;
 }
 
