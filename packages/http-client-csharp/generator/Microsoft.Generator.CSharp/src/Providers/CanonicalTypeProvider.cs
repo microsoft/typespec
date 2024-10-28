@@ -116,8 +116,6 @@ namespace Microsoft.Generator.CSharp.Providers
                 }
             }
 
-            HashSet<string> renamedProperties = customFields.Where(p => p.OriginalName != null).Select(p => p.OriginalName!).ToHashSet();
-
             foreach (var customField in customFields)
             {
                 InputModelProperty? specProperty = null;
