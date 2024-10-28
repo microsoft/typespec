@@ -7,7 +7,7 @@ import {
 import { HttpTestLibrary } from "@typespec/http/testing";
 
 export async function createTypespecCliTestHost(
-  options: { libraries: "Http"[] } = { libraries: [] }
+  options: { libraries: "Http"[] } = { libraries: [] },
 ) {
   const libraries = [];
   if (options.libraries.includes("Http")) {
@@ -27,7 +27,7 @@ export async function createEmitterFrameworkTestRunner(options: { autoUsings?: s
 
 export async function getProgram(
   code: string,
-  options: { libraries: "Http"[] } = { libraries: [] }
+  options: { libraries: "Http"[] } = { libraries: [] },
 ): Promise<Program> {
   const host = await createTypespecCliTestHost(options);
   const wrapper = createTestWrapper(host, {

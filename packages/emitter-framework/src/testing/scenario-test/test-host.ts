@@ -22,7 +22,7 @@ async function createEmitterTestRunner(
     autoImports?: string[];
     autoUsings?: string[];
     compilerOptions?: CompilerOptions;
-  } = {}
+  } = {},
 ) {
   const libraries = options.testHostConfig?.libraries ?? [
     testLibrary,
@@ -44,7 +44,7 @@ async function createEmitterTestRunner(
 export async function emitWithDiagnostics(
   testLibrary: TypeSpecTestLibrary,
   emitterOutputDir: string,
-  code: string
+  code: string,
 ): Promise<[EmittedFile[], readonly Diagnostic[]]> {
   const runner = await createEmitterTestRunner(testLibrary);
   await runner.compileAndDiagnose(code, {
@@ -57,7 +57,7 @@ export async function emitWithDiagnostics(
 async function readFilesRecursively(
   currentDir: string,
   emitterOutputDir: string,
-  runner: BasicTestRunner
+  runner: BasicTestRunner,
 ): Promise<EmittedFile[]> {
   const entries = await runner.program.host.readDir(currentDir);
   const result: EmittedFile[] = [];

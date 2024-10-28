@@ -89,7 +89,7 @@ export interface LanguageConfiguration {
 }
 
 export function createSnipperExtractor(
-  languageConfiguration: LanguageConfiguration
+  languageConfiguration: LanguageConfiguration,
 ): SnippetExtractor {
   return new SnippetExtractorImpl(languageConfiguration);
 }
@@ -173,7 +173,7 @@ class SnippetExtractorImpl implements SnippetExtractor {
   private findNodeByTypeAndName(
     fileContent: string,
     type: string,
-    name: string
+    name: string,
   ): Parser.SyntaxNode | null {
     const tree = this.parser.parse(fileContent);
     const rootNode = tree.rootNode; // Start from the root node

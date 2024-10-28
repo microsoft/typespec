@@ -24,7 +24,7 @@ export async function createSampleEmitterTestRunner() {
 }
 
 export async function emitWithDiagnostics(
-  code: string
+  code: string,
 ): Promise<[Record<string, string>, readonly Diagnostic[]]> {
   const runner = await createSampleEmitterTestRunner();
   await runner.compileAndDiagnose(code, {

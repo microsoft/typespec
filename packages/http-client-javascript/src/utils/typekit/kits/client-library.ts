@@ -7,7 +7,6 @@ import { Enum, listServices, Model, Namespace } from "@typespec/compiler";
 import { $, defineKit } from "@typespec/compiler/typekit";
 import { Client } from "./client.js";
 
-
 interface ClientLibraryKit {
   clientLibrary: {
     /**

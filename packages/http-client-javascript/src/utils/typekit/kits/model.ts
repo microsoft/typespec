@@ -1,7 +1,18 @@
-import { AccessFlags, createTCGCContext, getGeneratedName, UsageFlags } from "@azure-tools/typespec-client-generator-core";
-import { Model, ModelProperty, Type } from "@typespec/compiler";
+import {
+  AccessFlags,
+  createTCGCContext,
+  getGeneratedName,
+  UsageFlags,
+} from "@azure-tools/typespec-client-generator-core";
+import {
+  getDiscriminatedUnion,
+  getDiscriminator,
+  ignoreDiagnostics,
+  Model,
+  ModelProperty,
+  Type,
+} from "@typespec/compiler";
 import { $, defineKit } from "@typespec/compiler/typekit";
-import { isModelProperty } from "@typespec/emitter-framework";
 
 export interface SdkModelKit {
   /**
@@ -44,7 +55,7 @@ export interface SdkModelKit {
    *
    * @param model model to get the discriminator of
    */
-  getDiscriminator(model: Model): ModelProperty | undefined;
+  getDiscriminatorProperty(model: Model): ModelProperty | undefined;
 
   /**
    * Get value of discriminator, if a discriminator exists
@@ -94,16 +105,42 @@ defineKit<TypeKit>({
       return UsageFlags.None;
     },
     getAdditionalPropertiesType(model) {
+      // model MyModel is Record<> {} should be model with additional properties
+      if (model.sourceModel?.kind === "Model" && model.sourceModel?.name === "Record") {
+        return model.sourceModel!.indexer!.value!;
+      }
+      // model MyModel { ...Record<>} should be model with additional properties
+      if (model.indexer) {
+        return model.indexer.value;
+      }
       return undefined;
     },
-    getDiscriminator(model) {
-      return undefined;
+    getDiscriminatorProperty(model) {
+      const discriminator = getDiscriminator($.program, model);
+      if (!discriminator) return undefined;
+      for (const property of $.model.listProperties(model)) {
+        if (property.name === discriminator.propertyName) {
+          return property;
+        }
+      }
     },
     getDiscriminatorValue(model) {
-      return undefined;
+      const disc = $.model.getDiscriminatorProperty(model);
+      if (!disc) return undefined;
+      switch (disc.type.kind) {
+        case "String":
+          return disc.type.value as string;
+        case "EnumMember":
+          return disc.type.name;
+        default:
+          throw Error("Discriminator must be a string or enum member");
+      }
     },
     getDiscriminatedSubtypes(model) {
-      return {};
+      const disc = getDiscriminator($.program, model);
+      if (!disc) return {};
+      const discriminatedUnion = ignoreDiagnostics(getDiscriminatedUnion(model, disc));
+      return discriminatedUnion?.variants || {};
     },
     getBaseModel(model) {
       return model.baseModel;

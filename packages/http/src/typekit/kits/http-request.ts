@@ -25,7 +25,7 @@ interface HttpRequestKit {
      */
     getParameters(
       httpOperation: HttpOperation,
-      kind: HttpRequestParameterKind[] | HttpRequestParameterKind
+      kind: HttpRequestParameterKind[] | HttpRequestParameterKind,
     ): Model | undefined;
   };
 }
@@ -40,7 +40,7 @@ defineKit<HttpRequestKit>({
       isExplicit(httpOperation: HttpOperation) {
         return (
           httpOperation.parameters.properties.find(
-            (p) => p.kind === "body" || p.kind === "bodyRoot"
+            (p) => p.kind === "body" || p.kind === "bodyRoot",
           ) !== undefined
         );
       },
@@ -69,7 +69,7 @@ defineKit<HttpRequestKit>({
     },
     getParameters(
       httpOperation: HttpOperation,
-      kind: HttpRequestParameterKind | HttpRequestParameterKind[]
+      kind: HttpRequestParameterKind | HttpRequestParameterKind[],
     ): Model | undefined {
       const kinds = new Set(Array.isArray(kind) ? kind : [kind]);
       const parameterProperties: ModelProperty[] = [];
@@ -77,7 +77,7 @@ defineKit<HttpRequestKit>({
       for (const kind of kinds) {
         if (kind === "body") {
           const bodyParams = Array.from(
-            this.httpRequest.getBodyParameters(httpOperation)?.properties.values() ?? []
+            this.httpRequest.getBodyParameters(httpOperation)?.properties.values() ?? [],
           );
           if (bodyParams) {
             parameterProperties.push(...bodyParams);
@@ -99,7 +99,7 @@ defineKit<HttpRequestKit>({
           acc[prop.name] = prop;
           return acc;
         },
-        {} as Record<string, ModelProperty>
+        {} as Record<string, ModelProperty>,
       );
 
       return $.model.create({ properties });

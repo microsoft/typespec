@@ -1,7 +1,6 @@
-import { AccessFlags, UsageFlags } from "@azure-tools/typespec-client-generator-core";
-import { BaseType, Model, ModelProperty, Type } from "@typespec/compiler";
-import { defineKit, $ } from "@typespec/compiler/typekit";
-import { getAuthentication, HttpAuth } from "@typespec/http";
+import { BaseType, ModelProperty } from "@typespec/compiler";
+import { defineKit } from "@typespec/compiler/typekit";
+import { HttpAuth } from "@typespec/http";
 
 export interface SdkCredential extends BaseType {
   kind: "Credential";
@@ -18,7 +17,7 @@ export interface SdkModelPropertyKit {
 
   /**
    * Returns whehter it's a credential parameter or not.
-   * 
+   *
    * @param type: model property we are checking to see if is a credential parameter
    */
   isCredential(type: ModelProperty): boolean;
@@ -42,4 +41,3 @@ defineKit<TypeKit>({
     },
   },
 });
-
