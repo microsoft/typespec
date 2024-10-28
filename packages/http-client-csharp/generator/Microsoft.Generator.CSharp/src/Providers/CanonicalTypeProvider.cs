@@ -16,6 +16,8 @@ namespace Microsoft.Generator.CSharp.Providers
         private readonly TypeProvider _generatedTypeProvider;
         private readonly Dictionary<string, InputModelProperty> _specPropertiesMap;
         private readonly Dictionary<string, string?> _serializedNameMap;
+        private readonly HashSet<string> _renamedProperties;
+        private readonly HashSet<string> _renamedFields;
 
         public CanonicalTypeProvider(TypeProvider generatedTypeProvider, InputType? inputType)
         {
@@ -24,6 +26,10 @@ namespace Microsoft.Generator.CSharp.Providers
             var specProperties = inputModel?.Properties ?? [];
             _specPropertiesMap = specProperties.ToDictionary(p => p.Name.ToCleanName(), p => p);
             _serializedNameMap = BuildSerializationNameMap();
+            _renamedProperties = (_generatedTypeProvider.CustomCodeView?.Properties ?? [])
+                .Where(p => p.OriginalName != null).Select(p => p.OriginalName!).ToHashSet();
+            _renamedFields = (_generatedTypeProvider.CustomCodeView?.Fields ?? [])
+                .Where(p => p.OriginalName != null).Select(p => p.OriginalName!).ToHashSet();
         }
         protected override string BuildRelativeFilePath() => throw new InvalidOperationException("This type should not be writing in generation");
 
@@ -255,14 +261,9 @@ namespace Microsoft.Generator.CSharp.Providers
                 return true;
             }
 
-            HashSet<string> renamedProperties = (_generatedTypeProvider.CustomCodeView?.Properties ?? [])
-                .Where(p => p.OriginalName != null).Select(p => p.OriginalName!).ToHashSet();
-            HashSet<string> renamedFields = (_generatedTypeProvider.CustomCodeView?.Fields ?? [])
-                .Where(p => p.OriginalName != null).Select(p => p.OriginalName!).ToHashSet();
-
             if (_specPropertiesMap.TryGetValue(customProperty.Name, out candidateSpecProperty) &&
-                !renamedProperties.Contains(customProperty.Name) &&
-                !renamedFields.Contains(customProperty.Name))
+                !_renamedProperties.Contains(customProperty.Name) &&
+                !_renamedFields.Contains(customProperty.Name))
             {
                 return true;
             }
@@ -278,11 +279,8 @@ namespace Microsoft.Generator.CSharp.Providers
                 return true;
             }
 
-            HashSet<string> renamedProperties = (_generatedTypeProvider.CustomCodeView?.Properties ?? [])
-               .Where(p => p.OriginalName != null).Select(p => p.OriginalName!).ToHashSet();
-
             if (_specPropertiesMap.TryGetValue(customField.Name, out candidateSpecProperty) &&
-                !renamedProperties.Contains(customField.Name))
+                !_renamedProperties.Contains(customField.Name))
             {
                 return true;
             }
