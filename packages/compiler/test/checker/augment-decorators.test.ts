@@ -206,6 +206,46 @@ describe("augment types", () => {
         };`,
       "Foo.name",
     ));
+  it("property from spread of alias", () =>
+    expectTarget(
+      `alias Spread = { 
+          @test("target") name: string
+        };
+       model Foo {
+          ...Spread,
+       }`,
+      "Foo.name",
+    ));
+  it("property from spread of alias in alias expression", () =>
+    expectTarget(
+      `alias Spread = { 
+          @test("target") name: string
+        };
+       alias Foo = {
+          ...Spread,
+       };`,
+      "Foo.name",
+    ));
+
+  it("property from model is", () =>
+    expectTarget(
+      `model Base { 
+        @test("target") name: string
+      };
+      model Foo is Base;`,
+      "Foo.name",
+    ));
+
+  it("property of nested model expression", () =>
+    expectTarget(
+      `model Foo { 
+        nested: {
+          @test("target") name: string
+        }
+      }`,
+      "Foo.nested::type.name",
+    ));
+
   it("enum", () => expectTarget(`@test("target") enum Foo { a, b }`, "Foo"));
   it("enum member", () => expectTarget(`enum Foo { @test("target") a, b }`, "Foo.a"));
   it("union", () => expectTarget(`@test("target") union Foo { }`, "Foo"));
