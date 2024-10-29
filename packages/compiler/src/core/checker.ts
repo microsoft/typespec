@@ -1,6 +1,6 @@
 import { docFromCommentDecorator, getIndexer } from "../lib/intrinsic/decorators.js";
 import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
-import { createSymbol } from "./binder.js";
+import { createSymbol, getSymNode } from "./binder.js";
 import { createChangeIdentifierCodeFix } from "./compiler-code-fixes/change-identifier.codefix.js";
 import { createModelToObjectValueCodeFix } from "./compiler-code-fixes/model-to-object-literal.codefix.js";
 import { createTupleToArrayValueCodeFix } from "./compiler-code-fixes/tuple-to-array-value.codefix.js";
@@ -17,7 +17,7 @@ import {
 } from "./helpers/type-name-utils.js";
 import { legacyMarshallTypeForJS, marshallTypeForJS } from "./js-marshaller.js";
 import { createDiagnostic } from "./messages.js";
-import { NameResolver, getSymNode } from "./name-resolver.js";
+import { NameResolver } from "./name-resolver.js";
 import { Numeric } from "./numeric.js";
 import {
   exprIsBareIdentifier,

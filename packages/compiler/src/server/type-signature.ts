@@ -1,7 +1,7 @@
+import { getSymNode } from "../core/binder.js";
 import { compilerAssert } from "../core/diagnostics.js";
 import { printIdentifier } from "../core/helpers/syntax-utils.js";
 import { getEntityName, getTypeName, isStdNamespace } from "../core/helpers/type-name-utils.js";
-import { getSymNode } from "../core/name-resolver.js";
 import type { Program } from "../core/program.js";
 import { getFullyQualifiedSymbolName } from "../core/type-utils.js";
 import {

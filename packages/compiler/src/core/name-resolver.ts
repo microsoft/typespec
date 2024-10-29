@@ -58,7 +58,7 @@
  **/
 
 import { Mutable, mutate } from "../utils/misc.js";
-import { createSymbol, createSymbolTable } from "./binder.js";
+import { createSymbol, createSymbolTable, getSymNode } from "./binder.js";
 import { compilerAssert } from "./diagnostics.js";
 import { typeReferenceToString } from "./helpers/syntax-utils.js";
 import { createDiagnostic } from "./messages.js";
@@ -1303,14 +1303,4 @@ export function createResolver(program: Program): NameResolver {
       list.unshift(decNode);
     }
   }
-}
-
-// TODO: better place?
-/**
- * Get the node attached to this symbol.
- * If a declaration symbol get the first one `.declarations[0]`
- * Otherwise get `.node`
- */
-export function getSymNode(sym: Sym): Node {
-  return sym.flags & SymbolFlags.Declaration ? sym.declarations[0] : sym.node;
 }

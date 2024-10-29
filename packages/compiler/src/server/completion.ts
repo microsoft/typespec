@@ -6,6 +6,7 @@ import {
   MarkupKind,
   TextEdit,
 } from "vscode-languageserver";
+import { getSymNode } from "../core/binder.js";
 import { getDeprecationDetails } from "../core/deprecation.js";
 import {
   CompilerHost,
@@ -24,7 +25,6 @@ import {
   positionInRange,
   printIdentifier,
 } from "../core/index.js";
-import { getSymNode } from "../core/name-resolver.js";
 import {
   getAnyExtensionFromPath,
   getBaseFileName,

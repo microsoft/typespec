@@ -1,3 +1,4 @@
+import { getSymNode } from "../core/binder.js";
 import {
   compilerAssert,
   DocContent,
@@ -10,7 +11,6 @@ import {
   TemplateDeclarationNode,
   Type,
 } from "../core/index.js";
-import { getSymNode } from "../core/name-resolver.js";
 import { getSymbolSignature } from "./type-signature.js";
 
 /**
