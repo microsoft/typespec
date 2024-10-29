@@ -5,7 +5,7 @@ import {
   SdkServiceOperation,
 } from "@azure-tools/typespec-client-generator-core";
 import { EmitContext } from "@typespec/compiler";
-import { execSync } from "child_process";
+import { exec } from "child_process";
 import fs from "fs";
 import jsyaml from "js-yaml";
 import path, { dirname } from "path";
@@ -146,15 +146,15 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
       const globals = pyodide.toPy({ outputFolder, yamlPath, commandArgs });
       const python = `
         async def main():
-            import warnings
-            with warnings.catch_warnings():
-              warnings.simplefilter("ignore", SyntaxWarning)
+          import warnings
+          with warnings.catch_warnings():
+            warnings.simplefilter("ignore", SyntaxWarning)
             from pygen import m2r, preprocess, codegen, black
 
-            m2r.M2R(output_folder=outputFolder, cadl_file=yamlPath, **commandArgs).process()
-            preprocess.PreProcessPlugin(output_folder=outputFolder, cadl_file=yamlPath, **commandArgs).process()
-            codegen.CodeGenerator(output_folder=outputFolder, cadl_file=yamlPath, **commandArgs).process()
-            black.BlackScriptPlugin(output_folder=outputFolder, **commandArgs).process()
+          m2r.M2R(output_folder=outputFolder, cadl_file=yamlPath, **commandArgs).process()
+          preprocess.PreProcessPlugin(output_folder=outputFolder, cadl_file=yamlPath, **commandArgs).process()
+          codegen.CodeGenerator(output_folder=outputFolder, cadl_file=yamlPath, **commandArgs).process()
+          black.BlackScriptPlugin(output_folder=outputFolder, **commandArgs).process()
     
         await main()
         `;
@@ -207,7 +207,7 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
     }
     commandArgs.push("--from-typespec=true");
     if (!program.compilerOptions.noEmit && !program.hasError()) {
-      execSync(commandArgs.join(" "));
+      await exec(commandArgs.join(" "));
     }
   }
 }
