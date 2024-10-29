@@ -201,6 +201,7 @@ describe("compiler: parser", () => {
     parseEach([
       'namespace A { op b(param: [number, string]): [1, "hi"]; }',
       "alias EmptyTuple =  [];",
+      "alias TrailingComma =  [1, 2,];",
       "model Template<T=[]> { }",
     ]);
   });
@@ -266,6 +267,7 @@ describe("compiler: parser", () => {
       `const A = #["abc"];`,
       `const A = #["abc", 123];`,
       `const A = #["abc", 123, #{nested: true}];`,
+      `const Trailing = #["abc", 123,];`,
     ]);
   });
 
