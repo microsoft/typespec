@@ -896,9 +896,6 @@ export interface NodeLinks {
    */
   resolvedSymbol?: Sym;
 
-  /** If the link involve template argument */
-  isTemplate?: boolean;
-
   /**
    * The result of resolution of this reference node.
    *

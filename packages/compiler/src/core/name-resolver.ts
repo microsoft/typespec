@@ -288,9 +288,6 @@ export function createResolver(program: Program): NameResolver {
     if (nextSym || resolvedSym) {
       links.resolvedSymbol = nextSym ?? resolvedSym;
     }
-    if (isTemplate) {
-      links.isTemplate = isTemplate;
-    }
     links.resolutionResult = resolvedSymResult;
 
     if (resolvedSym && resolvedSym.flags & SymbolFlags.Alias) {
@@ -300,9 +297,6 @@ export function createResolver(program: Program): NameResolver {
       const [resolveAliasSym, resolveAliasResult, aliasIsTemplate] = resolveAlias(
         aliasNode as AliasStatementNode,
       );
-      if (aliasIsTemplate) {
-        links.isTemplate = true;
-      }
       result = [resolveAliasSym, resolveAliasResult, isTemplate || aliasIsTemplate, resolvedSym];
     } else if (resolvedSym && resolvedSym.flags & SymbolFlags.TemplateParameter) {
       // references to template parameters with constraints can reference the
@@ -365,9 +359,6 @@ export function createResolver(program: Program): NameResolver {
     const idNodeLinks = getNodeLinks(node.id);
     idNodeLinks.resolvedSymbol = result[0];
     idNodeLinks.resolutionResult = result[1];
-    if (result[2]) {
-      idNodeLinks.isTemplate = result[2];
-    }
     if (idNodeLinks.resolvedSymbol) {
       (idNodeLinks.resolvedSymbol as any)._debug_set_via_member_res = true;
     }
