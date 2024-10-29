@@ -60,7 +60,7 @@
 import { Mutable, mutate } from "../utils/misc.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { compilerAssert } from "./diagnostics.js";
-import { typeReferenceToString } from "./inspector/node.js";
+import { typeReferenceToString } from "./helpers/syntax-utils.js";
 import { createDiagnostic } from "./messages.js";
 import { visitChildren } from "./parser.js";
 import { Program } from "./program.js";
