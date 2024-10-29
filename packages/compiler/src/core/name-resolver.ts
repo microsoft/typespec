@@ -359,9 +359,6 @@ export function createResolver(program: Program): NameResolver {
     const idNodeLinks = getNodeLinks(node.id);
     idNodeLinks.resolvedSymbol = result[0];
     idNodeLinks.resolutionResult = result[1];
-    if (idNodeLinks.resolvedSymbol) {
-      (idNodeLinks.resolvedSymbol as any)._debug_set_via_member_res = true;
-    }
     return result;
   }
 
