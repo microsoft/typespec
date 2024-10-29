@@ -138,7 +138,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 }
                 else
                 {
-                    if (!factoryParam.Type.IsReadOnlyMemory && factoryParam.Type.IsList)
+                    if (IsNonReadOnlyMemoryList(factoryParam))
                     {
                         expressions.Add(factoryParam.NullConditional().ToList());
                     }
@@ -167,7 +167,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var statements = new List<MethodBodyStatement>();
             foreach (var param in signature.Parameters)
             {
-                if (param.Type.IsList || param.Type.IsDictionary)
+                if (IsNonReadOnlyMemoryList(param) || param.Type.IsDictionary)
                 {
                     statements.Add(param.Assign(New.Instance(param.Type.PropertyInitializationType), nullCoalesce: true).Terminate());
                 }
@@ -213,5 +213,8 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private static bool IsEnumDiscriminator(ParameterProvider parameter) =>
             parameter.Property?.IsDiscriminator == true && parameter.Type.IsEnum;
+
+        private static bool IsNonReadOnlyMemoryList(ParameterProvider parameter) =>
+            parameter.Type is { IsList: true, IsReadOnlyMemory: false };
     }
 }
