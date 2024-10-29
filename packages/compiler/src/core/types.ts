@@ -2232,11 +2232,6 @@ export interface RmOptions {
   recursive?: boolean;
 }
 
-export type OnChangedListener = (filename: string) => void;
-export interface Closable {
-  close(): void;
-}
-
 export interface CompilerHost {
   /** read a file at the given url. */
   readUrl(url: string): Promise<SourceFile>;
