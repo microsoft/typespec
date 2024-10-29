@@ -14,7 +14,7 @@ extern dec oneOf(target: Union | ModelProperty);
  */
 extern dec useRef(target: Model | ModelProperty, ref: valueof string);
 
-/** Additional information for the OpenAPI document. */
+/** Metadata to a single tag that is used by operations. */
 model TagMetadata {
   /** A description of the API. */
   description?: string;

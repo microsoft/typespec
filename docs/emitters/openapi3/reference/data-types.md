@@ -21,7 +21,7 @@ model TypeSpec.OpenAPI.ExternalDocs
 
 ### `TagMetadata` {#TypeSpec.OpenAPI.TagMetadata}
 
-Additional information for the OpenAPI document.
+Metadata to a single tag that is used by operations.
 
 ```typespec
 model TypeSpec.OpenAPI.TagMetadata

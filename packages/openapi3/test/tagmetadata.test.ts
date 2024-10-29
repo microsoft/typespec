@@ -8,6 +8,7 @@ it.each([
   ["tagName is not a string", `@tagMetadata(123)`],
   ["tagMetdata parameter is not an object", `@tagMetadata("tagName", 123)`],
   ["description is not a string", `@tagMetadata("tagName", { description: 123, })`],
+  ["externalDocs is not an object", `@tagMetadata("tagName", { externalDocs: 123, })`],
 ])("%s", async (_, code) => {
   const diagnostics = await diagnoseOpenApiFor(
     `

@@ -15,6 +15,7 @@ import {
   Program,
   Type,
   TypeNameOptions,
+  TypeSpecValue,
 } from "@typespec/compiler";
 import { getOperationId } from "./decorators.js";
 import { createDiagnostic, reportDiagnostic } from "./lib.js";
@@ -179,9 +180,76 @@ export function isOpenAPIExtensionKey(key: string): key is ExtensionKey {
 }
 
 /**
+ * Validate that the given string is a valid URL.
+ * @param program  Program
+ * @param target Diagnostic target for any diagnostics that are reported
+ * @param url The URL to validate
+ * @param propertyName The name of the property that the URL is associated with
+ * @returns true if the URL is valid, false otherwise
+ */
+export function validateIsUri(
+  program: Program,
+  target: DiagnosticTarget,
+  url: string,
+  propertyName: string,
+): boolean {
+  try {
+    // Attempt to create a URL object from the given string. If
+    // successful, the URL is valid.
+    new URL(url);
+    return true;
+  } catch {
+    // If the URL is invalid, report a diagnostic with the given
+    // target, property name and value.
+    reportDiagnostic(program, {
+      code: "not-url",
+      target: target,
+      format: { property: propertyName, value: url },
+    });
+    return false;
+  }
+}
+
+/**
+ * Validate the AdditionalInfo model against a reference.
+ *
+ * This function checks that the properties of the given AdditionalInfo object
+ * are a subset of the properties defined in the AdditionalInfo model.
+ *
+ * @param program - The TypeSpec Program instance
+ * @param target - Diagnostic target for reporting any diagnostics
+ * @param typespecType - The AdditionalInfo object to validate
+ * @param reference - The reference string to resolve the model
+ * @returns true if the AdditionalInfo object is valid, false otherwise
+ */
+export function validateAdditionalInfoModel(
+  program: Program,
+  target: DiagnosticTarget,
+  typespecType: TypeSpecValue,
+  reference: string,
+): boolean {
+  // Resolve the reference to get the corresponding model
+  const propertyModel = program.resolveTypeReference(reference)[0]! as Model;
+
+  // Check if typespecType is an object and propertyModel is defined
+  if (typeof typespecType === "object" && propertyModel) {
+    // Validate that the properties of typespecType do not exceed those in propertyModel
+    const diagnostics = checkNoAdditionalProperties(typespecType, target, propertyModel);
+    program.reportDiagnostics(diagnostics);
+    // Return false if any diagnostics were reported, indicating a validation failure
+    if (diagnostics.length > 0) {
+      return false;
+    }
+  }
+
+  // Return true if validation is successful
+  return true;
+}
+
+/**
  * Check Additional Properties
  */
-export function checkNoAdditionalProperties(
+function checkNoAdditionalProperties(
   typespecType: Type,
   target: DiagnosticTarget,
   source: Model,
@@ -211,33 +279,5 @@ export function checkNoAdditionalProperties(
     }
   }
 
-  return diagnostics;
-}
-
-/**
- * Validate a string as a URI.
- * @param target The target of the diagnostic
- * @param url The URL to validate
- * @param propertyName The name of the property being validated
- */
-export function validateIsUri(
-  target: DiagnosticTarget,
-  url: string,
-  propertyName: string,
-): Diagnostic[] {
-  const diagnostics: Diagnostic[] = [];
-  try {
-    // Attempt to construct a new URL
-    new URL(url);
-  } catch {
-    // If the construction fails, create a diagnostic
-    diagnostics.push(
-      createDiagnostic({
-        code: "not-url",
-        format: { property: propertyName, value: url },
-        target,
-      }),
-    );
-  }
   return diagnostics;
 }

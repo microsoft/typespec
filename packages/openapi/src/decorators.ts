@@ -1,6 +1,5 @@
 import {
   DecoratorContext,
-  Diagnostic,
   getDoc,
   getService,
   getSummary,
@@ -20,7 +19,7 @@ import {
   InfoDecorator,
   OperationIdDecorator,
 } from "../generated-defs/TypeSpec.OpenAPI.js";
-import { checkNoAdditionalProperties, isOpenAPIExtensionKey, validateIsUri } from "./helpers.js";
+import { isOpenAPIExtensionKey, validateAdditionalInfoModel, validateIsUri } from "./helpers.js";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
 import { AdditionalInfo, ExtensionKey, ExternalDocs } from "./types.js";
 
@@ -183,8 +182,31 @@ export const $info: InfoDecorator = (
   if (data === undefined) {
     return;
   }
-  if (!validateAdditionalInfoModel(context, model, data)) {
+
+  // Validate the AdditionalInfo model
+  if (
+    !validateAdditionalInfoModel(
+      context.program,
+      context.getArgumentTarget(0)!,
+      model,
+      "TypeSpec.OpenAPI.AdditionalInfo",
+    )
+  ) {
     return;
+  }
+
+  // Validate termsOfService
+  if (data.termsOfService) {
+    if (
+      !validateIsUri(
+        context.program,
+        context.getArgumentTarget(0)!,
+        data.termsOfService,
+        "TermsOfService",
+      )
+    ) {
+      return;
+    }
   }
   setInfo(context.program, entity, data);
 };
@@ -214,48 +236,4 @@ export function resolveInfo(program: Program, entity: Namespace): AdditionalInfo
 
 function omitUndefined<T extends Record<string, unknown>>(data: T): T {
   return Object.fromEntries(Object.entries(data).filter(([k, v]) => v !== undefined)) as any;
-}
-
-/**
- * Validates the additional information model for OpenAPI.
- * Ensures that there are no additional properties and that specific fields are valid.
- *
- * @param context - The decorator context.
- * @param typespecType - The type specification value to validate.
- * @param data - The additional information data including custom extensions.
- * @returns `true` if the validation is successful, `false` otherwise.
- */
-function validateAdditionalInfoModel(
-  context: DecoratorContext,
-  typespecType: TypeSpecValue,
-  data: AdditionalInfo & Record<`x-${string}`, unknown>,
-): boolean {
-  const diagnostics: Diagnostic[] = [];
-
-  // Resolve the expected AdditionalInfo model
-  const propertyModel = context.program.resolveTypeReference(
-    "TypeSpec.OpenAPI.AdditionalInfo",
-  )[0]! as Model;
-
-  // Check for additional properties not defined in the model
-  if (typeof typespecType === "object" && propertyModel) {
-    diagnostics.push(
-      ...checkNoAdditionalProperties(typespecType, context.getArgumentTarget(0)!, propertyModel),
-    );
-  }
-
-  // Validate the termsOfService field as a URI if it exists
-  if (data.termsOfService) {
-    diagnostics.push(
-      ...validateIsUri(context.getArgumentTarget(0)!, data.termsOfService, "TermsOfService"),
-    );
-  }
-
-  // Return false if any diagnostics were found, true otherwise
-  if (diagnostics.length > 0) {
-    // Report any diagnostics that were collected
-    context.program.reportDiagnostics(diagnostics);
-    return false;
-  }
-  return true;
 }

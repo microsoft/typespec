@@ -1,6 +1,5 @@
 import {
   DecoratorContext,
-  Diagnostic,
   Model,
   ModelProperty,
   Namespace,
@@ -11,7 +10,7 @@ import {
   typespecTypeToJson,
 } from "@typespec/compiler";
 import { unsafe_useStateMap } from "@typespec/compiler/experimental";
-import { ExtensionKey, checkNoAdditionalProperties, validateIsUri } from "@typespec/openapi";
+import { ExtensionKey, validateAdditionalInfoModel, validateIsUri } from "@typespec/openapi";
 import {
   OneOfDecorator,
   TagMetadataDecorator,
@@ -99,11 +98,31 @@ export const $tagMetadata: TagMetadataDecorator = (
       return;
     }
 
-    // Validate additional information model; abort if invalid
-    if (!validateAdditionalInfoModel(context, tagMetadata, data)) {
+    // Validate the additionalInfo model
+    if (
+      !validateAdditionalInfoModel(
+        context.program,
+        context.getArgumentTarget(0)!,
+        tagMetadata,
+        "TypeSpec.OpenAPI.TagMetadata",
+      )
+    ) {
       return;
     }
 
+    // Validate the externalDocs.url property
+    if (data.externalDocs?.url) {
+      if (
+        !validateIsUri(
+          context.program,
+          context.getArgumentTarget(0)!,
+          data.externalDocs.url,
+          "externalDocs.url",
+        )
+      ) {
+        return;
+      }
+    }
     // Merge data into metadata
     metadata = { ...data, name };
   }
@@ -114,45 +133,3 @@ export const $tagMetadata: TagMetadataDecorator = (
 };
 
 export { getTagsMetadata };
-
-/**
- * Validates the additional information model for tags.
- * @param context - The decorator context.
- * @param typespecType - The type of the tag metadata.
- * @param data - The tag metadata as an object.
- * @returns `true` if the validation was successful, `false` otherwise.
- */
-function validateAdditionalInfoModel(
-  context: DecoratorContext,
-  typespecType: TypeSpecValue,
-  data: OpenAPI3Tag & Record<`x-${string}`, unknown>,
-): boolean {
-  const diagnostics: Diagnostic[] = [];
-
-  // Resolve the TagMetadata model
-  const propertyModel = context.program.resolveTypeReference(
-    "TypeSpec.OpenAPI.TagMetadata",
-  )[0]! as Model;
-
-  // Check that the type matches the model
-  if (typeof typespecType === "object" && propertyModel) {
-    diagnostics.push(
-      ...checkNoAdditionalProperties(typespecType, context.getArgumentTarget(0)!, propertyModel),
-    );
-  }
-
-  // Validate the externalDocs.url property
-  if (data.externalDocs?.url) {
-    diagnostics.push(
-      ...validateIsUri(context.getArgumentTarget(0)!, data.externalDocs.url, "externalDocs.url"),
-    );
-  }
-
-  // Abort if any diagnostics were found
-  if (diagnostics.length > 0) {
-    // Report any diagnostics found during validation
-    context.program.reportDiagnostics(diagnostics);
-    return false;
-  }
-  return true;
-}
