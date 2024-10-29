@@ -30,8 +30,7 @@
   },
   "dependencies": {
     "@alloy-js/core": "0.2.0",
-    "@alloy-js/typescript": "0.2.0",
-    "@azure-tools/typespec-client-generator-core": "0.47.3"
+    "@alloy-js/typescript": "0.2.0"
   },
   "devDependencies": {
     "@azure-tools/cadl-ranch-expect": "0.15.4",

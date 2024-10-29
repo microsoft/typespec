@@ -33,7 +33,6 @@ interface ModelDescriptor {
 }
 
 export interface ModelKit {
-  model: {
     /**
      * Create a model type.
      *
@@ -73,14 +72,26 @@ export interface ModelKit {
      * properties.
      */
     getEffectiveModel(model: Model, filter?: (property: ModelProperty) => boolean): Model;
-  };
+}
+
+interface TypeKit {
+  /**
+   * Utilities for working with model properties.
+   *
+   * For many reflection operations, the metadata being asked for may be found
+   * on the model or the type of the model. In such cases,
+   * these operations will return the metadata from the model if it
+   * exists, or the type of the model if it exists.
+   */
+  model: ModelKit;
 }
 
 declare module "../define-kit.js" {
-  interface TypekitPrototype extends ModelKit {}
+  interface TypekitPrototype extends TypeKit {}
 }
 
-export const ModelKit = defineKit<ModelKit>({
+
+export const ModelKit = defineKit<TypeKit>({
   model: {
     create(desc) {
       const properties = createRekeyableMap(Array.from(Object.entries(desc.properties)));

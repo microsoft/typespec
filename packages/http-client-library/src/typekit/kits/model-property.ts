@@ -28,6 +28,7 @@ interface TypeKit {
 }
 
 declare module "@typespec/compiler/typekit" {
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface ModelPropertyKit extends SdkModelPropertyKit {}
 }
 
