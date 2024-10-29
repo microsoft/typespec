@@ -278,7 +278,7 @@ export function createResolver(program: Program): NameResolver {
   ): ResolutionResult {
     const links = getNodeLinks(node);
     if (links.resolutionResult) {
-      return [links.resolvedSymbol, links.resolutionResult];
+      return [links.resolvedSymbol, links.resolutionResult, links.isTemplateInstantiation];
     }
 
     let result = resolveTypeReferenceWorker(node, options);
@@ -1235,13 +1235,15 @@ export function createResolver(program: Program): NameResolver {
     operationPrototype.set("returnType", (baseSym) => {
       let node = baseSym.declarations[0] as OperationStatementNode;
       while (node.signature.kind === SyntaxKind.OperationSignatureReference) {
-        const [baseSym, baseResult] = resolveTypeReference(node.signature.baseOperation);
+        const [baseSym, baseResult, isTemplate, nextSym] = resolveTypeReference(
+          node.signature.baseOperation,
+        );
         if (baseResult & ResolutionResultFlags.Resolved) {
           node = baseSym!.declarations[0] as OperationStatementNode;
           continue;
         }
 
-        return [undefined, baseResult];
+        return [undefined, baseResult, isTemplate, nextSym];
       }
 
       return resolveExpression(node.signature.returnType);
