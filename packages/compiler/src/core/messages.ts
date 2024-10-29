@@ -321,13 +321,6 @@ const diagnostics = {
       default: paramMessage`Intersection contains duplicate property definitions for ${"propName"}`,
     },
   },
-  // TODO: remove redundent now
-  "unknown-identifier": {
-    severity: "error",
-    messages: {
-      default: paramMessage`Unknown identifier ${"id"}`,
-    },
-  },
   "invalid-decorator": {
     severity: "error",
     messages: {

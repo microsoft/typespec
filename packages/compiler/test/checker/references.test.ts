@@ -705,11 +705,10 @@ describe("compiler: references", () => {
       ok(Spread.properties.get("name"));
     });
 
-    it("works with johan's case", async () => {
+    it("the Johan test case", async () => {
       testHost.addTypeSpecFile(
         "main.tsp",
         `
-
         model Completion { 
           choices: string[];
         }
@@ -717,7 +716,6 @@ describe("compiler: references", () => {
         op baseVersion("model": string, top_n: int32): Completion;
         
         @test op azureVersion(... baseVersion::parameters, dataSources: string[]): baseVersion::returnType & { rai: string[] };
-        
         `,
       );
 
