@@ -875,8 +875,7 @@ export async function compile(
     const binder = createBinder(program);
     binder.bindNode(node);
     mutate(node).parent = program.checker.getGlobalNamespaceNode();
-    resolver.bindAndResolveNode(node);
-
+    resolver.resolveTypeReference(node);
     return program.checker.resolveTypeReference(node);
   }
 }

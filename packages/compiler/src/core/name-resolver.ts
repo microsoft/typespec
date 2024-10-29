@@ -112,8 +112,6 @@ export interface NameResolver {
   /** Return augment decorator nodes that are bound to this symbol */
   getAugmentDecoratorForSym(sym: Sym): AugmentDecoratorStatementNode[];
 
-  // TODO: do we need those, should that be the signature.
-  bindAndResolveNode(node: Node): void;
   resolveMemberExpressionForSym(
     sym: Sym,
     node: MemberExpressionNode,
@@ -209,7 +207,6 @@ export function createResolver(program: Program): NameResolver {
       return globalNamespaceSym;
     },
 
-    bindAndResolveNode,
     resolveMemberExpressionForSym,
     resolveMetaMemberByName,
     resolveTypeReference,

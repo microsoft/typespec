@@ -80,7 +80,6 @@ import {
   IntersectionExpressionNode,
   IntrinsicScalarName,
   JsNamespaceDeclarationNode,
-  JsSourceFileNode,
   LiteralNode,
   LiteralType,
   MemberContainerNode,
@@ -192,8 +191,6 @@ export interface Checker {
   getTypeForNode(node: Node): Type;
 
   // TODO: decide if we expose resolver and deprecate those marked with @internal @deprecated
-  /** @internal @deprecated */
-  setUsingsForFile(file: TypeSpecScriptNode): void;
   checkProgram(): void;
   checkSourceFile(file: TypeSpecScriptNode): void;
   getGlobalNamespaceType(): Namespace;
@@ -202,8 +199,6 @@ export interface Checker {
   /** @internal @deprecated */
   getMergedSymbol(sym: Sym | undefined): Sym | undefined;
 
-  /** @internal @deprecated */
-  mergeSourceFile(file: TypeSpecScriptNode | JsSourceFileNode): void;
   getLiteralType(node: StringLiteralNode): StringLiteral;
   getLiteralType(node: NumericLiteralNode): NumericLiteral;
   getLiteralType(node: BooleanLiteralNode): BooleanLiteral;
@@ -409,9 +404,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     getNamespaceString: getNamespaceFullName,
     getGlobalNamespaceType,
     getGlobalNamespaceNode,
-    setUsingsForFile,
     getMergedSymbol,
-    mergeSourceFile,
     cloneType,
     resolveIdentifier,
     resolveCompletions,
@@ -488,12 +481,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     );
     return loadedType as any;
   }
-
-  function mergeSourceFile(file: TypeSpecScriptNode | JsSourceFileNode) {
-    resolver.bindAndResolveNode(file);
-  }
-
-  function setUsingsForFile(file: TypeSpecScriptNode) {}
 
   /**
    * Create the link for the given type to the symbol links.
