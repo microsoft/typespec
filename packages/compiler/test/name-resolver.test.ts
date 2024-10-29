@@ -266,7 +266,7 @@ describe("model statements", () => {
         "Bar",
       );
       assertSymbol(prop, { name: "prop", flags: SymbolFlags.Member });
-      ok(prop[0].parent === Bar[0]);
+      ok(prop.finalSymbol!.parent === Bar.finalSymbol);
     });
 
     it("resolves model members from extends with unknown spreads to unknown not inherited member", () => {
@@ -290,7 +290,7 @@ describe("model statements", () => {
         ],
         "Foo.prop",
       );
-      ok(prop[1] & ResolutionResultFlags.Unknown);
+      ok(prop.resolutionResult & ResolutionResultFlags.Unknown);
     });
 
     it("model members should be unknown with an unknown spread", () => {
@@ -310,7 +310,7 @@ describe("model statements", () => {
         ],
         "Foo.prop",
       );
-      ok(prop[1] & ResolutionResultFlags.Unknown);
+      ok(prop.resolutionResult & ResolutionResultFlags.Unknown);
     });
 
     it("model members should be unknown with an unknown base class", () => {
@@ -329,7 +329,7 @@ describe("model statements", () => {
         ],
         "Foo.prop",
       );
-      ok(prop[1] & ResolutionResultFlags.Unknown);
+      ok(prop.resolutionResult & ResolutionResultFlags.Unknown);
     });
 
     it("resolves model circular reference", () => {
@@ -366,7 +366,7 @@ describe("model properties", () => {
       "Foo.prop::type",
       "Bar",
     );
-    ok(propType[0] === Bar[0], "should resolve to Bar");
+    ok(propType.finalSymbol === Bar.finalSymbol, "should resolve to Bar");
   });
 
   it("resolves meta properties of nested model types", () => {
@@ -385,7 +385,7 @@ describe("model properties", () => {
       "Foo.prop::type.nestedProp::type",
       "Bar",
     );
-    ok(propType[0] === Bar[0], "should resolve to Bar");
+    ok(propType.finalSymbol === Bar.finalSymbol, "should resolve to Bar");
   });
 
   it("resolves meta properties of aliased model properties", () => {
@@ -403,7 +403,7 @@ describe("model properties", () => {
       "FooProp::type",
       "Bar",
     );
-    ok(propType[0] === Bar[0], "should resolve to Bar");
+    ok(propType.finalSymbol === Bar.finalSymbol, "should resolve to Bar");
   });
 });
 describe("interfaces", () => {
@@ -556,7 +556,7 @@ describe("operations", () => {
         "Bar",
       );
 
-      ok(x[0] === Bar[0], "Should resolve to Bar");
+      ok(x.finalSymbol === Bar.finalSymbol, "Should resolve to Bar");
     });
 
     it("resolves parameters meta property with is ops", () => {
@@ -573,7 +573,7 @@ describe("operations", () => {
         "Bar",
       );
 
-      ok(x[0] === Bar[0], "Should resolve to Bar");
+      ok(x.finalSymbol === Bar.finalSymbol, "Should resolve to Bar");
     });
   });
 });
@@ -1009,7 +1009,7 @@ describe("aliases", () => {
         "Bar.x",
         "Baz",
       );
-      ok(yResult[1] & ResolutionResultFlags.Unknown, "Baz alias should be unknown");
+      ok(yResult.resolutionResult & ResolutionResultFlags.Unknown, "Baz alias should be unknown");
     });
   });
 });
@@ -1052,7 +1052,7 @@ describe("usings", () => {
       ];
 
       const { M } = getResolutions(sources, "M");
-      assertSymbol(M[0], { name: "M", flags: SymbolFlags.Using });
+      assertSymbol(M.finalSymbol, { name: "M", flags: SymbolFlags.Using });
     });
   });
 });
@@ -1100,7 +1100,7 @@ function getResolutions<T extends string[]>(
       throw new Error(`Reference ${names[i]} hasn't been resolved`);
     }
 
-    symbols[names[i]] = [nodeLinks.resolvedSymbol, nodeLinks.resolutionResult];
+    symbols[names[i]] = nodeLinks;
   }
   return symbols;
 }
@@ -1150,9 +1150,9 @@ function getGlobalSymbol(sources: (string | Record<string, unknown>)[]): Sym {
 function assertSymbol(
   sym: ResolutionResult | Sym | undefined,
   record: SymbolDescriptor = {},
-): asserts sym is [Sym, ResolutionResultFlags, boolean] | Sym {
-  if (Array.isArray(sym)) {
-    sym = sym[0];
+): asserts sym is Required<ResolutionResult> | Sym {
+  if (sym && "resolutionResult" in sym) {
+    sym = sym.finalSymbol;
   }
   if (!sym) {
     throw new Error(`Symbol not found.`);

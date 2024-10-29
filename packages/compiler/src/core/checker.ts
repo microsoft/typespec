@@ -2361,7 +2361,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const name = node.id.sv;
     let decorators: DecoratorApplication[] = [];
 
-    const [parameterModelSym] = resolver.resolveMetaMemberByName(symbol!, "parameters");
+    const { resolvedSymbol: parameterModelSym } = resolver.resolveMetaMemberByName(
+      symbol!,
+      "parameters",
+    );
 
     if (parameterModelSym?.members) {
       const members = resolver.getAugmentedSymbolTable(parameterModelSym.members);
@@ -3142,7 +3145,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     node: MemberExpressionNode,
     options: SymbolResolutionOptions,
   ) {
-    const [sym, _result, _isTemplate, nextSym] = resolver.resolveMemberExpressionForSym(
+    const { finalSymbol: sym, resolvedSymbol: nextSym } = resolver.resolveMemberExpressionForSym(
       base,
       node,
       options,
@@ -6657,7 +6660,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     // next, resolve outside
-    const [ref] = resolver.resolveTypeReference(node);
+    const { finalSymbol: ref } = resolver.resolveTypeReference(node);
     if (!ref) throw new ProjectionError("Unknown identifier " + node.sv);
 
     if (ref.flags & SymbolFlags.Decorator) {

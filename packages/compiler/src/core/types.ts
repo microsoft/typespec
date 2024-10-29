@@ -887,14 +887,22 @@ export interface SymbolLinks {
   constraintResolutionResult?: ResolutionResultFlags;
 }
 
+export interface ResolutionResult {
+  resolutionResult: ResolutionResultFlags;
+  isTemplateInstantiation?: boolean;
+  resolvedSymbol: Sym | undefined;
+  finalSymbol: Sym | undefined;
+}
+
 export interface NodeLinks {
   /** the result of type checking this node */
   resolvedType?: Type;
 
-  /**
-   * The syntax symbol resolved by this node.
-   */
+  /**The syntax symbol resolved by this node. */
   resolvedSymbol?: Sym;
+
+  /** If the resolvedSymbol is an alias point to the symbol the alias reference(recursively), otherwise is the same as resolvedSymbol */
+  finalSymbol?: Sym | undefined;
 
   /**
    * If the link involve template argument.
@@ -912,13 +920,6 @@ export interface NodeLinks {
    **/
   resolutionResult?: ResolutionResultFlags;
 }
-
-export type ResolutionResult = [
-  sym: Sym | undefined,
-  result: ResolutionResultFlags,
-  isTempate?: boolean,
-  nextSym?: Sym,
-];
 
 export enum ResolutionResultFlags {
   None = 0,
