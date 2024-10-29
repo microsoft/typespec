@@ -18,11 +18,11 @@ export async function runPython3(...args: string[]) {
   const execPromise = util.promisify(cp.exec);
   try {
     const { stdout, stderr } = await execPromise(command.join(" "));
-    console.log('Output:', stdout);
+    console.log("Output:", stdout); // eslint-disable-line no-console
     if (stderr) {
-      console.error('Error:', stderr);
+      console.error("Error:", stderr); // eslint-disable-line no-console
     }
   } catch (error) {
-    console.error('Execution error:', error);
+    console.error("Execution error:", error); // eslint-disable-line no-console
   }
 }
