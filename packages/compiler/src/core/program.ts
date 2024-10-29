@@ -874,7 +874,7 @@ export async function compile(
     }
     const binder = createBinder(program);
     binder.bindNode(node);
-    mutate(node).parent = program.checker.getGlobalNamespaceNode();
+    mutate(node).parent = resolver.getGlobalNamespaceSymbol().declarations[0];
     resolver.resolveTypeReference(node);
     return program.checker.resolveTypeReference(node);
   }
