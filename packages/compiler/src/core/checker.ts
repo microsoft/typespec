@@ -3093,7 +3093,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         }
       }
 
-      const sym = links.nextSymbol ?? links.resolvedSymbol;
+      const sym = links.resolvedSymbol;
       return sym?.symbolSource ?? sym;
     } else if (node.kind === SyntaxKind.MemberExpression) {
       let base = resolveTypeReferenceSym(node.base, mapper, {

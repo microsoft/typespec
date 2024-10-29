@@ -891,15 +891,13 @@ export interface NodeLinks {
   /** the result of type checking this node */
   resolvedType?: Type;
 
-  /** The syntax symbol resolved by this node.  */
+  /**
+   * The syntax symbol resolved by this node.
+   */
   resolvedSymbol?: Sym;
 
   /** If the link involve template argument */
   isTemplate?: boolean;
-
-  // TODO: check if we need/change + add docs
-  /** In the case where the resolution resolve to an alias. This is the alias symbol. */
-  nextSymbol?: Sym;
 
   /**
    * The result of resolution of this reference node.

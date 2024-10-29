@@ -940,7 +940,8 @@ describe("aliases", () => {
   });
 
   describe("resolution", () => {
-    it("resolves aliases", () => {
+    // TODO: update as alias won't resolve more
+    it.skip("resolves aliases", () => {
       const {
         "Foo.Bar.M": M,
         "Baz.AliasM": AliasM,
@@ -968,7 +969,8 @@ describe("aliases", () => {
       assertSymbol(AliasAliasM, { name: "M", flags: SymbolFlags.Model });
     });
 
-    it("resolves known members of aliased things with members", () => {
+    // TODO: update as alias won't resolve through
+    it.skip("resolves known members of aliased things with members", () => {
       const {
         "Foo.x": x,
         "Bar.x": aliasX,

@@ -285,11 +285,8 @@ export function createResolver(program: Program): NameResolver {
 
     const [resolvedSym, resolvedSymResult, isTemplate, nextSym] = result;
 
-    if (resolvedSym) {
-      links.resolvedSymbol = resolvedSym;
-    }
-    if (nextSym) {
-      links.nextSymbol = nextSym;
+    if (nextSym || resolvedSym) {
+      links.resolvedSymbol = nextSym ?? resolvedSym;
     }
     if (isTemplate) {
       links.isTemplate = isTemplate;
@@ -299,7 +296,7 @@ export function createResolver(program: Program): NameResolver {
     if (resolvedSym && resolvedSym.flags & SymbolFlags.Alias) {
       // unwrap aliases
       const aliasNode = resolvedSym.declarations[0];
-      links.nextSymbol = resolvedSym;
+      links.resolvedSymbol = resolvedSym;
       const [resolveAliasSym, resolveAliasResult, aliasIsTemplate] = resolveAlias(
         aliasNode as AliasStatementNode,
       );
