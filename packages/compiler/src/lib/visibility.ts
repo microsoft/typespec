@@ -3,7 +3,6 @@
 
 import type {
   DefaultVisibilityDecorator,
-  VisibilityFilter as GeneratedVisibilityFilter,
   InvisibleDecorator,
   ParameterVisibilityDecorator,
   ReturnTypeVisibilityDecorator,
@@ -25,6 +24,7 @@ import {
   resetVisibilityModifiersForClass,
   setDefaultModifierSetForVisibilityClass,
   setLegacyVisibility,
+  TypespecVisibilityFilter,
   VisibilityFilter,
 } from "../core/index.js";
 import { reportDiagnostic } from "../core/messages.js";
@@ -42,6 +42,7 @@ import {
   getLifecycleVisibilityEnum,
   normalizeVisibilityToLegacyLifecycleString,
 } from "../core/visibility/lifecycle.js";
+import { mutateSubgraph, Mutator, MutatorFlow } from "../experimental/mutators.js";
 import { isKey } from "./key.js";
 import { filterModelPropertiesInPlace, useStateMap } from "./utils.js";
 
@@ -353,12 +354,15 @@ export const $withUpdateableProperties: WithUpdateablePropertiesDecorator = (
 export const $withVisibilityFilter: WithVisibilityFilterDecorator = (
   context: DecoratorContext,
   target: Model,
-  _filter: GeneratedVisibilityFilter,
+  _filter: TypespecVisibilityFilter,
 ) => {
   const filter = VisibilityFilter.fromDecoratorArgument(_filter);
 
-  // TODO
-  throw new Error("Not implemented.");
+  const vfMutator: Mutator = createVisibilityFilterMutator(filter);
+
+  const { type } = mutateSubgraph(context.program, [vfMutator], target);
+
+  target.properties = (type as Model).properties;
 };
 
 // -- @withLifecycleUpdate decorator ----------------------
@@ -367,8 +371,72 @@ export const $withLifecycleUpdate: WithLifecycleUpdateDecorator = (
   context: DecoratorContext,
   target: Model,
 ) => {
-  // TODO
-  throw new Error("Not implemented.");
+  const lifecycle = getLifecycleVisibilityEnum(context.program);
+  const lifecycleUpdate: VisibilityFilter = {
+    all: new Set([lifecycle.members.get("Update")!]) 
+  };
+
+  const createOrUpdateMutator = createVisibilityFilterMutator({
+    any: new Set([lifecycle.members.get("Create")!, lifecycle.members.get("Update")!]),
+  });
+
+  const updateMutator: Mutator = {
+    name: "LifecycleUpdate",
+    Model: {
+      mutate: (model, clone, program, realm) => {
+        for (const [key, prop] of model.properties) {
+          if (!isVisible(program, prop, lifecycleUpdate)) {
+            clone.properties.delete(key);
+            realm.remove(prop);
+          } else if (prop.type.kind === "Model") {
+            const { type } = mutateSubgraph(program, [createOrUpdateMutator], prop.type);
+
+            prop.type = type;
+          }
+
+          resetVisibilityModifiersForClass(program, prop, lifecycle);
+        }
+
+        clone.decorators = clone.decorators.filter((d) => d.decorator !== $withLifecycleUpdate);
+
+        return MutatorFlow.DoNotRecurse;
+      }
+    }
+  };
+
+  const { type } = mutateSubgraph(context.program, [updateMutator], target);
+
+  target.properties = (type as Model).properties;
 };
 
+
+function createVisibilityFilterMutator(filter: VisibilityFilter): Mutator {
+  const self: Mutator = {
+    name: "VisibilityFilter",
+    Model: {
+      mutate: (model, clone, program, realm) => {
+        for (const [key, prop] of model.properties) {
+          if (!isVisible(program, prop, filter)) {
+            clone.properties.delete(key);
+            realm.remove(prop);
+          } else if (prop.type.kind === "Model") {
+            const { type } = mutateSubgraph(program, [self], prop.type);
+
+            prop.type = type;
+          }
+
+          for (const visibilityClass of VisibilityFilter.getVisibilityClasses(filter)) {
+            resetVisibilityModifiersForClass(program, prop, visibilityClass);
+          }
+        }
+
+        clone.decorators = clone.decorators.filter((d) => d.decorator !== $withVisibilityFilter);
+
+        return MutatorFlow.DoNotRecurse;
+      }
+    }
+  };
+
+  return self;
+}
 // #endregion

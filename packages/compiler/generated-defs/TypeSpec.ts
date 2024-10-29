@@ -120,7 +120,17 @@ export type WithoutDefaultValuesDecorator = (context: DecoratorContext, target: 
 /**
  * Set the visibility of key properties in a model if not already set.
  *
- * @param visibility The desired default visibility value. If a key property already has a `visibility` decorator then the default visibility is not applied.
+ * This will set the visibility modifiers of all key properties in the model if the visibility is not already _explicitly_ set,
+ * but will not change the visibility of any properties that have visibility set _explicitly_, even if the visibility
+ * is the same as the default visibility.
+ *
+ * Visibility may be explicitly set using any of the following decorators:
+ *
+ * - `@visibility`
+ * - `@removeVisibility`
+ * - `@invisible`
+ *
+ * @param visibility The desired default visibility value. If a key property already has visibility set, it will not be changed.
  */
 export type WithDefaultKeyVisibilityDecorator = (
   context: DecoratorContext,
@@ -675,9 +685,9 @@ export type InspectTypeNameDecorator = (
  * ```typespec
  * model Dog {
  *   // the service will generate an ID, so you don't need to send it.
- *   @visibility("read") id: int32;
+ *   @visibility(Lifecycle.Read) id: int32;
  *   // the service will store this secret name, but won't ever return it
- *   @visibility("create", "update") secretName: string;
+ *   @visibility(Lifecycle.Create, Lifecycle.Update) secretName: string;
  *   // the regular name is always present
  *   name: string;
  * }

@@ -28,8 +28,10 @@ import {
   normalizeLegacyLifecycleVisibilityString,
 } from "./lifecycle.js";
 
-import { VisibilityFilter as GeneratedVisibilityFilter } from "../../../generated-defs/TypeSpec.js";
+import { VisibilityFilter as TypespecVisibilityFilter } from "../../../generated-defs/TypeSpec.js";
 import { useStateMap, useStateSet } from "../../lib/utils.js";
+
+export { TypespecVisibilityFilter }
 
 /**
  * A set of active visibility modifiers per visibility class.
@@ -544,13 +546,20 @@ export interface VisibilityFilter {
 }
 
 export const VisibilityFilter = {
-  fromDecoratorArgument(filter: GeneratedVisibilityFilter): VisibilityFilter {
+  fromDecoratorArgument(filter: TypespecVisibilityFilter): VisibilityFilter {
     return {
       all: filter.all && new Set(filter.all.map((v) => v.value)),
       any: filter.any && new Set(filter.any.map((v) => v.value)),
       none: filter.none && new Set(filter.none.map((v) => v.value)),
     };
   },
+  getVisibilityClasses(filter: VisibilityFilter): Set<Enum> {
+    const classes = new Set<Enum>();
+    if (filter.all) filter.all.forEach((v) => classes.add(v.enum));
+    if (filter.any) filter.any.forEach((v) => classes.add(v.enum));
+    if (filter.none) filter.none.forEach((v) => classes.add(v.enum));
+    return classes;
+  }
 };
 
 /**
