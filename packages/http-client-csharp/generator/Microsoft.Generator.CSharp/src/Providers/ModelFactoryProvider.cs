@@ -119,11 +119,24 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 var ctorParam = modelCtorFullSignature.Parameters[i];
                 var factoryParam = factoryMethodSignature.Parameters.FirstOrDefault(p => p.Name.Equals(ctorParam.Name));
-                if (factoryParam == null && ctorParam.Property?.IsDiscriminator == true && modelProvider.DiscriminatorValueExpression != null)
+
+                if (factoryParam == null)
                 {
-                    expressions.Add(modelProvider.DiscriminatorValueExpression);
+                    // Check if the param's property has an auto-property initializer.
+                    var initExpression = ctorParam.Property?.Body is AutoPropertyBody autoPropertyBody
+                        ? autoPropertyBody.InitializationExpression
+                        : null;
+
+                    if (initExpression != null)
+                    {
+                        expressions.Add(initExpression);
+                    }
+                    else if (ctorParam.Property?.IsDiscriminator == true && modelProvider.DiscriminatorValueExpression != null)
+                    {
+                        expressions.Add(modelProvider.DiscriminatorValueExpression);
+                    }
                 }
-                else if (factoryParam != null)
+                else
                 {
                     if (!factoryParam.Type.IsReadOnlyMemory && factoryParam.Type.IsList)
                     {
