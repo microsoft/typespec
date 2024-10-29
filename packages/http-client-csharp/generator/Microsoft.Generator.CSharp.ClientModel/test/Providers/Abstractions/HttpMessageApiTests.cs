@@ -54,8 +54,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.Abstractions
 
             public override CSharpType HttpMessageType => typeof(string);
 
-            public override MethodBodyStatement Apply(ValueExpression options)
-                => Original.Invoke("GetFakeApply", [options]).Terminate();
+            public override MethodBodyStatement SetRequestContext(HttpRequestOptionsApi options)
+                => Original.Invoke("GetFakeSetRequestContext", [options]).Terminate();
 
             public override ValueExpression BufferResponse()
                 => Original.Invoke("GetFakeBufferResponse");

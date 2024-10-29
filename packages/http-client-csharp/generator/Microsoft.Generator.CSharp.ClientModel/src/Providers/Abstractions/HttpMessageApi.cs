@@ -23,7 +23,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         public abstract MethodBodyStatement AssignResponseClassifier(StatusCodeClassifierApi statusCodeClassifier);
 
-        public abstract MethodBodyStatement Apply(ValueExpression options);
+        public abstract MethodBodyStatement SetRequestContext(HttpRequestOptionsApi options);
 
         public abstract MethodBodyStatement[] ExtractResponse();
 

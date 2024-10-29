@@ -176,7 +176,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     request.SetUri(uri).Terminate(),
                     .. AppendHeaderParameters(request, operation, paramMap),
                     .. GetSetContent(request, signature.Parameters),
-                    message.Apply(options),
+                    message.SetRequestContext(options.AsExpression.ToApi<HttpRequestOptionsApi>()),
                     Return(message)
                 ]),
                 this);
