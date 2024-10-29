@@ -11,7 +11,7 @@ if (!(Test-Path -Path $ArtifactPath))
   exit 1
 }
 
-$apiviewParser = "@azure-tools/ts-genapi@2.0.2"
+$apiviewParser = "@azure-tools/ts-genapi@2.0.3"
 Write-Host "Installing $($apiviewParser)"
 npm install $apiviewParser --registry $NpmDevopsFeedRegistry
 $installedPath = npm ls @azure-tools/ts-genapi -p

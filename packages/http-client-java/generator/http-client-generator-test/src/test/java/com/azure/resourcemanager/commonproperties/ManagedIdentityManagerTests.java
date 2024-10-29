@@ -4,14 +4,13 @@
 package com.azure.resourcemanager.commonproperties;
 
 import com.azure.core.management.Region;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.azure.resourcemanager.commonproperties.models.ManagedIdentityTrackedResource;
 import com.azure.resourcemanager.commonproperties.models.ManagedIdentityTrackedResourceProperties;
 import com.azure.resourcemanager.commonproperties.models.ManagedServiceIdentity;
 import com.azure.resourcemanager.commonproperties.models.ManagedServiceIdentityType;
 import com.azure.resourcemanager.commonproperties.models.UserAssignedIdentity;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.utils.ArmUtils;

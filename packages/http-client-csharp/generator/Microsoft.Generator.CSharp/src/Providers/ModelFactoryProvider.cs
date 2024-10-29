@@ -74,8 +74,10 @@ namespace Microsoft.Generator.CSharp.Providers
                     continue;
 
                 var typeToInstantiate = modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract)
-                    ? modelProvider.DerivedModels.First(m => m.IsUnknownDiscriminatorModel)
+                    ? modelProvider.DerivedModels.FirstOrDefault(m => m.IsUnknownDiscriminatorModel)
                     : modelProvider;
+                if (typeToInstantiate is null)
+                    continue;
 
                 var modelCtor = modelProvider.FullConstructor;
                 var signature = new MethodSignature(
@@ -117,14 +119,26 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 var ctorParam = modelCtorFullSignature.Parameters[i];
                 var factoryParam = factoryMethodSignature.Parameters.FirstOrDefault(p => p.Name.Equals(ctorParam.Name));
-                if (factoryParam == null && ctorParam.Property?.IsDiscriminator == true && modelProvider.DiscriminatorValueExpression != null)
+
+                if (factoryParam == null)
                 {
-                    expressions.Add(modelProvider.DiscriminatorValueExpression);
-                    continue;
+                    // Check if the param's property has an auto-property initializer.
+                    var initExpression = ctorParam.Property?.Body is AutoPropertyBody autoPropertyBody
+                        ? autoPropertyBody.InitializationExpression
+                        : null;
+
+                    if (initExpression != null)
+                    {
+                        expressions.Add(initExpression);
+                    }
+                    else if (ctorParam.Property?.IsDiscriminator == true && modelProvider.DiscriminatorValueExpression != null)
+                    {
+                        expressions.Add(modelProvider.DiscriminatorValueExpression);
+                    }
                 }
-                else if (factoryParam != null)
+                else
                 {
-                    if (factoryParam.Type.IsList)
+                    if (IsNonReadOnlyMemoryList(factoryParam))
                     {
                         expressions.Add(factoryParam.NullConditional().ToList());
                     }
@@ -153,7 +167,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var statements = new List<MethodBodyStatement>();
             foreach (var param in signature.Parameters)
             {
-                if (param.Type.IsList || param.Type.IsDictionary)
+                if (IsNonReadOnlyMemoryList(param) || param.Type.IsDictionary)
                 {
                     statements.Add(param.Assign(New.Instance(param.Type.PropertyInitializationType), nullCoalesce: true).Terminate());
                 }
@@ -199,5 +213,8 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private static bool IsEnumDiscriminator(ParameterProvider parameter) =>
             parameter.Property?.IsDiscriminator == true && parameter.Type.IsEnum;
+
+        private static bool IsNonReadOnlyMemoryList(ParameterProvider parameter) =>
+            parameter.Type is { IsList: true, IsReadOnlyMemory: false };
     }
 }

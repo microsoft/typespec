@@ -1,0 +1,80 @@
+---
+import type { CollectionEntry } from "astro:content";
+import BaseLayout from "./base-layout.astro";
+import { resolveBlogImagePath } from "../pages/blog/resolve-image";
+import { format } from "date-fns/format";
+import { Image } from "astro:assets";
+
+type Props = CollectionEntry<"blog">["data"];
+
+const { title, image: relativeImage, publishDate } = Astro.props;
+const image = relativeImage && (await resolveBlogImagePath(Astro.params.slug ?? "", relativeImage));
+---
+
+<style>
+  .content {
+    min-height: 100%;
+    box-sizing: border-box;
+    font-size: var(--fontSizeBase400);
+  }
+  @media only screen and (min-width: 1024px) {
+    .content {
+      padding: 3rem;
+    }
+  }
+  .hero-image {
+    width: 100%;
+  }
+  .hero-image img {
+    display: block;
+    margin: 0 auto;
+    box-shadow: var(--shadow2);
+  }
+  .prose {
+    width: 720px;
+    max-width: calc(100% - 2em);
+    margin: auto;
+  }
+  .title {
+    margin-bottom: 1em;
+    padding: 1em 0;
+    text-align: center;
+    line-height: 1;
+  }
+  .title h1 {
+    margin: 0 0 0.5em 0;
+  }
+  .date {
+    display: block;
+    padding: 1rem;
+    font-size: var(--fontSizeBase400);
+    color: var(--colorNeutralForeground1);
+  }
+  .last-updated-on {
+    font-style: italic;
+  }
+
+  hr {
+    display: block;
+    margin-top: 2rem;
+    border-top: 0;
+    border-color: var(--colorNeutralStroke3);
+  }
+</style>
+<BaseLayout>
+  <article class="content">
+    <div class="hero-image">
+      {image && <Image src={image} alt="" />}
+    </div>
+    <div class="prose">
+      <div class="title">
+        <time class="date" datetime={publishDate.toISOString()}>
+          {format(publishDate, "MMMM d, yyyy")}
+        </time>
+        <h1>{title}</h1>
+        <hr />
+      </div>
+      <slot />
+    </div>
+  </article>
+</BaseLayout>

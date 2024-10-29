@@ -106,7 +106,7 @@ public final class ExtendsUnknownDerivedsImpl {
      * {
      *     name: String (Required)
      *      (Optional): {
-     *         String: Object (Required)
+     *         String: BinaryData (Required)
      *     }
      *     index: int (Required)
      *     age: Double (Optional)
@@ -136,7 +136,7 @@ public final class ExtendsUnknownDerivedsImpl {
      * {
      *     name: String (Required)
      *      (Optional): {
-     *         String: Object (Required)
+     *         String: BinaryData (Required)
      *     }
      *     index: int (Required)
      *     age: Double (Optional)
@@ -166,7 +166,7 @@ public final class ExtendsUnknownDerivedsImpl {
      * {
      *     name: String (Required)
      *      (Optional): {
-     *         String: Object (Required)
+     *         String: BinaryData (Required)
      *     }
      *     index: int (Required)
      *     age: Double (Optional)
@@ -198,7 +198,7 @@ public final class ExtendsUnknownDerivedsImpl {
      * {
      *     name: String (Required)
      *      (Optional): {
-     *         String: Object (Required)
+     *         String: BinaryData (Required)
      *     }
      *     index: int (Required)
      *     age: Double (Optional)
