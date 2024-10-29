@@ -136,79 +136,79 @@ declare module "../define-kit.js" {
 
 defineKit<BuiltinKit>({
   builtin: {
-    get string() {
+    get string(): Scalar {
       return $.program.checker.getStdType("string");
     },
-    get boolean() {
+    get boolean(): Scalar {
       return $.program.checker.getStdType("boolean");
     },
-    get bytes() {
+    get bytes(): Scalar {
       return $.program.checker.getStdType("bytes");
     },
-    get decimal() {
+    get decimal(): Scalar {
       return $.program.checker.getStdType("decimal");
     },
-    get decimal128() {
+    get decimal128(): Scalar {
       return $.program.checker.getStdType("decimal128");
     },
-    get duration() {
+    get duration(): Scalar {
       return $.program.checker.getStdType("duration");
     },
-    get float() {
+    get float(): Scalar {
       return $.program.checker.getStdType("float");
     },
-    get float32() {
+    get float32(): Scalar {
       return $.program.checker.getStdType("float32");
     },
-    get float64() {
+    get float64(): Scalar {
       return $.program.checker.getStdType("float64");
     },
-    get int8() {
+    get int8(): Scalar {
       return $.program.checker.getStdType("int8");
     },
-    get int16() {
+    get int16(): Scalar {
       return $.program.checker.getStdType("int16");
     },
-    get int32() {
+    get int32(): Scalar {
       return $.program.checker.getStdType("int32");
     },
-    get int64() {
+    get int64(): Scalar {
       return $.program.checker.getStdType("int64");
     },
-    get integer() {
+    get integer(): Scalar {
       return $.program.checker.getStdType("integer");
     },
-    get offsetDateTime() {
+    get offsetDateTime(): Scalar {
       return $.program.checker.getStdType("offsetDateTime");
     },
-    get plainDate() {
+    get plainDate(): Scalar {
       return $.program.checker.getStdType("plainDate");
     },
-    get plainTime() {
+    get plainTime(): Scalar {
       return $.program.checker.getStdType("plainTime");
     },
-    get safeInt() {
+    get safeInt(): Scalar {
       return $.program.checker.getStdType("safeint");
     },
-    get uint8() {
+    get uint8(): Scalar {
       return $.program.checker.getStdType("uint8");
     },
-    get uint16() {
+    get uint16(): Scalar {
       return $.program.checker.getStdType("uint16");
     },
-    get uint32() {
+    get uint32(): Scalar {
       return $.program.checker.getStdType("uint32");
     },
-    get uint64() {
+    get uint64(): Scalar {
       return $.program.checker.getStdType("uint64");
     },
-    get url() {
+    get url(): Scalar {
       return $.program.checker.getStdType("url");
     },
-    get utcDateTime() {
+    get utcDateTime(): Scalar {
       return $.program.checker.getStdType("utcDateTime");
     },
-    get numeric() {
+    get numeric(): Scalar {
       return $.program.checker.getStdType("numeric");
     }
   }
