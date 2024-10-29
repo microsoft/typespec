@@ -638,18 +638,6 @@ describe("http: decorators", () => {
       });
     });
 
-    it("emit diagnostics when description is not provided", async () => {
-      const diagnostics = await runner.diagnose(`
-        @server("https://example.com")
-        namespace MyService {}
-      `);
-
-      expectDiagnostics(diagnostics, {
-        code: "invalid-argument-count",
-        message: "Expected 2-3 arguments, but got 1.",
-      });
-    });
-
     it("emit diagnostics when parameters is not a model", async () => {
       const diagnostics = await runner.diagnose(`
         @server("https://example.com", "My service url", 123)
@@ -671,6 +659,22 @@ describe("http: decorators", () => {
         code: "@typespec/http/missing-server-param",
         message: "Server url contains parameter 'name' but wasn't found in given parameters",
       });
+    });
+
+    it("define a simple server without description", async () => {
+      const { MyService } = (await runner.compile(`
+        @server("https://example.com")
+        @test namespace MyService {}
+      `)) as { MyService: Namespace };
+
+      const servers = getServers(runner.program, MyService);
+      deepStrictEqual(servers, [
+        {
+          description: undefined,
+          parameters: new Map(),
+          url: "https://example.com",
+        },
+      ]);
     });
 
     it("define a simple server with a fixed url", async () => {
