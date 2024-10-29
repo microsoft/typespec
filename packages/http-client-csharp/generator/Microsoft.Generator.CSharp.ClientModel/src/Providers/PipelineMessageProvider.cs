@@ -28,7 +28,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         public override HttpResponseApi Response()
             => new PipelineResponseProvider(Original.Property(nameof(PipelineMessage.Response)));
 
-        public override MethodBodyStatement Assign(StatusCodeClassifierApi statusCodeClassifier)
+        public override MethodBodyStatement AssignResponseClassifier(StatusCodeClassifierApi statusCodeClassifier)
             => Original.Property(nameof(PipelineMessage.ResponseClassifier)).Assign(statusCodeClassifier).Terminate();
 
         public override MethodBodyStatement Apply(ValueExpression options)

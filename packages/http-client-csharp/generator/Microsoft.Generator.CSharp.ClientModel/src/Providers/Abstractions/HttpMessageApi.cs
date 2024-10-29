@@ -21,7 +21,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         public abstract ValueExpression BufferResponse();
 
-        public abstract MethodBodyStatement Assign(StatusCodeClassifierApi statusCodeClassifier);
+        public abstract MethodBodyStatement AssignResponseClassifier(StatusCodeClassifierApi statusCodeClassifier);
 
         public abstract MethodBodyStatement Apply(ValueExpression options);
 
