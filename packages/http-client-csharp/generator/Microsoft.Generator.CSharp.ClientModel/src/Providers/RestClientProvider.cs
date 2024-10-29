@@ -166,7 +166,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 new MethodBodyStatements(
                 [
                     Declare("message", pipelineField.CreateMessage(options.AsExpression.ToApi<HttpRequestOptionsApi>(), classifier).ToApi<HttpMessageApi>(), out HttpMessageApi message),
-                    message.AssignResponseClassifier(((MemberExpression)classifier).ToApi<StatusCodeClassifierApi>()),
+                    message.ApplyResponseClassifier(((MemberExpression)classifier).ToApi<StatusCodeClassifierApi>()),
                     Declare("request", message.Request().ToApi<HttpRequestApi>(), out HttpRequestApi request),
                     request.SetMethod(operation.HttpMethod).Terminate(),
                     Declare("uri", New.Instance<ClientUriBuilderDefinition>(), out ScopedApi<ClientUriBuilderDefinition> uri),
@@ -176,7 +176,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     request.SetUri(uri).Terminate(),
                     .. AppendHeaderParameters(request, operation, paramMap),
                     .. GetSetContent(request, signature.Parameters),
-                    message.SetRequestContext(options.AsExpression.ToApi<HttpRequestOptionsApi>()),
+                    message.ApplyRequestOptions(options.AsExpression.ToApi<HttpRequestOptionsApi>()),
                     Return(message)
                 ]),
                 this);

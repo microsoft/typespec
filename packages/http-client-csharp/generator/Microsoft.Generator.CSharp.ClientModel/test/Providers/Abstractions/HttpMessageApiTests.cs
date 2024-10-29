@@ -54,7 +54,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.Abstractions
 
             public override CSharpType HttpMessageType => typeof(string);
 
-            public override MethodBodyStatement SetRequestContext(HttpRequestOptionsApi options)
+            public override MethodBodyStatement ApplyRequestOptions(HttpRequestOptionsApi options)
                 => Original.Invoke("GetFakeSetRequestContext", [options]).Terminate();
 
             public override ValueExpression BufferResponse()
@@ -72,7 +72,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.Abstractions
             public override HttpResponseApi Response()
                 => Original.Invoke("GetFakeResponse").ToApi<HttpResponseApi>();
 
-            public override MethodBodyStatement AssignResponseClassifier(StatusCodeClassifierApi statusCodeClassifier)
+            public override MethodBodyStatement ApplyResponseClassifier(StatusCodeClassifierApi statusCodeClassifier)
                 => Original.Invoke("GetFakeAssignResponseClassifier", [statusCodeClassifier]).Terminate();
 
             public override HttpMessageApi ToExpression() => this;

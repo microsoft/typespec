@@ -28,10 +28,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         public override HttpResponseApi Response()
             => new PipelineResponseProvider(Original.Property(nameof(PipelineMessage.Response)));
 
-        public override MethodBodyStatement AssignResponseClassifier(StatusCodeClassifierApi statusCodeClassifier)
+        public override MethodBodyStatement ApplyResponseClassifier(StatusCodeClassifierApi statusCodeClassifier)
             => Original.Property(nameof(PipelineMessage.ResponseClassifier)).Assign(statusCodeClassifier).Terminate();
 
-        public override MethodBodyStatement SetRequestContext(HttpRequestOptionsApi options)
+        public override MethodBodyStatement ApplyRequestOptions(HttpRequestOptionsApi options)
             => Original.Invoke(nameof(PipelineMessage.Apply), options).Terminate();
 
         public override MethodBodyStatement[] ExtractResponse()
