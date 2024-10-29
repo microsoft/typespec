@@ -102,23 +102,46 @@ import {
 export interface NameResolver {
   // TODO: add docs
   resolveProgram(): void;
+
+  /**
+   * Get the merged symbol or itself if not merged.
+   * This is the case for Namespace which have multiple nodes and symbol but all reference the same merged one.
+   */
   getMergedSymbol(sym: Sym): Sym;
 
+  /**
+   * Get augmented symbol table.
+   */
   getAugmentedSymbolTable(table: SymbolTable): Mutable<SymbolTable>;
-  getNodeLinks(n: Node): NodeLinks;
-  getSymbolLinks(s: Sym): SymbolLinks;
+  /**
+   * Get node links for the given syntax node.
+   * This returns links to which symbol the node reference if applicable(TypeReference, Identifier nodes)
+   */
+  getNodeLinks(node: Node): NodeLinks;
+
+  /** Get symbol links for the given symbol */
+  getSymbolLinks(symbol: Sym): SymbolLinks;
+
+  /** Get global namespace symbol. */
   getGlobalNamespaceSymbol(): Sym;
 
   /** Return augment decorator nodes that are bound to this symbol */
-  getAugmentDecoratorForSym(sym: Sym): AugmentDecoratorStatementNode[];
+  getAugmentDecoratorForSym(symbol: Sym): AugmentDecoratorStatementNode[];
 
+  /**
+   * Resolve the member expression using the given symbol as base.
+   * This can be used to follow the name resolution for template instance which are not statically linked.
+   */
   resolveMemberExpressionForSym(
     sym: Sym,
     node: MemberExpressionNode,
     options?: ResolveTypReferenceOptions,
   ): ResolutionResult;
+
+  /** Get the meta member by name */
   resolveMetaMemberByName(sym: Sym, name: string): ResolutionResult;
-  // TODO: probably don't need both this one a bindAndResolveNode
+
+  /** Resolve the given type reference. This should only need to be called on dynamically created nodes that want to resolve which symbol they reference */
   resolveTypeReference(
     node: TypeReferenceNode | IdentifierNode | MemberExpressionNode,
   ): ResolutionResult;
