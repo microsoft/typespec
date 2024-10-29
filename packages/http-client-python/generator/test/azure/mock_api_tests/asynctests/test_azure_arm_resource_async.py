@@ -4,8 +4,8 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
-from azure.resourcemanager.models.resources.aio import ResourcesClient
-from azure.resourcemanager.models.resources import models
+from azure.resourcemanager.resources.aio import ResourcesClient
+from azure.resourcemanager.resources import models
 
 SUBSCRIPTION_ID = "00000000-0000-0000-0000-000000000000"
 RESOURCE_GROUP_NAME = "test-rg"
@@ -34,17 +34,17 @@ async def test_client_signature(credential, authentication_policy):
     )
     for client in [client1, client2]:
         # make sure signautre order is correct
-        await client.top_level_tracked_resources.get(RESOURCE_GROUP_NAME, "top")
+        await client.top_level.get(RESOURCE_GROUP_NAME, "top")
         # make sure signautre name is correct
-        await client.top_level_tracked_resources.get(
+        await client.top_level.get(
             resource_group_name=RESOURCE_GROUP_NAME, top_level_tracked_resource_name="top"
         )
 
 
 @pytest.mark.asyncio
-async def test_top_level_tracked_resources_begin_create_or_replace(client):
+async def test_top_level_begin_create_or_replace(client):
     result = await (
-        await client.top_level_tracked_resources.begin_create_or_replace(
+        await client.top_level.begin_create_or_replace(
             resource_group_name=RESOURCE_GROUP_NAME,
             top_level_tracked_resource_name="top",
             resource=models.TopLevelTrackedResource(
@@ -60,14 +60,14 @@ async def test_top_level_tracked_resources_begin_create_or_replace(client):
     assert result.properties.description == "valid"
     assert result.properties.provisioning_state == "Succeeded"
     assert result.name == "top"
-    assert result.type == "Azure.ResourceManager.Models.Resources/topLevelTrackedResources"
+    assert result.type == "Azure.ResourceManager.Resources/topLevelTrackedResources"
     assert result.system_data.created_by == "AzureSDK"
 
 
 @pytest.mark.asyncio
-async def test_top_level_tracked_resources_begin_update(client):
+async def test_top_level_begin_update(client):
     result = await (
-        await client.top_level_tracked_resources.begin_update(
+        await client.top_level.begin_update(
             resource_group_name=RESOURCE_GROUP_NAME,
             top_level_tracked_resource_name="top",
             properties=models.TopLevelTrackedResource(
@@ -83,14 +83,14 @@ async def test_top_level_tracked_resources_begin_update(client):
     assert result.properties.description == "valid2"
     assert result.properties.provisioning_state == "Succeeded"
     assert result.name == "top"
-    assert result.type == "Azure.ResourceManager.Models.Resources/topLevelTrackedResources"
+    assert result.type == "Azure.ResourceManager.Resources/topLevelTrackedResources"
     assert result.system_data.created_by == "AzureSDK"
 
 
 @pytest.mark.asyncio
-async def test_top_level_tracked_resources_begin_delete(client):
+async def test_top_level_begin_delete(client):
     await (
-        await client.top_level_tracked_resources.begin_delete(
+        await client.top_level.begin_delete(
             resource_group_name=RESOURCE_GROUP_NAME,
             top_level_tracked_resource_name="top",
             polling_interval=0,  # set polling_interval to 0 s to make the test faster since default is 30s
@@ -99,8 +99,8 @@ async def test_top_level_tracked_resources_begin_delete(client):
 
 
 @pytest.mark.asyncio
-async def test_top_level_tracked_resources_list_by_resource_group(client):
-    response = client.top_level_tracked_resources.list_by_resource_group(
+async def test_top_level_list_by_resource_group(client):
+    response = client.top_level.list_by_resource_group(
         resource_group_name=RESOURCE_GROUP_NAME,
     )
     result = [r async for r in response]
@@ -109,26 +109,26 @@ async def test_top_level_tracked_resources_list_by_resource_group(client):
         assert result.properties.description == "valid"
         assert result.properties.provisioning_state == "Succeeded"
         assert result.name == "top"
-        assert result.type == "Azure.ResourceManager.Models.Resources/topLevelTrackedResources"
+        assert result.type == "Azure.ResourceManager.Resources/topLevelTrackedResources"
         assert result.system_data.created_by == "AzureSDK"
 
 
 @pytest.mark.asyncio
-async def test_top_level_tracked_resources_list_by_subscription(client):
-    response = client.top_level_tracked_resources.list_by_subscription()
+async def test_top_level_list_by_subscription(client):
+    response = client.top_level.list_by_subscription()
     result = [r async for r in response]
     for result in result:
         assert result.location == "eastus"
         assert result.properties.description == "valid"
         assert result.properties.provisioning_state == "Succeeded"
         assert result.name == "top"
-        assert result.type == "Azure.ResourceManager.Models.Resources/topLevelTrackedResources"
+        assert result.type == "Azure.ResourceManager.Resources/topLevelTrackedResources"
         assert result.system_data.created_by == "AzureSDK"
 
 
 @pytest.mark.asyncio
-async def test_nested_proxy_resources_get(client):
-    result = await client.nested_proxy_resources.get(
+async def test_nested_get(client):
+    result = await client.nested.get(
         resource_group_name=RESOURCE_GROUP_NAME,
         top_level_tracked_resource_name="top",
         nexted_proxy_resource_name="nested",
@@ -136,14 +136,14 @@ async def test_nested_proxy_resources_get(client):
     assert result.properties.description == "valid"
     assert result.properties.provisioning_state == "Succeeded"
     assert result.name == "nested"
-    assert result.type == "Azure.ResourceManager.Models.Resources/topLevelTrackedResources/top/nestedProxyResources"
+    assert result.type == "Azure.ResourceManager.Resources/topLevelTrackedResources/top/nestedProxyResources"
     assert result.system_data.created_by == "AzureSDK"
 
 
 @pytest.mark.asyncio
-async def test_nested_proxy_resources_begin_create_or_replace(client):
+async def test_nested_begin_create_or_replace(client):
     result = await (
-        await client.nested_proxy_resources.begin_create_or_replace(
+        await client.nested.begin_create_or_replace(
             resource_group_name=RESOURCE_GROUP_NAME,
             top_level_tracked_resource_name="top",
             nexted_proxy_resource_name="nested",
@@ -158,14 +158,14 @@ async def test_nested_proxy_resources_begin_create_or_replace(client):
     assert result.properties.description == "valid"
     assert result.properties.provisioning_state == "Succeeded"
     assert result.name == "nested"
-    assert result.type == "Azure.ResourceManager.Models.Resources/topLevelTrackedResources/top/nestedProxyResources"
+    assert result.type == "Azure.ResourceManager.Resources/topLevelTrackedResources/top/nestedProxyResources"
     assert result.system_data.created_by == "AzureSDK"
 
 
 @pytest.mark.asyncio
-async def test_nested_proxy_resources_begin_update(client):
+async def test_nested_begin_update(client):
     result = await (
-        await client.nested_proxy_resources.begin_update(
+        await client.nested.begin_update(
             resource_group_name=RESOURCE_GROUP_NAME,
             top_level_tracked_resource_name="top",
             nexted_proxy_resource_name="nested",
@@ -180,14 +180,14 @@ async def test_nested_proxy_resources_begin_update(client):
     assert result.properties.description == "valid2"
     assert result.properties.provisioning_state == "Succeeded"
     assert result.name == "nested"
-    assert result.type == "Azure.ResourceManager.Models.Resources/topLevelTrackedResources/top/nestedProxyResources"
+    assert result.type == "Azure.ResourceManager.Resources/topLevelTrackedResources/top/nestedProxyResources"
     assert result.system_data.created_by == "AzureSDK"
 
 
 @pytest.mark.asyncio
-async def test_nested_proxy_resources_begin_delete(client):
+async def test_nested_begin_delete(client):
     await (
-        await client.nested_proxy_resources.begin_delete(
+        await client.nested.begin_delete(
             resource_group_name=RESOURCE_GROUP_NAME,
             top_level_tracked_resource_name="top",
             nexted_proxy_resource_name="nested",
@@ -197,8 +197,8 @@ async def test_nested_proxy_resources_begin_delete(client):
 
 
 @pytest.mark.asyncio
-async def test_nested_proxy_resources_list_by_top_level_tracked_resource(client):
-    response = client.nested_proxy_resources.list_by_top_level_tracked_resource(
+async def test_nested_list_by_top_level_tracked_resource(client):
+    response = client.nested.list_by_top_level_tracked_resource(
         resource_group_name=RESOURCE_GROUP_NAME,
         top_level_tracked_resource_name="top",
     )
@@ -207,13 +207,13 @@ async def test_nested_proxy_resources_list_by_top_level_tracked_resource(client)
         assert result.properties.description == "valid"
         assert result.properties.provisioning_state == "Succeeded"
         assert result.name == "nested"
-        assert result.type == "Azure.ResourceManager.Models.Resources/topLevelTrackedResources/top/nestedProxyResources"
+        assert result.type == "Azure.ResourceManager.Resources/topLevelTrackedResources/top/nestedProxyResources"
         assert result.system_data.created_by == "AzureSDK"
 
 
 @pytest.mark.asyncio
-async def test_top_level_tracked_resources_action_sync(client):
-    await client.top_level_tracked_resources.action_sync(
+async def test_top_level_action_sync(client):
+    await client.top_level.action_sync(
         resource_group_name=RESOURCE_GROUP_NAME,
         top_level_tracked_resource_name="top",
         body={"message": "Resource action at top level.", "urgent": True},
@@ -221,21 +221,21 @@ async def test_top_level_tracked_resources_action_sync(client):
 
 
 @pytest.mark.asyncio
-async def test_singleton_tracked_resources_get_by_resource_group(client):
-    result = await client.singleton_tracked_resources.get_by_resource_group(
+async def test_singleton_get_by_resource_group(client):
+    result = await client.singleton.get_by_resource_group(
         resource_group_name=RESOURCE_GROUP_NAME,
     )
     assert result.properties.description == "valid"
     assert result.properties.provisioning_state == "Succeeded"
     assert result.name == "default"
-    assert result.type == "Azure.ResourceManager.Models.Resources/singletonTrackedResources"
+    assert result.type == "Azure.ResourceManager.Resources/singletonTrackedResources"
     assert result.system_data.created_by == "AzureSDK"
 
 
 @pytest.mark.asyncio
-async def test_singleton_tracked_resources_begin_create_or_replace(client):
+async def test_singleton_begin_create_or_replace(client):
     result = await (
-        await client.singleton_tracked_resources.begin_create_or_update(
+        await client.singleton.begin_create_or_update(
             resource_group_name=RESOURCE_GROUP_NAME,
             resource=models.SingletonTrackedResource(
                 location="eastus",
@@ -248,13 +248,13 @@ async def test_singleton_tracked_resources_begin_create_or_replace(client):
     assert result.properties.description == "valid"
     assert result.properties.provisioning_state == "Succeeded"
     assert result.name == "default"
-    assert result.type == "Azure.ResourceManager.Models.Resources/singletonTrackedResources"
+    assert result.type == "Azure.ResourceManager.Resources/singletonTrackedResources"
     assert result.system_data.created_by == "AzureSDK"
 
 
 @pytest.mark.asyncio
-async def test_singleton_tracked_resources_update(client):
-    result = await client.singleton_tracked_resources.update(
+async def test_singleton_update(client):
+    result = await client.singleton.update(
         resource_group_name=RESOURCE_GROUP_NAME,
         properties=models.SingletonTrackedResource(
             location="eastus2",
@@ -266,13 +266,13 @@ async def test_singleton_tracked_resources_update(client):
     assert result.properties.description == "valid2"
     assert result.properties.provisioning_state == "Succeeded"
     assert result.name == "default"
-    assert result.type == "Azure.ResourceManager.Models.Resources/singletonTrackedResources"
+    assert result.type == "Azure.ResourceManager.Resources/singletonTrackedResources"
     assert result.system_data.created_by == "AzureSDK"
 
 
 @pytest.mark.asyncio
-async def test_singleton_tracked_resources_list_by_resource_group(client):
-    response = client.singleton_tracked_resources.list_by_resource_group(
+async def test_singleton_list_by_resource_group(client):
+    response = client.singleton.list_by_resource_group(
         resource_group_name=RESOURCE_GROUP_NAME,
     )
     result = [r async for r in response]
@@ -280,5 +280,5 @@ async def test_singleton_tracked_resources_list_by_resource_group(client):
         assert result.properties.description == "valid"
         assert result.properties.provisioning_state == "Succeeded"
         assert result.name == "default"
-        assert result.type == "Azure.ResourceManager.Models.Resources/singletonTrackedResources"
+        assert result.type == "Azure.ResourceManager.Resources/singletonTrackedResources"
         assert result.system_data.created_by == "AzureSDK"

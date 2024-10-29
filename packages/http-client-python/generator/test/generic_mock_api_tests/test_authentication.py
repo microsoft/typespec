@@ -17,8 +17,8 @@ from authentication.http.custom import CustomClient
 def api_key_client(key_credential):
     client = None
 
-    def _build_client(client_type):
-        client = client_type(key_credential("valid-key"))
+    def _build_client(client_type, key: str = "valid-key"):
+        client = client_type(key_credential(key))
         return client
 
     yield _build_client
@@ -53,8 +53,8 @@ def oauth2_client(token_credential):
 def http_custom_client(key_credential):
     client = None
 
-    def _build_client():
-        client = CustomClient(key_credential("valid-key"))
+    def _build_client(key: str = "valid-key"):
+        client = CustomClient(key_credential(key))
         return client
 
     yield _build_client
@@ -71,7 +71,7 @@ def test_api_key_valid(api_key_client):
 
 
 def test_api_key_invalid(api_key_client, core_library):
-    client = api_key_client(ApiKeyClient)
+    client = api_key_client(ApiKeyClient, "invalid-key")
     with pytest.raises(core_library.exceptions.HttpResponseError) as ex:
         client.invalid()
     assert ex.value.status_code == 403
@@ -106,7 +106,7 @@ def test_http_custom_valid(http_custom_client):
 
 
 def test_http_custom_invalid(http_custom_client, core_library):
-    client = http_custom_client()
+    client = http_custom_client("invalid-key")
     with pytest.raises(core_library.exceptions.HttpResponseError) as ex:
         client.invalid()
     assert ex.value.status_code == 403
