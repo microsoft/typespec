@@ -288,6 +288,9 @@ export function createResolver(program: Program): NameResolver {
     if (nextSym || resolvedSym) {
       links.resolvedSymbol = nextSym ?? resolvedSym;
     }
+    if (isTemplate) {
+      links.isTemplateInstantiation = isTemplate;
+    }
     links.resolutionResult = resolvedSymResult;
 
     if (resolvedSym && resolvedSym.flags & SymbolFlags.Alias) {
@@ -297,6 +300,9 @@ export function createResolver(program: Program): NameResolver {
       const [resolveAliasSym, resolveAliasResult, aliasIsTemplate] = resolveAlias(
         aliasNode as AliasStatementNode,
       );
+      if (aliasIsTemplate) {
+        links.isTemplateInstantiation = true;
+      }
       result = [resolveAliasSym, resolveAliasResult, isTemplate || aliasIsTemplate, resolvedSym];
     } else if (resolvedSym && resolvedSym.flags & SymbolFlags.TemplateParameter) {
       // references to template parameters with constraints can reference the
@@ -352,14 +358,18 @@ export function createResolver(program: Program): NameResolver {
     }
 
     compilerAssert(baseSym, "Base symbol must be defined if resolution did not fail");
-    const result = resolveMemberExpressionForSym(baseSym, node, options);
+    const [memberSym, memberResult, memberIsTemplate, memberNextSym] =
+      resolveMemberExpressionForSym(baseSym, node, options);
 
     // TODO: is it better to do this or just when you resolve identifier have to maybe check up the parent once.
     // TODO: if keeping add test to make sure it always equals the container typereference/member expression
     const idNodeLinks = getNodeLinks(node.id);
-    idNodeLinks.resolvedSymbol = result[0];
-    idNodeLinks.resolutionResult = result[1];
-    return result;
+    idNodeLinks.resolvedSymbol = memberSym;
+    idNodeLinks.resolutionResult = memberResult;
+    if (isTemplate || memberIsTemplate) {
+      idNodeLinks.isTemplateInstantiation = isTemplate || memberIsTemplate;
+    }
+    return [memberSym, memberResult, isTemplate || memberIsTemplate, memberNextSym];
   }
 
   function resolveMemberExpressionForSym(
@@ -1246,13 +1256,6 @@ export function createResolver(program: Program): NameResolver {
     const [sym, result, isTemplate] = resolveTypeReference(decNode.targetType);
 
     if (isTemplate) {
-      program.reportDiagnostic(
-        createDiagnostic({
-          code: "augment-decorator-target",
-          messageId: "noInstance",
-          target: decNode.target,
-        }),
-      );
     } else if (sym) {
       let list = augmentDecoratorsForSym.get(sym);
       if (list === undefined) {

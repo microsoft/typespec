@@ -361,7 +361,6 @@ describe("compiler: using statements", () => {
         code: "ambiguous-symbol",
         message: `"doc" is an ambiguous name between TypeSpec.doc, Test.A.doc. Try using fully qualified name instead: TypeSpec.doc, Test.A.doc`,
       },
-      { code: "unknown-decorator" },
     ]);
   });
 
@@ -388,7 +387,6 @@ describe("compiler: using statements", () => {
         code: "ambiguous-symbol",
         message: `"doc" is an ambiguous name between TypeSpec.doc, Test.A.doc. Try using fully qualified name instead: TypeSpec.doc, Test.A.doc`,
       },
-      { code: "unknown-decorator" },
       { code: "missing-implementation" },
     ]);
   });

@@ -328,12 +328,6 @@ const diagnostics = {
       default: paramMessage`Unknown identifier ${"id"}`,
     },
   },
-  "unknown-decorator": {
-    severity: "error",
-    messages: {
-      default: "Unknown decorator",
-    },
-  },
   "invalid-decorator": {
     severity: "error",
     messages: {
@@ -345,6 +339,7 @@ const diagnostics = {
     messages: {
       default: paramMessage`Cannot resolve ${"id"}`,
       identifier: paramMessage`Unknown identifier ${"id"}`,
+      decorator: paramMessage`Unknown decorator @${"id"}`,
       inDecorator: paramMessage`Cannot resolve ${"id"} in decorator`,
       underNamespace: paramMessage`Namespace ${"namespace"} doesn't have member ${"id"}`,
       member: paramMessage`${"kind"} doesn't have member ${"id"}`,

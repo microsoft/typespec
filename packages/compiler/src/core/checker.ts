@@ -987,6 +987,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         return checkCallExpression(node, mapper);
       case SyntaxKind.TypeOfExpression:
         return checkTypeOfExpression(node, mapper);
+      case SyntaxKind.AugmentDecoratorStatement:
+        return checkAugmentDecorator(node);
       default:
         return errorType;
     }
@@ -3082,7 +3084,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           reportCheckerDiagnostic(
             createDiagnostic({
               code: "invalid-ref",
-              messageId: "identifier",
+              messageId: options.resolveDecorators ? "decorator" : "identifier",
               format: { id: printTypeReferenceNode(node) },
               target: node,
               codefixes: getCodefixesForUnknownIdentifier(node),
@@ -4789,12 +4791,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   ): DecoratorApplication | undefined {
     const sym = resolveTypeReferenceSym(decNode.target, undefined, true);
     if (!sym) {
-      reportCheckerDiagnostic(
-        createDiagnostic({
-          code: "unknown-decorator",
-          target: decNode,
-        }),
-      );
+      // Error should already have been reported above
       return undefined;
     }
     if (!(sym.flags & SymbolFlags.Decorator)) {
@@ -5103,6 +5100,29 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
     return decorators;
   }
+
+  // TODO: what do you think of this approach vs validating in the name-resolver.
+  /**
+   * Check that augment decorator are targeting valid symbols.
+   */
+  function checkAugmentDecorator(node: AugmentDecoratorStatementNode) {
+    // This will validate the target type is pointing to a valid ref.
+    resolveTypeReferenceSym(node.targetType, undefined);
+    const links = resolver.getNodeLinks(node.targetType);
+    if (links.isTemplateInstantiation) {
+      program.reportDiagnostic(
+        createDiagnostic({
+          code: "augment-decorator-target",
+          messageId: "noInstance",
+          target: node.targetType,
+        }),
+      );
+    }
+
+    // If this was used to get a type this is invalid, only used for validation.
+    return errorType;
+  }
+
   function checkDecorators(
     targetType: Type,
     node: Node & { decorators: readonly DecoratorExpressionNode[] },

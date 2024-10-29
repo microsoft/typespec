@@ -897,6 +897,15 @@ export interface NodeLinks {
   resolvedSymbol?: Sym;
 
   /**
+   * If the link involve template argument.
+   * Note that this only catch if template arguments are used. If referencing the default instance(e.g Foo for Foo<string = "abc">) this will not be set to true.
+   * This is by design as the symbol reference has different meaning depending on the context:
+   * - For augment decorator it would reference the template declaration
+   * - For type references it would reference the default instance.
+   */
+  isTemplateInstantiation?: boolean;
+
+  /**
    * The result of resolution of this reference node.
    *
    * When the the result is `Resolved`, `resolvedSymbol` contains the result.
