@@ -2,6 +2,7 @@ import { joinPaths } from "../core/path-utils.js";
 import { NpmPackage, NpmPackageProvider } from "./npm-package-provider.js";
 
 export class EmitterProvider {
+  private isEmitterPackageCache = new Map<string, boolean>();
   constructor(private npmPackageProvider: NpmPackageProvider) {}
 
   /**
@@ -45,23 +46,34 @@ export class EmitterProvider {
     return this.getEmitterFromDep(packageJsonFolder, emitterName);
   }
 
-  private static async isEmitter(pkg: NpmPackage) {
+  private async isEmitter(depName: string, pkg: NpmPackage) {
+    if (this.isEmitterPackageCache.has(depName)) {
+      return this.isEmitterPackageCache.get(depName);
+    }
+
     const data = await pkg.getPackageJsonData();
+    // don't add to cache when failing to load package.json which is unexpected
     if (!data) return false;
     if (
       (data.devDependencies && data.devDependencies["@typespec/compiler"]) ||
       (data.dependencies && data.dependencies["@typespec/compiler"])
     ) {
       const exports = await pkg.getModuleExports();
-      return exports && exports.$onEmit;
+      // don't add to cache when failing to load exports which is unexpected
+      if (!exports) return false;
+      const isEmitter = exports.$onEmit !== undefined;
+      this.isEmitterPackageCache.set(depName, isEmitter);
+      return isEmitter;
+    } else {
+      this.isEmitterPackageCache.set(depName, false);
+      return false;
     }
-    return false;
   }
 
   private async getEmitterFromDep(packageJsonFolder: string, depName: string) {
     const depFolder = joinPaths(packageJsonFolder, "node_modules", depName);
     const depPkg = await this.npmPackageProvider.get(depFolder);
-    if (depPkg && (await EmitterProvider.isEmitter(depPkg))) {
+    if (depPkg && (await this.isEmitter(depName, depPkg))) {
       return depPkg;
     }
     return undefined;

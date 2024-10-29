@@ -1,7 +1,7 @@
 import { ResolveModuleHost } from "@typespec/compiler/module-resolver";
 import { readFile, realpath, stat } from "fs/promises";
 import { dirname, isAbsolute, join, resolve } from "path";
-import vscode, { ExtensionContext, commands, workspace } from "vscode";
+import vscode, { ExtensionContext, RelativePattern, commands, workspace } from "vscode";
 import {
   Executable,
   ExecutableOptions,
@@ -10,7 +10,7 @@ import {
 } from "vscode-languageclient/node.js";
 import logger from "./extension-logger.js";
 import { TypeSpecLogOutputChannel } from "./typespec-log-output-channel.js";
-import { normalizeSlash, useShellInExec } from "./utils.js";
+import { listParentFolder, normalizeSlash, useShellInExec } from "./utils.js";
 
 let client: LanguageClient | undefined;
 /**
@@ -161,23 +161,32 @@ async function restartTypeSpecServer(): Promise<void> {
 async function launchLanguageClient(context: ExtensionContext) {
   const exe = await resolveTypeSpecServer(context);
   logger.debug("TypeSpec server resolved as ", [exe]);
+  const watchers = [
+    workspace.createFileSystemWatcher("**/*.cadl"),
+    workspace.createFileSystemWatcher("**/cadl-project.yaml"),
+    workspace.createFileSystemWatcher("**/*.tsp"),
+    workspace.createFileSystemWatcher("**/tspconfig.yaml"),
+    // please be aware that the vscode watch with '**' will honer the files.watcherExclude settings
+    // so we won't get notification for those package.json under node_modules
+    // if our customers exclude the node_modules folder in files.watcherExclude settings.
+    workspace.createFileSystemWatcher("**/package.json"),
+  ];
+  for (const folder of vscode.workspace.workspaceFolders ?? []) {
+    for (const p of listParentFolder(folder.uri.fsPath, false /*includeSelf*/)) {
+      watchers.push(workspace.createFileSystemWatcher(new RelativePattern(p, "package.json")));
+    }
+  }
+  watchers.forEach((w) => context.subscriptions.push(w));
   const options: LanguageClientOptions = {
     synchronize: {
       // Synchronize the setting section 'typespec' to the server
       configurationSection: "typespec",
-      fileEvents: [
-        workspace.createFileSystemWatcher("**/*.cadl"),
-        workspace.createFileSystemWatcher("**/cadl-project.yaml"),
-        workspace.createFileSystemWatcher("**/*.tsp"),
-        workspace.createFileSystemWatcher("**/tspconfig.yaml"),
-        workspace.createFileSystemWatcher("**/package.json"),
-      ],
+      fileEvents: watchers,
     },
     documentSelector: [
       { scheme: "file", language: "typespec" },
       { scheme: "untitled", language: "typespec" },
       { scheme: "file", language: "yaml", pattern: "**/tspconfig.yaml" },
-      { scheme: "untitled", language: "yaml", pattern: "**/tspconfig.yaml" },
     ],
     outputChannel,
   };

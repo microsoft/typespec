@@ -1,12 +1,36 @@
+import { FileEvent } from "vscode-languageserver";
 import { getDirectoryPath, joinPaths, normalizePath } from "../core/path-utils.js";
 import { loadJsFile } from "../core/source-loader.js";
-import { Closable, CompilerHost, NoTarget } from "../core/types.js";
+import { CompilerHost, NoTarget } from "../core/types.js";
 import { NodePackage, resolveModule } from "../index.js";
-import { debounce, isWhitespaceStringOrUndefined, tryParseJson } from "../utils/misc.js";
+import { distinctArray, isWhitespaceStringOrUndefined, tryParseJson } from "../utils/misc.js";
 export class NpmPackageProvider {
   private pkgCache = new Map<string, NpmPackage>();
 
   constructor(private host: CompilerHost) {}
+
+  notify(changes: FileEvent[]) {
+    let folders = changes
+      .map((c) => normalizePath(this.host.fileURLToPath(c.uri)))
+      .filter((c) => c.endsWith("/package.json"))
+      .map((c) => getDirectoryPath(c));
+    folders = distinctArray(folders, (f) => f);
+
+    for (const folder of folders) {
+      const pkg = this.pkgCache.get(folder);
+      if (pkg) {
+        pkg.resetCache();
+        // since we may not get the notification for changes under node_modules
+        // just reset those for safety
+        const nodeModulesFolder = joinPaths(folder, "node_modules");
+        this.pkgCache.forEach((nmPkg, key) => {
+          if (key.startsWith(nodeModulesFolder)) {
+            nmPkg.resetCache();
+          }
+        });
+      }
+    }
+  }
 
   /**
    * Search for the nearest package.json file starting from the given folder to its parent/grandparent/... folders
@@ -58,11 +82,11 @@ export class NpmPackageProvider {
     }
   }
 
-  private clearCache() {
+  private resetCache() {
     const t = this.pkgCache;
     this.pkgCache = new Map();
     t.forEach((pkg) => {
-      pkg.dispose();
+      pkg.resetCache();
     });
   }
 
@@ -70,29 +94,17 @@ export class NpmPackageProvider {
    * reset the status of the provider with all the caches properly cleaned up
    */
   public reset() {
-    this.clearCache();
+    this.resetCache();
   }
 }
 
 export class NpmPackage {
   private constructor(
     private host: CompilerHost,
-    packageJsonFolder: string,
-    packageJsonData: NodePackage | undefined,
-  ) {
-    this.packageJsonFolder = packageJsonFolder;
-    this.packageJsonData = packageJsonData;
+    private packageJsonFolder: string,
+    private packageJsonData: NodePackage | undefined,
+  ) {}
 
-    const onPackageJsonChange = debounce(() => {
-      this.clearCache();
-    }, 200);
-    this.packageJsonWatcher = this.host.watch(this.packageJsonFolder, onPackageJsonChange);
-  }
-
-  private packageJsonFolder: string;
-  private packageJsonWatcher: Closable | undefined;
-
-  private packageJsonData: NodePackage | undefined;
   async getPackageJsonData(): Promise<NodePackage | undefined> {
     if (!this.packageJsonData) {
       this.packageJsonData = await NpmPackage.loadNodePackage(this.host, this.packageJsonFolder);
@@ -114,15 +126,9 @@ export class NpmPackage {
     return this.packageModule;
   }
 
-  private clearCache() {
+  resetCache() {
     this.packageJsonData = undefined;
     this.packageModule = undefined;
-  }
-
-  dispose() {
-    if (this.packageJsonWatcher) {
-      this.packageJsonWatcher.close();
-    }
   }
 
   /**

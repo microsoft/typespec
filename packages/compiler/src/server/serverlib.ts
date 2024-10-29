@@ -16,7 +16,6 @@ import {
   DocumentSymbol,
   DocumentSymbolParams,
   ExecuteCommandParams,
-  FileChangeType,
   FoldingRange,
   FoldingRangeParams,
   Hover,
@@ -52,7 +51,7 @@ import { resolveCodeFix } from "../core/code-fixes.js";
 import { compilerAssert, getSourceLocation } from "../core/diagnostics.js";
 import { formatTypeSpec } from "../core/formatter.js";
 import { getEntityName, getTypeName } from "../core/helpers/type-name-utils.js";
-import { OnChangedListener, resolveModule, ResolveModuleHost } from "../core/index.js";
+import { resolveModule, ResolveModuleHost } from "../core/index.js";
 import { getPositionBeforeTrivia } from "../core/parser-utils.js";
 import { getNodeAtPosition, getNodeAtPositionDetail, visitChildren } from "../core/parser.js";
 import { ensureTrailingDirectorySeparator, getDirectoryPath } from "../core/path-utils.js";
@@ -272,6 +271,7 @@ export function createServer(host: ServerHost): Server {
 
   function watchedFilesChanged(params: DidChangeWatchedFilesParams) {
     fileSystemCache.notify(params.changes);
+    npmPackageProvider.notify(params.changes);
   }
 
   function isTspConfigFile(doc: TextDocument | TextDocumentIdentifier) {
@@ -989,21 +989,11 @@ export function createServer(host: ServerHost): Server {
     const base = host.compilerHost;
     return {
       ...base,
-      watch,
       parseCache: new WeakMap(),
       readFile,
       stat,
       getSourceFileKind,
     };
-
-    function watch(path: string, onChanged: OnChangedListener) {
-      return base.watch(path, (filename) => {
-        fileSystemCache.notify([
-          { uri: fileService.getURL(filename), type: FileChangeType.Changed },
-        ]);
-        onChanged(filename);
-      });
-    }
 
     async function readFile(path: string): Promise<ServerSourceFile> {
       const document = fileService.getOpenDocument(path);

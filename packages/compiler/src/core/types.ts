@@ -2275,13 +2275,6 @@ export interface CompilerHost {
    */
   mkdirp(path: string): Promise<string | undefined>;
 
-  /**
-   * watch a file or directory for changes.
-   * @param path path to the file/dir to watch
-   * @param onChanged callback to be called when the file/dir changes
-   */
-  watch(path: string, onChanged: OnChangedListener): Closable;
-
   // get the directory TypeSpec is executing from
   getExecutionRoot(): string;
 

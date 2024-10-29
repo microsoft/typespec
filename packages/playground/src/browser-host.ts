@@ -1,10 +1,4 @@
-import {
-  createSourceFile,
-  getDirectoryPath,
-  getSourceFileKindFromExt,
-  resolvePath,
-  type OnChangedListener,
-} from "@typespec/compiler";
+import { createSourceFile, getSourceFileKindFromExt, resolvePath } from "@typespec/compiler";
 import { importLibrary, importTypeSpecCompiler, type LibraryImportOptions } from "./core.js";
 import type { BrowserHost, PlaygroundTspLibrary } from "./types.js";
 
@@ -26,14 +20,6 @@ export interface BrowserHostCreateOptions {
 export function createBrowserHostInternal(options: BrowserHostCreateOptions): BrowserHost {
   const virtualFs = new Map<string, string>();
   const jsImports = new Map<string, Promise<any>>();
-  const virtualFsWatchers = new Map<string, OnChangedListener[]>();
-  const triggerWatcher = (changedPath: string, watchers: Map<string, OnChangedListener[]>) => {
-    watchers.get(changedPath)?.forEach((cb) => cb(changedPath));
-    const dir = getDirectoryPath(changedPath);
-    if (dir !== changedPath) {
-      watchers.get(dir)?.forEach((cb) => cb(changedPath));
-    }
-  };
 
   const libraries = options.libraries;
   for (const [libName, { _TypeSpecLibrary_ }] of Object.entries(libraries)) {
@@ -85,7 +71,6 @@ export function createBrowserHostInternal(options: BrowserHostCreateOptions): Br
     async writeFile(path: string, content: string) {
       path = resolveVirtualPath(path);
       virtualFs.set(path, content);
-      triggerWatcher(path, virtualFsWatchers);
     },
 
     async readDir(path: string) {
@@ -106,24 +91,8 @@ export function createBrowserHostInternal(options: BrowserHostCreateOptions): Br
       for (const key of virtualFs.keys()) {
         if (key === path || key.startsWith(`${path}/`)) {
           virtualFs.delete(key);
-          triggerWatcher(key, virtualFsWatchers);
         }
       }
-    },
-
-    watch(path: string, onChanged: (filename: string) => void) {
-      virtualFsWatchers.set(path, [...(virtualFsWatchers.get(path) ?? []), onChanged]);
-      return {
-        close() {
-          const cbs = virtualFsWatchers.get(path);
-          if (cbs) {
-            const index = cbs.indexOf(onChanged);
-            if (index !== -1) {
-              cbs.splice(index, 1);
-            }
-          }
-        },
-      };
     },
 
     getLibDirs() {
