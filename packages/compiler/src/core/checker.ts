@@ -179,6 +179,7 @@ import {
   UnionVariant,
   UnionVariantNode,
   UnknownType,
+  UsingStatementNode,
   Value,
   VoidType,
 } from "./types.js";
@@ -989,6 +990,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         return checkTypeOfExpression(node, mapper);
       case SyntaxKind.AugmentDecoratorStatement:
         return checkAugmentDecorator(node);
+      case SyntaxKind.UsingStatement:
+        return checkUsings(node);
       default:
         return errorType;
     }
@@ -5101,7 +5104,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return decorators;
   }
 
-  // TODO: what do you think of this approach vs validating in the name-resolver.
   /**
    * Check that augment decorator are targeting valid symbols.
    */
@@ -5123,6 +5125,19 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return errorType;
   }
 
+  /**
+   * Check that using statements are targeting valid symbols.
+   */
+  function checkUsings(node: UsingStatementNode) {
+    const usedSym = resolveTypeReferenceSym(node.name, undefined);
+    if (usedSym) {
+      if (~usedSym.flags & SymbolFlags.Namespace) {
+        reportCheckerDiagnostic(createDiagnostic({ code: "using-invalid-ref", target: node.name }));
+      }
+    }
+    // If this was used to get a type this is invalid, only used for validation.
+    return errorType;
+  }
   function checkDecorators(
     targetType: Type,
     node: Node & { decorators: readonly DecoratorExpressionNode[] },

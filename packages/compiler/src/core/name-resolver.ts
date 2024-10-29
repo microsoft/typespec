@@ -1060,19 +1060,19 @@ export function createResolver(program: Program): NameResolver {
       const parentNs = using.parent!;
       const [usedSym, usedSymResult] = resolveTypeReference(using.name);
       if (~usedSymResult & ResolutionResultFlags.Resolved) {
-        // TODO: should report diagnostics here?
-        continue;
+        continue; // Keep going and count on checker to report those errors.
       }
 
       compilerAssert(usedSym, "Used symbol must be defined if resolution succeeded");
       if (~usedSym.flags & SymbolFlags.Namespace) {
-        program.reportDiagnostic(createDiagnostic({ code: "using-invalid-ref", target: using }));
-        continue;
+        continue; // Keep going and count on checker to report those errors.
       }
 
       const namespaceSym = getMergedSymbol(usedSym)!;
 
       if (usedUsing.has(namespaceSym)) {
+        // TODO: not sure how to move this one to the checker
+        // Could have the name checker keep track of those or (preferably not) checker recollect
         program.reportDiagnostic(
           createDiagnostic({
             code: "duplicate-using",
@@ -1083,10 +1083,6 @@ export function createResolver(program: Program): NameResolver {
         continue;
       }
       usedUsing.add(namespaceSym);
-
-      if (usedSym.name === "B") {
-        (parentNs.locals as any).__debug_set_B_usings = true;
-      }
       addUsingSymbols(namespaceSym.exports!, parentNs.locals!);
     }
   }

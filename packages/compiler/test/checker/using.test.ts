@@ -542,8 +542,32 @@ describe("compiler: using statements", () => {
     );
     await testHost.compile("./");
   });
+});
 
-  describe("emit diagnostic when using non-namespace types", () => {
+describe("emit diagnostics", () => {
+  async function diagnose(code: string) {
+    const testHost = await createTestHost();
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      ${code}
+    `,
+    );
+
+    return testHost.diagnose("main.tsp");
+  }
+
+  it("unknown identifier", async () => {
+    const diagnostics = await diagnose(`
+      using NotDefined;
+    `);
+    expectDiagnostics(diagnostics, {
+      code: "invalid-ref",
+      message: "Unknown identifier NotDefined",
+    });
+  });
+
+  describe("when using non-namespace types", () => {
     [
       ["model", "model Target {}"],
       ["enum", "enum Target {}"],
@@ -553,15 +577,10 @@ describe("compiler: using statements", () => {
       ["operation", "op Target(): void;"],
     ].forEach(([name, code]) => {
       it(name, async () => {
-        testHost.addTypeSpecFile(
-          "main.tsp",
-          `
+        const diagnostics = await diagnose(`
           using Target;
           ${code}
-        `,
-        );
-
-        const diagnostics = await testHost.diagnose("./");
+        `);
         expectDiagnostics(diagnostics, {
           code: "using-invalid-ref",
           message: "Using must refer to a namespace",
