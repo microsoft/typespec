@@ -124,7 +124,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var clientErrorNoThrow = _options.NoThrow();
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                _pipeline.Send(_message, _options).Terminate(),
+                _pipeline.Send(_message, _options),
                 MethodBodyStatement.EmptyLine,
                 new IfStatement(_message.Response().IsError().And(new BinaryOperatorExpression("&", _options.NullConditional().Property("ErrorOptions"), clientErrorNoThrow).NotEqual(clientErrorNoThrow)))
                 {
@@ -167,7 +167,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var clientErrorNoThrow = _options.NoThrow();
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                _pipeline.SendAsync(_message, _options).Terminate(),
+                _pipeline.SendAsync(_message, _options),
                 MethodBodyStatement.EmptyLine,
                 new IfStatement(_message.Response().IsError().And(new BinaryOperatorExpression("&", _options.NullConditional().Property("ErrorOptions"), clientErrorNoThrow).NotEqual(clientErrorNoThrow)))
                 {

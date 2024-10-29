@@ -2,6 +2,7 @@ using System.Linq;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.Statements;
 using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 
@@ -66,11 +67,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.Abstractions
             public override ValueExpression PerRetryPolicy(params ValueExpression[] arguments)
                 => Original.Invoke("GetFakePerRetryPolicy", arguments);
 
-            public override InvokeMethodExpression Send(HttpMessageApi message, HttpRequestOptionsApi options)
-                => Original.Invoke("GetFakeSend", [message, options]);
+            public override MethodBodyStatement Send(HttpMessageApi message, HttpRequestOptionsApi options)
+                => Original.Invoke("GetFakeSend", [message, options]).Terminate();
 
-            public override InvokeMethodExpression SendAsync(HttpMessageApi message, HttpRequestOptionsApi options)
-                => Original.Invoke("GetFakeSendAsync", [message, options]);
+            public override MethodBodyStatement SendAsync(HttpMessageApi message, HttpRequestOptionsApi options)
+                => Original.Invoke("GetFakeSendAsync", [message, options]).Terminate();
 
             public override ClientPipelineApi ToExpression() => this;
         }

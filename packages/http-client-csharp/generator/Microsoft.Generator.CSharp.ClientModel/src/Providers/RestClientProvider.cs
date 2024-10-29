@@ -168,12 +168,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     Declare("message", pipelineField.CreateMessage(options.AsExpression.ToApi<HttpRequestOptionsApi>(), classifier).ToApi<HttpMessageApi>(), out HttpMessageApi message),
                     message.ApplyResponseClassifier(((MemberExpression)classifier).ToApi<StatusCodeClassifierApi>()),
                     Declare("request", message.Request().ToApi<HttpRequestApi>(), out HttpRequestApi request),
-                    request.SetMethod(operation.HttpMethod).Terminate(),
+                    request.SetMethod(operation.HttpMethod),
                     Declare("uri", New.Instance<ClientUriBuilderDefinition>(), out ScopedApi<ClientUriBuilderDefinition> uri),
                     uri.Reset(ClientProvider.EndpointField).Terminate(),
                     .. AppendPathParameters(uri, operation, paramMap),
                     .. AppendQueryParameters(uri, operation, paramMap),
-                    request.SetUri(uri).Terminate(),
+                    request.SetUri(uri),
                     .. AppendHeaderParameters(request, operation, paramMap),
                     .. GetSetContent(request, signature.Parameters),
                     message.ApplyRequestOptions(options.AsExpression.ToApi<HttpRequestOptionsApi>()),
@@ -231,7 +231,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 }
                 else
                 {
-                    statement = request.SetHeaders([Literal(inputParameter.NameInRequest), toStringExpression.As<string>()]).Terminate();
+                    statement = request.SetHeaders([Literal(inputParameter.NameInRequest), toStringExpression.As<string>()]);
                 }
                 statements.Add(statement);
             }

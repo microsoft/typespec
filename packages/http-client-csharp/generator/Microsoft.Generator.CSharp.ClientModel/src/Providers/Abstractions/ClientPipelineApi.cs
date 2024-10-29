@@ -6,6 +6,7 @@ using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
+using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
@@ -21,9 +22,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         public abstract ValueExpression CreateMessage(HttpRequestOptionsApi requestOptions, ValueExpression responseClassifier);
 
-        public abstract InvokeMethodExpression Send(HttpMessageApi message, HttpRequestOptionsApi options);
+        public abstract MethodBodyStatement Send(HttpMessageApi message, HttpRequestOptionsApi options);
 
-        public abstract InvokeMethodExpression SendAsync(HttpMessageApi message, HttpRequestOptionsApi options);
+        public abstract MethodBodyStatement SendAsync(HttpMessageApi message, HttpRequestOptionsApi options);
 
         public abstract ValueExpression Create(ValueExpression options, ValueExpression perRetryPolicies);
 
