@@ -14,20 +14,8 @@ import type {
   WithVisibilityFilterDecorator,
 } from "../../generated-defs/TypeSpec.js";
 import { validateDecoratorTarget, validateDecoratorUniqueOnNode } from "../core/decorator-utils.js";
-import {
-  addVisibilityModifiers,
-  clearLegacyVisibility,
-  clearVisibilityModifiersForClass,
-  getVisibility,
-  isVisible,
-  Program,
-  resetVisibilityModifiersForClass,
-  setDefaultModifierSetForVisibilityClass,
-  setLegacyVisibility,
-  TypespecVisibilityFilter,
-  VisibilityFilter,
-} from "../core/index.js";
 import { reportDiagnostic } from "../core/messages.js";
+import type { Program } from "../core/program.js";
 import {
   DecoratorContext,
   Enum,
@@ -38,6 +26,18 @@ import {
   Operation,
   Type,
 } from "../core/types.js";
+import {
+  addVisibilityModifiers,
+  clearLegacyVisibility,
+  clearVisibilityModifiersForClass,
+  GeneratedVisibilityFilter,
+  getVisibility,
+  isVisible,
+  resetVisibilityModifiersForClass,
+  setDefaultModifierSetForVisibilityClass,
+  setLegacyVisibility,
+  VisibilityFilter,
+} from "../core/visibility/core.js";
 import {
   getLifecycleVisibilityEnum,
   normalizeVisibilityToLegacyLifecycleString,
@@ -310,7 +310,11 @@ export const $withVisibility: WithVisibilityDecorator = (
       if (legacyModifiers && legacyModifiers.length > 0) {
         clearLegacyVisibility(context.program, p);
       } else {
-        resetVisibilityModifiersForClass(context.program, p, getLifecycleVisibilityEnum(context.program)); 
+        resetVisibilityModifiersForClass(
+          context.program,
+          p,
+          getLifecycleVisibilityEnum(context.program),
+        );
       }
     }
   } else {
@@ -354,7 +358,7 @@ export const $withUpdateableProperties: WithUpdateablePropertiesDecorator = (
 export const $withVisibilityFilter: WithVisibilityFilterDecorator = (
   context: DecoratorContext,
   target: Model,
-  _filter: TypespecVisibilityFilter,
+  _filter: GeneratedVisibilityFilter,
 ) => {
   const filter = VisibilityFilter.fromDecoratorArgument(_filter);
 

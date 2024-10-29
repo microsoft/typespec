@@ -1,5 +1,5 @@
-import { getVisibilityForClass } from "../../../core/index.js";
 import type { Enum, EnumMember, ModelProperty, Scalar, Type } from "../../../core/types.js";
+import { getVisibilityForClass } from "../../../core/visibility/core.js";
 import { EncodeData, getEncode, getFormat } from "../../../lib/decorators.js";
 import { defineKit } from "../define-kit.js";
 

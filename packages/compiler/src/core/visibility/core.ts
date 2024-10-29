@@ -21,17 +21,17 @@
 
 import { compilerAssert } from "../diagnostics.js";
 import { reportDiagnostic } from "../messages.js";
-import { Program } from "../program.js";
-import { DecoratorContext, Enum, EnumMember, ModelProperty } from "../types.js";
+import type { Program } from "../program.js";
+import type { DecoratorContext, Enum, EnumMember, ModelProperty } from "../types.js";
 import {
   getLifecycleVisibilityEnum,
   normalizeLegacyLifecycleVisibilityString,
 } from "./lifecycle.js";
 
-import { VisibilityFilter as TypespecVisibilityFilter } from "../../../generated-defs/TypeSpec.js";
+import type { VisibilityFilter as GeneratedVisibilityFilter } from "../../../generated-defs/TypeSpec.js";
 import { useStateMap, useStateSet } from "../../lib/utils.js";
 
-export { TypespecVisibilityFilter }
+export { GeneratedVisibilityFilter };
 
 /**
  * A set of active visibility modifiers per visibility class.
@@ -546,7 +546,7 @@ export interface VisibilityFilter {
 }
 
 export const VisibilityFilter = {
-  fromDecoratorArgument(filter: TypespecVisibilityFilter): VisibilityFilter {
+  fromDecoratorArgument(filter: GeneratedVisibilityFilter): VisibilityFilter {
     return {
       all: filter.all && new Set(filter.all.map((v) => v.value)),
       any: filter.any && new Set(filter.any.map((v) => v.value)),
