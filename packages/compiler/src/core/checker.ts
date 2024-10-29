@@ -2912,7 +2912,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       let base = resolver.getNodeLinks(identifier.parent.base).resolvedSymbol;
       if (base) {
         if (base.flags & SymbolFlags.Alias) {
-          base = getAliasedSymbol(base, undefined, defaultSymbolResolutionOptions);
+          base = getAliasedSymbol(base, undefined);
         }
         if (base) {
           addCompletions(base.exports ?? base.members);
@@ -3102,7 +3102,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
       // when resolving a type reference based on an alias, unwrap the alias.
       if (base.flags & SymbolFlags.Alias) {
-        const aliasedSym = getAliasedSymbol(base, mapper, options);
+        const aliasedSym = getAliasedSymbol(base, mapper);
         if (!aliasedSym) {
           reportCheckerDiagnostic(
             createDiagnostic({
@@ -3222,37 +3222,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    * (i.e. they contain symbols we don't know until we've instantiated the type and the type is an
    * instantiation) we late bind the container which creates the symbol that will hold its members.
    */
-  function getAliasedSymbol(
-    aliasSymbol: Sym,
-    mapper: TypeMapper | undefined,
-    options: SymbolResolutionOptions,
-  ): Sym | undefined {
-    let current = aliasSymbol;
-    while (current.flags & SymbolFlags.Alias) {
-      const node = current.declarations[0];
-      const targetNode = node.kind === SyntaxKind.AliasStatement ? node.value : node;
-      if (
-        targetNode.kind === SyntaxKind.TypeReference ||
-        targetNode.kind === SyntaxKind.MemberExpression ||
-        targetNode.kind === SyntaxKind.Identifier
-      ) {
-        const sym = resolveTypeReferenceSymInternal(targetNode, mapper, options);
-        if (sym === undefined) {
-          return undefined;
-        }
-        current = sym;
-      } else {
-        return undefined;
-      }
-    }
-    const sym = current;
-    const node = aliasSymbol.declarations[0];
-
-    const resolvedTargetNode = sym.declarations[0];
-    if (!options.checkTemplateTypes || !isTemplatedNode(resolvedTargetNode)) {
-      return sym;
+  function getAliasedSymbol(aliasSymbol: Sym, mapper: TypeMapper | undefined): Sym | undefined {
+    const node = getSymNode(aliasSymbol);
+    const links = resolver.getSymbolLinks(aliasSymbol);
+    if (!links.aliasResolutionIsTemplate) {
+      return links.aliasedSymbol ?? resolver.getNodeLinks(node).resolvedSymbol;
     }
 
+    // Otherwise for templates we need to get the type and retrieve the late bound symbol.
     const aliasType = getTypeForNode(node as AliasStatementNode, mapper);
     if (isErrorType(aliasType)) {
       return undefined;

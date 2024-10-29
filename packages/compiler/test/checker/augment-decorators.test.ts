@@ -199,6 +199,13 @@ describe("augment types", () => {
         }`,
       "Foo.name",
     ));
+  it("property in alias of model expression", () =>
+    expectTarget(
+      `alias Foo = { 
+          @test("target") name: string
+        };`,
+      "Foo.name",
+    ));
   it("enum", () => expectTarget(`@test("target") enum Foo { a, b }`, "Foo"));
   it("enum member", () => expectTarget(`enum Foo { @test("target") a, b }`, "Foo.a"));
   it("union", () => expectTarget(`@test("target") union Foo { }`, "Foo"));
