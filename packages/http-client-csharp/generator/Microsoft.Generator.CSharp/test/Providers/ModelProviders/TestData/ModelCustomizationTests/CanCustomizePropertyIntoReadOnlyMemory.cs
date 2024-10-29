@@ -14,7 +14,6 @@ namespace Sample.Models
         /// <returns> A new <see cref="global::Sample.Models.MockInputModel"/> instance for mocking. </returns>
         public static global::Sample.Models.MockInputModel MockInputModel(global::System.ReadOnlyMemory<byte> prop1 = default)
         {
-            prop1 ??= new global::System.ReadOnlyMemory<byte>();
 
             return new global::Sample.Models.MockInputModel(prop1, null);
         }
