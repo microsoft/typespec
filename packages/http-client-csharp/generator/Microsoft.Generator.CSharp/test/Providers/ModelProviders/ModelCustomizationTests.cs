@@ -86,9 +86,18 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.AreEqual("Prop2", modelTypeProvider.CustomCodeView.Properties[0].Name);
             var wireInfo = modelTypeProvider.CustomCodeView.Properties[0].WireInfo;
             Assert.IsNotNull(wireInfo);
-            Assert.AreEqual( "prop1", wireInfo!.SerializedName);
+            Assert.AreEqual("prop1", wireInfo!.SerializedName);
             Assert.AreEqual("Prop1", modelTypeProvider.CustomCodeView.Properties[1].Name);
             Assert.IsNull(modelTypeProvider.CustomCodeView.Properties[1].WireInfo);
+
+            // validate canonical view
+            Assert.AreEqual(2, modelTypeProvider.CanonicalView!.Properties.Count);
+            Assert.AreEqual("Prop2", modelTypeProvider.CanonicalView.Properties[0].Name);
+            Assert.AreEqual("Prop1", modelTypeProvider.CanonicalView.Properties[1].Name);
+            wireInfo = modelTypeProvider.CanonicalView.Properties[0].WireInfo;
+            Assert.IsNotNull(wireInfo);
+            Assert.AreEqual("prop1", wireInfo!.SerializedName);
+            Assert.IsNull(modelTypeProvider.CanonicalView.Properties[1].WireInfo);
 
             Assert.AreEqual(0, modelTypeProvider.Properties.Count);
         }
@@ -740,6 +749,25 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
 
             // There should be no model factory as there are no constructible models
             Assert.IsEmpty(plugin.Object.OutputLibrary.TypeProviders.Where(t => t is ModelFactoryProvider));
+        }
+
+        [Test]
+        public async Task CanCustomizePropertyIntoReadOnlyMemory()
+        {
+            await MockHelpers.LoadMockPluginAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProp = InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.Int32));
+            var inputModel = InputFactory.Model("mockInputModel", properties: [modelProp], usage: InputModelTypeUsage.Json);
+
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelFactoryProvider = plugin.Object.OutputLibrary.TypeProviders.Single(t => t is ModelFactoryProvider);
+            Assert.IsNotNull(modelFactoryProvider);
+            var writer = new TypeProviderWriter(modelFactoryProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
     }
 }
