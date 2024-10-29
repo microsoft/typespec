@@ -60,7 +60,7 @@
 import { Mutable, mutate } from "../utils/misc.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { compilerAssert } from "./diagnostics.js";
-import { inspectSymbol } from "./inspector.js";
+import { typeReferenceToString } from "./inspector/node.js";
 import { createDiagnostic } from "./messages.js";
 import { visitChildren } from "./parser.js";
 import { Program } from "./program.js";
@@ -388,7 +388,7 @@ export function createResolver(program: Program): NameResolver {
       return resolveMetaMember(baseSym, node.id);
     }
 
-    throw new Error("NYI rme " + inspectSymbol(baseSym));
+    compilerAssert(false, `Unexpected member expression`, node);
   }
 
   function resolveMember(baseSym: Sym, id: IdentifierNode): ResolutionResult {
@@ -1076,7 +1076,7 @@ export function createResolver(program: Program): NameResolver {
         program.reportDiagnostic(
           createDiagnostic({
             code: "duplicate-using",
-            format: { usingName: memberExpressionToString(using.name) },
+            format: { usingName: typeReferenceToString(using.name) },
             target: using,
           }),
         );
@@ -1100,20 +1100,6 @@ export function createResolver(program: Program): NameResolver {
 
       augmented.set(sym.name, sym);
     }
-  }
-
-  function memberExpressionToString(expr: IdentifierNode | MemberExpressionNode) {
-    let current = expr;
-    const parts = [];
-
-    while (current.kind === SyntaxKind.MemberExpression) {
-      parts.push(current.id.sv);
-      current = current.base;
-    }
-
-    parts.push(current.sv);
-
-    return parts.reverse().join(".");
   }
 
   function createGlobalNamespaceNode() {

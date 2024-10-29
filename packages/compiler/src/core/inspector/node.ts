@@ -1,9 +1,16 @@
 import { relative } from "path/posix";
 import pc from "picocolors";
 import { getSourceLocation } from "../diagnostics.js";
-import { Sym, SymbolFlags, SyntaxKind, type Node } from "../types.js";
+import {
+  IdentifierNode,
+  MemberExpressionNode,
+  SyntaxKind,
+  TypeReferenceNode,
+  type Node,
+} from "../types.js";
 
-export function printNodeInfo(node: Node): string {
+/** @internal */
+export function inspectNode(node: Node): string {
   const loc = getSourceLocation(node);
   const pos = loc.file.getLineAndCharacterOfPosition(loc.pos);
   const kind = pc.yellow(`[${SyntaxKind[node.kind]}]`);
@@ -13,7 +20,9 @@ export function printNodeInfo(node: Node): string {
   return `${kind} ${printNodeInfoInternal(node)} ${locString}`;
 }
 
-function printNodeInfoInternal(node: Node): string {
+export function typeReferenceToString(
+  node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
+) {
   switch (node.kind) {
     case SyntaxKind.MemberExpression:
       return `${printNodeInfoInternal(node.base)}${node.selector}${printNodeInfoInternal(node.id)}`;
@@ -21,6 +30,14 @@ function printNodeInfoInternal(node: Node): string {
       return printNodeInfoInternal(node.target);
     case SyntaxKind.Identifier:
       return node.sv;
+  }
+}
+function printNodeInfoInternal(node: Node): string {
+  switch (node.kind) {
+    case SyntaxKind.MemberExpression:
+    case SyntaxKind.TypeReference:
+    case SyntaxKind.Identifier:
+      return typeReferenceToString(node);
     case SyntaxKind.DecoratorExpression:
       return `@${printNodeInfoInternal(node.target)}`;
     case SyntaxKind.JsNamespaceDeclaration:
@@ -35,34 +52,4 @@ function printNodeInfoInternal(node: Node): string {
     default:
       return "";
   }
-}
-
-const flagsNames = [
-  [SymbolFlags.Model, "Model"],
-  [SymbolFlags.Scalar, "Scalar"],
-  [SymbolFlags.Operation, "Operation"],
-  [SymbolFlags.Enum, "Enum"],
-  [SymbolFlags.Interface, "Interface"],
-  [SymbolFlags.Union, "Union"],
-  [SymbolFlags.Alias, "Alias"],
-  [SymbolFlags.Namespace, "Namespace"],
-  [SymbolFlags.Projection, "Projection"],
-  [SymbolFlags.Decorator, "Decorator"],
-  [SymbolFlags.TemplateParameter, "TemplateParameter"],
-  [SymbolFlags.ProjectionParameter, "ProjectionParameter"],
-  [SymbolFlags.Function, "Function"],
-  [SymbolFlags.FunctionParameter, "FunctionParameter"],
-  [SymbolFlags.Using, "Using"],
-  [SymbolFlags.DuplicateUsing, "DuplicateUsing"],
-  [SymbolFlags.SourceFile, "SourceFile"],
-  [SymbolFlags.Member, "Member"],
-  [SymbolFlags.Const, "Const"],
-] as const;
-
-export function printSymbolFlags(sym: Sym) {
-  const flags: string[] = [];
-  for (const [flag, name] of flagsNames) {
-    if (sym.flags & flag) flags.push(name);
-  }
-  return flags.join(", ");
 }

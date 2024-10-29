@@ -1,7 +1,7 @@
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { Binder, createBinder } from "../src/core/binder.js";
-import { inspectSymbolFlags } from "../src/core/inspector.js";
+import { inspectSymbolFlags } from "../src/core/inspector/symbol.js";
 import { createLogger } from "../src/core/logger/logger.js";
 import { createTracer } from "../src/core/logger/tracer.js";
 import { createResolver, NameResolver } from "../src/core/name-resolver.js";
