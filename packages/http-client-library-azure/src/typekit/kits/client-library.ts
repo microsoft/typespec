@@ -3,60 +3,31 @@ import {
   createTCGCContext,
   getClientNameOverride,
 } from "@azure-tools/typespec-client-generator-core";
-import { Enum, listServices, Model, Namespace } from "@typespec/compiler";
+import {  listServices, Namespace } from "@typespec/compiler";
 import { $, defineKit } from "@typespec/compiler/typekit";
-import { Client } from "./client.js";
+import { Client } from "@typespec/http-client-library";
 
-interface ClientLibraryKit {
-  clientLibrary: {
-    /**
-     * Get the top-level namespaces that are used to generate the client library.
-     *
-     */
-    listNamespaces(): Namespace[];
 
-    /**
-     * Get the namespaces below a given namespace that are used to generate the client library.
-     
-     * @param namespace namespace to get the children of
-     */
-    listSubNamespaces(namespace: Namespace): Namespace[];
-
+interface AzureClientLibraryKit {
     /**
      * List all of the clients in a given namespace.
      *
      * @param namespace namespace to get the clients of
      */
     listClients(namespace: Namespace): Client[];
+}
 
-    /**
-     * List all of the models in a given namespace.
-     *
-     * @param namespace namespace to get the models of
-     */
-    listModels(namespace: Namespace): Model[];
-
-    /**
-     * List all of the enums in a given namespace.
-     *
-     * @param namespace namespace to get the enums of
-     */
-    listEnums(namespace: Namespace): Enum[];
-  };
+interface Typekit {
+  clientLibrary: AzureClientLibraryKit;
 }
 
 declare module "@typespec/compiler/typekit" {
-  interface TypekitPrototype extends ClientLibraryKit {}
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  interface ClientLibraryKit extends AzureClientLibraryKit {}
 }
 
-defineKit<ClientLibraryKit>({
+defineKit<Typekit>({
   clientLibrary: {
-    listNamespaces() {
-      return [...$.program.checker.getGlobalNamespaceType().namespaces.values()];
-    },
-    listSubNamespaces(namespace) {
-      return [...namespace.namespaces.values()];
-    },
     listClients(namespace) {
       const context = createTCGCContext($.program, "python");
       const explicitClients = [...context.program.stateMap(createStateSymbol("client")).values()];
@@ -86,12 +57,6 @@ defineKit<ClientLibraryKit>({
         });
 
       return clients;
-    },
-    listModels(namespace) {
-      return [...namespace.models.values()];
-    },
-    listEnums(namespace) {
-      return [...namespace.enums.values()];
     },
   },
 });

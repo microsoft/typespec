@@ -1,23 +1,13 @@
 import {
   createStateSymbol,
   createTCGCContext,
-  getClientInitialization as tcgcGetClientInitialization,
-  getClientNameOverride,
   SdkClient,
 } from "@azure-tools/typespec-client-generator-core";
-import { Enum, Interface, listServices, Model, Namespace, Operation } from "@typespec/compiler";
+import { Model } from "@typespec/compiler";
 import { $, defineKit } from "@typespec/compiler/typekit";
-import { getServers } from "@typespec/http";
+import { addEndpointParameter, Client } from "@typespec/http-client-library"
 
-export interface Client {
-  kind: "Client";
-  name: string;
-  type: Namespace | Interface;
-  service: Namespace;
-}
-
-interface ClientKit {
-  client: {
+interface SdkClientKit {
     /**
      * Return the model that should be used to initialize the client.
      *
@@ -26,26 +16,23 @@ interface ClientKit {
     getInitializationModel(client: Client): Model;
 
     /**
-     * Return the methods on the client
-     *
-     * @param client the client to get the methods for
-     */
-    listServiceOperations(client: Client): Operation[];
-
-    /**
      * List getters for subclients
      *
      * @param client the client to get the subclients for
      */
     listSubClientAccessors(client: Client): SdkClient[];
-  };
+}
+
+interface TypeKit {
+  client: SdkClientKit;
 }
 
 declare module "@typespec/compiler/typekit" {
-  interface TypekitPrototype extends ClientKit {}
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  interface ClientKit extends SdkClientKit {}
 }
 
-defineKit<ClientKit>({
+defineKit<TypeKit>({
   client: {
     getInitializationModel(client) {
       const context = createTCGCContext($.program, "typescript");
@@ -60,29 +47,10 @@ defineKit<ClientKit>({
       // addCredentialParameter(client, base);
       return base;
     },
-    listServiceOperations(client) {
-      return [];
-    },
     listSubClientAccessors(client) {
+      // TODO: Remove, added to avoid eslint error
+      console.log(client.name);
       return [];
     },
   },
 });
-
-function addEndpointParameter(client: Client, base: Model): undefined {
-  const servers = getServers($.program, client.service);
-  if (servers === undefined) {
-    const name = "endpoint";
-    base.properties.set(
-      name,
-      $.modelProperty.create({
-        name,
-        type: $.program.checker.getStdType("string"),
-        optional: false,
-      }),
-    );
-  } else {
-    for (const server of servers) {
-    }
-  }
-}
