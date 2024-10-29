@@ -5,22 +5,22 @@ import {
 } from "@azure-tools/typespec-client-generator-core";
 import { Model } from "@typespec/compiler";
 import { $, defineKit } from "@typespec/compiler/typekit";
-import { addEndpointParameter, Client } from "@typespec/http-client-library"
+import { addEndpointParameter, Client } from "@typespec/http-client-library";
 
 interface SdkClientKit {
-    /**
-     * Return the model that should be used to initialize the client.
-     *
-     * @param client the client to get the initialization model for
-     */
-    getInitializationModel(client: Client): Model;
+  /**
+   * Return the model that should be used to initialize the client.
+   *
+   * @param client the client to get the initialization model for
+   */
+  getInitializationModel(client: Client): Model;
 
-    /**
-     * List getters for subclients
-     *
-     * @param client the client to get the subclients for
-     */
-    listSubClientAccessors(client: Client): SdkClient[];
+  /**
+   * List getters for subclients
+   *
+   * @param client the client to get the subclients for
+   */
+  listSubClientAccessors(client: Client): SdkClient[];
 }
 
 interface TypeKit {

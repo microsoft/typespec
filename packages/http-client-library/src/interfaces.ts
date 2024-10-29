@@ -1,4 +1,4 @@
-import { Namespace, Interface } from "@typespec/compiler";
+import { Interface, Namespace } from "@typespec/compiler";
 
 export interface Client {
   kind: "Client";

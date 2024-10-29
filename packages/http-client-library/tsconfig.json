@@ -1,17 +1,10 @@
 {
+  "extends": "../../tsconfig.base.json",
+  "references": [{ "path": "../compiler/tsconfig.json" }],
   "compilerOptions": {
-    "target": "ES2022",
-    "useDefineForClassFields": true,
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "lib": ["ES2022"],
-    "rootDir": ".",
     "outDir": "dist",
-    "sourceMap": true,
-    "declaration": true,
-
-    /* Linting */
-    "strict": true
+    "rootDir": ".",
+    "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo"
   },
-  "include": ["src", "test"]
+  "include": ["src/**/*.ts", "generated-defs/**/*.ts", "test/**/*.ts"]
 }

@@ -3,18 +3,17 @@ import {
   createTCGCContext,
   getClientNameOverride,
 } from "@azure-tools/typespec-client-generator-core";
-import {  listServices, Namespace } from "@typespec/compiler";
+import { listServices, Namespace } from "@typespec/compiler";
 import { $, defineKit } from "@typespec/compiler/typekit";
 import { Client } from "@typespec/http-client-library";
 
-
 interface AzureClientLibraryKit {
-    /**
-     * List all of the clients in a given namespace.
-     *
-     * @param namespace namespace to get the clients of
-     */
-    listClients(namespace: Namespace): Client[];
+  /**
+   * List all of the clients in a given namespace.
+   *
+   * @param namespace namespace to get the clients of
+   */
+  listClients(namespace: Namespace): Client[];
 }
 
 interface Typekit {

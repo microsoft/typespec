@@ -1,17 +1,16 @@
 import { createTestHost, createTestWrapper } from "@typespec/compiler/testing";
-import { TypespecHttpClientLibraryTestLibrary } from "../src/testing/index.js";
+import { HttpTestLibrary } from "@typespec/http/testing";
 
-export async function createTypespecX2FHttpClientLibraryTestHost() {
+export async function createTypespecHttpClientLibraryTestHost() {
   return createTestHost({
-    libraries: [TypespecHttpClientLibraryTestLibrary],
+    libraries: [HttpTestLibrary],
   });
 }
 
-export async function createTypespecX2FHttpClientLibraryTestRunner() {
-  const host = await createTypespecX2FHttpClientLibraryTestHost();
+export async function createTypespecHttpClientLibraryTestRunner() {
+  const host = await createTypespecHttpClientLibraryTestHost();
 
   return createTestWrapper(host, {
-    autoUsings: ["TypespecX2FHttpClientLibrary"]
+    autoUsings: ["TypeSpec.Http"],
   });
 }
-

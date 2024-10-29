@@ -85,6 +85,7 @@ defineKit<SdkKit>({
           return property;
         }
       }
+      return undefined;
     },
     getDiscriminatorValue(model) {
       const disc = this.model.getDiscriminatorProperty(model);

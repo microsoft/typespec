@@ -127,7 +127,7 @@ interface BuiltinKit {
      * Accessor for the numeric builtin type, representing a numeric value.
      */
     get numeric(): Scalar;
-  }
+  };
 }
 
 declare module "../define-kit.js" {
@@ -210,6 +210,6 @@ defineKit<BuiltinKit>({
     },
     get numeric(): Scalar {
       return $.program.checker.getStdType("numeric");
-    }
-  }
+    },
+  },
 });
