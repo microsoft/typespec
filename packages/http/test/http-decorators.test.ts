@@ -670,6 +670,7 @@ describe("http: decorators", () => {
       const servers = getServers(runner.program, MyService);
       deepStrictEqual(servers, [
         {
+          description: undefined,
           parameters: new Map(),
           url: "https://example.com",
         },
