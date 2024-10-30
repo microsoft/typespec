@@ -6,29 +6,22 @@ import pc from "picocolors";
 import { computeScenarioManifest } from "../coverage/scenario-manifest.js";
 import { logger } from "../logger.js";
 
-export interface ScenarioManifest {
-  scenarioPath: string;
-  mode: string;
-}
-
 export interface UploadScenarioManifestConfig {
-  scenarioManifests: ScenarioManifest[];
+  scenariosPaths: string[];
   storageAccountName: string;
+  emitterName: string;
 }
 
 export async function uploadScenarioManifest({
-  scenarioManifests,
+  scenariosPaths,
   storageAccountName,
+  emitterName,
 }: UploadScenarioManifestConfig) {
-  for (const scenarioManifest of scenarioManifests) {
-    scenarioManifest.scenarioPath = resolve(process.cwd(), scenarioManifest.scenarioPath);
-  }
-
   const manifests = [];
-  for (const scenarioManifest of scenarioManifests) {
-    const path = resolve(process.cwd(), scenarioManifest.scenarioPath);
+  for (const scenariosPath of scenariosPaths) {
+    const path = resolve(process.cwd(), scenariosPath);
     logger.info(`Computing scenario manifest for ${path}`);
-    const [manifest, diagnostics] = await computeScenarioManifest(path, scenarioManifest.mode);
+    const [manifest, diagnostics] = await computeScenarioManifest(path, emitterName);
     if (manifest === undefined || diagnostics.length > 0) {
       process.exit(-1);
     }

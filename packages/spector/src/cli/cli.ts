@@ -287,10 +287,9 @@ async function main() {
             array: true,
             demandOption: true,
           })
-          .option("modes", {
+          .option("emitterName", {
             type: "string",
-            description: "Comma-separated list of modes corresponding to each scenario path",
-            array: true,
+            description: "Emitter used to generate the manifest.",
             demandOption: true,
           })
           .option("storageAccountName", {
@@ -300,17 +299,10 @@ async function main() {
           .demandOption("storageAccountName");
       },
       async (args) => {
-        if (args.scenariosPaths.length !== args.modes.length) {
-          throw new Error("Number of scenarios paths and modes should be equal.");
-        }
-        const scenarios = args.scenariosPaths.map((scenarioPath, index) => ({
-          scenarioPath,
-          mode: args.modes[index], // Match each path with the corresponding mode
-        }));
-
         await uploadScenarioManifest({
-          scenarioManifests: scenarios,
+          scenariosPaths: args.scenariosPaths,
           storageAccountName: args.storageAccountName,
+          emitterName: args.emitterName,
         });
       },
     )
