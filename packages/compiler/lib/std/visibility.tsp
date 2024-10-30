@@ -246,7 +246,7 @@ extern dec withVisibilityFilter(target: Model, filter: valueof VisibilityFilter)
 extern dec withLifecycleUpdate(target: Model);
 
 /**
- * Makes a copy of the model `T` with only the properties that are visible during the
+ * A copy of the input model `T` with only the properties that are visible during the
  * "Create" resource lifecycle phase.
  *
  * This transformation is recursive, and will include only properties that have the
@@ -277,7 +277,7 @@ model Create<T extends Reflection.Model, NameTemplate extends valueof string = "
 }
 
 /**
- * Makes a copy of the model `T` with only the properties that are visible during the
+ * A copy of the input model `T` with only the properties that are visible during the
  * "Read" resource lifecycle phase.
  *
  * This transformation is recursive, and will include only properties that have the
@@ -308,7 +308,7 @@ model Read<T extends Reflection.Model, NameTemplate extends valueof string = "Re
 }
 
 /**
- * Makes a copy of the model `T` with only the properties that are visible during the
+ * A copy of the input model `T` with only the properties that are visible during the
  * "Update" resource lifecycle phase.
  *
  * This transformation will include only the properties that have the `Lifecycle.Update`
@@ -340,7 +340,7 @@ model Update<T extends Reflection.Model, NameTemplate extends valueof string = "
 }
 
 /**
- * Makes a copy of the model `T` with only the properties that are visible during the
+ * A copy of the input model `T` with only the properties that are visible during the
  * "Create" or "Update" resource lifecycle phases.
  *
  * This transformation is recursive, and will include only properties that have the
