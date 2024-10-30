@@ -2551,25 +2551,13 @@ export class CodeModelBuilder {
 
   private _subscriptionParameter?: Parameter;
 
-
-
   private postProcessSchemaUsage(): void {
     const innerProcessUsage = (schema: Schema) => {
       const usages = (schema as SchemaUsage).usage;
-      // if (usages && usages.includes(SchemaContext.Public) && usages.includes(SchemaContext.Internal)) { // TODO haoling: add check to apply only to json-merge-patch and multipart
-      //   // remove internal
-      //   if (usages.includes(SchemaContext.JsonMergePatch) || schema.serializationFormats?.includes(KnownMediaType.Multipart)) {
-      //     usages.splice(usages.indexOf(SchemaContext.Internal), 1);
-      //   }
-      // }
-      if (usages && usages.includes(SchemaContext.Public) && usages.includes(SchemaContext.Internal)) { // TODO haoling: add check to apply only to json-merge-patch and multipart
-        // remove internal
-          usages.splice(usages.indexOf(SchemaContext.Internal), 1);
+      if (usages && usages.includes(SchemaContext.Public) && usages.includes(SchemaContext.Internal)) { 
+        // If access contains both public and internal,  remove internal
+        usages.splice(usages.indexOf(SchemaContext.Internal), 1);
       }
-      // if (usages && usages.includes(SchemaContext.None)) {
-      //   // no usage
-      //   (schema as SchemaUsage).usage = [];
-      // }
     };
     this.codeModel.schemas.choices?.forEach(innerProcessUsage);
     this.codeModel.schemas.objects?.forEach(innerProcessUsage);
