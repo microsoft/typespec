@@ -1,10 +1,14 @@
+import {
+  createStateSymbol,
+  createTCGCContext,
+  getClientNameOverride,
+} from "@azure-tools/typespec-client-generator-core";
 import { Enum, listServices, Model, Namespace } from "@typespec/compiler";
 import { $, defineKit } from "@typespec/compiler/typekit";
-import { Client } from "../../interfaces.js";
-
-$.clientLibrary.emitsLanguage("typescript");
+import { Client } from "./client.js";
 
 interface ClientLibraryKit {
+  clientLibrary: {
     /**
      * Get the top-level namespaces that are used to generate the client library.
      *
@@ -38,18 +42,14 @@ interface ClientLibraryKit {
      * @param namespace namespace to get the enums of
      */
     listEnums(namespace: Namespace): Enum[];
-}
-
-interface Typekit {
-  clientLibrary: ClientLibraryKit;
+  };
 }
 
 declare module "@typespec/compiler/typekit" {
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  interface TypekitPrototype extends Typekit {}
+  interface TypekitPrototype extends ClientLibraryKit {}
 }
 
-defineKit<Typekit>({
+defineKit<ClientLibraryKit>({
   clientLibrary: {
     listNamespaces() {
       return [...$.program.checker.getGlobalNamespaceType().namespaces.values()];
@@ -58,19 +58,32 @@ defineKit<Typekit>({
       return [...namespace.namespaces.values()];
     },
     listClients(namespace) {
+      const context = createTCGCContext($.program, "python");
+      const explicitClients = [...context.program.stateMap(createStateSymbol("client")).values()];
+      if (explicitClients.length > 0) {
+        return explicitClients.filter((x) => x.type.namespace === namespace);
+      }
       // if there is no explicit client, we will treat namespaces with service decorator as clients
-      const services = listServices(this.program);
+      const services = listServices(context.program);
+
       const clients: Client[] = services
-      .filter((x) => x.type === namespace)
-      .map((service) => {
-        const clientName = this.client.getName(service.type);
-        return {
-          kind: "Client",
-          name: clientName,
-          service: service.type,
-          type: service.type,
-        };
-      });
+        .filter((x) => x.type === namespace)
+        .map((service) => {
+          let originalName = service.type.name;
+          const clientNameOverride = getClientNameOverride(context, service.type);
+          if (clientNameOverride) {
+            originalName = clientNameOverride;
+          }
+          const clientName = originalName.endsWith("Client")
+            ? originalName
+            : `${originalName}Client`;
+          return {
+            kind: "Client",
+            name: clientName,
+            service: service.type,
+            type: service.type,
+          };
+        });
 
       return clients;
     },

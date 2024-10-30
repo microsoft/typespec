@@ -1,11 +1,12 @@
 import {  Model, Namespace, Operation } from "@typespec/compiler";
 import { $, defineKit } from "@typespec/compiler/typekit";
-import { addCredentialParameter, addEndpointParameter } from "../../utils/client-initialization.js";
+import { addEndpointParameter } from "../../utils/client-initialization.js";
 import { Client } from "../../interfaces.js";
 
 
-interface ClientKit {
-    getName(client: Namespace): string;
+interface OperationKit {
+
+    getAccess(operation: Operation): void;
     /**
      * Return the model that should be used to initialize the client.
      *
@@ -22,7 +23,7 @@ interface ClientKit {
 }
 
 interface TypeKit {
-  client: ClientKit;
+  client: OperationKit;
 }
 
 declare module "@typespec/compiler/typekit" {
@@ -33,6 +34,7 @@ declare module "@typespec/compiler/typekit" {
 defineKit<TypeKit>({
   client: {
     getName(client) {
+      const operation: Operation;
       const name = client.name;
       return name.endsWith("Client")
           ? name

@@ -1,6 +1,7 @@
 import { BaseType, ModelProperty } from "@typespec/compiler";
-import { defineKit } from "@typespec/compiler/typekit";
-import { HttpAuth } from "@typespec/http";
+import { defineKit, $ } from "@typespec/compiler/typekit";
+import { getAuthentication, HttpAuth } from "@typespec/http";
+import { Client } from "../../interfaces.js";
 
 export interface SdkCredential extends BaseType {
   kind: "Credential";
@@ -13,14 +14,21 @@ export interface SdkModelPropertyKit {
    *
    * @param type whether it's an endpoint parameter or not
    */
-  isEndpoint(type: ModelProperty): boolean;
+  isEndpoint(client: Client, type: ModelProperty): boolean;
 
   /**
-   * Returns whehter it's a credential parameter or not.
-   *
-   * @param type: model property we are checking to see if is a credential parameter
+   * Get credential information from the model property. Returns undefined if the credential parameter 
    */
-  isCredential(type: ModelProperty): boolean;
+  getCredentialAuth(client: Client, type: ModelProperty): HttpAuth[] | undefined;
+
+  /**
+   * Returns whether the property is a discriminator on the model it's on.
+   */
+  isDiscriminator(type: ModelProperty): boolean;
+
+  /**
+   * Returns multipart information if it is 
+   */
 }
 
 interface TypeKit {
@@ -34,11 +42,20 @@ declare module "@typespec/compiler/typekit" {
 
 defineKit<TypeKit>({
   modelProperty: {
-    isEndpoint(type) {
-      return type.name === "endpoint";
+    isEndpoint(client, type) {
+      const model = $.client.getInitializationModel(client);
+      return type.name === "endpoint" && Boolean($.model.listProperties(model).find((p) => p === type));
     },
-    isCredential(type) {
-      return type.name === "credential";
+    getCredentialAuth(client, type) {
+      const isCredential = $.model.listProperties($.client.getInitializationModel(client)).find((p) => p.name === "credential" && p === type);
+      if (!isCredential) return undefined;
+      return getAuthentication($.program, client.service)?.options.flatMap(o => o.schemes);
     },
+    isDiscriminator(type) {
+      const sourceModel = type.model;
+      if (!sourceModel) return false;
+      const disc = $.model.getDiscriminatorProperty(sourceModel);
+      return disc === type;
+    }
   },
 });
