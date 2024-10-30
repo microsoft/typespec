@@ -36,7 +36,7 @@ it("emit diagnostic if dup tagName", async () => {
   });
 });
 
-describe("emit diagnostics when passing extension key not starting with `x-` in additionalInfo", () => {
+describe("emit diagnostics when passing extension key not starting with `x-` in metadata", () => {
   it.each([
     ["root", `{ foo:"Bar" }`],
     ["externalDocs", `{ externalDocs:{ url: "https://example.com", foo:"Bar"} }`],
@@ -109,20 +109,20 @@ it("emit diagnostic if use on non namespace", async () => {
   });
 });
 
-describe("getTagsMetadata return value", () => {
+describe("getTagsMetadata returns", () => {
   const testCases: [string, string, any][] = [
     [
-      "tagMetadata without additionalInfo",
+      "set tagMetadata without additionalInfo",
       `@tagMetadata("tagName")`,
       { tagName: { name: "tagName" } },
     ],
     [
-      "tagMetadata without externalDocs",
+      "set tagMetadata without externalDocs",
       `@tagMetadata("tagName",{description: "Pets operations"})`,
       { tagName: { name: "tagName", description: "Pets operations" } },
     ],
     [
-      "multiple tagsMetadata",
+      "set multiple tagsMetadata",
       `@tagMetadata(
           "tagName1",
           {
@@ -179,38 +179,10 @@ describe("getTagsMetadata return value", () => {
   });
 });
 
-describe("set value with @tagMetadata decorator", () => {
+describe("emit results when set value with @tagMetadata decorator", () => {
   const testCases: [string, string, string, any][] = [
     [
-      "additional information",
-      `@tagMetadata(
-        "TagName",
-        {
-          description: "Pets operations",
-          externalDocs: {
-            url: "https://example.com",
-            description: "More info.",
-            "x-custom": "string"
-          },
-          "x-custom": "string"
-        }
-      )`,
-      `@tag("TagName") op NamespaceOperation(): string;`,
-      [
-        {
-          name: "TagName",
-          description: "Pets operations",
-          externalDocs: {
-            description: "More info.",
-            url: "https://example.com",
-            "x-custom": "string",
-          },
-          "x-custom": "string",
-        },
-      ],
-    ],
-    [
-      "only tag metadata",
+      "set tag metadata",
       `@tagMetadata(
       "TagName",
         {
@@ -238,7 +210,35 @@ describe("set value with @tagMetadata decorator", () => {
       ],
     ],
     [
-      "tag and tag metadata with different name",
+      "add additional information for tag",
+      `@tagMetadata(
+        "TagName",
+        {
+          description: "Pets operations",
+          externalDocs: {
+            url: "https://example.com",
+            description: "More info.",
+            "x-custom": "string"
+          },
+          "x-custom": "string"
+        }
+      )`,
+      `@tag("TagName") op NamespaceOperation(): string;`,
+      [
+        {
+          name: "TagName",
+          description: "Pets operations",
+          externalDocs: {
+            description: "More info.",
+            url: "https://example.com",
+            "x-custom": "string",
+          },
+          "x-custom": "string",
+        },
+      ],
+    ],
+    [
+      "set tag and tag metadata with different name",
       `@tagMetadata(
         "TagName",
         {
@@ -254,34 +254,6 @@ describe("set value with @tagMetadata decorator", () => {
       `@tag("opTag") op NamespaceOperation(): string;`,
       [
         { name: "opTag" },
-        {
-          name: "TagName",
-          description: "Pets operations",
-          externalDocs: {
-            description: "More info.",
-            url: "https://example.com",
-            "x-custom": "string",
-          },
-          "x-custom": "string",
-        },
-      ],
-    ],
-    [
-      "tag and tag metadata with same name",
-      `@tagMetadata(
-        "TagName",
-        {
-          description: "Pets operations",
-          externalDocs: {
-            url: "https://example.com",
-            description: "More info.",
-            "x-custom": "string"
-          },
-          "x-custom": "string"
-        }
-      )`,
-      `@tag("TagName") op NamespaceOperation(): string;`,
-      [
         {
           name: "TagName",
           description: "Pets operations",
