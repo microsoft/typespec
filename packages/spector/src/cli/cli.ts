@@ -287,6 +287,12 @@ async function main() {
             array: true,
             demandOption: true,
           })
+          .option("modes", {
+            type: "string",
+            description: "Comma-separated list of modes corresponding to each scenario path",
+            array: true,
+            demandOption: true,
+          })
           .option("storageAccountName", {
             type: "string",
             description: "Name of the storage account",
@@ -294,13 +300,18 @@ async function main() {
           .demandOption("storageAccountName");
       },
       async (args) => {
-        for (const scenariosPath of args.scenariosPaths) {
-          logger.info(`Uploading scenario manifest for scenarios at ${scenariosPath}`);
-          await uploadScenarioManifest({
-            scenariosPath: resolve(process.cwd(), scenariosPath),
-            storageAccountName: args.storageAccountName,
-          });
+        if (args.scenariosPaths.length !== args.modes.length) {
+          throw new Error("Number of scenarios paths and modes should be equal.");
         }
+        const scenarios = args.scenariosPaths.map((scenarioPath, index) => ({
+          scenarioPath,
+          mode: args.modes[index], // Match each path with the corresponding mode
+        }));
+
+        await uploadScenarioManifest({
+          scenarioManifests: scenarios,
+          storageAccountName: args.storageAccountName,
+        });
       },
     )
     .command(

@@ -129,6 +129,7 @@ lib-cov
 coverage
 !packages/spector/src/coverage
 spec-coverage.json
+manifest.json
 
 # nyc test coverage
 .nyc_output
