@@ -85,7 +85,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 // Use a custom constructor if the generated full constructor was suppressed or customized
                 if (!modelProvider.Constructors.Contains(fullConstructor))
                 {
-                    foreach (var constructor in modelProvider.CanonicalView.Constructors ?? [])
+                    foreach (var constructor in modelProvider.CanonicalView.Constructors)
                     {
                         var customCtorParamCount = constructor.Signature.Parameters.Count;
                         var fullCtorParamCount = fullConstructor.Signature.Parameters.Count;
