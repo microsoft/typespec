@@ -11,7 +11,11 @@ describe("noInterfaceRule", () => {
 
   beforeEach(async () => {
     const runner = await createTestRunner();
-    ruleTester = createLinterRuleTester(runner, noInterfaceRule, "@typespec/http-client-library-azure");
+    ruleTester = createLinterRuleTester(
+      runner,
+      noInterfaceRule,
+      "@typespec/http-client-library-azure",
+    );
   });
 
   describe("models", () => {

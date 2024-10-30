@@ -29,7 +29,8 @@
     "@typespec/library-linter": "workspace:*",
     "eslint": "^8.45.0",
     "prettier": "^3.0.3",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vitest": "^2.0.3"
   },
   "scripts": {
     "build": "tsc && npm run build:tsp",

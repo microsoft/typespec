@@ -1,24 +1,23 @@
-import {  Model, Namespace, Operation } from "@typespec/compiler";
+import { Model, Namespace, Operation } from "@typespec/compiler";
 import { $, defineKit } from "@typespec/compiler/typekit";
 import { addCredentialParameter, addEndpointParameter } from "../../utils/client-initialization.js";
 import { Client } from "../../interfaces.js";
 
-
 interface ClientKit {
-    getName(client: Namespace): string;
-    /**
-     * Return the model that should be used to initialize the client.
-     *
-     * @param client the client to get the initialization model for
-     */
-    getInitializationModel(client: Client): Model;
+  getName(client: Namespace): string;
+  /**
+   * Return the model that should be used to initialize the client.
+   *
+   * @param client the client to get the initialization model for
+   */
+  getInitializationModel(client: Client): Model;
 
-    /**
-     * Return the methods on the client
-     *
-     * @param client the client to get the methods for
-     */
-    listServiceOperations(client: Client): Operation[];
+  /**
+   * Return the methods on the client
+   *
+   * @param client the client to get the methods for
+   */
+  listServiceOperations(client: Client): Operation[];
 }
 
 interface TypeKit {
@@ -34,16 +33,13 @@ defineKit<TypeKit>({
   client: {
     getName(client) {
       const name = client.name;
-      return name.endsWith("Client")
-          ? name
-          : `${name}Client`;
+      return name.endsWith("Client") ? name : `${name}Client`;
     },
     getInitializationModel(client) {
-      const base =
-        $.model.create({
-          name: "ClientInitializationOptions",
-          properties: {},
-        });
+      const base = $.model.create({
+        name: "ClientInitializationOptions",
+        properties: {},
+      });
       addEndpointParameter(client, base);
       addCredentialParameter(client, base);
       return base;

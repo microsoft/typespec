@@ -663,7 +663,7 @@ importers:
         version: 0.15.4(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)(@typespec/versioning@0.60.0(@typespec/compiler@packages+compiler))
       '@azure-tools/cadl-ranch-specs':
         specifier: 0.37.2
-        version: 0.37.2(@azure-tools/cadl-ranch-expect@0.15.4(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)(@typespec/versioning@0.60.0(@typespec/compiler@packages+compiler)))(@azure-tools/typespec-azure-core@0.47.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest))(@types/express@4.17.21)(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)(@typespec/versioning@0.60.0(@typespec/compiler@packages+compiler))(@typespec/xml@0.60.0(@typespec/compiler@packages+compiler))
+        version: 0.37.2(@azure-tools/cadl-ranch-expect@0.15.4(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)(@typespec/versioning@0.60.0(@typespec/compiler@packages+compiler)))(@azure-tools/typespec-azure-core@0.46.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest))(@types/express@4.17.21)(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)(@typespec/versioning@0.60.0(@typespec/compiler@packages+compiler))(@typespec/xml@0.60.0(@typespec/compiler@packages+compiler))
       '@babel/cli':
         specifier: ^7.24.8
         version: 7.24.8(@babel/core@7.25.2)
@@ -716,12 +716,15 @@ importers:
       typescript:
         specifier: ^5.3.3
         version: 5.6.2
+      vitest:
+        specifier: ^2.0.3
+        version: 2.1.1(@types/node@22.8.4)(@vitest/ui@2.1.1)(happy-dom@15.7.4)(jsdom@19.0.0)(terser@5.30.0)
 
   packages/http-client-library-azure:
     dependencies:
       '@azure-tools/typespec-client-generator-core':
         specifier: ^0.47.3
-        version: 0.47.3(@azure-tools/typespec-azure-core@0.47.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@0.60.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)))(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/openapi@0.60.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http))(@typespec/rest@0.60.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http))(@typespec/versioning@0.60.0(@typespec/compiler@packages+compiler))
+        version: 0.47.3(@azure-tools/typespec-azure-core@0.46.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@0.60.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)))(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/openapi@0.60.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http))(@typespec/rest@0.60.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http))(@typespec/versioning@0.60.0(@typespec/compiler@packages+compiler))
       '@typespec/compiler':
         specifier: workspace:*
         version: link:../compiler
@@ -753,6 +756,9 @@ importers:
       typescript:
         specifier: ^5.3.3
         version: 5.6.2
+      vitest:
+        specifier: ^2.0.3
+        version: 2.1.1(@types/node@22.8.4)(@vitest/ui@2.1.1)(happy-dom@15.7.4)(jsdom@19.0.0)(terser@5.30.0)
 
   packages/http-server-csharp:
     dependencies:
@@ -2272,13 +2278,13 @@ packages:
     engines: {node: '>=16.0.0'}
     hasBin: true
 
-  '@azure-tools/typespec-azure-core@0.47.0':
-    resolution: {integrity: sha512-RcBC5+dE1BVXTrUkkKULTImGxzM/ea3P3IL2kr9pk7r1uqF7D4CGqEKHFTg5L6QUtqc1f+zgTgQTNn6t4gI92w==}
+  '@azure-tools/typespec-azure-core@0.46.0':
+    resolution: {integrity: sha512-BNE31enSHWtWlrdIKShBS6CNFGk3OYmHSBnWqobcFJkTGXC090EoV2u6otn4BMI99fZRSR4gpwp/kYU9KLE9Jw==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
-      '@typespec/compiler': ~0.61.0
-      '@typespec/http': ~0.61.0
-      '@typespec/rest': ~0.61.0
+      '@typespec/compiler': ~0.60.0
+      '@typespec/http': ~0.60.0
+      '@typespec/rest': ~0.60.0
 
   '@azure-tools/typespec-client-generator-core@0.47.3':
     resolution: {integrity: sha512-13knZRDFBlVTw61vbhAnvQzttnqPRwHK0+YI/3QbYRN77j/Kv3zXFPeCcromz31exg3Y/Q8qD24mJ1Oikab2mA==}
@@ -13174,7 +13180,7 @@ snapshots:
     dependencies:
       '@azure/identity': 4.4.1
       '@azure/storage-blob': 12.24.0
-      '@types/node': 22.8.4
+      '@types/node': 22.5.5
     transitivePeerDependencies:
       - supports-color
 
@@ -13192,12 +13198,12 @@ snapshots:
       '@typespec/rest': link:packages/rest
       '@typespec/versioning': 0.60.0(@typespec/compiler@packages+compiler)
 
-  '@azure-tools/cadl-ranch-specs@0.37.2(@azure-tools/cadl-ranch-expect@0.15.4(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)(@typespec/versioning@0.60.0(@typespec/compiler@packages+compiler)))(@azure-tools/typespec-azure-core@0.47.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest))(@types/express@4.17.21)(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)(@typespec/versioning@0.60.0(@typespec/compiler@packages+compiler))(@typespec/xml@0.60.0(@typespec/compiler@packages+compiler))':
+  '@azure-tools/cadl-ranch-specs@0.37.2(@azure-tools/cadl-ranch-expect@0.15.4(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)(@typespec/versioning@0.60.0(@typespec/compiler@packages+compiler)))(@azure-tools/typespec-azure-core@0.46.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest))(@types/express@4.17.21)(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)(@typespec/versioning@0.60.0(@typespec/compiler@packages+compiler))(@typespec/xml@0.60.0(@typespec/compiler@packages+compiler))':
     dependencies:
       '@azure-tools/cadl-ranch': 0.14.6(@types/express@4.17.21)(@typespec/versioning@0.60.0(@typespec/compiler@packages+compiler))
       '@azure-tools/cadl-ranch-api': 0.4.6(@types/express@4.17.21)
       '@azure-tools/cadl-ranch-expect': 0.15.4(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)(@typespec/versioning@0.60.0(@typespec/compiler@packages+compiler))
-      '@azure-tools/typespec-azure-core': 0.47.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)
+      '@azure-tools/typespec-azure-core': 0.46.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)
       '@typespec/compiler': link:packages/compiler
       '@typespec/http': link:packages/http
       '@typespec/rest': link:packages/rest
@@ -13238,21 +13244,21 @@ snapshots:
       - '@typespec/versioning'
       - supports-color
 
-  '@azure-tools/typespec-azure-core@0.47.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@0.60.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http))':
+  '@azure-tools/typespec-azure-core@0.46.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@0.60.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http))':
     dependencies:
       '@typespec/compiler': link:packages/compiler
       '@typespec/http': link:packages/http
       '@typespec/rest': 0.60.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)
 
-  '@azure-tools/typespec-azure-core@0.47.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)':
+  '@azure-tools/typespec-azure-core@0.46.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)':
     dependencies:
       '@typespec/compiler': link:packages/compiler
       '@typespec/http': link:packages/http
       '@typespec/rest': link:packages/rest
 
-  '@azure-tools/typespec-client-generator-core@0.47.3(@azure-tools/typespec-azure-core@0.47.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@0.60.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)))(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/openapi@0.60.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http))(@typespec/rest@0.60.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http))(@typespec/versioning@0.60.0(@typespec/compiler@packages+compiler))':
+  '@azure-tools/typespec-client-generator-core@0.47.3(@azure-tools/typespec-azure-core@0.46.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@0.60.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)))(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/openapi@0.60.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http))(@typespec/rest@0.60.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http))(@typespec/versioning@0.60.0(@typespec/compiler@packages+compiler))':
     dependencies:
-      '@azure-tools/typespec-azure-core': 0.47.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@0.60.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http))
+      '@azure-tools/typespec-azure-core': 0.46.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@0.60.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http))
       '@typespec/compiler': link:packages/compiler
       '@typespec/http': link:packages/http
       '@typespec/openapi': 0.60.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)
@@ -15433,7 +15439,7 @@ snapshots:
   '@eslint/config-array@0.18.0':
     dependencies:
       '@eslint/object-schema': 2.1.4
-      debug: 4.3.7
+      debug: 4.3.5
       minimatch: 3.1.2
     transitivePeerDependencies:
       - supports-color
@@ -15455,7 +15461,7 @@ snapshots:
   '@eslint/eslintrc@3.1.0':
     dependencies:
       ajv: 6.12.6
-      debug: 4.3.7
+      debug: 4.3.5
       espree: 10.1.0
       globals: 14.0.0
       ignore: 5.3.1
@@ -16622,7 +16628,7 @@ snapshots:
       '@jest/schemas': 29.6.3
       '@types/istanbul-lib-coverage': 2.0.6
       '@types/istanbul-reports': 3.0.4
-      '@types/node': 22.8.4
+      '@types/node': 22.5.5
       '@types/yargs': 17.0.33
       chalk: 4.1.2
 
@@ -17741,7 +17747,7 @@ snapshots:
       '@storybook/theming': 8.3.1(storybook@8.3.1)
       '@types/escodegen': 0.0.6
       '@types/estree': 0.0.51
-      '@types/node': 22.8.4
+      '@types/node': 22.5.5
       acorn: 7.4.1
       acorn-jsx: 5.3.2(acorn@7.4.1)
       acorn-walk: 7.2.0
@@ -18032,11 +18038,11 @@ snapshots:
   '@types/body-parser@1.19.5':
     dependencies:
       '@types/connect': 3.4.38
-      '@types/node': 22.8.4
+      '@types/node': 22.5.5
 
   '@types/bonjour@3.5.13':
     dependencies:
-      '@types/node': 22.8.4
+      '@types/node': 22.5.5
 
   '@types/braces@3.0.4': {}
 
@@ -18045,15 +18051,15 @@ snapshots:
   '@types/connect-history-api-fallback@1.5.4':
     dependencies:
       '@types/express-serve-static-core': 4.17.43
-      '@types/node': 22.8.4
+      '@types/node': 22.5.5
 
   '@types/connect@3.4.38':
     dependencies:
-      '@types/node': 22.8.4
+      '@types/node': 22.5.5
 
   '@types/cross-spawn@6.0.6':
     dependencies:
-      '@types/node': 22.8.4
+      '@types/node': 22.5.5
 
   '@types/d3-scale-chromatic@3.0.3': {}
 
@@ -18095,7 +18101,7 @@ snapshots:
 
   '@types/express-serve-static-core@4.17.43':
     dependencies:
-      '@types/node': 22.8.4
+      '@types/node': 22.5.5
       '@types/qs': 6.9.14
       '@types/range-parser': 1.2.7
       '@types/send': 0.17.4
@@ -18112,7 +18118,7 @@ snapshots:
   '@types/glob@7.2.0':
     dependencies:
       '@types/minimatch': 5.1.2
-      '@types/node': 22.8.4
+      '@types/node': 22.5.5
 
   '@types/gtag.js@0.0.12': {}
 
@@ -18130,7 +18136,7 @@ snapshots:
 
   '@types/http-proxy@1.17.14':
     dependencies:
-      '@types/node': 22.8.4
+      '@types/node': 22.5.5
 
   '@types/istanbul-lib-coverage@2.0.6': {}
 
@@ -18181,7 +18187,7 @@ snapshots:
 
   '@types/morgan@1.9.9':
     dependencies:
-      '@types/node': 22.8.4
+      '@types/node': 22.5.5
 
   '@types/ms@0.7.34': {}
 
@@ -18193,12 +18199,12 @@ snapshots:
 
   '@types/node-fetch@2.6.11':
     dependencies:
-      '@types/node': 22.8.4
+      '@types/node': 22.5.5
       form-data: 4.0.0
 
   '@types/node-forge@1.3.11':
     dependencies:
-      '@types/node': 22.8.4
+      '@types/node': 22.5.5
 
   '@types/node@17.0.45': {}
 
@@ -18218,7 +18224,7 @@ snapshots:
 
   '@types/plist@3.0.5':
     dependencies:
-      '@types/node': 22.8.4
+      '@types/node': 22.5.5
       xmlbuilder: 15.1.1
 
   '@types/prismjs@1.26.3': {}
@@ -18266,14 +18272,14 @@ snapshots:
 
   '@types/sax@1.2.7':
     dependencies:
-      '@types/node': 22.8.4
+      '@types/node': 22.5.5
 
   '@types/semver@7.5.8': {}
 
   '@types/send@0.17.4':
     dependencies:
       '@types/mime': 1.3.5
-      '@types/node': 22.8.4
+      '@types/node': 22.5.5
 
   '@types/serve-index@1.9.4':
     dependencies:
@@ -18283,15 +18289,15 @@ snapshots:
     dependencies:
       '@types/http-errors': 2.0.4
       '@types/mime': 3.0.4
-      '@types/node': 22.8.4
+      '@types/node': 22.5.5
 
   '@types/sockjs@0.3.36':
     dependencies:
-      '@types/node': 22.8.4
+      '@types/node': 22.5.5
 
   '@types/ssri@7.1.5':
     dependencies:
-      '@types/node': 22.8.4
+      '@types/node': 22.5.5
 
   '@types/swagger-ui-dist@3.30.5': {}
 
@@ -18309,11 +18315,11 @@ snapshots:
 
   '@types/ws@8.5.10':
     dependencies:
-      '@types/node': 22.8.4
+      '@types/node': 22.5.5
 
   '@types/xml2js@0.4.14':
     dependencies:
-      '@types/node': 22.8.4
+      '@types/node': 22.5.5
 
   '@types/yargs-parser@21.0.3': {}
 
@@ -18477,7 +18483,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 8.6.0
       '@typescript-eslint/visitor-keys': 8.6.0
-      debug: 4.3.7
+      debug: 4.3.5
       fast-glob: 3.3.2
       is-glob: 4.0.3
       minimatch: 9.0.5
@@ -19031,6 +19037,10 @@ snapshots:
   acorn-jsx@5.3.2(acorn@7.4.1):
     dependencies:
       acorn: 7.4.1
+
+  acorn-jsx@5.3.2(acorn@8.11.3):
+    dependencies:
+      acorn: 8.11.3
 
   acorn-jsx@5.3.2(acorn@8.12.1):
     dependencies:
@@ -21249,7 +21259,7 @@ snapshots:
 
   eval@0.1.8:
     dependencies:
-      '@types/node': 22.8.4
+      '@types/node': 22.5.5
       require-like: 0.1.2
 
   event-target-shim@5.0.1: {}
@@ -22481,7 +22491,7 @@ snapshots:
   jest-util@29.7.0:
     dependencies:
       '@jest/types': 29.6.3
-      '@types/node': 22.8.4
+      '@types/node': 22.5.5
       chalk: 4.1.2
       ci-info: 3.9.0
       graceful-fs: 4.2.11
@@ -22489,13 +22499,13 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 22.8.4
+      '@types/node': 22.5.5
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
   jest-worker@29.7.0:
     dependencies:
-      '@types/node': 22.8.4
+      '@types/node': 22.5.5
       jest-util: 29.7.0
       merge-stream: 2.0.0
       supports-color: 8.1.1
@@ -23394,8 +23404,8 @@ snapshots:
 
   micromark-extension-mdxjs@3.0.0:
     dependencies:
-      acorn: 8.12.1
-      acorn-jsx: 5.3.2(acorn@8.12.1)
+      acorn: 8.11.3
+      acorn-jsx: 5.3.2(acorn@8.11.3)
       micromark-extension-mdx-expression: 3.0.0
       micromark-extension-mdx-jsx: 3.0.0
       micromark-extension-mdx-md: 2.0.0
@@ -23780,7 +23790,7 @@ snapshots:
 
   mlly@1.7.1:
     dependencies:
-      acorn: 8.12.1
+      acorn: 8.11.3
       pathe: 1.1.2
       pkg-types: 1.2.0
       ufo: 1.5.3
@@ -25964,7 +25974,7 @@ snapshots:
   terser@5.30.0:
     dependencies:
       '@jridgewell/source-map': 0.3.6
-      acorn: 8.12.1
+      acorn: 8.11.3
       commander: 2.20.3
       source-map-support: 0.5.21
 
@@ -26373,7 +26383,7 @@ snapshots:
 
   unplugin@1.10.1:
     dependencies:
-      acorn: 8.12.1
+      acorn: 8.11.3
       chokidar: 3.6.0
       webpack-sources: 3.2.3
       webpack-virtual-modules: 0.6.1
