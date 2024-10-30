@@ -28,9 +28,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _pipelineParam = new ParameterProvider("pipeline", FormattableStringHelpers.Empty, ClientModelPlugin.Instance.TypeFactory.ClientPipelineApi.ClientPipelineType);
             _messageParam = new ParameterProvider("message", FormattableStringHelpers.Empty, ClientModelPlugin.Instance.TypeFactory.HttpMessageApi.HttpMessageType);
             _requestOptionsParam = new ParameterProvider(ClientModelPlugin.Instance.TypeFactory.HttpRequestOptionsApi.ParameterName, FormattableStringHelpers.Empty, ClientModelPlugin.Instance.TypeFactory.HttpRequestOptionsApi.HttpRequestOptionsType);
-            _pipeline = _pipelineParam.AsExpression.ToApi<ClientPipelineApi>();
-            _message = _messageParam.AsExpression.ToApi<HttpMessageApi>();
-            _options = _requestOptionsParam.AsExpression.ToApi<HttpRequestOptionsApi>();
+            _pipeline = _pipelineParam.ToApi<ClientPipelineApi>();
+            _message = _messageParam.ToApi<HttpMessageApi>();
+            _options = _requestOptionsParam.ToApi<HttpRequestOptionsApi>();
         }
 
         protected override TypeSignatureModifiers GetDeclarationModifiers()
