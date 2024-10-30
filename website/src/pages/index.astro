@@ -1,0 +1,191 @@
+---
+import ShowcaseLayout from "@site/src/layouts/showcase.astro";
+import Hero from "../components/homepage/hero.astro";
+import SectionedLayout from "@site/src/components/sectioned-layout.astro";
+import { DescriptionText, PrimaryText } from "../components/text/text";
+import OverviewIllustration from "../components/homepage/overview-illustration.astro";
+import { Links } from "../constants";
+import Section from "../components/section.astro";
+import FeatureList from "../components/feature-list.astro";
+import { link } from "../utils/link";
+import ExtensibilityIllustration from "../components/homepage/extensibility-illustration.astro";
+import LightDarkImg from "../components/light-dark-img.astro";
+import OpenAPI3HeroIllustration from "@site/src/components/homepage/openapi3-hero-illustration.astro";
+import LearnMoreCard from "../components/learn-more-card.astro";
+import DataValidationHeroIllustration from "../components/homepage/data-validation-hero-illustration.astro";
+import Button from "../components/button.astro";
+---
+
+<style>
+  .hero-divider {
+    height: 2px;
+    align-self: stretch;
+    background: radial-gradient(circle, var(--colorNeutralStroke2) 0%, transparent 80%);
+  }
+
+  .overview {
+    display: flex;
+    flex-direction: column;
+    gap: 128px;
+    width: 100%;
+    max-width: 100%;
+    padding: 60px;
+  }
+
+  @media only screen and (max-width: 728px) {
+    .overview {
+      padding: 20px;
+    }
+  }
+
+  .overview-subtitle {
+    text-align: center;
+    font-size: 40px;
+    font-weight: 600;
+    line-height: 48px;
+  }
+
+  .overview-summary {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    align-self: stretch;
+  }
+
+  .closing {
+    display: flex;
+    padding: 80px 60px;
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+    align-self: baseline;
+  }
+
+  .closing-title {
+    font-size: 40px;
+    font-weight: 600;
+    line-height: 48px;
+  }
+
+  @media only screen and (max-width: 728px) {
+    .closing-title,
+    .overview-subtitle {
+      font-size: 32px;
+      line-height: 40px;
+    }
+  }
+
+  .closing-buttons {
+    display: flex;
+    gap: 8px;
+  }
+</style>
+
+<ShowcaseLayout>
+  <Hero />
+  <div class="hero-divider"></div>
+  <SectionedLayout>
+    <div class="overview">
+      <div class="overview-summary">
+        <PrimaryText>Why TypeSpec</PrimaryText>
+        <div class="overview-subtitle">API-First for developers</div>
+        <DescriptionText size="large" className="overview-description">
+          With TypeSpec, remove the handwritten files that slow you down, and generate
+          standards-compliant API schemas in seconds.
+        </DescriptionText>
+      </div>
+      <Section layout="text-right" itemStyle="plain">
+        <OverviewIllustration slot="illustration" />
+        <FeatureList
+          items={[
+            {
+              title: "Lightweight language for defining APIs",
+              description:
+                "Inspired by TypeScript, TypeSpec is a minimal language that helps developers describe API shapes in a familiar way.",
+              image: "book-pencil",
+              link: Links.gettingStartedOpenAPI,
+            },
+            {
+              title: "Easy integration with your toolchain",
+              description:
+                "Write TypeSpec, emit to various formats and integrate with their ecosystems.",
+              image: "document-add",
+            },
+            {
+              title: "Multi-protocol support",
+              description:
+                "TypeSpec's standard library includes support for OpenAPI 3.0, JSON Schema 2020-12 and Protobuf.",
+              image: "tasks",
+              link: "/multi-protocol",
+            },
+          ]}
+        />
+      </Section>
+    </div>
+
+    <Section
+      header="Productivity"
+      title="Streamline your OpenAPI workflow"
+      description="Benefit from a huge ecosystem of OpenAPI tools for configuring API gateways, generating code, and validating your data."
+    >
+      <OpenAPI3HeroIllustration slot="illustration" />
+
+      <LearnMoreCard
+        title="Generate OpenAPI from TypeSpec"
+        image="design"
+        link={Links.useCases.openapi}
+      />
+    </Section>
+
+    <Section
+      header="Ecosystem"
+      title="Ensure data consistency"
+      description="Define common models to use across your APIs, use the JSON schema emitter to get the JSON schema for your types and use them to validate your data."
+    >
+      <DataValidationHeroIllustration slot="illustration" />
+      <LearnMoreCard
+        title="JSON schema emitter reference"
+        image="people-shield"
+        link={Links.useCases.dataValidation}
+      />
+    </Section>
+
+    <Section
+      header="Tooling"
+      title="Full language support in VS Code and Visual Studio"
+      description="TypeSpec provides built-in support for many common editor features such as syntax highlighting, code completion, and more."
+    >
+      <LightDarkImg src="illustrations/ide-hero" slot="illustration" />
+      <LearnMoreCard
+        title="Check out our available tooling"
+        image="data-trending"
+        link={Links.useCases.tooling}
+      />
+    </Section>
+
+    <Section
+      header="Extensibility"
+      title="Generate assets in many formats"
+      description="TypeSpec is built around extensibility - you can write your own emitter or add custom metadata using a new decorator."
+    >
+      <ExtensibilityIllustration slot="illustration" />
+      <LearnMoreCard
+        title="Getting started with writing a library"
+        image="data-trending"
+        link={Links.extensibility.gettingStarted}
+      />
+    </Section>
+
+    <div class="closing">
+      <div class="closing-title">Start your TypeSpec journey</div>
+      <DescriptionText>
+        Install the TypeSpec CLI or check out the playground to get started.
+      </DescriptionText>
+      <div class="closing-buttons">
+        <Button as="a" appearance="primary" href={link(Links.docs)}> Get Started </Button>
+        <Button as="a" appearance="outline" href={link(Links.playground)}> Try it out </Button>
+      </div>
+    </div>
+  </SectionedLayout>
+</ShowcaseLayout>

@@ -1,0 +1,48 @@
+@import url("./fluentui.css");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --header-height: 50px;
+  --sl-color-text-accent: var(--colorBrandForeground1);
+  --sl-color-gray-5: var(--colorNeutralStroke1);
+}
+
+.DocSearch-Button {
+  border-radius: 4px !important;
+
+  border: 1px solid var(--neutral-stroke-transparent-rest, rgba(255, 255, 255, 0)) !important;
+  background: var(--colorNeutralBackground1) !important;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+img {
+  max-width: 100%;
+  width: auto;
+  height: auto;
+}
+
+a {
+  color: var(--colorBrandForeground1);
+  text-decoration: var(--ifm-link-decoration);
+  transition: color var(--ifm-transition-fast) var(--ifm-transition-timing-default);
+}
+
+header.header {
+  padding: 0;
+  padding-inline-end: unset !important;
+}
+
+/* Algolia docsearch tweaks */
+.DocSearch-Container {
+  z-index: 1000 !important;
+}
+
+.sl-markdown-content code {
+  overflow-wrap: normal;
+}

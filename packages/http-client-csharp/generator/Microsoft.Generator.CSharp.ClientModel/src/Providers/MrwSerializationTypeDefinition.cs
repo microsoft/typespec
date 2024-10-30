@@ -88,14 +88,17 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.Serialization.cs");
 
-        protected override string BuildName() => _model.Name;
+        protected override string BuildName() => _inputModel.Name.ToCleanName();
 
         protected override IReadOnlyList<AttributeStatement> BuildAttributes()
         {
             if (_model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract))
             {
-                var unknownVariant = _model.DerivedModels.First(m => m.IsUnknownDiscriminatorModel);
-                return [new AttributeStatement(typeof(PersistableModelProxyAttribute), TypeOf(unknownVariant.Type))];
+                var unknownVariant = _model.DerivedModels.FirstOrDefault(m => m.IsUnknownDiscriminatorModel);
+                if (unknownVariant != null)
+                {
+                    return [new AttributeStatement(typeof(PersistableModelProxyAttribute), TypeOf(unknownVariant.Type))];
+                }
             }
             return [];
         }
@@ -170,15 +173,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private MethodProvider BuildExplicitFromClientResult()
         {
-            var result = new ParameterProvider("result", $"The {typeof(ClientResult):C} to deserialize the {Type:C} from.", typeof(ClientResult));
+            var result = new ParameterProvider("result", $"The {ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseType:C} to deserialize the {Type:C} from.", ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseType);
             var modifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Explicit | MethodSignatureModifiers.Operator;
             // using PipelineResponse response = result.GetRawResponse();
-            var responseDeclaration = UsingDeclare("response", typeof(PipelineResponse), result.Invoke(nameof(ClientResult.GetRawResponse)), out var response);
+            var responseDeclaration = UsingDeclare("response", ClientModelPlugin.Instance.TypeFactory.HttpResponseApi.HttpResponseType, result.AsExpression.ToApi<ClientResponseApi>().GetRawResponse(), out var response);
             // using JsonDocument document = JsonDocument.Parse(response.Content);
             var document = UsingDeclare(
                 "document",
                 typeof(JsonDocument),
-                JsonDocumentSnippets.Parse(response.Property(nameof(PipelineResponse.Content)).As<BinaryData>()),
+                JsonDocumentSnippets.Parse(response.Property(nameof(HttpResponseApi.Content)).As<BinaryData>()),
                 out var docVariable);
             // return DeserializeT(doc.RootElement, ModelSerializationExtensions.WireOptions);
             var deserialize = Return(_model.Type.Deserialize(docVariable.As<JsonDocument>().RootElement(), ModelSerializationExtensionsSnippets.Wire));
@@ -196,13 +199,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private MethodProvider BuildImplicitToBinaryContent()
         {
-            var model = new ParameterProvider(Type.Name.ToVariableName(), $"The {Type:C} to serialize into {typeof(BinaryContent):C}", Type);
+            var model = new ParameterProvider(Type.Name.ToVariableName(), $"The {Type:C} to serialize into {ClientModelPlugin.Instance.TypeFactory.RequestContentApi.RequestContentType:C}", Type);
             var modifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Implicit | MethodSignatureModifiers.Operator;
             // return BinaryContent.Create(model, ModelSerializationExtensions.WireOptions);
-            var binaryContentMethod = Static(typeof(BinaryContent)).Invoke(nameof(BinaryContent.Create), [model, ModelSerializationExtensionsSnippets.Wire]);
             return new MethodProvider(
-                new MethodSignature(nameof(BinaryContent), null, modifiers, null, null, [model]),
-                Return(binaryContentMethod),
+                new MethodSignature(ClientModelPlugin.Instance.TypeFactory.RequestContentApi.RequestContentType.FrameworkType.Name, null, modifiers, null, null, [model]),
+                ClientModelPlugin.Instance.TypeFactory.RequestContentApi.ToExpression().Create(model),
                 this);
         }
 
@@ -428,7 +430,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return new MethodProvider
             (
               new MethodSignature(methodName, null, signatureModifiers, _model.Type, null, [_jsonElementDeserializationParam, _serializationOptionsParameter]),
-              _model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract) ? BuildAbstractDeserializationMethodBody() : BuildDeserializationMethodBody(),
+              _model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract) && _inputModel.DiscriminatorProperty != null ? BuildAbstractDeserializationMethodBody() : BuildDeserializationMethodBody(),
               this
             );
         }
@@ -1063,6 +1065,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             ScopedApi<JsonProperty> jsonProperty,
             IEnumerable<AttributeData> serializationAttributes)
         {
+            bool useCustomDeserializationHook = false;
             var serializationFormat = wireInfo.SerializationFormat;
             var propertyVarReference = variableExpression;
             var deserializationStatements = new MethodBodyStatement[2]
@@ -1086,24 +1089,21 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                             deserializationHook,
                             jsonProperty,
                             ByRef(propertyVarReference)).Terminate()];
+                    useCustomDeserializationHook = true;
                     break;
                 }
             }
 
             return
             [
-                DeserializationPropertyNullCheckStatement(propertyType, wireInfo, jsonProperty, propertyVarReference),
+                useCustomDeserializationHook
+                    ? MethodBodyStatement.Empty
+                    : DeserializationPropertyNullCheckStatement(propertyType, wireInfo, jsonProperty, propertyVarReference),
                 deserializationStatements,
                 Continue
             ];
         }
 
-        /// <summary>
-        /// This method constructs the deserialization property null check statement for the json property
-        /// <paramref name="jsonProperty"/>. If the property is required, the method will return a null check
-        /// with an assignment to the property variable. If the property is not required, the method will simply
-        /// return a null check for the json property.
-        /// </summary>
         private static MethodBodyStatement DeserializationPropertyNullCheckStatement(
             CSharpType propertyType,
             PropertyWireInformation wireInfo,
@@ -1115,7 +1115,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             CSharpType serializedType = propertyType;
             var propertyIsRequired = wireInfo.IsRequired;
 
-            if (serializedType.IsNullable || !propertyIsRequired)
+            if ((serializedType.IsNullable || !serializedType.IsValueType) && wireInfo.IsNullable)
             {
                 if (!serializedType.IsCollection)
                 {
@@ -1156,26 +1156,26 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             if (valueType.IsList || valueType.IsArray)
             {
-                if (valueType.IsArray && valueType.ElementType.IsReadOnlyMemory)
+                if (valueType.IsReadOnlyMemory)
                 {
-                    var array = new VariableExpression(valueType.ElementType.PropertyInitializationType, "array");
+                    var arrayVar = new VariableExpression(new CSharpType(valueType.ElementType.FrameworkType.MakeArrayType()), "array");
                     var index = new VariableExpression(typeof(int), "index");
                     var deserializeReadOnlyMemory = new MethodBodyStatement[]
                     {
                         Declare(index, Int(0)),
-                        Declare(array, New.Array(valueType.ElementType, jsonElement.GetArrayLength())),
+                        Declare(arrayVar, New.Array(valueType.ElementType, jsonElement.GetArrayLength())),
                         ForeachStatement.Create("item", jsonElement.EnumerateArray(), out ScopedApi<JsonElement> item).Add(new MethodBodyStatement[]
                         {
                              NullCheckCollectionItemIfRequired(valueType.ElementType, item, item.Assign(Null).Terminate(),
                                 new MethodBodyStatement[]
                                 {
                                     DeserializeValue(valueType.ElementType, item, serializationFormat, out ValueExpression deserializedArrayElement),
-                                    item.Assign(deserializedArrayElement).Terminate(),
+                                    new IndexableExpression(arrayVar)[index].Assign(deserializedArrayElement).Terminate(),
                                 }),
                             index.Increment().Terminate()
                         })
                     };
-                    value = New.Instance(valueType.ElementType, array);
+                    value = New.Instance(new CSharpType(typeof(ReadOnlyMemory<>), valueType.ElementType), arrayVar);
                     return deserializeReadOnlyMemory;
                 }
 

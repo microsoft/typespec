@@ -1,7 +1,6 @@
 {
   "name": "@typespec/http-specs",
-  "private": true,
-  "version": "0.37.2",
+  "version": "0.1.0-alpha.0",
   "description": "Spec scenarios and mock apis",
   "main": "dist/index.js",
   "type": "module",
@@ -12,12 +11,13 @@
     "test:e2e": "pnpm validate-scenarios  && pnpm validate-mock-apis && pnpm validate-client-server",
     "validate-scenarios": "tsp-spector validate-scenarios ./specs",
     "generate-scenarios-summary": "tsp-spector generate-scenarios-summary ./specs",
+    "regen-docs": "pnpm generate-scenarios-summary",
     "validate-mock-apis": "tsp-spector validate-mock-apis ./specs",
     "check-scenario-coverage": "tsp-spector check-coverage ./specs",
     "validate-client-server": "concurrently \"tsp-spector server start ./specs\" \"npm run client\" && tsp-spector server stop",
     "client": "tsp-spector server-test ./specs",
     "serve": "tsp-spector serve ./specs",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\""
   },
   "engines": {
     "node": ">=16.0.0"

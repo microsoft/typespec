@@ -1,0 +1,113 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+}
+
+.progress-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+  gap: 8px;
+  overflow: hidden;
+}
+
+@keyframes spinner {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+.spinner {
+  width: 32px;
+  height: 32px;
+
+  --fui-Spinner--strokeWidth: var(--strokeWidthThicker);
+
+  position: relative;
+  flex-shrink: 0;
+  mask-image: radial-gradient(
+    closest-side,
+    transparent calc(100% - var(--fui-Spinner--strokeWidth) - 1px),
+    white calc(100% - var(--fui-Spinner--strokeWidth)) calc(100% - 1px),
+    transparent 100%
+  );
+  background-color: var(--colorBrandStroke2Contrast);
+  color: var(--colorBrandStroke1);
+  animation-duration: 1.5s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+  animation-name: spinner;
+}
+
+@keyframes tail {
+  0% {
+    transform: rotate(-135deg);
+  }
+
+  50% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(225deg);
+  }
+}
+.spinner-tail {
+  position: absolute;
+  display: block;
+  width: 100%;
+  height: 100%;
+  mask-image: conic-gradient(transparent 105deg, white 105deg);
+  animation-duration: 1.5s;
+  animation-iteration-count: infinite;
+  animation-timing-function: var(--curveEasyEase);
+  animation-name: tail;
+}
+
+.spinner-tail:before,
+.spinner-tail:after {
+  content: "";
+  position: absolute;
+  display: block;
+  width: 100%;
+  height: 100%;
+  animation: inherit;
+  background-image: conic-gradient(currentcolor 135deg, transparent 135deg);
+}
+
+@keyframes before {
+  0% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(105deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+.spinner-tail::before {
+  animation-name: before;
+}
+
+@keyframes after {
+  0% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(225deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+.spinner-tail::after {
+  animation-name: after;
+}
