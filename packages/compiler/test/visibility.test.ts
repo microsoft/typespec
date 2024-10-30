@@ -1,11 +1,26 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { strictEqual, ok } from "assert";
+import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { BasicTestRunner, createTestRunner, expectDiagnostics } from "../src/testing/index.js";
-import { addVisibilityModifiers, clearVisibilityModifiersForClass, Enum, getLifecycleVisibilityEnum, getVisibilityForClass, hasVisibility, isSealed, isVisible, Model, ModelProperty, removeVisibilityModifiers, resetVisibilityModifiersForClass, sealVisibilityModifiers, sealVisibilityModifiersForProgram } from "../src/index.js";
 import { VisibilityFilter } from "../src/core/visibility/core.js";
+import {
+  addVisibilityModifiers,
+  clearVisibilityModifiersForClass,
+  Enum,
+  getLifecycleVisibilityEnum,
+  getVisibilityForClass,
+  hasVisibility,
+  isSealed,
+  isVisible,
+  Model,
+  ModelProperty,
+  removeVisibilityModifiers,
+  resetVisibilityModifiersForClass,
+  sealVisibilityModifiers,
+  sealVisibilityModifiersForProgram,
+} from "../src/index.js";
+import { BasicTestRunner, createTestRunner, expectDiagnostics } from "../src/testing/index.js";
 
 describe("compiler: visibility core", () => {
   let runner: BasicTestRunner;
@@ -15,27 +30,27 @@ describe("compiler: visibility core", () => {
   });
 
   it("produces correct lifecycle visibility enum reference", async () => {
-    const { lifecycle } = await runner.compile(`
+    const { lifecycle } = (await runner.compile(`
       model X {
         @test lifecycle: TypeSpec.Lifecycle;
       }
-    `) as { lifecycle: ModelProperty };
+    `)) as { lifecycle: ModelProperty };
 
     const lifecycleEnum = getLifecycleVisibilityEnum(runner.program);
 
     strictEqual(lifecycleEnum, lifecycle.type);
-    strictEqual(lifecycleEnum, runner.program.resolveTypeReference("TypeSpec.Lifecycle")[0])
+    strictEqual(lifecycleEnum, runner.program.resolveTypeReference("TypeSpec.Lifecycle")[0]);
   });
 
   describe("visibility seals", () => {
     it("seals visibility modifiers for a program", async () => {
-      const { Example, Dummy } = await runner.compile(`
+      const { Example, Dummy } = (await runner.compile(`
         @test model Example {
           x: string;
         }
 
         @test enum Dummy {}
-      `) as { Example: Model, Dummy: Enum };
+      `)) as { Example: Model; Dummy: Enum };
 
       const x = Example.properties.get("x")!;
 
@@ -53,13 +68,13 @@ describe("compiler: visibility core", () => {
     });
 
     it("seals visibility modifiers for a visibility class", async () => {
-      const { Example, Dummy } = await runner.compile(`
+      const { Example, Dummy } = (await runner.compile(`
         @test model Example {
           x: string;
         }
 
         @test enum Dummy {}
-      `) as { Example: Model, Dummy: Enum };
+      `)) as { Example: Model; Dummy: Enum };
 
       const x = Example.properties.get("x")!;
 
@@ -77,14 +92,14 @@ describe("compiler: visibility core", () => {
     });
 
     it("seals visibility modifiers for a property", async () => {
-      const { Example, Dummy } = await runner.compile(`
+      const { Example, Dummy } = (await runner.compile(`
         @test model Example {
           x: string;
           y: string;
         }
 
         @test enum Dummy {}
-      `) as { Example: Model, Dummy: Enum };
+      `)) as { Example: Model; Dummy: Enum };
 
       const x = Example.properties.get("x")!;
       const y = Example.properties.get("y")!;
@@ -111,11 +126,11 @@ describe("compiler: visibility core", () => {
     });
 
     it("correctly diagnoses modifying sealed visibility", async () => {
-      const { Example } = await runner.compile(`
+      const { Example } = (await runner.compile(`
         @test model Example {
           x: string;
         }
-      `) as { Example: Model };
+      `)) as { Example: Model };
 
       const x = Example.properties.get("x")!;
 
@@ -131,16 +146,25 @@ describe("compiler: visibility core", () => {
       ok(runner.program.diagnostics.length === 3);
 
       expectDiagnostics(runner.program.diagnostics, [
-        { code: "visibility-sealed", message: "Visibility of property 'x' is sealed and cannot be changed."},
-        { code: "visibility-sealed", message: "Visibility of property 'x' is sealed and cannot be changed."},
-        { code: "visibility-sealed", message: "Visibility of property 'x' is sealed and cannot be changed."},
+        {
+          code: "visibility-sealed",
+          message: "Visibility of property 'x' is sealed and cannot be changed.",
+        },
+        {
+          code: "visibility-sealed",
+          message: "Visibility of property 'x' is sealed and cannot be changed.",
+        },
+        {
+          code: "visibility-sealed",
+          message: "Visibility of property 'x' is sealed and cannot be changed.",
+        },
       ]);
     });
   });
 
   describe("visibility modifiers", () => {
     it("default visibility modifiers are all modifiers", async () => {
-      const { Example, Dummy } = await runner.compile(`
+      const { Example, Dummy } = (await runner.compile(`
         @test model Example {
           x: string;
         }
@@ -151,7 +175,7 @@ describe("compiler: visibility core", () => {
           A,
           B,
         }
-      `) as { Example: Model, Dummy: Enum };
+      `)) as { Example: Model; Dummy: Enum };
 
       const x = Example.properties.get("x")!;
 
@@ -162,7 +186,7 @@ describe("compiler: visibility core", () => {
       strictEqual(visibility.size, Lifecycle.members.size);
       for (const member of Lifecycle.members.values()) {
         ok(visibility.has(member));
-        ok(hasVisibility(runner.program, x, member))
+        ok(hasVisibility(runner.program, x, member));
       }
 
       const dummyVisibility = getVisibilityForClass(runner.program, x, Dummy);
@@ -175,11 +199,11 @@ describe("compiler: visibility core", () => {
     });
 
     it("adds a visibility modifier", async () => {
-      const { Example } = await runner.compile(`
+      const { Example } = (await runner.compile(`
         @test model Example {
           x: string;
         }
-      `) as { Example: Model };
+      `)) as { Example: Model };
 
       const x = Example.properties.get("x")!;
 
@@ -204,11 +228,11 @@ describe("compiler: visibility core", () => {
     });
 
     it("removes a visibility modifier", async () => {
-      const { Example } = await runner.compile(`
+      const { Example } = (await runner.compile(`
         @test model Example {
           x: string;
         }
-      `) as { Example: Model };
+      `)) as { Example: Model };
 
       const x = Example.properties.get("x")!;
       const Lifecycle = getLifecycleVisibilityEnum(runner.program);
@@ -219,7 +243,7 @@ describe("compiler: visibility core", () => {
       const visibility = getVisibilityForClass(runner.program, x, Lifecycle);
 
       strictEqual(visibility.size, Lifecycle.members.size - 1);
-      
+
       for (const member of Lifecycle.members.values()) {
         if (member !== Create) {
           ok(visibility.has(member));
@@ -230,11 +254,11 @@ describe("compiler: visibility core", () => {
     });
 
     it("clears visibility modifiers for a class", async () => {
-      const { Example } = await runner.compile(`
+      const { Example } = (await runner.compile(`
         @test model Example {
           x: string;
         }
-      `) as { Example: Model };
+      `)) as { Example: Model };
 
       const x = Example.properties.get("x")!;
       const Lifecycle = getLifecycleVisibilityEnum(runner.program);
@@ -252,12 +276,12 @@ describe("compiler: visibility core", () => {
     });
 
     it("resets visibility modifiers for a class", async () => {
-      const { Example } = await runner.compile(`
+      const { Example } = (await runner.compile(`
         @test model Example {
           @visibility(Lifecycle.Create)
           x: string;
         }
-      `) as { Example: Model };
+      `)) as { Example: Model };
 
       const x = Example.properties.get("x")!;
 
@@ -282,7 +306,7 @@ describe("compiler: visibility core", () => {
     });
 
     it("preserves visibility for other classes", async () => {
-      const { Example, Dummy } = await runner.compile(`
+      const { Example, Dummy } = (await runner.compile(`
         @test model Example {
           x: string;
         }
@@ -291,11 +315,11 @@ describe("compiler: visibility core", () => {
           A,
           B,
         }
-      `) as { Example: Model, Dummy: Enum };
+      `)) as { Example: Model; Dummy: Enum };
 
       const x = Example.properties.get("x")!;
       const Lifecycle = getLifecycleVisibilityEnum(runner.program);
-      
+
       clearVisibilityModifiersForClass(runner.program, x, Dummy);
 
       const visibility = getVisibilityForClass(runner.program, x, Lifecycle);
@@ -329,138 +353,139 @@ describe("compiler: visibility core", () => {
         name: "simple property - all - visible",
         expect: true,
         visibility: ["Create", "Read"],
-        filter: { all: ["Read"] }
+        filter: { all: ["Read"] },
       },
       {
         name: "simple property - all - not visible",
         expect: false,
         visibility: ["Create", "Read"],
-        filter: { all: ["Update"] }
+        filter: { all: ["Update"] },
       },
       {
         name: "simple property - partial all - not visible",
         expect: false,
         visibility: ["Create", "Read"],
-        filter: { all: ["Create", "Update"] }
+        filter: { all: ["Create", "Update"] },
       },
       {
         name: "unmodified visibility - all - visible",
         expect: true,
         visibility: [],
-        filter: { all: ["Create", "Read", "Update"] }
+        filter: { all: ["Create", "Read", "Update"] },
       },
       {
         name: "simple property - any - visible",
         expect: true,
         visibility: ["Create", "Read"],
-        filter: { any: ["Read"] }
+        filter: { any: ["Read"] },
       },
       {
         name: "simple property - partial any - visible",
         expect: true,
         visibility: ["Create", "Read"],
-        filter: { any: ["Create", "Update"] }
+        filter: { any: ["Create", "Update"] },
       },
       {
         name: "simple property - any - not visible",
         expect: false,
         visibility: ["Create", "Read"],
-        filter: { any: ["Update"] }
+        filter: { any: ["Update"] },
       },
       {
         name: "simple property - none - visible",
         expect: true,
         visibility: ["Create", "Read"],
-        filter: { none: ["Update"] }
+        filter: { none: ["Update"] },
       },
       {
         name: "simple property - none - not visible",
         expect: false,
         visibility: ["Create", "Read"],
-        filter: { none: ["Create"] }
+        filter: { none: ["Create"] },
       },
       {
         name: "simple property - partial none - not visible",
         expect: false,
         visibility: ["Create", "Read"],
-        filter: { none: ["Create", "Update"] }
+        filter: { none: ["Create", "Update"] },
       },
       {
         name: "unmodified visibility - none - not visible",
         expect: false,
         visibility: [],
-        filter: { none: ["Create"] }
+        filter: { none: ["Create"] },
       },
       {
         name: "simple property - all/any - visible",
         expect: true,
         visibility: ["Create", "Read"],
-        filter: { all: ["Read"], any: ["Create"] }
+        filter: { all: ["Read"], any: ["Create"] },
       },
       {
         name: "simple property - all/any - not visible",
         expect: false,
         visibility: ["Create", "Read"],
-        filter: { all: ["Read"], any: ["Update"] }
+        filter: { all: ["Read"], any: ["Update"] },
       },
       {
         name: "simple property - all/none - visible",
         expect: true,
         visibility: ["Create", "Read"],
-        filter: { all: ["Read"], none: ["Update"] }
+        filter: { all: ["Read"], none: ["Update"] },
       },
       {
         name: "simple property - all/none - not visible",
         expect: false,
         visibility: ["Create", "Read"],
-        filter: { all: ["Read"], none: ["Create"] }
+        filter: { all: ["Read"], none: ["Create"] },
       },
       {
         name: "simple property - any/none - visible",
         expect: true,
         visibility: ["Create", "Read"],
-        filter: { any: ["Read"], none: ["Update"] }
+        filter: { any: ["Read"], none: ["Update"] },
       },
       {
         name: "simple property - any/none - not visible",
         expect: false,
         visibility: ["Create", "Read"],
-        filter: { any: ["Read"], none: ["Create"] }
+        filter: { any: ["Read"], none: ["Create"] },
       },
       {
         name: "simple property - all/any/none - visible",
         expect: true,
         visibility: ["Create", "Read"],
-        filter: { all: ["Read"], any: ["Create"], none: ["Update"] }
+        filter: { all: ["Read"], any: ["Create"], none: ["Update"] },
       },
       {
         name: "simple property - all/any/none - not visible",
         expect: false,
         visibility: ["Create", "Read"],
-        filter: { all: ["Read"], any: ["Create"], none: ["Create"] }
-      }
+        filter: { all: ["Read"], any: ["Create"], none: ["Create"] },
+      },
     ];
 
     for (const scenario of SCENARIOS) {
       it(scenario.name, async () => {
-
-        const visibilityDecorator = scenario.visibility.length > 0
-          ? `@visibility(${scenario.visibility.map(v => `Lifecycle.${v}`).join(", ")})`
-          : "";
-        const { Example } = await runner.compile(`
+        const visibilityDecorator =
+          scenario.visibility.length > 0
+            ? `@visibility(${scenario.visibility.map((v) => `Lifecycle.${v}`).join(", ")})`
+            : "";
+        const { Example } = (await runner.compile(`
           @test model Example {
             ${visibilityDecorator}
             x: string;
           }
-        `) as { Example: Model };
+        `)) as { Example: Model };
 
         const x = Example.properties.get("x")!;
         const Lifecycle = getLifecycleVisibilityEnum(runner.program);
 
         const filter = Object.fromEntries(
-          Object.entries(scenario.filter).map(([k, vis]) =>
-            [k, new Set((vis as LifecycleVisibilityName[]).map(v => Lifecycle.members.get(v)!))]
-          )
+          Object.entries(scenario.filter).map(([k, vis]) => [
+            k,
+            new Set((vis as LifecycleVisibilityName[]).map((v) => Lifecycle.members.get(v)!)),
+          ]),
         ) as VisibilityFilter;
 
         strictEqual(isVisible(runner.program, x, filter), scenario.expect);
@@ -468,7 +493,7 @@ describe("compiler: visibility core", () => {
     }
 
     it("mixed visibility classes in filter", async () => {
-      const { Example, Dummy: DummyEnum } = await runner.compile(`
+      const { Example, Dummy: DummyEnum } = (await runner.compile(`
         @test model Example {
           @visibility(Lifecycle.Create, Dummy.B)
           x: string;
@@ -480,7 +505,7 @@ describe("compiler: visibility core", () => {
           A,
           B,
         }
-      `) as { Example: Model, Dummy: Enum };
+      `)) as { Example: Model; Dummy: Enum };
 
       const x = Example.properties.get("x")!;
       const LifecycleEnum = getLifecycleVisibilityEnum(runner.program);
@@ -488,41 +513,59 @@ describe("compiler: visibility core", () => {
       const Lifecycle = {
         Create: LifecycleEnum.members.get("Create")!,
         Read: LifecycleEnum.members.get("Read")!,
-        Update: LifecycleEnum.members.get("Update")!
-      }
+        Update: LifecycleEnum.members.get("Update")!,
+      };
 
       const Dummy = {
         A: DummyEnum.members.get("A")!,
-        B: DummyEnum.members.get("B")!
-      }
+        B: DummyEnum.members.get("B")!,
+      };
 
-      strictEqual(isVisible(runner.program, x, {
-        all: new Set([Lifecycle.Create, Dummy.B])
-      }), true);
+      strictEqual(
+        isVisible(runner.program, x, {
+          all: new Set([Lifecycle.Create, Dummy.B]),
+        }),
+        true,
+      );
 
-      strictEqual(isVisible(runner.program, x, {
-        any: new Set([Dummy.A])
-      }), false);
+      strictEqual(
+        isVisible(runner.program, x, {
+          any: new Set([Dummy.A]),
+        }),
+        false,
+      );
 
-      strictEqual(isVisible(runner.program, x, {
-        none: new Set([Lifecycle.Update])
-      }), true);
+      strictEqual(
+        isVisible(runner.program, x, {
+          none: new Set([Lifecycle.Update]),
+        }),
+        true,
+      );
 
-      strictEqual(isVisible(runner.program, x, {
-        all: new Set([Lifecycle.Create]),
-        none: new Set([Dummy.A])
-      }), true);
+      strictEqual(
+        isVisible(runner.program, x, {
+          all: new Set([Lifecycle.Create]),
+          none: new Set([Dummy.A]),
+        }),
+        true,
+      );
 
-      strictEqual(isVisible(runner.program, x, {
-        all: new Set([Lifecycle.Create, Dummy.B]),
-        none: new Set([Dummy.A])
-      }), true);
+      strictEqual(
+        isVisible(runner.program, x, {
+          all: new Set([Lifecycle.Create, Dummy.B]),
+          none: new Set([Dummy.A]),
+        }),
+        true,
+      );
 
-      strictEqual(isVisible(runner.program, x, {
-        all: new Set([Lifecycle.Create]),
-        any: new Set([Dummy.A, Dummy.B]),
-        none: new Set([Lifecycle.Update])
-      }), true);
+      strictEqual(
+        isVisible(runner.program, x, {
+          all: new Set([Lifecycle.Create]),
+          any: new Set([Dummy.A, Dummy.B]),
+          none: new Set([Lifecycle.Update]),
+        }),
+        true,
+      );
     });
   });
 });

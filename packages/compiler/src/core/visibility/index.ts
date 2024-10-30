@@ -5,14 +5,14 @@ export { getLifecycleVisibilityEnum } from "./lifecycle.js";
 
 export {
   addVisibilityModifiers,
-  removeVisibilityModifiers,
   clearVisibilityModifiersForClass,
-  resetVisibilityModifiersForClass,
-  sealVisibilityModifiers,
-  sealVisibilityModifiersForProgram,
-  isSealed,
   getVisibility,
   getVisibilityForClass,
   hasVisibility,
+  isSealed,
   isVisible,
+  removeVisibilityModifiers,
+  resetVisibilityModifiersForClass,
+  sealVisibilityModifiers,
+  sealVisibilityModifiersForProgram,
 } from "./core.js";
