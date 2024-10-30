@@ -390,16 +390,17 @@ export const $withLifecycleUpdate: WithLifecycleUpdateDecorator = (
     Model: {
       mutate: (model, clone, program, realm) => {
         for (const [key, prop] of model.properties) {
+          const cloneProperty = clone.properties.get(key)!;
           if (!isVisible(program, prop, lifecycleUpdate)) {
             clone.properties.delete(key);
             realm.remove(prop);
           } else if (prop.type.kind === "Model") {
             const { type } = mutateSubgraph(program, [createOrUpdateMutator], prop.type);
 
-            prop.type = type;
+            cloneProperty.type = type;
           }
 
-          resetVisibilityModifiersForClass(program, prop, lifecycle);
+          resetVisibilityModifiersForClass(program, cloneProperty, lifecycle);
         }
 
         clone.decorators = clone.decorators.filter((d) => d.decorator !== $withLifecycleUpdate);
@@ -420,17 +421,18 @@ function createVisibilityFilterMutator(filter: VisibilityFilter): Mutator {
     Model: {
       mutate: (model, clone, program, realm) => {
         for (const [key, prop] of model.properties) {
+          const cloneProperty = clone.properties.get(key)!;
           if (!isVisible(program, prop, filter)) {
             clone.properties.delete(key);
             realm.remove(prop);
           } else if (prop.type.kind === "Model") {
             const { type } = mutateSubgraph(program, [self], prop.type);
 
-            prop.type = type;
+            cloneProperty.type = type;
           }
 
           for (const visibilityClass of VisibilityFilter.getVisibilityClasses(filter)) {
-            resetVisibilityModifiersForClass(program, prop, visibilityClass);
+            resetVisibilityModifiersForClass(program, cloneProperty, visibilityClass);
           }
         }
 
