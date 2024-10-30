@@ -2461,14 +2461,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       pendingResolutions.start(opSymId, ResolutionKind.BaseType);
     }
 
-    const target = resolveTypeReferenceSym(opReference, mapper);
-
-    if (target === undefined) {
-      return undefined;
-    }
+    const target = resolver.getNodeLinks(opReference).resolvedSymbol;
 
     // Did we encounter a circular operation reference?
     if (
+      target &&
       pendingResolutions.has(getNodeSym(target.declarations[0] as any), ResolutionKind.BaseType)
     ) {
       if (mapper === undefined) {
@@ -2485,7 +2482,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     // Resolve the base operation type
-    const baseOperation = checkTypeReferenceSymbol(target, opReference, mapper);
+    const baseOperation = getTypeForNode(opReference, mapper);
     if (opSymId) {
       pendingResolutions.finish(opSymId, ResolutionKind.BaseType);
     }
@@ -4477,12 +4474,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const modelSymId = getNodeSym(model);
     pendingResolutions.start(modelSymId, ResolutionKind.BaseType);
 
-    const target = resolveTypeReferenceSym(heritageRef, mapper);
-    if (target === undefined) {
-      return undefined;
-    }
-
-    if (pendingResolutions.has(target, ResolutionKind.BaseType)) {
+    const target = resolver.getNodeLinks(heritageRef).resolvedSymbol;
+    if (target && pendingResolutions.has(target, ResolutionKind.BaseType)) {
       if (mapper === undefined) {
         reportCheckerDiagnostic(
           createDiagnostic({
@@ -4494,7 +4487,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
       return undefined;
     }
-    const heritageType = checkTypeReferenceSymbol(target, heritageRef, mapper);
+    const heritageType = getTypeForNode(heritageRef, mapper);
     pendingResolutions.finish(modelSymId, ResolutionKind.BaseType);
     if (isErrorType(heritageType)) {
       compilerAssert(program.hasError(), "Should already have reported an error.", heritageRef);
@@ -4541,11 +4534,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     } else if (isExpr.kind === SyntaxKind.ArrayExpression) {
       isType = checkArrayExpression(isExpr, mapper);
     } else if (isExpr.kind === SyntaxKind.TypeReference) {
-      const target = resolveTypeReferenceSym(isExpr, mapper);
-      if (target === undefined) {
-        return undefined;
-      }
-      if (pendingResolutions.has(target, ResolutionKind.BaseType)) {
+      const target = resolver.getNodeLinks(isExpr).resolvedSymbol;
+      if (target && pendingResolutions.has(target, ResolutionKind.BaseType)) {
         if (mapper === undefined) {
           reportCheckerDiagnostic(
             createDiagnostic({
@@ -4557,7 +4547,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         }
         return undefined;
       }
-      isType = checkTypeReferenceSymbol(target, isExpr, mapper);
+      isType = getTypeForNode(isExpr, mapper);
     } else {
       reportCheckerDiagnostic(createDiagnostic({ code: "is-model", target: isExpr }));
       return undefined;
@@ -5212,14 +5202,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const symId = getNodeSym(scalar);
     pendingResolutions.start(symId, ResolutionKind.BaseType);
 
-    const target = resolveTypeReferenceSym(extendsRef, mapper);
-    if (target === undefined) {
-      return undefined;
-    }
+    const target = resolver.getNodeLinks(extendsRef).resolvedSymbol;
 
-    if (
-      pendingResolutions.has(getNodeSym(target.declarations[0] as any), ResolutionKind.BaseType)
-    ) {
+    if (target && pendingResolutions.has(target, ResolutionKind.BaseType)) {
       if (mapper === undefined) {
         reportCheckerDiagnostic(
           createDiagnostic({
@@ -5231,7 +5216,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
       return undefined;
     }
-    const extendsType = checkTypeReferenceSymbol(target, extendsRef, mapper);
+    const extendsType = getTypeForNode(extendsRef, mapper);
     pendingResolutions.finish(symId, ResolutionKind.BaseType);
     if (isErrorType(extendsType)) {
       compilerAssert(program.hasError(), "Should already have reported an error.", extendsRef);
