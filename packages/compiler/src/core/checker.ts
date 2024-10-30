@@ -1,4 +1,5 @@
 import { docFromCommentDecorator, getIndexer } from "../lib/intrinsic/decorators.js";
+import { DuplicateTracker } from "../utils/duplicate-tracker.js";
 import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
 import { createSymbol, getSymNode } from "./binder.js";
 import { createChangeIdentifierCodeFix } from "./compiler-code-fixes/change-identifier.codefix.js";
@@ -9,6 +10,7 @@ import { ProjectionError, compilerAssert, ignoreDiagnostics } from "./diagnostic
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
 import { getLocationContext } from "./helpers/location-context.js";
 import { explainStringTemplateNotSerializable } from "./helpers/string-template-utils.js";
+import { typeReferenceToString } from "./helpers/syntax-utils.js";
 import {
   getEntityName,
   getNamespaceFullName,
@@ -3429,6 +3431,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function checkProgram() {
     checkDuplicateSymbols();
     for (const file of program.sourceFiles.values()) {
+      checkDuplicateUsings(file);
       for (const ns of file.namespaces) {
         initializeTypeForNamespace(ns);
       }
@@ -3447,6 +3450,44 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       for (const ns of file.namespaces) {
         const exports = getMergedSymbol(ns.symbol).exports ?? ns.symbol.exports;
         program.reportDuplicateSymbols(exports);
+      }
+    }
+  }
+
+  /** Report error with duplicate using in the same scope. */
+  function checkDuplicateUsings(file: TypeSpecScriptNode) {
+    const duplicateTrackers = new Map<Sym, DuplicateTracker<Sym, UsingStatementNode>>();
+    function getTracker(sym: Sym): DuplicateTracker<Sym, UsingStatementNode> {
+      const existing = duplicateTrackers.get(sym);
+
+      if (existing) return existing;
+
+      const newTacker = new DuplicateTracker<Sym, UsingStatementNode>();
+      duplicateTrackers.set(sym, newTacker);
+      return newTacker;
+    }
+
+    for (const using of file.usings) {
+      const ns = using.parent!;
+      const sym = getMergedSymbol(ns.symbol);
+      const tracker = getTracker(sym);
+      const targetSym = resolver.getNodeLinks(using.name).resolvedSymbol;
+      if (!targetSym) continue;
+
+      tracker.track(targetSym, using);
+    }
+
+    for (const tracker of duplicateTrackers.values()) {
+      for (const [_, nodes] of tracker.entries()) {
+        for (const node of nodes) {
+          program.reportDiagnostic(
+            createDiagnostic({
+              code: "duplicate-using",
+              format: { usingName: typeReferenceToString(node.name) },
+              target: node,
+            }),
+          );
+        }
       }
     }
   }

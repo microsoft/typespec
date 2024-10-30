@@ -60,8 +60,6 @@
 import { Mutable, mutate } from "../utils/misc.js";
 import { createSymbol, createSymbolTable, getSymNode } from "./binder.js";
 import { compilerAssert } from "./diagnostics.js";
-import { typeReferenceToString } from "./helpers/syntax-utils.js";
-import { createDiagnostic } from "./messages.js";
 import { visitChildren } from "./parser.js";
 import { Program } from "./program.js";
 import {
@@ -1096,7 +1094,25 @@ export function createResolver(program: Program): NameResolver {
   }
 
   function setUsingsForFile(file: TypeSpecScriptNode) {
-    const usedUsing = new Set<Sym>();
+    const usedUsing = new Map<Sym, Set<Sym>>();
+    function isAlreadyAddedIn(sym: Sym, target: Sym) {
+      let current: Sym | undefined = sym;
+      while (current) {
+        if (usedUsing.get(sym)?.has(target)) {
+          return true;
+        }
+        current = current.parent;
+      }
+
+      let usingForScope = usedUsing.get(sym);
+      if (usingForScope === undefined) {
+        usingForScope = new Set();
+        usedUsing.set(sym, usingForScope);
+      }
+
+      usingForScope.add(target);
+      return false;
+    }
     for (const using of file.usings) {
       const parentNs = using.parent!;
       const { finalSymbol: usedSym, resolutionResult: usedSymResult } = resolveTypeReference(
@@ -1113,19 +1129,9 @@ export function createResolver(program: Program): NameResolver {
 
       const namespaceSym = getMergedSymbol(usedSym)!;
 
-      if (usedUsing.has(namespaceSym)) {
-        // TODO: not sure how to move this one to the checker
-        // Could have the name checker keep track of those or (preferably not) checker recollect
-        program.reportDiagnostic(
-          createDiagnostic({
-            code: "duplicate-using",
-            format: { usingName: typeReferenceToString(using.name) },
-            target: using,
-          }),
-        );
+      if (isAlreadyAddedIn(getMergedSymbol(parentNs.symbol), namespaceSym)) {
         continue;
       }
-      usedUsing.add(namespaceSym);
       addUsingSymbols(namespaceSym.exports!, parentNs.locals!);
     }
   }

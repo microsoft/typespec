@@ -192,34 +192,58 @@ describe("compiler: using statements", () => {
     expectDiagnosticEmpty(diagnostics);
   });
 
-  it("throws errors for duplicate imported usings", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+  describe("duplicate usings", () => {
+    it("doesn't consider using scoped in namespace as duplicate", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+          import "./a.tsp";
+          using A;
+
+          namespace B {
+            using A;
+          }
+          namespace C {
+            using A;
+          }
+        `,
+      );
+      testHost.addTypeSpecFile("a.tsp", `namespace A { model AModel {} }`);
+
+      const diagnostics = await testHost.diagnose("./");
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("throws errors for duplicate imported usings", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
       import "./a.tsp";
       import "./b.tsp";
       `,
-    );
-    testHost.addTypeSpecFile(
-      "a.tsp",
-      `
+      );
+      testHost.addTypeSpecFile(
+        "a.tsp",
+        `
       namespace N.M;
       model X { x: int32 }
       `,
-    );
+      );
 
-    testHost.addTypeSpecFile(
-      "b.tsp",
-      `
+      testHost.addTypeSpecFile(
+        "b.tsp",
+        `
       using N.M;
       using N.M;
       `,
-    );
+      );
 
-    const diagnostics = await testHost.diagnose("./");
-    strictEqual(diagnostics.length, 1);
-    strictEqual(diagnostics[0].code, "duplicate-using");
-    strictEqual(diagnostics[0].message, 'duplicate using of "N.M" namespace');
+      const diagnostics = await testHost.diagnose("./");
+      expectDiagnostics(diagnostics, [
+        { code: "duplicate-using", message: 'duplicate using of "N.M" namespace' },
+        { code: "duplicate-using", message: 'duplicate using of "N.M" namespace' },
+      ]);
+    });
   });
 
   it("does not throws errors for different usings with the same bindings if not used", async () => {
