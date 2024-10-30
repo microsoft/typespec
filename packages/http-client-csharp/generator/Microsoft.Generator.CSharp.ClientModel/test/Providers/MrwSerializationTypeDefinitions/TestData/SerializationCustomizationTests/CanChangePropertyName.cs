@@ -155,6 +155,10 @@ namespace Sample.Models
         /// <param name="model"> The <see cref="global::Sample.Models.Model"/> to serialize into <see cref="global::System.ClientModel.BinaryContent"/>. </param>
         public static implicit operator BinaryContent(global::Sample.Models.Model model)
         {
+            if ((model == null))
+            {
+                return null;
+            }
             return global::System.ClientModel.BinaryContent.Create(model, global::Sample.ModelSerializationExtensions.WireOptions);
         }
 
