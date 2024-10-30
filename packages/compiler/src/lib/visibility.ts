@@ -350,6 +350,7 @@ export const $withUpdateableProperties: WithUpdateablePropertiesDecorator = (
     return;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
   filterModelPropertiesInPlace(target, (p) => isVisible(context.program, p, ["update"]));
 };
 
@@ -377,7 +378,7 @@ export const $withLifecycleUpdate: WithLifecycleUpdateDecorator = (
 ) => {
   const lifecycle = getLifecycleVisibilityEnum(context.program);
   const lifecycleUpdate: VisibilityFilter = {
-    all: new Set([lifecycle.members.get("Update")!]) 
+    all: new Set([lifecycle.members.get("Update")!]),
   };
 
   const createOrUpdateMutator = createVisibilityFilterMutator({
@@ -404,15 +405,14 @@ export const $withLifecycleUpdate: WithLifecycleUpdateDecorator = (
         clone.decorators = clone.decorators.filter((d) => d.decorator !== $withLifecycleUpdate);
 
         return MutatorFlow.DoNotRecurse;
-      }
-    }
+      },
+    },
   };
 
   const { type } = mutateSubgraph(context.program, [updateMutator], target);
 
   target.properties = (type as Model).properties;
 };
-
 
 function createVisibilityFilterMutator(filter: VisibilityFilter): Mutator {
   const self: Mutator = {
@@ -437,8 +437,8 @@ function createVisibilityFilterMutator(filter: VisibilityFilter): Mutator {
         clone.decorators = clone.decorators.filter((d) => d.decorator !== $withVisibilityFilter);
 
         return MutatorFlow.DoNotRecurse;
-      }
-    }
+      },
+    },
   };
 
   return self;

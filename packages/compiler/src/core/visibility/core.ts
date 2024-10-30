@@ -559,7 +559,7 @@ export const VisibilityFilter = {
     if (filter.any) filter.any.forEach((v) => classes.add(v.enum));
     if (filter.none) filter.none.forEach((v) => classes.add(v.enum));
     return classes;
-  }
+  },
 };
 
 /**
