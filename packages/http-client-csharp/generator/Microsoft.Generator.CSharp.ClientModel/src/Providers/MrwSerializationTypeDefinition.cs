@@ -206,7 +206,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 new MethodSignature(ClientModelPlugin.Instance.TypeFactory.RequestContentApi.RequestContentType.FrameworkType.Name, null, modifiers, null, null, [model]),
                 new MethodBodyStatement[]
                 {
-                    new IfStatement(model.AsExpression.Equal(Null)) { Return(Null) },
+                    !model.Type.IsValueType ? new IfStatement(model.AsExpression.Equal(Null)) { Return(Null) } : MethodBodyStatement.Empty,
                     ClientModelPlugin.Instance.TypeFactory.RequestContentApi.ToExpression().Create(model)
                 },
                 this);
