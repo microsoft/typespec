@@ -4,6 +4,8 @@ title: Getting Started with TypeSpec For REST APIs
 pagination_next: getting-started/getting-started-rest/02-operations-responses # Explicitly needed as its also being the category page https://github.com/facebook/docusaurus/issues/6183
 ---
 
+import { FileTree } from "@astrojs/starlight/components";
+
 ## Introduction
 
 Welcome to our tutorial on using TypeSpec to define REST APIs with HTTP. In this section, we'll introduce you to TypeSpec, help you set up your environment, and cover the basic syntax and structure of TypeSpec. By the end of this section, you'll have a solid foundation to build upon in the subsequent sections.
@@ -31,14 +33,13 @@ Before we start writing TypeSpec code, we need to set up our development environ
 
 Once you've completed these steps, you'll have a basic TypeSpec project set up. Here's an overview of the files and directories in your TypeSpec project:
 
-```
-Project Root
-├── main.tsp
-├── tspconfig.yaml
-├── package.json
-├── node_modules/
-└── tsp-output/
-```
+<FileTree>
+- main.tsp
+- tspconfig.yaml
+- package.json
+- node_modules/
+- tsp-output/
+</FileTree>
 
 - **main.tsp**: Entry point for TypeSpec definitions.
 - **tspconfig.yaml**: TypeSpec compiler configuration.
