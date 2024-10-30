@@ -892,6 +892,7 @@ export interface ResolutionResult {
   isTemplateInstantiation?: boolean;
   resolvedSymbol: Sym | undefined;
   finalSymbol: Sym | undefined;
+  ambiguousSymbols?: Sym[];
 }
 
 export interface NodeLinks {
@@ -919,6 +920,9 @@ export interface NodeLinks {
    * When the the result is `Resolved`, `resolvedSymbol` contains the result.
    **/
   resolutionResult?: ResolutionResultFlags;
+
+  /** If the resolution result is Ambiguous list of symbols that are */
+  ambiguousSymbols?: Sym[];
 }
 
 export enum ResolutionResultFlags {

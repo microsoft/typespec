@@ -3084,7 +3084,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
             }),
           );
         } else if (links.resolutionResult & ResolutionResultFlags.Ambiguous) {
-          // ignore reported in name resolver
+          reportAmbiguousIdentifier(node, links.ambiguousSymbols!);
         }
       }
 
@@ -3125,6 +3125,19 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     compilerAssert(false, `Unknown type reference kind "${SyntaxKind[(node as any).kind]}"`, node);
+  }
+
+  function reportAmbiguousIdentifier(node: IdentifierNode, symbols: Sym[]) {
+    const duplicateNames = symbols.map((s) =>
+      getFullyQualifiedSymbolName(s, { useGlobalPrefixAtTopLevel: true }),
+    );
+    program.reportDiagnostic(
+      createDiagnostic({
+        code: "ambiguous-symbol",
+        format: { name: node.sv, duplicateNames: duplicateNames.join(", ") },
+        target: node,
+      }),
+    );
   }
 
   function resolveMemberInContainer(

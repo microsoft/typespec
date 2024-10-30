@@ -64,7 +64,6 @@ import { typeReferenceToString } from "./helpers/syntax-utils.js";
 import { createDiagnostic } from "./messages.js";
 import { visitChildren } from "./parser.js";
 import { Program } from "./program.js";
-import { getFullyQualifiedSymbolName } from "./type-utils.js";
 import {
   AliasStatementNode,
   AugmentDecoratorStatementNode,
@@ -448,6 +447,15 @@ export function createResolver(program: Program): NameResolver {
       resolvedSymbol: undefined,
       finalSymbol: undefined,
       resolutionResult,
+    };
+  }
+
+  function ambiguousResult(symbols: Sym[]): ResolutionResult {
+    return {
+      resolutionResult: ResolutionResultFlags.Ambiguous,
+      resolvedSymbol: undefined,
+      finalSymbol: undefined,
+      ambiguousSymbols: symbols,
     };
   }
 
@@ -993,38 +1001,21 @@ export function createResolver(program: Program): NameResolver {
       const usingBinding = tableLookup(scope.locals, node, options.resolveDecorators);
 
       if (globalBinding && usingBinding) {
-        reportAmbiguousIdentifier(node, [globalBinding, usingBinding]);
-
-        return failedResult(ResolutionResultFlags.Ambiguous);
+        return ambiguousResult([globalBinding, usingBinding]);
       } else if (globalBinding) {
         return resolvedResult(globalBinding);
       } else if (usingBinding) {
         if (usingBinding.flags & SymbolFlags.DuplicateUsing) {
-          reportAmbiguousIdentifier(node, [
+          return ambiguousResult([
             ...((augmentedSymbolTables.get(scope.locals)?.duplicates.get(usingBinding) as any) ??
               []),
           ]);
-
-          return failedResult(ResolutionResultFlags.Ambiguous);
         }
         return resolvedResult(usingBinding.symbolSource!);
       }
     }
 
     return failedResult(ResolutionResultFlags.Unknown);
-  }
-
-  function reportAmbiguousIdentifier(node: IdentifierNode, symbols: Sym[]) {
-    const duplicateNames = symbols.map((s) =>
-      getFullyQualifiedSymbolName(s, { useGlobalPrefixAtTopLevel: true }),
-    );
-    program.reportDiagnostic(
-      createDiagnostic({
-        code: "ambiguous-symbol",
-        format: { name: node.sv, duplicateNames: duplicateNames.join(", ") },
-        target: node,
-      }),
-    );
   }
 
   /**
