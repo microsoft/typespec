@@ -35,7 +35,7 @@ public final class ResourceD implements JsonSerializable<ResourceD> {
      * @param name the name value to set.
      */
     @Generated
-    private ResourceD(String name) {
+    public ResourceD(String name) {
         this.name = name;
     }
 
