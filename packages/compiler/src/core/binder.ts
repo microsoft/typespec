@@ -48,7 +48,6 @@ import {
 // Use a regular expression to define the prefix for TypeSpec-exposed functions
 // defined in JavaScript modules
 const DecoratorFunctionPattern = /^\$/;
-// TODO: move to separate file
 const SymbolTable = class extends Map<string, Sym> implements MutableSymbolTable {
   duplicates = new Map<Sym, Set<Sym>>();
 
