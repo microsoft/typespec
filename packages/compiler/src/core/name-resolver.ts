@@ -297,9 +297,12 @@ export function createResolver(program: Program): NameResolver {
 
     if (resolvedSym && resolvedSym.flags & SymbolFlags.Alias) {
       // unwrap aliases
-      const aliasNode = resolvedSym.declarations[0];
-      const aliasResult = resolveAlias(aliasNode as AliasStatementNode);
-      if (aliasResult.isTemplateInstantiation) {
+      const aliasNode = resolvedSym.declarations[0] as AliasStatementNode;
+      const aliasResult = resolveAlias(aliasNode);
+      // For alias if the alias itself is a template declaration then its not actually instantiating the reference
+      const isTemplateInstantiation =
+        aliasResult.isTemplateInstantiation && aliasNode.templateParameters.length === 0;
+      if (isTemplateInstantiation) {
         links.isTemplateInstantiation = true;
       }
       if (aliasResult.finalSymbol) {
@@ -308,8 +311,7 @@ export function createResolver(program: Program): NameResolver {
       result = {
         ...aliasResult,
         finalSymbol: links.finalSymbol,
-        isTemplateInstantiation:
-          result.isTemplateInstantiation || aliasResult.isTemplateInstantiation,
+        isTemplateInstantiation: result.isTemplateInstantiation || isTemplateInstantiation,
       };
     } else if (resolvedSym && resolvedSym.flags & SymbolFlags.TemplateParameter) {
       // references to template parameters with constraints can reference the

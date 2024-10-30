@@ -1,6 +1,6 @@
-import { deepEqual, strictEqual } from "assert";
+import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { Model, Operation, StringLiteral, Type } from "../../src/core/types.js";
+import { StringLiteral, Type } from "../../src/core/types.js";
 import {
   TestHost,
   createTestHost,
@@ -182,6 +182,7 @@ describe("augment types", () => {
 
     const [result, diagnostics] = await testHost.compileAndDiagnose("test.tsp");
     expectDiagnosticEmpty(diagnostics);
+    ok(result.target, `Missing element decorated with '@test("target")'`);
     strictEqual(runOnTarget?.kind, result.target.kind);
     strictEqual(runOnTarget, result.target);
     strictEqual(customName, "FooCustom");
@@ -273,52 +274,38 @@ describe("augment types", () => {
       "foo::parameters.nested::type.bar",
     ));
 
-  it("uninstantiated template", async () => {
-    testHost.addJsFile("test.js", {
-      $customName(_: any, t: Type, n: string) {
-        const runOnTarget: Type | undefined = t;
-        const customName: string | undefined = n;
-        if (runOnTarget) {
-        }
-        if (customName) {
-        }
-      },
-    });
+  describe("uninstantiated template", () => {
+    it("model", () =>
+      expectTarget(
+        `
+          @test("target") model Foo<T> { testProp: T }
 
-    testHost.addTypeSpecFile(
-      "test.tsp",
-      `
-          import "./test.js";
+          model Insantiate { foo: Foo<string> }
+        `,
+        "Foo",
+      ));
+
+    it("model property", () =>
+      expectTarget(
+        `
+          model Foo<T> { @test("target") testProp: T }
+
+          model Insantiate { foo: Foo<string> }
+        `,
+        "Foo.testProp",
+      ));
+
+    it("via alias", () =>
+      expectTarget(
+        `
+            @test("target") model Foo<T> { testProp: T }
   
-          model Foo<T> {
-            testProp: T;
-          };
+            alias FooAlias<T> = Foo<T>;
   
-          @test
-          op stringTest(): Foo<string>;
-  
-          @@customName(Foo, "Some foo thing");
-          @@customName(Foo.testProp, "Some test prop");
+            model Insantiate { foo: FooAlias<string> }
           `,
-    );
-    const [results, diagnostics] = await testHost.compileAndDiagnose("test.tsp");
-    expectDiagnosticEmpty(diagnostics);
-    const stringTest = results.stringTest as Operation;
-    strictEqual(stringTest.kind, "Operation");
-    deepEqual((stringTest.returnType as Model).decorators[0].args[0].value, {
-      entityKind: "Type",
-      kind: "String",
-      value: "Some foo thing",
-      isFinished: false,
-    });
-    for (const prop of (stringTest.returnType as Model).properties) {
-      deepEqual(prop[1].decorators[0].args[0].value, {
-        entityKind: "Type",
-        kind: "String",
-        value: "Some test prop",
-        isFinished: false,
-      });
-    }
+        "FooAlias",
+      ));
   });
 });
 
