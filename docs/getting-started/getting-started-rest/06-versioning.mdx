@@ -2,6 +2,8 @@
 title: Versioning
 ---
 
+import { FileTree } from "@astrojs/starlight/components";
+
 ## Introduction
 
 In this section, we'll focus on implementing versioning in your REST API. Versioning allows you to manage changes to your API over time without breaking existing clients. We'll introduce the `@versioned` decorator, show how to define versions with enums, and demonstrate how to use the `@added` decorator to specify version-specific models and operations.
@@ -88,19 +90,18 @@ In this example:
 
 Once we start adding versions, the TypeSpec compiler will generate individual OpenAPI specifications for each version. In our case, it will generate two OpenAPI specs, one for each version of our Pet Store service API. Our file structure will now look like this:
 
-```tsp
-main.tsp
-tspconfig.yaml
-package.json
-node_modules/
-tsp-output/
-┗ @typespec/
-  ┗ openapi3/
-    // highlight-start
-    ┣ openapi.1.0.yaml
-    ┗ openapi.2.0.yaml
-    // highlight-end
-```
+{/* prettier-ignore */}
+<FileTree>
+- main.tsp
+- tspconfig.yaml
+- package.json
+- node_modules/
+- tsp-output/
+  - @typespec/
+    - openapi3
+      - openapi.1.0.yaml
+      - openapi.2.0.yaml
+</FileTree>
 
 Generating separate specs for each version ensures backward compatibility, provides clear documentation for developers to understand differences between versions, and simplifies maintenance by allowing independent updates to each version's specifications.
 
