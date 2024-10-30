@@ -1,0 +1,25 @@
+{
+  "id": "libraries/http/content-types",
+  "title": "Content types",
+  "description": "Default behavior",
+  "source": "@site/../../docs/libraries/http/content-types.md",
+  "sourceDirName": "libraries/http",
+  "slug": "/libraries/http/content-types",
+  "permalink": "/docs/next/libraries/http/content-types",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "title": "Content types"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Operations",
+    "permalink": "/docs/next/libraries/http/operations"
+  },
+  "next": {
+    "title": "Multipart requests",
+    "permalink": "/docs/next/libraries/http/multipart"
+  }
+}

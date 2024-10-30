@@ -1,0 +1,26 @@
+{
+  "id": "emitters/openapi3/reference/js-api/variables/$lib",
+  "title": "[V] $lib",
+  "description": "Type declaration",
+  "source": "@site/versioned_docs/version-latest/emitters/openapi3/reference/js-api/variables/$lib.md",
+  "sourceDirName": "emitters/openapi3/reference/js-api/variables",
+  "slug": "/emitters/openapi3/reference/js-api/variables/$lib",
+  "permalink": "/docs/emitters/openapi3/reference/js-api/variables/$lib",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[V] $lib"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ResolvedOpenAPI3EmitterOptions",
+    "permalink": "/docs/emitters/openapi3/reference/js-api/interfaces/ResolvedOpenAPI3EmitterOptions"
+  },
+  "next": {
+    "title": "[V] namespace",
+    "permalink": "/docs/emitters/openapi3/reference/js-api/variables/namespace"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/functions/getHttpOperation",
+  "title": "[F] getHttpOperation",
+  "description": "Return the Http Operation details for a given TypeSpec operation.",
+  "source": "@site/../../docs/libraries/http/reference/js-api/functions/getHttpOperation.md",
+  "sourceDirName": "libraries/http/reference/js-api/functions",
+  "slug": "/libraries/http/reference/js-api/functions/getHttpOperation",
+  "permalink": "/docs/next/libraries/http/reference/js-api/functions/getHttpOperation",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getHttpOperation"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getHttpFileModel",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/getHttpFileModel"
+  },
+  "next": {
+    "title": "[F] getHttpPart",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/getHttpPart"
+  }
+}

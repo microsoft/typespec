@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/DocErrorsTagNode",
+  "title": "[I] DocErrorsTagNode",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/DocErrorsTagNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/DocErrorsTagNode",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/DocErrorsTagNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] DocErrorsTagNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] Discriminator",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/Discriminator"
+  },
+  "next": {
+    "title": "[I] DocNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/DocNode"
+  }
+}

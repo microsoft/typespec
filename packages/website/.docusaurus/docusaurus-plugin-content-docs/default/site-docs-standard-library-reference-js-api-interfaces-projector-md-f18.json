@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/Projector",
+  "title": "[I] Projector",
+  "description": "Properties",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/Projector.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/Projector",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/Projector",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] Projector"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ProjectionUnionVariantSelectorNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ProjectionUnionVariantSelectorNode"
+  },
+  "next": {
+    "title": "[I] RecordModelType",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/RecordModelType"
+  }
+}

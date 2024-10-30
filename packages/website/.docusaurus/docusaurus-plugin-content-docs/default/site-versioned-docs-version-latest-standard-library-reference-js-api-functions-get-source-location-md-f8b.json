@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/getSourceLocation",
+  "title": "[F] getSourceLocation",
+  "description": "getSourceLocation(target, options)",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/getSourceLocation.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/getSourceLocation",
+  "permalink": "/docs/standard-library/reference/js-api/functions/getSourceLocation",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getSourceLocation"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getSourceFileKindFromExt",
+    "permalink": "/docs/standard-library/reference/js-api/functions/getSourceFileKindFromExt"
+  },
+  "next": {
+    "title": "[F] getSummary",
+    "permalink": "/docs/standard-library/reference/js-api/functions/getSummary"
+  }
+}

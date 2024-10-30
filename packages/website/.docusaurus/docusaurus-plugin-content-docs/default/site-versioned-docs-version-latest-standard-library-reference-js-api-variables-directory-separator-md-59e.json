@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/variables/directorySeparator",
+  "title": "[V] directorySeparator",
+  "description": "Internally, we represent paths as strings with '/' as the directory separator.",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/variables/directorySeparator.md",
+  "sourceDirName": "standard-library/reference/js-api/variables",
+  "slug": "/standard-library/reference/js-api/variables/directorySeparator",
+  "permalink": "/docs/standard-library/reference/js-api/variables/directorySeparator",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[V] directorySeparator"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[V] cadlVersion",
+    "permalink": "/docs/standard-library/reference/js-api/variables/cadlVersion"
+  },
+  "next": {
+    "title": "[V] namespace",
+    "permalink": "/docs/standard-library/reference/js-api/variables/namespace"
+  }
+}

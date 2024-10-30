@@ -1,0 +1,26 @@
+{
+  "id": "emitters/json-schema/reference/js-api/functions/isJsonSchemaDeclaration",
+  "title": "[F] isJsonSchemaDeclaration",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/emitters/json-schema/reference/js-api/functions/isJsonSchemaDeclaration.md",
+  "sourceDirName": "emitters/json-schema/reference/js-api/functions",
+  "slug": "/emitters/json-schema/reference/js-api/functions/isJsonSchemaDeclaration",
+  "permalink": "/docs/emitters/json-schema/reference/js-api/functions/isJsonSchemaDeclaration",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] isJsonSchemaDeclaration"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getUniqueItems",
+    "permalink": "/docs/emitters/json-schema/reference/js-api/functions/getUniqueItems"
+  },
+  "next": {
+    "title": "[F] isOneOf",
+    "permalink": "/docs/emitters/json-schema/reference/js-api/functions/isOneOf"
+  }
+}

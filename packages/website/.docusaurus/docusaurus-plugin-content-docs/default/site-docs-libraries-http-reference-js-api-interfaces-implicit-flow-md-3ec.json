@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/interfaces/ImplicitFlow",
+  "title": "[I] ImplicitFlow",
+  "description": "Implicit flow",
+  "source": "@site/../../docs/libraries/http/reference/js-api/interfaces/ImplicitFlow.md",
+  "sourceDirName": "libraries/http/reference/js-api/interfaces",
+  "slug": "/libraries/http/reference/js-api/interfaces/ImplicitFlow",
+  "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/ImplicitFlow",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ImplicitFlow"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] HttpStatusCodeRange",
+    "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/HttpStatusCodeRange"
+  },
+  "next": {
+    "title": "[I] MetadataInfo",
+    "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/MetadataInfo"
+  }
+}

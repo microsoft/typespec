@@ -1,0 +1,26 @@
+{
+  "id": "libraries/openapi/reference/js-api/interfaces/License",
+  "title": "[I] License",
+  "description": "License information",
+  "source": "@site/versioned_docs/version-latest/libraries/openapi/reference/js-api/interfaces/License.md",
+  "sourceDirName": "libraries/openapi/reference/js-api/interfaces",
+  "slug": "/libraries/openapi/reference/js-api/interfaces/License",
+  "permalink": "/docs/libraries/openapi/reference/js-api/interfaces/License",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] License"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ExternalDocs",
+    "permalink": "/docs/libraries/openapi/reference/js-api/interfaces/ExternalDocs"
+  },
+  "next": {
+    "title": "[T] DefaultResponseDecorator",
+    "permalink": "/docs/libraries/openapi/reference/js-api/type-aliases/DefaultResponseDecorator"
+  }
+}

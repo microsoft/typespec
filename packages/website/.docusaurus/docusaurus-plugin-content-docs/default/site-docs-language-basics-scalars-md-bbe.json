@@ -1,0 +1,25 @@
+{
+  "id": "language-basics/scalars",
+  "title": "Scalars",
+  "description": "Scalars are simple types that don't have any fields. Examples of these include string, int32, boolean, and so on.",
+  "source": "@site/../../docs/language-basics/scalars.md",
+  "sourceDirName": "language-basics",
+  "slug": "/language-basics/scalars",
+  "permalink": "/docs/next/language-basics/scalars",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "title": "Scalars"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Documentation",
+    "permalink": "/docs/next/language-basics/documentation"
+  },
+  "next": {
+    "title": "Models",
+    "permalink": "/docs/next/language-basics/models"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "id": "handbook/configuration/configuration",
+  "title": "Configuration",
+  "description": "The TypeSpec compiler and libraries can be configured either via a configuration file or command line flags.",
+  "source": "@site/../../docs/handbook/configuration/configuration.md",
+  "sourceDirName": "handbook/configuration",
+  "slug": "/handbook/configuration/",
+  "permalink": "/docs/next/handbook/configuration/",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "title": "Configuration"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Reproducibility",
+    "permalink": "/docs/next/handbook/reproducibility"
+  },
+  "next": {
+    "title": "Tracing",
+    "permalink": "/docs/next/handbook/configuration/tracing"
+  }
+}

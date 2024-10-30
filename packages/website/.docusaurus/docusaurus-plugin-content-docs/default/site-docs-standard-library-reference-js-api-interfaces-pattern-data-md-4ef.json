@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/PatternData",
+  "title": "[I] PatternData",
+  "description": "Properties",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/PatternData.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/PatternData",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/PatternData",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] PatternData"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ParseOptions",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ParseOptions"
+  },
+  "next": {
+    "title": "[I] PositionDetail",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/PositionDetail"
+  }
+}

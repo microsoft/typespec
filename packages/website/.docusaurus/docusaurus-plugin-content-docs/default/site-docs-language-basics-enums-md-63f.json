@@ -1,0 +1,26 @@
+{
+  "id": "language-basics/enums",
+  "title": "Enums",
+  "description": "Enums, short for enumerations, provide a way for developers to define a collection of named constants. They are useful for documenting the purpose of the code or for establishing a set of distinct scenarios. Enums can be either numeric or string-based. For other data types, consider using unions.",
+  "source": "@site/../../docs/language-basics/enums.md",
+  "sourceDirName": "language-basics",
+  "slug": "/language-basics/enums",
+  "permalink": "/docs/next/language-basics/enums",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "enums",
+    "title": "Enums"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Templates",
+    "permalink": "/docs/next/language-basics/templates"
+  },
+  "next": {
+    "title": "Unions",
+    "permalink": "/docs/next/language-basics/unions"
+  }
+}

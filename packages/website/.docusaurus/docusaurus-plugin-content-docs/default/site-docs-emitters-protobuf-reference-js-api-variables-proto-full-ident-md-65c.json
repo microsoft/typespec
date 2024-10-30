@@ -1,0 +1,26 @@
+{
+  "id": "emitters/protobuf/reference/js-api/variables/PROTO_FULL_IDENT",
+  "title": "[V] PROTO_FULL_IDENT",
+  "description": "Defined in the ProtoBuf Language Spec.",
+  "source": "@site/../../docs/emitters/protobuf/reference/js-api/variables/PROTO_FULL_IDENT.md",
+  "sourceDirName": "emitters/protobuf/reference/js-api/variables",
+  "slug": "/emitters/protobuf/reference/js-api/variables/PROTO_FULL_IDENT",
+  "permalink": "/docs/next/emitters/protobuf/reference/js-api/variables/PROTO_FULL_IDENT",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[V] PROTO_FULL_IDENT"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[V] $lib",
+    "permalink": "/docs/next/emitters/protobuf/reference/js-api/variables/$lib"
+  },
+  "next": {
+    "title": "[V] namespace",
+    "permalink": "/docs/next/emitters/protobuf/reference/js-api/variables/namespace"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/functions/getVisibilitySuffix",
+  "title": "[F] getVisibilitySuffix",
+  "description": "Provides a naming suffix to create a unique name for a type with this",
+  "source": "@site/versioned_docs/version-latest/libraries/http/reference/js-api/functions/getVisibilitySuffix.md",
+  "sourceDirName": "libraries/http/reference/js-api/functions",
+  "slug": "/libraries/http/reference/js-api/functions/getVisibilitySuffix",
+  "permalink": "/docs/libraries/http/reference/js-api/functions/getVisibilitySuffix",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getVisibilitySuffix"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getUriTemplatePathParam",
+    "permalink": "/docs/libraries/http/reference/js-api/functions/getUriTemplatePathParam"
+  },
+  "next": {
+    "title": "[F] includeInapplicableMetadataInPayload",
+    "permalink": "/docs/libraries/http/reference/js-api/functions/includeInapplicableMetadataInPayload"
+  }
+}

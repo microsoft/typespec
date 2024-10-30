@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/functions/getHeaderFieldName",
+  "title": "[F] getHeaderFieldName",
+  "description": "Parameters",
+  "source": "@site/../../docs/libraries/http/reference/js-api/functions/getHeaderFieldName.md",
+  "sourceDirName": "libraries/http/reference/js-api/functions",
+  "slug": "/libraries/http/reference/js-api/functions/getHeaderFieldName",
+  "permalink": "/docs/next/libraries/http/reference/js-api/functions/getHeaderFieldName",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getHeaderFieldName"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getContentTypes",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/getContentTypes"
+  },
+  "next": {
+    "title": "[F] getHeaderFieldOptions",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/getHeaderFieldOptions"
+  }
+}

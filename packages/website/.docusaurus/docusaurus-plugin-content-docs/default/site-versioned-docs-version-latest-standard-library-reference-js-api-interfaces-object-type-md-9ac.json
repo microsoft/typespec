@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/ObjectType",
+  "title": "[I] ObjectType",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/ObjectType.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/ObjectType",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/ObjectType",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ObjectType"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ObjectLiteralSpreadPropertyNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ObjectLiteralSpreadPropertyNode"
+  },
+  "next": {
+    "title": "[I] ObjectValue",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ObjectValue"
+  }
+}

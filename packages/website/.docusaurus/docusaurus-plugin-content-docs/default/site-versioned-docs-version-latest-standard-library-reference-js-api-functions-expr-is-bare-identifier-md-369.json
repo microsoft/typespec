@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/exprIsBareIdentifier",
+  "title": "[F] exprIsBareIdentifier",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/exprIsBareIdentifier.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/exprIsBareIdentifier",
+  "permalink": "/docs/standard-library/reference/js-api/functions/exprIsBareIdentifier",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] exprIsBareIdentifier"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] explainStringTemplateNotSerializable",
+    "permalink": "/docs/standard-library/reference/js-api/functions/explainStringTemplateNotSerializable"
+  },
+  "next": {
+    "title": "[F] filterModelProperties",
+    "permalink": "/docs/standard-library/reference/js-api/functions/filterModelProperties"
+  }
+}

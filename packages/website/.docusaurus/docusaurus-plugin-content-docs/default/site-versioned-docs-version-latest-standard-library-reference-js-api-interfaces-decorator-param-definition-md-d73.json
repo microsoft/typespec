@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/DecoratorParamDefinition",
+  "title": "[I] DecoratorParamDefinition",
+  "description": "Type Parameters",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/DecoratorParamDefinition.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/DecoratorParamDefinition",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/DecoratorParamDefinition",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] DecoratorParamDefinition"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] DecoratorImplementations",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/DecoratorImplementations"
+  },
+  "next": {
+    "title": "[I] DecoratorValidator",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/DecoratorValidator"
+  }
+}

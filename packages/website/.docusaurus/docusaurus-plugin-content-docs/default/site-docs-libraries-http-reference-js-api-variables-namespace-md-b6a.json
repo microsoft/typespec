@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/variables/namespace",
+  "title": "[V] namespace",
+  "description": "",
+  "source": "@site/../../docs/libraries/http/reference/js-api/variables/namespace.md",
+  "sourceDirName": "libraries/http/reference/js-api/variables",
+  "slug": "/libraries/http/reference/js-api/variables/namespace",
+  "permalink": "/docs/next/libraries/http/reference/js-api/variables/namespace",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[V] namespace"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[V] $linter",
+    "permalink": "/docs/next/libraries/http/reference/js-api/variables/$linter"
+  },
+  "next": {
+    "title": "Linter usage",
+    "permalink": "/docs/next/libraries/http/reference/linter"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "libraries/versioning/reference/js-api/functions/getRenamedFromVersions",
+  "title": "[F] getRenamedFromVersions",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/libraries/versioning/reference/js-api/functions/getRenamedFromVersions.md",
+  "sourceDirName": "libraries/versioning/reference/js-api/functions",
+  "slug": "/libraries/versioning/reference/js-api/functions/getRenamedFromVersions",
+  "permalink": "/docs/libraries/versioning/reference/js-api/functions/getRenamedFromVersions",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getRenamedFromVersions"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getRenamedFrom",
+    "permalink": "/docs/libraries/versioning/reference/js-api/functions/getRenamedFrom"
+  },
+  "next": {
+    "title": "[F] getReturnTypeChangedFrom",
+    "permalink": "/docs/libraries/versioning/reference/js-api/functions/getReturnTypeChangedFrom"
+  }
+}

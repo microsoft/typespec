@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/functions/getHttpPart",
+  "title": "[F] getHttpPart",
+  "description": "Return the http part information on a model that is an HttpPart",
+  "source": "@site/versioned_docs/version-latest/libraries/http/reference/js-api/functions/getHttpPart.md",
+  "sourceDirName": "libraries/http/reference/js-api/functions",
+  "slug": "/libraries/http/reference/js-api/functions/getHttpPart",
+  "permalink": "/docs/libraries/http/reference/js-api/functions/getHttpPart",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getHttpPart"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getHttpOperation",
+    "permalink": "/docs/libraries/http/reference/js-api/functions/getHttpOperation"
+  },
+  "next": {
+    "title": "[F] getHttpService",
+    "permalink": "/docs/libraries/http/reference/js-api/functions/getHttpService"
+  }
+}

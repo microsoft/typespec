@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/$error",
+  "title": "[F] $error",
+  "description": "@error decorator marks a model as an error type.",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/$error.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/$error",
+  "permalink": "/docs/standard-library/reference/js-api/functions/$error",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $error"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $encode",
+    "permalink": "/docs/standard-library/reference/js-api/functions/$encode"
+  },
+  "next": {
+    "title": "[F] $errorsDoc",
+    "permalink": "/docs/standard-library/reference/js-api/functions/$errorsDoc"
+  }
+}

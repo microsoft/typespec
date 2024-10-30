@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/$withDefaultKeyVisibility",
+  "title": "[F] $withDefaultKeyVisibility",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/$withDefaultKeyVisibility.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/$withDefaultKeyVisibility",
+  "permalink": "/docs/standard-library/reference/js-api/functions/$withDefaultKeyVisibility",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $withDefaultKeyVisibility"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $visibility",
+    "permalink": "/docs/standard-library/reference/js-api/functions/$visibility"
+  },
+  "next": {
+    "title": "[F] $withOptionalProperties",
+    "permalink": "/docs/standard-library/reference/js-api/functions/$withOptionalProperties"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "extending-typespec/basics",
+  "title": "Creating a TypeSpec Library",
+  "description": "A TypeSpec library is a package that includes TypeSpec types, decorators, emitters or linters. These libraries are npm packages with some additional TypeSpec-specific metadata and conventions. This guide will walk you through the process of creating a new TypeSpec library, adding types to it, and distributing it on the public npm registry. Further sections will delve into the specifics of creating decorators, emitters and linters.",
+  "source": "@site/../../docs/extending-typespec/basics.md",
+  "sourceDirName": "extending-typespec",
+  "slug": "/extending-typespec/basics",
+  "permalink": "/docs/next/extending-typespec/basics",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "basics",
+    "title": "Creating a TypeSpec Library"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Guide",
+    "permalink": "/docs/next/emitters/protobuf/guide"
+  },
+  "next": {
+    "title": "Diagnostics",
+    "permalink": "/docs/next/extending-typespec/diagnostics"
+  }
+}

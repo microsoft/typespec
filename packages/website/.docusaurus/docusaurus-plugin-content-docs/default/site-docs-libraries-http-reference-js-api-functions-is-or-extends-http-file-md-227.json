@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/functions/isOrExtendsHttpFile",
+  "title": "[F] isOrExtendsHttpFile",
+  "description": "Parameters",
+  "source": "@site/../../docs/libraries/http/reference/js-api/functions/isOrExtendsHttpFile.md",
+  "sourceDirName": "libraries/http/reference/js-api/functions",
+  "slug": "/libraries/http/reference/js-api/functions/isOrExtendsHttpFile",
+  "permalink": "/docs/next/libraries/http/reference/js-api/functions/isOrExtendsHttpFile",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] isOrExtendsHttpFile"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] isMultipartBodyProperty",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/isMultipartBodyProperty"
+  },
+  "next": {
+    "title": "[F] isOverloadSameEndpoint",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/isOverloadSameEndpoint"
+  }
+}

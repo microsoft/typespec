@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/index",
+  "title": "[P] JS API",
+  "description": "Enumerations",
+  "source": "@site/versioned_docs/version-latest/libraries/http/reference/js-api/index.md",
+  "sourceDirName": "libraries/http/reference/js-api",
+  "slug": "/libraries/http/reference/js-api/",
+  "permalink": "/docs/libraries/http/reference/js-api/",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[P] JS API"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Decorators",
+    "permalink": "/docs/libraries/http/reference/decorators"
+  },
+  "next": {
+    "title": "[E] Visibility",
+    "permalink": "/docs/libraries/http/reference/js-api/enumerations/Visibility"
+  }
+}

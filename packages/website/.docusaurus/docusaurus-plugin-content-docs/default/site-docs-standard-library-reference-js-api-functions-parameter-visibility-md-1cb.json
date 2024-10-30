@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/$parameterVisibility",
+  "title": "[F] $parameterVisibility",
+  "description": "Parameters",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/$parameterVisibility.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/$parameterVisibility",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/$parameterVisibility",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $parameterVisibility"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $overload",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/$overload"
+  },
+  "next": {
+    "title": "[F] $pattern",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/$pattern"
+  }
+}

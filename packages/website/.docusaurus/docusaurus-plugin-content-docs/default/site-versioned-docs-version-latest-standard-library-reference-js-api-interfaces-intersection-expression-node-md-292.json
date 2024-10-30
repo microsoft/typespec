@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/IntersectionExpressionNode",
+  "title": "[I] IntersectionExpressionNode",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/IntersectionExpressionNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/IntersectionExpressionNode",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/IntersectionExpressionNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] IntersectionExpressionNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] InterfaceStatementNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/InterfaceStatementNode"
+  },
+  "next": {
+    "title": "[I] IntrinsicType",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/IntrinsicType"
+  }
+}

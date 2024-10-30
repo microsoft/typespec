@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/getMaxValueExclusive",
+  "title": "[F] getMaxValueExclusive",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/getMaxValueExclusive.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/getMaxValueExclusive",
+  "permalink": "/docs/standard-library/reference/js-api/functions/getMaxValueExclusive",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getMaxValueExclusive"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getMaxValueAsNumeric",
+    "permalink": "/docs/standard-library/reference/js-api/functions/getMaxValueAsNumeric"
+  },
+  "next": {
+    "title": "[F] getMaxValueExclusiveAsNumeric",
+    "permalink": "/docs/standard-library/reference/js-api/functions/getMaxValueExclusiveAsNumeric"
+  }
+}

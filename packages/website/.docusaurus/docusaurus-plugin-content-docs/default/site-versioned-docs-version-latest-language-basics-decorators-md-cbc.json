@@ -1,0 +1,26 @@
+{
+  "id": "language-basics/decorators",
+  "title": "Decorators",
+  "description": "Decorators in TypeSpec allow developers to attach metadata to types within a TypeSpec program. They can also be used to compute types based on their inputs. Decorators form the core of TypeSpec's extensibility, providing the flexibility to describe a wide variety of APIs and associated metadata such as documentation, constraints, samples, and more.",
+  "source": "@site/versioned_docs/version-latest/language-basics/decorators.md",
+  "sourceDirName": "language-basics",
+  "slug": "/language-basics/decorators",
+  "permalink": "/docs/language-basics/decorators",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "id": "decorators",
+    "title": "Decorators"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Namespaces",
+    "permalink": "/docs/language-basics/namespaces"
+  },
+  "next": {
+    "title": "Documentation",
+    "permalink": "/docs/language-basics/documentation"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/TypeNameOptions",
+  "title": "[I] TypeNameOptions",
+  "description": "Properties",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/TypeNameOptions.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/TypeNameOptions",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/TypeNameOptions",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] TypeNameOptions"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] TypeMapper",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/TypeMapper"
+  },
+  "next": {
+    "title": "[I] TypeOfExpressionNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/TypeOfExpressionNode"
+  }
+}

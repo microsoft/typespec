@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/interfaces/HttpOperation",
+  "title": "[I] HttpOperation",
+  "description": "Properties",
+  "source": "@site/versioned_docs/version-latest/libraries/http/reference/js-api/interfaces/HttpOperation.md",
+  "sourceDirName": "libraries/http/reference/js-api/interfaces",
+  "slug": "/libraries/http/reference/js-api/interfaces/HttpOperation",
+  "permalink": "/docs/libraries/http/reference/js-api/interfaces/HttpOperation",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] HttpOperation"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] HttpBody",
+    "permalink": "/docs/libraries/http/reference/js-api/interfaces/HttpBody"
+  },
+  "next": {
+    "title": "[I] HttpOperationBody",
+    "permalink": "/docs/libraries/http/reference/js-api/interfaces/HttpOperationBody"
+  }
+}

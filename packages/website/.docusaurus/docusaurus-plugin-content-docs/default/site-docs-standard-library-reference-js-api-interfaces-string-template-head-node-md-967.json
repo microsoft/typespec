@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/StringTemplateHeadNode",
+  "title": "[I] StringTemplateHeadNode",
+  "description": "Extends",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/StringTemplateHeadNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/StringTemplateHeadNode",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/StringTemplateHeadNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] StringTemplateHeadNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] StringTemplateExpressionNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/StringTemplateExpressionNode"
+  },
+  "next": {
+    "title": "[I] StringTemplateLiteralLikeNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/StringTemplateLiteralLikeNode"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/ServerLogLevel",
+  "title": "[T] ServerLogLevel",
+  "description": "",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/type-aliases/ServerLogLevel.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/ServerLogLevel",
+  "permalink": "/docs/standard-library/reference/js-api/type-aliases/ServerLogLevel",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] ServerLogLevel"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] SemanticNodeListener",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/SemanticNodeListener"
+  },
+  "next": {
+    "title": "[T] SourceFileKind",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/SourceFileKind"
+  }
+}

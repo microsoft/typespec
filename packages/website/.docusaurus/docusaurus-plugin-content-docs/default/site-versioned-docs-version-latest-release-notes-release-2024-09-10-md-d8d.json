@@ -1,0 +1,25 @@
+{
+  "id": "release-notes/release-2024-09-10",
+  "title": "0.60 - September 2024",
+  "description": "Features",
+  "source": "@site/versioned_docs/version-latest/release-notes/release-2024-09-10.md",
+  "sourceDirName": "release-notes",
+  "slug": "/release-notes/release-2024-09-10",
+  "permalink": "/docs/release-notes/release-2024-09-10",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "title": "0.60 - September 2024"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "0.61 - October 2024",
+    "permalink": "/docs/release-notes/release-2024-10-09"
+  },
+  "next": {
+    "title": "0.59 - August 2024",
+    "permalink": "/docs/release-notes/release-2024-08-06"
+  }
+}

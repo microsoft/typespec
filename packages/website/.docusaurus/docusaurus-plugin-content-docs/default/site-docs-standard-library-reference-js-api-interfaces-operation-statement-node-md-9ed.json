@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/OperationStatementNode",
+  "title": "[I] OperationStatementNode",
+  "description": "Extends",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/OperationStatementNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/OperationStatementNode",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/OperationStatementNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] OperationStatementNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] OperationSignatureReferenceNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/OperationSignatureReferenceNode"
+  },
+  "next": {
+    "title": "[I] PackageFlags",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/PackageFlags"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "libraries/xml/reference/js-api/type-aliases/AttributeDecorator",
+  "title": "[T] AttributeDecorator",
+  "description": "Specify that the target property should be encoded as an XML attribute instead of node.",
+  "source": "@site/versioned_docs/version-latest/libraries/xml/reference/js-api/type-aliases/AttributeDecorator.md",
+  "sourceDirName": "libraries/xml/reference/js-api/type-aliases",
+  "slug": "/libraries/xml/reference/js-api/type-aliases/AttributeDecorator",
+  "permalink": "/docs/libraries/xml/reference/js-api/type-aliases/AttributeDecorator",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] AttributeDecorator"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] XmlNamespace",
+    "permalink": "/docs/libraries/xml/reference/js-api/interfaces/XmlNamespace"
+  },
+  "next": {
+    "title": "[T] NameDecorator",
+    "permalink": "/docs/libraries/xml/reference/js-api/type-aliases/NameDecorator"
+  }
+}

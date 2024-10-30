@@ -1,0 +1,26 @@
+{
+  "id": "extending-typespec/emitter-framework",
+  "title": "Emitter framework",
+  "description": "The emitter framework has many issues in its current form and a V2 using a completely different approach is in the works. Use with caution.",
+  "source": "@site/versioned_docs/version-latest/extending-typespec/emitter-framework.md",
+  "sourceDirName": "extending-typespec",
+  "slug": "/extending-typespec/emitter-framework",
+  "permalink": "/docs/extending-typespec/emitter-framework",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "id": "emitter-framework",
+    "title": "Emitter framework"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Emitters",
+    "permalink": "/docs/extending-typespec/emitters"
+  },
+  "next": {
+    "title": "Managing metadata and visibility in REST API emitters",
+    "permalink": "/docs/extending-typespec/emitter-metadata-handling"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/getMinLengthAsNumeric",
+  "title": "[F] getMinLengthAsNumeric",
+  "description": "Get the minimum length of a string type as a Numeric value.",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/getMinLengthAsNumeric.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/getMinLengthAsNumeric",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/getMinLengthAsNumeric",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getMinLengthAsNumeric"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getMinLength",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/getMinLength"
+  },
+  "next": {
+    "title": "[F] getMinValue",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/getMinValue"
+  }
+}

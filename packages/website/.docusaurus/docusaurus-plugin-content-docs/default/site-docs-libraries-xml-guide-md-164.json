@@ -1,0 +1,25 @@
+{
+  "id": "libraries/xml/guide",
+  "title": "Guide",
+  "description": "Default encoding of scalars",
+  "source": "@site/../../docs/libraries/xml/guide.md",
+  "sourceDirName": "libraries/xml",
+  "slug": "/libraries/xml/guide",
+  "permalink": "/docs/next/libraries/xml/guide",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "title": "Guide"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[V] $lib",
+    "permalink": "/docs/next/libraries/xml/reference/js-api/variables/$lib"
+  },
+  "next": {
+    "title": "Overview",
+    "permalink": "/docs/next/emitters/json-schema/reference/"
+  }
+}

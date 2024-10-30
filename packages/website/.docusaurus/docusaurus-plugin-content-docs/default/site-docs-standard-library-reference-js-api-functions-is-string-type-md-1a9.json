@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/isStringType",
+  "title": "[F] isStringType",
+  "description": "Parameters",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/isStringType.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/isStringType",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/isStringType",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] isStringType"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] isStdNamespace",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/isStdNamespace"
+  },
+  "next": {
+    "title": "[F] isTemplateDeclaration",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/isTemplateDeclaration"
+  }
+}

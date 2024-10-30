@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/DeprecatedDirective",
+  "title": "[I] DeprecatedDirective",
+  "description": "Extends",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/DeprecatedDirective.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/DeprecatedDirective",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/DeprecatedDirective",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] DeprecatedDirective"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] DecoratorValidator",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/DecoratorValidator"
+  },
+  "next": {
+    "title": "[I] DeprecationDetails",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/DeprecationDetails"
+  }
+}

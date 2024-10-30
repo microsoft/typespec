@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/Scanner",
+  "title": "[I] Scanner",
+  "description": "Properties",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/Scanner.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/Scanner",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/Scanner",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] Scanner"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ScalarValue",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ScalarValue"
+  },
+  "next": {
+    "title": "[I] SemanticToken",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/SemanticToken"
+  }
+}

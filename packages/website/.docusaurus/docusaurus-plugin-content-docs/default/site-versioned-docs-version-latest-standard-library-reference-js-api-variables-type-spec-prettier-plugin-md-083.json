@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/variables/TypeSpecPrettierPlugin",
+  "title": "[V] TypeSpecPrettierPlugin",
+  "description": "",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/variables/TypeSpecPrettierPlugin.md",
+  "sourceDirName": "standard-library/reference/js-api/variables",
+  "slug": "/standard-library/reference/js-api/variables/TypeSpecPrettierPlugin",
+  "permalink": "/docs/standard-library/reference/js-api/variables/TypeSpecPrettierPlugin",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[V] TypeSpecPrettierPlugin"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[V] NodeHost",
+    "permalink": "/docs/standard-library/reference/js-api/variables/NodeHost"
+  },
+  "next": {
+    "title": "[V] altDirectorySeparator",
+    "permalink": "/docs/standard-library/reference/js-api/variables/altDirectorySeparator"
+  }
+}

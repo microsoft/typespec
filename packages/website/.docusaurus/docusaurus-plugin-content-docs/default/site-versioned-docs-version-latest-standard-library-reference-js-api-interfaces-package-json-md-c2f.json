@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/PackageJson",
+  "title": "[I] PackageJson",
+  "description": "Type for package.json https://docs.npmjs.com/cli/configuring-npm/package-json",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/PackageJson.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/PackageJson",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/PackageJson",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] PackageJson"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] PackageFlags",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/PackageFlags"
+  },
+  "next": {
+    "title": "[I] ParseOptions",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ParseOptions"
+  }
+}

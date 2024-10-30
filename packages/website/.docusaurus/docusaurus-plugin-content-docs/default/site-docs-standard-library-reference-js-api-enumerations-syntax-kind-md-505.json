@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/enumerations/SyntaxKind",
+  "title": "[E] SyntaxKind",
+  "description": "AST types",
+  "source": "@site/../../docs/standard-library/reference/js-api/enumerations/SyntaxKind.md",
+  "sourceDirName": "standard-library/reference/js-api/enumerations",
+  "slug": "/standard-library/reference/js-api/enumerations/SyntaxKind",
+  "permalink": "/docs/next/standard-library/reference/js-api/enumerations/SyntaxKind",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[E] SyntaxKind"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[E] SymbolFlags",
+    "permalink": "/docs/next/standard-library/reference/js-api/enumerations/SymbolFlags"
+  },
+  "next": {
+    "title": "[E] Token",
+    "permalink": "/docs/next/standard-library/reference/js-api/enumerations/Token"
+  }
+}

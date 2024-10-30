@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/getMinValueExclusive",
+  "title": "[F] getMinValueExclusive",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/getMinValueExclusive.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/getMinValueExclusive",
+  "permalink": "/docs/standard-library/reference/js-api/functions/getMinValueExclusive",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getMinValueExclusive"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getMinValueAsNumeric",
+    "permalink": "/docs/standard-library/reference/js-api/functions/getMinValueAsNumeric"
+  },
+  "next": {
+    "title": "[F] getMinValueExclusiveAsNumeric",
+    "permalink": "/docs/standard-library/reference/js-api/functions/getMinValueExclusiveAsNumeric"
+  }
+}

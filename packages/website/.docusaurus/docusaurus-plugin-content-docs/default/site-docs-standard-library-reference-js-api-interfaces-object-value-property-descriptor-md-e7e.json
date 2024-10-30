@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/ObjectValuePropertyDescriptor",
+  "title": "[I] ObjectValuePropertyDescriptor",
+  "description": "Properties",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/ObjectValuePropertyDescriptor.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/ObjectValuePropertyDescriptor",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ObjectValuePropertyDescriptor",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ObjectValuePropertyDescriptor"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ObjectValue",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ObjectValue"
+  },
+  "next": {
+    "title": "[I] OpExample",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/OpExample"
+  }
+}

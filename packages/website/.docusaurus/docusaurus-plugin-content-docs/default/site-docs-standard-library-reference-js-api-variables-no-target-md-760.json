@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/variables/NoTarget",
+  "title": "[V] NoTarget",
+  "description": "Used to explicitly specify that a diagnostic has no target.",
+  "source": "@site/../../docs/standard-library/reference/js-api/variables/NoTarget.md",
+  "sourceDirName": "standard-library/reference/js-api/variables",
+  "slug": "/standard-library/reference/js-api/variables/NoTarget",
+  "permalink": "/docs/next/standard-library/reference/js-api/variables/NoTarget",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[V] NoTarget"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[V] MANIFEST",
+    "permalink": "/docs/next/standard-library/reference/js-api/variables/MANIFEST"
+  },
+  "next": {
+    "title": "[V] NodeHost",
+    "permalink": "/docs/next/standard-library/reference/js-api/variables/NodeHost"
+  }
+}

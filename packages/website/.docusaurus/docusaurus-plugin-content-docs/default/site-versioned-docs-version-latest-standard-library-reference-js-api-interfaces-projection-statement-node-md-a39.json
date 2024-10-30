@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/ProjectionStatementNode",
+  "title": "[I] ProjectionStatementNode",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/ProjectionStatementNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/ProjectionStatementNode",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/ProjectionStatementNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ProjectionStatementNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ProjectionScalarSelectorNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ProjectionScalarSelectorNode"
+  },
+  "next": {
+    "title": "[I] ProjectionTupleExpressionNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ProjectionTupleExpressionNode"
+  }
+}

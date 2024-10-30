@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/UnknownType",
+  "title": "[I] UnknownType",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/UnknownType.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/UnknownType",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/UnknownType",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] UnknownType"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] UnionVariantNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/UnionVariantNode"
+  },
+  "next": {
+    "title": "[I] UsageTracker",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/UsageTracker"
+  }
+}

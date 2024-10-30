@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/getProjectedName",
+  "title": "[F] getProjectedName",
+  "description": "Get the projected name of the given entity for the given projection.",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/getProjectedName.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/getProjectedName",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/getProjectedName",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getProjectedName"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getPositionBeforeTrivia",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/getPositionBeforeTrivia"
+  },
+  "next": {
+    "title": "[F] getProjectedNames",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/getProjectedNames"
+  }
+}

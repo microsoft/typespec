@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/Union",
+  "title": "[I] Union",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/Union.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/Union",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/Union",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] Union"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] TypeSpecScriptNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/TypeSpecScriptNode"
+  },
+  "next": {
+    "title": "[I] UnionExpressionNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/UnionExpressionNode"
+  }
+}

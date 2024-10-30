@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/LibraryLocationContext",
+  "title": "[I] LibraryLocationContext",
+  "description": "Defined in a library.",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/LibraryLocationContext.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/LibraryLocationContext",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/LibraryLocationContext",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] LibraryLocationContext"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] LibraryInstance",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/LibraryInstance"
+  },
+  "next": {
+    "title": "[I] LineAndCharacter",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/LineAndCharacter"
+  }
+}

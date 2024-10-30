@@ -1,0 +1,26 @@
+{
+  "id": "libraries/xml/reference/js-api/type-aliases/NsDeclarationsDecorator",
+  "title": "[T] NsDeclarationsDecorator",
+  "description": "Mark an enum as declaring XML namespaces. See @ns",
+  "source": "@site/../../docs/libraries/xml/reference/js-api/type-aliases/NsDeclarationsDecorator.md",
+  "sourceDirName": "libraries/xml/reference/js-api/type-aliases",
+  "slug": "/libraries/xml/reference/js-api/type-aliases/NsDeclarationsDecorator",
+  "permalink": "/docs/next/libraries/xml/reference/js-api/type-aliases/NsDeclarationsDecorator",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] NsDeclarationsDecorator"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] NameDecorator",
+    "permalink": "/docs/next/libraries/xml/reference/js-api/type-aliases/NameDecorator"
+  },
+  "next": {
+    "title": "[T] NsDecorator",
+    "permalink": "/docs/next/libraries/xml/reference/js-api/type-aliases/NsDecorator"
+  }
+}

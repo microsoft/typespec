@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/$format",
+  "title": "[F] $format",
+  "description": "@format - specify the data format hint for a string type",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/$format.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/$format",
+  "permalink": "/docs/standard-library/reference/js-api/functions/$format",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $format"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $example",
+    "permalink": "/docs/standard-library/reference/js-api/functions/$example"
+  },
+  "next": {
+    "title": "[F] $friendlyName",
+    "permalink": "/docs/standard-library/reference/js-api/functions/$friendlyName"
+  }
+}

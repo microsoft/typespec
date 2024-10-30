@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/$key",
+  "title": "[F] $key",
+  "description": "@key - mark a model property as the key to identify instances of that type",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/$key.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/$key",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/$key",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $key"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $inspectTypeName",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/$inspectTypeName"
+  },
+  "next": {
+    "title": "[F] $knownValues",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/$knownValues"
+  }
+}

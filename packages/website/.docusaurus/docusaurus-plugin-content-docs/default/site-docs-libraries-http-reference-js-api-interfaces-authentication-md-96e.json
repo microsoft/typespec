@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/interfaces/Authentication",
+  "title": "[I] Authentication",
+  "description": "Properties",
+  "source": "@site/../../docs/libraries/http/reference/js-api/interfaces/Authentication.md",
+  "sourceDirName": "libraries/http/reference/js-api/interfaces",
+  "slug": "/libraries/http/reference/js-api/interfaces/Authentication",
+  "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/Authentication",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] Authentication"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ApiKeyAuth",
+    "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/ApiKeyAuth"
+  },
+  "next": {
+    "title": "[I] AuthenticationOption",
+    "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/AuthenticationOption"
+  }
+}

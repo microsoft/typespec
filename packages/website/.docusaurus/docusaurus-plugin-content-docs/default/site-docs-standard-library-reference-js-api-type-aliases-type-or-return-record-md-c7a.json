@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/TypeOrReturnRecord",
+  "title": "[T] TypeOrReturnRecord",
+  "description": "",
+  "source": "@site/../../docs/standard-library/reference/js-api/type-aliases/TypeOrReturnRecord.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/TypeOrReturnRecord",
+  "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/TypeOrReturnRecord",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] TypeOrReturnRecord"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] TypeOfDiagnostics",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/TypeOfDiagnostics"
+  },
+  "next": {
+    "title": "[T] TypeSpecDiagnosticTarget",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/TypeSpecDiagnosticTarget"
+  }
+}

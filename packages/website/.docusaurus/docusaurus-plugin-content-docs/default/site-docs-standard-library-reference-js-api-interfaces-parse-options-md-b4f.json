@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/ParseOptions",
+  "title": "[I] ParseOptions",
+  "description": "Properties",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/ParseOptions.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/ParseOptions",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ParseOptions",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ParseOptions"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] PackageJson",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/PackageJson"
+  },
+  "next": {
+    "title": "[I] PatternData",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/PatternData"
+  }
+}

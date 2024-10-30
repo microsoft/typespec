@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/DiagnosticFormat",
+  "title": "[T] DiagnosticFormat",
+  "description": "Type Parameters",
+  "source": "@site/../../docs/standard-library/reference/js-api/type-aliases/DiagnosticFormat.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/DiagnosticFormat",
+  "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/DiagnosticFormat",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] DiagnosticFormat"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] DecoratorArgumentValue",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/DecoratorArgumentValue"
+  },
+  "next": {
+    "title": "[T] DiagnosticHandler",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/DiagnosticHandler"
+  }
+}

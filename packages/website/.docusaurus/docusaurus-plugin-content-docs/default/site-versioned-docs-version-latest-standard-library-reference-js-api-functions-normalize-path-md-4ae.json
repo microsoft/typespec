@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/normalizePath",
+  "title": "[F] normalizePath",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/normalizePath.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/normalizePath",
+  "permalink": "/docs/standard-library/reference/js-api/functions/normalizePath",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] normalizePath"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] navigateTypesInNamespace",
+    "permalink": "/docs/standard-library/reference/js-api/functions/navigateTypesInNamespace"
+  },
+  "next": {
+    "title": "[F] normalizeSlashes",
+    "permalink": "/docs/standard-library/reference/js-api/functions/normalizeSlashes"
+  }
+}

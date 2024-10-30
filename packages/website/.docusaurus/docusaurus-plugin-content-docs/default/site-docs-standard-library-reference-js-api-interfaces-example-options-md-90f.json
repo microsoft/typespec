@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/ExampleOptions",
+  "title": "[I] ExampleOptions",
+  "description": "Extended by",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/ExampleOptions.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/ExampleOptions",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ExampleOptions",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ExampleOptions"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] Example",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/Example"
+  },
+  "next": {
+    "title": "[I] ExternKeywordNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ExternKeywordNode"
+  }
+}

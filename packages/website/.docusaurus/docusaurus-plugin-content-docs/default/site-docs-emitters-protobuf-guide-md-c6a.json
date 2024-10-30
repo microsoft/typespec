@@ -1,0 +1,25 @@
+{
+  "id": "emitters/protobuf/guide",
+  "title": "Guide",
+  "description": "TypeSpec includes a built-in emitter (/protobuf) that can generate Protocol Buffers specifications from TypeSpec sources. The Protobuf files generated can then be used to create gRPC services or any other tools that are compatible with Protocol Buffers.",
+  "source": "@site/../../docs/emitters/protobuf/guide.md",
+  "sourceDirName": "emitters/protobuf",
+  "slug": "/emitters/protobuf/guide",
+  "permalink": "/docs/next/emitters/protobuf/guide",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "title": "Guide"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[V] namespace",
+    "permalink": "/docs/next/emitters/protobuf/reference/js-api/variables/namespace"
+  },
+  "next": {
+    "title": "Creating a TypeSpec Library",
+    "permalink": "/docs/next/extending-typespec/basics"
+  }
+}

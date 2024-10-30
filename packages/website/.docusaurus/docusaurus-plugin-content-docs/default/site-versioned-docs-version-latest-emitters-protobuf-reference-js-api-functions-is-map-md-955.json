@@ -1,0 +1,26 @@
+{
+  "id": "emitters/protobuf/reference/js-api/functions/isMap",
+  "title": "[F] isMap",
+  "description": "Determines whether a type represents a Protobuf map.",
+  "source": "@site/versioned_docs/version-latest/emitters/protobuf/reference/js-api/functions/isMap.md",
+  "sourceDirName": "emitters/protobuf/reference/js-api/functions",
+  "slug": "/emitters/protobuf/reference/js-api/functions/isMap",
+  "permalink": "/docs/emitters/protobuf/reference/js-api/functions/isMap",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] isMap"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $stream",
+    "permalink": "/docs/emitters/protobuf/reference/js-api/functions/$stream"
+  },
+  "next": {
+    "title": "[I] PackageDetails",
+    "permalink": "/docs/emitters/protobuf/reference/js-api/interfaces/PackageDetails"
+  }
+}

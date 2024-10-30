@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/EncodeData",
+  "title": "[I] EncodeData",
+  "description": "Properties",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/EncodeData.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/EncodeData",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/EncodeData",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] EncodeData"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] EmptyStatementNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/EmptyStatementNode"
+  },
+  "next": {
+    "title": "[I] Enum",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/Enum"
+  }
+}

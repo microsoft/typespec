@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/$inspectType",
+  "title": "[F] $inspectType",
+  "description": "Parameters",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/$inspectType.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/$inspectType",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/$inspectType",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $inspectType"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $friendlyName",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/$friendlyName"
+  },
+  "next": {
+    "title": "[F] $inspectTypeName",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/$inspectTypeName"
+  }
+}

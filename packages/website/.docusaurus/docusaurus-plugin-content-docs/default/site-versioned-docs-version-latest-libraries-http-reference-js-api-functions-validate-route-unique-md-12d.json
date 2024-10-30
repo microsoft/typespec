@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/functions/validateRouteUnique",
+  "title": "[F] validateRouteUnique",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/libraries/http/reference/js-api/functions/validateRouteUnique.md",
+  "sourceDirName": "libraries/http/reference/js-api/functions",
+  "slug": "/libraries/http/reference/js-api/functions/validateRouteUnique",
+  "permalink": "/docs/libraries/http/reference/js-api/functions/validateRouteUnique",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] validateRouteUnique"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] setStatusCode",
+    "permalink": "/docs/libraries/http/reference/js-api/functions/setStatusCode"
+  },
+  "next": {
+    "title": "[I] AnyHttpAuthRef",
+    "permalink": "/docs/libraries/http/reference/js-api/interfaces/AnyHttpAuthRef"
+  }
+}

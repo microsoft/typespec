@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/functions/setRoute",
+  "title": "[F] setRoute",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/libraries/http/reference/js-api/functions/setRoute.md",
+  "sourceDirName": "libraries/http/reference/js-api/functions",
+  "slug": "/libraries/http/reference/js-api/functions/setRoute",
+  "permalink": "/docs/libraries/http/reference/js-api/functions/setRoute",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] setRoute"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] setAuthentication",
+    "permalink": "/docs/libraries/http/reference/js-api/functions/setAuthentication"
+  },
+  "next": {
+    "title": "[F] setRouteOptionsForNamespace",
+    "permalink": "/docs/libraries/http/reference/js-api/functions/setRouteOptionsForNamespace"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/functions/getRouteProducer",
+  "title": "[F] getRouteProducer",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/libraries/http/reference/js-api/functions/getRouteProducer.md",
+  "sourceDirName": "libraries/http/reference/js-api/functions",
+  "slug": "/libraries/http/reference/js-api/functions/getRouteProducer",
+  "permalink": "/docs/libraries/http/reference/js-api/functions/getRouteProducer",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getRouteProducer"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getRoutePath",
+    "permalink": "/docs/libraries/http/reference/js-api/functions/getRoutePath"
+  },
+  "next": {
+    "title": "[F] getServers",
+    "permalink": "/docs/libraries/http/reference/js-api/functions/getServers"
+  }
+}

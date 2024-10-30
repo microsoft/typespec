@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/CompilerOptions",
+  "title": "[I] CompilerOptions",
+  "description": "Properties",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/CompilerOptions.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/CompilerOptions",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/CompilerOptions",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] CompilerOptions"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] CompilerLocationContext",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/CompilerLocationContext"
+  },
+  "next": {
+    "title": "[I] ConstStatementNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ConstStatementNode"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/Tuple",
+  "title": "[I] Tuple",
+  "description": "Extends",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/Tuple.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/Tuple",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/Tuple",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] Tuple"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] TracerOptions",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/TracerOptions"
+  },
+  "next": {
+    "title": "[I] TupleExpressionNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/TupleExpressionNode"
+  }
+}

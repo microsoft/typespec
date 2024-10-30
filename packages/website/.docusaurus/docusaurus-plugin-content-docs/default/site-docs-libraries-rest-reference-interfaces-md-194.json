@@ -1,0 +1,27 @@
+{
+  "id": "libraries/rest/reference/interfaces",
+  "title": "Interfaces and Operations",
+  "description": "TypeSpec.Rest.Resource",
+  "source": "@site/../../docs/libraries/rest/reference/interfaces.md",
+  "sourceDirName": "libraries/rest/reference",
+  "slug": "/libraries/rest/reference/interfaces",
+  "permalink": "/docs/next/libraries/rest/reference/interfaces",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "title": "Interfaces and Operations",
+    "toc_min_heading_level": 2,
+    "toc_max_heading_level": 3
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Decorators",
+    "permalink": "/docs/next/libraries/rest/reference/decorators"
+  },
+  "next": {
+    "title": "[P] JS API",
+    "permalink": "/docs/next/libraries/rest/reference/js-api/"
+  }
+}

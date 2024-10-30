@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/getDoc",
+  "title": "[F] getDoc",
+  "description": "Get the documentation string for the given type.",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/getDoc.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/getDoc",
+  "permalink": "/docs/standard-library/reference/js-api/functions/getDoc",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getDoc"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getDiscriminator",
+    "permalink": "/docs/standard-library/reference/js-api/functions/getDiscriminator"
+  },
+  "next": {
+    "title": "[F] getDocData",
+    "permalink": "/docs/standard-library/reference/js-api/functions/getDocData"
+  }
+}

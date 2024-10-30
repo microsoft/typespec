@@ -1,0 +1,26 @@
+{
+  "id": "emitters/protobuf/reference/js-api/interfaces/PackageDetails",
+  "title": "[I] PackageDetails",
+  "description": "Properties",
+  "source": "@site/../../docs/emitters/protobuf/reference/js-api/interfaces/PackageDetails.md",
+  "sourceDirName": "emitters/protobuf/reference/js-api/interfaces",
+  "slug": "/emitters/protobuf/reference/js-api/interfaces/PackageDetails",
+  "permalink": "/docs/next/emitters/protobuf/reference/js-api/interfaces/PackageDetails",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] PackageDetails"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] isMap",
+    "permalink": "/docs/next/emitters/protobuf/reference/js-api/functions/isMap"
+  },
+  "next": {
+    "title": "[T] Reservation",
+    "permalink": "/docs/next/emitters/protobuf/reference/js-api/type-aliases/Reservation"
+  }
+}

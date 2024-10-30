@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/DocReturnsTagNode",
+  "title": "[I] DocReturnsTagNode",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/DocReturnsTagNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/DocReturnsTagNode",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/DocReturnsTagNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] DocReturnsTagNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] DocPropTagNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/DocPropTagNode"
+  },
+  "next": {
+    "title": "[I] DocTagBaseNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/DocTagBaseNode"
+  }
+}

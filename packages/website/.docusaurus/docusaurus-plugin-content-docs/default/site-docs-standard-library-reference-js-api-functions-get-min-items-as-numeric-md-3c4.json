@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/getMinItemsAsNumeric",
+  "title": "[F] getMinItemsAsNumeric",
+  "description": "Parameters",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/getMinItemsAsNumeric.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/getMinItemsAsNumeric",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/getMinItemsAsNumeric",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getMinItemsAsNumeric"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getMinItems",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/getMinItems"
+  },
+  "next": {
+    "title": "[F] getMinLength",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/getMinLength"
+  }
+}

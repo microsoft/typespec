@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/type-aliases/HttpOperationResponseBody",
+  "title": "[T] HttpOperationResponseBody",
+  "description": "Deprecated",
+  "source": "@site/../../docs/libraries/http/reference/js-api/type-aliases/HttpOperationResponseBody.md",
+  "sourceDirName": "libraries/http/reference/js-api/type-aliases",
+  "slug": "/libraries/http/reference/js-api/type-aliases/HttpOperationResponseBody",
+  "permalink": "/docs/next/libraries/http/reference/js-api/type-aliases/HttpOperationResponseBody",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] HttpOperationResponseBody"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] HttpOperationRequestBody",
+    "permalink": "/docs/next/libraries/http/reference/js-api/type-aliases/HttpOperationRequestBody"
+  },
+  "next": {
+    "title": "[T] HttpProperty",
+    "permalink": "/docs/next/libraries/http/reference/js-api/type-aliases/HttpProperty"
+  }
+}

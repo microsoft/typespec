@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/type-aliases/HttpOperationQueryParameter",
+  "title": "[T] HttpOperationQueryParameter",
+  "description": "Type declaration",
+  "source": "@site/../../docs/libraries/http/reference/js-api/type-aliases/HttpOperationQueryParameter.md",
+  "sourceDirName": "libraries/http/reference/js-api/type-aliases",
+  "slug": "/libraries/http/reference/js-api/type-aliases/HttpOperationQueryParameter",
+  "permalink": "/docs/next/libraries/http/reference/js-api/type-aliases/HttpOperationQueryParameter",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] HttpOperationQueryParameter"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] HttpOperationPathParameter",
+    "permalink": "/docs/next/libraries/http/reference/js-api/type-aliases/HttpOperationPathParameter"
+  },
+  "next": {
+    "title": "[T] HttpOperationRequestBody",
+    "permalink": "/docs/next/libraries/http/reference/js-api/type-aliases/HttpOperationRequestBody"
+  }
+}

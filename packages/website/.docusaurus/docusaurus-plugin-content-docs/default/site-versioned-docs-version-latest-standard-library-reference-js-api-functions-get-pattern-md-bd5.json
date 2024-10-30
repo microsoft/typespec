@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/getPattern",
+  "title": "[F] getPattern",
+  "description": "Gets the pattern regular expression associated with a given type, if one has been set.",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/getPattern.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/getPattern",
+  "permalink": "/docs/standard-library/reference/js-api/functions/getPattern",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getPattern"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getPathFromPathComponents",
+    "permalink": "/docs/standard-library/reference/js-api/functions/getPathFromPathComponents"
+  },
+  "next": {
+    "title": "[F] getPatternData",
+    "permalink": "/docs/standard-library/reference/js-api/functions/getPatternData"
+  }
+}

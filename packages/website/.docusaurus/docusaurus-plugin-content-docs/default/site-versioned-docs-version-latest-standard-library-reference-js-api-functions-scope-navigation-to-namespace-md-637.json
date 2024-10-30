@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/scopeNavigationToNamespace",
+  "title": "[F] scopeNavigationToNamespace",
+  "description": "Scope the current navigation to the given namespace.",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/scopeNavigationToNamespace.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/scopeNavigationToNamespace",
+  "permalink": "/docs/standard-library/reference/js-api/functions/scopeNavigationToNamespace",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] scopeNavigationToNamespace"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] resolveUsages",
+    "permalink": "/docs/standard-library/reference/js-api/functions/resolveUsages"
+  },
+  "next": {
+    "title": "[F] serializeValueAsJson",
+    "permalink": "/docs/standard-library/reference/js-api/functions/serializeValueAsJson"
+  }
+}

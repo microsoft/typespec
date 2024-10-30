@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/assertType",
+  "title": "[F] assertType",
+  "description": "Assert that the input type has one of the kinds provided",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/assertType.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/assertType",
+  "permalink": "/docs/standard-library/reference/js-api/functions/assertType",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] assertType"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] addService",
+    "permalink": "/docs/standard-library/reference/js-api/functions/addService"
+  },
+  "next": {
+    "title": "[F] cadlTypeToJson",
+    "permalink": "/docs/standard-library/reference/js-api/functions/cadlTypeToJson"
+  }
+}

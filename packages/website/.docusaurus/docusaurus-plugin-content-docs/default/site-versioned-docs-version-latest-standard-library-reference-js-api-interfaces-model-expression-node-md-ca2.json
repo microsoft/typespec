@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/ModelExpressionNode",
+  "title": "[I] ModelExpressionNode",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/ModelExpressionNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/ModelExpressionNode",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/ModelExpressionNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ModelExpressionNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] Model",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/Model"
+  },
+  "next": {
+    "title": "[I] ModelProperty",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ModelProperty"
+  }
+}

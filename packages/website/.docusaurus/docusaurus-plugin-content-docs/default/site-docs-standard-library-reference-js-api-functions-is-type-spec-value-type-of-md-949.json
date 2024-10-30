@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/isTypeSpecValueTypeOf",
+  "title": "[F] isTypeSpecValueTypeOf",
+  "description": "Check if the given target is of any of the TypeSpec types.",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/isTypeSpecValueTypeOf.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/isTypeSpecValueTypeOf",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/isTypeSpecValueTypeOf",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] isTypeSpecValueTypeOf"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] isType",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/isType"
+  },
+  "next": {
+    "title": "[F] isUnknownType",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/isUnknownType"
+  }
+}

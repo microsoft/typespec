@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/functions/getAllRoutes",
+  "title": "[F] getAllRoutes",
+  "description": "Parameters",
+  "source": "@site/../../docs/libraries/http/reference/js-api/functions/getAllRoutes.md",
+  "sourceDirName": "libraries/http/reference/js-api/functions",
+  "slug": "/libraries/http/reference/js-api/functions/getAllRoutes",
+  "permalink": "/docs/next/libraries/http/reference/js-api/functions/getAllRoutes",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getAllRoutes"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getAllHttpServices",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/getAllHttpServices"
+  },
+  "next": {
+    "title": "[F] getAuthentication",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/getAuthentication"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/encoded-names",
+  "title": "Encoded names",
+  "description": "There is some cases where the name you have in TypeSpec might differ from the name over the wire or for a certain language.",
+  "source": "@site/versioned_docs/version-latest/standard-library/encoded-names.md",
+  "sourceDirName": "standard-library",
+  "slug": "/standard-library/encoded-names",
+  "permalink": "/docs/standard-library/encoded-names",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "id": "encoded-names",
+    "title": "Encoded names"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[V] typespecVersion",
+    "permalink": "/docs/standard-library/reference/js-api/variables/typespecVersion"
+  },
+  "next": {
+    "title": "Discriminated Types",
+    "permalink": "/docs/standard-library/discriminated-types"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "emitters/json-schema/reference/js-api/functions/$maxContains",
+  "title": "[F] $maxContains",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/emitters/json-schema/reference/js-api/functions/$maxContains.md",
+  "sourceDirName": "emitters/json-schema/reference/js-api/functions",
+  "slug": "/emitters/json-schema/reference/js-api/functions/$maxContains",
+  "permalink": "/docs/emitters/json-schema/reference/js-api/functions/$maxContains",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $maxContains"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $jsonSchema",
+    "permalink": "/docs/emitters/json-schema/reference/js-api/functions/$jsonSchema"
+  },
+  "next": {
+    "title": "[F] $maxProperties",
+    "permalink": "/docs/emitters/json-schema/reference/js-api/functions/$maxProperties"
+  }
+}

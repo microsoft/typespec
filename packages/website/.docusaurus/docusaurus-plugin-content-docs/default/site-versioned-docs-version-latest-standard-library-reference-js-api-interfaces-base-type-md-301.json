@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/BaseType",
+  "title": "[I] BaseType",
+  "description": "Extended by",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/BaseType.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/BaseType",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/BaseType",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] BaseType"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] BaseNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/BaseNode"
+  },
+  "next": {
+    "title": "[I] BlockComment",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/BlockComment"
+  }
+}

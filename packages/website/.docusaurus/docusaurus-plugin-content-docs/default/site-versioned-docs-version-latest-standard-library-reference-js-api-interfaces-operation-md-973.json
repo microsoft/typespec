@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/Operation",
+  "title": "[I] Operation",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/Operation.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/Operation",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/Operation",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] Operation"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] OpExample",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/OpExample"
+  },
+  "next": {
+    "title": "[I] OperationSignatureDeclarationNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/OperationSignatureDeclarationNode"
+  }
+}

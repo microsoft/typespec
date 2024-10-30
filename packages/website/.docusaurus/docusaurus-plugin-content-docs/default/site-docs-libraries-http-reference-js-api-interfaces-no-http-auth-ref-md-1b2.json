@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/interfaces/NoHttpAuthRef",
+  "title": "[I] NoHttpAuthRef",
+  "description": "Properties",
+  "source": "@site/../../docs/libraries/http/reference/js-api/interfaces/NoHttpAuthRef.md",
+  "sourceDirName": "libraries/http/reference/js-api/interfaces",
+  "slug": "/libraries/http/reference/js-api/interfaces/NoHttpAuthRef",
+  "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/NoHttpAuthRef",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] NoHttpAuthRef"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] NoAuth",
+    "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/NoAuth"
+  },
+  "next": {
+    "title": "[I] OAuth2HttpAuthRef",
+    "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/OAuth2HttpAuthRef"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "libraries/openapi/reference/js-api/interfaces/Contact",
+  "title": "[I] Contact",
+  "description": "Contact information",
+  "source": "@site/versioned_docs/version-latest/libraries/openapi/reference/js-api/interfaces/Contact.md",
+  "sourceDirName": "libraries/openapi/reference/js-api/interfaces",
+  "slug": "/libraries/openapi/reference/js-api/interfaces/Contact",
+  "permalink": "/docs/libraries/openapi/reference/js-api/interfaces/Contact",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] Contact"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] AdditionalInfo",
+    "permalink": "/docs/libraries/openapi/reference/js-api/interfaces/AdditionalInfo"
+  },
+  "next": {
+    "title": "[I] ExternalDocs",
+    "permalink": "/docs/libraries/openapi/reference/js-api/interfaces/ExternalDocs"
+  }
+}

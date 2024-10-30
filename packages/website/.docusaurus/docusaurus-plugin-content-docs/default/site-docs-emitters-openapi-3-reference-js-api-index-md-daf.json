@@ -1,0 +1,26 @@
+{
+  "id": "emitters/openapi3/reference/js-api/index",
+  "title": "[P] JS API",
+  "description": "Interfaces",
+  "source": "@site/../../docs/emitters/openapi3/reference/js-api/index.md",
+  "sourceDirName": "emitters/openapi3/reference/js-api",
+  "slug": "/emitters/openapi3/reference/js-api/",
+  "permalink": "/docs/next/emitters/openapi3/reference/js-api/",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[P] JS API"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Emitter usage",
+    "permalink": "/docs/next/emitters/openapi3/reference/emitter"
+  },
+  "next": {
+    "title": "[F] $onEmit",
+    "permalink": "/docs/next/emitters/openapi3/reference/js-api/functions/$onEmit"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/TemplateableNode",
+  "title": "[T] TemplateableNode",
+  "description": "Node that can be used as template",
+  "source": "@site/../../docs/standard-library/reference/js-api/type-aliases/TemplateableNode.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/TemplateableNode",
+  "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/TemplateableNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] TemplateableNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] StringTemplateToken",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/StringTemplateToken"
+  },
+  "next": {
+    "title": "[T] TemplatedType",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/TemplatedType"
+  }
+}

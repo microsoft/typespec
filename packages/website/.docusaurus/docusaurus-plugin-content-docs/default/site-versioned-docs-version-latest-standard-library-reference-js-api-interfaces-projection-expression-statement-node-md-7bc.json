@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/ProjectionExpressionStatementNode",
+  "title": "[I] ProjectionExpressionStatementNode",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/ProjectionExpressionStatementNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/ProjectionExpressionStatementNode",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/ProjectionExpressionStatementNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ProjectionExpressionStatementNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ProjectionEqualityExpressionNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ProjectionEqualityExpressionNode"
+  },
+  "next": {
+    "title": "[I] ProjectionIfExpressionNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ProjectionIfExpressionNode"
+  }
+}

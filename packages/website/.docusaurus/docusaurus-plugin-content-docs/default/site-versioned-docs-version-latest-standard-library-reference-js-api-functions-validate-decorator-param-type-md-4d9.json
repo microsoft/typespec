@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/validateDecoratorParamType",
+  "title": "[F] validateDecoratorParamType",
+  "description": "Validate a decorator parameter has the correct type.",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/validateDecoratorParamType.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/validateDecoratorParamType",
+  "permalink": "/docs/standard-library/reference/js-api/functions/validateDecoratorParamType",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] validateDecoratorParamType"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] validateDecoratorParamCount",
+    "permalink": "/docs/standard-library/reference/js-api/functions/validateDecoratorParamCount"
+  },
+  "next": {
+    "title": "[F] validateDecoratorTarget",
+    "permalink": "/docs/standard-library/reference/js-api/functions/validateDecoratorTarget"
+  }
+}

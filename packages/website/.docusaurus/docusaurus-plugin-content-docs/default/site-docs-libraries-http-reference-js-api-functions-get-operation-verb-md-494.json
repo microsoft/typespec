@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/functions/getOperationVerb",
+  "title": "[F] getOperationVerb",
+  "description": "Parameters",
+  "source": "@site/../../docs/libraries/http/reference/js-api/functions/getOperationVerb.md",
+  "sourceDirName": "libraries/http/reference/js-api/functions",
+  "slug": "/libraries/http/reference/js-api/functions/getOperationVerb",
+  "permalink": "/docs/next/libraries/http/reference/js-api/functions/getOperationVerb",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getOperationVerb"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getOperationParameters",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/getOperationParameters"
+  },
+  "next": {
+    "title": "[F] getPathParamName",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/getPathParamName"
+  }
+}

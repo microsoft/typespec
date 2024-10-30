@@ -1,0 +1,26 @@
+{
+  "id": "emitters/json-schema/reference/js-api/functions/getMaxContains",
+  "title": "[F] getMaxContains",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/emitters/json-schema/reference/js-api/functions/getMaxContains.md",
+  "sourceDirName": "emitters/json-schema/reference/js-api/functions",
+  "slug": "/emitters/json-schema/reference/js-api/functions/getMaxContains",
+  "permalink": "/docs/emitters/json-schema/reference/js-api/functions/getMaxContains",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getMaxContains"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getJsonSchemaTypes",
+    "permalink": "/docs/emitters/json-schema/reference/js-api/functions/getJsonSchemaTypes"
+  },
+  "next": {
+    "title": "[F] getMaxProperties",
+    "permalink": "/docs/emitters/json-schema/reference/js-api/functions/getMaxProperties"
+  }
+}

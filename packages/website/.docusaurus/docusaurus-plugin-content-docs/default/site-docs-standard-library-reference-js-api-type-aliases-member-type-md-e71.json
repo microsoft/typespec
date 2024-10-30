@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/MemberType",
+  "title": "[T] MemberType",
+  "description": "Type that can be used as members of a container type.",
+  "source": "@site/../../docs/standard-library/reference/js-api/type-aliases/MemberType.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/MemberType",
+  "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/MemberType",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] MemberType"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] MemberNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/MemberNode"
+  },
+  "next": {
+    "title": "[T] ModelIndexer",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/ModelIndexer"
+  }
+}

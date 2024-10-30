@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/LibraryInstance",
+  "title": "[I] LibraryInstance",
+  "description": "Properties",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/LibraryInstance.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/LibraryInstance",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/LibraryInstance",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] LibraryInstance"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] JsSourceFileNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/JsSourceFileNode"
+  },
+  "next": {
+    "title": "[I] LibraryLocationContext",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/LibraryLocationContext"
+  }
+}

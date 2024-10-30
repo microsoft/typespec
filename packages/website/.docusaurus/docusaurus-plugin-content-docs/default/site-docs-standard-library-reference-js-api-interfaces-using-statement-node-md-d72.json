@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/UsingStatementNode",
+  "title": "[I] UsingStatementNode",
+  "description": "Extends",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/UsingStatementNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/UsingStatementNode",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/UsingStatementNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] UsingStatementNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] UsageTracker",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/UsageTracker"
+  },
+  "next": {
+    "title": "[I] ValueOfExpressionNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ValueOfExpressionNode"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/DecoratorImplementations",
+  "title": "[I] DecoratorImplementations",
+  "description": "Type for the $decorators export from libraries.",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/DecoratorImplementations.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/DecoratorImplementations",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/DecoratorImplementations",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] DecoratorImplementations"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] DecoratorFunction",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/DecoratorFunction"
+  },
+  "next": {
+    "title": "[I] DecoratorParamDefinition",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/DecoratorParamDefinition"
+  }
+}

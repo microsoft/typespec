@@ -1,0 +1,26 @@
+{
+  "id": "libraries/versioning/reference/js-api/classes/VersionMap",
+  "title": "[C] VersionMap",
+  "description": "Constructors",
+  "source": "@site/versioned_docs/version-latest/libraries/versioning/reference/js-api/classes/VersionMap.md",
+  "sourceDirName": "libraries/versioning/reference/js-api/classes",
+  "slug": "/libraries/versioning/reference/js-api/classes/VersionMap",
+  "permalink": "/docs/libraries/versioning/reference/js-api/classes/VersionMap",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[C] VersionMap"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[P] JS API",
+    "permalink": "/docs/libraries/versioning/reference/js-api/"
+  },
+  "next": {
+    "title": "[E] Availability",
+    "permalink": "/docs/libraries/versioning/reference/js-api/enumerations/Availability"
+  }
+}

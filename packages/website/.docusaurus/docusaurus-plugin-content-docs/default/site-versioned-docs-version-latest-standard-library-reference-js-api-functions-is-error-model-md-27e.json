@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/isErrorModel",
+  "title": "[F] isErrorModel",
+  "description": "Check if the type is an error model or a descendant of an error model.",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/isErrorModel.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/isErrorModel",
+  "permalink": "/docs/standard-library/reference/js-api/functions/isErrorModel",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] isErrorModel"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] isDeprecated",
+    "permalink": "/docs/standard-library/reference/js-api/functions/isDeprecated"
+  },
+  "next": {
+    "title": "[F] isErrorType",
+    "permalink": "/docs/standard-library/reference/js-api/functions/isErrorType"
+  }
+}

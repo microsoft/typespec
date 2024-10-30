@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/functions/getRouteOptionsForNamespace",
+  "title": "[F] getRouteOptionsForNamespace",
+  "description": "Parameters",
+  "source": "@site/../../docs/libraries/http/reference/js-api/functions/getRouteOptionsForNamespace.md",
+  "sourceDirName": "libraries/http/reference/js-api/functions",
+  "slug": "/libraries/http/reference/js-api/functions/getRouteOptionsForNamespace",
+  "permalink": "/docs/next/libraries/http/reference/js-api/functions/getRouteOptionsForNamespace",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getRouteOptionsForNamespace"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getResponsesForOperation",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/getResponsesForOperation"
+  },
+  "next": {
+    "title": "[F] getRoutePath",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/getRoutePath"
+  }
+}

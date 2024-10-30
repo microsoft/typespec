@@ -1,0 +1,17 @@
+{
+  "permalink": "/blog/2024-04-25-introducing",
+  "source": "@site/../../blog/2024-04-25-introducing/blog.md",
+  "title": "Introducing TypeSpec: A New Language for API-Centric Development",
+  "description": "Over last few years, we've been hard at work on https://typespec.io/, a modern API definition language. This language is designed to meet the evolving needs of API developers, architects, and managers in an environment where the delivery of consistently high-quality APIs and related experiences is becoming increasingly complex and critical.",
+  "date": "2024-04-25T00:00:00.000Z",
+  "tags": [],
+  "readingTime": 4.44,
+  "hasTruncateMarker": true,
+  "authors": [],
+  "frontMatter": {
+    "slug": "2024-04-25-introducing",
+    "title": "Introducing TypeSpec: A New Language for API-Centric Development",
+    "image": "./intro.png"
+  },
+  "unlisted": false
+}

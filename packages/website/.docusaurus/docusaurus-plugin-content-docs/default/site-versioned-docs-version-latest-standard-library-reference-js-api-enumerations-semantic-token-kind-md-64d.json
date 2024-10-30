@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/enumerations/SemanticTokenKind",
+  "title": "[E] SemanticTokenKind",
+  "description": "Enumeration Members",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/enumerations/SemanticTokenKind.md",
+  "sourceDirName": "standard-library/reference/js-api/enumerations",
+  "slug": "/standard-library/reference/js-api/enumerations/SemanticTokenKind",
+  "permalink": "/docs/standard-library/reference/js-api/enumerations/SemanticTokenKind",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[E] SemanticTokenKind"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[E] NodeFlags",
+    "permalink": "/docs/standard-library/reference/js-api/enumerations/NodeFlags"
+  },
+  "next": {
+    "title": "[E] SymbolFlags",
+    "permalink": "/docs/standard-library/reference/js-api/enumerations/SymbolFlags"
+  }
+}

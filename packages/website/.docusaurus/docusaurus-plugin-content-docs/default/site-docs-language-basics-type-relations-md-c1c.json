@@ -1,0 +1,26 @@
+{
+  "id": "language-basics/type-relations",
+  "title": "Type Relations",
+  "description": "Type hierarchy",
+  "source": "@site/../../docs/language-basics/type-relations.md",
+  "sourceDirName": "language-basics",
+  "slug": "/language-basics/type-relations",
+  "permalink": "/docs/next/language-basics/type-relations",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "type-relations",
+    "title": "Type Relations"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Values",
+    "permalink": "/docs/next/language-basics/values"
+  },
+  "next": {
+    "title": "Built-in Decorators",
+    "permalink": "/docs/next/standard-library/built-in-decorators"
+  }
+}

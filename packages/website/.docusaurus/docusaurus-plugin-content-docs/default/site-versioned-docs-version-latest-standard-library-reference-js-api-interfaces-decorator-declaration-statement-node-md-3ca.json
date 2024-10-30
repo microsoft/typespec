@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/DecoratorDeclarationStatementNode",
+  "title": "[I] DecoratorDeclarationStatementNode",
+  "description": "Represent a decorator declaration",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/DecoratorDeclarationStatementNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/DecoratorDeclarationStatementNode",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/DecoratorDeclarationStatementNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] DecoratorDeclarationStatementNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] DecoratorContext",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/DecoratorContext"
+  },
+  "next": {
+    "title": "[I] DecoratorDefinition",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/DecoratorDefinition"
+  }
+}

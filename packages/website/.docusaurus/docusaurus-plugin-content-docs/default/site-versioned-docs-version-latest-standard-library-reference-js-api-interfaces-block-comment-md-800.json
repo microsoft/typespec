@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/BlockComment",
+  "title": "[I] BlockComment",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/BlockComment.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/BlockComment",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/BlockComment",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] BlockComment"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] BaseType",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/BaseType"
+  },
+  "next": {
+    "title": "[I] BooleanLiteral",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/BooleanLiteral"
+  }
+}

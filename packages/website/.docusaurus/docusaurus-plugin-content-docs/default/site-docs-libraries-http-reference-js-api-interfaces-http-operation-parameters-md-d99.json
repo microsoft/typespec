@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/interfaces/HttpOperationParameters",
+  "title": "[I] HttpOperationParameters",
+  "description": "Properties",
+  "source": "@site/../../docs/libraries/http/reference/js-api/interfaces/HttpOperationParameters.md",
+  "sourceDirName": "libraries/http/reference/js-api/interfaces",
+  "slug": "/libraries/http/reference/js-api/interfaces/HttpOperationParameters",
+  "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/HttpOperationParameters",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] HttpOperationParameters"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] HttpOperationMultipartBody",
+    "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/HttpOperationMultipartBody"
+  },
+  "next": {
+    "title": "[I] HttpOperationPart",
+    "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/HttpOperationPart"
+  }
+}

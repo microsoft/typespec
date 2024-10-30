@@ -1,0 +1,25 @@
+{
+  "id": "standard-library/discriminated-types",
+  "title": "Discriminated Types",
+  "description": "TypeSpec allows for the expression of unions and inheritance. However, when transmitting types over the network, many languages require a mechanism to distinguish between different union variants or models within an inheritance hierarchy.",
+  "source": "@site/versioned_docs/version-latest/standard-library/discriminated-types.md",
+  "sourceDirName": "standard-library",
+  "slug": "/standard-library/discriminated-types",
+  "permalink": "/docs/standard-library/discriminated-types",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "title": "Discriminated Types"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Encoded names",
+    "permalink": "/docs/standard-library/encoded-names"
+  },
+  "next": {
+    "title": "Examples",
+    "permalink": "/docs/standard-library/examples"
+  }
+}

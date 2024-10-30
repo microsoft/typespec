@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/getEffectiveModelType",
+  "title": "[F] getEffectiveModelType",
+  "description": "If the input is anonymous (or the provided filter removes properties)",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/getEffectiveModelType.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/getEffectiveModelType",
+  "permalink": "/docs/standard-library/reference/js-api/functions/getEffectiveModelType",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getEffectiveModelType"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getDocData",
+    "permalink": "/docs/standard-library/reference/js-api/functions/getDocData"
+  },
+  "next": {
+    "title": "[F] getEncode",
+    "permalink": "/docs/standard-library/reference/js-api/functions/getEncode"
+  }
+}

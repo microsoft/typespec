@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/getReturnsDoc",
+  "title": "[F] getReturnsDoc",
+  "description": "Get the documentation string for the return success types of an operation.",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/getReturnsDoc.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/getReturnsDoc",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/getReturnsDoc",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getReturnsDoc"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getReturnTypeVisibility",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/getReturnTypeVisibility"
+  },
+  "next": {
+    "title": "[F] getReturnsDocData",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/getReturnsDocData"
+  }
+}

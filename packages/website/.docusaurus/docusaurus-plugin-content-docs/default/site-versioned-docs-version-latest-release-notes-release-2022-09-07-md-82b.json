@@ -1,0 +1,25 @@
+{
+  "id": "release-notes/release-2022-09-07",
+  "title": "September 2022",
+  "description": "This release contains breaking changes:",
+  "source": "@site/versioned_docs/version-latest/release-notes/release-2022-09-07.md",
+  "sourceDirName": "release-notes",
+  "slug": "/release-notes/release-2022-09-07",
+  "permalink": "/docs/release-notes/release-2022-09-07",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "title": "September 2022"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "October 2022",
+    "permalink": "/docs/release-notes/release-2022-10-12"
+  },
+  "next": {
+    "title": "August 2022",
+    "permalink": "/docs/release-notes/release-2022-08-10"
+  }
+}

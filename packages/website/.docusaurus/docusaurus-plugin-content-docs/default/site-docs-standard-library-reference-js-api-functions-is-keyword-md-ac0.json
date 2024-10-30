@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/isKeyword",
+  "title": "[F] isKeyword",
+  "description": "Parameters",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/isKeyword.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/isKeyword",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/isKeyword",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] isKeyword"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] isKey",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/isKey"
+  },
+  "next": {
+    "title": "[F] isListOperation",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/isListOperation"
+  }
+}

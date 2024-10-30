@@ -1,0 +1,26 @@
+{
+  "id": "emitters/json-schema/reference/js-api/functions/$validatesRawJson",
+  "title": "[F] $validatesRawJson",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/emitters/json-schema/reference/js-api/functions/$validatesRawJson.md",
+  "sourceDirName": "emitters/json-schema/reference/js-api/functions",
+  "slug": "/emitters/json-schema/reference/js-api/functions/$validatesRawJson",
+  "permalink": "/docs/emitters/json-schema/reference/js-api/functions/$validatesRawJson",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $validatesRawJson"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $uniqueItems",
+    "permalink": "/docs/emitters/json-schema/reference/js-api/functions/$uniqueItems"
+  },
+  "next": {
+    "title": "[F] findBaseUri",
+    "permalink": "/docs/emitters/json-schema/reference/js-api/functions/findBaseUri"
+  }
+}

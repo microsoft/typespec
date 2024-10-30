@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/classes/ResolveModuleError",
+  "title": "[C] ResolveModuleError",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/classes/ResolveModuleError.md",
+  "sourceDirName": "standard-library/reference/js-api/classes",
+  "slug": "/standard-library/reference/js-api/classes/ResolveModuleError",
+  "permalink": "/docs/standard-library/reference/js-api/classes/ResolveModuleError",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[C] ResolveModuleError"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[C] Queue",
+    "permalink": "/docs/standard-library/reference/js-api/classes/Queue"
+  },
+  "next": {
+    "title": "[E] IdentifierKind",
+    "permalink": "/docs/standard-library/reference/js-api/enumerations/IdentifierKind"
+  }
+}

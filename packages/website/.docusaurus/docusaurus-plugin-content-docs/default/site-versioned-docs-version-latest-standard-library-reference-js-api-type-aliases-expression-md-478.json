@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/Expression",
+  "title": "[T] Expression",
+  "description": "",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/type-aliases/Expression.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/Expression",
+  "permalink": "/docs/standard-library/reference/js-api/type-aliases/Expression",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] Expression"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] Entity",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/Entity"
+  },
+  "next": {
+    "title": "[T] FunctionParameter",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/FunctionParameter"
+  }
+}

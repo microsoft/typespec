@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/getPropertyType",
+  "title": "[F] getPropertyType",
+  "description": "Return the type of the property or the model itself.",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/getPropertyType.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/getPropertyType",
+  "permalink": "/docs/standard-library/reference/js-api/functions/getPropertyType",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getPropertyType"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getProperty",
+    "permalink": "/docs/standard-library/reference/js-api/functions/getProperty"
+  },
+  "next": {
+    "title": "[F] getRelativePathFromDirectory",
+    "permalink": "/docs/standard-library/reference/js-api/functions/getRelativePathFromDirectory"
+  }
+}

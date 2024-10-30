@@ -1,0 +1,16 @@
+{
+  "id": "emitters/json-schema/guide",
+  "title": "Guide",
+  "description": "When a TypeSpec data type has the @jsonSchema decorator or is declared inside a namespace with that decorator, it is considered a JSON Schema type.",
+  "source": "@site/versioned_docs/version-latest/emitters/json-schema/guide.md",
+  "sourceDirName": "emitters/json-schema",
+  "slug": "/emitters/json-schema/guide",
+  "permalink": "/docs/emitters/json-schema/guide",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "title": "Guide"
+  }
+}

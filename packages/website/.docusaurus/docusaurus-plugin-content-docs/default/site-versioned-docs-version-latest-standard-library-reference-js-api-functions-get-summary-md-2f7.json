@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/getSummary",
+  "title": "[F] getSummary",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/getSummary.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/getSummary",
+  "permalink": "/docs/standard-library/reference/js-api/functions/getSummary",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getSummary"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getSourceLocation",
+    "permalink": "/docs/standard-library/reference/js-api/functions/getSourceLocation"
+  },
+  "next": {
+    "title": "[F] getTags",
+    "permalink": "/docs/standard-library/reference/js-api/functions/getTags"
+  }
+}

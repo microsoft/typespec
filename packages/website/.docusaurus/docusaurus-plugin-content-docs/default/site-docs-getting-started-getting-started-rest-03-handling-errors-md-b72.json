@@ -1,0 +1,26 @@
+{
+  "id": "getting-started/getting-started-rest/handling-errors",
+  "title": "Handling Errors",
+  "description": "Introduction",
+  "source": "@site/../../docs/getting-started/getting-started-rest/03-handling-errors.md",
+  "sourceDirName": "getting-started/getting-started-rest",
+  "slug": "/getting-started/getting-started-rest/handling-errors",
+  "permalink": "/docs/next/getting-started/getting-started-rest/handling-errors",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 3,
+  "frontMatter": {
+    "title": "Handling Errors"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Operations and Responses",
+    "permalink": "/docs/next/getting-started/getting-started-rest/02-operations-responses"
+  },
+  "next": {
+    "title": "Common Parameters",
+    "permalink": "/docs/next/getting-started/getting-started-rest/common-parameters"
+  }
+}

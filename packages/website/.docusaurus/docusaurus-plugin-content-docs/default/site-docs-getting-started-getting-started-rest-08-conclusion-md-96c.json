@@ -1,0 +1,26 @@
+{
+  "id": "getting-started/getting-started-rest/conclusion",
+  "title": "Conclusion",
+  "description": "Recap of Key Concepts",
+  "source": "@site/../../docs/getting-started/getting-started-rest/08-conclusion.md",
+  "sourceDirName": "getting-started/getting-started-rest",
+  "slug": "/getting-started/getting-started-rest/conclusion",
+  "permalink": "/docs/next/getting-started/getting-started-rest/conclusion",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 8,
+  "frontMatter": {
+    "title": "Conclusion"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Custom Response Models",
+    "permalink": "/docs/next/getting-started/getting-started-rest/custom-response-models"
+  },
+  "next": {
+    "title": "TypeSpec For OpenAPI Developer",
+    "permalink": "/docs/next/getting-started/typespec-for-openapi-dev"
+  }
+}

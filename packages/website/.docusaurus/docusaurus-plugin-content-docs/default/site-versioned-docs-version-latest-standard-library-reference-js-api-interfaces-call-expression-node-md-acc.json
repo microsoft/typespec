@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/CallExpressionNode",
+  "title": "[I] CallExpressionNode",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/CallExpressionNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/CallExpressionNode",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/CallExpressionNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] CallExpressionNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] BooleanValue",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/BooleanValue"
+  },
+  "next": {
+    "title": "[I] CallableMessage",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/CallableMessage"
+  }
+}

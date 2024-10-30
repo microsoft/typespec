@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/FilePos",
+  "title": "[I] FilePos",
+  "description": "Properties",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/FilePos.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/FilePos",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/FilePos",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] FilePos"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] FileLibraryMetadata",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/FileLibraryMetadata"
+  },
+  "next": {
+    "title": "[I] FunctionDeclarationStatementNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/FunctionDeclarationStatementNode"
+  }
+}

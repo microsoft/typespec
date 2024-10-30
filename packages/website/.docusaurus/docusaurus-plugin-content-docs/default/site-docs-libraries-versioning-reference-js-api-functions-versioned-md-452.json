@@ -1,0 +1,26 @@
+{
+  "id": "libraries/versioning/reference/js-api/functions/$versioned",
+  "title": "[F] $versioned",
+  "description": "Parameters",
+  "source": "@site/../../docs/libraries/versioning/reference/js-api/functions/$versioned.md",
+  "sourceDirName": "libraries/versioning/reference/js-api/functions",
+  "slug": "/libraries/versioning/reference/js-api/functions/$versioned",
+  "permalink": "/docs/next/libraries/versioning/reference/js-api/functions/$versioned",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $versioned"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $useDependency",
+    "permalink": "/docs/next/libraries/versioning/reference/js-api/functions/$useDependency"
+  },
+  "next": {
+    "title": "[F] buildVersionProjections",
+    "permalink": "/docs/next/libraries/versioning/reference/js-api/functions/buildVersionProjections"
+  }
+}

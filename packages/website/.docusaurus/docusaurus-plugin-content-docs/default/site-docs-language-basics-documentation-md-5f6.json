@@ -1,0 +1,26 @@
+{
+  "id": "language-basics/documentation",
+  "title": "Documentation",
+  "description": "Documentation is a vital aspect of any API. TypeSpec offers several ways to document your API, including doc comments and decorators.",
+  "source": "@site/../../docs/language-basics/documentation.md",
+  "sourceDirName": "language-basics",
+  "slug": "/language-basics/documentation",
+  "permalink": "/docs/next/language-basics/documentation",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "documentation",
+    "title": "Documentation"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Decorators",
+    "permalink": "/docs/next/language-basics/decorators"
+  },
+  "next": {
+    "title": "Scalars",
+    "permalink": "/docs/next/language-basics/scalars"
+  }
+}

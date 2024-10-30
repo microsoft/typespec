@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/getPositionBeforeTrivia",
+  "title": "[F] getPositionBeforeTrivia",
+  "description": "Adjust the given postion backwards before any trivia.",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/getPositionBeforeTrivia.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/getPositionBeforeTrivia",
+  "permalink": "/docs/standard-library/reference/js-api/functions/getPositionBeforeTrivia",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getPositionBeforeTrivia"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getPatternData",
+    "permalink": "/docs/standard-library/reference/js-api/functions/getPatternData"
+  },
+  "next": {
+    "title": "[F] getProjectedName",
+    "permalink": "/docs/standard-library/reference/js-api/functions/getProjectedName"
+  }
+}

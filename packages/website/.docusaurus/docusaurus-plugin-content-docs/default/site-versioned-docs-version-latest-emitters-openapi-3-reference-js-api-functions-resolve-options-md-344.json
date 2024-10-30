@@ -1,0 +1,26 @@
+{
+  "id": "emitters/openapi3/reference/js-api/functions/resolveOptions",
+  "title": "[F] resolveOptions",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/emitters/openapi3/reference/js-api/functions/resolveOptions.md",
+  "sourceDirName": "emitters/openapi3/reference/js-api/functions",
+  "slug": "/emitters/openapi3/reference/js-api/functions/resolveOptions",
+  "permalink": "/docs/emitters/openapi3/reference/js-api/functions/resolveOptions",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] resolveOptions"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getRef",
+    "permalink": "/docs/emitters/openapi3/reference/js-api/functions/getRef"
+  },
+  "next": {
+    "title": "[I] ResolvedOpenAPI3EmitterOptions",
+    "permalink": "/docs/emitters/openapi3/reference/js-api/interfaces/ResolvedOpenAPI3EmitterOptions"
+  }
+}

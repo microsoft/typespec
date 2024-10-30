@@ -1,0 +1,26 @@
+{
+  "id": "libraries/events/reference/js-api/functions/getContentType",
+  "title": "[F] getContentType",
+  "description": "Parameters",
+  "source": "@site/../../docs/libraries/events/reference/js-api/functions/getContentType.md",
+  "sourceDirName": "libraries/events/reference/js-api/functions",
+  "slug": "/libraries/events/reference/js-api/functions/getContentType",
+  "permalink": "/docs/next/libraries/events/reference/js-api/functions/getContentType",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getContentType"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $onValidate",
+    "permalink": "/docs/next/libraries/events/reference/js-api/functions/$onValidate"
+  },
+  "next": {
+    "title": "[F] isEventData",
+    "permalink": "/docs/next/libraries/events/reference/js-api/functions/isEventData"
+  }
+}

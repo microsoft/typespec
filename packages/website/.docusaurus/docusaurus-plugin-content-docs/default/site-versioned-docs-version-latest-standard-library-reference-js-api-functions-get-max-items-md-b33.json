@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/getMaxItems",
+  "title": "[F] getMaxItems",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/getMaxItems.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/getMaxItems",
+  "permalink": "/docs/standard-library/reference/js-api/functions/getMaxItems",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getMaxItems"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getLocationContext",
+    "permalink": "/docs/standard-library/reference/js-api/functions/getLocationContext"
+  },
+  "next": {
+    "title": "[F] getMaxItemsAsNumeric",
+    "permalink": "/docs/standard-library/reference/js-api/functions/getMaxItemsAsNumeric"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/type-aliases/RouteProducer",
+  "title": "[T] RouteProducer",
+  "description": "Parameters",
+  "source": "@site/../../docs/libraries/http/reference/js-api/type-aliases/RouteProducer.md",
+  "sourceDirName": "libraries/http/reference/js-api/type-aliases",
+  "slug": "/libraries/http/reference/js-api/type-aliases/RouteProducer",
+  "permalink": "/docs/next/libraries/http/reference/js-api/type-aliases/RouteProducer",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] RouteProducer"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] OperationVerbSelector",
+    "permalink": "/docs/next/libraries/http/reference/js-api/type-aliases/OperationVerbSelector"
+  },
+  "next": {
+    "title": "[T] ServiceAuthentication",
+    "permalink": "/docs/next/libraries/http/reference/js-api/type-aliases/ServiceAuthentication"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "libraries/events/reference/js-api/index",
+  "title": "[P] JS API",
+  "description": "Variables",
+  "source": "@site/../../docs/libraries/events/reference/js-api/index.md",
+  "sourceDirName": "libraries/events/reference/js-api",
+  "slug": "/libraries/events/reference/js-api/",
+  "permalink": "/docs/next/libraries/events/reference/js-api/",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[P] JS API"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Decorators",
+    "permalink": "/docs/next/libraries/events/reference/decorators"
+  },
+  "next": {
+    "title": "[F] $onValidate",
+    "permalink": "/docs/next/libraries/events/reference/js-api/functions/$onValidate"
+  }
+}

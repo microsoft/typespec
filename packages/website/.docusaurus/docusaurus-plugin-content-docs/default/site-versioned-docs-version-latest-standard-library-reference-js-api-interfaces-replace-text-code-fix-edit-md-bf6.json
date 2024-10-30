@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/ReplaceTextCodeFixEdit",
+  "title": "[I] ReplaceTextCodeFixEdit",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/ReplaceTextCodeFixEdit.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/ReplaceTextCodeFixEdit",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/ReplaceTextCodeFixEdit",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ReplaceTextCodeFixEdit"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] RecordModelType",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/RecordModelType"
+  },
+  "next": {
+    "title": "[I] ResolveCompilerOptionsOptions",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ResolveCompilerOptionsOptions"
+  }
+}

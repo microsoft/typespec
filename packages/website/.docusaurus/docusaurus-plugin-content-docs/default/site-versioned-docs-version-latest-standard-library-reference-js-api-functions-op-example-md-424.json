@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/$opExample",
+  "title": "[F] $opExample",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/$opExample.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/$opExample",
+  "permalink": "/docs/standard-library/reference/js-api/functions/$opExample",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $opExample"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $minValueExclusive",
+    "permalink": "/docs/standard-library/reference/js-api/functions/$minValueExclusive"
+  },
+  "next": {
+    "title": "[F] $overload",
+    "permalink": "/docs/standard-library/reference/js-api/functions/$overload"
+  }
+}

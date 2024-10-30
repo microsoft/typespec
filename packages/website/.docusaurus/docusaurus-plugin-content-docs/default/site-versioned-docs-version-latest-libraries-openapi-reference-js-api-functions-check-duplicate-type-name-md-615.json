@@ -1,0 +1,26 @@
+{
+  "id": "libraries/openapi/reference/js-api/functions/checkDuplicateTypeName",
+  "title": "[F] checkDuplicateTypeName",
+  "description": "Check the given name is not already specific in the existing map. Report a diagnostic if it is.",
+  "source": "@site/versioned_docs/version-latest/libraries/openapi/reference/js-api/functions/checkDuplicateTypeName.md",
+  "sourceDirName": "libraries/openapi/reference/js-api/functions",
+  "slug": "/libraries/openapi/reference/js-api/functions/checkDuplicateTypeName",
+  "permalink": "/docs/libraries/openapi/reference/js-api/functions/checkDuplicateTypeName",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] checkDuplicateTypeName"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $operationId",
+    "permalink": "/docs/libraries/openapi/reference/js-api/functions/$operationId"
+  },
+  "next": {
+    "title": "[F] getExtensions",
+    "permalink": "/docs/libraries/openapi/reference/js-api/functions/getExtensions"
+  }
+}

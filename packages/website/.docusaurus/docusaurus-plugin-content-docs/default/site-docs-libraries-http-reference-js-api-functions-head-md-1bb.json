@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/functions/$head",
+  "title": "[F] $head",
+  "description": "Parameters",
+  "source": "@site/../../docs/libraries/http/reference/js-api/functions/$head.md",
+  "sourceDirName": "libraries/http/reference/js-api/functions",
+  "slug": "/libraries/http/reference/js-api/functions/$head",
+  "permalink": "/docs/next/libraries/http/reference/js-api/functions/$head",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $head"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $get",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/$get"
+  },
+  "next": {
+    "title": "[F] $header",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/$header"
+  }
+}

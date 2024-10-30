@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/InterfaceStatementNode",
+  "title": "[I] InterfaceStatementNode",
+  "description": "Extends",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/InterfaceStatementNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/InterfaceStatementNode",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/InterfaceStatementNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] InterfaceStatementNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] Interface",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/Interface"
+  },
+  "next": {
+    "title": "[I] IntersectionExpressionNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/IntersectionExpressionNode"
+  }
+}

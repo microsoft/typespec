@@ -1,0 +1,26 @@
+{
+  "id": "emitters/json-schema/reference/js-api/functions/getJsonSchemaTypes",
+  "title": "[F] getJsonSchemaTypes",
+  "description": "Returns types that are annotated with @jsonSchema or contained within a namespace that is annoted with @jsonSchema.",
+  "source": "@site/../../docs/emitters/json-schema/reference/js-api/functions/getJsonSchemaTypes.md",
+  "sourceDirName": "emitters/json-schema/reference/js-api/functions",
+  "slug": "/emitters/json-schema/reference/js-api/functions/getJsonSchemaTypes",
+  "permalink": "/docs/next/emitters/json-schema/reference/js-api/functions/getJsonSchemaTypes",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getJsonSchemaTypes"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getJsonSchema",
+    "permalink": "/docs/next/emitters/json-schema/reference/js-api/functions/getJsonSchema"
+  },
+  "next": {
+    "title": "[F] getMaxContains",
+    "permalink": "/docs/next/emitters/json-schema/reference/js-api/functions/getMaxContains"
+  }
+}

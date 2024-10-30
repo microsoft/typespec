@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/getAllTags",
+  "title": "[F] getAllTags",
+  "description": "Parameters",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/getAllTags.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/getAllTags",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/getAllTags",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getAllTags"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] formatTypeSpec",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/formatTypeSpec"
+  },
+  "next": {
+    "title": "[F] getAnyExtensionFromPath",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/getAnyExtensionFromPath"
+  }
+}

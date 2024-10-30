@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/type-aliases/OAuth2Flow",
+  "title": "[T] OAuth2Flow",
+  "description": "",
+  "source": "@site/../../docs/libraries/http/reference/js-api/type-aliases/OAuth2Flow.md",
+  "sourceDirName": "libraries/http/reference/js-api/type-aliases",
+  "slug": "/libraries/http/reference/js-api/type-aliases/OAuth2Flow",
+  "permalink": "/docs/next/libraries/http/reference/js-api/type-aliases/OAuth2Flow",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] OAuth2Flow"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] HttpVerb",
+    "permalink": "/docs/next/libraries/http/reference/js-api/type-aliases/HttpVerb"
+  },
+  "next": {
+    "title": "[T] OAuth2FlowType",
+    "permalink": "/docs/next/libraries/http/reference/js-api/type-aliases/OAuth2FlowType"
+  }
+}

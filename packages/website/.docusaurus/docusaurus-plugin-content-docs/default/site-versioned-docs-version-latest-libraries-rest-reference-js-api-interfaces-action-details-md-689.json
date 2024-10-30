@@ -1,0 +1,26 @@
+{
+  "id": "libraries/rest/reference/js-api/interfaces/ActionDetails",
+  "title": "[I] ActionDetails",
+  "description": "Provides details about an action or collection action.",
+  "source": "@site/versioned_docs/version-latest/libraries/rest/reference/js-api/interfaces/ActionDetails.md",
+  "sourceDirName": "libraries/rest/reference/js-api/interfaces",
+  "slug": "/libraries/rest/reference/js-api/interfaces/ActionDetails",
+  "permalink": "/docs/libraries/rest/reference/js-api/interfaces/ActionDetails",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ActionDetails"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] setResourceTypeKey",
+    "permalink": "/docs/libraries/rest/reference/js-api/functions/setResourceTypeKey"
+  },
+  "next": {
+    "title": "[I] AutoRouteOptions",
+    "permalink": "/docs/libraries/rest/reference/js-api/interfaces/AutoRouteOptions"
+  }
+}

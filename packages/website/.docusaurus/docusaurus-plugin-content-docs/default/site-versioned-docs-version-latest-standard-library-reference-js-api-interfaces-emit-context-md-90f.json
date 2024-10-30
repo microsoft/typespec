@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/EmitContext",
+  "title": "[I] EmitContext",
+  "description": "Type Parameters",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/EmitContext.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/EmitContext",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/EmitContext",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] EmitContext"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] DocUnknownTagNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/DocUnknownTagNode"
+  },
+  "next": {
+    "title": "[I] EmitFileOptions",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/EmitFileOptions"
+  }
+}

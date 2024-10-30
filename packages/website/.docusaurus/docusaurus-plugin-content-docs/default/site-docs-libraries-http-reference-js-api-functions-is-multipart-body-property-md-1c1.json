@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/functions/isMultipartBodyProperty",
+  "title": "[F] isMultipartBodyProperty",
+  "description": "Parameters",
+  "source": "@site/../../docs/libraries/http/reference/js-api/functions/isMultipartBodyProperty.md",
+  "sourceDirName": "libraries/http/reference/js-api/functions",
+  "slug": "/libraries/http/reference/js-api/functions/isMultipartBodyProperty",
+  "permalink": "/docs/next/libraries/http/reference/js-api/functions/isMultipartBodyProperty",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] isMultipartBodyProperty"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] isMetadata",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/isMetadata"
+  },
+  "next": {
+    "title": "[F] isOrExtendsHttpFile",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/isOrExtendsHttpFile"
+  }
+}

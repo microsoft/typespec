@@ -1,0 +1,25 @@
+{
+  "id": "emitters/openapi3/diagnostics",
+  "title": "Diagnostics",
+  "description": "The OpenAPI emitter may produce any of the following diagnostic messages.",
+  "source": "@site/versioned_docs/version-latest/emitters/openapi3/diagnostics.md",
+  "sourceDirName": "emitters/openapi3",
+  "slug": "/emitters/openapi3/diagnostics",
+  "permalink": "/docs/emitters/openapi3/diagnostics",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "title": "Diagnostics"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "OpenAPI3 to TypeSpec",
+    "permalink": "/docs/emitters/openapi3/cli"
+  },
+  "next": {
+    "title": "Overview",
+    "permalink": "/docs/emitters/protobuf/reference/"
+  }
+}

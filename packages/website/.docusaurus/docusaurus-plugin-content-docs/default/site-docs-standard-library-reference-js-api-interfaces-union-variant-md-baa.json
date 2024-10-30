@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/UnionVariant",
+  "title": "[I] UnionVariant",
+  "description": "Extends",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/UnionVariant.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/UnionVariant",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/UnionVariant",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] UnionVariant"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] UnionStatementNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/UnionStatementNode"
+  },
+  "next": {
+    "title": "[I] UnionVariantNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/UnionVariantNode"
+  }
+}

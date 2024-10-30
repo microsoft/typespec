@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/isRecordModelType",
+  "title": "[F] isRecordModelType",
+  "description": "Check if a model is an array type.",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/isRecordModelType.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/isRecordModelType",
+  "permalink": "/docs/standard-library/reference/js-api/functions/isRecordModelType",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] isRecordModelType"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] isPunctuation",
+    "permalink": "/docs/standard-library/reference/js-api/functions/isPunctuation"
+  },
+  "next": {
+    "title": "[F] isSecret",
+    "permalink": "/docs/standard-library/reference/js-api/functions/isSecret"
+  }
+}

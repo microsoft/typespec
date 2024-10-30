@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/Enum",
+  "title": "[I] Enum",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/Enum.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/Enum",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/Enum",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] Enum"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] EncodeData",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/EncodeData"
+  },
+  "next": {
+    "title": "[I] EnumMember",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/EnumMember"
+  }
+}

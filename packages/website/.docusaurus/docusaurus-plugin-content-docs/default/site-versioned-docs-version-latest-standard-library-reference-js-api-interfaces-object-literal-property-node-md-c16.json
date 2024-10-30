@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/ObjectLiteralPropertyNode",
+  "title": "[I] ObjectLiteralPropertyNode",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/ObjectLiteralPropertyNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/ObjectLiteralPropertyNode",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/ObjectLiteralPropertyNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ObjectLiteralPropertyNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ObjectLiteralNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ObjectLiteralNode"
+  },
+  "next": {
+    "title": "[I] ObjectLiteralSpreadPropertyNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ObjectLiteralSpreadPropertyNode"
+  }
+}

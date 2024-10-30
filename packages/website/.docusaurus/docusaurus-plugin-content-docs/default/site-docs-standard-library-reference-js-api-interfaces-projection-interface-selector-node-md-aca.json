@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/ProjectionInterfaceSelectorNode",
+  "title": "[I] ProjectionInterfaceSelectorNode",
+  "description": "Extends",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/ProjectionInterfaceSelectorNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/ProjectionInterfaceSelectorNode",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ProjectionInterfaceSelectorNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ProjectionInterfaceSelectorNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ProjectionIfExpressionNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ProjectionIfExpressionNode"
+  },
+  "next": {
+    "title": "[I] ProjectionLambdaExpressionNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ProjectionLambdaExpressionNode"
+  }
+}

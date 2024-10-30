@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/interfaces/MetadataInfoOptions",
+  "title": "[I] MetadataInfoOptions",
+  "description": "Properties",
+  "source": "@site/../../docs/libraries/http/reference/js-api/interfaces/MetadataInfoOptions.md",
+  "sourceDirName": "libraries/http/reference/js-api/interfaces",
+  "slug": "/libraries/http/reference/js-api/interfaces/MetadataInfoOptions",
+  "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/MetadataInfoOptions",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] MetadataInfoOptions"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] MetadataInfo",
+    "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/MetadataInfo"
+  },
+  "next": {
+    "title": "[I] NoAuth",
+    "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/NoAuth"
+  }
+}

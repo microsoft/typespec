@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/functions/getStatusCodesWithDiagnostics",
+  "title": "[F] getStatusCodesWithDiagnostics",
+  "description": "Parameters",
+  "source": "@site/../../docs/libraries/http/reference/js-api/functions/getStatusCodesWithDiagnostics.md",
+  "sourceDirName": "libraries/http/reference/js-api/functions",
+  "slug": "/libraries/http/reference/js-api/functions/getStatusCodesWithDiagnostics",
+  "permalink": "/docs/next/libraries/http/reference/js-api/functions/getStatusCodesWithDiagnostics",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getStatusCodesWithDiagnostics"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getStatusCodes",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/getStatusCodes"
+  },
+  "next": {
+    "title": "[F] getUriTemplatePathParam",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/getUriTemplatePathParam"
+  }
+}

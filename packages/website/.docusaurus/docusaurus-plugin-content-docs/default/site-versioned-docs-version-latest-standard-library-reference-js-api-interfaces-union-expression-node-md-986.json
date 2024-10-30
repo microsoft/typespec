@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/UnionExpressionNode",
+  "title": "[I] UnionExpressionNode",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/UnionExpressionNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/UnionExpressionNode",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/UnionExpressionNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] UnionExpressionNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] Union",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/Union"
+  },
+  "next": {
+    "title": "[I] UnionStatementNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/UnionStatementNode"
+  }
+}

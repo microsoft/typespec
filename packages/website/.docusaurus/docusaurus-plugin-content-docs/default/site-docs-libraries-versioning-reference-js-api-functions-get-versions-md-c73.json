@@ -1,0 +1,26 @@
+{
+  "id": "libraries/versioning/reference/js-api/functions/getVersions",
+  "title": "[F] getVersions",
+  "description": "Parameters",
+  "source": "@site/../../docs/libraries/versioning/reference/js-api/functions/getVersions.md",
+  "sourceDirName": "libraries/versioning/reference/js-api/functions",
+  "slug": "/libraries/versioning/reference/js-api/functions/getVersions",
+  "permalink": "/docs/next/libraries/versioning/reference/js-api/functions/getVersions",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getVersions"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getVersionForEnumMember",
+    "permalink": "/docs/next/libraries/versioning/reference/js-api/functions/getVersionForEnumMember"
+  },
+  "next": {
+    "title": "[F] getVersionsForEnum",
+    "permalink": "/docs/next/libraries/versioning/reference/js-api/functions/getVersionsForEnum"
+  }
+}

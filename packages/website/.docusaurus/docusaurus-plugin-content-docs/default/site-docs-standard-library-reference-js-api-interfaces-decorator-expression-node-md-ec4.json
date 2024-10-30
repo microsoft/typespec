@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/DecoratorExpressionNode",
+  "title": "[I] DecoratorExpressionNode",
+  "description": "Extends",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/DecoratorExpressionNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/DecoratorExpressionNode",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/DecoratorExpressionNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] DecoratorExpressionNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] DecoratorDefinition",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/DecoratorDefinition"
+  },
+  "next": {
+    "title": "[I] DecoratorFunction",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/DecoratorFunction"
+  }
+}

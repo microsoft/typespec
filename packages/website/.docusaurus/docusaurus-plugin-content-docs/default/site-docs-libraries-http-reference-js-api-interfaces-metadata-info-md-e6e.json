@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/interfaces/MetadataInfo",
+  "title": "[I] MetadataInfo",
+  "description": "Provides information about changes that happen to a data type's payload",
+  "source": "@site/../../docs/libraries/http/reference/js-api/interfaces/MetadataInfo.md",
+  "sourceDirName": "libraries/http/reference/js-api/interfaces",
+  "slug": "/libraries/http/reference/js-api/interfaces/MetadataInfo",
+  "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/MetadataInfo",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] MetadataInfo"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ImplicitFlow",
+    "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/ImplicitFlow"
+  },
+  "next": {
+    "title": "[I] MetadataInfoOptions",
+    "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/MetadataInfoOptions"
+  }
+}

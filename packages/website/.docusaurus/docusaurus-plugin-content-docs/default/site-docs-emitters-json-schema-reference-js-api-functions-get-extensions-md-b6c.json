@@ -1,0 +1,26 @@
+{
+  "id": "emitters/json-schema/reference/js-api/functions/getExtensions",
+  "title": "[F] getExtensions",
+  "description": "Get extensions set via the @extension decorator on the given type",
+  "source": "@site/../../docs/emitters/json-schema/reference/js-api/functions/getExtensions.md",
+  "sourceDirName": "emitters/json-schema/reference/js-api/functions",
+  "slug": "/emitters/json-schema/reference/js-api/functions/getExtensions",
+  "permalink": "/docs/next/emitters/json-schema/reference/js-api/functions/getExtensions",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getExtensions"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getContentSchema",
+    "permalink": "/docs/next/emitters/json-schema/reference/js-api/functions/getContentSchema"
+  },
+  "next": {
+    "title": "[F] getId",
+    "permalink": "/docs/next/emitters/json-schema/reference/js-api/functions/getId"
+  }
+}

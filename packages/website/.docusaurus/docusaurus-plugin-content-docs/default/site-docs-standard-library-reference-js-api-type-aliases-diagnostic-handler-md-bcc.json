@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/DiagnosticHandler",
+  "title": "[T] DiagnosticHandler",
+  "description": "Parameters",
+  "source": "@site/../../docs/standard-library/reference/js-api/type-aliases/DiagnosticHandler.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/DiagnosticHandler",
+  "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/DiagnosticHandler",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] DiagnosticHandler"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] DiagnosticFormat",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/DiagnosticFormat"
+  },
+  "next": {
+    "title": "[T] DiagnosticMap",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/DiagnosticMap"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "libraries/xml/reference/js-api/type-aliases/NsDecorator",
+  "title": "[T] NsDecorator",
+  "description": "Specify the XML namespace for this element. It can be used in 2 different ways:",
+  "source": "@site/../../docs/libraries/xml/reference/js-api/type-aliases/NsDecorator.md",
+  "sourceDirName": "libraries/xml/reference/js-api/type-aliases",
+  "slug": "/libraries/xml/reference/js-api/type-aliases/NsDecorator",
+  "permalink": "/docs/next/libraries/xml/reference/js-api/type-aliases/NsDecorator",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] NsDecorator"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] NsDeclarationsDecorator",
+    "permalink": "/docs/next/libraries/xml/reference/js-api/type-aliases/NsDeclarationsDecorator"
+  },
+  "next": {
+    "title": "[T] UnwrappedDecorator",
+    "permalink": "/docs/next/libraries/xml/reference/js-api/type-aliases/UnwrappedDecorator"
+  }
+}

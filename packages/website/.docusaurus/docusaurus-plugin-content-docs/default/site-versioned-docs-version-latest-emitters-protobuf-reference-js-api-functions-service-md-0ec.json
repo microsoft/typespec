@@ -1,0 +1,26 @@
+{
+  "id": "emitters/protobuf/reference/js-api/functions/$service",
+  "title": "[F] $service",
+  "description": "Decorate an interface as a service, indicating that it represents a Protobuf service declaration.",
+  "source": "@site/versioned_docs/version-latest/emitters/protobuf/reference/js-api/functions/$service.md",
+  "sourceDirName": "emitters/protobuf/reference/js-api/functions",
+  "slug": "/emitters/protobuf/reference/js-api/functions/$service",
+  "permalink": "/docs/emitters/protobuf/reference/js-api/functions/$service",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $service"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $reserve",
+    "permalink": "/docs/emitters/protobuf/reference/js-api/functions/$reserve"
+  },
+  "next": {
+    "title": "[F] $stream",
+    "permalink": "/docs/emitters/protobuf/reference/js-api/functions/$stream"
+  }
+}

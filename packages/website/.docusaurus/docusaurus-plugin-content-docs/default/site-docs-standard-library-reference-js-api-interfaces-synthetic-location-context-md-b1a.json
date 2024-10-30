@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/SyntheticLocationContext",
+  "title": "[I] SyntheticLocationContext",
+  "description": "Refer to a type that was not declared in a file",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/SyntheticLocationContext.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/SyntheticLocationContext",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/SyntheticLocationContext",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] SyntheticLocationContext"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] SymbolLinks",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/SymbolLinks"
+  },
+  "next": {
+    "title": "[I] TemplateArgumentNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/TemplateArgumentNode"
+  }
+}

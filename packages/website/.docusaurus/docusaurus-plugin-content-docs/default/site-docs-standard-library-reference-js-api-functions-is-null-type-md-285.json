@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/isNullType",
+  "title": "[F] isNullType",
+  "description": "Parameters",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/isNullType.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/isNullType",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/isNullType",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] isNullType"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] isNeverType",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/isNeverType"
+  },
+  "next": {
+    "title": "[F] isNumeric",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/isNumeric"
+  }
+}

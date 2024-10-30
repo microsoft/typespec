@@ -1,0 +1,26 @@
+{
+  "id": "libraries/events/reference/js-api/variables/$lib",
+  "title": "[V] $lib",
+  "description": "Type declaration",
+  "source": "@site/../../docs/libraries/events/reference/js-api/variables/$lib.md",
+  "sourceDirName": "libraries/events/reference/js-api/variables",
+  "slug": "/libraries/events/reference/js-api/variables/$lib",
+  "permalink": "/docs/next/libraries/events/reference/js-api/variables/$lib",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[V] $lib"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[V] $decorators",
+    "permalink": "/docs/next/libraries/events/reference/js-api/variables/$decorators"
+  },
+  "next": {
+    "title": "Overview",
+    "permalink": "/docs/next/libraries/http/reference/"
+  }
+}

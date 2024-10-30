@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/DiscriminatedUnion",
+  "title": "[I] DiscriminatedUnion",
+  "description": "Properties",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/DiscriminatedUnion.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/DiscriminatedUnion",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/DiscriminatedUnion",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] DiscriminatedUnion"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] Dirent",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/Dirent"
+  },
+  "next": {
+    "title": "[I] Discriminator",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/Discriminator"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/isTemplateInstance",
+  "title": "[F] isTemplateInstance",
+  "description": "Check the given type is a finished template instance.",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/isTemplateInstance.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/isTemplateInstance",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/isTemplateInstance",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] isTemplateInstance"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] isTemplateDeclarationOrInstance",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/isTemplateDeclarationOrInstance"
+  },
+  "next": {
+    "title": "[F] isTrivia",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/isTrivia"
+  }
+}

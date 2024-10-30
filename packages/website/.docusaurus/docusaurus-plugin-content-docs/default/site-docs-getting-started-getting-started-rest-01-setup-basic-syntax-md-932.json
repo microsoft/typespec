@@ -1,0 +1,28 @@
+{
+  "id": "getting-started/getting-started-rest/01-setup-basic-syntax",
+  "title": "Getting Started with TypeSpec For REST APIs",
+  "description": "Introduction",
+  "source": "@site/../../docs/getting-started/getting-started-rest/01-setup-basic-syntax.md",
+  "sourceDirName": "getting-started/getting-started-rest",
+  "slug": "/getting-started/getting-started-rest/01-setup-basic-syntax",
+  "permalink": "/docs/next/getting-started/getting-started-rest/01-setup-basic-syntax",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 1,
+  "frontMatter": {
+    "id": "01-setup-basic-syntax",
+    "title": "Getting Started with TypeSpec For REST APIs",
+    "pagination_next": "getting-started/getting-started-rest/02-operations-responses"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "TypeSpec Visual Studio Extension",
+    "permalink": "/docs/next/introduction/editor/vs"
+  },
+  "next": {
+    "title": "Operations and Responses",
+    "permalink": "/docs/next/getting-started/getting-started-rest/02-operations-responses"
+  }
+}

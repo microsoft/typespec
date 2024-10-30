@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/parse",
+  "title": "[F] parse",
+  "description": "Parameters",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/parse.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/parse",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/parse",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] parse"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] paramMessage",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/paramMessage"
+  },
+  "next": {
+    "title": "[F] parseStandaloneTypeReference",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/parseStandaloneTypeReference"
+  }
+}

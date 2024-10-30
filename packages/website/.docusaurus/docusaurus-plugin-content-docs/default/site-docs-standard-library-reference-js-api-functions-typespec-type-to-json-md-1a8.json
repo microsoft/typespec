@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/typespecTypeToJson",
+  "title": "[F] typespecTypeToJson",
+  "description": "Convert a TypeSpec type to a serializable Json object.",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/typespecTypeToJson.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/typespecTypeToJson",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/typespecTypeToJson",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] typespecTypeToJson"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] stringTemplateToString",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/stringTemplateToString"
+  },
+  "next": {
+    "title": "[F] validateDecoratorNotOnType",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/validateDecoratorNotOnType"
+  }
+}

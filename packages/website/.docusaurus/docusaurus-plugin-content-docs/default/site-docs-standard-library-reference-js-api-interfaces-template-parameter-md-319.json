@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/TemplateParameter",
+  "title": "[I] TemplateParameter",
+  "description": "Extends",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/TemplateParameter.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/TemplateParameter",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/TemplateParameter",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] TemplateParameter"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] TemplateDeclarationNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/TemplateDeclarationNode"
+  },
+  "next": {
+    "title": "[I] TemplateParameterDeclarationNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/TemplateParameterDeclarationNode"
+  }
+}

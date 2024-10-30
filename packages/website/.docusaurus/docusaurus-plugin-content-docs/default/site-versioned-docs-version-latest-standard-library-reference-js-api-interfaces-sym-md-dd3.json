@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/Sym",
+  "title": "[I] Sym",
+  "description": "Properties",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/Sym.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/Sym",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/Sym",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] Sym"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] SuppressDirective",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/SuppressDirective"
+  },
+  "next": {
+    "title": "[I] SymbolLinks",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/SymbolLinks"
+  }
+}

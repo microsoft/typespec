@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/ArrayLiteralNode",
+  "title": "[I] ArrayLiteralNode",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/ArrayLiteralNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/ArrayLiteralNode",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/ArrayLiteralNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ArrayLiteralNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ArrayExpressionNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ArrayExpressionNode"
+  },
+  "next": {
+    "title": "[I] ArrayModelType",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ArrayModelType"
+  }
+}

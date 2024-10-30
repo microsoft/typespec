@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/variables/NodeHost",
+  "title": "[V] NodeHost",
+  "description": "Implementation of the",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/variables/NodeHost.md",
+  "sourceDirName": "standard-library/reference/js-api/variables",
+  "slug": "/standard-library/reference/js-api/variables/NodeHost",
+  "permalink": "/docs/standard-library/reference/js-api/variables/NodeHost",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[V] NodeHost"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[V] NoTarget",
+    "permalink": "/docs/standard-library/reference/js-api/variables/NoTarget"
+  },
+  "next": {
+    "title": "[V] TypeSpecPrettierPlugin",
+    "permalink": "/docs/standard-library/reference/js-api/variables/TypeSpecPrettierPlugin"
+  }
+}

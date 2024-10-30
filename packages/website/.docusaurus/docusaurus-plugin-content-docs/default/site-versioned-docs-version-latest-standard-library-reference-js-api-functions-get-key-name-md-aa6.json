@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/getKeyName",
+  "title": "[F] getKeyName",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/getKeyName.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/getKeyName",
+  "permalink": "/docs/standard-library/reference/js-api/functions/getKeyName",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getKeyName"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getIdentifierContext",
+    "permalink": "/docs/standard-library/reference/js-api/functions/getIdentifierContext"
+  },
+  "next": {
+    "title": "[F] getKnownValues",
+    "permalink": "/docs/standard-library/reference/js-api/functions/getKnownValues"
+  }
+}

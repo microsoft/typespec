@@ -1,0 +1,26 @@
+{
+  "id": "libraries/rest/reference/js-api/functions/$deletesResource",
+  "title": "[F] $deletesResource",
+  "description": "Parameters",
+  "source": "@site/../../docs/libraries/rest/reference/js-api/functions/$deletesResource.md",
+  "sourceDirName": "libraries/rest/reference/js-api/functions",
+  "slug": "/libraries/rest/reference/js-api/functions/$deletesResource",
+  "permalink": "/docs/next/libraries/rest/reference/js-api/functions/$deletesResource",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $deletesResource"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $createsResource",
+    "permalink": "/docs/next/libraries/rest/reference/js-api/functions/$createsResource"
+  },
+  "next": {
+    "title": "[F] $listsResource",
+    "permalink": "/docs/next/libraries/rest/reference/js-api/functions/$listsResource"
+  }
+}

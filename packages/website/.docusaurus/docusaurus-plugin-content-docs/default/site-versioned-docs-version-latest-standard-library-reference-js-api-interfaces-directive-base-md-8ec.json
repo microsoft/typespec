@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/DirectiveBase",
+  "title": "[I] DirectiveBase",
+  "description": "Extended by",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/DirectiveBase.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/DirectiveBase",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/DirectiveBase",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] DirectiveBase"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] DiagnosticMessages",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/DiagnosticMessages"
+  },
+  "next": {
+    "title": "[I] DirectiveExpressionNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/DirectiveExpressionNode"
+  }
+}

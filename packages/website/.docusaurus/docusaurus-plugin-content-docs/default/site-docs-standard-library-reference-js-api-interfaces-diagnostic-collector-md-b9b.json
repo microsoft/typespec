@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/DiagnosticCollector",
+  "title": "[I] DiagnosticCollector",
+  "description": "Helper object to collect diagnostics from function following the diagnostics accessor pattern(foo() => [T, Diagnostic[]])",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/DiagnosticCollector.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/DiagnosticCollector",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/DiagnosticCollector",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] DiagnosticCollector"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] Diagnostic",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/Diagnostic"
+  },
+  "next": {
+    "title": "[I] DiagnosticCreator",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/DiagnosticCreator"
+  }
+}

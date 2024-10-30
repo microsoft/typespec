@@ -1,0 +1,26 @@
+{
+  "id": "libraries/openapi/reference/js-api/functions/$extension",
+  "title": "[F] $extension",
+  "description": "Parameters",
+  "source": "@site/../../docs/libraries/openapi/reference/js-api/functions/$extension.md",
+  "sourceDirName": "libraries/openapi/reference/js-api/functions",
+  "slug": "/libraries/openapi/reference/js-api/functions/$extension",
+  "permalink": "/docs/next/libraries/openapi/reference/js-api/functions/$extension",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $extension"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $defaultResponse",
+    "permalink": "/docs/next/libraries/openapi/reference/js-api/functions/$defaultResponse"
+  },
+  "next": {
+    "title": "[F] $externalDocs",
+    "permalink": "/docs/next/libraries/openapi/reference/js-api/functions/$externalDocs"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/TypeSpecScriptNode",
+  "title": "[I] TypeSpecScriptNode",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/TypeSpecScriptNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/TypeSpecScriptNode",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/TypeSpecScriptNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] TypeSpecScriptNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] TypeSpecManifest",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/TypeSpecManifest"
+  },
+  "next": {
+    "title": "[I] Union",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/Union"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/getNamespaceFullName",
+  "title": "[F] getNamespaceFullName",
+  "description": "Return the full name of the namespace(e.g. \"Foo.Bar\")",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/getNamespaceFullName.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/getNamespaceFullName",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/getNamespaceFullName",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getNamespaceFullName"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getMinValueExclusiveAsNumeric",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/getMinValueExclusiveAsNumeric"
+  },
+  "next": {
+    "title": "[F] getNodeAtPosition",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/getNodeAtPosition"
+  }
+}

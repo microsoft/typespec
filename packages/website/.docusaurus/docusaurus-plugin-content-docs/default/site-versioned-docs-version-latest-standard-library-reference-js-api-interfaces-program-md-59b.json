@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/Program",
+  "title": "[I] Program",
+  "description": "Extended by",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/Program.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/Program",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/Program",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] Program"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ProcessedLog",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ProcessedLog"
+  },
+  "next": {
+    "title": "[I] ProjectLocationContext",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ProjectLocationContext"
+  }
+}

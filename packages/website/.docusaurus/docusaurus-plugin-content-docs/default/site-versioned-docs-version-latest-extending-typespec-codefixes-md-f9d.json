@@ -1,0 +1,25 @@
+{
+  "id": "extending-typespec/codefixes",
+  "title": "Code fixes",
+  "description": "Define a code fix",
+  "source": "@site/versioned_docs/version-latest/extending-typespec/codefixes.md",
+  "sourceDirName": "extending-typespec",
+  "slug": "/extending-typespec/codefixes",
+  "permalink": "/docs/extending-typespec/codefixes",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "title": "Code fixes"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Linters",
+    "permalink": "/docs/extending-typespec/linters"
+  },
+  "next": {
+    "title": "Emitters",
+    "permalink": "/docs/extending-typespec/emitters"
+  }
+}

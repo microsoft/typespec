@@ -1,0 +1,26 @@
+{
+  "id": "libraries/xml/reference/js-api/type-aliases/XmlEncoding",
+  "title": "[T] XmlEncoding",
+  "description": "Known Xml encodings",
+  "source": "@site/../../docs/libraries/xml/reference/js-api/type-aliases/XmlEncoding.md",
+  "sourceDirName": "libraries/xml/reference/js-api/type-aliases",
+  "slug": "/libraries/xml/reference/js-api/type-aliases/XmlEncoding",
+  "permalink": "/docs/next/libraries/xml/reference/js-api/type-aliases/XmlEncoding",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] XmlEncoding"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] UnwrappedDecorator",
+    "permalink": "/docs/next/libraries/xml/reference/js-api/type-aliases/UnwrappedDecorator"
+  },
+  "next": {
+    "title": "[V] $lib",
+    "permalink": "/docs/next/libraries/xml/reference/js-api/variables/$lib"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "emitters/json-schema/reference/js-api/functions/getId",
+  "title": "[F] getId",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/emitters/json-schema/reference/js-api/functions/getId.md",
+  "sourceDirName": "emitters/json-schema/reference/js-api/functions",
+  "slug": "/emitters/json-schema/reference/js-api/functions/getId",
+  "permalink": "/docs/emitters/json-schema/reference/js-api/functions/getId",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getId"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getExtensions",
+    "permalink": "/docs/emitters/json-schema/reference/js-api/functions/getExtensions"
+  },
+  "next": {
+    "title": "[F] getJsonSchema",
+    "permalink": "/docs/emitters/json-schema/reference/js-api/functions/getJsonSchema"
+  }
+}

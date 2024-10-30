@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/isValue",
+  "title": "[F] isValue",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/isValue.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/isValue",
+  "permalink": "/docs/standard-library/reference/js-api/functions/isValue",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] isValue"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] isUrl",
+    "permalink": "/docs/standard-library/reference/js-api/functions/isUrl"
+  },
+  "next": {
+    "title": "[F] isVisible",
+    "permalink": "/docs/standard-library/reference/js-api/functions/isVisible"
+  }
+}

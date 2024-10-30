@@ -1,0 +1,26 @@
+{
+  "id": "libraries/xml/reference/js-api/functions/$nsDeclarations",
+  "title": "[F] $nsDeclarations",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/libraries/xml/reference/js-api/functions/$nsDeclarations.md",
+  "sourceDirName": "libraries/xml/reference/js-api/functions",
+  "slug": "/libraries/xml/reference/js-api/functions/$nsDeclarations",
+  "permalink": "/docs/libraries/xml/reference/js-api/functions/$nsDeclarations",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $nsDeclarations"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $ns",
+    "permalink": "/docs/libraries/xml/reference/js-api/functions/$ns"
+  },
+  "next": {
+    "title": "[F] $unwrapped",
+    "permalink": "/docs/libraries/xml/reference/js-api/functions/$unwrapped"
+  }
+}

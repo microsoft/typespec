@@ -1,0 +1,26 @@
+{
+  "id": "libraries/openapi/reference/js-api/interfaces/ExternalDocs",
+  "title": "[I] ExternalDocs",
+  "description": "External Docs info",
+  "source": "@site/versioned_docs/version-latest/libraries/openapi/reference/js-api/interfaces/ExternalDocs.md",
+  "sourceDirName": "libraries/openapi/reference/js-api/interfaces",
+  "slug": "/libraries/openapi/reference/js-api/interfaces/ExternalDocs",
+  "permalink": "/docs/libraries/openapi/reference/js-api/interfaces/ExternalDocs",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ExternalDocs"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] Contact",
+    "permalink": "/docs/libraries/openapi/reference/js-api/interfaces/Contact"
+  },
+  "next": {
+    "title": "[I] License",
+    "permalink": "/docs/libraries/openapi/reference/js-api/interfaces/License"
+  }
+}

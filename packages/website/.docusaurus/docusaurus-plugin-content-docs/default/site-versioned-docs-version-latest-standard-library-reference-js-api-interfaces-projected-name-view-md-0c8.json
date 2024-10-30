@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/ProjectedNameView",
+  "title": "[I] ProjectedNameView",
+  "description": "Properties",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/ProjectedNameView.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/ProjectedNameView",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/ProjectedNameView",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ProjectedNameView"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ProjectLocationContext",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ProjectLocationContext"
+  },
+  "next": {
+    "title": "[I] ProjectedProgram",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ProjectedProgram"
+  }
+}

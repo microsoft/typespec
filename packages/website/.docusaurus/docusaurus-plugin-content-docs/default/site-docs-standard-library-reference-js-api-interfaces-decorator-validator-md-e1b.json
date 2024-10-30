@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/DecoratorValidator",
+  "title": "[I] DecoratorValidator",
+  "description": "Type Parameters",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/DecoratorValidator.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/DecoratorValidator",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/DecoratorValidator",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] DecoratorValidator"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] DecoratorParamDefinition",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/DecoratorParamDefinition"
+  },
+  "next": {
+    "title": "[I] DeprecatedDirective",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/DeprecatedDirective"
+  }
+}

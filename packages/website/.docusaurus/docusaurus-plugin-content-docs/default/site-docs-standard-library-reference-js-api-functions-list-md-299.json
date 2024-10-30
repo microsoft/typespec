@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/$list",
+  "title": "[F] $list",
+  "description": "Parameters",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/$list.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/$list",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/$list",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $list"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $knownValues",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/$knownValues"
+  },
+  "next": {
+    "title": "[F] $maxItems",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/$maxItems"
+  }
+}

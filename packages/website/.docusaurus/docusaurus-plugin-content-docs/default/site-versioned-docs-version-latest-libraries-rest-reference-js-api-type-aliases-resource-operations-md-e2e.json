@@ -1,0 +1,26 @@
+{
+  "id": "libraries/rest/reference/js-api/type-aliases/ResourceOperations",
+  "title": "[T] ResourceOperations",
+  "description": "",
+  "source": "@site/versioned_docs/version-latest/libraries/rest/reference/js-api/type-aliases/ResourceOperations.md",
+  "sourceDirName": "libraries/rest/reference/js-api/type-aliases",
+  "slug": "/libraries/rest/reference/js-api/type-aliases/ResourceOperations",
+  "permalink": "/docs/libraries/rest/reference/js-api/type-aliases/ResourceOperations",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] ResourceOperations"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ResourceOperation",
+    "permalink": "/docs/libraries/rest/reference/js-api/interfaces/ResourceOperation"
+  },
+  "next": {
+    "title": "[V] $lib",
+    "permalink": "/docs/libraries/rest/reference/js-api/variables/$lib"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/DiagnosticTarget",
+  "title": "[T] DiagnosticTarget",
+  "description": "",
+  "source": "@site/../../docs/standard-library/reference/js-api/type-aliases/DiagnosticTarget.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/DiagnosticTarget",
+  "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/DiagnosticTarget",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] DiagnosticTarget"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] DiagnosticSeverity",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/DiagnosticSeverity"
+  },
+  "next": {
+    "title": "[T] Directive",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/Directive"
+  }
+}

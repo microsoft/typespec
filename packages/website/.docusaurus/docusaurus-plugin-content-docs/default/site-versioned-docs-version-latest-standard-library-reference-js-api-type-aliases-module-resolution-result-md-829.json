@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/ModuleResolutionResult",
+  "title": "[T] ModuleResolutionResult",
+  "description": "",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/type-aliases/ModuleResolutionResult.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/ModuleResolutionResult",
+  "permalink": "/docs/standard-library/reference/js-api/type-aliases/ModuleResolutionResult",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] ModuleResolutionResult"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] Modifier",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/Modifier"
+  },
+  "next": {
+    "title": "[T] NeverIndexer",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/NeverIndexer"
+  }
+}

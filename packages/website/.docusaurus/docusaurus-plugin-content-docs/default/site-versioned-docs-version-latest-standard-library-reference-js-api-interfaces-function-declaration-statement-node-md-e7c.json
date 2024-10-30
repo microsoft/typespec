@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/FunctionDeclarationStatementNode",
+  "title": "[I] FunctionDeclarationStatementNode",
+  "description": "Represent a function declaration",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/FunctionDeclarationStatementNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/FunctionDeclarationStatementNode",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/FunctionDeclarationStatementNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] FunctionDeclarationStatementNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] FilePos",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/FilePos"
+  },
+  "next": {
+    "title": "[I] FunctionParameterBase",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/FunctionParameterBase"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/ProjectionExpression",
+  "title": "[T] ProjectionExpression",
+  "description": "",
+  "source": "@site/../../docs/standard-library/reference/js-api/type-aliases/ProjectionExpression.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/ProjectionExpression",
+  "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/ProjectionExpression",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] ProjectionExpression"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] OperationSignature",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/OperationSignature"
+  },
+  "next": {
+    "title": "[T] ProjectionStatementItem",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/ProjectionStatementItem"
+  }
+}

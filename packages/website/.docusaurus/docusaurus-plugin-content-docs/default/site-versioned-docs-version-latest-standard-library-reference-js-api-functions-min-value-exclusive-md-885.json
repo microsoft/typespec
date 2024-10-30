@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/$minValueExclusive",
+  "title": "[F] $minValueExclusive",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/$minValueExclusive.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/$minValueExclusive",
+  "permalink": "/docs/standard-library/reference/js-api/functions/$minValueExclusive",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $minValueExclusive"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $minValue",
+    "permalink": "/docs/standard-library/reference/js-api/functions/$minValue"
+  },
+  "next": {
+    "title": "[F] $opExample",
+    "permalink": "/docs/standard-library/reference/js-api/functions/$opExample"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "id": "emitters/openapi3/cli",
+  "title": "OpenAPI3 to TypeSpec",
+  "description": "The OpenAPI3 to TypeSpec conversion purpose is a one time conversion to help you get started with TypeSpec.",
+  "source": "@site/versioned_docs/version-latest/emitters/openapi3/cli.md",
+  "sourceDirName": "emitters/openapi3",
+  "slug": "/emitters/openapi3/cli",
+  "permalink": "/docs/emitters/openapi3/cli",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "title": "OpenAPI3 to TypeSpec"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Emitter operation",
+    "permalink": "/docs/emitters/openapi3/openapi"
+  },
+  "next": {
+    "title": "Diagnostics",
+    "permalink": "/docs/emitters/openapi3/diagnostics"
+  }
+}

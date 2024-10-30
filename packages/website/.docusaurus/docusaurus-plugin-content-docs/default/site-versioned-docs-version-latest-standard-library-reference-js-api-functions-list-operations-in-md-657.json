@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/listOperationsIn",
+  "title": "[F] listOperationsIn",
+  "description": "List operations in the given container. Will list operation recursively by default(Check subnamespaces.)",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/listOperationsIn.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/listOperationsIn",
+  "permalink": "/docs/standard-library/reference/js-api/functions/listOperationsIn",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] listOperationsIn"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] joinPaths",
+    "permalink": "/docs/standard-library/reference/js-api/functions/joinPaths"
+  },
+  "next": {
+    "title": "[F] listServices",
+    "permalink": "/docs/standard-library/reference/js-api/functions/listServices"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "emitters/json-schema/reference/js-api/variables/EmitterOptionsSchema",
+  "title": "[V] EmitterOptionsSchema",
+  "description": "Internal: Json Schema emitter options schema",
+  "source": "@site/../../docs/emitters/json-schema/reference/js-api/variables/EmitterOptionsSchema.md",
+  "sourceDirName": "emitters/json-schema/reference/js-api/variables",
+  "slug": "/emitters/json-schema/reference/js-api/variables/EmitterOptionsSchema",
+  "permalink": "/docs/next/emitters/json-schema/reference/js-api/variables/EmitterOptionsSchema",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[V] EmitterOptionsSchema"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[V] $lib",
+    "permalink": "/docs/next/emitters/json-schema/reference/js-api/variables/$lib"
+  },
+  "next": {
+    "title": "Overview",
+    "permalink": "/docs/next/emitters/openapi3/reference/"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "id": "handbook/style-guide",
+  "title": "Style guide",
+  "description": "This guide offers a recommended set of naming conventions to follow when drafting a TypeSpec specification.",
+  "source": "@site/versioned_docs/version-latest/handbook/style-guide.md",
+  "sourceDirName": "handbook",
+  "slug": "/handbook/style-guide",
+  "permalink": "/docs/handbook/style-guide",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "title": "Style guide"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Cli usage",
+    "permalink": "/docs/handbook/cli"
+  },
+  "next": {
+    "title": "Formatter",
+    "permalink": "/docs/handbook/formatter"
+  }
+}

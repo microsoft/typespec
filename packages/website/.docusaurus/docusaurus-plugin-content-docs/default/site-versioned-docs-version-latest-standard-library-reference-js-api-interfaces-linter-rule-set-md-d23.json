@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/LinterRuleSet",
+  "title": "[I] LinterRuleSet",
+  "description": "Properties",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/LinterRuleSet.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/LinterRuleSet",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/LinterRuleSet",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] LinterRuleSet"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] LinterRuleDefinition",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/LinterRuleDefinition"
+  },
+  "next": {
+    "title": "[I] ListOperationOptions",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ListOperationOptions"
+  }
+}

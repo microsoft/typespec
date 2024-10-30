@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/functions/getPathParamOptions",
+  "title": "[F] getPathParamOptions",
+  "description": "Parameters",
+  "source": "@site/../../docs/libraries/http/reference/js-api/functions/getPathParamOptions.md",
+  "sourceDirName": "libraries/http/reference/js-api/functions",
+  "slug": "/libraries/http/reference/js-api/functions/getPathParamOptions",
+  "permalink": "/docs/next/libraries/http/reference/js-api/functions/getPathParamOptions",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getPathParamOptions"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getPathParamName",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/getPathParamName"
+  },
+  "next": {
+    "title": "[F] getQueryParamName",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/getQueryParamName"
+  }
+}

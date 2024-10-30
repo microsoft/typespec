@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/enumerations/TokenFlags",
+  "title": "[E] TokenFlags",
+  "description": "Enumeration Members",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/enumerations/TokenFlags.md",
+  "sourceDirName": "standard-library/reference/js-api/enumerations",
+  "slug": "/standard-library/reference/js-api/enumerations/TokenFlags",
+  "permalink": "/docs/standard-library/reference/js-api/enumerations/TokenFlags",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[E] TokenFlags"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[E] Token",
+    "permalink": "/docs/standard-library/reference/js-api/enumerations/Token"
+  },
+  "next": {
+    "title": "[E] UsageFlags",
+    "permalink": "/docs/standard-library/reference/js-api/enumerations/UsageFlags"
+  }
+}

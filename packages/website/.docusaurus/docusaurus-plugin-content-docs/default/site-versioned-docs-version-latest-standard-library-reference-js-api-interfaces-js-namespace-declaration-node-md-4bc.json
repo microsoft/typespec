@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/JsNamespaceDeclarationNode",
+  "title": "[I] JsNamespaceDeclarationNode",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/JsNamespaceDeclarationNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/JsNamespaceDeclarationNode",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/JsNamespaceDeclarationNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] JsNamespaceDeclarationNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] InvalidStatementNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/InvalidStatementNode"
+  },
+  "next": {
+    "title": "[I] JsSourceFileNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/JsSourceFileNode"
+  }
+}

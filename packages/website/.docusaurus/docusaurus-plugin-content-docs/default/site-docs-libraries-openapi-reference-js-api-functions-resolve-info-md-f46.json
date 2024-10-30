@@ -1,0 +1,26 @@
+{
+  "id": "libraries/openapi/reference/js-api/functions/resolveInfo",
+  "title": "[F] resolveInfo",
+  "description": "Resolve the info entry by merging data specified with @service, @summary and @info.",
+  "source": "@site/../../docs/libraries/openapi/reference/js-api/functions/resolveInfo.md",
+  "sourceDirName": "libraries/openapi/reference/js-api/functions",
+  "slug": "/libraries/openapi/reference/js-api/functions/resolveInfo",
+  "permalink": "/docs/next/libraries/openapi/reference/js-api/functions/resolveInfo",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] resolveInfo"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] isReadonlyProperty",
+    "permalink": "/docs/next/libraries/openapi/reference/js-api/functions/isReadonlyProperty"
+  },
+  "next": {
+    "title": "[F] resolveOperationId",
+    "permalink": "/docs/next/libraries/openapi/reference/js-api/functions/resolveOperationId"
+  }
+}

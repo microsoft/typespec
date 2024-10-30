@@ -1,0 +1,26 @@
+{
+  "id": "libraries/openapi/reference/js-api/type-aliases/ExternalDocsDecorator",
+  "title": "[T] ExternalDocsDecorator",
+  "description": "Specify the OpenAPI externalDocs property for this type.",
+  "source": "@site/../../docs/libraries/openapi/reference/js-api/type-aliases/ExternalDocsDecorator.md",
+  "sourceDirName": "libraries/openapi/reference/js-api/type-aliases",
+  "slug": "/libraries/openapi/reference/js-api/type-aliases/ExternalDocsDecorator",
+  "permalink": "/docs/next/libraries/openapi/reference/js-api/type-aliases/ExternalDocsDecorator",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] ExternalDocsDecorator"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] ExtensionKey",
+    "permalink": "/docs/next/libraries/openapi/reference/js-api/type-aliases/ExtensionKey"
+  },
+  "next": {
+    "title": "[T] InfoDecorator",
+    "permalink": "/docs/next/libraries/openapi/reference/js-api/type-aliases/InfoDecorator"
+  }
+}

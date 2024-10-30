@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/LineAndCharacter",
+  "title": "[I] LineAndCharacter",
+  "description": "Identifies the position within a source file by line number and offset from",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/LineAndCharacter.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/LineAndCharacter",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/LineAndCharacter",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] LineAndCharacter"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] LibraryLocationContext",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/LibraryLocationContext"
+  },
+  "next": {
+    "title": "[I] LineComment",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/LineComment"
+  }
+}

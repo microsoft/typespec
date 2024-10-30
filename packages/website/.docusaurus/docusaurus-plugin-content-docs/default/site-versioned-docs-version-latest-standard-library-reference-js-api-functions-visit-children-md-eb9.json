@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/visitChildren",
+  "title": "[F] visitChildren",
+  "description": "Type Parameters",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/visitChildren.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/visitChildren",
+  "permalink": "/docs/standard-library/reference/js-api/functions/visitChildren",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] visitChildren"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] validateDecoratorUniqueOnNode",
+    "permalink": "/docs/standard-library/reference/js-api/functions/validateDecoratorUniqueOnNode"
+  },
+  "next": {
+    "title": "[F] walkPropertiesInherited",
+    "permalink": "/docs/standard-library/reference/js-api/functions/walkPropertiesInherited"
+  }
+}

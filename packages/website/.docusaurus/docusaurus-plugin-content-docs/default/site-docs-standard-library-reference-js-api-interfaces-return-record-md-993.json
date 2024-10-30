@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/ReturnRecord",
+  "title": "[I] ReturnRecord",
+  "description": "Properties",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/ReturnRecord.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/ReturnRecord",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ReturnRecord",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ReturnRecord"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ReturnExpressionNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ReturnExpressionNode"
+  },
+  "next": {
+    "title": "[I] RmOptions",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/RmOptions"
+  }
+}

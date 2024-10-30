@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/isImportStatement",
+  "title": "[F] isImportStatement",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/isImportStatement.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/isImportStatement",
+  "permalink": "/docs/standard-library/reference/js-api/functions/isImportStatement",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] isImportStatement"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] isGlobalNamespace",
+    "permalink": "/docs/standard-library/reference/js-api/functions/isGlobalNamespace"
+  },
+  "next": {
+    "title": "[F] isIntrinsicType",
+    "permalink": "/docs/standard-library/reference/js-api/functions/isIntrinsicType"
+  }
+}

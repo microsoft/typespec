@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/functions/$bodyRoot",
+  "title": "[F] $bodyRoot",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/libraries/http/reference/js-api/functions/$bodyRoot.md",
+  "sourceDirName": "libraries/http/reference/js-api/functions",
+  "slug": "/libraries/http/reference/js-api/functions/$bodyRoot",
+  "permalink": "/docs/libraries/http/reference/js-api/functions/$bodyRoot",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $bodyRoot"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $bodyIgnore",
+    "permalink": "/docs/libraries/http/reference/js-api/functions/$bodyIgnore"
+  },
+  "next": {
+    "title": "[F] $delete",
+    "permalink": "/docs/libraries/http/reference/js-api/functions/$delete"
+  }
+}

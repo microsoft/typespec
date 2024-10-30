@@ -1,0 +1,25 @@
+{
+  "id": "release-notes/release-2024-10-09",
+  "title": "0.61 - October 2024",
+  "description": "This release contains breaking changes",
+  "source": "@site/versioned_docs/version-latest/release-notes/release-2024-10-09.md",
+  "sourceDirName": "release-notes",
+  "slug": "/release-notes/release-2024-10-09",
+  "permalink": "/docs/release-notes/release-2024-10-09",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "title": "0.61 - October 2024"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "🚀 Release Notes",
+    "permalink": "/docs/release-notes"
+  },
+  "next": {
+    "title": "0.60 - September 2024",
+    "permalink": "/docs/release-notes/release-2024-09-10"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "libraries/xml/reference/js-api/functions/getNs",
+  "title": "[F] getNs",
+  "description": "Get the namespace and prefix for the given type.",
+  "source": "@site/versioned_docs/version-latest/libraries/xml/reference/js-api/functions/getNs.md",
+  "sourceDirName": "libraries/xml/reference/js-api/functions",
+  "slug": "/libraries/xml/reference/js-api/functions/getNs",
+  "permalink": "/docs/libraries/xml/reference/js-api/functions/getNs",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getNs"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $unwrapped",
+    "permalink": "/docs/libraries/xml/reference/js-api/functions/$unwrapped"
+  },
+  "next": {
+    "title": "[F] getXmlEncoding",
+    "permalink": "/docs/libraries/xml/reference/js-api/functions/getXmlEncoding"
+  }
+}

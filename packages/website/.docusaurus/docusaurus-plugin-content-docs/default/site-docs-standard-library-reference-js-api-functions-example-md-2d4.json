@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/$example",
+  "title": "[F] $example",
+  "description": "Parameters",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/$example.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/$example",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/$example",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $example"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $errorsDoc",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/$errorsDoc"
+  },
+  "next": {
+    "title": "[F] $format",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/$format"
+  }
+}

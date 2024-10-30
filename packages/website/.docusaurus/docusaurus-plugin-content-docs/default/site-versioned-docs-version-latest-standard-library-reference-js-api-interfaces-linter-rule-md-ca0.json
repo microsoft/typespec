@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/LinterRule",
+  "title": "[I] LinterRule",
+  "description": "Resolved instance of a linter rule that will run.",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/LinterRule.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/LinterRule",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/LinterRule",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] LinterRule"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] LinterResolvedDefinition",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/LinterResolvedDefinition"
+  },
+  "next": {
+    "title": "[I] LinterRuleContext",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/LinterRuleContext"
+  }
+}

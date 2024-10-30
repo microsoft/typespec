@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/TypeSpecValue",
+  "title": "[T] TypeSpecValue",
+  "description": "",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/type-aliases/TypeSpecValue.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/TypeSpecValue",
+  "permalink": "/docs/standard-library/reference/js-api/type-aliases/TypeSpecValue",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] TypeSpecValue"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] TypeSpecDiagnosticTarget",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/TypeSpecDiagnosticTarget"
+  },
+  "next": {
+    "title": "[T] Value",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/Value"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "libraries/openapi/reference/js-api/index",
+  "title": "[P] JS API",
+  "description": "Interfaces",
+  "source": "@site/../../docs/libraries/openapi/reference/js-api/index.md",
+  "sourceDirName": "libraries/openapi/reference/js-api",
+  "slug": "/libraries/openapi/reference/js-api/",
+  "permalink": "/docs/next/libraries/openapi/reference/js-api/",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[P] JS API"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Decorators",
+    "permalink": "/docs/next/libraries/openapi/reference/decorators"
+  },
+  "next": {
+    "title": "[F] $defaultResponse",
+    "permalink": "/docs/next/libraries/openapi/reference/js-api/functions/$defaultResponse"
+  }
+}

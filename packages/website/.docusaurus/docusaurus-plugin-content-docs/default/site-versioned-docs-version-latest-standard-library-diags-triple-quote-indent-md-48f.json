@@ -1,0 +1,25 @@
+{
+  "id": "standard-library/diags/triple-quote-indent",
+  "title": "triple-quote-indent",
+  "description": "Triple quoted strings must all be at least indented to the same level as closing \"\"\".",
+  "source": "@site/versioned_docs/version-latest/standard-library/diags/triple-quote-indent.md",
+  "sourceDirName": "standard-library/diags",
+  "slug": "/standard-library/diags/triple-quote-indent",
+  "permalink": "/docs/standard-library/diags/triple-quote-indent",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "title": "triple-quote-indent"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Built-in Data types",
+    "permalink": "/docs/standard-library/built-in-data-types"
+  },
+  "next": {
+    "title": "[P] JS API",
+    "permalink": "/docs/standard-library/reference/js-api/"
+  }
+}

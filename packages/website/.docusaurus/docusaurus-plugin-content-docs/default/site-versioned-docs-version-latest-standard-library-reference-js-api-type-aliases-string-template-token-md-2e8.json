@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/StringTemplateToken",
+  "title": "[T] StringTemplateToken",
+  "description": "",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/type-aliases/StringTemplateToken.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/StringTemplateToken",
+  "permalink": "/docs/standard-library/reference/js-api/type-aliases/StringTemplateToken",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] StringTemplateToken"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] StringTemplateSpan",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/StringTemplateSpan"
+  },
+  "next": {
+    "title": "[T] TemplateableNode",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/TemplateableNode"
+  }
+}

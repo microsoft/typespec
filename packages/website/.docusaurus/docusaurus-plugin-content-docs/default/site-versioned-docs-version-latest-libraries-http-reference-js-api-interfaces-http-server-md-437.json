@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/interfaces/HttpServer",
+  "title": "[I] HttpServer",
+  "description": "Properties",
+  "source": "@site/versioned_docs/version-latest/libraries/http/reference/js-api/interfaces/HttpServer.md",
+  "sourceDirName": "libraries/http/reference/js-api/interfaces",
+  "slug": "/libraries/http/reference/js-api/interfaces/HttpServer",
+  "permalink": "/docs/libraries/http/reference/js-api/interfaces/HttpServer",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] HttpServer"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] HttpPartOptions",
+    "permalink": "/docs/libraries/http/reference/js-api/interfaces/HttpPartOptions"
+  },
+  "next": {
+    "title": "[I] HttpService",
+    "permalink": "/docs/libraries/http/reference/js-api/interfaces/HttpService"
+  }
+}

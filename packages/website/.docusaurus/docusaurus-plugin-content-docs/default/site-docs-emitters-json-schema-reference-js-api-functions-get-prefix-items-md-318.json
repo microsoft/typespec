@@ -1,0 +1,26 @@
+{
+  "id": "emitters/json-schema/reference/js-api/functions/getPrefixItems",
+  "title": "[F] getPrefixItems",
+  "description": "Get prefix items set with @prefixItems decorator",
+  "source": "@site/../../docs/emitters/json-schema/reference/js-api/functions/getPrefixItems.md",
+  "sourceDirName": "emitters/json-schema/reference/js-api/functions",
+  "slug": "/emitters/json-schema/reference/js-api/functions/getPrefixItems",
+  "permalink": "/docs/next/emitters/json-schema/reference/js-api/functions/getPrefixItems",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getPrefixItems"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getMultipleOfAsNumeric",
+    "permalink": "/docs/next/emitters/json-schema/reference/js-api/functions/getMultipleOfAsNumeric"
+  },
+  "next": {
+    "title": "[F] getUniqueItems",
+    "permalink": "/docs/next/emitters/json-schema/reference/js-api/functions/getUniqueItems"
+  }
+}

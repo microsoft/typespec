@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/MixedFunctionParameter",
+  "title": "[I] MixedFunctionParameter",
+  "description": "Represent a function parameter that could accept types or values in the TypeSpec program.",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/MixedFunctionParameter.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/MixedFunctionParameter",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/MixedFunctionParameter",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] MixedFunctionParameter"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] MemberExpressionNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/MemberExpressionNode"
+  },
+  "next": {
+    "title": "[I] MixedParameterConstraint",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/MixedParameterConstraint"
+  }
+}

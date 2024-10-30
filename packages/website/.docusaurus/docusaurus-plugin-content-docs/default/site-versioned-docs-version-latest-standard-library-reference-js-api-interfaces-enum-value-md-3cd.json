@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/EnumValue",
+  "title": "[I] EnumValue",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/EnumValue.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/EnumValue",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/EnumValue",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] EnumValue"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] EnumStatementNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/EnumStatementNode"
+  },
+  "next": {
+    "title": "[I] ErrorType",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ErrorType"
+  }
+}

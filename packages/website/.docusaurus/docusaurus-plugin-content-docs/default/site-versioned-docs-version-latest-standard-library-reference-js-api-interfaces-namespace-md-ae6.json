@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/Namespace",
+  "title": "[I] Namespace",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/Namespace.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/Namespace",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/Namespace",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] Namespace"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ModuleLibraryMetadata",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ModuleLibraryMetadata"
+  },
+  "next": {
+    "title": "[I] NamespaceNavigationOptions",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/NamespaceNavigationOptions"
+  }
+}

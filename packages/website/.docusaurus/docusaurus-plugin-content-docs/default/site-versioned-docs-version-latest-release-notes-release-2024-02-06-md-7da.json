@@ -1,0 +1,25 @@
+{
+  "id": "release-notes/release-2024-02-06",
+  "title": "February 2024",
+  "description": "Release of VSCode and Visual Studio extensions",
+  "source": "@site/versioned_docs/version-latest/release-notes/release-2024-02-06.md",
+  "sourceDirName": "release-notes",
+  "slug": "/release-notes/release-2024-02-06",
+  "permalink": "/docs/release-notes/release-2024-02-06",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "title": "February 2024"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "March 2024",
+    "permalink": "/docs/release-notes/release-2024-03-05"
+  },
+  "next": {
+    "title": "January 2024",
+    "permalink": "/docs/release-notes/release-2024-01-23"
+  }
+}

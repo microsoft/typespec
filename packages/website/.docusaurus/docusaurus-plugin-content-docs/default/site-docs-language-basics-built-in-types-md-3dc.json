@@ -1,0 +1,26 @@
+{
+  "id": "language-basics/built-in-types",
+  "title": "Built-in types",
+  "description": "TypeSpec Standard Library provide some built-in types that can be used to build more complex types.",
+  "source": "@site/../../docs/language-basics/built-in-types.md",
+  "sourceDirName": "language-basics",
+  "slug": "/language-basics/built-in-types",
+  "permalink": "/docs/next/language-basics/built-in-types",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "built-in-types",
+    "title": "Built-in types"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Overview",
+    "permalink": "/docs/next/language-basics/overview"
+  },
+  "next": {
+    "title": "Identifiers",
+    "permalink": "/docs/next/language-basics/identifiers"
+  }
+}

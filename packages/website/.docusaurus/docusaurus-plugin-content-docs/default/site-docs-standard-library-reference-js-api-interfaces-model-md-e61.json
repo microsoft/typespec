@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/Model",
+  "title": "[I] Model",
+  "description": "Extends",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/Model.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/Model",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/Model",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] Model"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] MixedParameterConstraint",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/MixedParameterConstraint"
+  },
+  "next": {
+    "title": "[I] ModelExpressionNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ModelExpressionNode"
+  }
+}

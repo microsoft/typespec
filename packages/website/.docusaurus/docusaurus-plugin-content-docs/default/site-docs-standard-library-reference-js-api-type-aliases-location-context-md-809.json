@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/LocationContext",
+  "title": "[T] LocationContext",
+  "description": "Represent a location context in the mind of the compiler. This can be:",
+  "source": "@site/../../docs/standard-library/reference/js-api/type-aliases/LocationContext.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/LocationContext",
+  "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/LocationContext",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] LocationContext"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] LiteralType",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/LiteralType"
+  },
+  "next": {
+    "title": "[T] LogLevel",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/LogLevel"
+  }
+}

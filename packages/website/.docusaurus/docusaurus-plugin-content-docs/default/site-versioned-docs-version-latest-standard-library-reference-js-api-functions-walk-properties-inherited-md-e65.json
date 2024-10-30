@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/walkPropertiesInherited",
+  "title": "[F] walkPropertiesInherited",
+  "description": "Enumerates the properties declared by model or inherited from its base.",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/walkPropertiesInherited.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/walkPropertiesInherited",
+  "permalink": "/docs/standard-library/reference/js-api/functions/walkPropertiesInherited",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] walkPropertiesInherited"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] visitChildren",
+    "permalink": "/docs/standard-library/reference/js-api/functions/visitChildren"
+  },
+  "next": {
+    "title": "[I] AliasStatementNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/AliasStatementNode"
+  }
+}

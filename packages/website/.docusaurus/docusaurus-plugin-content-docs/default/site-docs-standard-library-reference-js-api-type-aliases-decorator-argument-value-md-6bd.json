@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/DecoratorArgumentValue",
+  "title": "[T] DecoratorArgumentValue",
+  "description": "Type System types",
+  "source": "@site/../../docs/standard-library/reference/js-api/type-aliases/DecoratorArgumentValue.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/DecoratorArgumentValue",
+  "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/DecoratorArgumentValue",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] DecoratorArgumentValue"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] Declaration",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/Declaration"
+  },
+  "next": {
+    "title": "[T] DiagnosticFormat",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/DiagnosticFormat"
+  }
+}

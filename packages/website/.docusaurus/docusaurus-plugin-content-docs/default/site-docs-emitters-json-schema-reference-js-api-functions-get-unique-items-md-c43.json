@@ -1,0 +1,26 @@
+{
+  "id": "emitters/json-schema/reference/js-api/functions/getUniqueItems",
+  "title": "[F] getUniqueItems",
+  "description": "Check if the given array is annotated with @uniqueItems decorator",
+  "source": "@site/../../docs/emitters/json-schema/reference/js-api/functions/getUniqueItems.md",
+  "sourceDirName": "emitters/json-schema/reference/js-api/functions",
+  "slug": "/emitters/json-schema/reference/js-api/functions/getUniqueItems",
+  "permalink": "/docs/next/emitters/json-schema/reference/js-api/functions/getUniqueItems",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getUniqueItems"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getPrefixItems",
+    "permalink": "/docs/next/emitters/json-schema/reference/js-api/functions/getPrefixItems"
+  },
+  "next": {
+    "title": "[F] isJsonSchemaDeclaration",
+    "permalink": "/docs/next/emitters/json-schema/reference/js-api/functions/isJsonSchemaDeclaration"
+  }
+}

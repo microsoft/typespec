@@ -1,0 +1,26 @@
+{
+  "id": "language-basics/type-literals",
+  "title": "Type Literals",
+  "description": "When designing APIs, it's common to define the structure of the API in terms of specific literal values. For instance, an operation might return a specific integer status code, or a model member might be one of a few specific string values. It's also useful to pass specific literal values to decorators. TypeSpec supports string, number, and boolean literal values to cater to these needs.",
+  "source": "@site/../../docs/language-basics/type-literals.md",
+  "sourceDirName": "language-basics",
+  "slug": "/language-basics/type-literals",
+  "permalink": "/docs/next/language-basics/type-literals",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "type-literals",
+    "title": "Type Literals"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Intersections",
+    "permalink": "/docs/next/language-basics/intersections"
+  },
+  "next": {
+    "title": "Aliases",
+    "permalink": "/docs/next/language-basics/alias"
+  }
+}

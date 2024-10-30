@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/$withPickedProperties",
+  "title": "[F] $withPickedProperties",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/$withPickedProperties.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/$withPickedProperties",
+  "permalink": "/docs/standard-library/reference/js-api/functions/$withPickedProperties",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $withPickedProperties"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $withOptionalProperties",
+    "permalink": "/docs/standard-library/reference/js-api/functions/$withOptionalProperties"
+  },
+  "next": {
+    "title": "[F] $withUpdateableProperties",
+    "permalink": "/docs/standard-library/reference/js-api/functions/$withUpdateableProperties"
+  }
+}

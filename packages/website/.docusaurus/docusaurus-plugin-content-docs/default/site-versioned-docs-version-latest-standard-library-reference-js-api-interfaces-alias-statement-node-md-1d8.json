@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/AliasStatementNode",
+  "title": "[I] AliasStatementNode",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/AliasStatementNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/AliasStatementNode",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/AliasStatementNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] AliasStatementNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] walkPropertiesInherited",
+    "permalink": "/docs/standard-library/reference/js-api/functions/walkPropertiesInherited"
+  },
+  "next": {
+    "title": "[I] AnyKeywordNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/AnyKeywordNode"
+  }
+}

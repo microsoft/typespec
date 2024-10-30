@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/IdentifierNode",
+  "title": "[I] IdentifierNode",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/IdentifierNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/IdentifierNode",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/IdentifierNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] IdentifierNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] IdentifierContext",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/IdentifierContext"
+  },
+  "next": {
+    "title": "[I] ImportStatementNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ImportStatementNode"
+  }
+}

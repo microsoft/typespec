@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/DocTextNode",
+  "title": "[I] DocTextNode",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/DocTextNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/DocTextNode",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/DocTextNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] DocTextNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] DocTemplateTagNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/DocTemplateTagNode"
+  },
+  "next": {
+    "title": "[I] DocUnknownTagNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/DocUnknownTagNode"
+  }
+}

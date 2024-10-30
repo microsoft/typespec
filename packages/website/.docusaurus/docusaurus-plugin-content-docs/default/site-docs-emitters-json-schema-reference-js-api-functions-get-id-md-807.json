@@ -1,0 +1,26 @@
+{
+  "id": "emitters/json-schema/reference/js-api/functions/getId",
+  "title": "[F] getId",
+  "description": "Get id as set with @id decorator.",
+  "source": "@site/../../docs/emitters/json-schema/reference/js-api/functions/getId.md",
+  "sourceDirName": "emitters/json-schema/reference/js-api/functions",
+  "slug": "/emitters/json-schema/reference/js-api/functions/getId",
+  "permalink": "/docs/next/emitters/json-schema/reference/js-api/functions/getId",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getId"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getExtensions",
+    "permalink": "/docs/next/emitters/json-schema/reference/js-api/functions/getExtensions"
+  },
+  "next": {
+    "title": "[F] getJsonSchema",
+    "permalink": "/docs/next/emitters/json-schema/reference/js-api/functions/getJsonSchema"
+  }
+}

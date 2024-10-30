@@ -1,0 +1,27 @@
+{
+  "id": "getting-started/getting-started-rest/02-operations-responses",
+  "title": "Operations and Responses",
+  "description": "Introduction",
+  "source": "@site/../../docs/getting-started/getting-started-rest/02-operations-responses.md",
+  "sourceDirName": "getting-started/getting-started-rest",
+  "slug": "/getting-started/getting-started-rest/02-operations-responses",
+  "permalink": "/docs/next/getting-started/getting-started-rest/02-operations-responses",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 2,
+  "frontMatter": {
+    "id": "02-operations-responses",
+    "title": "Operations and Responses"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Getting Started with TypeSpec For REST APIs",
+    "permalink": "/docs/next/getting-started/getting-started-rest/01-setup-basic-syntax"
+  },
+  "next": {
+    "title": "Handling Errors",
+    "permalink": "/docs/next/getting-started/getting-started-rest/handling-errors"
+  }
+}

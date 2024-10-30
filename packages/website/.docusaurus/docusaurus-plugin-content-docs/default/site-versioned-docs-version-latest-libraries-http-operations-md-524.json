@@ -1,0 +1,25 @@
+{
+  "id": "libraries/http/operations",
+  "title": "Operations",
+  "description": "Operation verb",
+  "source": "@site/versioned_docs/version-latest/libraries/http/operations.md",
+  "sourceDirName": "libraries/http",
+  "slug": "/libraries/http/operations",
+  "permalink": "/docs/libraries/http/operations",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "title": "Operations"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Authentication",
+    "permalink": "/docs/libraries/http/authentication"
+  },
+  "next": {
+    "title": "Content types",
+    "permalink": "/docs/libraries/http/content-types"
+  }
+}

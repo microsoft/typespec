@@ -1,0 +1,26 @@
+{
+  "id": "libraries/rest/reference/js-api/functions/getResourceLocationType",
+  "title": "[F] getResourceLocationType",
+  "description": "Parameters",
+  "source": "@site/../../docs/libraries/rest/reference/js-api/functions/getResourceLocationType.md",
+  "sourceDirName": "libraries/rest/reference/js-api/functions",
+  "slug": "/libraries/rest/reference/js-api/functions/getResourceLocationType",
+  "permalink": "/docs/next/libraries/rest/reference/js-api/functions/getResourceLocationType",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getResourceLocationType"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getParentResource",
+    "permalink": "/docs/next/libraries/rest/reference/js-api/functions/getParentResource"
+  },
+  "next": {
+    "title": "[F] getResourceOperation",
+    "permalink": "/docs/next/libraries/rest/reference/js-api/functions/getResourceOperation"
+  }
+}

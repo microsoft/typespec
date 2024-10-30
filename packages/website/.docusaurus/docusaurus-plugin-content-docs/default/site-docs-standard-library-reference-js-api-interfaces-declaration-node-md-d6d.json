@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/DeclarationNode",
+  "title": "[I] DeclarationNode",
+  "description": "Extended by",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/DeclarationNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/DeclarationNode",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/DeclarationNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] DeclarationNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ConstStatementNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ConstStatementNode"
+  },
+  "next": {
+    "title": "[I] DecoratedType",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/DecoratedType"
+  }
+}

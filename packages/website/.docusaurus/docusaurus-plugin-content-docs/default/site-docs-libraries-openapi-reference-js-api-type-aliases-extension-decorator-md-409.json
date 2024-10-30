@@ -1,0 +1,26 @@
+{
+  "id": "libraries/openapi/reference/js-api/type-aliases/ExtensionDecorator",
+  "title": "[T] ExtensionDecorator",
+  "description": "Attach some custom data to the OpenAPI element generated from this type.",
+  "source": "@site/../../docs/libraries/openapi/reference/js-api/type-aliases/ExtensionDecorator.md",
+  "sourceDirName": "libraries/openapi/reference/js-api/type-aliases",
+  "slug": "/libraries/openapi/reference/js-api/type-aliases/ExtensionDecorator",
+  "permalink": "/docs/next/libraries/openapi/reference/js-api/type-aliases/ExtensionDecorator",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] ExtensionDecorator"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] DefaultResponseDecorator",
+    "permalink": "/docs/next/libraries/openapi/reference/js-api/type-aliases/DefaultResponseDecorator"
+  },
+  "next": {
+    "title": "[T] ExtensionKey",
+    "permalink": "/docs/next/libraries/openapi/reference/js-api/type-aliases/ExtensionKey"
+  }
+}

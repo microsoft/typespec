@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/functions/$path",
+  "title": "[F] $path",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/libraries/http/reference/js-api/functions/$path.md",
+  "sourceDirName": "libraries/http/reference/js-api/functions",
+  "slug": "/libraries/http/reference/js-api/functions/$path",
+  "permalink": "/docs/libraries/http/reference/js-api/functions/$path",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $path"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $patch",
+    "permalink": "/docs/libraries/http/reference/js-api/functions/$patch"
+  },
+  "next": {
+    "title": "[F] $post",
+    "permalink": "/docs/libraries/http/reference/js-api/functions/$post"
+  }
+}

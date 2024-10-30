@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/resolveUsages",
+  "title": "[F] resolveUsages",
+  "description": "Resolve usage(input, output or both) of various types in the given namespace.",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/resolveUsages.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/resolveUsages",
+  "permalink": "/docs/standard-library/reference/js-api/functions/resolveUsages",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] resolveUsages"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] resolvePath",
+    "permalink": "/docs/standard-library/reference/js-api/functions/resolvePath"
+  },
+  "next": {
+    "title": "[F] scopeNavigationToNamespace",
+    "permalink": "/docs/standard-library/reference/js-api/functions/scopeNavigationToNamespace"
+  }
+}

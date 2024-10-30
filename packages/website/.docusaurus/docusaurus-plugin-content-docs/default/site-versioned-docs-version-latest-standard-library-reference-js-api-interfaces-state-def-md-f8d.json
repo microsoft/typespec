@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/StateDef",
+  "title": "[I] StateDef",
+  "description": "Properties",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/StateDef.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/StateDef",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/StateDef",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] StateDef"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] SourceModel",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/SourceModel"
+  },
+  "next": {
+    "title": "[I] StringLiteral",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/StringLiteral"
+  }
+}

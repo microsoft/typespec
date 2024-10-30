@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/InferredTypeSpecValue",
+  "title": "[T] InferredTypeSpecValue",
+  "description": "Type Parameters",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/type-aliases/InferredTypeSpecValue.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/InferredTypeSpecValue",
+  "permalink": "/docs/standard-library/reference/js-api/type-aliases/InferredTypeSpecValue",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] InferredTypeSpecValue"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] InferredCadlValue",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/InferredCadlValue"
+  },
+  "next": {
+    "title": "[T] IntrinsicScalarName",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/IntrinsicScalarName"
+  }
+}

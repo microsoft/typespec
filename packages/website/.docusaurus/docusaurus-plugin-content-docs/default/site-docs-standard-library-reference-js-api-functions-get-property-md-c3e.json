@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/getProperty",
+  "title": "[F] getProperty",
+  "description": "Parameters",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/getProperty.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/getProperty",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/getProperty",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getProperty"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getProjectedNames",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/getProjectedNames"
+  },
+  "next": {
+    "title": "[F] getPropertyType",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/getPropertyType"
+  }
+}

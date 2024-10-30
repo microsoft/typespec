@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/isArrayModelType",
+  "title": "[F] isArrayModelType",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/isArrayModelType.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/isArrayModelType",
+  "permalink": "/docs/standard-library/reference/js-api/functions/isArrayModelType",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] isArrayModelType"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] isAnyDirectorySeparator",
+    "permalink": "/docs/standard-library/reference/js-api/functions/isAnyDirectorySeparator"
+  },
+  "next": {
+    "title": "[F] isCadlValueTypeOf",
+    "permalink": "/docs/standard-library/reference/js-api/functions/isCadlValueTypeOf"
+  }
+}

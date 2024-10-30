@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/createScanner",
+  "title": "[F] createScanner",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/createScanner.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/createScanner",
+  "permalink": "/docs/standard-library/reference/js-api/functions/createScanner",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] createScanner"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] createRule",
+    "permalink": "/docs/standard-library/reference/js-api/functions/createRule"
+  },
+  "next": {
+    "title": "[F] createServer",
+    "permalink": "/docs/standard-library/reference/js-api/functions/createServer"
+  }
+}

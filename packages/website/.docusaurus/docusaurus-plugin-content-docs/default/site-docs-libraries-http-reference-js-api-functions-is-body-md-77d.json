@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/functions/isBody",
+  "title": "[F] isBody",
+  "description": "Parameters",
+  "source": "@site/../../docs/libraries/http/reference/js-api/functions/isBody.md",
+  "sourceDirName": "libraries/http/reference/js-api/functions",
+  "slug": "/libraries/http/reference/js-api/functions/isBody",
+  "permalink": "/docs/next/libraries/http/reference/js-api/functions/isBody",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] isBody"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] isApplicableMetadataOrBody",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/isApplicableMetadataOrBody"
+  },
+  "next": {
+    "title": "[F] isBodyIgnore",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/isBodyIgnore"
+  }
+}

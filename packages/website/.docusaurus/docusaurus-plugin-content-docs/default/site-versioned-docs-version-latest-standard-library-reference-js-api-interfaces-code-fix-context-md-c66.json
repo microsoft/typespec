@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/CodeFixContext",
+  "title": "[I] CodeFixContext",
+  "description": "Properties",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/CodeFixContext.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/CodeFixContext",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/CodeFixContext",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] CodeFixContext"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] CodeFix",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/CodeFix"
+  },
+  "next": {
+    "title": "[I] CompileResult",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/CompileResult"
+  }
+}

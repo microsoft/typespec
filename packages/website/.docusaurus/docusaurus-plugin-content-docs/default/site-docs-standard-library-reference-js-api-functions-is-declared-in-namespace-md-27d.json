@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/isDeclaredInNamespace",
+  "title": "[F] isDeclaredInNamespace",
+  "description": "Check if the given type is declared in the specified namespace or, optionally, its child namespaces.",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/isDeclaredInNamespace.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/isDeclaredInNamespace",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/isDeclaredInNamespace",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] isDeclaredInNamespace"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] isComment",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/isComment"
+  },
+  "next": {
+    "title": "[F] isDeclaredType",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/isDeclaredType"
+  }
+}

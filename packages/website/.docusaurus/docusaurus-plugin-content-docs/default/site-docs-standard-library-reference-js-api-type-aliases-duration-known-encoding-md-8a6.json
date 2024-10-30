@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/DurationKnownEncoding",
+  "title": "[T] DurationKnownEncoding",
+  "description": "",
+  "source": "@site/../../docs/standard-library/reference/js-api/type-aliases/DurationKnownEncoding.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/DurationKnownEncoding",
+  "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/DurationKnownEncoding",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] DurationKnownEncoding"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] DocToken",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/DocToken"
+  },
+  "next": {
+    "title": "[T] EmitOptionsFor",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/EmitOptionsFor"
+  }
+}

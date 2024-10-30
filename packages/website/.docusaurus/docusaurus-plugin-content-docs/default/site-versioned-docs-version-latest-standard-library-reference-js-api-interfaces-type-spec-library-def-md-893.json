@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/TypeSpecLibraryDef",
+  "title": "[I] TypeSpecLibraryDef",
+  "description": "Extended by",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/TypeSpecLibraryDef.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/TypeSpecLibraryDef",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/TypeSpecLibraryDef",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] TypeSpecLibraryDef"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] TypeSpecLibrary",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/TypeSpecLibrary"
+  },
+  "next": {
+    "title": "[I] TypeSpecManifest",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/TypeSpecManifest"
+  }
+}

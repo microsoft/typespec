@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/DecoratorContext",
+  "title": "[I] DecoratorContext",
+  "description": "Properties",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/DecoratorContext.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/DecoratorContext",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/DecoratorContext",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] DecoratorContext"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] DecoratorArgument",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/DecoratorArgument"
+  },
+  "next": {
+    "title": "[I] DecoratorDeclarationStatementNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/DecoratorDeclarationStatementNode"
+  }
+}

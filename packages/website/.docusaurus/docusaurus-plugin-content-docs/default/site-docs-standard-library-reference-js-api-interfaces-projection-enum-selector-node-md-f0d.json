@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/ProjectionEnumSelectorNode",
+  "title": "[I] ProjectionEnumSelectorNode",
+  "description": "Extends",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/ProjectionEnumSelectorNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/ProjectionEnumSelectorNode",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ProjectionEnumSelectorNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ProjectionEnumSelectorNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ProjectionEnumMemberSelectorNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ProjectionEnumMemberSelectorNode"
+  },
+  "next": {
+    "title": "[I] ProjectionEqualityExpressionNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ProjectionEqualityExpressionNode"
+  }
+}

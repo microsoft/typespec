@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/TypeReferenceNode",
+  "title": "[I] TypeReferenceNode",
+  "description": "Extends",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/TypeReferenceNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/TypeReferenceNode",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/TypeReferenceNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] TypeReferenceNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] TypeOfExpressionNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/TypeOfExpressionNode"
+  },
+  "next": {
+    "title": "[I] TypeSpecCompletionItem",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/TypeSpecCompletionItem"
+  }
+}

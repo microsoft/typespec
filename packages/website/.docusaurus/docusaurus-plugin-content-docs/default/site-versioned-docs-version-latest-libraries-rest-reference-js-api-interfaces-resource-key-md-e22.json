@@ -1,0 +1,26 @@
+{
+  "id": "libraries/rest/reference/js-api/interfaces/ResourceKey",
+  "title": "[I] ResourceKey",
+  "description": "Properties",
+  "source": "@site/versioned_docs/version-latest/libraries/rest/reference/js-api/interfaces/ResourceKey.md",
+  "sourceDirName": "libraries/rest/reference/js-api/interfaces",
+  "slug": "/libraries/rest/reference/js-api/interfaces/ResourceKey",
+  "permalink": "/docs/libraries/rest/reference/js-api/interfaces/ResourceKey",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ResourceKey"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] FilteredRouteParam",
+    "permalink": "/docs/libraries/rest/reference/js-api/interfaces/FilteredRouteParam"
+  },
+  "next": {
+    "title": "[I] ResourceOperation",
+    "permalink": "/docs/libraries/rest/reference/js-api/interfaces/ResourceOperation"
+  }
+}

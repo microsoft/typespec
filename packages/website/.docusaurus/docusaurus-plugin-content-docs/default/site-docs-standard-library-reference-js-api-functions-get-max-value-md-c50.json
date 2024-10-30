@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/getMaxValue",
+  "title": "[F] getMaxValue",
+  "description": "Parameters",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/getMaxValue.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/getMaxValue",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/getMaxValue",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getMaxValue"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getMaxLengthAsNumeric",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/getMaxLengthAsNumeric"
+  },
+  "next": {
+    "title": "[F] getMaxValueAsNumeric",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/getMaxValueAsNumeric"
+  }
+}

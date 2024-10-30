@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/EnumSpreadMemberNode",
+  "title": "[I] EnumSpreadMemberNode",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/EnumSpreadMemberNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/EnumSpreadMemberNode",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/EnumSpreadMemberNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] EnumSpreadMemberNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] EnumMemberNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/EnumMemberNode"
+  },
+  "next": {
+    "title": "[I] EnumStatementNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/EnumStatementNode"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/interfaces/HttpOperationBodyBase",
+  "title": "[I] HttpOperationBodyBase",
+  "description": "Extended by",
+  "source": "@site/versioned_docs/version-latest/libraries/http/reference/js-api/interfaces/HttpOperationBodyBase.md",
+  "sourceDirName": "libraries/http/reference/js-api/interfaces",
+  "slug": "/libraries/http/reference/js-api/interfaces/HttpOperationBodyBase",
+  "permalink": "/docs/libraries/http/reference/js-api/interfaces/HttpOperationBodyBase",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] HttpOperationBodyBase"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] HttpOperationBody",
+    "permalink": "/docs/libraries/http/reference/js-api/interfaces/HttpOperationBody"
+  },
+  "next": {
+    "title": "[I] HttpOperationMultipartBody",
+    "permalink": "/docs/libraries/http/reference/js-api/interfaces/HttpOperationMultipartBody"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "id": "libraries/http/multipart",
+  "title": "Multipart requests",
+  "description": "Multipart requests combine one or more sets of data into a single body, separated by boundaries. This is commonly used to upload files.",
+  "source": "@site/../../docs/libraries/http/multipart.md",
+  "sourceDirName": "libraries/http",
+  "slug": "/libraries/http/multipart",
+  "permalink": "/docs/next/libraries/http/multipart",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "title": "Multipart requests"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Content types",
+    "permalink": "/docs/next/libraries/http/content-types"
+  },
+  "next": {
+    "title": "Encoding of types",
+    "permalink": "/docs/next/libraries/http/encoding"
+  }
+}

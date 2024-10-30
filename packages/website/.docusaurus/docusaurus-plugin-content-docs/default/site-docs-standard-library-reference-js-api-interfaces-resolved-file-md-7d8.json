@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/ResolvedFile",
+  "title": "[I] ResolvedFile",
+  "description": "Properties",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/ResolvedFile.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/ResolvedFile",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ResolvedFile",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ResolvedFile"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ResolveModuleOptions",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ResolveModuleOptions"
+  },
+  "next": {
+    "title": "[I] ResolvedModule",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ResolvedModule"
+  }
+}

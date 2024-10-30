@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/ProjectionModelExpressionNode",
+  "title": "[I] ProjectionModelExpressionNode",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/ProjectionModelExpressionNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/ProjectionModelExpressionNode",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/ProjectionModelExpressionNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ProjectionModelExpressionNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ProjectionMemberExpressionNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ProjectionMemberExpressionNode"
+  },
+  "next": {
+    "title": "[I] ProjectionModelPropertyNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ProjectionModelPropertyNode"
+  }
+}

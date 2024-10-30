@@ -1,0 +1,25 @@
+{
+  "id": "standard-library/examples",
+  "title": "Examples",
+  "description": "TypeSpec provide 2 decorators @example and @opExample to provide some examples for the types and operations.",
+  "source": "@site/../../docs/standard-library/examples.md",
+  "sourceDirName": "standard-library",
+  "slug": "/standard-library/examples",
+  "permalink": "/docs/next/standard-library/examples",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "title": "Examples"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Discriminated Types",
+    "permalink": "/docs/next/standard-library/discriminated-types"
+  },
+  "next": {
+    "title": "Overview",
+    "permalink": "/docs/next/libraries/events/reference/"
+  }
+}

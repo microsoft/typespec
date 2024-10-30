@@ -1,0 +1,25 @@
+{
+  "id": "getting-started/typespec-for-openapi-dev",
+  "title": "TypeSpec For OpenAPI Developer",
+  "description": "This guide is an introduction to TypeSpec using concepts that will be familiar to developers",
+  "source": "@site/versioned_docs/version-latest/getting-started/typespec-for-openapi-dev.md",
+  "sourceDirName": "getting-started",
+  "slug": "/getting-started/typespec-for-openapi-dev",
+  "permalink": "/docs/getting-started/typespec-for-openapi-dev",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "title": "TypeSpec For OpenAPI Developer"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Conclusion",
+    "permalink": "/docs/getting-started/getting-started-rest/conclusion"
+  },
+  "next": {
+    "title": "Cli usage",
+    "permalink": "/docs/handbook/cli"
+  }
+}

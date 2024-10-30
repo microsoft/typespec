@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/SourceModel",
+  "title": "[I] SourceModel",
+  "description": "Properties",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/SourceModel.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/SourceModel",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/SourceModel",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] SourceModel"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] SourceLocationOptions",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/SourceLocationOptions"
+  },
+  "next": {
+    "title": "[I] StateDef",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/StateDef"
+  }
+}

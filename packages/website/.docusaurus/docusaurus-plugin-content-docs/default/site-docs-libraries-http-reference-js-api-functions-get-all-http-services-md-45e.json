@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/functions/getAllHttpServices",
+  "title": "[F] getAllHttpServices",
+  "description": "Returns all the services defined.",
+  "source": "@site/../../docs/libraries/http/reference/js-api/functions/getAllHttpServices.md",
+  "sourceDirName": "libraries/http/reference/js-api/functions",
+  "slug": "/libraries/http/reference/js-api/functions/getAllHttpServices",
+  "permalink": "/docs/next/libraries/http/reference/js-api/functions/getAllHttpServices",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getAllHttpServices"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] createMetadataInfo",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/createMetadataInfo"
+  },
+  "next": {
+    "title": "[F] getAllRoutes",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/getAllRoutes"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/getNodeAtPositionDetail",
+  "title": "[F] getNodeAtPositionDetail",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/getNodeAtPositionDetail.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/getNodeAtPositionDetail",
+  "permalink": "/docs/standard-library/reference/js-api/functions/getNodeAtPositionDetail",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getNodeAtPositionDetail"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getNodeAtPosition",
+    "permalink": "/docs/standard-library/reference/js-api/functions/getNodeAtPosition"
+  },
+  "next": {
+    "title": "[F] getNormalizedAbsolutePath",
+    "permalink": "/docs/standard-library/reference/js-api/functions/getNormalizedAbsolutePath"
+  }
+}

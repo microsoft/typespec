@@ -1,0 +1,26 @@
+{
+  "id": "libraries/rest/reference/js-api/interfaces/ResourceOperation",
+  "title": "[I] ResourceOperation",
+  "description": "Properties",
+  "source": "@site/../../docs/libraries/rest/reference/js-api/interfaces/ResourceOperation.md",
+  "sourceDirName": "libraries/rest/reference/js-api/interfaces",
+  "slug": "/libraries/rest/reference/js-api/interfaces/ResourceOperation",
+  "permalink": "/docs/next/libraries/rest/reference/js-api/interfaces/ResourceOperation",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ResourceOperation"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ResourceKey",
+    "permalink": "/docs/next/libraries/rest/reference/js-api/interfaces/ResourceKey"
+  },
+  "next": {
+    "title": "[T] ResourceOperations",
+    "permalink": "/docs/next/libraries/rest/reference/js-api/type-aliases/ResourceOperations"
+  }
+}

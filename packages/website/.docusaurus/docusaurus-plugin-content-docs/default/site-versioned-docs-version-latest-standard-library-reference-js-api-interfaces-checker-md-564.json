@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/Checker",
+  "title": "[I] Checker",
+  "description": "Properties",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/Checker.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/Checker",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/Checker",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] Checker"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] CallableMessage",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/CallableMessage"
+  },
+  "next": {
+    "title": "[I] CodeFix",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/CodeFix"
+  }
+}

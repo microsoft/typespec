@@ -1,0 +1,27 @@
+{
+  "id": "libraries/sse/reference/decorators",
+  "title": "Decorators",
+  "description": "TypeSpec.SSE",
+  "source": "@site/versioned_docs/version-latest/libraries/sse/reference/decorators.md",
+  "sourceDirName": "libraries/sse/reference",
+  "slug": "/libraries/sse/reference/decorators",
+  "permalink": "/docs/libraries/sse/reference/decorators",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "title": "Decorators",
+    "toc_min_heading_level": 2,
+    "toc_max_heading_level": 3
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Data types",
+    "permalink": "/docs/libraries/sse/reference/data-types"
+  },
+  "next": {
+    "title": "[P] JS API",
+    "permalink": "/docs/libraries/sse/reference/js-api/"
+  }
+}

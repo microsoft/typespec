@@ -1,0 +1,26 @@
+{
+  "id": "libraries/openapi/reference/js-api/type-aliases/InfoDecorator",
+  "title": "[T] InfoDecorator",
+  "description": "Specify OpenAPI additional information.",
+  "source": "@site/versioned_docs/version-latest/libraries/openapi/reference/js-api/type-aliases/InfoDecorator.md",
+  "sourceDirName": "libraries/openapi/reference/js-api/type-aliases",
+  "slug": "/libraries/openapi/reference/js-api/type-aliases/InfoDecorator",
+  "permalink": "/docs/libraries/openapi/reference/js-api/type-aliases/InfoDecorator",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] InfoDecorator"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] ExternalDocsDecorator",
+    "permalink": "/docs/libraries/openapi/reference/js-api/type-aliases/ExternalDocsDecorator"
+  },
+  "next": {
+    "title": "Overview",
+    "permalink": "/docs/libraries/sse/reference/"
+  }
+}

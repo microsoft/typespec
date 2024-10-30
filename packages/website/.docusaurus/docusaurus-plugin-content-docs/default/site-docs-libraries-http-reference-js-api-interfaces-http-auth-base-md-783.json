@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/interfaces/HttpAuthBase",
+  "title": "[I] HttpAuthBase",
+  "description": "Extended by",
+  "source": "@site/../../docs/libraries/http/reference/js-api/interfaces/HttpAuthBase.md",
+  "sourceDirName": "libraries/http/reference/js-api/interfaces",
+  "slug": "/libraries/http/reference/js-api/interfaces/HttpAuthBase",
+  "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/HttpAuthBase",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] HttpAuthBase"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] HeaderFieldOptions",
+    "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/HeaderFieldOptions"
+  },
+  "next": {
+    "title": "[I] HttpBody",
+    "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/HttpBody"
+  }
+}

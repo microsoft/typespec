@@ -1,0 +1,26 @@
+{
+  "id": "libraries/events/reference/js-api/functions/isEvents",
+  "title": "[F] isEvents",
+  "description": "Parameters",
+  "source": "@site/../../docs/libraries/events/reference/js-api/functions/isEvents.md",
+  "sourceDirName": "libraries/events/reference/js-api/functions",
+  "slug": "/libraries/events/reference/js-api/functions/isEvents",
+  "permalink": "/docs/next/libraries/events/reference/js-api/functions/isEvents",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] isEvents"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] isEventData",
+    "permalink": "/docs/next/libraries/events/reference/js-api/functions/isEventData"
+  },
+  "next": {
+    "title": "[V] $decorators",
+    "permalink": "/docs/next/libraries/events/reference/js-api/variables/$decorators"
+  }
+}

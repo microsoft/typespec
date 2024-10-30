@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/Statement",
+  "title": "[T] Statement",
+  "description": "",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/type-aliases/Statement.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/Statement",
+  "permalink": "/docs/standard-library/reference/js-api/type-aliases/Statement",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] Statement"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] SourceFileKind",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/SourceFileKind"
+  },
+  "next": {
+    "title": "[T] StdTypeName",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/StdTypeName"
+  }
+}

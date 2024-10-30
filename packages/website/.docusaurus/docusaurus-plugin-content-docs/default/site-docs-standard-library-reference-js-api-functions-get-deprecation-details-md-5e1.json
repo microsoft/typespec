@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/getDeprecationDetails",
+  "title": "[F] getDeprecationDetails",
+  "description": "Returns complete deprecation details for the given type or node",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/getDeprecationDetails.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/getDeprecationDetails",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/getDeprecationDetails",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getDeprecationDetails"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getDeprecated",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/getDeprecated"
+  },
+  "next": {
+    "title": "[F] getDirectoryPath",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/getDirectoryPath"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/interfaces/BasicAuth",
+  "title": "[I] BasicAuth",
+  "description": "Basic authentication is a simple authentication scheme built into the HTTP protocol.",
+  "source": "@site/versioned_docs/version-latest/libraries/http/reference/js-api/interfaces/BasicAuth.md",
+  "sourceDirName": "libraries/http/reference/js-api/interfaces",
+  "slug": "/libraries/http/reference/js-api/interfaces/BasicAuth",
+  "permalink": "/docs/libraries/http/reference/js-api/interfaces/BasicAuth",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] BasicAuth"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] AuthorizationCodeFlow",
+    "permalink": "/docs/libraries/http/reference/js-api/interfaces/AuthorizationCodeFlow"
+  },
+  "next": {
+    "title": "[I] BearerAuth",
+    "permalink": "/docs/libraries/http/reference/js-api/interfaces/BearerAuth"
+  }
+}

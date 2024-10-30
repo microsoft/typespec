@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/emitFile",
+  "title": "[F] emitFile",
+  "description": "Helper to emit a file.",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/emitFile.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/emitFile",
+  "permalink": "/docs/standard-library/reference/js-api/functions/emitFile",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] emitFile"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] definePackageFlags",
+    "permalink": "/docs/standard-library/reference/js-api/functions/definePackageFlags"
+  },
+  "next": {
+    "title": "[F] ensureTrailingDirectorySeparator",
+    "permalink": "/docs/standard-library/reference/js-api/functions/ensureTrailingDirectorySeparator"
+  }
+}

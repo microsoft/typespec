@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/interfaces/NoAuth",
+  "title": "[I] NoAuth",
+  "description": "This authentication option signifies that API is not secured at all.",
+  "source": "@site/versioned_docs/version-latest/libraries/http/reference/js-api/interfaces/NoAuth.md",
+  "sourceDirName": "libraries/http/reference/js-api/interfaces",
+  "slug": "/libraries/http/reference/js-api/interfaces/NoAuth",
+  "permalink": "/docs/libraries/http/reference/js-api/interfaces/NoAuth",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] NoAuth"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] MetadataInfoOptions",
+    "permalink": "/docs/libraries/http/reference/js-api/interfaces/MetadataInfoOptions"
+  },
+  "next": {
+    "title": "[I] NoHttpAuthRef",
+    "permalink": "/docs/libraries/http/reference/js-api/interfaces/NoHttpAuthRef"
+  }
+}

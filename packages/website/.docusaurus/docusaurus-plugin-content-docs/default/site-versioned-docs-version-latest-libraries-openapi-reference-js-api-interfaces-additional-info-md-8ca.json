@@ -1,0 +1,26 @@
+{
+  "id": "libraries/openapi/reference/js-api/interfaces/AdditionalInfo",
+  "title": "[I] AdditionalInfo",
+  "description": "OpenAPI additional information",
+  "source": "@site/versioned_docs/version-latest/libraries/openapi/reference/js-api/interfaces/AdditionalInfo.md",
+  "sourceDirName": "libraries/openapi/reference/js-api/interfaces",
+  "slug": "/libraries/openapi/reference/js-api/interfaces/AdditionalInfo",
+  "permalink": "/docs/libraries/openapi/reference/js-api/interfaces/AdditionalInfo",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] AdditionalInfo"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] shouldInline",
+    "permalink": "/docs/libraries/openapi/reference/js-api/functions/shouldInline"
+  },
+  "next": {
+    "title": "[I] Contact",
+    "permalink": "/docs/libraries/openapi/reference/js-api/interfaces/Contact"
+  }
+}

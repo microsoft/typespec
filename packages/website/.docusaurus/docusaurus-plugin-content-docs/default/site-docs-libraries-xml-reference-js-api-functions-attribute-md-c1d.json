@@ -1,0 +1,26 @@
+{
+  "id": "libraries/xml/reference/js-api/functions/$attribute",
+  "title": "[F] $attribute",
+  "description": "Specify that the target property should be encoded as an XML attribute instead of node.",
+  "source": "@site/../../docs/libraries/xml/reference/js-api/functions/$attribute.md",
+  "sourceDirName": "libraries/xml/reference/js-api/functions",
+  "slug": "/libraries/xml/reference/js-api/functions/$attribute",
+  "permalink": "/docs/next/libraries/xml/reference/js-api/functions/$attribute",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $attribute"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[P] JS API",
+    "permalink": "/docs/next/libraries/xml/reference/js-api/"
+  },
+  "next": {
+    "title": "[F] $name",
+    "permalink": "/docs/next/libraries/xml/reference/js-api/functions/$name"
+  }
+}

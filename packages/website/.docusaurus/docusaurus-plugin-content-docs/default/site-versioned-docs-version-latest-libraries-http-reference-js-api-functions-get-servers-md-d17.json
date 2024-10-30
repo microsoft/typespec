@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/functions/getServers",
+  "title": "[F] getServers",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/libraries/http/reference/js-api/functions/getServers.md",
+  "sourceDirName": "libraries/http/reference/js-api/functions",
+  "slug": "/libraries/http/reference/js-api/functions/getServers",
+  "permalink": "/docs/libraries/http/reference/js-api/functions/getServers",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getServers"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getRouteProducer",
+    "permalink": "/docs/libraries/http/reference/js-api/functions/getRouteProducer"
+  },
+  "next": {
+    "title": "[F] getStatusCodeDescription",
+    "permalink": "/docs/libraries/http/reference/js-api/functions/getStatusCodeDescription"
+  }
+}

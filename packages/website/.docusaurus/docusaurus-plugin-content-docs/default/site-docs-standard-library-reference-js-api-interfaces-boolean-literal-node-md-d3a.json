@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/BooleanLiteralNode",
+  "title": "[I] BooleanLiteralNode",
+  "description": "Extends",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/BooleanLiteralNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/BooleanLiteralNode",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/BooleanLiteralNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] BooleanLiteralNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] BooleanLiteral",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/BooleanLiteral"
+  },
+  "next": {
+    "title": "[I] BooleanValue",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/BooleanValue"
+  }
+}

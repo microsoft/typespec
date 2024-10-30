@@ -1,0 +1,26 @@
+{
+  "id": "libraries/versioning/reference/js-api/enumerations/Availability",
+  "title": "[E] Availability",
+  "description": "Enumeration Members",
+  "source": "@site/versioned_docs/version-latest/libraries/versioning/reference/js-api/enumerations/Availability.md",
+  "sourceDirName": "libraries/versioning/reference/js-api/enumerations",
+  "slug": "/libraries/versioning/reference/js-api/enumerations/Availability",
+  "permalink": "/docs/libraries/versioning/reference/js-api/enumerations/Availability",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[E] Availability"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[C] VersionMap",
+    "permalink": "/docs/libraries/versioning/reference/js-api/classes/VersionMap"
+  },
+  "next": {
+    "title": "[F] $added",
+    "permalink": "/docs/libraries/versioning/reference/js-api/functions/$added"
+  }
+}

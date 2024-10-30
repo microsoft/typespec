@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/ScalarValue",
+  "title": "[I] ScalarValue",
+  "description": "Extends",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/ScalarValue.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/ScalarValue",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ScalarValue",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ScalarValue"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ScalarStatementNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ScalarStatementNode"
+  },
+  "next": {
+    "title": "[I] Scanner",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/Scanner"
+  }
+}

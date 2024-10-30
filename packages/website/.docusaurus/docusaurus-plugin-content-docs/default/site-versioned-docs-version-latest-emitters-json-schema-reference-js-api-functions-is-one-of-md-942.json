@@ -1,0 +1,26 @@
+{
+  "id": "emitters/json-schema/reference/js-api/functions/isOneOf",
+  "title": "[F] isOneOf",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/emitters/json-schema/reference/js-api/functions/isOneOf.md",
+  "sourceDirName": "emitters/json-schema/reference/js-api/functions",
+  "slug": "/emitters/json-schema/reference/js-api/functions/isOneOf",
+  "permalink": "/docs/emitters/json-schema/reference/js-api/functions/isOneOf",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] isOneOf"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] isJsonSchemaDeclaration",
+    "permalink": "/docs/emitters/json-schema/reference/js-api/functions/isJsonSchemaDeclaration"
+  },
+  "next": {
+    "title": "[F] setExtension",
+    "permalink": "/docs/emitters/json-schema/reference/js-api/functions/setExtension"
+  }
+}

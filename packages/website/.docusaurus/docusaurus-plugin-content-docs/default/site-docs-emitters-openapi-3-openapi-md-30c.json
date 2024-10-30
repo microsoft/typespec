@@ -1,0 +1,25 @@
+{
+  "id": "emitters/openapi3/openapi",
+  "title": "Emitter operation",
+  "description": "The OpenAPI emitter is designed to translate TypeSpec language elements into their corresponding OpenAPI expressions. Here's how it works:",
+  "source": "@site/../../docs/emitters/openapi3/openapi.md",
+  "sourceDirName": "emitters/openapi3",
+  "slug": "/emitters/openapi3/openapi",
+  "permalink": "/docs/next/emitters/openapi3/openapi",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "title": "Emitter operation"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[V] namespace",
+    "permalink": "/docs/next/emitters/openapi3/reference/js-api/variables/namespace"
+  },
+  "next": {
+    "title": "OpenAPI3 to TypeSpec",
+    "permalink": "/docs/next/emitters/openapi3/cli"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/NeverType",
+  "title": "[I] NeverType",
+  "description": "Extends",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/NeverType.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/NeverType",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/NeverType",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] NeverType"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] NeverKeywordNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/NeverKeywordNode"
+  },
+  "next": {
+    "title": "[I] NullType",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/NullType"
+  }
+}

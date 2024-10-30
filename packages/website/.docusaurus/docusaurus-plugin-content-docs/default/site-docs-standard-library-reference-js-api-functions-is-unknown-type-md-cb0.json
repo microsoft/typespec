@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/isUnknownType",
+  "title": "[F] isUnknownType",
+  "description": "Parameters",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/isUnknownType.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/isUnknownType",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/isUnknownType",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] isUnknownType"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] isTypeSpecValueTypeOf",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/isTypeSpecValueTypeOf"
+  },
+  "next": {
+    "title": "[F] isUrl",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/isUrl"
+  }
+}

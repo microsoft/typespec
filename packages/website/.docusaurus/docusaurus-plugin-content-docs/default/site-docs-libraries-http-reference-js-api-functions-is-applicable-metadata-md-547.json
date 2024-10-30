@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/functions/isApplicableMetadata",
+  "title": "[F] isApplicableMetadata",
+  "description": "Determines if the given property is metadata that is applicable with the",
+  "source": "@site/../../docs/libraries/http/reference/js-api/functions/isApplicableMetadata.md",
+  "sourceDirName": "libraries/http/reference/js-api/functions",
+  "slug": "/libraries/http/reference/js-api/functions/isApplicableMetadata",
+  "permalink": "/docs/next/libraries/http/reference/js-api/functions/isApplicableMetadata",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] isApplicableMetadata"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] includeInterfaceRoutesInNamespace",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/includeInterfaceRoutesInNamespace"
+  },
+  "next": {
+    "title": "[F] isApplicableMetadataOrBody",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/isApplicableMetadataOrBody"
+  }
+}

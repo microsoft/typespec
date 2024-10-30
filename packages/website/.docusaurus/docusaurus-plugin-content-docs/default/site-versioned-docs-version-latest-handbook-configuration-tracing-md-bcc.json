@@ -1,0 +1,25 @@
+{
+  "id": "handbook/configuration/tracing",
+  "title": "Tracing",
+  "description": "The TypeSpec Compiler, by default, builds without any debug information. The standard output is minimal, only including any warning or error diagnostics that occur during the compilation process.",
+  "source": "@site/versioned_docs/version-latest/handbook/configuration/tracing.md",
+  "sourceDirName": "handbook/configuration",
+  "slug": "/handbook/configuration/tracing",
+  "permalink": "/docs/handbook/configuration/tracing",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "title": "Tracing"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Configuration",
+    "permalink": "/docs/handbook/configuration/"
+  },
+  "next": {
+    "title": "Releases",
+    "permalink": "/docs/handbook/releases"
+  }
+}

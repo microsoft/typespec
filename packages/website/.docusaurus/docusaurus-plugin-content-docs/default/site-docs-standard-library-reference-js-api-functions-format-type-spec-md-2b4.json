@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/formatTypeSpec",
+  "title": "[F] formatTypeSpec",
+  "description": "Parameters",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/formatTypeSpec.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/formatTypeSpec",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/formatTypeSpec",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] formatTypeSpec"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] formatIdentifier",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/formatIdentifier"
+  },
+  "next": {
+    "title": "[F] getAllTags",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/getAllTags"
+  }
+}

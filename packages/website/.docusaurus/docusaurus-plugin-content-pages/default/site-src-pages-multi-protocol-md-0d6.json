@@ -1,0 +1,9 @@
+{
+  "type": "mdx",
+  "permalink": "/multi-protocol",
+  "source": "@site/src/pages/multi-protocol.md",
+  "title": "Multi protocol",
+  "description": "TypeSpec is a protocol agnostic language. It could be used with many different protocols independently or together.",
+  "frontMatter": {},
+  "unlisted": false
+}

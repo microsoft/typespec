@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/CallableMessage",
+  "title": "[I] CallableMessage",
+  "description": "Type Parameters",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/CallableMessage.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/CallableMessage",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/CallableMessage",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] CallableMessage"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] CallExpressionNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/CallExpressionNode"
+  },
+  "next": {
+    "title": "[I] Checker",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/Checker"
+  }
+}

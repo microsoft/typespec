@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/AugmentDecoratorStatementNode",
+  "title": "[I] AugmentDecoratorStatementNode",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/AugmentDecoratorStatementNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/AugmentDecoratorStatementNode",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/AugmentDecoratorStatementNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] AugmentDecoratorStatementNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ArrayValue",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ArrayValue"
+  },
+  "next": {
+    "title": "[I] BaseNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/BaseNode"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/ServerSourceFile",
+  "title": "[I] ServerSourceFile",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/ServerSourceFile.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/ServerSourceFile",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/ServerSourceFile",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ServerSourceFile"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ServerLog",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ServerLog"
+  },
+  "next": {
+    "title": "[I] ServerWorkspaceFolder",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ServerWorkspaceFolder"
+  }
+}

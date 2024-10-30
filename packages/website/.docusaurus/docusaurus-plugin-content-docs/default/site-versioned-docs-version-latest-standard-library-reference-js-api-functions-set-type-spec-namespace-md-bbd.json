@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/setTypeSpecNamespace",
+  "title": "[F] setTypeSpecNamespace",
+  "description": "Set the TypeSpec namespace for that function.",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/setTypeSpecNamespace.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/setTypeSpecNamespace",
+  "permalink": "/docs/standard-library/reference/js-api/functions/setTypeSpecNamespace",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] setTypeSpecNamespace"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] setCadlNamespace",
+    "permalink": "/docs/standard-library/reference/js-api/functions/setCadlNamespace"
+  },
+  "next": {
+    "title": "[F] skipContinuousIdentifier",
+    "permalink": "/docs/standard-library/reference/js-api/functions/skipContinuousIdentifier"
+  }
+}

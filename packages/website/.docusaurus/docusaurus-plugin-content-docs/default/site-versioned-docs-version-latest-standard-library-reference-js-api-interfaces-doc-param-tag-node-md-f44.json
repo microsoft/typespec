@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/DocParamTagNode",
+  "title": "[I] DocParamTagNode",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/DocParamTagNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/DocParamTagNode",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/DocParamTagNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] DocParamTagNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] DocNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/DocNode"
+  },
+  "next": {
+    "title": "[I] DocPropTagNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/DocPropTagNode"
+  }
+}

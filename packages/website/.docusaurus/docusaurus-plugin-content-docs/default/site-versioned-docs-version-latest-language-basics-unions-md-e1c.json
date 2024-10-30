@@ -1,0 +1,26 @@
+{
+  "id": "language-basics/unions",
+  "title": "Unions",
+  "description": "Unions define a type that must be exactly one of several possible variants. There are two types of unions:",
+  "source": "@site/versioned_docs/version-latest/language-basics/unions.md",
+  "sourceDirName": "language-basics",
+  "slug": "/language-basics/unions",
+  "permalink": "/docs/language-basics/unions",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "id": "unions",
+    "title": "Unions"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Enums",
+    "permalink": "/docs/language-basics/enums"
+  },
+  "next": {
+    "title": "Intersections",
+    "permalink": "/docs/language-basics/intersections"
+  }
+}

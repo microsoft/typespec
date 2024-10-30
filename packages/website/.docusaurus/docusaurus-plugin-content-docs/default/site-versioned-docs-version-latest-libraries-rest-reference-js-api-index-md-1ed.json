@@ -1,0 +1,26 @@
+{
+  "id": "libraries/rest/reference/js-api/index",
+  "title": "[P] JS API",
+  "description": "Interfaces",
+  "source": "@site/versioned_docs/version-latest/libraries/rest/reference/js-api/index.md",
+  "sourceDirName": "libraries/rest/reference/js-api",
+  "slug": "/libraries/rest/reference/js-api/",
+  "permalink": "/docs/libraries/rest/reference/js-api/",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[P] JS API"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Interfaces and Operations",
+    "permalink": "/docs/libraries/rest/reference/interfaces"
+  },
+  "next": {
+    "title": "[F] $action",
+    "permalink": "/docs/libraries/rest/reference/js-api/functions/$action"
+  }
+}

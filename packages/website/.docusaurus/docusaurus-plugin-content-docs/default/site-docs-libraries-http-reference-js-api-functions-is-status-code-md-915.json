@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/functions/isStatusCode",
+  "title": "[F] isStatusCode",
+  "description": "Parameters",
+  "source": "@site/../../docs/libraries/http/reference/js-api/functions/isStatusCode.md",
+  "sourceDirName": "libraries/http/reference/js-api/functions",
+  "slug": "/libraries/http/reference/js-api/functions/isStatusCode",
+  "permalink": "/docs/next/libraries/http/reference/js-api/functions/isStatusCode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] isStatusCode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] isSharedRoute",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/isSharedRoute"
+  },
+  "next": {
+    "title": "[F] isVisible",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/isVisible"
+  }
+}

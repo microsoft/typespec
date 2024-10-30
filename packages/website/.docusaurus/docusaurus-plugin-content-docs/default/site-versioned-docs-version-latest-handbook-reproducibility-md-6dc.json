@@ -1,0 +1,25 @@
+{
+  "id": "handbook/reproducibility",
+  "title": "Reproducibility",
+  "description": "A crucial aspect of service definition is ensuring consistent output over time. This is important in scenarios such as:",
+  "source": "@site/versioned_docs/version-latest/handbook/reproducibility.md",
+  "sourceDirName": "handbook",
+  "slug": "/handbook/reproducibility",
+  "permalink": "/docs/handbook/reproducibility",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "title": "Reproducibility"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Formatter",
+    "permalink": "/docs/handbook/formatter"
+  },
+  "next": {
+    "title": "Configuration",
+    "permalink": "/docs/handbook/configuration/"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/ProjectedProgram",
+  "title": "[I] ProjectedProgram",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/ProjectedProgram.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/ProjectedProgram",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/ProjectedProgram",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ProjectedProgram"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ProjectedNameView",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ProjectedNameView"
+  },
+  "next": {
+    "title": "[I] Projection",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/Projection"
+  }
+}

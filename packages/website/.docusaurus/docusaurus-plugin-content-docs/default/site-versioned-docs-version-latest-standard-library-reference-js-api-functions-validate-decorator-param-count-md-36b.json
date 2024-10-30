@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/validateDecoratorParamCount",
+  "title": "[F] validateDecoratorParamCount",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/validateDecoratorParamCount.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/validateDecoratorParamCount",
+  "permalink": "/docs/standard-library/reference/js-api/functions/validateDecoratorParamCount",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] validateDecoratorParamCount"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] validateDecoratorNotOnType",
+    "permalink": "/docs/standard-library/reference/js-api/functions/validateDecoratorNotOnType"
+  },
+  "next": {
+    "title": "[F] validateDecoratorParamType",
+    "permalink": "/docs/standard-library/reference/js-api/functions/validateDecoratorParamType"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/DeprecationDetails",
+  "title": "[I] DeprecationDetails",
+  "description": "Provides details on the deprecation of a given type.",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/DeprecationDetails.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/DeprecationDetails",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/DeprecationDetails",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] DeprecationDetails"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] DeprecatedDirective",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/DeprecatedDirective"
+  },
+  "next": {
+    "title": "[I] Diagnostic",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/Diagnostic"
+  }
+}

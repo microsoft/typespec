@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/VoidKeywordNode",
+  "title": "[I] VoidKeywordNode",
+  "description": "Extends",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/VoidKeywordNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/VoidKeywordNode",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/VoidKeywordNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] VoidKeywordNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ValueOfExpressionNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ValueOfExpressionNode"
+  },
+  "next": {
+    "title": "[I] VoidType",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/VoidType"
+  }
+}

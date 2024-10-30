@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/ValueOfExpressionNode",
+  "title": "[I] ValueOfExpressionNode",
+  "description": "Extends",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/ValueOfExpressionNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/ValueOfExpressionNode",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ValueOfExpressionNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ValueOfExpressionNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] UsingStatementNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/UsingStatementNode"
+  },
+  "next": {
+    "title": "[I] VoidKeywordNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/VoidKeywordNode"
+  }
+}

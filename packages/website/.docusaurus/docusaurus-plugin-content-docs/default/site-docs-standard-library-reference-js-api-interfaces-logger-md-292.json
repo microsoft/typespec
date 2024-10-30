@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/Logger",
+  "title": "[I] Logger",
+  "description": "Methods",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/Logger.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/Logger",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/Logger",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] Logger"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] LogSink",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/LogSink"
+  },
+  "next": {
+    "title": "[I] MemberExpressionNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/MemberExpressionNode"
+  }
+}

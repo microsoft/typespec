@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/variables/altDirectorySeparator",
+  "title": "[V] altDirectorySeparator",
+  "description": "",
+  "source": "@site/../../docs/standard-library/reference/js-api/variables/altDirectorySeparator.md",
+  "sourceDirName": "standard-library/reference/js-api/variables",
+  "slug": "/standard-library/reference/js-api/variables/altDirectorySeparator",
+  "permalink": "/docs/next/standard-library/reference/js-api/variables/altDirectorySeparator",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[V] altDirectorySeparator"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[V] TypeSpecPrettierPlugin",
+    "permalink": "/docs/next/standard-library/reference/js-api/variables/TypeSpecPrettierPlugin"
+  },
+  "next": {
+    "title": "[V] cadlVersion",
+    "permalink": "/docs/next/standard-library/reference/js-api/variables/cadlVersion"
+  }
+}

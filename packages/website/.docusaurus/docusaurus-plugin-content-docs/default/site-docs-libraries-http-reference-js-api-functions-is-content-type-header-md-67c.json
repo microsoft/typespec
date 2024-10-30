@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/functions/isContentTypeHeader",
+  "title": "[F] isContentTypeHeader",
+  "description": "Parameters",
+  "source": "@site/../../docs/libraries/http/reference/js-api/functions/isContentTypeHeader.md",
+  "sourceDirName": "libraries/http/reference/js-api/functions",
+  "slug": "/libraries/http/reference/js-api/functions/isContentTypeHeader",
+  "permalink": "/docs/next/libraries/http/reference/js-api/functions/isContentTypeHeader",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] isContentTypeHeader"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] isBodyRoot",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/isBodyRoot"
+  },
+  "next": {
+    "title": "[F] isHeader",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/isHeader"
+  }
+}

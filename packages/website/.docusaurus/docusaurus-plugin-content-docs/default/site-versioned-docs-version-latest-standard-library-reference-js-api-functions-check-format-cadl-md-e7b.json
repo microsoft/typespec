@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/checkFormatCadl",
+  "title": "[F] checkFormatCadl",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/checkFormatCadl.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/checkFormatCadl",
+  "permalink": "/docs/standard-library/reference/js-api/functions/checkFormatCadl",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] checkFormatCadl"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] cadlTypeToJson",
+    "permalink": "/docs/standard-library/reference/js-api/functions/cadlTypeToJson"
+  },
+  "next": {
+    "title": "[F] checkFormatTypeSpec",
+    "permalink": "/docs/standard-library/reference/js-api/functions/checkFormatTypeSpec"
+  }
+}

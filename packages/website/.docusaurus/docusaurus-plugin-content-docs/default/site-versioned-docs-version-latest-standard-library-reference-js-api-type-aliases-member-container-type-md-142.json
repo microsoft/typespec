@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/MemberContainerType",
+  "title": "[T] MemberContainerType",
+  "description": "",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/type-aliases/MemberContainerType.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/MemberContainerType",
+  "permalink": "/docs/standard-library/reference/js-api/type-aliases/MemberContainerType",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] MemberContainerType"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] MemberContainerNode",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/MemberContainerNode"
+  },
+  "next": {
+    "title": "[T] MemberNode",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/MemberNode"
+  }
+}

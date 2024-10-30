@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/interfaces/PathParameterOptions",
+  "title": "[I] PathParameterOptions",
+  "description": "Extends",
+  "source": "@site/../../docs/libraries/http/reference/js-api/interfaces/PathParameterOptions.md",
+  "sourceDirName": "libraries/http/reference/js-api/interfaces",
+  "slug": "/libraries/http/reference/js-api/interfaces/PathParameterOptions",
+  "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/PathParameterOptions",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] PathParameterOptions"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] PasswordFlow",
+    "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/PasswordFlow"
+  },
+  "next": {
+    "title": "[I] QueryParameterOptions",
+    "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/QueryParameterOptions"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "libraries/versioning/reference/js-api/functions/getTypeChangedFrom",
+  "title": "[F] getTypeChangedFrom",
+  "description": "Returns the mapping of versions to old type values, if applicable",
+  "source": "@site/../../docs/libraries/versioning/reference/js-api/functions/getTypeChangedFrom.md",
+  "sourceDirName": "libraries/versioning/reference/js-api/functions",
+  "slug": "/libraries/versioning/reference/js-api/functions/getTypeChangedFrom",
+  "permalink": "/docs/next/libraries/versioning/reference/js-api/functions/getTypeChangedFrom",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getTypeChangedFrom"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getReturnTypeChangedFrom",
+    "permalink": "/docs/next/libraries/versioning/reference/js-api/functions/getReturnTypeChangedFrom"
+  },
+  "next": {
+    "title": "[F] getUseDependencies",
+    "permalink": "/docs/next/libraries/versioning/reference/js-api/functions/getUseDependencies"
+  }
+}

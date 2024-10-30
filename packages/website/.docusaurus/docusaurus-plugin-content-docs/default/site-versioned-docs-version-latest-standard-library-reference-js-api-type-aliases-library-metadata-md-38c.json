@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/LibraryMetadata",
+  "title": "[T] LibraryMetadata",
+  "description": "",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/type-aliases/LibraryMetadata.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/LibraryMetadata",
+  "permalink": "/docs/standard-library/reference/js-api/type-aliases/LibraryMetadata",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] LibraryMetadata"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] JSONSchemaType",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/JSONSchemaType"
+  },
+  "next": {
+    "title": "[T] LinterRuleDiagnosticFormat",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/LinterRuleDiagnosticFormat"
+  }
+}

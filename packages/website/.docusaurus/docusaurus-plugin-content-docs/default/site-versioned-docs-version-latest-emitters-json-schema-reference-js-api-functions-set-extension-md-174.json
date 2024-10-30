@@ -1,0 +1,26 @@
+{
+  "id": "emitters/json-schema/reference/js-api/functions/setExtension",
+  "title": "[F] setExtension",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/emitters/json-schema/reference/js-api/functions/setExtension.md",
+  "sourceDirName": "emitters/json-schema/reference/js-api/functions",
+  "slug": "/emitters/json-schema/reference/js-api/functions/setExtension",
+  "permalink": "/docs/emitters/json-schema/reference/js-api/functions/setExtension",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] setExtension"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] isOneOf",
+    "permalink": "/docs/emitters/json-schema/reference/js-api/functions/isOneOf"
+  },
+  "next": {
+    "title": "[I] ExtensionRecord",
+    "permalink": "/docs/emitters/json-schema/reference/js-api/interfaces/ExtensionRecord"
+  }
+}

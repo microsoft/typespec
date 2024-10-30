@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/ServerWorkspaceFolder",
+  "title": "[I] ServerWorkspaceFolder",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/ServerWorkspaceFolder.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/ServerWorkspaceFolder",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/ServerWorkspaceFolder",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ServerWorkspaceFolder"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ServerSourceFile",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ServerSourceFile"
+  },
+  "next": {
+    "title": "[I] Service",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/Service"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "language-basics/models",
+  "title": "Models",
+  "description": "Models in TypeSpec are utilized to define the structure or schema of data.",
+  "source": "@site/../../docs/language-basics/models.md",
+  "sourceDirName": "language-basics",
+  "slug": "/language-basics/models",
+  "permalink": "/docs/next/language-basics/models",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "models",
+    "title": "Models"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Scalars",
+    "permalink": "/docs/next/language-basics/scalars"
+  },
+  "next": {
+    "title": "Operations",
+    "permalink": "/docs/next/language-basics/operations"
+  }
+}

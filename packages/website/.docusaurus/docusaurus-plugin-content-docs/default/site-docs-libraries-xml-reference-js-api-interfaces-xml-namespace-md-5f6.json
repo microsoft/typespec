@@ -1,0 +1,26 @@
+{
+  "id": "libraries/xml/reference/js-api/interfaces/XmlNamespace",
+  "title": "[I] XmlNamespace",
+  "description": "Represents an XML namespace.",
+  "source": "@site/../../docs/libraries/xml/reference/js-api/interfaces/XmlNamespace.md",
+  "sourceDirName": "libraries/xml/reference/js-api/interfaces",
+  "slug": "/libraries/xml/reference/js-api/interfaces/XmlNamespace",
+  "permalink": "/docs/next/libraries/xml/reference/js-api/interfaces/XmlNamespace",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] XmlNamespace"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] XmlEncodeData",
+    "permalink": "/docs/next/libraries/xml/reference/js-api/interfaces/XmlEncodeData"
+  },
+  "next": {
+    "title": "[T] AttributeDecorator",
+    "permalink": "/docs/next/libraries/xml/reference/js-api/type-aliases/AttributeDecorator"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/Entity",
+  "title": "[T] Entity",
+  "description": "Represent every single entity that are part of the TypeSpec program. Those are composed of different elements:",
+  "source": "@site/../../docs/standard-library/reference/js-api/type-aliases/Entity.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/Entity",
+  "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/Entity",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] Entity"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] EmitterFunc",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/EmitterFunc"
+  },
+  "next": {
+    "title": "[T] Expression",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/Expression"
+  }
+}

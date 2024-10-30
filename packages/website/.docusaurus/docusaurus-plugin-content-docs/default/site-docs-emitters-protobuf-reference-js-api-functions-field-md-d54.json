@@ -1,0 +1,26 @@
+{
+  "id": "emitters/protobuf/reference/js-api/functions/$field",
+  "title": "[F] $field",
+  "description": "Decorate a model property with a field index. Field indices are required for all fields of emitted messages.",
+  "source": "@site/../../docs/emitters/protobuf/reference/js-api/functions/$field.md",
+  "sourceDirName": "emitters/protobuf/reference/js-api/functions",
+  "slug": "/emitters/protobuf/reference/js-api/functions/$field",
+  "permalink": "/docs/next/emitters/protobuf/reference/js-api/functions/$field",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $field"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $externRef",
+    "permalink": "/docs/next/emitters/protobuf/reference/js-api/functions/$externRef"
+  },
+  "next": {
+    "title": "[F] $message",
+    "permalink": "/docs/next/emitters/protobuf/reference/js-api/functions/$message"
+  }
+}

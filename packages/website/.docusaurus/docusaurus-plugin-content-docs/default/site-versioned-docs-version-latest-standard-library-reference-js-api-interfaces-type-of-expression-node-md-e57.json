@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/TypeOfExpressionNode",
+  "title": "[I] TypeOfExpressionNode",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/TypeOfExpressionNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/TypeOfExpressionNode",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/TypeOfExpressionNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] TypeOfExpressionNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] TypeNameOptions",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/TypeNameOptions"
+  },
+  "next": {
+    "title": "[I] TypeReferenceNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/TypeReferenceNode"
+  }
+}

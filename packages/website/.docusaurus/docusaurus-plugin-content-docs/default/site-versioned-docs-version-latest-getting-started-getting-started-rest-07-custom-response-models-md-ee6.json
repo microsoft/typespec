@@ -1,0 +1,26 @@
+{
+  "id": "getting-started/getting-started-rest/custom-response-models",
+  "title": "Custom Response Models",
+  "description": "Introduction",
+  "source": "@site/versioned_docs/version-latest/getting-started/getting-started-rest/07-custom-response-models.md",
+  "sourceDirName": "getting-started/getting-started-rest",
+  "slug": "/getting-started/getting-started-rest/custom-response-models",
+  "permalink": "/docs/getting-started/getting-started-rest/custom-response-models",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "sidebarPosition": 7,
+  "frontMatter": {
+    "title": "Custom Response Models"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Versioning",
+    "permalink": "/docs/getting-started/getting-started-rest/versioning"
+  },
+  "next": {
+    "title": "Conclusion",
+    "permalink": "/docs/getting-started/getting-started-rest/conclusion"
+  }
+}

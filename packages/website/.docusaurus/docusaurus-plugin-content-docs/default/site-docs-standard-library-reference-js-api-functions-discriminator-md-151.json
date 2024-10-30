@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/$discriminator",
+  "title": "[F] $discriminator",
+  "description": "Parameters",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/$discriminator.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/$discriminator",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/$discriminator",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $discriminator"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $deprecated",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/$deprecated"
+  },
+  "next": {
+    "title": "[F] $doc",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/$doc"
+  }
+}

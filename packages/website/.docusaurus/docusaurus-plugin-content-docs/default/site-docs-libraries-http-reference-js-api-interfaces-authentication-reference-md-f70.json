@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/interfaces/AuthenticationReference",
+  "title": "[I] AuthenticationReference",
+  "description": "Properties",
+  "source": "@site/../../docs/libraries/http/reference/js-api/interfaces/AuthenticationReference.md",
+  "sourceDirName": "libraries/http/reference/js-api/interfaces",
+  "slug": "/libraries/http/reference/js-api/interfaces/AuthenticationReference",
+  "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/AuthenticationReference",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] AuthenticationReference"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] AuthenticationOptionReference",
+    "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/AuthenticationOptionReference"
+  },
+  "next": {
+    "title": "[I] AuthorizationCodeFlow",
+    "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/AuthorizationCodeFlow"
+  }
+}

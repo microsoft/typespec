@@ -1,0 +1,26 @@
+{
+  "id": "emitters/json-schema/reference/js-api/type-aliases/JsonSchemaDecorator",
+  "title": "[T] JsonSchemaDecorator",
+  "description": "Add to namespaces to emit models within that namespace to JSON schema.",
+  "source": "@site/../../docs/emitters/json-schema/reference/js-api/type-aliases/JsonSchemaDecorator.md",
+  "sourceDirName": "emitters/json-schema/reference/js-api/type-aliases",
+  "slug": "/emitters/json-schema/reference/js-api/type-aliases/JsonSchemaDecorator",
+  "permalink": "/docs/next/emitters/json-schema/reference/js-api/type-aliases/JsonSchemaDecorator",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] JsonSchemaDecorator"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] JsonSchemaDeclaration",
+    "permalink": "/docs/next/emitters/json-schema/reference/js-api/type-aliases/JsonSchemaDeclaration"
+  },
+  "next": {
+    "title": "[T] MaxContainsDecorator",
+    "permalink": "/docs/next/emitters/json-schema/reference/js-api/type-aliases/MaxContainsDecorator"
+  }
+}

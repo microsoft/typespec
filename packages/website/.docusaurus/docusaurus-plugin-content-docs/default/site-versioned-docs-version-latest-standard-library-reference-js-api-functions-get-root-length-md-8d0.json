@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/getRootLength",
+  "title": "[F] getRootLength",
+  "description": "Returns length of the root part of a path or URL (i.e. length of \"/\", \"x///user/files\").",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/getRootLength.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/getRootLength",
+  "permalink": "/docs/standard-library/reference/js-api/functions/getRootLength",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getRootLength"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getReturnsDocData",
+    "permalink": "/docs/standard-library/reference/js-api/functions/getReturnsDocData"
+  },
+  "next": {
+    "title": "[F] getService",
+    "permalink": "/docs/standard-library/reference/js-api/functions/getService"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "extending-typespec/emitter-metadata-handling",
+  "title": "Managing metadata and visibility in REST API emitters",
+  "description": "Ensuring consistent handling of automatic visibility and metadata by all REST API emitters is crucial. To understand how these features work, please refer to the TypeSpec-author documentation. This guide will help you integrate these features into your own emitter correctly.",
+  "source": "@site/versioned_docs/version-latest/extending-typespec/emitter-metadata-handling.md",
+  "sourceDirName": "extending-typespec",
+  "slug": "/extending-typespec/emitter-metadata-handling",
+  "permalink": "/docs/extending-typespec/emitter-metadata-handling",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "id": "emitter-metadata-handling",
+    "title": "Managing metadata and visibility in REST API emitters"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Emitter framework",
+    "permalink": "/docs/extending-typespec/emitter-framework"
+  },
+  "next": {
+    "title": "Scaffolding templates",
+    "permalink": "/docs/extending-typespec/writing-scaffolding-template"
+  }
+}

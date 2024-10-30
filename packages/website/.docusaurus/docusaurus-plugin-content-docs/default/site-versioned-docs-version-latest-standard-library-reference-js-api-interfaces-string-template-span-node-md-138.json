@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/StringTemplateSpanNode",
+  "title": "[I] StringTemplateSpanNode",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/StringTemplateSpanNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/StringTemplateSpanNode",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/StringTemplateSpanNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] StringTemplateSpanNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] StringTemplateSpanLiteral",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/StringTemplateSpanLiteral"
+  },
+  "next": {
+    "title": "[I] StringTemplateSpanValue",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/StringTemplateSpanValue"
+  }
+}

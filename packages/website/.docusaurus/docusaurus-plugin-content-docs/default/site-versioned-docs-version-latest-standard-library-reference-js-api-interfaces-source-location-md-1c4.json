@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/SourceLocation",
+  "title": "[I] SourceLocation",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/SourceLocation.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/SourceLocation",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/SourceLocation",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] SourceLocation"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] SourceFile",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/SourceFile"
+  },
+  "next": {
+    "title": "[I] SourceLocationOptions",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/SourceLocationOptions"
+  }
+}

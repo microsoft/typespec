@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/EmitterFunc",
+  "title": "[T] EmitterFunc",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/type-aliases/EmitterFunc.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/EmitterFunc",
+  "permalink": "/docs/standard-library/reference/js-api/type-aliases/EmitterFunc",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] EmitterFunc"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] EmitOptionsFor",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/EmitOptionsFor"
+  },
+  "next": {
+    "title": "[T] Entity",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/Entity"
+  }
+}

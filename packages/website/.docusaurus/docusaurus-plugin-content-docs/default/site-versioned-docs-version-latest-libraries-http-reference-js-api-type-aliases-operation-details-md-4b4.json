@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/type-aliases/OperationDetails",
+  "title": "[T] OperationDetails",
+  "description": "Deprecated",
+  "source": "@site/versioned_docs/version-latest/libraries/http/reference/js-api/type-aliases/OperationDetails.md",
+  "sourceDirName": "libraries/http/reference/js-api/type-aliases",
+  "slug": "/libraries/http/reference/js-api/type-aliases/OperationDetails",
+  "permalink": "/docs/libraries/http/reference/js-api/type-aliases/OperationDetails",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] OperationDetails"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] OperationContainer",
+    "permalink": "/docs/libraries/http/reference/js-api/type-aliases/OperationContainer"
+  },
+  "next": {
+    "title": "[T] OperationVerbSelector",
+    "permalink": "/docs/libraries/http/reference/js-api/type-aliases/OperationVerbSelector"
+  }
+}

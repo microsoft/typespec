@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/NumericLiteralNode",
+  "title": "[I] NumericLiteralNode",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/NumericLiteralNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/NumericLiteralNode",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/NumericLiteralNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] NumericLiteralNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] NumericLiteral",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/NumericLiteral"
+  },
+  "next": {
+    "title": "[I] NumericValue",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/NumericValue"
+  }
+}

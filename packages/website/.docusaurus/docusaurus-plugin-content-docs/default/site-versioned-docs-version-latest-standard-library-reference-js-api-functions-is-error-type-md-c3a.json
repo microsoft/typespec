@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/isErrorType",
+  "title": "[F] isErrorType",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/isErrorType.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/isErrorType",
+  "permalink": "/docs/standard-library/reference/js-api/functions/isErrorType",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] isErrorType"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] isErrorModel",
+    "permalink": "/docs/standard-library/reference/js-api/functions/isErrorModel"
+  },
+  "next": {
+    "title": "[F] isGlobalNamespace",
+    "permalink": "/docs/standard-library/reference/js-api/functions/isGlobalNamespace"
+  }
+}

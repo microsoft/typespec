@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/enumerations/ModifierFlags",
+  "title": "[E] ModifierFlags",
+  "description": "Enumeration Members",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/enumerations/ModifierFlags.md",
+  "sourceDirName": "standard-library/reference/js-api/enumerations",
+  "slug": "/standard-library/reference/js-api/enumerations/ModifierFlags",
+  "permalink": "/docs/standard-library/reference/js-api/enumerations/ModifierFlags",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[E] ModifierFlags"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[E] ListenerFlow",
+    "permalink": "/docs/standard-library/reference/js-api/enumerations/ListenerFlow"
+  },
+  "next": {
+    "title": "[E] NodeFlags",
+    "permalink": "/docs/standard-library/reference/js-api/enumerations/NodeFlags"
+  }
+}

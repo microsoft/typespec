@@ -1,0 +1,26 @@
+{
+  "id": "getting-started/getting-started-rest/versioning",
+  "title": "Versioning",
+  "description": "Introduction",
+  "source": "@site/../../docs/getting-started/getting-started-rest/06-versioning.md",
+  "sourceDirName": "getting-started/getting-started-rest",
+  "slug": "/getting-started/getting-started-rest/versioning",
+  "permalink": "/docs/next/getting-started/getting-started-rest/versioning",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 6,
+  "frontMatter": {
+    "title": "Versioning"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Authentication",
+    "permalink": "/docs/next/getting-started/getting-started-rest/authentication"
+  },
+  "next": {
+    "title": "Custom Response Models",
+    "permalink": "/docs/next/getting-started/getting-started-rest/custom-response-models"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/Directive",
+  "title": "[T] Directive",
+  "description": "",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/type-aliases/Directive.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/Directive",
+  "permalink": "/docs/standard-library/reference/js-api/type-aliases/Directive",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] Directive"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] DiagnosticTarget",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/DiagnosticTarget"
+  },
+  "next": {
+    "title": "[T] DirectiveArgument",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/DirectiveArgument"
+  }
+}

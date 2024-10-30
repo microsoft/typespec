@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/validateDecoratorUniqueOnNode",
+  "title": "[F] validateDecoratorUniqueOnNode",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/validateDecoratorUniqueOnNode.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/validateDecoratorUniqueOnNode",
+  "permalink": "/docs/standard-library/reference/js-api/functions/validateDecoratorUniqueOnNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] validateDecoratorUniqueOnNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] validateDecoratorTargetIntrinsic",
+    "permalink": "/docs/standard-library/reference/js-api/functions/validateDecoratorTargetIntrinsic"
+  },
+  "next": {
+    "title": "[F] visitChildren",
+    "permalink": "/docs/standard-library/reference/js-api/functions/visitChildren"
+  }
+}

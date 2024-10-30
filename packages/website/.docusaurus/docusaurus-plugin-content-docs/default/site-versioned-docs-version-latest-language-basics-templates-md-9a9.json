@@ -1,0 +1,26 @@
+{
+  "id": "language-basics/templates",
+  "title": "Templates",
+  "description": "Templates are a powerful tool that allow users to customize certain aspects of a type. Similar to generics in other programming languages, templates define template parameters that users can specify when referencing the type.",
+  "source": "@site/versioned_docs/version-latest/language-basics/templates.md",
+  "sourceDirName": "language-basics",
+  "slug": "/language-basics/templates",
+  "permalink": "/docs/language-basics/templates",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "id": "templates",
+    "title": "Templates"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Interfaces",
+    "permalink": "/docs/language-basics/interfaces"
+  },
+  "next": {
+    "title": "Enums",
+    "permalink": "/docs/language-basics/enums"
+  }
+}

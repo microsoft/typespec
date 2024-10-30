@@ -1,0 +1,25 @@
+{
+  "id": "extending-typespec/diagnostics",
+  "title": "Diagnostics",
+  "description": "The TypeSpec compiler uses the diagnostic API to report errors and warnings in the specification.",
+  "source": "@site/../../docs/extending-typespec/diagnostics.md",
+  "sourceDirName": "extending-typespec",
+  "slug": "/extending-typespec/diagnostics",
+  "permalink": "/docs/next/extending-typespec/diagnostics",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "title": "Diagnostics"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Creating a TypeSpec Library",
+    "permalink": "/docs/next/extending-typespec/basics"
+  },
+  "next": {
+    "title": "Decorators",
+    "permalink": "/docs/next/extending-typespec/create-decorators"
+  }
+}

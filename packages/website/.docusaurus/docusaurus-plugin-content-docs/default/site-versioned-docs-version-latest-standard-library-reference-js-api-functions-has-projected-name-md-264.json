@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/hasProjectedName",
+  "title": "[F] hasProjectedName",
+  "description": "Get the projected name of the given entity for the given projection.",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/hasProjectedName.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/hasProjectedName",
+  "permalink": "/docs/standard-library/reference/js-api/functions/hasProjectedName",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] hasProjectedName"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] hasParseError",
+    "permalink": "/docs/standard-library/reference/js-api/functions/hasParseError"
+  },
+  "next": {
+    "title": "[F] hasTrailingDirectorySeparator",
+    "permalink": "/docs/standard-library/reference/js-api/functions/hasTrailingDirectorySeparator"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/type-aliases/ServiceAuthentication",
+  "title": "[T] ServiceAuthentication",
+  "description": "Deprecated",
+  "source": "@site/../../docs/libraries/http/reference/js-api/type-aliases/ServiceAuthentication.md",
+  "sourceDirName": "libraries/http/reference/js-api/type-aliases",
+  "slug": "/libraries/http/reference/js-api/type-aliases/ServiceAuthentication",
+  "permalink": "/docs/next/libraries/http/reference/js-api/type-aliases/ServiceAuthentication",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] ServiceAuthentication"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] RouteProducer",
+    "permalink": "/docs/next/libraries/http/reference/js-api/type-aliases/RouteProducer"
+  },
+  "next": {
+    "title": "[T] StatusCode",
+    "permalink": "/docs/next/libraries/http/reference/js-api/type-aliases/StatusCode"
+  }
+}

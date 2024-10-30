@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/DateTimeKnownEncoding",
+  "title": "[T] DateTimeKnownEncoding",
+  "description": "",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/type-aliases/DateTimeKnownEncoding.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/DateTimeKnownEncoding",
+  "permalink": "/docs/standard-library/reference/js-api/type-aliases/DateTimeKnownEncoding",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] DateTimeKnownEncoding"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] CreateTypeProps",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/CreateTypeProps"
+  },
+  "next": {
+    "title": "[T] Declaration",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/Declaration"
+  }
+}

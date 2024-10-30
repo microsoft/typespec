@@ -1,0 +1,26 @@
+{
+  "id": "libraries/sse/reference/js-api/functions/$onValidate",
+  "title": "[F] $onValidate",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/libraries/sse/reference/js-api/functions/$onValidate.md",
+  "sourceDirName": "libraries/sse/reference/js-api/functions",
+  "slug": "/libraries/sse/reference/js-api/functions/$onValidate",
+  "permalink": "/docs/libraries/sse/reference/js-api/functions/$onValidate",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $onValidate"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[P] JS API",
+    "permalink": "/docs/libraries/sse/reference/js-api/"
+  },
+  "next": {
+    "title": "[F] isTerminalEvent",
+    "permalink": "/docs/libraries/sse/reference/js-api/functions/isTerminalEvent"
+  }
+}

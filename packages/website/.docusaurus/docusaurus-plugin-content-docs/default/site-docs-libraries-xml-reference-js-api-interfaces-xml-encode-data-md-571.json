@@ -1,0 +1,26 @@
+{
+  "id": "libraries/xml/reference/js-api/interfaces/XmlEncodeData",
+  "title": "[I] XmlEncodeData",
+  "description": "Xml Encoding information.",
+  "source": "@site/../../docs/libraries/xml/reference/js-api/interfaces/XmlEncodeData.md",
+  "sourceDirName": "libraries/xml/reference/js-api/interfaces",
+  "slug": "/libraries/xml/reference/js-api/interfaces/XmlEncodeData",
+  "permalink": "/docs/next/libraries/xml/reference/js-api/interfaces/XmlEncodeData",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] XmlEncodeData"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] isUnwrapped",
+    "permalink": "/docs/next/libraries/xml/reference/js-api/functions/isUnwrapped"
+  },
+  "next": {
+    "title": "[I] XmlNamespace",
+    "permalink": "/docs/next/libraries/xml/reference/js-api/interfaces/XmlNamespace"
+  }
+}

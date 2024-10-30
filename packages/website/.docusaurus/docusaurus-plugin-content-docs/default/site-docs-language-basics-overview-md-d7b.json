@@ -1,0 +1,26 @@
+{
+  "id": "language-basics/overview",
+  "title": "Overview",
+  "description": "This document provides a concise overview of the language concepts in TypeSpec. It serves as a quick reference guide rather than an in-depth tutorial.",
+  "source": "@site/../../docs/language-basics/overview.md",
+  "sourceDirName": "language-basics",
+  "slug": "/language-basics/overview",
+  "permalink": "/docs/next/language-basics/overview",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "overview",
+    "title": "Overview"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "FAQ",
+    "permalink": "/docs/next/handbook/faq"
+  },
+  "next": {
+    "title": "Built-in types",
+    "permalink": "/docs/next/language-basics/built-in-types"
+  }
+}

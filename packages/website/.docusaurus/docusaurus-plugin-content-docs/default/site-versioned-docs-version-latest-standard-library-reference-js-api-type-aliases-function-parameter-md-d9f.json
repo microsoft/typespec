@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/FunctionParameter",
+  "title": "[T] FunctionParameter",
+  "description": "",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/type-aliases/FunctionParameter.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/FunctionParameter",
+  "permalink": "/docs/standard-library/reference/js-api/type-aliases/FunctionParameter",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] FunctionParameter"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] Expression",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/Expression"
+  },
+  "next": {
+    "title": "[T] InferredCadlValue",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/InferredCadlValue"
+  }
+}

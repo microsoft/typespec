@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/ConstStatementNode",
+  "title": "[I] ConstStatementNode",
+  "description": "Extends",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/ConstStatementNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/ConstStatementNode",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ConstStatementNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ConstStatementNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] CompilerOptions",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/CompilerOptions"
+  },
+  "next": {
+    "title": "[I] DeclarationNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/DeclarationNode"
+  }
+}

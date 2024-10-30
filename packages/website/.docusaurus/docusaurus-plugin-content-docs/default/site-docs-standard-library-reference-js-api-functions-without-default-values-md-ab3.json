@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/$withoutDefaultValues",
+  "title": "[F] $withoutDefaultValues",
+  "description": "Parameters",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/$withoutDefaultValues.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/$withoutDefaultValues",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/$withoutDefaultValues",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $withoutDefaultValues"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $withVisibility",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/$withVisibility"
+  },
+  "next": {
+    "title": "[F] $withoutOmittedProperties",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/$withoutOmittedProperties"
+  }
+}

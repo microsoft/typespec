@@ -1,0 +1,26 @@
+{
+  "id": "emitters/json-schema/reference/js-api/functions/$baseUri",
+  "title": "[F] $baseUri",
+  "description": "Parameters",
+  "source": "@site/../../docs/emitters/json-schema/reference/js-api/functions/$baseUri.md",
+  "sourceDirName": "emitters/json-schema/reference/js-api/functions",
+  "slug": "/emitters/json-schema/reference/js-api/functions/$baseUri",
+  "permalink": "/docs/next/emitters/json-schema/reference/js-api/functions/$baseUri",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $baseUri"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[P] JS API",
+    "permalink": "/docs/next/emitters/json-schema/reference/js-api/"
+  },
+  "next": {
+    "title": "[F] $contains",
+    "permalink": "/docs/next/emitters/json-schema/reference/js-api/functions/$contains"
+  }
+}

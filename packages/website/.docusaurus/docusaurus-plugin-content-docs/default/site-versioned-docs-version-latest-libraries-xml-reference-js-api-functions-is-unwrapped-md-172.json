@@ -1,0 +1,26 @@
+{
+  "id": "libraries/xml/reference/js-api/functions/isUnwrapped",
+  "title": "[F] isUnwrapped",
+  "description": "Check if the given property should be unwrapped in the XML containing node.",
+  "source": "@site/versioned_docs/version-latest/libraries/xml/reference/js-api/functions/isUnwrapped.md",
+  "sourceDirName": "libraries/xml/reference/js-api/functions",
+  "slug": "/libraries/xml/reference/js-api/functions/isUnwrapped",
+  "permalink": "/docs/libraries/xml/reference/js-api/functions/isUnwrapped",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] isUnwrapped"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] isAttribute",
+    "permalink": "/docs/libraries/xml/reference/js-api/functions/isAttribute"
+  },
+  "next": {
+    "title": "[I] XmlEncodeData",
+    "permalink": "/docs/libraries/xml/reference/js-api/interfaces/XmlEncodeData"
+  }
+}

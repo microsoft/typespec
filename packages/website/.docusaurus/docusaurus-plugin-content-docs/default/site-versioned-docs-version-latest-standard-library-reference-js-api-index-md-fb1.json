@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/index",
+  "title": "[P] JS API",
+  "description": "References",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/index.md",
+  "sourceDirName": "standard-library/reference/js-api",
+  "slug": "/standard-library/reference/js-api/",
+  "permalink": "/docs/standard-library/reference/js-api/",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[P] JS API"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "triple-quote-indent",
+    "permalink": "/docs/standard-library/diags/triple-quote-indent"
+  },
+  "next": {
+    "title": "[C] DuplicateTracker",
+    "permalink": "/docs/standard-library/reference/js-api/classes/DuplicateTracker"
+  }
+}

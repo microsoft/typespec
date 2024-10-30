@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/$projectedName",
+  "title": "[F] $projectedName",
+  "description": "@projectedName - Indicate that this entity should be renamed according to the given projection.",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/$projectedName.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/$projectedName",
+  "permalink": "/docs/standard-library/reference/js-api/functions/$projectedName",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $projectedName"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $pattern",
+    "permalink": "/docs/standard-library/reference/js-api/functions/$pattern"
+  },
+  "next": {
+    "title": "[F] $returnTypeVisibility",
+    "permalink": "/docs/standard-library/reference/js-api/functions/$returnTypeVisibility"
+  }
+}

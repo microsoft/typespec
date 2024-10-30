@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/CompileResult",
+  "title": "[I] CompileResult",
+  "description": "Properties",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/CompileResult.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/CompileResult",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/CompileResult",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] CompileResult"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] CodeFixContext",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/CodeFixContext"
+  },
+  "next": {
+    "title": "[I] CompilerHost",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/CompilerHost"
+  }
+}

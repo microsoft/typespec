@@ -1,0 +1,21 @@
+{
+  "id": "release-notes/cadl-typespec-migration",
+  "title": "Cadl to TypeSpec rename completed in March 2023 release",
+  "description": "As you may recall from our previous email to partners, we are renaming the product as it becomes more mature, stable and one step closer to release.",
+  "source": "@site/../../docs/release-notes/cadl-typespec-migration.md",
+  "sourceDirName": "release-notes",
+  "slug": "/release-notes/cadl-typespec-migration",
+  "permalink": "/docs/next/release-notes/cadl-typespec-migration",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "title": "Cadl to TypeSpec rename completed in March 2023 release"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "July 2022",
+    "permalink": "/docs/next/release-notes/release-2022-07-08"
+  }
+}

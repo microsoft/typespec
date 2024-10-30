@@ -1,0 +1,26 @@
+{
+  "id": "libraries/openapi/reference/js-api/type-aliases/ExtensionKey",
+  "title": "[T] ExtensionKey",
+  "description": "Pattern for extension keys.",
+  "source": "@site/../../docs/libraries/openapi/reference/js-api/type-aliases/ExtensionKey.md",
+  "sourceDirName": "libraries/openapi/reference/js-api/type-aliases",
+  "slug": "/libraries/openapi/reference/js-api/type-aliases/ExtensionKey",
+  "permalink": "/docs/next/libraries/openapi/reference/js-api/type-aliases/ExtensionKey",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] ExtensionKey"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] ExtensionDecorator",
+    "permalink": "/docs/next/libraries/openapi/reference/js-api/type-aliases/ExtensionDecorator"
+  },
+  "next": {
+    "title": "[T] ExternalDocsDecorator",
+    "permalink": "/docs/next/libraries/openapi/reference/js-api/type-aliases/ExternalDocsDecorator"
+  }
+}

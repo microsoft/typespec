@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/functions/getHeaderFieldOptions",
+  "title": "[F] getHeaderFieldOptions",
+  "description": "Parameters",
+  "source": "@site/../../docs/libraries/http/reference/js-api/functions/getHeaderFieldOptions.md",
+  "sourceDirName": "libraries/http/reference/js-api/functions",
+  "slug": "/libraries/http/reference/js-api/functions/getHeaderFieldOptions",
+  "permalink": "/docs/next/libraries/http/reference/js-api/functions/getHeaderFieldOptions",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getHeaderFieldOptions"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getHeaderFieldName",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/getHeaderFieldName"
+  },
+  "next": {
+    "title": "[F] getHttpFileModel",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/getHttpFileModel"
+  }
+}

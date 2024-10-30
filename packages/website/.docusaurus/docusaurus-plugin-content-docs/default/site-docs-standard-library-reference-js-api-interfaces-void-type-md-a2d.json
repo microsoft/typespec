@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/VoidType",
+  "title": "[I] VoidType",
+  "description": "Extends",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/VoidType.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/VoidType",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/VoidType",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] VoidType"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] VoidKeywordNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/VoidKeywordNode"
+  },
+  "next": {
+    "title": "[T] BytesKnownEncoding",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/BytesKnownEncoding"
+  }
+}

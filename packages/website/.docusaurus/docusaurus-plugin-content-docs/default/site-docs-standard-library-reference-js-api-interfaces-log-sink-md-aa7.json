@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/LogSink",
+  "title": "[I] LogSink",
+  "description": "Methods",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/LogSink.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/LogSink",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/LogSink",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] LogSink"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] LogInfo",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/LogInfo"
+  },
+  "next": {
+    "title": "[I] Logger",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/Logger"
+  }
+}

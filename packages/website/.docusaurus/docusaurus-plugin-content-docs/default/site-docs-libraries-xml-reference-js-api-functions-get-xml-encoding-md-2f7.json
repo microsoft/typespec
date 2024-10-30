@@ -1,0 +1,26 @@
+{
+  "id": "libraries/xml/reference/js-api/functions/getXmlEncoding",
+  "title": "[F] getXmlEncoding",
+  "description": "Resolve how the given type should be encoded in XML.",
+  "source": "@site/../../docs/libraries/xml/reference/js-api/functions/getXmlEncoding.md",
+  "sourceDirName": "libraries/xml/reference/js-api/functions",
+  "slug": "/libraries/xml/reference/js-api/functions/getXmlEncoding",
+  "permalink": "/docs/next/libraries/xml/reference/js-api/functions/getXmlEncoding",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getXmlEncoding"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getNs",
+    "permalink": "/docs/next/libraries/xml/reference/js-api/functions/getNs"
+  },
+  "next": {
+    "title": "[F] isAttribute",
+    "permalink": "/docs/next/libraries/xml/reference/js-api/functions/isAttribute"
+  }
+}

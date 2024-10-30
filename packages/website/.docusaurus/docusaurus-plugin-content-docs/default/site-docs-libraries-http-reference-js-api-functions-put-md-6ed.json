@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/functions/$put",
+  "title": "[F] $put",
+  "description": "Parameters",
+  "source": "@site/../../docs/libraries/http/reference/js-api/functions/$put.md",
+  "sourceDirName": "libraries/http/reference/js-api/functions",
+  "slug": "/libraries/http/reference/js-api/functions/$put",
+  "permalink": "/docs/next/libraries/http/reference/js-api/functions/$put",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $put"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $post",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/$post"
+  },
+  "next": {
+    "title": "[F] $query",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/$query"
+  }
+}

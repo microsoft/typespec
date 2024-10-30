@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/SuppressDirective",
+  "title": "[I] SuppressDirective",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/SuppressDirective.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/SuppressDirective",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/SuppressDirective",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] SuppressDirective"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] StringValue",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/StringValue"
+  },
+  "next": {
+    "title": "[I] Sym",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/Sym"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "id": "release-notes/release-2022-07-08",
+  "title": "July 2022",
+  "description": "This release contains breaking changes",
+  "source": "@site/versioned_docs/version-latest/release-notes/release-2022-07-08.md",
+  "sourceDirName": "release-notes",
+  "slug": "/release-notes/release-2022-07-08",
+  "permalink": "/docs/release-notes/release-2022-07-08",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "title": "July 2022"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "August 2022",
+    "permalink": "/docs/release-notes/release-2022-08-10"
+  },
+  "next": {
+    "title": "Cadl to TypeSpec rename completed in March 2023 release",
+    "permalink": "/docs/release-notes/cadl-typespec-migration"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "id": "emitters/json-schema/reference/index",
+  "title": "Overview",
+  "description": "TypeSpec library for emitting TypeSpec to JSON Schema and converting JSON Schema to TypeSpec",
+  "source": "@site/versioned_docs/version-latest/emitters/json-schema/reference/index.mdx",
+  "sourceDirName": "emitters/json-schema/reference",
+  "slug": "/emitters/json-schema/reference/",
+  "permalink": "/docs/emitters/json-schema/reference/",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "sidebarPosition": 0,
+  "frontMatter": {
+    "title": "Overview",
+    "sidebar_position": 0,
+    "toc_min_heading_level": 2,
+    "toc_max_heading_level": 3
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Guide",
+    "permalink": "/docs/libraries/xml/guide"
+  },
+  "next": {
+    "title": "Overview",
+    "permalink": "/docs/emitters/json-schema/reference/"
+  }
+}

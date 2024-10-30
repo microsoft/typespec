@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/createSourceFile",
+  "title": "[F] createSourceFile",
+  "description": "Parameters",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/createSourceFile.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/createSourceFile",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/createSourceFile",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] createSourceFile"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] createServer",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/createServer"
+  },
+  "next": {
+    "title": "[F] createTypeSpecLibrary",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/createTypeSpecLibrary"
+  }
+}

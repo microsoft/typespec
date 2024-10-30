@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/ObjectValue",
+  "title": "[I] ObjectValue",
+  "description": "Extends",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/ObjectValue.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/ObjectValue",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ObjectValue",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ObjectValue"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ObjectType",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ObjectType"
+  },
+  "next": {
+    "title": "[I] ObjectValuePropertyDescriptor",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ObjectValuePropertyDescriptor"
+  }
+}

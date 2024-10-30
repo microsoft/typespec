@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/addService",
+  "title": "[F] addService",
+  "description": "Mark the given namespace as a service.",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/addService.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/addService",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/addService",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] addService"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] Numeric",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/Numeric"
+  },
+  "next": {
+    "title": "[F] assertType",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/assertType"
+  }
+}

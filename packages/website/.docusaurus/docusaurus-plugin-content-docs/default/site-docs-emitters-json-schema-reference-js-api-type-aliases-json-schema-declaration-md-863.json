@@ -1,0 +1,26 @@
+{
+  "id": "emitters/json-schema/reference/js-api/type-aliases/JsonSchemaDeclaration",
+  "title": "[T] JsonSchemaDeclaration",
+  "description": "TypeSpec Types that can create a json schmea declaration",
+  "source": "@site/../../docs/emitters/json-schema/reference/js-api/type-aliases/JsonSchemaDeclaration.md",
+  "sourceDirName": "emitters/json-schema/reference/js-api/type-aliases",
+  "slug": "/emitters/json-schema/reference/js-api/type-aliases/JsonSchemaDeclaration",
+  "permalink": "/docs/next/emitters/json-schema/reference/js-api/type-aliases/JsonSchemaDeclaration",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] JsonSchemaDeclaration"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] IdDecorator",
+    "permalink": "/docs/next/emitters/json-schema/reference/js-api/type-aliases/IdDecorator"
+  },
+  "next": {
+    "title": "[T] JsonSchemaDecorator",
+    "permalink": "/docs/next/emitters/json-schema/reference/js-api/type-aliases/JsonSchemaDecorator"
+  }
+}

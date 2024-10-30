@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/UsageTracker",
+  "title": "[I] UsageTracker",
+  "description": "Properties",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/UsageTracker.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/UsageTracker",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/UsageTracker",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] UsageTracker"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] UnknownType",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/UnknownType"
+  },
+  "next": {
+    "title": "[I] UsingStatementNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/UsingStatementNode"
+  }
+}

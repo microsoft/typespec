@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/classes/EventEmitter",
+  "title": "[C] EventEmitter",
+  "description": "Type Parameters",
+  "source": "@site/../../docs/standard-library/reference/js-api/classes/EventEmitter.md",
+  "sourceDirName": "standard-library/reference/js-api/classes",
+  "slug": "/standard-library/reference/js-api/classes/EventEmitter",
+  "permalink": "/docs/next/standard-library/reference/js-api/classes/EventEmitter",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[C] EventEmitter"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[C] DuplicateTracker",
+    "permalink": "/docs/next/standard-library/reference/js-api/classes/DuplicateTracker"
+  },
+  "next": {
+    "title": "[C] ProjectionError",
+    "permalink": "/docs/next/standard-library/reference/js-api/classes/ProjectionError"
+  }
+}

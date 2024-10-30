@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/Projection",
+  "title": "[I] Projection",
+  "description": "Extends",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/Projection.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/Projection",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/Projection",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] Projection"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ProjectedProgram",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ProjectedProgram"
+  },
+  "next": {
+    "title": "[I] ProjectionApplication",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ProjectionApplication"
+  }
+}

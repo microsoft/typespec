@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/removeTrailingDirectorySeparator",
+  "title": "[F] removeTrailingDirectorySeparator",
+  "description": "Removes a trailing directory separator from a path, if it does not already have one.",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/removeTrailingDirectorySeparator.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/removeTrailingDirectorySeparator",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/removeTrailingDirectorySeparator",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] removeTrailingDirectorySeparator"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] reducePathComponents",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/reducePathComponents"
+  },
+  "next": {
+    "title": "[F] reportDeprecated",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/reportDeprecated"
+  }
+}

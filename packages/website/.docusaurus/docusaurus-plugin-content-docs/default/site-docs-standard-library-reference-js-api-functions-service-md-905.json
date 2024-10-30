@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/$service",
+  "title": "[F] $service",
+  "description": "Parameters",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/$service.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/$service",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/$service",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $service"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $secret",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/$secret"
+  },
+  "next": {
+    "title": "[F] $summary",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/$summary"
+  }
+}

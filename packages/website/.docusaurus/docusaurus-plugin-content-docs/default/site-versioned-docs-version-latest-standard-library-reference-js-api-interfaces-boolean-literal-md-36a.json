@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/BooleanLiteral",
+  "title": "[I] BooleanLiteral",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/BooleanLiteral.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/BooleanLiteral",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/BooleanLiteral",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] BooleanLiteral"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] BlockComment",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/BlockComment"
+  },
+  "next": {
+    "title": "[I] BooleanLiteralNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/BooleanLiteralNode"
+  }
+}

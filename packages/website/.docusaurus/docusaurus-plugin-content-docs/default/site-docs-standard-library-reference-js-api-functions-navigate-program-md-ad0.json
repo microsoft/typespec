@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/navigateProgram",
+  "title": "[F] navigateProgram",
+  "description": "Navigate all types in the program.",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/navigateProgram.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/navigateProgram",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/navigateProgram",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] navigateProgram"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] markDeprecated",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/markDeprecated"
+  },
+  "next": {
+    "title": "[F] navigateType",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/navigateType"
+  }
+}

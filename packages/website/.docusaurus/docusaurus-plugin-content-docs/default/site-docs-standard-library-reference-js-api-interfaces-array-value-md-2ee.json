@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/ArrayValue",
+  "title": "[I] ArrayValue",
+  "description": "Extends",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/ArrayValue.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/ArrayValue",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ArrayValue",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ArrayValue"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ArrayModelType",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ArrayModelType"
+  },
+  "next": {
+    "title": "[I] AugmentDecoratorStatementNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/AugmentDecoratorStatementNode"
+  }
+}

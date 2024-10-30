@@ -1,0 +1,26 @@
+{
+  "id": "extending-typespec/emitters",
+  "title": "Emitters",
+  "description": "TypeSpec emitters are libraries that utilize various TypeSpec compiler APIs to reflect on the TypeSpec compilation process and generate artifacts. The TypeSpec standard library includes emitters for OpenAPI version 3.0, JSON Schema, and Protocol Buffers (Protobuf). However, you might want to emit TypeSpec to a different output format. One of the main advantages of TypeSpec is its ease of use as a single source of truth for all data shapes, and the simplicity of creating an emitter contributes significantly to this.",
+  "source": "@site/versioned_docs/version-latest/extending-typespec/emitters-basics.md",
+  "sourceDirName": "extending-typespec",
+  "slug": "/extending-typespec/emitters",
+  "permalink": "/docs/extending-typespec/emitters",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "id": "emitters",
+    "title": "Emitters"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Code fixes",
+    "permalink": "/docs/extending-typespec/codefixes"
+  },
+  "next": {
+    "title": "Emitter framework",
+    "permalink": "/docs/extending-typespec/emitter-framework"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "id": "introduction/installation",
+  "title": "Installation",
+  "description": "Requirements",
+  "source": "@site/../../docs/introduction/installation.md",
+  "sourceDirName": "introduction",
+  "slug": "/introduction/docs",
+  "permalink": "/docs/next/introduction/docs",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "installation",
+    "title": "Installation",
+    "slug": "docs"
+  },
+  "sidebar": "docsSidebar",
+  "next": {
+    "title": "TypeSpec VSCode extension",
+    "permalink": "/docs/next/introduction/editor/vscode"
+  }
+}

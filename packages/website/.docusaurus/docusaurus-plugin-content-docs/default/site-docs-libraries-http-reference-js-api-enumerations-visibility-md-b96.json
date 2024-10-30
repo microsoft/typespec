@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/enumerations/Visibility",
+  "title": "[E] Visibility",
+  "description": "Flags enum representation of well-known visibilities that are used in",
+  "source": "@site/../../docs/libraries/http/reference/js-api/enumerations/Visibility.md",
+  "sourceDirName": "libraries/http/reference/js-api/enumerations",
+  "slug": "/libraries/http/reference/js-api/enumerations/Visibility",
+  "permalink": "/docs/next/libraries/http/reference/js-api/enumerations/Visibility",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[E] Visibility"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[P] JS API",
+    "permalink": "/docs/next/libraries/http/reference/js-api/"
+  },
+  "next": {
+    "title": "[F] $body",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/$body"
+  }
+}

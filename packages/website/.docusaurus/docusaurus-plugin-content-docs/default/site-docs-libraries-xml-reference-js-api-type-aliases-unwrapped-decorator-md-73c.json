@@ -1,0 +1,26 @@
+{
+  "id": "libraries/xml/reference/js-api/type-aliases/UnwrappedDecorator",
+  "title": "[T] UnwrappedDecorator",
+  "description": "Specify that the target property shouldn't create a wrapper node. This can be used to flatten list nodes into the model node or to include raw text in the model node.",
+  "source": "@site/../../docs/libraries/xml/reference/js-api/type-aliases/UnwrappedDecorator.md",
+  "sourceDirName": "libraries/xml/reference/js-api/type-aliases",
+  "slug": "/libraries/xml/reference/js-api/type-aliases/UnwrappedDecorator",
+  "permalink": "/docs/next/libraries/xml/reference/js-api/type-aliases/UnwrappedDecorator",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] UnwrappedDecorator"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] NsDecorator",
+    "permalink": "/docs/next/libraries/xml/reference/js-api/type-aliases/NsDecorator"
+  },
+  "next": {
+    "title": "[T] XmlEncoding",
+    "permalink": "/docs/next/libraries/xml/reference/js-api/type-aliases/XmlEncoding"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/resolveLinterDefinition",
+  "title": "[F] resolveLinterDefinition",
+  "description": "Resolve the linter definition",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/resolveLinterDefinition.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/resolveLinterDefinition",
+  "permalink": "/docs/standard-library/reference/js-api/functions/resolveLinterDefinition",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] resolveLinterDefinition"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] resolveEncodedName",
+    "permalink": "/docs/standard-library/reference/js-api/functions/resolveEncodedName"
+  },
+  "next": {
+    "title": "[F] resolveModule",
+    "permalink": "/docs/standard-library/reference/js-api/functions/resolveModule"
+  }
+}

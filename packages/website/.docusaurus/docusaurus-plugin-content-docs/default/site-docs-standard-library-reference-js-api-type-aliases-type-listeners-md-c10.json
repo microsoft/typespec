@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/TypeListeners",
+  "title": "[T] TypeListeners",
+  "description": "",
+  "source": "@site/../../docs/standard-library/reference/js-api/type-aliases/TypeListeners.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/TypeListeners",
+  "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/TypeListeners",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] TypeListeners"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] TypeKind",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/TypeKind"
+  },
+  "next": {
+    "title": "[T] TypeOfDiagnostics",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/TypeOfDiagnostics"
+  }
+}

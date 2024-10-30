@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/Dirent",
+  "title": "[I] Dirent",
+  "description": "Properties",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/Dirent.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/Dirent",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/Dirent",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] Dirent"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] DirectiveExpressionNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/DirectiveExpressionNode"
+  },
+  "next": {
+    "title": "[I] DiscriminatedUnion",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/DiscriminatedUnion"
+  }
+}

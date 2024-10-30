@@ -1,0 +1,25 @@
+{
+  "id": "release-notes/release-2024-01-23",
+  "title": "January 2024",
+  "description": "This release contains breaking changes",
+  "source": "@site/../../docs/release-notes/release-2024-01-23.md",
+  "sourceDirName": "release-notes",
+  "slug": "/release-notes/release-2024-01-23",
+  "permalink": "/docs/next/release-notes/release-2024-01-23",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "title": "January 2024"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "February 2024",
+    "permalink": "/docs/next/release-notes/release-2024-02-06"
+  },
+  "next": {
+    "title": "December 2023",
+    "permalink": "/docs/next/release-notes/release-2023-12-06"
+  }
+}

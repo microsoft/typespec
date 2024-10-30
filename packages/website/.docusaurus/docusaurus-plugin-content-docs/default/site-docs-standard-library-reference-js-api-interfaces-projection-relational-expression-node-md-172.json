@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/ProjectionRelationalExpressionNode",
+  "title": "[I] ProjectionRelationalExpressionNode",
+  "description": "Extends",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/ProjectionRelationalExpressionNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/ProjectionRelationalExpressionNode",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ProjectionRelationalExpressionNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ProjectionRelationalExpressionNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ProjectionReferenceNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ProjectionReferenceNode"
+  },
+  "next": {
+    "title": "[I] ProjectionScalarSelectorNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ProjectionScalarSelectorNode"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/validateDecoratorNotOnType",
+  "title": "[F] validateDecoratorNotOnType",
+  "description": "Validate that a given decorator is not on a type or any of its base types.",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/validateDecoratorNotOnType.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/validateDecoratorNotOnType",
+  "permalink": "/docs/standard-library/reference/js-api/functions/validateDecoratorNotOnType",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] validateDecoratorNotOnType"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] typespecTypeToJson",
+    "permalink": "/docs/standard-library/reference/js-api/functions/typespecTypeToJson"
+  },
+  "next": {
+    "title": "[F] validateDecoratorParamCount",
+    "permalink": "/docs/standard-library/reference/js-api/functions/validateDecoratorParamCount"
+  }
+}

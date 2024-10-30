@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/skipContinuousIdentifier",
+  "title": "[F] skipContinuousIdentifier",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/skipContinuousIdentifier.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/skipContinuousIdentifier",
+  "permalink": "/docs/standard-library/reference/js-api/functions/skipContinuousIdentifier",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] skipContinuousIdentifier"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] setTypeSpecNamespace",
+    "permalink": "/docs/standard-library/reference/js-api/functions/setTypeSpecNamespace"
+  },
+  "next": {
+    "title": "[F] skipTrivia",
+    "permalink": "/docs/standard-library/reference/js-api/functions/skipTrivia"
+  }
+}

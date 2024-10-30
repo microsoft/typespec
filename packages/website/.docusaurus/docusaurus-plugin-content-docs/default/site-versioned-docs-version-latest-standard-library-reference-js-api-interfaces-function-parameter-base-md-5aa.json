@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/FunctionParameterBase",
+  "title": "[I] FunctionParameterBase",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/FunctionParameterBase.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/FunctionParameterBase",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/FunctionParameterBase",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] FunctionParameterBase"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] FunctionDeclarationStatementNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/FunctionDeclarationStatementNode"
+  },
+  "next": {
+    "title": "[I] FunctionParameterNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/FunctionParameterNode"
+  }
+}

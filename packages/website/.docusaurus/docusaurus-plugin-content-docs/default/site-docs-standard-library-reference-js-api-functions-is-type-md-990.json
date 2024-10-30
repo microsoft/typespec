@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/isType",
+  "title": "[F] isType",
+  "description": "Parameters",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/isType.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/isType",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/isType",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] isType"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] isTrivia",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/isTrivia"
+  },
+  "next": {
+    "title": "[F] isTypeSpecValueTypeOf",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/isTypeSpecValueTypeOf"
+  }
+}

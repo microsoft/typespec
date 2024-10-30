@@ -1,0 +1,26 @@
+{
+  "id": "emitters/json-schema/reference/js-api/functions/getMultipleOf",
+  "title": "[F] getMultipleOf",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/emitters/json-schema/reference/js-api/functions/getMultipleOf.md",
+  "sourceDirName": "emitters/json-schema/reference/js-api/functions",
+  "slug": "/emitters/json-schema/reference/js-api/functions/getMultipleOf",
+  "permalink": "/docs/emitters/json-schema/reference/js-api/functions/getMultipleOf",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getMultipleOf"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getMinProperties",
+    "permalink": "/docs/emitters/json-schema/reference/js-api/functions/getMinProperties"
+  },
+  "next": {
+    "title": "[F] getMultipleOfAsNumeric",
+    "permalink": "/docs/emitters/json-schema/reference/js-api/functions/getMultipleOfAsNumeric"
+  }
+}

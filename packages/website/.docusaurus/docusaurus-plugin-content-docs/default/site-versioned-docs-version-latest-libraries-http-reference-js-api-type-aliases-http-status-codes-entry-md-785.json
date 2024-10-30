@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/type-aliases/HttpStatusCodesEntry",
+  "title": "[T] HttpStatusCodesEntry",
+  "description": "",
+  "source": "@site/versioned_docs/version-latest/libraries/http/reference/js-api/type-aliases/HttpStatusCodesEntry.md",
+  "sourceDirName": "libraries/http/reference/js-api/type-aliases",
+  "slug": "/libraries/http/reference/js-api/type-aliases/HttpStatusCodesEntry",
+  "permalink": "/docs/libraries/http/reference/js-api/type-aliases/HttpStatusCodesEntry",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] HttpStatusCodesEntry"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] HttpStatusCodes",
+    "permalink": "/docs/libraries/http/reference/js-api/type-aliases/HttpStatusCodes"
+  },
+  "next": {
+    "title": "[T] HttpVerb",
+    "permalink": "/docs/libraries/http/reference/js-api/type-aliases/HttpVerb"
+  }
+}

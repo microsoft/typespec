@@ -2,26 +2,89 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
+using Client.Structure.Service.Models;
 
 namespace Client.Structure.Service
 {
+    /// <summary></summary>
     public partial class Qux
     {
-        protected Qux() => throw null;
+        private readonly Uri _endpoint;
+        private readonly ClientType _client;
+        private QuxBar _cachedQuxBar;
 
-        public ClientPipeline Pipeline => throw null;
+        /// <summary> Initializes a new instance of Qux for mocking. </summary>
+        protected Qux()
+        {
+        }
 
-        public virtual ClientResult Eight(RequestOptions options) => throw null;
+        internal Qux(ClientPipeline pipeline, Uri endpoint, ClientType client)
+        {
+            _endpoint = endpoint;
+            Pipeline = pipeline;
+            _client = client;
+        }
 
-        public virtual Task<ClientResult> EightAsync(RequestOptions options) => throw null;
+        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
+        public ClientPipeline Pipeline { get; }
 
-        public virtual ClientResult Eight() => throw null;
+        /// <summary>
+        /// [Protocol Method] eight
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult Eight(RequestOptions options)
+        {
+            using PipelineMessage message = CreateEightRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
 
-        public virtual Task<ClientResult> EightAsync() => throw null;
+        /// <summary>
+        /// [Protocol Method] eight
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> EightAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateEightRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
 
-        public virtual QuxBar GetQuxBarClient() => throw null;
+        /// <summary> eight. </summary>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult Eight()
+        {
+            return Eight(null);
+        }
+
+        /// <summary> eight. </summary>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> EightAsync()
+        {
+            return await EightAsync(null).ConfigureAwait(false);
+        }
+
+        /// <summary> Initializes a new instance of QuxBar. </summary>
+        public virtual QuxBar GetQuxBarClient()
+        {
+            return Volatile.Read(ref _cachedQuxBar) ?? Interlocked.CompareExchange(ref _cachedQuxBar, new QuxBar(Pipeline, _endpoint, _client), null) ?? _cachedQuxBar;
+        }
     }
 }

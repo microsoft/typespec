@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/enumerations/IdentifierKind",
+  "title": "[E] IdentifierKind",
+  "description": "Enumeration Members",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/enumerations/IdentifierKind.md",
+  "sourceDirName": "standard-library/reference/js-api/enumerations",
+  "slug": "/standard-library/reference/js-api/enumerations/IdentifierKind",
+  "permalink": "/docs/standard-library/reference/js-api/enumerations/IdentifierKind",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[E] IdentifierKind"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[C] ResolveModuleError",
+    "permalink": "/docs/standard-library/reference/js-api/classes/ResolveModuleError"
+  },
+  "next": {
+    "title": "[E] ListenerFlow",
+    "permalink": "/docs/standard-library/reference/js-api/enumerations/ListenerFlow"
+  }
+}

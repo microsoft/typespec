@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/ReferenceExpression",
+  "title": "[T] ReferenceExpression",
+  "description": "",
+  "source": "@site/../../docs/standard-library/reference/js-api/type-aliases/ReferenceExpression.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/ReferenceExpression",
+  "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/ReferenceExpression",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] ReferenceExpression"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] ProjectionStatementItem",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/ProjectionStatementItem"
+  },
+  "next": {
+    "title": "[T] RuleRef",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/RuleRef"
+  }
+}

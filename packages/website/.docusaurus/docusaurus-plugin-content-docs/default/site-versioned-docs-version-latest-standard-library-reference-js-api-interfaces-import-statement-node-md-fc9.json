@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/ImportStatementNode",
+  "title": "[I] ImportStatementNode",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/ImportStatementNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/ImportStatementNode",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/ImportStatementNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ImportStatementNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] IdentifierNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/IdentifierNode"
+  },
+  "next": {
+    "title": "[I] IndeterminateEntity",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/IndeterminateEntity"
+  }
+}

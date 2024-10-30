@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/$maxItems",
+  "title": "[F] $maxItems",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/$maxItems.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/$maxItems",
+  "permalink": "/docs/standard-library/reference/js-api/functions/$maxItems",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $maxItems"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $list",
+    "permalink": "/docs/standard-library/reference/js-api/functions/$list"
+  },
+  "next": {
+    "title": "[F] $maxLength",
+    "permalink": "/docs/standard-library/reference/js-api/functions/$maxLength"
+  }
+}

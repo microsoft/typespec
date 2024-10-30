@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/ReturnExpressionNode",
+  "title": "[I] ReturnExpressionNode",
+  "description": "Extends",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/ReturnExpressionNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/ReturnExpressionNode",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ReturnExpressionNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ReturnExpressionNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ResolvedModule",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ResolvedModule"
+  },
+  "next": {
+    "title": "[I] ReturnRecord",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ReturnRecord"
+  }
+}

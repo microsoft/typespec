@@ -2,24 +2,81 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading.Tasks;
+using Client.Structure.Service.Models;
 
 namespace Client.Structure.Service
 {
+    /// <summary></summary>
     public partial class BazFoo
     {
-        protected BazFoo() => throw null;
+        private readonly Uri _endpoint;
+        private readonly ClientType _client;
 
-        public ClientPipeline Pipeline => throw null;
+        /// <summary> Initializes a new instance of BazFoo for mocking. </summary>
+        protected BazFoo()
+        {
+        }
 
-        public virtual ClientResult Seven(RequestOptions options) => throw null;
+        internal BazFoo(ClientPipeline pipeline, Uri endpoint, ClientType client)
+        {
+            _endpoint = endpoint;
+            Pipeline = pipeline;
+            _client = client;
+        }
 
-        public virtual Task<ClientResult> SevenAsync(RequestOptions options) => throw null;
+        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
+        public ClientPipeline Pipeline { get; }
 
-        public virtual ClientResult Seven() => throw null;
+        /// <summary>
+        /// [Protocol Method] seven
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult Seven(RequestOptions options)
+        {
+            using PipelineMessage message = CreateSevenRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
 
-        public virtual Task<ClientResult> SevenAsync() => throw null;
+        /// <summary>
+        /// [Protocol Method] seven
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> SevenAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateSevenRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> seven. </summary>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult Seven()
+        {
+            return Seven(null);
+        }
+
+        /// <summary> seven. </summary>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> SevenAsync()
+        {
+            return await SevenAsync(null).ConfigureAwait(false);
+        }
     }
 }

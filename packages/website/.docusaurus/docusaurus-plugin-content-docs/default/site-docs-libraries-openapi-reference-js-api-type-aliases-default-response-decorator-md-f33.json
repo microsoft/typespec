@@ -1,0 +1,26 @@
+{
+  "id": "libraries/openapi/reference/js-api/type-aliases/DefaultResponseDecorator",
+  "title": "[T] DefaultResponseDecorator",
+  "description": "Specify that this model is to be treated as the OpenAPI default response.",
+  "source": "@site/../../docs/libraries/openapi/reference/js-api/type-aliases/DefaultResponseDecorator.md",
+  "sourceDirName": "libraries/openapi/reference/js-api/type-aliases",
+  "slug": "/libraries/openapi/reference/js-api/type-aliases/DefaultResponseDecorator",
+  "permalink": "/docs/next/libraries/openapi/reference/js-api/type-aliases/DefaultResponseDecorator",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] DefaultResponseDecorator"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] License",
+    "permalink": "/docs/next/libraries/openapi/reference/js-api/interfaces/License"
+  },
+  "next": {
+    "title": "[T] ExtensionDecorator",
+    "permalink": "/docs/next/libraries/openapi/reference/js-api/type-aliases/ExtensionDecorator"
+  }
+}

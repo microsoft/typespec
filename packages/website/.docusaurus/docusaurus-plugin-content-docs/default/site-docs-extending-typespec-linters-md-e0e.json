@@ -1,0 +1,26 @@
+{
+  "id": "extending-typespec/linters",
+  "title": "Linters",
+  "description": "Linter versus onValidate",
+  "source": "@site/../../docs/extending-typespec/linters.md",
+  "sourceDirName": "extending-typespec",
+  "slug": "/extending-typespec/linters",
+  "permalink": "/docs/next/extending-typespec/linters",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "linters",
+    "title": "Linters"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Decorators",
+    "permalink": "/docs/next/extending-typespec/create-decorators"
+  },
+  "next": {
+    "title": "Code fixes",
+    "permalink": "/docs/next/extending-typespec/codefixes"
+  }
+}

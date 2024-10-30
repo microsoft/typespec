@@ -1,0 +1,26 @@
+{
+  "id": "libraries/rest/reference/js-api/functions/$resourceTypeForKeyParam",
+  "title": "[F] $resourceTypeForKeyParam",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/libraries/rest/reference/js-api/functions/$resourceTypeForKeyParam.md",
+  "sourceDirName": "libraries/rest/reference/js-api/functions",
+  "slug": "/libraries/rest/reference/js-api/functions/$resourceTypeForKeyParam",
+  "permalink": "/docs/libraries/rest/reference/js-api/functions/$resourceTypeForKeyParam",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $resourceTypeForKeyParam"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $resourceLocation",
+    "permalink": "/docs/libraries/rest/reference/js-api/functions/$resourceLocation"
+  },
+  "next": {
+    "title": "[F] $segment",
+    "permalink": "/docs/libraries/rest/reference/js-api/functions/$segment"
+  }
+}

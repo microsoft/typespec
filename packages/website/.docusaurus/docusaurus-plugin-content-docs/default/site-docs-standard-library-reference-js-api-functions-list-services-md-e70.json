@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/listServices",
+  "title": "[F] listServices",
+  "description": "List all the services defined in the TypeSpec program",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/listServices.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/listServices",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/listServices",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] listServices"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] listOperationsIn",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/listOperationsIn"
+  },
+  "next": {
+    "title": "[F] logDiagnostics",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/logDiagnostics"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "id": "release-notes/release-2023-11-07",
+  "title": "November 2023",
+  "description": "This release contains breaking changes",
+  "source": "@site/versioned_docs/version-latest/release-notes/release-2023-11-07.md",
+  "sourceDirName": "release-notes",
+  "slug": "/release-notes/release-2023-11-07",
+  "permalink": "/docs/release-notes/release-2023-11-07",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "title": "November 2023"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "December 2023",
+    "permalink": "/docs/release-notes/release-2023-12-06"
+  },
+  "next": {
+    "title": "October 2023",
+    "permalink": "/docs/release-notes/release-2023-10-11"
+  }
+}

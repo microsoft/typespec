@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/NavigationOptions",
+  "title": "[I] NavigationOptions",
+  "description": "Properties",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/NavigationOptions.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/NavigationOptions",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/NavigationOptions",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] NavigationOptions"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] NamespaceStatementNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/NamespaceStatementNode"
+  },
+  "next": {
+    "title": "[I] NeverKeywordNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/NeverKeywordNode"
+  }
+}

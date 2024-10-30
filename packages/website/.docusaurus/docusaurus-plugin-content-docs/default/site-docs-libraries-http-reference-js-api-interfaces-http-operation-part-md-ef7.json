@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/interfaces/HttpOperationPart",
+  "title": "[I] HttpOperationPart",
+  "description": "Represent an part in a multipart body.",
+  "source": "@site/../../docs/libraries/http/reference/js-api/interfaces/HttpOperationPart.md",
+  "sourceDirName": "libraries/http/reference/js-api/interfaces",
+  "slug": "/libraries/http/reference/js-api/interfaces/HttpOperationPart",
+  "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/HttpOperationPart",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] HttpOperationPart"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] HttpOperationParameters",
+    "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/HttpOperationParameters"
+  },
+  "next": {
+    "title": "[I] HttpOperationResponse",
+    "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/HttpOperationResponse"
+  }
+}

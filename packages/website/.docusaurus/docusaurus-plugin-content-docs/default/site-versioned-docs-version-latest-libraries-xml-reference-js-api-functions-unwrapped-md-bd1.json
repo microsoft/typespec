@@ -1,0 +1,26 @@
+{
+  "id": "libraries/xml/reference/js-api/functions/$unwrapped",
+  "title": "[F] $unwrapped",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/libraries/xml/reference/js-api/functions/$unwrapped.md",
+  "sourceDirName": "libraries/xml/reference/js-api/functions",
+  "slug": "/libraries/xml/reference/js-api/functions/$unwrapped",
+  "permalink": "/docs/libraries/xml/reference/js-api/functions/$unwrapped",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $unwrapped"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $nsDeclarations",
+    "permalink": "/docs/libraries/xml/reference/js-api/functions/$nsDeclarations"
+  },
+  "next": {
+    "title": "[F] getNs",
+    "permalink": "/docs/libraries/xml/reference/js-api/functions/getNs"
+  }
+}

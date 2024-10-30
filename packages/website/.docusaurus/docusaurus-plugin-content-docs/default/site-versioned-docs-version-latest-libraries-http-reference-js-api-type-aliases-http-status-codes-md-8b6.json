@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/type-aliases/HttpStatusCodes",
+  "title": "[T] HttpStatusCodes",
+  "description": "",
+  "source": "@site/versioned_docs/version-latest/libraries/http/reference/js-api/type-aliases/HttpStatusCodes.md",
+  "sourceDirName": "libraries/http/reference/js-api/type-aliases",
+  "slug": "/libraries/http/reference/js-api/type-aliases/HttpStatusCodes",
+  "permalink": "/docs/libraries/http/reference/js-api/type-aliases/HttpStatusCodes",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] HttpStatusCodes"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] HttpProperty",
+    "permalink": "/docs/libraries/http/reference/js-api/type-aliases/HttpProperty"
+  },
+  "next": {
+    "title": "[T] HttpStatusCodesEntry",
+    "permalink": "/docs/libraries/http/reference/js-api/type-aliases/HttpStatusCodesEntry"
+  }
+}

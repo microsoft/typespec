@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/functions/setRouteProducer",
+  "title": "[F] setRouteProducer",
+  "description": "Parameters",
+  "source": "@site/../../docs/libraries/http/reference/js-api/functions/setRouteProducer.md",
+  "sourceDirName": "libraries/http/reference/js-api/functions",
+  "slug": "/libraries/http/reference/js-api/functions/setRouteProducer",
+  "permalink": "/docs/next/libraries/http/reference/js-api/functions/setRouteProducer",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] setRouteProducer"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] setRouteOptionsForNamespace",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/setRouteOptionsForNamespace"
+  },
+  "next": {
+    "title": "[F] setSharedRoute",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/setSharedRoute"
+  }
+}

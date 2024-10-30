@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/variables/typespecVersion",
+  "title": "[V] typespecVersion",
+  "description": "",
+  "source": "@site/../../docs/standard-library/reference/js-api/variables/typespecVersion.md",
+  "sourceDirName": "standard-library/reference/js-api/variables",
+  "slug": "/standard-library/reference/js-api/variables/typespecVersion",
+  "permalink": "/docs/next/standard-library/reference/js-api/variables/typespecVersion",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[V] typespecVersion"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[V] namespace",
+    "permalink": "/docs/next/standard-library/reference/js-api/variables/namespace"
+  },
+  "next": {
+    "title": "Encoded names",
+    "permalink": "/docs/next/standard-library/encoded-names"
+  }
+}

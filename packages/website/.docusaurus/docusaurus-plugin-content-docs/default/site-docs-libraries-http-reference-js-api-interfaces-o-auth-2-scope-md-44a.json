@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/interfaces/OAuth2Scope",
+  "title": "[I] OAuth2Scope",
+  "description": "Properties",
+  "source": "@site/../../docs/libraries/http/reference/js-api/interfaces/OAuth2Scope.md",
+  "sourceDirName": "libraries/http/reference/js-api/interfaces",
+  "slug": "/libraries/http/reference/js-api/interfaces/OAuth2Scope",
+  "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/OAuth2Scope",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] OAuth2Scope"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] OAuth2HttpAuthRef",
+    "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/OAuth2HttpAuthRef"
+  },
+  "next": {
+    "title": "[I] Oauth2Auth",
+    "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/Oauth2Auth"
+  }
+}

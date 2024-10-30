@@ -1,0 +1,26 @@
+{
+  "id": "handbook/cli",
+  "title": "Cli usage",
+  "description": "See full usage documentation by typing tsp --help:",
+  "source": "@site/../../docs/handbook/cli.md",
+  "sourceDirName": "handbook",
+  "slug": "/handbook/cli",
+  "permalink": "/docs/next/handbook/cli",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "cli",
+    "title": "Cli usage"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "TypeSpec For OpenAPI Developer",
+    "permalink": "/docs/next/getting-started/typespec-for-openapi-dev"
+  },
+  "next": {
+    "title": "Style guide",
+    "permalink": "/docs/next/handbook/style-guide"
+  }
+}

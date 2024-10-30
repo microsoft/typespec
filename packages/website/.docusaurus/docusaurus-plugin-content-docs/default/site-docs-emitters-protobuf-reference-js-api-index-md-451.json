@@ -1,0 +1,26 @@
+{
+  "id": "emitters/protobuf/reference/js-api/index",
+  "title": "[P] JS API",
+  "description": "Interfaces",
+  "source": "@site/../../docs/emitters/protobuf/reference/js-api/index.md",
+  "sourceDirName": "emitters/protobuf/reference/js-api",
+  "slug": "/emitters/protobuf/reference/js-api/",
+  "permalink": "/docs/next/emitters/protobuf/reference/js-api/",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[P] JS API"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Emitter usage",
+    "permalink": "/docs/next/emitters/protobuf/reference/emitter"
+  },
+  "next": {
+    "title": "[F] $externRef",
+    "permalink": "/docs/next/emitters/protobuf/reference/js-api/functions/$externRef"
+  }
+}

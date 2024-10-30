@@ -1,0 +1,26 @@
+{
+  "id": "emitters/protobuf/reference/js-api/functions/$stream",
+  "title": "[F] $stream",
+  "description": "Parameters",
+  "source": "@site/../../docs/emitters/protobuf/reference/js-api/functions/$stream.md",
+  "sourceDirName": "emitters/protobuf/reference/js-api/functions",
+  "slug": "/emitters/protobuf/reference/js-api/functions/$stream",
+  "permalink": "/docs/next/emitters/protobuf/reference/js-api/functions/$stream",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $stream"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $service",
+    "permalink": "/docs/next/emitters/protobuf/reference/js-api/functions/$service"
+  },
+  "next": {
+    "title": "[F] isMap",
+    "permalink": "/docs/next/emitters/protobuf/reference/js-api/functions/isMap"
+  }
+}

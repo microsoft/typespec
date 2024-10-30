@@ -1,0 +1,26 @@
+{
+  "id": "getting-started/getting-started-rest/authentication",
+  "title": "Authentication",
+  "description": "Introduction",
+  "source": "@site/../../docs/getting-started/getting-started-rest/05-authentication.md",
+  "sourceDirName": "getting-started/getting-started-rest",
+  "slug": "/getting-started/getting-started-rest/authentication",
+  "permalink": "/docs/next/getting-started/getting-started-rest/authentication",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 5,
+  "frontMatter": {
+    "title": "Authentication"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Common Parameters",
+    "permalink": "/docs/next/getting-started/getting-started-rest/common-parameters"
+  },
+  "next": {
+    "title": "Versioning",
+    "permalink": "/docs/next/getting-started/getting-started-rest/versioning"
+  }
+}

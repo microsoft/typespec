@@ -1,0 +1,26 @@
+{
+  "id": "libraries/versioning/reference/js-api/functions/$useDependency",
+  "title": "[F] $useDependency",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/libraries/versioning/reference/js-api/functions/$useDependency.md",
+  "sourceDirName": "libraries/versioning/reference/js-api/functions",
+  "slug": "/libraries/versioning/reference/js-api/functions/$useDependency",
+  "permalink": "/docs/libraries/versioning/reference/js-api/functions/$useDependency",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $useDependency"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $typeChangedFrom",
+    "permalink": "/docs/libraries/versioning/reference/js-api/functions/$typeChangedFrom"
+  },
+  "next": {
+    "title": "[F] $versioned",
+    "permalink": "/docs/libraries/versioning/reference/js-api/functions/$versioned"
+  }
+}

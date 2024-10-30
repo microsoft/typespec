@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/StringTemplateLiteralLikeNode",
+  "title": "[I] StringTemplateLiteralLikeNode",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/StringTemplateLiteralLikeNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/StringTemplateLiteralLikeNode",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/StringTemplateLiteralLikeNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] StringTemplateLiteralLikeNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] StringTemplateHeadNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/StringTemplateHeadNode"
+  },
+  "next": {
+    "title": "[I] StringTemplateMiddleNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/StringTemplateMiddleNode"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/TemplateDeclarationNode",
+  "title": "[I] TemplateDeclarationNode",
+  "description": "Extended by",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/TemplateDeclarationNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/TemplateDeclarationNode",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/TemplateDeclarationNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] TemplateDeclarationNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] TemplateArgumentNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/TemplateArgumentNode"
+  },
+  "next": {
+    "title": "[I] TemplateParameter",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/TemplateParameter"
+  }
+}

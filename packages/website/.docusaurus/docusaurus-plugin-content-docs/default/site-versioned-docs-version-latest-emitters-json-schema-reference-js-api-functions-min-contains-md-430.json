@@ -1,0 +1,26 @@
+{
+  "id": "emitters/json-schema/reference/js-api/functions/$minContains",
+  "title": "[F] $minContains",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/emitters/json-schema/reference/js-api/functions/$minContains.md",
+  "sourceDirName": "emitters/json-schema/reference/js-api/functions",
+  "slug": "/emitters/json-schema/reference/js-api/functions/$minContains",
+  "permalink": "/docs/emitters/json-schema/reference/js-api/functions/$minContains",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $minContains"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $maxProperties",
+    "permalink": "/docs/emitters/json-schema/reference/js-api/functions/$maxProperties"
+  },
+  "next": {
+    "title": "[F] $minProperties",
+    "permalink": "/docs/emitters/json-schema/reference/js-api/functions/$minProperties"
+  }
+}

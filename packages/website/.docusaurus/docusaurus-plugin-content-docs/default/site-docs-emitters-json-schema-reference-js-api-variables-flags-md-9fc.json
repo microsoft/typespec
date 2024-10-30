@@ -1,0 +1,26 @@
+{
+  "id": "emitters/json-schema/reference/js-api/variables/$flags",
+  "title": "[V] $flags",
+  "description": "Internal: TypeSpec flags",
+  "source": "@site/../../docs/emitters/json-schema/reference/js-api/variables/$flags.md",
+  "sourceDirName": "emitters/json-schema/reference/js-api/variables",
+  "slug": "/emitters/json-schema/reference/js-api/variables/$flags",
+  "permalink": "/docs/next/emitters/json-schema/reference/js-api/variables/$flags",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[V] $flags"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] UniqueItemsDecorator",
+    "permalink": "/docs/next/emitters/json-schema/reference/js-api/type-aliases/UniqueItemsDecorator"
+  },
+  "next": {
+    "title": "[V] $lib",
+    "permalink": "/docs/next/emitters/json-schema/reference/js-api/variables/$lib"
+  }
+}

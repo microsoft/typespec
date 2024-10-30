@@ -1,0 +1,25 @@
+{
+  "id": "extending-typespec/writing-scaffolding-template",
+  "title": "Scaffolding templates",
+  "description": "TypeSpec offers a scaffolding feature through the tsp init command.",
+  "source": "@site/../../docs/extending-typespec/writing-scaffolding-template.md",
+  "sourceDirName": "extending-typespec",
+  "slug": "/extending-typespec/writing-scaffolding-template",
+  "permalink": "/docs/next/extending-typespec/writing-scaffolding-template",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "title": "Scaffolding templates"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Managing metadata and visibility in REST API emitters",
+    "permalink": "/docs/next/extending-typespec/emitter-metadata-handling"
+  },
+  "next": {
+    "title": "🚀 Release Notes",
+    "permalink": "/docs/next/release-notes"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/functions/$route",
+  "title": "[F] $route",
+  "description": "@route defines the relative route URI for the target operation",
+  "source": "@site/../../docs/libraries/http/reference/js-api/functions/$route.md",
+  "sourceDirName": "libraries/http/reference/js-api/functions",
+  "slug": "/libraries/http/reference/js-api/functions/$route",
+  "permalink": "/docs/next/libraries/http/reference/js-api/functions/$route",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $route"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $query",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/$query"
+  },
+  "next": {
+    "title": "[F] $server",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/$server"
+  }
+}

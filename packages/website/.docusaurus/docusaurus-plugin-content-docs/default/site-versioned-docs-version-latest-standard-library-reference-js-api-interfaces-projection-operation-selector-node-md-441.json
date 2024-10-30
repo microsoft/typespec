@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/ProjectionOperationSelectorNode",
+  "title": "[I] ProjectionOperationSelectorNode",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/ProjectionOperationSelectorNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/ProjectionOperationSelectorNode",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/ProjectionOperationSelectorNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ProjectionOperationSelectorNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ProjectionNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ProjectionNode"
+  },
+  "next": {
+    "title": "[I] ProjectionParameterDeclarationNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ProjectionParameterDeclarationNode"
+  }
+}

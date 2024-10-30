@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/CadlScriptNode",
+  "title": "[T] CadlScriptNode",
+  "description": "Deprecated",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/type-aliases/CadlScriptNode.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/CadlScriptNode",
+  "permalink": "/docs/standard-library/reference/js-api/type-aliases/CadlScriptNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] CadlScriptNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] CadlManifest",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/CadlManifest"
+  },
+  "next": {
+    "title": "[T] CadlValue",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/CadlValue"
+  }
+}

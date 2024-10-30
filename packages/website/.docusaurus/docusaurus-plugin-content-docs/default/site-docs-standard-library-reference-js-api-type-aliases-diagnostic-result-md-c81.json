@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/DiagnosticResult",
+  "title": "[T] DiagnosticResult",
+  "description": "Return type of accessor functions in TypeSpec.",
+  "source": "@site/../../docs/standard-library/reference/js-api/type-aliases/DiagnosticResult.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/DiagnosticResult",
+  "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/DiagnosticResult",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] DiagnosticResult"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] DiagnosticReportWithoutTarget",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/DiagnosticReportWithoutTarget"
+  },
+  "next": {
+    "title": "[T] DiagnosticSeverity",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/DiagnosticSeverity"
+  }
+}

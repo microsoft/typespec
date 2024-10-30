@@ -1,0 +1,26 @@
+{
+  "id": "libraries/rest/reference/js-api/functions/$createsOrUpdatesResource",
+  "title": "[F] $createsOrUpdatesResource",
+  "description": "Parameters",
+  "source": "@site/../../docs/libraries/rest/reference/js-api/functions/$createsOrUpdatesResource.md",
+  "sourceDirName": "libraries/rest/reference/js-api/functions",
+  "slug": "/libraries/rest/reference/js-api/functions/$createsOrUpdatesResource",
+  "permalink": "/docs/next/libraries/rest/reference/js-api/functions/$createsOrUpdatesResource",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $createsOrUpdatesResource"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $createsOrReplacesResource",
+    "permalink": "/docs/next/libraries/rest/reference/js-api/functions/$createsOrReplacesResource"
+  },
+  "next": {
+    "title": "[F] $createsResource",
+    "permalink": "/docs/next/libraries/rest/reference/js-api/functions/$createsResource"
+  }
+}

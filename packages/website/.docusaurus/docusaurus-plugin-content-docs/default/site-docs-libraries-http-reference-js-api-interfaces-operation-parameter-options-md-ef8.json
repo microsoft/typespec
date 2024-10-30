@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/interfaces/OperationParameterOptions",
+  "title": "[I] OperationParameterOptions",
+  "description": "Properties",
+  "source": "@site/../../docs/libraries/http/reference/js-api/interfaces/OperationParameterOptions.md",
+  "sourceDirName": "libraries/http/reference/js-api/interfaces",
+  "slug": "/libraries/http/reference/js-api/interfaces/OperationParameterOptions",
+  "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/OperationParameterOptions",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] OperationParameterOptions"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] OpenIDConnectAuth",
+    "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/OpenIDConnectAuth"
+  },
+  "next": {
+    "title": "[I] PasswordFlow",
+    "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/PasswordFlow"
+  }
+}

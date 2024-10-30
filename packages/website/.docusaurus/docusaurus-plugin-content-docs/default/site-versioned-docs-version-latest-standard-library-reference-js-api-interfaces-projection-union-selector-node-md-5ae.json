@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/ProjectionUnionSelectorNode",
+  "title": "[I] ProjectionUnionSelectorNode",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/ProjectionUnionSelectorNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/ProjectionUnionSelectorNode",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/ProjectionUnionSelectorNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ProjectionUnionSelectorNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ProjectionUnaryExpressionNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ProjectionUnaryExpressionNode"
+  },
+  "next": {
+    "title": "[I] ProjectionUnionVariantSelectorNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ProjectionUnionVariantSelectorNode"
+  }
+}

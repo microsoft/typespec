@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/interfaces/AuthorizationCodeFlow",
+  "title": "[I] AuthorizationCodeFlow",
+  "description": "Authorization Code flow",
+  "source": "@site/versioned_docs/version-latest/libraries/http/reference/js-api/interfaces/AuthorizationCodeFlow.md",
+  "sourceDirName": "libraries/http/reference/js-api/interfaces",
+  "slug": "/libraries/http/reference/js-api/interfaces/AuthorizationCodeFlow",
+  "permalink": "/docs/libraries/http/reference/js-api/interfaces/AuthorizationCodeFlow",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] AuthorizationCodeFlow"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] AuthenticationReference",
+    "permalink": "/docs/libraries/http/reference/js-api/interfaces/AuthenticationReference"
+  },
+  "next": {
+    "title": "[I] BasicAuth",
+    "permalink": "/docs/libraries/http/reference/js-api/interfaces/BasicAuth"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "libraries/rest/reference/js-api/functions/$segmentOf",
+  "title": "[F] $segmentOf",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/libraries/rest/reference/js-api/functions/$segmentOf.md",
+  "sourceDirName": "libraries/rest/reference/js-api/functions",
+  "slug": "/libraries/rest/reference/js-api/functions/$segmentOf",
+  "permalink": "/docs/libraries/rest/reference/js-api/functions/$segmentOf",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $segmentOf"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $segment",
+    "permalink": "/docs/libraries/rest/reference/js-api/functions/$segment"
+  },
+  "next": {
+    "title": "[F] $updatesResource",
+    "permalink": "/docs/libraries/rest/reference/js-api/functions/$updatesResource"
+  }
+}

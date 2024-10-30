@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/getBaseFileName",
+  "title": "[F] getBaseFileName",
+  "description": "Returns the path except for its containing directory name.",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/getBaseFileName.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/getBaseFileName",
+  "permalink": "/docs/standard-library/reference/js-api/functions/getBaseFileName",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getBaseFileName"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getAnyExtensionFromPath",
+    "permalink": "/docs/standard-library/reference/js-api/functions/getAnyExtensionFromPath"
+  },
+  "next": {
+    "title": "[F] getDeprecated",
+    "permalink": "/docs/standard-library/reference/js-api/functions/getDeprecated"
+  }
+}

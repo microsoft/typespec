@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/Value",
+  "title": "[T] Value",
+  "description": "",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/type-aliases/Value.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/Value",
+  "permalink": "/docs/standard-library/reference/js-api/type-aliases/Value",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] Value"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] TypeSpecValue",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/TypeSpecValue"
+  },
+  "next": {
+    "title": "[T] WriteLine",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/WriteLine"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/Numeric",
+  "title": "[I] Numeric",
+  "description": "Constructors",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/Numeric.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/Numeric",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/Numeric",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] Numeric"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] NullValue",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/NullValue"
+  },
+  "next": {
+    "title": "[I] NumericLiteral",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/NumericLiteral"
+  }
+}

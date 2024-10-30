@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/DocToken",
+  "title": "[T] DocToken",
+  "description": "",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/type-aliases/DocToken.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/DocToken",
+  "permalink": "/docs/standard-library/reference/js-api/type-aliases/DocToken",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] DocToken"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] DocTag",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/DocTag"
+  },
+  "next": {
+    "title": "[T] DurationKnownEncoding",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/DurationKnownEncoding"
+  }
+}

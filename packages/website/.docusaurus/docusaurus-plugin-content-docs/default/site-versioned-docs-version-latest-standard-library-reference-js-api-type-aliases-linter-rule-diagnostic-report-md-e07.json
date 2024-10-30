@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/LinterRuleDiagnosticReport",
+  "title": "[T] LinterRuleDiagnosticReport",
+  "description": "Type declaration",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/type-aliases/LinterRuleDiagnosticReport.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/LinterRuleDiagnosticReport",
+  "permalink": "/docs/standard-library/reference/js-api/type-aliases/LinterRuleDiagnosticReport",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] LinterRuleDiagnosticReport"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] LinterRuleDiagnosticFormat",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/LinterRuleDiagnosticFormat"
+  },
+  "next": {
+    "title": "[T] LinterRuleDiagnosticReportWithoutTarget",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/LinterRuleDiagnosticReportWithoutTarget"
+  }
+}

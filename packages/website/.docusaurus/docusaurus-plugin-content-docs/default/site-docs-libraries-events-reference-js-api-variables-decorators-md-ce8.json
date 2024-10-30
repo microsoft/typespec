@@ -1,0 +1,26 @@
+{
+  "id": "libraries/events/reference/js-api/variables/$decorators",
+  "title": "[V] $decorators",
+  "description": "Type declaration",
+  "source": "@site/../../docs/libraries/events/reference/js-api/variables/$decorators.md",
+  "sourceDirName": "libraries/events/reference/js-api/variables",
+  "slug": "/libraries/events/reference/js-api/variables/$decorators",
+  "permalink": "/docs/next/libraries/events/reference/js-api/variables/$decorators",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[V] $decorators"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] isEvents",
+    "permalink": "/docs/next/libraries/events/reference/js-api/functions/isEvents"
+  },
+  "next": {
+    "title": "[V] $lib",
+    "permalink": "/docs/next/libraries/events/reference/js-api/variables/$lib"
+  }
+}

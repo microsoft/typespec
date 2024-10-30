@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/DecoratedType",
+  "title": "[I] DecoratedType",
+  "description": "Extended by",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/DecoratedType.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/DecoratedType",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/DecoratedType",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] DecoratedType"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] DeclarationNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/DeclarationNode"
+  },
+  "next": {
+    "title": "[I] Decorator",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/Decorator"
+  }
+}

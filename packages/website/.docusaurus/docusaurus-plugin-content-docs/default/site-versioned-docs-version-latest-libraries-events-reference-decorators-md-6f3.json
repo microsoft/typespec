@@ -1,0 +1,27 @@
+{
+  "id": "libraries/events/reference/decorators",
+  "title": "Decorators",
+  "description": "TypeSpec.Events",
+  "source": "@site/versioned_docs/version-latest/libraries/events/reference/decorators.md",
+  "sourceDirName": "libraries/events/reference",
+  "slug": "/libraries/events/reference/decorators",
+  "permalink": "/docs/libraries/events/reference/decorators",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "title": "Decorators",
+    "toc_min_heading_level": 2,
+    "toc_max_heading_level": 3
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Overview",
+    "permalink": "/docs/libraries/events/reference/"
+  },
+  "next": {
+    "title": "[P] JS API",
+    "permalink": "/docs/libraries/events/reference/js-api/"
+  }
+}

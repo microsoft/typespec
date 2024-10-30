@@ -1,0 +1,26 @@
+{
+  "id": "emitters/json-schema/reference/js-api/functions/$oneOf",
+  "title": "[F] $oneOf",
+  "description": "Parameters",
+  "source": "@site/../../docs/emitters/json-schema/reference/js-api/functions/$oneOf.md",
+  "sourceDirName": "emitters/json-schema/reference/js-api/functions",
+  "slug": "/emitters/json-schema/reference/js-api/functions/$oneOf",
+  "permalink": "/docs/next/emitters/json-schema/reference/js-api/functions/$oneOf",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $oneOf"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $onEmit",
+    "permalink": "/docs/next/emitters/json-schema/reference/js-api/functions/$onEmit"
+  },
+  "next": {
+    "title": "[F] $prefixItems",
+    "permalink": "/docs/next/emitters/json-schema/reference/js-api/functions/$prefixItems"
+  }
+}

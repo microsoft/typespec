@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/ResolvedModule",
+  "title": "[I] ResolvedModule",
+  "description": "Properties",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/ResolvedModule.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/ResolvedModule",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/ResolvedModule",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ResolvedModule"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ResolvedFile",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ResolvedFile"
+  },
+  "next": {
+    "title": "[I] ReturnExpressionNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ReturnExpressionNode"
+  }
+}

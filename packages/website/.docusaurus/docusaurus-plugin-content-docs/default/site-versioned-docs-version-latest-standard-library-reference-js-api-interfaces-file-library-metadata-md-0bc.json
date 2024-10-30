@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/FileLibraryMetadata",
+  "title": "[I] FileLibraryMetadata",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/FileLibraryMetadata.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/FileLibraryMetadata",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/FileLibraryMetadata",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] FileLibraryMetadata"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ExternKeywordNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ExternKeywordNode"
+  },
+  "next": {
+    "title": "[I] FilePos",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/FilePos"
+  }
+}

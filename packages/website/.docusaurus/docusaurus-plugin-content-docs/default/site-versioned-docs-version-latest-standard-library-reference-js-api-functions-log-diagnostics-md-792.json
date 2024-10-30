@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/logDiagnostics",
+  "title": "[F] logDiagnostics",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/logDiagnostics.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/logDiagnostics",
+  "permalink": "/docs/standard-library/reference/js-api/functions/logDiagnostics",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] logDiagnostics"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] listServices",
+    "permalink": "/docs/standard-library/reference/js-api/functions/listServices"
+  },
+  "next": {
+    "title": "[F] logVerboseTestOutput",
+    "permalink": "/docs/standard-library/reference/js-api/functions/logVerboseTestOutput"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/NamespaceStatementNode",
+  "title": "[I] NamespaceStatementNode",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/NamespaceStatementNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/NamespaceStatementNode",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/NamespaceStatementNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] NamespaceStatementNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] NamespaceNavigationOptions",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/NamespaceNavigationOptions"
+  },
+  "next": {
+    "title": "[I] NavigationOptions",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/NavigationOptions"
+  }
+}

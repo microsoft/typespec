@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/RuleRef",
+  "title": "[T] RuleRef",
+  "description": "Reference to a rule. In this format :",
+  "source": "@site/../../docs/standard-library/reference/js-api/type-aliases/RuleRef.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/RuleRef",
+  "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/RuleRef",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] RuleRef"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] ReferenceExpression",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/ReferenceExpression"
+  },
+  "next": {
+    "title": "[T] ScopeNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/ScopeNode"
+  }
+}

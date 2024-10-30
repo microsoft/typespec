@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/formatDiagnostic",
+  "title": "[F] formatDiagnostic",
+  "description": "Parameters",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/formatDiagnostic.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/formatDiagnostic",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/formatDiagnostic",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] formatDiagnostic"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] finishTypeForProgram",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/finishTypeForProgram"
+  },
+  "next": {
+    "title": "[F] formatIdentifier",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/formatIdentifier"
+  }
+}

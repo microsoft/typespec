@@ -1,0 +1,26 @@
+{
+  "id": "libraries/versioning/reference/js-api/functions/getVersionDependencies",
+  "title": "[F] getVersionDependencies",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/libraries/versioning/reference/js-api/functions/getVersionDependencies.md",
+  "sourceDirName": "libraries/versioning/reference/js-api/functions",
+  "slug": "/libraries/versioning/reference/js-api/functions/getVersionDependencies",
+  "permalink": "/docs/libraries/versioning/reference/js-api/functions/getVersionDependencies",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getVersionDependencies"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getVersion",
+    "permalink": "/docs/libraries/versioning/reference/js-api/functions/getVersion"
+  },
+  "next": {
+    "title": "[F] getVersionForEnumMember",
+    "permalink": "/docs/libraries/versioning/reference/js-api/functions/getVersionForEnumMember"
+  }
+}

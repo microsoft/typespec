@@ -1,0 +1,26 @@
+{
+  "id": "emitters/json-schema/reference/js-api/functions/$multipleOf",
+  "title": "[F] $multipleOf",
+  "description": "Parameters",
+  "source": "@site/../../docs/emitters/json-schema/reference/js-api/functions/$multipleOf.md",
+  "sourceDirName": "emitters/json-schema/reference/js-api/functions",
+  "slug": "/emitters/json-schema/reference/js-api/functions/$multipleOf",
+  "permalink": "/docs/next/emitters/json-schema/reference/js-api/functions/$multipleOf",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $multipleOf"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $minProperties",
+    "permalink": "/docs/next/emitters/json-schema/reference/js-api/functions/$minProperties"
+  },
+  "next": {
+    "title": "[F] $onEmit",
+    "permalink": "/docs/next/emitters/json-schema/reference/js-api/functions/$onEmit"
+  }
+}

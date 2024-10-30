@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/SourceFile",
+  "title": "[I] SourceFile",
+  "description": "Extended by",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/SourceFile.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/SourceFile",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/SourceFile",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] SourceFile"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] SignatureFunctionParameter",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/SignatureFunctionParameter"
+  },
+  "next": {
+    "title": "[I] SourceLocation",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/SourceLocation"
+  }
+}

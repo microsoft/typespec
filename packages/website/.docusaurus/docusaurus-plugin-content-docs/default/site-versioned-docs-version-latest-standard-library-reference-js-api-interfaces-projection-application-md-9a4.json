@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/ProjectionApplication",
+  "title": "[I] ProjectionApplication",
+  "description": "Properties",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/ProjectionApplication.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/ProjectionApplication",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/ProjectionApplication",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ProjectionApplication"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] Projection",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/Projection"
+  },
+  "next": {
+    "title": "[I] ProjectionArithmeticExpressionNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ProjectionArithmeticExpressionNode"
+  }
+}

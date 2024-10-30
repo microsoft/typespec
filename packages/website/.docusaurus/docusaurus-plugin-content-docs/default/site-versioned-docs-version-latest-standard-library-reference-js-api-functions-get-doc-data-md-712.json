@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/getDocData",
+  "title": "[F] getDocData",
+  "description": "Get the documentation information for the given type. In most cases you probably just want to use getDoc",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/getDocData.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/getDocData",
+  "permalink": "/docs/standard-library/reference/js-api/functions/getDocData",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getDocData"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getDoc",
+    "permalink": "/docs/standard-library/reference/js-api/functions/getDoc"
+  },
+  "next": {
+    "title": "[F] getEffectiveModelType",
+    "permalink": "/docs/standard-library/reference/js-api/functions/getEffectiveModelType"
+  }
+}

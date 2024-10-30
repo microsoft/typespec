@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/functions/$server",
+  "title": "[F] $server",
+  "description": "Configure the server url for the service.",
+  "source": "@site/versioned_docs/version-latest/libraries/http/reference/js-api/functions/$server.md",
+  "sourceDirName": "libraries/http/reference/js-api/functions",
+  "slug": "/libraries/http/reference/js-api/functions/$server",
+  "permalink": "/docs/libraries/http/reference/js-api/functions/$server",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $server"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $route",
+    "permalink": "/docs/libraries/http/reference/js-api/functions/$route"
+  },
+  "next": {
+    "title": "[F] $sharedRoute",
+    "permalink": "/docs/libraries/http/reference/js-api/functions/$sharedRoute"
+  }
+}

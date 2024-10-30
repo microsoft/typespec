@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/isListOperation",
+  "title": "[F] isListOperation",
+  "description": "Parameters",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/isListOperation.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/isListOperation",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/isListOperation",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] isListOperation"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] isKeyword",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/isKeyword"
+  },
+  "next": {
+    "title": "[F] isModifier",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/isModifier"
+  }
+}

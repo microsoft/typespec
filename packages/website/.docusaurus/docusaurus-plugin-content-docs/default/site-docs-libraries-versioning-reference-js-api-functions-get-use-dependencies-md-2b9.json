@@ -1,0 +1,26 @@
+{
+  "id": "libraries/versioning/reference/js-api/functions/getUseDependencies",
+  "title": "[F] getUseDependencies",
+  "description": "Parameters",
+  "source": "@site/../../docs/libraries/versioning/reference/js-api/functions/getUseDependencies.md",
+  "sourceDirName": "libraries/versioning/reference/js-api/functions",
+  "slug": "/libraries/versioning/reference/js-api/functions/getUseDependencies",
+  "permalink": "/docs/next/libraries/versioning/reference/js-api/functions/getUseDependencies",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getUseDependencies"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getTypeChangedFrom",
+    "permalink": "/docs/next/libraries/versioning/reference/js-api/functions/getTypeChangedFrom"
+  },
+  "next": {
+    "title": "[F] getVersion",
+    "permalink": "/docs/next/libraries/versioning/reference/js-api/functions/getVersion"
+  }
+}

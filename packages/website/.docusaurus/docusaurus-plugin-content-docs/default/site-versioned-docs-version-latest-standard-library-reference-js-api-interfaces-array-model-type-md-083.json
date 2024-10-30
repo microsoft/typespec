@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/ArrayModelType",
+  "title": "[I] ArrayModelType",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/ArrayModelType.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/ArrayModelType",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/ArrayModelType",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ArrayModelType"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ArrayLiteralNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ArrayLiteralNode"
+  },
+  "next": {
+    "title": "[I] ArrayValue",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ArrayValue"
+  }
+}

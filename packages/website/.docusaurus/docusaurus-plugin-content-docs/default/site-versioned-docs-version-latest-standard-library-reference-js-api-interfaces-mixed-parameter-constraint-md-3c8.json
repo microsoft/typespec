@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/MixedParameterConstraint",
+  "title": "[I] MixedParameterConstraint",
+  "description": "Properties",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/MixedParameterConstraint.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/MixedParameterConstraint",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/MixedParameterConstraint",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] MixedParameterConstraint"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] MixedFunctionParameter",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/MixedFunctionParameter"
+  },
+  "next": {
+    "title": "[I] Model",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/Model"
+  }
+}

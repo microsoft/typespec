@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/getDeprecated",
+  "title": "[F] getDeprecated",
+  "description": "Return the deprecated message or undefined if not deprecated",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/getDeprecated.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/getDeprecated",
+  "permalink": "/docs/standard-library/reference/js-api/functions/getDeprecated",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getDeprecated"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getBaseFileName",
+    "permalink": "/docs/standard-library/reference/js-api/functions/getBaseFileName"
+  },
+  "next": {
+    "title": "[F] getDeprecationDetails",
+    "permalink": "/docs/standard-library/reference/js-api/functions/getDeprecationDetails"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "emitters/json-schema/reference/js-api/functions/getMultipleOfAsNumeric",
+  "title": "[F] getMultipleOfAsNumeric",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/emitters/json-schema/reference/js-api/functions/getMultipleOfAsNumeric.md",
+  "sourceDirName": "emitters/json-schema/reference/js-api/functions",
+  "slug": "/emitters/json-schema/reference/js-api/functions/getMultipleOfAsNumeric",
+  "permalink": "/docs/emitters/json-schema/reference/js-api/functions/getMultipleOfAsNumeric",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getMultipleOfAsNumeric"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getMultipleOf",
+    "permalink": "/docs/emitters/json-schema/reference/js-api/functions/getMultipleOf"
+  },
+  "next": {
+    "title": "[F] getPrefixItems",
+    "permalink": "/docs/emitters/json-schema/reference/js-api/functions/getPrefixItems"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/MemberExpressionNode",
+  "title": "[I] MemberExpressionNode",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/MemberExpressionNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/MemberExpressionNode",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/MemberExpressionNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] MemberExpressionNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] Logger",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/Logger"
+  },
+  "next": {
+    "title": "[I] MixedFunctionParameter",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/MixedFunctionParameter"
+  }
+}

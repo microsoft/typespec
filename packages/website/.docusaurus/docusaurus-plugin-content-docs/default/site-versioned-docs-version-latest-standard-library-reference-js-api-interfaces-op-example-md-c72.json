@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/OpExample",
+  "title": "[I] OpExample",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/OpExample.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/OpExample",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/OpExample",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] OpExample"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ObjectValuePropertyDescriptor",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ObjectValuePropertyDescriptor"
+  },
+  "next": {
+    "title": "[I] Operation",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/Operation"
+  }
+}

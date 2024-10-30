@@ -1,0 +1,26 @@
+{
+  "id": "emitters/protobuf/reference/js-api/variables/namespace",
+  "title": "[V] namespace",
+  "description": "",
+  "source": "@site/versioned_docs/version-latest/emitters/protobuf/reference/js-api/variables/namespace.md",
+  "sourceDirName": "emitters/protobuf/reference/js-api/variables",
+  "slug": "/emitters/protobuf/reference/js-api/variables/namespace",
+  "permalink": "/docs/emitters/protobuf/reference/js-api/variables/namespace",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[V] namespace"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[V] PROTO_FULL_IDENT",
+    "permalink": "/docs/emitters/protobuf/reference/js-api/variables/PROTO_FULL_IDENT"
+  },
+  "next": {
+    "title": "Guide",
+    "permalink": "/docs/emitters/protobuf/guide"
+  }
+}

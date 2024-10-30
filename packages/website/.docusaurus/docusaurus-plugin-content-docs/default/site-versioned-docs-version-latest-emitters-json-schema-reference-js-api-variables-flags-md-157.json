@@ -1,0 +1,26 @@
+{
+  "id": "emitters/json-schema/reference/js-api/variables/$flags",
+  "title": "[V] $flags",
+  "description": "",
+  "source": "@site/versioned_docs/version-latest/emitters/json-schema/reference/js-api/variables/$flags.md",
+  "sourceDirName": "emitters/json-schema/reference/js-api/variables",
+  "slug": "/emitters/json-schema/reference/js-api/variables/$flags",
+  "permalink": "/docs/emitters/json-schema/reference/js-api/variables/$flags",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[V] $flags"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] JsonSchemaDeclaration",
+    "permalink": "/docs/emitters/json-schema/reference/js-api/type-aliases/JsonSchemaDeclaration"
+  },
+  "next": {
+    "title": "[V] $lib",
+    "permalink": "/docs/emitters/json-schema/reference/js-api/variables/$lib"
+  }
+}

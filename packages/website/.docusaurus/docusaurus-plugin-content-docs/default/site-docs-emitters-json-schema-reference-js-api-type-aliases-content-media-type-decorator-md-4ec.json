@@ -1,0 +1,26 @@
+{
+  "id": "emitters/json-schema/reference/js-api/type-aliases/ContentMediaTypeDecorator",
+  "title": "[T] ContentMediaTypeDecorator",
+  "description": "Specify the content type of content stored in a string.",
+  "source": "@site/../../docs/emitters/json-schema/reference/js-api/type-aliases/ContentMediaTypeDecorator.md",
+  "sourceDirName": "emitters/json-schema/reference/js-api/type-aliases",
+  "slug": "/emitters/json-schema/reference/js-api/type-aliases/ContentMediaTypeDecorator",
+  "permalink": "/docs/next/emitters/json-schema/reference/js-api/type-aliases/ContentMediaTypeDecorator",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] ContentMediaTypeDecorator"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] ContentEncodingDecorator",
+    "permalink": "/docs/next/emitters/json-schema/reference/js-api/type-aliases/ContentEncodingDecorator"
+  },
+  "next": {
+    "title": "[T] ContentSchemaDecorator",
+    "permalink": "/docs/next/emitters/json-schema/reference/js-api/type-aliases/ContentSchemaDecorator"
+  }
+}

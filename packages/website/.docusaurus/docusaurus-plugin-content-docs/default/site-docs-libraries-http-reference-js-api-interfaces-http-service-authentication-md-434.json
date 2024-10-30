@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/interfaces/HttpServiceAuthentication",
+  "title": "[I] HttpServiceAuthentication",
+  "description": "Properties",
+  "source": "@site/../../docs/libraries/http/reference/js-api/interfaces/HttpServiceAuthentication.md",
+  "sourceDirName": "libraries/http/reference/js-api/interfaces",
+  "slug": "/libraries/http/reference/js-api/interfaces/HttpServiceAuthentication",
+  "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/HttpServiceAuthentication",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] HttpServiceAuthentication"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] HttpService",
+    "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/HttpService"
+  },
+  "next": {
+    "title": "[I] HttpStatusCodeRange",
+    "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/HttpStatusCodeRange"
+  }
+}

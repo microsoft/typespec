@@ -1,0 +1,26 @@
+{
+  "id": "handbook/releases",
+  "title": "Releases",
+  "description": "Versioning strategy for packages",
+  "source": "@site/versioned_docs/version-latest/handbook/releases.md",
+  "sourceDirName": "handbook",
+  "slug": "/handbook/releases",
+  "permalink": "/docs/handbook/releases",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "id": "releases",
+    "title": "Releases"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Tracing",
+    "permalink": "/docs/handbook/configuration/tracing"
+  },
+  "next": {
+    "title": "FAQ",
+    "permalink": "/docs/handbook/faq"
+  }
+}

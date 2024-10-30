@@ -1,0 +1,26 @@
+{
+  "id": "emitters/json-schema/reference/js-api/classes/JsonSchemaEmitter",
+  "title": "[C] JsonSchemaEmitter",
+  "description": "Extends",
+  "source": "@site/../../docs/emitters/json-schema/reference/js-api/classes/JsonSchemaEmitter.md",
+  "sourceDirName": "emitters/json-schema/reference/js-api/classes",
+  "slug": "/emitters/json-schema/reference/js-api/classes/JsonSchemaEmitter",
+  "permalink": "/docs/next/emitters/json-schema/reference/js-api/classes/JsonSchemaEmitter",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[C] JsonSchemaEmitter"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[P] JS API",
+    "permalink": "/docs/next/emitters/json-schema/reference/js-api/"
+  },
+  "next": {
+    "title": "[F] $baseUri",
+    "permalink": "/docs/next/emitters/json-schema/reference/js-api/functions/$baseUri"
+  }
+}

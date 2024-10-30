@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/PositionDetail",
+  "title": "[I] PositionDetail",
+  "description": "owner node and other related information according to the position",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/PositionDetail.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/PositionDetail",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/PositionDetail",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] PositionDetail"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] PatternData",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/PatternData"
+  },
+  "next": {
+    "title": "[I] ProcessedLog",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ProcessedLog"
+  }
+}

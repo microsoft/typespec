@@ -1,0 +1,26 @@
+{
+  "id": "libraries/xml/reference/js-api/variables/$lib",
+  "title": "[V] $lib",
+  "description": "TypeSpec Xml Library Definition",
+  "source": "@site/versioned_docs/version-latest/libraries/xml/reference/js-api/variables/$lib.md",
+  "sourceDirName": "libraries/xml/reference/js-api/variables",
+  "slug": "/libraries/xml/reference/js-api/variables/$lib",
+  "permalink": "/docs/libraries/xml/reference/js-api/variables/$lib",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[V] $lib"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] XmlEncoding",
+    "permalink": "/docs/libraries/xml/reference/js-api/type-aliases/XmlEncoding"
+  },
+  "next": {
+    "title": "Guide",
+    "permalink": "/docs/libraries/xml/guide"
+  }
+}

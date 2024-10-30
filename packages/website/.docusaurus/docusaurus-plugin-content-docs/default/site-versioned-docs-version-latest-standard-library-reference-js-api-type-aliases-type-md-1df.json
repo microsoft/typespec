@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/Type",
+  "title": "[T] Type",
+  "description": "",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/type-aliases/Type.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/Type",
+  "permalink": "/docs/standard-library/reference/js-api/type-aliases/Type",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] Type"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] TrackableType",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/TrackableType"
+  },
+  "next": {
+    "title": "[T] TypeKind",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/TypeKind"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/functions/isSharedRoute",
+  "title": "[F] isSharedRoute",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/libraries/http/reference/js-api/functions/isSharedRoute.md",
+  "sourceDirName": "libraries/http/reference/js-api/functions",
+  "slug": "/libraries/http/reference/js-api/functions/isSharedRoute",
+  "permalink": "/docs/libraries/http/reference/js-api/functions/isSharedRoute",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] isSharedRoute"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] isQueryParam",
+    "permalink": "/docs/libraries/http/reference/js-api/functions/isQueryParam"
+  },
+  "next": {
+    "title": "[F] isStatusCode",
+    "permalink": "/docs/libraries/http/reference/js-api/functions/isStatusCode"
+  }
+}

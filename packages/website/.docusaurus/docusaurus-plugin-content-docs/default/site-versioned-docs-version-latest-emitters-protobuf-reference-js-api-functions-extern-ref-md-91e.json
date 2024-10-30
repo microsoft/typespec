@@ -1,0 +1,26 @@
+{
+  "id": "emitters/protobuf/reference/js-api/functions/$externRef",
+  "title": "[F] $externRef",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/emitters/protobuf/reference/js-api/functions/$externRef.md",
+  "sourceDirName": "emitters/protobuf/reference/js-api/functions",
+  "slug": "/emitters/protobuf/reference/js-api/functions/$externRef",
+  "permalink": "/docs/emitters/protobuf/reference/js-api/functions/$externRef",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $externRef"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[P] JS API",
+    "permalink": "/docs/emitters/protobuf/reference/js-api/"
+  },
+  "next": {
+    "title": "[F] $field",
+    "permalink": "/docs/emitters/protobuf/reference/js-api/functions/$field"
+  }
+}

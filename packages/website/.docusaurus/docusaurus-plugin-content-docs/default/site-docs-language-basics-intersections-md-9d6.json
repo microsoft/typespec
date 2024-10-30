@@ -1,0 +1,26 @@
+{
+  "id": "language-basics/intersections",
+  "title": "Intersections",
+  "description": "Intersections in programming define a type that must encompass all the constituents of the intersection. You can declare an intersection using the & operator.",
+  "source": "@site/../../docs/language-basics/intersections.md",
+  "sourceDirName": "language-basics",
+  "slug": "/language-basics/intersections",
+  "permalink": "/docs/next/language-basics/intersections",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "intersections",
+    "title": "Intersections"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Unions",
+    "permalink": "/docs/next/language-basics/unions"
+  },
+  "next": {
+    "title": "Type Literals",
+    "permalink": "/docs/next/language-basics/type-literals"
+  }
+}

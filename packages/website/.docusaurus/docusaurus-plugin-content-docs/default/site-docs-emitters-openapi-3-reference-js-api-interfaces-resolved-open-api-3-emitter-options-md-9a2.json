@@ -1,0 +1,26 @@
+{
+  "id": "emitters/openapi3/reference/js-api/interfaces/ResolvedOpenAPI3EmitterOptions",
+  "title": "[I] ResolvedOpenAPI3EmitterOptions",
+  "description": "Properties",
+  "source": "@site/../../docs/emitters/openapi3/reference/js-api/interfaces/ResolvedOpenAPI3EmitterOptions.md",
+  "sourceDirName": "emitters/openapi3/reference/js-api/interfaces",
+  "slug": "/emitters/openapi3/reference/js-api/interfaces/ResolvedOpenAPI3EmitterOptions",
+  "permalink": "/docs/next/emitters/openapi3/reference/js-api/interfaces/ResolvedOpenAPI3EmitterOptions",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ResolvedOpenAPI3EmitterOptions"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] resolveOptions",
+    "permalink": "/docs/next/emitters/openapi3/reference/js-api/functions/resolveOptions"
+  },
+  "next": {
+    "title": "[V] $lib",
+    "permalink": "/docs/next/emitters/openapi3/reference/js-api/variables/$lib"
+  }
+}

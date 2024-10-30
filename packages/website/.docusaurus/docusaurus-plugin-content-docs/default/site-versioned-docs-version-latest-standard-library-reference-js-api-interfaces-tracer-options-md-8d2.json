@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/TracerOptions",
+  "title": "[I] TracerOptions",
+  "description": "Properties",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/TracerOptions.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/TracerOptions",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/TracerOptions",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] TracerOptions"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] Tracer",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/Tracer"
+  },
+  "next": {
+    "title": "[I] Tuple",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/Tuple"
+  }
+}

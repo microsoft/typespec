@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/getEncode",
+  "title": "[F] getEncode",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/getEncode.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/getEncode",
+  "permalink": "/docs/standard-library/reference/js-api/functions/getEncode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getEncode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getEffectiveModelType",
+    "permalink": "/docs/standard-library/reference/js-api/functions/getEffectiveModelType"
+  },
+  "next": {
+    "title": "[F] getEntityName",
+    "permalink": "/docs/standard-library/reference/js-api/functions/getEntityName"
+  }
+}

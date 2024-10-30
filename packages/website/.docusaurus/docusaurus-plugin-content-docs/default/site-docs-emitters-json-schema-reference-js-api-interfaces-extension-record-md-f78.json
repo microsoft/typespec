@@ -1,0 +1,26 @@
+{
+  "id": "emitters/json-schema/reference/js-api/interfaces/ExtensionRecord",
+  "title": "[I] ExtensionRecord",
+  "description": "Data type containing information about an extension.",
+  "source": "@site/../../docs/emitters/json-schema/reference/js-api/interfaces/ExtensionRecord.md",
+  "sourceDirName": "emitters/json-schema/reference/js-api/interfaces",
+  "slug": "/emitters/json-schema/reference/js-api/interfaces/ExtensionRecord",
+  "permalink": "/docs/next/emitters/json-schema/reference/js-api/interfaces/ExtensionRecord",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ExtensionRecord"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] setExtension",
+    "permalink": "/docs/next/emitters/json-schema/reference/js-api/functions/setExtension"
+  },
+  "next": {
+    "title": "[I] JSONSchemaEmitterOptions",
+    "permalink": "/docs/next/emitters/json-schema/reference/js-api/interfaces/JSONSchemaEmitterOptions"
+  }
+}

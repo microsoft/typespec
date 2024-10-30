@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/ScopeNode",
+  "title": "[T] ScopeNode",
+  "description": "",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/type-aliases/ScopeNode.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/ScopeNode",
+  "permalink": "/docs/standard-library/reference/js-api/type-aliases/ScopeNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] ScopeNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] RuleRef",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/RuleRef"
+  },
+  "next": {
+    "title": "[T] SemanticNodeListener",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/SemanticNodeListener"
+  }
+}

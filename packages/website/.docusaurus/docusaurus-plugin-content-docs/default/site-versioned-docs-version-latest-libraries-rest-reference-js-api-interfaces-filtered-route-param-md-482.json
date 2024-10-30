@@ -1,0 +1,26 @@
+{
+  "id": "libraries/rest/reference/js-api/interfaces/FilteredRouteParam",
+  "title": "[I] FilteredRouteParam",
+  "description": "Properties",
+  "source": "@site/versioned_docs/version-latest/libraries/rest/reference/js-api/interfaces/FilteredRouteParam.md",
+  "sourceDirName": "libraries/rest/reference/js-api/interfaces",
+  "slug": "/libraries/rest/reference/js-api/interfaces/FilteredRouteParam",
+  "permalink": "/docs/libraries/rest/reference/js-api/interfaces/FilteredRouteParam",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] FilteredRouteParam"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] AutoRouteOptions",
+    "permalink": "/docs/libraries/rest/reference/js-api/interfaces/AutoRouteOptions"
+  },
+  "next": {
+    "title": "[I] ResourceKey",
+    "permalink": "/docs/libraries/rest/reference/js-api/interfaces/ResourceKey"
+  }
+}

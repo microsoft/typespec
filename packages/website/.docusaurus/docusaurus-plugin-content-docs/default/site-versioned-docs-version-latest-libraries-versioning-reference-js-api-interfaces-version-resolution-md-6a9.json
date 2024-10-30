@@ -1,0 +1,26 @@
+{
+  "id": "libraries/versioning/reference/js-api/interfaces/VersionResolution",
+  "title": "[I] VersionResolution",
+  "description": "Properties",
+  "source": "@site/versioned_docs/version-latest/libraries/versioning/reference/js-api/interfaces/VersionResolution.md",
+  "sourceDirName": "libraries/versioning/reference/js-api/interfaces",
+  "slug": "/libraries/versioning/reference/js-api/interfaces/VersionResolution",
+  "permalink": "/docs/libraries/versioning/reference/js-api/interfaces/VersionResolution",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] VersionResolution"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] VersionProjections",
+    "permalink": "/docs/libraries/versioning/reference/js-api/interfaces/VersionProjections"
+  },
+  "next": {
+    "title": "Tutorial",
+    "permalink": "/docs/libraries/versioning/guide"
+  }
+}

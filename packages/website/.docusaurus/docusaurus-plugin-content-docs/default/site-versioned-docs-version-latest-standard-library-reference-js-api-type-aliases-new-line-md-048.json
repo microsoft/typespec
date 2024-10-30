@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/NewLine",
+  "title": "[T] NewLine",
+  "description": "",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/type-aliases/NewLine.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/NewLine",
+  "permalink": "/docs/standard-library/reference/js-api/type-aliases/NewLine",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] NewLine"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] NeverIndexer",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/NeverIndexer"
+  },
+  "next": {
+    "title": "[T] Node",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/Node"
+  }
+}

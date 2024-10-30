@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/enumerations/SymbolFlags",
+  "title": "[E] SymbolFlags",
+  "description": "Enumeration Members",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/enumerations/SymbolFlags.md",
+  "sourceDirName": "standard-library/reference/js-api/enumerations",
+  "slug": "/standard-library/reference/js-api/enumerations/SymbolFlags",
+  "permalink": "/docs/standard-library/reference/js-api/enumerations/SymbolFlags",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[E] SymbolFlags"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[E] SemanticTokenKind",
+    "permalink": "/docs/standard-library/reference/js-api/enumerations/SemanticTokenKind"
+  },
+  "next": {
+    "title": "[E] SyntaxKind",
+    "permalink": "/docs/standard-library/reference/js-api/enumerations/SyntaxKind"
+  }
+}

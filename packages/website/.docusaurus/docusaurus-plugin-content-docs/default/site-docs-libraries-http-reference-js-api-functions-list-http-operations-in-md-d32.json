@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/functions/listHttpOperationsIn",
+  "title": "[F] listHttpOperationsIn",
+  "description": "Get all the Http Operation in the given container.",
+  "source": "@site/../../docs/libraries/http/reference/js-api/functions/listHttpOperationsIn.md",
+  "sourceDirName": "libraries/http/reference/js-api/functions",
+  "slug": "/libraries/http/reference/js-api/functions/listHttpOperationsIn",
+  "permalink": "/docs/next/libraries/http/reference/js-api/functions/listHttpOperationsIn",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] listHttpOperationsIn"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] joinPathSegments",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/joinPathSegments"
+  },
+  "next": {
+    "title": "[F] reportIfNoRoutes",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/reportIfNoRoutes"
+  }
+}

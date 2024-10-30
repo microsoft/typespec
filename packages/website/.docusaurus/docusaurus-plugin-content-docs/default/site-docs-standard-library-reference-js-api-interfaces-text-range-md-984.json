@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/TextRange",
+  "title": "[I] TextRange",
+  "description": "Extended by",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/TextRange.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/TextRange",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/TextRange",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] TextRange"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] TemplatedTypeBase",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/TemplatedTypeBase"
+  },
+  "next": {
+    "title": "[I] Tracer",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/Tracer"
+  }
+}

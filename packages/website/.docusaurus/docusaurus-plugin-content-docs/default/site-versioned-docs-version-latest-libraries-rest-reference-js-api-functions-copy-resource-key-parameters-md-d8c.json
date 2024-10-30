@@ -1,0 +1,26 @@
+{
+  "id": "libraries/rest/reference/js-api/functions/$copyResourceKeyParameters",
+  "title": "[F] $copyResourceKeyParameters",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/libraries/rest/reference/js-api/functions/$copyResourceKeyParameters.md",
+  "sourceDirName": "libraries/rest/reference/js-api/functions",
+  "slug": "/libraries/rest/reference/js-api/functions/$copyResourceKeyParameters",
+  "permalink": "/docs/libraries/rest/reference/js-api/functions/$copyResourceKeyParameters",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $copyResourceKeyParameters"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $collectionAction",
+    "permalink": "/docs/libraries/rest/reference/js-api/functions/$collectionAction"
+  },
+  "next": {
+    "title": "[F] $createsOrReplacesResource",
+    "permalink": "/docs/libraries/rest/reference/js-api/functions/$createsOrReplacesResource"
+  }
+}

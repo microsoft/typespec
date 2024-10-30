@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/functions/isBodyRoot",
+  "title": "[F] isBodyRoot",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/libraries/http/reference/js-api/functions/isBodyRoot.md",
+  "sourceDirName": "libraries/http/reference/js-api/functions",
+  "slug": "/libraries/http/reference/js-api/functions/isBodyRoot",
+  "permalink": "/docs/libraries/http/reference/js-api/functions/isBodyRoot",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] isBodyRoot"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] isBodyIgnore",
+    "permalink": "/docs/libraries/http/reference/js-api/functions/isBodyIgnore"
+  },
+  "next": {
+    "title": "[F] isContentTypeHeader",
+    "permalink": "/docs/libraries/http/reference/js-api/functions/isContentTypeHeader"
+  }
+}

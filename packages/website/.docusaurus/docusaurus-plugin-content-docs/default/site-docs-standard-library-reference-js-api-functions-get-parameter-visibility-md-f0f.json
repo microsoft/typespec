@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/getParameterVisibility",
+  "title": "[F] getParameterVisibility",
+  "description": "Parameters",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/getParameterVisibility.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/getParameterVisibility",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/getParameterVisibility",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getParameterVisibility"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getOverriddenProperty",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/getOverriddenProperty"
+  },
+  "next": {
+    "title": "[F] getParentTemplateNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/getParentTemplateNode"
+  }
+}

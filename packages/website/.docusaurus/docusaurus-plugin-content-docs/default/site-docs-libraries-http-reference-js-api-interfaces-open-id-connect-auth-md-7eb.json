@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/interfaces/OpenIDConnectAuth",
+  "title": "[I] OpenIDConnectAuth",
+  "description": "OpenID Connect (OIDC) is an identity layer built on top of the OAuth 2.0 protocol and supported by some OAuth 2.0 providers, such as Google and Azure Active Directory.",
+  "source": "@site/../../docs/libraries/http/reference/js-api/interfaces/OpenIDConnectAuth.md",
+  "sourceDirName": "libraries/http/reference/js-api/interfaces",
+  "slug": "/libraries/http/reference/js-api/interfaces/OpenIDConnectAuth",
+  "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/OpenIDConnectAuth",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] OpenIDConnectAuth"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] Oauth2Auth",
+    "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/Oauth2Auth"
+  },
+  "next": {
+    "title": "[I] OperationParameterOptions",
+    "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/OperationParameterOptions"
+  }
+}

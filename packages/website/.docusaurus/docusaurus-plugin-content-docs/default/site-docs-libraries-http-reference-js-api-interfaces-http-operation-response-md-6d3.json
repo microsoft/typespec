@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/interfaces/HttpOperationResponse",
+  "title": "[I] HttpOperationResponse",
+  "description": "Properties",
+  "source": "@site/../../docs/libraries/http/reference/js-api/interfaces/HttpOperationResponse.md",
+  "sourceDirName": "libraries/http/reference/js-api/interfaces",
+  "slug": "/libraries/http/reference/js-api/interfaces/HttpOperationResponse",
+  "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/HttpOperationResponse",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] HttpOperationResponse"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] HttpOperationPart",
+    "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/HttpOperationPart"
+  },
+  "next": {
+    "title": "[I] HttpOperationResponseContent",
+    "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/HttpOperationResponseContent"
+  }
+}

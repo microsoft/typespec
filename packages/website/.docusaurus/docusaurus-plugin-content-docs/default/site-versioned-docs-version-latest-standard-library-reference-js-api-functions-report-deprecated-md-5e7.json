@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/reportDeprecated",
+  "title": "[F] reportDeprecated",
+  "description": "Report a deprecated diagnostic.",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/reportDeprecated.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/reportDeprecated",
+  "permalink": "/docs/standard-library/reference/js-api/functions/reportDeprecated",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] reportDeprecated"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] removeTrailingDirectorySeparator",
+    "permalink": "/docs/standard-library/reference/js-api/functions/removeTrailingDirectorySeparator"
+  },
+  "next": {
+    "title": "[F] resolveCompilerOptions",
+    "permalink": "/docs/standard-library/reference/js-api/functions/resolveCompilerOptions"
+  }
+}

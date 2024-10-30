@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/InferredCadlValue",
+  "title": "[T] InferredCadlValue",
+  "description": "Type Parameters",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/type-aliases/InferredCadlValue.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/InferredCadlValue",
+  "permalink": "/docs/standard-library/reference/js-api/type-aliases/InferredCadlValue",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] InferredCadlValue"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] FunctionParameter",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/FunctionParameter"
+  },
+  "next": {
+    "title": "[T] InferredTypeSpecValue",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/InferredTypeSpecValue"
+  }
+}

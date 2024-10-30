@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/type-aliases/HttpAuthRef",
+  "title": "[T] HttpAuthRef",
+  "description": "",
+  "source": "@site/../../docs/libraries/http/reference/js-api/type-aliases/HttpAuthRef.md",
+  "sourceDirName": "libraries/http/reference/js-api/type-aliases",
+  "slug": "/libraries/http/reference/js-api/type-aliases/HttpAuthRef",
+  "permalink": "/docs/next/libraries/http/reference/js-api/type-aliases/HttpAuthRef",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] HttpAuthRef"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] HttpAuth",
+    "permalink": "/docs/next/libraries/http/reference/js-api/type-aliases/HttpAuth"
+  },
+  "next": {
+    "title": "[T] HttpOperationHeaderParameter",
+    "permalink": "/docs/next/libraries/http/reference/js-api/type-aliases/HttpOperationHeaderParameter"
+  }
+}

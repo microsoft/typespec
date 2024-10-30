@@ -1,0 +1,26 @@
+{
+  "id": "libraries/streams/reference/js-api/variables/$decorators",
+  "title": "[V] $decorators",
+  "description": "Type declaration",
+  "source": "@site/versioned_docs/version-latest/libraries/streams/reference/js-api/variables/$decorators.md",
+  "sourceDirName": "libraries/streams/reference/js-api/variables",
+  "slug": "/libraries/streams/reference/js-api/variables/$decorators",
+  "permalink": "/docs/libraries/streams/reference/js-api/variables/$decorators",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[V] $decorators"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] isStream",
+    "permalink": "/docs/libraries/streams/reference/js-api/functions/isStream"
+  },
+  "next": {
+    "title": "[V] $lib",
+    "permalink": "/docs/libraries/streams/reference/js-api/variables/$lib"
+  }
+}

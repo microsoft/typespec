@@ -1,0 +1,26 @@
+{
+  "id": "emitters/json-schema/reference/js-api/type-aliases/ContentEncodingDecorator",
+  "title": "[T] ContentEncodingDecorator",
+  "description": "Specify the encoding used for the contents of a string.",
+  "source": "@site/../../docs/emitters/json-schema/reference/js-api/type-aliases/ContentEncodingDecorator.md",
+  "sourceDirName": "emitters/json-schema/reference/js-api/type-aliases",
+  "slug": "/emitters/json-schema/reference/js-api/type-aliases/ContentEncodingDecorator",
+  "permalink": "/docs/next/emitters/json-schema/reference/js-api/type-aliases/ContentEncodingDecorator",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] ContentEncodingDecorator"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] ContainsDecorator",
+    "permalink": "/docs/next/emitters/json-schema/reference/js-api/type-aliases/ContainsDecorator"
+  },
+  "next": {
+    "title": "[T] ContentMediaTypeDecorator",
+    "permalink": "/docs/next/emitters/json-schema/reference/js-api/type-aliases/ContentMediaTypeDecorator"
+  }
+}

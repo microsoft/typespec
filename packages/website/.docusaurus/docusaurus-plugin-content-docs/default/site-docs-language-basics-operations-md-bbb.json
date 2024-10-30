@@ -1,0 +1,26 @@
+{
+  "id": "language-basics/operations",
+  "title": "Operations",
+  "description": "Operations are essentially service endpoints, characterized by an operation name, parameters, and a return type.",
+  "source": "@site/../../docs/language-basics/operations.md",
+  "sourceDirName": "language-basics",
+  "slug": "/language-basics/operations",
+  "permalink": "/docs/next/language-basics/operations",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "operations",
+    "title": "Operations"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Models",
+    "permalink": "/docs/next/language-basics/models"
+  },
+  "next": {
+    "title": "Interfaces",
+    "permalink": "/docs/next/language-basics/interfaces"
+  }
+}

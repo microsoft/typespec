@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/classes/DuplicateTracker",
+  "title": "[C] DuplicateTracker",
+  "description": "Helper class to track duplicate instance",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/classes/DuplicateTracker.md",
+  "sourceDirName": "standard-library/reference/js-api/classes",
+  "slug": "/standard-library/reference/js-api/classes/DuplicateTracker",
+  "permalink": "/docs/standard-library/reference/js-api/classes/DuplicateTracker",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[C] DuplicateTracker"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[P] JS API",
+    "permalink": "/docs/standard-library/reference/js-api/"
+  },
+  "next": {
+    "title": "[C] EventEmitter",
+    "permalink": "/docs/standard-library/reference/js-api/classes/EventEmitter"
+  }
+}

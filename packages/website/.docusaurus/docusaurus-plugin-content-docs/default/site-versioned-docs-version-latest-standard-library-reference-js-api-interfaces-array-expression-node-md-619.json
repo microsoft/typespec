@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/ArrayExpressionNode",
+  "title": "[I] ArrayExpressionNode",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/ArrayExpressionNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/ArrayExpressionNode",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/ArrayExpressionNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ArrayExpressionNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] AnyKeywordNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/AnyKeywordNode"
+  },
+  "next": {
+    "title": "[I] ArrayLiteralNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ArrayLiteralNode"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/ProjectionModelPropertySelectorNode",
+  "title": "[I] ProjectionModelPropertySelectorNode",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/ProjectionModelPropertySelectorNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/ProjectionModelPropertySelectorNode",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/ProjectionModelPropertySelectorNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ProjectionModelPropertySelectorNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ProjectionModelPropertyNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ProjectionModelPropertyNode"
+  },
+  "next": {
+    "title": "[I] ProjectionModelSelectorNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ProjectionModelSelectorNode"
+  }
+}

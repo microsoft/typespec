@@ -1,0 +1,26 @@
+{
+  "id": "emitters/protobuf/reference/js-api/variables/$lib",
+  "title": "[V] $lib",
+  "description": "Type declaration",
+  "source": "@site/versioned_docs/version-latest/emitters/protobuf/reference/js-api/variables/$lib.md",
+  "sourceDirName": "emitters/protobuf/reference/js-api/variables",
+  "slug": "/emitters/protobuf/reference/js-api/variables/$lib",
+  "permalink": "/docs/emitters/protobuf/reference/js-api/variables/$lib",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[V] $lib"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] Reservation",
+    "permalink": "/docs/emitters/protobuf/reference/js-api/type-aliases/Reservation"
+  },
+  "next": {
+    "title": "[V] PROTO_FULL_IDENT",
+    "permalink": "/docs/emitters/protobuf/reference/js-api/variables/PROTO_FULL_IDENT"
+  }
+}

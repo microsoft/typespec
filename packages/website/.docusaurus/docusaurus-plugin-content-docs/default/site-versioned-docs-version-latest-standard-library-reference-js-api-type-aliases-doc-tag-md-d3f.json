@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/DocTag",
+  "title": "[T] DocTag",
+  "description": "",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/type-aliases/DocTag.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/DocTag",
+  "permalink": "/docs/standard-library/reference/js-api/type-aliases/DocTag",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] DocTag"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] DocContent",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/DocContent"
+  },
+  "next": {
+    "title": "[T] DocToken",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/DocToken"
+  }
+}

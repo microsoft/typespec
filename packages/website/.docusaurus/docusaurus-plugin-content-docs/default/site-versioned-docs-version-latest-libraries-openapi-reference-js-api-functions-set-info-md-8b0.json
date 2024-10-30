@@ -1,0 +1,26 @@
+{
+  "id": "libraries/openapi/reference/js-api/functions/setInfo",
+  "title": "[F] setInfo",
+  "description": "Set the OpenAPI info node on for the given service namespace.",
+  "source": "@site/versioned_docs/version-latest/libraries/openapi/reference/js-api/functions/setInfo.md",
+  "sourceDirName": "libraries/openapi/reference/js-api/functions",
+  "slug": "/libraries/openapi/reference/js-api/functions/setInfo",
+  "permalink": "/docs/libraries/openapi/reference/js-api/functions/setInfo",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] setInfo"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] setExtension",
+    "permalink": "/docs/libraries/openapi/reference/js-api/functions/setExtension"
+  },
+  "next": {
+    "title": "[F] shouldInline",
+    "permalink": "/docs/libraries/openapi/reference/js-api/functions/shouldInline"
+  }
+}

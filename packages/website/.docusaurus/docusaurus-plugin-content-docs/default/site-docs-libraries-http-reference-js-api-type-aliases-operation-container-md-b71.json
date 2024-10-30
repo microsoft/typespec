@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/type-aliases/OperationContainer",
+  "title": "[T] OperationContainer",
+  "description": "",
+  "source": "@site/../../docs/libraries/http/reference/js-api/type-aliases/OperationContainer.md",
+  "sourceDirName": "libraries/http/reference/js-api/type-aliases",
+  "slug": "/libraries/http/reference/js-api/type-aliases/OperationContainer",
+  "permalink": "/docs/next/libraries/http/reference/js-api/type-aliases/OperationContainer",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] OperationContainer"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] OAuth2FlowType",
+    "permalink": "/docs/next/libraries/http/reference/js-api/type-aliases/OAuth2FlowType"
+  },
+  "next": {
+    "title": "[T] OperationDetails",
+    "permalink": "/docs/next/libraries/http/reference/js-api/type-aliases/OperationDetails"
+  }
+}

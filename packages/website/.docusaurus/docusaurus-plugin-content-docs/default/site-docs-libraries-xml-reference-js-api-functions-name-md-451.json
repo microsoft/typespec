@@ -1,0 +1,26 @@
+{
+  "id": "libraries/xml/reference/js-api/functions/$name",
+  "title": "[F] $name",
+  "description": "Provide the name of the XML element or attribute. This means the same thing as",
+  "source": "@site/../../docs/libraries/xml/reference/js-api/functions/$name.md",
+  "sourceDirName": "libraries/xml/reference/js-api/functions",
+  "slug": "/libraries/xml/reference/js-api/functions/$name",
+  "permalink": "/docs/next/libraries/xml/reference/js-api/functions/$name",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $name"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $attribute",
+    "permalink": "/docs/next/libraries/xml/reference/js-api/functions/$attribute"
+  },
+  "next": {
+    "title": "[F] $ns",
+    "permalink": "/docs/next/libraries/xml/reference/js-api/functions/$ns"
+  }
+}

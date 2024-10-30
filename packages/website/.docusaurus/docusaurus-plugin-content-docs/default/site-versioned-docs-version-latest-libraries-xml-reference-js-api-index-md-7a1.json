@@ -1,0 +1,26 @@
+{
+  "id": "libraries/xml/reference/js-api/index",
+  "title": "[P] JS API",
+  "description": "Interfaces",
+  "source": "@site/versioned_docs/version-latest/libraries/xml/reference/js-api/index.md",
+  "sourceDirName": "libraries/xml/reference/js-api",
+  "slug": "/libraries/xml/reference/js-api/",
+  "permalink": "/docs/libraries/xml/reference/js-api/",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[P] JS API"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Decorators",
+    "permalink": "/docs/libraries/xml/reference/decorators"
+  },
+  "next": {
+    "title": "[F] $attribute",
+    "permalink": "/docs/libraries/xml/reference/js-api/functions/$attribute"
+  }
+}

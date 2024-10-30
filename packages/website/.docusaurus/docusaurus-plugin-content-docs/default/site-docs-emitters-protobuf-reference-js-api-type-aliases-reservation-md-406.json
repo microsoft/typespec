@@ -1,0 +1,26 @@
+{
+  "id": "emitters/protobuf/reference/js-api/type-aliases/Reservation",
+  "title": "[T] Reservation",
+  "description": "",
+  "source": "@site/../../docs/emitters/protobuf/reference/js-api/type-aliases/Reservation.md",
+  "sourceDirName": "emitters/protobuf/reference/js-api/type-aliases",
+  "slug": "/emitters/protobuf/reference/js-api/type-aliases/Reservation",
+  "permalink": "/docs/next/emitters/protobuf/reference/js-api/type-aliases/Reservation",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] Reservation"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] PackageDetails",
+    "permalink": "/docs/next/emitters/protobuf/reference/js-api/interfaces/PackageDetails"
+  },
+  "next": {
+    "title": "[V] $lib",
+    "permalink": "/docs/next/emitters/protobuf/reference/js-api/variables/$lib"
+  }
+}

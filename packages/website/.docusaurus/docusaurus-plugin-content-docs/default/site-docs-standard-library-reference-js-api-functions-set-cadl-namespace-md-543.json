@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/setCadlNamespace",
+  "title": "[F] setCadlNamespace",
+  "description": "Parameters",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/setCadlNamespace.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/setCadlNamespace",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/setCadlNamespace",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] setCadlNamespace"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] serializeValueAsJson",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/serializeValueAsJson"
+  },
+  "next": {
+    "title": "[F] setTypeSpecNamespace",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/setTypeSpecNamespace"
+  }
+}

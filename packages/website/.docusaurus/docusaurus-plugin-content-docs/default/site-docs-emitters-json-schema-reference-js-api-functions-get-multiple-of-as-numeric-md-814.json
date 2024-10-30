@@ -1,0 +1,26 @@
+{
+  "id": "emitters/json-schema/reference/js-api/functions/getMultipleOfAsNumeric",
+  "title": "[F] getMultipleOfAsNumeric",
+  "description": "Get value set by @multipleOf decorator as a Numeric type.",
+  "source": "@site/../../docs/emitters/json-schema/reference/js-api/functions/getMultipleOfAsNumeric.md",
+  "sourceDirName": "emitters/json-schema/reference/js-api/functions",
+  "slug": "/emitters/json-schema/reference/js-api/functions/getMultipleOfAsNumeric",
+  "permalink": "/docs/next/emitters/json-schema/reference/js-api/functions/getMultipleOfAsNumeric",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getMultipleOfAsNumeric"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getMultipleOf",
+    "permalink": "/docs/next/emitters/json-schema/reference/js-api/functions/getMultipleOf"
+  },
+  "next": {
+    "title": "[F] getPrefixItems",
+    "permalink": "/docs/next/emitters/json-schema/reference/js-api/functions/getPrefixItems"
+  }
+}

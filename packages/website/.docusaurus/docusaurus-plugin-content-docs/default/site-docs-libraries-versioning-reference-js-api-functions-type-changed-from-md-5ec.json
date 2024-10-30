@@ -1,0 +1,26 @@
+{
+  "id": "libraries/versioning/reference/js-api/functions/$typeChangedFrom",
+  "title": "[F] $typeChangedFrom",
+  "description": "Parameters",
+  "source": "@site/../../docs/libraries/versioning/reference/js-api/functions/$typeChangedFrom.md",
+  "sourceDirName": "libraries/versioning/reference/js-api/functions",
+  "slug": "/libraries/versioning/reference/js-api/functions/$typeChangedFrom",
+  "permalink": "/docs/next/libraries/versioning/reference/js-api/functions/$typeChangedFrom",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $typeChangedFrom"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $returnTypeChangedFrom",
+    "permalink": "/docs/next/libraries/versioning/reference/js-api/functions/$returnTypeChangedFrom"
+  },
+  "next": {
+    "title": "[F] $useDependency",
+    "permalink": "/docs/next/libraries/versioning/reference/js-api/functions/$useDependency"
+  }
+}

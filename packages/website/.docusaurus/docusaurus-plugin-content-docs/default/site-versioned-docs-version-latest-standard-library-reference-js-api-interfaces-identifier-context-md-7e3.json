@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/IdentifierContext",
+  "title": "[I] IdentifierContext",
+  "description": "Properties",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/IdentifierContext.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/IdentifierContext",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/IdentifierContext",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] IdentifierContext"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] FunctionType",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/FunctionType"
+  },
+  "next": {
+    "title": "[I] IdentifierNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/IdentifierNode"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "libraries/openapi/reference/js-api/functions/shouldInline",
+  "title": "[F] shouldInline",
+  "description": "Determines whether a type will be inlined in OpenAPI rather than defined",
+  "source": "@site/versioned_docs/version-latest/libraries/openapi/reference/js-api/functions/shouldInline.md",
+  "sourceDirName": "libraries/openapi/reference/js-api/functions",
+  "slug": "/libraries/openapi/reference/js-api/functions/shouldInline",
+  "permalink": "/docs/libraries/openapi/reference/js-api/functions/shouldInline",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] shouldInline"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] setInfo",
+    "permalink": "/docs/libraries/openapi/reference/js-api/functions/setInfo"
+  },
+  "next": {
+    "title": "[I] AdditionalInfo",
+    "permalink": "/docs/libraries/openapi/reference/js-api/interfaces/AdditionalInfo"
+  }
+}

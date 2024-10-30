@@ -1,0 +1,25 @@
+{
+  "id": "libraries/rest/cheat-sheet",
+  "title": "Cheat sheet",
+  "description": "Resource Routing",
+  "source": "@site/versioned_docs/version-latest/libraries/rest/cheat-sheet.md",
+  "sourceDirName": "libraries/rest",
+  "slug": "/libraries/rest/cheat-sheet",
+  "permalink": "/docs/libraries/rest/cheat-sheet",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "title": "Cheat sheet"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[V] $lib",
+    "permalink": "/docs/libraries/rest/reference/js-api/variables/$lib"
+  },
+  "next": {
+    "title": "Resource and routes",
+    "permalink": "/docs/libraries/rest/resource-routing"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "emitters/json-schema/reference/js-api/interfaces/JSONSchemaEmitterOptions",
+  "title": "[I] JSONSchemaEmitterOptions",
+  "description": "Properties",
+  "source": "@site/versioned_docs/version-latest/emitters/json-schema/reference/js-api/interfaces/JSONSchemaEmitterOptions.md",
+  "sourceDirName": "emitters/json-schema/reference/js-api/interfaces",
+  "slug": "/emitters/json-schema/reference/js-api/interfaces/JSONSchemaEmitterOptions",
+  "permalink": "/docs/emitters/json-schema/reference/js-api/interfaces/JSONSchemaEmitterOptions",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] JSONSchemaEmitterOptions"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ExtensionRecord",
+    "permalink": "/docs/emitters/json-schema/reference/js-api/interfaces/ExtensionRecord"
+  },
+  "next": {
+    "title": "[T] JsonSchemaDeclaration",
+    "permalink": "/docs/emitters/json-schema/reference/js-api/type-aliases/JsonSchemaDeclaration"
+  }
+}

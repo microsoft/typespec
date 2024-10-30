@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/NeverKeywordNode",
+  "title": "[I] NeverKeywordNode",
+  "description": "Extends",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/NeverKeywordNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/NeverKeywordNode",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/NeverKeywordNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] NeverKeywordNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] NavigationOptions",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/NavigationOptions"
+  },
+  "next": {
+    "title": "[I] NeverType",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/NeverType"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/TemplateArgumentNode",
+  "title": "[I] TemplateArgumentNode",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/TemplateArgumentNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/TemplateArgumentNode",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/TemplateArgumentNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] TemplateArgumentNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] SyntheticLocationContext",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/SyntheticLocationContext"
+  },
+  "next": {
+    "title": "[I] TemplateDeclarationNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/TemplateDeclarationNode"
+  }
+}

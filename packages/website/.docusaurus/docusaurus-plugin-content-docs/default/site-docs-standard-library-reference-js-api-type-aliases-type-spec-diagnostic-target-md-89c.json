@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/TypeSpecDiagnosticTarget",
+  "title": "[T] TypeSpecDiagnosticTarget",
+  "description": "Diagnostic target that can be used when working with TypeSpec types.",
+  "source": "@site/../../docs/standard-library/reference/js-api/type-aliases/TypeSpecDiagnosticTarget.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/TypeSpecDiagnosticTarget",
+  "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/TypeSpecDiagnosticTarget",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] TypeSpecDiagnosticTarget"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] TypeOrReturnRecord",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/TypeOrReturnRecord"
+  },
+  "next": {
+    "title": "[T] TypeSpecValue",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/TypeSpecValue"
+  }
+}

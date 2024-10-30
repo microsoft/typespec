@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/LogLevel",
+  "title": "[T] LogLevel",
+  "description": "",
+  "source": "@site/../../docs/standard-library/reference/js-api/type-aliases/LogLevel.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/LogLevel",
+  "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/LogLevel",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] LogLevel"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] LocationContext",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/LocationContext"
+  },
+  "next": {
+    "title": "[T] MarshalledValue",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/MarshalledValue"
+  }
+}

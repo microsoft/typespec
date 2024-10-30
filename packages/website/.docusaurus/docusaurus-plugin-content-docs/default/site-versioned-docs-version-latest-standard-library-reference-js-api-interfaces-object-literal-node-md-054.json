@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/ObjectLiteralNode",
+  "title": "[I] ObjectLiteralNode",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/ObjectLiteralNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/ObjectLiteralNode",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/ObjectLiteralNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ObjectLiteralNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] NumericValue",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/NumericValue"
+  },
+  "next": {
+    "title": "[I] ObjectLiteralPropertyNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ObjectLiteralPropertyNode"
+  }
+}

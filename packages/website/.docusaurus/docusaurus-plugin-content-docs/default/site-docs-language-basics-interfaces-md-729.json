@@ -1,0 +1,26 @@
+{
+  "id": "language-basics/interfaces",
+  "title": "Interfaces",
+  "description": "Interfaces are useful for grouping and reusing operations.",
+  "source": "@site/../../docs/language-basics/interfaces.md",
+  "sourceDirName": "language-basics",
+  "slug": "/language-basics/interfaces",
+  "permalink": "/docs/next/language-basics/interfaces",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "interfaces",
+    "title": "Interfaces"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Operations",
+    "permalink": "/docs/next/language-basics/operations"
+  },
+  "next": {
+    "title": "Templates",
+    "permalink": "/docs/next/language-basics/templates"
+  }
+}

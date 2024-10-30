@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/interfaces/RouteOptions",
+  "title": "[I] RouteOptions",
+  "description": "Extended by",
+  "source": "@site/../../docs/libraries/http/reference/js-api/interfaces/RouteOptions.md",
+  "sourceDirName": "libraries/http/reference/js-api/interfaces",
+  "slug": "/libraries/http/reference/js-api/interfaces/RouteOptions",
+  "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/RouteOptions",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] RouteOptions"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] QueryParameterOptions",
+    "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/QueryParameterOptions"
+  },
+  "next": {
+    "title": "[I] RoutePath",
+    "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/RoutePath"
+  }
+}

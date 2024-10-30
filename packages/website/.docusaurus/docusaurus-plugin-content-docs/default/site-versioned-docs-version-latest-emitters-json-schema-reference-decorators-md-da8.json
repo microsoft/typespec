@@ -1,0 +1,27 @@
+{
+  "id": "emitters/json-schema/reference/decorators",
+  "title": "Decorators",
+  "description": "TypeSpec.JsonSchema",
+  "source": "@site/versioned_docs/version-latest/emitters/json-schema/reference/decorators.md",
+  "sourceDirName": "emitters/json-schema/reference",
+  "slug": "/emitters/json-schema/reference/decorators",
+  "permalink": "/docs/emitters/json-schema/reference/decorators",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "title": "Decorators",
+    "toc_min_heading_level": 2,
+    "toc_max_heading_level": 3
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Data types",
+    "permalink": "/docs/emitters/json-schema/reference/data-types"
+  },
+  "next": {
+    "title": "Emitter usage",
+    "permalink": "/docs/emitters/json-schema/reference/emitter"
+  }
+}

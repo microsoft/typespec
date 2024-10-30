@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/ServiceDetails",
+  "title": "[I] ServiceDetails",
+  "description": "Extended by",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/ServiceDetails.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/ServiceDetails",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/ServiceDetails",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ServiceDetails"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] Service",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/Service"
+  },
+  "next": {
+    "title": "[I] SignatureFunctionParameter",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/SignatureFunctionParameter"
+  }
+}

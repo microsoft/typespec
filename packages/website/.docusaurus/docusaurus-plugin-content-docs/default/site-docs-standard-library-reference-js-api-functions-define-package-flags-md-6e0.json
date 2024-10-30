@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/definePackageFlags",
+  "title": "[F] definePackageFlags",
+  "description": "Parameters",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/definePackageFlags.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/definePackageFlags",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/definePackageFlags",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] definePackageFlags"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] defineLinter",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/defineLinter"
+  },
+  "next": {
+    "title": "[F] emitFile",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/emitFile"
+  }
+}

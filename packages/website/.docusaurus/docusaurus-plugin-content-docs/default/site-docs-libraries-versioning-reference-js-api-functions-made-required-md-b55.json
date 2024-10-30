@@ -1,0 +1,26 @@
+{
+  "id": "libraries/versioning/reference/js-api/functions/$madeRequired",
+  "title": "[F] $madeRequired",
+  "description": "Parameters",
+  "source": "@site/../../docs/libraries/versioning/reference/js-api/functions/$madeRequired.md",
+  "sourceDirName": "libraries/versioning/reference/js-api/functions",
+  "slug": "/libraries/versioning/reference/js-api/functions/$madeRequired",
+  "permalink": "/docs/next/libraries/versioning/reference/js-api/functions/$madeRequired",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $madeRequired"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $madeOptional",
+    "permalink": "/docs/next/libraries/versioning/reference/js-api/functions/$madeOptional"
+  },
+  "next": {
+    "title": "[F] $onValidate",
+    "permalink": "/docs/next/libraries/versioning/reference/js-api/functions/$onValidate"
+  }
+}

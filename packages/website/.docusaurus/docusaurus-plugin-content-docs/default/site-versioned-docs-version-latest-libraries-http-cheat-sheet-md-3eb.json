@@ -1,0 +1,25 @@
+{
+  "id": "libraries/http/cheat-sheet",
+  "title": "Cheat sheet",
+  "description": "Verb",
+  "source": "@site/versioned_docs/version-latest/libraries/http/cheat-sheet.md",
+  "sourceDirName": "libraries/http",
+  "slug": "/libraries/http/cheat-sheet",
+  "permalink": "/docs/libraries/http/cheat-sheet",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "title": "Cheat sheet"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "op-reference-container-route",
+    "permalink": "/docs/libraries/http/rules/op-reference-container-route"
+  },
+  "next": {
+    "title": "Authentication",
+    "permalink": "/docs/libraries/http/authentication"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/LinterResolvedDefinition",
+  "title": "[I] LinterResolvedDefinition",
+  "description": "Properties",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/LinterResolvedDefinition.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/LinterResolvedDefinition",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/LinterResolvedDefinition",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] LinterResolvedDefinition"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] LinterDefinition",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/LinterDefinition"
+  },
+  "next": {
+    "title": "[I] LinterRule",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/LinterRule"
+  }
+}

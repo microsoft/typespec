@@ -1,0 +1,26 @@
+{
+  "id": "language-basics/namespaces",
+  "title": "Namespaces",
+  "description": "Namespaces in TypeSpec allow you to group related types together. This organization makes your types easier to locate and helps avoid naming conflicts. Namespaces are merged across files, enabling you to reference any type from anywhere in your TypeSpec program using its namespace.",
+  "source": "@site/versioned_docs/version-latest/language-basics/namespaces.md",
+  "sourceDirName": "language-basics",
+  "slug": "/language-basics/namespaces",
+  "permalink": "/docs/language-basics/namespaces",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "id": "namespaces",
+    "title": "Namespaces"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Imports",
+    "permalink": "/docs/language-basics/imports"
+  },
+  "next": {
+    "title": "Decorators",
+    "permalink": "/docs/language-basics/decorators"
+  }
+}

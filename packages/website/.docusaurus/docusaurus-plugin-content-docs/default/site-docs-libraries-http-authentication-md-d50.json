@@ -1,0 +1,25 @@
+{
+  "id": "libraries/http/authentication",
+  "title": "Authentication",
+  "description": "Configure",
+  "source": "@site/../../docs/libraries/http/authentication.md",
+  "sourceDirName": "libraries/http",
+  "slug": "/libraries/http/authentication",
+  "permalink": "/docs/next/libraries/http/authentication",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "title": "Authentication"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Cheat sheet",
+    "permalink": "/docs/next/libraries/http/cheat-sheet"
+  },
+  "next": {
+    "title": "Operations",
+    "permalink": "/docs/next/libraries/http/operations"
+  }
+}

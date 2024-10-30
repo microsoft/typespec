@@ -1,0 +1,26 @@
+{
+  "id": "emitters/json-schema/reference/js-api/type-aliases/MinPropertiesDecorator",
+  "title": "[T] MinPropertiesDecorator",
+  "description": "Specify the minimum number of properties this object can have.",
+  "source": "@site/../../docs/emitters/json-schema/reference/js-api/type-aliases/MinPropertiesDecorator.md",
+  "sourceDirName": "emitters/json-schema/reference/js-api/type-aliases",
+  "slug": "/emitters/json-schema/reference/js-api/type-aliases/MinPropertiesDecorator",
+  "permalink": "/docs/next/emitters/json-schema/reference/js-api/type-aliases/MinPropertiesDecorator",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] MinPropertiesDecorator"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] MinContainsDecorator",
+    "permalink": "/docs/next/emitters/json-schema/reference/js-api/type-aliases/MinContainsDecorator"
+  },
+  "next": {
+    "title": "[T] MultipleOfDecorator",
+    "permalink": "/docs/next/emitters/json-schema/reference/js-api/type-aliases/MultipleOfDecorator"
+  }
+}

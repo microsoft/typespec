@@ -1,0 +1,25 @@
+{
+  "id": "introduction/editor/vs",
+  "title": "TypeSpec Visual Studio Extension",
+  "description": "Installation",
+  "source": "@site/versioned_docs/version-latest/introduction/editor/vs.md",
+  "sourceDirName": "introduction/editor",
+  "slug": "/introduction/editor/vs",
+  "permalink": "/docs/introduction/editor/vs",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "title": "TypeSpec Visual Studio Extension"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "TypeSpec VSCode extension",
+    "permalink": "/docs/introduction/editor/vscode"
+  },
+  "next": {
+    "title": "Getting Started with TypeSpec For REST APIs",
+    "permalink": "/docs/getting-started/getting-started-rest/01-setup-basic-syntax"
+  }
+}

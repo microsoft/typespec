@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/RecordModelType",
+  "title": "[I] RecordModelType",
+  "description": "Extends",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/RecordModelType.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/RecordModelType",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/RecordModelType",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] RecordModelType"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] Projector",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/Projector"
+  },
+  "next": {
+    "title": "[I] ReplaceTextCodeFixEdit",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ReplaceTextCodeFixEdit"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/TrackableType",
+  "title": "[T] TrackableType",
+  "description": "",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/type-aliases/TrackableType.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/TrackableType",
+  "permalink": "/docs/standard-library/reference/js-api/type-aliases/TrackableType",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] TrackableType"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] TemplatedType",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/TemplatedType"
+  },
+  "next": {
+    "title": "[T] Type",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/Type"
+  }
+}

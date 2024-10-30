@@ -1,0 +1,25 @@
+{
+  "id": "introduction/editor/vscode",
+  "title": "TypeSpec VSCode extension",
+  "description": "Installation",
+  "source": "@site/versioned_docs/version-latest/introduction/editor/vscode.md",
+  "sourceDirName": "introduction/editor",
+  "slug": "/introduction/editor/vscode",
+  "permalink": "/docs/introduction/editor/vscode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "title": "TypeSpec VSCode extension"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Installation",
+    "permalink": "/docs/"
+  },
+  "next": {
+    "title": "TypeSpec Visual Studio Extension",
+    "permalink": "/docs/introduction/editor/vs"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/enumerations/NodeFlags",
+  "title": "[E] NodeFlags",
+  "description": "Enumeration Members",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/enumerations/NodeFlags.md",
+  "sourceDirName": "standard-library/reference/js-api/enumerations",
+  "slug": "/standard-library/reference/js-api/enumerations/NodeFlags",
+  "permalink": "/docs/standard-library/reference/js-api/enumerations/NodeFlags",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[E] NodeFlags"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[E] ModifierFlags",
+    "permalink": "/docs/standard-library/reference/js-api/enumerations/ModifierFlags"
+  },
+  "next": {
+    "title": "[E] SemanticTokenKind",
+    "permalink": "/docs/standard-library/reference/js-api/enumerations/SemanticTokenKind"
+  }
+}

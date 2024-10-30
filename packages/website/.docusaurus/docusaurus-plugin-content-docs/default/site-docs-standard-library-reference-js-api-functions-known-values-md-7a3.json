@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/$knownValues",
+  "title": "[F] $knownValues",
+  "description": "@knownValues marks a string type with an enum that contains all known values",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/$knownValues.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/$knownValues",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/$knownValues",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $knownValues"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $key",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/$key"
+  },
+  "next": {
+    "title": "[F] $list",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/$list"
+  }
+}

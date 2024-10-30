@@ -1,0 +1,26 @@
+{
+  "id": "emitters/json-schema/reference/js-api/index",
+  "title": "[P] JS API",
+  "description": "Classes",
+  "source": "@site/versioned_docs/version-latest/emitters/json-schema/reference/js-api/index.md",
+  "sourceDirName": "emitters/json-schema/reference/js-api",
+  "slug": "/emitters/json-schema/reference/js-api/",
+  "permalink": "/docs/emitters/json-schema/reference/js-api/",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[P] JS API"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Emitter usage",
+    "permalink": "/docs/emitters/json-schema/reference/emitter"
+  },
+  "next": {
+    "title": "[C] JsonSchemaEmitter",
+    "permalink": "/docs/emitters/json-schema/reference/js-api/classes/JsonSchemaEmitter"
+  }
+}

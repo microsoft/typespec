@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/SignatureFunctionParameter",
+  "title": "[I] SignatureFunctionParameter",
+  "description": "Represent a function parameter that represent the parameter signature(i.e the type would be the type of the value passed)",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/SignatureFunctionParameter.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/SignatureFunctionParameter",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/SignatureFunctionParameter",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] SignatureFunctionParameter"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ServiceDetails",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ServiceDetails"
+  },
+  "next": {
+    "title": "[I] SourceFile",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/SourceFile"
+  }
+}

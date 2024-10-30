@@ -1,0 +1,25 @@
+{
+  "id": "release-notes/release-2024-04-02",
+  "title": "0.55 - April 2024",
+  "description": "This release contains deprecations",
+  "source": "@site/versioned_docs/version-latest/release-notes/release-2024-04-02.md",
+  "sourceDirName": "release-notes",
+  "slug": "/release-notes/release-2024-04-02",
+  "permalink": "/docs/release-notes/release-2024-04-02",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "title": "0.55 - April 2024"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "0.56 - May 2024",
+    "permalink": "/docs/release-notes/release-2024-05-07"
+  },
+  "next": {
+    "title": "March 2024",
+    "permalink": "/docs/release-notes/release-2024-03-05"
+  }
+}

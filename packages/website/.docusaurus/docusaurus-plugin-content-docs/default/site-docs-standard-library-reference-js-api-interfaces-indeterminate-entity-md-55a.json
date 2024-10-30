@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/IndeterminateEntity",
+  "title": "[I] IndeterminateEntity",
+  "description": "When an entity that could be used as a type or value has not figured out if it is a value or type yet.",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/IndeterminateEntity.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/IndeterminateEntity",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/IndeterminateEntity",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] IndeterminateEntity"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ImportStatementNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ImportStatementNode"
+  },
+  "next": {
+    "title": "[I] InsertTextCodeFixEdit",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/InsertTextCodeFixEdit"
+  }
+}

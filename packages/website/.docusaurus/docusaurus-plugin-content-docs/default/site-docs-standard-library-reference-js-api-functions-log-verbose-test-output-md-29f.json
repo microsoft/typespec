@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/logVerboseTestOutput",
+  "title": "[F] logVerboseTestOutput",
+  "description": "Verbose output is enabled by default for runs in mocha explorer in VS Code,",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/logVerboseTestOutput.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/logVerboseTestOutput",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/logVerboseTestOutput",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] logVerboseTestOutput"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] logDiagnostics",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/logDiagnostics"
+  },
+  "next": {
+    "title": "[F] mapEventEmitterToNodeListener",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/mapEventEmitterToNodeListener"
+  }
+}

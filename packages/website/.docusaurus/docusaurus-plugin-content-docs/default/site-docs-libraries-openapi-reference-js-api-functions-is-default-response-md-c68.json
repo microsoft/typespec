@@ -1,0 +1,26 @@
+{
+  "id": "libraries/openapi/reference/js-api/functions/isDefaultResponse",
+  "title": "[F] isDefaultResponse",
+  "description": "Check if the given model has been mark as a default response.",
+  "source": "@site/../../docs/libraries/openapi/reference/js-api/functions/isDefaultResponse.md",
+  "sourceDirName": "libraries/openapi/reference/js-api/functions",
+  "slug": "/libraries/openapi/reference/js-api/functions/isDefaultResponse",
+  "permalink": "/docs/next/libraries/openapi/reference/js-api/functions/isDefaultResponse",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] isDefaultResponse"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getParameterKey",
+    "permalink": "/docs/next/libraries/openapi/reference/js-api/functions/getParameterKey"
+  },
+  "next": {
+    "title": "[F] isReadonlyProperty",
+    "permalink": "/docs/next/libraries/openapi/reference/js-api/functions/isReadonlyProperty"
+  }
+}

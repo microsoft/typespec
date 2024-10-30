@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/ModelIndexer",
+  "title": "[T] ModelIndexer",
+  "description": "Type declaration",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/type-aliases/ModelIndexer.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/ModelIndexer",
+  "permalink": "/docs/standard-library/reference/js-api/type-aliases/ModelIndexer",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] ModelIndexer"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] MemberType",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/MemberType"
+  },
+  "next": {
+    "title": "[T] Modifier",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/Modifier"
+  }
+}

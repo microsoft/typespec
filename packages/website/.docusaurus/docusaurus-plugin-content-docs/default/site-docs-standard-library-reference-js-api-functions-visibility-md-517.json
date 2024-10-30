@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/$visibility",
+  "title": "[F] $visibility",
+  "description": "Parameters",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/$visibility.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/$visibility",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/$visibility",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $visibility"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $tag",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/$tag"
+  },
+  "next": {
+    "title": "[F] $withDefaultKeyVisibility",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/$withDefaultKeyVisibility"
+  }
+}

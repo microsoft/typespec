@@ -1,0 +1,25 @@
+{
+  "id": "language-basics/identifiers",
+  "title": "Identifiers",
+  "description": "Identifiers are used to name models, enums, properties, and other entities in TypeSpec. An identifier is a sequence of one or more characters that must start with a letter, emoji, underscore, or dollar sign, and be followed by letters, numbers, emoji, underscores, or dollar signs. TypeSpec implements UAX31-R1b stable identifiers with the emoji profile.",
+  "source": "@site/versioned_docs/version-latest/language-basics/identifiers.md",
+  "sourceDirName": "language-basics",
+  "slug": "/language-basics/identifiers",
+  "permalink": "/docs/language-basics/identifiers",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "title": "Identifiers"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Built-in types",
+    "permalink": "/docs/language-basics/built-in-types"
+  },
+  "next": {
+    "title": "Imports",
+    "permalink": "/docs/language-basics/imports"
+  }
+}

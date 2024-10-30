@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/TypeSpecCompletionItem",
+  "title": "[I] TypeSpecCompletionItem",
+  "description": "Properties",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/TypeSpecCompletionItem.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/TypeSpecCompletionItem",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/TypeSpecCompletionItem",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] TypeSpecCompletionItem"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] TypeReferenceNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/TypeReferenceNode"
+  },
+  "next": {
+    "title": "[I] TypeSpecLibrary",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/TypeSpecLibrary"
+  }
+}

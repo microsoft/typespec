@@ -1,0 +1,25 @@
+{
+  "id": "libraries/rest/resource-routing",
+  "title": "Resource and routes",
+  "description": "Resources are operations that are grouped in a namespace. You declare such a namespace by adding the @route decorator to provide the path to that resource:",
+  "source": "@site/versioned_docs/version-latest/libraries/rest/resource-routing.md",
+  "sourceDirName": "libraries/rest",
+  "slug": "/libraries/rest/resource-routing",
+  "permalink": "/docs/libraries/rest/resource-routing",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "title": "Resource and routes"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Cheat sheet",
+    "permalink": "/docs/libraries/rest/cheat-sheet"
+  },
+  "next": {
+    "title": "Overview",
+    "permalink": "/docs/libraries/openapi/reference/"
+  }
+}

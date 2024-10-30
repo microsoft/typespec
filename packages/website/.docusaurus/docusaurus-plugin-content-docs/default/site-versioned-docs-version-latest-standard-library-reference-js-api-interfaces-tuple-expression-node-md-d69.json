@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/TupleExpressionNode",
+  "title": "[I] TupleExpressionNode",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/TupleExpressionNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/TupleExpressionNode",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/TupleExpressionNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] TupleExpressionNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] Tuple",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/Tuple"
+  },
+  "next": {
+    "title": "[I] TypeInstantiationMap",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/TypeInstantiationMap"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/MarshalledValue",
+  "title": "[T] MarshalledValue",
+  "description": "Type Parameters",
+  "source": "@site/../../docs/standard-library/reference/js-api/type-aliases/MarshalledValue.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/MarshalledValue",
+  "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/MarshalledValue",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] MarshalledValue"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] LogLevel",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/LogLevel"
+  },
+  "next": {
+    "title": "[T] MemberContainerNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/MemberContainerNode"
+  }
+}

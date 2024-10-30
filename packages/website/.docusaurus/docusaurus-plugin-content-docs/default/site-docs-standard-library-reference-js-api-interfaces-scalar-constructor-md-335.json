@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/ScalarConstructor",
+  "title": "[I] ScalarConstructor",
+  "description": "Extends",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/ScalarConstructor.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/ScalarConstructor",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ScalarConstructor",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ScalarConstructor"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] Scalar",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/Scalar"
+  },
+  "next": {
+    "title": "[I] ScalarConstructorNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ScalarConstructorNode"
+  }
+}

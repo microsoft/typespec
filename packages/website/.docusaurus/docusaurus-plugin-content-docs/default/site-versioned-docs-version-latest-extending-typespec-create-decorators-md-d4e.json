@@ -1,0 +1,26 @@
+{
+  "id": "extending-typespec/create-decorators",
+  "title": "Decorators",
+  "description": "TypeSpec decorators are implemented as JavaScript functions. The process of creating a decorator can be divided into two parts:",
+  "source": "@site/versioned_docs/version-latest/extending-typespec/create-decorators.md",
+  "sourceDirName": "extending-typespec",
+  "slug": "/extending-typespec/create-decorators",
+  "permalink": "/docs/extending-typespec/create-decorators",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "id": "create-decorators",
+    "title": "Decorators"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Diagnostics",
+    "permalink": "/docs/extending-typespec/diagnostics"
+  },
+  "next": {
+    "title": "Linters",
+    "permalink": "/docs/extending-typespec/linters"
+  }
+}

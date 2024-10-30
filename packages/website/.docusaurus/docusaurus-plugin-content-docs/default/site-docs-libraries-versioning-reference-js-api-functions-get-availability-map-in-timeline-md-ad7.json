@@ -1,0 +1,26 @@
+{
+  "id": "libraries/versioning/reference/js-api/functions/getAvailabilityMapInTimeline",
+  "title": "[F] getAvailabilityMapInTimeline",
+  "description": "Parameters",
+  "source": "@site/../../docs/libraries/versioning/reference/js-api/functions/getAvailabilityMapInTimeline.md",
+  "sourceDirName": "libraries/versioning/reference/js-api/functions",
+  "slug": "/libraries/versioning/reference/js-api/functions/getAvailabilityMapInTimeline",
+  "permalink": "/docs/next/libraries/versioning/reference/js-api/functions/getAvailabilityMapInTimeline",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getAvailabilityMapInTimeline"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getAvailabilityMap",
+    "permalink": "/docs/next/libraries/versioning/reference/js-api/functions/getAvailabilityMap"
+  },
+  "next": {
+    "title": "[F] getMadeOptionalOn",
+    "permalink": "/docs/next/libraries/versioning/reference/js-api/functions/getMadeOptionalOn"
+  }
+}

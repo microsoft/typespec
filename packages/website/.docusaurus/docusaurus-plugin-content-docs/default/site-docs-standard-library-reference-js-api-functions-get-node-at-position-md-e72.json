@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/getNodeAtPosition",
+  "title": "[F] getNodeAtPosition",
+  "description": "getNodeAtPosition(script, position, filter)",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/getNodeAtPosition.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/getNodeAtPosition",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/getNodeAtPosition",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getNodeAtPosition"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getNamespaceFullName",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/getNamespaceFullName"
+  },
+  "next": {
+    "title": "[F] getNodeAtPositionDetail",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/getNodeAtPositionDetail"
+  }
+}

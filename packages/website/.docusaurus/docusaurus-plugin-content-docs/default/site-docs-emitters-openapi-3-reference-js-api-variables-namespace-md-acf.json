@@ -1,0 +1,26 @@
+{
+  "id": "emitters/openapi3/reference/js-api/variables/namespace",
+  "title": "[V] namespace",
+  "description": "",
+  "source": "@site/../../docs/emitters/openapi3/reference/js-api/variables/namespace.md",
+  "sourceDirName": "emitters/openapi3/reference/js-api/variables",
+  "slug": "/emitters/openapi3/reference/js-api/variables/namespace",
+  "permalink": "/docs/next/emitters/openapi3/reference/js-api/variables/namespace",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[V] namespace"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[V] $lib",
+    "permalink": "/docs/next/emitters/openapi3/reference/js-api/variables/$lib"
+  },
+  "next": {
+    "title": "Emitter operation",
+    "permalink": "/docs/next/emitters/openapi3/openapi"
+  }
+}

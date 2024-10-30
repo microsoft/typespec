@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/Service",
+  "title": "[I] Service",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/Service.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/Service",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/Service",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] Service"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ServerWorkspaceFolder",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ServerWorkspaceFolder"
+  },
+  "next": {
+    "title": "[I] ServiceDetails",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ServiceDetails"
+  }
+}

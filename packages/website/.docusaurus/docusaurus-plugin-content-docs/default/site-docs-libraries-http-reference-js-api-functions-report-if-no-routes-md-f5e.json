@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/functions/reportIfNoRoutes",
+  "title": "[F] reportIfNoRoutes",
+  "description": "Parameters",
+  "source": "@site/../../docs/libraries/http/reference/js-api/functions/reportIfNoRoutes.md",
+  "sourceDirName": "libraries/http/reference/js-api/functions",
+  "slug": "/libraries/http/reference/js-api/functions/reportIfNoRoutes",
+  "permalink": "/docs/next/libraries/http/reference/js-api/functions/reportIfNoRoutes",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] reportIfNoRoutes"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] listHttpOperationsIn",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/listHttpOperationsIn"
+  },
+  "next": {
+    "title": "[F] resolveAuthentication",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/resolveAuthentication"
+  }
+}

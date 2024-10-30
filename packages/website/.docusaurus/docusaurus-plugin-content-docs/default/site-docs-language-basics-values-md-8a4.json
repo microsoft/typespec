@@ -1,0 +1,26 @@
+{
+  "id": "language-basics/values",
+  "title": "Values",
+  "description": "TypeSpec can define values in addition to types. Values are useful in an API description to define default values for types or provide example values. They are also useful when passing data to decorators, and for template parameters that are ultimately passed to decorators or used as default values.",
+  "source": "@site/../../docs/language-basics/values.md",
+  "sourceDirName": "language-basics",
+  "slug": "/language-basics/values",
+  "permalink": "/docs/next/language-basics/values",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "values",
+    "title": "Values"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Aliases",
+    "permalink": "/docs/next/language-basics/alias"
+  },
+  "next": {
+    "title": "Type Relations",
+    "permalink": "/docs/next/language-basics/type-relations"
+  }
+}

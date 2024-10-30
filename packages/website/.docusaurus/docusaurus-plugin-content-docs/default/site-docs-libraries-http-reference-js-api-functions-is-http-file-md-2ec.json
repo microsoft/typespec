@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/functions/isHttpFile",
+  "title": "[F] isHttpFile",
+  "description": "Check if the given type is an HttpFile",
+  "source": "@site/../../docs/libraries/http/reference/js-api/functions/isHttpFile.md",
+  "sourceDirName": "libraries/http/reference/js-api/functions",
+  "slug": "/libraries/http/reference/js-api/functions/isHttpFile",
+  "permalink": "/docs/next/libraries/http/reference/js-api/functions/isHttpFile",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] isHttpFile"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] isHeader",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/isHeader"
+  },
+  "next": {
+    "title": "[F] isMetadata",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/isMetadata"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "libraries/openapi/reference/js-api/functions/isReadonlyProperty",
+  "title": "[F] isReadonlyProperty",
+  "description": "Determines if a property is read-only, which is defined as being",
+  "source": "@site/../../docs/libraries/openapi/reference/js-api/functions/isReadonlyProperty.md",
+  "sourceDirName": "libraries/openapi/reference/js-api/functions",
+  "slug": "/libraries/openapi/reference/js-api/functions/isReadonlyProperty",
+  "permalink": "/docs/next/libraries/openapi/reference/js-api/functions/isReadonlyProperty",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] isReadonlyProperty"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] isDefaultResponse",
+    "permalink": "/docs/next/libraries/openapi/reference/js-api/functions/isDefaultResponse"
+  },
+  "next": {
+    "title": "[F] resolveInfo",
+    "permalink": "/docs/next/libraries/openapi/reference/js-api/functions/resolveInfo"
+  }
+}

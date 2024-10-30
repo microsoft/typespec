@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/CadlLibraryDef",
+  "title": "[T] CadlLibraryDef",
+  "description": "Type Parameters",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/type-aliases/CadlLibraryDef.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/CadlLibraryDef",
+  "permalink": "/docs/standard-library/reference/js-api/type-aliases/CadlLibraryDef",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] CadlLibraryDef"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] CadlLibrary",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/CadlLibrary"
+  },
+  "next": {
+    "title": "[T] CadlManifest",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/CadlManifest"
+  }
+}

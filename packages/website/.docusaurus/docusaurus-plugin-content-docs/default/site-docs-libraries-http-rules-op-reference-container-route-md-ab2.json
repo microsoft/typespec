@@ -1,0 +1,25 @@
+{
+  "id": "libraries/http/rules/op-reference-container-route",
+  "title": "op-reference-container-route",
+  "description": "Check for referenced (op is) operations which have a @route on one of their containers.",
+  "source": "@site/../../docs/libraries/http/rules/op-reference-container-route.md",
+  "sourceDirName": "libraries/http/rules",
+  "slug": "/libraries/http/rules/op-reference-container-route",
+  "permalink": "/docs/next/libraries/http/rules/op-reference-container-route",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "title": "op-reference-container-route"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Linter usage",
+    "permalink": "/docs/next/libraries/http/reference/linter"
+  },
+  "next": {
+    "title": "Cheat sheet",
+    "permalink": "/docs/next/libraries/http/cheat-sheet"
+  }
+}

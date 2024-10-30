@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/StdTypeName",
+  "title": "[T] StdTypeName",
+  "description": "",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/type-aliases/StdTypeName.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/StdTypeName",
+  "permalink": "/docs/standard-library/reference/js-api/type-aliases/StdTypeName",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] StdTypeName"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] Statement",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/Statement"
+  },
+  "next": {
+    "title": "[T] StdTypes",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/StdTypes"
+  }
+}

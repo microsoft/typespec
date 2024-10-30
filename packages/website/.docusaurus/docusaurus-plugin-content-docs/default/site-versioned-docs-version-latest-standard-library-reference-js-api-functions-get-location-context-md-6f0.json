@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/getLocationContext",
+  "title": "[F] getLocationContext",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/getLocationContext.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/getLocationContext",
+  "permalink": "/docs/standard-library/reference/js-api/functions/getLocationContext",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getLocationContext"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getListOperationType",
+    "permalink": "/docs/standard-library/reference/js-api/functions/getListOperationType"
+  },
+  "next": {
+    "title": "[F] getMaxItems",
+    "permalink": "/docs/standard-library/reference/js-api/functions/getMaxItems"
+  }
+}

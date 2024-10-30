@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/interfaces/RouteProducerResult",
+  "title": "[I] RouteProducerResult",
+  "description": "Properties",
+  "source": "@site/../../docs/libraries/http/reference/js-api/interfaces/RouteProducerResult.md",
+  "sourceDirName": "libraries/http/reference/js-api/interfaces",
+  "slug": "/libraries/http/reference/js-api/interfaces/RouteProducerResult",
+  "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/RouteProducerResult",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] RouteProducerResult"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] RoutePath",
+    "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/RoutePath"
+  },
+  "next": {
+    "title": "[I] RouteResolutionOptions",
+    "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/RouteResolutionOptions"
+  }
+}

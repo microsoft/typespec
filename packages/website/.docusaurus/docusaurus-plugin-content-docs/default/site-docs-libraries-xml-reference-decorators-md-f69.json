@@ -1,0 +1,27 @@
+{
+  "id": "libraries/xml/reference/decorators",
+  "title": "Decorators",
+  "description": "TypeSpec.Xml",
+  "source": "@site/../../docs/libraries/xml/reference/decorators.md",
+  "sourceDirName": "libraries/xml/reference",
+  "slug": "/libraries/xml/reference/decorators",
+  "permalink": "/docs/next/libraries/xml/reference/decorators",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "title": "Decorators",
+    "toc_min_heading_level": 2,
+    "toc_max_heading_level": 3
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Overview",
+    "permalink": "/docs/next/libraries/xml/reference/"
+  },
+  "next": {
+    "title": "[P] JS API",
+    "permalink": "/docs/next/libraries/xml/reference/js-api/"
+  }
+}

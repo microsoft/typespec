@@ -1,0 +1,9 @@
+{
+  "type": "mdx",
+  "permalink": "/community",
+  "source": "@site/src/pages/community.md",
+  "title": "Welcome",
+  "description": "Welcome to the TypeSpec community! We're glad you're here.",
+  "frontMatter": {},
+  "unlisted": false
+}

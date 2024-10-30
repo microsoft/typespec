@@ -1,0 +1,26 @@
+{
+  "id": "libraries/versioning/reference/js-api/functions/resolveVersions",
+  "title": "[F] resolveVersions",
+  "description": "Resolve the version to use for all namespace for each of the root namespace versions.",
+  "source": "@site/../../docs/libraries/versioning/reference/js-api/functions/resolveVersions.md",
+  "sourceDirName": "libraries/versioning/reference/js-api/functions",
+  "slug": "/libraries/versioning/reference/js-api/functions/resolveVersions",
+  "permalink": "/docs/next/libraries/versioning/reference/js-api/functions/resolveVersions",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] resolveVersions"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getVersionsForEnum",
+    "permalink": "/docs/next/libraries/versioning/reference/js-api/functions/getVersionsForEnum"
+  },
+  "next": {
+    "title": "[I] Version",
+    "permalink": "/docs/next/libraries/versioning/reference/js-api/interfaces/Version"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/ProjectionDecoratorReferenceExpressionNode",
+  "title": "[I] ProjectionDecoratorReferenceExpressionNode",
+  "description": "Extends",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/ProjectionDecoratorReferenceExpressionNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/ProjectionDecoratorReferenceExpressionNode",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ProjectionDecoratorReferenceExpressionNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ProjectionDecoratorReferenceExpressionNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ProjectionCallExpressionNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ProjectionCallExpressionNode"
+  },
+  "next": {
+    "title": "[I] ProjectionEnumMemberSelectorNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/ProjectionEnumMemberSelectorNode"
+  }
+}

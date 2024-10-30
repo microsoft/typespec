@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/isVoidType",
+  "title": "[F] isVoidType",
+  "description": "Parameters",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/isVoidType.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/isVoidType",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/isVoidType",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] isVoidType"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] isVisible",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/isVisible"
+  },
+  "next": {
+    "title": "[F] joinPaths",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/joinPaths"
+  }
+}

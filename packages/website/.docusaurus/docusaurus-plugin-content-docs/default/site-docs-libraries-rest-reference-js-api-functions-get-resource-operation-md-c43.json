@@ -1,0 +1,26 @@
+{
+  "id": "libraries/rest/reference/js-api/functions/getResourceOperation",
+  "title": "[F] getResourceOperation",
+  "description": "Parameters",
+  "source": "@site/../../docs/libraries/rest/reference/js-api/functions/getResourceOperation.md",
+  "sourceDirName": "libraries/rest/reference/js-api/functions",
+  "slug": "/libraries/rest/reference/js-api/functions/getResourceOperation",
+  "permalink": "/docs/next/libraries/rest/reference/js-api/functions/getResourceOperation",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getResourceOperation"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getResourceLocationType",
+    "permalink": "/docs/next/libraries/rest/reference/js-api/functions/getResourceLocationType"
+  },
+  "next": {
+    "title": "[F] getResourceTypeForKeyParam",
+    "permalink": "/docs/next/libraries/rest/reference/js-api/functions/getResourceTypeForKeyParam"
+  }
+}

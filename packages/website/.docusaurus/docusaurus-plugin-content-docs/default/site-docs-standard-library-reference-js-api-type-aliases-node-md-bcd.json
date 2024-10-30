@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/Node",
+  "title": "[T] Node",
+  "description": "",
+  "source": "@site/../../docs/standard-library/reference/js-api/type-aliases/Node.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/Node",
+  "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/Node",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] Node"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] NewLine",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/NewLine"
+  },
+  "next": {
+    "title": "[T] NodeCallback",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/NodeCallback"
+  }
+}

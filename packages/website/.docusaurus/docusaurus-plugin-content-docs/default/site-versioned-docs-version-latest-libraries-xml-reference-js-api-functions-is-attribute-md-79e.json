@@ -1,0 +1,26 @@
+{
+  "id": "libraries/xml/reference/js-api/functions/isAttribute",
+  "title": "[F] isAttribute",
+  "description": "Check if the given property should be serialized as an attribute instead of a node.",
+  "source": "@site/versioned_docs/version-latest/libraries/xml/reference/js-api/functions/isAttribute.md",
+  "sourceDirName": "libraries/xml/reference/js-api/functions",
+  "slug": "/libraries/xml/reference/js-api/functions/isAttribute",
+  "permalink": "/docs/libraries/xml/reference/js-api/functions/isAttribute",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] isAttribute"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getXmlEncoding",
+    "permalink": "/docs/libraries/xml/reference/js-api/functions/getXmlEncoding"
+  },
+  "next": {
+    "title": "[F] isUnwrapped",
+    "permalink": "/docs/libraries/xml/reference/js-api/functions/isUnwrapped"
+  }
+}

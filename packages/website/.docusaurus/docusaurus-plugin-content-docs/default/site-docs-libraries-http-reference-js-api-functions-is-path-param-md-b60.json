@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/functions/isPathParam",
+  "title": "[F] isPathParam",
+  "description": "Parameters",
+  "source": "@site/../../docs/libraries/http/reference/js-api/functions/isPathParam.md",
+  "sourceDirName": "libraries/http/reference/js-api/functions",
+  "slug": "/libraries/http/reference/js-api/functions/isPathParam",
+  "permalink": "/docs/next/libraries/http/reference/js-api/functions/isPathParam",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] isPathParam"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] isOverloadSameEndpoint",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/isOverloadSameEndpoint"
+  },
+  "next": {
+    "title": "[F] isQueryParam",
+    "permalink": "/docs/next/libraries/http/reference/js-api/functions/isQueryParam"
+  }
+}

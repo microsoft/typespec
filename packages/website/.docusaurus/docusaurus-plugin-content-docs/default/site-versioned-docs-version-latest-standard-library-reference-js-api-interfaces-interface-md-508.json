@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/Interface",
+  "title": "[I] Interface",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/Interface.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/Interface",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/Interface",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] Interface"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] InsertTextCodeFixEdit",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/InsertTextCodeFixEdit"
+  },
+  "next": {
+    "title": "[I] InterfaceStatementNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/InterfaceStatementNode"
+  }
+}

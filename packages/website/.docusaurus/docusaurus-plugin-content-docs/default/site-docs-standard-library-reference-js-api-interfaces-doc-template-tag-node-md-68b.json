@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/DocTemplateTagNode",
+  "title": "[I] DocTemplateTagNode",
+  "description": "Extends",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/DocTemplateTagNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/DocTemplateTagNode",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/DocTemplateTagNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] DocTemplateTagNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] DocTagBaseNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/DocTagBaseNode"
+  },
+  "next": {
+    "title": "[I] DocTextNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/DocTextNode"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/SemanticNodeListener",
+  "title": "[T] SemanticNodeListener",
+  "description": "Type declaration",
+  "source": "@site/../../docs/standard-library/reference/js-api/type-aliases/SemanticNodeListener.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/SemanticNodeListener",
+  "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/SemanticNodeListener",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] SemanticNodeListener"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] ScopeNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/ScopeNode"
+  },
+  "next": {
+    "title": "[T] ServerLogLevel",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/ServerLogLevel"
+  }
+}

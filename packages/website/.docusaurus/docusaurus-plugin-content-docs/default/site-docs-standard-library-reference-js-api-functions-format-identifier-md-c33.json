@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/formatIdentifier",
+  "title": "[F] formatIdentifier",
+  "description": "Print a string as a TypeSpec identifier. If the string is a valid identifier, return it as is otherwise wrap it into backticks.",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/formatIdentifier.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/formatIdentifier",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/formatIdentifier",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] formatIdentifier"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] formatDiagnostic",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/formatDiagnostic"
+  },
+  "next": {
+    "title": "[F] formatTypeSpec",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/formatTypeSpec"
+  }
+}

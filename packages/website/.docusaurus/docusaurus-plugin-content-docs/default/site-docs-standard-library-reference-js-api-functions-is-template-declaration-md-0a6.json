@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/isTemplateDeclaration",
+  "title": "[F] isTemplateDeclaration",
+  "description": "Resolve if the type is a template type declaration(Non initialized template type).",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/isTemplateDeclaration.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/isTemplateDeclaration",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/isTemplateDeclaration",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] isTemplateDeclaration"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] isStringType",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/isStringType"
+  },
+  "next": {
+    "title": "[F] isTemplateDeclarationOrInstance",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/isTemplateDeclarationOrInstance"
+  }
+}

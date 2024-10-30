@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/IntrinsicType",
+  "title": "[I] IntrinsicType",
+  "description": "Extends",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/IntrinsicType.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/IntrinsicType",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/IntrinsicType",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] IntrinsicType"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] IntersectionExpressionNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/IntersectionExpressionNode"
+  },
+  "next": {
+    "title": "[I] InvalidStatementNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/InvalidStatementNode"
+  }
+}

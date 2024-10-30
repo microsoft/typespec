@@ -1,0 +1,26 @@
+{
+  "id": "libraries/versioning/reference/js-api/interfaces/VersionProjections",
+  "title": "[I] VersionProjections",
+  "description": "Represent the set of projections used to project to that version.",
+  "source": "@site/../../docs/libraries/versioning/reference/js-api/interfaces/VersionProjections.md",
+  "sourceDirName": "libraries/versioning/reference/js-api/interfaces",
+  "slug": "/libraries/versioning/reference/js-api/interfaces/VersionProjections",
+  "permalink": "/docs/next/libraries/versioning/reference/js-api/interfaces/VersionProjections",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] VersionProjections"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] Version",
+    "permalink": "/docs/next/libraries/versioning/reference/js-api/interfaces/Version"
+  },
+  "next": {
+    "title": "[I] VersionResolution",
+    "permalink": "/docs/next/libraries/versioning/reference/js-api/interfaces/VersionResolution"
+  }
+}

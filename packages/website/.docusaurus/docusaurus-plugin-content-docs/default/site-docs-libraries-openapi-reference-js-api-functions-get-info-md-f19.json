@@ -1,0 +1,26 @@
+{
+  "id": "libraries/openapi/reference/js-api/functions/getInfo",
+  "title": "[F] getInfo",
+  "description": "Get the info entry for the given service namespace.",
+  "source": "@site/../../docs/libraries/openapi/reference/js-api/functions/getInfo.md",
+  "sourceDirName": "libraries/openapi/reference/js-api/functions",
+  "slug": "/libraries/openapi/reference/js-api/functions/getInfo",
+  "permalink": "/docs/next/libraries/openapi/reference/js-api/functions/getInfo",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getInfo"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getExternalDocs",
+    "permalink": "/docs/next/libraries/openapi/reference/js-api/functions/getExternalDocs"
+  },
+  "next": {
+    "title": "[F] getOpenAPITypeName",
+    "permalink": "/docs/next/libraries/openapi/reference/js-api/functions/getOpenAPITypeName"
+  }
+}

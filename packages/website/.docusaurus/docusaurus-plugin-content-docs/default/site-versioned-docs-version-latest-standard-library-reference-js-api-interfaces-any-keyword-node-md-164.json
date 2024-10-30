@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/AnyKeywordNode",
+  "title": "[I] AnyKeywordNode",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/AnyKeywordNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/AnyKeywordNode",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/AnyKeywordNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] AnyKeywordNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] AliasStatementNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/AliasStatementNode"
+  },
+  "next": {
+    "title": "[I] ArrayExpressionNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ArrayExpressionNode"
+  }
+}

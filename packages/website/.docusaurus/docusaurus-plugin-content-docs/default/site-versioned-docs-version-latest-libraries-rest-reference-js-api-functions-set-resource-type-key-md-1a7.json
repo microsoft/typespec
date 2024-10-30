@@ -1,0 +1,26 @@
+{
+  "id": "libraries/rest/reference/js-api/functions/setResourceTypeKey",
+  "title": "[F] setResourceTypeKey",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/libraries/rest/reference/js-api/functions/setResourceTypeKey.md",
+  "sourceDirName": "libraries/rest/reference/js-api/functions",
+  "slug": "/libraries/rest/reference/js-api/functions/setResourceTypeKey",
+  "permalink": "/docs/libraries/rest/reference/js-api/functions/setResourceTypeKey",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] setResourceTypeKey"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] setResourceOperation",
+    "permalink": "/docs/libraries/rest/reference/js-api/functions/setResourceOperation"
+  },
+  "next": {
+    "title": "[I] ActionDetails",
+    "permalink": "/docs/libraries/rest/reference/js-api/interfaces/ActionDetails"
+  }
+}

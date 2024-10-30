@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/CodeFix",
+  "title": "[I] CodeFix",
+  "description": "Properties",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/CodeFix.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/CodeFix",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/CodeFix",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] CodeFix"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] Checker",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/Checker"
+  },
+  "next": {
+    "title": "[I] CodeFixContext",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/CodeFixContext"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/LineComment",
+  "title": "[I] LineComment",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/LineComment.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/LineComment",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/LineComment",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] LineComment"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] LineAndCharacter",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/LineAndCharacter"
+  },
+  "next": {
+    "title": "[I] LinterDefinition",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/LinterDefinition"
+  }
+}

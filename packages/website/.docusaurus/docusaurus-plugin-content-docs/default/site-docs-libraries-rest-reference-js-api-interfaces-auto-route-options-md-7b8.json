@@ -1,0 +1,26 @@
+{
+  "id": "libraries/rest/reference/js-api/interfaces/AutoRouteOptions",
+  "title": "[I] AutoRouteOptions",
+  "description": "Properties",
+  "source": "@site/../../docs/libraries/rest/reference/js-api/interfaces/AutoRouteOptions.md",
+  "sourceDirName": "libraries/rest/reference/js-api/interfaces",
+  "slug": "/libraries/rest/reference/js-api/interfaces/AutoRouteOptions",
+  "permalink": "/docs/next/libraries/rest/reference/js-api/interfaces/AutoRouteOptions",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] AutoRouteOptions"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ActionDetails",
+    "permalink": "/docs/next/libraries/rest/reference/js-api/interfaces/ActionDetails"
+  },
+  "next": {
+    "title": "[I] FilteredRouteParam",
+    "permalink": "/docs/next/libraries/rest/reference/js-api/interfaces/FilteredRouteParam"
+  }
+}

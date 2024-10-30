@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/interfaces/HttpPartOptions",
+  "title": "[I] HttpPartOptions",
+  "description": "Properties",
+  "source": "@site/versioned_docs/version-latest/libraries/http/reference/js-api/interfaces/HttpPartOptions.md",
+  "sourceDirName": "libraries/http/reference/js-api/interfaces",
+  "slug": "/libraries/http/reference/js-api/interfaces/HttpPartOptions",
+  "permalink": "/docs/libraries/http/reference/js-api/interfaces/HttpPartOptions",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] HttpPartOptions"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] HttpPart",
+    "permalink": "/docs/libraries/http/reference/js-api/interfaces/HttpPart"
+  },
+  "next": {
+    "title": "[I] HttpServer",
+    "permalink": "/docs/libraries/http/reference/js-api/interfaces/HttpServer"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/ignoreDiagnostics",
+  "title": "[F] ignoreDiagnostics",
+  "description": "Ignore the diagnostics emitted by the diagnostic accessor pattern and just return the actual result.",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/ignoreDiagnostics.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/ignoreDiagnostics",
+  "permalink": "/docs/standard-library/reference/js-api/functions/ignoreDiagnostics",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] ignoreDiagnostics"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] hasTrailingDirectorySeparator",
+    "permalink": "/docs/standard-library/reference/js-api/functions/hasTrailingDirectorySeparator"
+  },
+  "next": {
+    "title": "[F] interpolatePath",
+    "permalink": "/docs/standard-library/reference/js-api/functions/interpolatePath"
+  }
+}

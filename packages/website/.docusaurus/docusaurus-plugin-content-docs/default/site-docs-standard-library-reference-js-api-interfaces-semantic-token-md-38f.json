@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/SemanticToken",
+  "title": "[I] SemanticToken",
+  "description": "Properties",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/SemanticToken.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/SemanticToken",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/SemanticToken",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] SemanticToken"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] Scanner",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/Scanner"
+  },
+  "next": {
+    "title": "[I] Server",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/Server"
+  }
+}

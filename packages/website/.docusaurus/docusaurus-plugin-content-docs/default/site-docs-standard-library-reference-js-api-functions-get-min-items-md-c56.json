@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/getMinItems",
+  "title": "[F] getMinItems",
+  "description": "Parameters",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/getMinItems.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/getMinItems",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/getMinItems",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getMinItems"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getMaxValueExclusiveAsNumeric",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/getMaxValueExclusiveAsNumeric"
+  },
+  "next": {
+    "title": "[F] getMinItemsAsNumeric",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/getMinItemsAsNumeric"
+  }
+}

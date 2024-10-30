@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/DiagnosticMessages",
+  "title": "[I] DiagnosticMessages",
+  "description": "Indexable",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/DiagnosticMessages.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/DiagnosticMessages",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/DiagnosticMessages",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] DiagnosticMessages"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] DiagnosticDefinition",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/DiagnosticDefinition"
+  },
+  "next": {
+    "title": "[I] DirectiveBase",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/DirectiveBase"
+  }
+}

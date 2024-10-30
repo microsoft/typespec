@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/Numeric",
+  "title": "[F] Numeric",
+  "description": "Represent any possible numeric value",
+  "source": "@site/../../docs/standard-library/reference/js-api/functions/Numeric.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/Numeric",
+  "permalink": "/docs/next/standard-library/reference/js-api/functions/Numeric",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] Numeric"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $withoutOmittedProperties",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/$withoutOmittedProperties"
+  },
+  "next": {
+    "title": "[F] addService",
+    "permalink": "/docs/next/standard-library/reference/js-api/functions/addService"
+  }
+}

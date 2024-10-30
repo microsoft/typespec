@@ -1,0 +1,26 @@
+{
+  "id": "libraries/rest/reference/js-api/functions/$resource",
+  "title": "[F] $resource",
+  "description": "@resource marks a model as a resource type.",
+  "source": "@site/versioned_docs/version-latest/libraries/rest/reference/js-api/functions/$resource.md",
+  "sourceDirName": "libraries/rest/reference/js-api/functions",
+  "slug": "/libraries/rest/reference/js-api/functions/$resource",
+  "permalink": "/docs/libraries/rest/reference/js-api/functions/$resource",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $resource"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $readsResource",
+    "permalink": "/docs/libraries/rest/reference/js-api/functions/$readsResource"
+  },
+  "next": {
+    "title": "[F] $resourceLocation",
+    "permalink": "/docs/libraries/rest/reference/js-api/functions/$resourceLocation"
+  }
+}

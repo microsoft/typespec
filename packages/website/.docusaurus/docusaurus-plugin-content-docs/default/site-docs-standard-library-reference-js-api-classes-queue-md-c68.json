@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/classes/Queue",
+  "title": "[C] Queue",
+  "description": "Type Parameters",
+  "source": "@site/../../docs/standard-library/reference/js-api/classes/Queue.md",
+  "sourceDirName": "standard-library/reference/js-api/classes",
+  "slug": "/standard-library/reference/js-api/classes/Queue",
+  "permalink": "/docs/next/standard-library/reference/js-api/classes/Queue",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[C] Queue"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[C] ProjectionError",
+    "permalink": "/docs/next/standard-library/reference/js-api/classes/ProjectionError"
+  },
+  "next": {
+    "title": "[C] ResolveModuleError",
+    "permalink": "/docs/next/standard-library/reference/js-api/classes/ResolveModuleError"
+  }
+}

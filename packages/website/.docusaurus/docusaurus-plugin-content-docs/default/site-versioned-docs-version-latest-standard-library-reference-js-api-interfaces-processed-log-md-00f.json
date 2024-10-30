@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/ProcessedLog",
+  "title": "[I] ProcessedLog",
+  "description": "Properties",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/ProcessedLog.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/ProcessedLog",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/ProcessedLog",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ProcessedLog"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] PositionDetail",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/PositionDetail"
+  },
+  "next": {
+    "title": "[I] Program",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/Program"
+  }
+}

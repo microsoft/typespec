@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/StringTemplateExpressionNode",
+  "title": "[I] StringTemplateExpressionNode",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/StringTemplateExpressionNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/StringTemplateExpressionNode",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/StringTemplateExpressionNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] StringTemplateExpressionNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] StringTemplate",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/StringTemplate"
+  },
+  "next": {
+    "title": "[I] StringTemplateHeadNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/StringTemplateHeadNode"
+  }
+}

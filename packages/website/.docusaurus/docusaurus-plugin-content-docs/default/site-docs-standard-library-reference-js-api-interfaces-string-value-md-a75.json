@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/StringValue",
+  "title": "[I] StringValue",
+  "description": "Extends",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/StringValue.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/StringValue",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/StringValue",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] StringValue"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] StringTemplateTailNode",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/StringTemplateTailNode"
+  },
+  "next": {
+    "title": "[I] SuppressDirective",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/SuppressDirective"
+  }
+}

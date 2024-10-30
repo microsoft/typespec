@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/$withoutOmittedProperties",
+  "title": "[F] $withoutOmittedProperties",
+  "description": "Parameters",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/$withoutOmittedProperties.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/$withoutOmittedProperties",
+  "permalink": "/docs/standard-library/reference/js-api/functions/$withoutOmittedProperties",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $withoutOmittedProperties"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $withoutDefaultValues",
+    "permalink": "/docs/standard-library/reference/js-api/functions/$withoutDefaultValues"
+  },
+  "next": {
+    "title": "[F] Numeric",
+    "permalink": "/docs/standard-library/reference/js-api/functions/Numeric"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "emitters/json-schema/reference/js-api/functions/findBaseUri",
+  "title": "[F] findBaseUri",
+  "description": "Find base uri for the given type.",
+  "source": "@site/../../docs/emitters/json-schema/reference/js-api/functions/findBaseUri.md",
+  "sourceDirName": "emitters/json-schema/reference/js-api/functions",
+  "slug": "/emitters/json-schema/reference/js-api/functions/findBaseUri",
+  "permalink": "/docs/next/emitters/json-schema/reference/js-api/functions/findBaseUri",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] findBaseUri"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $uniqueItems",
+    "permalink": "/docs/next/emitters/json-schema/reference/js-api/functions/$uniqueItems"
+  },
+  "next": {
+    "title": "[F] getBaseUri",
+    "permalink": "/docs/next/emitters/json-schema/reference/js-api/functions/getBaseUri"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/CompilerLocationContext",
+  "title": "[I] CompilerLocationContext",
+  "description": "Built-in",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/CompilerLocationContext.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/CompilerLocationContext",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/CompilerLocationContext",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] CompilerLocationContext"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] CompilerHost",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/CompilerHost"
+  },
+  "next": {
+    "title": "[I] CompilerOptions",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/CompilerOptions"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/DiagnosticReportWithoutTarget",
+  "title": "[T] DiagnosticReportWithoutTarget",
+  "description": "Type declaration",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/type-aliases/DiagnosticReportWithoutTarget.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/DiagnosticReportWithoutTarget",
+  "permalink": "/docs/standard-library/reference/js-api/type-aliases/DiagnosticReportWithoutTarget",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] DiagnosticReportWithoutTarget"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] DiagnosticReport",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/DiagnosticReport"
+  },
+  "next": {
+    "title": "[T] DiagnosticResult",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/DiagnosticResult"
+  }
+}

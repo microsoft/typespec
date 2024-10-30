@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/interfaces/ApiKeyAuth",
+  "title": "[I] ApiKeyAuth",
+  "description": "An API key is a token that a client provides when making API calls. The key can be sent in the query string:",
+  "source": "@site/../../docs/libraries/http/reference/js-api/interfaces/ApiKeyAuth.md",
+  "sourceDirName": "libraries/http/reference/js-api/interfaces",
+  "slug": "/libraries/http/reference/js-api/interfaces/ApiKeyAuth",
+  "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/ApiKeyAuth",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ApiKeyAuth"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] AnyHttpAuthRef",
+    "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/AnyHttpAuthRef"
+  },
+  "next": {
+    "title": "[I] Authentication",
+    "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/Authentication"
+  }
+}

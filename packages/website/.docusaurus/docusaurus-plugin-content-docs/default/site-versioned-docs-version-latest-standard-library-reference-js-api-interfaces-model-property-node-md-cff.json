@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/ModelPropertyNode",
+  "title": "[I] ModelPropertyNode",
+  "description": "Extends",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/ModelPropertyNode.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/ModelPropertyNode",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/ModelPropertyNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ModelPropertyNode"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ModelProperty",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ModelProperty"
+  },
+  "next": {
+    "title": "[I] ModelSpreadPropertyNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ModelSpreadPropertyNode"
+  }
+}

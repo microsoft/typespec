@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/Diagnostic",
+  "title": "[I] Diagnostic",
+  "description": "Properties",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/Diagnostic.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/Diagnostic",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/Diagnostic",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] Diagnostic"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] DeprecationDetails",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/DeprecationDetails"
+  },
+  "next": {
+    "title": "[I] DiagnosticCollector",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/DiagnosticCollector"
+  }
+}

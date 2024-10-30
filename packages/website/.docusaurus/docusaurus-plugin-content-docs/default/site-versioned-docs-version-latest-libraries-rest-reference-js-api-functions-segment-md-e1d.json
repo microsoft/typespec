@@ -1,0 +1,26 @@
+{
+  "id": "libraries/rest/reference/js-api/functions/$segment",
+  "title": "[F] $segment",
+  "description": "@segment defines the preceding path segment for a @path parameter in auto-generated routes",
+  "source": "@site/versioned_docs/version-latest/libraries/rest/reference/js-api/functions/$segment.md",
+  "sourceDirName": "libraries/rest/reference/js-api/functions",
+  "slug": "/libraries/rest/reference/js-api/functions/$segment",
+  "permalink": "/docs/libraries/rest/reference/js-api/functions/$segment",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] $segment"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] $resourceTypeForKeyParam",
+    "permalink": "/docs/libraries/rest/reference/js-api/functions/$resourceTypeForKeyParam"
+  },
+  "next": {
+    "title": "[F] $segmentOf",
+    "permalink": "/docs/libraries/rest/reference/js-api/functions/$segmentOf"
+  }
+}

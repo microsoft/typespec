@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/IntrinsicScalarName",
+  "title": "[T] IntrinsicScalarName",
+  "description": "",
+  "source": "@site/../../docs/standard-library/reference/js-api/type-aliases/IntrinsicScalarName.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/IntrinsicScalarName",
+  "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/IntrinsicScalarName",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] IntrinsicScalarName"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] InferredTypeSpecValue",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/InferredTypeSpecValue"
+  },
+  "next": {
+    "title": "[T] JSONSchemaType",
+    "permalink": "/docs/next/standard-library/reference/js-api/type-aliases/JSONSchemaType"
+  }
+}

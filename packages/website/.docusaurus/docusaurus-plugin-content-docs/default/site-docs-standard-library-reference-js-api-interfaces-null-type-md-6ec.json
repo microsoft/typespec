@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/NullType",
+  "title": "[I] NullType",
+  "description": "Extends",
+  "source": "@site/../../docs/standard-library/reference/js-api/interfaces/NullType.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/NullType",
+  "permalink": "/docs/next/standard-library/reference/js-api/interfaces/NullType",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] NullType"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] NeverType",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/NeverType"
+  },
+  "next": {
+    "title": "[I] NullValue",
+    "permalink": "/docs/next/standard-library/reference/js-api/interfaces/NullValue"
+  }
+}

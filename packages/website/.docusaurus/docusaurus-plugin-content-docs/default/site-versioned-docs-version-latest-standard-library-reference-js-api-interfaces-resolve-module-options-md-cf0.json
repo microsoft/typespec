@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/ResolveModuleOptions",
+  "title": "[I] ResolveModuleOptions",
+  "description": "Properties",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/ResolveModuleOptions.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/ResolveModuleOptions",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/ResolveModuleOptions",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] ResolveModuleOptions"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] ResolveModuleHost",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ResolveModuleHost"
+  },
+  "next": {
+    "title": "[I] ResolvedFile",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/ResolvedFile"
+  }
+}

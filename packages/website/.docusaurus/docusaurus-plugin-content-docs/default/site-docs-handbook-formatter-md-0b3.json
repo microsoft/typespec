@@ -1,0 +1,26 @@
+{
+  "id": "handbook/formatter",
+  "title": "Formatter",
+  "description": "TypeSpec comes with a built-in formatter. The formatter can be used in different ways:",
+  "source": "@site/../../docs/handbook/formatter.md",
+  "sourceDirName": "handbook",
+  "slug": "/handbook/formatter",
+  "permalink": "/docs/next/handbook/formatter",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "formatter",
+    "title": "Formatter"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Style guide",
+    "permalink": "/docs/next/handbook/style-guide"
+  },
+  "next": {
+    "title": "Reproducibility",
+    "permalink": "/docs/next/handbook/reproducibility"
+  }
+}

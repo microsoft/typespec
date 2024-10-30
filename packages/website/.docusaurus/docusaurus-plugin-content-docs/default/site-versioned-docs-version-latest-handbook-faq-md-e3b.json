@@ -1,0 +1,26 @@
+{
+  "id": "handbook/faq",
+  "title": "FAQ",
+  "description": "I'm getting the error Cannot find package 'x' imported from 'y', but I'm not using this package. Why?",
+  "source": "@site/versioned_docs/version-latest/handbook/faq.md",
+  "sourceDirName": "handbook",
+  "slug": "/handbook/faq",
+  "permalink": "/docs/handbook/faq",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "id": "faq",
+    "title": "FAQ"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Releases",
+    "permalink": "/docs/handbook/releases"
+  },
+  "next": {
+    "title": "Overview",
+    "permalink": "/docs/language-basics/overview"
+  }
+}

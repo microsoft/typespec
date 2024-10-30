@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/SymbolLinks",
+  "title": "[I] SymbolLinks",
+  "description": "Properties",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/SymbolLinks.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/SymbolLinks",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/SymbolLinks",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] SymbolLinks"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] Sym",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/Sym"
+  },
+  "next": {
+    "title": "[I] SyntheticLocationContext",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/SyntheticLocationContext"
+  }
+}

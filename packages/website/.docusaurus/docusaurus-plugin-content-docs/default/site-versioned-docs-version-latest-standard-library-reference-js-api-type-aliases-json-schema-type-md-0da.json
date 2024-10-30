@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/JSONSchemaType",
+  "title": "[T] JSONSchemaType",
+  "description": "Type Parameters",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/type-aliases/JSONSchemaType.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/JSONSchemaType",
+  "permalink": "/docs/standard-library/reference/js-api/type-aliases/JSONSchemaType",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] JSONSchemaType"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[T] IntrinsicScalarName",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/IntrinsicScalarName"
+  },
+  "next": {
+    "title": "[T] LibraryMetadata",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/LibraryMetadata"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/functions/getNormalizedPathComponents",
+  "title": "[F] getNormalizedPathComponents",
+  "description": "Parse a path into an array containing a root component (at index 0) and zero or more path",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/functions/getNormalizedPathComponents.md",
+  "sourceDirName": "standard-library/reference/js-api/functions",
+  "slug": "/standard-library/reference/js-api/functions/getNormalizedPathComponents",
+  "permalink": "/docs/standard-library/reference/js-api/functions/getNormalizedPathComponents",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[F] getNormalizedPathComponents"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[F] getNormalizedAbsolutePathWithoutRoot",
+    "permalink": "/docs/standard-library/reference/js-api/functions/getNormalizedAbsolutePathWithoutRoot"
+  },
+  "next": {
+    "title": "[F] getOpExamples",
+    "permalink": "/docs/standard-library/reference/js-api/functions/getOpExamples"
+  }
+}

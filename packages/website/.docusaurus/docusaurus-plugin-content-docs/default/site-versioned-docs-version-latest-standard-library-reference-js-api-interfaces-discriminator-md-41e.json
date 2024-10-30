@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/Discriminator",
+  "title": "[I] Discriminator",
+  "description": "Properties",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/Discriminator.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/Discriminator",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/Discriminator",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] Discriminator"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] DiscriminatedUnion",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/DiscriminatedUnion"
+  },
+  "next": {
+    "title": "[I] DocErrorsTagNode",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/DocErrorsTagNode"
+  }
+}

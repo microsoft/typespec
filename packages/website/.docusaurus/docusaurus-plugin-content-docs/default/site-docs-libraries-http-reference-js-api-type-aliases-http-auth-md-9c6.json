@@ -1,0 +1,26 @@
+{
+  "id": "libraries/http/reference/js-api/type-aliases/HttpAuth",
+  "title": "[T] HttpAuth",
+  "description": "",
+  "source": "@site/../../docs/libraries/http/reference/js-api/type-aliases/HttpAuth.md",
+  "sourceDirName": "libraries/http/reference/js-api/type-aliases",
+  "slug": "/libraries/http/reference/js-api/type-aliases/HttpAuth",
+  "permalink": "/docs/next/libraries/http/reference/js-api/type-aliases/HttpAuth",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] HttpAuth"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] RouteResolutionOptions",
+    "permalink": "/docs/next/libraries/http/reference/js-api/interfaces/RouteResolutionOptions"
+  },
+  "next": {
+    "title": "[T] HttpAuthRef",
+    "permalink": "/docs/next/libraries/http/reference/js-api/type-aliases/HttpAuthRef"
+  }
+}

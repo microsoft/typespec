@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/interfaces/CompilerHost",
+  "title": "[I] CompilerHost",
+  "description": "Properties",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/interfaces/CompilerHost.md",
+  "sourceDirName": "standard-library/reference/js-api/interfaces",
+  "slug": "/standard-library/reference/js-api/interfaces/CompilerHost",
+  "permalink": "/docs/standard-library/reference/js-api/interfaces/CompilerHost",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[I] CompilerHost"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] CompileResult",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/CompileResult"
+  },
+  "next": {
+    "title": "[I] CompilerLocationContext",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/CompilerLocationContext"
+  }
+}

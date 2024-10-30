@@ -1,0 +1,26 @@
+{
+  "id": "standard-library/reference/js-api/type-aliases/BytesKnownEncoding",
+  "title": "[T] BytesKnownEncoding",
+  "description": "",
+  "source": "@site/versioned_docs/version-latest/standard-library/reference/js-api/type-aliases/BytesKnownEncoding.md",
+  "sourceDirName": "standard-library/reference/js-api/type-aliases",
+  "slug": "/standard-library/reference/js-api/type-aliases/BytesKnownEncoding",
+  "permalink": "/docs/standard-library/reference/js-api/type-aliases/BytesKnownEncoding",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "latest",
+  "frontMatter": {
+    "jsApi": true,
+    "title": "[T] BytesKnownEncoding"
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "[I] VoidType",
+    "permalink": "/docs/standard-library/reference/js-api/interfaces/VoidType"
+  },
+  "next": {
+    "title": "[T] CadlCompletionItem",
+    "permalink": "/docs/standard-library/reference/js-api/type-aliases/CadlCompletionItem"
+  }
+}
