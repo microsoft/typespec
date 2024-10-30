@@ -31,7 +31,8 @@
   },
   "activationEvents": [
     "onLanguage:typespec",
-    "onCommand:typespec.restartServer"
+    "onCommand:typespec.restartServer",
+    "workspaceContains:**/tspconfig.yaml"
   ],
   "icon": "./icons/logo.png",
   "contributes": {
