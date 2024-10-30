@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { ok, strictEqual } from "assert";
+import { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { VisibilityFilter } from "../src/core/visibility/core.js";
+import { getVisibility, VisibilityFilter } from "../src/core/visibility/core.js";
 import {
   addVisibilityModifiers,
   clearVisibilityModifiersForClass,
@@ -566,6 +566,85 @@ describe("compiler: visibility core", () => {
         }),
         true,
       );
+    });
+  });
+
+  describe("legacy compatibility", () => {
+    it("converts legacy visibility strings to modifiers", async () => {
+      const { Example } = (await runner.compile(`
+        @test model Example {
+          @visibility("create")
+          x: string;
+        }
+      `)) as { Example: Model };
+
+      const x = Example.properties.get("x")!;
+
+      const Lifecycle = getLifecycleVisibilityEnum(runner.program);
+
+      const visibility = getVisibilityForClass(runner.program, x, Lifecycle);
+
+      strictEqual(visibility.size, 1);
+
+      for (const member of Lifecycle.members.values()) {
+        if (member.name === "Create") {
+          ok(visibility.has(member));
+          ok(hasVisibility(runner.program, x, member));
+        } else {
+          ok(!visibility.has(member));
+          ok(!hasVisibility(runner.program, x, member));
+        }
+      }
+    });
+
+    it("isVisible correctly coerces legacy visibility modifiers", async () => {
+      const { Example } = (await runner.compile(`
+        @test model Example {
+          @visibility(Lifecycle.Create, Lifecycle.Update)
+          x: string;
+          y: string;
+        }
+      `)) as { Example: Model };
+
+      const x = Example.properties.get("x")!;
+
+      ok(isVisible(runner.program, x, ["create"]));
+      ok(isVisible(runner.program, x, ["update"]));
+      ok(!isVisible(runner.program, x, ["read"]));
+
+      const y = Example.properties.get("y")!;
+
+      ok(isVisible(runner.program, y, ["create", "update"]));
+      ok(isVisible(runner.program, y, ["read"]));
+    });
+
+    it("getVisibility correctly coerces visibility modifiers", async () => {
+      const { Example } = (await runner.compile(`
+        @test model Example {
+          @visibility(Lifecycle.Create, Lifecycle.Update)
+          x: string;
+          y: string;
+          @invisible(Lifecycle)
+          z: string;
+          @visibility(Lifecycle.Create, Lifecycle.Update, Lifecycle.Read)
+          a: string;
+        }
+      `)) as { Example: Model };
+
+      const x = Example.properties.get("x")!;
+      const y = Example.properties.get("y")!;
+      const z = Example.properties.get("z")!;
+      const a = Example.properties.get("a")!;
+
+      const xVisibility = getVisibility(runner.program, x);
+      const yVisibility = getVisibility(runner.program, y);
+      const zVisibility = getVisibility(runner.program, z);
+      const aVisibility = getVisibility(runner.program, a);
+
+      deepStrictEqual(xVisibility, ["create", "update"]);
+      strictEqual(yVisibility, undefined);
+      deepStrictEqual(zVisibility, ["none"]);
+      deepStrictEqual(aVisibility, ["create", "update", "read"]);
     });
   });
 });
