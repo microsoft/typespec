@@ -204,7 +204,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             // return BinaryContent.Create(model, ModelSerializationExtensions.WireOptions);
             return new MethodProvider(
                 new MethodSignature(ClientModelPlugin.Instance.TypeFactory.RequestContentApi.RequestContentType.FrameworkType.Name, null, modifiers, null, null, [model]),
-                ClientModelPlugin.Instance.TypeFactory.RequestContentApi.ToExpression().Create(model),
+                new MethodBodyStatement[]
+                {
+                    new IfStatement(model.AsExpression.Equal(Null)) { Return(Null) },
+                    ClientModelPlugin.Instance.TypeFactory.RequestContentApi.ToExpression().Create(model)
+                },
                 this);
         }
 
