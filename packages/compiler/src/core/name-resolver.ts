@@ -408,7 +408,7 @@ export function createResolver(program: Program): NameResolver {
       return resolveMetaMember(baseSym, node.id);
     }
 
-    compilerAssert(false, `Unexpected member expression`, node);
+    return failedResult(ResolutionResultFlags.NotFound);
   }
 
   function resolveMember(baseSym: Sym, id: IdentifierNode): ResolutionResult {

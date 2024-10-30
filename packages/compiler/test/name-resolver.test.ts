@@ -149,14 +149,13 @@ describe("model statements", () => {
           }
           `,
       ]);
-      const memberFlags = { flags: SymbolFlags.Member };
       assertSymbol(sym, {
         exports: {
           M2: {
             members: {
-              x: memberFlags,
-              y: memberFlags,
-              z: memberFlags,
+              x: { flags: SymbolFlags.Member },
+              y: { flags: SymbolFlags.Member },
+              z: { flags: SymbolFlags.Member },
             },
           },
         },
@@ -223,8 +222,7 @@ describe("model statements", () => {
             model Foo {
               prop: "prop";
             }
-            ┆
-            `,
+          `,
         ],
         "Foo.prop",
       );
@@ -242,8 +240,7 @@ describe("model statements", () => {
             model Foo {
               ... Bar;
             }
-            ┆
-            `,
+          `,
         ],
         "Foo.prop",
       );
@@ -259,8 +256,7 @@ describe("model statements", () => {
             }
   
             model Foo extends Bar {}
-            ┆
-            `,
+          `,
         ],
         "Foo.prop",
         "Bar",
@@ -284,9 +280,7 @@ describe("model statements", () => {
             model Baz<T> {
               ... T;
             }
-  
-            ┆
-            `,
+          `,
         ],
         "Foo.prop",
       );
@@ -305,8 +299,7 @@ describe("model statements", () => {
               ... T;
             }
   
-            ┆
-            `,
+          `,
         ],
         "Foo.prop",
       );
@@ -324,8 +317,7 @@ describe("model statements", () => {
               ... T;
             }
   
-            ┆
-            `,
+          `,
         ],
         "Foo.prop",
       );
@@ -339,8 +331,7 @@ describe("model statements", () => {
             model Foo {
               prop: Foo;
             }
-            ┆
-            `,
+          `,
         ],
         "Foo",
       );
@@ -349,7 +340,189 @@ describe("model statements", () => {
   });
 });
 
-describe.skip("model expressions", () => {});
+describe("model expressions", () => {
+  describe("binding", () => {
+    it("binds members", () => {
+      const sym = getAliasedSymbol("M1", [
+        `
+          alias M1 = {
+            x: "x";
+          }
+          `,
+      ]);
+
+      assertSymbol(sym, {
+        members: {
+          x: {
+            flags: SymbolFlags.Member,
+          },
+        },
+      });
+    });
+
+    it("binds spread members", () => {
+      const sym = getAliasedSymbol("M2", [
+        `
+          alias M1 {
+            x: "x";
+          }
+  
+          alias M2 {
+            ... M1,
+            y: "y";
+          }
+          `,
+      ]);
+
+      assertSymbol(sym, {
+        members: {
+          x: {
+            flags: SymbolFlags.Member,
+          },
+          y: {
+            flags: SymbolFlags.Member,
+          },
+        },
+      });
+    });
+
+    it("binds spread members of templates", () => {
+      const sym = getAliasedSymbol("M2", [
+        `
+          alias M1<T> = {
+            x: "x";
+            ... T;
+          }
+  
+          alias M2 = {
+            ... M1<{}>,
+            y: "y";
+          }
+          `,
+      ]);
+
+      assertSymbol(sym, {
+        members: {
+          x: {
+            flags: SymbolFlags.Member,
+          },
+          y: {
+            flags: SymbolFlags.Member,
+          },
+        },
+      });
+    });
+
+    it("binds spread members of templates with constraints", () => {
+      const sym = getAliasedSymbol("M2", [
+        `
+          alias M1<T extends {z: "z"}> = {
+            x: "x";
+            ... T;
+          }
+  
+          alias M2 {
+            ... M1<{}>,
+            y: "y";
+          }
+          `,
+      ]);
+
+      assertSymbol(sym, {
+        members: {
+          x: { flags: SymbolFlags.Member },
+          y: { flags: SymbolFlags.Member },
+          z: { flags: SymbolFlags.Member },
+        },
+      });
+    });
+
+    it("binds members of templates", () => {
+      const sym = getAliasedSymbol("Template", [
+        `
+          alias Template<T> =  {
+            x: "x";
+          }
+          `,
+      ]);
+
+      assertSymbol(sym, {
+        members: {
+          x: {
+            flags: SymbolFlags.Member,
+          },
+        },
+      });
+    });
+  });
+
+  describe("resolution", () => {
+    it("resolves model members", () => {
+      const { "Foo.prop": prop } = getResolutions(
+        [
+          `
+            alias Foo = {
+              prop: "prop";
+            }
+          `,
+        ],
+        "Foo.prop",
+      );
+      assertSymbol(prop, { name: "prop", flags: SymbolFlags.Member });
+    });
+
+    it("resolves model members from spread", () => {
+      const { "Foo.prop": prop } = getResolutions(
+        [
+          `
+            alias Bar = {
+              prop: "prop";
+            }
+  
+            alias Foo = {
+              ... Bar;
+            }
+          `,
+        ],
+        "Foo.prop",
+      );
+      assertSymbol(prop, { name: "prop", flags: SymbolFlags.Member });
+    });
+
+    it("model members should be unknown with an unknown spread", () => {
+      const { "Foo.prop": prop } = getResolutions(
+        [
+          `
+            alias Foo = {
+              ... Baz<{}>;
+            }
+  
+            alias Baz<T> = {
+              ... T;
+            }
+  
+          `,
+        ],
+        "Foo.prop",
+      );
+      ok(prop.resolutionResult & ResolutionResultFlags.Unknown);
+    });
+
+    it("resolves model expression circular reference with alias", () => {
+      const { Foo: model } = getResolutions(
+        [
+          `
+            alias Foo = {
+              prop: Foo;
+            }
+          `,
+        ],
+        "Foo",
+      );
+      assertSymbol(model, { name: "-" });
+    });
+  });
+});
 
 describe("model properties", () => {
   it("resolves meta properties", () => {
@@ -360,8 +533,7 @@ describe("model properties", () => {
             prop: Bar;
           }
           model Bar { }
-          ┆
-          `,
+        `,
       ],
       "Foo.prop::type",
       "Bar",
@@ -379,8 +551,7 @@ describe("model properties", () => {
             };
           }
           model Bar { }
-          ┆
-          `,
+        `,
       ],
       "Foo.prop::type.nestedProp::type",
       "Bar",
@@ -397,8 +568,7 @@ describe("model properties", () => {
           }
           model Bar { }
           alias FooProp = Foo.prop;
-          ┆
-          `,
+        `,
       ],
       "FooProp::type",
       "Bar",
@@ -512,8 +682,7 @@ describe("interfaces", () => {
             interface Foo {
               x(): void;
             }
-            ┆
-            `,
+          `,
         ],
         "Foo.x",
       );
@@ -528,8 +697,7 @@ describe("interfaces", () => {
               x(): void;
             }
             interface Foo extends Template<{}> {}
-            ┆
-            `,
+          `,
         ],
         "Foo.x",
         "Template.x",
@@ -549,8 +717,7 @@ describe("operations", () => {
           `
             model Bar { }
             op Foo(x: Bar): void;
-            ┆
-            `,
+          `,
         ],
         "Foo::parameters.x::type",
         "Bar",
@@ -566,8 +733,7 @@ describe("operations", () => {
             model Bar { }
             op Foo(x: Bar): void;
             op Baz is Foo;
-            ┆
-            `,
+          `,
         ],
         "Baz::parameters.x::type",
         "Bar",
@@ -578,6 +744,47 @@ describe("operations", () => {
   });
 });
 
+describe("accessing non members resolve to NotFound", () => {
+  it("accessing property on ModelProperty", () => {
+    const { "Foo.bar.doesNotExists": x } = getResolutions(
+      [
+        `
+          model Foo { bar: string }
+        `,
+      ],
+      "Foo.bar.doesNotExists",
+    );
+
+    ok(x.resolutionResult & ResolutionResultFlags.NotFound);
+  });
+
+  it("accessing property on ModelProperty of operation parameters", () => {
+    const { "test::parameters.param.doesNotExists": x } = getResolutions(
+      [
+        `
+          op test(param: string): void;
+        `,
+      ],
+      "test::parameters.param.doesNotExists",
+    );
+
+    ok(x.resolutionResult & ResolutionResultFlags.NotFound);
+  });
+
+  it("accessing property on ModelProperty of operation parameters template", () => {
+    const { "test::parameters.param.doesNotExists": x } = getResolutions(
+      [
+        `
+          op template<T>(param: T): void;
+          op test is template;
+        `,
+      ],
+      "test::parameters.param.doesNotExists",
+    );
+
+    ok(x.resolutionResult & ResolutionResultFlags.NotFound);
+  });
+});
 describe("enums", () => {
   describe("binding", () => {
     it("binds enum members from spread", () => {
@@ -626,8 +833,7 @@ describe("enums", () => {
             enum Foo {
               x;
             }
-            ┆
-            `,
+          `,
         ],
         "Foo.x",
       );
@@ -645,8 +851,7 @@ describe("enums", () => {
               ... Foo;
               y;
             }
-            ┆
-            `,
+          `,
         ],
         "Foo.x",
         "Bar.y",
@@ -689,8 +894,7 @@ describe("unions", () => {
             union Foo {
               x: "x";
             }
-            ┆
-            `,
+          `,
         ],
         "Foo.x",
       );
@@ -766,8 +970,7 @@ describe("namespaces", () => {
               }
               model N { }
             }
-            ┆
-            `,
+          `,
         ],
         "Foo.Bar.M",
         "Foo.N",
@@ -956,8 +1159,7 @@ describe("aliases", () => {
                 alias AliasM = Foo.Bar.M;
                 alias AliasAliasM = AliasM;
               }
-              ┆
-              `,
+            `,
         ],
         "Foo.Bar.M",
         "Baz.AliasM",
@@ -979,8 +1181,7 @@ describe("aliases", () => {
             model Foo { x: "hi" }
             alias Bar = Foo;
             alias Baz = Bar.x;
-            ┆
-            `,
+          `,
         ],
         "Foo.x",
         "Bar.x",
@@ -1000,8 +1201,7 @@ describe("aliases", () => {
             model Foo { x: "hi", ... Template<{}> }
             alias Bar = Foo;
             alias Baz = Bar.y;
-            ┆
-            `,
+          `,
         ],
         "Foo.x",
         "Bar.x",
@@ -1068,26 +1268,23 @@ function getResolutions<T extends string[]>(
   const referenceNodes: TypeReferenceNode[] = [];
 
   for (let source of sources) {
-    const cursorPos = source.indexOf("┆");
-    if (cursorPos >= 0) {
-      const aliasCodes = names.map(
-        (name) => `alias test${name.replace(/\.|(::)/g, "")} = ${name};`,
-      );
-      const aliasOffsets: number[] = [];
-      let prevOffset = 0;
-      for (let i = 0; i < names.length; i++) {
-        aliasOffsets.push(prevOffset + aliasCodes[i].length - 1);
-        prevOffset += aliasCodes[i].length;
-      }
-      source = source.slice(0, cursorPos) + aliasCodes.join("") + source.slice(cursorPos + 1);
-      const sf = parse(source);
-      program.sourceFiles.set(String(index++), sf);
-      binder.bindSourceFile(sf);
+    const explicitCursorPos = source.indexOf("┆");
+    const cursorPos = explicitCursorPos >= 0 ? explicitCursorPos : source.length - 1;
+    const aliasCodes = names.map((name) => `alias test${name.replace(/\.|(::)/g, "")} = ${name};`);
+    const aliasOffsets: number[] = [];
+    let prevOffset = 0;
+    for (let i = 0; i < names.length; i++) {
+      aliasOffsets.push(prevOffset + aliasCodes[i].length - 1);
+      prevOffset += aliasCodes[i].length;
+    }
+    source = source.slice(0, cursorPos) + aliasCodes.join("") + source.slice(cursorPos + 1);
+    const sf = parse(source);
+    program.sourceFiles.set(String(index++), sf);
+    binder.bindSourceFile(sf);
 
-      for (let i = 0; i < names.length; i++) {
-        const node = getNodeAtPosition(sf, cursorPos + aliasOffsets[i]);
-        referenceNodes.push(getParentTypeRef(node));
-      }
+    for (let i = 0; i < names.length; i++) {
+      const node = getNodeAtPosition(sf, cursorPos + aliasOffsets[i]);
+      referenceNodes.push(getParentTypeRef(node));
     }
   }
 
@@ -1143,6 +1340,14 @@ function resolve(sources: (string | Record<string, unknown>)[]): NameResolver {
 function getGlobalSymbol(sources: (string | Record<string, unknown>)[]): Sym {
   const resolver = resolve(sources);
   return resolver.getGlobalNamespaceSymbol();
+}
+function getAliasedSymbol(name: string, sources: (string | Record<string, unknown>)[]): Sym {
+  const global = getGlobalSymbol(sources);
+  const aliasSym = global.exports?.get(name);
+  ok(aliasSym, `Expected ${name} to be available in global symbol exports`);
+  const aliasedSym = resolver.getSymbolLinks(aliasSym).aliasedSymbol;
+  ok(aliasedSym, "Expected alias sym to have resolved");
+  return aliasedSym;
 }
 
 function assertSymbol(

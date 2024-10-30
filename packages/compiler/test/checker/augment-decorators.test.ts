@@ -245,6 +245,17 @@ describe("augment types", () => {
       }`,
       "Foo.nested::type.name",
     ));
+  it("property of multiple nested model expression", () =>
+    expectTarget(
+      `model Foo { 
+        nested: {
+           nestedAgain: {
+            @test("target") name: string
+          }
+        }
+      }`,
+      "Foo.nested::type.nestedAgain::type.name",
+    ));
 
   it("enum", () => expectTarget(`@test("target") enum Foo { a, b }`, "Foo"));
   it("enum member", () => expectTarget(`enum Foo { @test("target") a, b }`, "Foo.a"));
@@ -254,6 +265,14 @@ describe("augment types", () => {
   it("interface", () => expectTarget(`@test("target") interface Foo { }`, "Foo"));
   it("operation in interface", () =>
     expectTarget(`interface Foo { @test("target") list(): void }`, "Foo.list"));
+  it("operation parameter", () =>
+    expectTarget(`op foo(@test("target") bar: string): string;`, "foo::parameters.bar"));
+  it("operation parameter nested model expression", () =>
+    expectTarget(
+      `op foo(nested: { @test("target") bar: string }): string;`,
+      "foo::parameters.nested::type.bar",
+    ));
+
   it("uninstantiated template", async () => {
     testHost.addJsFile("test.js", {
       $customName(_: any, t: Type, n: string) {
