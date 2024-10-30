@@ -2466,15 +2466,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const target = resolver.getNodeLinks(opReference).resolvedSymbol;
 
     // Did we encounter a circular operation reference?
-    if (
-      target &&
-      pendingResolutions.has(getNodeSym(target.declarations[0] as any), ResolutionKind.BaseType)
-    ) {
+    if (target && pendingResolutions.has(target, ResolutionKind.BaseType)) {
       if (mapper === undefined) {
         reportCheckerDiagnostic(
           createDiagnostic({
             code: "circular-op-signature",
-            format: { typeName: (target.declarations[0] as any).id.sv },
+            format: { typeName: target.name },
             target: opReference,
           }),
         );
@@ -5713,11 +5710,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   function getSymbolLinksForMember(node: MemberNode): SymbolLinks | undefined {
     const sym = getSymbolForMember(node);
-    return sym
-      ? (sym.node ?? sym.declarations[0]) === node
-        ? getSymbolLinks(sym)
-        : undefined
-      : undefined;
+    return sym ? (getSymNode(sym) === node ? getSymbolLinks(sym) : undefined) : undefined;
   }
 
   function checkEnumMember(
