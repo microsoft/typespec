@@ -63,9 +63,11 @@ export class TspLanguageClient {
           { showOutput: false, showPopup: true },
         );
         logger.error("Error detail", [e]);
-        throw `TypeSpec server executable was not found: '${this.exe.command}' is not found.`;
       } else {
-        throw e;
+        logger.error("Unexpected error when starting TypeSpec server", [e], {
+          showOutput: false,
+          showPopup: true,
+        });
       }
     }
   }
