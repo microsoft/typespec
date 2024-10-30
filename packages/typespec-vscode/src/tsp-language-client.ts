@@ -1,39 +1,85 @@
 import { ExtensionContext, LogOutputChannel, workspace } from "vscode";
-import { LanguageClient, LanguageClientOptions } from "vscode-languageclient/node.js";
+import { Executable, LanguageClient, LanguageClientOptions } from "vscode-languageclient/node.js";
 import logger from "./log/logger.js";
 import { resolveTypeSpecServer } from "./tsp-executable-resolver.js";
 
 export class TspLanguageClient {
-  private client: LanguageClient | undefined;
+  constructor(
+    private client: LanguageClient,
+    private exe: Executable,
+  ) {}
 
-  constructor(){}
-  
   async restart(): Promise<void> {
-    if (!this.client) {
-      logger.error("Unexpected Error: LSP client is undefined for TypeSpec server.");
-      return;
-    }
-    if (this.client.needsStop()) {
-      await this.client.restart();
-      logger.debug("TypeSpec server restarted");
-    } else if (this.client.needsStart()) {
-      await this.client.start();
-      logger.debug("TypeSpec server started");
-    } else {
-      logger.warning(
-        "Both needsStop() and needsStart() return false when restarting TypeSpec server. Please try to restart again later.",
-      );
+    try {
+      if (this.client.needsStop()) {
+        await this.client.restart();
+        logger.info("TypeSpec server restarted");
+      } else if (this.client.needsStart()) {
+        await this.client.start();
+        logger.info("TypeSpec server started");
+      } else {
+        logger.error(
+          `Unexpected state when restarting TypeSpec server. state = ${this.client.state}.`,
+        );
+      }
+    } catch (e) {
+      logger.error("Error restarting TypeSpec server", [e]);
     }
   }
 
   async stop(): Promise<void> {
-    if (this.client) {
-      await this.client.stop();
-      logger.debug("TypeSpec server stopped");
+    try {
+      if (this.client.needsStop()) {
+        await this.client.stop();
+        logger.info("TypeSpec server stopped");
+      } else {
+        logger.warning("TypeSpec server is already stopped");
+      }
+    } catch (e) {
+      logger.error("Error stopping TypeSpec server", [e]);
     }
   }
 
-  async start(context: ExtensionContext, outputChannel: LogOutputChannel): Promise<void> {
+  async start(): Promise<void> {
+    try {
+      if (this.client.needsStart()) {
+        await this.client.start();
+        logger.info("TypeSpec server started");
+      } else {
+        logger.warning("TypeSpec server is already started");
+      }
+    } catch (e) {
+      if (typeof e === "string" && e.startsWith("Launching server using command")) {
+        const workspaceFolder = workspace.workspaceFolders?.[0]?.uri?.fsPath ?? "";
+
+        logger.error(
+          [
+            `TypeSpec server executable was not found: '${this.exe.command}' is not found. Make sure either:`,
+            ` - TypeSpec is installed locally at the root of this workspace ("${workspaceFolder}") or in a parent directory.`,
+            " - TypeSpec is installed globally with `npm install -g @typespec/compiler'.",
+            " - TypeSpec server path is configured with https://github.com/microsoft/typespec#installing-vs-code-extension.",
+          ].join("\n"),
+          [],
+          { showOutput: false, showPopup: true },
+        );
+        logger.error("Error detail", [e]);
+        throw `TypeSpec server executable was not found: '${this.exe.command}' is not found.`;
+      } else {
+        throw e;
+      }
+    }
+  }
+
+  async dispose(): Promise<void> {
+    if (this.client) {
+      await this.client.dispose();
+    }
+  }
+
+  static async create(
+    context: ExtensionContext,
+    outputChannel: LogOutputChannel,
+  ): Promise<TspLanguageClient> {
     const exe = await resolveTypeSpecServer(context);
     logger.debug("TypeSpec server resolved as ", [exe]);
     const options: LanguageClientOptions = {
@@ -59,29 +105,7 @@ export class TspLanguageClient {
 
     const name = "TypeSpec";
     const id = "typespec";
-    try {
-      this.client = new LanguageClient(id, name, { run: exe, debug: exe }, options);
-      await this.client.start();
-      logger.debug("TypeSpec server started");
-    } catch (e) {
-      if (typeof e === "string" && e.startsWith("Launching server using command")) {
-        const workspaceFolder = workspace.workspaceFolders?.[0]?.uri?.fsPath ?? "";
-
-        logger.error(
-          [
-            `TypeSpec server executable was not found: '${exe.command}' is not found. Make sure either:`,
-            ` - TypeSpec is installed locally at the root of this workspace ("${workspaceFolder}") or in a parent directory.`,
-            " - TypeSpec is installed globally with `npm install -g @typespec/compiler'.",
-            " - TypeSpec server path is configured with https://github.com/microsoft/typespec#installing-vs-code-extension.",
-          ].join("\n"),
-          [],
-          { showOutput: false, showPopup: true },
-        );
-        logger.error("Error detail", [e]);
-        throw `TypeSpec server executable was not found: '${exe.command}' is not found.`;
-      } else {
-        throw e;
-      }
-    }
+    const lc = new LanguageClient(id, name, { run: exe, debug: exe }, options);
+    return new TspLanguageClient(lc, exe);
   }
 }

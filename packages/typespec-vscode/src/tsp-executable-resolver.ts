@@ -1,6 +1,7 @@
 import { dirname, isAbsolute, join } from "path";
 import { ExtensionContext, workspace } from "vscode";
 import { Executable, ExecutableOptions } from "vscode-languageclient/node.js";
+import { SettingName } from "./const.js";
 import logger from "./log/logger.js";
 import { isFile, loadModule, useShellInExec } from "./utils.js";
 import { VSCodeVariableResolver } from "./vscode-variable-resolver.js";
@@ -64,9 +65,9 @@ export async function resolveTypeSpecServer(context: ExtensionContext): Promise<
 
   // In production, first try VS Code configuration, which allows a global machine
   // location that is not on PATH, or a workspace-specific installation.
-  let serverPath: string | undefined = workspace.getConfiguration().get("typespec.tsp-server.path");
+  let serverPath: string | undefined = workspace.getConfiguration().get(SettingName.TspServerPath);
   if (serverPath && typeof serverPath !== "string") {
-    throw new Error("VS Code configuration option 'typespec.tsp-server.path' must be a string");
+    throw new Error(`VS Code configuration option '${SettingName.TspServerPath}' must be a string`);
   }
   const workspaceFolder = workspace.workspaceFolders?.[0]?.uri?.fsPath ?? "";
 
