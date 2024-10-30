@@ -2555,7 +2555,7 @@ export class CodeModelBuilder {
     const innerProcessUsage = (schema: Schema) => {
       const usages = (schema as SchemaUsage).usage;
       if (usages && usages.includes(SchemaContext.Public) && usages.includes(SchemaContext.Internal)) { 
-        // If access contains both public and internal,  remove internal
+        // If access contains both public and internal, remove internal
         usages.splice(usages.indexOf(SchemaContext.Internal), 1);
       }
     };
