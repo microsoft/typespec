@@ -99,7 +99,9 @@ import {
 } from "./types.js";
 
 export interface NameResolver {
-  // TODO: add docs
+  /**
+   * Resolve all static symbol links in the program.
+   */
   resolveProgram(): void;
 
   /**
@@ -207,16 +209,6 @@ export function createResolver(program: Program): NameResolver {
       // references and types that need binding.
       for (const file of program.sourceFiles.values()) {
         bindAndResolveNode(file);
-      }
-
-      // Report any duplicate symbol
-      // TODO: do we want this here?
-      program.reportDuplicateSymbols(globalNamespaceSym.exports);
-      for (const file of program.sourceFiles.values()) {
-        for (const ns of file.namespaces) {
-          const exports = mergedSymbols.get(ns.symbol)?.exports ?? ns.symbol.exports;
-          program.reportDuplicateSymbols(exports);
-        }
       }
     },
 

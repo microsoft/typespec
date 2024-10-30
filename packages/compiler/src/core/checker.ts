@@ -3427,6 +3427,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkProgram() {
+    checkDuplicateSymbols();
     for (const file of program.sourceFiles.values()) {
       for (const ns of file.namespaces) {
         initializeTypeForNamespace(ns);
@@ -3440,6 +3441,15 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     internalDecoratorValidation();
   }
 
+  function checkDuplicateSymbols() {
+    program.reportDuplicateSymbols(resolver.getGlobalNamespaceSymbol().exports);
+    for (const file of program.sourceFiles.values()) {
+      for (const ns of file.namespaces) {
+        const exports = getMergedSymbol(ns.symbol).exports ?? ns.symbol.exports;
+        program.reportDuplicateSymbols(exports);
+      }
+    }
+  }
   /**
    * Post checking validation for internal decorators.
    */
