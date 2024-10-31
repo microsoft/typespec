@@ -463,7 +463,7 @@ const VERB_DECORATORS = [$get, $head, $post, $put, $patch, $delete];
 
 export interface HttpServer {
   url: string;
-  description: string;
+  description?: string;
   parameters: Map<string, ModelProperty>;
 }
 
@@ -478,7 +478,7 @@ export const $server: ServerDecorator = (
   context: DecoratorContext,
   target: Namespace,
   url: string,
-  description: string,
+  description?: string,
   parameters?: Type,
 ) => {
   const params = extractParamsFromPath(url);
@@ -500,11 +500,7 @@ export const $server: ServerDecorator = (
     servers = [];
     context.program.stateMap(HttpStateKeys.servers).set(target, servers);
   }
-  servers.push({
-    url,
-    description,
-    parameters: parameterMap,
-  });
+  servers.push({ url, description, parameters: parameterMap });
 };
 
 export function getServers(program: Program, type: Namespace): HttpServer[] | undefined {

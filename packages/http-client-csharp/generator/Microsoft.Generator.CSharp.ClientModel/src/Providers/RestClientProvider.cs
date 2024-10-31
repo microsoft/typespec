@@ -2,13 +2,11 @@
 // Licensed under the MIT License.
 
 using System;
-using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Xml.Linq;
 using Microsoft.Generator.CSharp.ClientModel.Primitives;
 using Microsoft.Generator.CSharp.ClientModel.Snippets;
 using Microsoft.Generator.CSharp.Expressions;
@@ -37,10 +35,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         internal ClientProvider ClientProvider { get; }
 
         private FieldProvider _pipelineMessageClassifier200;
+        private FieldProvider _pipelineMessageClassifier201;
         private FieldProvider _pipelineMessageClassifier204;
         private FieldProvider _pipelineMessageClassifier2xxAnd4xx;
         private TypeProvider _classifier2xxAnd4xxDefinition;
 
+        private PropertyProvider _classifier201Property;
         private PropertyProvider _classifier200Property;
         private PropertyProvider _classifier204Property;
         private PropertyProvider _classifier2xxAnd4xxProperty;
@@ -50,10 +50,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _inputClient = inputClient;
             ClientProvider = clientProvider;
             _pipelineMessageClassifier200 = new FieldProvider(FieldModifiers.Private | FieldModifiers.Static, ClientModelPlugin.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType, "_pipelineMessageClassifier200", this);
+            _pipelineMessageClassifier201 = new FieldProvider(FieldModifiers.Private | FieldModifiers.Static, ClientModelPlugin.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType, "_pipelineMessageClassifier201", this);
             _pipelineMessageClassifier204 = new FieldProvider(FieldModifiers.Private | FieldModifiers.Static, ClientModelPlugin.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType, "_pipelineMessageClassifier204", this);
             _classifier2xxAnd4xxDefinition = new Classifier2xxAnd4xxDefinition(this);
             _pipelineMessageClassifier2xxAnd4xx = new FieldProvider(FieldModifiers.Private | FieldModifiers.Static, _classifier2xxAnd4xxDefinition.Type, "_pipelineMessageClassifier2xxAnd4xx", this);
             _classifier200Property = GetResponseClassifierProperty(_pipelineMessageClassifier200, 200);
+            _classifier201Property = GetResponseClassifierProperty(_pipelineMessageClassifier201, 201);
             _classifier204Property = GetResponseClassifierProperty(_pipelineMessageClassifier204, 204);
             _classifier2xxAnd4xxProperty = new PropertyProvider(
                 $"Gets the PipelineMessageClassifier2xxAnd4xx",
@@ -73,6 +75,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return
             [
                 _classifier200Property,
+                _classifier201Property,
                 _classifier204Property,
                 _classifier2xxAnd4xxProperty
             ];
@@ -95,6 +98,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return
             [
                 _pipelineMessageClassifier200,
+                _pipelineMessageClassifier201,
                 _pipelineMessageClassifier204,
                 _pipelineMessageClassifier2xxAnd4xx
             ];
@@ -127,7 +131,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private MethodProvider BuildCreateRequestMethod(InputOperation operation)
         {
-            var pipelineField = ((MemberExpression)ClientProvider.PipelineProperty).ToApi<ClientPipelineApi>();
+            var pipelineField = ClientProvider.PipelineProperty.ToApi<ClientPipelineApi>();
 
             var options = ScmKnownParameters.RequestOptions;
             var signature = new MethodSignature(
@@ -161,18 +165,18 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 signature,
                 new MethodBodyStatements(
                 [
-                    Declare("message", pipelineField.CreateMessage().ToApi<HttpMessageApi>(), out HttpMessageApi message),
-                    message.ResponseClassifier().Assign(classifier).Terminate(),
-                    Declare("request", message.Request().ToApi<HttpRequestApi>(), out HttpRequestApi request), // ScopedApi<PipelineRequest>
-                    request.SetMethod(operation.HttpMethod).Terminate(),
+                    Declare("message", pipelineField.CreateMessage(options.ToApi<HttpRequestOptionsApi>(), classifier).ToApi<HttpMessageApi>(), out HttpMessageApi message),
+                    message.ApplyResponseClassifier(classifier.ToApi<StatusCodeClassifierApi>()),
+                    Declare("request", message.Request().ToApi<HttpRequestApi>(), out HttpRequestApi request),
+                    request.SetMethod(operation.HttpMethod),
                     Declare("uri", New.Instance<ClientUriBuilderDefinition>(), out ScopedApi<ClientUriBuilderDefinition> uri),
                     uri.Reset(ClientProvider.EndpointField).Terminate(),
                     .. AppendPathParameters(uri, operation, paramMap),
                     .. AppendQueryParameters(uri, operation, paramMap),
-                    request.SetUri(uri).Terminate(),
+                    request.SetUri(uri),
                     .. AppendHeaderParameters(request, operation, paramMap),
                     .. GetSetContent(request, signature.Parameters),
-                    message.Apply(options),
+                    message.ApplyRequestOptions(options.ToApi<HttpRequestOptionsApi>()),
                     Return(message)
                 ]),
                 this);
@@ -196,6 +200,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 return response.StatusCodes[0] switch
                 {
                     200 => _classifier200Property,
+                    201 => _classifier201Property,
                     204 => _classifier204Property,
                     _ => throw new InvalidOperationException($"Unexpected status code {response.StatusCodes[0]}")
                 };
@@ -226,7 +231,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 }
                 else
                 {
-                    statement = request.SetHeaders([Literal(inputParameter.NameInRequest), toStringExpression.As<string>()]).Terminate();
+                    statement = request.SetHeaders([Literal(inputParameter.NameInRequest), toStringExpression.As<string>()]);
                 }
                 statements.Add(statement);
             }

@@ -84,6 +84,7 @@ model showPetByIdDefaultApplicationJsonResponse {
 @tag("pets")
 @route("/pets")
 @get
+@summary("List all pets")
 op listPets(
   /**
    * How many items to return at one time (max 100)
@@ -94,11 +95,13 @@ op listPets(
 @tag("pets")
 @route("/pets")
 @post
+@summary("Create a pet")
 op createPets(): createPets201Response | createPetsDefaultApplicationJsonResponse;
 
 @tag("pets")
 @route("/pets/{petId}")
 @get
+@summary("Info for a specific pet")
 op showPetById(
   /**
    * The id of the pet to retrieve

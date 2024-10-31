@@ -1,7 +1,6 @@
 {
   "name": "@typespec/http-specs",
-  "private": true,
-  "version": "0.1.0",
+  "version": "0.1.0-alpha.0",
   "description": "Spec scenarios and mock apis",
   "main": "dist/index.js",
   "type": "module",
@@ -18,7 +17,7 @@
     "validate-client-server": "concurrently \"tsp-spector server start ./specs\" \"npm run client\" && tsp-spector server stop",
     "client": "tsp-spector server-test ./specs",
     "serve": "tsp-spector serve ./specs",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\""
   },
   "engines": {
     "node": ">=16.0.0"

@@ -130,6 +130,10 @@ namespace UnbrandedTypeSpec.Models
         /// <param name="projectedModel"> The <see cref="ProjectedModel"/> to serialize into <see cref="BinaryContent"/>. </param>
         public static implicit operator BinaryContent(ProjectedModel projectedModel)
         {
+            if (projectedModel == null)
+            {
+                return null;
+            }
             return BinaryContent.Create(projectedModel, ModelSerializationExtensions.WireOptions);
         }
 

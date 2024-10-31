@@ -256,6 +256,42 @@ export function isDefined<T>(arg: T | undefined): arg is T {
   return arg !== undefined;
 }
 
+export function isWhitespaceStringOrUndefined(str: string | undefined): boolean {
+  return !str || /^\s*$/.test(str);
+}
+
+export function firstNonWhitespaceCharacterIndex(line: string): number {
+  return line.search(/\S/);
+}
+
+export function distinctArray<T, P>(arr: T[], keySelector: (item: T) => P): T[] {
+  const map = new Map<P, T>();
+  for (const item of arr) {
+    map.set(keySelector(item), item);
+  }
+  return Array.from(map.values());
+}
+
+export function tryParseJson(content: string): any | undefined {
+  try {
+    return JSON.parse(content);
+  } catch {
+    return undefined;
+  }
+}
+
+export function debounce<T extends (...args: any[]) => any>(fn: T, delayInMs: number): T {
+  let timer: NodeJS.Timeout | undefined;
+  return function (this: any, ...args: Parameters<T>) {
+    if (timer) {
+      clearTimeout(timer);
+    }
+    timer = setTimeout(() => {
+      fn.apply(this, args);
+    }, delayInMs);
+  } as T;
+}
+
 /**
  * Remove undefined properties from object.
  */
