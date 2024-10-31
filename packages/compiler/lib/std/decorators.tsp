@@ -779,7 +779,7 @@ extern dec nextLink(target: ModelProperty);
 /**
  * Pagination property defining a link to the previous page.
  *
- * It is expected that the navigating to the link will return the same set of response as the operation that returned the current page.
+ * It is expected that navigating to the link will return the same set of responses as the operation that returned the current page.
  *
  * @example
  * ```tsp
