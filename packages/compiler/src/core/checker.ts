@@ -5110,7 +5110,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     targetType: Type,
     mapper: TypeMapper | undefined,
   ): DecoratorApplication[] {
-    const augmentDecoratorNodes = resolver.getAugmentDecoratorForSym(sym);
+    const augmentDecoratorNodes = resolver.getAugmentDecoratorsForSym(sym);
     const decorators: DecoratorApplication[] = [];
 
     for (const decNode of augmentDecoratorNodes) {
@@ -5166,7 +5166,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       : getMergedSymbol(node.symbol);
     const decorators: DecoratorApplication[] = [];
 
-    const augmentDecoratorNodes = resolver.getAugmentDecoratorForSym(sym);
+    const augmentDecoratorNodes = resolver.getAugmentDecoratorsForSym(sym);
     const decoratorNodes = [
       ...augmentDecoratorNodes, // the first decorator will be executed at last, so augmented decorator should be placed at first.
       ...node.decorators,

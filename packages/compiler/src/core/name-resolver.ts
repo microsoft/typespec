@@ -125,7 +125,7 @@ export interface NameResolver {
   getGlobalNamespaceSymbol(): Sym;
 
   /** Return augment decorator nodes that are bound to this symbol */
-  getAugmentDecoratorForSym(symbol: Sym): AugmentDecoratorStatementNode[];
+  getAugmentDecoratorsForSym(symbol: Sym): AugmentDecoratorStatementNode[];
 
   /**
    * Resolve the member expression using the given symbol as base.
@@ -223,10 +223,10 @@ export function createResolver(program: Program): NameResolver {
     resolveMetaMemberByName,
     resolveTypeReference,
 
-    getAugmentDecoratorForSym,
+    getAugmentDecoratorsForSym,
   };
 
-  function getAugmentDecoratorForSym(sym: Sym) {
+  function getAugmentDecoratorsForSym(sym: Sym) {
     return augmentDecoratorsForSym.get(sym) ?? [];
   }
 
