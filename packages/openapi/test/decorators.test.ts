@@ -351,7 +351,7 @@ describe("openapi: decorators", () => {
       );
       expectDiagnostics(diagnostics, [
         {
-          code: "@typespec/openapi/no-service-found",
+          code: "@typespec/openapi/tag-metadata-target-service",
         },
       ]);
     });
@@ -470,15 +470,11 @@ describe("openapi: decorators", () => {
     });
 
     const testCases: [string, string, any][] = [
-      [
-        "set tagMetadata without additionalInfo",
-        `@tagMetadata("tagName")`,
-        { tagName: { name: "tagName" } },
-      ],
+      ["set tagMetadata without additionalInfo", `@tagMetadata("tagName")`, { tagName: {} }],
       [
         "set tagMetadata without externalDocs",
         `@tagMetadata("tagName",{description: "Pets operations"})`,
-        { tagName: { name: "tagName", description: "Pets operations" } },
+        { tagName: { description: "Pets operations" } },
       ],
       [
         "set multiple tagsMetadata",
@@ -505,7 +501,6 @@ describe("openapi: decorators", () => {
           )`,
         {
           tagName1: {
-            name: "tagName1",
             description: "Pets operations",
             externalDocs: {
               url: "https://example.com",
@@ -514,7 +509,6 @@ describe("openapi: decorators", () => {
           },
 
           tagName2: {
-            name: "tagName2",
             description: "Pets operations",
             externalDocs: {
               url: "https://example.com",

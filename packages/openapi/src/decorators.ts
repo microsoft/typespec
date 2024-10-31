@@ -263,7 +263,7 @@ export const tagMetadataDecorator: TagMetadataDecorator = (
   // Check if the namespace is a service namespace
   if (!entity.decorators.some((decorator) => decorator.decorator === $service)) {
     reportDiagnostic(context.program, {
-      code: "no-service-found",
+      code: "tag-metadata-target-service",
       format: {
         namespace: entity.name,
       },
@@ -285,7 +285,7 @@ export const tagMetadataDecorator: TagMetadataDecorator = (
   }
 
   // Initialize metadata with the tag name
-  let metadata: TagMetadata = { name };
+  let metadata: TagMetadata = {};
 
   // Process tag metadata if provided
   if (tagMetadata) {
@@ -329,7 +329,7 @@ export const tagMetadataDecorator: TagMetadataDecorator = (
     }
 
     // Merge data into metadata
-    metadata = { ...data, name };
+    metadata = { ...data };
   }
 
   // Update the tags metadata with the new tag
