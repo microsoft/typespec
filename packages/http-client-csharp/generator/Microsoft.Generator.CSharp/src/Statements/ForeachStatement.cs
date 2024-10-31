@@ -3,7 +3,6 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Snippets;
@@ -17,7 +16,11 @@ namespace Microsoft.Generator.CSharp.Statements
         public ValueExpression Enumerable { get; }
         public bool IsAsync { get; }
 
-        public ForeachStatement(CSharpType? itemType, CodeWriterDeclaration item, ValueExpression enumerable, bool isAsync)
+        public VariableExpression ItemVariable { get; }
+
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        private ForeachStatement(CSharpType? itemType, CodeWriterDeclaration item, ValueExpression enumerable, bool isAsync)
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
             ItemType = itemType;
             Item = item;
@@ -26,24 +29,27 @@ namespace Microsoft.Generator.CSharp.Statements
         }
 
         private readonly List<MethodBodyStatement> _body = new();
-        public IReadOnlyList<MethodBodyStatement> Body => _body;
+        public IList<MethodBodyStatement> Body => _body;
 
         public ForeachStatement(CSharpType itemType, string itemName, ValueExpression enumerable, bool isAsync, out VariableExpression item)
             : this(itemType, new CodeWriterDeclaration(itemName), enumerable, isAsync)
         {
             item = new VariableExpression(itemType, Item);
+            ItemVariable = item;
         }
 
         public ForeachStatement(string itemName, ScopedApi enumerable, out VariableExpression item)
             : this(null, new CodeWriterDeclaration(itemName), enumerable, false)
         {
             item = new VariableExpression(enumerable.Type.Arguments[0], Item);
+            ItemVariable = item;
         }
 
         public ForeachStatement(string itemName, ScopedApi enumerable, bool isAsync, out VariableExpression item)
             : this(null, new CodeWriterDeclaration(itemName), enumerable, isAsync)
         {
             item = new VariableExpression(enumerable.Type.Arguments[0], Item);
+            ItemVariable = item;
         }
 
         public ForeachStatement(string itemName, DictionaryExpression dictionary, out KeyValuePairExpression item)
@@ -51,6 +57,7 @@ namespace Microsoft.Generator.CSharp.Statements
         {
             var variable = new VariableExpression(dictionary.KeyValuePair, Item);
             item = new(dictionary.KeyValuePair, variable);
+            ItemVariable = variable;
         }
 
         public static ForeachStatement Create<T>(string itemName, ScopedApi<IEnumerable<T>> enumerable, out ScopedApi<T> item)

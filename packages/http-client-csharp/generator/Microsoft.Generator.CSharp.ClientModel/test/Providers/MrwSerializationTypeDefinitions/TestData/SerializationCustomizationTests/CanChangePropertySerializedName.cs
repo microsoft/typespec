@@ -91,31 +91,16 @@ namespace Sample.Models
             {
                 if (prop.NameEquals("customName"u8))
                 {
-                    if ((prop.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
-                    {
-                        name = null;
-                        continue;
-                    }
                     name = prop.Value.GetString();
                     continue;
                 }
                 if (prop.NameEquals("flavor"u8))
                 {
-                    if ((prop.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
-                    {
-                        flavor = null;
-                        continue;
-                    }
                     flavor = prop.Value.GetString();
                     continue;
                 }
                 if (prop.NameEquals("customColor2"u8))
                 {
-                    if ((prop.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
-                    {
-                        customColor = null;
-                        continue;
-                    }
                     customColor = prop.Value.GetString();
                     continue;
                 }
@@ -166,6 +151,10 @@ namespace Sample.Models
         /// <param name="mockInputModel"> The <see cref="global::Sample.Models.MockInputModel"/> to serialize into <see cref="global::System.ClientModel.BinaryContent"/>. </param>
         public static implicit operator BinaryContent(global::Sample.Models.MockInputModel mockInputModel)
         {
+            if ((mockInputModel == null))
+            {
+                return null;
+            }
             return global::System.ClientModel.BinaryContent.Create(mockInputModel, global::Sample.ModelSerializationExtensions.WireOptions);
         }
 

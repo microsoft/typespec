@@ -102,6 +102,10 @@ export function getDecoratorsForSchema(schema: Refable<OpenAPI3Schema>): TypeSpe
       break;
   }
 
+  if (schema.title) {
+    decorators.push({ name: "summary", args: [schema.title] });
+  }
+
   if (schema.discriminator) {
     decorators.push({ name: "discriminator", args: [schema.discriminator.propertyName] });
   }

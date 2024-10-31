@@ -1,0 +1,33 @@
+---
+import { AsyncPlayground } from "../components/react-pages/playground";
+import packageJson from "../../../packages/compiler/package.json";
+import { LoadingSpinner } from "../components/playground-component/loading-spinner";
+import BaseLayout from "../layouts/base-layout.astro";
+
+function getMajorMinorVersion(): string {
+  const version = packageJson.version;
+  const [major, minor] = version.split(".");
+  return `${major}.${minor}.x`;
+}
+
+const latestVersion = getMajorMinorVersion();
+---
+
+<script>
+  import "es-module-shims";
+</script>
+<!-- cspell:ignore esms -->
+<script
+  is:inline
+  type="esms-options"
+  set:html={JSON.stringify({
+    shimMode: true,
+  })}
+/>
+<BaseLayout footer={false}>
+  <div style={{ height: "calc(100vh - var(--header-height))", width: "100%" }}>
+    <AsyncPlayground client:only="react" latestVersion={latestVersion}>
+      <LoadingSpinner slot="fallback" message="Loading playground..." />
+    </AsyncPlayground>
+  </div>
+</BaseLayout>
