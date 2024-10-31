@@ -89,7 +89,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Client.Structure.Default
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
-        [Test]
+        [CadlRanchTest]
         public Task Client_Structure_default_Nine() => Test(async (host) =>
         {
             var response = await new ServiceClient(host, ClientType.Default).GetQuxClient().GetQuxBarClient().NineAsync();
