@@ -126,6 +126,22 @@ describe("compiler: projector: Identity", () => {
       strictEqual(projectResult.type.properties.get("name")?.model, projectResult.type);
     });
 
+    it("link projected model with sourceModels", async () => {
+      const code = `
+        @test("target") model Foo is Bar {
+          ...Spreadable
+        }
+        model Bar {}
+        model Spreadable {}
+      `;
+      const projectResult = await projectWithNoChange(code, "Model");
+      const [sourceBar, sourceSpreadable] = projectResult.type.sourceModels.map((x) => x.model);
+      const Spreadable = projectResult.globalNamespace.models.get("Spreadable")!;
+      const Bar = projectResult.globalNamespace.models.get("Bar")!;
+      strictEqual(sourceBar, Bar);
+      strictEqual(sourceSpreadable, Spreadable);
+    });
+
     it("link projected property with sourceProperty", async () => {
       const code = `
         @test("target") model Foo {

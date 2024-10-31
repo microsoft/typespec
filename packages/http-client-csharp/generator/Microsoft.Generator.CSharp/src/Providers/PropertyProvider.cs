@@ -2,10 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
@@ -23,13 +21,13 @@ namespace Microsoft.Generator.CSharp.Providers
         public FormattableString Description { get; }
         public XmlDocSummaryStatement XmlDocSummary { get; }
         public MethodSignatureModifiers Modifiers { get; internal set; }
-        public CSharpType Type { get; }
+        public CSharpType Type { get; internal set; }
         public string Name { get; internal set; }
         public PropertyBody Body { get; internal set; }
         public CSharpType? ExplicitInterface { get; }
         public XmlDocProvider XmlDocs { get; private set; }
-        public PropertyWireInformation? WireInfo { get; }
-        public bool IsDiscriminator { get; }
+        public PropertyWireInformation? WireInfo { get; internal set; }
+        public bool IsDiscriminator { get; internal set; }
         public bool IsAdditionalProperties { get; init; }
 
         public FieldProvider? BackingField { get; set; }
@@ -42,7 +40,9 @@ namespace Microsoft.Generator.CSharp.Providers
 
         public TypeProvider EnclosingType { get; }
 
-        internal IEnumerable<AttributeData>? Attributes { get; init; }
+        internal string? OriginalName { get; init; }
+
+        internal Lazy<NamedTypeSymbolProvider?>? CustomProvider { get; init; }
 
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -77,6 +77,8 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 propertyType = propertyType.WithNullable(true);
             }
+
+            EnclosingType = enclosingType;
             var serializationFormat = CodeModelPlugin.Instance.TypeFactory.GetSerializationFormat(inputProperty.Type);
             var propHasSetter = PropertyHasSetter(propertyType, inputProperty);
             MethodSignatureModifiers setterModifier = propHasSetter ? MethodSignatureModifiers.Public : MethodSignatureModifiers.None;
@@ -89,10 +91,9 @@ namespace Microsoft.Generator.CSharp.Providers
             XmlDocSummary = PropertyDescriptionBuilder.BuildPropertyDescription(inputProperty, propertyType, serializationFormat, Description);
             XmlDocs = GetXmlDocs();
             WireInfo = new PropertyWireInformation(inputProperty);
-            EnclosingType = enclosingType;
             IsDiscriminator = inputProperty.IsDiscriminator;
 
-            InitializeParameter(Name, FormattableStringHelpers.FromString(inputProperty.Description) ?? FormattableStringHelpers.Empty, Type);
+            InitializeParameter(FormattableStringHelpers.FromString(inputProperty.Description) ?? FormattableStringHelpers.Empty);
         }
 
         public PropertyProvider(
@@ -116,14 +117,13 @@ namespace Microsoft.Generator.CSharp.Providers
             WireInfo = wireInfo;
             EnclosingType = enclosingType;
 
-            InitializeParameter(Name, description ?? FormattableStringHelpers.Empty, Type);
+            InitializeParameter(description ?? FormattableStringHelpers.Empty);
         }
 
         [MemberNotNull(nameof(_parameter))]
-        private void InitializeParameter(string propertyName, FormattableString description, CSharpType propertyType)
+        private void InitializeParameter(FormattableString description)
         {
-            var parameterName = propertyName.ToVariableName();
-            _parameter = new(() => new ParameterProvider(parameterName, description, propertyType, property: this));
+            _parameter = new(() => new ParameterProvider(Name.ToVariableName(), description, Type, property: this));
         }
 
         public VariableExpression AsVariableExpression => _variable ??= new(Type, Name.ToVariableName());
@@ -141,7 +141,6 @@ namespace Microsoft.Generator.CSharp.Providers
         /// <summary>
         /// Returns true if the property has a setter.
         /// </summary>
-        /// <param name="type">The <see cref="CSharpType"/> of the property.</param>
         protected virtual bool PropertyHasSetter(CSharpType type, InputModelProperty inputProperty)
         {
             if (inputProperty.IsDiscriminator)
@@ -155,6 +154,16 @@ namespace Microsoft.Generator.CSharp.Providers
             }
 
             if (type.IsLiteral && inputProperty.IsRequired)
+            {
+                return false;
+            }
+
+            if (!inputProperty.EnclosingType!.Usage.HasFlag(InputModelTypeUsage.Input))
+            {
+                return false;
+            }
+
+            if (EnclosingType.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct | TypeSignatureModifiers.ReadOnly))
             {
                 return false;
             }

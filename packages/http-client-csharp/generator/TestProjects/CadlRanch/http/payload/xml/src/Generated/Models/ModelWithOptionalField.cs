@@ -6,16 +6,8 @@ namespace Payload.Xml.Models
 {
     public partial class ModelWithOptionalField
     {
-        public string Item
-        {
-            get => throw null;
-            set => throw null;
-        }
+        public string Item => throw null;
 
-        public int? Value
-        {
-            get => throw null;
-            set => throw null;
-        }
+        public int? Value => throw null;
     }
 }

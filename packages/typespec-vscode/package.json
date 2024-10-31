@@ -1,6 +1,6 @@
 {
   "name": "typespec-vscode",
-  "version": "0.60.0",
+  "version": "0.61.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec language support for VS Code",
   "homepage": "https://typespec.io",
@@ -20,16 +20,19 @@
   "publisher": "typespec",
   "displayName": "TypeSpec for VS Code",
   "categories": [
-    "Programming Languages"
+    "Programming Languages",
+    "Snippets"
   ],
   "type": "module",
   "main": "./dist/src/extension.cjs",
+  "browser": "./dist/src/web/extension.js",
   "engines": {
-    "vscode": "^1.93.0"
+    "vscode": "^1.94.0"
   },
   "activationEvents": [
     "onLanguage:typespec",
-    "onCommand:typespec.restartServer"
+    "onCommand:typespec.restartServer",
+    "workspaceContains:**/tspconfig.yaml"
   ],
   "icon": "./icons/logo.png",
   "contributes": {
@@ -140,6 +143,12 @@
           }
         }
       }
+    ],
+    "snippets": [
+      {
+        "language": "typespec",
+        "path": "./snippets.json"
+      }
     ]
   },
   "scripts": {
@@ -152,24 +161,30 @@
     "generate-language-configuration": "node scripts/generate-language-configuration.js",
     "generate-third-party-notices": "typespec-build-tool generate-third-party-notices",
     "package-vsix": "vsce package",
-    "deploy": "vsce publish"
+    "deploy": "vsce publish",
+    "open-in-browser": "vscode-test-web --extensionDevelopmentPath=. .",
+    "test:e2e": "pnpm test:web",
+    "test:web": "vscode-test-web --extensionDevelopmentPath=. --headless --extensionTestsPath=dist/test/web/suite.js ./test/web/data"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "~26.0.1",
-    "@rollup/plugin-node-resolve": "~15.2.3",
-    "@rollup/plugin-typescript": "~11.1.6",
-    "@types/node": "~22.5.4",
-    "@types/vscode": "~1.93.0",
+    "@rollup/plugin-commonjs": "~28.0.0",
+    "@rollup/plugin-node-resolve": "~15.3.0",
+    "@rollup/plugin-typescript": "~12.1.0",
+    "@types/mocha": "^10.0.9",
+    "@types/node": "~22.7.5",
+    "@types/vscode": "~1.94.0",
     "@typespec/compiler": "workspace:~",
     "@typespec/internal-build-utils": "workspace:~",
-    "@vitest/coverage-v8": "^2.1.0",
-    "@vitest/ui": "^2.1.0",
-    "@vscode/vsce": "~3.1.0",
+    "@vitest/coverage-v8": "^2.1.2",
+    "@vitest/ui": "^2.1.2",
+    "@vscode/test-web": "^0.0.62",
+    "@vscode/vsce": "~3.1.1",
     "c8": "^10.1.2",
+    "mocha": "^10.7.3",
     "rimraf": "~6.0.1",
-    "rollup": "~4.21.3",
-    "typescript": "~5.6.2",
-    "vitest": "^2.1.0",
+    "rollup": "~4.24.0",
+    "typescript": "~5.6.3",
+    "vitest": "^2.1.2",
     "vscode-languageclient": "~9.0.1"
   }
 }

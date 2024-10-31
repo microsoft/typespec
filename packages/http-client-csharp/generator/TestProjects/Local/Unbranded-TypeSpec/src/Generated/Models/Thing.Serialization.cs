@@ -81,7 +81,7 @@ namespace UnbrandedTypeSpec.Models
                 {
                     writer.WritePropertyName("optionalNullableList"u8);
                     writer.WriteStartArray();
-                    foreach (var item in OptionalNullableList)
+                    foreach (int item in OptionalNullableList)
                     {
                         writer.WriteNumberValue(item);
                     }
@@ -96,7 +96,7 @@ namespace UnbrandedTypeSpec.Models
             {
                 writer.WritePropertyName("requiredNullableList"u8);
                 writer.WriteStartArray();
-                foreach (var item in RequiredNullableList)
+                foreach (int item in RequiredNullableList)
                 {
                     writer.WriteNumberValue(item);
                 }
@@ -194,7 +194,6 @@ namespace UnbrandedTypeSpec.Models
                 {
                     if (prop.Value.ValueKind == JsonValueKind.Null)
                     {
-                        optionalLiteralString = null;
                         continue;
                     }
                     optionalLiteralString = new ThingOptionalLiteralString(prop.Value.GetString());
@@ -204,7 +203,6 @@ namespace UnbrandedTypeSpec.Models
                 {
                     if (prop.Value.ValueKind == JsonValueKind.Null)
                     {
-                        optionalLiteralInt = null;
                         continue;
                     }
                     optionalLiteralInt = new ThingOptionalLiteralInt(prop.Value.GetInt32());
@@ -214,7 +212,6 @@ namespace UnbrandedTypeSpec.Models
                 {
                     if (prop.Value.ValueKind == JsonValueKind.Null)
                     {
-                        optionalLiteralFloat = null;
                         continue;
                     }
                     optionalLiteralFloat = new ThingOptionalLiteralFloat(prop.Value.GetSingle());
@@ -224,7 +221,6 @@ namespace UnbrandedTypeSpec.Models
                 {
                     if (prop.Value.ValueKind == JsonValueKind.Null)
                     {
-                        optionalLiteralBool = null;
                         continue;
                     }
                     optionalLiteralBool = prop.Value.GetBoolean();
@@ -325,6 +321,10 @@ namespace UnbrandedTypeSpec.Models
         /// <param name="thing"> The <see cref="Thing"/> to serialize into <see cref="BinaryContent"/>. </param>
         public static implicit operator BinaryContent(Thing thing)
         {
+            if (thing == null)
+            {
+                return null;
+            }
             return BinaryContent.Create(thing, ModelSerializationExtensions.WireOptions);
         }
 

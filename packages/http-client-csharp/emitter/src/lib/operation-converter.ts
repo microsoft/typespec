@@ -17,7 +17,7 @@ import {
   shouldGenerateConvenient,
   shouldGenerateProtocol,
 } from "@azure-tools/typespec-client-generator-core";
-import { getDeprecated, getDoc, getSummary, isErrorModel } from "@typespec/compiler";
+import { getDeprecated, isErrorModel } from "@typespec/compiler";
 import { HttpStatusCodeRange } from "@typespec/http";
 import { getResourceOperation } from "@typespec/rest";
 import { NetEmitterOptions } from "../options.js";
@@ -76,10 +76,8 @@ export function fromSdkServiceMethod(
         .name ??
       getOperationGroupName(sdkContext, method.operation, sdkContext.sdkPackage.rootNamespace),
     Deprecated: getDeprecated(sdkContext.program, method.__raw!),
-    // TODO: we need to figure out how we want to handle summary and description
-    // Right now, we generate garbage <remarks> for some APIs like `Platform-OpenAI-TypeSpec`
-    Summary: getSummary(sdkContext.program, method.__raw!),
-    Description: getDoc(sdkContext.program, method.__raw!),
+    Summary: method.summary,
+    Description: method.doc,
     Accessibility: method.access,
     Parameters: [...clientParameters, ...parameterMap.values()],
     Responses: [...responseMap.values()],
@@ -185,7 +183,7 @@ function fromSdkHttpOperationParameter(
   return {
     Name: p.name,
     NameInRequest: p.kind === "header" ? normalizeHeaderName(serializedName) : serializedName,
-    Description: p.description,
+    Description: p.summary ?? p.doc,
     Type: parameterType,
     Location: getParameterLocation(p),
     IsApiVersion:
@@ -244,12 +242,13 @@ function loadLongRunningOperation(
 }
 
 function fromSdkHttpOperationResponses(
-  operationResponses: Map<HttpStatusCodeRange | number, SdkHttpResponse>,
+  operationResponses: SdkHttpResponse[],
   sdkContext: SdkContext<NetEmitterOptions>,
   typeMap: SdkTypeMap,
 ): Map<SdkHttpResponse, OperationResponse> {
   const responses = new Map<SdkHttpResponse, OperationResponse>();
-  for (const [range, r] of operationResponses) {
+  for (const r of operationResponses) {
+    const range = r.statusCodes;
     responses.set(r, {
       StatusCodes: toStatusCodesArray(range),
       BodyType: r.type ? fromSdkType(r.type, sdkContext, typeMap) : undefined,
@@ -272,7 +271,7 @@ function fromSdkServiceResponseHeaders(
       ({
         Name: h.__raw!.name,
         NameInResponse: h.serializedName,
-        Description: h.description,
+        Description: h.summary ?? h.doc,
         Type: fromSdkType(h.type, sdkContext, typeMap),
       }) as HttpResponseHeader,
   );
@@ -319,7 +318,7 @@ function getMediaTypes(type: SdkType): string[] {
     return [type.value as string];
   } else if (type.kind === "union") {
     const mediaTypes: string[] = [];
-    for (const unionItem of type.values) {
+    for (const unionItem of type.variantTypes) {
       if (unionItem.kind === "constant" && unionItem.valueType.kind === "string") {
         mediaTypes.push(unionItem.value as string);
       } else {

@@ -7,7 +7,6 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -26,11 +25,10 @@ public class XmlSequenceWrapper {
     private final Set<String> imports;
 
     public XmlSequenceWrapper(String modelTypeName, ArraySchema arraySchema, JavaSettings settings) {
-        boolean wrapperHasXmlSerialization = arraySchema.getSerialization() != null
-            && arraySchema.getSerialization().getXml() != null;
+        boolean wrapperHasXmlSerialization
+            = arraySchema.getSerialization() != null && arraySchema.getSerialization().getXml() != null;
         boolean elementHasXmlSerialization = arraySchema.getElementType().getSerialization() != null
             && arraySchema.getElementType().getSerialization().getXml() != null;
-
 
         if (wrapperHasXmlSerialization) {
             xmlRootElementName = arraySchema.getSerialization().getXml().getName();

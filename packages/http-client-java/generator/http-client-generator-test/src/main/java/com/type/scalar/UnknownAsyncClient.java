@@ -41,9 +41,11 @@ public final class UnknownAsyncClient {
      * get unknown value.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
-     * Object
-     * }</pre>
+     * <pre>
+     * {@code
+     * BinaryData
+     * }
+     * </pre>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -62,9 +64,11 @@ public final class UnknownAsyncClient {
      * put unknown value.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
-     * Object
-     * }</pre>
+     * <pre>
+     * {@code
+     * BinaryData
+     * }
+     * </pre>
      * 
      * @param body _.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -92,11 +96,10 @@ public final class UnknownAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Object> get() {
+    public Mono<BinaryData> get() {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return getWithResponse(requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(Object.class));
+        return getWithResponse(requestOptions).flatMap(FluxUtil::toMono);
     }
 
     /**
@@ -113,9 +116,9 @@ public final class UnknownAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Void> put(Object body) {
+    public Mono<Void> put(BinaryData body) {
         // Generated convenience method for putWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return putWithResponse(BinaryData.fromObject(body), requestOptions).flatMap(FluxUtil::toMono);
+        return putWithResponse(body, requestOptions).flatMap(FluxUtil::toMono);
     }
 }

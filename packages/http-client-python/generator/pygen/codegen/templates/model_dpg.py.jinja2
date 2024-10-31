@@ -57,11 +57,11 @@
         {% for param_signature in serializer.init_line(model) %}
         {{ param_signature }}
         {% endfor %}
-    ):
+    ) -> None:
         ...
 
     @overload
-    def __init__(self, mapping: Mapping[str, Any]):
+    def __init__(self, mapping: Mapping[str, Any]) -> None:
         """
         :param mapping: raw JSON to initialize the model.
         :type mapping: Mapping[str, Any]
@@ -70,7 +70,7 @@
     {% endif %}
     {% set initialize_properties = serializer.initialize_properties(model) %}
     {% if serializer.need_init(model) or initialize_properties %}
-    def __init__(self, *args: Any, **kwargs: Any) -> None:{{ serializer.pylint_disable(model) }}
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         {% for line in serializer.super_call(model) %}
         {{ line }}
         {% endfor %}

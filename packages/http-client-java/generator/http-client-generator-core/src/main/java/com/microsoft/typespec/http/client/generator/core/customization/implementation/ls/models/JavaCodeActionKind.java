@@ -3,10 +3,9 @@
 
 package com.microsoft.typespec.http.client.generator.core.customization.implementation.ls.models;
 
-import org.eclipse.lsp4j.CodeActionKind;
-
 import java.util.HashMap;
 import java.util.Map;
+import org.eclipse.lsp4j.CodeActionKind;
 
 public enum JavaCodeActionKind {
     /**
@@ -47,7 +46,8 @@ public enum JavaCodeActionKind {
     /**
      * Extract to method kind
      */
-    REFACTOR_EXTRACT_METHOD(CodeActionKind.RefactorExtract + ".function"), // using `.function` instead of `.method` to match existing keybinding),
+    REFACTOR_EXTRACT_METHOD(CodeActionKind.RefactorExtract + ".function"), // using `.function` instead of `.method` to
+                                                                           // match existing keybinding),
 
     /**
      * Extract to constant kind

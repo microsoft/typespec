@@ -3,8 +3,6 @@
 
 package com.azure.specialheaders.xmsclientrequestid;
 
-import com.azure.specialheaders.xmsclientrequestid.XmsClientRequestIdClient;
-import com.azure.specialheaders.xmsclientrequestid.XmsClientRequestIdClientBuilder;
 import org.junit.jupiter.api.Test;
 
 public class XmsClientRequestIdTests {

@@ -2,8 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.ClientModel;
-using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
@@ -98,19 +96,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 methodBody =
                 [
                     .. GetStackVariablesForProtocolParamConversion(ConvenienceMethodParameters, out var paramDeclarations),
-                    Declare("result", This.Invoke(protocolMethod.Signature, [.. GetParamConversions(ConvenienceMethodParameters, paramDeclarations), Null], isAsync).As<ClientResult>(), out ScopedApi<ClientResult> result),
+                    Declare("result", This.Invoke(protocolMethod.Signature, [.. GetParamConversions(ConvenienceMethodParameters, paramDeclarations), Null], isAsync).ToApi<ClientResponseApi>(), out ClientResponseApi result),
                     .. GetStackVariablesForReturnValueConversion(result, responseBodyType, isAsync, out var resultDeclarations),
-                    Return(Static<ClientResult>().Invoke(
-                        nameof(ClientResult.FromValue),
-                        [
-                            GetResultConversion(result, responseBodyType, resultDeclarations),
-                            result.Invoke("GetRawResponse")
-                        ])),
+                    Return(result.FromValue(GetResultConversion(result, result.GetRawResponse(), responseBodyType, resultDeclarations), result.GetRawResponse())),
                 ];
             }
 
             var convenienceMethod = new ScmMethodProvider(methodSignature, methodBody, EnclosingType);
-            convenienceMethod.XmlDocs!.Exceptions.Add(new(typeof(ClientResultException), "Service returned a non-success status code.", []));
+            // XmlDocs will be null if the method isn't public
+            convenienceMethod.XmlDocs?.Exceptions.Add(new(ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType.FrameworkType, "Service returned a non-success status code.", []));
             return convenienceMethod;
         }
 
@@ -145,7 +139,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         var bdExpression = Operation.RequestMediaTypes?.Contains("application/json") == true
                             ? BinaryDataSnippets.FromObjectAsJson(parameter)
                             : BinaryDataSnippets.FromString(parameter);
-                        statements.Add(UsingDeclare("content", BinaryContentSnippets.Create(bdExpression), out var content));
+                        statements.Add(UsingDeclare("content", RequestContentApiSnippets.Create(bdExpression), out var content));
                         declarations["content"] = content;
                     }
                     else if (parameter.Type.IsFrameworkType && !parameter.Type.Equals(typeof(BinaryData)))
@@ -201,7 +195,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return expressions;
         }
 
-        private IEnumerable<MethodBodyStatement> GetStackVariablesForReturnValueConversion(ScopedApi<ClientResult> result, CSharpType responseBodyType, bool isAsync, out Dictionary<string, ValueExpression> declarations)
+        private IEnumerable<MethodBodyStatement> GetStackVariablesForReturnValueConversion(ClientResponseApi result, CSharpType responseBodyType, bool isAsync, out Dictionary<string, ValueExpression> declarations)
         {
             if (responseBodyType.IsList)
             {
@@ -279,11 +273,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return scopedApi.Add(element);
         }
 
-        private ValueExpression GetResultConversion(ScopedApi<ClientResult> result, CSharpType responseBodyType, Dictionary<string, ValueExpression> declarations)
+        private ValueExpression GetResultConversion(ClientResponseApi result, HttpResponseApi response, CSharpType responseBodyType, Dictionary<string, ValueExpression> declarations)
         {
             if (responseBodyType.Equals(typeof(BinaryData)))
             {
-                return result.GetRawResponse().Content();
+                return response.Content();
             }
             if (responseBodyType.IsList)
             {
@@ -293,7 +287,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 }
                 else
                 {
-                    return result.GetRawResponse().Content().ToObjectFromJson(responseBodyType);
+                    return response.Content().ToObjectFromJson(responseBodyType);
                 }
             }
             if (responseBodyType.IsDictionary)
@@ -304,20 +298,20 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 }
                 else
                 {
-                    return result.GetRawResponse().Content().ToObjectFromJson(responseBodyType);
+                    return response.Content().ToObjectFromJson(responseBodyType);
                 }
             }
             if (responseBodyType.Equals(typeof(string)) && Operation.RequestMediaTypes?.Contains("text/plain") == true)
             {
-                return result.GetRawResponse().Content().InvokeToString();
+                return response.Content().InvokeToString();
             }
             if (responseBodyType.IsFrameworkType)
             {
-                return result.GetRawResponse().Content().ToObjectFromJson(responseBodyType);
+                return response.Content().ToObjectFromJson(responseBodyType);
             }
             if (responseBodyType.IsEnum)
             {
-                return responseBodyType.ToEnum(result.GetRawResponse().Content().ToObjectFromJson(responseBodyType.UnderlyingEnumType));
+                return responseBodyType.ToEnum(response.Content().ToObjectFromJson(responseBodyType.UnderlyingEnumType));
             }
             return result.CastTo(responseBodyType);
         }
@@ -344,11 +338,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     }
                     else if (param.Type.IsEnum)
                     {
-                        conversions.Add(BinaryContentSnippets.Create(BinaryDataSnippets.FromObjectAsJson(param.Type.ToSerial(param))));
+                        conversions.Add(RequestContentApiSnippets.Create(BinaryDataSnippets.FromObjectAsJson(param.Type.ToSerial(param))));
                     }
                     else if (param.Type.Equals(typeof(BinaryData)))
                     {
-                        conversions.Add(BinaryContentSnippets.Create(param));
+                        conversions.Add(RequestContentApiSnippets.Create(param));
                     }
                     else if (param.Type.IsFrameworkType)
                     {
@@ -400,26 +394,32 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             MethodBodyStatement[] methodBody =
             [
-                UsingDeclare("message", typeof(PipelineMessage), This.Invoke(createRequestMethod.Signature, [.. MethodParameters]), out var message),
-                Return(Static<ClientResult>().Invoke(nameof(ClientResult.FromResponse), client.PipelineProperty.Invoke(processMessageName, [message, ScmKnownParameters.RequestOptions], isAsync, true))),
+                UsingDeclare("message", ClientModelPlugin.Instance.TypeFactory.HttpMessageApi.HttpMessageType, This.Invoke(createRequestMethod.Signature, [.. MethodParameters]), out var message),
+                Return(ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(client.PipelineProperty.Invoke(processMessageName, [message, ScmKnownParameters.RequestOptions], isAsync, true))),
             ];
 
             var protocolMethod =
                 new ScmMethodProvider(methodSignature, methodBody, EnclosingType) { IsServiceCall = true };
-            protocolMethod.XmlDocs!.Exceptions.Add(new(typeof(ClientResultException), "Service returned a non-success status code.", []));
-            List<XmlDocStatement> listItems =
-            [
-                new XmlDocStatement("item", [], new XmlDocStatement("description", [$"This <see href=\"https://aka.ms/azsdk/net/protocol-methods\">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios."]))
-            ];
-            XmlDocStatement listXmlDoc = new XmlDocStatement("<list type=\"bullet\">", "</list>", [], innerStatements: [.. listItems]);
-            protocolMethod.XmlDocs.Summary = new XmlDocSummaryStatement([$"[Protocol Method] {Operation.Description}"], listXmlDoc);
+
+            // XmlDocs will be null if the method isn't public
+            if (protocolMethod.XmlDocs != null)
+            {
+                protocolMethod.XmlDocs?.Exceptions.Add(
+                    new(ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType.FrameworkType, "Service returned a non-success status code.", []));
+                List<XmlDocStatement> listItems =
+                [
+                    new XmlDocStatement("item", [], new XmlDocStatement("description", [$"This <see href=\"https://aka.ms/azsdk/net/protocol-methods\">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios."]))
+                ];
+                XmlDocStatement listXmlDoc = new XmlDocStatement("<list type=\"bullet\">", "</list>", [], innerStatements: [.. listItems]);
+                protocolMethod.XmlDocs!.Summary = new XmlDocSummaryStatement([$"[Protocol Method] {Operation.Description}"], listXmlDoc);
+            }
             return protocolMethod;
         }
 
         private static CSharpType? GetResponseType(IReadOnlyList<OperationResponse> responses, bool isConvenience, bool isAsync, out CSharpType? responseBodyType)
         {
             responseBodyType = null;
-            var returnType = isConvenience ? GetConvenienceReturnType(responses, out responseBodyType) : typeof(ClientResult);
+            var returnType = isConvenience ? GetConvenienceReturnType(responses, out responseBodyType) : ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseType;
             return isAsync ? new CSharpType(typeof(Task<>), returnType) : returnType;
         }
 
@@ -428,8 +428,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var response = responses.FirstOrDefault(r => !r.IsErrorResponse);
             responseBodyType = response?.BodyType is null ? null : ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(response.BodyType);
             return response is null || responseBodyType is null
-                ? typeof(ClientResult)
-                : new CSharpType(typeof(ClientResult<>), responseBodyType);
+                ? ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseType
+                : new CSharpType(ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseOfTType.FrameworkType, responseBodyType);
         }
     }
 }

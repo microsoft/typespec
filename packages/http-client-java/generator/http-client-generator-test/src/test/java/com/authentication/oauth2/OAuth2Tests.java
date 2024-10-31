@@ -6,19 +6,19 @@ package com.authentication.oauth2;
 import com.authentication.util.BearerTokenAuthenticationPolicy;
 import com.azure.core.credential.AccessToken;
 import com.azure.core.exception.HttpResponseException;
+import java.time.OffsetDateTime;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
-
-import java.time.OffsetDateTime;
 
 public class OAuth2Tests {
 
     private static OAuth2Client buildClient() {
         return new OAuth2ClientBuilder()
-                // not able to use azure-identity in this test.
-                .addPolicy(new BearerTokenAuthenticationPolicy(tokenRequestContext -> Mono.just(new AccessToken("https://security.microsoft.com/.default", OffsetDateTime.now().plusHours(1)))))
-                .buildClient();
+            // not able to use azure-identity in this test.
+            .addPolicy(new BearerTokenAuthenticationPolicy(tokenRequestContext -> Mono
+                .just(new AccessToken("https://security.microsoft.com/.default", OffsetDateTime.now().plusHours(1)))))
+            .buildClient();
     }
 
     @Test

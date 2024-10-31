@@ -1,17 +1,30 @@
 import {
   createTypeSpecLibrary,
   definePackageFlags,
-  JSONSchemaType,
+  type JSONSchemaType,
   paramMessage,
 } from "@typespec/compiler";
 
+/**
+ * File type
+ */
 export type FileType = "yaml" | "json";
+
+/**
+ * Strategy for handling the int64 type in the resulting json schema.
+ * - string: As a string
+ * - number: As a number (In JavaScript, int64 cannot be accurately represented as number)
+ *
+ */
 export type Int64Strategy = "string" | "number";
 
+/**
+ * Json schema emitter options
+ */
 export interface JSONSchemaEmitterOptions {
   /**
    * Serialize the schema as either yaml or json.
-   * @default yaml, it not specified infer from the `output-file` extension
+   * @defaultValue yaml it not specified infer from the `output-file` extension
    */
   "file-type"?: FileType;
 
@@ -32,7 +45,7 @@ export interface JSONSchemaEmitterOptions {
 
   /**
    * When true, emit all model declarations to JSON Schema without requiring
-   * the @jsonSchema decorator.
+   * the `@jsonSchema` decorator.
    */
   emitAllModels?: boolean;
 
@@ -44,6 +57,9 @@ export interface JSONSchemaEmitterOptions {
   emitAllRefs?: boolean;
 }
 
+/**
+ * Internal: Json Schema emitter options schema
+ */
 export const EmitterOptionsSchema: JSONSchemaType<JSONSchemaEmitterOptions> = {
   type: "object",
   additionalProperties: false,
@@ -85,6 +101,7 @@ export const EmitterOptionsSchema: JSONSchemaType<JSONSchemaEmitterOptions> = {
   required: [],
 };
 
+/** Internal: TypeSpec library definition */
 export const $lib = createTypeSpecLibrary({
   name: "@typespec/json-schema",
   diagnostics: {
@@ -110,12 +127,47 @@ export const $lib = createTypeSpecLibrary({
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<JSONSchemaEmitterOptions>,
   },
+  state: {
+    JsonSchema: { description: "State indexing types marked with @jsonSchema" },
+    "JsonSchema.baseURI": { description: "Contains data configured with @baseUri decorator" },
+    "JsonSchema.multipleOf": { description: "Contains data configured with @multipleOf decorator" },
+    "JsonSchema.id": { description: "Contains data configured with @id decorator" },
+    "JsonSchema.oneOf": { description: "Contains data configured with @oneOf decorator" },
+    "JsonSchema.contains": { description: "Contains data configured with @contains decorator" },
+    "JsonSchema.minContains": {
+      description: "Contains data configured with @minContains decorator",
+    },
+    "JsonSchema.maxContains": {
+      description: "Contains data configured with @maxContains decorator",
+    },
+    "JsonSchema.uniqueItems": {
+      description: "Contains data configured with @uniqueItems decorator",
+    },
+    "JsonSchema.minProperties": {
+      description: "Contains data configured with @minProperties decorator",
+    },
+    "JsonSchema.maxProperties": {
+      description: "Contains data configured with @maxProperties decorator",
+    },
+    "JsonSchema.contentEncoding": {
+      description: "Contains data configured with @contentEncoding decorator",
+    },
+    "JsonSchema.contentSchema": {
+      description: "Contains data configured with @contentSchema decorator",
+    },
+    "JsonSchema.contentMediaType": {
+      description: "Contains data configured with @contentMediaType decorator",
+    },
+    "JsonSchema.prefixItems": {
+      description: "Contains data configured with @prefixItems decorator",
+    },
+    "JsonSchema.extension": { description: "Contains data configured with @extension decorator" },
+  },
 } as const);
 
-export const $flags = definePackageFlags({
-  decoratorArgMarshalling: "new",
-});
+/** Internal: TypeSpec flags */
+export const $flags = definePackageFlags({});
 
-export const { reportDiagnostic, createStateSymbol } = $lib;
+export const { reportDiagnostic, createStateSymbol, stateKeys: JsonSchemaStateKeys } = $lib;
 
 export type JsonSchemaLibrary = typeof $lib;

@@ -10,7 +10,6 @@ package com._specs_.azure.core.lro.rpc.generated;
 
 import com._specs_.azure.core.lro.rpc.RpcClient;
 import com._specs_.azure.core.lro.rpc.RpcClientBuilder;
-import com.azure.core.http.HttpClient;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.test.TestMode;
@@ -24,11 +23,9 @@ class RpcClientTestBase extends TestProxyTestBase {
     protected void beforeTest() {
         RpcClientBuilder rpcClientbuilder = new RpcClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            rpcClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             rpcClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         rpcClient = rpcClientbuilder.buildClient();

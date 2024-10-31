@@ -1,0 +1,47 @@
+---
+export interface Props {
+  /** Should skip padding. */
+  noPadding?: boolean;
+  /** Should the background blend. */
+  blend?: boolean;
+
+  children?: React.ReactNode;
+  class?: string;
+}
+
+const { class: cls, noPadding, blend } = Astro.props;
+---
+
+<style>
+  .card {
+    border-radius: 22px;
+    position: relative;
+  }
+
+  .bg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 22px;
+    background-color: var(--colorNeutralBackground1);
+  }
+
+  .content {
+    position: relative;
+    z-index: 100;
+    padding: 20px;
+  }
+
+  .no-padding .content {
+    padding: 0px;
+  }
+
+  .blend > .bg {
+    opacity: 0.2;
+  }
+</style>
+
+<div class:list={["card", noPadding && "no-padding", blend && "blend", cls]}>
+  <div class="bg"></div>
+  <div class="content"><slot /></div>
+</div>

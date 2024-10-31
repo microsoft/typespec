@@ -6,10 +6,6 @@ namespace _Type.Union.Models
 {
     public partial class GetResponse1
     {
-        public MixedLiteralsCases Prop
-        {
-            get => throw null;
-            set => throw null;
-        }
+        public MixedLiteralsCases Prop => throw null;
     }
 }

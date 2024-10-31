@@ -66,6 +66,7 @@
     "com.cadl.enumservice.EnumServiceClientBuilder": "Cadl.EnumService.EnumOp",
     "com.cadl.enumservice.models.Color": "Cadl.EnumService.Color",
     "com.cadl.enumservice.models.ColorModel": "Cadl.EnumService.ColorModel",
+    "com.cadl.enumservice.models.OlympicRecordModel": "Cadl.EnumService.OlympicRecordModel",
     "com.cadl.enumservice.models.Operation": "Cadl.EnumService.Operation",
     "com.cadl.enumservice.models.OperationName": "Operation.name.anonymous",
     "com.cadl.enumservice.models.OperationStateValues": "Cadl.EnumService.OperationStateValues",

@@ -13,23 +13,25 @@ public class AccessTests {
 
     private final PublicOperationClient publicClient = new AccessClientBuilder().buildPublicOperationClient();
     private final InternalOperationClient internalClient = new AccessClientBuilder().buildInternalOperationClient();
-    private final SharedModelInOperationClient sharedClient = new AccessClientBuilder().buildSharedModelInOperationClient();
-    private final RelativeModelInOperationClient relativeClient = new AccessClientBuilder().buildRelativeModelInOperationClient();
+    private final SharedModelInOperationClient sharedClient
+        = new AccessClientBuilder().buildSharedModelInOperationClient();
+    private final RelativeModelInOperationClient relativeClient
+        = new AccessClientBuilder().buildRelativeModelInOperationClient();
 
     @Test
     public void test() {
-        publicClient.publicDecoratorInPublic("");
-        publicClient.noDecoratorInPublic("");
+        publicClient.publicDecoratorInPublic("sample");
+        publicClient.noDecoratorInPublic("sample");
 
-        internalClient.internalDecoratorInInternal("");
-        internalClient.noDecoratorInInternal("");
-        internalClient.publicDecoratorInInternal("");
+        internalClient.internalDecoratorInInternal("sample");
+        internalClient.noDecoratorInInternal("sample");
+        internalClient.publicDecoratorInInternal("sample");
 
-        sharedClient.publicMethod("");
-        sharedClient.internalWithResponse("", null).getValue().toObject(SharedModel.class);
+        sharedClient.publicMethod("sample");
+        sharedClient.internalWithResponse("sample", null).getValue().toObject(SharedModel.class);
 
-        relativeClient.operation("");
+        relativeClient.operation("Madge");
         AbstractModel abstractModel = relativeClient.discriminator("real");
-        Assertions.assertTrue(abstractModel instanceof RealModel);
+        Assertions.assertInstanceOf(RealModel.class, abstractModel);
     }
 }

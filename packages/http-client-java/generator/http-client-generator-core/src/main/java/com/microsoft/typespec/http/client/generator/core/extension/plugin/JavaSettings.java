@@ -8,8 +8,6 @@ import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
 import com.azure.json.JsonWriter;
-import org.slf4j.Logger;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,6 +19,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
 
 /**
  * Settings that are used by the Java AutoRest Generator.
@@ -95,15 +94,15 @@ public class JavaSettings {
             loadStringSetting("output-folder", autorestSettings::setOutputFolder);
             loadStringSetting("java-sdks-folder", autorestSettings::setJavaSdksFolder);
             // input-file
-            List<String> inputFiles = host.getValueWithJsonReader("input-file",
-                jsonReader -> jsonReader.readArray(JsonReader::getString));
+            List<String> inputFiles
+                = host.getValueWithJsonReader("input-file", jsonReader -> jsonReader.readArray(JsonReader::getString));
             if (inputFiles != null) {
                 autorestSettings.getInputFiles().addAll(inputFiles);
                 logger.debug("List of input files : {}", autorestSettings.getInputFiles());
             }
             // require (readme.md etc.)
-            List<String> require = host.getValueWithJsonReader("require",
-                jsonReader -> jsonReader.readArray(JsonReader::getString));
+            List<String> require
+                = host.getValueWithJsonReader("require", jsonReader -> jsonReader.readArray(JsonReader::getString));
             if (require != null) {
                 autorestSettings.getRequire().addAll(require);
                 logger.debug("List of require : {}", autorestSettings.getRequire());
@@ -112,52 +111,42 @@ public class JavaSettings {
             String fluent = getStringValue(host, "fluent");
 
             setHeader(getStringValue(host, "license-header"));
-            instance = new JavaSettings(
-                autorestSettings,
+            instance = new JavaSettings(autorestSettings,
                 host.getValueWithJsonReader("modelerfour", jsonReader -> jsonReader.readMap(JsonReader::readUntyped)),
-                getBooleanValue(host, "azure-arm", false),
-                getBooleanValue(host, "sdk-integration", false),
-                fluent,
-                getBooleanValue(host, "regenerate-pom", false),
-                header,
-                getStringValue(host, "service-name"),
+                getBooleanValue(host, "azure-arm", false), getBooleanValue(host, "sdk-integration", false), fluent,
+                getBooleanValue(host, "regenerate-pom", false), header, getStringValue(host, "service-name"),
                 getStringValue(host, "namespace", "com.azure.app").toLowerCase(),
-                getBooleanValue(host, "client-side-validations", false),
-                getStringValue(host, "client-type-prefix"),
+                getBooleanValue(host, "client-side-validations", false), getStringValue(host, "client-type-prefix"),
                 getBooleanValue(host, "generate-client-interfaces", false),
                 getBooleanValue(host, "generate-client-as-impl", false),
                 getStringValue(host, "implementation-subpackage", "implementation"),
-                getStringValue(host, "models-subpackage", "models"),
-                getStringValue(host, "custom-types", ""),
+                getStringValue(host, "models-subpackage", "models"), getStringValue(host, "custom-types", ""),
                 getStringValue(host, "custom-types-subpackage", ""),
                 getStringValue(host, "fluent-subpackage", "fluent"),
                 getBooleanValue(host, "required-parameter-client-methods", false),
                 getBooleanValue(host, "generate-sync-async-clients", false),
                 getBooleanValue(host, "generate-builder-per-client", false),
-                getStringValue(host, "sync-methods", "essential"),
-                getBooleanValue(host, "client-logger", false),
+                getStringValue(host, "sync-methods", "essential"), getBooleanValue(host, "client-logger", false),
                 getBooleanValue(host, "required-fields-as-ctor-args", false),
-                getBooleanValue(host, "service-interface-as-public", true),
-                getStringValue(host, "artifact-id", ""),
-                getStringValue(host, "credential-types", "none"),
-                getStringValue(host, "credential-scopes"),
-                getStringValue(host, "customization-jar-path"),
-                getStringValue(host, "customization-class"),
-                getBooleanValue(host, "optional-constant-as-enum", false),
-                getBooleanValue(host, "data-plane", false),
+                getBooleanValue(host, "service-interface-as-public", true), getStringValue(host, "artifact-id", ""),
+                getStringValue(host, "credential-types", "none"), getStringValue(host, "credential-scopes"),
+                getStringValue(host, "customization-jar-path"), getStringValue(host, "customization-class"),
+                getBooleanValue(host, "optional-constant-as-enum", false), getBooleanValue(host, "data-plane", false),
                 getBooleanValue(host, "use-iterable", false),
-                host.getValueWithJsonReader("service-versions", jsonReader -> jsonReader.readArray(JsonReader::getString)),
+                host.getValueWithJsonReader("service-versions",
+                    jsonReader -> jsonReader.readArray(JsonReader::getString)),
                 getStringValue(host, "client-flattened-annotation-target", ""),
                 getStringValue(host, "key-credential-header-name", ""),
                 getBooleanValue(host, "disable-client-builder", false),
                 host.getValueWithJsonReader("polling", jsonReader -> jsonReader.readMap(PollingDetails::fromJson)),
-                getBooleanValue(host, "generate-samples", false),
-                getBooleanValue(host, "generate-tests", false),
-                false, //getBooleanValue(host, "generate-send-request-method", false),
+                getBooleanValue(host, "generate-samples", false), getBooleanValue(host, "generate-tests", false), false, // getBooleanValue(host,
+                                                                                                                         // "generate-send-request-method",
+                                                                                                                         // false),
                 getBooleanValue(host, "annotate-getters-and-setters-for-serialization", false),
                 getStringValue(host, "default-http-exception-type"),
                 getBooleanValue(host, "use-default-http-status-code-to-exception-type-mapping", false),
-                host.getValueWithJsonReader("http-status-code-to-exception-type-mapping", JavaSettings::parseStatusCodeMapping),
+                host.getValueWithJsonReader("http-status-code-to-exception-type-mapping",
+                    JavaSettings::parseStatusCodeMapping),
                 getBooleanValue(host, "partial-update", false),
                 // If fluent default to false, this is because the automated test generation ends up with invalid code.
                 // Once that is fixed, this can be switched over to true.
@@ -169,21 +158,17 @@ public class JavaSettings {
                 getBooleanValue(host, "no-custom-headers", true),
                 getBooleanValue(host, "include-read-only-in-constructor-args", false),
                 // setting the default as true as the Java design guideline recommends using String for URLs.
-                getBooleanValue(host, "url-as-string", true),
-                getBooleanValue(host, "uuid-as-string", false),
+                getBooleanValue(host, "url-as-string", true), getBooleanValue(host, "uuid-as-string", false),
 
                 // setting this to false by default as a lot of existing libraries still use swagger and
                 // were generated with required = true set in JsonProperty annotation
                 getBooleanValue(host, "disable-required-property-annotation", false),
-                getBooleanValue(host, "enable-page-size", false),
-                getBooleanValue(host, "use-key-credential", false),
+                getBooleanValue(host, "enable-page-size", false), getBooleanValue(host, "use-key-credential", false),
                 getBooleanValue(host, "null-byte-array-maps-to-empty-array", false),
-                getBooleanValue(host, "graal-vm-config", false),
-                getStringValue(host, "flavor", "Azure"),
+                getBooleanValue(host, "graal-vm-config", false), getStringValue(host, "flavor", "Azure"),
                 getBooleanValue(host, "disable-typed-headers-methods", false),
                 getBooleanValue(host, "share-jsonserializable-code", false),
-                getBooleanValue(host, "android", false)
-            );
+                getBooleanValue(host, "use-object-for-unknown", false), getBooleanValue(host, "android", false));
         }
         return instance;
     }
@@ -277,7 +262,7 @@ public class JavaSettings {
      * previously read-only required were included in constructors.
      * @param urlAsString This generates all URLs as String type. This is enabled by default as required by the Java
      * design guidelines. For backward compatibility, this can be set to false.
-     * @param disableRequiredPropertyAnnotation  If set to true, the required property annotation will be disabled.
+     * @param disableRequiredPropertyAnnotation If set to true, the required property annotation will be disabled.
      * @param pageSizeEnabled If set to true, the generated client will have support for page size.
      * @param useKeyCredential If set to true, the generated client will have support for key credential.
      * @param nullByteArrayMapsToEmptyArray If set to true, {@code ArrayType.BYTE_ARRAY} will return an empty array
@@ -290,77 +275,37 @@ public class JavaSettings {
      * for {@code toJson} and {@code fromJson}.
      * @param android Whether to generate the Android client.
      */
-    private JavaSettings(AutorestSettings autorestSettings,
-        Map<String, Object> modelerSettings,
-        boolean azure,
-        boolean sdkIntegration,
-        String fluent,
-        boolean regeneratePom,
-        String fileHeaderText,
-        String serviceName,
-        String packageKeyword,
-        boolean clientSideValidations,
-        String clientTypePrefix,
-        boolean generateClientInterfaces,
-        boolean generateClientAsImpl,
-        String implementationSubpackage,
-        String modelsSubpackage,
-        String customTypes,
-        String customTypesSubpackage,
-        String fluentSubpackage,
-        boolean requiredParameterClientMethods,
-        boolean generateSyncAsyncClients,
-        boolean generateBuilderPerClient,
-        String syncMethods,
-        boolean clientLogger,
-        boolean requiredFieldsAsConstructorArgs,
-        boolean serviceInterfaceAsPublic,
-        String artifactId,
-        String credentialType,
-        String credentialScopes,
-        String customizationJarPath,
-        String customizationClass,
-        boolean optionalConstantAsEnum,
-        boolean dataPlaneClient,
-        boolean useIterable,
-        List<String> serviceVersions,
-        String clientFlattenAnnotationTarget,
-        String keyCredentialHeaderName,
-        boolean clientBuilderDisabled,
-        Map<String, PollingDetails> pollingConfig,
-        boolean generateSamples,
-        boolean generateTests,
-        boolean generateSendRequestMethod,
-        boolean annotateGettersAndSettersForSerialization,
-        String defaultHttpExceptionType,
-        boolean useDefaultHttpStatusCodeToExceptionTypeMapping,
-        Map<Integer, String> httpStatusCodeToExceptionTypeMapping,
-        boolean handlePartialUpdate,
-        boolean genericResponseTypes,
-        boolean streamStyleSerialization,
-        boolean isSyncStackEnabled,
-        boolean outputModelImmutable,
-        boolean streamResponseInputStream,
-        boolean noCustomHeaders,
-        boolean includeReadOnlyInConstructorArgs,
-        boolean urlAsString,
-        boolean uuidAsString,
-        boolean disableRequiredPropertyAnnotation,
-        boolean pageSizeEnabled,
-        boolean useKeyCredential,
-        boolean nullByteArrayMapsToEmptyArray,
-        boolean generateGraalVmConfig,
-        String flavor,
-        boolean disableTypedHeadersMethods,
-        boolean shareJsonSerializableCode,
+    private JavaSettings(AutorestSettings autorestSettings, Map<String, Object> modelerSettings, boolean azure,
+        boolean sdkIntegration, String fluent, boolean regeneratePom, String fileHeaderText, String serviceName,
+        String packageKeyword, boolean clientSideValidations, String clientTypePrefix, boolean generateClientInterfaces,
+        boolean generateClientAsImpl, String implementationSubpackage, String modelsSubpackage, String customTypes,
+        String customTypesSubpackage, String fluentSubpackage, boolean requiredParameterClientMethods,
+        boolean generateSyncAsyncClients, boolean generateBuilderPerClient, String syncMethods, boolean clientLogger,
+        boolean requiredFieldsAsConstructorArgs, boolean serviceInterfaceAsPublic, String artifactId,
+        String credentialType, String credentialScopes, String customizationJarPath, String customizationClass,
+        boolean optionalConstantAsEnum, boolean dataPlaneClient, boolean useIterable, List<String> serviceVersions,
+        String clientFlattenAnnotationTarget, String keyCredentialHeaderName, boolean clientBuilderDisabled,
+        Map<String, PollingDetails> pollingConfig, boolean generateSamples, boolean generateTests,
+        boolean generateSendRequestMethod, boolean annotateGettersAndSettersForSerialization,
+        String defaultHttpExceptionType, boolean useDefaultHttpStatusCodeToExceptionTypeMapping,
+        Map<Integer, String> httpStatusCodeToExceptionTypeMapping, boolean handlePartialUpdate,
+        boolean genericResponseTypes, boolean streamStyleSerialization, boolean isSyncStackEnabled,
+        boolean outputModelImmutable, boolean streamResponseInputStream, boolean noCustomHeaders,
+        boolean includeReadOnlyInConstructorArgs, boolean urlAsString, boolean uuidAsString,
+        boolean disableRequiredPropertyAnnotation, boolean pageSizeEnabled, boolean useKeyCredential,
+        boolean nullByteArrayMapsToEmptyArray, boolean generateGraalVmConfig, String flavor,
+        boolean disableTypedHeadersMethods, boolean shareJsonSerializableCode, boolean useObjectForUnknown,
         boolean android) {
 
         this.autorestSettings = autorestSettings;
         this.modelerSettings = new ModelerSettings(modelerSettings);
         this.azure = azure;
         this.sdkIntegration = sdkIntegration;
-        this.fluent = fluent == null ? Fluent.NONE : (fluent.isEmpty() || fluent.equalsIgnoreCase("true")
-            ? Fluent.PREMIUM : Fluent.valueOf(fluent.toUpperCase(Locale.ROOT)));
+        this.fluent = fluent == null
+            ? Fluent.NONE
+            : (fluent.isEmpty() || fluent.equalsIgnoreCase("true")
+                ? Fluent.PREMIUM
+                : Fluent.valueOf(fluent.toUpperCase(Locale.ROOT)));
         this.regeneratePom = regeneratePom;
         this.fileHeaderText = fileHeaderText;
         this.serviceName = serviceName;
@@ -372,7 +317,8 @@ public class JavaSettings {
         this.implementationSubpackage = implementationSubpackage;
         this.modelsSubpackage = modelsSubpackage;
         this.customTypes = (customTypes == null || customTypes.isEmpty())
-            ? new ArrayList<>() : Arrays.asList(customTypes.split(","));
+            ? new ArrayList<>()
+            : Arrays.asList(customTypes.split(","));
         this.customTypesSubpackage = customTypesSubpackage;
         this.fluentSubpackage = fluentSubpackage;
         this.requiredParameterClientMethods = requiredParameterClientMethods;
@@ -387,29 +333,24 @@ public class JavaSettings {
         this.dataPlaneClient = dataPlaneClient;
         this.useIterable = useIterable;
         this.serviceVersions = serviceVersions;
-        this.clientFlattenAnnotationTarget =
-            (clientFlattenAnnotationTarget == null || clientFlattenAnnotationTarget.isEmpty())
+        this.clientFlattenAnnotationTarget
+            = (clientFlattenAnnotationTarget == null || clientFlattenAnnotationTarget.isEmpty())
                 ? ClientFlattenAnnotationTarget.TYPE
                 : ClientFlattenAnnotationTarget.valueOf(clientFlattenAnnotationTarget.toUpperCase(Locale.ROOT));
 
         if (credentialType != null) {
             String[] splits = credentialType.split(",");
-            this.credentialTypes = Arrays.stream(splits)
-                .map(String::trim)
-                .map(CredentialType::fromValue)
-                .collect(Collectors.toSet());
+            this.credentialTypes
+                = Arrays.stream(splits).map(String::trim).map(CredentialType::fromValue).collect(Collectors.toSet());
         }
         if (credentialScopes != null) {
             String[] splits = credentialScopes.split(",");
-            this.credentialScopes = Arrays.stream(splits)
-                .map(String::trim)
-                .map(split -> {
-                    if (!split.startsWith("\"")) {
-                        split = "\"" + split + "\"";
-                    }
-                    return split;
-                })
-                .collect(Collectors.toSet());
+            this.credentialScopes = Arrays.stream(splits).map(String::trim).map(split -> {
+                if (!split.startsWith("\"")) {
+                    split = "\"" + split + "\"";
+                }
+                return split;
+            }).collect(Collectors.toSet());
         }
         this.customizationJarPath = customizationJarPath;
         this.customizationClass = customizationClass;
@@ -453,6 +394,7 @@ public class JavaSettings {
         this.flavor = flavor;
         this.disableTypedHeadersMethods = disableTypedHeadersMethods;
         this.shareJsonSerializableCode = shareJsonSerializableCode;
+        this.useObjectForUnknown = useObjectForUnknown;
         this.android = android;
     }
 
@@ -476,7 +418,6 @@ public class JavaSettings {
         return this.keyCredentialHeaderName;
     }
 
-
     private Set<CredentialType> credentialTypes;
 
     /**
@@ -487,7 +428,6 @@ public class JavaSettings {
     public Set<CredentialType> getCredentialTypes() {
         return credentialTypes;
     }
-
 
     private Set<String> credentialScopes;
 
@@ -500,7 +440,6 @@ public class JavaSettings {
         return credentialScopes;
     }
 
-
     private final boolean azure;
 
     /**
@@ -511,7 +450,6 @@ public class JavaSettings {
     public final boolean isAzure() {
         return azure;
     }
-
 
     private final String artifactId;
 
@@ -532,7 +470,6 @@ public class JavaSettings {
     public boolean isNoCustomHeaders() {
         return noCustomHeaders;
     }
-
 
     private final boolean urlAsString;
 
@@ -1353,11 +1290,9 @@ public class JavaSettings {
         /**
          * The default polling strategy format.
          */
-        public static final String DEFAULT_POLLING_STRATEGY_FORMAT = String.join("\n",
-                "new %s<>(new PollingStrategyOptions({httpPipeline})",
-                "    .setEndpoint({endpoint})",
-                "    .setContext({context})",
-                "    .setServiceVersion({serviceVersion}))");
+        public static final String DEFAULT_POLLING_STRATEGY_FORMAT
+            = String.join("\n", "new %s<>(new PollingStrategyOptions({httpPipeline})", "    .setEndpoint({endpoint})",
+                "    .setContext({context})", "    .setServiceVersion({serviceVersion}))");
 
         private static final String DEFAULT_POLLING_CODE
             = String.format(DEFAULT_POLLING_STRATEGY_FORMAT, "DefaultPollingStrategy");
@@ -1531,7 +1466,8 @@ public class JavaSettings {
      */
     public Map<Integer, String> getHttpStatusCodeToExceptionTypeMapping() {
         return httpStatusCodeToExceptionTypeMapping == null
-            ? null : Collections.unmodifiableMap(httpStatusCodeToExceptionTypeMapping);
+            ? null
+            : Collections.unmodifiableMap(httpStatusCodeToExceptionTypeMapping);
     }
 
     private final boolean generateBuilderPerClient;
@@ -1674,6 +1610,12 @@ public class JavaSettings {
         return shareJsonSerializableCode;
     }
 
+    private final boolean useObjectForUnknown;
+
+    public boolean isUseObjectForUnknown() {
+        return useObjectForUnknown;
+    }
+
     private final boolean android;
 
     /**
@@ -1685,36 +1627,30 @@ public class JavaSettings {
         return android;
     }
 
-    private static final String DEFAULT_CODE_GENERATION_HEADER = String.join("\n",
-        "Code generated by Microsoft (R) AutoRest Code Generator %s",
-        "Changes may cause incorrect behavior and will be lost if the code is regenerated.");
+    private static final String DEFAULT_CODE_GENERATION_HEADER
+        = String.join("\n", "Code generated by Microsoft (R) AutoRest Code Generator %s",
+            "Changes may cause incorrect behavior and will be lost if the code is regenerated.");
 
-    private static final String DEFAULT_CODE_GENERATION_HEADER_WITHOUT_VERSION = String.join("\n",
-        "Code generated by Microsoft (R) AutoRest Code Generator.",
-        "Changes may cause incorrect behavior and will be lost if the code is regenerated.");
+    private static final String DEFAULT_CODE_GENERATION_HEADER_WITHOUT_VERSION
+        = String.join("\n", "Code generated by Microsoft (R) AutoRest Code Generator.",
+            "Changes may cause incorrect behavior and will be lost if the code is regenerated.");
 
     private static final String MICROSOFT_APACHE_LICENSE_HEADER = String.join("\n",
         "Copyright (c) Microsoft and contributors.  All rights reserved.\n",
         "Licensed under the Apache License, Version 2.0 (the \"License\");",
-        "you may not use this file except in compliance with the License.",
-        "You may obtain a copy of the License at",
+        "you may not use this file except in compliance with the License.", "You may obtain a copy of the License at",
         "  https://www.apache.org/licenses/LICENSE-2.0\n",
         "Unless required by applicable law or agreed to in writing, software",
         "distributed under the License is distributed on an \"AS IS\" BASIS,",
         "WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n",
-        "See the License for the specific language governing permissions and",
-        "limitations under the License.",
-        "");
+        "See the License for the specific language governing permissions and", "limitations under the License.", "");
 
-    private static final String MICROSOFT_MIT_LICENSE_HEADER = String.join("\n",
-        "Copyright (c) Microsoft Corporation. All rights reserved.",
-        "Licensed under the MIT License. See License.txt in the project root for license information.",
-        "");
+    private static final String MICROSOFT_MIT_LICENSE_HEADER
+        = String.join("\n", "Copyright (c) Microsoft Corporation. All rights reserved.",
+            "Licensed under the MIT License. See License.txt in the project root for license information.", "");
 
     private static final String MICROSOFT_MIT_SMALL_LICENSE_HEADER = String.join("\n",
-        "Copyright (c) Microsoft Corporation. All rights reserved.",
-        "Licensed under the MIT License.",
-        "");
+        "Copyright (c) Microsoft Corporation. All rights reserved.", "Licensed under the MIT License.", "");
 
     private static void loadStringSetting(String settingName, Consumer<String> action) {
         String settingValue = host.getStringValue(settingName);

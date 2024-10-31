@@ -74,7 +74,9 @@ namespace Microsoft.Generator.CSharp.Providers
             PropertyProvider? property = null,
             FieldProvider? field = null,
             ValueExpression? initializationValue = null,
-            ParameterLocation? location = null)
+            ParameterLocation? location = null,
+            WireInformation? wireInfo = null,
+            ParameterValidationType? validation = null)
         {
             Debug.Assert(!(property is not null && field is not null), "A parameter cannot be both a property and a field");
 
@@ -87,9 +89,9 @@ namespace Microsoft.Generator.CSharp.Providers
             Attributes = attributes ?? Array.Empty<AttributeStatement>();
             Property = property;
             Field = field;
-            Validation = GetParameterValidation();
+            Validation = validation ?? GetParameterValidation();
             InitializationValue = initializationValue;
-            WireInfo = new WireInformation(SerializationFormat.Default, name);
+            WireInfo = wireInfo ?? new WireInformation(SerializationFormat.Default, name);
             Location = location ?? ParameterLocation.Unknown;
         }
 
@@ -110,11 +112,14 @@ namespace Microsoft.Generator.CSharp.Providers
                 IsRef,
                 IsOut,
                 Attributes,
-                property: Property,
-                field: Field)
+                Property,
+                Field,
+                InitializationValue,
+                location: Location,
+                wireInfo: WireInfo,
+                validation: Validation)
             {
-                Validation = Validation,
-                _asVariable = AsExpression,
+                _asVariable = AsExpression
             };
         }
 
@@ -163,7 +168,7 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             if (parameter._asVariable == null)
             {
-                parameter._asVariable = new VariableExpression(parameter.Type, parameter.Name, parameter.IsRef);
+                parameter._asVariable = new VariableExpression(parameter.Type, parameter.Name.ToVariableName(), parameter.IsRef);
             }
 
             return parameter._asVariable;
@@ -213,9 +218,11 @@ namespace Microsoft.Generator.CSharp.Providers
                 Attributes,
                 Property,
                 Field,
-                InitializationValue)
+                InitializationValue,
+                location: Location,
+                wireInfo: WireInfo,
+                validation: Validation)
             {
-                Validation = Validation,
                 _asVariable = AsExpression,
             };
         }

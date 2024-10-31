@@ -3,13 +3,12 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.extensionmodel;
 
+import static com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils.readObject;
+
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonWriter;
-
 import java.io.IOException;
-
-import static com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils.readObject;
 
 /**
  * Represents the options for a long-running operation.
@@ -46,9 +45,7 @@ public class XmsLongRunningOperationOptions implements JsonSerializable<XmsLongR
 
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return jsonWriter.writeStartObject()
-            .writeStringField("finalStateVia", finalStateVia)
-            .writeEndObject();
+        return jsonWriter.writeStartObject().writeStringField("finalStateVia", finalStateVia).writeEndObject();
     }
 
     /**

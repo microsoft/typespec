@@ -1,5 +1,16 @@
 # Change Log - @typespec/openapi3
 
+## 0.61.0
+
+### Bump dependencies
+
+- [#4424](https://github.com/microsoft/typespec/pull/4424) Bump dependencies
+
+### Features
+
+- [#4423](https://github.com/microsoft/typespec/pull/4423) Added support to use Scalar and Object as default types
+
+
 ## 0.60.0
 
 ### Bug Fixes

@@ -11,10 +11,10 @@ import com.versioning.added.models.ModelV2;
 import org.junit.jupiter.api.Test;
 
 public class AddedClientTests {
-    private final AddedClient addedClient = new AddedClientBuilder()
-            .endpoint("http://localhost:3000").version("v2").buildClient();
-    private final InterfaceV2Client interfaceV2Client = new AddedClientBuilder()
-            .endpoint("http://localhost:3000").version("v2").buildInterfaceV2Client();
+    private final AddedClient addedClient
+        = new AddedClientBuilder().endpoint("http://localhost:3000").version("v2").buildClient();
+    private final InterfaceV2Client interfaceV2Client
+        = new AddedClientBuilder().endpoint("http://localhost:3000").version("v2").buildInterfaceV2Client();
 
     @Test
     public void testAddedClient() {

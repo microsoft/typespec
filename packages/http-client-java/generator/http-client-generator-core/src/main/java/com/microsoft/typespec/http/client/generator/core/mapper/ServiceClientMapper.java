@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
+import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ConstantSchema;
@@ -29,8 +30,6 @@ import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
-import com.azure.core.util.CoreUtils;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -63,18 +62,17 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
         String serviceClientInterfaceName = ClientModelUtil.getClientInterfaceName(codeModel);
         String serviceClientClassName = ClientModelUtil.getClientImplementClassName(serviceClientInterfaceName);
         String packageName = ClientModelUtil.getServiceClientPackageName(serviceClientClassName);
-        builder.interfaceName(serviceClientInterfaceName)
-                .className(serviceClientClassName)
-                .packageName(packageName);
+        builder.interfaceName(serviceClientInterfaceName).className(serviceClientClassName).packageName(packageName);
 
         if (!CoreUtils.isNullOrEmpty(codeModel.getOperationGroups())) {
             builder.baseUrl(getBaseUrl(codeModel));
         }
 
-        List<Operation> codeModelRestAPIMethods = codeModel.getOperationGroups().stream()
-                .filter(og -> CoreUtils.isNullOrEmpty(og.getLanguage().getJava().getName()))
-                .flatMap(og -> og.getOperations().stream())
-                .collect(Collectors.toList());
+        List<Operation> codeModelRestAPIMethods = codeModel.getOperationGroups()
+            .stream()
+            .filter(og -> CoreUtils.isNullOrEmpty(og.getLanguage().getJava().getName()))
+            .flatMap(og -> og.getOperations().stream())
+            .collect(Collectors.toList());
 
         Proxy proxy = null;
         if (!codeModelRestAPIMethods.isEmpty()) {
@@ -83,13 +81,15 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
             builder.clientMethods(Collections.emptyList());
         }
 
-        List<ServiceClientProperty> properties = processClientProperties(codeModel, ClientModelUtil.getServiceVersionClassName(serviceClientInterfaceName));
+        List<ServiceClientProperty> properties = processClientProperties(codeModel,
+            ClientModelUtil.getServiceVersionClassName(serviceClientInterfaceName));
 
         List<MethodGroupClient> serviceClientMethodGroupClients = new ArrayList<>();
-        List<OperationGroup> codeModelMethodGroups = codeModel.getOperationGroups().stream()
-                .filter(og -> og.getLanguage().getJava().getName() != null &&
-                        !og.getLanguage().getJava().getName().isEmpty())
-                .collect(Collectors.toList());
+        List<OperationGroup> codeModelMethodGroups = codeModel.getOperationGroups()
+            .stream()
+            .filter(
+                og -> og.getLanguage().getJava().getName() != null && !og.getLanguage().getJava().getName().isEmpty())
+            .collect(Collectors.toList());
         for (OperationGroup codeModelMethodGroup : codeModelMethodGroups) {
             serviceClientMethodGroupClients.add(Mappers.getMethodGroupMapper().map(codeModelMethodGroup, properties));
         }
@@ -109,26 +109,27 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
     }
 
     protected ClientMethodParameter createSerializerAdapterParameter() {
-        return new ClientMethodParameter.Builder()
-                .description("The serializer to serialize an object into a string")
-                .finalParameter(false)
-                .wireType(ClassType.SERIALIZER_ADAPTER)
-                .name("serializerAdapter")
-                .required(true)
-                .constant(false)
-                .fromClient(true)
-                .defaultValue(null)
-                .annotations(new ArrayList<>())
-                .build();
+        return new ClientMethodParameter.Builder().description("The serializer to serialize an object into a string")
+            .finalParameter(false)
+            .wireType(ClassType.SERIALIZER_ADAPTER)
+            .name("serializerAdapter")
+            .required(true)
+            .constant(false)
+            .fromClient(true)
+            .defaultValue(null)
+            .annotations(new ArrayList<>())
+            .build();
     }
 
     protected IType getHttpPipelineClassType() {
         return ClassType.HTTP_PIPELINE;
     }
 
-    protected void addSerializerAdapterProperty(List<ServiceClientProperty> serviceClientProperties, JavaSettings settings) {
+    protected void addSerializerAdapterProperty(List<ServiceClientProperty> serviceClientProperties,
+        JavaSettings settings) {
         if (settings.isBranded()) {
-            serviceClientProperties.add(new ServiceClientProperty("The serializer to serialize an object into a string.",
+            serviceClientProperties
+                .add(new ServiceClientProperty("The serializer to serialize an object into a string.",
                     ClassType.SERIALIZER_ADAPTER, "serializerAdapter", true, null,
                     settings.isFluent() ? JavaVisibility.PackagePrivate : JavaVisibility.Public));
         }
@@ -136,7 +137,7 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
 
     protected void addHttpPipelineProperty(List<ServiceClientProperty> serviceClientProperties) {
         serviceClientProperties.add(new ServiceClientProperty("The HTTP pipeline to send requests through.",
-                ClassType.HTTP_PIPELINE, "httpPipeline", true, null));
+            ClassType.HTTP_PIPELINE, "httpPipeline", true, null));
     }
 
     protected ServiceClient.Builder createClientBuilder() {
@@ -145,37 +146,48 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
 
     protected static String getBaseUrl(CodeModel codeModel) {
         // assume all operations share the same base url
-        return codeModel.getOperationGroups().get(0).getOperations().get(0).getRequests().get(0)
-                .getProtocol().getHttp().getUri();
+        return codeModel.getOperationGroups()
+            .get(0)
+            .getOperations()
+            .get(0)
+            .getRequests()
+            .get(0)
+            .getProtocol()
+            .getHttp()
+            .getUri();
     }
 
     protected static String getBaseUrl(Operation operation) {
         // assume all operations share the same base url
-        return operation.getRequests().get(0)
-                .getProtocol().getHttp().getUri();
+        return operation.getRequests().get(0).getProtocol().getHttp().getUri();
     }
 
-    protected Proxy processClientOperations(ServiceClient.Builder builder, List<Operation> operations, String baseName) {
+    protected Proxy processClientOperations(ServiceClient.Builder builder, List<Operation> operations,
+        String baseName) {
         JavaSettings settings = JavaSettings.getInstance();
 
         // TODO: Assume all operations share the same base url
-        Proxy.Builder proxyBuilder = getProxyBuilder()
-                .name(baseName + "Service")
-                .clientTypeName(baseName)
-                .baseURL(getBaseUrl(operations.iterator().next()));
+        Proxy.Builder proxyBuilder = getProxyBuilder().name(baseName + "Service")
+            .clientTypeName(baseName)
+            .baseURL(getBaseUrl(operations.iterator().next()));
         List<ProxyMethod> restAPIMethods = new ArrayList<>();
         for (Operation operation : operations) {
             if (settings.isDataPlaneClient()) {
                 MethodUtil.tryMergeBinaryRequestsAndUpdateOperation(operation.getRequests(), operation);
             }
-            restAPIMethods.addAll(Mappers.getProxyMethodMapper().map(operation).values().stream().flatMap(Collection::stream).collect(Collectors.toList()));
+            restAPIMethods.addAll(Mappers.getProxyMethodMapper()
+                .map(operation)
+                .values()
+                .stream()
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList()));
         }
         proxyBuilder.methods(restAPIMethods);
         Proxy proxy = proxyBuilder.build();
         builder.proxy(proxy);
         List<ClientMethod> clientMethods = operations.stream()
-                .flatMap(m -> Mappers.getClientMethodMapper().map(m).stream())
-                .collect(Collectors.toList());
+            .flatMap(m -> Mappers.getClientMethodMapper().map(m).stream())
+            .collect(Collectors.toList());
         if (settings.isGenerateSendRequestMethod()) {
             clientMethods.add(ClientMethod.getAsyncSendRequestClientMethod(false));
             if (settings.getSyncMethods() != JavaSettings.SyncMethodsGeneration.NONE) {
@@ -191,26 +203,29 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
         JavaSettings settings = JavaSettings.getInstance();
 
         List<ServiceClientProperty> serviceClientProperties = new ArrayList<>();
-        List<Parameter> clientParameters = Stream.concat(client.getGlobalParameters().stream(),
-                        client.getOperationGroups().stream()
-                                .flatMap(og -> og.getOperations().stream())
-                                .flatMap(o -> o.getRequests().stream())
-                                .flatMap(r -> r.getParameters().stream()))
-                .filter(p -> p.getImplementation() == Parameter.ImplementationLocation.CLIENT)
-                .distinct()
-                .collect(Collectors.toList());
+        List<Parameter> clientParameters = Stream
+            .concat(client.getGlobalParameters().stream(),
+                client.getOperationGroups()
+                    .stream()
+                    .flatMap(og -> og.getOperations().stream())
+                    .flatMap(o -> o.getRequests().stream())
+                    .flatMap(r -> r.getParameters().stream()))
+            .filter(p -> p.getImplementation() == Parameter.ImplementationLocation.CLIENT)
+            .distinct()
+            .collect(Collectors.toList());
         String apiVersionSerializedName = "api-version";
         for (Parameter p : clientParameters) {
             String serializedName = p.getLanguage().getDefault().getSerializedName();
 
-            if (settings.isDataPlaneClient() && ParameterSynthesizedOrigin.fromValue(p.getOrigin()) == ParameterSynthesizedOrigin.API_VERSION) {
+            if (settings.isDataPlaneClient()
+                && ParameterSynthesizedOrigin.fromValue(p.getOrigin()) == ParameterSynthesizedOrigin.API_VERSION) {
                 // skip api-version, ServiceVersion will always be added to client for DPG
                 apiVersionSerializedName = serializedName;
                 continue;
             }
 
-            String description =
-                    p.getDescription() != null ? p.getDescription() : p.getLanguage().getJava().getDescription();
+            String description
+                = p.getDescription() != null ? p.getDescription() : p.getLanguage().getJava().getDescription();
             String summary = p.getSummary();
             description = SchemaUtil.mergeSummaryWithDescription(summary, description);
 
@@ -219,7 +234,8 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
             IType serviceClientPropertyClientType = Mappers.getSchemaMapper().map(p.getSchema());
             if (settings.isDataPlaneClient()) {
                 // mostly for Enum to String
-                serviceClientPropertyClientType = SchemaUtil.removeModelFromParameter(RequestParameterLocation.URI, serviceClientPropertyClientType);
+                serviceClientPropertyClientType = SchemaUtil.removeModelFromParameter(RequestParameterLocation.URI,
+                    serviceClientPropertyClientType);
             }
             if (p.isNullable() && serviceClientPropertyClientType != null) {
                 serviceClientPropertyClientType = serviceClientPropertyClientType.asNullable();
@@ -229,20 +245,20 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
             if (!settings.isFluent()) {
                 serviceClientPropertyIsReadOnly = false;
             }
-            String serviceClientPropertyDefaultValueExpression = serviceClientPropertyClientType.defaultValueExpression(ClientModelUtil.getClientDefaultValueOrConstantValue(p));
+            String serviceClientPropertyDefaultValueExpression = serviceClientPropertyClientType
+                .defaultValueExpression(ClientModelUtil.getClientDefaultValueOrConstantValue(p));
             boolean serviceClientPropertyRequired = p.isRequired();
 
             if (serviceClientPropertyClientType != ClassType.TOKEN_CREDENTIAL) {
-                ServiceClientProperty serviceClientProperty =
-                        new ServiceClientProperty.Builder()
-                                .description(description)
-                                .type(serviceClientPropertyClientType)
-                                .name(serviceClientPropertyName)
-                                .readOnly(serviceClientPropertyIsReadOnly)
-                                .defaultValueExpression(serviceClientPropertyDefaultValueExpression)
-                                .required(serviceClientPropertyRequired)
-                                .requestParameterName(serializedName)
-                                .build();
+                ServiceClientProperty serviceClientProperty
+                    = new ServiceClientProperty.Builder().description(description)
+                        .type(serviceClientPropertyClientType)
+                        .name(serviceClientPropertyName)
+                        .readOnly(serviceClientPropertyIsReadOnly)
+                        .defaultValueExpression(serviceClientPropertyDefaultValueExpression)
+                        .required(serviceClientPropertyRequired)
+                        .requestParameterName(serializedName)
+                        .build();
                 if (!serviceClientProperties.contains(serviceClientProperty)) {
                     // Ignore duplicate client property.
                     serviceClientProperties.add(serviceClientProperty);
@@ -252,40 +268,39 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
 
         if (settings.isDataPlaneClient() && serviceVersionClassName != null) {
             // Always add a ServiceVersion parameter for DPG
-            serviceClientProperties.add(new ServiceClientProperty.Builder()
-                    .description("Service version")
-                    .type(new ClassType.Builder()
-                            .name(serviceVersionClassName)
-                            .packageName(settings.getPackage())
-                            .build())
-                    .name("serviceVersion")
-                    .readOnly(false)
-                    .defaultValueExpression(serviceVersionClassName + ".getLatest()")
-                    .required(false)
-                    .requestParameterName(apiVersionSerializedName)
-                    .build());
+            serviceClientProperties.add(new ServiceClientProperty.Builder().description("Service version")
+                .type(new ClassType.Builder().name(serviceVersionClassName).packageName(settings.getPackage()).build())
+                .name("serviceVersion")
+                .readOnly(false)
+                .defaultValueExpression(serviceVersionClassName + ".getLatest()")
+                .required(false)
+                .requestParameterName(apiVersionSerializedName)
+                .build());
         }
 
         return serviceClientProperties;
     }
 
-    protected void processParametersAndConstructors(ServiceClient.Builder builder, Client client, CodeModel codeModel, List<ServiceClientProperty> serviceClientProperties, Proxy proxy) {
+    protected void processParametersAndConstructors(ServiceClient.Builder builder, Client client, CodeModel codeModel,
+        List<ServiceClientProperty> serviceClientProperties, Proxy proxy) {
         JavaSettings settings = JavaSettings.getInstance();
 
-        List<Parameter> clientParameters = Stream.concat(client.getGlobalParameters().stream(),
-                        client.getOperationGroups().stream()
-                                .flatMap(og -> og.getOperations().stream())
-                                .flatMap(o -> o.getRequests().stream())
-                                .flatMap(r -> r.getParameters().stream()))
-                .filter(p -> p.getImplementation() == Parameter.ImplementationLocation.CLIENT)
-                .distinct()
-                .collect(Collectors.toList());
+        List<Parameter> clientParameters = Stream
+            .concat(client.getGlobalParameters().stream(),
+                client.getOperationGroups()
+                    .stream()
+                    .flatMap(og -> og.getOperations().stream())
+                    .flatMap(o -> o.getRequests().stream())
+                    .flatMap(r -> r.getParameters().stream()))
+            .filter(p -> p.getImplementation() == Parameter.ImplementationLocation.CLIENT)
+            .distinct()
+            .collect(Collectors.toList());
 
         addHttpPipelineProperty(serviceClientProperties);
         addSerializerAdapterProperty(serviceClientProperties, settings);
         if (settings.isFluent()) {
-            serviceClientProperties.add(new ServiceClientProperty.Builder()
-                    .description("The default poll interval for long-running operation.")
+            serviceClientProperties.add(
+                new ServiceClientProperty.Builder().description("The default poll interval for long-running operation.")
                     .type(ClassType.DURATION)
                     .name("defaultPollInterval")
                     .readOnly(true)
@@ -294,8 +309,8 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
 
         builder.properties(serviceClientProperties);
 
-        ClientMethodParameter tokenCredentialParameter = new ClientMethodParameter.Builder()
-                .description("the credentials for Azure")
+        ClientMethodParameter tokenCredentialParameter
+            = new ClientMethodParameter.Builder().description("the credentials for Azure")
                 .finalParameter(false)
                 .wireType(ClassType.TOKEN_CREDENTIAL)
                 .name("credential")
@@ -306,8 +321,8 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
                 .annotations(new ArrayList<>())
                 .build();
 
-        ClientMethodParameter httpPipelineParameter = new ClientMethodParameter.Builder()
-                .description("The HTTP pipeline to send requests through")
+        ClientMethodParameter httpPipelineParameter
+            = new ClientMethodParameter.Builder().description("The HTTP pipeline to send requests through")
                 .finalParameter(false)
                 .wireType(getHttpPipelineClassType())
                 .name("httpPipeline")
@@ -322,31 +337,33 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
 
         // map security information in code model to ServiceClient.SecurityInfo
         SecurityInfo securityInfo = new SecurityInfo();
-        if (codeModel.getSecurity() != null &&
-                codeModel.getSecurity().getSchemes() != null &&
-                codeModel.getSecurity().isAuthenticationRequired()) {
+        if (codeModel.getSecurity() != null
+            && codeModel.getSecurity().getSchemes() != null
+            && codeModel.getSecurity().isAuthenticationRequired()) {
             final String userImpersonationScope = "user_impersonation";
 
             SecurityInfo securityInfoInCodeModel = new SecurityInfo();
             codeModel.getSecurity().getSchemes().forEach(securityScheme -> {
                 // hack, ignore "user_impersonation", as these non-AADToken appears in modelerfour 4.23.0+
                 if (securityScheme.getType() == Scheme.SecuritySchemeType.OAUTH2
-                        && securityScheme.getScopes().size() == 1
-                        && userImpersonationScope.equals(securityScheme.getScopes().iterator().next())) {
+                    && securityScheme.getScopes().size() == 1
+                    && userImpersonationScope.equals(securityScheme.getScopes().iterator().next())) {
                     return;
                 }
 
                 securityInfoInCodeModel.getSecurityTypes().add(securityScheme.getType());
                 if (securityScheme.getType().equals(Scheme.SecuritySchemeType.OAUTH2)) {
-                    Set<String> credentialScopes = securityScheme.getScopes().stream()
-                            .filter(s -> !userImpersonationScope.equals(s)) // hack, filter out "user_impersonation"
-                            .map(scope -> {
-                                if (!scope.startsWith("\"")) {
-                                    return "\"" + scope + "\"";
-                                } else {
-                                    return scope;
-                                }
-                            }).collect(Collectors.toSet());
+                    Set<String> credentialScopes = securityScheme.getScopes()
+                        .stream()
+                        .filter(s -> !userImpersonationScope.equals(s)) // hack, filter out "user_impersonation"
+                        .map(scope -> {
+                            if (!scope.startsWith("\"")) {
+                                return "\"" + scope + "\"";
+                            } else {
+                                return scope;
+                            }
+                        })
+                        .collect(Collectors.toSet());
                     securityInfoInCodeModel.setScopes(credentialScopes);
                 }
                 if (securityScheme.getType().equals(Scheme.SecuritySchemeType.KEY)) {
@@ -358,8 +375,9 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
         }
 
         // overwrite securityInfo using JavaSettings
-        if (settings.getCredentialTypes() != null && !settings.getCredentialTypes().isEmpty() &&
-                !settings.getCredentialTypes().contains(JavaSettings.CredentialType.NONE)) {
+        if (settings.getCredentialTypes() != null
+            && !settings.getCredentialTypes().isEmpty()
+            && !settings.getCredentialTypes().contains(JavaSettings.CredentialType.NONE)) {
             SecurityInfo securityInfoInJavaSettings = new SecurityInfo();
             if (settings.getCredentialTypes().contains(JavaSettings.CredentialType.TOKEN_CREDENTIAL)) {
                 securityInfoInJavaSettings.getSecurityTypes().add(Scheme.SecuritySchemeType.OAUTH2);
@@ -387,7 +405,9 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
                 while (start >= 0) {
                     int end = host.indexOf("}", start);
                     String serializedName = host.substring(start + 1, end);
-                    Optional<Parameter> hostParam = clientParameters.stream().filter(p -> serializedName.equals(p.getLanguage().getJava().getSerializedName())).findFirst();
+                    Optional<Parameter> hostParam = clientParameters.stream()
+                        .filter(p -> serializedName.equals(p.getLanguage().getJava().getSerializedName()))
+                        .findFirst();
                     if (hostParam.isPresent()) {
                         parameters.add(hostParam.get().getLanguage().getJava().getName());
                         host = host.substring(0, start) + "%s" + host.substring(end + 1);
@@ -397,7 +417,8 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
                 if (parameters.isEmpty()) {
                     scopeParams = String.format("\"%s/.default\"", host);
                 } else {
-                    scopeParams = String.format("String.format(\"%s/.default\", %s)", host, String.join(", ", parameters));
+                    scopeParams
+                        = String.format("String.format(\"%s/.default\", %s)", host, String.join(", ", parameters));
                 }
             }
             builder.defaultCredentialScopes(scopeParams);
@@ -408,11 +429,11 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
         if (!settings.isBranded()) {
             serviceClientConstructors.add(new Constructor(Collections.singletonList(httpPipelineParameter)));
             builder.tokenCredentialParameter(tokenCredentialParameter)
-                    .httpPipelineParameter(httpPipelineParameter)
-                    .constructors(serviceClientConstructors);
+                .httpPipelineParameter(httpPipelineParameter)
+                .constructors(serviceClientConstructors);
         } else if (settings.isFluent()) {
-            ClientMethodParameter azureEnvironmentParameter = new ClientMethodParameter.Builder()
-                    .description("The Azure environment")
+            ClientMethodParameter azureEnvironmentParameter
+                = new ClientMethodParameter.Builder().description("The Azure environment")
                     .finalParameter(false)
                     .wireType(ClassType.AZURE_ENVIRONMENT)
                     .name("environment")
@@ -424,32 +445,34 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
                     .build();
 
             ClientMethodParameter defaultPollIntervalParameter = new ClientMethodParameter.Builder()
-                    .description("The default poll interval for long-running operation")
-                    .finalParameter(false)
-                    .wireType(ClassType.DURATION)
-                    .name("defaultPollInterval")
-                    .required(true)
-                    .constant(false)
-                    .fromClient(true)
-                    .defaultValue("Duration.ofSeconds(30)")
-                    .annotations(new ArrayList<>())
-                    .build();
+                .description("The default poll interval for long-running operation")
+                .finalParameter(false)
+                .wireType(ClassType.DURATION)
+                .name("defaultPollInterval")
+                .required(true)
+                .constant(false)
+                .fromClient(true)
+                .defaultValue("Duration.ofSeconds(30)")
+                .annotations(new ArrayList<>())
+                .build();
 
-            serviceClientConstructors.add(new Constructor(Arrays.asList(httpPipelineParameter, serializerAdapterParameter, defaultPollIntervalParameter, azureEnvironmentParameter)));
+            serviceClientConstructors.add(new Constructor(Arrays.asList(httpPipelineParameter,
+                serializerAdapterParameter, defaultPollIntervalParameter, azureEnvironmentParameter)));
             builder.tokenCredentialParameter(tokenCredentialParameter)
-                    .httpPipelineParameter(httpPipelineParameter)
-                    .serializerAdapterParameter(serializerAdapterParameter)
-                    .defaultPollIntervalParameter(defaultPollIntervalParameter)
-                    .azureEnvironmentParameter(azureEnvironmentParameter)
-                    .constructors(serviceClientConstructors);
+                .httpPipelineParameter(httpPipelineParameter)
+                .serializerAdapterParameter(serializerAdapterParameter)
+                .defaultPollIntervalParameter(defaultPollIntervalParameter)
+                .azureEnvironmentParameter(azureEnvironmentParameter)
+                .constructors(serviceClientConstructors);
         } else {
             serviceClientConstructors.add(new Constructor(new ArrayList<>()));
             serviceClientConstructors.add(new Constructor(Collections.singletonList(httpPipelineParameter)));
-            serviceClientConstructors.add(new Constructor(Arrays.asList(httpPipelineParameter, serializerAdapterParameter)));
+            serviceClientConstructors
+                .add(new Constructor(Arrays.asList(httpPipelineParameter, serializerAdapterParameter)));
             builder.tokenCredentialParameter(tokenCredentialParameter)
-                    .httpPipelineParameter(httpPipelineParameter)
-                    .serializerAdapterParameter(serializerAdapterParameter)
-                    .constructors(serviceClientConstructors);
+                .httpPipelineParameter(httpPipelineParameter)
+                .serializerAdapterParameter(serializerAdapterParameter)
+                .constructors(serviceClientConstructors);
         }
     }
 }

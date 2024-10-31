@@ -4,7 +4,23 @@ import { describe, it } from "vitest";
 import { diagnoseOpenApiFor, openApiFor } from "./test-host.js";
 
 describe("openapi3: servers", () => {
-  it("set a basic server", async () => {
+  it("set a basic server(url)", async () => {
+    const res = await openApiFor(
+      `
+      @service({title: "My service"})
+      @server("https://example.com")
+      namespace MyService {}
+      `,
+    );
+    deepStrictEqual(res.servers, [
+      {
+        url: "https://example.com",
+        variables: {},
+      },
+    ]);
+  });
+
+  it("set a basic server(url and desc)", async () => {
     const res = await openApiFor(
       `
       @service({title: "My service"})

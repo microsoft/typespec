@@ -9,7 +9,8 @@
   "plugins": [
     "./packages/prettier-plugin-typespec/dist/index.js",
     "./node_modules/prettier-plugin-organize-imports/index.js",
-    "@alloy-js/prettier-plugin-alloy"
+    "@alloy-js/prettier-plugin-alloy",
+    "prettier-plugin-astro"
   ],
   "overrides": [
     {
@@ -28,6 +29,12 @@
       "files": ["packages/http-client-javascript/**/*.js"],
       "options": {
         "parser": "alloy-js"
+      }
+    },
+    {
+      "files": "*.astro",
+      "options": {
+        "parser": "astro"
       }
     }
   ]

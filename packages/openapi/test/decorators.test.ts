@@ -152,6 +152,63 @@ describe("openapi: decorators", () => {
   });
 
   describe("@info", () => {
+    describe("emit diagnostics when passing extension key not starting with `x-` in additionalInfo", () => {
+      it.each([
+        ["root", `{ foo:"Bar" }`],
+        ["license", `{ license:{ name: "Apache 2.0", foo:"Bar"} }`],
+        ["contact", `{ contact:{ foo:"Bar"} }`],
+        ["complex", `{ contact:{ "x-custom": "string" }, foo:"Bar" }`],
+      ])("%s", async (_, code) => {
+        const diagnostics = await runner.diagnose(`
+        @info(${code})
+        @test namespace Service;
+      `);
+
+        expectDiagnostics(diagnostics, {
+          code: "@typespec/openapi/invalid-extension-key",
+          message: `OpenAPI extension must start with 'x-' but was 'foo'`,
+        });
+      });
+
+      it("multiple", async () => {
+        const diagnostics = await runner.diagnose(`
+          @info({
+            license:{ name: "Apache 2.0", foo1:"Bar"}, 
+            contact:{ "x-custom": "string", foo2:"Bar" }, 
+            foo3:"Bar" 
+          })
+          @test namespace Service;
+        `);
+
+        expectDiagnostics(diagnostics, [
+          {
+            code: "@typespec/openapi/invalid-extension-key",
+            message: `OpenAPI extension must start with 'x-' but was 'foo1'`,
+          },
+          {
+            code: "@typespec/openapi/invalid-extension-key",
+            message: `OpenAPI extension must start with 'x-' but was 'foo2'`,
+          },
+          {
+            code: "@typespec/openapi/invalid-extension-key",
+            message: `OpenAPI extension must start with 'x-' but was 'foo3'`,
+          },
+        ]);
+      });
+    });
+
+    it("emit diagnostic if termsOfService is not a valid url", async () => {
+      const diagnostics = await runner.diagnose(`
+        @info({termsOfService:"notvalidurl"})
+        @test namespace Service {}
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/openapi/not-url",
+        message: "TermsOfService: notvalidurl is not a valid URL.",
+      });
+    });
+
     it("emit diagnostic if use on non namespace", async () => {
       const diagnostics = await runner.diagnose(`
         @info({})

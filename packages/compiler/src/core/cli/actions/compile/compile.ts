@@ -1,4 +1,3 @@
-import { resolve } from "path";
 import { logDiagnostics } from "../../../diagnostics.js";
 import { resolveTypeSpecEntrypoint } from "../../../entrypoint-resolution.js";
 import { CompilerOptions } from "../../../options.js";
@@ -14,10 +13,7 @@ import {
 import { CompileCliArgs, getCompilerOptions } from "./args.js";
 import { ProjectWatcher, WatchHost, createWatchHost, createWatcher } from "./watch.js";
 
-export async function compileAction(
-  host: CliCompilerHost,
-  args: CompileCliArgs & { path: string; pretty?: boolean },
-) {
+export async function compileAction(host: CliCompilerHost, args: CompileCliArgs) {
   const diagnostics: Diagnostic[] = [];
   const entrypoint = await resolveTypeSpecEntrypoint(
     host,
@@ -28,12 +24,11 @@ export async function compileAction(
     logDiagnostics(diagnostics, host.logSink);
     process.exit(1);
   }
-  const cliOptions = await getCompilerOptionsOrExit(host, entrypoint, args);
 
   if (args.watch) {
-    await compileWatch(host, entrypoint, cliOptions);
+    await compileWatch(host, entrypoint, args);
   } else {
-    await compileOnce(host, entrypoint, cliOptions);
+    await compileOnce(host, entrypoint, args);
   }
 }
 
@@ -62,11 +57,12 @@ async function getCompilerOptionsOrExit(
 
 async function compileOnce(
   host: CompilerHost,
-  path: string,
-  compilerOptions: CompilerOptions,
+  entrypoint: string,
+  args: CompileCliArgs,
 ): Promise<void> {
+  const cliOptions = await getCompilerOptionsOrExit(host, entrypoint, args);
   try {
-    const program = await compileProgram(host, resolve(path), compilerOptions);
+    const program = await compileProgram(host, entrypoint, cliOptions);
     logProgramResult(host, program);
     if (program.hasError()) {
       process.exit(1);
@@ -76,16 +72,17 @@ async function compileOnce(
   }
 }
 
-function compileWatch(
+async function compileWatch(
   cliHost: CliCompilerHost,
-  path: string,
-  compilerOptions: CompilerOptions,
+  entrypoint: string,
+  args: CompileCliArgs,
 ): Promise<void> {
-  const entrypoint = resolve(path);
+  const compilerOptions = await getCompilerOptionsOrExit(cliHost, entrypoint, args);
+
   const watchHost: WatchHost = createWatchHost(cliHost);
 
   let compileRequested: boolean = false;
-  let currentCompilePromise: Promise<Program | void> | undefined = undefined;
+  let currentCompilePromise: Promise<Program | NoProgram | void> | undefined = undefined;
 
   const runCompilePromise = () => {
     // Don't run the compiler if it's already running
@@ -95,9 +92,20 @@ function compileWatch(
       console.clear();
 
       watchHost?.forceJSReload();
-      currentCompilePromise = compileProgram(watchHost, entrypoint, compilerOptions)
-        .catch(logInternalCompilerError)
-        .then(onCompileFinished);
+      const run = async (): Promise<Program | NoProgram> => {
+        const [newCompilerOptions, diagnostics] = await getCompilerOptions(
+          watchHost,
+          entrypoint,
+          process.cwd(),
+          { ...args, config: compilerOptions.config },
+          process.env,
+        );
+        if (diagnostics.length > 0) {
+          return { diagnostics };
+        }
+        return await compileProgram(watchHost, entrypoint, newCompilerOptions);
+      };
+      currentCompilePromise = run().catch(logInternalCompilerError).then(onCompileFinished);
     } else {
       compileRequested = true;
     }
@@ -112,9 +120,11 @@ function compileWatch(
   });
   watcher?.updateWatchedFiles([entrypoint]);
 
-  const onCompileFinished = (program?: Program | void) => {
+  const onCompileFinished = (program?: Program | NoProgram | void) => {
     if (program !== undefined) {
-      watcher?.updateWatchedFiles([...program.sourceFiles.keys(), ...program.jsSourceFiles.keys()]);
+      if ("sourceFiles" in program) {
+        watcher?.updateWatchedFiles(resolveFilesToWatch(program));
+      }
       logProgramResult(watchHost, program, { showTimestamp: true });
     }
 
@@ -139,9 +149,21 @@ function compileWatch(
   });
 }
 
+function resolveFilesToWatch(program: Program): string[] {
+  const files = [...program.sourceFiles.keys(), ...program.jsSourceFiles.keys()];
+  if (program.compilerOptions.config) {
+    files.push(program.compilerOptions.config);
+  }
+  return files;
+}
+
+interface NoProgram {
+  readonly diagnostics: readonly Diagnostic[];
+}
+
 function logProgramResult(
   host: CompilerHost,
-  program: Program,
+  program: Program | NoProgram,
   { showTimestamp }: { showTimestamp?: boolean } = {},
 ) {
   const log = (message?: any, ...optionalParams: any[]) => {
@@ -160,7 +182,7 @@ function logProgramResult(
   // eslint-disable-next-line no-console
   console.log(); // Insert a newline
 
-  if (program.emitters.length === 0 && !program.compilerOptions.noEmit) {
+  if ("emitters" in program && program.emitters.length === 0 && !program.compilerOptions.noEmit) {
     log(
       "No emitter was configured, no output was generated. Use `--emit <emitterName>` to pick emitter or specify it in the TypeSpec config.",
     );

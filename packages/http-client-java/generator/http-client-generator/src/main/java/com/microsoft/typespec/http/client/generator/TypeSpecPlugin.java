@@ -3,6 +3,9 @@
 
 package com.microsoft.typespec.http.client.generator;
 
+import com.azure.core.util.CoreUtils;
+import com.azure.json.JsonReader;
+import com.azure.json.ReadValueCallback;
 import com.microsoft.typespec.http.client.generator.core.Javagen;
 import com.microsoft.typespec.http.client.generator.core.extension.jsonrpc.Connection;
 import com.microsoft.typespec.http.client.generator.core.extension.model.Message;
@@ -17,16 +20,10 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaPac
 import com.microsoft.typespec.http.client.generator.core.preprocessor.Preprocessor;
 import com.microsoft.typespec.http.client.generator.core.preprocessor.tranformer.Transformer;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
-import com.azure.core.util.CoreUtils;
-import com.azure.json.JsonReader;
-import com.azure.json.ReadValueCallback;
 import com.microsoft.typespec.http.client.generator.mapper.TypeSpecMapperFactory;
 import com.microsoft.typespec.http.client.generator.model.EmitterOptions;
 import com.microsoft.typespec.http.client.generator.util.FileUtil;
 import com.microsoft.typespec.http.client.generator.util.ModelUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.OutputStream;
 import java.nio.file.Paths;
@@ -35,6 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TypeSpecPlugin extends Javagen {
 
@@ -52,27 +51,34 @@ public class TypeSpecPlugin extends Javagen {
         Client client = Mappers.getClientMapper().map(codeModel);
 
         client.getAsyncClients()
-                .forEach(asyncClient -> crossLanguageDefinitionsMap
-                        .put(asyncClient.getPackageName() + "." + asyncClient.getClassName(), asyncClient.getCrossLanguageDefinitionId()));
+            .forEach(asyncClient -> crossLanguageDefinitionsMap.put(
+                asyncClient.getPackageName() + "." + asyncClient.getClassName(),
+                asyncClient.getCrossLanguageDefinitionId()));
 
         client.getSyncClients()
-                .forEach(syncClient -> crossLanguageDefinitionsMap
-                        .put(syncClient.getPackageName() + "." + syncClient.getClassName(), syncClient.getCrossLanguageDefinitionId()));
+            .forEach(syncClient -> crossLanguageDefinitionsMap.put(
+                syncClient.getPackageName() + "." + syncClient.getClassName(),
+                syncClient.getCrossLanguageDefinitionId()));
 
         client.getClientBuilders()
-                .forEach(clientBuilder -> crossLanguageDefinitionsMap
-                        .put(clientBuilder.getPackageName() + "." + clientBuilder.getClassName(), clientBuilder.getCrossLanguageDefinitionId()));
+            .forEach(clientBuilder -> crossLanguageDefinitionsMap.put(
+                clientBuilder.getPackageName() + "." + clientBuilder.getClassName(),
+                clientBuilder.getCrossLanguageDefinitionId()));
 
         for (AsyncSyncClient asyncClient : client.getAsyncClients()) {
             List<ConvenienceMethod> convenienceMethods = asyncClient.getConvenienceMethods();
             for (ConvenienceMethod convenienceMethod : convenienceMethods) {
                 convenienceMethod.getConvenienceMethods()
-                        .stream()
-                        .filter(method -> !method.getName().endsWith("Async"))
-                        .forEach(method -> crossLanguageDefinitionsMap.put(asyncClient.getPackageName() + "." + asyncClient.getClassName() + "." + method.getName(), method.getCrossLanguageDefinitionId()));
+                    .stream()
+                    .filter(method -> !method.getName().endsWith("Async"))
+                    .forEach(method -> crossLanguageDefinitionsMap.put(
+                        asyncClient.getPackageName() + "." + asyncClient.getClassName() + "." + method.getName(),
+                        method.getCrossLanguageDefinitionId()));
                 if (!convenienceMethod.getProtocolMethod().getName().endsWith("Async")) {
-                    crossLanguageDefinitionsMap.put(asyncClient.getPackageName() + "." + asyncClient.getClassName() + "." + convenienceMethod.getProtocolMethod().getName(),
-                            convenienceMethod.getProtocolMethod().getCrossLanguageDefinitionId());
+                    crossLanguageDefinitionsMap.put(
+                        asyncClient.getPackageName() + "." + asyncClient.getClassName() + "."
+                            + convenienceMethod.getProtocolMethod().getName(),
+                        convenienceMethod.getProtocolMethod().getCrossLanguageDefinitionId());
                 }
             }
         }
@@ -81,13 +87,17 @@ public class TypeSpecPlugin extends Javagen {
             List<ConvenienceMethod> convenienceMethods = syncClient.getConvenienceMethods();
             for (ConvenienceMethod convenienceMethod : convenienceMethods) {
                 convenienceMethod.getConvenienceMethods()
-                        .stream()
-                        .filter(method -> !method.getName().endsWith("Async"))
-                        .forEach(method -> crossLanguageDefinitionsMap.put(syncClient.getPackageName() + "." + syncClient.getClassName() + "." + method.getName(), method.getCrossLanguageDefinitionId()));
+                    .stream()
+                    .filter(method -> !method.getName().endsWith("Async"))
+                    .forEach(method -> crossLanguageDefinitionsMap.put(
+                        syncClient.getPackageName() + "." + syncClient.getClassName() + "." + method.getName(),
+                        method.getCrossLanguageDefinitionId()));
 
                 if (!convenienceMethod.getProtocolMethod().getName().endsWith("Async")) {
-                    crossLanguageDefinitionsMap.put(syncClient.getPackageName() + "." + syncClient.getClassName() + "." + convenienceMethod.getProtocolMethod().getName(),
-                            convenienceMethod.getProtocolMethod().getCrossLanguageDefinitionId());
+                    crossLanguageDefinitionsMap.put(
+                        syncClient.getPackageName() + "." + syncClient.getClassName() + "."
+                            + convenienceMethod.getProtocolMethod().getName(),
+                        convenienceMethod.getProtocolMethod().getCrossLanguageDefinitionId());
                 }
 
             }
@@ -102,64 +112,66 @@ public class TypeSpecPlugin extends Javagen {
     @Override
     protected void writeClientModels(Client client, JavaPackage javaPackage, JavaSettings settings) {
         // Client model
-        client.getModels().stream()
-                .filter(ModelUtil::isGeneratingModel)
-                .forEach(model -> {
-                    crossLanguageDefinitionsMap.put(model.getPackage() + "." + model.getName(), model.getCrossLanguageDefinitionId());
-                    javaPackage.addModel(model.getPackage(), model.getName(), model);
-                });
+        client.getModels().stream().filter(ModelUtil::isGeneratingModel).forEach(model -> {
+            crossLanguageDefinitionsMap.put(model.getPackage() + "." + model.getName(),
+                model.getCrossLanguageDefinitionId());
+            javaPackage.addModel(model.getPackage(), model.getName(), model);
+        });
 
         // Enum
-        client.getEnums().stream()
-                .filter(ModelUtil::isGeneratingModel)
-                .forEach(model -> {
-                    crossLanguageDefinitionsMap.put(model.getPackage() + "." + model.getName(), model.getCrossLanguageDefinitionId());
-                    javaPackage.addEnum(model.getPackage(), model.getName(), model);
-                });
+        client.getEnums().stream().filter(ModelUtil::isGeneratingModel).forEach(model -> {
+            crossLanguageDefinitionsMap.put(model.getPackage() + "." + model.getName(),
+                model.getCrossLanguageDefinitionId());
+            javaPackage.addEnum(model.getPackage(), model.getName(), model);
+        });
 
         // Response
-        client.getResponseModels().stream()
-                .filter(ModelUtil::isGeneratingModel)
-                .forEach(model -> javaPackage.addClientResponse(model.getPackage(), model.getName(), model));
+        client.getResponseModels()
+            .stream()
+            .filter(ModelUtil::isGeneratingModel)
+            .forEach(model -> javaPackage.addClientResponse(model.getPackage(), model.getName(), model));
 
         // Union
-        client.getUnionModels().stream()
-                .filter(ModelUtil::isGeneratingModel)
-                .forEach(javaPackage::addUnionModel);
+        client.getUnionModels().stream().filter(ModelUtil::isGeneratingModel).forEach(javaPackage::addUnionModel);
     }
 
     @Override
-    protected void writeHelperClasses(Client client, CodeModel codeModel, JavaPackage javaPackage, JavaSettings settings) {
+    protected void writeHelperClasses(Client client, CodeModel codeModel, JavaPackage javaPackage,
+        JavaSettings settings) {
         // JsonMergePatchHelper
-        List<ClientModel> jsonMergePatchModels = client.getModels().stream()
-            .filter(model -> ModelUtil.isGeneratingModel(model) && ClientModelUtil.isJsonMergePatchModel(model, settings))
+        List<ClientModel> jsonMergePatchModels = client.getModels()
+            .stream()
+            .filter(
+                model -> ModelUtil.isGeneratingModel(model) && ClientModelUtil.isJsonMergePatchModel(model, settings))
             .collect(Collectors.toList());
         if (!jsonMergePatchModels.isEmpty()) {
             javaPackage.addJsonMergePatchHelper(jsonMergePatchModels);
         }
 
         // MultipartFormDataHelper
-        final boolean generateMultipartFormDataHelper = client.getModels().stream()
-                .filter(ModelUtil::isGeneratingModel)
-                .anyMatch(ClientModelUtil::isMultipartModel);
+        final boolean generateMultipartFormDataHelper = client.getModels()
+            .stream()
+            .filter(ModelUtil::isGeneratingModel)
+            .anyMatch(ClientModelUtil::isMultipartModel);
         if (generateMultipartFormDataHelper) {
             if (JavaSettings.getInstance().isBranded()) {
-                javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()), ClientModelUtil.MULTI_PART_FORM_DATA_HELPER_CLASS_NAME);
+                javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
+                    ClientModelUtil.MULTI_PART_FORM_DATA_HELPER_CLASS_NAME);
             } else {
                 javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
-                        ClientModelUtil.GENERIC_MULTI_PART_FORM_DATA_HELPER_CLASS_NAME,
-                        ClientModelUtil.MULTI_PART_FORM_DATA_HELPER_CLASS_NAME);
+                    ClientModelUtil.GENERIC_MULTI_PART_FORM_DATA_HELPER_CLASS_NAME,
+                    ClientModelUtil.MULTI_PART_FORM_DATA_HELPER_CLASS_NAME);
             }
         }
 
         // OperationLocationPollingStrategy
         if (ClientModelUtil.requireOperationLocationPollingStrategy(codeModel)) {
             javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
-                    ClientModelUtil.OPERATION_LOCATION_POLLING_STRATEGY);
+                ClientModelUtil.OPERATION_LOCATION_POLLING_STRATEGY);
             javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
-                    ClientModelUtil.SYNC_OPERATION_LOCATION_POLLING_STRATEGY);
+                ClientModelUtil.SYNC_OPERATION_LOCATION_POLLING_STRATEGY);
             javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
-                    ClientModelUtil.POLLING_UTILS);
+                ClientModelUtil.POLLING_UTILS);
         }
     }
 
@@ -244,6 +256,9 @@ public class TypeSpecPlugin extends Javagen {
         }
         if (options.getStreamStyleSerialization() != null) {
             SETTINGS_MAP.put("stream-style-serialization", options.getStreamStyleSerialization());
+        }
+        if (options.getUseObjectForUnknown()) {
+            SETTINGS_MAP.put("use-object-for-unknown", emitterOptions.getUseObjectForUnknown());
         }
 
         SETTINGS_MAP.put("sdk-integration", sdkIntegration);

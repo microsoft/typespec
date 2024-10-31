@@ -262,12 +262,14 @@ public final class SingleDiscriminatorClientImpl {
      * The getModel operation.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     kind: String (Required)
      *     wingspan: int (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -287,12 +289,14 @@ public final class SingleDiscriminatorClientImpl {
      * The getModel operation.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     kind: String (Required)
      *     wingspan: int (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -312,12 +316,14 @@ public final class SingleDiscriminatorClientImpl {
      * The putModel operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     kind: String (Required)
      *     wingspan: int (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -338,12 +344,14 @@ public final class SingleDiscriminatorClientImpl {
      * The putModel operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     kind: String (Required)
      *     wingspan: int (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -363,12 +371,14 @@ public final class SingleDiscriminatorClientImpl {
      * The getRecursiveModel operation.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     kind: String (Required)
      *     wingspan: int (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -389,12 +399,14 @@ public final class SingleDiscriminatorClientImpl {
      * The getRecursiveModel operation.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     kind: String (Required)
      *     wingspan: int (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -414,12 +426,14 @@ public final class SingleDiscriminatorClientImpl {
      * The putRecursiveModel operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     kind: String (Required)
      *     wingspan: int (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -440,12 +454,14 @@ public final class SingleDiscriminatorClientImpl {
      * The putRecursiveModel operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     kind: String (Required)
      *     wingspan: int (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -465,12 +481,14 @@ public final class SingleDiscriminatorClientImpl {
      * The getMissingDiscriminator operation.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     kind: String (Required)
      *     wingspan: int (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -491,12 +509,14 @@ public final class SingleDiscriminatorClientImpl {
      * The getMissingDiscriminator operation.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     kind: String (Required)
      *     wingspan: int (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -516,12 +536,14 @@ public final class SingleDiscriminatorClientImpl {
      * The getWrongDiscriminator operation.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     kind: String (Required)
      *     wingspan: int (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -542,12 +564,14 @@ public final class SingleDiscriminatorClientImpl {
      * The getWrongDiscriminator operation.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     kind: String (Required)
      *     wingspan: int (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -567,12 +591,14 @@ public final class SingleDiscriminatorClientImpl {
      * The getLegacyModel operation.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     kind: String (Required)
      *     size: int (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -593,12 +619,14 @@ public final class SingleDiscriminatorClientImpl {
      * The getLegacyModel operation.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     kind: String (Required)
      *     size: int (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.

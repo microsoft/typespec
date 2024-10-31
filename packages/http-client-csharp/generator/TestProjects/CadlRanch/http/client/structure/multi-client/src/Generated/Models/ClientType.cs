@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace Client.Structure.Service.Models
+namespace Client.Structure.Service.Multi.Client.Models
 {
     public enum ClientType
     {
@@ -13,6 +13,8 @@ namespace Client.Structure.Service.Models
         /// <summary> RenamedOperation. </summary>
         RenamedOperation,
         /// <summary> TwoOperationGroup. </summary>
-        TwoOperationGroup
+        TwoOperationGroup,
+        /// <summary> ClientOperationGroup. </summary>
+        ClientOperationGroup
     }
 }

@@ -10,8 +10,11 @@
 !dist/**/*.cjs
 !dist/**/*.js.map
 !dist/**/language-configuration.json
+dist/test/
+
 !markdown-typespec.json
 !README.md
 !ThirdPartyNotices.txt
 !LICENSE
 !icons/
+!snippets.json

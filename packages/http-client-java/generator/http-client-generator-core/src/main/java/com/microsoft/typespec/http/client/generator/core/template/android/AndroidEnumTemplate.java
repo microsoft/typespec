@@ -6,7 +6,6 @@ package com.microsoft.typespec.http.client.generator.core.template.android;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaContext;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaEnum;
 import com.microsoft.typespec.http.client.generator.core.template.EnumTemplate;
-
 import java.util.Set;
 
 public class AndroidEnumTemplate extends EnumTemplate {

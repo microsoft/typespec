@@ -32,9 +32,9 @@ import com.azure.core.util.Context;
 import com.azure.core.util.CoreUtils;
 import com.azure.core.util.DateTimeRfc1123;
 import com.azure.core.util.FluxUtil;
+import com.azure.core.util.polling.PollOperationDetails;
 import com.azure.core.util.polling.PollerFlux;
 import com.azure.core.util.polling.PollingStrategyOptions;
-import com.azure.core.util.polling.PollOperationDetails;
 import com.azure.core.util.polling.SyncPoller;
 import com.azure.core.util.serializer.TypeReference;
 import com.cadl.specialheaders.SpecialHeadersServiceVersion;
@@ -175,14 +175,16 @@ public final class RepeatabilityHeadersImpl {
      * Resource read operation template.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param name The name parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -203,14 +205,16 @@ public final class RepeatabilityHeadersImpl {
      * Resource read operation template.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param name The name parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -240,25 +244,29 @@ public final class RepeatabilityHeadersImpl {
      * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param name The name parameter.
      * @param resource The resource instance.
@@ -306,25 +314,29 @@ public final class RepeatabilityHeadersImpl {
      * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param name The name parameter.
      * @param resource The resource instance.
@@ -370,14 +382,16 @@ public final class RepeatabilityHeadersImpl {
      * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param name The name parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -421,14 +435,16 @@ public final class RepeatabilityHeadersImpl {
      * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param name The name parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -472,25 +488,29 @@ public final class RepeatabilityHeadersImpl {
      * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param name The name parameter.
      * @param resource The resource instance.
@@ -538,25 +558,29 @@ public final class RepeatabilityHeadersImpl {
      * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param name The name parameter.
      * @param resource The resource instance.
@@ -603,25 +627,29 @@ public final class RepeatabilityHeadersImpl {
      * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param name The name parameter.
      * @param resource The resource instance.
@@ -661,25 +689,29 @@ public final class RepeatabilityHeadersImpl {
      * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param name The name parameter.
      * @param resource The resource instance.
@@ -719,25 +751,29 @@ public final class RepeatabilityHeadersImpl {
      * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param name The name parameter.
      * @param resource The resource instance.
@@ -777,25 +813,29 @@ public final class RepeatabilityHeadersImpl {
      * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param name The name parameter.
      * @param resource The resource instance.

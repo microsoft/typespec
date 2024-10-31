@@ -27,6 +27,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Parameters.Basic.ImplicitBody.simple.Request.anonymous.name"
     }
@@ -56,6 +57,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Parameters.Basic.ExplicitBody.User.name"
     }
@@ -76,6 +78,7 @@
      "$id": "10",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
+     "Description": "Service host",
      "Type": {
       "$id": "11",
       "kind": "url",
@@ -119,6 +122,7 @@
        "$id": "16",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "17",
         "kind": "url",
@@ -241,6 +245,7 @@
        "$id": "28",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "29",
         "kind": "url",
