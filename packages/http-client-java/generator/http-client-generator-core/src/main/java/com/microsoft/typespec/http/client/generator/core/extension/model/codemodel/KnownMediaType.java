@@ -49,7 +49,7 @@ public enum KnownMediaType {
     private final static Map<String, KnownMediaType> CONSTANTS = new HashMap<>();
 
     static {
-        for (KnownMediaType c: values()) {
+        for (KnownMediaType c : values()) {
             CONSTANTS.put(c.value, c);
         }
     }
@@ -95,13 +95,26 @@ public enum KnownMediaType {
      */
     public String getContentType() {
         switch (this) {
-            case BINARY: return "application/octet-stream";
-            case FORM: return "application/x-www-form-urlencoded";
-            case JSON: return "application/json";
-            case MULTIPART: return "multipart/form-data";
-            case TEXT: return "text/plain";
-            case XML: return "application/xml";
-            default: return JSON.getContentType();
+            case BINARY:
+                return "application/octet-stream";
+
+            case FORM:
+                return "application/x-www-form-urlencoded";
+
+            case JSON:
+                return "application/json";
+
+            case MULTIPART:
+                return "multipart/form-data";
+
+            case TEXT:
+                return "text/plain";
+
+            case XML:
+                return "application/xml";
+
+            default:
+                return JSON.getContentType();
         }
     }
 }

@@ -3,10 +3,9 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonWriter;
-
+import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import java.io.IOException;
 import java.util.Objects;
 
@@ -121,14 +120,15 @@ public class ArraySchema extends ValueSchema {
         }
 
         ArraySchema rhs = ((ArraySchema) other);
-        return minItems == rhs.minItems && maxItems == rhs.maxItems && uniqueItems == rhs.uniqueItems
+        return minItems == rhs.minItems
+            && maxItems == rhs.maxItems
+            && uniqueItems == rhs.uniqueItems
             && Objects.equals(this.elementType, rhs.elementType);
     }
 
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return super.writeParentProperties(jsonWriter.writeStartObject())
-            .writeJsonField("elementType", elementType)
+        return super.writeParentProperties(jsonWriter.writeStartObject()).writeJsonField("elementType", elementType)
             .writeDoubleField("maxItems", maxItems)
             .writeDoubleField("minItems", minItems)
             .writeBooleanField("uniqueItems", uniqueItems)

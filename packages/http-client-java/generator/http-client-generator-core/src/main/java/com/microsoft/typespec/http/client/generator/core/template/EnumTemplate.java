@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
+import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Annotation;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
@@ -17,8 +18,6 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJav
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaModifier;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
-import com.azure.core.util.CoreUtils;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -39,13 +38,126 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
         JavaSettings settings = JavaSettings.getInstance();
 
         if (enumType.getExpandable()) {
-            if(settings.isBranded()) {
-                writeExpandableStringEnum(enumType, javaFile, settings);
+            if (settings.isBranded()) {
+                writeBrandedExpandableEnum(enumType, javaFile, settings);
             } else {
                 writeExpandableStringEnumInterface(enumType, javaFile, settings);
             }
         } else {
             writeEnum(enumType, javaFile, settings);
+        }
+    }
+
+    /**
+     * Extension point for expandable enum implementation of branded flavor.
+     *
+     * @param enumType enumType to write implementation
+     * @param javaFile javaFile to write into
+     * @param settings {@link JavaSettings} instance
+     */
+    protected void writeBrandedExpandableEnum(EnumType enumType, JavaFile javaFile, JavaSettings settings) {
+        if (enumType.getElementType() == ClassType.STRING) {
+            writeExpandableStringEnum(enumType, javaFile, settings);
+        } else {
+            Set<String> imports = new HashSet<>();
+            imports.add("java.util.Collection");
+            imports.add("java.lang.IllegalArgumentException");
+            imports.add("java.util.Map");
+            imports.add("java.util.concurrent.ConcurrentHashMap");
+            imports.add("java.util.ArrayList");
+            imports.add("java.util.Objects");
+            imports.add(ClassType.EXPANDABLE_ENUM.getFullName());
+            if (!settings.isStreamStyleSerialization()) {
+                imports.add("com.fasterxml.jackson.annotation.JsonCreator");
+            }
+
+            addGeneratedImport(imports);
+
+            javaFile.declareImport(imports);
+            javaFile.javadocComment(comment -> comment.description(enumType.getDescription()));
+
+            String enumName = enumType.getName();
+            IType elementType = enumType.getElementType();
+            String typeName = elementType.getClientType().asNullable().toString();
+            String pascalTypeName = CodeNamer.toPascalCase(typeName);
+            String declaration = enumName + " implements ExpandableEnum<" + pascalTypeName + ">";
+            javaFile.publicFinalClass(declaration, classBlock -> {
+                classBlock.privateStaticFinalVariable(
+                    String.format("Map<%1$s, %2$s> VALUES = new ConcurrentHashMap<>()", pascalTypeName, enumName));
+
+                for (ClientEnumValue enumValue : enumType.getValues()) {
+                    String value = enumValue.getValue();
+                    classBlock.javadocComment(CoreUtils.isNullOrEmpty(enumValue.getDescription())
+                        ? "Static value " + value + " for " + enumName + "."
+                        : enumValue.getDescription());
+                    addGeneratedAnnotation(classBlock);
+                    classBlock.publicStaticFinalVariable(String.format("%1$s %2$s = fromValue(%3$s)", enumName,
+                        enumValue.getName(), elementType.defaultValueExpression(value)));
+                }
+
+                classBlock.variable(pascalTypeName + " value", JavaVisibility.Private, JavaModifier.Final);
+                classBlock.privateConstructor(enumName + "(" + pascalTypeName + " value)", ctor -> {
+                    ctor.line("this.value = value;");
+                });
+
+                // fromValue(typeName)
+                classBlock.javadocComment(comment -> {
+                    comment.description("Creates or finds a " + enumName);
+                    comment.param("value", "a value to look for");
+                    comment.methodReturns("the corresponding " + enumName);
+                });
+
+                addGeneratedAnnotation(classBlock);
+                if (!settings.isStreamStyleSerialization()) {
+                    classBlock.annotation("JsonCreator");
+                }
+
+                classBlock.publicStaticMethod(String.format("%1$s fromValue(%2$s value)", enumName, pascalTypeName),
+                    function -> {
+                        function.line("Objects.requireNonNull(value, \"'value' cannot be null.\");");
+                        function.line(enumName + " member = VALUES.get(value);");
+                        function.ifBlock("member != null", ifAction -> ifAction.line("return member;"));
+                        function.methodReturn("VALUES.computeIfAbsent(value, key -> new " + enumName + "(key))");
+                    });
+
+                // values
+                classBlock.javadocComment(comment -> {
+                    comment.description("Gets known " + enumName + " values.");
+                    comment.methodReturns("Known " + enumName + " values.");
+                });
+                addGeneratedAnnotation(classBlock);
+                classBlock.publicStaticMethod(String.format("Collection<%s> values()", enumName),
+                    function -> function.methodReturn("new ArrayList<>(VALUES.values())"));
+
+                // getValue
+                classBlock.javadocComment(comment -> {
+                    comment.description("Gets the value of the " + enumName + " instance.");
+                    comment.methodReturns("the value of the " + enumName + " instance.");
+                });
+
+                addGeneratedAnnotation(classBlock);
+                classBlock.annotation("Override");
+                classBlock.publicMethod(pascalTypeName + " getValue()",
+                    function -> function.methodReturn("this.value"));
+
+                // toString
+                addGeneratedAnnotation(classBlock);
+                classBlock.annotation("Override");
+                classBlock.method(JavaVisibility.Public, null, "String toString()",
+                    function -> function.methodReturn("Objects.toString(this.value)"));
+
+                // equals
+                addGeneratedAnnotation(classBlock);
+                classBlock.annotation("Override");
+                classBlock.method(JavaVisibility.Public, null, "boolean equals(Object obj)",
+                    function -> function.methodReturn("Objects.equals(this.value, obj)"));
+
+                // hashcode
+                addGeneratedAnnotation(classBlock);
+                classBlock.annotation("Override");
+                classBlock.method(JavaVisibility.Public, null, "int hashCode()",
+                    function -> function.methodReturn("Objects.hashCode(this.value)"));
+            });
         }
     }
 
@@ -76,11 +188,11 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
             for (ClientEnumValue enumValue : enumType.getValues()) {
                 String value = enumValue.getValue();
                 classBlock.javadocComment(CoreUtils.isNullOrEmpty(enumValue.getDescription())
-                        ? "Static value " + value + " for " + enumName + "."
-                        : enumValue.getDescription());
+                    ? "Static value " + value + " for " + enumName + "."
+                    : enumValue.getDescription());
                 addGeneratedAnnotation(classBlock);
                 classBlock.publicStaticFinalVariable(String.format("%1$s %2$s = from%3$s(%4$s)", enumName,
-                        enumValue.getName(), pascalTypeName, elementType.defaultValueExpression(value)));
+                    enumValue.getName(), pascalTypeName, elementType.defaultValueExpression(value)));
             }
 
             classBlock.variable("String name", JavaVisibility.Private, JavaModifier.Final);
@@ -101,14 +213,14 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
             }
 
             classBlock.publicStaticMethod(String.format("%1$s from%2$s(%3$s name)", enumName, pascalTypeName, typeName),
-                    function -> {
-                        function.ifBlock("name == null", ifAction -> ifAction.methodReturn("null"));
-                        function.line(enumName + " value = VALUES.get(name);");
-                        function.ifBlock("value != null", ifAction -> {
-                            ifAction.line("return value;");
-                        });
-                        function.methodReturn("VALUES.computeIfAbsent(name, key -> new " + enumName + "(key))");
+                function -> {
+                    function.ifBlock("name == null", ifAction -> ifAction.methodReturn("null"));
+                    function.line(enumName + " value = VALUES.get(name);");
+                    function.ifBlock("value != null", ifAction -> {
+                        ifAction.line("return value;");
                     });
+                    function.methodReturn("VALUES.computeIfAbsent(name, key -> new " + enumName + "(key))");
+                });
 
             // getValue
             classBlock.javadocComment(comment -> {
@@ -118,12 +230,12 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
 
             addGeneratedAnnotation(classBlock);
             classBlock.annotation("Override");
-            classBlock.publicMethod(pascalTypeName + " getValue()",
-                    function -> function.methodReturn("this.name"));
+            classBlock.publicMethod(pascalTypeName + " getValue()", function -> function.methodReturn("this.name"));
 
             addGeneratedAnnotation(classBlock);
             classBlock.annotation("Override");
-            classBlock.method(JavaVisibility.Public, null, "String toString()", function -> function.methodReturn("name"));
+            classBlock.method(JavaVisibility.Public, null, "String toString()",
+                function -> function.methodReturn("name"));
         });
     }
 
@@ -160,12 +272,14 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
             // ctor, marked as Deprecated
             classBlock.javadocComment(comment -> {
                 comment.description("Creates a new instance of " + enumName + " value.");
-                comment.deprecated(String.format("Use the {@link #from%1$s(%2$s)} factory method.", pascalTypeName, typeName));
+                comment.deprecated(
+                    String.format("Use the {@link #from%1$s(%2$s)} factory method.", pascalTypeName, typeName));
             });
 
             addGeneratedAnnotation(classBlock);
             classBlock.annotation("Deprecated");
-            classBlock.publicConstructor(enumName + "()", ctor -> { });
+            classBlock.publicConstructor(enumName + "()", ctor -> {
+            });
 
             // fromString(typeName)
             classBlock.javadocComment(comment -> {
@@ -226,7 +340,8 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
             enumBlock.javadocComment("The actual serialized value for a " + enumName + " instance.");
             enumBlock.privateFinalMemberVariable(typeName, "value");
 
-            enumBlock.constructor(enumName + "(" +typeName + " value)", constructor -> constructor.line("this.value = value;"));
+            enumBlock.constructor(enumName + "(" + typeName + " value)",
+                constructor -> constructor.line("this.value = value;"));
 
             enumBlock.javadocComment((comment) -> {
                 comment.description("Parses a serialized value to a " + enumName + " instance.");
@@ -243,8 +358,8 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
                     function.ifBlock("value == null", ifAction -> ifAction.methodReturn("null"));
                 }
                 function.line(enumName + "[] items = " + enumName + ".values();");
-                function.block("for (" + enumName + " item : items)", foreachBlock ->
-                    foreachBlock.ifBlock(createEnumJsonCreatorIfCheck(enumType), ifBlock -> ifBlock.methodReturn("item")));
+                function.block("for (" + enumName + " item : items)", foreachBlock -> foreachBlock
+                    .ifBlock(createEnumJsonCreatorIfCheck(enumType), ifBlock -> ifBlock.methodReturn("item")));
                 function.methodReturn("null");
             });
 
@@ -286,7 +401,8 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
         if (enumElementType == PrimitiveType.FLOAT) {
             return String.format("Float.floatToIntBits(item.%s()) == Float.floatToIntBits(value)", toJsonMethodName);
         } else if (enumElementType == PrimitiveType.DOUBLE) {
-            return String.format("Double.doubleToLongBits(item.%s()) == Double.doubleToLongBits(value)", toJsonMethodName);
+            return String.format("Double.doubleToLongBits(item.%s()) == Double.doubleToLongBits(value)",
+                toJsonMethodName);
         } else if (enumElementType instanceof PrimitiveType) {
             return String.format("item.%s() == value", toJsonMethodName);
         } else if (enumElementType == ClassType.STRING) {

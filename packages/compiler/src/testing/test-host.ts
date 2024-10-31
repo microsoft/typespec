@@ -1,14 +1,15 @@
 import assert from "assert";
 import type { RmOptions } from "fs";
-import { readFile } from "fs/promises";
+import { readdir, readFile, stat } from "fs/promises";
 import { globby } from "globby";
+import { join } from "path";
 import { fileURLToPath, pathToFileURL } from "url";
 import { logDiagnostics, logVerboseTestOutput } from "../core/diagnostics.js";
 import { createLogger } from "../core/logger/logger.js";
 import { NodeHost } from "../core/node-host.js";
 import { CompilerOptions } from "../core/options.js";
 import { getAnyExtensionFromPath, resolvePath } from "../core/path-utils.js";
-import { Program, compile as compileProgram } from "../core/program.js";
+import { compile as compileProgram, Program } from "../core/program.js";
 import type { CompilerHost, Diagnostic, StringLiteral, Type } from "../core/types.js";
 import { createSourceFile, getSourceFileKindFromExt } from "../index.js";
 import { createStringMap } from "../utils/misc.js";
@@ -161,6 +162,7 @@ export async function createTestFileSystem(options?: TestHostOptions): Promise<T
     addJsFile,
     addRealTypeSpecFile,
     addRealJsFile,
+    addRealFolder,
     addTypeSpecLibrary,
     compilerHost,
     fs: virtualFs,
@@ -178,6 +180,25 @@ export async function createTestFileSystem(options?: TestHostOptions): Promise<T
 
   async function addRealTypeSpecFile(path: string, existingPath: string) {
     virtualFs.set(resolveVirtualPath(path), await readFile(existingPath, "utf8"));
+  }
+
+  async function addRealFolder(folder: string, existingFolder: string) {
+    const entries = await readdir(existingFolder);
+    for (const entry of entries) {
+      const existingPath = join(existingFolder, entry);
+      const virtualPath = join(folder, entry);
+      const s = await stat(existingPath);
+      if (s.isFile()) {
+        if (existingPath.endsWith(".js")) {
+          await addRealJsFile(virtualPath, existingPath);
+        } else {
+          await addRealTypeSpecFile(virtualPath, existingPath);
+        }
+      }
+      if (s.isDirectory()) {
+        await addRealFolder(virtualPath, existingPath);
+      }
+    }
   }
 
   async function addRealJsFile(path: string, existingPath: string) {
@@ -311,7 +332,7 @@ async function createTestHostInternal(): Promise<TestHost> {
       // default for tests is noEmit
       options = { ...options, noEmit: true };
     }
-    const p = await compileProgram(fileSystem.compilerHost, mainFile, options);
+    const p = await compileProgram(fileSystem.compilerHost, resolveVirtualPath(mainFile), options);
     program = p;
     logVerboseTestOutput((log) =>
       logDiagnostics(p.diagnostics, createLogger({ sink: fileSystem.compilerHost.logSink })),

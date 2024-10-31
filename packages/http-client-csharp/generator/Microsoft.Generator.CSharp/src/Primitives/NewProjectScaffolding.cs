@@ -73,7 +73,7 @@ namespace Microsoft.Generator.CSharp.Primitives
         private static readonly IReadOnlyList<CSProjWriter.CSProjDependencyPackage> _unbrandedDependencyPackages = new CSProjWriter.CSProjDependencyPackage[]
         {
             new("System.ClientModel", "1.1.0-beta.4"),
-            new("System.Text.Json", "8.0.4")
+            new("System.Text.Json", "8.0.5")
         };
 
         private string GetSln()

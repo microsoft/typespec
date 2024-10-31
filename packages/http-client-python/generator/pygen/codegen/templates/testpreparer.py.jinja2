@@ -1,0 +1,26 @@
+# coding=utf-8
+{{ code_model.options['license_header'] }}
+{{ imports }}
+
+{% for test_name in test_names %}
+{% set extra_async = ", is_async=True" if test_name.is_async else ""%}
+{% set prefix_lower = test_name.prefix|lower %}
+class {{ test_name.base_test_class_name }}(AzureRecordedTestCase):
+
+    def {{ test_name.create_client_name }}(self, endpoint):
+        credential = self.get_credential({{ test_name.client_name }}{{ extra_async }})
+        return self.create_client_from_credential(
+            {{ test_name.client_name }},
+            credential=credential,
+            endpoint=endpoint,
+        )
+
+{% if not test_name.is_async %}
+{{ test_name.preparer_name }} = functools.partial(
+    PowerShellPreparer,
+    "{{ prefix_lower }}",
+    {{ prefix_lower }}_endpoint="https://fake_{{ prefix_lower }}_endpoint.com"
+)
+{% endif %}
+
+{% endfor %}

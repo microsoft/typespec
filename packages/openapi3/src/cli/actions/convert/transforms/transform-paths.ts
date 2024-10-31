@@ -29,6 +29,7 @@ export function transformPaths(
   const operations: TypeSpecOperation[] = [];
 
   for (const route of Object.keys(paths)) {
+    const routeParameters = paths[route].parameters?.map(transformOperationParameter) ?? [];
     const path = paths[route];
     for (const verb of supportedHttpMethods) {
       const operation = path[verb];
@@ -41,14 +42,20 @@ export function transformPaths(
       const responseModels = collectOperationResponses(operation.operationId!, operationResponses);
       models.push(...responseModels);
 
+      const decorators = [
+        ...getExtensions(operation),
+        { name: "route", args: [route] },
+        { name: verb, args: [] },
+      ];
+
+      if (operation.summary) {
+        decorators.push({ name: "summary", args: [operation.summary] });
+      }
+
       operations.push({
         ...getScopeAndName(operation.operationId!),
-        decorators: [
-          ...getExtensions(operation),
-          { name: "route", args: [route] },
-          { name: verb, args: [] },
-        ],
-        parameters,
+        decorators,
+        parameters: dedupeParameters([...routeParameters, ...parameters]),
         doc: operation.description,
         operationId: operation.operationId,
         requestBodies: transformRequestBodies(operation.requestBody),
@@ -61,6 +68,30 @@ export function transformPaths(
   return operations;
 }
 
+function dedupeParameters(
+  parameters: Refable<TypeSpecOperationParameter>[],
+): Refable<TypeSpecOperationParameter>[] {
+  const seen = new Set<string>();
+  const dedupeList: Refable<TypeSpecOperationParameter>[] = [];
+
+  // iterate in reverse since more specific-scoped parameters are added last
+  for (let i = parameters.length - 1; i >= 0; i--) {
+    // ignore resolving the $ref for now, unlikely to be able to resolve
+    // issues without user intervention if a duplicate is present except in
+    // very simple cases.
+    const param = parameters[i];
+
+    const identifier = "$ref" in param ? param.$ref : `${param.in}.${param.name}`;
+
+    if (seen.has(identifier)) continue;
+    seen.add(identifier);
+
+    dedupeList.unshift(param);
+  }
+
+  return dedupeList;
+}
+
 function transformOperationParameter(
   parameter: Refable<OpenAPI3Parameter>,
 ): Refable<TypeSpecOperationParameter> {
@@ -70,6 +101,7 @@ function transformOperationParameter(
 
   return {
     name: printIdentifier(parameter.name),
+    in: parameter.in,
     doc: parameter.description,
     decorators: getParameterDecorators(parameter),
     isOptional: !parameter.required,

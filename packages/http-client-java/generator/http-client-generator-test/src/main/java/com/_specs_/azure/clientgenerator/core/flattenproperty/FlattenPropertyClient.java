@@ -41,7 +41,8 @@ public final class FlattenPropertyClient {
      * The putFlattenModel operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     name: String (Required)
      *     properties (Required): {
@@ -49,11 +50,13 @@ public final class FlattenPropertyClient {
      *         age: int (Required)
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     name: String (Required)
      *     properties (Required): {
@@ -61,7 +64,8 @@ public final class FlattenPropertyClient {
      *         age: int (Required)
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -81,7 +85,8 @@ public final class FlattenPropertyClient {
      * The putNestedFlattenModel operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     name: String (Required)
      *     properties (Required): {
@@ -92,11 +97,13 @@ public final class FlattenPropertyClient {
      *         }
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     name: String (Required)
      *     properties (Required): {
@@ -107,7 +114,8 @@ public final class FlattenPropertyClient {
      *         }
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

@@ -3,10 +3,11 @@
 
 package com.type.scalar;
 
+import java.math.BigDecimal;
+
+import com.azure.core.util.BinaryData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.math.BigDecimal;
 
 public class ScalarTests {
 
@@ -27,8 +28,8 @@ public class ScalarTests {
         Assertions.assertTrue(booleanClient.get());
         booleanClient.put(true);
 
-        Assertions.assertEquals("test", unknownClient.get());
-        unknownClient.put("test");
+        Assertions.assertEquals("test", unknownClient.get().toObject(String.class));
+        unknownClient.put(BinaryData.fromObject("test"));
     }
 
     @Test

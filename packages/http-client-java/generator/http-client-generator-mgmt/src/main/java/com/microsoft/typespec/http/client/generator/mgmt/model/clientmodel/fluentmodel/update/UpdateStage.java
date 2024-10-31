@@ -18,8 +18,8 @@ public class UpdateStage extends FluentInterfaceStage {
 
     public String getDescription(String modelName) {
         return property == null
-                ? String.format("The stage of the %1$s update.", modelName)
-                : String.format("The stage of the %1$s update allowing to specify %2$s.", modelName, property.getName());
+            ? String.format("The stage of the %1$s update.", modelName)
+            : String.format("The stage of the %1$s update allowing to specify %2$s.", modelName, property.getName());
     }
 
     public ModelProperty getModelProperty() {

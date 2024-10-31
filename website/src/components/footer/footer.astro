@@ -1,0 +1,145 @@
+---
+import Link from "@site/src/components/link.astro";
+import { Links } from "@site/src/constants";
+import ThemePicker from "../theme-picker.astro";
+import MicrosoftLogo from "./microsoft-logo.astro";
+
+const { class: className } = Astro.props;
+---
+
+<style>
+  .footer {
+    padding: 80px;
+    color: var(--colorNeutralForeground2);
+    background-color: var(--colorNeutralBackground3);
+    max-width: 100vw;
+    overflow: hidden;
+  }
+
+  @media only screen and (max-width: 728px) {
+    .footer {
+      padding: 40px;
+    }
+  }
+
+  .top {
+    display: flex;
+    gap: 60px;
+  }
+
+  .top-separator {
+    flex: 1 1 auto;
+  }
+
+  .main {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 276px;
+  }
+
+  .main-title {
+    color: var(--colorNeutralForeground1);
+    line-height: 22px;
+    font-weight: 600;
+  }
+
+  .separator {
+    height: 60px;
+  }
+
+  .bottom {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  @media only screen and (max-width: 728px) {
+    .links {
+      display: none;
+    }
+  }
+
+  .general-links :global(a) {
+    color: var(--colorNeutralForeground2);
+    text-decoration: underline;
+  }
+  .general-links :global(a:hover) {
+    color: var(--colorBrandForeground1);
+  }
+
+  .theme-picker {
+    display: flex;
+    align-items: flex-start;
+    padding: 4px 6px;
+    gap: 6px;
+    border: 1px solid var(--colorNeutralStroke1);
+    border-radius: 70px;
+  }
+
+  .theme-option {
+    cursor: pointer;
+    display: flex;
+    padding: 2px;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .theme-option:hover {
+    color: var(--colorNeutralForeground1);
+    border-radius: 50%;
+  }
+
+  .selected {
+    background-color: var(--colorBrandForeground1);
+    border-radius: 50%;
+  }
+</style>
+<footer class:list={["footer", className]} data-theme="dark">
+  <div class="top">
+    <div class="main">
+      <div class="main-title">TypeSpec</div>
+      <div class="main-description">Follow us for latest updates, contributions, and more.</div>
+      <div>
+        <a
+          href="https://github.com/microsoft/typespec"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="header-github-link"
+          aria-label="Github repository"></a>
+      </div>
+    </div>
+    <div class="top-separator"></div>
+    <!-- <div class="links">{links}</div> -->
+    <div>
+      <ThemePicker />
+    </div>
+  </div>
+  <div class="separator"></div>
+  <div class="bottom">
+    <div class="logo-copyright">
+      <div class="logo">
+        <MicrosoftLogo />
+        Microsoft
+      </div>
+      <div>© {new Date().getFullYear()} Microsoft</div>
+    </div>
+    <div class="general-links">
+      <div>
+        <Link href={Links.privacy} title="Microsoft Privacy Policy"> Privacy </Link>
+      </div>
+      <div>
+        <Link href={Links.termsOfUse} title="Microsoft Terms Of Use"> Terms of use </Link>
+      </div>
+      <div>
+        <Link href={Links.trademark} title="Microsoft Trademarks"> Trademarks </Link>
+      </div>
+    </div>
+  </div>
+</footer>

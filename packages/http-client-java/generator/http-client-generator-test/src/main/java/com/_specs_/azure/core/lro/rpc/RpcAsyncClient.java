@@ -17,8 +17,8 @@ import com.azure.core.exception.ResourceModifiedException;
 import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.util.BinaryData;
-import com.azure.core.util.polling.PollerFlux;
 import com.azure.core.util.polling.PollOperationDetails;
+import com.azure.core.util.polling.PollerFlux;
 
 /**
  * Initializes a new instance of the asynchronous RpcClient type.
@@ -42,15 +42,18 @@ public final class RpcAsyncClient {
      * Generate data.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     prompt: String (Required)
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     id: String (Required)
      *     status: String(NotStarted/Running/Succeeded/Failed/Canceled) (Required)
@@ -66,7 +69,8 @@ public final class RpcAsyncClient {
      *         data: String (Required)
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param body The body parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

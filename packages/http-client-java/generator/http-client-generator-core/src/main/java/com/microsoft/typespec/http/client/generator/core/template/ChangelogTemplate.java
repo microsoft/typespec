@@ -9,11 +9,8 @@ import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 public class ChangelogTemplate {
 
     public String write(Project project) {
-        return TemplateUtil.loadTextFromResource("Changelog_protocol.txt",
-                TemplateUtil.SERVICE_NAME, project.getServiceName(),
-                TemplateUtil.SERVICE_DESCRIPTION, project.getServiceDescriptionForMarkdown(),
-                TemplateUtil.ARTIFACT_VERSION, project.getVersion(),
-                TemplateUtil.DATE_UTC, "Unreleased"
-        );
+        return TemplateUtil.loadTextFromResource("Changelog_protocol.txt", TemplateUtil.SERVICE_NAME,
+            project.getServiceName(), TemplateUtil.SERVICE_DESCRIPTION, project.getServiceDescriptionForMarkdown(),
+            TemplateUtil.ARTIFACT_VERSION, project.getVersion(), TemplateUtil.DATE_UTC, "Unreleased");
     }
 }

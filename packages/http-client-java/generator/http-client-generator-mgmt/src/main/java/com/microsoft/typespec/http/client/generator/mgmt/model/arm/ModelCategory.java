@@ -5,12 +5,14 @@ package com.microsoft.typespec.http.client.generator.mgmt.model.arm;
 
 public enum ModelCategory {
 
-    // e.g. /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Storage/storageAccounts/{accountName}
+    // e.g.
+    // /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Storage/storageAccounts/{accountName}
     RESOURCE_GROUP_AS_PARENT,
 
     SUBSCRIPTION_AS_PARENT,
 
-    // e.g. /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Storage/storageAccounts/{accountName}/blobServices/default/containers/{containerName}
+    // e.g.
+    // /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Storage/storageAccounts/{accountName}/blobServices/default/containers/{containerName}
     NESTED_CHILD,
 
     // e.g. /{scope}/providers/Microsoft.Authorization/roleAssignments/{roleAssignmentName}

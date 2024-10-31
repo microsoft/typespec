@@ -14,6 +14,7 @@ import {
   TestHost,
   createTestHost,
   createTestWrapper,
+  expectDiagnosticEmpty,
   expectDiagnostics,
 } from "../../src/testing/index.js";
 import { mutate } from "../../src/utils/misc.js";
@@ -139,20 +140,6 @@ describe("compiler: checker: decorators", () => {
         code: "missing-implementation",
         message: "Extern declaration must have an implementation in JS file.",
       });
-    });
-
-    describe("emit deprecated warning if decorator is expecting valueof", () => {
-      it.each(["numeric", "int64", "uint64", "integer", "float", "decimal", "decimal128", "null"])(
-        "%s",
-        async (type) => {
-          const diagnostics = await runner.diagnose(`
-          extern dec testDec(target: unknown, value: valueof ${type});
-        `);
-          expectDiagnostics(diagnostics, {
-            code: "deprecated",
-          });
-        },
-      );
     });
   });
 
@@ -366,7 +353,6 @@ describe("compiler: checker: decorators", () => {
         value: string,
         suppress?: boolean,
       ): Promise<any> {
-        mutate($flags).decoratorArgMarshalling = "new";
         await runner.compile(`
           extern dec testDec(target: unknown, arg1: ${type});
           
@@ -532,9 +518,8 @@ describe("compiler: checker: decorators", () => {
         suppress?: boolean,
       ): Promise<any> {
         // Default so shouldn't be needed
-        // mutate($flags).decoratorArgMarshalling = "legacy";
-        await runner.compile(`
-          #suppress "deprecated" "for testing"
+        mutate($flags).decoratorArgMarshalling = "legacy";
+        const diagnostics = await runner.diagnose(`
           extern dec testDec(target: unknown, arg1: ${type});
           
           ${suppress ? `#suppress "deprecated" "for testing"` : ""}
@@ -542,6 +527,7 @@ describe("compiler: checker: decorators", () => {
           @test
           model Foo {}
         `);
+        expectDiagnosticEmpty(diagnostics.filter((x) => x.code !== "deprecated"));
         return calledArgs![2];
       }
 

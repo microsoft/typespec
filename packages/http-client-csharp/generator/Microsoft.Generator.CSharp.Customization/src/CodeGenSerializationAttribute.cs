@@ -11,13 +11,13 @@ namespace Microsoft.Generator.CSharp.Customization
     public class CodeGenSerializationAttribute : Attribute
     {
         /// <summary>
-        /// Gets or sets the property name which these hooks should apply to
+        /// Gets or sets the property name which these hooks should apply to.
         /// </summary>
         public string? PropertyName { get; set; }
         /// <summary>
-        /// Gets or sets the serialization path of the property in the JSON
+        /// Gets or sets the serialization name of the property.
         /// </summary>
-        public string[]? SerializationPath { get; }
+        public string? PropertySerializationName { get; set; }
         /// <summary>
         /// Gets or sets the method name to use when serializing the property value (property name excluded)
         /// The signature of the serialization hook method must be or compatible with when invoking:
@@ -45,13 +45,7 @@ namespace Microsoft.Generator.CSharp.Customization
         public CodeGenSerializationAttribute(string propertyName, string serializationName)
         {
             PropertyName = propertyName;
-            SerializationPath = new[] { serializationName };
-        }
-
-        public CodeGenSerializationAttribute(string propertyName, string[] serializationPath)
-        {
-            PropertyName = propertyName;
-            SerializationPath = serializationPath;
+            PropertySerializationName = serializationName;
         }
     }
 }

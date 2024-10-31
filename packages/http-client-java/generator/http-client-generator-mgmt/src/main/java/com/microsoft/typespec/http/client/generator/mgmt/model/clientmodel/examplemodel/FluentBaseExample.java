@@ -3,10 +3,9 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.examplemodel;
 
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentManager;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceCollection;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,8 +17,8 @@ public abstract class FluentBaseExample implements FluentExample {
     private final FluentResourceCollection collection;
     private final List<ParameterExample> parameters = new ArrayList<>();
 
-    public FluentBaseExample(String name, String originalFileName,
-                             FluentManager manager, FluentResourceCollection collection) {
+    public FluentBaseExample(String name, String originalFileName, FluentManager manager,
+        FluentResourceCollection collection) {
         this.name = name;
         this.originalFileName = originalFileName;
         this.manager = manager;
@@ -39,7 +38,6 @@ public abstract class FluentBaseExample implements FluentExample {
     public FluentManager getManager() {
         return manager;
     }
-
 
     @Override
     public ClassType getEntryType() {

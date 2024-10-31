@@ -3,8 +3,6 @@ id: decorators
 title: Decorators
 ---
 
-# Decorators
-
 Decorators in TypeSpec allow developers to attach metadata to types within a TypeSpec program. They can also be used to compute types based on their inputs. Decorators form the core of TypeSpec's extensibility, providing the flexibility to describe a wide variety of APIs and associated metadata such as documentation, constraints, samples, and more.
 
 A range of TypeSpec constructs can be decorated, including [namespaces](./namespaces.md), [operations](./operations.md) and their parameters, and [models](./models.md) and their members.
@@ -49,14 +47,14 @@ This is equivalent to:
 model Dog {}
 ```
 
-Example: decorating a model property
+Example: decorating a model property to indicate that it is read-only
 
 ```typespec
 model Dog {
   name: string;
 }
 
-@@readOnly(Dog.name);
+@@visibility(Dog.name, "read");
 ```
 
 ## Creating decorators

@@ -8,9 +8,7 @@ TypeSpec HTTP protocol binding
 npm install @typespec/http
 ```
 
-## Linter
-
-### Usage
+## Usage
 
 Add the following in `tspconfig.yaml`:
 
@@ -20,13 +18,13 @@ linter:
     - "@typespec/http/all"
 ```
 
-### RuleSets
+## RuleSets
 
 Available ruleSets:
 
 - `@typespec/http/all`
 
-### Rules
+## Rules
 
 | Name                                                                                                                        | Description                                                                               |
 | --------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
@@ -462,7 +460,7 @@ Defines the relative route URI template for the target operation as defined by [
 Specify an endpoint for this service. Multiple `@server` decorators can be used to specify multiple endpoints.
 
 ```typespec
-@TypeSpec.Http.server(url: valueof string, description: valueof string, parameters?: Record<unknown>)
+@TypeSpec.Http.server(url: valueof string, description?: valueof string, parameters?: Record<unknown>)
 ```
 
 ##### Target
@@ -478,6 +476,14 @@ Specify an endpoint for this service. Multiple `@server` decorators can be used 
 | parameters  | `Record<unknown>` | Optional set of parameters used to interpolate the url. |
 
 ##### Examples
+
+```typespec
+@service
+@server("https://example.com")
+namespace PetStore;
+```
+
+###### With a description
 
 ```typespec
 @service

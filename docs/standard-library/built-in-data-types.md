@@ -3,7 +3,6 @@ title: "Built-in Data types"
 toc_min_heading_level: 2
 toc_max_heading_level: 3
 ---
-# Data types
 ## TypeSpec
 ### `Array` {#Array}
 
@@ -304,7 +303,7 @@ scalar float
 
 ### `float32` {#float32}
 
-A 32 bit floating point number. (`±5.0 × 10^−324` to `±1.7 × 10^308`)
+A 32 bit floating point number. (`±1.5 x 10^−45` to `±3.4 x 10^38`)
 ```typespec
 scalar float32
 ```
@@ -313,7 +312,7 @@ scalar float32
 
 ### `float64` {#float64}
 
-A 32 bit floating point number. (`±1.5 x 10^−45` to `±3.4 x 10^38`)
+A 64 bit floating point number. (`±5.0 × 10^−324` to `±1.7 × 10^308`)
 ```typespec
 scalar float64
 ```

@@ -1,6 +1,7 @@
 import { getUnionAsEnum } from "@azure-tools/typespec-azure-core";
 import {
   SdkDurationType,
+  SdkModelType,
   SdkType,
   isSdkFloatKind,
   isSdkIntKind,
@@ -119,7 +120,7 @@ export function getDefaultValue(value: Value | undefined): any {
   return undefined;
 }
 
-export function getDurationFormatFromSdkType(type: SdkDurationType): DurationSchema["format"] {
+export function getDurationFormat(type: SdkDurationType): DurationSchema["format"] {
   let format: DurationSchema["format"] = "duration-rfc3339";
   // duration encoded as seconds
   if (type.encode === "seconds") {
@@ -217,8 +218,9 @@ export function getUnionDescription(union: Union, typeNameOptions: TypeNameOptio
   return name;
 }
 
-export function modelIs(model: Model, name: string, namespace: string): boolean {
-  let currentModel: Model | undefined = model;
+export function modelIs(model: SdkModelType, name: string, namespace: string): boolean {
+  // use raw model because SdkModelType does not have sourceModel information
+  let currentModel: Model | undefined = model.__raw as Model | undefined;
   while (currentModel) {
     if (currentModel.name === name && getNamespace(currentModel) === namespace) {
       return true;

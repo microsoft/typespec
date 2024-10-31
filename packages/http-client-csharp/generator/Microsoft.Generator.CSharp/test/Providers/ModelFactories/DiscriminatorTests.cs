@@ -15,7 +15,12 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
         private static readonly InputModelType _catModel = InputFactory.Model("cat", discriminatedKind: "cat", properties:
         [
             InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
-            InputFactory.Property("willScratchOwner", InputPrimitiveType.Boolean, isRequired: true, isDiscriminator: true)
+            InputFactory.Property("willScratchOwner", InputPrimitiveType.Boolean, isRequired: true, isDiscriminator: true),
+        ]);
+        private static readonly InputModelType _birdModel = InputFactory.Model("bird", discriminatedKind: "bird", properties:
+        [
+            InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+            InputFactory.Property("color", InputFactory.Literal.String("red"), isRequired: true, isDiscriminator: true)
         ]);
         private static readonly InputModelType _dogModel = InputFactory.Model("dog", discriminatedKind: "dog", properties:
         [
@@ -29,7 +34,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
                 InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
                 InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)
             ],
-            discriminatedModels: new Dictionary<string, InputModelType>() { { "cat", _catModel }, { "dog", _dogModel } });
+            discriminatedModels: new Dictionary<string, InputModelType>() { { "cat", _catModel }, { "dog", _dogModel }, { "bird", _birdModel } });
 
         [Test]
         public void BaseShouldReturnUnknownVariant()
@@ -60,9 +65,24 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
             Assert.IsNull(discriminatorParameter);
         }
 
+        [Test]
+        public void DerivedShouldUseItsDiscriminatorValueInModelFactory()
+        {
+            ModelFactoryProvider modelFactory = SetupModelFactory();
+            var birdModelMethod = modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == "Bird");
+            Assert.IsNotNull(birdModelMethod);
+            var discriminatorParameter = birdModelMethod!.Signature.Parameters.FirstOrDefault(p => p.Name == "kind");
+            Assert.IsNull(discriminatorParameter);
+
+            // ensure the signature is correct and includes the base discriminator value
+            // and the cat model's discriminator with literal value
+            Assert.IsTrue(birdModelMethod!.BodyStatements!.ToDisplayString()
+                .Contains("return new global::Sample.Models.Bird(\"red\", \"bird\", name, additionalBinaryDataProperties: null);"));
+        }
+
         private static ModelFactoryProvider SetupModelFactory()
         {
-            MockHelpers.LoadMockPlugin(inputModelTypes: [_baseModel, _catModel, _dogModel]);
+            MockHelpers.LoadMockPlugin(inputModelTypes: [_baseModel, _catModel, _dogModel, _birdModel]);
             var outputLibrary = CodeModelPlugin.Instance.OutputLibrary;
             var modelFactory = outputLibrary.TypeProviders.OfType<ModelFactoryProvider>().FirstOrDefault();
             Assert.IsNotNull(modelFactory);

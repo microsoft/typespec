@@ -8,7 +8,6 @@ package com.type.scalar.generated;
 // If you wish to modify these files, please copy them out of the 'generated' package, and modify there.
 // See https://aka.ms/azsdk/dpg/java/tests for guide on adding a test.
 
-import com.azure.core.http.HttpClient;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.test.TestMode;
@@ -42,77 +41,63 @@ class ScalarClientTestBase extends TestProxyTestBase {
     protected void beforeTest() {
         ScalarClientBuilder stringOperationClientbuilder = new ScalarClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            stringOperationClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             stringOperationClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         stringOperationClient = stringOperationClientbuilder.buildStringOperationClient();
 
         ScalarClientBuilder booleanOperationClientbuilder = new ScalarClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            booleanOperationClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             booleanOperationClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         booleanOperationClient = booleanOperationClientbuilder.buildBooleanOperationClient();
 
         ScalarClientBuilder unknownClientbuilder = new ScalarClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            unknownClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             unknownClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         unknownClient = unknownClientbuilder.buildUnknownClient();
 
         ScalarClientBuilder decimalTypeClientbuilder = new ScalarClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            decimalTypeClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             decimalTypeClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         decimalTypeClient = decimalTypeClientbuilder.buildDecimalTypeClient();
 
         ScalarClientBuilder decimal128TypeClientbuilder = new ScalarClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            decimal128TypeClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             decimal128TypeClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         decimal128TypeClient = decimal128TypeClientbuilder.buildDecimal128TypeClient();
 
         ScalarClientBuilder decimalVerifyClientbuilder = new ScalarClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            decimalVerifyClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             decimalVerifyClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         decimalVerifyClient = decimalVerifyClientbuilder.buildDecimalVerifyClient();
 
         ScalarClientBuilder decimal128VerifyClientbuilder = new ScalarClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            decimal128VerifyClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             decimal128VerifyClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         decimal128VerifyClient = decimal128VerifyClientbuilder.buildDecimal128VerifyClient();

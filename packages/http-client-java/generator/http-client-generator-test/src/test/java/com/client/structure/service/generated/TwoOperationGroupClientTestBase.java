@@ -8,7 +8,6 @@ package com.client.structure.service.generated;
 // If you wish to modify these files, please copy them out of the 'generated' package, and modify there.
 // See https://aka.ms/azsdk/dpg/java/tests for guide on adding a test.
 
-import com.azure.core.http.HttpClient;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.test.TestMode;
@@ -28,11 +27,9 @@ class TwoOperationGroupClientTestBase extends TestProxyTestBase {
         TwoOperationGroupClientBuilder group1Clientbuilder = new TwoOperationGroupClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
             .client(Configuration.getGlobalConfiguration().get("CLIENT", "client"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            group1Clientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             group1Clientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         group1Client = group1Clientbuilder.buildGroup1Client();
@@ -40,11 +37,9 @@ class TwoOperationGroupClientTestBase extends TestProxyTestBase {
         TwoOperationGroupClientBuilder group2Clientbuilder = new TwoOperationGroupClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
             .client(Configuration.getGlobalConfiguration().get("CLIENT", "client"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            group2Clientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             group2Clientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         group2Client = group2Clientbuilder.buildGroup2Client();

@@ -1,5 +1,21 @@
 # Change Log - typespec-vscode
 
+## 0.61.0
+
+### Bug Fixes
+
+- [#4430](https://github.com/microsoft/typespec/pull/4430) Use "shell" when spawning execution of .cmd file(i.e. tsp-server.cmd) in windows
+
+### Bump dependencies
+
+- [#4424](https://github.com/microsoft/typespec/pull/4424) Bump dependencies
+
+### Features
+
+- [#4330](https://github.com/microsoft/typespec/pull/4330) Support Compile Task and Watch Task in vscode.
+- [#4498](https://github.com/microsoft/typespec/pull/4498) Make extension web compatible with minimal functionality
+
+
 ## 0.60.0
 
 No changes, version bump only.

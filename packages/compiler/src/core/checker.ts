@@ -5,12 +5,7 @@ import { createChangeIdentifierCodeFix } from "./compiler-code-fixes/change-iden
 import { createModelToObjectValueCodeFix } from "./compiler-code-fixes/model-to-object-literal.codefix.js";
 import { createTupleToArrayValueCodeFix } from "./compiler-code-fixes/tuple-to-array-value.codefix.js";
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
-import {
-  ProjectionError,
-  compilerAssert,
-  ignoreDiagnostics,
-  reportDeprecated,
-} from "./diagnostics.js";
+import { ProjectionError, compilerAssert, ignoreDiagnostics } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
 import { getLocationContext } from "./helpers/location-context.js";
 import { explainStringTemplateNotSerializable } from "./helpers/string-template-utils.js";
@@ -20,11 +15,7 @@ import {
   getTypeName,
   type TypeNameOptions,
 } from "./helpers/type-name-utils.js";
-import {
-  canNumericConstraintBeJsNumber,
-  legacyMarshallTypeForJS,
-  marshallTypeForJS,
-} from "./js-marshaller.js";
+import { legacyMarshallTypeForJS, marshallTypeForJS } from "./js-marshaller.js";
 import { createDiagnostic } from "./messages.js";
 import { Numeric } from "./numeric.js";
 import {
@@ -2054,57 +2045,7 @@ export function createChecker(program: Program): Checker {
 
     linkType(links, decoratorType, mapper);
 
-    checkDecoratorLegacyMarshalling(decoratorType);
     return decoratorType;
-  }
-
-  function checkDecoratorLegacyMarshalling(decorator: Decorator) {
-    const marshalling = resolveDecoratorArgMarshalling(decorator);
-    function reportDeprecatedLegacyMarshalling(param: MixedFunctionParameter, message: string) {
-      reportDeprecated(
-        program,
-        [
-          `Parameter ${param.name} of decorator ${decorator.name} is using legacy marshalling but is accepting ${message}.`,
-          `This will change in the future.`,
-          'Add `export const $flags = {decoratorArgMarshalling: "new"}}` to your library to opt-in to the new marshalling behavior.',
-        ].join("\n"),
-        param.node,
-      );
-    }
-    if (marshalling === "legacy") {
-      for (const param of decorator.parameters) {
-        if (param.type.valueType) {
-          if (
-            ignoreDiagnostics(
-              relation.isTypeAssignableTo(nullType, param.type.valueType, param.type),
-            )
-          ) {
-            reportDeprecatedLegacyMarshalling(param, "null as a type");
-          } else if (
-            param.type.valueType.kind === "Enum" ||
-            param.type.valueType.kind === "EnumMember" ||
-            (relation.isReflectionType(param.type.valueType) &&
-              param.type.valueType.name === "EnumMember")
-          ) {
-            reportDeprecatedLegacyMarshalling(param, "enum members");
-          } else if (
-            ignoreDiagnostics(
-              relation.isTypeAssignableTo(
-                param.type.valueType,
-                getStdType("numeric"),
-                param.type.valueType,
-              ),
-            ) &&
-            !canNumericConstraintBeJsNumber(param.type.valueType)
-          ) {
-            reportDeprecatedLegacyMarshalling(
-              param,
-              "a numeric type that is not representable as a JS Number",
-            );
-          }
-        }
-      }
-    }
   }
 
   function checkFunctionDeclaration(
@@ -3921,7 +3862,6 @@ export function createChecker(program: Program): Checker {
         type.indexer = isBase.indexer;
       }
     }
-    decorators.push(...checkDecorators(type, node, mapper));
 
     if (isBase) {
       for (const prop of isBase.properties.values()) {
@@ -3956,6 +3896,8 @@ export function createChecker(program: Program): Checker {
 
     // Evaluate the properties after
     checkModelProperties(node, type.properties, type, mapper);
+
+    decorators.push(...checkDecorators(type, node, mapper));
 
     linkMapper(type, mapper);
 
@@ -5439,7 +5381,7 @@ export function createChecker(program: Program): Checker {
       ) {
         return location.flags.decoratorArgMarshalling;
       } else {
-        return "legacy";
+        return "new";
       }
     }
     return "new";

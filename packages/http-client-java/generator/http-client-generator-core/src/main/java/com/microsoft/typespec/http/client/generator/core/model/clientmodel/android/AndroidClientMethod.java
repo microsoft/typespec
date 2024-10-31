@@ -16,7 +16,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Proxy
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ReturnValue;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;

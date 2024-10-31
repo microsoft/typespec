@@ -1121,8 +1121,8 @@ export function isKey(program: Program, property: ModelProperty) {
   return getKey(program, property) !== undefined;
 }
 
-export function getKeyName(program: Program, property: ModelProperty): string {
-  return getKey(program, property) || property.name;
+export function getKeyName(program: Program, property: ModelProperty): string | undefined {
+  return getKey(program, property);
 }
 
 export const $withDefaultKeyVisibility: WithDefaultKeyVisibilityDecorator = (
@@ -1169,6 +1169,7 @@ export const $withDefaultKeyVisibility: WithDefaultKeyVisibilityDecorator = (
  *     model Foo {}
  * ```
  */
+// eslint-disable-next-line @typescript-eslint/no-deprecated
 export const $deprecated: DeprecatedDecorator = (
   context: DecoratorContext,
   target: Type,

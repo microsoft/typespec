@@ -1,6 +1,6 @@
 {
   "name": "@typespec/rest",
-  "version": "0.60.0",
+  "version": "0.61.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec REST protocol binding",
   "homepage": "https://typespec.io",
@@ -21,6 +21,7 @@
   "tspMain": "lib/rest.tsp",
   "exports": {
     ".": {
+      "typespec": "./lib/rest.tsp",
       "types": "./dist/src/index.d.ts",
       "default": "./dist/src/index.js"
     },
@@ -56,16 +57,16 @@
     "@typespec/http": "workspace:~"
   },
   "devDependencies": {
-    "@types/node": "~22.5.4",
+    "@types/node": "~22.7.5",
     "@typespec/compiler": "workspace:~",
     "@typespec/http": "workspace:~",
     "@typespec/library-linter": "workspace:~",
     "@typespec/tspd": "workspace:~",
-    "@vitest/coverage-v8": "^2.1.0",
-    "@vitest/ui": "^2.1.0",
+    "@vitest/coverage-v8": "^2.1.2",
+    "@vitest/ui": "^2.1.2",
     "c8": "^10.1.2",
     "rimraf": "~6.0.1",
-    "typescript": "~5.6.2",
-    "vitest": "^2.1.0"
+    "typescript": "~5.6.3",
+    "vitest": "^2.1.2"
   }
 }

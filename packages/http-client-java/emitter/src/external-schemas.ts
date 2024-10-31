@@ -282,11 +282,11 @@ export function getFileDetailsSchema(
       );
 
       // description if available
-      if (fileSdkType.description) {
-        fileDetailsSchema.summary = fileSdkType.description;
+      if (fileSdkType.summary) {
+        fileDetailsSchema.summary = fileSdkType.summary;
       }
-      if (fileSdkType.details) {
-        fileDetailsSchema.language.default.description = fileSdkType.details;
+      if (fileSdkType.doc) {
+        fileDetailsSchema.language.default.description = fileSdkType.doc;
       }
       // crossLanguageDefinitionId
       (fileDetailsSchema as CrossLanguageDefinition).crossLanguageDefinitionId =

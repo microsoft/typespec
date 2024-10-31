@@ -5,7 +5,6 @@ package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
-
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
@@ -95,6 +94,7 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
 
     /**
      * Create a new ClientModelProperty with the provided properties.
+     * 
      * @param name The name of this property.
      * @param description The description of this property.
      * @param annotationArguments The arguments that go into this property's JsonProperty annotation.
@@ -284,26 +284,31 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
 
     /**
      * Add this ServiceModelProperty's imports to the provided set of imports.
+     * 
      * @param imports The set of imports to add to.
      */
     public final void addImportsTo(Set<String> imports, boolean shouldGenerateXmlSerialization) {
         JavaSettings settings = JavaSettings.getInstance();
+        final boolean requireJackson = !settings.isStreamStyleSerialization();
 
         if (getHeaderCollectionPrefix() != null && !getHeaderCollectionPrefix().isEmpty()) {
             Annotation.HEADER_COLLECTION.addImportsTo(imports);
         }
         if (isAdditionalProperties) {
-            imports.add("com.fasterxml.jackson.annotation.JsonIgnore");
-            imports.add("com.fasterxml.jackson.annotation.JsonAnySetter");
-            imports.add("com.fasterxml.jackson.annotation.JsonAnyGetter");
+            if (requireJackson) {
+                imports.add("com.fasterxml.jackson.annotation.JsonIgnore");
+                imports.add("com.fasterxml.jackson.annotation.JsonAnySetter");
+                imports.add("com.fasterxml.jackson.annotation.JsonAnyGetter");
+            }
             imports.add(LinkedHashMap.class.getName());
         }
 
-        if (settings.getClientFlattenAnnotationTarget() == JavaSettings.ClientFlattenAnnotationTarget.FIELD && needsFlatten) {
+        if (settings.getClientFlattenAnnotationTarget() == JavaSettings.ClientFlattenAnnotationTarget.FIELD
+            && needsFlatten) {
             addJsonFlattenAnnotationImport(imports);
         }
 
-        if (!isAdditionalProperties && getClientType() instanceof MapType) {
+        if (requireJackson && !isAdditionalProperties && getClientType() instanceof MapType) {
             // required for "@JsonInclude(value = JsonInclude.Include.NON_NULL, content = JsonInclude.Include.ALWAYS)"
             imports.add("com.fasterxml.jackson.annotation.JsonInclude");
         }
@@ -317,16 +322,18 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
             imports.add(ClassType.CORE_UTILS.getFullName());
         }
 
-        if (shouldGenerateXmlSerialization) {
-            imports.add("com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement");
-            if (isXmlWrapper()) {
-                imports.add("com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty");
+        if (requireJackson) {
+            if (shouldGenerateXmlSerialization) {
+                imports.add("com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement");
+                if (isXmlWrapper()) {
+                    imports.add("com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty");
+                }
+                if (isXmlText()) {
+                    imports.add("com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlText");
+                }
+            } else {
+                imports.add("com.fasterxml.jackson.annotation.JsonProperty");
             }
-            if (isXmlText()) {
-                imports.add("com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlText");
-            }
-        } else {
-            imports.add("com.fasterxml.jackson.annotation.JsonProperty");
         }
     }
 
@@ -348,6 +355,7 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
 
     /**
      * Creates a builder that is initialized with all the builder properties set to current values of this instance.
+     * 
      * @return A new builder instance initialized with properties values of this instance.
      */
     public Builder newBuilder() {
@@ -388,6 +396,7 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
 
         /**
          * Sets the name of this property.
+         * 
          * @param name the name of this property
          * @return the Builder itself
          */
@@ -398,6 +407,7 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
 
         /**
          * Sets the description of this property.
+         * 
          * @param description the description of this property
          * @return the Builder itself
          */
@@ -408,6 +418,7 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
 
         /**
          * Sets the arguments that go into this property's JsonProperty annotation.
+         * 
          * @param annotationArguments the arguments that go into this property's JsonProperty annotation
          * @return the Builder itself
          */
@@ -418,6 +429,7 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
 
         /**
          * Sets whether this property is an attribute when serialized to XML.
+         * 
          * @param isXmlAttribute whether this property is an attribute when serialized to XML
          * @return the Builder itself
          */
@@ -428,6 +440,7 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
 
         /**
          * Sets this property's name when serialized to XML.
+         * 
          * @param xmlName this property's name when serialized to XML
          * @return the Builder itself
          */
@@ -438,6 +451,7 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
 
         /**
          * Sets this property's namespace when serialized to XML.
+         * 
          * @param xmlNamespace this property's namespace when serialized to XML
          * @return the Builder itself
          */
@@ -448,6 +462,7 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
 
         /**
          * Sets this property's name when it is serialized.
+         * 
          * @param serializedName this property's name when it is serialized
          * @return the Builder itself
          */
@@ -458,6 +473,7 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
 
         /**
          * Sets whether this property is a container.
+         * 
          * @param isXmlWrapper whether this property is a container
          * @return the Builder itself
          */
@@ -468,6 +484,7 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
 
         /**
          * Sets the name of each list element tag within an XML list property.
+         * 
          * @param xmlListElementName the name of each list element tag within an XML list property
          * @return the Builder itself
          */
@@ -478,6 +495,7 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
 
         /**
          * Sets the namespace of each list element tag within an XML list property.
+         * 
          * @param xmlListElementNamespace the namespace of each list element tag within an XML list property
          * @return the Builder itself
          */
@@ -488,6 +506,7 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
 
         /**
          * Sets the prefix of each list element tag within an XML list property.
+         * 
          * @param xmlListElementPrefix the prefix of each list element tag within an XML list property
          * @return the Builder itself
          */
@@ -498,6 +517,7 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
 
         /**
          * Sets the type of this property as it is transmitted across the network (across the wire).
+         * 
          * @param wireType the type of this property as it is transmitted across the network (across the wire)
          * @return the Builder itself
          */
@@ -508,6 +528,7 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
 
         /**
          * Sets the type of this property as it will be exposed via the client.
+         * 
          * @param clientType the type of this property as it will be exposed via the client
          * @return the Builder itself
          */
@@ -518,6 +539,7 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
 
         /**
          * Sets whether this property has a constant value.
+         * 
          * @param isConstant whether this property has a constant value
          * @return the Builder itself
          */
@@ -528,6 +550,7 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
 
         /**
          * Sets the default value expression of this property.
+         * 
          * @param defaultValue the default value expression of this property
          * @return the Builder itself
          */
@@ -538,6 +561,7 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
 
         /**
          * Sets whether this property's value can be changed by the client library.
+         * 
          * @param isReadOnly whether this property's value can be changed by the client library
          * @return the Builder itself
          */
@@ -548,6 +572,7 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
 
         /**
          * Sets whether this property is required.
+         * 
          * @param isRequired whether this property is required
          * @return the Builder itself
          */
@@ -558,6 +583,7 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
 
         /**
          * Sets whether this property is required when create the resource.
+         * 
          * @param requiredForCreate whether this property is required when create the resource.
          * @return the Builder itself
          */
@@ -568,6 +594,7 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
 
         /**
          * Sets the prefix of the headers that make up this property's values.
+         * 
          * @param headerCollectionPrefix the prefix of the headers that make up this property's values
          * @return the Builder itself
          */
@@ -578,6 +605,7 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
 
         /**
          * Sets whether this property contain the additional properties.
+         * 
          * @param isAdditionalProperties whether this property contain the additional properties
          * @return the Builder itself
          */
@@ -588,6 +616,7 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
 
         /**
          * Sets list of property mutability.
+         * 
          * @param mutabilities list of mutability.
          * @return the Builder itself
          */

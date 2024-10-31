@@ -14,11 +14,12 @@ namespace Microsoft.Generator.CSharp.Providers
         private VariableExpression? _variable;
         private Lazy<ParameterProvider> _parameter;
         public FormattableString? Description { get; }
-        public FieldModifiers Modifiers { get; }
-        public CSharpType Type { get; }
+        public FieldModifiers Modifiers { get; set; }
+        public CSharpType Type { get; internal set; }
         public string Name { get; }
         public ValueExpression? InitializationValue { get; }
         public XmlDocProvider? XmlDocs { get; }
+        public PropertyWireInformation? WireInfo { get; internal set; }
 
         private CodeWriterDeclaration? _declaration;
 
@@ -32,6 +33,8 @@ namespace Microsoft.Generator.CSharp.Providers
         public VariableExpression AsVariableExpression => _variable ??= new(Type, Name.ToVariableName());
 
         public TypeProvider EnclosingType { get; }
+
+        internal string? OriginalName { get; init; }
 
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -56,13 +59,14 @@ namespace Microsoft.Generator.CSharp.Providers
             XmlDocs = Description is not null ? new XmlDocProvider() { Summary = new XmlDocSummaryStatement([Description]) } : null;
             EnclosingType = enclosingType;
 
-            InitializeParameter(name, description ?? FormattableStringHelpers.Empty, type);
+            InitializeParameter();
         }
 
         [MemberNotNull(nameof(_parameter))]
-        private void InitializeParameter(string fieldName, FormattableString description, CSharpType fieldType)
+        private void InitializeParameter()
         {
-            _parameter = new(() => new ParameterProvider(fieldName.ToVariableName(), description, fieldType, field: this));
+            _parameter = new(() => new ParameterProvider(
+                Name.ToVariableName(), Description ?? FormattableStringHelpers.Empty, Type, field: this));
         }
 
         private MemberExpression? _asMember;

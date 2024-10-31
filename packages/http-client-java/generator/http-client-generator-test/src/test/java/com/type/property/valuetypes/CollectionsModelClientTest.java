@@ -5,11 +5,10 @@ package com.type.property.valuetypes;
 
 import com.type.property.valuetypes.models.CollectionsModelProperty;
 import com.type.property.valuetypes.models.InnerModel;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import java.util.Arrays;
 import java.util.List;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 class CollectionsModelClientTest {
 

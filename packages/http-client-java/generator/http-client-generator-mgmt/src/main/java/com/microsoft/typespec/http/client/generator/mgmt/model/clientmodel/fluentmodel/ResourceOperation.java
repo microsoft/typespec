@@ -3,8 +3,16 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel;
 
+import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelProperty;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.MethodParameter;
+import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentGen;
 import com.microsoft.typespec.http.client.generator.mgmt.model.ResourceTypeName;
 import com.microsoft.typespec.http.client.generator.mgmt.model.arm.UrlPathSegments;
@@ -12,18 +20,8 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.Fluen
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentModelProperty;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceCollection;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceModel;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.MethodParameter;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelProperty;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentMethod;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
-import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
-import com.azure.core.util.CoreUtils;
-import org.slf4j.Logger;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -36,6 +34,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
 
 public abstract class ResourceOperation {
 
@@ -53,7 +52,7 @@ public abstract class ResourceOperation {
     protected final List<FluentCollectionMethod> methodReferences = new ArrayList<>();
 
     public ResourceOperation(FluentResourceModel resourceModel, FluentResourceCollection resourceCollection,
-                             UrlPathSegments urlPathSegments, String methodName, ClientModel requestBodyParameterModel) {
+        UrlPathSegments urlPathSegments, String methodName, ClientModel requestBodyParameterModel) {
         this.resourceModel = resourceModel;
         this.resourceCollection = resourceCollection;
         this.urlPathSegments = urlPathSegments;
@@ -122,9 +121,7 @@ public abstract class ResourceOperation {
             }
         }
 
-        return properties.stream()
-                .filter(p -> !p.isReadOnly() && !p.isConstant())
-                .collect(Collectors.toList());
+        return properties.stream().filter(p -> !p.isReadOnly() && !p.isConstant()).collect(Collectors.toList());
     }
 
     // method parameters
@@ -134,13 +131,17 @@ public abstract class ResourceOperation {
 
     private List<MethodParameter> getParametersByLocation(Set<RequestParameterLocation> parameterLocations) {
         ClientMethod clientMethod = getMethodReferencesOfFullParameters().iterator().next().getInnerClientMethod();
-        Map<String, ProxyMethodParameter> proxyMethodParameterByClientParameterName = clientMethod.getProxyMethod().getParameters().stream()
-                .filter(p -> parameterLocations.contains(p.getRequestParameterLocation()))
-                .collect(Collectors.toMap(p -> CodeNamer.getEscapedReservedClientMethodParameterName(p.getName()), Function.identity()));
-        return clientMethod.getMethodParameters().stream()
-                .filter(p -> proxyMethodParameterByClientParameterName.containsKey(p.getName()))
-                .map(p -> new MethodParameter(proxyMethodParameterByClientParameterName.get(p.getName()), p))
-                .collect(Collectors.toList());
+        Map<String, ProxyMethodParameter> proxyMethodParameterByClientParameterName = clientMethod.getProxyMethod()
+            .getParameters()
+            .stream()
+            .filter(p -> parameterLocations.contains(p.getRequestParameterLocation()))
+            .collect(Collectors.toMap(p -> CodeNamer.getEscapedReservedClientMethodParameterName(p.getName()),
+                Function.identity()));
+        return clientMethod.getMethodParameters()
+            .stream()
+            .filter(p -> proxyMethodParameterByClientParameterName.containsKey(p.getName()))
+            .map(p -> new MethodParameter(proxyMethodParameterByClientParameterName.get(p.getName()), p))
+            .collect(Collectors.toList());
     }
 
     public ClientMethodParameter getBodyParameter() {
@@ -154,8 +155,10 @@ public abstract class ResourceOperation {
 
     public List<ClientMethodParameter> getMiscParameters() {
         // header or query
-        return getParametersByLocation(new HashSet<>(Arrays.asList(RequestParameterLocation.HEADER, RequestParameterLocation.QUERY)))
-                .stream().map(MethodParameter::getClientMethodParameter).collect(Collectors.toList());
+        return getParametersByLocation(
+            new HashSet<>(Arrays.asList(RequestParameterLocation.HEADER, RequestParameterLocation.QUERY))).stream()
+                .map(MethodParameter::getClientMethodParameter)
+                .collect(Collectors.toList());
     }
 
     public Collection<LocalVariable> getLocalVariables() {
@@ -164,22 +167,28 @@ public abstract class ResourceOperation {
 
     protected List<FluentCollectionMethod> getMethodReferencesOfFullParameters() {
         // method references of full parameters (include optional parameters)
-        return this.getMethodReferences().stream()
-                .filter(m -> !m.getInnerClientMethod().getOnlyRequiredParameters())
-                .collect(Collectors.toList());
+        return this.getMethodReferences()
+            .stream()
+            .filter(m -> !m.getInnerClientMethod().getOnlyRequiredParameters())
+            .collect(Collectors.toList());
     }
 
-    protected Optional<FluentCollectionMethod> findMethod(boolean hasContextParameter, List<ClientMethodParameter> parameters) {
-        Optional<FluentCollectionMethod> methodOpt = this.getMethodReferencesOfFullParameters().stream()
-                .filter(m -> hasContextParameter
-                        ? m.getInnerClientMethod().getParameters().stream().anyMatch(FluentUtils::isContextParameter)
-                        : m.getInnerClientMethod().getParameters().stream().noneMatch(FluentUtils::isContextParameter))
-                .findFirst();
+    protected Optional<FluentCollectionMethod> findMethod(boolean hasContextParameter,
+        List<ClientMethodParameter> parameters) {
+        Optional<FluentCollectionMethod> methodOpt = this.getMethodReferencesOfFullParameters()
+            .stream()
+            .filter(m -> hasContextParameter
+                ? m.getInnerClientMethod().getParameters().stream().anyMatch(FluentUtils::isContextParameter)
+                : m.getInnerClientMethod().getParameters().stream().noneMatch(FluentUtils::isContextParameter))
+            .findFirst();
         if (methodOpt.isPresent() && hasContextParameter) {
             ClientMethodParameter contextParameter = methodOpt.get()
-                    .getInnerClientMethod().getParameters().stream()
-                    .filter(FluentUtils::isContextParameter)
-                    .findFirst().get();
+                .getInnerClientMethod()
+                .getParameters()
+                .stream()
+                .filter(FluentUtils::isContextParameter)
+                .findFirst()
+                .get();
             parameters.add(contextParameter);
         }
         return methodOpt;
@@ -219,7 +228,7 @@ public abstract class ResourceOperation {
                 if (parentModel != null) {
                     parentModels.add(parentModel);
                 }
-                parentModelName = parentModel == null ? null :parentModel.getParentModelName();
+                parentModelName = parentModel == null ? null : parentModel.getParentModelName();
             }
 
             List<List<ModelProperty>> propertiesFromTypeAndParents = new ArrayList<>();
@@ -264,11 +273,11 @@ public abstract class ResourceOperation {
     }
 
     protected boolean isLocationProperty(ModelProperty property) {
-        return FluentUtils.modelHasLocationProperty(resourceModel) && property.getName().equals(ResourceTypeName.FIELD_LOCATION);
+        return FluentUtils.modelHasLocationProperty(resourceModel)
+            && property.getName().equals(ResourceTypeName.FIELD_LOCATION);
     }
 
     protected boolean hasConflictingMethod(String name) {
-        return resourceCollection.getMethods().stream()
-                .anyMatch(m -> name.equals(m.getInnerClientMethod().getName()));
+        return resourceCollection.getMethods().stream().anyMatch(m -> name.equals(m.getInnerClientMethod().getName()));
     }
 }

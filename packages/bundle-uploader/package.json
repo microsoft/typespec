@@ -38,7 +38,7 @@
   ],
   "dependencies": {
     "@azure/identity": "~4.4.1",
-    "@azure/storage-blob": "~12.24.0",
+    "@azure/storage-blob": "~12.25.0",
     "@pnpm/find-workspace-packages": "^6.0.9",
     "@typespec/bundler": "workspace:~",
     "json5": "^2.2.3",
@@ -46,13 +46,13 @@
     "semver": "^7.6.3"
   },
   "devDependencies": {
-    "@types/node": "~22.5.4",
+    "@types/node": "~22.7.5",
     "@types/semver": "^7.5.8",
-    "@vitest/coverage-v8": "^2.1.0",
-    "@vitest/ui": "^2.1.0",
+    "@vitest/coverage-v8": "^2.1.2",
+    "@vitest/ui": "^2.1.2",
     "c8": "^10.1.2",
     "rimraf": "~6.0.1",
-    "typescript": "~5.6.2",
-    "vitest": "^2.1.0"
+    "typescript": "~5.6.3",
+    "vitest": "^2.1.2"
   }
 }

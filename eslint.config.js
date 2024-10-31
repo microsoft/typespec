@@ -73,7 +73,11 @@ const allFilesConfig = tsEslint.config({
 export function getTypeScriptProjectRules(root) {
   return tsEslint.config({
     files: ["**/packages/*/src/**/*.ts", "**/packages/*/src/**/*.tsx"],
-    ignores: ["**/packages/http-client-csharp/**/*", "**/packages/http-client-java/**/*"], // Ignore isolated modules
+    ignores: [
+      "**/packages/http-client-csharp/**/*",
+      "**/packages/http-client-java/**/*",
+      "**/packages/http-client-python/**/*",
+    ], // Ignore isolated modules
     plugins: {},
     languageOptions: {
       parserOptions: {
@@ -135,10 +139,15 @@ export default tsEslint.config(
     ignores: [
       "**/dist/**/*",
       "**/.temp/**/*",
+      "**/temp/**/*",
       "**/generated-defs/*",
       "**/website/build/**/*",
+      "**/.astro/**/*",
       "**/.docusaurus/**/*",
+      "website/src/assets/**/*",
       "packages/compiler/templates/**/*", // Ignore the templates which might have invalid code and not follow exactly our rules.
+      "**/venv/**/*", // Ignore python virtual env
+      "**/.vscode-test-web/**/*", // Ignore VSCode test web project
       // TODO: enable
       "**/.scripts/**/*",
       "eng/tsp-core/scripts/**/*",
