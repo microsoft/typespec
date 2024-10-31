@@ -28,7 +28,14 @@ export {
   resolveOperationId,
   shouldInline,
 } from "./helpers.js";
-export { AdditionalInfo, Contact, ExtensionKey, License, TagMetadata } from "./types.js";
+export {
+  AdditionalInfo,
+  Contact,
+  ExtensionKey,
+  ExternalDocs,
+  License,
+  TagMetadata,
+} from "./types.js";
 
 /** @internal */
 export { $decorators } from "./tsp-index.js";
