@@ -3,10 +3,9 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonWriter;
-
+import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -103,8 +102,7 @@ public class CodeModel extends Client {
 
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return super.writeParentProperties(jsonWriter.writeStartObject())
-            .writeJsonField("info", info)
+        return super.writeParentProperties(jsonWriter.writeStartObject()).writeJsonField("info", info)
             .writeJsonField("schemas", schemas)
             .writeArrayField("clients", clients, JsonWriter::writeJson)
             .writeJsonField("testModel", testModel)

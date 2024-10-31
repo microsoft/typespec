@@ -5,7 +5,8 @@
 
 {% if code_model.need_mixin_abc %}
     {% for client in clients | selectattr("has_mixin") %}
-class {{ client.name }}MixinABC(
+{% set pylint_disable = "# pylint: disable=name-too-long" if (client.name | length) + ("MixinABC" | length) > 40 else "" %}
+class {{ client.name }}MixinABC(  {{ pylint_disable }}
     ABC
 ):
     """DO NOT use this class. It is for internal typing use only."""

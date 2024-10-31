@@ -1,5 +1,4 @@
 import {
-  DuplicateTracker,
   getKeyName,
   getTypeName,
   listServices,
@@ -7,6 +6,7 @@ import {
   navigateTypesInNamespace,
   Program,
 } from "@typespec/compiler";
+import { DuplicateTracker } from "@typespec/compiler/utils";
 import { isSharedRoute } from "@typespec/http";
 import { reportDiagnostic } from "./lib.js";
 import { getParentResource, getResourceTypeKey, ResourceKey } from "./resource.js";

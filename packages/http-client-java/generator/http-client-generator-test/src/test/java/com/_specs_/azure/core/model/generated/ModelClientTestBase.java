@@ -10,7 +10,6 @@ package com._specs_.azure.core.model.generated;
 
 import com._specs_.azure.core.model.ModelClient;
 import com._specs_.azure.core.model.ModelClientBuilder;
-import com.azure.core.http.HttpClient;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.test.TestMode;
@@ -24,11 +23,9 @@ class ModelClientTestBase extends TestProxyTestBase {
     protected void beforeTest() {
         ModelClientBuilder modelClientbuilder = new ModelClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .httpClient(HttpClient.createDefault())
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.PLAYBACK) {
-            modelClientbuilder.httpClient(interceptorManager.getPlaybackClient());
-        } else if (getTestMode() == TestMode.RECORD) {
+        if (getTestMode() == TestMode.RECORD) {
             modelClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         modelClient = modelClientbuilder.buildClient();

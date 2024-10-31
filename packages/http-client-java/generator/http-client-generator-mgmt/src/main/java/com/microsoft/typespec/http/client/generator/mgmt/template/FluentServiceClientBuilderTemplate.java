@@ -7,7 +7,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Async
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaContext;
 import com.microsoft.typespec.http.client.generator.core.template.ServiceClientBuilderTemplate;
-
 import java.util.Set;
 
 public class FluentServiceClientBuilderTemplate extends ServiceClientBuilderTemplate {
@@ -19,8 +18,8 @@ public class FluentServiceClientBuilderTemplate extends ServiceClientBuilderTemp
     }
 
     @Override
-    protected void writeSyncClientBuildMethod(AsyncSyncClient syncClient, AsyncSyncClient asyncClient, JavaBlock function,
-                                              String buildMethodName, boolean wrapServiceClient) {
+    protected void writeSyncClientBuildMethod(AsyncSyncClient syncClient, AsyncSyncClient asyncClient,
+        JavaBlock function, String buildMethodName, boolean wrapServiceClient) {
         writeSyncClientBuildMethodFromInnerClient(syncClient, function, buildMethodName, wrapServiceClient);
     }
 

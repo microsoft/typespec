@@ -1,9 +1,8 @@
 {
   "name": "@typespec/spec-coverage-sdk",
-  "version": "0.1.0",
+  "version": "0.1.0-alpha.0",
   "description": "Spec utility to manage the reported coverage",
   "main": "dist/index.js",
-  "private": true,
   "type": "module",
   "scripts": {
     "watch": "tsc -p ./tsconfig.build.json --watch",
@@ -26,11 +25,11 @@
   "homepage": "https://github.com/microsoft/typespec#readme",
   "dependencies": {
     "@azure/identity": "~4.4.1",
-    "@azure/storage-blob": "~12.24.0",
-    "@types/node": "~22.5.4"
+    "@azure/storage-blob": "~12.25.0",
+    "@types/node": "~22.7.5"
   },
   "devDependencies": {
     "rimraf": "~6.0.1",
-    "typescript": "~5.6.2"
+    "typescript": "~5.6.3"
   }
 }

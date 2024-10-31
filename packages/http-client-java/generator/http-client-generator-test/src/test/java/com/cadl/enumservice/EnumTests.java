@@ -12,18 +12,17 @@ import com.azure.core.util.BinaryData;
 import com.cadl.enumservice.implementation.EnumServiceClientImpl;
 import com.cadl.enumservice.models.ColorModel;
 import com.cadl.enumservice.models.Priority;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
-import reactor.core.publisher.Mono;
-
 import java.lang.reflect.Field;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+import reactor.core.publisher.Mono;
 
 public class EnumTests {
 
@@ -35,13 +34,18 @@ public class EnumTests {
         ArgumentCaptor<List<String>> enumArrayArgumentCaptor = ArgumentCaptor.forClass(List.class);
         ArgumentCaptor<RequestOptions> requestOptionsArgumentCaptor = ArgumentCaptor.forClass(RequestOptions.class);
 
-        Mockito.when(impl.setStringEnumArrayWithResponseAsync(enumArrayArgumentCaptor.capture(), requestOptionsArgumentCaptor.capture()))
-                .thenReturn(Mono.just(new SimpleResponse<>(null, 200, new HttpHeaders(), BinaryData.fromString("\"OK\""))));
+        Mockito
+            .when(impl.setStringEnumArrayWithResponseAsync(enumArrayArgumentCaptor.capture(),
+                requestOptionsArgumentCaptor.capture()))
+            .thenReturn(Mono.just(new SimpleResponse<>(null, 200, new HttpHeaders(), BinaryData.fromString("\"OK\""))));
 
         EnumServiceAsyncClient client = new EnumServiceAsyncClient(impl);
 
         // normal case
-        client.setStringEnumArray(Arrays.asList(ColorModel.BLUE, ColorModel.GREEN), Arrays.asList(ColorModel.GREEN, ColorModel.RED)).block();
+        client
+            .setStringEnumArray(Arrays.asList(ColorModel.BLUE, ColorModel.GREEN),
+                Arrays.asList(ColorModel.GREEN, ColorModel.RED))
+            .block();
 
         Assertions.assertEquals(Arrays.asList(ColorModel.BLUE.toString(), ColorModel.GREEN.toString()),
             enumArrayArgumentCaptor.getValue());
@@ -69,8 +73,10 @@ public class EnumTests {
         ArgumentCaptor<List<String>> enumArrayArgumentCaptor = ArgumentCaptor.forClass(List.class);
         ArgumentCaptor<RequestOptions> requestOptionsArgumentCaptor = ArgumentCaptor.forClass(RequestOptions.class);
 
-        Mockito.when(impl.setIntEnumArrayWithResponseAsync(enumArrayArgumentCaptor.capture(), requestOptionsArgumentCaptor.capture()))
-                .thenReturn(Mono.just(new SimpleResponse<>(null, 200, new HttpHeaders(), BinaryData.fromString("\"OK\""))));
+        Mockito
+            .when(impl.setIntEnumArrayWithResponseAsync(enumArrayArgumentCaptor.capture(),
+                requestOptionsArgumentCaptor.capture()))
+            .thenReturn(Mono.just(new SimpleResponse<>(null, 200, new HttpHeaders(), BinaryData.fromString("\"OK\""))));
 
         EnumServiceAsyncClient client = new EnumServiceAsyncClient(impl);
 
@@ -102,13 +108,18 @@ public class EnumTests {
         ArgumentCaptor<List<String>> enumArrayArgumentCaptor = ArgumentCaptor.forClass(List.class);
         ArgumentCaptor<RequestOptions> requestOptionsArgumentCaptor = ArgumentCaptor.forClass(RequestOptions.class);
 
-        Mockito.when(impl.setStringEnumMultiWithResponseAsync(enumArrayArgumentCaptor.capture(), requestOptionsArgumentCaptor.capture()))
-                .thenReturn(Mono.just(new SimpleResponse<>(null, 200, new HttpHeaders(), BinaryData.fromString("\"OK\""))));
+        Mockito
+            .when(impl.setStringEnumMultiWithResponseAsync(enumArrayArgumentCaptor.capture(),
+                requestOptionsArgumentCaptor.capture()))
+            .thenReturn(Mono.just(new SimpleResponse<>(null, 200, new HttpHeaders(), BinaryData.fromString("\"OK\""))));
 
         EnumServiceAsyncClient client = new EnumServiceAsyncClient(impl);
 
         // normal case
-        client.setStringEnumMulti(Arrays.asList(ColorModel.BLUE, ColorModel.GREEN), Arrays.asList(ColorModel.GREEN, ColorModel.RED)).block();
+        client
+            .setStringEnumMulti(Arrays.asList(ColorModel.BLUE, ColorModel.GREEN),
+                Arrays.asList(ColorModel.GREEN, ColorModel.RED))
+            .block();
 
         Assertions.assertEquals(Arrays.asList(ColorModel.BLUE.toString(), ColorModel.GREEN.toString()),
             enumArrayArgumentCaptor.getValue());
@@ -120,7 +131,7 @@ public class EnumTests {
 
     private static void verifyQuery(String query, String key, String value) {
         Assertions.assertEquals(
-            URLEncoder.encode(key, StandardCharsets.UTF_8) + "=" + URLEncoder.encode( value, StandardCharsets.UTF_8),
+            URLEncoder.encode(key, StandardCharsets.UTF_8) + "=" + URLEncoder.encode(value, StandardCharsets.UTF_8),
             query);
     }
 

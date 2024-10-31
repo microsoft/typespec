@@ -112,8 +112,26 @@ defineKit<BaseTypeKit>({
         case "Enum":
           clone = this.program.checker.createType({
             ...type,
-            decorators: [...type.decorators],
             members: copyMap(type.members),
+          });
+          break;
+        case "Namespace":
+          clone = this.program.checker.createType({
+            ...type,
+            decorators: [...type.decorators],
+            decoratorDeclarations: new Map(type.decoratorDeclarations),
+            models: new Map<string, Model>(type.models),
+            enums: new Map<string, Enum>(type.enums),
+            functionDeclarations: new Map(type.functionDeclarations),
+            instantiationParameters: type.instantiationParameters
+              ? [...type.instantiationParameters]
+              : undefined,
+            interfaces: new Map(type.interfaces),
+            namespaces: new Map(type.namespaces),
+            operations: new Map(type.operations),
+            projections: [...type.projections],
+            scalars: new Map(type.scalars),
+            unions: new Map(type.unions),
           });
           break;
         default:

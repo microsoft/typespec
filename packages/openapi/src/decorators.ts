@@ -1,6 +1,10 @@
 import {
+  compilerAssert,
   DecoratorContext,
+  Diagnostic,
+  DiagnosticTarget,
   getDoc,
+  getProperty,
   getService,
   getSummary,
   Model,
@@ -19,7 +23,7 @@ import {
   InfoDecorator,
   OperationIdDecorator,
 } from "../generated-defs/TypeSpec.OpenAPI.js";
-import { createStateSymbol, reportDiagnostic } from "./lib.js";
+import { createDiagnostic, createStateSymbol, reportDiagnostic } from "./lib.js";
 import { AdditionalInfo, ExtensionKey, ExternalDocs } from "./types.js";
 
 const operationIdsKey = createStateSymbol("operationIds");
@@ -185,6 +189,12 @@ export const $info: InfoDecorator = (
   if (data === undefined) {
     return;
   }
+  validateAdditionalInfoModel(context, model);
+  if (data.termsOfService) {
+    if (!validateIsUri(context, data.termsOfService, "TermsOfService")) {
+      return;
+    }
+  }
   setInfo(context.program, entity, data);
 };
 
@@ -213,4 +223,66 @@ export function resolveInfo(program: Program, entity: Namespace): AdditionalInfo
 
 function omitUndefined<T extends Record<string, unknown>>(data: T): T {
   return Object.fromEntries(Object.entries(data).filter(([k, v]) => v !== undefined)) as any;
+}
+
+function validateIsUri(context: DecoratorContext, url: string, propertyName: string) {
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    reportDiagnostic(context.program, {
+      code: "not-url",
+      target: context.getArgumentTarget(0)!,
+      format: { property: propertyName, value: url },
+    });
+    return false;
+  }
+}
+
+function validateAdditionalInfoModel(context: DecoratorContext, typespecType: TypeSpecValue) {
+  const propertyModel = context.program.resolveTypeReference(
+    "TypeSpec.OpenAPI.AdditionalInfo",
+  )[0]! as Model;
+
+  if (typeof typespecType === "object" && propertyModel) {
+    const diagnostics = checkNoAdditionalProperties(
+      typespecType,
+      context.getArgumentTarget(0)!,
+      propertyModel,
+    );
+    context.program.reportDiagnostics(diagnostics);
+  }
+}
+
+function checkNoAdditionalProperties(
+  typespecType: Type,
+  target: DiagnosticTarget,
+  source: Model,
+): Diagnostic[] {
+  const diagnostics: Diagnostic[] = [];
+  compilerAssert(typespecType.kind === "Model", "Expected type to be a Model.");
+
+  for (const [name, type] of typespecType.properties.entries()) {
+    const sourceProperty = getProperty(source, name);
+    if (sourceProperty) {
+      if (sourceProperty.type.kind === "Model") {
+        const nestedDiagnostics = checkNoAdditionalProperties(
+          type.type,
+          target,
+          sourceProperty.type,
+        );
+        diagnostics.push(...nestedDiagnostics);
+      }
+    } else if (!isOpenAPIExtensionKey(name)) {
+      diagnostics.push(
+        createDiagnostic({
+          code: "invalid-extension-key",
+          format: { value: name },
+          target,
+        }),
+      );
+    }
+  }
+
+  return diagnostics;
 }

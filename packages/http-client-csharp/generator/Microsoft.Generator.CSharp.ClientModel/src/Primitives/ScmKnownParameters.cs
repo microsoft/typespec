@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 using System.Xml;
@@ -32,8 +31,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Primitives
             => new("options", $"The options for configuring the client.", clientOptionsType.WithNullable(true), initializationValue: New.Instance(clientOptionsType.WithNullable(true)));
         public static readonly ParameterProvider KeyAuth = new("keyCredential", $"The token credential to copy", ClientModelPlugin.Instance.TypeFactory.KeyCredentialType);
         public static readonly ParameterProvider MatchConditionsParameter = new("matchConditions", $"The content to send as the request conditions of the request.", ClientModelPlugin.Instance.TypeFactory.MatchConditionsType, DefaultOf(ClientModelPlugin.Instance.TypeFactory.MatchConditionsType));
-        public static readonly ParameterProvider RequestOptions = new("options", $"The request options, which can override default behaviors of the client pipeline on a per-call basis.", typeof(RequestOptions));
-        public static readonly ParameterProvider BinaryContent = new("content", $"The content to send as the body of the request.", typeof(BinaryContent), location: ParameterLocation.Body) { Validation = ParameterValidationType.AssertNotNull };
+        public static readonly ParameterProvider RequestOptions = new(ClientModelPlugin.Instance.TypeFactory.HttpRequestOptionsApi.ParameterName, $"The request options, which can override default behaviors of the client pipeline on a per-call basis.", ClientModelPlugin.Instance.TypeFactory.HttpRequestOptionsApi.HttpRequestOptionsType);
+        public static readonly ParameterProvider RequestContent = new("content", $"The content to send as the body of the request.", ClientModelPlugin.Instance.TypeFactory.RequestContentApi.RequestContentType, location: ParameterLocation.Body) { Validation = ParameterValidationType.AssertNotNull };
 
         // Known header parameters
         public static readonly ParameterProvider RepeatabilityRequestId = new("repeatabilityRequestId", FormattableStringHelpers.Empty, typeof(Guid))

@@ -45,24 +45,29 @@
   "dependencies": {
     "@typespec/best-practices": "workspace:~",
     "@typespec/compiler": "workspace:~",
+    "@typespec/events": "workspace:~",
+    "@typespec/html-program-viewer": "workspace:~",
     "@typespec/http": "workspace:~",
     "@typespec/http-server-javascript": "workspace:~",
     "@typespec/json-schema": "workspace:~",
     "@typespec/openapi": "workspace:~",
     "@typespec/openapi3": "workspace:~",
     "http-client-javascript": "workspace:~",
+    "@typespec/protobuf": "workspace:~",
     "@typespec/rest": "workspace:~",
+    "@typespec/sse": "workspace:~",
+    "@typespec/streams": "workspace:~",
     "@typespec/versioning": "workspace:~"
   },
   "devDependencies": {
-    "@types/node": "~22.5.4",
+    "@types/node": "~22.7.5",
     "@typespec/internal-build-utils": "workspace:~",
-    "@vitest/coverage-v8": "^2.1.0",
-    "@vitest/ui": "^2.1.0",
+    "@vitest/coverage-v8": "^2.1.2",
+    "@vitest/ui": "^2.1.2",
     "autorest": "~3.7.1",
     "cross-env": "~7.0.3",
     "rimraf": "~6.0.1",
-    "typescript": "~5.6.2",
-    "vitest": "^2.1.0"
+    "typescript": "~5.6.3",
+    "vitest": "^2.1.2"
   }
 }

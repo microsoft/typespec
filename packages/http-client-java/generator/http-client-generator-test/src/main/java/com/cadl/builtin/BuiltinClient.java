@@ -59,7 +59,8 @@ public final class BuiltinClient {
      * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     boolean: boolean (Required)
      *     string: String (Required)
@@ -93,7 +94,8 @@ public final class BuiltinClient {
      *         base64url: Base64Url (Optional)
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param queryParam The queryParam parameter.
      * @param queryParamEncoded The queryParamEncoded parameter.
@@ -115,7 +117,8 @@ public final class BuiltinClient {
      * The write operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     boolean: boolean (Required)
      *     string: String (Required)
@@ -149,7 +152,8 @@ public final class BuiltinClient {
      *         base64url: Base64Url (Optional)
      *     }
      * }
-     * }</pre>
+     * }
+     * </pre>
      * 
      * @param body The body parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

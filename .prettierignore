@@ -45,6 +45,7 @@ packages/website/versioned_docs/**/standard-library/built-in-data-types.md
 
 # Auto generated version list
 packages/website/playground-versions.json
+website/playground-versions.json
 
 # Auto generated built-in template list
 packages/compiler/templates/scaffolding.json

@@ -1,6 +1,6 @@
 {
   "name": "@typespec/library-linter",
-  "version": "0.60.0",
+  "version": "0.61.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for linting another library.",
   "homepage": "https://typespec.io",
@@ -20,6 +20,7 @@
   "main": "dist/src/index.js",
   "exports": {
     ".": {
+      "typespec": "./dist/src/index.js",
       "types": "./dist/src/index.d.ts",
       "default": "./dist/src/index.js"
     },
@@ -51,13 +52,13 @@
     "@typespec/compiler": "workspace:~"
   },
   "devDependencies": {
-    "@types/node": "~22.5.4",
+    "@types/node": "~22.7.5",
     "@typespec/compiler": "workspace:~",
-    "@vitest/coverage-v8": "^2.1.0",
-    "@vitest/ui": "^2.1.0",
+    "@vitest/coverage-v8": "^2.1.2",
+    "@vitest/ui": "^2.1.2",
     "c8": "^10.1.2",
     "rimraf": "~6.0.1",
-    "typescript": "~5.6.2",
-    "vitest": "^2.1.0"
+    "typescript": "~5.6.3",
+    "vitest": "^2.1.2"
   }
 }

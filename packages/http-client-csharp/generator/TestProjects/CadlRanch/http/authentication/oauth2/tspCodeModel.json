@@ -27,6 +27,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Authentication.OAuth2.InvalidAuth.error"
     }
@@ -50,6 +51,7 @@
        "$id": "7",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "8",
         "kind": "url",

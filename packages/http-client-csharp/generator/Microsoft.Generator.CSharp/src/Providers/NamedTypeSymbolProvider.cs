@@ -3,17 +3,17 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.SourceInput;
 using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
-    internal sealed class NamedTypeSymbolProvider : TypeProvider
+    public sealed class NamedTypeSymbolProvider : TypeProvider
     {
         private INamedTypeSymbol _namedTypeSymbol;
 
@@ -22,13 +22,15 @@ namespace Microsoft.Generator.CSharp.Providers
             _namedTypeSymbol = namedTypeSymbol;
         }
 
-        private protected sealed override TypeProvider? GetCustomCodeView() => null;
+        private protected sealed override NamedTypeSymbolProvider? GetCustomCodeView() => null;
 
         protected override string BuildRelativeFilePath() => throw new InvalidOperationException("This type should not be writing in generation");
 
         protected override string BuildName() => _namedTypeSymbol.Name;
 
-        protected override string GetNamespace() => GetFullyQualifiedNameFromDisplayString(_namedTypeSymbol.ContainingNamespace);
+        protected override string GetNamespace() => _namedTypeSymbol.ContainingNamespace.GetFullyQualifiedNameFromDisplayString();
+
+        public IEnumerable<AttributeData> GetAttributes() => _namedTypeSymbol.GetAttributes();
 
         protected override TypeSignatureModifiers GetDeclarationModifiers()
         {
@@ -40,6 +42,10 @@ namespace Microsoft.Generator.CSharp.Providers
             if (_namedTypeSymbol.IsStatic)
             {
                 declaredModifiers |= TypeSignatureModifiers.Static;
+            }
+            if (_namedTypeSymbol.IsAbstract)
+            {
+                declaredModifiers |= TypeSignatureModifiers.Abstract;
             }
             switch (_namedTypeSymbol.TypeKind)
             {
@@ -88,12 +94,12 @@ namespace Microsoft.Generator.CSharp.Providers
 
                     var fieldProvider = new FieldProvider(
                         modifiers,
-                        GetCSharpType(fieldSymbol.Type),
+                        fieldSymbol.Type.GetCSharpType(),
                         fieldSymbol.Name,
                         this,
                         GetSymbolXmlDoc(fieldSymbol, "summary"))
                     {
-                        Attributes = fieldSymbol.GetAttributes()
+                        OriginalName = GetOriginalName(fieldSymbol)
                     };
 
                     fields.Add(fieldProvider);
@@ -110,16 +116,32 @@ namespace Microsoft.Generator.CSharp.Providers
                 var propertyProvider = new PropertyProvider(
                     GetSymbolXmlDoc(propertySymbol, "summary"),
                     GetAccessModifier(propertySymbol.DeclaredAccessibility),
-                    GetCSharpType(propertySymbol.Type),
+                    propertySymbol.Type.GetCSharpType(),
                     propertySymbol.Name,
                     new AutoPropertyBody(propertySymbol.SetMethod is not null),
                     this)
                 {
-                    Attributes = propertySymbol.GetAttributes()
+                    OriginalName = GetOriginalName(propertySymbol),
+                    CustomProvider = new(() => propertySymbol.Type is INamedTypeSymbol propertyNamedTypeSymbol
+                        ? new NamedTypeSymbolProvider(propertyNamedTypeSymbol)
+                        : null)
                 };
                 properties.Add(propertyProvider);
             }
             return [.. properties];
+        }
+
+        private static string? GetOriginalName(ISymbol symbol)
+        {
+            var codeGenAttribute = symbol.GetAttributes().SingleOrDefault(
+                a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenMemberAttributeName);
+            string? originalName = null;
+            if (codeGenAttribute != null)
+            {
+                CodeGenAttributes.TryGetCodeGenMemberAttributeValue(codeGenAttribute, out originalName);
+            }
+
+            return originalName;
         }
 
         protected override ConstructorProvider[] BuildConstructors()
@@ -172,14 +194,12 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override CSharpType BuildEnumUnderlyingType() => GetIsEnum() ? new CSharpType(typeof(int)) : throw new InvalidOperationException("This type is not an enum");
 
-        internal override IEnumerable<AttributeData> GetAttributes() => _namedTypeSymbol.GetAttributes();
-
         private ParameterProvider ConvertToParameterProvider(IMethodSymbol methodSymbol, IParameterSymbol parameterSymbol)
         {
             return new ParameterProvider(
                 parameterSymbol.Name,
                 FormattableStringHelpers.FromString(GetParameterXmlDocumentation(methodSymbol, parameterSymbol)) ?? FormattableStringHelpers.Empty,
-                GetCSharpType(parameterSymbol.Type));
+                parameterSymbol.Type.GetCSharpType());
         }
 
         private void AddAdditionalModifiers(IMethodSymbol methodSymbol, ref MethodSignatureModifiers modifiers)
@@ -264,133 +284,12 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private CSharpType? GetNullableCSharpType(ITypeSymbol typeSymbol)
         {
-            var fullyQualifiedName = GetFullyQualifiedName(typeSymbol);
+            var fullyQualifiedName = typeSymbol.GetFullyQualifiedName();
             if (fullyQualifiedName == "System.Void")
             {
                 return null;
             }
-            return GetCSharpType(typeSymbol);
-        }
-
-        private CSharpType GetCSharpType(ITypeSymbol typeSymbol)
-        {
-            var fullyQualifiedName = GetFullyQualifiedName(typeSymbol);
-            var namedTypeSymbol = typeSymbol as INamedTypeSymbol;
-
-            //if fully qualified name is in the namespace of the library being emitted find it from the outputlibrary
-            if (fullyQualifiedName.StartsWith(CodeModelPlugin.Instance.Configuration.RootNamespace, StringComparison.Ordinal))
-            {
-                return ConstructCSharpTypeFromSymbol(typeSymbol, fullyQualifiedName, namedTypeSymbol);
-            }
-
-            Type? type = System.Type.GetType(fullyQualifiedName);
-            if (type is null)
-            {
-                if (typeSymbol.TypeKind == TypeKind.Error)
-                    throw new InvalidOperationException($"Unable to convert ITypeSymbol: {fullyQualifiedName} to a CSharpType in {Name}");
-
-                return ConstructCSharpTypeFromSymbol(typeSymbol, fullyQualifiedName, namedTypeSymbol);
-            }
-
-            CSharpType result = new CSharpType(type);
-            if (namedTypeSymbol is not null && namedTypeSymbol.IsGenericType)
-            {
-                return result.MakeGenericType([.. namedTypeSymbol.TypeArguments.Select(GetCSharpType)]);
-            }
-
-            return result;
-        }
-
-        private CSharpType ConstructCSharpTypeFromSymbol(
-            ITypeSymbol typeSymbol,
-            string fullyQualifiedName,
-            INamedTypeSymbol? namedTypeSymbol)
-        {
-            bool isValueType = typeSymbol.IsValueType;
-            bool isEnum = typeSymbol.TypeKind == TypeKind.Enum;
-            var pieces = fullyQualifiedName.Split('.');
-            return new CSharpType(
-                typeSymbol.Name,
-                string.Join('.', pieces.Take(pieces.Length - 1)),
-                isValueType,
-                typeSymbol.NullableAnnotation == NullableAnnotation.Annotated,
-                typeSymbol.ContainingType is not null ? GetCSharpType(typeSymbol.ContainingType) : null,
-                namedTypeSymbol is not null ? [.. namedTypeSymbol.TypeArguments.Select(GetCSharpType)] : [],
-                typeSymbol.DeclaredAccessibility == Accessibility.Public,
-                isValueType && !isEnum,
-                baseType: typeSymbol.BaseType is not null && typeSymbol.BaseType.TypeKind != TypeKind.Error ? GetCSharpType(typeSymbol.BaseType) : null,
-                underlyingEnumType: namedTypeSymbol is not null && namedTypeSymbol.EnumUnderlyingType is not null
-                    ? GetCSharpType(namedTypeSymbol.EnumUnderlyingType).FrameworkType
-                    : null);
-        }
-
-        private static string GetFullyQualifiedName(ITypeSymbol typeSymbol)
-        {
-            // Handle special cases for built-in types
-            switch (typeSymbol.SpecialType)
-            {
-                case SpecialType.System_Object:
-                    return "System.Object";
-                case SpecialType.System_Void:
-                    return "System.Void";
-                case SpecialType.System_Boolean:
-                    return "System.Boolean";
-                case SpecialType.System_Char:
-                    return "System.Char";
-                case SpecialType.System_SByte:
-                    return "System.SByte";
-                case SpecialType.System_Byte:
-                    return "System.Byte";
-                case SpecialType.System_Int16:
-                    return "System.Int16";
-                case SpecialType.System_UInt16:
-                    return "System.UInt16";
-                case SpecialType.System_Int32:
-                    return "System.Int32";
-                case SpecialType.System_UInt32:
-                    return "System.UInt32";
-                case SpecialType.System_Int64:
-                    return "System.Int64";
-                case SpecialType.System_UInt64:
-                    return "System.UInt64";
-                case SpecialType.System_Decimal:
-                    return "System.Decimal";
-                case SpecialType.System_Single:
-                    return "System.Single";
-                case SpecialType.System_Double:
-                    return "System.Double";
-                case SpecialType.System_String:
-                    return "System.String";
-                case SpecialType.System_DateTime:
-                    return "System.DateTime";
-            }
-
-            // Handle array types
-            if (typeSymbol is IArrayTypeSymbol arrayTypeSymbol)
-            {
-                var elementType = GetFullyQualifiedName(arrayTypeSymbol.ElementType);
-                return elementType + "[]";
-            }
-
-            // Handle generic types
-            if (typeSymbol is INamedTypeSymbol namedTypeSymbol && namedTypeSymbol.IsGenericType)
-            {
-                var typeNameSpan = namedTypeSymbol.ConstructedFrom.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat).AsSpan();
-                var start = typeNameSpan.IndexOf(':') + 2;
-                var end = typeNameSpan.IndexOf('<');
-                typeNameSpan = typeNameSpan.Slice(start, end - start);
-                return $"{typeNameSpan}`{namedTypeSymbol.TypeArguments.Length}";
-            }
-
-            // Default to fully qualified name
-            return GetFullyQualifiedNameFromDisplayString(typeSymbol);
-        }
-
-        private static string GetFullyQualifiedNameFromDisplayString(ISymbol typeSymbol)
-        {
-            const string globalPrefix = "global::";
-            var fullyQualifiedName = typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            return fullyQualifiedName.StartsWith(globalPrefix, StringComparison.Ordinal) ? fullyQualifiedName.Substring(globalPrefix.Length) : fullyQualifiedName;
+            return typeSymbol.GetCSharpType();
         }
     }
 }

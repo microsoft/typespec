@@ -24,9 +24,16 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
 
         public static async Task<Mock<ClientModelPlugin>> LoadMockPluginAsync(
             Func<IReadOnlyList<InputEnumType>>? inputEnums = null,
-            Func<Task<Compilation>>? compilation = null)
+            Func<IReadOnlyList<InputModelType>>? inputModels = null,
+            Func<IReadOnlyList<InputClient>>? clients = null,
+            Func<Task<Compilation>>? compilation = null,
+            string? configuration = null)
         {
-            var mockPlugin = LoadMockPlugin(inputEnums: inputEnums);
+            var mockPlugin = LoadMockPlugin(
+                inputEnums: inputEnums,
+                inputModels: inputModels,
+                clients: clients,
+                configuration: configuration);
 
             var compilationResult = compilation == null ? null : await compilation();
 
@@ -48,7 +55,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             Func<IReadOnlyList<InputModelType>>? inputModels = null,
             Func<IReadOnlyList<InputClient>>? clients = null,
             Func<InputLibrary>? createInputLibrary = null,
-            Func<InputClient, ClientProvider>? createClientCore = null)
+            Func<InputClient, ClientProvider>? createClientCore = null,
+            string? configuration = null,
+            ClientResponseApi? clientResponseApi = null,
+            ClientPipelineApi? clientPipelineApi = null,
+            HttpMessageApi? httpMessageApi = null)
         {
             IReadOnlyList<string> inputNsApiVersions = apiVersions?.Invoke() ?? [];
             IReadOnlyList<InputEnumType> inputNsEnums = inputEnums?.Invoke() ?? [];
@@ -101,12 +112,26 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             var clientModelInstance = typeof(ClientModelPlugin).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic);
             // invoke the load method with the config file path
             var loadMethod = typeof(Configuration).GetMethod("Load", BindingFlags.Static | BindingFlags.NonPublic);
-            object?[] parameters = [_configFilePath, null];
+            object?[] parameters = [_configFilePath, configuration];
             var config = loadMethod?.Invoke(null, parameters);
             var mockGeneratorContext = new Mock<GeneratorContext>(config!);
             var mockPluginInstance = new Mock<ClientModelPlugin>(mockGeneratorContext.Object) { CallBase = true };
             mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
             mockPluginInstance.Setup(p => p.InputLibrary).Returns(mockInputLibrary.Object);
+            if (clientResponseApi is not null)
+            {
+                mockTypeFactory.Setup(p => p.ClientResponseApi).Returns(clientResponseApi);
+            }
+
+            if (clientPipelineApi is not null)
+            {
+                mockTypeFactory.Setup(p => p.ClientPipelineApi).Returns(clientPipelineApi);
+            }
+
+            if (httpMessageApi is not null)
+            {
+                mockTypeFactory.Setup(p => p.HttpMessageApi).Returns(httpMessageApi);
+            }
 
             if (createInputLibrary is not null)
             {

@@ -1,6 +1,6 @@
 {
   "name": "@typespec/playground",
-  "version": "0.4.2",
+  "version": "0.5.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec playground UI components.",
   "homepage": "https://typespec.io",
@@ -22,6 +22,10 @@
     ".": {
       "types": "./dist/src/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./state-storage": {
+      "types": "./dist/src/state-storage.d.ts",
+      "default": "./dist/state-storage.js"
     },
     "./vite": {
       "types": "./dist/src/vite/index.d.ts",
@@ -68,8 +72,8 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@fluentui/react-components": "~9.54.15",
-    "@fluentui/react-icons": "^2.0.258",
+    "@fluentui/react-components": "~9.55.0",
+    "@fluentui/react-icons": "^2.0.260",
     "@typespec/bundler": "workspace:~",
     "@typespec/compiler": "workspace:~",
     "@typespec/http": "workspace:~",
@@ -81,7 +85,7 @@
     "clsx": "^2.1.1",
     "debounce": "~2.1.1",
     "lzutf8": "0.6.3",
-    "monaco-editor": "~0.46.0",
+    "monaco-editor": "~0.52.0",
     "react": "~18.3.1",
     "react-dom": "~18.3.1",
     "react-error-boundary": "^4.0.13",
@@ -91,28 +95,28 @@
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
-    "@playwright/test": "^1.47.0",
-    "@storybook/addon-actions": "^8.3.0",
-    "@storybook/cli": "^8.3.0",
-    "@storybook/react": "^8.3.0",
-    "@storybook/react-vite": "^8.3.0",
-    "@storybook/test": "^8.3.0",
-    "@storybook/types": "^8.3.0",
+    "@playwright/test": "^1.48.0",
+    "@storybook/addon-actions": "^8.3.5",
+    "@storybook/cli": "^8.3.5",
+    "@storybook/react": "^8.3.5",
+    "@storybook/react-vite": "^8.3.5",
+    "@storybook/test": "^8.3.5",
+    "@storybook/types": "^8.3.5",
     "@types/debounce": "~1.2.4",
-    "@types/node": "~22.5.4",
-    "@types/react": "~18.3.5",
+    "@types/node": "~22.7.5",
+    "@types/react": "~18.3.11",
     "@types/react-dom": "~18.3.0",
     "@types/swagger-ui-dist": "~3.30.5",
     "@typespec/bundler": "workspace:~",
     "@typespec/react-components": "workspace:~",
-    "@vitejs/plugin-react": "~4.3.1",
+    "@vitejs/plugin-react": "~4.3.2",
     "c8": "^10.1.2",
     "cross-env": "~7.0.3",
     "es-module-shims": "~1.10.0",
     "rimraf": "~6.0.1",
-    "typescript": "~5.6.2",
-    "vite": "^5.4.4",
+    "typescript": "~5.6.3",
+    "vite": "^5.4.8",
     "vite-plugin-checker": "^0.8.0",
-    "vite-plugin-dts": "4.2.1"
+    "vite-plugin-dts": "4.2.3"
   }
 }

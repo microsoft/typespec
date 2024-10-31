@@ -84,6 +84,7 @@ import {
   OpenAPI3SchemaProperty,
 } from "./types.js";
 import { VisibilityUsageTracker } from "./visibility-usage.js";
+import { XmlModule } from "./xml-module.js";
 
 /**
  * OpenAPI3 schema emitter. Deals with emitting content of `components/schemas` section.
@@ -95,16 +96,19 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
   #metadataInfo: MetadataInfo;
   #visibilityUsage: VisibilityUsageTracker;
   #options: ResolvedOpenAPI3EmitterOptions;
+  #xmlModule: XmlModule | undefined;
   constructor(
     emitter: AssetEmitter<Record<string, any>, OpenAPI3EmitterOptions>,
     metadataInfo: MetadataInfo,
     visibilityUsage: VisibilityUsageTracker,
     options: ResolvedOpenAPI3EmitterOptions,
+    xmlModule: XmlModule | undefined,
   ) {
     super(emitter);
     this.#metadataInfo = metadataInfo;
     this.#visibilityUsage = visibilityUsage;
     this.#options = options;
+    this.#xmlModule = xmlModule;
   }
 
   modelDeclarationReferenceContext(model: Model, name: string): Context {
@@ -295,6 +299,13 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       }
     }
 
+    const discriminator = getDiscriminator(this.emitter.getProgram(), model);
+    if (discriminator) {
+      if (!requiredProps.includes(discriminator.propertyName)) {
+        requiredProps.push(discriminator.propertyName);
+      }
+    }
+
     return requiredProps.length > 0 ? requiredProps : undefined;
   }
 
@@ -375,7 +386,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     const schema = this.#applyEncoding(prop, refSchema.value as any);
 
     // Apply decorators on the property to the type's schema
-    const additionalProps: Partial<OpenAPI3Schema> = this.#applyConstraints(prop, {});
+    const additionalProps: Partial<OpenAPI3Schema> = this.#applyConstraints(prop, {}, schema);
     if (prop.defaultValue) {
       additionalProps.default = getDefaultValue(program, prop.defaultValue, prop);
     }
@@ -391,10 +402,14 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       if (Object.keys(additionalProps).length === 0) {
         return schema;
       } else {
-        return {
-          allOf: [schema],
-          ...additionalProps,
-        };
+        if (additionalProps.xml?.attribute) {
+          return additionalProps;
+        } else {
+          return {
+            allOf: [schema],
+            ...additionalProps,
+          };
+        }
       }
     } else {
       if (getOneOf(program, prop) && schema.anyOf) {
@@ -554,7 +569,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
           (schema instanceof Placeholder || "$ref" in schema) &&
           !(type && shouldInline(program, type))
         ) {
-          if (type && type.kind === "Model") {
+          if (type && (type.kind === "Model" || type.kind === "Scalar")) {
             return new ObjectBuilder({
               type: "object",
               allOf: B.array([schema]),
@@ -573,6 +588,17 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       }
     };
 
+    const checkMerge = (schemaMembers: { schema: any; type: Type | null }[]): boolean => {
+      if (nullable) {
+        for (const m of schemaMembers) {
+          if (m.schema instanceof Placeholder || "$ref" in m.schema) {
+            return true;
+          }
+        }
+      }
+      return false;
+    };
+
     if (schemaMembers.length === 0) {
       if (nullable) {
         // This union is equivalent to just `null` but OA3 has no way to specify
@@ -589,13 +615,14 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       return wrapWithObjectBuilder(schemaMembers[0], { mergeUnionWideConstraints: true });
     }
 
+    const isMerge = checkMerge(schemaMembers);
     const schema: OpenAPI3Schema = {
       [ofType]: schemaMembers.map((m) =>
-        wrapWithObjectBuilder(m, { mergeUnionWideConstraints: false }),
+        wrapWithObjectBuilder(m, { mergeUnionWideConstraints: isMerge }),
       ),
     };
 
-    if (nullable) {
+    if (!isMerge && nullable) {
       schema.nullable = true;
     }
 
@@ -746,6 +773,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
   #applyConstraints(
     type: Scalar | Model | ModelProperty | Union | Enum,
     original: OpenAPI3Schema,
+    refSchema?: OpenAPI3Schema,
   ): ObjectBuilder<OpenAPI3Schema> {
     const schema = new ObjectBuilder(original);
     const program = this.emitter.getProgram();
@@ -793,6 +821,24 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       (p: Program, t: Type) => (getDeprecated(p, t) !== undefined ? true : undefined),
       "deprecated",
     );
+
+    if (this.#xmlModule) {
+      switch (type.kind) {
+        case "Scalar":
+        case "Model":
+          this.#xmlModule.attachXmlObjectForScalarOrModel(program, type, schema);
+          break;
+        case "ModelProperty":
+          this.#xmlModule.attachXmlObjectForModelProperty(
+            program,
+            this.#options,
+            type,
+            schema,
+            refSchema,
+          );
+          break;
+      }
+    }
 
     this.#attachExtensions(program, type, schema);
 

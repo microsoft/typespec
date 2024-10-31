@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http-client-python",
-  "version": "0.27.1",
+  "version": "0.3.4",
   "author": "Microsoft Corporation",
   "description": "TypeSpec emitter for Python SDKs",
   "homepage": "https://typespec.io",
@@ -21,19 +21,15 @@
   "main": "dist/emitter/index.js",
   "exports": {
     ".": {
-      "types": "./dist/src/index.d.ts",
-      "default": "./dist/src/index.js"
-    },
-    "./testing": {
-      "types": "./dist/src/testing/index.d.ts",
-      "default": "./dist/src/testing/index.js"
+      "types": "./dist/emitter/index.d.ts",
+      "default": "./dist/emitter/index.js"
     }
   },
   "engines": {
     "node": ">=18.0.0"
   },
   "scripts": {
-    "clean": "rimraf ./dist ./temp ./test/**/generated/ ./venv",
+    "clean": "rimraf ./dist ./temp ./emitter/temp ./generator/test/azure/generated ./generator/test/unbranded/generated ./venv",
     "build": "tsc -p ./emitter/tsconfig.build.json",
     "watch": "tsc -p ./emitter/tsconfig.build.json --watch",
     "lint": "eslint . --max-warnings=0",
@@ -42,51 +38,54 @@
     "install": "tsx ./eng/scripts/setup/run-python3.ts ./eng/scripts/setup/install.py",
     "prepare": "tsx ./eng/scripts/setup/run-python3.ts ./eng/scripts/setup/prepare.py",
     "regenerate": "tsx ./eng/scripts/ci/regenerate.ts",
-    "ci": "tsx ./eng/scripts/ci/run-tests.ts",
-    "test": "tsx ./eng/scripts/ci/run-tests.ts --command=test"
+    "ci": "npm run test:emitter && npm run ci:generator --",
+    "ci:generator": "tsx ./eng/scripts/ci/run-ci.ts",
+    "test:generator": "tsx ./eng/scripts/ci/run-ci.ts --command=test",
+    "test:emitter": "vitest run -c ./emitter/vitest.config.ts"
   },
   "files": [
     "dist/**",
     "!dist/test/**",
     "generator/**",
-    "eng/scripts/**"
+    "eng/scripts/**",
+    "emitter"
   ],
   "peerDependencies": {
-    "@azure-tools/typespec-azure-core": ">=0.46.0 <1.0.0",
-    "@azure-tools/typespec-azure-resource-manager": ">=0.46.0 <1.0.0",
-    "@azure-tools/typespec-autorest": ">=0.46.0 <1.0.0",
-    "@azure-tools/typespec-client-generator-core": ">=0.46.1 <1.0.0",
-    "@azure-tools/typespec-azure-rulesets": ">=0.46.0 <3.0.0",
-    "@typespec/compiler": ">=0.60.0 <1.0.0",
-    "@typespec/http": ">=0.60.0 <1.0.0",
-    "@typespec/rest": ">=0.60.0 <1.0.0",
-    "@typespec/versioning": ">=0.60.0 <1.0.0",
-    "@typespec/openapi": ">=0.60.0 <1.0.0"
+    "@azure-tools/typespec-azure-core": ">=0.47.0 <1.0.0",
+    "@azure-tools/typespec-azure-resource-manager": ">=0.47.0 <1.0.0",
+    "@azure-tools/typespec-autorest": ">=0.47.0 <1.0.0",
+    "@azure-tools/typespec-client-generator-core": ">=0.47.1 <1.0.0",
+    "@azure-tools/typespec-azure-rulesets": ">=0.47.0 <3.0.0",
+    "@typespec/compiler": ">=0.61.0 <1.0.0",
+    "@typespec/http": ">=0.61.0 <1.0.0",
+    "@typespec/rest": ">=0.61.0 <1.0.0",
+    "@typespec/versioning": ">=0.61.0 <1.0.0",
+    "@typespec/openapi": ">=0.61.0 <1.0.0"
   },
   "dependencies": {
     "js-yaml": "~4.1.0",
     "semver": "~7.6.2"
   },
   "devDependencies": {
-    "@azure-tools/typespec-azure-resource-manager": "~0.46.0",
-    "@azure-tools/typespec-autorest": "~0.46.0",
-    "@azure-tools/cadl-ranch-expect": "0.15.4",
-    "@azure-tools/cadl-ranch-specs": "0.37.2",
+    "@azure-tools/typespec-azure-resource-manager": "~0.47.0",
+    "@azure-tools/typespec-autorest": "~0.47.0",
+    "@azure-tools/cadl-ranch-expect": "~0.15.5",
+    "@azure-tools/cadl-ranch-specs": "~0.39.0",
     "@types/js-yaml": "~4.0.5",
     "@types/node": "~22.5.4",
     "@types/semver": "7.5.8",
-    "@typespec/openapi": "~0.60.0",
+    "@typespec/openapi": "~0.61.0",
     "c8": "^10.1.2",
     "rimraf": "~6.0.1",
     "typescript": "~5.6.2",
     "typescript-eslint": "^8.5.0",
-    "@azure-tools/typespec-azure-core": "~0.46.0",
-    "@azure-tools/typespec-client-generator-core": "0.46.1",
-    "@typespec/compiler": "~0.60.0",
-    "@typespec/http": "~0.60.0",
-    "@typespec/rest": "~0.60.0",
-    "@typespec/versioning": "~0.60.0",
-    "@azure-tools/typespec-azure-rulesets": "0.46.0",
+    "@azure-tools/typespec-azure-core": "~0.47.0",
+    "@azure-tools/typespec-client-generator-core": "~0.47.1",
+    "@typespec/compiler": "~0.61.0",
+    "@typespec/http": "~0.61.0",
+    "@typespec/rest": "~0.61.0",
+    "@typespec/versioning": "~0.61.0",
+    "@azure-tools/typespec-azure-rulesets": "~0.47.0",
     "chalk": "5.3.0",
     "vitest": "^2.1.0",
     "tsx": "4.17.0"

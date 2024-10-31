@@ -12,7 +12,7 @@ from multiprocessing import Pool
 
 logging.getLogger().setLevel(logging.INFO)
 
-ROOT_FOLDER = os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "..", "..", ".."))
+ROOT_FOLDER = os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "..", "..", "..", "generator"))
 
 IGNORE_FOLDER = []
 

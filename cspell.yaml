@@ -10,7 +10,10 @@ words:
   - alzimmer
   - amqp
   - AQID
+  - arraya
   - astimezone
+  - astro
+  - astrojs
   - asyncio
   - atrule
   - atteo
@@ -72,9 +75,10 @@ words:
   - giacamo
   - globby
   - graalvm
+  - Gson
+  - Hdvcmxk
   - headasbooleanfalse
   - headasbooleantrue
-  - Gson
   - imple
   - Infima
   - inlines
@@ -82,6 +86,7 @@ words:
   - instanceid
   - interner
   - intrinsics
+  - ints
   - IOHTTP
   - isdigit
   - isinstance
@@ -96,6 +101,7 @@ words:
   - keyer
   - killpg
   - kwargs
+  - labelledby
   - lifecyle
   - LINUXNEXTVMIMAGE
   - LINUXOS
@@ -119,6 +125,7 @@ words:
   - multis
   - munge
   - mylib
+  - myname
   - mypy
   - nanos
   - nexted
@@ -145,6 +152,7 @@ words:
   - Perfolizer
   - picocolors
   - posargs
+  - primitivea
   - prismjs
   - proto
   - protobuf
@@ -163,7 +171,9 @@ words:
   - rcfile
   - reactivex
   - recase
+  - recorda
   - regen
+  - rehype
   - repr
   - respecify
   - rjust
@@ -177,6 +187,7 @@ words:
   - segmentof
   - serde
   - sfixed
+  - shiki
   - sint
   - snakeyaml
   - srnagar
@@ -191,6 +202,7 @@ words:
   - tomli
   - triaging
   - TRYIT
+  - tsconfigs
   - tsdoc
   - TSES
   - tspd

@@ -288,6 +288,7 @@
      "optional": true,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.Optional.RequiredAndOptionalProperty.optionalProperty"
     },
@@ -307,6 +308,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.Optional.RequiredAndOptionalProperty.requiredProperty"
     }
@@ -333,6 +335,7 @@
      "optional": true,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.Optional.UnionFloatLiteralProperty.property"
     }
@@ -359,6 +362,7 @@
      "optional": true,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.Optional.UnionIntLiteralProperty.property"
     }
@@ -385,6 +389,7 @@
      "optional": true,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.Optional.UnionStringLiteralProperty.property"
     }
@@ -421,6 +426,7 @@
      "optional": true,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.Optional.BooleanLiteralProperty.property"
     }
@@ -453,6 +459,7 @@
      "optional": true,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.Optional.FloatLiteralProperty.property"
     }
@@ -485,6 +492,7 @@
      "optional": true,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.Optional.IntLiteralProperty.property"
     }
@@ -517,6 +525,7 @@
      "optional": true,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.Optional.StringLiteralProperty.property"
     }
@@ -566,6 +575,7 @@
          "optional": true,
          "readOnly": false,
          "discriminator": false,
+         "flatten": false,
          "decorators": [],
          "crossLanguageDefinitionId": "Type.Property.Optional.StringProperty.property"
         }
@@ -577,6 +587,7 @@
      "optional": true,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.Optional.CollectionsModelProperty.property"
     }
@@ -618,6 +629,7 @@
      "optional": true,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.Optional.CollectionsByteProperty.property"
     }
@@ -648,6 +660,7 @@
      "optional": true,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.Optional.PlainTimeProperty.property"
     }
@@ -678,6 +691,7 @@
      "optional": true,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.Optional.PlainDateProperty.property"
     }
@@ -716,6 +730,7 @@
      "optional": true,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.Optional.DurationProperty.property"
     }
@@ -754,6 +769,7 @@
      "optional": true,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.Optional.DatetimeProperty.property"
     }
@@ -785,6 +801,7 @@
      "optional": true,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.Optional.BytesProperty.property"
     }
@@ -805,6 +822,7 @@
      "$id": "82",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
+     "Description": "Service host",
      "Type": {
       "$id": "83",
       "kind": "url",
@@ -849,6 +867,7 @@
        "$id": "88",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "89",
         "kind": "url",
@@ -1182,6 +1201,7 @@
        "$id": "116",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "117",
         "kind": "url",
@@ -1515,6 +1535,7 @@
        "$id": "144",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "145",
         "kind": "url",
@@ -1848,6 +1869,7 @@
        "$id": "172",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "173",
         "kind": "url",
@@ -2181,6 +2203,7 @@
        "$id": "200",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "201",
         "kind": "url",
@@ -2514,6 +2537,7 @@
        "$id": "228",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "229",
         "kind": "url",
@@ -2847,6 +2871,7 @@
        "$id": "256",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "257",
         "kind": "url",
@@ -3180,6 +3205,7 @@
        "$id": "284",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "285",
         "kind": "url",
@@ -3513,6 +3539,7 @@
        "$id": "312",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "313",
         "kind": "url",
@@ -3846,6 +3873,7 @@
        "$id": "340",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "341",
         "kind": "url",
@@ -4179,6 +4207,7 @@
        "$id": "368",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "369",
         "kind": "url",
@@ -4512,6 +4541,7 @@
        "$id": "396",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "397",
         "kind": "url",
@@ -4845,6 +4875,7 @@
        "$id": "424",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "425",
         "kind": "url",
@@ -5178,6 +5209,7 @@
        "$id": "452",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "453",
         "kind": "url",
@@ -5511,6 +5543,7 @@
        "$id": "480",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "481",
         "kind": "url",
@@ -5845,6 +5878,7 @@
        "$id": "508",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "509",
         "kind": "url",

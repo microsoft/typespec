@@ -3,17 +3,16 @@
 
 package com.encode.bytes;
 
-import com.payload.FileUtils;
 import com.azure.core.util.BinaryData;
 import com.encode.bytes.models.Base64BytesProperty;
 import com.encode.bytes.models.Base64urlArrayBytesProperty;
 import com.encode.bytes.models.Base64urlBytesProperty;
 import com.encode.bytes.models.DefaultBytesProperty;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
+import com.payload.FileUtils;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class EncodeBytesTests {
 

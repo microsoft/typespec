@@ -3,8 +3,6 @@ id: type-relations
 title: Type Relations
 ---
 
-# Type relations
-
 ## Type hierarchy
 
 ```mermaid

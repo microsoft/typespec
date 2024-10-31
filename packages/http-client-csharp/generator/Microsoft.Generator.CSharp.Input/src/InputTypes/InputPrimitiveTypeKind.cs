@@ -28,6 +28,6 @@ namespace Microsoft.Generator.CSharp.Input
         String,
         PlainTime,
         Url,
-        Any, // aka unknown
+        Unknown,
     }
 }

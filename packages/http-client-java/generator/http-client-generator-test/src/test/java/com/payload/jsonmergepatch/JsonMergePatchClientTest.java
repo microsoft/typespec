@@ -3,16 +3,14 @@
 
 package com.payload.jsonmergepatch;
 
-
 import com.payload.jsonmergepatch.models.InnerModel;
 import com.payload.jsonmergepatch.models.Resource;
 import com.payload.jsonmergepatch.models.ResourcePatch;
-import org.junit.jupiter.api.Test;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.junit.jupiter.api.Test;
 
 public class JsonMergePatchClientTest {
 

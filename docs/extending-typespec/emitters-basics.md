@@ -1,11 +1,8 @@
 ---
-id: emitters
 title: Emitters
 ---
 
-# Creating emitters
-
-TypeSpec emitters are libraries that utilize various TypeSpec compiler APIs to reflect on the TypeSpec compilation process and generate artifacts. The TypeSpec standard library includes an emitter for OpenAPI version 3.0. However, you might want to emit TypeSpec to a different output format. One of the main advantages of TypeSpec is its ease of use as a single source of truth for all data shapes, and the simplicity of creating an emitter contributes significantly to this.
+TypeSpec emitters are libraries that utilize various TypeSpec compiler APIs to reflect on the TypeSpec compilation process and generate artifacts. The TypeSpec standard library includes emitters for OpenAPI version 3.0, JSON Schema, and Protocol Buffers (Protobuf). However, you might want to emit TypeSpec to a different output format. One of the main advantages of TypeSpec is its ease of use as a single source of truth for all data shapes, and the simplicity of creating an emitter contributes significantly to this.
 
 ## Emitter design
 
@@ -128,6 +125,7 @@ Example:
 ### Configuration options convention
 
 - Name options `kebab-case`. So it can be inline with the rest of the cli
+- Name options should not contain dots (`.`). Using a dot will conflict with using nested configuration values.
 - An option called `output-dir` can be created and should override the compiler `output-dir`
 
 #### Emitter options vs. decorators

@@ -4,13 +4,13 @@ import {
   Diagnostic,
   joinPaths,
   NodeHost,
-  NodePackage,
+  type PackageJson,
 } from "@typespec/compiler";
 import { mkdir, readFile, writeFile } from "fs/promises";
 import prettier from "prettier";
 import { generateJsApiDocs } from "./api-docs.js";
-import { renderToDocusaurusMarkdown } from "./emitters/docusaurus.js";
 import { renderReadme } from "./emitters/markdown.js";
+import { renderToAstroStarlightMarkdown } from "./emitters/starlight.js";
 import { extractLibraryRefDocs, ExtractRefDocOptions, extractRefDocs } from "./extractor.js";
 import { TypeSpecRefDocBase } from "./types.js";
 
@@ -25,7 +25,7 @@ export async function generateLibraryDocs(
   const diagnostics = createDiagnosticCollector();
   const pkgJson = await readPackageJson(libraryPath);
   const refDoc = diagnostics.pipe(await extractLibraryRefDocs(libraryPath));
-  const files = renderToDocusaurusMarkdown(refDoc);
+  const files = renderToAstroStarlightMarkdown(refDoc);
   await mkdir(outputDir, { recursive: true });
   const config = await prettier.resolveConfig(libraryPath);
   for (const [name, content] of Object.entries(files)) {
@@ -64,7 +64,7 @@ export async function resolveLibraryRefDocsBase(
   return undefined;
 }
 
-async function readPackageJson(libraryPath: string): Promise<NodePackage> {
+async function readPackageJson(libraryPath: string): Promise<PackageJson> {
   const buffer = await readFile(joinPaths(libraryPath, "package.json"));
   return JSON.parse(buffer.toString());
 }

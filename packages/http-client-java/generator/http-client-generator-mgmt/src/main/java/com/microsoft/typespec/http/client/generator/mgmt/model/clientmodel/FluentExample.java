@@ -4,12 +4,11 @@
 package com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.util.ClassNameUtil;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.examplemodel.FluentClientMethodExample;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.examplemodel.FluentCollectionMethodExample;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.examplemodel.FluentResourceCreateExample;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.examplemodel.FluentResourceUpdateExample;
-import com.microsoft.typespec.http.client.generator.core.util.ClassNameUtil;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,9 +61,8 @@ public class FluentExample implements Comparable<FluentExample> {
 
     public String getClassName() {
         String className = groupName + methodName + "Samples";
-        return ClassNameUtil.truncateClassName(
-                JavaSettings.getInstance().getPackage(), "src/samples/java",
-                this.getPackageName(), className);
+        return ClassNameUtil.truncateClassName(JavaSettings.getInstance().getPackage(), "src/samples/java",
+            this.getPackageName(), className);
     }
 
     @Override

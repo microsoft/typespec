@@ -1,0 +1,82 @@
+{
+  "name": "@typespec/html-program-viewer",
+  "version": "0.61.0",
+  "author": "Microsoft Corporation",
+  "description": "TypeSpec library for emitting an html view of the program.",
+  "homepage": "https://typespec.io",
+  "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/microsoft/typespec.git"
+  },
+  "bugs": {
+    "url": "https://github.com/microsoft/typespec/issues"
+  },
+  "keywords": [
+    "typespec"
+  ],
+  "type": "module",
+  "main": "dist/emitter/index.js",
+  "exports": {
+    ".": {
+      "default": "./dist/emitter/index.js"
+    },
+    "./react": {
+      "types": "./dist/react/index.d.ts",
+      "default": "./dist/react/index.js"
+    },
+    "./style.css": "./dist/style.css"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "scripts": {
+    "clean": "rimraf ./dist ./temp",
+    "build": "pnpm build:react && pnpm build:emitter",
+    "build:react": "vite build",
+    "build:emitter": "vite build --config vite.emitter.config.ts",
+    "watch": "vite build --watch",
+    "test": "vitest run",
+    "test:ui": "vitest --ui",
+    "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix"
+  },
+  "files": [
+    "dist/**",
+    "!dist/test/**"
+  ],
+  "peerDependencies": {
+    "@typespec/compiler": "workspace:~"
+  },
+  "dependencies": {
+    "@fluentui/react-components": "~9.55.0",
+    "@fluentui/react-icons": "^2.0.260",
+    "@fluentui/react-list-preview": "^0.3.8",
+    "react": "~18.3.1",
+    "react-dom": "~18.3.1",
+    "react-hotkeys-hook": "^4.5.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.2",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.5.0",
+    "@testing-library/react": "^16.0.1",
+    "@types/node": "~22.7.5",
+    "@types/react": "~18.3.11",
+    "@types/react-dom": "~18.3.0",
+    "@typespec/compiler": "workspace:~",
+    "@typespec/react-components": "workspace:~",
+    "@vitejs/plugin-react": "~4.3.2",
+    "@vitest/coverage-v8": "^2.1.2",
+    "@vitest/ui": "^2.1.2",
+    "c8": "^10.1.2",
+    "rimraf": "~6.0.1",
+    "typescript": "~5.6.3",
+    "vite": "^5.4.8",
+    "vite-plugin-checker": "^0.8.0",
+    "vite-plugin-dts": "4.2.3",
+    "vitest": "^2.1.2"
+  }
+}

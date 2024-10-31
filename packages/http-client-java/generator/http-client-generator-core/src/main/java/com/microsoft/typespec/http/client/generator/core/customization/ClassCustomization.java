@@ -3,18 +3,10 @@
 
 package com.microsoft.typespec.http.client.generator.core.customization;
 
-import com.microsoft.typespec.http.client.generator.core.customization.implementation.Utils;
-import com.microsoft.typespec.http.client.generator.core.customization.implementation.ls.EclipseLanguageClient;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
-import org.eclipse.lsp4j.FileChangeType;
-import org.eclipse.lsp4j.FileEvent;
-import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.SymbolInformation;
-import org.eclipse.lsp4j.SymbolKind;
-import org.eclipse.lsp4j.TextEdit;
-import org.eclipse.lsp4j.WorkspaceEdit;
-
+import com.microsoft.typespec.http.client.generator.core.customization.implementation.Utils;
+import com.microsoft.typespec.http.client.generator.core.customization.implementation.ls.EclipseLanguageClient;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,6 +18,13 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.eclipse.lsp4j.FileChangeType;
+import org.eclipse.lsp4j.FileEvent;
+import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.SymbolInformation;
+import org.eclipse.lsp4j.SymbolKind;
+import org.eclipse.lsp4j.TextEdit;
+import org.eclipse.lsp4j.WorkspaceEdit;
 
 /**
  * The class level customization for an AutoRest generated class.
@@ -38,16 +37,16 @@ public final class ClassCustomization extends CodeCustomization {
      * '*' or '/'. From there it captures all word and space characters before and inside '( )' ignoring any trailing
      * spaces and an opening '{'.
      */
-    private static final Pattern METHOD_SIGNATURE_PATTERN =
-        Pattern.compile("^\\s*([^/*][\\w\\s]+\\([\\w\\s<>,\\.]*\\))\\s*\\{?$", Pattern.MULTILINE);
+    private static final Pattern METHOD_SIGNATURE_PATTERN
+        = Pattern.compile("^\\s*([^/*][\\w\\s]+\\([\\w\\s<>,\\.]*\\))\\s*\\{?$", Pattern.MULTILINE);
 
     /*
      * This pattern attempts to find the first line of a constructor string that doesn't have a first non-space
      * character of '*' or '/', effectively the first non-Javadoc line. From there it captures all word and space
      * characters before and inside '( )' ignoring any trailing spaces and an opening '{'.
      */
-    private static final Pattern CONSTRUCTOR_SIGNATURE_PATTERN =
-        Pattern.compile("^\\s*([^/*][\\w\\s]+\\([\\w\\s<>,\\.]*\\))\\s*\\{?$", Pattern.MULTILINE);
+    private static final Pattern CONSTRUCTOR_SIGNATURE_PATTERN
+        = Pattern.compile("^\\s*([^/*][\\w\\s]+\\([\\w\\s<>,\\.]*\\))\\s*\\{?$", Pattern.MULTILINE);
 
     private static final Pattern BLOCK_OPEN = Pattern.compile("\\) *\\{");
     private static final Pattern PUBLIC_MODIFIER = Pattern.compile(" *public ");
@@ -58,7 +57,7 @@ public final class ClassCustomization extends CodeCustomization {
     private final String className;
 
     ClassCustomization(Editor editor, EclipseLanguageClient languageClient, String packageName, String className,
-                       SymbolInformation classSymbol) {
+        SymbolInformation classSymbol) {
         super(editor, languageClient, classSymbol);
 
         this.packageName = packageName;
@@ -91,6 +90,7 @@ public final class ClassCustomization extends CodeCustomization {
     /**
      * Adds a static block to the class. The {@code staticCodeBlock} should include the static keyword followed by
      * the static code.
+     * 
      * @param staticCodeBlock The static code block including the static keyword.
      * @return The updated {@link ClassCustomization}.
      */
@@ -116,9 +116,10 @@ public final class ClassCustomization extends CodeCustomization {
         int lastSymbolLine = symbol.getLocation().getRange().getStart().getLine();
 
         // Find the last field symbol.
-        Optional<SymbolInformation> lastSymbol = languageClient.listDocumentSymbols(fileUri).stream()
-                .filter(symbol -> symbol.getKind() == SymbolKind.Field)
-                .reduce((first, second) -> second);
+        Optional<SymbolInformation> lastSymbol = languageClient.listDocumentSymbols(fileUri)
+            .stream()
+            .filter(symbol -> symbol.getKind() == SymbolKind.Field)
+            .reduce((first, second) -> second);
 
         int indentAmount = INDENT_LENGTH;
         if (lastSymbol.isPresent()) {
@@ -132,12 +133,12 @@ public final class ClassCustomization extends CodeCustomization {
         int staticBlockStartLine = lastSymbolLine + 1;
         editor.insertBlankLine(fileName, staticBlockStartLine, false);
         Position staticBlockPosition = editor.insertBlankLineWithIndent(fileName, staticBlockStartLine, indentAmount);
-        if(!staticCodeBlock.trim().startsWith("static")) {
-            staticCodeBlock = "static { " + System.lineSeparator() + staticCodeBlock + System.lineSeparator() +  "}";
+        if (!staticCodeBlock.trim().startsWith("static")) {
+            staticCodeBlock = "static { " + System.lineSeparator() + staticCodeBlock + System.lineSeparator() + "}";
         }
 
         editor.replaceWithIndentedContent(fileName, staticBlockPosition, staticBlockPosition, staticCodeBlock,
-                staticBlockPosition.getCharacter());
+            staticBlockPosition.getCharacter());
         if (importsToAdd != null) {
             return Utils.addImports(importsToAdd, this, this::refreshSymbol);
         }
@@ -169,20 +170,25 @@ public final class ClassCustomization extends CodeCustomization {
             methodName = methodNameOrSignature;
         }
         Optional<SymbolInformation> methodSymbol = languageClient.listDocumentSymbols(fileUri)
-            .stream().filter(si -> si.getKind() == SymbolKind.Method
+            .stream()
+            .filter(si -> si.getKind() == SymbolKind.Method
                 && MEMBER_PARAMS.matcher(si.getName()).replaceFirst("").equals(methodName))
-            .filter(si -> editor.getFileLine(fileName, si.getLocation().getRange().getStart().getLine()).contains(methodNameOrSignature))
+            .filter(si -> editor.getFileLine(fileName, si.getLocation().getRange().getStart().getLine())
+                .contains(methodNameOrSignature))
             .findFirst();
         if (methodSymbol.isEmpty()) {
-            throw new IllegalArgumentException("Method " + methodNameOrSignature + " does not exist in class " + className);
+            throw new IllegalArgumentException(
+                "Method " + methodNameOrSignature + " does not exist in class " + className);
         }
         if (methodSignature == null) {
-            methodSignature = editor.getFileLine(fileName, methodSymbol.get().getLocation().getRange().getStart().getLine());
+            methodSignature
+                = editor.getFileLine(fileName, methodSymbol.get().getLocation().getRange().getStart().getLine());
             methodSignature = BLOCK_OPEN.matcher(methodSignature).replaceFirst("");
             methodSignature = PUBLIC_MODIFIER.matcher(methodSignature).replaceFirst("");
             methodSignature = PRIVATE_MODIFIER.matcher(methodSignature).replaceFirst("");
         }
-        return new MethodCustomization(editor, languageClient, packageName, className, methodName, methodSignature, methodSymbol.get());
+        return new MethodCustomization(editor, languageClient, packageName, className, methodName, methodSignature,
+            methodSymbol.get());
     }
 
     /**
@@ -214,7 +220,8 @@ public final class ClassCustomization extends CodeCustomization {
         }
 
         List<SymbolInformation> constructorSymbol = languageClient.listDocumentSymbols(fileUri)
-            .stream().filter(si -> si.getKind() == SymbolKind.Constructor
+            .stream()
+            .filter(si -> si.getKind() == SymbolKind.Constructor
                 && MEMBER_PARAMS.matcher(si.getName()).replaceFirst("").equals(constructorName))
             .filter(si -> editor.getFileLine(fileName, si.getLocation().getRange().getStart().getLine())
                 .contains(constructorNameOrSignature))
@@ -226,12 +233,13 @@ public final class ClassCustomization extends CodeCustomization {
         }
 
         if (constructorSymbol.isEmpty()) {
-            throw new IllegalArgumentException("Constructor " + constructorNameOrSignature + " does not exist in class "
-                + className);
+            throw new IllegalArgumentException(
+                "Constructor " + constructorNameOrSignature + " does not exist in class " + className);
         }
 
         if (constructorSignature == null) {
-            constructorSignature = editor.getFileLine(fileName, constructorSymbol.get(0).getLocation().getRange().getStart().getLine());
+            constructorSignature
+                = editor.getFileLine(fileName, constructorSymbol.get(0).getLocation().getRange().getStart().getLine());
             constructorSignature = BLOCK_OPEN.matcher(constructorSignature).replaceFirst("");
             constructorSignature = PUBLIC_MODIFIER.matcher(constructorSignature).replaceFirst("");
             constructorSignature = PRIVATE_MODIFIER.matcher(constructorSignature).replaceFirst("");
@@ -250,7 +258,8 @@ public final class ClassCustomization extends CodeCustomization {
      */
     public PropertyCustomization getProperty(String propertyName) {
         Optional<SymbolInformation> propertySymbol = languageClient.listDocumentSymbols(fileUri)
-            .stream().filter(si -> si.getKind() == SymbolKind.Field && si.getName().equals(propertyName))
+            .stream()
+            .filter(si -> si.getKind() == SymbolKind.Field && si.getName().equals(propertyName))
             .findFirst();
 
         if (propertySymbol.isEmpty()) {
@@ -271,7 +280,8 @@ public final class ClassCustomization extends CodeCustomization {
      */
     public ConstantCustomization getConstant(String constantName) {
         Optional<SymbolInformation> propertySymbol = languageClient.listDocumentSymbols(fileUri)
-            .stream().filter(si -> si.getKind() == SymbolKind.Constant && si.getName().equals(constantName))
+            .stream()
+            .filter(si -> si.getKind() == SymbolKind.Constant && si.getName().equals(constantName))
             .findFirst();
 
         if (propertySymbol.isEmpty()) {
@@ -319,7 +329,8 @@ public final class ClassCustomization extends CodeCustomization {
         }
 
         // Find all constructor and field symbols.
-        List<SymbolInformation> constructorLocationFinder = languageClient.listDocumentSymbols(fileUri).stream()
+        List<SymbolInformation> constructorLocationFinder = languageClient.listDocumentSymbols(fileUri)
+            .stream()
             .filter(symbol -> symbol.getKind() == SymbolKind.Field || symbol.getKind() == SymbolKind.Constructor)
             .collect(Collectors.toList());
 
@@ -457,15 +468,16 @@ public final class ClassCustomization extends CodeCustomization {
      * @return The current ClassCustomization.
      */
     public ClassCustomization rename(String newName) {
-        WorkspaceEdit workspaceEdit = languageClient.renameSymbol(fileUri,
-            symbol.getLocation().getRange().getStart(), newName);
+        WorkspaceEdit workspaceEdit
+            = languageClient.renameSymbol(fileUri, symbol.getLocation().getRange().getStart(), newName);
         List<FileEvent> changes = new ArrayList<>();
         for (Map.Entry<String, List<TextEdit>> edit : workspaceEdit.getChanges().entrySet()) {
             int i = edit.getKey().indexOf("src/main/java/");
             String oldEntry = edit.getKey().substring(i);
             if (editor.getContents().containsKey(oldEntry)) {
                 for (TextEdit textEdit : edit.getValue()) {
-                    editor.replace(oldEntry, textEdit.getRange().getStart(), textEdit.getRange().getEnd(), textEdit.getNewText());
+                    editor.replace(oldEntry, textEdit.getRange().getStart(), textEdit.getRange().getEnd(),
+                        textEdit.getNewText());
                 }
                 FileEvent fileEvent = new FileEvent();
                 fileEvent.setUri(edit.getKey());
@@ -489,7 +501,8 @@ public final class ClassCustomization extends CodeCustomization {
 
         String packagePath = packageName.replace(".", "/");
         Optional<SymbolInformation> newClassSymbol = languageClient.findWorkspaceSymbol(newName)
-            .stream().filter(si -> si.getLocation().getUri().endsWith(packagePath + "/" + newName + ".java"))
+            .stream()
+            .filter(si -> si.getLocation().getUri().endsWith(packagePath + "/" + newName + ".java"))
             .findFirst();
         if (newClassSymbol.isEmpty()) {
             throw new IllegalArgumentException("Renamed failed with new class " + newName + " not found.");
@@ -512,7 +525,8 @@ public final class ClassCustomization extends CodeCustomization {
      */
     public ClassCustomization setModifier(int modifiers) {
         languageClient.listDocumentSymbols(symbol.getLocation().getUri())
-            .stream().filter(si -> si.getKind() == SymbolKind.Class && si.getName().equals(className))
+            .stream()
+            .filter(si -> si.getKind() == SymbolKind.Class && si.getName().equals(className))
             .findFirst()
             .ifPresent(symbolInformation -> Utils.replaceModifier(symbolInformation, editor, languageClient,
                 "(?:.+ )?class " + className, "class " + className, Modifier.classModifiers(), modifiers));
@@ -532,7 +546,8 @@ public final class ClassCustomization extends CodeCustomization {
         }
 
         Optional<SymbolInformation> symbol = languageClient.listDocumentSymbols(fileUri)
-            .stream().filter(si -> si.getKind() == SymbolKind.Class)
+            .stream()
+            .filter(si -> si.getKind() == SymbolKind.Class)
             .findFirst();
         if (symbol.isPresent()) {
             if (editor.getContents().containsKey(fileName)) {
@@ -559,8 +574,11 @@ public final class ClassCustomization extends CodeCustomization {
      * @return the current class customization for chaining
      */
     public ClassCustomization removeAnnotation(String annotation) {
-        return Utils.removeAnnotation(this, compilationUnit -> compilationUnit.getClassByName(className).get()
-            .getAnnotationByName(Utils.cleanAnnotationName(annotation)), this::refreshSymbol);
+        return Utils.removeAnnotation(this,
+            compilationUnit -> compilationUnit.getClassByName(className)
+                .get()
+                .getAnnotationByName(Utils.cleanAnnotationName(annotation)),
+            this::refreshSymbol);
     }
 
     /**
