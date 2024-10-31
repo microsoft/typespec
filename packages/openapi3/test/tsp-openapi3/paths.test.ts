@@ -294,7 +294,7 @@ it("supports operation summary", async () => {
 
   /* @get @route("/") @summary("Root Get Summary") */
   expectDecorators(rootGet.decorators, [
-    { name: "summary", args: [{ jsValue: "Root Get Summary" }] },
+    { name: "summary", args: ["Root Get Summary"] },
     { name: "get" },
     { name: "route", args: ["/"] },
   ]);

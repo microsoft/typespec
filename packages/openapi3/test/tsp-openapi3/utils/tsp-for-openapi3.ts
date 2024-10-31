@@ -1,4 +1,4 @@
-import { Diagnostic, Namespace } from "@typespec/compiler";
+import { Diagnostic, Namespace, Program } from "@typespec/compiler";
 import { createTestHost, expectDiagnosticEmpty } from "@typespec/compiler/testing";
 import { HttpTestLibrary } from "@typespec/http/testing";
 import { OpenAPITestLibrary } from "@typespec/openapi/testing";
@@ -26,16 +26,16 @@ export interface OpenAPI3Options {
 }
 
 export async function tspForOpenAPI3(props: OpenAPI3Options) {
-  const [TestService, diagnostics] = await tspAndDiagnosticsForOpenAPI3(props);
+  const { namespace: TestService, diagnostics } = await compileForOpenAPI3(props);
   expectDiagnosticEmpty(diagnostics);
   return TestService;
 }
 
-export async function tspAndDiagnosticsForOpenAPI3({
-  parameters,
-  paths,
-  schemas,
-}: OpenAPI3Options): Promise<[Namespace, readonly Diagnostic[]]> {
+export async function compileForOpenAPI3({ parameters, paths, schemas }: OpenAPI3Options): Promise<{
+  namespace: Namespace;
+  diagnostics: readonly Diagnostic[];
+  program: Program;
+}> {
   const openApi3Doc: OpenAPI3Document = {
     info: {
       title: "Test Service",
@@ -67,5 +67,9 @@ export async function tspAndDiagnosticsForOpenAPI3({
     TestService?.kind === "Namespace",
     `Expected TestService to be a namespace, instead got ${TestService?.kind}`,
   );
-  return [TestService, diagnostics];
+  return {
+    namespace: TestService,
+    diagnostics,
+    program: host.program,
+  };
 }

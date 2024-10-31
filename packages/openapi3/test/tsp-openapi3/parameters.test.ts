@@ -1,8 +1,9 @@
-import { Numeric } from "@typespec/compiler";
-import { expectDiagnostics } from "@typespec/compiler/testing";
+import { getDocData, Numeric } from "@typespec/compiler";
+import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
+import { ok } from "assert";
 import { assert, describe, expect, it } from "vitest";
 import { expectDecorators } from "./utils/expect.js";
-import { tspAndDiagnosticsForOpenAPI3, tspForOpenAPI3 } from "./utils/tsp-for-openapi3.js";
+import { compileForOpenAPI3, tspForOpenAPI3 } from "./utils/tsp-for-openapi3.js";
 
 describe("converts top-level parameters", () => {
   it.each(["query", "header", "path"] as const)(`Supports location: %s`, async (location) => {
@@ -160,7 +161,11 @@ describe("converts top-level parameters", () => {
   });
 
   it("supports doc generation", async () => {
-    const serviceNamespace = await tspForOpenAPI3({
+    const {
+      namespace: serviceNamespace,
+      diagnostics,
+      program,
+    } = await compileForOpenAPI3({
       parameters: {
         Foo: {
           name: "foo",
@@ -172,6 +177,8 @@ describe("converts top-level parameters", () => {
         },
       },
     });
+
+    expectDiagnosticEmpty(diagnostics);
 
     const parametersNamespace = serviceNamespace.namespaces.get("Parameters");
     assert(parametersNamespace, "Parameters namespace not found");
@@ -193,9 +200,10 @@ describe("converts top-level parameters", () => {
       optional: true,
       type: { kind: "Scalar", name: "string" },
     });
-    expect(foo?.decorators.find((d) => d.definition?.name === "@query")).toBeTruthy();
-    const docDecorator = foo?.decorators.find((d) => d.decorator?.name === "$docFromComment");
-    expect(docDecorator?.args[1]).toMatchObject({ jsValue: "Docs for foo" });
+    ok(foo);
+    expectDecorators(foo.decorators, [{ name: "query" }], { strict: false });
+    const docData = getDocData(program, foo);
+    expect(docData).toMatchObject({ source: "comment", value: "Docs for foo" });
   });
 
   it("supports referenced schemas", async () => {
@@ -260,7 +268,7 @@ describe("converts top-level parameters", () => {
     });
     expectDecorators(Foo.properties.get("foo")!.decorators, [
       { name: "query" },
-      { name: "summary", args: [{ jsValue: "Foo Title" }] },
+      { name: "summary", args: ["Foo Title"] },
     ]);
   });
 
@@ -428,7 +436,7 @@ describe("query", () => {
       { style: "spaceDelimited", format: "ssv" },
       { style: "pipeDelimited", format: "pipes" },
     ])("sets explode and format args when style: $style", async ({ style, format }) => {
-      const [serviceNamespace, diagnostics] = await tspAndDiagnosticsForOpenAPI3({
+      const { namespace: serviceNamespace, diagnostics } = await compileForOpenAPI3({
         parameters: {
           Foo: {
             name: "foo",
@@ -501,7 +509,7 @@ describe("query", () => {
       { style: "spaceDelimited", format: "ssv" },
       { style: "pipeDelimited", format: "pipes" },
     ])("sets explode and format args when style: $style", async ({ style, format }) => {
-      const [serviceNamespace, diagnostics] = await tspAndDiagnosticsForOpenAPI3({
+      const { namespace: serviceNamespace, diagnostics } = await compileForOpenAPI3({
         parameters: {
           Foo: {
             name: "foo",
