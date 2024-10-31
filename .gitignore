@@ -208,8 +208,7 @@ vite.config.ts.timestamp-*
 
 # Api extractor
 packages/*/etc/
-docs/**/js-api/
-website/src/content/docs/current/**/js-api/
+**/docs/**/js-api/
 
 # VS Code test web temp files
 .vscode-test-web/
