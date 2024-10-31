@@ -287,9 +287,9 @@ async function main() {
             array: true,
             demandOption: true,
           })
-          .option("emitterName", {
+          .option("setName", {
             type: "string",
-            description: "Emitter used to generate the manifest.",
+            description: "Set used to generate the manifest.",
             demandOption: true,
           })
           .option("storageAccountName", {
@@ -302,7 +302,7 @@ async function main() {
         await uploadScenarioManifest({
           scenariosPaths: args.scenariosPaths,
           storageAccountName: args.storageAccountName,
-          emitterName: args.emitterName,
+          setName: args.setName,
         });
       },
     )

@@ -2,7 +2,7 @@ export type ScenarioManifest = {
   commit: string;
   version: string;
   scenarios: ScenarioData[];
-  emitterName: string;
+  setName: string;
 };
 
 export type ScenarioData = {
