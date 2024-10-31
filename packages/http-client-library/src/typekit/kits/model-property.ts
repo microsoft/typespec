@@ -25,10 +25,6 @@ export interface SdkModelPropertyKit {
    * Returns whether the property is a discriminator on the model it's on.
    */
   isDiscriminator(type: ModelProperty): boolean;
-
-  /**
-   * Returns multipart information if it is 
-   */
 }
 
 interface TypeKit {

@@ -6,3 +6,10 @@ export interface Client {
   type: Namespace | Interface;
   service: Namespace;
 }
+
+export interface ReferencedType {
+  kind: "ReferencedType";
+  name: string;
+  library: string;
+}
+

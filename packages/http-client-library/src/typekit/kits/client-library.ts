@@ -1,8 +1,6 @@
-import { Enum, listServices, Model, Namespace } from "@typespec/compiler";
+import { Enum, getLocationContext, listServices, Model, Namespace } from "@typespec/compiler";
 import { $, defineKit } from "@typespec/compiler/typekit";
 import { Client } from "../../interfaces.js";
-
-$.clientLibrary.emitsLanguage("typescript");
 
 interface ClientLibraryKit {
   /**
@@ -52,7 +50,9 @@ declare module "@typespec/compiler/typekit" {
 defineKit<Typekit>({
   clientLibrary: {
     listNamespaces() {
-      return [...$.program.checker.getGlobalNamespaceType().namespaces.values()];
+      return [...$.program.checker.getGlobalNamespaceType().namespaces.values()].filter(
+        (n) => getLocationContext($.program, n).type === "project",
+      );
     },
     listSubNamespaces(namespace) {
       return [...namespace.namespaces.values()];
@@ -75,7 +75,22 @@ defineKit<Typekit>({
       return clients;
     },
     listModels(namespace) {
-      return [...namespace.models.values()];
+      const allModels = [...namespace.models.values()];
+      const modelsMap: Map<string, Model> = new Map();
+      for (const op of namespace.operations.values()) {
+        for (const param of op.parameters.properties.values()) {
+          if (param.type.kind === "Model" && allModels.includes(param.type)) {
+            modelsMap.set(param.type.name, param.type);
+          }
+          if (
+            param.sourceProperty?.type.kind === "Model" &&
+            allModels.includes(param.sourceProperty?.type)
+          ) {
+            modelsMap.set(param.sourceProperty?.type.name, param.sourceProperty?.type);
+          }
+        }
+      }
+      return [...modelsMap.values()];
     },
     listEnums(namespace) {
       return [...namespace.enums.values()];

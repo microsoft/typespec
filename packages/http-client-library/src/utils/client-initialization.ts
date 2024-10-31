@@ -1,6 +1,6 @@
-import { Model, Type } from "@typespec/compiler";
+import { Model } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
-import { getAuthentication, getServers } from "@typespec/http";
+import { getServers } from "@typespec/http";
 import { Client } from "../interfaces.js";
 
 export function addEndpointParameter(client: Client, base: Model): undefined {
@@ -23,17 +23,32 @@ export function addEndpointParameter(client: Client, base: Model): undefined {
   }
 }
 
-export function addCredentialParameter(client: Client, base: Model): undefined {
-  const schemes = getAuthentication($.program, client.service)?.options.flatMap((o) => o.schemes);
-  if (!schemes) return;
-  const credTypes: Type[] = schemes.forEach((scheme) => {
-    switch (scheme.type) {
-      case "apiKey":
-        return $.program.checker.getStdType("string");
-      case "http":
-        return $.program.checker.getStdType("string");
-      case "oauth2":
-        return $.program.checker.getStdType("string");
-    }
-  });
-}
+// export function addCredentialParameter(client: Client, base: Model): undefined {
+//   const schemes = getAuthentication($.program, client.service)?.options.flatMap((o) => o.schemes);
+//   if (!schemes) return;
+//   const credTypes: (Type | ReferencedType)[] = schemes.forEach((scheme) => {
+//     switch (scheme.type) {
+//       case "apiKey":
+//         return {
+//           kind: "ReferencedType",
+//           name: "KeyCredential",
+//           library: "@typespec/ts-http-runtime",
+//         }
+//       case "oauth2":
+//         return {
+//           kind: "ReferencedType",
+//           name: "OAuth2Credential",
+//           library: "@typespec/ts-http-runtime",
+//         }
+//       default:
+//         return $.program.checker.getStdType("string");
+//     }
+//   });
+//   let credType: Type;
+//   if (credTypes.length === 1) {
+//     credType = credTypes[0];
+//   } else {
+//     credType = $.union.create({ variants: credTypes });
+//   }
+//   base.properties.set("credential", credType);
+// }

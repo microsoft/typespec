@@ -1,7 +1,15 @@
-import { Model, Namespace, Operation } from "@typespec/compiler";
+import {
+  getService,
+  Interface,
+  isTemplateDeclaration,
+  isTemplateDeclarationOrInstance,
+  Model,
+  Namespace,
+  Operation,
+} from "@typespec/compiler";
 import { $, defineKit } from "@typespec/compiler/typekit";
-import { addCredentialParameter, addEndpointParameter } from "../../utils/client-initialization.js";
 import { Client } from "../../interfaces.js";
+import { addEndpointParameter } from "../../utils/client-initialization.js";
 
 interface ClientKit {
   getName(client: Namespace): string;
@@ -41,13 +49,45 @@ defineKit<TypeKit>({
         properties: {},
       });
       addEndpointParameter(client, base);
-      addCredentialParameter(client, base);
+      // addCredentialParameter(client, base);
       return base;
     },
     listServiceOperations(client) {
-      // TODO: Remove, added to avoid eslint error
-      console.log(client.name);
-      return [];
+      const operations: Operation[] = [];
+
+      function addOperations(current: Namespace | Interface) {
+        if (
+          current.kind === "Namespace" &&
+          current !== client.type &&
+          getService($.program, current)
+        ) {
+          // if I'm a different service, I'm done
+          return;
+        }
+        if (current.kind === "Interface" && isTemplateDeclaration(current)) {
+          // Skip template interface operations
+          return;
+        }
+
+        for (const op of current.operations.values()) {
+          // Skip templated operations
+          if (!isTemplateDeclarationOrInstance(op)) {
+            operations.push(op);
+          }
+        }
+
+        if (current.kind === "Namespace") {
+          for (const subItem of current.namespaces.values()) {
+            addOperations(subItem);
+          }
+          for (const subItem of current.interfaces.values()) {
+            addOperations(subItem);
+          }
+        }
+      }
+
+      addOperations(client.type);
+      return operations;
     },
   },
 });
