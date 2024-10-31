@@ -4,6 +4,7 @@
 using System.ClientModel.Primitives;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
@@ -26,11 +27,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         public override ValueExpression Create(ValueExpression options, ValueExpression perRetryPolicies)
             => Static<ClientPipeline>().Invoke(nameof(ClientPipeline.Create), [options, New.Array(ClientModelPlugin.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType), perRetryPolicies, New.Array(ClientModelPlugin.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType)]).As<ClientPipeline>();
 
-        public override HttpMessageApi CreateMessage()
-            => new PipelineMessageProvider(Original.Invoke(nameof(ClientPipeline.CreateMessage)));
-
         public override ValueExpression CreateMessage(HttpRequestOptionsApi requestOptions, ValueExpression responseClassifier)
-            => Original.Invoke(nameof(ClientPipeline.CreateMessage), requestOptions, responseClassifier).As<PipelineMessage>();
+            => new PipelineMessageProvider(Original.Invoke(nameof(ClientPipeline.CreateMessage)));
 
         public override ClientPipelineApi FromExpression(ValueExpression expression)
             => new ClientPipelineProvider(expression);
@@ -38,11 +36,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         public override ValueExpression PerRetryPolicy(params ValueExpression[] arguments)
             => Static<ApiKeyAuthenticationPolicy>().Invoke(nameof(ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy), arguments).As<ApiKeyAuthenticationPolicy>();
 
-        public override InvokeMethodExpression Send(HttpMessageApi message)
-            => Original.Invoke(nameof(ClientPipeline.Send), [message]);
+        public override MethodBodyStatement Send(HttpMessageApi message, HttpRequestOptionsApi options)
+            => Original.Invoke(nameof(ClientPipeline.Send), [message]).Terminate();
 
-        public override InvokeMethodExpression SendAsync(HttpMessageApi message)
-            => Original.Invoke(nameof(ClientPipeline.SendAsync), [message], true);
+        public override MethodBodyStatement SendAsync(HttpMessageApi message, HttpRequestOptionsApi options)
+            => Original.Invoke(nameof(ClientPipeline.SendAsync), [message], true).Terminate();
 
         public override ClientPipelineApi ToExpression() => this;
     }
