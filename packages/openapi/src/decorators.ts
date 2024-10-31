@@ -285,7 +285,7 @@ export const tagMetadataDecorator: TagMetadataDecorator = (
   }
 
   // Initialize metadata with the tag name
-  let metadata: any = { name };
+  let metadata: TagMetadata = { name };
 
   // Process tag metadata if provided
   if (tagMetadata) {
