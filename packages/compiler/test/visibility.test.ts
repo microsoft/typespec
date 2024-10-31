@@ -647,4 +647,101 @@ describe("compiler: visibility core", () => {
       deepStrictEqual(aVisibility, ["create", "update", "read"]);
     });
   });
+
+  describe("lifecycle transforms", () => {
+    async function compileWithTransform(
+      transform: "Create" | "Read" | "Update" | "CreateOrUpdate",
+    ) {
+      const { Result } = (await runner.compile(`
+        model Example {
+          @visibility(Lifecycle.Read)
+          r: string;
+
+          cru: string;
+
+          @visibility(Lifecycle.Create, Lifecycle.Read)
+          cr: string;
+
+          @visibility(Lifecycle.Create, Lifecycle.Update)
+          cu: string;
+
+          @visibility(Lifecycle.Create)
+          c: string;
+
+          @visibility(Lifecycle.Update, Lifecycle.Read)
+          ru: string;
+
+          @visibility(Lifecycle.Update)
+          u: string;
+
+          @invisible(Lifecycle)
+          invisible: string;
+
+          @visibility(Lifecycle.Update)
+          nested: {
+            @visibility(Lifecycle.Read)
+            r: string;
+
+            cru: string;
+
+            @visibility(Lifecycle.Create, Lifecycle.Read)
+            cr: string;
+
+            @visibility(Lifecycle.Create, Lifecycle.Update)
+            cu: string;
+
+            @visibility(Lifecycle.Create)
+            c: string;
+
+            @visibility(Lifecycle.Update, Lifecycle.Read)
+            ru: string;
+
+            @visibility(Lifecycle.Update)
+            u: string;
+
+            @invisible(Lifecycle)
+            invisible: string;
+          };
+        }
+
+        @test model Result is ${transform}<Example>;
+      `)) as { Result: Model };
+
+      return Result;
+    }
+
+    function getProperties(model: Model) {
+      return {
+        c: model.properties.get("c"),
+        cr: model.properties.get("cr"),
+        cu: model.properties.get("cu"),
+        cru: model.properties.get("cru"),
+        r: model.properties.get("r"),
+        ru: model.properties.get("ru"),
+        u: model.properties.get("u"),
+        invisible: model.properties.get("invisible"),
+      };
+    }
+
+    it("correctly applies Read transform", async () => {
+      const Result = await compileWithTransform("Read");
+      const props = getProperties(Result);
+
+      // All properties that do not have Read visibility are removed
+      strictEqual(props.c, undefined);
+      strictEqual(props.cu, undefined);
+      strictEqual(props.u, undefined);
+      strictEqual(props.invisible, undefined);
+
+      // All properties that have Read visibility are preserved
+      ok(props.r);
+      ok(props.cr);
+      ok(props.cru);
+      ok(props.ru);
+
+      const nested = Result.properties.get("nested");
+
+      strictEqual(nested, undefined);
+    });
+  });
 });

@@ -250,7 +250,8 @@ export function clearLegacyVisibility(program: Program, property: ModelProperty)
  * - Otherwise, this function will return an array of lowercase strings representing the active Lifecycle visibility
  *   modifiers ("create", "read", "update").
  *
- * @deprecated Use `getVisibilityForClass` or `getLifecycleVisibility` instead.
+ * @deprecated Use `getVisibilityForClass` instead.
+ *
  * @param program - the program in which the property occurs
  * @param property - the property to get legacy visibility modifiers for
  */
@@ -580,7 +581,12 @@ export function isVisible(
 /**
  * Determines if a property has any of the specified (legacy) visibility strings.
  *
- * @deprecated This call signature is deprecated. Use the `VisibilityFilter` version instead.
+ * @deprecated Calling `isVisible` with an array of legacy visibility strings is deprecated. Use a `VisibilityFilter`
+ * object instead.
+ *
+ * @param program - the program in which the property occurs
+ * @param property - the property to check
+ * @param visibilities - the visibility strings to check for
  */
 export function isVisible(
   program: Program,

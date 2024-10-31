@@ -165,8 +165,6 @@ export const $parameterVisibility: ParameterVisibilityDecorator = (
 /**
  * Returns the visibilities of the parameters of the given operation, if provided with `@parameterVisibility`.
  *
- * @deprecated Use {@link getParameterVisibilityFilter} instead.
- *
  * @see {@link $parameterVisibility}
  */
 export function getParameterVisibility(program: Program, entity: Operation): string[] | undefined {
@@ -204,8 +202,6 @@ export const $returnTypeVisibility: ReturnTypeVisibilityDecorator = (
 
 /**
  * Returns the visibilities of the return type of the given operation, if provided with `@returnTypeVisibility`.
- *
- * @deprecated Use {@link getReturnTypeVisibilityFilter} instead.
  *
  * @see {@link $returnTypeVisibility}
  */
@@ -336,8 +332,6 @@ export const $withVisibility: WithVisibilityDecorator = (
 
 /**
  * Filters a model for properties that are updateable.
- *
- * @deprecated Use `@withVisibilityFilter` or `@withLifecycleVisibility` instead.
  *
  * @param context - the program context
  * @param target - Model to filter for updateable properties
