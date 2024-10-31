@@ -1,4 +1,5 @@
 import {
+  $service,
   DecoratorContext,
   getDoc,
   getService,
@@ -259,6 +260,17 @@ export const tagMetadataDecorator: TagMetadataDecorator = (
   name: string,
   tagMetadata?: TypeSpecValue,
 ) => {
+  // Check if the namespace is a service namespace
+  if (!entity.decorators.some((decorator) => decorator.decorator === $service)) {
+    reportDiagnostic(context.program, {
+      code: "no-service-found",
+      format: {
+        namespace: entity.name,
+      },
+      target: context.getArgumentTarget(0)!,
+    });
+  }
+
   // Retrieve existing tags metadata or initialize an empty object
   const tags = getTagsMetadata(context.program, entity) ?? {};
 
@@ -272,6 +284,7 @@ export const tagMetadataDecorator: TagMetadataDecorator = (
     return;
   }
 
+  // Initialize metadata with the tag name
   let metadata: any = { name };
 
   // Process tag metadata if provided
@@ -314,6 +327,7 @@ export const tagMetadataDecorator: TagMetadataDecorator = (
         return;
       }
     }
+
     // Merge data into metadata
     metadata = { ...data, name };
   }

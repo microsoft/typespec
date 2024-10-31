@@ -28,6 +28,12 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`"Metadata for tag '${"tagName"}' was specified twice."`,
       },
     },
+    "no-service-found": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`No namespace with '@service' was found, but Namespace '${"namespace"}' contains tagMetadata. Did you mean to annotate this with '@service'?`,
+      },
+    },
   },
   state: {
     tagsMetadata: { description: "State for the @tagMetadata decorator." },

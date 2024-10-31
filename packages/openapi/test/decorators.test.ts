@@ -342,6 +342,20 @@ describe("openapi: decorators", () => {
   });
 
   describe("@tagMetadata", () => {
+    it("emit a warning if a non-service namespace", async () => {
+      const diagnostics = await runner.diagnose(
+        `
+        @tagMetadata("tagName")
+        namespace Test {}
+      `,
+      );
+      expectDiagnostics(diagnostics, [
+        {
+          code: "@typespec/openapi/no-service-found",
+        },
+      ]);
+    });
+
     it.each([
       ["tagName is not a string", `@tagMetadata(123)`],
       ["tagMetdata parameter is not an object", `@tagMetadata("tagName", 123)`],
