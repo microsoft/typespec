@@ -89,7 +89,7 @@ op listPets(
   /**
    * How many items to return at one time (max 100)
    */
-  @query limit?: int32,
+  @query(#{ explode: true }) limit?: int32,
 ): listPets200ApplicationJsonResponse | listPetsDefaultApplicationJsonResponse;
 
 @tag("pets")
