@@ -8,7 +8,7 @@ where:
 configuration:
   resourceManagementConfiguration:
     scheduledSearches:
-      - description: Ping user when the PR hasn't
+      - description: Ping user when the PR has not been updated in 30 days
         frequencies:
           - daily:
               time: 13:0
