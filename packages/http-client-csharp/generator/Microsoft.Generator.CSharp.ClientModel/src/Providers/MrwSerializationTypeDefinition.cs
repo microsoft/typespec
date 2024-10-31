@@ -434,7 +434,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return new MethodProvider
             (
               new MethodSignature(methodName, null, signatureModifiers, _model.Type, null, [_jsonElementDeserializationParam, _serializationOptionsParameter]),
-              _model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract) && _inputModel.DiscriminatorProperty != null ? BuildAbstractDeserializationMethodBody() : BuildDeserializationMethodBody(),
+              _model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract) && _inputModel.DiscriminatedSubtypes.Count > 0 ? BuildAbstractDeserializationMethodBody() : BuildDeserializationMethodBody(),
               this
             );
         }
