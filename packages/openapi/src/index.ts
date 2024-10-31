@@ -14,6 +14,7 @@ export {
   getExternalDocs,
   getInfo,
   getOperationId,
+  getTagsMetadata,
   isDefaultResponse,
   resolveInfo,
   setExtension,
@@ -26,8 +27,6 @@ export {
   isReadonlyProperty,
   resolveOperationId,
   shouldInline,
-  validateAdditionalInfoModel,
-  validateIsUri,
 } from "./helpers.js";
 export { AdditionalInfo, Contact, ExtensionKey, ExternalDocs, License } from "./types.js";
 

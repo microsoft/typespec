@@ -1,11 +1,4 @@
-import type {
-  DecoratorContext,
-  Model,
-  ModelProperty,
-  Namespace,
-  Type,
-  Union,
-} from "@typespec/compiler";
+import type { DecoratorContext, Model, ModelProperty, Union } from "@typespec/compiler";
 
 /**
  * Specify that `oneOf` should be used instead of `anyOf` for that union.
@@ -23,21 +16,7 @@ export type UseRefDecorator = (
   ref: string,
 ) => void;
 
-/**
- * Specify OpenAPI additional information.
- *
- * @param name tag name
- * @param additionalTag Additional information
- */
-export type TagMetadataDecorator = (
-  context: DecoratorContext,
-  target: Namespace,
-  name: string,
-  tagMetadata?: Type,
-) => void;
-
 export type TypeSpecOpenAPIDecorators = {
   oneOf: OneOfDecorator;
   useRef: UseRefDecorator;
-  tagMetadata: TagMetadataDecorator;
 };

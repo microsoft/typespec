@@ -13,28 +13,3 @@ extern dec oneOf(target: Union | ModelProperty);
  * @param ref External reference(e.g. "../../common.json#/components/schemas/Foo")
  */
 extern dec useRef(target: Model | ModelProperty, ref: valueof string);
-
-/** Metadata to a single tag that is used by operations. */
-model TagMetadata {
-  /** A description of the API. */
-  description?: string;
-
-  /** An external Docs information of the API. */
-  externalDocs?: ExternalDocs;
-}
-
-/** External Docs information. */
-model ExternalDocs {
-  /** Documentation url */
-  url: string;
-
-  /** Optional description */
-  description?: string;
-}
-
-/**
- * Specify OpenAPI additional information.
- * @param name tag name
- * @param additionalTag Additional information
- */
-extern dec tagMetadata(target: Namespace, name: valueof string, tagMetadata?: TagMetadata);

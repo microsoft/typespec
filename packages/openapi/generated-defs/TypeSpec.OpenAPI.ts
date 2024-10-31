@@ -79,10 +79,24 @@ export type InfoDecorator = (
   additionalInfo: Type,
 ) => void;
 
+/**
+ * Specify OpenAPI additional information.
+ *
+ * @param name tag name
+ * @param additionalTag Additional information
+ */
+export type TagMetadataDecorator = (
+  context: DecoratorContext,
+  target: Namespace,
+  name: string,
+  tagMetadata?: Type,
+) => void;
+
 export type TypeSpecOpenAPIDecorators = {
   operationId: OperationIdDecorator;
   extension: ExtensionDecorator;
   defaultResponse: DefaultResponseDecorator;
   externalDocs: ExternalDocsDecorator;
   info: InfoDecorator;
+  tagMetadata: TagMetadataDecorator;
 };

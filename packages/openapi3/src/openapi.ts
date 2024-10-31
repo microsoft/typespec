@@ -78,6 +78,7 @@ import {
   getExternalDocs,
   getOpenAPITypeName,
   getParameterKey,
+  getTagsMetadata,
   isReadonlyProperty,
   resolveInfo,
   resolveOperationId,
@@ -85,7 +86,7 @@ import {
 } from "@typespec/openapi";
 import { buildVersionProjections, VersionProjections } from "@typespec/versioning";
 import { stringify } from "yaml";
-import { getRef, getTagsMetadata } from "./decorators.js";
+import { getRef } from "./decorators.js";
 import { applyEncoding } from "./encoding.js";
 import { getExampleOrExamples, OperationExamples, resolveOperationExamples } from "./examples.js";
 import { createDiagnostic, FileType, OpenAPI3EmitterOptions } from "./lib.js";

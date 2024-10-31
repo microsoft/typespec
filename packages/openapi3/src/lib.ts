@@ -275,27 +275,13 @@ export const libDef = {
         default: paramMessage`XML \`@unwrapped\` can only used on array properties or primitive ones in the OpenAPI 3 emitter, Property '${"name"}' will be ignored.`,
       },
     },
-    "duplicate-tag": {
-      severity: "error",
-      messages: {
-        default: paramMessage`"Metadata for tag '${"tagName"}' was specified twice."`,
-      },
-    },
   },
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<OpenAPI3EmitterOptions>,
   },
-  state: {
-    tagsMetadata: { description: "State for the @tagMetadata decorator." },
-  },
 } as const;
 
 export const $lib = createTypeSpecLibrary(libDef);
-export const {
-  createDiagnostic,
-  reportDiagnostic,
-  createStateSymbol,
-  stateKeys: OpenAPI3Keys,
-} = $lib;
+export const { createDiagnostic, reportDiagnostic, createStateSymbol } = $lib;
 
 export type OpenAPILibrary = typeof $lib;
