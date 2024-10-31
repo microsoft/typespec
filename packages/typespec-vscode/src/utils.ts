@@ -1,6 +1,6 @@
 import type { ModuleResolutionResult, ResolveModuleHost } from "@typespec/compiler";
 import { readFile, realpath, stat } from "fs/promises";
-import { normalize, resolve } from "path";
+import { dirname, normalize, resolve } from "path";
 import { Executable } from "vscode-languageclient/node.js";
 import logger from "./log/logger.js";
 

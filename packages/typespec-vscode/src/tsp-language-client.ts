@@ -1,7 +1,8 @@
-import { ExtensionContext, LogOutputChannel, workspace } from "vscode";
+import { ExtensionContext, LogOutputChannel, RelativePattern, workspace } from "vscode";
 import { Executable, LanguageClient, LanguageClientOptions } from "vscode-languageclient/node.js";
 import logger from "./log/logger.js";
 import { resolveTypeSpecServer } from "./tsp-executable-resolver.js";
+import { listParentFolder } from "./utils.js";
 
 export class TspLanguageClient {
   constructor(
@@ -84,23 +85,33 @@ export class TspLanguageClient {
   ): Promise<TspLanguageClient> {
     const exe = await resolveTypeSpecServer(context);
     logger.debug("TypeSpec server resolved as ", [exe]);
+    const watchers = [
+      workspace.createFileSystemWatcher("**/*.cadl"),
+      workspace.createFileSystemWatcher("**/cadl-project.yaml"),
+      workspace.createFileSystemWatcher("**/*.tsp"),
+      workspace.createFileSystemWatcher("**/tspconfig.yaml"),
+      // please be aware that the vscode watch with '**' will honer the files.watcherExclude settings
+      // so we won't get notification for those package.json under node_modules
+      // if our customers exclude the node_modules folder in files.watcherExclude settings.
+      workspace.createFileSystemWatcher("**/package.json"),
+    ];
+    for (const folder of workspace.workspaceFolders ?? []) {
+      for (const p of listParentFolder(folder.uri.fsPath, false /*includeSelf*/)) {
+        watchers.push(workspace.createFileSystemWatcher(new RelativePattern(p, "package.json")));
+      }
+    }
+    watchers.forEach((w) => context.subscriptions.push(w));
+
     const options: LanguageClientOptions = {
       synchronize: {
         // Synchronize the setting section 'typespec' to the server
         configurationSection: "typespec",
-        fileEvents: [
-          workspace.createFileSystemWatcher("**/*.cadl"),
-          workspace.createFileSystemWatcher("**/cadl-project.yaml"),
-          workspace.createFileSystemWatcher("**/*.tsp"),
-          workspace.createFileSystemWatcher("**/tspconfig.yaml"),
-          workspace.createFileSystemWatcher("**/package.json"),
-        ],
+        fileEvents: watchers,
       },
       documentSelector: [
         { scheme: "file", language: "typespec" },
         { scheme: "untitled", language: "typespec" },
         { scheme: "file", language: "yaml", pattern: "**/tspconfig.yaml" },
-        { scheme: "untitled", language: "yaml", pattern: "**/tspconfig.yaml" },
       ],
       outputChannel,
     };
