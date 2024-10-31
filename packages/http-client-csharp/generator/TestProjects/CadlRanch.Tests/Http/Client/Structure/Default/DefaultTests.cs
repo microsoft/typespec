@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Client.Structure.Service.Default;
 using Client.Structure.Service.Default.Models;
+using Client.Structure.Service.Renamed.Operation;
 using NUnit.Framework;
 
 namespace TestProjects.CadlRanch.Tests.Http.Client.Structure.Default
@@ -31,51 +32,57 @@ namespace TestProjects.CadlRanch.Tests.Http.Client.Structure.Default
             }
         }
 
-        [Test]
+        [CadlRanchTest]
         public Task Client_Structure_default_One() => Test(async (host) =>
         {
+            //await new RenamedOperationClient(host, ClientType.RenamedOperation, null).RenamedOneAsync();
             var response = await new ServiceClient(host, ClientType.Default).OneAsync();
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
-        [Test]
+
+        [CadlRanchTest]
         public Task Client_Structure_default_Two() => Test(async (host) =>
         {
             var response = await new ServiceClient(host, ClientType.Default).TwoAsync();
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
-        [Test]
+
+        [CadlRanchTest]
         public Task Client_Structure_default_Three() => Test(async (host) =>
         {
             var response = await new ServiceClient(host, ClientType.Default).GetFooClient().ThreeAsync();
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
-        [Test]
+
+        [CadlRanchTest]
         public Task Client_Structure_default_Four() => Test(async (host) =>
         {
             var response = await new ServiceClient(host, ClientType.Default).GetFooClient().FourAsync();
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
-        [Test]
+
+        [CadlRanchTest]
         public Task Client_Structure_default_Five() => Test(async (host) =>
         {
             var response = await new ServiceClient(host, ClientType.Default).GetBarClient().FiveAsync();
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
-        [Test]
+
+        [CadlRanchTest]
         public Task Client_Structure_default_Six() => Test(async (host) =>
         {
             var response = await new ServiceClient(host, ClientType.Default).GetBarClient().SixAsync();
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
-        [Test]
+        [CadlRanchTest]
         public Task Client_Structure_default_Seven() => Test(async (host) =>
         {
             var response = await new ServiceClient(host, ClientType.Default).GetBazClient().GetBazFooClient().SevenAsync();
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
-        [Test]
+        [CadlRanchTest]
         public Task Client_Structure_default_Eight() => Test(async (host) =>
         {
             var response = await new ServiceClient(host, ClientType.Default).GetQuxClient().EightAsync();
