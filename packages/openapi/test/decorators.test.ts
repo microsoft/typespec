@@ -342,7 +342,7 @@ describe("openapi: decorators", () => {
   });
 
   describe("@tagMetadata", () => {
-    it("emit a warning if a non-service namespace", async () => {
+    it("emit an error if a non-service namespace", async () => {
       const diagnostics = await runner.diagnose(
         `
         @tagMetadata("tagName")
