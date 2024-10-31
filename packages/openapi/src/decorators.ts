@@ -23,7 +23,7 @@ import {
 } from "../generated-defs/TypeSpec.OpenAPI.js";
 import { isOpenAPIExtensionKey, validateAdditionalInfoModel, validateIsUri } from "./helpers.js";
 import { createStateSymbol, OpenAPIKeys, reportDiagnostic } from "./lib.js";
-import { AdditionalInfo, ExtensionKey, ExternalDocs } from "./types.js";
+import { AdditionalInfo, ExtensionKey, ExternalDocs, TagMetadata } from "./types.js";
 
 const operationIdsKey = createStateSymbol("operationIds");
 /**
@@ -240,11 +240,11 @@ function omitUndefined<T extends Record<string, unknown>>(data: T): T {
   return Object.fromEntries(Object.entries(data).filter(([k, v]) => v !== undefined)) as any;
 }
 
-const [
-  /** Get TagsMetadata set with `@tagMetadata` decorator */
-  getTagsMetadata,
-  setTagsMetadata,
-] = unsafe_useStateMap<Type, { [name: string]: any }>(OpenAPIKeys.tagsMetadata);
+/** Get TagsMetadata set with `@tagMetadata` decorator */
+const [getTagsMetadata, setTagsMetadata] = unsafe_useStateMap<
+  Type,
+  { [name: string]: TagMetadata }
+>(OpenAPIKeys.tagsMetadata);
 
 /**
  * Decorator to add metadata to a tag associated with a namespace.
@@ -276,7 +276,7 @@ export const tagMetadataDecorator: TagMetadataDecorator = (
 
   // Process tag metadata if provided
   if (tagMetadata) {
-    const [data, diagnostics] = typespecTypeToJson<any & Record<ExtensionKey, unknown>>(
+    const [data, diagnostics] = typespecTypeToJson<TagMetadata & Record<ExtensionKey, unknown>>(
       tagMetadata,
       context.getArgumentTarget(0)!,
     );
