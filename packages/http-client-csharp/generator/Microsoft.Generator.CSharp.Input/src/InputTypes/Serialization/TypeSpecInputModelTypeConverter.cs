@@ -105,9 +105,13 @@ namespace Microsoft.Generator.CSharp.Input
             {
                 model.Properties = properties;
             }
-            if (discriminatedSubtypes != null)
+            if (discriminatedSubtypes?.Count > 0)
             {
                 model.DiscriminatedSubtypes = discriminatedSubtypes;
+            }
+            else if (model.DiscriminatorProperty != null)
+            {
+                model.DiscriminatedSubtypes = new Dictionary<string, InputModelType>();
             }
             model.ModelAsStruct = modelAsStruct;
             if (decorators != null)

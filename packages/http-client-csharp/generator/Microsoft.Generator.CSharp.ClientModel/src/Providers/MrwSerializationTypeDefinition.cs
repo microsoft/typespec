@@ -442,13 +442,21 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private MethodBodyStatement[] BuildAbstractDeserializationMethodBody()
         {
             var unknownVariant = _model.DerivedModels.First(m => m.IsUnknownDiscriminatorModel);
+            bool onlyContainsUnknownDerivedModel = _model.DerivedModels.Count == 1;
+            IfStatement? deserializeDiscriminatedModelsConditions = null;
+
+            if (!onlyContainsUnknownDerivedModel)
+            {
+                deserializeDiscriminatedModelsConditions = new IfStatement(_jsonElementParameterSnippet.TryGetProperty("kind", out var discriminator))
+                {
+                    new SwitchStatement(discriminator.GetString(), GetAbstractSwitchCases(unknownVariant))
+                };
+            }
+
             return
             [
                 new IfStatement(_jsonElementParameterSnippet.ValueKindEqualsNull()) { Return(Null) },
-                new IfStatement(_jsonElementParameterSnippet.TryGetProperty("kind", out var discriminator))
-                {
-                    new SwitchStatement(discriminator.GetString(), GetAbstractSwitchCases(unknownVariant))
-                },
+                deserializeDiscriminatedModelsConditions ?? MethodBodyStatement.Empty,
                 Return(unknownVariant.Type.Deserialize(_jsonElementParameterSnippet, _serializationOptionsParameter))
             ];
         }

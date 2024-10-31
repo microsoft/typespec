@@ -9,6 +9,7 @@ namespace Microsoft.Generator.CSharp.Input
     [DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
     public class InputModelType : InputType
     {
+        private const string UnknownDiscriminatorValue = "unknown";
         private IReadOnlyList<InputModelProperty> _properties = [];
         private IList<InputModelType> _derivedModels = [];
 
@@ -38,7 +39,7 @@ namespace Microsoft.Generator.CSharp.Input
             DiscriminatorProperty = discriminatorProperty;
             DiscriminatedSubtypes = discriminatedSubtypes!;
             AdditionalProperties = additionalProperties;
-            IsUnknownDiscriminatorModel = DiscriminatorValue == "unknown";
+            IsUnknownDiscriminatorModel = DiscriminatorValue == UnknownDiscriminatorValue;
             IsPropertyBag = false;
             ModelAsStruct = modelAsStruct;
         }
@@ -79,12 +80,15 @@ namespace Microsoft.Generator.CSharp.Input
             get => _discriminatedSubtypes ??= new Dictionary<string, InputModelType>();
             internal set
             {
-                if (value is null || value.Count == 0)
+                if (value is null || DiscriminatorProperty == null)
                     return;
 
                 _discriminatedSubtypes = new Dictionary<string, InputModelType>(value);
-                var cleanBaseName = Name.ToCleanName();
-                _discriminatedSubtypes.Add("unknown",
+
+                if (DiscriminatorValue != UnknownDiscriminatorValue)
+                {
+                    var cleanBaseName = Name.ToCleanName();
+                    _discriminatedSubtypes.Add(UnknownDiscriminatorValue,
                     new InputModelType(
                         $"Unknown{cleanBaseName}",
                         $"Unknown{cleanBaseName}",
@@ -95,7 +99,7 @@ namespace Microsoft.Generator.CSharp.Input
                         [],
                         this,
                         [],
-                        "unknown",
+                        UnknownDiscriminatorValue,
                         new InputModelProperty(
                             DiscriminatorProperty!.Name,
                             DiscriminatorProperty.SerializedName,
@@ -108,6 +112,7 @@ namespace Microsoft.Generator.CSharp.Input
                         null,
                         false)
                     );
+                }
             }
         }
         public InputType? AdditionalProperties { get; internal set; }
