@@ -377,6 +377,7 @@ describe("openapi: decorators", () => {
     it("emit diagnostic if dup tagName", async () => {
       const diagnostics = await runner.diagnose(
         `
+        @service()
         @tagMetadata("tagName")
         @tagMetadata("tagName")
         namespace PetStore{};
@@ -399,6 +400,7 @@ describe("openapi: decorators", () => {
       ])("%s", async (_, code) => {
         const diagnostics = await runner.diagnose(
           `
+          @service()
           @tagMetadata("tagName", ${code})
           namespace PetStore{};
           `,
@@ -413,6 +415,7 @@ describe("openapi: decorators", () => {
       it("multiple", async () => {
         const diagnostics = await runner.diagnose(
           `
+          @service()
           @tagMetadata("tagName",{
             externalDocs: { url: "https://example.com", foo1:"Bar" }, 
             foo2:"Bar" 
@@ -437,6 +440,7 @@ describe("openapi: decorators", () => {
     it("emit diagnostic if externalDocs.url is not a valid url", async () => {
       const diagnostics = await runner.diagnose(
         `
+        @service()
         @tagMetadata("tagName", {
             externalDocs: { url: "notvalidurl"}, 
         })
@@ -525,6 +529,7 @@ describe("openapi: decorators", () => {
       const runner = await createOpenAPITestRunner();
       const { PetStore } = await runner.compile(
         `
+        @service()
         ${tagMetaDecorator}
         @test 
         namespace PetStore {}
