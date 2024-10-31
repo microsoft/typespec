@@ -34,6 +34,30 @@ export async function isDirectory(path: string) {
   }
 }
 
+export function isWhitespaceStringOrUndefined(str: string | undefined): boolean {
+  return str === undefined || str.trim() === "";
+}
+
+export function* listParentFolder(folder: string, includeSelf: boolean) {
+  if (isWhitespaceStringOrUndefined(folder)) {
+    return;
+  }
+  let cur = folder;
+  if (!includeSelf) {
+    cur = dirname(cur);
+    if (cur === folder) {
+      return;
+    }
+  }
+
+  let last = "";
+  while (cur !== last) {
+    yield cur;
+    last = cur;
+    cur = dirname(cur);
+  }
+}
+
 /**
  *
  * @param exe

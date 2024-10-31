@@ -130,6 +130,10 @@ namespace UnbrandedTypeSpec.Models
         /// <param name="friend"> The <see cref="Friend"/> to serialize into <see cref="BinaryContent"/>. </param>
         public static implicit operator BinaryContent(Friend friend)
         {
+            if (friend == null)
+            {
+                return null;
+            }
             return BinaryContent.Create(friend, ModelSerializationExtensions.WireOptions);
         }
 

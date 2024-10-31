@@ -204,7 +204,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             // return BinaryContent.Create(model, ModelSerializationExtensions.WireOptions);
             return new MethodProvider(
                 new MethodSignature(ClientModelPlugin.Instance.TypeFactory.RequestContentApi.RequestContentType.FrameworkType.Name, null, modifiers, null, null, [model]),
-                ClientModelPlugin.Instance.TypeFactory.RequestContentApi.ToExpression().Create(model),
+                new MethodBodyStatement[]
+                {
+                    !_isStruct ? new IfStatement(model.AsExpression.Equal(Null)) { Return(Null) } : MethodBodyStatement.Empty,
+                    ClientModelPlugin.Instance.TypeFactory.RequestContentApi.ToExpression().Create(model)
+                },
                 this);
         }
 
@@ -1104,12 +1108,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             ];
         }
 
-        /// <summary>
-        /// This method constructs the deserialization property null check statement for the json property
-        /// <paramref name="jsonProperty"/>. If the property is required, the method will return a null check
-        /// with an assignment to the property variable. If the property is not required, the method will simply
-        /// return a null check for the json property.
-        /// </summary>
         private static MethodBodyStatement DeserializationPropertyNullCheckStatement(
             CSharpType propertyType,
             PropertyWireInformation wireInfo,
