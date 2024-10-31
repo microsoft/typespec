@@ -611,10 +611,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             Assert.AreEqual(1, methodBodyString.Split(sardDeclaration).Length - 1);
         }
 
-        [Test]
-        public void TestBuildImplicitToBinaryContent()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void TestBuildImplicitToBinaryContent(bool useStruct)
         {
-            var inputModel = InputFactory.Model("mockInputModel");
+            var inputModel = InputFactory.Model("mockInputModel", modelAsStruct: useStruct);
             var (model, serialization) = CreateModelAndSerialization(inputModel);
             var methods = serialization.Methods;
 
@@ -637,6 +638,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
 
             var methodBody = method?.BodyStatements;
             Assert.IsNotNull(methodBody);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(useStruct.ToString()), methodBody!.ToDisplayString());
         }
 
         [Test]

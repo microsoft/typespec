@@ -122,5 +122,45 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
             Assert.IsFalse(modelFactory!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
             ValidateModelFactoryCommon(modelFactory);
         }
+
+        [Test]
+        public async Task CanCustomizeModelFullConstructor()
+        {
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+               inputModelTypes: [
+                    InputFactory.Model(
+                        "mockInputModel",
+                        properties:
+                        [
+                            InputFactory.Property("Prop1", InputPrimitiveType.String, isRequired: true),
+                        ])
+               ],
+               compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var csharpGen = new CSharpGen();
+
+            await csharpGen.ExecuteAsync();
+
+            // Find the model factory provider
+            var modelFactory = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ModelFactoryProvider);
+            Assert.IsNotNull(modelFactory);
+
+            // The model factory should be public
+            Assert.IsTrue(modelFactory!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            ValidateModelFactoryCommon(modelFactory);
+
+            // The model factory method should be replaced
+            var modelFactoryMethods = modelFactory!.Methods;
+            Assert.AreEqual(1, modelFactoryMethods.Count);
+
+            var modelFactoryMethod = modelFactoryMethods[0];
+            Assert.AreEqual("MockInputModel", modelFactoryMethod.Signature.Name);
+
+            Assert.AreEqual(2, modelFactoryMethod.Signature.Parameters.Count);
+            Assert.AreEqual("data", modelFactoryMethod.Signature.Parameters[0].Name);
+            Assert.AreEqual("prop1", modelFactoryMethod.Signature.Parameters[1].Name);
+
+            Assert.IsTrue(modelFactoryMethod.BodyStatements!.ToDisplayString()
+                .Contains("return new global::Sample.Models.MockInputModel(data?.ToList(), prop1, additionalBinaryDataProperties: null);"));
+        }
     }
 }
