@@ -1,20 +1,19 @@
 {
-  "name": "@typespec/website-astro",
+  "name": "@typespec/website",
   "type": "module",
   "private": true,
   "version": "0.0.1",
   "scripts": {
-    "copy": "cp -r ../docs/. ./src/content/docs/docs && cp -r ../blog/. ./src/content/blog",
     "clean": "rimraf ./dist ./temp ./.astro",
     "dev": "astro dev",
     "start": "astro dev",
     "build": "tsx ./.scripts/build.ts",
-    "build:web": "pnpm regen-all-packages-docs && pnpm copy && astro check --minimumFailingSeverity warning && astro build",
+    "build:web": "pnpm regen-all-packages-docs && astro check --minimumFailingSeverity warning && astro build",
     "preview": "astro preview",
     "astro": "astro",
     "update-playground-versions": "tsx ./.scripts/update-playground-versions.ts",
     "regen-docs": "tsx ./.scripts/regen-compiler-docs.ts",
-    "regen-all-packages-docs": "pnpm -w --filter \"@typespec/website-astro...\" --filter \"!@typespec/monorepo\" run regen-docs"
+    "regen-all-packages-docs": "pnpm -w --filter \"@typespec/website...\" --filter \"!@typespec/monorepo\" run regen-docs"
   },
   "imports": {
     "@theme/TabItem": "./src/components/docusaurus/tab-item.ts"
