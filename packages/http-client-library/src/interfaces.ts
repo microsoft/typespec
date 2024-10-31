@@ -12,4 +12,3 @@ export interface ReferencedType {
   name: string;
   library: string;
 }
-
