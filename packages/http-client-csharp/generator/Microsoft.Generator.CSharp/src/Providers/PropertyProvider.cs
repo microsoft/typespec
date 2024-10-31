@@ -93,7 +93,7 @@ namespace Microsoft.Generator.CSharp.Providers
             WireInfo = new PropertyWireInformation(inputProperty);
             IsDiscriminator = inputProperty.IsDiscriminator;
 
-            InitializeParameter(Name, FormattableStringHelpers.FromString(inputProperty.Description) ?? FormattableStringHelpers.Empty, Type);
+            InitializeParameter(FormattableStringHelpers.FromString(inputProperty.Description) ?? FormattableStringHelpers.Empty);
         }
 
         public PropertyProvider(
@@ -117,14 +117,13 @@ namespace Microsoft.Generator.CSharp.Providers
             WireInfo = wireInfo;
             EnclosingType = enclosingType;
 
-            InitializeParameter(Name, description ?? FormattableStringHelpers.Empty, Type);
+            InitializeParameter(description ?? FormattableStringHelpers.Empty);
         }
 
         [MemberNotNull(nameof(_parameter))]
-        private void InitializeParameter(string propertyName, FormattableString description, CSharpType propertyType)
+        private void InitializeParameter(FormattableString description)
         {
-            var parameterName = propertyName.ToVariableName();
-            _parameter = new(() => new ParameterProvider(parameterName, description, propertyType, property: this));
+            _parameter = new(() => new ParameterProvider(Name.ToVariableName(), description, Type, property: this));
         }
 
         public VariableExpression AsVariableExpression => _variable ??= new(Type, Name.ToVariableName());

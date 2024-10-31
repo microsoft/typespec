@@ -22,8 +22,8 @@ mypy==1.10.1
 -e ./generated/azure-core-page
 -e ./generated/azure-special-headers-client-request-id/
 -e ./generated/azure-example-basic
--e ./generated/azure-resource-manager-models-common-types-managed-identity
--e ./generated/azure-resource-manager-models-resources
+-e ./generated/azure-resource-manager-common-properties
+-e ./generated/azure-resource-manager-resources
 
 # common test case
 -e ./generated/authentication-api-key

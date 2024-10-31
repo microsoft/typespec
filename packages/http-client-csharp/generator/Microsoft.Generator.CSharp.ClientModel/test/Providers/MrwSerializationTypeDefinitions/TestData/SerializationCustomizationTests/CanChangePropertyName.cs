@@ -91,7 +91,6 @@ namespace Sample.Models
                 {
                     if ((prop.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
                     {
-                        prop2 = null;
                         continue;
                     }
                     global::System.Collections.Generic.List<string> array = new global::System.Collections.Generic.List<string>();
@@ -156,6 +155,10 @@ namespace Sample.Models
         /// <param name="model"> The <see cref="global::Sample.Models.Model"/> to serialize into <see cref="global::System.ClientModel.BinaryContent"/>. </param>
         public static implicit operator BinaryContent(global::Sample.Models.Model model)
         {
+            if ((model == null))
+            {
+                return null;
+            }
             return global::System.ClientModel.BinaryContent.Create(model, global::Sample.ModelSerializationExtensions.WireOptions);
         }
 
