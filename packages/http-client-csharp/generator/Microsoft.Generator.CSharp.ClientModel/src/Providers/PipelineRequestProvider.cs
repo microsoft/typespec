@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.ClientModel.Snippets;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
+using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
@@ -24,14 +25,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         public override HttpRequestApi FromExpression(ValueExpression original)
             => new PipelineRequestProvider(original);
 
-        public override InvokeMethodExpression SetHeaders(IReadOnlyList<ValueExpression> arguments)
-            => Original.Property(nameof(PipelineRequest.Headers)).Invoke(nameof(PipelineRequestHeaders.Set), arguments);
+        public override MethodBodyStatement SetHeaders(IReadOnlyList<ValueExpression> arguments)
+            => Original.Property(nameof(PipelineRequest.Headers)).Invoke(nameof(PipelineRequestHeaders.Set), arguments).Terminate();
 
-        public override AssignmentExpression SetMethod(string httpMethod)
-            => Original.Property(nameof(PipelineRequest.Method)).Assign(Literal(httpMethod));
+        public override MethodBodyStatement SetMethod(string httpMethod)
+            => Original.Property(nameof(PipelineRequest.Method)).Assign(Literal(httpMethod)).Terminate();
 
-        public override AssignmentExpression SetUri(ValueExpression value)
-            => Original.Property("Uri").Assign(value.As<ClientUriBuilderDefinition>().ToUri());
+        public override MethodBodyStatement SetUri(ValueExpression value)
+            => Original.Property("Uri").Assign(value.As<ClientUriBuilderDefinition>().ToUri()).Terminate();
 
         public override HttpRequestApi ToExpression() => this;
     }
