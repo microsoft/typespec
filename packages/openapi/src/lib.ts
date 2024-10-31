@@ -29,7 +29,7 @@ export const $lib = createTypeSpecLibrary({
       },
     },
     "no-service-found": {
-      severity: "warning",
+      severity: "error",
       messages: {
         default: paramMessage`No namespace with '@service' was found, but Namespace '${"namespace"}' contains tagMetadata. Did you mean to annotate this with '@service'?`,
       },
