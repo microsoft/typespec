@@ -36,8 +36,6 @@ import {
   navigateTypesInNamespace,
   NewLine,
   Program,
-  ProjectionApplication,
-  projectProgram,
   resolvePath,
   Service,
   Type,
@@ -45,6 +43,7 @@ import {
 } from "@typespec/compiler";
 
 import { AssetEmitter, createAssetEmitter, EmitEntity } from "@typespec/compiler/emitter-framework";
+import { unsafe_mutateSubgraph } from "@typespec/compiler/experimental";
 import {} from "@typespec/compiler/utils";
 import {
   AuthenticationOptionReference,
@@ -83,7 +82,7 @@ import {
   resolveOperationId,
   shouldInline,
 } from "@typespec/openapi";
-import { buildVersionProjections, VersionProjections } from "@typespec/versioning";
+import { getVersionsMutators, VersionSnapshot } from "@typespec/versioning";
 import { stringify } from "yaml";
 import { getRef } from "./decorators.js";
 import { applyEncoding } from "./encoding.js";
@@ -429,10 +428,14 @@ function createOAPIEmitter(
       services.push({ type: program.getGlobalNamespaceType() });
     }
     for (const service of services) {
-      const versions = buildVersionProjections(program, service.type);
-      if (versions.length === 1 && versions[0].version === undefined) {
+      const versions = getVersionsMutators(program, service.type);
+      // const versions = buildVersionProjections(program, service.type);
+      if (versions.length === 0 || (versions.length === 1 && versions[0].version === undefined)) {
         // non-versioned spec
-        const document = await getProjectedOpenAPIDocument(service, versions[0]);
+        const document =
+          versions.length === 0
+            ? await getOpenApiFromVersion(service)
+            : await getVersionSnapshotDocument(service, versions[0]); // This is when service is not versioned but used versioned dep
         if (document === undefined) {
           // an error occurred producing this document, so don't return it
           return serviceRecords;
@@ -454,7 +457,7 @@ function createOAPIEmitter(
         serviceRecords.push(serviceRecord);
 
         for (const record of versions) {
-          const document = await getProjectedOpenAPIDocument(service, record);
+          const document = await getVersionSnapshotDocument(service, record);
           if (document === undefined) {
             // an error occurred producing this document
             continue;
@@ -462,7 +465,7 @@ function createOAPIEmitter(
 
           serviceRecord.versions.push({
             service,
-            version: record.version!,
+            version: record.version!.name,
             document: document[0],
             diagnostics: document[1],
           });
@@ -471,32 +474,18 @@ function createOAPIEmitter(
     }
 
     return serviceRecords;
+  }
 
-    async function getProjectedOpenAPIDocument(service: Service, record: VersionProjections) {
-      const commonProjections: ProjectionApplication[] = [
-        {
-          projectionName: "target",
-          arguments: ["json"],
-        },
-      ];
-      const originalProgram = program;
-      const projectedProgram = (program = projectProgram(originalProgram, [
-        ...commonProjections,
-        ...record.projections,
-      ]));
-      const projectedServiceNs: Namespace = projectedProgram.projector.projectedTypes.get(
-        service.type,
-      ) as Namespace;
+  async function getVersionSnapshotDocument(service: Service, snapshot: VersionSnapshot) {
+    const subgraph = unsafe_mutateSubgraph(program, [snapshot.mutator], service.type);
 
-      const document = await getOpenApiFromVersion(
-        projectedServiceNs === projectedProgram.getGlobalNamespaceType()
-          ? { type: projectedProgram.getGlobalNamespaceType() }
-          : getService(program, projectedServiceNs)!,
-        record.version,
-      );
+    compilerAssert(subgraph.type.kind === "Namespace", "Should not have mutated to another type");
+    const document = await getOpenApiFromVersion(
+      getService(program, subgraph.type)!,
+      snapshot.version?.name,
+    );
 
-      return document;
-    }
+    return document;
   }
 
   function resolveOutputFile(service: Service, multipleService: boolean, version?: string): string {
