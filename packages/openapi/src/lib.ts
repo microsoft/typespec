@@ -28,7 +28,7 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`"Metadata for tag '${"tagName"}' was specified twice."`,
       },
     },
-    "no-service-found": {
+    "tag-metadata-target-service": {
       severity: "error",
       messages: {
         default: paramMessage`@tagMetadata must be used on the service namespace. Did you mean to annotate '${"namespace"}'  with '@service'?`,
