@@ -692,7 +692,7 @@ extern dec withPickedProperties(target: Model, pick: string | Union);
 extern dec list(target: Operation);
 
 /**
- * Pagingation property defining the number of items to skip.
+ * Pagination property defining the number of items to skip.
  * @example
  * ```tsp
  * model Page<T> {
@@ -704,7 +704,7 @@ extern dec list(target: Operation);
 extern dec offset(target: ModelProperty);
 
 /**
- * Pagingation property defining the page index.
+ * Pagination property defining the page index.
  *
  * @example
  * ```tsp
@@ -743,7 +743,7 @@ extern dec pageSize(target: ModelProperty);
 extern dec pageItems(target: ModelProperty);
 
 /**
- * Pagingation property defining the token to get to the next page.
+ * Pagination property defining the token to get to the next page.
  * It MUST be specified both on the request parameter and the response.
  *
  * @example
@@ -758,9 +758,9 @@ extern dec pageItems(target: ModelProperty);
 extern dec continuationToken(target: ModelProperty);
 
 /**
- * Pagingation property defining a link to the next page.
+ * Pagination property defining a link to the next page.
  *
- * It is expected that the navigating to the link will return the same set of response as the operation that returned the current page.
+ * It is expected that navigating to the link will return the same set of responses as the operation that returned the current page.
  *
  * @example
  * ```tsp
@@ -777,9 +777,9 @@ extern dec continuationToken(target: ModelProperty);
 extern dec nextLink(target: ModelProperty);
 
 /**
- * Pagingation property defining a link to the previous page.
+ * Pagination property defining a link to the previous page.
  *
- * It is expected that the navigating to the link will return the same set of response as the operation that returned the current page.
+ * It is expected that navigating to the link will return the same set of responses as the operation that returned the current page.
  *
  * @example
  * ```tsp
@@ -796,9 +796,9 @@ extern dec nextLink(target: ModelProperty);
 extern dec prevLink(target: ModelProperty);
 
 /**
- * Pagingation property defining a link to the first page.
+ * Pagination property defining a link to the first page.
  *
- * It is expected that the navigating to the link will return the same set of response as the operation that returned the current page.
+ * It is expected that navigating to the link will return the same set of responses as the operation that returned the current page.
  *
  * @example
  * ```tsp
@@ -815,9 +815,9 @@ extern dec prevLink(target: ModelProperty);
 extern dec firstLink(target: ModelProperty);
 
 /**
- * Pagingation property defining a link to the last page.
+ * Pagination property defining a link to the last page.
  *
- * It is expected that the navigating to the link will return the same set of response as the operation that returned the current page.
+ * It is expected that navigating to the link will return the same set of responses as the operation that returned the current page.
  *
  * @example
  * ```tsp

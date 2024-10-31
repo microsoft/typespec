@@ -199,7 +199,7 @@ export interface PagingOperation {
   };
 
   readonly output: {
-    readonly pageItems?: PagingProperty;
+    readonly pageItems: PagingProperty;
     readonly nextLink?: PagingProperty;
     readonly prevLink?: PagingProperty;
     readonly firstLink?: PagingProperty;
@@ -230,6 +230,9 @@ function findPagingProperties<K extends "input" | "output">(
   const data: Record<string, PagingProperty> = {};
   navigateProperties(base, (property) => {
     const kind = diags.pipe(getPagingProperty(program, property));
+    if (kind === undefined) {
+      return;
+    }
     duplicateTracker.track(kind, property);
     if (acceptableProps.has(kind)) {
       data[kind] = { property };
@@ -255,7 +258,8 @@ function findPagingProperties<K extends "input" | "output">(
       );
     }
   }
-  return diags.wrap(data);
+
+  return diags.wrap(data as any);
 }
 
 export function getPagingOperation(
@@ -268,7 +272,17 @@ export function getPagingOperation(
     output: diags.pipe(findPagingProperties(program, op, op.returnType, "output")),
   };
 
-  return [result, diags.diagnostics];
+  if (result.output.pageItems === undefined) {
+    diags.add(
+      createDiagnostic({
+        code: "missing-paging-items",
+        format: { operationName: op.name },
+        target: op,
+      }),
+    );
+    return diags.wrap(undefined);
+  }
+  return diags.wrap(result);
 }
 
 function navigateProperties(type: Type, callback: (prop: ModelProperty) => void) {
@@ -292,7 +306,7 @@ function navigateProperties(type: Type, callback: (prop: ModelProperty) => void)
 function getPagingProperty(
   program: Program,
   prop: ModelProperty,
-): [PagingPropertyKind, readonly Diagnostic[]] {
+): [PagingPropertyKind | undefined, readonly Diagnostic[]] {
   const diagnostics: Diagnostic[] = [];
   const props = {
     offset: isOffsetProperty(program, prop),
@@ -315,6 +329,9 @@ function getPagingProperty(
         target: prop,
       }),
     );
+  }
+  if (defined.length === 0) {
+    return [undefined, diagnostics];
   }
 
   return [defined[0][0] satisfies string as PagingPropertyKind, diagnostics] as const;

@@ -14,6 +14,7 @@ beforeEach(async () => {
 it("emit conflict diagnostic if annotating property with different paging property marker", async () => {
   const diagnostics = await runner.diagnose(`
     @list op list(): {
+      @pageItems items: string[];
       @nextLink @prevLink next: string;
     };
   `);
@@ -21,6 +22,20 @@ it("emit conflict diagnostic if annotating property with different paging proper
   expectDiagnostics(diagnostics, {
     code: "incompatible-paging-props",
     message: `Paging property has multiple types: 'nextLink, prevLink'`,
+  });
+});
+
+it("emit error if missing pageItems property", async () => {
+  const diagnostics = await runner.diagnose(`
+    @list op list(): {
+      items: string[];
+      @nextLink next: string;
+    };
+  `);
+
+  expectDiagnostics(diagnostics, {
+    code: "missing-paging-items",
+    message: `Paged operation 'list' return type must have a property annotated with @pageItems.`,
   });
 });
 
@@ -35,7 +50,7 @@ describe("emit conflict diagnostic if multiple properties are annotated with teh
     @list op list(
       @${name} prop1: ${type};
       @${name} prop2: ${type};
-    ): void;
+    ): { @pageItems items: string[] };
   `);
 
     expectDiagnostics(diagnostics, [
@@ -62,6 +77,7 @@ describe("emit conflict diagnostic if multiple properties are annotated with teh
     @list op list(): {
       @${name} next: ${type};
       @${name} nextToo: ${type};
+      ${name !== "pageItems" ? "@pageItems items: string[];" : ""}
     };
   `);
 
@@ -88,7 +104,7 @@ describe("collect paging properties", () => {
     const { list, prop } = (await runner.compile(`
       @list @test op list(
         @${name} @test prop: ${type};
-      ): void;
+      ): { @pageItems items: string[] };
     `)) as { list: Operation; prop: ModelProperty };
 
     const paging = ignoreDiagnostics(getPagingOperation(runner.program, list));
@@ -105,7 +121,10 @@ describe("collect paging properties", () => {
     ["pageItems", "string[]"],
   ])("@%s", async (name, type) => {
     const { list, prop } = (await runner.compile(`
-        @list @test op list(): {@${name} @test prop: ${type}};
+        @list @test op list(): {
+          @${name} @test prop: ${type};
+          ${name !== "pageItems" ? "@pageItems items: string[];" : ""}
+        };
       `)) as { list: Operation; prop: ModelProperty };
 
     const paging = ignoreDiagnostics(getPagingOperation(runner.program, list));

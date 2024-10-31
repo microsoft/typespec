@@ -923,6 +923,12 @@ const diagnostics = {
       default: paramMessage`Duplicate property paging '${"kind"}' for operation ${"operationName"}.`,
     },
   },
+  "missing-paging-items": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Paged operation '${"operationName"}' return type must have a property annotated with @pageItems.`,
+    },
+  },
   /**
    * Service
    */
