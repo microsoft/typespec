@@ -4,5 +4,4 @@ packages:
   - typespec-vscode
 ---
 
-1. TypeSpec Language Server would be restarted with new settings when setting "typespec.tsp-server.path" is changed
-2. Typespec Language Server can be restarted properly when the server wasn't running before
+Fix the issue when Typespec Language Server can't be restarted when the server wasn't running before

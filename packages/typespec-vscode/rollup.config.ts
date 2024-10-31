@@ -1,13 +1,8 @@
 import commonjs from "@rollup/plugin-commonjs";
 import resolve from "@rollup/plugin-node-resolve";
 import typescript from "@rollup/plugin-typescript";
-import path from "path";
 
 import { defineConfig } from "rollup";
-import { fileURLToPath } from "url";
-
-const curFile = fileURLToPath(import.meta.url);
-const curDir = path.dirname(curFile);
 
 const plugins = [(resolve as any)({ preferBuiltins: true }), (commonjs as any)()];
 const baseConfig = defineConfig({
@@ -73,7 +68,7 @@ function ts(outDir: string) {
   return (typescript as any)({
     compilerOptions: {
       // set sourceRoot to absolute path, otherwise the path in the map file generated is incorrect when outDir is given
-      sourceRoot: curDir,
+      sourceRoot: import.meta.dirname,
     },
     tsconfig: "./tsconfig.build.json",
     outDir,
