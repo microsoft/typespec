@@ -2,6 +2,7 @@ using System.Linq;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.Statements;
 using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 
@@ -28,7 +29,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.Abstractions
 
             Assert.NotNull(method);
             Assert.NotNull(method!.BodyStatements);
-            var test = method?.BodyStatements?.ToDisplayString();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), method!.BodyStatements!.ToDisplayString());
         }
 
@@ -58,9 +58,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.Abstractions
             public override ValueExpression Create(ValueExpression options, ValueExpression perRetryPolicies)
                 => Original.Invoke("GetFakeCreate", [options, perRetryPolicies]);
 
-            public override HttpMessageApi CreateMessage()
-                => Original.Invoke("GetFakeCreateMessage").ToApi<HttpMessageApi>();
-
             public override ValueExpression CreateMessage(HttpRequestOptionsApi requestOptions, ValueExpression responseClassifier)
                 => Original.Invoke("GetFakeCreateMessage", [requestOptions, responseClassifier]);
 
@@ -70,11 +67,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.Abstractions
             public override ValueExpression PerRetryPolicy(params ValueExpression[] arguments)
                 => Original.Invoke("GetFakePerRetryPolicy", arguments);
 
-            public override InvokeMethodExpression Send(HttpMessageApi message)
-                => Original.Invoke("GetFakeSend", message);
+            public override MethodBodyStatement Send(HttpMessageApi message, HttpRequestOptionsApi options)
+                => Original.Invoke("GetFakeSend", [message, options]).Terminate();
 
-            public override InvokeMethodExpression SendAsync(HttpMessageApi message)
-                => Original.Invoke("GetFakeSendAsync", message);
+            public override MethodBodyStatement SendAsync(HttpMessageApi message, HttpRequestOptionsApi options)
+                => Original.Invoke("GetFakeSendAsync", [message, options]).Terminate();
 
             public override ClientPipelineApi ToExpression() => this;
         }
