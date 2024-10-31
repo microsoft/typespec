@@ -1,10 +1,9 @@
 {
-  "name": "@typespec/website-astro",
+  "name": "@typespec/website",
   "type": "module",
   "private": true,
   "version": "0.0.1",
   "scripts": {
-    "copy": "cp -r ../docs/. ./src/content/docs/docs && cp -r ../blog/. ./src/content/blog",
     "clean": "rimraf ./dist ./temp ./.astro",
     "dev": "astro dev",
     "start": "astro dev",
