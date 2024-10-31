@@ -505,6 +505,7 @@ model updateUserDefaultResponse {}
 @tag("pet")
 @route("/pet")
 @post
+@summary("Add a new pet to the store")
 op addPet(
   @header contentType: "application/json" | "application/xml" | "application/x-www-form-urlencoded",
   @bodyRoot body: Pet,
@@ -516,6 +517,7 @@ op addPet(
 @tag("pet")
 @route("/pet")
 @put
+@summary("Update an existing pet")
 op updatePet(
   @header contentType: "application/json" | "application/xml" | "application/x-www-form-urlencoded",
   @bodyRoot body: Pet,
@@ -532,6 +534,7 @@ op updatePet(
 @tag("pet")
 @route("/pet/findByStatus")
 @get
+@summary("Finds Pets by status")
 op findPetsByStatus(
   /**
    * Status values that need to be considered for filter
@@ -545,6 +548,7 @@ op findPetsByStatus(
 @tag("pet")
 @route("/pet/findByTags")
 @get
+@summary("Finds Pets by tags")
 op findPetsByTags(
   /**
    * Tags to filter by
@@ -555,6 +559,7 @@ op findPetsByTags(
 @tag("pet")
 @route("/pet/{petId}")
 @delete
+@summary("Deletes a pet")
 op deletePet(
   @header api_key?: string,
 
@@ -570,6 +575,7 @@ op deletePet(
 @tag("pet")
 @route("/pet/{petId}")
 @get
+@summary("Find pet by ID")
 op getPetById(
   /**
    * ID of pet to return
@@ -584,6 +590,7 @@ op getPetById(
 @tag("pet")
 @route("/pet/{petId}")
 @post
+@summary("Updates a pet in the store with form data")
 op updatePetWithForm(
   /**
    * ID of pet that needs to be updated
@@ -604,6 +611,7 @@ op updatePetWithForm(
 @tag("pet")
 @route("/pet/{petId}/uploadImage")
 @post
+@summary("uploads an image")
 op uploadFile(
   /**
    * ID of pet to update
@@ -626,6 +634,7 @@ op uploadFile(
 @extension("x-swagger-router-controller", "OrderController")
 @route("/store/inventory")
 @get
+@summary("Returns pet inventories by status")
 op getInventory(): getInventory200ApplicationJsonResponse;
 
 /**
@@ -635,6 +644,7 @@ op getInventory(): getInventory200ApplicationJsonResponse;
 @extension("x-swagger-router-controller", "OrderController")
 @route("/store/order")
 @post
+@summary("Place an order for a pet")
 op placeOrder(
   @header contentType: "application/json" | "application/xml" | "application/x-www-form-urlencoded",
   @bodyRoot body: Order,
@@ -647,6 +657,7 @@ op placeOrder(
 @extension("x-swagger-router-controller", "OrderController")
 @route("/store/order/{orderId}")
 @delete
+@summary("Delete purchase order by ID")
 op deleteOrder(
   /**
    * ID of the order that needs to be deleted
@@ -661,6 +672,7 @@ op deleteOrder(
 @extension("x-swagger-router-controller", "OrderController")
 @route("/store/order/{orderId}")
 @get
+@summary("Find purchase order by ID")
 op getOrderById(
   /**
    * ID of order that needs to be fetched
@@ -678,6 +690,7 @@ op getOrderById(
 @tag("user")
 @route("/user")
 @post
+@summary("Create user")
 op createUser(
   @header contentType: "application/json" | "application/xml" | "application/x-www-form-urlencoded",
   @bodyRoot body: User,
@@ -690,6 +703,7 @@ op createUser(
 @extension("x-swagger-router-controller", "UserController")
 @route("/user/createWithList")
 @post
+@summary("Creates list of users with given input array")
 op createUsersWithListInput(
   @bodyRoot body: User[],
 ): createUsersWithListInput200ApplicationXmlResponse | createUsersWithListInput200ApplicationJsonResponse | createUsersWithListInputDefaultResponse;
@@ -697,6 +711,7 @@ op createUsersWithListInput(
 @tag("user")
 @route("/user/login")
 @get
+@summary("Logs user into the system")
 op loginUser(
   /**
    * The user name for login
@@ -712,6 +727,7 @@ op loginUser(
 @tag("user")
 @route("/user/logout")
 @get
+@summary("Logs out current logged in user session")
 op logoutUser(): logoutUserDefaultResponse;
 
 /**
@@ -720,6 +736,7 @@ op logoutUser(): logoutUserDefaultResponse;
 @tag("user")
 @route("/user/{username}")
 @delete
+@summary("Delete user")
 op deleteUser(
   /**
    * The name that needs to be deleted
@@ -730,6 +747,7 @@ op deleteUser(
 @tag("user")
 @route("/user/{username}")
 @get
+@summary("Get user by user name")
 op getUserByName(
   /**
    * The name that needs to be fetched. Use user1 for testing.
@@ -748,6 +766,7 @@ op getUserByName(
 @extension("x-swagger-router-controller", "UserController")
 @route("/user/{username}")
 @put
+@summary("Update user")
 op updateUser(
   /**
    * name that needs to be updated

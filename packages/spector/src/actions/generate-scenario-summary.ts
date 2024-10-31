@@ -1,4 +1,4 @@
-import { writeFile } from "fs/promises";
+import { readFile, writeFile } from "fs/promises";
 import pc from "picocolors";
 import prettier from "prettier";
 import type { Scenario, ScenarioEndpoint } from "../lib/decorators.js";
@@ -8,11 +8,13 @@ import { loadScenarios } from "../scenarios-resolver.js";
 export interface GenerateScenarioSummaryConfig {
   scenariosPath: string;
   outputFile: string;
+  overrideOutputFile?: boolean;
 }
 
 export async function generateScenarioSummary({
   scenariosPath,
   outputFile,
+  overrideOutputFile,
 }: GenerateScenarioSummaryConfig) {
   const [scenarios, diagnostics] = await loadScenarios(scenariosPath);
 
@@ -20,8 +22,14 @@ export async function generateScenarioSummary({
     process.exit(-1);
   }
 
-  const summary = await createScenarioSummary(scenarios);
-  await writeFile(outputFile, summary);
+  let summary = await createScenarioSummary(scenarios);
+  if (overrideOutputFile) {
+    const existingContent = await readFile(outputFile, "utf-8");
+    summary = summary.replace(/# Spec Project summary/, "");
+    await writeFile(outputFile, `${existingContent}\n${summary}`);
+  } else {
+    await writeFile(outputFile, summary);
+  }
   logger.info(`${pc.green("✓")} Scenario summary generated at ${outputFile}.`);
 }
 

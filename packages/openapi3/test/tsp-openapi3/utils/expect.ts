@@ -1,5 +1,5 @@
 import { DecoratorApplication, isType, Numeric, typespecTypeToJson } from "@typespec/compiler";
-import { expect } from "vitest";
+import { assert, expect } from "vitest";
 
 export interface DecoratorMatch {
   /**
@@ -29,8 +29,12 @@ export function expectDecorators(
   }
 
   for (let i = 0; i < expectations.length; i++) {
-    const decorator = decorators[i];
     const expectation = expectations[i];
+    const decorator = options.strict
+      ? decorators[i]
+      : decorators.find((d) => d.definition?.name === `@${expectation.name}`);
+
+    assert(decorator, "Potential matching decorator not found");
 
     if (expectation.name) {
       expect(decorator.definition?.name).toBe(`@${expectation.name}`);

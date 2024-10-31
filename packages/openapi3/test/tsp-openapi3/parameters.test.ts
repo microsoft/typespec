@@ -231,6 +231,39 @@ describe("converts top-level parameters", () => {
     expect(Foo.properties.get("foo")?.type).toBe(serviceNamespace.scalars.get("Foo"));
   });
 
+  it("supports title", async () => {
+    const serviceNamespace = await tspForOpenAPI3({
+      parameters: {
+        Foo: {
+          name: "foo",
+          in: "query",
+          schema: {
+            type: "string",
+            title: "Foo Title",
+          },
+        },
+      },
+    });
+
+    const parametersNamespace = serviceNamespace.namespaces.get("Parameters");
+    assert(parametersNamespace, "Parameters namespace not found");
+
+    const models = parametersNamespace.models;
+
+    /* model Foo { @query @summary("Foo Title") foo?: string, } */
+    const Foo = models.get("Foo");
+    assert(Foo, "Foo model not found");
+    expect(Foo.properties.size).toBe(1);
+    expect(Foo.properties.get("foo")).toMatchObject({
+      optional: true,
+      type: { kind: "Scalar", name: "string" },
+    });
+    expectDecorators(Foo.properties.get("foo")!.decorators, [
+      { name: "query" },
+      { name: "summary", args: [{ jsValue: "Foo Title" }] },
+    ]);
+  });
+
   it.each(["model", "interface", "namespace", "hyphen-name"])(
     `escapes invalid names: %s`,
     async (reservedKeyword) => {

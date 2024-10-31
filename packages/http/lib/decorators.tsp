@@ -270,6 +270,14 @@ extern dec head(target: Operation);
  *
  * ```typespec
  * @service
+ * @server("https://example.com")
+ * namespace PetStore;
+ * ```
+ *
+ * @example With a description
+ *
+ * ```typespec
+ * @service
  * @server("https://example.com", "Single server endpoint")
  * namespace PetStore;
  * ```
@@ -297,7 +305,7 @@ extern dec head(target: Operation);
 extern dec server(
   target: Namespace,
   url: valueof string,
-  description: valueof string,
+  description?: valueof string,
   parameters?: Record<unknown>
 );
 
