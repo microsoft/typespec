@@ -1,5 +1,5 @@
 import { FluentProvider, webDarkTheme, webLightTheme } from "@fluentui/react-components";
-import { useTheme } from "@site/src/utils/theme-react";
+import { useTheme } from "@typespec/astro-utils/utils/theme-react";
 
 export const FluentLayout = (props) => {
   return <FluentWrapper {...props} />;
