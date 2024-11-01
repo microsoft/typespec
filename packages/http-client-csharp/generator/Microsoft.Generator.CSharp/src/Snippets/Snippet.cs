@@ -47,7 +47,6 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static ValueExpression PositionalReference(this ParameterProvider parameter, ValueExpression value)
             => new PositionalParameterReferenceExpression(parameter.Name, value);
 
-        public static DictionaryExpression AsDictionary(this FieldProvider field, CSharpType dictionaryType) => new(dictionaryType, field);
         public static DictionaryExpression AsDictionary(this FieldProvider field, CSharpType keyType, CSharpType valueType) => new(new KeyValuePairType(keyType, valueType), field);
         public static DictionaryExpression AsDictionary(this ParameterProvider parameter, CSharpType keyType, CSharpType valueType) => new(new KeyValuePairType(keyType, valueType), parameter);
         public static DictionaryExpression AsDictionary(this PropertyProvider property, CSharpType keyType, CSharpType valueType) => new(new KeyValuePairType(keyType, valueType), property);

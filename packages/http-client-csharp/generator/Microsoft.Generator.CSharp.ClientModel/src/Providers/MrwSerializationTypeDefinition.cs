@@ -688,7 +688,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 {
                     var field = parameter.Field;
                     Debug.Assert(field != null);
-                    serializationCtorParameters[i] = field;
+                    serializationCtorParameters[i] = field.AsVariableExpression;
                 }
             }
 
@@ -808,7 +808,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 var rawDataDeserializationValue = GetValueTypeDeserializationExpression(elementType, jsonProperty.Value(), SerializationFormat.Default);
                 propertyDeserializationStatements.Add(new IfStatement(_isNotEqualToWireConditionSnippet)
                 {
-                    rawBinaryData.AsDictionary(rawBinaryData.Type).Add(jsonProperty.Name(), rawDataDeserializationValue)
+                    rawBinaryData.AsVariableExpression.AsDictionary(rawBinaryData.Type).Add(jsonProperty.Name(), rawDataDeserializationValue)
                 });
             }
 
