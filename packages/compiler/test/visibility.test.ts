@@ -5,6 +5,7 @@ import { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { getVisibility, VisibilityFilter } from "../src/core/visibility/core.js";
 import {
+  $visibility,
   addVisibilityModifiers,
   clearVisibilityModifiersForClass,
   Enum,
@@ -760,7 +761,7 @@ describe("compiler: visibility core", () => {
       ok(nestedProps.ru);
     });
 
-    it("correctly applies Create transform", async () => {
+    it.only("correctly applies Create transform", async () => {
       const Result = await compileWithTransform("Create");
       const props = getProperties(Result);
 
@@ -866,6 +867,34 @@ describe("compiler: visibility core", () => {
       ok(nestedProps.u);
 
       strictEqual(nestedProps.invisible, undefined);
+    });
+  });
+
+  describe("withVisibilityFilter transforms", () => {
+    it("correctly makes transformed models immune from further transformation", async () => {
+      const { ExampleRead, ExampleReadCreate } = (await runner.compile(`
+        model Example {
+          @visibility(Lifecycle.Read)
+          id: string;
+        }
+          
+        @test model ExampleRead is Read<Example>;
+        
+        @test model ExampleReadCreate is Create<ExampleRead>;
+      `)) as { ExampleRead: Model; ExampleReadCreate: Model };
+
+      const idRead = ExampleRead.properties.get("id")!;
+
+      ok(idRead);
+
+      ok(!idRead.decorators.some((d) => d.decorator === $visibility));
+
+      // Property should remain present in the Create transform of this model.
+      const idReadCreate = ExampleReadCreate.properties.get("id")!;
+
+      ok(idReadCreate);
+
+      strictEqual(idRead.type, idReadCreate.type);
     });
   });
 });

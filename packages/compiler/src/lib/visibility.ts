@@ -47,7 +47,6 @@ import {
   normalizeVisibilityToLegacyLifecycleString,
 } from "../core/visibility/lifecycle.js";
 import { mutateSubgraph, Mutator, MutatorFlow } from "../experimental/mutators.js";
-import { $ } from "../experimental/typekit/index.js";
 import { isKey } from "./key.js";
 import { filterModelPropertiesInPlace, useStateMap } from "./utils.js";
 
@@ -419,30 +418,6 @@ export const $withLifecycleUpdate: WithLifecycleUpdateDecorator = (
     decoratorFn: $withLifecycleUpdate,
   });
 
-  // const updateMutator: Mutator = {
-  //   name: "LifecycleUpdate",
-  //   Model: {
-  //     filter: () => MutatorFlow.DoNotRecurse,
-  //     mutate: (model, clone, program, realm) => {
-  //       for (const [key, prop] of model.properties) {
-  //         const cloneProperty = clone.properties.get(key)!;
-  //         if (!isVisible(program, prop, lifecycleUpdate)) {
-  //           clone.properties.delete(key);
-  //           realm.remove(prop);
-  //         } else if (cloneProperty.type.kind === "Model") {
-  //           const { type } = mutateSubgraph(program, [createOrUpdateMutator], cloneProperty.type);
-
-  //           cloneProperty.type = type;
-  //         }
-
-  //         resetVisibilityModifiersForClass(program, cloneProperty, lifecycle);
-  //       }
-
-  //       clone.decorators = clone.decorators.filter((d) => d.decorator !== $withLifecycleUpdate);
-  //     },
-  //   },
-  // };
-
   const { type } = mutateSubgraph(context.program, [updateMutator], target);
 
   target.properties = (type as Model).properties;
@@ -469,6 +444,46 @@ function createVisibilityFilterMutator(
   options: CreateVisibilityFilterMutatorOptions = {},
 ): Mutator {
   const visibilityClasses = VisibilityFilter.getVisibilityClasses(filter);
+  const mpMutator: Mutator = {
+    name: "VisibilityFilterProperty",
+    ModelProperty: {
+      filter: () => MutatorFlow.DoNotRecurse,
+      mutate: (prop, clone, program) => {
+        const decorators = prop.decorators;
+        const decoratorsToRemove = new Set<DecoratorApplication>();
+
+        for (const decorator of decorators) {
+          const decFn = decorator.decorator;
+          if (decFn === $visibility || decFn === $removeVisibility) {
+            decorator.args = decorator.args.filter(
+              (arg) =>
+                !(
+                  arg.value.entityKind === "Value" &&
+                  arg.value.valueKind === "EnumValue" &&
+                  visibilityClasses.has(arg.value.value.enum)
+                ),
+            );
+
+            if (decorator.args.length === 0) {
+              decoratorsToRemove.add(decorator);
+            }
+          } else if (decFn === $invisible) {
+            decoratorsToRemove.add(decorator);
+          }
+        }
+
+        for (const visibilityClass of visibilityClasses) {
+          resetVisibilityModifiersForClass(program, clone, visibilityClass);
+        }
+
+        if (prop.type.kind === "Model") {
+          clone.type = mutateSubgraph(program, [options.recur ?? self], prop.type).type;
+        }
+
+        clone.decorators = prop.decorators.filter((d) => !decoratorsToRemove.has(d));
+      },
+    },
+  };
   const self: Mutator = {
     name: "VisibilityFilter",
     Model: {
@@ -476,45 +491,13 @@ function createVisibilityFilterMutator(
       mutate: (model, clone, program, realm) => {
         for (const [key, prop] of model.properties) {
           if (!isVisible(program, prop, filter)) {
+            // Property is not visible, remove it
             clone.properties.delete(key);
-            realm.remove(prop);
-          } else if (prop.type.kind === "Model") {
-            const { type } = mutateSubgraph(program, [options.recur ?? self], prop.type);
+            realm.remove(clone);
+          } else {
+            const mutated = mutateSubgraph(program, [mpMutator], prop);
 
-            const clonedProperty = $.type.clone(prop);
-
-            clonedProperty.type = type;
-
-            const decorators = clonedProperty.decorators;
-            const decoratorsToRemove = new Set<DecoratorApplication>();
-
-            for (const decorator of decorators) {
-              const decFn = decorator.decorator;
-              if (decFn === $visibility || decFn === $removeVisibility) {
-                decorator.args = decorator.args.filter(
-                  (arg) =>
-                    !(
-                      arg.value.entityKind === "Value" &&
-                      arg.value.valueKind === "EnumValue" &&
-                      visibilityClasses.has(arg.value.value.enum)
-                    ),
-                );
-
-                if (decorator.args.length === 0) {
-                  decoratorsToRemove.add(decorator);
-                }
-              } else if (decFn === $invisible) {
-                decoratorsToRemove.add(decorator);
-              }
-            }
-
-            clonedProperty.decorators = clonedProperty.decorators.filter(
-              (d) => !decoratorsToRemove.has(d),
-            );
-
-            $.type.finishType(clonedProperty);
-
-            clone.properties.set(key, clonedProperty);
+            clone.properties.set(key, mutated.type as ModelProperty);
           }
         }
 
