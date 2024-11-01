@@ -442,15 +442,34 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private MethodBodyStatement[] BuildAbstractDeserializationMethodBody()
         {
             var unknownVariant = _model.DerivedModels.First(m => m.IsUnknownDiscriminatorModel);
+            bool onlyContainsUnknownDerivedModel = _model.DerivedModels.Count == 1;
+            var deserializeDiscriminatedModelsConditions = BuildDiscriminatedModelsCondition(
+                GetAbstractSwitchCases(unknownVariant),
+                onlyContainsUnknownDerivedModel,
+                _jsonElementParameterSnippet);
+
             return
             [
                 new IfStatement(_jsonElementParameterSnippet.ValueKindEqualsNull()) { Return(Null) },
-                new IfStatement(_jsonElementParameterSnippet.TryGetProperty("kind", out var discriminator))
-                {
-                    new SwitchStatement(discriminator.GetString(), GetAbstractSwitchCases(unknownVariant))
-                },
+                deserializeDiscriminatedModelsConditions,
                 Return(unknownVariant.Type.Deserialize(_jsonElementParameterSnippet, _serializationOptionsParameter))
             ];
+        }
+
+        private static MethodBodyStatement BuildDiscriminatedModelsCondition(
+            SwitchCaseStatement[] abstractSwitchCases,
+            bool onlyContainsUnknownDerivedModel,
+            ScopedApi<JsonElement> jsonElementParameterSnippet)
+        {
+            if (!onlyContainsUnknownDerivedModel)
+            {
+                return new IfStatement(jsonElementParameterSnippet.TryGetProperty("kind", out var discriminator))
+                {
+                    new SwitchStatement(discriminator.GetString(), abstractSwitchCases)
+                };
+            }
+
+            return MethodBodyStatement.Empty;
         }
 
         private SwitchCaseStatement[] GetAbstractSwitchCases(ModelProvider unknownVariant)
