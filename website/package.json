@@ -15,9 +15,6 @@
     "regen-docs": "tsx ./.scripts/regen-compiler-docs.ts",
     "regen-all-packages-docs": "pnpm -w --filter \"@typespec/website...\" --filter \"!@typespec/monorepo\" run regen-docs"
   },
-  "imports": {
-    "@theme/TabItem": "./src/components/docusaurus/tab-item.ts"
-  },
   "dependencies": {
     "@astrojs/check": "^0.9.4",
     "@astrojs/react": "^3.6.2",
