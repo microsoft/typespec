@@ -4,4 +4,4 @@ packages:
   - "@typespec/openapi3"
 ---
 
-typespec generation for empty schema
+tsp-openapi3 - fixes typespec generation for empty schema
