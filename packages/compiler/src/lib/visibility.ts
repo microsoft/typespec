@@ -449,28 +449,31 @@ function createVisibilityFilterMutator(
     ModelProperty: {
       filter: () => MutatorFlow.DoNotRecurse,
       mutate: (prop, clone, program) => {
-        const decorators = prop.decorators;
-        const decoratorsToRemove = new Set<DecoratorApplication>();
+        // We need to create a copy of the decorators array to avoid modifying the original.
+        // Decorators are _NOT_ cloned by the type kit, so we have to be careful not to modify the decorator arguments
+        // of the original type.
+        const decorators: DecoratorApplication[] = [];
 
-        for (const decorator of decorators) {
+        for (const decorator of prop.decorators) {
           const decFn = decorator.decorator;
           if (decFn === $visibility || decFn === $removeVisibility) {
-            decorator.args = decorator.args.filter(
-              (arg) =>
-                !(
-                  arg.value.entityKind === "Value" &&
-                  arg.value.valueKind === "EnumValue" &&
-                  visibilityClasses.has(arg.value.value.enum)
-                ),
-            );
-
-            if (decorator.args.length === 0) {
-              decoratorsToRemove.add(decorator);
-            }
-          } else if (decFn === $invisible) {
-            decoratorsToRemove.add(decorator);
+            decorators.push({
+              ...decorator,
+              args: decorator.args.filter(
+                (arg) =>
+                  !(
+                    arg.value.entityKind === "Value" &&
+                    arg.value.valueKind === "EnumValue" &&
+                    visibilityClasses.has(arg.value.value.enum)
+                  ),
+              ),
+            });
+          } else if (decFn !== $invisible) {
+            decorators.push(decorator);
           }
         }
+
+        clone.decorators = decorators;
 
         for (const visibilityClass of visibilityClasses) {
           resetVisibilityModifiersForClass(program, clone, visibilityClass);
@@ -479,8 +482,6 @@ function createVisibilityFilterMutator(
         if (prop.type.kind === "Model") {
           clone.type = mutateSubgraph(program, [options.recur ?? self], prop.type).type;
         }
-
-        clone.decorators = prop.decorators.filter((d) => !decoratorsToRemove.has(d));
       },
     },
   };

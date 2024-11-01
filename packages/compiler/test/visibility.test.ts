@@ -652,58 +652,65 @@ describe("compiler: visibility core", () => {
   describe("lifecycle transforms", () => {
     async function compileWithTransform(
       transform: "Create" | "Read" | "Update" | "CreateOrUpdate",
+      legacy: boolean = false,
     ) {
+      const Lifecycle = {
+        Read: legacy ? `"read"` : "Lifecycle.Read",
+        Create: legacy ? `"create"` : "Lifecycle.Create",
+        Update: legacy ? `"update"` : "Lifecycle.Update",
+      };
       const { Result } = (await runner.compile(`
         model Example {
-          @visibility(Lifecycle.Read)
+          @visibility(${Lifecycle.Read})
           r: string;
 
           cru: string;
 
-          @visibility(Lifecycle.Create, Lifecycle.Read)
+          @visibility(${Lifecycle.Create}, ${Lifecycle.Read})
           cr: string;
 
-          @visibility(Lifecycle.Create, Lifecycle.Update)
+          @visibility(${Lifecycle.Create}, ${Lifecycle.Update})
           cu: string;
 
-          @visibility(Lifecycle.Create)
+          @visibility(${Lifecycle.Create})
           c: string;
 
-          @visibility(Lifecycle.Update, Lifecycle.Read)
+          @visibility(${Lifecycle.Update}, ${Lifecycle.Read})
           ru: string;
 
-          @visibility(Lifecycle.Update)
+          @visibility(${Lifecycle.Update})
           u: string;
 
-          @invisible(Lifecycle)
+          ${legacy ? `@visibility("none")` : `@invisible(Lifecycle)`}
           invisible: string;
 
           nested: {
-            @visibility(Lifecycle.Read)
+            @visibility(${Lifecycle.Read})
             r: string;
 
             cru: string;
 
-            @visibility(Lifecycle.Create, Lifecycle.Read)
+            @visibility(${Lifecycle.Create}, ${Lifecycle.Read})
             cr: string;
 
-            @visibility(Lifecycle.Create, Lifecycle.Update)
+            @visibility(${Lifecycle.Create}, ${Lifecycle.Update})
             cu: string;
 
-            @visibility(Lifecycle.Create)
+            @visibility(${Lifecycle.Create})
             c: string;
 
-            @visibility(Lifecycle.Update, Lifecycle.Read)
+            @visibility(${Lifecycle.Update}, ${Lifecycle.Read})
             ru: string;
 
-            @visibility(Lifecycle.Update)
+            @visibility(${Lifecycle.Update})
             u: string;
 
-            @invisible(Lifecycle)
+            ${legacy ? `@visibility("none")` : `@invisible(Lifecycle)`}
             invisible: string;
           };
         }
 
+        // This ensures the transforms are non-side-effecting.
         model ReadExample is Read<Example>;
 
         @test model Result is ${transform}<Example>;
@@ -729,108 +736,21 @@ describe("compiler: visibility core", () => {
       const Result = await compileWithTransform("Read");
       const props = getProperties(Result);
 
-      // All properties that do not have Read visibility are removed
-      strictEqual(props.c, undefined);
-      strictEqual(props.cu, undefined);
-      strictEqual(props.u, undefined);
-
-      strictEqual(props.invisible, undefined);
-
-      // All properties that have Read visibility are preserved
-      ok(props.r);
-      ok(props.cr);
-      ok(props.cru);
-      ok(props.ru);
-
-      const nested = Result.properties.get("nested");
-
-      ok(nested);
-      ok(nested.type.kind === "Model");
-
-      const nestedProps = getProperties(nested.type);
-
-      strictEqual(nestedProps.c, undefined);
-      strictEqual(nestedProps.cu, undefined);
-      strictEqual(nestedProps.u, undefined);
-
-      strictEqual(nestedProps.invisible, undefined);
-
-      ok(nestedProps.r);
-      ok(nestedProps.cr);
-      ok(nestedProps.cru);
-      ok(nestedProps.ru);
+      validateReadTransform(props, Result, getProperties);
     });
 
-    it.only("correctly applies Create transform", async () => {
+    it("correctly applies Create transform", async () => {
       const Result = await compileWithTransform("Create");
       const props = getProperties(Result);
 
-      // Properties without Create visibility are removed
-      strictEqual(props.r, undefined);
-      strictEqual(props.ru, undefined);
-      strictEqual(props.u, undefined);
-
-      strictEqual(props.invisible, undefined);
-
-      ok(props.c);
-      ok(props.cr);
-      ok(props.cu);
-      ok(props.cru);
-
-      const nested = Result.properties.get("nested");
-
-      ok(nested);
-      ok(nested.type.kind === "Model");
-
-      const nestedProps = getProperties(nested.type);
-
-      strictEqual(nestedProps.r, undefined);
-      strictEqual(nestedProps.ru, undefined);
-      strictEqual(nestedProps.u, undefined);
-
-      strictEqual(nestedProps.invisible, undefined);
-
-      ok(nestedProps.c);
-      ok(nestedProps.cr);
-      ok(nestedProps.cu);
-      ok(nestedProps.cru);
+      validateCreateTransform(props, Result, getProperties);
     });
 
     it("correctly applies Update transform", async () => {
       const Result = await compileWithTransform("Update");
       const props = getProperties(Result);
 
-      // Properties without Update visibility are removed
-      strictEqual(props.r, undefined);
-      strictEqual(props.c, undefined);
-      strictEqual(props.cr, undefined);
-
-      strictEqual(props.invisible, undefined);
-
-      ok(props.cu);
-      ok(props.cru);
-      ok(props.ru);
-      ok(props.u);
-
-      const nested = Result.properties.get("nested");
-
-      ok(nested);
-      ok(nested.type.kind === "Model");
-
-      // Nested properties work differently in Lifecycle Update transforms, requiring nested create-only properties to
-      // additionally be visible
-      const nestedProps = getProperties(nested.type);
-
-      strictEqual(nestedProps.r, undefined);
-
-      strictEqual(nestedProps.invisible, undefined);
-
-      ok(nestedProps.c);
-      ok(nestedProps.cr);
-      ok(nestedProps.cu);
-      ok(nestedProps.cru);
-      ok(nestedProps.ru);
-      ok(nestedProps.u);
+      validateUpdateTransform(props, Result, getProperties);
     });
 
     it("correctly applies CreateOrUpdate transform", async () => {
@@ -838,35 +758,38 @@ describe("compiler: visibility core", () => {
       const props = getProperties(Result);
 
       // Properties that only have read visibility are removed
-      strictEqual(props.r, undefined);
+      validateCreateOrUpdateTransform(props, Result, getProperties);
+    });
 
-      strictEqual(props.invisible, undefined);
+    describe("legacy compatibility", () => {
+      it("correctly applies Read transform", async () => {
+        const Result = await compileWithTransform("Read", true);
+        const props = getProperties(Result);
 
-      // All other visible properties are preserved
-      ok(props.c);
-      ok(props.cr);
-      ok(props.cu);
-      ok(props.cru);
-      ok(props.ru);
-      ok(props.u);
+        validateReadTransform(props, Result, getProperties);
+      });
 
-      const nested = Result.properties.get("nested");
+      it("correctly applies Create transform", async () => {
+        const Result = await compileWithTransform("Create", true);
+        const props = getProperties(Result);
 
-      ok(nested);
-      ok(nested.type.kind === "Model");
+        validateCreateTransform(props, Result, getProperties);
+      });
 
-      const nestedProps = getProperties(nested.type);
+      it("correctly applies Update transform", async () => {
+        const Result = await compileWithTransform("Update", true);
+        const props = getProperties(Result);
 
-      strictEqual(nestedProps.r, undefined);
+        validateUpdateTransform(props, Result, getProperties);
+      });
 
-      ok(nestedProps.c);
-      ok(nestedProps.cr);
-      ok(nestedProps.cu);
-      ok(nestedProps.cru);
-      ok(nestedProps.ru);
-      ok(nestedProps.u);
+      it("correctly applies CreateOrUpdate transform", async () => {
+        const Result = await compileWithTransform("CreateOrUpdate", true);
+        const props = getProperties(Result);
 
-      strictEqual(nestedProps.invisible, undefined);
+        // Properties that only have read visibility are removed
+        validateCreateOrUpdateTransform(props, Result, getProperties);
+      });
     });
   });
 
@@ -898,3 +821,218 @@ describe("compiler: visibility core", () => {
     });
   });
 });
+function validateCreateOrUpdateTransform(
+  props: {
+    c: ModelProperty | undefined;
+    cr: ModelProperty | undefined;
+    cu: ModelProperty | undefined;
+    cru: ModelProperty | undefined;
+    r: ModelProperty | undefined;
+    ru: ModelProperty | undefined;
+    u: ModelProperty | undefined;
+    invisible: ModelProperty | undefined;
+  },
+  Result: Model,
+  getProperties: (model: Model) => {
+    c: ModelProperty | undefined;
+    cr: ModelProperty | undefined;
+    cu: ModelProperty | undefined;
+    cru: ModelProperty | undefined;
+    r: ModelProperty | undefined;
+    ru: ModelProperty | undefined;
+    u: ModelProperty | undefined;
+    invisible: ModelProperty | undefined;
+  },
+) {
+  strictEqual(props.r, undefined);
+
+  strictEqual(props.invisible, undefined);
+
+  // All other visible properties are preserved
+  ok(props.c);
+  ok(props.cr);
+  ok(props.cu);
+  ok(props.cru);
+  ok(props.ru);
+  ok(props.u);
+
+  const nested = Result.properties.get("nested");
+
+  ok(nested);
+  ok(nested.type.kind === "Model");
+
+  const nestedProps = getProperties(nested.type);
+
+  strictEqual(nestedProps.r, undefined);
+
+  ok(nestedProps.c);
+  ok(nestedProps.cr);
+  ok(nestedProps.cu);
+  ok(nestedProps.cru);
+  ok(nestedProps.ru);
+  ok(nestedProps.u);
+
+  strictEqual(nestedProps.invisible, undefined);
+}
+
+function validateUpdateTransform(
+  props: {
+    c: ModelProperty | undefined;
+    cr: ModelProperty | undefined;
+    cu: ModelProperty | undefined;
+    cru: ModelProperty | undefined;
+    r: ModelProperty | undefined;
+    ru: ModelProperty | undefined;
+    u: ModelProperty | undefined;
+    invisible: ModelProperty | undefined;
+  },
+  Result: Model,
+  getProperties: (model: Model) => {
+    c: ModelProperty | undefined;
+    cr: ModelProperty | undefined;
+    cu: ModelProperty | undefined;
+    cru: ModelProperty | undefined;
+    r: ModelProperty | undefined;
+    ru: ModelProperty | undefined;
+    u: ModelProperty | undefined;
+    invisible: ModelProperty | undefined;
+  },
+) {
+  strictEqual(props.r, undefined);
+  strictEqual(props.c, undefined);
+  strictEqual(props.cr, undefined);
+
+  strictEqual(props.invisible, undefined);
+
+  ok(props.cu);
+  ok(props.cru);
+  ok(props.ru);
+  ok(props.u);
+
+  const nested = Result.properties.get("nested");
+
+  ok(nested);
+  ok(nested.type.kind === "Model");
+
+  // Nested properties work differently in Lifecycle Update transforms, requiring nested create-only properties to
+  // additionally be visible
+  const nestedProps = getProperties(nested.type);
+
+  strictEqual(nestedProps.r, undefined);
+
+  strictEqual(nestedProps.invisible, undefined);
+
+  ok(nestedProps.c);
+  ok(nestedProps.cr);
+  ok(nestedProps.cu);
+  ok(nestedProps.cru);
+  ok(nestedProps.ru);
+  ok(nestedProps.u);
+}
+
+function validateCreateTransform(
+  props: {
+    c: ModelProperty | undefined;
+    cr: ModelProperty | undefined;
+    cu: ModelProperty | undefined;
+    cru: ModelProperty | undefined;
+    r: ModelProperty | undefined;
+    ru: ModelProperty | undefined;
+    u: ModelProperty | undefined;
+    invisible: ModelProperty | undefined;
+  },
+  Result: Model,
+  getProperties: (model: Model) => {
+    c: ModelProperty | undefined;
+    cr: ModelProperty | undefined;
+    cu: ModelProperty | undefined;
+    cru: ModelProperty | undefined;
+    r: ModelProperty | undefined;
+    ru: ModelProperty | undefined;
+    u: ModelProperty | undefined;
+    invisible: ModelProperty | undefined;
+  },
+) {
+  strictEqual(props.r, undefined);
+  strictEqual(props.ru, undefined);
+  strictEqual(props.u, undefined);
+
+  strictEqual(props.invisible, undefined);
+
+  ok(props.c);
+  ok(props.cr);
+  ok(props.cu);
+  ok(props.cru);
+
+  const nested = Result.properties.get("nested");
+
+  ok(nested);
+  ok(nested.type.kind === "Model");
+
+  const nestedProps = getProperties(nested.type);
+
+  strictEqual(nestedProps.r, undefined);
+  strictEqual(nestedProps.ru, undefined);
+  strictEqual(nestedProps.u, undefined);
+
+  strictEqual(nestedProps.invisible, undefined);
+
+  ok(nestedProps.c);
+  ok(nestedProps.cr);
+  ok(nestedProps.cu);
+  ok(nestedProps.cru);
+}
+
+function validateReadTransform(
+  props: {
+    c: ModelProperty | undefined;
+    cr: ModelProperty | undefined;
+    cu: ModelProperty | undefined;
+    cru: ModelProperty | undefined;
+    r: ModelProperty | undefined;
+    ru: ModelProperty | undefined;
+    u: ModelProperty | undefined;
+    invisible: ModelProperty | undefined;
+  },
+  Result: Model,
+  getProperties: (model: Model) => {
+    c: ModelProperty | undefined;
+    cr: ModelProperty | undefined;
+    cu: ModelProperty | undefined;
+    cru: ModelProperty | undefined;
+    r: ModelProperty | undefined;
+    ru: ModelProperty | undefined;
+    u: ModelProperty | undefined;
+    invisible: ModelProperty | undefined;
+  },
+) {
+  strictEqual(props.c, undefined);
+  strictEqual(props.cu, undefined);
+  strictEqual(props.u, undefined);
+
+  strictEqual(props.invisible, undefined);
+
+  // All properties that have Read visibility are preserved
+  ok(props.r);
+  ok(props.cr);
+  ok(props.cru);
+  ok(props.ru);
+
+  const nested = Result.properties.get("nested");
+
+  ok(nested);
+  ok(nested.type.kind === "Model");
+
+  const nestedProps = getProperties(nested.type);
+
+  strictEqual(nestedProps.c, undefined);
+  strictEqual(nestedProps.cu, undefined);
+  strictEqual(nestedProps.u, undefined);
+
+  strictEqual(nestedProps.invisible, undefined);
+
+  ok(nestedProps.r);
+  ok(nestedProps.cr);
+  ok(nestedProps.cru);
+  ok(nestedProps.ru);
+}
