@@ -16,13 +16,22 @@
     "./typekit": {
       "types": "./dist/src/typekit/index.d.ts",
       "default": "./dist/src/typekit/index.js"
+    },
+    "./components": {
+      "types": "./dist/src/components/index.d.ts",
+      "default": "./dist/src/components/index.js"
     }
   },
   "dependencies": {
+    "@alloy-js/core": "0.2.0",
     "@typespec/compiler": "workspace:*",
     "@typespec/http": "workspace:*"
   },
   "devDependencies": {
+    "@babel/cli": "^7.24.8",
+    "@babel/core": "^7.24.9",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@alloy-js/babel-preset": "0.1.1",
     "@types/node": "latest",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
@@ -33,7 +42,8 @@
     "vitest": "^2.0.3"
   },
   "scripts": {
-    "build": "tsc && npm run build:tsp",
+    "build-src": "babel src -d dist/src --extensions '.ts,.tsx'",
+    "build": "tsc -p . && npm run build-src",
     "watch": "tsc --watch",
     "build:tsp": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
     "test": "node --test",

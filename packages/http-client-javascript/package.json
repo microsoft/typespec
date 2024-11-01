@@ -21,6 +21,7 @@
   "description": "",
   "peerDependencies": {
     "@typespec/compiler": "workspace:*",
+    "@typespec/http-client-library": "workspace:*",
     "@typespec/http": "workspace:*",
     "@typespec/openapi": "workspace:*",
     "@typespec/rest": "workspace:*",
