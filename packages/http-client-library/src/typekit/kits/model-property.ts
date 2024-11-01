@@ -1,5 +1,5 @@
 import { BaseType, ModelProperty } from "@typespec/compiler";
-import { defineKit, $ } from "@typespec/compiler/typekit";
+import { $, defineKit } from "@typespec/compiler/typekit";
 import { getAuthentication, HttpAuth } from "@typespec/http";
 import { Client } from "../../interfaces.js";
 
@@ -17,7 +17,7 @@ export interface SdkModelPropertyKit {
   isEndpoint(client: Client, type: ModelProperty): boolean;
 
   /**
-   * Get credential information from the model property. Returns undefined if the credential parameter 
+   * Get credential information from the model property. Returns undefined if the credential parameter
    */
   getCredentialAuth(client: Client, type: ModelProperty): HttpAuth[] | undefined;
 
@@ -25,6 +25,22 @@ export interface SdkModelPropertyKit {
    * Returns whether the property is a discriminator on the model it's on.
    */
   isDiscriminator(type: ModelProperty): boolean;
+  /**
+   * Returns whehter it's a credential parameter or not.
+   *
+   * @param type: model property we are checking to see if is a credential parameter
+   */
+  isCredential(client: Client, modelProperty: ModelProperty): boolean;
+
+  /**
+   * Returns whether the model property is part of the client's initialization or not.
+   */
+  isOnClient(modelProperty: ModelProperty): boolean;
+
+  /**
+   * Returns whether the model property has a client default value or not.
+   */
+  getClientDefaultValue(modelProperty: ModelProperty): unknown;
 }
 
 interface TypeKit {
@@ -40,18 +56,33 @@ defineKit<TypeKit>({
   modelProperty: {
     isEndpoint(client, type) {
       const model = $.client.getInitializationModel(client);
-      return type.name === "endpoint" && Boolean($.model.listProperties(model).find((p) => p === type));
+      return (
+        type.name === "endpoint" && Boolean($.model.listProperties(model).find((p) => p === type))
+      );
+    },
+    isCredential(modelProperty) {
+      return modelProperty.name === "credential";
+    },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    isOnClient(modelProperty) {
+      return false;
+    },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    getClientDefaultValue(modelProperty) {
+      return undefined;
     },
     getCredentialAuth(client, type) {
-      const isCredential = $.model.listProperties($.client.getInitializationModel(client)).find((p) => p.name === "credential" && p === type);
+      const isCredential = $.model
+        .listProperties($.client.getInitializationModel(client))
+        .find((p) => p.name === "credential" && p === type);
       if (!isCredential) return undefined;
-      return getAuthentication($.program, client.service)?.options.flatMap(o => o.schemes);
+      return getAuthentication($.program, client.service)?.options.flatMap((o) => o.schemes);
     },
     isDiscriminator(type) {
       const sourceModel = type.model;
       if (!sourceModel) return false;
       const disc = $.model.getDiscriminatorProperty(sourceModel);
       return disc === type;
-    }
+    },
   },
 });
