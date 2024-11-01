@@ -21,6 +21,7 @@
     "com.versioning.added.models.EnumV1": "Versioning.Added.EnumV1",
     "com.versioning.added.models.EnumV2": "Versioning.Added.EnumV2",
     "com.versioning.added.models.ModelV1": "Versioning.Added.ModelV1",
-    "com.versioning.added.models.ModelV2": "Versioning.Added.ModelV2"
+    "com.versioning.added.models.ModelV2": "Versioning.Added.ModelV2",
+    "com.versioning.added.models.Versions": "Versioning.Added.Versions"
   }
 }

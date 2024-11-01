@@ -32,6 +32,7 @@ import com.azure.core.util.builder.ClientBuilderUtil;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.core.util.serializer.JacksonAdapter;
 import com.versioning.returntypechangedfrom.implementation.ReturnTypeChangedFromClientImpl;
+import com.versioning.returntypechangedfrom.models.Versions;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -194,7 +195,7 @@ public final class ReturnTypeChangedFromClientBuilder implements HttpTrait<Retur
      * Need to be set as 'v1' or 'v2' in client.
      */
     @Generated
-    private String version;
+    private Versions version;
 
     /**
      * Sets Need to be set as 'v1' or 'v2' in client.
@@ -203,7 +204,7 @@ public final class ReturnTypeChangedFromClientBuilder implements HttpTrait<Retur
      * @return the ReturnTypeChangedFromClientBuilder.
      */
     @Generated
-    public ReturnTypeChangedFromClientBuilder version(String version) {
+    public ReturnTypeChangedFromClientBuilder version(Versions version) {
         this.version = version;
         return this;
     }

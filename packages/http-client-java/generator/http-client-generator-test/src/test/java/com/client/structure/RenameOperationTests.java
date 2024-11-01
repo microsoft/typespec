@@ -6,15 +6,16 @@ package com.client.structure;
 import com.client.structure.service.GroupClient;
 import com.client.structure.service.RenamedOperationClient;
 import com.client.structure.service.RenamedOperationClientBuilder;
+import com.client.structure.service.models.ClientType;
 import org.junit.jupiter.api.Test;
 
 public class RenameOperationTests {
 
     private final RenamedOperationClient client = new RenamedOperationClientBuilder().endpoint("http://localhost:3000")
-        .client("renamed-operation")
+        .client(ClientType.RENAMED_OPERATION)
         .buildClient();
     private final GroupClient groupClient = new RenamedOperationClientBuilder().endpoint("http://localhost:3000")
-        .client("renamed-operation")
+        .client(ClientType.RENAMED_OPERATION)
         .buildGroupClient();
 
     @Test

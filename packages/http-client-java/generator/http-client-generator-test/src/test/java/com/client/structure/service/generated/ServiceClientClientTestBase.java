@@ -20,6 +20,7 @@ import com.client.structure.service.QuxBarClient;
 import com.client.structure.service.QuxClient;
 import com.client.structure.service.ServiceClientClient;
 import com.client.structure.service.ServiceClientClientBuilder;
+import com.client.structure.service.models.ClientType;
 
 class ServiceClientClientTestBase extends TestProxyTestBase {
     protected ServiceClientClient serviceClientClient;
@@ -38,7 +39,7 @@ class ServiceClientClientTestBase extends TestProxyTestBase {
     protected void beforeTest() {
         ServiceClientClientBuilder serviceClientClientbuilder = new ServiceClientClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
-            .client(Configuration.getGlobalConfiguration().get("CLIENT", "client"))
+            .client(ClientType.fromString(Configuration.getGlobalConfiguration().get("CLIENT", "client")))
             .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {
@@ -48,7 +49,7 @@ class ServiceClientClientTestBase extends TestProxyTestBase {
 
         ServiceClientClientBuilder bazFooClientbuilder = new ServiceClientClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
-            .client(Configuration.getGlobalConfiguration().get("CLIENT", "client"))
+            .client(ClientType.fromString(Configuration.getGlobalConfiguration().get("CLIENT", "client")))
             .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {
@@ -58,7 +59,7 @@ class ServiceClientClientTestBase extends TestProxyTestBase {
 
         ServiceClientClientBuilder quxClientbuilder = new ServiceClientClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
-            .client(Configuration.getGlobalConfiguration().get("CLIENT", "client"))
+            .client(ClientType.fromString(Configuration.getGlobalConfiguration().get("CLIENT", "client")))
             .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {
@@ -68,7 +69,7 @@ class ServiceClientClientTestBase extends TestProxyTestBase {
 
         ServiceClientClientBuilder quxBarClientbuilder = new ServiceClientClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
-            .client(Configuration.getGlobalConfiguration().get("CLIENT", "client"))
+            .client(ClientType.fromString(Configuration.getGlobalConfiguration().get("CLIENT", "client")))
             .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {
@@ -78,7 +79,7 @@ class ServiceClientClientTestBase extends TestProxyTestBase {
 
         ServiceClientClientBuilder fooClientbuilder = new ServiceClientClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
-            .client(Configuration.getGlobalConfiguration().get("CLIENT", "client"))
+            .client(ClientType.fromString(Configuration.getGlobalConfiguration().get("CLIENT", "client")))
             .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {
@@ -88,7 +89,7 @@ class ServiceClientClientTestBase extends TestProxyTestBase {
 
         ServiceClientClientBuilder barClientbuilder = new ServiceClientClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
-            .client(Configuration.getGlobalConfiguration().get("CLIENT", "client"))
+            .client(ClientType.fromString(Configuration.getGlobalConfiguration().get("CLIENT", "client")))
             .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {

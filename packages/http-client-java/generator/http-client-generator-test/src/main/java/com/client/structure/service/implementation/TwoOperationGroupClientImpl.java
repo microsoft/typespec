@@ -10,6 +10,7 @@ import com.azure.core.http.policy.RetryPolicy;
 import com.azure.core.http.policy.UserAgentPolicy;
 import com.azure.core.util.serializer.JacksonAdapter;
 import com.azure.core.util.serializer.SerializerAdapter;
+import com.client.structure.service.models.ClientType;
 
 /**
  * Initializes a new instance of the TwoOperationGroupClient type.
@@ -32,14 +33,14 @@ public final class TwoOperationGroupClientImpl {
     /**
      * Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.
      */
-    private final String client;
+    private final ClientType client;
 
     /**
      * Gets Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.
      * 
      * @return the client value.
      */
-    public String getClient() {
+    public ClientType getClient() {
         return this.client;
     }
 
@@ -105,7 +106,7 @@ public final class TwoOperationGroupClientImpl {
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
      * @param client Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.
      */
-    public TwoOperationGroupClientImpl(String endpoint, String client) {
+    public TwoOperationGroupClientImpl(String endpoint, ClientType client) {
         this(new HttpPipelineBuilder().policies(new UserAgentPolicy(), new RetryPolicy()).build(),
             JacksonAdapter.createDefaultSerializerAdapter(), endpoint, client);
     }
@@ -117,7 +118,7 @@ public final class TwoOperationGroupClientImpl {
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
      * @param client Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.
      */
-    public TwoOperationGroupClientImpl(HttpPipeline httpPipeline, String endpoint, String client) {
+    public TwoOperationGroupClientImpl(HttpPipeline httpPipeline, String endpoint, ClientType client) {
         this(httpPipeline, JacksonAdapter.createDefaultSerializerAdapter(), endpoint, client);
     }
 
@@ -130,7 +131,7 @@ public final class TwoOperationGroupClientImpl {
      * @param client Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.
      */
     public TwoOperationGroupClientImpl(HttpPipeline httpPipeline, SerializerAdapter serializerAdapter, String endpoint,
-        String client) {
+        ClientType client) {
         this.httpPipeline = httpPipeline;
         this.serializerAdapter = serializerAdapter;
         this.endpoint = endpoint;

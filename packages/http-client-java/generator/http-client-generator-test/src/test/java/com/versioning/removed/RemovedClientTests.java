@@ -6,15 +6,16 @@ package com.versioning.removed;
 import com.azure.core.util.BinaryData;
 import com.versioning.removed.models.EnumV2;
 import com.versioning.removed.models.ModelV2;
+import com.versioning.removed.models.Versions;
 import org.junit.jupiter.api.Test;
 
 public class RemovedClientTests {
 
     private final RemovedClient removedClientV1
-        = new RemovedClientBuilder().endpoint("http://localhost:3000").version("v1").buildClient();
+        = new RemovedClientBuilder().endpoint("http://localhost:3000").version(Versions.V1).buildClient();
 
     private final RemovedClient removedClientV2
-        = new RemovedClientBuilder().endpoint("http://localhost:3000").version("v2").buildClient();
+        = new RemovedClientBuilder().endpoint("http://localhost:3000").version(Versions.V2).buildClient();
 
     @Test
     public void tesRemovedClient() {

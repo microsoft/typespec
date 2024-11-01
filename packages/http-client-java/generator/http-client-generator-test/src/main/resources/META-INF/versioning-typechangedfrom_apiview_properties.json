@@ -8,6 +8,7 @@
     "com.versioning.typechangedfrom.TypeChangedFromClient.test": "Versioning.TypeChangedFrom.test",
     "com.versioning.typechangedfrom.TypeChangedFromClient.testWithResponse": "Versioning.TypeChangedFrom.test",
     "com.versioning.typechangedfrom.TypeChangedFromClientBuilder": "Versioning.TypeChangedFrom",
-    "com.versioning.typechangedfrom.models.TestModel": "Versioning.TypeChangedFrom.TestModel"
+    "com.versioning.typechangedfrom.models.TestModel": "Versioning.TypeChangedFrom.TestModel",
+    "com.versioning.typechangedfrom.models.Versions": "Versioning.TypeChangedFrom.Versions"
   }
 }

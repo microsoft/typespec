@@ -32,6 +32,7 @@ import com.azure.core.util.builder.ClientBuilderUtil;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.core.util.serializer.JacksonAdapter;
 import com.client.structure.service.implementation.ClientAClientImpl;
+import com.client.structure.service.models.ClientType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -194,7 +195,7 @@ public final class ClientAClientBuilder implements HttpTrait<ClientAClientBuilde
      * Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.
      */
     @Generated
-    private String client;
+    private ClientType client;
 
     /**
      * Sets Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.
@@ -203,7 +204,7 @@ public final class ClientAClientBuilder implements HttpTrait<ClientAClientBuilde
      * @return the ClientAClientBuilder.
      */
     @Generated
-    public ClientAClientBuilder client(String client) {
+    public ClientAClientBuilder client(ClientType client) {
         this.client = client;
         return this;
     }

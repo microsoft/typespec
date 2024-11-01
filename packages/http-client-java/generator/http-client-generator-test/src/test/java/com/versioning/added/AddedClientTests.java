@@ -4,17 +4,14 @@
 package com.versioning.added;
 
 import com.azure.core.util.BinaryData;
-import com.versioning.added.models.EnumV1;
-import com.versioning.added.models.EnumV2;
-import com.versioning.added.models.ModelV1;
-import com.versioning.added.models.ModelV2;
+import com.versioning.added.models.*;
 import org.junit.jupiter.api.Test;
 
 public class AddedClientTests {
     private final AddedClient addedClient
-        = new AddedClientBuilder().endpoint("http://localhost:3000").version("v2").buildClient();
+        = new AddedClientBuilder().endpoint("http://localhost:3000").version(Versions.V2).buildClient();
     private final InterfaceV2Client interfaceV2Client
-        = new AddedClientBuilder().endpoint("http://localhost:3000").version("v2").buildInterfaceV2Client();
+        = new AddedClientBuilder().endpoint("http://localhost:3000").version(Versions.V2).buildInterfaceV2Client();
 
     @Test
     public void testAddedClient() {

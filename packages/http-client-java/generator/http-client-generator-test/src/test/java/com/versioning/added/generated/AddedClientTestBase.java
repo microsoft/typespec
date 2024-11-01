@@ -16,6 +16,7 @@ import com.azure.core.util.Configuration;
 import com.versioning.added.AddedClient;
 import com.versioning.added.AddedClientBuilder;
 import com.versioning.added.InterfaceV2Client;
+import com.versioning.added.models.Versions;
 
 class AddedClientTestBase extends TestProxyTestBase {
     protected AddedClient addedClient;
@@ -26,7 +27,7 @@ class AddedClientTestBase extends TestProxyTestBase {
     protected void beforeTest() {
         AddedClientBuilder addedClientbuilder
             = new AddedClientBuilder().endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
-                .version(Configuration.getGlobalConfiguration().get("VERSION", "version"))
+                .version(Versions.fromString(Configuration.getGlobalConfiguration().get("VERSION", "version")))
                 .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
                 .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {
@@ -36,7 +37,7 @@ class AddedClientTestBase extends TestProxyTestBase {
 
         AddedClientBuilder interfaceV2Clientbuilder
             = new AddedClientBuilder().endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
-                .version(Configuration.getGlobalConfiguration().get("VERSION", "version"))
+                .version(Versions.fromString(Configuration.getGlobalConfiguration().get("VERSION", "version")))
                 .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
                 .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {

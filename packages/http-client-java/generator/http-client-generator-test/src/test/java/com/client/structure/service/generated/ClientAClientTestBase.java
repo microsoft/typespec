@@ -17,6 +17,7 @@ import com.client.structure.service.ClientAClient;
 import com.client.structure.service.ClientAClientBuilder;
 import com.client.structure.service.ClientBClient;
 import com.client.structure.service.ClientBClientBuilder;
+import com.client.structure.service.models.ClientType;
 
 class ClientAClientTestBase extends TestProxyTestBase {
     protected ClientAClient clientAClient;
@@ -27,7 +28,7 @@ class ClientAClientTestBase extends TestProxyTestBase {
     protected void beforeTest() {
         ClientAClientBuilder clientAClientbuilder
             = new ClientAClientBuilder().endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
-                .client(Configuration.getGlobalConfiguration().get("CLIENT", "client"))
+                .client(ClientType.fromString(Configuration.getGlobalConfiguration().get("CLIENT", "client")))
                 .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
                 .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {
@@ -37,7 +38,7 @@ class ClientAClientTestBase extends TestProxyTestBase {
 
         ClientBClientBuilder clientBClientbuilder
             = new ClientBClientBuilder().endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
-                .client(Configuration.getGlobalConfiguration().get("CLIENT", "client"))
+                .client(ClientType.fromString(Configuration.getGlobalConfiguration().get("CLIENT", "client")))
                 .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
                 .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {

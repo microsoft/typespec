@@ -25,6 +25,7 @@ import com.azure.core.util.BinaryData;
 import com.azure.core.util.Context;
 import com.azure.core.util.FluxUtil;
 import com.versioning.added.AddedServiceVersion;
+import com.versioning.added.models.Versions;
 import reactor.core.publisher.Mono;
 
 /**
@@ -75,7 +76,7 @@ public final class InterfaceV2sImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<BinaryData>> v2InInterface(@HostParam("endpoint") String endpoint,
-            @HostParam("version") String version, @HeaderParam("Content-Type") String contentType,
+            @HostParam("version") Versions version, @HeaderParam("Content-Type") String contentType,
             @HeaderParam("Accept") String accept, @BodyParam("application/json") BinaryData body,
             RequestOptions requestOptions, Context context);
 
@@ -86,7 +87,7 @@ public final class InterfaceV2sImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<BinaryData> v2InInterfaceSync(@HostParam("endpoint") String endpoint,
-            @HostParam("version") String version, @HeaderParam("Content-Type") String contentType,
+            @HostParam("version") Versions version, @HeaderParam("Content-Type") String contentType,
             @HeaderParam("Accept") String accept, @BodyParam("application/json") BinaryData body,
             RequestOptions requestOptions, Context context);
     }

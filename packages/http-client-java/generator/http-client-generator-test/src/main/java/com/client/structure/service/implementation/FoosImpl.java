@@ -21,6 +21,7 @@ import com.azure.core.http.rest.Response;
 import com.azure.core.http.rest.RestProxy;
 import com.azure.core.util.Context;
 import com.azure.core.util.FluxUtil;
+import com.client.structure.service.models.ClientType;
 import reactor.core.publisher.Mono;
 
 /**
@@ -60,7 +61,7 @@ public final class FoosImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Mono<Response<Void>> three(@HostParam("endpoint") String endpoint, @HostParam("client") String client,
+        Mono<Response<Void>> three(@HostParam("endpoint") String endpoint, @HostParam("client") ClientType client,
             RequestOptions requestOptions, Context context);
 
         @Post("/three")
@@ -69,7 +70,7 @@ public final class FoosImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Response<Void> threeSync(@HostParam("endpoint") String endpoint, @HostParam("client") String client,
+        Response<Void> threeSync(@HostParam("endpoint") String endpoint, @HostParam("client") ClientType client,
             RequestOptions requestOptions, Context context);
 
         @Post("/four")
@@ -78,7 +79,7 @@ public final class FoosImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Mono<Response<Void>> four(@HostParam("endpoint") String endpoint, @HostParam("client") String client,
+        Mono<Response<Void>> four(@HostParam("endpoint") String endpoint, @HostParam("client") ClientType client,
             RequestOptions requestOptions, Context context);
 
         @Post("/four")
@@ -87,7 +88,7 @@ public final class FoosImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Response<Void> fourSync(@HostParam("endpoint") String endpoint, @HostParam("client") String client,
+        Response<Void> fourSync(@HostParam("endpoint") String endpoint, @HostParam("client") ClientType client,
             RequestOptions requestOptions, Context context);
     }
 

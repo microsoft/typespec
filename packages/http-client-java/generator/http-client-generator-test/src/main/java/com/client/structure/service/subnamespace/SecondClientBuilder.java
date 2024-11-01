@@ -32,6 +32,7 @@ import com.azure.core.util.builder.ClientBuilderUtil;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.core.util.serializer.JacksonAdapter;
 import com.client.structure.service.implementation.SecondClientImpl;
+import com.client.structure.service.models.ClientType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -195,7 +196,7 @@ public final class SecondClientBuilder implements HttpTrait<SecondClientBuilder>
      * Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.
      */
     @Generated
-    private String client;
+    private ClientType client;
 
     /**
      * Sets Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.
@@ -204,7 +205,7 @@ public final class SecondClientBuilder implements HttpTrait<SecondClientBuilder>
      * @return the SecondClientBuilder.
      */
     @Generated
-    public SecondClientBuilder client(String client) {
+    public SecondClientBuilder client(ClientType client) {
         this.client = client;
         return this;
     }

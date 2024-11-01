@@ -32,6 +32,7 @@ import com.azure.core.util.builder.ClientBuilderUtil;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.core.util.serializer.JacksonAdapter;
 import com.client.structure.service.implementation.RenamedOperationClientImpl;
+import com.client.structure.service.models.ClientType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -199,7 +200,7 @@ public final class RenamedOperationClientBuilder implements HttpTrait<RenamedOpe
      * Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.
      */
     @Generated
-    private String client;
+    private ClientType client;
 
     /**
      * Sets Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.
@@ -208,7 +209,7 @@ public final class RenamedOperationClientBuilder implements HttpTrait<RenamedOpe
      * @return the RenamedOperationClientBuilder.
      */
     @Generated
-    public RenamedOperationClientBuilder client(String client) {
+    public RenamedOperationClientBuilder client(ClientType client) {
         this.client = client;
         return this;
     }

@@ -6,13 +6,14 @@ package com.versioning.renamedfrom;
 import com.azure.core.util.BinaryData;
 import com.versioning.renamedfrom.models.NewEnum;
 import com.versioning.renamedfrom.models.NewModel;
+import com.versioning.renamedfrom.models.Versions;
 import org.junit.jupiter.api.Test;
 
 public class RenamedFromClientTests {
     private final RenamedFromClient renamedFromClient
-        = new RenamedFromClientBuilder().endpoint("http://localhost:3000").version("v2").buildClient();
+        = new RenamedFromClientBuilder().endpoint("http://localhost:3000").version(Versions.V2).buildClient();
     private final NewInterfaceClient newInterfaceClient
-        = new RenamedFromClientBuilder().endpoint("http://localhost:3000").version("v2").buildNewInterfaceClient();
+        = new RenamedFromClientBuilder().endpoint("http://localhost:3000").version(Versions.V2).buildNewInterfaceClient();
 
     @Test
     public void testNewOp() {

@@ -21,6 +21,7 @@ import com.azure.core.http.rest.Response;
 import com.azure.core.http.rest.RestProxy;
 import com.azure.core.util.Context;
 import com.azure.core.util.FluxUtil;
+import com.client.structure.service.models.ClientType;
 import reactor.core.publisher.Mono;
 
 /**
@@ -60,7 +61,7 @@ public final class BazFoosImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Mono<Response<Void>> seven(@HostParam("endpoint") String endpoint, @HostParam("client") String client,
+        Mono<Response<Void>> seven(@HostParam("endpoint") String endpoint, @HostParam("client") ClientType client,
             RequestOptions requestOptions, Context context);
 
         @Post("/seven")
@@ -69,7 +70,7 @@ public final class BazFoosImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Response<Void> sevenSync(@HostParam("endpoint") String endpoint, @HostParam("client") String client,
+        Response<Void> sevenSync(@HostParam("endpoint") String endpoint, @HostParam("client") ClientType client,
             RequestOptions requestOptions, Context context);
     }
 

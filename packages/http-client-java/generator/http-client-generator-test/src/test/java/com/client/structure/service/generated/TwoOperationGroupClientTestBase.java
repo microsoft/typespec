@@ -16,6 +16,7 @@ import com.azure.core.util.Configuration;
 import com.client.structure.service.Group1Client;
 import com.client.structure.service.Group2Client;
 import com.client.structure.service.TwoOperationGroupClientBuilder;
+import com.client.structure.service.models.ClientType;
 
 class TwoOperationGroupClientTestBase extends TestProxyTestBase {
     protected Group1Client group1Client;
@@ -26,7 +27,7 @@ class TwoOperationGroupClientTestBase extends TestProxyTestBase {
     protected void beforeTest() {
         TwoOperationGroupClientBuilder group1Clientbuilder = new TwoOperationGroupClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
-            .client(Configuration.getGlobalConfiguration().get("CLIENT", "client"))
+            .client(ClientType.fromString(Configuration.getGlobalConfiguration().get("CLIENT", "client")))
             .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {
@@ -36,7 +37,7 @@ class TwoOperationGroupClientTestBase extends TestProxyTestBase {
 
         TwoOperationGroupClientBuilder group2Clientbuilder = new TwoOperationGroupClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
-            .client(Configuration.getGlobalConfiguration().get("CLIENT", "client"))
+            .client(ClientType.fromString(Configuration.getGlobalConfiguration().get("CLIENT", "client")))
             .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {

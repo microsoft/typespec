@@ -25,6 +25,7 @@ import com.azure.core.util.BinaryData;
 import com.azure.core.util.Context;
 import com.azure.core.util.FluxUtil;
 import com.versioning.renamedfrom.RenamedFromServiceVersion;
+import com.versioning.renamedfrom.models.Versions;
 import reactor.core.publisher.Mono;
 
 /**
@@ -75,7 +76,7 @@ public final class NewInterfacesImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<BinaryData>> newOpInNewInterface(@HostParam("endpoint") String endpoint,
-            @HostParam("version") String version, @HeaderParam("Content-Type") String contentType,
+            @HostParam("version") Versions version, @HeaderParam("Content-Type") String contentType,
             @HeaderParam("Accept") String accept, @BodyParam("application/json") BinaryData body,
             RequestOptions requestOptions, Context context);
 
@@ -86,7 +87,7 @@ public final class NewInterfacesImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<BinaryData> newOpInNewInterfaceSync(@HostParam("endpoint") String endpoint,
-            @HostParam("version") String version, @HeaderParam("Content-Type") String contentType,
+            @HostParam("version") Versions version, @HeaderParam("Content-Type") String contentType,
             @HeaderParam("Accept") String accept, @BodyParam("application/json") BinaryData body,
             RequestOptions requestOptions, Context context);
     }

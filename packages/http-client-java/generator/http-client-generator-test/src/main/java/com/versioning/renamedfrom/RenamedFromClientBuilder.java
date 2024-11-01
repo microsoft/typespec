@@ -32,6 +32,7 @@ import com.azure.core.util.builder.ClientBuilderUtil;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.core.util.serializer.JacksonAdapter;
 import com.versioning.renamedfrom.implementation.RenamedFromClientImpl;
+import com.versioning.renamedfrom.models.Versions;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -198,7 +199,7 @@ public final class RenamedFromClientBuilder implements HttpTrait<RenamedFromClie
      * Need to be set as 'v1' or 'v2' in client.
      */
     @Generated
-    private String version;
+    private Versions version;
 
     /**
      * Sets Need to be set as 'v1' or 'v2' in client.
@@ -207,7 +208,7 @@ public final class RenamedFromClientBuilder implements HttpTrait<RenamedFromClie
      * @return the RenamedFromClientBuilder.
      */
     @Generated
-    public RenamedFromClientBuilder version(String version) {
+    public RenamedFromClientBuilder version(Versions version) {
         this.version = version;
         return this;
     }

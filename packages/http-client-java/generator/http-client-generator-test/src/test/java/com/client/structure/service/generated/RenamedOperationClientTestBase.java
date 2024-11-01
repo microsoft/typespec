@@ -16,6 +16,7 @@ import com.azure.core.util.Configuration;
 import com.client.structure.service.GroupClient;
 import com.client.structure.service.RenamedOperationClient;
 import com.client.structure.service.RenamedOperationClientBuilder;
+import com.client.structure.service.models.ClientType;
 
 class RenamedOperationClientTestBase extends TestProxyTestBase {
     protected RenamedOperationClient renamedOperationClient;
@@ -26,7 +27,7 @@ class RenamedOperationClientTestBase extends TestProxyTestBase {
     protected void beforeTest() {
         RenamedOperationClientBuilder renamedOperationClientbuilder = new RenamedOperationClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
-            .client(Configuration.getGlobalConfiguration().get("CLIENT", "client"))
+            .client(ClientType.fromString(Configuration.getGlobalConfiguration().get("CLIENT", "client")))
             .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {
@@ -36,7 +37,7 @@ class RenamedOperationClientTestBase extends TestProxyTestBase {
 
         RenamedOperationClientBuilder groupClientbuilder = new RenamedOperationClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
-            .client(Configuration.getGlobalConfiguration().get("CLIENT", "client"))
+            .client(ClientType.fromString(Configuration.getGlobalConfiguration().get("CLIENT", "client")))
             .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {

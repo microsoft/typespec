@@ -32,6 +32,7 @@ import com.azure.core.util.builder.ClientBuilderUtil;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.core.util.serializer.JacksonAdapter;
 import com.versioning.removed.implementation.RemovedClientImpl;
+import com.versioning.removed.models.Versions;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -193,7 +194,7 @@ public final class RemovedClientBuilder implements HttpTrait<RemovedClientBuilde
      * Need to be set as 'v1' or 'v2' in client.
      */
     @Generated
-    private String version;
+    private Versions version;
 
     /**
      * Sets Need to be set as 'v1' or 'v2' in client.
@@ -202,7 +203,7 @@ public final class RemovedClientBuilder implements HttpTrait<RemovedClientBuilde
      * @return the RemovedClientBuilder.
      */
     @Generated
-    public RemovedClientBuilder version(String version) {
+    public RemovedClientBuilder version(Versions version) {
         this.version = version;
         return this;
     }
