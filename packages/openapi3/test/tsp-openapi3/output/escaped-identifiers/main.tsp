@@ -27,7 +27,7 @@ model `Escaped-Model` {
 model `get-thingDefaultResponse` {}
 
 @route("/{escaped-property}") @get op `get-thing`(
-  @query `weird@param`?: `Foo-Bar`,
+  @query(#{ explode: true }) `weird@param`?: `Foo-Bar`,
   ...Parameters.`Escaped-Model`.`escaped-property`,
   @bodyRoot body: `Escaped-Model`,
 ): `get-thingDefaultResponse`;

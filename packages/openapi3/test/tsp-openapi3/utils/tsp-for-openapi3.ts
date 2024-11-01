@@ -1,4 +1,5 @@
-import { createTestHost } from "@typespec/compiler/testing";
+import { Diagnostic, Namespace, Program } from "@typespec/compiler";
+import { createTestHost, expectDiagnosticEmpty } from "@typespec/compiler/testing";
 import { HttpTestLibrary } from "@typespec/http/testing";
 import { OpenAPITestLibrary } from "@typespec/openapi/testing";
 import assert from "node:assert";
@@ -24,7 +25,17 @@ export interface OpenAPI3Options {
   paths?: Record<string, OpenAPI3PathItem>;
 }
 
-export async function tspForOpenAPI3({ parameters, paths, schemas }: OpenAPI3Options) {
+export async function tspForOpenAPI3(props: OpenAPI3Options) {
+  const { namespace: TestService, diagnostics } = await compileForOpenAPI3(props);
+  expectDiagnosticEmpty(diagnostics);
+  return TestService;
+}
+
+export async function compileForOpenAPI3({ parameters, paths, schemas }: OpenAPI3Options): Promise<{
+  namespace: Namespace;
+  diagnostics: readonly Diagnostic[];
+  program: Program;
+}> {
   const openApi3Doc: OpenAPI3Document = {
     info: {
       title: "Test Service",
@@ -49,11 +60,16 @@ export async function tspForOpenAPI3({ parameters, paths, schemas }: OpenAPI3Opt
   });
   host.addTypeSpecFile("main.tsp", testableCode);
 
-  const { TestService } = await host.compile("main.tsp");
+  const [types, diagnostics] = await host.compileAndDiagnose("main.tsp");
+  const { TestService } = types;
 
   assert(
     TestService?.kind === "Namespace",
     `Expected TestService to be a namespace, instead got ${TestService?.kind}`,
   );
-  return TestService;
+  return {
+    namespace: TestService,
+    diagnostics,
+    program: host.program,
+  };
 }
