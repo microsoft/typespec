@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -219,6 +220,32 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             var unknownModel = outputLibrary.TypeProviders.OfType<ModelProvider>().FirstOrDefault(t => t.Name == "UnknownPet");
             Assert.IsNotNull(unknownModel);
             Assert.AreEqual("Pet", unknownModel!.Type.BaseType!.Name);
+        }
+
+        // This test validates that a discriminator model whose discriminator value is "unknown" will throw
+        [Test]
+        public void DiscriminatedModelWithUnknownValueThrows()
+        {
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                var unknownPlantModel = InputFactory.Model(
+                    "unknownPlant", discriminatedKind: "Unknown", properties:
+                    [
+                        InputFactory.Property("type", InputPrimitiveType.String, isRequired: true),
+                    ]);
+
+                var plantModel = InputFactory.Model(
+                    "plant",
+                    properties:
+                    [
+                        InputFactory.Property("type", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                        InputFactory.Property("name", InputPrimitiveType.Boolean, isRequired: true)
+                    ],
+                    discriminatedModels: new Dictionary<string, InputModelType>()
+                    {
+                        { "Unknown", unknownPlantModel }
+                    });
+            });
         }
 
         [Test]

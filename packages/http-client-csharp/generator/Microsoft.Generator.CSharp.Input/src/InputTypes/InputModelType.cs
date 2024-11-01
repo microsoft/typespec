@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -83,36 +84,39 @@ namespace Microsoft.Generator.CSharp.Input
                 if (value is null || DiscriminatorProperty == null)
                     return;
 
+                if (value.ContainsKey("Unknown") == true || value.ContainsKey(UnknownDiscriminatorValue) == true)
+                {
+                    throw new InvalidOperationException("Cannot create an Unknown discriminator model sub-type for a model" +
+                        " with a discriminator sub-type value of \"unknown\".");
+                }
+
                 _discriminatedSubtypes = new Dictionary<string, InputModelType>(value);
 
-                if (DiscriminatorValue != UnknownDiscriminatorValue)
-                {
-                    var cleanBaseName = Name.ToCleanName();
-                    _discriminatedSubtypes.Add(UnknownDiscriminatorValue,
-                    new InputModelType(
-                        $"Unknown{cleanBaseName}",
-                        $"Unknown{cleanBaseName}",
-                        "internal",
-                        null,
-                        $"Unknown variant of {cleanBaseName}",
-                        Usage | InputModelTypeUsage.Json,
-                        [],
-                        this,
-                        [],
-                        UnknownDiscriminatorValue,
-                        new InputModelProperty(
-                            DiscriminatorProperty!.Name,
-                            DiscriminatorProperty.SerializedName,
-                            DiscriminatorProperty.Description,
-                            DiscriminatorProperty.Type,
-                            DiscriminatorProperty.IsRequired,
-                            DiscriminatorProperty.IsReadOnly,
-                            DiscriminatorProperty.IsDiscriminator),
-                        new Dictionary<string, InputModelType>(),
-                        null,
-                        false)
-                    );
-                }
+                var cleanBaseName = Name.ToCleanName();
+                _discriminatedSubtypes.Add(UnknownDiscriminatorValue,
+                new InputModelType(
+                    $"Unknown{cleanBaseName}",
+                    $"Unknown{cleanBaseName}",
+                    "internal",
+                    null,
+                    $"Unknown variant of {cleanBaseName}",
+                    Usage | InputModelTypeUsage.Json,
+                    [],
+                    this,
+                    [],
+                    UnknownDiscriminatorValue,
+                    new InputModelProperty(
+                        DiscriminatorProperty!.Name,
+                        DiscriminatorProperty.SerializedName,
+                        DiscriminatorProperty.Description,
+                        DiscriminatorProperty.Type,
+                        DiscriminatorProperty.IsRequired,
+                        DiscriminatorProperty.IsReadOnly,
+                        DiscriminatorProperty.IsDiscriminator),
+                    null!,
+                    null,
+                    false)
+                );
             }
         }
         public InputType? AdditionalProperties { get; internal set; }
