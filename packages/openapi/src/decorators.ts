@@ -20,11 +20,12 @@ import {
   ExternalDocsDecorator,
   InfoDecorator,
   OperationIdDecorator,
+  TagMetadata,
   TagMetadataDecorator,
 } from "../generated-defs/TypeSpec.OpenAPI.js";
 import { isOpenAPIExtensionKey, validateAdditionalInfoModel, validateIsUri } from "./helpers.js";
 import { createStateSymbol, OpenAPIKeys, reportDiagnostic } from "./lib.js";
-import { AdditionalInfo, ExtensionKey, ExternalDocs, TagMetadata } from "./types.js";
+import { AdditionalInfo, ExtensionKey, ExternalDocs } from "./types.js";
 
 const operationIdsKey = createStateSymbol("operationIds");
 /**

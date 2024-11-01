@@ -1,5 +1,15 @@
 import type { DecoratorContext, Model, Namespace, Operation, Type } from "@typespec/compiler";
 
+export interface TagMetadata {
+  readonly description?: string;
+  readonly externalDocs?: ExternalDocs;
+}
+
+export interface ExternalDocs {
+  readonly url: string;
+  readonly description?: string;
+}
+
 /**
  * Specify the OpenAPI `operationId` property for this operation.
  *
@@ -83,13 +93,14 @@ export type InfoDecorator = (
  * Specify OpenAPI additional information.
  *
  * @param name tag name
- * @param additionalTag Additional information
+ * @param tagMetadata Additional information
  */
 export type TagMetadataDecorator = (
   context: DecoratorContext,
   target: Namespace,
   name: string,
   tagMetadata?: Type,
+  additional?: TagMetadata,
 ) => void;
 
 export type TypeSpecOpenAPIDecorators = {

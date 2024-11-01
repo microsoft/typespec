@@ -131,6 +131,6 @@ model ExternalDocs {
 /**
  * Specify OpenAPI additional information.
  * @param name tag name
- * @param additionalTag Additional information
+ * @param tagMetadata Additional information
  */
-extern dec tagMetadata(target: Namespace, name: valueof string, tagMetadata?: TagMetadata);
+extern dec tagMetadata(target: Namespace, name: valueof string, tagMetadata?: TagMetadata, additional?: valueof TagMetadata);
