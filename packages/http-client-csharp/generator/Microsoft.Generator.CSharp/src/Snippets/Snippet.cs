@@ -13,10 +13,30 @@ namespace Microsoft.Generator.CSharp.Snippets
 {
     public static partial class Snippet
     {
-        public static ScopedApi As(this ParameterProvider parameter, CSharpType type) => parameter.AsExpression.As(type);
-        public static ScopedApi<T> As<T>(this ParameterProvider parameter) => parameter.AsExpression.As<T>();
-        public static ScopedApi<T> As<T>(this PropertyProvider property) => ((MemberExpression)property).As<T>();
-        public static ScopedApi<T> As<T>(this FieldProvider field) => ((MemberExpression)field).As<T>();
+        public static ScopedApi As(this ParameterProvider parameter, CSharpType type) => ValueExpressionAsScopedApi(parameter, type);
+        public static ScopedApi<T> As<T>(this ParameterProvider parameter) => ValueExpressionAsScopedApi<T>(parameter);
+        public static ScopedApi<T> As<T>(this PropertyProvider property) => ValueExpressionAsScopedApi<T>(property);
+        public static ScopedApi<T> As<T>(this FieldProvider field) => ValueExpressionAsScopedApi<T>(field);
+
+        private static ScopedApi<T> ValueExpressionAsScopedApi<T>(ValueExpression valueExpression)
+        {
+            if (valueExpression is ScopedApi<T> scopedApi)
+            {
+                return scopedApi;
+            }
+
+            return new ScopedApi<T>(valueExpression);
+        }
+
+        private static ScopedApi ValueExpressionAsScopedApi(ValueExpression valueExpression, CSharpType type)
+        {
+            if (valueExpression is ScopedApi scopedApi && scopedApi.Type.Equals(type))
+            {
+                return scopedApi;
+            }
+
+            return new ScopedApi(type, valueExpression);
+        }
 
         public static ValueExpression NullConditional(this ParameterProvider parameter) => new NullConditionalExpression(parameter);
 

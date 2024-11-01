@@ -584,7 +584,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 return null;
             }
 
-            var discriminatorExpression = property.AsParameter.AsExpression;
+            var discriminatorExpression = property.AsParameter;
             var type = property.Type;
 
             if (!type.IsFrameworkType && type.IsEnum)
