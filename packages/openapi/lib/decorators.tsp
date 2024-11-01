@@ -133,4 +133,9 @@ model ExternalDocs {
  * @param name tag name
  * @param tagMetadata Additional information
  */
-extern dec tagMetadata(target: Namespace, name: valueof string, tagMetadata?: TagMetadata, additional?: valueof TagMetadata);
+extern dec tagMetadata(
+  target: Namespace,
+  name: valueof string,
+  tagMetadata?: TagMetadata,
+  additional?: valueof TagMetadata
+);
