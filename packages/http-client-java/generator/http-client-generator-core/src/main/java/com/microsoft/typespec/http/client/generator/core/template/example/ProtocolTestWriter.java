@@ -8,11 +8,7 @@ import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.util.Configuration;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Scheme;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.AsyncSyncClient;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceClient;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceClientProperty;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.TestContext;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.*;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaClass;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaIfBlock;
@@ -83,9 +79,20 @@ public class ProtocolTestWriter {
                         String defaultValueExpression = serviceClientProperty.getDefaultValueExpression();
                         String expr;
                         if (defaultValueExpression == null) {
-                            expr = String.format("Configuration.getGlobalConfiguration().get(\"%1$s\", %2$s)",
-                                serviceClientProperty.getName().toUpperCase(Locale.ROOT), ClassType.STRING
-                                    .defaultValueExpression(serviceClientProperty.getName().toLowerCase(Locale.ROOT)));
+                            if (serviceClientProperty.getType() instanceof EnumType) {
+                                expr = String.format(
+                                    "%1$s.fromString(Configuration.getGlobalConfiguration().get(\"%2$s\", %3$s))",
+                                    serviceClientProperty.getType(),
+                                    serviceClientProperty.getName().toUpperCase(Locale.ROOT),
+                                    ClassType.STRING.defaultValueExpression(
+                                        serviceClientProperty.getName().toLowerCase(Locale.ROOT)));
+
+                            } else {
+                                expr = String.format("Configuration.getGlobalConfiguration().get(\"%1$s\", %2$s)",
+                                    serviceClientProperty.getName().toUpperCase(Locale.ROOT),
+                                    ClassType.STRING.defaultValueExpression(
+                                        serviceClientProperty.getName().toLowerCase(Locale.ROOT)));
+                            }
                         } else {
                             expr = String.format("Configuration.getGlobalConfiguration().get(\"%1$s\", %2$s)",
                                 serviceClientProperty.getName().toUpperCase(Locale.ROOT), defaultValueExpression);
