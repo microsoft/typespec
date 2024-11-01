@@ -11,10 +11,9 @@
     "src",
     "index.ts"
   ],
-  "keywords": [
-    "astro-component"
-  ],
-  "scripts": {},
+  "scripts": {
+    "build": "astro check"
+  },
   "devDependencies": {
     "astro": "^4.16.8"
   },
@@ -24,6 +23,6 @@
   "dependencies": {
     "@astrojs/check": "^0.9.4",
     "@astrojs/starlight": "^0.28.4",
-    "typescript": "^5.6.3"
+    "typescript": "~5.6.3"
   }
 }
