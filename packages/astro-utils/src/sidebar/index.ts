@@ -1,7 +1,6 @@
 import type { StarlightUserConfig } from "@astrojs/starlight/types";
 import { readdir, stat } from "fs/promises";
 import { join, parse, resolve } from "path/posix";
-import current from "./src/content/current-sidebar";
 
 export type StarlightSidebarUserConfig = StarlightUserConfig["sidebar"];
 
@@ -26,11 +25,14 @@ export interface SlugItem {
 
 export type SidebarItem = string | CategoryItem | SlugItem | AutoGenerateItem;
 
-export async function resolveSideBars(): Promise<NonNullable<StarlightSidebarUserConfig>> {
-  return processSidebar("docs", current);
-}
-
-async function processSidebar(
+/**
+ * Process the sidebar to support some additional functionalities that starlight sidebar doesn't natively:
+ * - Auto resolve the slug relative to a sub path(e.g. docs)
+ * - Ordering change for auto generated
+ * - Better name for auto generated directory
+ */
+export async function processSidebar(
+  contentDir: string,
   directory: string,
   items: SidebarItem[],
 ): Promise<NonNullable<StarlightSidebarUserConfig>> {
@@ -44,10 +46,13 @@ async function processSidebar(
   function getSlugFromPath(directory: string, path: string) {
     const name = parse(path).name.toLocaleLowerCase();
     const normalizedName = name === "index" ? "" : name;
-    return prefix(join(directory, normalizedName)).replaceAll("$", "");
+    return prefix(join(directory, normalizedName))
+      .replaceAll("$", "")
+      .replaceAll(" ", "-")
+      .toLowerCase();
   }
 
-  const base = resolve(import.meta.dirname, "src/content/docs", directory);
+  const base = resolve(contentDir, directory);
 
   async function autogenerate(
     directory: string,
@@ -102,7 +107,7 @@ async function processSidebar(
       result.push({
         ...rest,
         collapsed: !item.expanded,
-        items: moveIndexFirst(await processSidebar(directory, item.items), index),
+        items: moveIndexFirst(await processSidebar(contentDir, directory, item.items), index),
       });
     } else if ("autogenerate" in item) {
       const items = await autogenerate(item.autogenerate.directory, item.autogenerate.order);
