@@ -88,7 +88,7 @@ import { stringify } from "yaml";
 import { getRef } from "./decorators.js";
 import { applyEncoding } from "./encoding.js";
 import { getExampleOrExamples, OperationExamples, resolveOperationExamples } from "./examples.js";
-import { createDiagnostic, FileType, OpenAPI3EmitterOptions } from "./lib.js";
+import { createDiagnostic, FileType, OpenAPI3EmitterOptions, OutputSpecVersions } from "./lib.js";
 import { getDefaultValue, isBytesKeptRaw, OpenAPI3SchemaEmitter } from "./schema-emitter.js";
 import { getOpenAPI3StatusCodes } from "./status-codes.js";
 import {
@@ -125,8 +125,10 @@ const defaultOptions = {
 
 export async function $onEmit(context: EmitContext<OpenAPI3EmitterOptions>) {
   const options = resolveOptions(context);
-  const emitter = createOAPIEmitter(context, options);
-  await emitter.emitOpenAPI();
+  for (const specVersion of options.outputSpecVersions) {
+    const emitter = createOAPIEmitter(context, options, specVersion);
+    await emitter.emitOpenAPI();
+  }
 }
 
 type IrrelevantOpenAPI3EmitterOptionsForObject = "file-type" | "output-file" | "new-line";
@@ -156,8 +158,12 @@ export async function getOpenAPI3(
   };
 
   const resolvedOptions = resolveOptions(context);
-  const emitter = createOAPIEmitter(context, resolvedOptions);
-  return emitter.getOpenAPI();
+  const serviceRecords: OpenAPI3ServiceRecord[] = [];
+  for (const specVersion of resolvedOptions.outputSpecVersions) {
+    const emitter = createOAPIEmitter(context, resolvedOptions, specVersion);
+    serviceRecords.push(...(await emitter.getOpenAPI()));
+  }
+  return serviceRecords;
 }
 
 function findFileTypeFromFilename(filename: string | undefined): FileType {
@@ -184,19 +190,26 @@ export function resolveOptions(
 
   const outputFile =
     resolvedOptions["output-file"] ?? `openapi.{service-name}.{version}.${fileType}`;
+
+  const outputSpecVersions = resolvedOptions["output-spec-versions"] ?? ["v3.0"];
+
+  const specDir = outputSpecVersions.length > 1 ? "{output-spec-version}" : "";
+
   return {
     fileType,
     newLine: resolvedOptions["new-line"],
     omitUnreachableTypes: resolvedOptions["omit-unreachable-types"],
     includeXTypeSpecName: resolvedOptions["include-x-typespec-name"],
     safeintStrategy: resolvedOptions["safeint-strategy"],
-    outputFile: resolvePath(context.emitterOutputDir, outputFile),
+    outputFile: resolvePath(context.emitterOutputDir, specDir, outputFile),
+    outputSpecVersions,
   };
 }
 
 export interface ResolvedOpenAPI3EmitterOptions {
   fileType: FileType;
   outputFile: string;
+  outputSpecVersions: OutputSpecVersions[];
   newLine: NewLine;
   omitUnreachableTypes: boolean;
   includeXTypeSpecName: "inline-only" | "never";
@@ -206,6 +219,7 @@ export interface ResolvedOpenAPI3EmitterOptions {
 function createOAPIEmitter(
   context: EmitContext<OpenAPI3EmitterOptions>,
   options: ResolvedOpenAPI3EmitterOptions,
+  specVersion: OutputSpecVersions = "v3.0",
 ) {
   let program = context.program;
   let schemaEmitter: AssetEmitter<OpenAPI3Schema, OpenAPI3EmitterOptions>;
@@ -501,6 +515,7 @@ function createOAPIEmitter(
 
   function resolveOutputFile(service: Service, multipleService: boolean, version?: string): string {
     return interpolatePath(options.outputFile, {
+      "output-spec-version": specVersion,
       "service-name": multipleService ? getNamespaceFullName(service.type) : undefined,
       version,
     });

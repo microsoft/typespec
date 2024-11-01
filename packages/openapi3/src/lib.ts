@@ -1,6 +1,7 @@
 import { createTypeSpecLibrary, JSONSchemaType, paramMessage } from "@typespec/compiler";
 
 export type FileType = "yaml" | "json";
+export type OutputSpecVersions = "v3.0" | "v3.1";
 export interface OpenAPI3EmitterOptions {
   /**
    * If the content should be serialized as YAML or JSON.
@@ -35,6 +36,16 @@ export interface OpenAPI3EmitterOptions {
    *  - `openapi.Org1.Service2.v1.1.yaml`
    */
   "output-file"?: string;
+
+  /**
+   * The Open API specification versions to emit.
+   * If more than one version is specified, then the output file
+   * will be created inside a directory matching each specification version.
+   *
+   * @default ["v3.0"]
+   * @internal
+   */
+  "output-spec-versions"?: OutputSpecVersions[];
 
   /**
    * Set the newline character for emitting files.
@@ -103,6 +114,16 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
         "  - `openapi.Org1.Service2.v1.0.yaml`",
         "  - `openapi.Org1.Service2.v1.1.yaml`    ",
       ].join("\n"),
+    },
+    "output-spec-versions": {
+      type: "array",
+      items: {
+        type: "string",
+        enum: ["v3.0", "v3.1"],
+        nullable: true,
+        description: "The versions of OpenAPI to emit. Defaults to `v3.0`",
+      },
+      nullable: true,
     },
     "new-line": {
       type: "string",
