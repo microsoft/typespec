@@ -191,7 +191,7 @@ export const $info: InfoDecorator = (
     !validateAdditionalInfoModel(
       context.program,
       context.getArgumentTarget(0)!,
-      model,
+      model as Model,
       "TypeSpec.OpenAPI.AdditionalInfo",
     )
   ) {
@@ -269,6 +269,7 @@ export const tagMetadataDecorator: TagMetadataDecorator = (
       },
       target: context.getArgumentTarget(0)!,
     });
+    return;
   }
 
   // Retrieve existing tags metadata or initialize an empty object
@@ -289,6 +290,7 @@ export const tagMetadataDecorator: TagMetadataDecorator = (
 
   // Process tag metadata if provided
   if (tagMetadata) {
+    // Convert TypeSpecValue to JSON and capture diagnostics
     const [data, diagnostics] = typespecTypeToJson<TagMetadata & Record<ExtensionKey, unknown>>(
       tagMetadata,
       context.getArgumentTarget(0)!,
@@ -307,7 +309,7 @@ export const tagMetadataDecorator: TagMetadataDecorator = (
       !validateAdditionalInfoModel(
         context.program,
         context.getArgumentTarget(0)!,
-        tagMetadata,
+        tagMetadata as Model,
         "TypeSpec.OpenAPI.TagMetadata",
       )
     ) {

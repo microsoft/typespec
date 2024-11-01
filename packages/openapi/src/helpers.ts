@@ -1,5 +1,4 @@
 import {
-  compilerAssert,
   Diagnostic,
   DiagnosticTarget,
   getFriendlyName,
@@ -15,7 +14,6 @@ import {
   Program,
   Type,
   TypeNameOptions,
-  TypeSpecValue,
 } from "@typespec/compiler";
 import { getOperationId } from "./decorators.js";
 import { createDiagnostic, reportDiagnostic } from "./lib.js";
@@ -225,7 +223,7 @@ export function validateIsUri(
 export function validateAdditionalInfoModel(
   program: Program,
   target: DiagnosticTarget,
-  typespecType: TypeSpecValue,
+  typespecType: Model,
   reference: string,
 ): boolean {
   // Resolve the reference to get the corresponding model
@@ -250,19 +248,17 @@ export function validateAdditionalInfoModel(
  * Check Additional Properties
  */
 function checkNoAdditionalProperties(
-  typespecType: Type,
+  typespecType: Model,
   target: DiagnosticTarget,
   source: Model,
 ): Diagnostic[] {
   const diagnostics: Diagnostic[] = [];
-  compilerAssert(typespecType.kind === "Model", "Expected type to be a Model.");
-
   for (const [name, type] of typespecType.properties.entries()) {
     const sourceProperty = getProperty(source, name);
     if (sourceProperty) {
       if (sourceProperty.type.kind === "Model") {
         const nestedDiagnostics = checkNoAdditionalProperties(
-          type.type,
+          type.type as Model,
           target,
           sourceProperty.type,
         );
