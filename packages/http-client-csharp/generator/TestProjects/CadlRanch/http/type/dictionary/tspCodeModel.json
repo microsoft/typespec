@@ -2492,15 +2492,7 @@
          "decorators": []
         },
         "valueType": {
-         "$id": "265",
-         "kind": "nullable",
-         "type": {
-          "$id": "266",
-          "kind": "float32",
-          "name": "float32",
-          "crossLanguageDefinitionId": "TypeSpec.float32",
-          "decorators": []
-         }
+         "$ref": "256"
         },
         "decorators": []
        },
@@ -2517,7 +2509,7 @@
      ],
      "Responses": [
       {
-       "$id": "267",
+       "$id": "265",
        "StatusCodes": [
         204
        ],
@@ -2541,7 +2533,7 @@
     }
    ],
    "Protocol": {
-    "$id": "268"
+    "$id": "266"
    },
    "Parent": "DictionaryClient",
    "Parameters": [

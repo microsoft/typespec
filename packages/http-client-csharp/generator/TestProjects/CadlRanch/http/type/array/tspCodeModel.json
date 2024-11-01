@@ -2174,15 +2174,7 @@
         "kind": "array",
         "name": "Array",
         "valueType": {
-         "$id": "223",
-         "kind": "nullable",
-         "type": {
-          "$id": "224",
-          "kind": "float32",
-          "name": "float32",
-          "crossLanguageDefinitionId": "TypeSpec.float32",
-          "decorators": []
-         }
+         "$ref": "215"
         },
         "crossLanguageDefinitionId": "TypeSpec.Array",
         "decorators": []
@@ -2200,7 +2192,7 @@
      ],
      "Responses": [
       {
-       "$id": "225",
+       "$id": "223",
        "StatusCodes": [
         204
        ],
@@ -2224,7 +2216,7 @@
     }
    ],
    "Protocol": {
-    "$id": "226"
+    "$id": "224"
    },
    "Parent": "ArrayClient",
    "Parameters": [
@@ -2235,23 +2227,23 @@
    "Decorators": []
   },
   {
-   "$id": "227",
+   "$id": "225",
    "Name": "NullableInt32Value",
    "Description": "Array of nullable int32 values",
    "Operations": [
     {
-     "$id": "228",
+     "$id": "226",
      "Name": "get",
      "ResourceName": "NullableInt32Value",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "229",
+       "$id": "227",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
        "Description": "Service host",
        "Type": {
-        "$id": "230",
+        "$id": "228",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -2266,9 +2258,9 @@
        "Explode": false,
        "Kind": "Client",
        "DefaultValue": {
-        "$id": "231",
+        "$id": "229",
         "Type": {
-         "$id": "232",
+         "$id": "230",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -2277,14 +2269,14 @@
        }
       },
       {
-       "$id": "233",
+       "$id": "231",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "234",
+        "$id": "232",
         "kind": "constant",
         "valueType": {
-         "$id": "235",
+         "$id": "233",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2306,19 +2298,19 @@
      ],
      "Responses": [
       {
-       "$id": "236",
+       "$id": "234",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$id": "237",
+        "$id": "235",
         "kind": "array",
         "name": "Array",
         "valueType": {
-         "$id": "238",
+         "$id": "236",
          "kind": "nullable",
          "type": {
-          "$id": "239",
+          "$id": "237",
           "kind": "int32",
           "name": "int32",
           "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -2347,24 +2339,24 @@
      "Decorators": []
     },
     {
-     "$id": "240",
+     "$id": "238",
      "Name": "put",
      "ResourceName": "NullableInt32Value",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "229"
+       "$ref": "227"
       },
       {
-       "$id": "241",
+       "$id": "239",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "242",
+        "$id": "240",
         "kind": "constant",
         "valueType": {
-         "$id": "243",
+         "$id": "241",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2384,23 +2376,15 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "244",
+       "$id": "242",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
-        "$id": "245",
+        "$id": "243",
         "kind": "array",
         "name": "Array",
         "valueType": {
-         "$id": "246",
-         "kind": "nullable",
-         "type": {
-          "$id": "247",
-          "kind": "int32",
-          "name": "int32",
-          "crossLanguageDefinitionId": "TypeSpec.int32",
-          "decorators": []
-         }
+         "$ref": "236"
         },
         "crossLanguageDefinitionId": "TypeSpec.Array",
         "decorators": []
@@ -2418,7 +2402,7 @@
      ],
      "Responses": [
       {
-       "$id": "248",
+       "$id": "244",
        "StatusCodes": [
         204
        ],
@@ -2442,34 +2426,34 @@
     }
    ],
    "Protocol": {
-    "$id": "249"
+    "$id": "245"
    },
    "Parent": "ArrayClient",
    "Parameters": [
     {
-     "$ref": "229"
+     "$ref": "227"
     }
    ],
    "Decorators": []
   },
   {
-   "$id": "250",
+   "$id": "246",
    "Name": "NullableBooleanValue",
    "Description": "Array of nullable boolean values",
    "Operations": [
     {
-     "$id": "251",
+     "$id": "247",
      "Name": "get",
      "ResourceName": "NullableBooleanValue",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "252",
+       "$id": "248",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
        "Description": "Service host",
        "Type": {
-        "$id": "253",
+        "$id": "249",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -2484,9 +2468,9 @@
        "Explode": false,
        "Kind": "Client",
        "DefaultValue": {
-        "$id": "254",
+        "$id": "250",
         "Type": {
-         "$id": "255",
+         "$id": "251",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -2495,14 +2479,14 @@
        }
       },
       {
-       "$id": "256",
+       "$id": "252",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "257",
+        "$id": "253",
         "kind": "constant",
         "valueType": {
-         "$id": "258",
+         "$id": "254",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2524,19 +2508,19 @@
      ],
      "Responses": [
       {
-       "$id": "259",
+       "$id": "255",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$id": "260",
+        "$id": "256",
         "kind": "array",
         "name": "Array",
         "valueType": {
-         "$id": "261",
+         "$id": "257",
          "kind": "nullable",
          "type": {
-          "$id": "262",
+          "$id": "258",
           "kind": "boolean",
           "name": "boolean",
           "crossLanguageDefinitionId": "TypeSpec.boolean",
@@ -2565,24 +2549,24 @@
      "Decorators": []
     },
     {
-     "$id": "263",
+     "$id": "259",
      "Name": "put",
      "ResourceName": "NullableBooleanValue",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "252"
+       "$ref": "248"
       },
       {
-       "$id": "264",
+       "$id": "260",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "265",
+        "$id": "261",
         "kind": "constant",
         "valueType": {
-         "$id": "266",
+         "$id": "262",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2602,23 +2586,15 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "267",
+       "$id": "263",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
-        "$id": "268",
+        "$id": "264",
         "kind": "array",
         "name": "Array",
         "valueType": {
-         "$id": "269",
-         "kind": "nullable",
-         "type": {
-          "$id": "270",
-          "kind": "boolean",
-          "name": "boolean",
-          "crossLanguageDefinitionId": "TypeSpec.boolean",
-          "decorators": []
-         }
+         "$ref": "257"
         },
         "crossLanguageDefinitionId": "TypeSpec.Array",
         "decorators": []
@@ -2636,7 +2612,7 @@
      ],
      "Responses": [
       {
-       "$id": "271",
+       "$id": "265",
        "StatusCodes": [
         204
        ],
@@ -2660,34 +2636,34 @@
     }
    ],
    "Protocol": {
-    "$id": "272"
+    "$id": "266"
    },
    "Parent": "ArrayClient",
    "Parameters": [
     {
-     "$ref": "252"
+     "$ref": "248"
     }
    ],
    "Decorators": []
   },
   {
-   "$id": "273",
+   "$id": "267",
    "Name": "NullableStringValue",
    "Description": "Array of nullable string values",
    "Operations": [
     {
-     "$id": "274",
+     "$id": "268",
      "Name": "get",
      "ResourceName": "NullableStringValue",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "275",
+       "$id": "269",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
        "Description": "Service host",
        "Type": {
-        "$id": "276",
+        "$id": "270",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -2702,9 +2678,9 @@
        "Explode": false,
        "Kind": "Client",
        "DefaultValue": {
-        "$id": "277",
+        "$id": "271",
         "Type": {
-         "$id": "278",
+         "$id": "272",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -2713,14 +2689,14 @@
        }
       },
       {
-       "$id": "279",
+       "$id": "273",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "280",
+        "$id": "274",
         "kind": "constant",
         "valueType": {
-         "$id": "281",
+         "$id": "275",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2742,19 +2718,19 @@
      ],
      "Responses": [
       {
-       "$id": "282",
+       "$id": "276",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$id": "283",
+        "$id": "277",
         "kind": "array",
         "name": "Array",
         "valueType": {
-         "$id": "284",
+         "$id": "278",
          "kind": "nullable",
          "type": {
-          "$id": "285",
+          "$id": "279",
           "kind": "string",
           "name": "string",
           "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2783,24 +2759,24 @@
      "Decorators": []
     },
     {
-     "$id": "286",
+     "$id": "280",
      "Name": "put",
      "ResourceName": "NullableStringValue",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "275"
+       "$ref": "269"
       },
       {
-       "$id": "287",
+       "$id": "281",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "288",
+        "$id": "282",
         "kind": "constant",
         "valueType": {
-         "$id": "289",
+         "$id": "283",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2820,23 +2796,15 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "290",
+       "$id": "284",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
-        "$id": "291",
+        "$id": "285",
         "kind": "array",
         "name": "Array",
         "valueType": {
-         "$id": "292",
-         "kind": "nullable",
-         "type": {
-          "$id": "293",
-          "kind": "string",
-          "name": "string",
-          "crossLanguageDefinitionId": "TypeSpec.string",
-          "decorators": []
-         }
+         "$ref": "278"
         },
         "crossLanguageDefinitionId": "TypeSpec.Array",
         "decorators": []
@@ -2854,7 +2822,7 @@
      ],
      "Responses": [
       {
-       "$id": "294",
+       "$id": "286",
        "StatusCodes": [
         204
        ],
@@ -2878,34 +2846,34 @@
     }
    ],
    "Protocol": {
-    "$id": "295"
+    "$id": "287"
    },
    "Parent": "ArrayClient",
    "Parameters": [
     {
-     "$ref": "275"
+     "$ref": "269"
     }
    ],
    "Decorators": []
   },
   {
-   "$id": "296",
+   "$id": "288",
    "Name": "NullableModelValue",
    "Description": "Array of nullable model values",
    "Operations": [
     {
-     "$id": "297",
+     "$id": "289",
      "Name": "get",
      "ResourceName": "NullableModelValue",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "298",
+       "$id": "290",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
        "Description": "Service host",
        "Type": {
-        "$id": "299",
+        "$id": "291",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -2920,9 +2888,9 @@
        "Explode": false,
        "Kind": "Client",
        "DefaultValue": {
-        "$id": "300",
+        "$id": "292",
         "Type": {
-         "$id": "301",
+         "$id": "293",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -2931,14 +2899,14 @@
        }
       },
       {
-       "$id": "302",
+       "$id": "294",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "303",
+        "$id": "295",
         "kind": "constant",
         "valueType": {
-         "$id": "304",
+         "$id": "296",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2960,16 +2928,16 @@
      ],
      "Responses": [
       {
-       "$id": "305",
+       "$id": "297",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$id": "306",
+        "$id": "298",
         "kind": "array",
         "name": "Array",
         "valueType": {
-         "$id": "307",
+         "$id": "299",
          "kind": "nullable",
          "type": {
           "$ref": "2"
@@ -2997,24 +2965,24 @@
      "Decorators": []
     },
     {
-     "$id": "308",
+     "$id": "300",
      "Name": "put",
      "ResourceName": "NullableModelValue",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "298"
+       "$ref": "290"
       },
       {
-       "$id": "309",
+       "$id": "301",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "310",
+        "$id": "302",
         "kind": "constant",
         "valueType": {
-         "$id": "311",
+         "$id": "303",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -3034,19 +3002,15 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "312",
+       "$id": "304",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
-        "$id": "313",
+        "$id": "305",
         "kind": "array",
         "name": "Array",
         "valueType": {
-         "$id": "314",
-         "kind": "nullable",
-         "type": {
-          "$ref": "2"
-         }
+         "$ref": "299"
         },
         "crossLanguageDefinitionId": "TypeSpec.Array",
         "decorators": []
@@ -3064,7 +3028,7 @@
      ],
      "Responses": [
       {
-       "$id": "315",
+       "$id": "306",
        "StatusCodes": [
         204
        ],
@@ -3088,12 +3052,12 @@
     }
    ],
    "Protocol": {
-    "$id": "316"
+    "$id": "307"
    },
    "Parent": "ArrayClient",
    "Parameters": [
     {
-     "$ref": "298"
+     "$ref": "290"
     }
    ],
    "Decorators": []
