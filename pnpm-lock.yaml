@@ -124,10 +124,16 @@ importers:
       astro-expressive-code:
         specifier: ^0.37.0
         version: 0.37.0(astro@4.16.8(@types/node@22.7.5)(rollup@4.24.0)(terser@5.34.1)(typescript@5.6.3))
+      react:
+        specifier: ~18.3.1
+        version: 18.3.1
       typescript:
         specifier: ~5.6.3
         version: 5.6.3
     devDependencies:
+      '@types/react':
+        specifier: ~18.3.11
+        version: 18.3.11
       astro:
         specifier: ^4.16.8
         version: 4.16.8(@types/node@22.7.5)(rollup@4.24.0)(terser@5.34.1)(typescript@5.6.3)
