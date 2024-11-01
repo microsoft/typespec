@@ -1,5 +1,7 @@
 ---
 title: "Data types"
+toc_min_heading_level: 2
+toc_max_heading_level: 3
 ---
 
 ## TypeSpec.Http
@@ -186,6 +188,20 @@ model TypeSpec.Http.ConflictResponse
 | Name       | Type  | Description      |
 | ---------- | ----- | ---------------- |
 | statusCode | `409` | The status code. |
+
+### `CookieOptions` {#TypeSpec.Http.CookieOptions}
+
+Cookie Options.
+
+```typespec
+model TypeSpec.Http.CookieOptions
+```
+
+#### Properties
+
+| Name  | Type     | Description         |
+| ----- | -------- | ------------------- |
+| name? | `string` | Name in the cookie. |
 
 ### `CreatedResponse` {#TypeSpec.Http.CreatedResponse}
 
