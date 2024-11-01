@@ -787,7 +787,6 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             var inputModel = InputFactory.Model(
                 "mockInputModel",
                 properties: [modelProp, discriminatorProp], derivedModels: [fooModel, barModel],
-                discriminatedModels: new Dictionary<string, InputModelType>() { { "foo", fooModel }, { "bar", barModel } },
                 usage: InputModelTypeUsage.Json);
 
             var plugin = await MockHelpers.LoadMockPluginAsync(
