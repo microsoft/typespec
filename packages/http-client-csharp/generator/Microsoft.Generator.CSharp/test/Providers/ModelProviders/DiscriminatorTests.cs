@@ -226,10 +226,10 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
         [Test]
         public void DiscriminatedModelWithUnknownValueThrows()
         {
-            Assert.Throws<InvalidOperationException>(() =>
+            Assert.Throws<ArgumentException>(() =>
             {
                 var unknownPlantModel = InputFactory.Model(
-                    "unknownPlant", discriminatedKind: "Unknown", properties:
+                    "unknownPlant", discriminatedKind: "unknown", properties:
                     [
                         InputFactory.Property("type", InputPrimitiveType.String, isRequired: true),
                     ]);
@@ -243,7 +243,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
                     ],
                     discriminatedModels: new Dictionary<string, InputModelType>()
                     {
-                        { "Unknown", unknownPlantModel }
+                        { "unknown", unknownPlantModel }
                     });
             });
         }

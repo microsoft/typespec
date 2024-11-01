@@ -84,12 +84,6 @@ namespace Microsoft.Generator.CSharp.Input
                 if (value is null || DiscriminatorProperty == null)
                     return;
 
-                if (value.ContainsKey("Unknown") == true || value.ContainsKey(UnknownDiscriminatorValue) == true)
-                {
-                    throw new InvalidOperationException("Cannot create an Unknown discriminator model sub-type for a model" +
-                        " with a discriminator sub-type value of \"unknown\".");
-                }
-
                 _discriminatedSubtypes = new Dictionary<string, InputModelType>(value);
 
                 var cleanBaseName = Name.ToCleanName();
