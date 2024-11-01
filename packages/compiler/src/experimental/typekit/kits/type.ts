@@ -76,15 +76,27 @@ defineKit<BaseTypeKit>({
             projections: [...type.projections],
           });
           const clonedNamespace = clone as Namespace;
-          clonedNamespace.decoratorDeclarations = cloneTypeCollection(type.decoratorDeclarations, {namespace: clonedNamespace});
-          clonedNamespace.models = cloneTypeCollection(type.models, {namespace: clonedNamespace});
-          clonedNamespace.enums = cloneTypeCollection(type.enums, {namespace: clonedNamespace});
-          clonedNamespace.functionDeclarations = cloneTypeCollection(type.functionDeclarations, {namespace: clonedNamespace});
-          clonedNamespace.interfaces = cloneTypeCollection(type.interfaces, {namespace: clonedNamespace});
-          clonedNamespace.namespaces = cloneTypeCollection(type.namespaces, {namespace: clonedNamespace});
-          clonedNamespace.operations = cloneTypeCollection(type.operations, {namespace: clonedNamespace});
-          clonedNamespace.scalars = cloneTypeCollection(type.scalars, {namespace: clonedNamespace});
-          clonedNamespace.unions = cloneTypeCollection(type.unions, {namespace: clonedNamespace});
+          clonedNamespace.decoratorDeclarations = cloneTypeCollection(type.decoratorDeclarations, {
+            namespace: clonedNamespace,
+          });
+          clonedNamespace.models = cloneTypeCollection(type.models, { namespace: clonedNamespace });
+          clonedNamespace.enums = cloneTypeCollection(type.enums, { namespace: clonedNamespace });
+          clonedNamespace.functionDeclarations = cloneTypeCollection(type.functionDeclarations, {
+            namespace: clonedNamespace,
+          });
+          clonedNamespace.interfaces = cloneTypeCollection(type.interfaces, {
+            namespace: clonedNamespace,
+          });
+          clonedNamespace.namespaces = cloneTypeCollection(type.namespaces, {
+            namespace: clonedNamespace,
+          });
+          clonedNamespace.operations = cloneTypeCollection(type.operations, {
+            namespace: clonedNamespace,
+          });
+          clonedNamespace.scalars = cloneTypeCollection(type.scalars, {
+            namespace: clonedNamespace,
+          });
+          clonedNamespace.unions = cloneTypeCollection(type.unions, { namespace: clonedNamespace });
           break;
         default:
           clone = this.program.checker.createType({
@@ -99,12 +111,14 @@ defineKit<BaseTypeKit>({
   },
 });
 
-
-function cloneTypeCollection<T extends Type>(collection: Map<string, T>, options: {namespace?: Namespace} = {}): Map<string, T> {
+function cloneTypeCollection<T extends Type>(
+  collection: Map<string, T>,
+  options: { namespace?: Namespace } = {},
+): Map<string, T> {
   const cloneCollection = new Map<string, T>();
   for (const [key, type] of collection) {
     const clone = $.type.clone(type);
-    if("namespace" in clone && options.namespace) {
+    if ("namespace" in clone && options.namespace) {
       clone.namespace = options.namespace;
     }
     cloneCollection.set(key, clone);

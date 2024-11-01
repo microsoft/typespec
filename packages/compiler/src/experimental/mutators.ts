@@ -80,7 +80,7 @@ export interface Mutator {
  */
 export type MutatorWithNamespace = Mutator & {
   Namespace?: MutatorRecord<Namespace>;
-} 
+};
 
 /** @experimental */
 export enum MutatorFlow {
@@ -113,10 +113,12 @@ const seen = new CustomKeyMap<[MutableType, Set<Mutator> | Mutator[]], Type>(([t
 });
 
 /** @experimental */
-export function mutateSubgraphWithNamespace<T extends MutableTypeWithNamespace>(  program: Program,
-  mutators: (MutatorWithNamespace)[],
-  type: T,): { realm: Realm | null; type: MutableTypeWithNamespace }  {
-    return mutateSubgraph(program, mutators, type as any);
+export function mutateSubgraphWithNamespace<T extends MutableTypeWithNamespace>(
+  program: Program,
+  mutators: MutatorWithNamespace[],
+  type: T,
+): { realm: Realm | null; type: MutableTypeWithNamespace } {
+  return mutateSubgraph(program, mutators, type as any);
 }
 
 /** @experimental */
