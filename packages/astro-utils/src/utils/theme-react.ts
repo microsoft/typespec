@@ -1,5 +1,5 @@
-import { getTheme, type Theme } from "@site/src/utils/theme";
 import { useEffect, useState } from "react";
+import { getTheme, type Theme } from "./theme";
 
 export function useTheme(): Theme {
   const [current, setCurrent] = useState<Theme>(getTheme());
