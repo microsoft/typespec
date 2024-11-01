@@ -25,8 +25,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Imple
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
-import org.apache.tools.ant.taskdefs.Java;
-
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -226,7 +224,7 @@ public class SchemaUtil {
         } else if (!(returnType instanceof PrimitiveType)) {
             if (type instanceof EnumType) {
                 boolean isPathOrURIParameter = RequestParameterLocation.PATH == parameterRequestLocation
-                  || RequestParameterLocation.URI == parameterRequestLocation;
+                    || RequestParameterLocation.URI == parameterRequestLocation;
                 boolean isEnumAsString = !(JavaSettings.getInstance().isDataPlaneClient() && isPathOrURIParameter);
                 if (isEnumAsString) { // do not change enum to string type for data-plane path/url parameter
                     returnType = ClassType.STRING;
