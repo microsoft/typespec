@@ -81,7 +81,7 @@ namespace Microsoft.Generator.CSharp.Input
             get => _discriminatedSubtypes ??= new Dictionary<string, InputModelType>();
             internal set
             {
-                if (value is null || DiscriminatorProperty == null)
+                if (value is null || DiscriminatorProperty == null || DiscriminatorValue == UnknownDiscriminatorValue)
                     return;
 
                 _discriminatedSubtypes = new Dictionary<string, InputModelType>(value);
@@ -107,7 +107,7 @@ namespace Microsoft.Generator.CSharp.Input
                         DiscriminatorProperty.IsRequired,
                         DiscriminatorProperty.IsReadOnly,
                         DiscriminatorProperty.IsDiscriminator),
-                    null!,
+                    new Dictionary<string, InputModelType>(),
                     null,
                     false)
                 );
