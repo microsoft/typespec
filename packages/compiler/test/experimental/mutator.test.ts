@@ -1,5 +1,5 @@
 import { beforeEach, expect, it } from "vitest";
-import { mutateSubgraph, Mutator, MutatorFlow } from "../../src/experimental/mutators.js";
+import { mutateSubgraph, Mutator, MutatorFlow, mutateSubgraphWithNamespace, MutatorWithNamespace } from "../../src/experimental/mutators.js";
 import { Model, Namespace } from "../../src/index.js";
 import { createTestHost } from "../../src/testing/test-host.js";
 import { createTestWrapper } from "../../src/testing/test-utils.js";
@@ -85,16 +85,16 @@ it("removes model reference from namespace", async () => {
   `;
 
   const { Foo } = (await runner.compile(code)) as { Foo: Namespace; Bar: Model; Baz: Model };
-  const mutator: Mutator = {
+  const mutator: MutatorWithNamespace = {
     name: "test",
     Namespace: {
-      mutate: (ns, clone, p, realm) => {
+      mutate: (_ns, clone) => {
         clone.models.delete("Bar");
       },
     },
   };
 
-  const { type } = mutateSubgraph(runner.program, [mutator], Foo);
+  const { type } = mutateSubgraphWithNamespace(runner.program, [mutator], Foo);
 
   const mutatedNs = type as Namespace;
 
@@ -102,6 +102,12 @@ it("removes model reference from namespace", async () => {
   expect(Foo.models.has("Bar")).toBeTruthy();
   // Mutated namespace should not have Bar model
   expect(mutatedNs.models.has("Bar")).toBeFalsy();
+  // Mutated namespace is propagated to the models
+  expect(mutatedNs.models.get("Baz")!.namespace?.models.get("Bar")).toBeUndefined();
+  // Original should be unchanged
+  expect(Foo.models.get("Baz")!.namespace?.models.get("Bar")).toBeDefined();
+  expect(Foo.models.get("Baz")!.namespace).toBe(Foo);
+
 });
 
 it("do not recurse the model", async () => {
