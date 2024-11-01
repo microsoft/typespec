@@ -60,6 +60,28 @@ extern dec visibility(target: ModelProperty, ...visibilities: valueof (string | 
 extern dec invisible(target: ModelProperty, visibilityClass: Enum);
 
 /**
+ * Removes visibility modifiers from a property.
+ *
+ * If the visibility modifiers for a visibility class have not been initialized,
+ * this decorator will use the default visibility modifiers for the visibility
+ * class as the default modifier set.
+ *
+ * @param target The property to remove visibility from.
+ * @param visibilities The visibility modifiers to remove from the target property.
+ *
+ * @example
+ * ```typespec
+ * model Example {
+ *   // This property will have the Create and Update visibilities, but not the
+ *   // Read visibility, since it is removed.
+ *   @removeVisibility(Lifecycle.Read)
+ *   secret_property: string;
+ * }
+ * ```
+ */
+extern dec removeVisibility(target: ModelProperty, ...visibilities: valueof EnumMember[]);
+
+/**
  * Removes properties that are not considered to be present or applicable
  * ("visible") in the given named contexts ("visibilities"). Can be used
  * together with spread to effectively spread only visible properties into

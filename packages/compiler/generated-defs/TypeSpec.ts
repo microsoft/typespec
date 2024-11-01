@@ -721,6 +721,31 @@ export type InvisibleDecorator = (
 ) => void;
 
 /**
+ * Removes visibility modifiers from a property.
+ *
+ * If the visibility modifiers for a visibility class have not been initialized,
+ * this decorator will use the default visibility modifiers for the visibility
+ * class as the default modifier set.
+ *
+ * @param target The property to remove visibility from.
+ * @param visibilities The visibility modifiers to remove from the target property.
+ * @example
+ * ```typespec
+ * model Example {
+ *   // This property will have the Create and Update visibilities, but not the
+ *   // Read visibility, since it is removed.
+ *   @removeVisibility(Lifecycle.Read)
+ *   secret_property: string;
+ * }
+ * ```
+ */
+export type RemoveVisibilityDecorator = (
+  context: DecoratorContext,
+  target: ModelProperty,
+  ...visibilities: EnumValue[]
+) => void;
+
+/**
  * Removes properties that are not considered to be present or applicable
  * ("visible") in the given named contexts ("visibilities"). Can be used
  * together with spread to effectively spread only visible properties into
@@ -898,6 +923,7 @@ export type TypeSpecDecorators = {
   inspectTypeName: InspectTypeNameDecorator;
   visibility: VisibilityDecorator;
   invisible: InvisibleDecorator;
+  removeVisibility: RemoveVisibilityDecorator;
   withVisibility: WithVisibilityDecorator;
   parameterVisibility: ParameterVisibilityDecorator;
   returnTypeVisibility: ReturnTypeVisibilityDecorator;

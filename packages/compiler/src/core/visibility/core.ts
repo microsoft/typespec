@@ -547,6 +547,11 @@ export interface VisibilityFilter {
 }
 
 export const VisibilityFilter = {
+  /**
+   * Convert a TypeSpec `GeneratedVisibilityFilter` value to a `VisibilityFilter`.
+   * @param filter - the decorator argument filter to convert
+   * @returns a `VisibilityFilter` object that can be consumed by the visibility APIs
+   */
   fromDecoratorArgument(filter: GeneratedVisibilityFilter): VisibilityFilter {
     return {
       all: filter.all && new Set(filter.all.map((v) => v.value)),
@@ -554,6 +559,13 @@ export const VisibilityFilter = {
       none: filter.none && new Set(filter.none.map((v) => v.value)),
     };
   },
+  /**
+   * Extracts the unique visibility classes referred to by the modifiers in a
+   * visibility filter.
+   *
+   * @param filter - the visibility filter to extract visibility classes from
+   * @returns a set of visibility classes referred to by the filter
+   */
   getVisibilityClasses(filter: VisibilityFilter): Set<Enum> {
     const classes = new Set<Enum>();
     if (filter.all) filter.all.forEach((v) => classes.add(v.enum));
