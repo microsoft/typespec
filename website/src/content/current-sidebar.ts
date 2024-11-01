@@ -1,4 +1,4 @@
-import type { SidebarItem } from "@site/sidebars";
+import type { SidebarItem } from "@typespec/astro-utils/sidebar";
 
 function createLibraryReferenceStructure(
   libDir: string,
