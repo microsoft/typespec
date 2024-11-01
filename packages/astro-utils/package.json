@@ -6,6 +6,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./sidebar": "./src/sidebar/index.ts",
+    "./shiki": "./src/shiki/index.ts",
     "./expressive-code/*": "./dist/expressive-code/*.js"
   },
   "files": [
