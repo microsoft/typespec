@@ -206,7 +206,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 new MethodSignature(ClientModelPlugin.Instance.TypeFactory.RequestContentApi.RequestContentType.FrameworkType.Name, null, modifiers, null, null, [model]),
                 new MethodBodyStatement[]
                 {
-                    !_isStruct ? new IfStatement(model.AsExpression.Equal(Null)) { Return(Null) } : MethodBodyStatement.Empty,
+                    !_isStruct ? new IfStatement(model.Equal(Null)) { Return(Null) } : MethodBodyStatement.Empty,
                     ClientModelPlugin.Instance.TypeFactory.RequestContentApi.ToExpression().Create(model)
                 },
                 this);
@@ -688,7 +688,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 {
                     var field = parameter.Field;
                     Debug.Assert(field != null);
-                    serializationCtorParameters[i] = field.AsVariableExpression;
+                    serializationCtorParameters[i] = field;
                 }
             }
 
@@ -808,7 +808,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 var rawDataDeserializationValue = GetValueTypeDeserializationExpression(elementType, jsonProperty.Value(), SerializationFormat.Default);
                 propertyDeserializationStatements.Add(new IfStatement(_isNotEqualToWireConditionSnippet)
                 {
-                    rawBinaryData.AsVariableExpression.AsDictionary(rawBinaryData.Type).Add(jsonProperty.Name(), rawDataDeserializationValue)
+                    rawBinaryData.AsDictionary(rawBinaryData.Type).Add(jsonProperty.Name(), rawDataDeserializationValue)
                 });
             }
 
