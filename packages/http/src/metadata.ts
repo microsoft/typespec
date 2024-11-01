@@ -206,7 +206,6 @@ export function resolveRequestVisibility(
   operation: Operation,
   verb: HttpVerb,
 ): Visibility {
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
   const parameterVisibility = getParameterVisibility(program, operation);
   const parameterVisibilityArray = arrayToVisibility(parameterVisibility);
   const defaultVisibility = getDefaultVisibilityForVerb(verb);
