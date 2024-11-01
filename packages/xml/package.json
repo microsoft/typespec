@@ -41,7 +41,7 @@
     "test-official": "vitest run --coverage --reporter=junit --reporter=default --no-file-parallelism",
     "lint": "eslint . --ext .ts --max-warnings=0",
     "lint:fix": "eslint . --fix --ext .ts",
-    "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../docs/libraries/xml/reference",
+    "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../website/src/content/docs/docs/libraries/xml/reference",
     "api-extractor": "api-extractor run --local --verbose"
   },
   "files": [
