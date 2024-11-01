@@ -53,7 +53,7 @@ process.exit(exitCode);
 
 async function generateCompilerDocs() {
   const compilerPath = join(repoRoot, "packages/compiler");
-  const outputDir = join(repoRoot, "docs/standard-library");
+  const outputDir = join(repoRoot, "website/src/content/docs/docs/standard-library");
   const results = await resolveLibraryRefDocsBase(compilerPath, {
     namespaces: { include: ["TypeSpec"] },
   });

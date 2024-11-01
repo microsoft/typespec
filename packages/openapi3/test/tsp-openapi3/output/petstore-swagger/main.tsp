@@ -539,10 +539,7 @@ op findPetsByStatus(
   /**
    * Status values that need to be considered for filter
    */
-  @query({
-    format: "form",
-  })
-  status?: "available" | "pending" | "sold" = "available",
+  @query(#{ explode: true }) status?: "available" | "pending" | "sold" = "available",
 ): findPetsByStatus200ApplicationXmlResponse | findPetsByStatus200ApplicationJsonResponse | findPetsByStatus400Response;
 
 /**
@@ -556,10 +553,7 @@ op findPetsByTags(
   /**
    * Tags to filter by
    */
-  @query({
-    format: "form",
-  })
-  tags?: string[],
+  @query(#{ explode: true }) tags?: string[],
 ): findPetsByTags200ApplicationXmlResponse | findPetsByTags200ApplicationJsonResponse | findPetsByTags400Response;
 
 @tag("pet")
@@ -606,12 +600,12 @@ op updatePetWithForm(
   /**
    * Name of pet that needs to be updated
    */
-  @query name?: string,
+  @query(#{ explode: true }) name?: string,
 
   /**
    * Status of pet that needs to be updated
    */
-  @query status?: string,
+  @query(#{ explode: true }) status?: string,
 ): updatePetWithForm405Response;
 
 @tag("pet")
@@ -627,7 +621,7 @@ op uploadFile(
   /**
    * Additional Metadata
    */
-  @query additionalMetadata?: string,
+  @query(#{ explode: true }) additionalMetadata?: string,
 
   @header contentType: "application/octet-stream",
   @bodyRoot body: bytes,
@@ -722,12 +716,12 @@ op loginUser(
   /**
    * The user name for login
    */
-  @query username?: string,
+  @query(#{ explode: true }) username?: string,
 
   /**
    * The password for login in clear text
    */
-  @query password?: string,
+  @query(#{ explode: true }) password?: string,
 ): loginUser200ApplicationXmlResponse | loginUser200ApplicationJsonResponse | loginUser400Response;
 
 @tag("user")
