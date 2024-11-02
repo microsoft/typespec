@@ -49,10 +49,11 @@ model TypeSpec.OpenAPI.ExternalDocs
 
 #### Properties
 
-| Name         | Type     | Description          |
-| ------------ | -------- | -------------------- |
-| url          | `string` | Documentation url    |
-| description? | `string` | Optional description |
+| Name         | Type      | Description           |
+| ------------ | --------- | --------------------- |
+| url          | `string`  | Documentation url     |
+| description? | `string`  | Optional description  |
+|              | `unknown` | Additional properties |
 
 ### `License` {#TypeSpec.OpenAPI.License}
 
@@ -83,3 +84,4 @@ model TypeSpec.OpenAPI.TagMetadata
 | ------------- | --------------------------------------------------------------- | ---------------------------------------- |
 | description?  | `string`                                                        | A description of the API.                |
 | externalDocs? | [`ExternalDocs`](./data-types.md#TypeSpec.OpenAPI.ExternalDocs) | An external Docs information of the API. |
+|               | `unknown`                                                       | Additional properties                    |
