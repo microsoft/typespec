@@ -117,6 +117,8 @@ model TagMetadata {
 
   /** An external Docs information of the API. */
   externalDocs?: ExternalDocs;
+
+  ...Record<unknown>
 }
 
 /** External Docs information. */
@@ -126,6 +128,8 @@ model ExternalDocs {
 
   /** Optional description */
   description?: string;
+
+  ...Record<unknown>;
 }
 
 /**
@@ -136,6 +140,5 @@ model ExternalDocs {
 extern dec tagMetadata(
   target: Namespace,
   name: valueof string,
-  tagMetadata?: TagMetadata,
-  additional?: valueof TagMetadata
+  tagMetadata?: valueof TagMetadata
 );

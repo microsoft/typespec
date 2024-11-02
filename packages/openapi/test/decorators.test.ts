@@ -359,8 +359,8 @@ describe("openapi: decorators", () => {
     it.each([
       ["tagName is not a string", `@tagMetadata(123)`],
       ["tagMetdata parameter is not an object", `@tagMetadata("tagName", 123)`],
-      ["description is not a string", `@tagMetadata("tagName", { description: 123, })`],
-      ["externalDocs is not an object", `@tagMetadata("tagName", { externalDocs: 123, })`],
+      ["description is not a string", `@tagMetadata("tagName", #{ description: 123, })`],
+      ["externalDocs is not an object", `@tagMetadata("tagName", #{ externalDocs: 123, })`],
     ])("%s", async (_, code) => {
       const diagnostics = await runner.diagnose(
         `
@@ -391,11 +391,11 @@ describe("openapi: decorators", () => {
 
     describe("emit diagnostics when passing extension key not starting with `x-` in metadata", () => {
       it.each([
-        ["root", `{ foo:"Bar" }`],
-        ["externalDocs", `{ externalDocs:{ url: "https://example.com", foo:"Bar"} }`],
+        ["root", `#{ foo:"Bar" }`],
+        ["externalDocs", `#{ externalDocs: #{ url: "https://example.com", foo:"Bar"} }`],
         [
           "complex",
-          `{ externalDocs:{ url: "https://example.com", "x-custom": "string" }, foo:"Bar" }`,
+          `#{ externalDocs: #{ url: "https://example.com", \`x-custom\`: "string" }, foo:"Bar" }`,
         ],
       ])("%s", async (_, code) => {
         const diagnostics = await runner.diagnose(
@@ -416,8 +416,8 @@ describe("openapi: decorators", () => {
         const diagnostics = await runner.diagnose(
           `
           @service()
-          @tagMetadata("tagName",{
-            externalDocs: { url: "https://example.com", foo1:"Bar" }, 
+          @tagMetadata("tagName", #{
+            externalDocs: #{ url: "https://example.com", foo1:"Bar" }, 
             foo2:"Bar" 
           })
           @test namespace Service{};
@@ -441,8 +441,8 @@ describe("openapi: decorators", () => {
       const diagnostics = await runner.diagnose(
         `
         @service()
-        @tagMetadata("tagName", {
-            externalDocs: { url: "notvalidurl"}, 
+        @tagMetadata("tagName", #{
+            externalDocs: #{ url: "notvalidurl"}, 
         })
         @test namespace Service {}
         `,
@@ -457,7 +457,7 @@ describe("openapi: decorators", () => {
     it("emit diagnostic if use on non namespace", async () => {
       const diagnostics = await runner.diagnose(
         `
-        @tagMetadata("tagName",{})
+        @tagMetadata("tagName")
         model Foo {}
         `,
       );
@@ -473,30 +473,35 @@ describe("openapi: decorators", () => {
       ["set tagMetadata without additionalInfo", `@tagMetadata("tagName")`, { tagName: {} }],
       [
         "set tagMetadata without externalDocs",
-        `@tagMetadata("tagName",{description: "Pets operations"})`,
+        `@tagMetadata("tagName", #{ description: "Pets operations" })`,
         { tagName: { description: "Pets operations" } },
+      ],
+      [
+        "set tagMetadata additionalInfo",
+        `@tagMetadata("tagName", #{ \`x-custom\`: "string" })`,
+        { tagName: { "x-custom": "string" } },
       ],
       [
         "set multiple tagsMetadata",
         `@tagMetadata(
             "tagName1",
-            {
+            #{
               description: "Pets operations",
-              externalDocs: {
+              externalDocs: #{
                 url: "https://example.com",
-                "x-custom": "string"
-              },          
+                \`x-custom\`: "string"
+              }        
             }
           )
           @tagMetadata(
             "tagName2",
-            {
+            #{
               description: "Pets operations",
-              externalDocs: {
+              externalDocs: #{
                 url: "https://example.com",
-                description: "More info.",           
+                description: "More info."        
               },
-              "x-custom": "string"
+               \`x-custom\`: "string"
             }
           )`,
         {

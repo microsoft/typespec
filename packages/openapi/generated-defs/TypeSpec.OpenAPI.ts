@@ -1,11 +1,13 @@
 import type { DecoratorContext, Model, Namespace, Operation, Type } from "@typespec/compiler";
 
 export interface TagMetadata {
+  readonly [key: string]: unknown;
   readonly description?: string;
   readonly externalDocs?: ExternalDocs;
 }
 
 export interface ExternalDocs {
+  readonly [key: string]: unknown;
   readonly url: string;
   readonly description?: string;
 }
@@ -99,8 +101,7 @@ export type TagMetadataDecorator = (
   context: DecoratorContext,
   target: Namespace,
   name: string,
-  tagMetadata?: Type,
-  additional?: TagMetadata,
+  tagMetadata?: TagMetadata,
 ) => void;
 
 export type TypeSpecOpenAPIDecorators = {

@@ -9,14 +9,14 @@ describe("emit results when set value with @tagMetadata decorator", () => {
       "set tag metadata",
       `@tagMetadata(
       "TagName",
-        {
+        #{
           description: "Pets operations",
-          externalDocs: {
+          externalDocs: #{
             url: "https://example.com",
             description: "More info.",
-            "x-custom": "string"
+            \`x-custom\`: "string"
           },
-          "x-custom": "string"
+          \`x-custom\`: "string"
         }
       )`,
       ``,
@@ -37,14 +37,14 @@ describe("emit results when set value with @tagMetadata decorator", () => {
       "add additional information for tag",
       `@tagMetadata(
         "TagName",
-        {
+        #{
           description: "Pets operations",
-          externalDocs: {
+          externalDocs: #{
             url: "https://example.com",
             description: "More info.",
-            "x-custom": "string"
+            \`x-custom\`: "string"
           },
-          "x-custom": "string"
+          \`x-custom\`: "string"
         }
       )`,
       `@tag("TagName") op NamespaceOperation(): string;`,
@@ -65,14 +65,14 @@ describe("emit results when set value with @tagMetadata decorator", () => {
       "set tag and tag metadata with different name",
       `@tagMetadata(
         "TagName",
-        {
+        #{
           description: "Pets operations",
-          externalDocs: {
+          externalDocs: #{
             url: "https://example.com",
             description: "More info.",
-            "x-custom": "string"
+            \`x-custom\`: "string"
           },
-          "x-custom": "string"
+          \`x-custom\`: "string"
         }
       )`,
       `@tag("opTag") op NamespaceOperation(): string;`,

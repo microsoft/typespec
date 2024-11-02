@@ -259,7 +259,7 @@ export const tagMetadataDecorator: TagMetadataDecorator = (
   context: DecoratorContext,
   entity: Namespace,
   name: string,
-  tagMetadata?: TypeSpecValue,
+  tagMetadata?: TagMetadata,
 ) => {
   // Check if the namespace is a service namespace
   if (!entity.decorators.some((decorator) => decorator.decorator === $service)) {
@@ -291,39 +291,26 @@ export const tagMetadataDecorator: TagMetadataDecorator = (
 
   // Process tag metadata if provided
   if (tagMetadata) {
-    // Convert TypeSpecValue to JSON and capture diagnostics
-    const [data, diagnostics] = typespecTypeToJson<TagMetadata & Record<ExtensionKey, unknown>>(
-      tagMetadata,
-      context.getArgumentTarget(0)!,
-    );
-
-    // Report any diagnostics found during conversion
-    context.program.reportDiagnostics(diagnostics);
-
-    // Abort if data conversion failed
-    if (data === undefined) {
-      return;
-    }
-
     // Validate the additionalInfo model
     if (
       !validateAdditionalInfoModel(
         context.program,
         context.getArgumentTarget(0)!,
-        tagMetadata as Model,
+        tagMetadata,
         "TypeSpec.OpenAPI.TagMetadata",
+        false,
       )
     ) {
       return;
     }
 
     // Validate the externalDocs.url property
-    if (data.externalDocs?.url) {
+    if (tagMetadata.externalDocs?.url) {
       if (
         !validateIsUri(
           context.program,
           context.getArgumentTarget(0)!,
-          data.externalDocs.url,
+          tagMetadata.externalDocs.url,
           "externalDocs.url",
         )
       ) {
@@ -332,7 +319,7 @@ export const tagMetadataDecorator: TagMetadataDecorator = (
     }
 
     // Merge data into metadata
-    metadata = { ...data };
+    metadata = { ...tagMetadata };
   }
 
   // Update the tags metadata with the new tag
