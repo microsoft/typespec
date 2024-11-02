@@ -15,7 +15,7 @@ import {
 } from "@typespec/compiler";
 import { DuplicateTracker } from "@typespec/compiler/utils";
 import { getContentTypes } from "./content-types.js";
-import { isHeader, isPathParam, isQueryParam, isStatusCode } from "./decorators.js";
+import { isCookieParam, isHeader, isPathParam, isQueryParam, isStatusCode } from "./decorators.js";
 import {
   GetHttpPropertyOptions,
   HeaderProperty,
@@ -259,13 +259,16 @@ function validateBodyProperty(
       modelProperty: (prop) => {
         const kind = isHeader(program, prop)
           ? "header"
-          : (usedIn === "request" || usedIn === "multipart") && isQueryParam(program, prop)
-            ? "query"
-            : usedIn === "request" && isPathParam(program, prop)
-              ? "path"
-              : usedIn === "response" && isStatusCode(program, prop)
-                ? "statusCode"
-                : undefined;
+          : // also emit metadata-ignored for response cookie
+            (usedIn === "request" || usedIn === "response") && isCookieParam(program, prop)
+            ? "cookie"
+            : (usedIn === "request" || usedIn === "multipart") && isQueryParam(program, prop)
+              ? "query"
+              : usedIn === "request" && isPathParam(program, prop)
+                ? "path"
+                : usedIn === "response" && isStatusCode(program, prop)
+                  ? "statusCode"
+                  : undefined;
 
         if (kind) {
           diagnostics.add(
