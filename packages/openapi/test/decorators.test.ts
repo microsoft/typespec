@@ -345,7 +345,7 @@ describe("openapi: decorators", () => {
     it("emit an error if a non-service namespace", async () => {
       const diagnostics = await runner.diagnose(
         `
-        @tagMetadata("tagName")
+        @tagMetadata("tagName", #{})
         namespace Test {}
       `,
       );
@@ -357,7 +357,7 @@ describe("openapi: decorators", () => {
     });
 
     it.each([
-      ["tagName is not a string", `@tagMetadata(123)`],
+      ["tagName is not a string", `@tagMetadata(123, #{})`],
       ["tagMetdata parameter is not an object", `@tagMetadata("tagName", 123)`],
       ["description is not a string", `@tagMetadata("tagName", #{ description: 123, })`],
       ["externalDocs is not an object", `@tagMetadata("tagName", #{ externalDocs: 123, })`],
@@ -378,8 +378,8 @@ describe("openapi: decorators", () => {
       const diagnostics = await runner.diagnose(
         `
         @service()
-        @tagMetadata("tagName")
-        @tagMetadata("tagName")
+        @tagMetadata("tagName", #{})
+        @tagMetadata("tagName", #{})
         namespace PetStore{};
         `,
       );
@@ -457,7 +457,7 @@ describe("openapi: decorators", () => {
     it("emit diagnostic if use on non namespace", async () => {
       const diagnostics = await runner.diagnose(
         `
-        @tagMetadata("tagName")
+        @tagMetadata("tagName", #{})
         model Foo {}
         `,
       );
@@ -470,7 +470,7 @@ describe("openapi: decorators", () => {
     });
 
     const testCases: [string, string, any][] = [
-      ["set tagMetadata without additionalInfo", `@tagMetadata("tagName")`, { tagName: {} }],
+      ["set tagMetadata without additionalInfo", `@tagMetadata("tagName", #{})`, { tagName: {} }],
       [
         "set tagMetadata without externalDocs",
         `@tagMetadata("tagName", #{ description: "Pets operations" })`,

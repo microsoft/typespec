@@ -15,7 +15,6 @@ import {
   Type,
   TypeNameOptions,
 } from "@typespec/compiler";
-import { TagMetadata } from "../generated-defs/TypeSpec.OpenAPI.js";
 import { getOperationId } from "./decorators.js";
 import { createDiagnostic, reportDiagnostic } from "./lib.js";
 import { ExtensionKey } from "./types.js";
@@ -224,17 +223,16 @@ export function validateIsUri(
 export function validateAdditionalInfoModel(
   program: Program,
   target: DiagnosticTarget,
-  typespecType: Model | TagMetadata,
+  typespecType: object,
   reference: string,
-  isModel: boolean = true,
 ): boolean {
   // Resolve the reference to get the corresponding model
   const propertyModel = program.resolveTypeReference(reference)[0]! as Model;
 
   // Check if typespecType is an object and propertyModel is defined
-  if (typeof typespecType === "object" && propertyModel) {
+  if (typespecType && propertyModel) {
     // Validate that the properties of typespecType do not exceed those in propertyModel
-    const diagnostics = checkNoAdditionalProperties(typespecType, target, propertyModel, isModel);
+    const diagnostics = checkNoAdditionalProperties(typespecType, target, propertyModel);
     program.reportDiagnostics(diagnostics);
     // Return false if any diagnostics were reported, indicating a validation failure
     if (diagnostics.length > 0) {
@@ -250,33 +248,20 @@ export function validateAdditionalInfoModel(
  * Check Additional Properties
  */
 function checkNoAdditionalProperties(
-  typespecType: Model | TagMetadata,
+  typespecType: any,
   target: DiagnosticTarget,
   source: Model,
-  isModel: boolean,
 ): Diagnostic[] {
   const diagnostics: Diagnostic[] = [];
 
-  let properties: IterableIterator<[string, ModelProperty]>;
-  if (isModel) {
-    properties = (typespecType as Model).properties.entries();
-  } else {
-    properties = Object.keys(typespecType).map((key) => [
-      key,
-      (typespecType as TagMetadata)[key],
-    ]) as unknown as IterableIterator<[string, ModelProperty]>;
-  }
-
-  for (const [name, type] of properties) {
+  for (const name of Object.keys(typespecType)) {
     const sourceProperty = getProperty(source, name);
     if (sourceProperty) {
       if (sourceProperty.type.kind === "Model") {
-        const currValue = isModel ? type.type : type;
         const nestedDiagnostics = checkNoAdditionalProperties(
-          currValue as Model,
+          typespecType[name],
           target,
           sourceProperty.type,
-          isModel,
         );
         diagnostics.push(...nestedDiagnostics);
       }

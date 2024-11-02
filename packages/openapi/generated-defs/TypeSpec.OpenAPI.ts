@@ -101,7 +101,7 @@ export type TagMetadataDecorator = (
   context: DecoratorContext,
   target: Namespace,
   name: string,
-  tagMetadata?: TagMetadata,
+  tagMetadata: TagMetadata,
 ) => void;
 
 export type TypeSpecOpenAPIDecorators = {

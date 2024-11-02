@@ -83,7 +83,6 @@ import {
   resolveInfo,
   resolveOperationId,
   shouldInline,
-  TagMetadata,
 } from "@typespec/openapi";
 import { buildVersionProjections, VersionProjections } from "@typespec/versioning";
 import { stringify } from "yaml";
@@ -236,7 +235,7 @@ function createOAPIEmitter(
   let tags: Set<string>;
 
   // The per-endpoint tags that will be added into the #/tags
-  let tagsMetadata: { [name: string]: TagMetadata };
+  let tagsMetadata: { [name: string]: any };
 
   const typeNameOptions: TypeNameOptions = {
     // shorten type names by removing TypeSpec and service namespace

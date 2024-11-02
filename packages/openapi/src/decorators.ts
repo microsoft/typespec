@@ -192,7 +192,7 @@ export const $info: InfoDecorator = (
     !validateAdditionalInfoModel(
       context.program,
       context.getArgumentTarget(0)!,
-      model as Model,
+      data,
       "TypeSpec.OpenAPI.AdditionalInfo",
     )
   ) {
@@ -259,7 +259,7 @@ export const tagMetadataDecorator: TagMetadataDecorator = (
   context: DecoratorContext,
   entity: Namespace,
   name: string,
-  tagMetadata?: TagMetadata,
+  tagMetadata: TagMetadata,
 ) => {
   // Check if the namespace is a service namespace
   if (!entity.decorators.some((decorator) => decorator.decorator === $service)) {
@@ -286,44 +286,34 @@ export const tagMetadataDecorator: TagMetadataDecorator = (
     return;
   }
 
-  // Initialize metadata with the tag name
-  let metadata: TagMetadata = {};
+  // Validate the additionalInfo model
+  if (
+    !validateAdditionalInfoModel(
+      context.program,
+      context.getArgumentTarget(0)!,
+      tagMetadata,
+      "TypeSpec.OpenAPI.TagMetadata",
+    )
+  ) {
+    return;
+  }
 
-  // Process tag metadata if provided
-  if (tagMetadata) {
-    // Validate the additionalInfo model
+  // Validate the externalDocs.url property
+  if (tagMetadata.externalDocs?.url) {
     if (
-      !validateAdditionalInfoModel(
+      !validateIsUri(
         context.program,
         context.getArgumentTarget(0)!,
-        tagMetadata,
-        "TypeSpec.OpenAPI.TagMetadata",
-        false,
+        tagMetadata.externalDocs.url,
+        "externalDocs.url",
       )
     ) {
       return;
     }
-
-    // Validate the externalDocs.url property
-    if (tagMetadata.externalDocs?.url) {
-      if (
-        !validateIsUri(
-          context.program,
-          context.getArgumentTarget(0)!,
-          tagMetadata.externalDocs.url,
-          "externalDocs.url",
-        )
-      ) {
-        return;
-      }
-    }
-
-    // Merge data into metadata
-    metadata = { ...tagMetadata };
   }
 
   // Update the tags metadata with the new tag
-  tags[name] = metadata;
+  tags[name] = tagMetadata;
   setTagsMetadata(context.program, entity, tags);
 };
 

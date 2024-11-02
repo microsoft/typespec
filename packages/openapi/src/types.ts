@@ -64,13 +64,3 @@ export interface ExternalDocs {
   /** Optional description */
   description?: string;
 }
-
-/**
- * Metadata to a single tag that is used by operations.
- */
-export interface TagMetadata {
-  /** A description of the API. */
-  description?: string;
-  /** An external Docs information of the API. */
-  externalDocs?: ExternalDocs;
-}
