@@ -115,6 +115,8 @@ function* emitRawServerOperation(
       case "header":
         yield* indent(emitHeaderParamBinding(ctx, parameter));
         break;
+      case "cookie":
+        throw new UnimplementedError("cookie parameters");
       case "query":
         queryParams.push(parameter);
         parsedParams.add(resolvedParameter);
