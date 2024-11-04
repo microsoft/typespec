@@ -34,7 +34,16 @@ export interface TypeSpecServiceInfo {
 
 export interface TypeSpecDecorator {
   name: string;
-  args: (object | number | string)[];
+  args: (object | number | string | TSValue)[];
+}
+
+export interface TSValue {
+  __kind: "value";
+  /**
+   * String representation of the value.
+   * This will be directly substituted into the generated code.
+   */
+  value: string;
 }
 
 export interface TypeSpecAugmentation extends TypeSpecDecorator {

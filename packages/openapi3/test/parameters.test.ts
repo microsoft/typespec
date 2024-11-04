@@ -240,6 +240,27 @@ describe("query parameters", () => {
     });
   });
 
+  it("create a cookie param", async () => {
+    const res = await openApiFor(
+      `
+      op test(@cookie arg1: string): void;
+      `,
+    );
+    strictEqual(res.paths["/"].get.parameters[0].in, "cookie");
+    strictEqual(res.paths["/"].get.parameters[0].name, "arg1");
+    deepStrictEqual(res.paths["/"].get.parameters[0].schema, { type: "string" });
+  });
+
+  it("create a cookie param with a different name", async () => {
+    const res = await openApiFor(
+      `
+      op test(@cookie("foo_bar") foo: string): void;
+      `,
+    );
+    strictEqual(res.paths["/"].get.parameters[0].in, "cookie");
+    strictEqual(res.paths["/"].get.parameters[0].name, "foo_bar");
+  });
+
   // Regression test for https://github.com/microsoft/typespec/issues/414
   it("@doc set the description on the parameter not its schema", async () => {
     const res = await openApiFor(
@@ -347,6 +368,8 @@ describe("query parameters", () => {
         #suppress "@typespec/http/metadata-ignored"
         @header header: string,
         #suppress "@typespec/http/metadata-ignored"
+        @cookie cookie: string,
+        #suppress "@typespec/http/metadata-ignored"
         @query query: string,
         #suppress "@typespec/http/metadata-ignored"
         @statusCode code: 201,
@@ -356,10 +379,11 @@ describe("query parameters", () => {
       type: "object",
       properties: {
         header: { type: "string" },
+        cookie: { type: "string" },
         query: { type: "string" },
         code: { type: "number", enum: [201] },
       },
-      required: ["header", "query", "code"],
+      required: ["header", "cookie", "query", "code"],
     });
   });
 
@@ -379,15 +403,20 @@ describe("query parameters", () => {
           @header header1: string;
           @header header2: string;
         };
+        cookies: {
+          @cookie cookie1: string;
+          @cookie cookie2: string;
+        };
         name: string;
       ): void;`);
     expect(res.paths["/"].post.requestBody.content["application/json"].schema).toEqual({
       type: "object",
       properties: {
         headers: { type: "object" },
+        cookies: { type: "object" },
         name: { type: "string" },
       },
-      required: ["headers", "name"],
+      required: ["headers", "cookies", "name"],
     });
   });
 
@@ -396,6 +425,10 @@ describe("query parameters", () => {
         @bodyIgnore headers: {
           @header header1: string;
           @header header2: string;
+        };
+        @bodyIgnore cookies: {
+          @cookie cookie1: string;
+          @cookie cookie2: string;
         };
         name: string;
     ): void;`);
