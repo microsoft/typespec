@@ -1,4 +1,5 @@
 import versions from "@site/playground-versions.json";
+import { useTheme } from "@typespec/astro-utils/utils/theme-react";
 import { ImportToolbarButton, TypeSpecPlaygroundConfig } from "@typespec/playground-website";
 import {
   Footer,
@@ -12,7 +13,6 @@ import { type FunctionComponent, useMemo } from "react";
 import { type VersionData } from "./import-map";
 import { LoadingSpinner } from "./loading-spinner";
 
-import { useTheme } from "@site/src/utils/theme-react";
 import "@typespec/playground-website/style.css";
 import "@typespec/playground/styles.css";
 
