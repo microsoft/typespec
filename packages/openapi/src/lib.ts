@@ -22,7 +22,27 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`${"property"}: ${"value"} is not a valid URL.`,
       },
     },
+    "duplicate-tag": {
+      severity: "error",
+      messages: {
+        default: paramMessage`"Metadata for tag '${"tagName"}' was specified twice."`,
+      },
+    },
+    "tag-metadata-target-service": {
+      severity: "error",
+      messages: {
+        default: paramMessage`@tagMetadata must be used on the service namespace. Did you mean to annotate '${"namespace"}'  with '@service'?`,
+      },
+    },
+  },
+  state: {
+    tagsMetadata: { description: "State for the @tagMetadata decorator." },
   },
 });
 
-export const { createDiagnostic, reportDiagnostic, createStateSymbol } = $lib;
+export const {
+  createDiagnostic,
+  reportDiagnostic,
+  createStateSymbol,
+  stateKeys: OpenAPIKeys,
+} = $lib;
