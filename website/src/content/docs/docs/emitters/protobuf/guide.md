@@ -50,7 +50,7 @@ model TestMessage {
 
 will be transformed into the Protobuf message below:
 
-```proto3
+```protobuf
 message TestMessage {
   int32 n = 1;
 }
@@ -76,7 +76,7 @@ model TestMessage {
 
 will be transformed into the Protobuf message below:
 
-```proto3
+```protobuf
 message TestMessage {
   int32 n = 1;
 }
@@ -100,7 +100,7 @@ namespace Example {
 
 will generate the following Protobuf file (named `example.proto`):
 
-```proto3
+```protobuf
 syntax = "proto3";
 
 package example;
@@ -131,7 +131,7 @@ interface Example {
 
 Results in the following `.proto` file:
 
-```proto3
+```protobuf
 message Input {
   string exampleField = 1;
 }

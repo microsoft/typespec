@@ -56,7 +56,7 @@ For VSCode to respect the TypeSpec standard style set the following options styl
 
 If using `.editorconfig` with the editor config extension
 
-```editorconfig
+```toml
 [*.tsp]
 indent_size = 2
 indent_style = space
