@@ -570,7 +570,7 @@ model OperationExample {
  * @example
  *
  * ```tsp
- * @example(#{parameters: #{name: "Fluffy", age: 2}, returnType: #{name: "Fluffy", age: 2, id: "abc"})
+ * @opExample(#{parameters: #{name: "Fluffy", age: 2}, returnType: #{name: "Fluffy", age: 2, id: "abc"})
  * op createPet(pet: Pet): Pet;
  * ```
  */
