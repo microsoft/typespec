@@ -17,6 +17,7 @@ npm install @typespec/openapi
 - [`@externalDocs`](#@externaldocs)
 - [`@info`](#@info)
 - [`@operationId`](#@operationid)
+- [`@tagMetadata`](#@tagmetadata)
 
 #### `@defaultResponse`
 
@@ -148,3 +149,22 @@ Specify the OpenAPI `operationId` property for this operation.
 @operationId("download")
 op read(): string;
 ```
+
+#### `@tagMetadata`
+
+Specify OpenAPI additional information.
+
+```typespec
+@TypeSpec.OpenAPI.tagMetadata(name: valueof string, tagMetadata?: valueof TypeSpec.OpenAPI.TagMetadata)
+```
+
+##### Target
+
+`Namespace`
+
+##### Parameters
+
+| Name        | Type                                  | Description            |
+| ----------- | ------------------------------------- | ---------------------- |
+| name        | `valueof string`                      | tag name               |
+| tagMetadata | [valueof `TagMetadata`](#tagmetadata) | Additional information |
