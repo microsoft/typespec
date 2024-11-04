@@ -109,6 +109,7 @@ import {
   OpenAPI3ServerVariable,
   OpenAPI3ServiceRecord,
   OpenAPI3StatusCode,
+  OpenAPI3Tag,
   OpenAPI3VersionedServiceRecord,
   Refable,
 } from "./types.js";
@@ -235,7 +236,7 @@ function createOAPIEmitter(
   let tags: Set<string>;
 
   // The per-endpoint tags that will be added into the #/tags
-  let tagsMetadata: { [name: string]: any };
+  const tagsMetadata: { [name: string]: OpenAPI3Tag } = {};
 
   const typeNameOptions: TypeNameOptions = {
     // shorten type names by removing TypeSpec and service namespace
@@ -352,7 +353,15 @@ function createOAPIEmitter(
     params = new Map();
     paramModels = new Set();
     tags = new Set();
-    tagsMetadata = getTagsMetadata(program, service.type) ?? {};
+
+    // Get Tags Metadata
+    const metadata = getTagsMetadata(program, service.type);
+    if (metadata) {
+      for (const [name, tag] of Object.entries(metadata)) {
+        const tagData: OpenAPI3Tag = { name: name, ...tag };
+        tagsMetadata[name] = tagData;
+      }
+    }
   }
 
   function isValidServerVariableType(program: Program, type: Type): boolean {
@@ -1604,8 +1613,7 @@ function createOAPIEmitter(
     }
 
     for (const key in tagsMetadata) {
-      const tagData = { name: key, ...tagsMetadata[key] };
-      root.tags!.push(tagData);
+      root.tags!.push(tagsMetadata[key]);
     }
   }
 
