@@ -829,7 +829,7 @@ export async function compile(
   function getNode(target: Node | Entity | Sym | TemplateInstanceTarget): Node | undefined {
     if (!("kind" in target) && !("valueKind" in target) && !("entityKind" in target)) {
       // TemplateInstanceTarget
-      if ("node" in target) {
+      if (!("declarations" in target)) {
         return target.node;
       }
       // symbol
