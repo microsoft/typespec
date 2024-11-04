@@ -573,7 +573,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
     if (isArray(valueType)) {
       reportDiagnostic(program, {
         code: "nested-array",
-        target: valueType,
+        target: t,
       });
       return ref("<unreachable>");
     }

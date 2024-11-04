@@ -59,6 +59,7 @@ import {
   SymbolFlags,
   SymbolTable,
   SyntaxKind,
+  TemplateInstanceTarget,
   Tracer,
   Type,
   TypeSpecLibrary,
@@ -821,8 +822,12 @@ export async function compile(
     }
   }
 
-  function getNode(target: Node | Entity | Sym): Node | undefined {
+  function getNode(target: Node | Entity | Sym | TemplateInstanceTarget): Node | undefined {
     if (!("kind" in target) && !("valueKind" in target) && !("entityKind" in target)) {
+      // TemplateInstanceTarget
+      if ("node" in target) {
+        return target.node;
+      }
       // symbol
       if (target.flags & SymbolFlags.Using) {
         return target.symbolSource!.declarations[0];
