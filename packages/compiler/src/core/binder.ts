@@ -75,7 +75,6 @@ const SymbolTable = class extends Map<string, Sym> implements MutableSymbolTable
     if (existing === undefined) {
       super.set(key, value);
     } else {
-      // TODO: this was removed from the binder explicitly, figure out why?
       if (existing.flags & SymbolFlags.Using) {
         mutate(existing).flags |= SymbolFlags.DuplicateUsing;
       }

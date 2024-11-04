@@ -1,13 +1,16 @@
 import { ok, strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { Binder, createBinder } from "../src/core/binder.js";
+import { typeReferenceToString } from "../src/core/helpers/syntax-utils.js";
 import { inspectSymbolFlags } from "../src/core/inspector/symbol.js";
 import { createLogger } from "../src/core/logger/logger.js";
 import { createTracer } from "../src/core/logger/tracer.js";
 import { createResolver, NameResolver } from "../src/core/name-resolver.js";
 import { getNodeAtPosition, parse } from "../src/core/parser.js";
 import {
+  IdentifierNode,
   JsSourceFileNode,
+  MemberExpressionNode,
   Node,
   NodeFlags,
   ResolutionResult,
@@ -1291,13 +1294,27 @@ function getResolutions<T extends string[]>(
   resolver.resolveProgram();
   for (let i = 0; i < names.length; i++) {
     const nodeLinks = resolver.getNodeLinks(referenceNodes[i]);
-    if (!nodeLinks.resolutionResult) {
-      throw new Error(`Reference ${names[i]} hasn't been resolved`);
-    }
+    validateReferenceNodes(referenceNodes[0]);
 
     symbols[names[i]] = nodeLinks;
   }
   return symbols;
+}
+
+function validateReferenceNodes(node: TypeReferenceNode) {
+  const base = resolver.getNodeLinks(node);
+  if (!base.resolutionResult) {
+    throw new Error(`Reference ${typeReferenceToString(node)} hasn't been resolved`);
+  }
+  validate(node.target);
+
+  function validate(sub: IdentifierNode | MemberExpressionNode) {
+    const subLinks = resolver.getNodeLinks(node);
+    expect(subLinks.resolutionResult).toBe(base.resolutionResult);
+    if (sub.kind === SyntaxKind.MemberExpression) {
+      validate(sub.id);
+    }
+  }
 }
 
 function getParentTypeRef(node: Node | undefined) {
@@ -1339,7 +1356,7 @@ function resolve(sources: (string | Record<string, unknown>)[]): NameResolver {
 
 function getGlobalSymbol(sources: (string | Record<string, unknown>)[]): Sym {
   const resolver = resolve(sources);
-  return resolver.getGlobalNamespaceSymbol();
+  return resolver.symbols.global;
 }
 function getAliasedSymbol(name: string, sources: (string | Record<string, unknown>)[]): Sym {
   const global = getGlobalSymbol(sources);

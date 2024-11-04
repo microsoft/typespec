@@ -121,9 +121,6 @@ export interface NameResolver {
   /** Get symbol links for the given symbol */
   getSymbolLinks(symbol: Sym): SymbolLinks;
 
-  /** Get global namespace symbol. */
-  getGlobalNamespaceSymbol(): Sym;
-
   /** Return augment decorator nodes that are bound to this symbol */
   getAugmentDecoratorsForSym(symbol: Sym): AugmentDecoratorStatementNode[];
 
@@ -145,7 +142,12 @@ export interface NameResolver {
     node: TypeReferenceNode | IdentifierNode | MemberExpressionNode,
   ): ResolutionResult;
 
-  readonly intrinsicSymbols: {
+  /** Built-in symbols. */
+  readonly symbols: {
+    /** Symbol for the global namespace */
+    readonly global: Sym;
+
+    /** Symbol for the null type */
     readonly null: Sym;
   };
 }
@@ -179,7 +181,7 @@ export function createResolver(program: Program): NameResolver {
   const augmentDecoratorsForSym = new Map<Sym, AugmentDecoratorStatementNode[]>();
 
   return {
-    intrinsicSymbols: { null: nullSym },
+    symbols: { global: globalNamespaceSym, null: nullSym },
     resolveProgram() {
       // Merge namespace symbols and decorator implementation/declaration symbols
       for (const file of program.jsSourceFiles.values()) {
@@ -214,10 +216,6 @@ export function createResolver(program: Program): NameResolver {
     getAugmentedSymbolTable,
     getNodeLinks,
     getSymbolLinks,
-
-    getGlobalNamespaceSymbol() {
-      return globalNamespaceSym;
-    },
 
     resolveMemberExpressionForSym,
     resolveMetaMemberByName,
@@ -327,11 +325,10 @@ export function createResolver(program: Program): NameResolver {
     if (resolvedSym) {
       if (
         resolvedSym.flags & SymbolFlags.Declaration &&
-        ~resolvedSym.flags & SymbolFlags.Namespace // TODO: check, this breaks usings if we don't have that as we start checking before the usings have been resolved.
+        ~resolvedSym.flags & SymbolFlags.Namespace
       ) {
         bindAndResolveNode(resolvedSym.declarations[0]);
       }
-      // TODO: non-declarations - this doesn't seem needed
     }
 
     return result;
@@ -370,8 +367,6 @@ export function createResolver(program: Program): NameResolver {
     compilerAssert(baseSym, "Base symbol must be defined if resolution did not fail");
     const memberResult = resolveMemberExpressionForSym(baseSym, node, options);
 
-    // TODO: is it better to do this or just when you resolve identifier have to maybe check up the parent once.
-    // TODO: if keeping add test to make sure it always equals the container typereference/member expression
     const idNodeLinks = getNodeLinks(node.id);
     idNodeLinks.resolvedSymbol = memberResult.resolvedSymbol;
     idNodeLinks.resolutionResult = memberResult.resolutionResult;

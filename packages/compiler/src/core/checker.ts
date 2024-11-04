@@ -390,7 +390,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    */
   const pendingResolutions = new PendingResolutions();
 
-  const typespecNamespaceBinding = resolver.getGlobalNamespaceSymbol().exports!.get("TypeSpec");
+  const typespecNamespaceBinding = resolver.symbols.global.exports!.get("TypeSpec");
   if (typespecNamespaceBinding) {
     initializeTypeSpecIntrinsics();
   }
@@ -458,8 +458,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     });
 
     // Until we have an `unit` type for `null`
-    mutate(resolver.intrinsicSymbols.null).type = nullType;
-    getSymbolLinks(resolver.intrinsicSymbols.null).type = nullType;
+    mutate(resolver.symbols.null).type = nullType;
+    getSymbolLinks(resolver.symbols.null).type = nullType;
   }
 
   function getStdType<T extends keyof StdTypes>(name: T): StdTypes[T] {
@@ -2504,7 +2504,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function getGlobalNamespaceNode(): NamespaceStatementNode {
-    return resolver.getGlobalNamespaceSymbol().declarations[0] as any;
+    return resolver.symbols.global.declarations[0] as any;
   }
 
   function checkTupleExpression(node: TupleExpressionNode, mapper: TypeMapper | undefined): Tuple {
@@ -2955,7 +2955,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         }
 
         // check "global scope" declarations
-        addCompletions(resolver.getGlobalNamespaceSymbol().exports);
+        addCompletions(resolver.symbols.global.exports);
 
         // check "global scope" usings
         addCompletions(scope.locals);
@@ -3442,7 +3442,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkDuplicateSymbols() {
-    program.reportDuplicateSymbols(resolver.getGlobalNamespaceSymbol().exports);
+    program.reportDuplicateSymbols(resolver.symbols.global.exports);
     for (const file of program.sourceFiles.values()) {
       for (const ns of file.namespaces) {
         const exports = getMergedSymbol(ns.symbol).exports ?? ns.symbol.exports;
@@ -5882,7 +5882,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function createGlobalNamespaceType(): Namespace {
-    const sym = resolver.getGlobalNamespaceSymbol();
+    const sym = resolver.symbols.global;
     const type: Namespace = createType({
       kind: "Namespace",
       name: "",
