@@ -507,7 +507,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function setUsingsForFile(file: TypeSpecScriptNode) {
-    const usedUsing = new Set<Sym>();
+    const usedUsing: { [key: string]: Set<Sym> } = {};
 
     for (const using of file.usings) {
       const parentNs = using.parent!;
@@ -522,8 +522,12 @@ export function createChecker(program: Program): Checker {
       }
 
       const namespaceSym = getMergedSymbol(sym)!;
+      const parentNamespaceKey = parentNs === undefined ? "" : parentNs.id.sv;
+      if (usedUsing[parentNamespaceKey] === undefined) {
+        usedUsing[parentNamespaceKey] = new Set<Sym>();
+      }
 
-      if (usedUsing.has(namespaceSym)) {
+      if (usedUsing[parentNamespaceKey].has(namespaceSym)) {
         reportCheckerDiagnostic(
           createDiagnostic({
             code: "duplicate-using",
@@ -533,7 +537,8 @@ export function createChecker(program: Program): Checker {
         );
         continue;
       }
-      usedUsing.add(namespaceSym);
+
+      usedUsing[parentNamespaceKey].add(namespaceSym);
       addUsingSymbols(sym.exports!, parentNs.locals!);
     }
   }

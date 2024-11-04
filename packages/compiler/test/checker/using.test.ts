@@ -199,6 +199,45 @@ describe("compiler: using statements", () => {
     strictEqual(diagnostics[0].message, 'duplicate using of "N.M" namespace');
   });
 
+  it("duplicate usings in different namespaces", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      import "./a.tsp";
+      import "./b.tsp";
+      `,
+    );
+    testHost.addTypeSpecFile(
+      "a.tsp",
+      `
+      namespace Lib {
+        model LibModel {}
+      }
+      `,
+    );
+    testHost.addTypeSpecFile(
+      "b.tsp",
+      `
+      using Lib;
+      namespace Foo {
+        using Lib;
+        model FooModel {
+          foo: LibModel;
+        }
+      }
+      namespace Bar {
+        using Lib;
+        model BarModel {
+          foo: LibModel;
+        }
+      }
+      `,
+    );
+
+    const diagnostics = await testHost.diagnose("./");
+    expectDiagnosticEmpty(diagnostics);
+  });
+
   it("does not throws errors for different usings with the same bindings if not used", async () => {
     testHost.addTypeSpecFile(
       "main.tsp",
