@@ -97,14 +97,14 @@ public final class RelativeModelInOperationsImpl {
     }
 
     /**
-     * Expected query parameter: name=&lt;any string&gt;
+     * Expected query parameter: name="Madge"
      * Expected response body:
      * ```json
      * {
-     * "name": &lt;any string&gt;,
+     * "name": "Madge",
      * "inner":
      * {
-     * "name": &lt;any string&gt;
+     * "name": "Madge"
      * }
      * }
      * ```.
@@ -138,14 +138,14 @@ public final class RelativeModelInOperationsImpl {
     }
 
     /**
-     * Expected query parameter: name=&lt;any string&gt;
+     * Expected query parameter: name="Madge"
      * Expected response body:
      * ```json
      * {
-     * "name": &lt;any string&gt;,
+     * "name": "Madge",
      * "inner":
      * {
-     * "name": &lt;any string&gt;
+     * "name": "Madge"
      * }
      * }
      * ```.
@@ -177,11 +177,11 @@ public final class RelativeModelInOperationsImpl {
     }
 
     /**
-     * Expected query parameter: kind=&lt;any string&gt;
+     * Expected query parameter: kind= "real"
      * Expected response body:
      * ```json
      * {
-     * "name": &lt;any string&gt;,
+     * "name": "Madge",
      * "kind": "real"
      * }
      * ```.
@@ -213,11 +213,11 @@ public final class RelativeModelInOperationsImpl {
     }
 
     /**
-     * Expected query parameter: kind=&lt;any string&gt;
+     * Expected query parameter: kind= "real"
      * Expected response body:
      * ```json
      * {
-     * "name": &lt;any string&gt;,
+     * "name": "Madge",
      * "kind": "real"
      * }
      * ```.
