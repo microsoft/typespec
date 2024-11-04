@@ -83,6 +83,10 @@ export const AreaLabels = defineLabels({
     color: "967200",
     description: "",
   },
+  "emitter:service:java": {
+    color: "967200",
+    description: "Issue for Java service emitter",
+  },
   eng: {
     color: "65bfff",
     description: "",
