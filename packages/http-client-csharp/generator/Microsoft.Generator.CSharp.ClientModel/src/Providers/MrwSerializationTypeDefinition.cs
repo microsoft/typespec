@@ -379,11 +379,17 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         /// </summary>
         internal MethodProvider BuildJsonModelCreateMethod()
         {
+            ValueExpression createCoreInvocation = This.Invoke(JsonModelCreateCoreMethodName, [_utf8JsonReaderParameter, _serializationOptionsParameter]);
+            if (!_inputModel.IsUnknownDiscriminatorModel)
+            {
+                createCoreInvocation = createCoreInvocation.CastTo(_model.Type);
+            }
+
             // T IJsonModel<T>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
             return new MethodProvider
             (
                 new MethodSignature(nameof(IJsonModel<object>.Create), null, MethodSignatureModifiers.None, _jsonModelTInterface.Arguments[0], null, [_utf8JsonReaderParameter, _serializationOptionsParameter], ExplicitInterface: _jsonModelTInterface),
-                This.Invoke(JsonModelCreateCoreMethodName, [_utf8JsonReaderParameter, _serializationOptionsParameter]).CastTo(_model.Type),
+                createCoreInvocation,
                 this
             );
         }
@@ -514,11 +520,16 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         internal MethodProvider BuildPersistableModelCreateMethod()
         {
             ParameterProvider dataParameter = new("data", $"The data to parse.", typeof(BinaryData));
+            ValueExpression createCoreInvocation = This.Invoke(PersistableModelCreateCoreMethodName, [dataParameter, _serializationOptionsParameter]);
+            if (!_inputModel.IsUnknownDiscriminatorModel)
+            {
+                createCoreInvocation = createCoreInvocation.CastTo(_model.Type);
+            }
             // IPersistableModel<T>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
             return new MethodProvider
             (
                 new MethodSignature(nameof(IPersistableModel<object>.Create), null, MethodSignatureModifiers.None, _persistableModelTInterface.Arguments[0], null, [dataParameter, _serializationOptionsParameter], ExplicitInterface: _persistableModelTInterface),
-                This.Invoke(PersistableModelCreateCoreMethodName, [dataParameter, _serializationOptionsParameter]).CastTo(_model.Type),
+                createCoreInvocation,
                 this
             );
         }
