@@ -9,7 +9,7 @@ import {
 } from "@typespec/compiler";
 import { $, defineKit } from "@typespec/compiler/typekit";
 import { Client } from "../../interfaces.js";
-import { addEndpointParameter } from "../../utils/client-initialization.js";
+import { addCredentialParameter, addEndpointParameter } from "../../utils/client-initialization.js";
 
 interface ClientKit {
   getName(client: Namespace): string;
@@ -49,7 +49,7 @@ defineKit<TypeKit>({
         properties: {},
       });
       addEndpointParameter(client, base);
-      // addCredentialParameter(client, base);
+      addCredentialParameter(client, base);
       return base;
     },
     listServiceOperations(client) {
