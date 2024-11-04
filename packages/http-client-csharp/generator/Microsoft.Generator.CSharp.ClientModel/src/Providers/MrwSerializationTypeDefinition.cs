@@ -382,6 +382,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             ValueExpression createCoreInvocation = This.Invoke(JsonModelCreateCoreMethodName, [_utf8JsonReaderParameter, _serializationOptionsParameter]);
             var createCoreReturnType = _model.Type.RootType;
 
+            // If the return type of the create core method is not the same as the interface type, cast it to the interface type since
+            // the Core methods will always return the root type of the model. The interface type will be the model type unless the model
+            // is an unknown discriminated model.
             if (createCoreReturnType != _jsonModelTInterface.Arguments[0])
             {
                 createCoreInvocation = createCoreInvocation.CastTo(_model.Type);
@@ -525,6 +528,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             ValueExpression createCoreInvocation = This.Invoke(PersistableModelCreateCoreMethodName, [dataParameter, _serializationOptionsParameter]);
             var createCoreReturnType = _model.Type.RootType;
 
+            // If the return type of the create core method is not the same as the interface type, cast it to the interface type since
+            // the Core methods will always return the root type of the model. The interface type will be the model type unless the model
+            // is an unknown discriminated model.
             if (createCoreReturnType != _persistableModelTInterface.Arguments[0])
             {
                 createCoreInvocation = createCoreInvocation.CastTo(_model.Type);
