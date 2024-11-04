@@ -10,9 +10,9 @@ import {
 import { $, defineKit } from "@typespec/compiler/typekit";
 import { Client } from "../../interfaces.js";
 import { addCredentialParameter, addEndpointParameter } from "../../utils/client-initialization.js";
+import { NameKit } from "./utils.js";
 
-interface ClientKit {
-  getName(client: Namespace): string;
+interface ClientKit extends NameKit<Namespace> {
   /**
    * Return the model that should be used to initialize the client.
    *

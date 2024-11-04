@@ -7,8 +7,9 @@ import {
   Type,
 } from "@typespec/compiler";
 import { defineKit } from "@typespec/compiler/typekit";
+import { AccessKit, getAccess, getName, getUsage, NameKit, UsageKit } from "./utils.js";
 
-export interface SdkModelKit {
+export interface SdkModelKit extends NameKit<Model>, AccessKit<Model>, UsageKit<Model> {
   /**
    * Get the properties of a model.
    *
@@ -107,6 +108,15 @@ defineKit<SdkKit>({
     },
     getBaseModel(model) {
       return model.baseModel;
+    },
+    getAccess(model) {
+      return getAccess(model);
+    },
+    getUsage(model) {
+      return getUsage(model);
+    },
+    getName(model) {
+      return getName(model);
     },
   },
 });

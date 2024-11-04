@@ -33,14 +33,12 @@ export function addCredentialParameter(client: Client, base: Model): undefined {
   if (credTypes.length === 1) {
     credType = credTypes[0];
   } else {
-    const variants = credTypes.map((v) =>
-      $.unionVariant.create({ name: v.value, type: v }),
-    );
-    credType = $.union.create({name: "CredentialUnion", variants});
+    const variants = credTypes.map((v) => $.unionVariant.create({ name: v.value, type: v }));
+    credType = $.union.create({ name: "CredentialUnion", variants });
   }
   const credential = $.modelProperty.create({
     name: "credential",
     type: credType,
-  })
+  });
   base.properties.set("credential", credential);
 }

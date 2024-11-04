@@ -2,13 +2,14 @@ import { BaseType, ModelProperty } from "@typespec/compiler";
 import { $, defineKit } from "@typespec/compiler/typekit";
 import { getAuthentication, HttpAuth } from "@typespec/http";
 import { Client } from "../../interfaces.js";
+import { AccessKit, getAccess, getName, NameKit } from "./utils.js";
 
 export interface SdkCredential extends BaseType {
   kind: "Credential";
   scheme: HttpAuth;
 }
 
-export interface SdkModelPropertyKit {
+export interface SdkModelPropertyKit extends NameKit<ModelProperty>, AccessKit<ModelProperty> {
   /**
    * Returns whether it's an endpoint parameter or not.
    *
@@ -41,6 +42,15 @@ export interface SdkModelPropertyKit {
    * Returns whether the model property has a client default value or not.
    */
   getClientDefaultValue(modelProperty: ModelProperty): unknown;
+
+  /**
+   * Get access of a property
+   */
+  getAccess(modelProperty: ModelProperty): "public" | "internal";
+
+  /**
+   *
+   */
 }
 
 interface TypeKit {
@@ -83,6 +93,12 @@ defineKit<TypeKit>({
       if (!sourceModel) return false;
       const disc = $.model.getDiscriminatorProperty(sourceModel);
       return disc === type;
+    },
+    getAccess(modelProperty) {
+      return getAccess(modelProperty);
+    },
+    getName(modelProperty) {
+      return getName(modelProperty);
     },
   },
 });
