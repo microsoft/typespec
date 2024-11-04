@@ -753,7 +753,6 @@ export function createResolver(program: Program): NameResolver {
       return;
     }
     if (node.symbol.flags & SymbolFlags.Member) {
-      // TODO: we shouldn't probably have to get the parent, can we not do it when traversing down.
       compilerAssert(node.parent, "Node should have a parent");
       const parentSym = getMergedSymbol(node.parent.symbol);
       const table = parentSym.exports ?? getAugmentedSymbolTable(parentSym.members!);
