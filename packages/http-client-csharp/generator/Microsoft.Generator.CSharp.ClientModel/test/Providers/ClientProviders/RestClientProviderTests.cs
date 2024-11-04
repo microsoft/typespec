@@ -24,7 +24,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             properties:
             [
                 InputFactory.Property("p1", InputPrimitiveType.String, isRequired: true),
-                InputFactory.Property("optionalProp", InputPrimitiveType.String, isRequired: false)
+                InputFactory.Property("optionalProp1", InputPrimitiveType.String, isRequired: false),
+                InputFactory.Property("optionalProp2", InputFactory.Array(InputPrimitiveType.String), isRequired: false)
             ]);
 
         public RestClientProviderTests()
@@ -72,6 +73,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             Assert.AreEqual("_pipelineMessageClassifier200", pipelineMessageClassifier200.Name);
             Assert.AreEqual(FieldModifiers.Private | FieldModifiers.Static, pipelineMessageClassifier200.Modifiers);
 
+            //validate _pipelineMessageClassifier201
+            Assert.IsTrue(fieldHash.ContainsKey("_pipelineMessageClassifier201"));
+            var pipelineMessageClassifier201 = fieldHash["_pipelineMessageClassifier201"];
+            Assert.AreEqual("PipelineMessageClassifier", pipelineMessageClassifier201.Type.Name);
+            Assert.AreEqual("_pipelineMessageClassifier201", pipelineMessageClassifier201.Name);
+            Assert.AreEqual(FieldModifiers.Private | FieldModifiers.Static, pipelineMessageClassifier201.Modifiers);
+
             //validate _pipelineMessageClassifier204
             Assert.IsTrue(fieldHash.ContainsKey("_pipelineMessageClassifier204"));
             var pipelineMessageClassifier204 = fieldHash["_pipelineMessageClassifier204"];
@@ -100,6 +108,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             Assert.AreEqual("PipelineMessageClassifier200", pipelineMessageClassifier200.Name);
             Assert.AreEqual(MethodSignatureModifiers.Private | MethodSignatureModifiers.Static, pipelineMessageClassifier200.Modifiers);
             Assert.IsFalse(pipelineMessageClassifier200.Body.HasSetter);
+
+            //validate _pipelineMessageClassifier201
+            Assert.IsTrue(propertyHash.ContainsKey("PipelineMessageClassifier201"));
+            var pipelineMessageClassifier201 = propertyHash["PipelineMessageClassifier201"];
+            Assert.AreEqual("PipelineMessageClassifier", pipelineMessageClassifier201.Type.Name);
+            Assert.AreEqual("PipelineMessageClassifier201", pipelineMessageClassifier201.Name);
+            Assert.AreEqual(MethodSignatureModifiers.Private | MethodSignatureModifiers.Static, pipelineMessageClassifier201.Modifiers);
+            Assert.IsFalse(pipelineMessageClassifier201.Body.HasSetter);
 
             //validate _pipelineMessageClassifier204
             Assert.IsTrue(propertyHash.ContainsKey("PipelineMessageClassifier204"));
@@ -142,9 +158,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 // validate spread parameters
                 Assert.AreEqual(_spreadModel.Properties[0].Name, methodParameters[1].Name);
                 Assert.IsNull(methodParameters[1].DefaultValue);
-                // validate optional parameter
+                // validate optional parameters
                 Assert.AreEqual(_spreadModel.Properties[1].Name, methodParameters[2].Name);
                 Assert.AreEqual(Snippet.Default, methodParameters[2].DefaultValue);
+                // validate optional parameters
+                Assert.AreEqual(_spreadModel.Properties[2].Name, methodParameters[3].Name);
+                Assert.AreEqual(Snippet.Default, methodParameters[3].DefaultValue);
+                // the collection parameter should be using the correct input type
+                Assert.IsTrue(methodParameters[3].Type.Equals(typeof(IEnumerable<string>)));
             }
         }
 
@@ -231,6 +252,32 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             Assert.IsTrue(bodyStatements!.Statements.Any(s => s.ToDisplayString() == "uri.AppendPath(_apiVersion, true);\n"));
         }
 
+        [TestCaseSource(nameof(ValidateClientResponseClassifiersTestCases))]
+        public void ValidateClientResponseClassifiers(InputClient inputClient)
+        {
+            var restClientProvider = new ClientProvider(inputClient).RestClient;
+            var method = restClientProvider.Methods.FirstOrDefault(m => m.Signature.Name == "CreateTestOperationRequest");
+            Assert.IsNotNull(method);
+
+            var bodyStatements = method?.BodyStatements as MethodBodyStatements;
+            Assert.IsNotNull(bodyStatements);
+            /* verify that the expected classifier is present in the body */
+            var inputOp = inputClient.Operations.FirstOrDefault();
+            Assert.IsNotNull(inputOp);
+            var expectedStatusCode = inputOp!.Responses.FirstOrDefault()?.StatusCodes.FirstOrDefault();
+            Assert.IsNotNull(expectedStatusCode);
+            if (expectedStatusCode == 201)
+            {
+                Assert.IsTrue(bodyStatements!.Statements.Any(s => s.ToDisplayString() == "message.ResponseClassifier = PipelineMessageClassifier201;\n"));
+                Assert.IsFalse(bodyStatements!.Statements.Any(s => s.ToDisplayString() == "message.ResponseClassifier = PipelineMessageClassifier200;\n"));
+            }
+            else if (expectedStatusCode == 200)
+            {
+                Assert.IsTrue(bodyStatements!.Statements.Any(s => s.ToDisplayString() == "message.ResponseClassifier = PipelineMessageClassifier200;\n"));
+                Assert.IsFalse(bodyStatements!.Statements.Any(s => s.ToDisplayString() == "message.ResponseClassifier = PipelineMessageClassifier201;\n"));
+            }
+        }
+
         private readonly static InputOperation BasicOperation = InputFactory.Operation(
             "CreateMessage",
             parameters:
@@ -249,6 +296,22 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                     isRequired: false),
                 InputFactory.Parameter("message", InputPrimitiveType.Boolean, isRequired: true)
             ]);
+
+        private static readonly InputOperation OperationWith201Resp = InputFactory.Operation(
+            "TestOperation",
+            parameters:
+            [
+                InputFactory.Parameter("message", InputPrimitiveType.Boolean, isRequired: true)
+            ],
+            responses: [InputFactory.OperationResponse([201])]);
+
+        private static readonly InputOperation OperationWith200Resp = InputFactory.Operation(
+            "TestOperation",
+            parameters:
+            [
+                InputFactory.Parameter("message", InputPrimitiveType.Boolean, isRequired: true)
+            ],
+            responses: [InputFactory.OperationResponse([200])]);
 
         private readonly static InputOperation OperationWithSpreadParam = InputFactory.Operation(
             "CreateMessageWithSpread",
@@ -359,6 +422,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             new TestCaseData(OperationWithSpreadParam),
             new TestCaseData(BasicOperation),
             new TestCaseData(OperationWithMixedParamOrdering)
+        ];
+
+        private static IEnumerable<TestCaseData> ValidateClientResponseClassifiersTestCases =>
+        [
+            new TestCaseData(InputFactory.Client("TestClient", operations: [OperationWith201Resp])),
+            new TestCaseData(InputFactory.Client("TestClient", operations: [OperationWith200Resp]))
         ];
 
         private static IEnumerable<TestCaseData> GetSpreadParameterModelTestCases =>

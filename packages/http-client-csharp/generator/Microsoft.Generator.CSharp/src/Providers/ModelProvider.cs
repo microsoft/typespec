@@ -528,15 +528,25 @@ namespace Microsoft.Generator.CSharp.Providers
                         return GetUnknownDiscriminatorExpression(discriminator);
                     }
 
-                    if (!type.IsFrameworkType && type.IsEnum)
+                    if (type is { IsFrameworkType: false, IsEnum: true })
                     {
                         if (_inputModel.BaseModel.DiscriminatorProperty!.Type is InputEnumType inputEnumType)
                         {
                             var discriminatorProvider = CodeModelPlugin.Instance.TypeFactory.CreateEnum(enumType: inputEnumType);
+
                             var enumMember = discriminatorProvider!.EnumValues.FirstOrDefault(e => e.Value.ToString() == _inputModel.DiscriminatorValue)
-                                ?? throw new InvalidOperationException($"invalid discriminator value {_inputModel.DiscriminatorValue}");
+                                             ?? throw new InvalidOperationException($"invalid discriminator value {_inputModel.DiscriminatorValue}");
+                            var enumMemberName = enumMember.Name;
+
+                            // Check to see if the enum member for this discriminator value has been customized
+                            var customEnumProperty = discriminatorProvider.CustomCodeView?.Properties
+                                .FirstOrDefault(f => f.OriginalName?.Equals(enumMemberName, StringComparison.OrdinalIgnoreCase) == true);
+                            if (customEnumProperty != null)
+                            {
+                                enumMemberName = customEnumProperty.Name;
+                            }
                             /* {KindType}.{enumMember} */
-                            return Static(type).Property(enumMember.Name);
+                            return Static(type).Property(enumMemberName);
                         }
 
                         // Handle custom fixed enum discriminator
@@ -773,10 +783,11 @@ namespace Microsoft.Generator.CSharp.Providers
             }
 
             var modifiers = FieldModifiers.Private;
-            if (!DeclarationModifiers.HasFlag(TypeSignatureModifiers.Sealed))
+            if (!DeclarationModifiers.HasFlag(TypeSignatureModifiers.Sealed) && !DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct))
             {
                 modifiers |= FieldModifiers.Protected;
             }
+            modifiers |= FieldModifiers.ReadOnly;
 
             var rawDataField = new FieldProvider(
                 modifiers: modifiers,

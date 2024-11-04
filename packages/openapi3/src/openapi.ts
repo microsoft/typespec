@@ -113,6 +113,7 @@ import {
 } from "./types.js";
 import { deepEquals, isSharedHttpOperation, SharedHttpOperation } from "./util.js";
 import { resolveVisibilityUsage, VisibilityUsageTracker } from "./visibility-usage.js";
+import { resolveXmlModule, XmlModule } from "./xml-module.js";
 
 const defaultFileType: FileType = "yaml";
 const defaultOptions = {
@@ -284,6 +285,7 @@ function createOAPIEmitter(
     service: Service,
     allHttpAuthentications: HttpAuth[],
     defaultAuth: AuthenticationReference,
+    xmlModule: XmlModule | undefined,
     version?: string,
   ) {
     diagnostics = createDiagnosticCollector();
@@ -298,11 +300,12 @@ function createOAPIEmitter(
       service.type,
       options.omitUnreachableTypes,
     );
+
     schemaEmitter = createAssetEmitter(
       program,
       class extends OpenAPI3SchemaEmitter {
         constructor(emitter: AssetEmitter<Record<string, any>, OpenAPI3EmitterOptions>) {
-          super(emitter, metadataInfo, visibilityUsage, options);
+          super(emitter, metadataInfo, visibilityUsage, options, xmlModule);
         }
       } as any,
       context,
@@ -615,7 +618,8 @@ function createOAPIEmitter(
       const httpService = ignoreDiagnostics(getHttpService(program, service.type));
       const auth = (serviceAuth = resolveAuthentication(httpService));
 
-      initializeEmitter(service, auth.schemes, auth.defaultAuth, version);
+      const xmlModule = await resolveXmlModule();
+      initializeEmitter(service, auth.schemes, auth.defaultAuth, xmlModule, version);
       reportIfNoRoutes(program, httpService.operations);
 
       for (const op of resolveOperations(httpService.operations)) {
@@ -1409,6 +1413,10 @@ function createOAPIEmitter(
     switch (parameter.type) {
       case "header":
         return mapHeaderParameterFormat(parameter);
+      case "cookie":
+        // style and explode options are omitted from cookies
+        // https://github.com/microsoft/typespec/pull/4761#discussion_r1803365689
+        return { explode: false };
       case "query":
         return getQueryParameterAttributes(parameter);
       case "path":

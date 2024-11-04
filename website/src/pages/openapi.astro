@@ -1,0 +1,58 @@
+---
+import ShowcaseLayout from "@site/src/layouts/showcase.astro";
+import SectionedLayout from "../components/sectioned-layout.astro";
+import Section from "../components/section.astro";
+import LearnMoreCard from "../components/learn-more-card.astro";
+import UseCaseOverview from "../components/use-case-overview.astro";
+import { Links } from "../constants";
+import IllustrationCard from "../components/illustration-card.astro";
+import abstractionCode from "@site/src/assets/tsp-samples/openapi3/abstraction.tsp?raw";
+import { Code } from "@astrojs/starlight/components";
+import OpenAPI3HeroIllustration from "@site/src/components/homepage/openapi3-hero-illustration.astro";
+import OpenAPI3InteroperateIllustration from "../components/illustrations/openapi3-interoperate.astro";
+---
+
+<ShowcaseLayout>
+  <div>
+    <UseCaseOverview
+      title="Write TypeSpec, emit OpenAPI"
+      subtitle="Emitting OpenAPI from TypeSpec enables seamless cross-language interaction, automates API-related tasks, and simplifies API management and evolution."
+      link={Links.gettingStartedOpenAPI}
+    >
+      <OpenAPI3HeroIllustration slot="illustration" />
+    </UseCaseOverview>
+    <SectionedLayout>
+      <Section
+        header="Ecosystem"
+        title="Interoperate with the OpenAPI ecosystem"
+        description="Benefit from a huge ecosystem of OpenAPI tools for configuring API gateways, generating code, and validating your data."
+      >
+        <OpenAPI3InteroperateIllustration slot="illustration" />
+
+        <LearnMoreCard
+          title="Linters"
+          description="Integrate with spectral to lint your OpenAPI."
+          image="shield-blue"
+          link={Links.spectral}
+        />
+      </Section>
+
+      <Section
+        layout="text-right"
+        header="Ecosystem"
+        title="Abstract recurring patterns"
+        description="Transform API patterns into reusable elements to enhance both the quality and uniformity of your API interface."
+      >
+        <IllustrationCard slot="illustration">
+          <Code lang="tsp" code={abstractionCode} />
+        </IllustrationCard>
+        <LearnMoreCard
+          title="Example: TypeSpec Azure Library"
+          description="The TypeSpec library for Azure allows multiple teams to reuse pre-approved patterns."
+          image="document-cloud"
+          link={Links.typespecAzure}
+        />
+      </Section>
+    </SectionedLayout>
+  </div>
+</ShowcaseLayout>
