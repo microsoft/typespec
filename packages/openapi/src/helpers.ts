@@ -216,23 +216,23 @@ export function validateIsUri(
  *
  * @param program - The TypeSpec Program instance
  * @param target - Diagnostic target for reporting any diagnostics
- * @param typespecType - The AdditionalInfo object to validate
+ * @param jsonObject - The AdditionalInfo object to validate
  * @param reference - The reference string to resolve the model
  * @returns true if the AdditionalInfo object is valid, false otherwise
  */
 export function validateAdditionalInfoModel(
   program: Program,
   target: DiagnosticTarget,
-  typespecType: object,
+  jsonObject: object,
   reference: string,
 ): boolean {
   // Resolve the reference to get the corresponding model
   const propertyModel = program.resolveTypeReference(reference)[0]! as Model;
 
-  // Check if typespecType is an object and propertyModel is defined
-  if (typespecType && propertyModel) {
+  // Check if jsonObject and propertyModel are defined
+  if (jsonObject && propertyModel) {
     // Validate that the properties of typespecType do not exceed those in propertyModel
-    const diagnostics = checkNoAdditionalProperties(typespecType, target, propertyModel);
+    const diagnostics = checkNoAdditionalProperties(jsonObject, target, propertyModel);
     program.reportDiagnostics(diagnostics);
     // Return false if any diagnostics were reported, indicating a validation failure
     if (diagnostics.length > 0) {
@@ -248,18 +248,18 @@ export function validateAdditionalInfoModel(
  * Check Additional Properties
  */
 function checkNoAdditionalProperties(
-  typespecType: any,
+  jsonObject: any,
   target: DiagnosticTarget,
   source: Model,
 ): Diagnostic[] {
   const diagnostics: Diagnostic[] = [];
 
-  for (const name of Object.keys(typespecType)) {
+  for (const name of Object.keys(jsonObject)) {
     const sourceProperty = getProperty(source, name);
     if (sourceProperty) {
       if (sourceProperty.type.kind === "Model") {
         const nestedDiagnostics = checkNoAdditionalProperties(
-          typespecType[name],
+          jsonObject[name],
           target,
           sourceProperty.type,
         );
