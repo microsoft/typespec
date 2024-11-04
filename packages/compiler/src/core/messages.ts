@@ -321,18 +321,6 @@ const diagnostics = {
       default: paramMessage`Intersection contains duplicate property definitions for ${"propName"}`,
     },
   },
-  "unknown-identifier": {
-    severity: "error",
-    messages: {
-      default: paramMessage`Unknown identifier ${"id"}`,
-    },
-  },
-  "unknown-decorator": {
-    severity: "error",
-    messages: {
-      default: "Unknown decorator",
-    },
-  },
   "invalid-decorator": {
     severity: "error",
     messages: {
@@ -343,9 +331,11 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Cannot resolve ${"id"}`,
+      identifier: paramMessage`Unknown identifier ${"id"}`,
+      decorator: paramMessage`Unknown decorator @${"id"}`,
       inDecorator: paramMessage`Cannot resolve ${"id"} in decorator`,
       underNamespace: paramMessage`Namespace ${"namespace"} doesn't have member ${"id"}`,
-      underContainer: paramMessage`${"kind"} doesn't have member ${"id"}`,
+      member: paramMessage`${"kind"} doesn't have member ${"id"}`,
       metaProperty: paramMessage`${"kind"} doesn't have meta property ${"id"}`,
       node: paramMessage`Cannot resolve '${"id"}' in node ${"nodeName"} since it has no members. Did you mean to use "::" instead of "."?`,
     },

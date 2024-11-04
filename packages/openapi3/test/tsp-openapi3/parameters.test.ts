@@ -196,6 +196,7 @@ describe("converts top-level parameters", () => {
     assert(Foo, "Foo model not found");
     expect(Foo.properties.size).toBe(1);
     const foo = Foo.properties.get("foo");
+    ok(foo);
     expect(foo).toMatchObject({
       optional: true,
       type: { kind: "Scalar", name: "string" },

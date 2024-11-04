@@ -104,7 +104,7 @@ export function getSourceLocation(
 
   if (!("kind" in target) && !("entityKind" in target)) {
     // TemplateInstanceTarget
-    if ("node" in target) {
+    if (!("declarations" in target)) {
       return getSourceLocationOfNode(target.node, options);
     }
 
