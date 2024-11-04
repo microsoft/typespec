@@ -589,6 +589,12 @@ describe("uri template", () => {
       [`@path(#{style: "path"}) one: string`, "/foo/{/one}"],
       ["@path(#{allowReserved: true, explode: true}) one: string", "/foo/{+one*}"],
       ["@query one: string", "/foo{?one}"],
+      ["@query(#{explode: true}) one: string", "/foo{?one*}"],
+      [
+        "@query(#{explode: true}) one: string, @query(#{explode: true}) two: string",
+        "/foo{?one*,two*}",
+      ],
+
       // cspell:ignore Atwo
       [`@query("one:two") one: string`, "/foo{?one%3Atwo}"],
     ])("%s -> %s", async (param, expectedUri) => {

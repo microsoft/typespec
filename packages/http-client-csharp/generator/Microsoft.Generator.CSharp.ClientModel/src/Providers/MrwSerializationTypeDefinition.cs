@@ -434,7 +434,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return new MethodProvider
             (
               new MethodSignature(methodName, null, signatureModifiers, _model.Type, null, [_jsonElementDeserializationParam, _serializationOptionsParameter]),
-              _model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract) && _inputModel.DiscriminatorProperty != null ? BuildAbstractDeserializationMethodBody() : BuildDeserializationMethodBody(),
+              _model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract) && _inputModel.DiscriminatedSubtypes.Count > 0 ? BuildAbstractDeserializationMethodBody() : BuildDeserializationMethodBody(),
               this
             );
         }
@@ -442,15 +442,39 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private MethodBodyStatement[] BuildAbstractDeserializationMethodBody()
         {
             var unknownVariant = _model.DerivedModels.First(m => m.IsUnknownDiscriminatorModel);
+            bool onlyContainsUnknownDerivedModel = _model.DerivedModels.Count == 1;
+            var discriminator = _model.CanonicalView.Properties.Where(p => p.IsDiscriminator).FirstOrDefault();
+            var deserializeDiscriminatedModelsConditions = BuildDiscriminatedModelsCondition(
+                discriminator,
+                GetAbstractSwitchCases(unknownVariant),
+                onlyContainsUnknownDerivedModel,
+                _jsonElementParameterSnippet);
+
             return
             [
                 new IfStatement(_jsonElementParameterSnippet.ValueKindEqualsNull()) { Return(Null) },
-                new IfStatement(_jsonElementParameterSnippet.TryGetProperty("kind", out var discriminator))
-                {
-                    new SwitchStatement(discriminator.GetString(), GetAbstractSwitchCases(unknownVariant))
-                },
+                deserializeDiscriminatedModelsConditions,
                 Return(unknownVariant.Type.Deserialize(_jsonElementParameterSnippet, _serializationOptionsParameter))
             ];
+        }
+
+        private static MethodBodyStatement BuildDiscriminatedModelsCondition(
+            PropertyProvider? discriminatorProperty,
+            SwitchCaseStatement[] abstractSwitchCases,
+            bool onlyContainsUnknownDerivedModel,
+            ScopedApi<JsonElement> jsonElementParameterSnippet)
+        {
+            if (!onlyContainsUnknownDerivedModel && discriminatorProperty?.WireInfo?.SerializedName != null)
+            {
+                return new IfStatement(jsonElementParameterSnippet.TryGetProperty(
+                    discriminatorProperty.WireInfo.SerializedName,
+                    out var discriminator))
+                {
+                    new SwitchStatement(discriminator.GetString(), abstractSwitchCases)
+                };
+            }
+
+            return MethodBodyStatement.Empty;
         }
 
         private SwitchCaseStatement[] GetAbstractSwitchCases(ModelProvider unknownVariant)

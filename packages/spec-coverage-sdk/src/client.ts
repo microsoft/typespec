@@ -43,7 +43,7 @@ export class SpecManifestOperations {
     this.#blob = this.#container.getBlockBlobClient("manifest.json");
   }
 
-  public async upload(manifest: ScenarioManifest): Promise<void> {
+  public async upload(manifest: ScenarioManifest | ScenarioManifest[]): Promise<void> {
     const content = JSON.stringify(manifest, null, 2);
     await this.#blob.upload(content, content.length, {
       blobHTTPHeaders: {
