@@ -13,7 +13,6 @@ import {
   inlinecode,
   renderMarkdowDoc,
   section,
-  tabs,
 } from "../utils/markdown.js";
 import { MarkdownRenderer, groupByNamespace } from "./markdown.js";
 
@@ -61,8 +60,7 @@ function renderIndexFile(renderer: DocusaurusRenderer, refDoc: TypeSpecLibraryRe
     "toc_min_heading_level: 2",
     "toc_max_heading_level: 3",
     "---",
-    "import Tabs from '@theme/Tabs';",
-    "import TabItem from '@theme/TabItem';",
+    "import { Tabs, TabItem } from '@astrojs/starlight/components';",
     "",
 
     refDoc.description ?? [],
@@ -242,12 +240,10 @@ export class DocusaurusRenderer extends MarkdownRenderer {
       "Install",
       tabs([
         {
-          id: "spec",
           label: "In a spec",
           content: codeblock(`npm install ${refDoc.name}`, "bash"),
         },
         {
-          id: "library",
           label: "In a library",
           content: codeblock(`npm install --save-peer ${refDoc.name}`, "bash"),
         },
@@ -284,4 +280,18 @@ export class DocusaurusRenderer extends MarkdownRenderer {
   deprecationNotice(notice: DeprecationNotice): MarkdownDoc {
     return [":::warning", `**Deprecated**: ${notice.message}`, ":::"];
   }
+}
+
+type Tab = {
+  label: string;
+  content: string;
+};
+
+function tabs(tabs: Tab[]) {
+  const result = ["<Tabs>"];
+  for (const tab of tabs) {
+    result.push(`<TabItem  label="${tab.label}" default>`, "", tab.content, "", "</TabItem>");
+  }
+  result.push("</Tabs>", "");
+  return result.join("\n");
 }
