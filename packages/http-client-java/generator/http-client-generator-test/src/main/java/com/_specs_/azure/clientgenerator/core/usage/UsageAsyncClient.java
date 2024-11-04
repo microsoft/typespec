@@ -44,7 +44,7 @@ public final class UsageAsyncClient {
      * Expected body parameter:
      * ```json
      * {
-     * "name": &lt;any string&gt;
+     * "name": "Madge"
      * }
      * ```.
      * <p><strong>Request Body Schema</strong></p>
@@ -75,7 +75,7 @@ public final class UsageAsyncClient {
      * Expected response body:
      * ```json
      * {
-     * "name": &lt;any string&gt;
+     * "name": "Madge"
      * }
      * ```.
      * <p><strong>Response Body Schema</strong></p>
@@ -114,7 +114,7 @@ public final class UsageAsyncClient {
      * ```json
      * {
      * "result": {
-     * "name": &lt;any string&gt;
+     * "name": "Madge"
      * }
      * }
      * ```.
@@ -161,7 +161,7 @@ public final class UsageAsyncClient {
      * Expected body parameter:
      * ```json
      * {
-     * "name": &lt;any string&gt;
+     * "name": "Madge"
      * }
      * ```.
      * 
@@ -186,7 +186,7 @@ public final class UsageAsyncClient {
      * Expected response body:
      * ```json
      * {
-     * "name": &lt;any string&gt;
+     * "name": "Madge"
      * }
      * ```.
      * 
@@ -219,7 +219,7 @@ public final class UsageAsyncClient {
      * ```json
      * {
      * "result": {
-     * "name": &lt;any string&gt;
+     * "name": "Madge"
      * }
      * }
      * ```.
