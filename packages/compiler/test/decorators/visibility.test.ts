@@ -1,11 +1,61 @@
 // Copyright (c) Microsoft Corporation
 // Licensed under the MIT license.
 
-import { deepStrictEqual } from "assert";
+import { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { Model } from "../../src/core/types.js";
-import { getVisibility } from "../../src/core/visibility/core.js";
+import { Enum, Model, ModelProperty } from "../../src/core/types.js";
+import { getVisibility, getVisibilityForClass } from "../../src/core/visibility/core.js";
+import { getLifecycleVisibilityEnum } from "../../src/index.js";
 import { BasicTestRunner, createTestRunner } from "../../src/testing/index.js";
+
+function assertSetsEqual<T>(a: Set<T>, b: Set<T>): void {
+  strictEqual(a.size, b.size);
+
+  for (const item of a) {
+    ok(b.has(item));
+  }
+}
+
+describe("visibility", function () {
+  let runner: BasicTestRunner;
+
+  beforeEach(async () => {
+    runner = await createTestRunner();
+  });
+
+  it("default visibility", async () => {
+    const { name, Dummy } = (await runner.compile(`
+        @test
+        @defaultVisibility(Dummy.B)
+        enum Dummy {
+          A,
+          B,
+        }
+
+        model TestModel {
+          @test
+          name: string;
+        }`)) as { name: ModelProperty; Dummy: Enum };
+
+    const LifecycleEnum = getLifecycleVisibilityEnum(runner.program);
+
+    const Lifecycle = {
+      Read: LifecycleEnum.members.get("Read")!,
+      Create: LifecycleEnum.members.get("Create")!,
+      Update: LifecycleEnum.members.get("Update")!,
+    };
+
+    assertSetsEqual(
+      getVisibilityForClass(runner.program, name, LifecycleEnum),
+      new Set([Lifecycle.Read, Lifecycle.Create, Lifecycle.Update]),
+    );
+
+    assertSetsEqual(
+      getVisibilityForClass(runner.program, name, Dummy),
+      new Set([Dummy.members.get("B")!]),
+    );
+  });
+});
 
 describe("visibility (legacy)", function () {
   let runner: BasicTestRunner;
