@@ -380,7 +380,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         internal MethodProvider BuildJsonModelCreateMethod()
         {
             ValueExpression createCoreInvocation = This.Invoke(JsonModelCreateCoreMethodName, [_utf8JsonReaderParameter, _serializationOptionsParameter]);
-            if (!_inputModel.IsUnknownDiscriminatorModel)
+            var createCoreReturnType = _model.Type.RootType;
+
+            if (createCoreReturnType != _jsonModelTInterface.Arguments[0])
             {
                 createCoreInvocation = createCoreInvocation.CastTo(_model.Type);
             }
@@ -521,7 +523,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             ParameterProvider dataParameter = new("data", $"The data to parse.", typeof(BinaryData));
             ValueExpression createCoreInvocation = This.Invoke(PersistableModelCreateCoreMethodName, [dataParameter, _serializationOptionsParameter]);
-            if (!_inputModel.IsUnknownDiscriminatorModel)
+            var createCoreReturnType = _model.Type.RootType;
+
+            if (createCoreReturnType != _persistableModelTInterface.Arguments[0])
             {
                 createCoreInvocation = createCoreInvocation.CastTo(_model.Type);
             }
