@@ -129,6 +129,10 @@ namespace Sample.Models
         /// <param name="mockInputModel"> The <see cref="global::Sample.Models.MockInputModel"/> to serialize into <see cref="global::System.ClientModel.BinaryContent"/>. </param>
         public static implicit operator BinaryContent(global::Sample.Models.MockInputModel mockInputModel)
         {
+            if ((mockInputModel == null))
+            {
+                return null;
+            }
             return global::System.ClientModel.BinaryContent.Create(mockInputModel, global::Sample.ModelSerializationExtensions.WireOptions);
         }
 

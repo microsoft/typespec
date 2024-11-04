@@ -172,5 +172,33 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             Assert.IsFalse(initializer!.Arguments.Any(a => a.ToDisplayString().Contains("kind")));
             Assert.IsTrue(initializer!.Arguments.Any(a => a.ToDisplayString() == "\"cat\""));
         }
+
+        // This test validates that the correct discriminator property name is used when deserializing
+        [Test]
+        public void DiscriminatorDeserializationUsesCorrectDiscriminatorPropName()
+        {
+            var treeModel = InputFactory.Model(
+                "tree",
+                discriminatedKind: "tree",
+                properties:
+                []);
+            var baseModel = InputFactory.Model(
+                "plant",
+                properties:
+                [
+                    InputFactory.Property("foo", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "tree", treeModel } });
+
+            MockHelpers.LoadMockPlugin(inputModels: () => [baseModel, treeModel]);
+            var baseModelProvider = ClientModelPlugin.Instance.OutputLibrary.TypeProviders.OfType<ModelProvider>()
+                .FirstOrDefault(t => t.Name == "Plant");
+            Assert.IsNotNull(baseModelProvider);
+
+            var deserializationMethod = baseModelProvider!.SerializationProviders.FirstOrDefault()!.Methods
+                .FirstOrDefault(m => m.Signature.Name == "DeserializePlant");
+            Assert.IsTrue(deserializationMethod?.BodyStatements!.ToDisplayString().Contains(
+                $"if (element.TryGetProperty(\"foo\"u8, out global::System.Text.Json.JsonElement discriminator))"));
+        }
     }
 }
