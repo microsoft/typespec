@@ -1,9 +1,9 @@
 import "@typespec/http";
-import "@typespec/spec-lib";
+import "@typespec/spector";
 import "./dec.js";
 
 using Http;
-using SpecLib;
+using Spector;
 
 /**
  * Scenarios to verify that reserved words can be used in service and generators will handle it appropriately.

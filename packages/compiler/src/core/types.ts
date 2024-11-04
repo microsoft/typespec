@@ -2082,7 +2082,7 @@ export interface LibraryLocationContext {
 
 export interface LibraryInstance {
   module: ModuleResolutionResult;
-  entrypoint: JsSourceFileNode | undefined;
+  entrypoint: JsSourceFileNode;
   metadata: LibraryMetadata;
   definition?: TypeSpecLibrary<any>;
   linter: LinterResolvedDefinition;
@@ -2352,9 +2352,35 @@ export type DiagnosticFormat<
     ? { format: Record<A[number], string> }
     : Record<string, unknown>;
 
+/**
+ * Declare a diagnostic that can be reported by the library.
+ *
+ * @example
+ *
+ * ```ts
+ * unterminated: {
+ *   severity: "error",
+ *   description: "Unterminated token.",
+ *   url: "https://example.com/docs/diags/unterminated",
+ *   messages: {
+ *     default: paramMessage`Unterminated ${"token"}.`,
+ *   },
+ * },
+ * ```
+ */
 export interface DiagnosticDefinition<M extends DiagnosticMessages> {
+  /**
+   * Diagnostic severity.
+   * - `warning` - Suppressable, should be used to represent potential issues but not blocking.
+   * - `error` - Non-suppressable, should be used to represent failure to move forward.
+   */
   readonly severity: "warning" | "error";
+  /** Messages that can be reported with the diagnostic. */
   readonly messages: M;
+  /** Short description of the diagnostic */
+  readonly description?: string;
+  /** Specifies the URL at which the full documentation can be accessed. */
+  readonly url?: string;
 }
 
 export interface DiagnosticMessages {
@@ -2475,18 +2501,18 @@ export interface DecoratorImplementations {
 export interface PackageFlags {
   /**
    * Decorator arg marshalling algorithm. Specify how TypeSpec values are marshalled to decorator arguments.
-   * - `lossless` - New recommended behavior
+   * - `new` - New recommended behavior
    *  - string value -> `string`
    *  - numeric value -> `number` if the constraint can be represented as a JS number, Numeric otherwise(e.g. for types int64, decimal128, numeric, etc.)
    *  - boolean value -> `boolean`
    *  - null value -> `null`
    *
-   * - `legacy` Behavior before version 0.56.0.
+   * - `legacy` - DEPRECATED -  Behavior before version 0.56.0.
    *  - string value -> `string`
    *  - numeric value -> `number`
    *  - boolean value -> `boolean`
    *  - null value -> `NullType`
-   * @default legacy
+   * @default new
    */
   readonly decoratorArgMarshalling?: "legacy" | "new";
 }

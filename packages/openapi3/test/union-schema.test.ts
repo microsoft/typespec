@@ -1,6 +1,6 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { diagnoseOpenApiFor, oapiForModel, openApiFor } from "./test-host.js";
 
 describe("openapi3: union type", () => {
@@ -526,5 +526,72 @@ describe("openapi3: union type", () => {
     for (const variant of res.schemas.Foo.anyOf) {
       strictEqual(variant.description, undefined);
     }
+  });
+
+  it("type property should always be set when nullable property is present", async () => {
+    const openApi = await openApiFor(`
+      scalar MyStr extends string;
+      model Foo {};
+      model A {
+        x: MyStr |Foo| null;
+      }
+      `);
+    deepStrictEqual(openApi.components.schemas.A.properties, {
+      x: {
+        anyOf: [
+          {
+            type: "object",
+            allOf: [{ $ref: "#/components/schemas/MyStr" }],
+            nullable: true,
+          },
+          {
+            type: "object",
+            allOf: [{ $ref: "#/components/schemas/Foo" }],
+            nullable: true,
+          },
+        ],
+      },
+    });
+  });
+
+  it("scalar type property should always be set when nullable property is present", async () => {
+    const openApi = await openApiFor(`
+        model Foo {};
+        model A {
+          x: Foo |string| null;
+        }
+        `);
+    deepStrictEqual(openApi.components.schemas.A.properties, {
+      x: {
+        anyOf: [
+          {
+            type: "object",
+            allOf: [{ $ref: "#/components/schemas/Foo" }],
+            nullable: true,
+          },
+          {
+            type: "string",
+            nullable: true,
+          },
+        ],
+      },
+    });
+  });
+
+  describe("null and another single variant produce allOf", () => {
+    it.each([
+      ["model", "model Other {}"],
+      ["enum", "enum Other {a, b}"],
+    ])("%s variant", async (_, code) => {
+      const openApi = await openApiFor(`
+        union Test { Other, null }
+        ${code}
+        `);
+
+      expect(openApi.components.schemas.Test).toMatchObject({
+        allOf: [{ $ref: "#/components/schemas/Other" }],
+        nullable: true,
+      });
+    });
   });
 });

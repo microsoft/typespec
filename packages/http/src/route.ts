@@ -16,6 +16,7 @@ import {
   HttpOperationParameter,
   HttpOperationParameters,
   HttpOperationPathParameter,
+  HttpOperationQueryParameter,
   PathParameterOptions,
   RouteOptions,
   RoutePath,
@@ -229,13 +230,17 @@ export function getUriTemplatePathParam(param: HttpOperationPathParameter) {
   return `{${operator}${param.name}${param.explode ? "*" : ""}}`;
 }
 
+function getUriTemplateQueryParamPart(param: HttpOperationQueryParameter) {
+  return `${escapeUriTemplateParamName(param.name)}${param.explode ? "*" : ""}`;
+}
+
 export function addQueryParamsToUriTemplate(uriTemplate: string, params: HttpOperationParameter[]) {
   const queryParams = params.filter((x) => x.type === "query");
 
   return (
     uriTemplate +
     (queryParams.length > 0
-      ? `{?${queryParams.map((x) => escapeUriTemplateParamName(x.name)).join(",")}}`
+      ? `{?${queryParams.map((x) => getUriTemplateQueryParamPart(x)).join(",")}}`
       : "")
   );
 }

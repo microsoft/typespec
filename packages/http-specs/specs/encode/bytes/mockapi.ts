@@ -77,13 +77,7 @@ function createPropertyServerTests(uri: string, data: any, value: any) {
     },
     response: {
       status: 200,
-    },
-    handler: (req: MockRequest) => {
-      req.expect.coercedBodyEquals({ value: value });
-      return {
-        status: 200,
-        body: json({ value: value }),
-      };
+      body: json({ value: value }),
     },
     kind: "MockApiDefinition",
   });
@@ -125,12 +119,6 @@ function createHeaderServerTests(uri: string, data: any, value: any) {
     },
     response: {
       status: 204,
-    },
-    handler: (req: MockRequest) => {
-      req.expect.containsHeader("value", value);
-      return {
-        status: 204,
-      };
     },
     kind: "MockApiDefinition",
   });
@@ -208,11 +196,11 @@ Scenarios.Encode_Bytes_RequestBody_base64 = createRequestBodyServerTests(
 );
 Scenarios.Encode_Bytes_RequestBody_base64url = createRequestBodyServerTests(
   "/encode/bytes/body/request/base64url",
-  '"dGVzdA=="',
+  '"dGVzdA"',
   {
     "Content-Type": "application/json",
   },
-  '"dGVzdA=="',
+  '"dGVzdA"',
 );
 
 Scenarios.Encode_Bytes_RequestBody_customContentType = createRequestBodyServerTests(

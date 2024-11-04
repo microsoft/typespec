@@ -31,6 +31,25 @@ describe("schema examples", () => {
     );
     expect(res.components.schemas.Test.example).toEqual({ dob: "2021-01-01" });
   });
+
+  it("enum in union", async () => {
+    const res = await openApiFor(
+      `
+      enum Types {a, b}
+
+      model A { type: Types;}
+
+      union Un { A }
+
+      @example(#{ prop: #{ type: Types.a } })
+      model Test {
+        prop: Un;
+      }
+
+      `,
+    );
+    expect(res.components.schemas.Test.example).toEqual({ prop: { type: "a" } });
+  });
 });
 
 describe("operation examples", () => {

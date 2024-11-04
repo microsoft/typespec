@@ -139,6 +139,49 @@ describe("compiler: config interpolation", () => {
       });
     });
 
+    it("expand nested variables", () => {
+      const config = {
+        ...defaultConfig,
+        projectRoot: "/dev/ws",
+        outputDir: "{test-var.one.x}/my-output",
+        parameters: {
+          "test-var": {
+            one: {
+              x: "nested/test",
+            },
+            default: "",
+          },
+        },
+      };
+      const resolved = expectExpandConfigVariables(config, { cwd: "/dev/wd" });
+      deepStrictEqual(resolved, {
+        ...config,
+        outputDir: "nested/test/my-output",
+      });
+    });
+
+    it("expand nested variables with default value", () => {
+      const config = {
+        ...defaultConfig,
+        projectRoot: "/dev/ws",
+        outputDir: "{test.var.one}/my-output",
+        parameters: {
+          "test.var": {
+            one: {
+              x: "nested/test",
+              default: "nested/default",
+            },
+            default: "",
+          },
+        },
+      };
+      const resolved = expectExpandConfigVariables(config, { cwd: "/dev/wd" });
+      deepStrictEqual(resolved, {
+        ...config,
+        outputDir: "nested/default/my-output",
+      });
+    });
+
     describe("interpolating args", () => {
       const config: TypeSpecConfig = {
         ...defaultConfig,

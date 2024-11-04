@@ -1,5 +1,16 @@
 # Change Log - @typespec/http
 
+## 0.61.0
+
+### Bump dependencies
+
+- [#4424](https://github.com/microsoft/typespec/pull/4424) Bump dependencies
+
+### Features
+
+- [#4513](https://github.com/microsoft/typespec/pull/4513) Adds HttpStream and JsonlStream models to to support streaming use-cases.
+
+
 ## 0.60.0
 
 ### Bug Fixes

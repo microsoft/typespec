@@ -30,7 +30,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private ModelProvider? _baseModelProvider;
         private ConstructorProvider? _fullConstructor;
 
-        public ModelProvider(InputModelType inputModel)
+        public ModelProvider(InputModelType inputModel) : base(inputModel)
         {
             _inputModel = inputModel;
             Description = inputModel.Description != null ? FormattableStringHelpers.FromString(inputModel.Description) : $"The {Name}.";
@@ -75,6 +75,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
             return [.. derivedModels];
         }
+        internal override TypeProvider? BaseTypeProvider => BaseModelProvider;
 
         public ModelProvider? BaseModelProvider
             => _baseModelProvider ??= (_baseTypeProvider?.Value is ModelProvider baseModelProvider ? baseModelProvider : null);
@@ -83,8 +84,6 @@ namespace Microsoft.Generator.CSharp.Providers
         private List<PropertyProvider> AdditionalPropertyProperties => _additionalPropertyProperties ??= BuildAdditionalPropertyProperties();
         internal bool SupportsBinaryDataAdditionalProperties => AdditionalPropertyProperties.Any(p => p.Type.ElementType.Equals(_additionalPropsUnknownType));
         public ConstructorProvider FullConstructor => _fullConstructor ??= BuildFullConstructor();
-
-        internal IReadOnlyList<PropertyProvider> AllSpecProperties => Properties.Concat(CustomCodeView?.Properties.Where(p => p.WireInfo != null) ?? []).ToList();
 
         protected override string GetNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
 
@@ -104,7 +103,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override TypeSignatureModifiers GetDeclarationModifiers()
         {
-            var customCodeModifiers = GetCustomCodeModifiers();
+            var customCodeModifiers = CustomCodeView?.DeclarationModifiers ?? TypeSignatureModifiers.None;
             var isStruct = false;
             // the information of if this model should be a struct comes from two sources:
             // 1. the customied code
@@ -454,31 +453,44 @@ namespace Microsoft.Generator.CSharp.Providers
             var baseParameters = new List<ParameterProvider>();
             var constructorParameters = new List<ParameterProvider>();
             IEnumerable<PropertyProvider> baseProperties = [];
+            IEnumerable<FieldProvider> baseFields = [];
 
             if (isPrimaryConstructor)
             {
                 // the primary ctor should only include the properties of the direct base model
-                baseProperties = BaseModelProvider?.Properties ?? [];
+                baseProperties = BaseModelProvider?.CanonicalView.Properties ?? [];
+                baseFields = BaseModelProvider?.CanonicalView.Fields ?? [];
             }
             else if (BaseModelProvider?.FullConstructor.Signature != null)
             {
                 baseParameters.AddRange(BaseModelProvider.FullConstructor.Signature.Parameters);
             }
 
-            HashSet<PropertyProvider> overriddenProperties = AllSpecProperties.Where(p => p.BaseProperty is not null).Select(p => p.BaseProperty!).ToHashSet();
+            HashSet<PropertyProvider> overriddenProperties = CanonicalView.Properties.Where(p => p.BaseProperty is not null).Select(p => p.BaseProperty!).ToHashSet();
 
             // add the base parameters, if any
             foreach (var property in baseProperties)
             {
-                AddInitializationParameterForCtor(baseParameters, property, Type.IsStruct, isPrimaryConstructor);
+                AddInitializationParameterForCtor(baseParameters, Type.IsStruct, isPrimaryConstructor, property);
+            }
+
+            // add the base fields, if any
+            foreach (var field in baseFields)
+            {
+                AddInitializationParameterForCtor(baseParameters, Type.IsStruct, isPrimaryConstructor, field: field);
             }
 
             // construct the initializer using the parameters from base signature
             var constructorInitializer = new ConstructorInitializer(true, [.. baseParameters.Select(p => GetExpressionForCtor(p, overriddenProperties, isPrimaryConstructor))]);
 
-            foreach (var property in AllSpecProperties)
+            foreach (var property in CanonicalView.Properties)
             {
-                AddInitializationParameterForCtor(constructorParameters, property, Type.IsStruct, isPrimaryConstructor);
+                AddInitializationParameterForCtor(constructorParameters, Type.IsStruct, isPrimaryConstructor, property);
+            }
+
+            foreach (var field in CanonicalView.Fields)
+            {
+                AddInitializationParameterForCtor(constructorParameters, Type.IsStruct, isPrimaryConstructor, field: field);
             }
 
             constructorParameters.AddRange(_inputModel.IsUnknownDiscriminatorModel
@@ -507,7 +519,7 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             if (_inputModel.BaseModel is not null && _inputModel.DiscriminatorValue is not null)
             {
-                var discriminator = BaseModelProvider?.Properties.Where(p => p.IsDiscriminator).FirstOrDefault();
+                var discriminator = BaseModelProvider?.CanonicalView.Properties.Where(p => p.IsDiscriminator).FirstOrDefault();
                 if (discriminator != null)
                 {
                     var type = discriminator.Type;
@@ -515,23 +527,42 @@ namespace Microsoft.Generator.CSharp.Providers
                     {
                         return GetUnknownDiscriminatorExpression(discriminator);
                     }
-                    else
+
+                    if (type is { IsFrameworkType: false, IsEnum: true })
                     {
-                        if (!type.IsFrameworkType && type.IsEnum)
+                        if (_inputModel.BaseModel.DiscriminatorProperty!.Type is InputEnumType inputEnumType)
                         {
-                            /* TODO: when customize the discriminator type to a enum, then we may not be able to get the correct TypeProvider in this way.
-                             * We will handle this when issue https://github.com/microsoft/typespec/issues/4313 is resolved.
-                             * */
-                            var discriminatorProvider = CodeModelPlugin.Instance.TypeFactory.CreateEnum(enumType: (InputEnumType)_inputModel.BaseModel.DiscriminatorProperty!.Type);
-                            var enumMember = discriminatorProvider!.EnumValues.FirstOrDefault(e => e.Value.ToString() == _inputModel.DiscriminatorValue) ?? throw new InvalidOperationException($"invalid discriminator value {_inputModel.DiscriminatorValue}");
+                            var discriminatorProvider = CodeModelPlugin.Instance.TypeFactory.CreateEnum(enumType: inputEnumType);
+
+                            var enumMember = discriminatorProvider!.EnumValues.FirstOrDefault(e => e.Value.ToString() == _inputModel.DiscriminatorValue)
+                                             ?? throw new InvalidOperationException($"invalid discriminator value {_inputModel.DiscriminatorValue}");
+                            var enumMemberName = enumMember.Name;
+
+                            // Check to see if the enum member for this discriminator value has been customized
+                            var customEnumProperty = discriminatorProvider.CustomCodeView?.Properties
+                                .FirstOrDefault(f => f.OriginalName?.Equals(enumMemberName, StringComparison.OrdinalIgnoreCase) == true);
+                            if (customEnumProperty != null)
+                            {
+                                enumMemberName = customEnumProperty.Name;
+                            }
                             /* {KindType}.{enumMember} */
-                            return TypeReferenceExpression.FromType(type).Property(enumMember.Name);
+                            return Static(type).Property(enumMemberName);
                         }
-                        else
+
+                        // Handle custom fixed enum discriminator
+                        if (discriminator.CustomProvider?.Value?.IsEnum == true)
                         {
-                            return Literal(_inputModel.DiscriminatorValue);
+                            var enumMember = discriminator.CustomProvider.Value.Fields
+                                .FirstOrDefault(f => f.Name.Equals(_inputModel.DiscriminatorValue, StringComparison.OrdinalIgnoreCase));
+                            if (enumMember != null)
+                            {
+                                return Static(type).Property(enumMember.Name);
+                            }
                         }
                     }
+
+                    // fallback to the default value
+                    return Literal(_inputModel.DiscriminatorValue);
                 }
             }
             return null;
@@ -587,30 +618,35 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private static void AddInitializationParameterForCtor(
             List<ParameterProvider> parameters,
-            PropertyProvider property,
             bool isStruct,
-            bool isPrimaryConstructor)
+            bool isPrimaryConstructor,
+            PropertyProvider? property = default,
+            FieldProvider? field = default)
         {
+            var wireInfo = property?.WireInfo ?? field?.WireInfo;
+            var type = property?.Type ?? field?.Type;
+
             // We only add those properties with wire info indicating they are coming from specs.
-            if (property.WireInfo is not { } wireInfo)
+            if (wireInfo == null)
             {
                 return;
             }
 
+            var parameter = property?.AsParameter ?? field!.AsParameter;
             if (isPrimaryConstructor)
             {
-                if (isStruct || (wireInfo.IsRequired && !property.Type.IsLiteral))
+                if (isStruct || (wireInfo.IsRequired && !type!.IsLiteral))
                 {
                     if (!wireInfo.IsReadOnly)
                     {
-                        parameters.Add(property.AsParameter.ToPublicInputParameter());
+                        parameters.Add(parameter.ToPublicInputParameter());
                     }
                 }
             }
             else
             {
                 // For the serialization constructor, we always add the property as a parameter
-                parameters.Add(property.AsParameter);
+                parameters.Add(parameter);
             }
         }
 
@@ -618,54 +654,17 @@ namespace Microsoft.Generator.CSharp.Providers
             bool isPrimaryConstructor,
             IReadOnlyList<ParameterProvider>? parameters = null)
         {
-            List<MethodBodyStatement> methodBodyStatements = new(Properties.Count + 1);
+            List<MethodBodyStatement> methodBodyStatements = new(CanonicalView.Properties.Count + CanonicalView.Fields.Count + 1);
             Dictionary<string, ParameterProvider> parameterMap = parameters?.ToDictionary(p => p.Name) ?? [];
 
-            foreach (var property in AllSpecProperties)
+            foreach (var property in CanonicalView.Properties)
             {
-                // skip those non-spec properties
-                if (property.WireInfo == null)
-                    continue;
+                CreatePropertyAssignmentStatement(isPrimaryConstructor, methodBodyStatements, parameterMap, property);
+            }
 
-                // skip if this is an overload / new of a base property
-                // also skip if the base was required or the derived property is not required
-                if (property.BaseProperty is not null && (!isPrimaryConstructor || property.WireInfo?.IsRequired == false || property.BaseProperty.WireInfo?.IsRequired == true))
-                    continue;
-
-                ValueExpression assignee = property.BackingField is null ? property : property.BackingField;
-
-                if (!isPrimaryConstructor)
-                {
-                    // always add the property for the serialization constructor
-                    methodBodyStatements.Add(assignee.Assign(GetConversion(property)).Terminate());
-                    continue;
-                }
-
-                ValueExpression? initializationValue = null;
-
-                if (parameterMap.TryGetValue(property.AsParameter.Name, out var parameter) || Type.IsStruct)
-                {
-                    if (parameter != null)
-                    {
-                        initializationValue = parameter;
-
-                        if (CSharpType.RequiresToList(parameter.Type, property.Type))
-                        {
-                            initializationValue = parameter.Type.IsNullable ?
-                                initializationValue.NullConditional().ToList() :
-                                initializationValue.ToList();
-                        }
-                    }
-                }
-                else if (initializationValue == null && property.Type.IsCollection)
-                {
-                    initializationValue = New.Instance(property.Type.PropertyInitializationType);
-                }
-
-                if (initializationValue != null)
-                {
-                    methodBodyStatements.Add(assignee.Assign(initializationValue).Terminate());
-                }
+            foreach (var field in CanonicalView.Fields)
+            {
+                CreatePropertyAssignmentStatement(isPrimaryConstructor, methodBodyStatements, parameterMap, field: field);
             }
 
             // handle additional properties
@@ -694,17 +693,76 @@ namespace Microsoft.Generator.CSharp.Providers
             return methodBodyStatements;
         }
 
-        private ValueExpression GetConversion(PropertyProvider property)
+        private void CreatePropertyAssignmentStatement(
+            bool isPrimaryConstructor,
+            List<MethodBodyStatement> methodBodyStatements,
+            Dictionary<string, ParameterProvider> parameterMap,
+            PropertyProvider? property = default,
+            FieldProvider? field = default)
         {
-            CSharpType to = property.BackingField is null ? property.Type : property.BackingField.Type;
-            CSharpType from = property.Type;
+            var wireInfo = property?.WireInfo ?? field?.WireInfo;
+            // skip those non-spec properties
+            if (wireInfo == null)
+                return;
+
+            // skip if this is an overload / new of a base property
+            // also skip if the base was required or the derived property is not required
+            if (property?.BaseProperty is not null && (!isPrimaryConstructor || wireInfo.IsRequired == false || property.BaseProperty.WireInfo?.IsRequired == true))
+                return;
+
+            ValueExpression assignee = property != null
+                ? property.BackingField is null ? property : property.BackingField
+                : field!;
+
+            if (!isPrimaryConstructor)
+            {
+                // always add the property for the serialization constructor
+                methodBodyStatements.Add(assignee.Assign(GetConversion(property, field)).Terminate());
+                return;
+            }
+
+            ValueExpression? initializationValue = null;
+
+            var type = property?.Type ?? field!.Type;
+
+            if (parameterMap.TryGetValue(property?.AsParameter.Name ?? field!.AsParameter.Name, out var parameter) || Type.IsStruct)
+            {
+                if (parameter != null)
+                {
+                    initializationValue = parameter;
+
+                    if (CSharpType.RequiresToList(parameter.Type, type))
+                    {
+                        initializationValue = parameter.Type.IsNullable ?
+                            initializationValue.NullConditional().ToList() :
+                            initializationValue.ToList();
+                    }
+                }
+            }
+            else if (initializationValue == null && type.IsCollection)
+            {
+                initializationValue = New.Instance(type.PropertyInitializationType);
+            }
+
+            if (initializationValue != null)
+            {
+                methodBodyStatements.Add(assignee.Assign(initializationValue).Terminate());
+            }
+        }
+
+        private ValueExpression GetConversion(PropertyProvider? property = default, FieldProvider? field = default)
+        {
+            CSharpType to = property != null
+                ? property.BackingField is null ? property.Type : property.BackingField.Type
+                : field!.Type;
+            CSharpType from = property?.Type ?? field!.Type;
 
             if (from.IsEnum && to.Equals(from.UnderlyingEnumType))
             {
-                return from.ToSerial(property.AsParameter);
+                return from.ToSerial(property?.AsParameter ?? field!.AsParameter);
             }
 
-            return property.AsParameter;
+            return property?.AsParameter ?? field!.AsParameter;
         }
 
         /// <summary>
@@ -725,10 +783,11 @@ namespace Microsoft.Generator.CSharp.Providers
             }
 
             var modifiers = FieldModifiers.Private;
-            if (!DeclarationModifiers.HasFlag(TypeSignatureModifiers.Sealed))
+            if (!DeclarationModifiers.HasFlag(TypeSignatureModifiers.Sealed) && !DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct))
             {
                 modifiers |= FieldModifiers.Protected;
             }
+            modifiers |= FieldModifiers.ReadOnly;
 
             var rawDataField = new FieldProvider(
                 modifiers: modifiers,

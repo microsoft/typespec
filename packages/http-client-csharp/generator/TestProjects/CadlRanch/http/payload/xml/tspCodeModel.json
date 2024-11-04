@@ -42,6 +42,7 @@
         "optional": false,
         "readOnly": false,
         "discriminator": false,
+        "flatten": false,
         "decorators": [],
         "crossLanguageDefinitionId": "Payload.Xml.SimpleModel.name"
        },
@@ -60,6 +61,7 @@
         "optional": false,
         "readOnly": false,
         "discriminator": false,
+        "flatten": false,
         "decorators": [],
         "crossLanguageDefinitionId": "Payload.Xml.SimpleModel.age"
        }
@@ -68,6 +70,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Payload.Xml.ModelWithEncodedNames.modelData"
     },
@@ -93,6 +96,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Payload.Xml.ModelWithEncodedNames.colors"
     }
@@ -137,6 +141,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Payload.Xml.ModelWithDictionary.metadata"
     }
@@ -166,6 +171,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [
       {
        "$id": "20",
@@ -192,6 +198,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [
       {
        "$id": "24",
@@ -232,6 +239,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Payload.Xml.ModelWithEmptyArray.items"
     }
@@ -266,6 +274,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [
       {
        "$id": "33",
@@ -289,6 +298,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [
       {
        "$id": "36",
@@ -334,6 +344,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [
       {
        "$id": "42",
@@ -375,6 +386,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [
       {
        "$id": "49",
@@ -420,6 +432,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [
       {
        "$id": "55",
@@ -453,6 +466,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Payload.Xml.ModelWithUnwrappedArray.counts"
     }
@@ -482,6 +496,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [
       {
        "$id": "63",
@@ -508,6 +523,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [
       {
        "$id": "67",
@@ -534,6 +550,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Payload.Xml.ModelWithAttributes.enabled"
     }
@@ -563,6 +580,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Payload.Xml.ModelWithOptionalField.item"
     },
@@ -581,6 +599,7 @@
      "optional": true,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Payload.Xml.ModelWithOptionalField.value"
     }
@@ -613,6 +632,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Payload.Xml.ModelWithArrayOfModel.items"
     }
@@ -649,6 +669,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Payload.Xml.ModelWithSimpleArrays.colors"
     },
@@ -674,6 +695,7 @@
      "optional": false,
      "readOnly": false,
      "discriminator": false,
+     "flatten": false,
      "decorators": [],
      "crossLanguageDefinitionId": "Payload.Xml.ModelWithSimpleArrays.counts"
     }
@@ -694,6 +716,7 @@
      "$id": "88",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
+     "Description": "Service host",
      "Type": {
       "$id": "89",
       "kind": "url",
@@ -738,6 +761,7 @@
        "$id": "94",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "95",
         "kind": "url",
@@ -943,6 +967,7 @@
        "$id": "114",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "115",
         "kind": "url",
@@ -1148,6 +1173,7 @@
        "$id": "134",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "135",
         "kind": "url",
@@ -1353,6 +1379,7 @@
        "$id": "154",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "155",
         "kind": "url",
@@ -1558,6 +1585,7 @@
        "$id": "174",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "175",
         "kind": "url",
@@ -1763,6 +1791,7 @@
        "$id": "194",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "195",
         "kind": "url",
@@ -1968,6 +1997,7 @@
        "$id": "214",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "215",
         "kind": "url",
@@ -2173,6 +2203,7 @@
        "$id": "234",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "235",
         "kind": "url",
@@ -2378,6 +2409,7 @@
        "$id": "254",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "255",
         "kind": "url",
@@ -2583,6 +2615,7 @@
        "$id": "274",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "275",
         "kind": "url",
@@ -2788,6 +2821,7 @@
        "$id": "294",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "295",
         "kind": "url",
@@ -2993,6 +3027,7 @@
        "$id": "314",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
+       "Description": "Service host",
        "Type": {
         "$id": "315",
         "kind": "url",

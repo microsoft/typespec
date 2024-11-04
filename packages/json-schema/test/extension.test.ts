@@ -1,4 +1,4 @@
-import { DecoratorContext, Type } from "@typespec/compiler";
+import type { DecoratorContext, Type } from "@typespec/compiler";
 import { expectDiagnosticEmpty } from "@typespec/compiler/testing";
 import assert from "assert";
 import { describe, it } from "vitest";
@@ -197,7 +197,7 @@ describe("setExtension", () => {
         emitNamespace: true,
         decorators: {
           namespace: "test",
-          $flags: { decoratorArgMarshalling: "new" },
+          $flags: {},
           $setExtension(context: DecoratorContext, target: Type, key: string, value: unknown) {
             setExtension(context.program, target, key, value);
           },

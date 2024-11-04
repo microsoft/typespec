@@ -48,6 +48,7 @@ coverage.xml
 .pytest_cache/
 test-results.xml
 test-results/
+__snapshots__/
 
 # Translations
 *.mo
@@ -126,8 +127,9 @@ lib-cov
 
 # Coverage directory used by tools like istanbul
 coverage
-!packages/spec-core/src/coverage
+!packages/spector/src/coverage
 spec-coverage.json
+manifest.json
 
 # nyc test coverage
 .nyc_output
@@ -198,10 +200,15 @@ developer/
 
 *.vsix
 *.zip
+vite.config.ts.timestamp-*
+
+
+# Astro
+.astro/
 
 # Api extractor
 packages/*/etc/
-docs/**/js-api/
+**/docs/**/js-api/
 
 # VS Code test web temp files
 .vscode-test-web/
@@ -218,4 +225,3 @@ BenchmarkDotnet.Artifacts/
 packages/http-client-python/generator/test/**/generated/
 packages/http-client-python/generator/test/**/cadl-ranch-coverage.json
 !packages/http-client-python/package-lock.json
-

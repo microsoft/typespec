@@ -7,6 +7,7 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.SourceInput;
 using Microsoft.Generator.CSharp.Statements;
@@ -16,16 +17,64 @@ namespace Microsoft.Generator.CSharp.Providers
     public abstract class TypeProvider
     {
         private Lazy<NamedTypeSymbolProvider?> _customCodeView;
+        private Lazy<CanonicalTypeProvider> _canonicalView;
+        private readonly InputType? _inputType;
 
-        protected TypeProvider()
+        protected TypeProvider(InputType? inputType = default)
         {
             _customCodeView = new(GetCustomCodeView);
+            _canonicalView = new(GetCanonicalView);
+            _inputType = inputType;
+        }
+
+        // for mocking
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        protected TypeProvider() : this(null)
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        {
         }
 
         private protected virtual NamedTypeSymbolProvider? GetCustomCodeView()
             => CodeModelPlugin.Instance.SourceInputModel.FindForType(GetNamespace(), BuildName());
 
         public NamedTypeSymbolProvider? CustomCodeView => _customCodeView.Value;
+
+        private IReadOnlyList<PropertyProvider> GetAllCustomProperties()
+        {
+            var allCustomProperties = CustomCodeView?.Properties != null
+                ? new List<PropertyProvider>(CustomCodeView.Properties)
+                : [];
+            var baseTypeCustomCodeView = BaseTypeProvider?.CustomCodeView;
+
+            // add all custom properties from base types
+            while (baseTypeCustomCodeView != null)
+            {
+                allCustomProperties.AddRange(baseTypeCustomCodeView.Properties);
+                baseTypeCustomCodeView = baseTypeCustomCodeView.BaseTypeProvider?.CustomCodeView;
+            }
+
+            return allCustomProperties;
+        }
+
+        private IReadOnlyList<FieldProvider> GetAllCustomFields()
+        {
+            var allCustomFields = CustomCodeView?.Fields != null
+                ? new List<FieldProvider>(CustomCodeView.Fields)
+                : [];
+            var baseTypeCustomCodeView = BaseTypeProvider?.CustomCodeView;
+
+            // add all custom fields from base types
+            while (baseTypeCustomCodeView != null)
+            {
+                allCustomFields.AddRange(baseTypeCustomCodeView.Fields);
+                baseTypeCustomCodeView = baseTypeCustomCodeView.BaseTypeProvider?.CustomCodeView;
+            }
+
+            return allCustomFields;
+        }
+
+        private protected virtual CanonicalTypeProvider GetCanonicalView() => new CanonicalTypeProvider(this, _inputType);
+        public TypeProvider CanonicalView => _canonicalView.Value;
 
         protected string? _deprecated;
 
@@ -82,11 +131,14 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected virtual TypeSignatureModifiers GetDeclarationModifiers() => TypeSignatureModifiers.None;
 
-        internal TypeSignatureModifiers GetCustomCodeModifiers() => CustomCodeView?.DeclarationModifiers ?? TypeSignatureModifiers.None;
-
         private TypeSignatureModifiers GetDeclarationModifiersInternal()
         {
             var modifiers = GetDeclarationModifiers();
+            var customModifiers = CustomCodeView?.DeclarationModifiers ?? TypeSignatureModifiers.None;
+            if (customModifiers != TypeSignatureModifiers.None)
+            {
+                modifiers |= customModifiers;
+            }
             // we default to public when no accessibility modifier is provided
             if (!modifiers.HasFlag(TypeSignatureModifiers.Internal) && !modifiers.HasFlag(TypeSignatureModifiers.Public) && !modifiers.HasFlag(TypeSignatureModifiers.Private))
             {
@@ -116,6 +168,8 @@ namespace Microsoft.Generator.CSharp.Providers
             return modifiers;
         }
 
+        internal virtual TypeProvider? BaseTypeProvider => null;
+
         protected virtual CSharpType? GetBaseType() => null;
 
         public virtual WhereExpression? WhereClause { get; protected init; }
@@ -127,7 +181,8 @@ namespace Microsoft.Generator.CSharp.Providers
         public IReadOnlyList<CSharpType> Implements => _implements ??= BuildImplements();
 
         private IReadOnlyList<PropertyProvider>? _properties;
-        public IReadOnlyList<PropertyProvider> Properties => _properties ??= BuildPropertiesInternal();
+
+        public IReadOnlyList<PropertyProvider> Properties => _properties ??= FilterCustomizedProperties(BuildProperties());
 
         private IReadOnlyList<MethodProvider>? _methods;
         public IReadOnlyList<MethodProvider> Methods => _methods ??= BuildMethodsInternal();
@@ -137,7 +192,7 @@ namespace Microsoft.Generator.CSharp.Providers
         public IReadOnlyList<ConstructorProvider> Constructors => _constructors ??= BuildConstructorsInternal();
 
         private IReadOnlyList<FieldProvider>? _fields;
-        public IReadOnlyList<FieldProvider> Fields => _fields ??= BuildFields();
+        public IReadOnlyList<FieldProvider> Fields => _fields ??= FilterCustomizedFields(BuildFields());
 
         private IReadOnlyList<TypeProvider>? _nestedTypes;
         public IReadOnlyList<TypeProvider> NestedTypes => _nestedTypes ??= BuildNestedTypes();
@@ -151,31 +206,63 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected virtual CSharpType[] GetTypeArguments() => [];
 
-        private PropertyProvider[] BuildPropertiesInternal()
+        private protected virtual PropertyProvider[] FilterCustomizedProperties(PropertyProvider[] specProperties)
         {
             var properties = new List<PropertyProvider>();
-            var customProperties = new Dictionary<string, PropertyProvider>();
-            var renamedProperties = new Dictionary<string, PropertyProvider>();
-            foreach (var customProperty in CustomCodeView?.Properties ?? [])
+            var customProperties = new HashSet<string>();
+
+            foreach (var customProperty in GetAllCustomProperties())
             {
-                customProperties.Add(customProperty.Name, customProperty);
-                foreach (var attribute in customProperty.Attributes ?? [])
+                customProperties.Add(customProperty.Name);
+                if (customProperty.OriginalName != null)
                 {
-                    if (CodeGenAttributes.TryGetCodeGenMemberAttributeValue(attribute, out var originalName))
-                    {
-                        renamedProperties.Add(originalName, customProperty);
-                    }
+                    customProperties.Add(customProperty.OriginalName);
                 }
             }
-            foreach (var property in BuildProperties())
+
+            foreach (var customField in GetAllCustomFields())
             {
-                if (ShouldGenerate(property, customProperties, renamedProperties))
+                customProperties.Add(customField.Name);
+                if (customField.OriginalName != null)
+                {
+                    customProperties.Add(customField.OriginalName);
+                }
+            }
+
+            foreach (var property in specProperties)
+            {
+                if (ShouldGenerate(property, customProperties))
                 {
                     properties.Add(property);
                 }
             }
 
-            return properties.ToArray();
+            return [..properties];
+        }
+
+        private protected virtual FieldProvider[] FilterCustomizedFields(FieldProvider[] specFields)
+        {
+            var fields = new List<FieldProvider>();
+            var customFields = new HashSet<string>();
+
+            foreach (var customField in GetAllCustomFields())
+            {
+                customFields.Add(customField.Name);
+                if (customField.OriginalName != null)
+                {
+                    customFields.Add(customField.OriginalName);
+                }
+            }
+
+            foreach (var field in specFields)
+            {
+                if (ShouldGenerate(field, customFields))
+                {
+                    fields.Add(field);
+                }
+            }
+
+            return [.. fields];
         }
 
         private MethodProvider[] BuildMethodsInternal()
@@ -189,7 +276,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 }
             }
 
-            return methods.ToArray();
+            return [..methods];
         }
 
         private ConstructorProvider[] BuildConstructorsInternal()
@@ -348,7 +435,7 @@ namespace Microsoft.Generator.CSharp.Providers
             return true;
         }
 
-        private bool ShouldGenerate(PropertyProvider property, IDictionary<string, PropertyProvider> customProperties, IDictionary<string, PropertyProvider> renamedProperties)
+        private bool ShouldGenerate(PropertyProvider property, HashSet<string> customProperties)
         {
             foreach (var attribute in GetMemberSuppressionAttributes())
             {
@@ -358,47 +445,20 @@ namespace Microsoft.Generator.CSharp.Providers
                 }
             }
 
-            string? serializedName = null;
-            if (property.WireInfo != null)
-            {
-                bool containsRenamedProperty = renamedProperties.TryGetValue(property.Name, out PropertyProvider? renamedProp);
-                foreach (var attribute in GetCodeGenSerializationAttributes())
-                {
-                    if (CodeGenAttributes.TryGetCodeGenSerializationAttributeValue(
-                        attribute,
-                        out var propertyName,
-                        out string? serializationName,
-                        out _,
-                        out _,
-                        out _) && serializationName != null)
-                    {
-                        if (propertyName == property.Name
-                            || (containsRenamedProperty && renamedProp != null && propertyName == renamedProp.Name))
-                        {
-                            serializedName = serializationName;
-                            break;
-                        }
-                    }
-                }
+            return !customProperties.Contains(property.Name);
+        }
 
-                // replace original property serialization name.
-                if (serializedName != null)
+        private bool ShouldGenerate(FieldProvider field, HashSet<string> customFields)
+        {
+            foreach (var attribute in GetMemberSuppressionAttributes())
+            {
+                if (IsMatch(field, attribute))
                 {
-                    property.WireInfo.SerializedName = serializedName;
+                    return false;
                 }
             }
 
-            if (renamedProperties.TryGetValue(property.Name, out PropertyProvider? customProp) ||
-                customProperties.TryGetValue(property.Name, out customProp))
-            {
-                // Store the wire info on the custom property so that we can use it for serialization.
-                // The custom property that has the CodeGenMemberAttribute stored in renamedProperties should take precedence.
-                customProp.WireInfo = property.WireInfo;
-                customProp.BaseProperty = property.BaseProperty;
-                return false;
-            }
-
-            return true;
+            return !customFields.Contains(field.Name);
         }
 
         private static bool IsMatch(PropertyProvider propertyProvider, AttributeData attribute)
@@ -406,6 +466,13 @@ namespace Microsoft.Generator.CSharp.Providers
             ValidateArguments(propertyProvider.EnclosingType, attribute);
             var name = attribute.ConstructorArguments[0].Value as string;
             return name == propertyProvider.Name;
+        }
+
+        private static bool IsMatch(FieldProvider fieldProvider, AttributeData attribute)
+        {
+            ValidateArguments(fieldProvider.EnclosingType, attribute);
+            var name = attribute.ConstructorArguments[0].Value as string;
+            return name == fieldProvider.Name;
         }
 
         private static bool IsMatch(TypeProvider enclosingType, MethodSignatureBase signature, AttributeData attribute)
@@ -424,7 +491,7 @@ namespace Microsoft.Generator.CSharp.Providers
             }
             else if (attribute.ConstructorArguments[1].Kind != TypedConstantKind.Array)
             {
-                parameterTypes = [(ISymbol?) attribute.ConstructorArguments[1].Value];
+                parameterTypes = attribute.ConstructorArguments[1..].Select(a => (ISymbol?) a.Value).ToArray();
             }
             else
             {
@@ -437,7 +504,11 @@ namespace Microsoft.Generator.CSharp.Providers
 
             for (int i = 0; i < parameterTypes.Length; i++)
             {
-                if (parameterTypes[i]?.Name != signature.Parameters[i].Type.Name)
+                var parameterType = ((ITypeSymbol)parameterTypes[i]!).GetCSharpType();
+                // we ignore nullability for reference types as these are generated the same regardless of nullability
+                // TODO - switch to using CSharpType.Equals once https://github.com/microsoft/typespec/issues/4624 is fixed.
+                if (GetTypeOrMethodName(parameterType.Name) != signature.Parameters[i].Type.Name ||
+                    (parameterType.IsValueType && parameterType.IsNullable != signature.Parameters[i].Type.IsNullable))
                 {
                     return false;
                 }
@@ -448,14 +519,14 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private static bool IsMatch(MethodSignatureBase customMethod, MethodSignatureBase method)
         {
-            if (customMethod.Parameters.Count != method.Parameters.Count || !customMethod.Name.EndsWith(method.Name))
+            if (customMethod.Parameters.Count != method.Parameters.Count || GetTypeOrMethodName(customMethod.Name) != method.Name)
             {
                 return false;
             }
 
             for (int i = 0; i < customMethod.Parameters.Count; i++)
             {
-                if (!customMethod.Parameters[i].Type.Name.EndsWith(method.Parameters[i].Type.Name))
+                if (GetTypeOrMethodName(customMethod.Parameters[i].Type.Name) != method.Parameters[i].Type.Name)
                 {
                     return false;
                 }
@@ -464,18 +535,24 @@ namespace Microsoft.Generator.CSharp.Providers
             return true;
         }
 
+        private static string GetTypeOrMethodName(string fullyQualifiedName)
+        {
+            var parts = fullyQualifiedName.Split('.');
+            return parts[^1];
+        }
+
         private static void ValidateArguments(TypeProvider type, AttributeData attributeData)
         {
             var arguments = attributeData.ConstructorArguments;
             if (arguments.Length == 0)
             {
-                throw new InvalidOperationException($"CodeGenSuppress attribute on {type.Name} must specify a method, constructor, or property name as its first argument.");
+                throw new InvalidOperationException($"CodeGenSuppress attribute on {type.Name} must specify a method, constructor, field, or property name as its first argument.");
             }
 
             if (arguments[0].Kind != TypedConstantKind.Primitive || arguments[0].Value is not string)
             {
                 var attribute = GetText(attributeData.ApplicationSyntaxReference);
-                throw new InvalidOperationException($"{attribute} attribute on {type.Name} must specify a method, constructor, or property name as its first argument.");
+                throw new InvalidOperationException($"{attribute} attribute on {type.Name} must specify a method, constructor, field, or property name as its first argument.");
             }
 
             if (arguments.Length == 2 && arguments[1].Kind == TypedConstantKind.Array)
@@ -519,7 +596,5 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private IEnumerable<AttributeData> GetMemberSuppressionAttributes()
             => CustomCodeView?.GetAttributes()?.Where(a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenSuppressAttributeName) ?? [];
-        private IEnumerable<AttributeData> GetCodeGenSerializationAttributes()
-            => CustomCodeView?.GetAttributes()?.Where(a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenSerializationAttributeName) ?? [];
     }
 }

@@ -123,7 +123,7 @@ public final class ModelInOperationsImpl {
      * Expected body parameter:
      * ```json
      * {
-     * "name": &lt;any string&gt;
+     * "name": "Madge"
      * }
      * ```.
      * <p><strong>Request Body Schema</strong></p>
@@ -155,7 +155,7 @@ public final class ModelInOperationsImpl {
      * Expected body parameter:
      * ```json
      * {
-     * "name": &lt;any string&gt;
+     * "name": "Madge"
      * }
      * ```.
      * <p><strong>Request Body Schema</strong></p>
@@ -187,7 +187,7 @@ public final class ModelInOperationsImpl {
      * Expected response body:
      * ```json
      * {
-     * "name": &lt;any string&gt;
+     * "name": "Madge"
      * }
      * ```.
      * <p><strong>Response Body Schema</strong></p>
@@ -218,7 +218,7 @@ public final class ModelInOperationsImpl {
      * Expected response body:
      * ```json
      * {
-     * "name": &lt;any string&gt;
+     * "name": "Madge"
      * }
      * ```.
      * <p><strong>Response Body Schema</strong></p>
@@ -257,7 +257,7 @@ public final class ModelInOperationsImpl {
      * ```json
      * {
      * "result": {
-     * "name": &lt;any string&gt;
+     * "name": "Madge"
      * }
      * }
      * ```.
@@ -315,7 +315,7 @@ public final class ModelInOperationsImpl {
      * ```json
      * {
      * "result": {
-     * "name": &lt;any string&gt;
+     * "name": "Madge"
      * }
      * }
      * ```.

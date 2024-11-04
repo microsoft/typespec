@@ -6,6 +6,7 @@ package com.type.property.additionalproperties.models;
 
 import com.azure.core.annotation.Fluent;
 import com.azure.core.annotation.Generated;
+import com.azure.core.util.BinaryData;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
@@ -33,10 +34,10 @@ public class ExtendsUnknownAdditionalPropertiesDiscriminated
     private final String name;
 
     /*
-     * Additional properties
+     * The model extends from Record<unknown> with a discriminator.
      */
     @Generated
-    private Map<String, Object> additionalProperties;
+    private Map<String, BinaryData> additionalProperties;
 
     /**
      * Creates an instance of ExtendsUnknownAdditionalPropertiesDiscriminated class.
@@ -69,24 +70,24 @@ public class ExtendsUnknownAdditionalPropertiesDiscriminated
     }
 
     /**
-     * Get the additionalProperties property: Additional properties.
+     * Get the additionalProperties property: The model extends from Record&lt;unknown&gt; with a discriminator.
      * 
      * @return the additionalProperties value.
      */
     @Generated
-    public Map<String, Object> getAdditionalProperties() {
+    public Map<String, BinaryData> getAdditionalProperties() {
         return this.additionalProperties;
     }
 
     /**
-     * Set the additionalProperties property: Additional properties.
+     * Set the additionalProperties property: The model extends from Record&lt;unknown&gt; with a discriminator.
      * 
      * @param additionalProperties the additionalProperties value to set.
      * @return the ExtendsUnknownAdditionalPropertiesDiscriminated object itself.
      */
     @Generated
     public ExtendsUnknownAdditionalPropertiesDiscriminated
-        setAdditionalProperties(Map<String, Object> additionalProperties) {
+        setAdditionalProperties(Map<String, BinaryData> additionalProperties) {
         this.additionalProperties = additionalProperties;
         return this;
     }
@@ -101,8 +102,11 @@ public class ExtendsUnknownAdditionalPropertiesDiscriminated
         jsonWriter.writeStringField("name", this.name);
         jsonWriter.writeStringField("kind", this.kind);
         if (additionalProperties != null) {
-            for (Map.Entry<String, Object> additionalProperty : additionalProperties.entrySet()) {
-                jsonWriter.writeUntypedField(additionalProperty.getKey(), additionalProperty.getValue());
+            for (Map.Entry<String, BinaryData> additionalProperty : additionalProperties.entrySet()) {
+                jsonWriter.writeUntypedField(additionalProperty.getKey(),
+                    additionalProperty.getValue() == null
+                        ? null
+                        : additionalProperty.getValue().toObject(Object.class));
             }
         }
         return jsonWriter.writeEndObject();
@@ -149,7 +153,7 @@ public class ExtendsUnknownAdditionalPropertiesDiscriminated
         return jsonReader.readObject(reader -> {
             String name = null;
             String kind = null;
-            Map<String, Object> additionalProperties = null;
+            Map<String, BinaryData> additionalProperties = null;
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
@@ -163,7 +167,8 @@ public class ExtendsUnknownAdditionalPropertiesDiscriminated
                         additionalProperties = new LinkedHashMap<>();
                     }
 
-                    additionalProperties.put(fieldName, reader.readUntyped());
+                    additionalProperties.put(fieldName,
+                        reader.getNullable(nonNullReader -> BinaryData.fromObject(nonNullReader.readUntyped())));
                 }
             }
             ExtendsUnknownAdditionalPropertiesDiscriminated deserializedExtendsUnknownAdditionalPropertiesDiscriminated

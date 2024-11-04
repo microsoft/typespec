@@ -33,6 +33,7 @@ extends:
                 persistCredentials: true
 
               - template: /eng/tsp-core/pipelines/templates/install.yml
+              - template: /eng/tsp-core/pipelines/templates/install-browsers.yml
 
               - template: /eng/tsp-core/pipelines/templates/build.yml
 
@@ -61,7 +62,7 @@ extends:
                       --destination \$web \
                       --account-name "tspwebsitepr" \
                       --destination-path $(TYPESPEC_WEBSITE_BASE_PATH) \
-                      --source "./packages/website/build/" \
+                      --source "./website/dist/" \
                       --overwrite
 
               - script: npx tsx eng/tsp-core/scripts/create-tryit-comment.ts

@@ -142,7 +142,9 @@ export default tsEslint.config(
       "**/temp/**/*",
       "**/generated-defs/*",
       "**/website/build/**/*",
+      "**/.astro/**/*",
       "**/.docusaurus/**/*",
+      "website/src/assets/**/*",
       "packages/compiler/templates/**/*", // Ignore the templates which might have invalid code and not follow exactly our rules.
       "**/venv/**/*", // Ignore python virtual env
       "**/.vscode-test-web/**/*", // Ignore VSCode test web project

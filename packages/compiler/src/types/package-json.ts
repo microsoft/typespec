@@ -20,7 +20,7 @@ export interface PackageJson {
    * Subpath exports to define entry points of the package.
    * [Read more.](https://nodejs.org/api/packages.html#subpath-exports)
    */
-  exports?: Exports;
+  exports?: Exports | null;
   private?: boolean;
   dependencies?: Record<string, string>;
   peerDependencies?: Record<string, string>;
@@ -30,7 +30,7 @@ export interface PackageJson {
 /**
  * Entry points of a module, optionally with conditions and subpath exports.
  */
-type Exports = null | string | Array<string | ExportConditions> | ExportConditions;
+export type Exports = string | Array<string | ExportConditions> | ExportConditions;
 
 /**
 	A mapping of conditions and the paths to which they resolve.
