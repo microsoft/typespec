@@ -16,6 +16,7 @@ import {
   isBody,
   isBodyIgnore,
   isBodyRoot,
+  isCookieParam,
   isHeader,
   isMultipartBodyProperty,
   isPathParam,
@@ -220,11 +221,12 @@ export function resolveRequestVisibility(
 
 /**
  * Determines if a property is metadata. A property is defined to be
- * metadata if it is marked `@header`, `@query`, `@path`, or `@statusCode`.
+ * metadata if it is marked `@header`, `@cookie`, `@query`, `@path`, or `@statusCode`.
  */
 export function isMetadata(program: Program, property: ModelProperty) {
   return (
     isHeader(program, property) ||
+    isCookieParam(program, property) ||
     isQueryParam(program, property) ||
     isPathParam(program, property) ||
     isStatusCode(program, property)

@@ -634,7 +634,7 @@ export type ExampleDecorator = (
  * @param options Optional metadata for the example.
  * @example
  * ```tsp
- * @example(#{parameters: #{name: "Fluffy", age: 2}, returnType: #{name: "Fluffy", age: 2, id: "abc"})
+ * @opExample(#{parameters: #{name: "Fluffy", age: 2}, returnType: #{name: "Fluffy", age: 2, id: "abc"})
  * op createPet(pet: Pet): Pet;
  * ```
  */

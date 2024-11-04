@@ -143,7 +143,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
                         values: [InputFactory.EnumMember.String("foo", "bar")]), isDiscriminator: true)
             }).ToArray();
 
-            var derivedModel = InputFactory.Model("DerivedModel", properties: inheritanceProperties, discriminatedKind: "unknown");
+            var derivedModel = InputFactory.Model("DerivedModel", properties: inheritanceProperties, discriminatedKind: "foo");
             return
             [
                 InputFactory.Model("InternalModel", "internal", properties: properties),

@@ -39,6 +39,22 @@ model TypeSpec.OpenAPI.Contact
 | url?   | `url`    | The URL pointing to the contact information. MUST be in the format of a URL.                     |
 | email? | `string` | The email address of the contact person/organization. MUST be in the format of an email address. |
 
+### `ExternalDocs` {#TypeSpec.OpenAPI.ExternalDocs}
+
+External Docs information.
+
+```typespec
+model TypeSpec.OpenAPI.ExternalDocs
+```
+
+#### Properties
+
+| Name         | Type      | Description           |
+| ------------ | --------- | --------------------- |
+| url          | `string`  | Documentation url     |
+| description? | `string`  | Optional description  |
+|              | `unknown` | Additional properties |
+
 ### `License` {#TypeSpec.OpenAPI.License}
 
 License information for the exposed API.
@@ -53,3 +69,19 @@ model TypeSpec.OpenAPI.License
 | ---- | -------- | ---------------------------------------------------------------------- |
 | name | `string` | The license name used for the API.                                     |
 | url? | `url`    | A URL to the license used for the API. MUST be in the format of a URL. |
+
+### `TagMetadata` {#TypeSpec.OpenAPI.TagMetadata}
+
+Metadata to a single tag that is used by operations.
+
+```typespec
+model TypeSpec.OpenAPI.TagMetadata
+```
+
+#### Properties
+
+| Name          | Type                                                            | Description                              |
+| ------------- | --------------------------------------------------------------- | ---------------------------------------- |
+| description?  | `string`                                                        | A description of the API.                |
+| externalDocs? | [`ExternalDocs`](./data-types.md#TypeSpec.OpenAPI.ExternalDocs) | An external Docs information of the API. |
+|               | `unknown`                                                       | Additional properties                    |
