@@ -32,17 +32,17 @@ function expectHasOutput(filename: string) {
 }
 
 it("creates nested directory if multiple spec versions are specified", async () => {
-  await compileOpenAPI({ "output-spec-versions": ["v3.0", "v3.1"] });
-  expectHasOutput("v3.0/openapi.yaml");
-  expectHasOutput("v3.1/openapi.yaml");
+  await compileOpenAPI({ "openapi-versions": ["3.0.0", "3.1.0"] });
+  expectHasOutput("3.0.0/openapi.yaml");
+  expectHasOutput("3.1.0/openapi.yaml");
 });
 
 it("does not create nested directory if only 1 spec version is specified", async () => {
-  await compileOpenAPI({ "output-spec-versions": ["v3.0"] });
+  await compileOpenAPI({ "openapi-versions": ["3.0.0"] });
   expectHasOutput("openapi.yaml");
 });
 
-it("defaults to v3.0 if not specified", async () => {
+it("defaults to 3.0.0 if not specified", async () => {
   await compileOpenAPI({ "file-type": "json" });
   const outPath = resolvePath(outputDir, "openapi.json");
   const content = runner.fs.get(outPath);
