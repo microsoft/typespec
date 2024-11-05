@@ -13,8 +13,8 @@
       "default": "./dist/src/testing/index.js"
     }
   },
-  "dependencies": {
-    "@typespec/compiler": "^0.61.2"
+  "peerDependencies": {
+    "@typespec/compiler": "workspace:~"
   },
   "devDependencies": {
     "@types/node": "~18.11.9",
