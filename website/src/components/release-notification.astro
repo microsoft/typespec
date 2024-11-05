@@ -1,7 +1,6 @@
 ---
 import { getCollection } from "astro:content";
-const a = await getCollection("docs");
-const releaseNotes = a.filter((x) => x.id.startsWith("docs/release-notes"));
+const releaseNotes = await getCollection("docs", (x) => x.id.startsWith("docs/release-notes"));
 const last = releaseNotes[releaseNotes.length - 1];
 const releaseDate = last.data.releaseDate;
 if (!releaseDate) {
@@ -25,7 +24,6 @@ if (!last.data.version) {
     ].join("\n"),
   );
 }
-import { Badge } from "@astrojs/starlight/components";
 import Link from "@typespec/astro-utils/components/link.astro";
 ---
 
