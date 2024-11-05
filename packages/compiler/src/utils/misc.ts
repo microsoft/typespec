@@ -464,7 +464,7 @@ export type Mutable<T> =
 
 //prettier-ignore
 type MutableExt<T> =
-T extends SymbolTable ? T & { set(key: string, value: Sym): void } :
+T extends SymbolTable ? T & MutableSymbolTable :
 T extends ReadonlyMap<infer K, infer V> ? Map<K, V> :
 T extends ReadonlySet<infer T> ? Set<T> :
 T extends readonly (infer V)[] ? V[] :
