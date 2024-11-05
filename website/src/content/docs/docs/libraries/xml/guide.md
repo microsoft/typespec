@@ -32,7 +32,7 @@ As in Json we have some [default handling](https://typespec.io/docs/libraries/ht
 ```tsp
 @encodedName("application/xml", "XmlPet")
 model Pet {
-  @xml.unwrapped
+  @Xml.unwrapped
   tags: string[];
 }
 ```
@@ -58,6 +58,8 @@ Pet:
       type: "array"
       items:
         type: string
+        xml:
+          name: tags
   xml:
     name: "XmlPet"
 ```
@@ -103,6 +105,8 @@ Pet:
         wrapped: true
       items:
         type: string
+        xml:
+          name: string
   xml:
     name: "XmlPet"
 ```
@@ -120,7 +124,7 @@ scalar tag extends string;
 
 @encodedName("application/xml", "XmlPet")
 model Pet {
-  @xml.unwrapped
+  @Xml.unwrapped
   tags: tag[];
 }
 ```
@@ -144,12 +148,10 @@ Pet:
   properties:
     tags:
       type: "array"
-      xml:
-        name: "ItemsTags"
       items:
         type: string
         xml:
-          name: ItemsName
+          name: tags
   xml:
     name: "XmlPet"
 ```
@@ -225,7 +227,7 @@ Pet:
 ```tsp
 @encodedName("application/xml", "XmlPet")
 model Pet {
-  @xml.unwrapped
+  @Xml.unwrapped
   tags: Tag[];
 }
 
@@ -263,7 +265,10 @@ Pet:
     tags:
       type: "array"
       items:
-        $ref: "#/definitions/Tag"
+        allOf:
+          - $ref: "#/definitions/Tag"
+        xml:
+          name: tags
   xml:
     name: "XmlPet"
 ```
@@ -278,6 +283,7 @@ Pet:
 ```tsp
 @encodedName("application/xml", "XmlPet")
 model Pet {
+  @encodedName("application/xml", "ItemsTags")
   tags: Tag[];
 }
 
@@ -320,7 +326,10 @@ Pet:
         name: "ItemsTags"
         wrapped: true
       items:
-        $ref: "#/definitions/Tag"
+        allOf:
+          - $ref: "#/definitions/Tag"
+        xml:
+          name: XmlTag
   xml:
     name: "XmlPet"
 ```
@@ -335,8 +344,8 @@ Pet:
 ```tsp
 @encodedName("application/xml", "XmlPet")
 model Pet {
-  @encodedName("application/xml", "ItemsTags")
-  @xml.unwrapped
+  @encodedName("application/xml", "ItemsTag")
+  @Xml.unwrapped
   tags: Tag[];
 }
 
@@ -362,25 +371,24 @@ model Tag {
 
 ```yaml
 Tag:
-    type: "object"
-    properties:
-      name:
-        type: "string"
-    xml:
-      name: "XmlTag"
-  Pet:
-    type: "object"
-    properties:
-      tags:
-        type: "array"
+  type: "object"
+  properties:
+    name:
+      type: "string"
+  xml:
+    name: "XmlTag"
+Pet:
+  type: "object"
+  properties:
+    tags:
+      type: "array"
+      items:
+        allOf:
+          - $ref: "#/definitions/Tag"
         xml:
-          name: "ItemsTags"
-        items:
-          $ref: "#/definitions/Tag"
-          xml:
-              name: ItemsXMLName
-    xml:
-      name: "XmlPet"
+          name: ItemsTag
+  xml:
+    name: "XmlPet"
 ```
 
 </td>
@@ -425,6 +433,8 @@ Tag:
   properties:
     name:
       type: "string"
+  xml:
+    name: "XmlTag"
 Pet:
   type: "object"
   properties:
@@ -434,7 +444,10 @@ Pet:
         name: "ItemsTags"
         wrapped: true
       items:
-        $ref: "#/definitions/Tag"
+        allOf:
+          - $ref: "#/definitions/Tag"
+        xml:
+          name: XmlTag
   xml:
     name: "XmlPet"
 ```
@@ -616,9 +629,11 @@ Author:
 ```tsp
 model Book {
   @Xml.attribute
-  id: string;
+  id: integer;
 
+  @Xml.name("xml-title")
   title: string;
+
   author: string;
 }
 ```
@@ -671,9 +686,9 @@ Book:
 <td>
 
 ```tsp
-@Xml.ns("smp", "http://example.com/schema")
+@Xml.ns("http://example.com/schema", "smp")
 model Book {
-  id: string;
+  id: integer;
   title: string;
   author: string;
 }
@@ -716,14 +731,14 @@ Book:
 <td>
 
 ```tsp
-@Xml.ns("smp", "http://example.com/schema")
+@Xml.ns("http://example.com/schema", "smp")
 model Book {
-  id: string;
+  id: integer;
 
-  @Xml.ns("smp", "http://example.com/schema")
+  @Xml.ns("http://example.com/schema", "smp")
   title: string;
 
-  @Xml.ns("ns2", "http://example.com/ns2")
+  @Xml.ns("http://example.com/ns2", "ns2")
   author: string;
 }
 ```
@@ -791,7 +806,7 @@ enum Namespaces {
 
 @Xml.ns(Namespaces.smp)
 model Book {
-  id: string;
+  id: integer;
   title: string;
   author: string;
 }
@@ -842,7 +857,7 @@ enum Namespaces {
 
 @Xml.ns(Namespaces.smp)
 model Book {
-  id: string;
+  id: integer;
 
   @Xml.ns(Namespaces.smp)
   title: string;
@@ -932,6 +947,8 @@ Book:
   properties:
     language:
       type: string
+      xml:
+        attribute: true
     content:
       type: string
       xml:
