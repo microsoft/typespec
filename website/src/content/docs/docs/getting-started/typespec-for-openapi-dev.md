@@ -213,20 +213,20 @@ In OpenAPI, an operation object [[v2][v2-operation], [v3][v3-operation]] describ
 
 The fields in an OpenAPI operation object are specified with the following TypeSpec constructs:
 
-| OpenAPI `operation` field | TypeSpec construct                         | Notes                                                |
-| ------------------------- | ------------------------------------------ | ---------------------------------------------------- |
-| `tags`                    | `@tag` decorator                           |                                                      |
-| `summary`                 | `@summary` decorator                       |                                                      |
-| `description`             | `@doc` decorator or doc comment            |                                                      |
-| `externalDocs`            | `@externalDocs` decorator                  |                                                      |
-| `operationId`             | operation name or `@operationId` decorator |                                                      |
-| `parameters`              | `op` parameter list                        | see [Parameter Object](#parameter-object)            |
-| `requestBody`             | parameter with `@body` decorator           | see [Request Body Object](#request-body-object-oas3) |
-| `responses`               | `op` return type(s)                        | see [Responses Object](#responses-object)            |
-| `callbacks`               |                                            | Not currently supported.                             |
-| `deprecated`              | `@deprecated` decorator                    |                                                      |
-| `security`                |                                            | see [Security Schemes Object](#securityDefinitions--securitySchemes-Object).            |
-| `servers`                 | `@server` decorator                        | Can be specified multiple times.                     |
+| OpenAPI `operation` field | TypeSpec construct                         | Notes                                                                        |
+| ------------------------- | ------------------------------------------ | ---------------------------------------------------------------------------- |
+| `tags`                    | `@tag` decorator                           |                                                                              |
+| `summary`                 | `@summary` decorator                       |                                                                              |
+| `description`             | `@doc` decorator or doc comment            |                                                                              |
+| `externalDocs`            | `@externalDocs` decorator                  |                                                                              |
+| `operationId`             | operation name or `@operationId` decorator |                                                                              |
+| `parameters`              | `op` parameter list                        | see [Parameter Object](#parameter-object)                                    |
+| `requestBody`             | parameter with `@body` decorator           | see [Request Body Object](#request-body-object-oas3)                         |
+| `responses`               | `op` return type(s)                        | see [Responses Object](#responses-object)                                    |
+| `callbacks`               |                                            | Not currently supported.                                                     |
+| `deprecated`              | `@deprecated` decorator                    |                                                                              |
+| `security`                |                                            | see [Security Schemes Object](#securityDefinitions--securitySchemes-Object). |
+| `servers`                 | `@server` decorator                        | Can be specified multiple times.                                             |
 
 ### Tags
 
