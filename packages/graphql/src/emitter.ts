@@ -1,4 +1,5 @@
-import { EmitContext, emitFile, resolvePath } from "@typespec/compiler";
+import type { EmitContext } from "@typespec/compiler";
+import { emitFile, resolvePath } from "@typespec/compiler";
 
 export async function $onEmit(context: EmitContext) {
   if (!context.program.compilerOptions.noEmit) {

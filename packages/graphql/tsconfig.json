@@ -3,7 +3,8 @@
   "compilerOptions": {
     "useDefineForClassFields": true,
     "rootDir": ".",
-    "outDir": "dist"
+    "outDir": "dist",
+    "verbatimModuleSyntax": true
   },
   "include": ["src", "test"]
 }

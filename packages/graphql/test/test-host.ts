@@ -1,4 +1,5 @@
-import { Diagnostic, resolvePath } from "@typespec/compiler";
+import type { Diagnostic } from "@typespec/compiler";
+import { resolvePath } from "@typespec/compiler";
 import {
   createTestHost,
   createTestWrapper,
