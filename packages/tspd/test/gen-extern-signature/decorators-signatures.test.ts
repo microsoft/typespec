@@ -24,8 +24,10 @@ async function generateDecoratorSignatures(code: string) {
   );
 
   const result = await generateExternDecorators(host.program, "test-lib", {
-    printWidth: 160, // So there is no inconsistency in the .each test with different parameter length
-    plugins: [],
+    prettierConfig: {
+      printWidth: 160, // So there is no inconsistency in the .each test with different parameter length
+      plugins: [],
+    },
   });
 
   return result["__global__.ts"];

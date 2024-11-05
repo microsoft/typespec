@@ -16,42 +16,10 @@
      "ResourceName": "Union",
      "Description": "Check whether client is authenticated",
      "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "4",
-       "Name": "endpoint",
-       "NameInRequest": "endpoint",
-       "Description": "Service host",
-       "Type": {
-        "$id": "5",
-        "kind": "url",
-        "name": "url",
-        "crossLanguageDefinitionId": "TypeSpec.url"
-       },
-       "Location": "Uri",
-       "IsApiVersion": false,
-       "IsResourceParameter": false,
-       "IsContentType": false,
-       "IsRequired": true,
-       "IsEndpoint": true,
-       "SkipUrlEncoding": false,
-       "Explode": false,
-       "Kind": "Client",
-       "DefaultValue": {
-        "$id": "6",
-        "Type": {
-         "$id": "7",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string"
-        },
-        "Value": "http://localhost:3000"
-       }
-      }
-     ],
+     "Parameters": [],
      "Responses": [
       {
-       "$id": "8",
+       "$id": "4",
        "StatusCodes": [
         204
        ],
@@ -71,19 +39,15 @@
      "Decorators": []
     },
     {
-     "$id": "9",
+     "$id": "5",
      "Name": "validToken",
      "ResourceName": "Union",
      "Description": "Check whether client is authenticated",
      "Accessibility": "public",
-     "Parameters": [
-      {
-       "$ref": "4"
-      }
-     ],
+     "Parameters": [],
      "Responses": [
       {
-       "$id": "10",
+       "$id": "6",
        "StatusCodes": [
         204
        ],
@@ -104,11 +68,39 @@
     }
    ],
    "Protocol": {
-    "$id": "11"
+    "$id": "7"
    },
    "Parameters": [
     {
-     "$ref": "4"
+     "$id": "8",
+     "Name": "endpoint",
+     "NameInRequest": "endpoint",
+     "Description": "Service host",
+     "Type": {
+      "$id": "9",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": true,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client",
+     "DefaultValue": {
+      "$id": "10",
+      "Type": {
+       "$id": "11",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "Value": "http://localhost:3000"
+     }
     }
    ],
    "Decorators": []

@@ -319,6 +319,22 @@ describe("compiler: operations", () => {
     ]);
   });
 
+  it("emit error when extends circular reference with alias", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      op a is b;
+      op c is a;
+      alias b = c;
+      `,
+    );
+    const diagnostics = await testHost.diagnose("main.tsp");
+    expectDiagnostics(diagnostics, {
+      code: "circular-op-signature",
+      message: `Operation 'a' recursively references itself.`,
+    });
+  });
+
   it("emit diagnostic when operation(in interface) is referencing itself as signature", async () => {
     testHost.addTypeSpecFile(
       "main.tsp",
@@ -329,12 +345,10 @@ describe("compiler: operations", () => {
       `,
     );
     const diagnostics = await testHost.diagnose("main.tsp");
-    expectDiagnostics(diagnostics, [
-      {
-        code: "circular-op-signature",
-        message: "Operation 'foo' recursively references itself.",
-      },
-    ]);
+    expectDiagnostics(diagnostics, {
+      code: "circular-op-signature",
+      message: "Operation 'foo' recursively references itself.",
+    });
   });
 
   it("emit diagnostic when operations reference each other using signature", async () => {

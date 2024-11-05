@@ -6,7 +6,6 @@ import {
   CompletionList,
   CompletionParams,
   DefinitionParams,
-  DiagnosticSeverity,
   DiagnosticTag,
   DidChangeWatchedFilesParams,
   DocumentFormattingParams,
@@ -80,6 +79,7 @@ import { getSemanticTokens } from "./classify.js";
 import { createCompileService } from "./compile-service.js";
 import { resolveCompletion } from "./completion.js";
 import { Commands } from "./constants.js";
+import { convertDiagnosticToLsp } from "./diagnostics.js";
 import { EmitterProvider } from "./emitter-provider.js";
 import { createFileService } from "./file-service.js";
 import { createFileSystemCache } from "./file-system-cache.js";
@@ -394,47 +394,26 @@ export function createServer(host: ServerHost): Server {
     }
 
     for (const each of program.diagnostics) {
-      let diagDocument: TextDocument | undefined;
-
-      const location = getSourceLocation(each.target, { locateId: true });
-      if (location?.file) {
-        diagDocument = (location.file as ServerSourceFile).document;
-      } else {
-        // https://github.com/microsoft/language-server-protocol/issues/256
-        //
-        // LSP does not currently allow sending a diagnostic with no location so
-        // we report diagnostics with no location on the document that changed to
-        // trigger.
-        diagDocument = document;
-        log({ level: "debug", message: `Diagnostic with no location: ${each.message}` });
+      const results = convertDiagnosticToLsp(fileService, program, document, each);
+      for (const result of results) {
+        const [diagnostic, diagDocument] = result;
+        if (each.url) {
+          diagnostic.codeDescription = {
+            href: each.url,
+          };
+        }
+        if (each.code === "deprecated") {
+          diagnostic.tags = [DiagnosticTag.Deprecated];
+        }
+        diagnostic.data = { id: diagnosticIdCounter++ };
+        const diagnostics = diagnosticMap.get(diagDocument);
+        compilerAssert(
+          diagnostics,
+          "Diagnostic reported against a source file that was not added to the program.",
+        );
+        diagnostics.push(diagnostic);
+        currentDiagnosticIndex.set(diagnostic.data.id, each);
       }
-
-      if (!diagDocument || !fileService.upToDate(diagDocument)) {
-        continue;
-      }
-
-      const start = diagDocument.positionAt(location?.pos ?? 0);
-      const end = diagDocument.positionAt(location?.end ?? 0);
-      const range = Range.create(start, end);
-      const severity = convertSeverity(each.severity);
-      const diagnostic = VSDiagnostic.create(range, each.message, severity, each.code, "TypeSpec");
-
-      if (each.url) {
-        diagnostic.codeDescription = {
-          href: each.url,
-        };
-      }
-      if (each.code === "deprecated") {
-        diagnostic.tags = [DiagnosticTag.Deprecated];
-      }
-      diagnostic.data = { id: diagnosticIdCounter++ };
-      const diagnostics = diagnosticMap.get(diagDocument);
-      compilerAssert(
-        diagnostics,
-        "Diagnostic reported against a source file that was not added to the program.",
-      );
-      diagnostics.push(diagnostic);
-      currentDiagnosticIndex.set(diagnostic.data.id, each);
     }
 
     for (const [document, diagnostics] of diagnosticMap) {
@@ -952,15 +931,6 @@ export function createServer(host: ServerHost): Server {
     const start = file.getLineAndCharacterOfPosition(location.pos);
     const end = file.getLineAndCharacterOfPosition(location.end);
     return Range.create(start, end);
-  }
-
-  function convertSeverity(severity: "warning" | "error"): DiagnosticSeverity {
-    switch (severity) {
-      case "warning":
-        return DiagnosticSeverity.Warning;
-      case "error":
-        return DiagnosticSeverity.Error;
-    }
   }
 
   function log(log: ServerLog) {

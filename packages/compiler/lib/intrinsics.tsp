@@ -1,4 +1,5 @@
-import "../dist/src/lib/intrinsic-decorators.js";
+import "../dist/src/lib/intrinsic/tsp-index.js";
+import "./prototypes.tsp";
 
 // This file contains all the intrinsic types of typespec. Everything here will always be loaded
 namespace TypeSpec;

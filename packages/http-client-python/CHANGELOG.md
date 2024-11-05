@@ -1,5 +1,11 @@
 # Change Log - @typespec/http-client-python
 
+## 0.3.5
+
+### Bump dependencies
+
+- Bump TCGC to 0.47.4
+
 ## 0.3.4
 
 ### Bug Fixes
