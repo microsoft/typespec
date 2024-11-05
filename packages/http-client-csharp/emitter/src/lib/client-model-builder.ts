@@ -92,7 +92,6 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
           fromSdkServiceMethod(
             m as SdkServiceMethod<SdkHttpOperation>,
             uri,
-            clientParameters,
             rootApiVersions,
             sdkContext,
             sdkTypeMap,

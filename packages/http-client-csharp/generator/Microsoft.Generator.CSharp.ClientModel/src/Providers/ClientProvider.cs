@@ -117,14 +117,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
         }
 
-        private List<ParameterProvider>? _uriParameters;
-        internal IReadOnlyList<ParameterProvider> GetUriParameters()
+        private List<ParameterProvider>? _clientParameters;
+        internal IReadOnlyList<ParameterProvider> GetClientParameters()
         {
-            if (_uriParameters is null)
+            if (_clientParameters is null)
             {
                 _ = Constructors;
             }
-            return _uriParameters ?? [];
+            return _clientParameters ?? [];
         }
 
         private Lazy<string?> _endpointParameterName;
@@ -225,6 +225,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             // handle sub-client constructors
             if (ClientOptionsParameter is null)
             {
+                _clientParameters = _subClientInternalConstructorParams;
                 List<MethodBodyStatement> body = new(3) { EndpointField.Assign(_endpointParameter).Terminate() };
                 foreach (var p in _subClientInternalConstructorParams)
                 {
@@ -263,7 +264,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private IReadOnlyList<ParameterProvider> GetRequiredParameters()
         {
             List<ParameterProvider> requiredParameters = [];
-            _uriParameters = [];
+            _clientParameters = [];
 
             ParameterProvider? currentParam = null;
             foreach (var parameter in _allClientParameters)
@@ -274,10 +275,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     currentParam = CreateParameter(parameter);
                     requiredParameters.Add(currentParam);
                 }
-                if (parameter.Location == RequestLocation.Uri)
-                {
-                    _uriParameters.Add(currentParam ?? CreateParameter(parameter));
-                }
+                _clientParameters.Add(currentParam ?? CreateParameter(parameter));
             }
 
             if (_apiKeyAuthField is not null)
