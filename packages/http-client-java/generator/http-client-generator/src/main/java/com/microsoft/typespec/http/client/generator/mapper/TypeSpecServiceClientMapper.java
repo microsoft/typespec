@@ -19,10 +19,18 @@ import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class TypeSpecServiceClientMapper extends ServiceClientMapper {
 
+    private final Map<Client, ServiceClient> parsed = new ConcurrentHashMap<>();
+
     public ServiceClient map(Client client, CodeModel codeModel) {
+        if (parsed.containsKey(client)) {
+            return parsed.get(client);
+        }
+
         ServiceClient.Builder builder = createClientBuilder();
 
         String baseName = SchemaUtil.getJavaName(client);
@@ -74,7 +82,9 @@ public class TypeSpecServiceClientMapper extends ServiceClientMapper {
 
         builder.crossLanguageDefinitionId(client.getCrossLanguageDefinitionId());
 
-        return builder.build();
+        ServiceClient serviceClient = builder.build();
+        parsed.put(client, serviceClient);
+        return serviceClient;
     }
 
     private static void processPipelinePolicyDetails(ServiceClient.Builder builder, Client client) {
