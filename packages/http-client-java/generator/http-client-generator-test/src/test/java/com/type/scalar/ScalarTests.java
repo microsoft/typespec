@@ -3,9 +3,8 @@
 
 package com.type.scalar;
 
-import java.math.BigDecimal;
-
 import com.azure.core.util.BinaryData;
+import java.math.BigDecimal;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

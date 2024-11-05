@@ -5,10 +5,7 @@ package com.type.array;
 
 import java.util.Arrays;
 import java.util.List;
-
-import com.azure.core.util.BinaryData;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class UnknownValueClientTest {

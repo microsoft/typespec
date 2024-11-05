@@ -21,6 +21,10 @@ public class Client extends Metadata {
     private List<ApiVersion> apiVersions = new ArrayList<>();
     private ServiceVersion serviceVersion;
     private String crossLanguageDefinitionId;
+    private Client parent;
+    private List<Client> subClients;
+    private boolean publicBuilder;
+    private boolean publicParentAccessor;
 
     /**
      * Creates a new instance of the Client class.
@@ -155,6 +159,38 @@ public class Client extends Metadata {
         this.crossLanguageDefinitionId = crossLanguageDefinitionId;
     }
 
+    public Client getParent() {
+        return parent;
+    }
+
+    public void setParent(Client parent) {
+        this.parent = parent;
+    }
+
+    public List<Client> getSubClients() {
+        return subClients;
+    }
+
+    public void setSubClients(List<Client> subClients) {
+        this.subClients = subClients;
+    }
+
+    public boolean isPublicBuilder() {
+        return publicBuilder;
+    }
+
+    public void setPublicBuilder(boolean publicBuilder) {
+        this.publicBuilder = publicBuilder;
+    }
+
+    public boolean isPublicParentAccessor() {
+        return publicParentAccessor;
+    }
+
+    public void setPublicParentAccessor(boolean publicParentAccessor) {
+        this.publicParentAccessor = publicParentAccessor;
+    }
+
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         return writeParentProperties(jsonWriter.writeStartObject()).writeEndObject();
@@ -167,7 +203,11 @@ public class Client extends Metadata {
             .writeJsonField("security", security)
             .writeArrayField("apiVersions", apiVersions, JsonWriter::writeJson)
             .writeJsonField("serviceVersion", serviceVersion)
-            .writeStringField("crossLanguageDefinitionId", crossLanguageDefinitionId);
+            .writeStringField("crossLanguageDefinitionId", crossLanguageDefinitionId)
+            .writeJsonField("parent", parent)
+            .writeArrayField("subClients", subClients, JsonWriter::writeJson)
+            .writeBooleanField("publicBuilder", publicBuilder)
+            .writeBooleanField("publicParentAccessor", publicParentAccessor);
     }
 
     /**
@@ -208,6 +248,18 @@ public class Client extends Metadata {
             return true;
         } else if ("crossLanguageDefinitionId".equals(fieldName)) {
             client.crossLanguageDefinitionId = reader.getString();
+            return true;
+        } else if ("parent".equals(fieldName)) {
+            client.parent = Client.fromJson(reader);
+            return true;
+        } else if ("subClients".equals(fieldName)) {
+            client.subClients = reader.readArray(Client::fromJson);
+            return true;
+        } else if ("publicBuilder".equals(fieldName)) {
+            client.publicBuilder = reader.getBoolean();
+            return true;
+        } else if ("publicParentAccessor".equals(fieldName)) {
+            client.publicParentAccessor = reader.getBoolean();
             return true;
         }
 

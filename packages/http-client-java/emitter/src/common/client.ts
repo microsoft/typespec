@@ -11,6 +11,11 @@ export interface Client extends Aspect, CrossLanguageDefinition {
   security: Security;
 
   serviceVersion?: ServiceVersion; // apiVersions is in
+
+  parent?: Client;
+  subClients: Array<Client>;
+  publicBuilder: boolean;
+  publicParentAccessor: boolean;
 }
 
 export class Client extends Aspect implements Client {
@@ -19,6 +24,9 @@ export class Client extends Aspect implements Client {
 
     this.operationGroups = [];
     this.security = new Security(false);
+    this.subClients = [];
+    this.publicBuilder = true;
+    this.publicParentAccessor = false;
 
     this.applyTo(this, objectInitializer);
   }
@@ -29,6 +37,13 @@ export class Client extends Aspect implements Client {
 
   addGlobalParameters(parameters: Parameter[]) {
     this.globals.push(...parameters);
+  }
+
+  addSubClient(subClient: Client) {
+    subClient.parent = this;
+    subClient.publicBuilder = false;
+    subClient.publicParentAccessor = true;
+    this.subClients.push(subClient);
   }
 }
 
