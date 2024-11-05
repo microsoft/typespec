@@ -176,7 +176,9 @@ function navigateNamespaceType(namespace: Namespace, context: NavigationContext)
   }
 
   for (const subNamespace of namespace.namespaces.values()) {
-    navigateNamespaceType(subNamespace, context);
+    if (!(namespace.name === "TypeSpec" && subNamespace.name === "Prototypes")) {
+      navigateNamespaceType(subNamespace, context);
+    }
   }
 
   for (const union of namespace.unions.values()) {
