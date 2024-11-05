@@ -136,8 +136,12 @@ export async function resolveXmlModule(): Promise<XmlModule | undefined> {
           scalarSchema.xml = { name: propXmlName };
           refSchema.items = scalarSchema;
         } else {
+          const items = new ArrayBuilder();
+          for (const item of Array.from([refSchema.items])) {
+            items.push(item);
+          }
           refSchema.items = new ObjectBuilder({
-            allOf: new ArrayBuilder(refSchema.items as any),
+            allOf: items,
             xml: { name: propXmlName },
           });
         }
