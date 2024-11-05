@@ -266,7 +266,7 @@ Pet:
       type: "array"
       items:
         allOf:
-         - $ref: "#/definitions/Tag"
+          - $ref: "#/definitions/Tag"
         xml:
           name: tags
   xml:
@@ -327,7 +327,7 @@ Pet:
         wrapped: true
       items:
         allOf:
-         - $ref: "#/definitions/Tag"
+          - $ref: "#/definitions/Tag"
         xml:
           name: XmlTag
   xml:
@@ -371,12 +371,12 @@ model Tag {
 
 ```yaml
 Tag:
-    type: "object"
-    properties:
-      name:
-        type: "string"
-    xml:
-      name: "XmlTag"
+  type: "object"
+  properties:
+    name:
+      type: "string"
+  xml:
+    name: "XmlTag"
 Pet:
   type: "object"
   properties:
@@ -384,7 +384,7 @@ Pet:
       type: "array"
       items:
         allOf:
-         - $ref: "#/definitions/Tag"
+          - $ref: "#/definitions/Tag"
         xml:
           name: ItemsTag
   xml:
@@ -630,9 +630,10 @@ Author:
 model Book {
   @Xml.attribute
   id: integer;
- 
-  @Xml.name("xml-title") 
+
+  @Xml.name("xml-title")
   title: string;
+
   author: string;
 }
 ```
