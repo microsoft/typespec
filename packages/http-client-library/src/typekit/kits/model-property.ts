@@ -85,8 +85,11 @@ defineKit<TypeKit>({
       const isCredential = $.model
         .listProperties($.client.getInitializationModel(client))
         .find((p) => p.name === "credential" && p === type);
-      if (!isCredential) return undefined;
-      return getAuthentication($.program, client.service)?.options.flatMap((o) => o.schemes);
+      if (!isCredential || type.type.kind !== "String") return undefined;
+      const scheme = type.type.value;
+      return getAuthentication($.program, client.service)
+        ?.options.flatMap((o) => o.schemes)
+        .filter((s) => s.type === scheme);
     },
     isDiscriminator(type) {
       const sourceModel = type.model;
