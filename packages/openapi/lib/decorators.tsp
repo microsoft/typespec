@@ -109,3 +109,32 @@ model License {
  * @param additionalInfo Additional information
  */
 extern dec info(target: Namespace, additionalInfo: AdditionalInfo);
+
+/** Metadata to a single tag that is used by operations. */
+model TagMetadata {
+  /** A description of the API. */
+  description?: string;
+
+  /** An external Docs information of the API. */
+  externalDocs?: ExternalDocs;
+
+  ...Record<unknown>;
+}
+
+/** External Docs information. */
+model ExternalDocs {
+  /** Documentation url */
+  url: string;
+
+  /** Optional description */
+  description?: string;
+
+  ...Record<unknown>;
+}
+
+/**
+ * Specify OpenAPI additional information.
+ * @param name tag name
+ * @param tagMetadata Additional information
+ */
+extern dec tagMetadata(target: Namespace, name: valueof string, tagMetadata: valueof TagMetadata);

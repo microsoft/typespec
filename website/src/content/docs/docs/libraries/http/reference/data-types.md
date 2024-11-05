@@ -187,6 +187,20 @@ model TypeSpec.Http.ConflictResponse
 | ---------- | ----- | ---------------- |
 | statusCode | `409` | The status code. |
 
+### `CookieOptions` {#TypeSpec.Http.CookieOptions}
+
+Cookie Options.
+
+```typespec
+model TypeSpec.Http.CookieOptions
+```
+
+#### Properties
+
+| Name  | Type     | Description         |
+| ----- | -------- | ------------------- |
+| name? | `string` | Name in the cookie. |
+
 ### `CreatedResponse` {#TypeSpec.Http.CreatedResponse}
 
 The request has succeeded and a new resource has been created as a result.
@@ -289,6 +303,20 @@ model TypeSpec.Http.ImplicitFlow
 | authorizationUrl | `string`                                | the authorization URL             |
 | refreshUrl?      | `string`                                | the refresh URL                   |
 | scopes?          | `string[]`                              | list of scopes for the credential |
+
+### `Link` {#TypeSpec.Http.Link}
+
+```typespec
+model TypeSpec.Http.Link
+```
+
+#### Properties
+
+| Name        | Type              | Description |
+| ----------- | ----------------- | ----------- |
+| target      | `url`             |             |
+| rel         | `string`          |             |
+| attributes? | `Record<unknown>` |             |
 
 ### `LocationHeader` {#TypeSpec.Http.LocationHeader}
 
@@ -590,3 +618,9 @@ enum TypeSpec.Http.OAuth2FlowType
 | implicit          |       | implicit flow           |
 | password          |       | password flow           |
 | clientCredentials |       | client credential flow  |
+
+### `LinkHeader` {#TypeSpec.Http.LinkHeader}
+
+```typespec
+scalar TypeSpec.Http.LinkHeader
+```
