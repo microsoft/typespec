@@ -8,6 +8,7 @@ import com.azure.json.JsonWriter;
 import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -22,9 +23,9 @@ public class Client extends Metadata {
     private ServiceVersion serviceVersion;
     private String crossLanguageDefinitionId;
     private Client parent;
-    private List<Client> subClients;
-    private boolean publicBuilder;
-    private boolean publicParentAccessor;
+    private List<Client> subClients = Collections.emptyList();
+    private boolean publicBuilder = true;
+    private boolean publicParentAccessor = false;
 
     /**
      * Creates a new instance of the Client class.

@@ -34,6 +34,8 @@ public class TypeSpecServiceClientMapper extends ServiceClientMapper {
             builder.builderPackageName(client.getLanguage().getJava().getNamespace());
         }
 
+        builder.builderDisabled(!client.isPublicBuilder());
+
         Proxy proxy = null;
         OperationGroup clientOperationGroup = client.getOperationGroups()
             .stream()
