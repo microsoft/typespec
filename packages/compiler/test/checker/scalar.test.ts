@@ -139,4 +139,36 @@ describe("compiler: scalars", () => {
       expectDiagnostics(diagnostics, [{ code: "unassignable", message: /42.*S/ }]);
     });
   });
+
+  describe("circular references", () => {
+    describe("emit diagnostic when circular reference in extends", () => {
+      it("reference itself", async () => {
+        const diagnostics = await runner.diagnose(`scalar a extends a;`);
+        expectDiagnostics(diagnostics, {
+          code: "circular-base-type",
+          message: "Type 'a' recursively references itself as a base type.",
+        });
+      });
+      it("reference itself via another scalar", async () => {
+        const diagnostics = await runner.diagnose(`
+          scalar a extends b;
+          scalar b extends a;
+        `);
+        expectDiagnostics(diagnostics, {
+          code: "circular-base-type",
+          message: "Type 'a' recursively references itself as a base type.",
+        });
+      });
+      it("reference itself via an alias", async () => {
+        const diagnostics = await runner.diagnose(`
+          scalar a extends b;
+          alias b = a;
+        `);
+        expectDiagnostics(diagnostics, {
+          code: "circular-base-type",
+          message: "Type 'a' recursively references itself as a base type.",
+        });
+      });
+    });
+  });
 });

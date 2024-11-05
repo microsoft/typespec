@@ -4,6 +4,7 @@
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
@@ -171,6 +172,87 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             Assert.IsNotNull(initializer);
             Assert.IsFalse(initializer!.Arguments.Any(a => a.ToDisplayString().Contains("kind")));
             Assert.IsTrue(initializer!.Arguments.Any(a => a.ToDisplayString() == "\"cat\""));
+        }
+
+        // This test validates that the correct discriminator property name is used when deserializing
+        [Test]
+        public void DiscriminatorDeserializationUsesCorrectDiscriminatorPropName()
+        {
+            var treeModel = InputFactory.Model(
+                "tree",
+                discriminatedKind: "tree",
+                properties:
+                []);
+            var baseModel = InputFactory.Model(
+                "plant",
+                properties:
+                [
+                    InputFactory.Property("foo", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "tree", treeModel } });
+
+            MockHelpers.LoadMockPlugin(inputModels: () => [baseModel, treeModel]);
+            var baseModelProvider = ClientModelPlugin.Instance.OutputLibrary.TypeProviders.OfType<ModelProvider>()
+                .FirstOrDefault(t => t.Name == "Plant");
+            Assert.IsNotNull(baseModelProvider);
+
+            var deserializationMethod = baseModelProvider!.SerializationProviders.FirstOrDefault()!.Methods
+                .FirstOrDefault(m => m.Signature.Name == "DeserializePlant");
+            Assert.IsTrue(deserializationMethod?.BodyStatements!.ToDisplayString().Contains(
+                $"if (element.TryGetProperty(\"foo\"u8, out global::System.Text.Json.JsonElement discriminator))"));
+        }
+
+        [Test]
+        public void TestBuildJsonModelCreateMethodProperlyCastsForDiscriminatedType()
+        {
+            MockHelpers.LoadMockPlugin(inputModels: () => [_baseModel, _catModel]);
+            var outputLibrary = ClientModelPlugin.Instance.OutputLibrary;
+            var model = outputLibrary.TypeProviders.OfType<ModelProvider>().FirstOrDefault(t => t.Name == "Cat");
+            Assert.IsNotNull(model);
+
+            var serialization = model!.SerializationProviders.FirstOrDefault() as MrwSerializationTypeDefinition;
+            Assert.IsNotNull(serialization);
+            var method = serialization!.Methods.FirstOrDefault(m => m.Signature.Name == "Create" && m.Signature.ExplicitInterface?.Name == "IJsonModel");
+
+            Assert.IsNotNull(method);
+
+            var expectedJsonInterface = new CSharpType(typeof(IJsonModel<>), model!.Type);
+            var methodSignature = method?.Signature;
+            Assert.IsNotNull(methodSignature);
+
+            var expectedReturnType = expectedJsonInterface.Arguments[0];
+            Assert.AreEqual(expectedReturnType, methodSignature?.ReturnType);
+
+            var invocationExpression = method!.BodyExpression;
+            Assert.IsNotNull(invocationExpression);
+            Assert.AreEqual(
+                "((global::Sample.Models.Cat)this.JsonModelCreateCore(ref reader, options))",
+                invocationExpression!.ToDisplayString());
+        }
+
+        [Test]
+        public void TestBuildJsonModelCreateMethodProperlyDoesNotCastForUnknown()
+        {
+            MockHelpers.LoadMockPlugin(inputModels: () => [_baseModel, _catModel]);
+            var outputLibrary = ClientModelPlugin.Instance.OutputLibrary;
+            var model = outputLibrary.TypeProviders.OfType<ModelProvider>().FirstOrDefault(t => t.Name == "UnknownPet");
+            Assert.IsNotNull(model);
+
+            var serialization = model!.SerializationProviders.FirstOrDefault() as MrwSerializationTypeDefinition;
+            Assert.IsNotNull(serialization);
+            var method = serialization!.Methods.FirstOrDefault(m => m.Signature.Name == "Create" && m.Signature.ExplicitInterface?.Name == "IJsonModel");
+
+            Assert.IsNotNull(method);
+
+            var methodSignature = method?.Signature;
+            Assert.IsNotNull(methodSignature);
+            Assert.AreEqual("Pet", methodSignature?.ReturnType!.Name);
+
+            var invocationExpression = method!.BodyExpression;
+            Assert.IsNotNull(invocationExpression);
+            Assert.AreEqual(
+                "this.JsonModelCreateCore(ref reader, options)",
+                invocationExpression!.ToDisplayString());
         }
     }
 }

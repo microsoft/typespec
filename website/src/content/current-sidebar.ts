@@ -1,4 +1,4 @@
-import type { SidebarItem } from "@site/sidebars";
+import type { SidebarItem } from "@typespec/astro-utils/sidebar";
 
 function createLibraryReferenceStructure(
   libDir: string,
@@ -96,11 +96,13 @@ const sidebar: SidebarItem[] = [
       "standard-library/encoded-names",
       "standard-library/discriminated-types",
       "standard-library/examples",
+      "standard-library/pagination",
     ],
   },
   {
     label: "📚 Libraries",
     items: [
+      createLibraryReferenceStructure("libraries/events", "Events", false, []),
       createLibraryReferenceStructure("libraries/http", "Http", true, [
         "libraries/http/cheat-sheet",
         "libraries/http/authentication",
@@ -115,6 +117,8 @@ const sidebar: SidebarItem[] = [
         "libraries/rest/resource-routing",
       ]),
       createLibraryReferenceStructure("libraries/openapi", "OpenAPI", false, []),
+      createLibraryReferenceStructure("libraries/sse", "Server-Sent Events", false, []),
+      createLibraryReferenceStructure("libraries/streams", "Streams", false, []),
       createLibraryReferenceStructure("libraries/versioning", "Versioning", false, [
         "libraries/versioning/guide",
       ]),
