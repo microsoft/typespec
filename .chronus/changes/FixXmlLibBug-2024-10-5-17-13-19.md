@@ -1,5 +1,5 @@
 ---
-changeKind: fix
+changeKind: internal
 packages:
   - "@typespec/openapi3"
 ---
