@@ -82,6 +82,15 @@ public class TypeSpecServiceClientMapper extends ServiceClientMapper {
 
         builder.crossLanguageDefinitionId(client.getCrossLanguageDefinitionId());
 
+        List<ServiceClient> subServiceClients = new ArrayList<>();
+        for (Client subClient : client.getSubClients()) {
+            if (subClient.isPublicParentAccessor()) {
+                ServiceClient subServiceClient = this.map(subClient, codeModel);
+                subServiceClients.add(subServiceClient);
+            }
+        }
+        builder.subClients(subServiceClients);
+
         ServiceClient serviceClient = builder.build();
         parsed.put(client, serviceClient);
         return serviceClient;
