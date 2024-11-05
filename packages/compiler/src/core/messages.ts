@@ -893,6 +893,32 @@ const diagnostics = {
     },
   },
 
+  "incompatible-paging-props": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Paging property has multiple types: '${"kinds"}'`,
+    },
+  },
+  "invalid-paging-prop": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Paging property '${"kind"}' is not valid in this context.`,
+      input: paramMessage`Paging property '${"kind"}' cannot be used in the parameters of an operation.`,
+      output: paramMessage`Paging property '${"kind"}' cannot be used in the return type of an operation.`,
+    },
+  },
+  "duplicate-paging-prop": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Duplicate property paging '${"kind"}' for operation ${"operationName"}.`,
+    },
+  },
+  "missing-paging-items": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Paged operation '${"operationName"}' return type must have a property annotated with @pageItems.`,
+    },
+  },
   /**
    * Service
    */

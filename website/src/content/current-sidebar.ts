@@ -96,6 +96,7 @@ const sidebar: SidebarItem[] = [
       "standard-library/encoded-names",
       "standard-library/discriminated-types",
       "standard-library/examples",
+      "standard-library/pagination",
     ],
   },
   {

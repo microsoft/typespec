@@ -414,18 +414,6 @@ export type MaxValueExclusiveDecorator = (
 export type SecretDecorator = (context: DecoratorContext, target: Scalar | ModelProperty) => void;
 
 /**
- * Mark this operation as a `list` operation for resource types.
- *
- * @deprecated Use the `listsResource` decorator in `@typespec/rest` instead.
- * @param listedType Optional type of the items in the list.
- */
-export type ListDecorator = (
-  context: DecoratorContext,
-  target: Operation,
-  listedType?: Model,
-) => void;
-
-/**
  * Attaches a tag to an operation, interface, or namespace. Multiple `@tag` decorators can be specified to attach multiple tags to a TypeSpec element.
  *
  * @param tag Tag value
@@ -711,6 +699,154 @@ export type WithVisibilityDecorator = (
 ) => void;
 
 /**
+ * Mark this operation as a `list` operation that returns a paginated list of items.
+ */
+export type ListDecorator = (context: DecoratorContext, target: Operation) => void;
+
+/**
+ * Pagination property defining the number of items to skip.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ * }
+ * @list op listPets(@offset skip: int32, @pageSize pageSize: int8): Page<Pet>;
+ * ```
+ */
+export type OffsetDecorator = (context: DecoratorContext, target: ModelProperty) => void;
+
+/**
+ * Pagination property defining the page index.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ * }
+ * @list op listPets(@pageIndex page: int32, @pageSize pageSize: int8): Page<Pet>;
+ * ```
+ */
+export type PageIndexDecorator = (context: DecoratorContext, target: ModelProperty) => void;
+
+/**
+ * Specify the pagination parameter that controls the maximum number of items to include in a page.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ * }
+ * @list op listPets(@pageIndex page: int32, @pageSize pageSize: int8): Page<Pet>;
+ * ```
+ */
+export type PageSizeDecorator = (context: DecoratorContext, target: ModelProperty) => void;
+
+/**
+ * Specify the the property that contains the array of page items.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ * }
+ * @list op listPets(@pageIndex page: int32, @pageSize pageSize: int8): Page<Pet>;
+ * ```
+ */
+export type PageItemsDecorator = (context: DecoratorContext, target: ModelProperty) => void;
+
+/**
+ * Pagination property defining the token to get to the next page.
+ * It MUST be specified both on the request parameter and the response.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ *   @continuationToken continuationToken: string;
+ * }
+ * @list op listPets(@continuationToken continuationToken: string): Page<Pet>;
+ * ```
+ */
+export type ContinuationTokenDecorator = (context: DecoratorContext, target: ModelProperty) => void;
+
+/**
+ * Pagination property defining a link to the next page.
+ *
+ * It is expected that navigating to the link will return the same set of responses as the operation that returned the current page.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ *   @nextLink next: url;
+ *   @prevLink prev: url;
+ *   @firstLink first: url;
+ *   @lastLink last: url;
+ * }
+ * @list op listPets(): Page<Pet>;
+ * ```
+ */
+export type NextLinkDecorator = (context: DecoratorContext, target: ModelProperty) => void;
+
+/**
+ * Pagination property defining a link to the previous page.
+ *
+ * It is expected that navigating to the link will return the same set of responses as the operation that returned the current page.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ *   @nextLink next: url;
+ *   @prevLink prev: url;
+ *   @firstLink first: url;
+ *   @lastLink last: url;
+ * }
+ * @list op listPets(): Page<Pet>;
+ * ```
+ */
+export type PrevLinkDecorator = (context: DecoratorContext, target: ModelProperty) => void;
+
+/**
+ * Pagination property defining a link to the first page.
+ *
+ * It is expected that navigating to the link will return the same set of responses as the operation that returned the current page.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ *   @nextLink next: url;
+ *   @prevLink prev: url;
+ *   @firstLink first: url;
+ *   @lastLink last: url;
+ * }
+ * @list op listPets(): Page<Pet>;
+ * ```
+ */
+export type FirstLinkDecorator = (context: DecoratorContext, target: ModelProperty) => void;
+
+/**
+ * Pagination property defining a link to the last page.
+ *
+ * It is expected that navigating to the link will return the same set of responses as the operation that returned the current page.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ *   @nextLink next: url;
+ *   @prevLink prev: url;
+ *   @firstLink first: url;
+ *   @lastLink last: url;
+ * }
+ * @list op listPets(): Page<Pet>;
+ * ```
+ */
+export type LastLinkDecorator = (context: DecoratorContext, target: ModelProperty) => void;
+
+/**
  * A debugging decorator used to inspect a type.
  *
  * @param text Custom text to log
@@ -776,7 +912,6 @@ export type TypeSpecDecorators = {
   minValueExclusive: MinValueExclusiveDecorator;
   maxValueExclusive: MaxValueExclusiveDecorator;
   secret: SecretDecorator;
-  list: ListDecorator;
   tag: TagDecorator;
   friendlyName: FriendlyNameDecorator;
   knownValues: KnownValuesDecorator;
@@ -789,6 +924,16 @@ export type TypeSpecDecorators = {
   opExample: OpExampleDecorator;
   visibility: VisibilityDecorator;
   withVisibility: WithVisibilityDecorator;
+  list: ListDecorator;
+  offset: OffsetDecorator;
+  pageIndex: PageIndexDecorator;
+  pageSize: PageSizeDecorator;
+  pageItems: PageItemsDecorator;
+  continuationToken: ContinuationTokenDecorator;
+  nextLink: NextLinkDecorator;
+  prevLink: PrevLinkDecorator;
+  firstLink: FirstLinkDecorator;
+  lastLink: LastLinkDecorator;
   inspectType: InspectTypeDecorator;
   inspectTypeName: InspectTypeNameDecorator;
   parameterVisibility: ParameterVisibilityDecorator;
