@@ -10,6 +10,7 @@ import {
   Node,
   NodeFlags,
   NoTarget,
+  RelatedSourceLocation,
   SourceLocation,
   SymbolFlags,
   SyntaxKind,
@@ -37,11 +38,17 @@ export function logDiagnostics(diagnostics: readonly Diagnostic[], logger: LogSi
       code: diagnostic.code,
       url: diagnostic.url,
       sourceLocation: getSourceLocation(diagnostic.target, { locateId: true }),
+      related: getRelatedLocations(diagnostic),
     });
   }
 }
 
-export function formatDiagnostic(diagnostic: Diagnostic) {
+export interface FormatDiagnosticOptions {
+  readonly pretty?: boolean;
+  readonly pathRelativeTo?: string;
+}
+
+export function formatDiagnostic(diagnostic: Diagnostic, options: FormatDiagnosticOptions = {}) {
   return formatLog(
     {
       code: diagnostic.code,
@@ -49,9 +56,19 @@ export function formatDiagnostic(diagnostic: Diagnostic) {
       message: diagnostic.message,
       url: diagnostic.url,
       sourceLocation: getSourceLocation(diagnostic.target, { locateId: true }),
+      related: getRelatedLocations(diagnostic),
     },
-    { pretty: false },
+    { pretty: options?.pretty ?? false, pathRelativeTo: options?.pathRelativeTo },
   );
+}
+
+function getRelatedLocations(diagnostic: Diagnostic): RelatedSourceLocation[] {
+  return getDiagnosticTemplateInstantitationTrace(diagnostic.target).map((x) => {
+    return {
+      message: "occurred while instantiating template",
+      location: getSourceLocation(x),
+    };
+  });
 }
 
 export interface SourceLocationOptions {
@@ -85,7 +102,12 @@ export function getSourceLocation(
     return target;
   }
 
-  if (!("kind" in target) && !("valueKind" in target) && !("entityKind" in target)) {
+  if (!("kind" in target) && !("entityKind" in target)) {
+    // TemplateInstanceTarget
+    if (!("declarations" in target)) {
+      return getSourceLocationOfNode(target.node, options);
+    }
+
     // symbol
     if (target.flags & SymbolFlags.Using) {
       target = target.symbolSource!;
@@ -109,6 +131,25 @@ export function getSourceLocation(
 
     return createSyntheticSourceLocation();
   }
+}
+
+/**
+ * @internal
+ */
+export function getDiagnosticTemplateInstantitationTrace(
+  target: DiagnosticTarget | typeof NoTarget | undefined,
+): Node[] {
+  if (typeof target !== "object" || !("templateMapper" in target)) {
+    return [];
+  }
+
+  const result = [];
+  let current = target.templateMapper;
+  while (current) {
+    result.push(current.source.node);
+    current = current.source.mapper;
+  }
+  return result;
 }
 
 function createSyntheticSourceLocation(loc = "<unknown location>") {

@@ -5,22 +5,21 @@ toc_min_heading_level: 2
 toc_max_heading_level: 3
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
+import { Tabs, TabItem } from '@astrojs/starlight/components';
 
 TypeSpec HTTP protocol binding
 
 ## Install
 
 <Tabs>
-<TabItem value="spec" label="In a spec" default>
+<TabItem  label="In a spec" default>
 
 ```bash
 npm install @typespec/http
 ```
 
 </TabItem>
-<TabItem value="library" label="In a library" default>
+<TabItem  label="In a library" default>
 
 ```bash
 npm install --save-peer @typespec/http
@@ -73,6 +72,7 @@ npm install --save-peer @typespec/http
 - [`HttpPart`](./data-types.md#TypeSpec.Http.HttpPart)
 - [`HttpPartOptions`](./data-types.md#TypeSpec.Http.HttpPartOptions)
 - [`ImplicitFlow`](./data-types.md#TypeSpec.Http.ImplicitFlow)
+- [`Link`](./data-types.md#TypeSpec.Http.Link)
 - [`LocationHeader`](./data-types.md#TypeSpec.Http.LocationHeader)
 - [`MovedResponse`](./data-types.md#TypeSpec.Http.MovedResponse)
 - [`NoAuth`](./data-types.md#TypeSpec.Http.NoAuth)
