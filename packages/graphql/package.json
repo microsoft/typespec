@@ -1,0 +1,36 @@
+{
+  "name": "graphql",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "dist/src/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    },
+    "./testing": {
+      "types": "./dist/src/testing/index.d.ts",
+      "default": "./dist/src/testing/index.js"
+    }
+  },
+  "peerDependencies": {
+    "@typespec/compiler": "workspace:~"
+  },
+  "devDependencies": {
+    "@types/node": "~22.7.5",
+    "rimraf": "~6.0.1",
+    "source-map-support": "^0.5.21",
+    "typescript": "~5.6.3",
+    "vitest": "^2.1.2"
+  },
+  "scripts": {
+    "clean": "rimraf ./dist ./temp",
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest -w",
+    "lint": "eslint src/ test/ --report-unused-disable-directives --max-warnings=0",
+    "lint:fix": "eslint . --report-unused-disable-directives --fix"
+  },
+  "private": true
+}
