@@ -1,5 +1,12 @@
 # Change Log - @typespec/bundler
 
+## 0.1.9
+
+### Bump dependencies
+
+- [#4679](https://github.com/microsoft/typespec/pull/4679) Upgrade dependencies - October 2024
+
+
 ## 0.1.8
 
 ### Bump dependencies
