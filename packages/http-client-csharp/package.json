@@ -46,13 +46,13 @@
     "json-serialize-refs": "0.1.0-0"
   },
   "peerDependencies": {
-    "@azure-tools/typespec-azure-core": ">=0.47.0 <1.0.0 || ~0.48.0-0",
-    "@azure-tools/typespec-client-generator-core": ">=0.47.4 <1.0.0 || ~0.48.0-0",
-    "@typespec/compiler": ">=0.61.2 <1.0.0 || ~0.62.0-0",
-    "@typespec/http": ">=0.61.0 <1.0.0 || ~0.62.0-0",
-    "@typespec/openapi": ">=0.61.0 <1.0.0 || ~0.62.0-0",
-    "@typespec/rest": ">=0.61.0 <1.0.0 || ~0.62.0-0",
-    "@typespec/versioning": ">=0.61.0 <1.0.0 || ~0.62.0-0"
+    "@azure-tools/typespec-azure-core": "0.47.0",
+    "@azure-tools/typespec-client-generator-core": "0.47.4",
+    "@typespec/compiler": "0.61.2",
+    "@typespec/http": "0.61.0",
+    "@typespec/openapi": "0.61.0",
+    "@typespec/rest": "0.61.0",
+    "@typespec/versioning": "0.61.0"
   },
   "devDependencies": {
     "@azure-tools/cadl-ranch": "0.15.0",
