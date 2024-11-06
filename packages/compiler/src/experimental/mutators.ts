@@ -94,6 +94,25 @@ export type MutableType = Exclude<
   | ObjectType
   | Projection
 >;
+
+/**
+ * Determines if a type is mutable.
+ */
+export function isMutableType(type: Type): type is MutableType {
+  switch (type.kind) {
+    case "TemplateParameter":
+    case "Intrinsic":
+    case "Function":
+    case "Decorator":
+    case "FunctionParameter":
+    case "Object":
+    case "Projection":
+      return false;
+    default:
+      return true;
+  }
+}
+
 const typeId = CustomKeyMap.objectKeyer();
 const mutatorId = CustomKeyMap.objectKeyer();
 const seen = new CustomKeyMap<[MutableType, Set<Mutator> | Mutator[]], Type>(([type, mutators]) => {

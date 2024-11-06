@@ -28,6 +28,7 @@ import {
   ModelProperty,
   Operation,
   Type,
+  UnionVariant,
 } from "../core/types.js";
 import {
   addVisibilityModifiers,
@@ -46,7 +47,7 @@ import {
   getLifecycleVisibilityEnum,
   normalizeVisibilityToLegacyLifecycleString,
 } from "../core/visibility/lifecycle.js";
-import { mutateSubgraph, Mutator, MutatorFlow } from "../experimental/mutators.js";
+import { isMutableType, mutateSubgraph, Mutator, MutatorFlow } from "../experimental/mutators.js";
 import { isKey } from "./key.js";
 import { filterModelPropertiesInPlace, useStateMap } from "./utils.js";
 
@@ -479,7 +480,7 @@ function createVisibilityFilterMutator(
           resetVisibilityModifiersForClass(program, clone, visibilityClass);
         }
 
-        if (prop.type.kind === "Model") {
+        if (isMutableType(prop.type)) {
           clone.type = mutateSubgraph(program, [options.recur ?? self], prop.type).type;
         }
       },
@@ -487,6 +488,20 @@ function createVisibilityFilterMutator(
   };
   const self: Mutator = {
     name: "VisibilityFilter",
+    Union: {
+      filter: () => MutatorFlow.DoNotRecurse,
+      mutate: (union, clone, program) => {
+        for (const [key, member] of union.variants) {
+          if (member.type.kind === "Model" || member.type.kind === "Union") {
+            const variant: UnionVariant = {
+              ...member,
+              type: mutateSubgraph(program, [self], member.type).type,
+            };
+            clone.variants.set(key, variant);
+          }
+        }
+      },
+    },
     Model: {
       filter: () => MutatorFlow.DoNotRecurse,
       mutate: (model, clone, program, realm) => {
@@ -504,6 +519,24 @@ function createVisibilityFilterMutator(
 
         if (options.decoratorFn) {
           clone.decorators = clone.decorators.filter((d) => d.decorator !== options.decoratorFn);
+        }
+      },
+    },
+    ModelProperty: {
+      filter: () => MutatorFlow.DoNotRecurse,
+      mutate: (prop, clone, program) => {
+        if (isMutableType(prop.type)) {
+          clone.type = mutateSubgraph(program, [self], prop.type).type;
+        }
+      },
+    },
+    Tuple: {
+      filter: () => MutatorFlow.DoNotRecurse,
+      mutate: (tuple, clone, program) => {
+        for (const [index, element] of tuple.values.entries()) {
+          if (isMutableType(element)) {
+            clone.values[index] = mutateSubgraph(program, [self], element).type;
+          }
         }
       },
     },

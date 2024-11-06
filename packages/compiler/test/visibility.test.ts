@@ -761,6 +761,128 @@ describe("compiler: visibility core", () => {
       validateCreateOrUpdateTransform(props, Result, getProperties);
     });
 
+    it("correctly transforms a union", async () => {
+      const { Result } = (await runner.compile(`
+        model Example {
+          example: A | B;
+        }
+
+        model A {
+          @visibility(Lifecycle.Read)
+          a: string;
+        }
+
+        model B {
+          @invisible(Lifecycle)
+          b: string;
+        }
+
+        @test
+        model Result is Read<Example>;
+      `)) as { Result: Model };
+
+      const example = Result.properties.get("example");
+
+      ok(example);
+
+      const union = example.type;
+
+      strictEqual(union.kind, "Union");
+
+      const [A, B] = [...union.variants.values()].map((v) => v.type);
+
+      strictEqual(A.kind, "Model");
+      strictEqual(B.kind, "Model");
+
+      const a = A.properties.get("a");
+      const b = B.properties.get("b");
+
+      ok(a);
+
+      strictEqual(b, undefined);
+    });
+
+    it("correctly transforms a model property reference", async () => {
+      const { Result } = (await runner.compile(`
+        model Example {
+          a: ExampleRef.a;
+        }
+
+        model ExampleRef {
+          a: A;
+        }
+
+        model A {
+          @visibility(Lifecycle.Read)
+          a: string;
+          @visibility(Lifecycle.Create)
+          b: string;
+        }
+
+        @test
+        model Result is Create<Example>;
+      `)) as { Result: Model };
+
+      const example = Result.properties.get("a");
+
+      ok(example);
+
+      const ref = example.type;
+
+      strictEqual(ref.kind, "ModelProperty");
+
+      const A = ref.type;
+
+      ok(A.kind === "Model");
+
+      const a = A.properties.get("a");
+      const b = A.properties.get("b");
+
+      strictEqual(a, undefined);
+      ok(b);
+    });
+
+    it("correctly transforms a tuple", async () => {
+      const { Result } = (await runner.compile(`
+        model Example {
+          example: [A, B];
+        }
+
+        model A {
+          @visibility(Lifecycle.Read)
+          a: string;
+        }
+
+        model B {
+          @invisible(Lifecycle)
+          b: string;
+        }
+
+        @test
+        model Result is Read<Example>;
+      `)) as { Result: Model };
+
+      const example = Result.properties.get("example");
+
+      ok(example);
+
+      const tuple = example.type;
+
+      strictEqual(tuple.kind, "Tuple");
+
+      const [A, B] = tuple.values;
+
+      strictEqual(A.kind, "Model");
+      strictEqual(B.kind, "Model");
+
+      const a = A.properties.get("a");
+      const b = B.properties.get("b");
+
+      ok(a);
+
+      strictEqual(b, undefined);
+    });
+
     describe("legacy compatibility", () => {
       it("correctly applies Read transform", async () => {
         const Result = await compileWithTransform("Read", true);
