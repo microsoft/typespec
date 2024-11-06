@@ -445,19 +445,19 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return new MethodProvider
             (
               new MethodSignature(methodName, null, signatureModifiers, _model.Type, null, [_jsonElementDeserializationParam, _serializationOptionsParameter]),
-              _model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract) && _inputModel.DiscriminatedSubtypes.Count > 0 ? BuildAbstractDeserializationMethodBody() : BuildDeserializationMethodBody(),
+              _inputModel.DiscriminatedSubtypes.Count > 0 ? BuildDiscriminatedModelDeserializationMethodBody() : BuildDeserializationMethodBody(),
               this
             );
         }
 
-        private MethodBodyStatement[] BuildAbstractDeserializationMethodBody()
+        private MethodBodyStatement[] BuildDiscriminatedModelDeserializationMethodBody()
         {
             var unknownVariant = _model.DerivedModels.First(m => m.IsUnknownDiscriminatorModel);
             bool onlyContainsUnknownDerivedModel = _model.DerivedModels.Count == 1;
             var discriminator = _model.CanonicalView.Properties.Where(p => p.IsDiscriminator).FirstOrDefault();
             var deserializeDiscriminatedModelsConditions = BuildDiscriminatedModelsCondition(
                 discriminator,
-                GetAbstractSwitchCases(unknownVariant),
+                GetDiscriminatorSwitchCases(unknownVariant),
                 onlyContainsUnknownDerivedModel,
                 _jsonElementParameterSnippet);
 
@@ -488,7 +488,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return MethodBodyStatement.Empty;
         }
 
-        private SwitchCaseStatement[] GetAbstractSwitchCases(ModelProvider unknownVariant)
+        private SwitchCaseStatement[] GetDiscriminatorSwitchCases(ModelProvider unknownVariant)
         {
             SwitchCaseStatement[] cases = new SwitchCaseStatement[_model.DerivedModels.Count - 1];
             int index = 0;
