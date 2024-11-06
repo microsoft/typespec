@@ -1,4 +1,4 @@
-@import url("./fluentui.css");
+@import url("@typespec/astro-utils/css/fluentui.css");
 
 @tailwind base;
 @tailwind components;
