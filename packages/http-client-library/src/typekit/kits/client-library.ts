@@ -13,15 +13,10 @@ interface ClientLibraryKit {
   /**
    * Get the top-level namespaces that are used to generate the client library.
    *
+   * @param namespace: If namespace param is given, we will return the children of the given namespace.
+   *
    */
-  listNamespaces(): Namespace[];
-
-  /**
-     * Get the namespaces below a given namespace that are used to generate the client library.
-     
-     * @param namespace namespace to get the children of
-     */
-  listSubNamespaces(namespace: Namespace): Namespace[];
+  listNamespaces(namespace?: Namespace): Namespace[];
 
   /**
    * List all of the clients in a given namespace.
@@ -56,13 +51,13 @@ declare module "@typespec/compiler/typekit" {
 
 defineKit<Typekit>({
   clientLibrary: {
-    listNamespaces() {
+    listNamespaces(namespace) {
+      if (namespace) {
+        return [...namespace.namespaces.values()];
+      }
       return [...$.program.checker.getGlobalNamespaceType().namespaces.values()].filter(
         (n) => getLocationContext($.program, n).type === "project",
       );
-    },
-    listSubNamespaces(namespace) {
-      return [...namespace.namespaces.values()];
     },
     listClients(namespace) {
       // if there is no explicit client, we will treat namespaces with service decorator as clients
