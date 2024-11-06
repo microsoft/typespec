@@ -1,4 +1,11 @@
-import { Enum, getLocationContext, listServices, Model, Namespace } from "@typespec/compiler";
+import {
+  Enum,
+  getLocationContext,
+  Interface,
+  listServices,
+  Model,
+  Namespace,
+} from "@typespec/compiler";
 import { $, defineKit } from "@typespec/compiler/typekit";
 import { Client } from "../../interfaces.js";
 
@@ -21,7 +28,7 @@ interface ClientLibraryKit {
    *
    * @param namespace namespace to get the clients of
    */
-  listClients(namespace: Namespace): Client[];
+  listClients(namespace: Namespace | Interface): Client[];
 
   /**
    * List all of the models in a given namespace.
@@ -59,6 +66,9 @@ defineKit<Typekit>({
     },
     listClients(namespace) {
       // if there is no explicit client, we will treat namespaces with service decorator as clients
+      if (namespace.kind === "Interface") {
+        return [];
+      }
       const services = listServices(this.program);
       const clients: Client[] = services
         .filter((x) => x.type === namespace)
