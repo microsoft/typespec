@@ -3,7 +3,7 @@ import {
   Interface,
   isTemplateDeclaration,
   isTemplateDeclarationOrInstance,
-  Model,
+  ModelProperty,
   Namespace,
   Operation,
 } from "@typespec/compiler";
@@ -18,7 +18,12 @@ interface ClientKit extends NameKit<Namespace> {
    *
    * @param client the client to get the initialization model for
    */
-  getInitializationModel(client: Client): Model;
+  getParameters(client: Client): ModelProperty[];
+
+  /**
+   * Whether the client is publicly initializable
+   */
+  isPubliclyInitializable(client: Client): boolean;
 
   /**
    * Return the methods on the client
@@ -43,14 +48,16 @@ defineKit<TypeKit>({
       const name = client.name;
       return name.endsWith("Client") ? name : `${name}Client`;
     },
-    getInitializationModel(client) {
-      const base = $.model.create({
-        name: "ClientInitializationOptions",
-        properties: {},
-      });
-      addEndpointParameter(client, base);
-      addCredentialParameter(client, base);
-      return base;
+    getParameters(client) {
+      const params: ModelProperty[] = [addEndpointParameter(client)];
+      const credParam = addCredentialParameter(client);
+      if (credParam) {
+        params.push(credParam);
+      }
+      return params;
+    },
+    isPubliclyInitializable(client) {
+      return client.type.kind === "Namespace";
     },
     listServiceOperations(client) {
       const operations: Operation[] = [];

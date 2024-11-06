@@ -65,10 +65,8 @@ declare module "@typespec/compiler/typekit" {
 defineKit<TypeKit>({
   modelProperty: {
     isEndpoint(client, type) {
-      const model = $.client.getInitializationModel(client);
-      return (
-        type.name === "endpoint" && Boolean($.model.listProperties(model).find((p) => p === type))
-      );
+      const clientParams = $.client.getParameters(client);
+      return type.name === "endpoint" && Boolean(clientParams.find((p) => p === type));
     },
     isCredential(modelProperty) {
       return modelProperty.name === "credential";
@@ -82,8 +80,8 @@ defineKit<TypeKit>({
       return undefined;
     },
     getCredentialAuth(client, type) {
-      const isCredential = $.model
-        .listProperties($.client.getInitializationModel(client))
+      const isCredential = $.client
+        .getParameters(client)
         .find((p) => p.name === "credential" && p === type);
       if (!isCredential || type.type.kind !== "String") return undefined;
       const scheme = type.type.value;

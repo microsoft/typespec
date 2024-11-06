@@ -38,9 +38,8 @@ defineKit<SdkKit>({
       return getName(operation);
     },
     getParameters(client, operation) {
-      const clientParams = [...$.client.getInitializationModel(client).properties.values()];
       return [...operation.parameters.properties.values()].filter(
-        (p) => !clientParams.find((cp) => cp.name === p.name),
+        (p) => !$.client.getParameters(client).find((cp) => cp.name === p.name),
       );
     },
     getValidReturnType(operation) {
