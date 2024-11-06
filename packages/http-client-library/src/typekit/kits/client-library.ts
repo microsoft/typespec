@@ -62,17 +62,16 @@ defineKit<Typekit>({
       } else {
         services = services.filter((service) => service.type === type);
       }
-      const clients: Client[] = services
-        .map((service) => {
-          let name = service.type.name;
-          name = name.endsWith("Client") ? name : `${name}Client`;
-          return {
-            kind: "Client",
-            name,
-            service: service.type,
-            type: service.type,
-          };
-        });
+      const clients: Client[] = services.map((service) => {
+        let name = service.type.name;
+        name = name.endsWith("Client") ? name : `${name}Client`;
+        return {
+          kind: "Client",
+          name,
+          service: service.type,
+          type: service.type,
+        };
+      });
       return clients;
     },
     listModels(namespace) {

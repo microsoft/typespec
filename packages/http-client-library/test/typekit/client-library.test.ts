@@ -58,7 +58,7 @@ describe("listClients", () => {
     expect(responses).toHaveLength(1);
     expect(responses[0].name).toEqual("DemoServiceClient");
   });
-  it("get subclients", async() => {
+  it("get subclients", async () => {
     const { DemoService } = (await runner.compile(`
       @service({
         title: "Widget Service",
@@ -78,5 +78,5 @@ describe("listClients", () => {
     const subClients = $.clientLibrary.listClients(responses[0]);
     expect(subClients).toHaveLength(1);
     expect(subClients[0].name).toEqual("NestedServiceClient");
-  })
+  });
 });
