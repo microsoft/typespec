@@ -38,6 +38,10 @@ describe("listNamespaces", () => {
     `);
     expect($.clientLibrary.listNamespaces()).toHaveLength(1);
     expect($.clientLibrary.listNamespaces()[0].name).toEqual("DemoService");
+
+    const subNamespaces = $.clientLibrary.listNamespaces($.clientLibrary.listNamespaces()[0]);
+    expect(subNamespaces).toHaveLength(1);
+    expect(subNamespaces[0].name).toEqual("NestedService");
   });
 });
 
@@ -54,4 +58,25 @@ describe("listClients", () => {
     expect(responses).toHaveLength(1);
     expect(responses[0].name).toEqual("DemoServiceClient");
   });
+  it("get subclients", async() => {
+    const { DemoService } = (await runner.compile(`
+      @service({
+        title: "Widget Service",
+      })
+      @test namespace DemoService {
+        @service({
+          title: "Nested Service",
+        })
+        namespace NestedService {};
+      }
+      `)) as { DemoService: Namespace };
+
+    const responses = $.clientLibrary.listClients(DemoService);
+    expect(responses).toHaveLength(1);
+    expect(responses[0].name).toEqual("DemoServiceClient");
+
+    const subClients = $.clientLibrary.listClients(responses[0]);
+    expect(subClients).toHaveLength(1);
+    expect(subClients[0].name).toEqual("NestedServiceClient");
+  })
 });
