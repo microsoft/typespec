@@ -1,0 +1,11 @@
+steps:
+  - template: /eng/tsp-core/pipelines/templates/install.yml
+
+  - displayName: Install browsers
+    script: pnpm exec playwright install
+
+  - name: Build
+    script: pnpm --filter "@typespec/website..." run build
+
+  - script: node eng/common/scripts/check-for-changed-files.js
+    displayName: Check Git Status For Changed Files
