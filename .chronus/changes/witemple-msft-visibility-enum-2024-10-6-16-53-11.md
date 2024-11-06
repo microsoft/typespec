@@ -2,7 +2,7 @@
 changeKind: internal
 packages:
   - "@typespec/http"
-  - "@typespec/openapi3"
+  - "@typespec/openapi"
 ---
 
 Mask deprecation on getVisibility
