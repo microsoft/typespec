@@ -4,4 +4,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-[experimental] Mutators: Allow mutating namespaces
+Add mutateSubgraphWithNamespace as a separate API
