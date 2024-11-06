@@ -226,7 +226,5 @@ namespace Microsoft.Generator.CSharp.Providers
                 _asVariable = AsExpression,
             };
         }
-
-        internal static CodeWriterDeclaration GetDeclaration(VariableExpression variableExpression) => variableExpression.Declaration;
     }
 }

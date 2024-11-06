@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
@@ -281,7 +282,7 @@ namespace Microsoft.Generator.CSharp
             if (property is IndexPropertyProvider indexer)
             {
                 indexerScope = AmbientScope();
-                Append($"{indexer.Name}[{indexer.IndexerParameter.Type} {ParameterProvider.GetDeclaration(indexer.IndexerParameter)}]");
+                Append($"{indexer.Name}[{indexer.IndexerParameter.Type} {indexer.IndexerParameter.Declaration()}]");
             }
             else
             {
@@ -406,7 +407,7 @@ namespace Microsoft.Generator.CSharp
             AppendRawIf("out ", parameter.IsOut);
             AppendRawIf("ref ", parameter.IsRef);
 
-            Append($"{parameter.Type} {ParameterProvider.GetDeclaration(parameter)}");
+            Append($"{parameter.Type} {parameter.Declaration()}");
             if (parameter.DefaultValue != null)
             {
                 AppendRaw(" = ");
