@@ -28,7 +28,7 @@ interface ClientLibraryKit {
    *
    * @param namespace namespace to get the clients of
    */
-  listClients(namespace: Namespace | Interface): Client[];
+  listClients(namespace: Namespace | Client): Client[];
 
   /**
    * List all of the models in a given namespace.
@@ -66,24 +66,28 @@ defineKit<Typekit>({
     },
     listClients(namespace) {
       // if there is no explicit client, we will treat namespaces with service decorator as clients
-      if (namespace.kind === "Interface") {
-        return [];
+      function getSubClients(namespace: Namespace | Interface, client?: Client): Client[] {
+        if (namespace.kind === "Interface") return [];
+        const services = listServices($.program);
+        const clients: Client[] = services
+          .filter((x) => x.type === namespace && x.type.name !== client?.name)
+          .map((service) => {
+            let name = service.type.name;
+            name = name.endsWith("Client") ? name : `${name}Client`;
+            return {
+              kind: "Client",
+              name,
+              service: service.type,
+              type: service.type,
+            };
+          });
+        return clients;
       }
-      const services = listServices(this.program);
-      const clients: Client[] = services
-        .filter((x) => x.type === namespace)
-        .map((service) => {
-          let name = service.type.name;
-          name = name.endsWith("Client") ? name : `${name}Client`;
-          return {
-            kind: "Client",
-            name,
-            service: service.type,
-            type: service.type,
-          };
-        });
+      if (namespace.kind === "Client") {
+        return getSubClients(namespace.type, namespace);
+      }
 
-      return clients;
+      return getSubClients(namespace);
     },
     listModels(namespace) {
       const allModels = [...namespace.models.values()];
