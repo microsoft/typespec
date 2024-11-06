@@ -19,17 +19,17 @@ namespace Authentication.Union
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult ValidKey(RequestOptions options) => throw null;
+        public virtual ClientResult ValidKey(RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> ValidKeyAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> ValidKeyAsync(RequestOptions options = null) => throw null;
 
         public virtual ClientResult ValidKey() => throw null;
 
         public virtual Task<ClientResult> ValidKeyAsync() => throw null;
 
-        public virtual ClientResult ValidToken(RequestOptions options) => throw null;
+        public virtual ClientResult ValidToken(RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> ValidTokenAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> ValidTokenAsync(RequestOptions options = null) => throw null;
 
         public virtual ClientResult ValidToken() => throw null;
 

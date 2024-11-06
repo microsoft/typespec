@@ -17,17 +17,17 @@ namespace Authentication.OAuth2
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult Valid(RequestOptions options) => throw null;
+        public virtual ClientResult Valid(RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> ValidAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> ValidAsync(RequestOptions options = null) => throw null;
 
         public virtual ClientResult Valid() => throw null;
 
         public virtual Task<ClientResult> ValidAsync() => throw null;
 
-        public virtual ClientResult Invalid(RequestOptions options) => throw null;
+        public virtual ClientResult Invalid(RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> InvalidAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> InvalidAsync(RequestOptions options = null) => throw null;
 
         public virtual ClientResult Invalid() => throw null;
 

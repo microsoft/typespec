@@ -14,17 +14,17 @@ namespace Client.Structure.Service
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult Two(RequestOptions options) => throw null;
+        public virtual ClientResult Two(RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> TwoAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> TwoAsync(RequestOptions options = null) => throw null;
 
         public virtual ClientResult Two() => throw null;
 
         public virtual Task<ClientResult> TwoAsync() => throw null;
 
-        public virtual ClientResult Three(RequestOptions options) => throw null;
+        public virtual ClientResult Three(RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> ThreeAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> ThreeAsync(RequestOptions options = null) => throw null;
 
         public virtual ClientResult Three() => throw null;
 

@@ -19,9 +19,9 @@ namespace Server.Path.Single
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult MyOp(RequestOptions options) => throw null;
+        public virtual ClientResult MyOp(RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> MyOpAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> MyOpAsync(RequestOptions options = null) => throw null;
 
         public virtual ClientResult MyOp() => throw null;
 

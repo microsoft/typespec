@@ -19,17 +19,17 @@ namespace Server.Path.Multiple
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult NoOperationParams(RequestOptions options) => throw null;
+        public virtual ClientResult NoOperationParams(RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> NoOperationParamsAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> NoOperationParamsAsync(RequestOptions options = null) => throw null;
 
         public virtual ClientResult NoOperationParams() => throw null;
 
         public virtual Task<ClientResult> NoOperationParamsAsync() => throw null;
 
-        public virtual ClientResult WithOperationPathParam(string keyword, RequestOptions options) => throw null;
+        public virtual ClientResult WithOperationPathParam(string keyword, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> WithOperationPathParamAsync(string keyword, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> WithOperationPathParamAsync(string keyword, RequestOptions options = null) => throw null;
 
         public virtual ClientResult WithOperationPathParam(string keyword) => throw null;
 

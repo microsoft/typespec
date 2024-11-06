@@ -59,9 +59,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             ];
         }
 
-        private MethodProvider BuildConvenienceMethod(MethodProvider protocolMethod, bool isAsync)
+        private ScmMethodProvider BuildConvenienceMethod(MethodProvider protocolMethod, bool isAsync)
         {
-            if (EnclosingType is not ClientProvider client)
+            if (EnclosingType is not ClientProvider)
             {
                 throw new InvalidOperationException("Protocol methods can only be built for client types.");
             }
@@ -370,10 +370,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private IReadOnlyList<ParameterProvider>? _convenienceMethodParameters;
         private IReadOnlyList<ParameterProvider> ConvenienceMethodParameters => _convenienceMethodParameters ??= RestClientProvider.GetMethodParameters(Operation);
 
-        private MethodProvider BuildProtocolMethod(MethodProvider createRequestMethod, bool isAsync)
+        private ScmMethodProvider BuildProtocolMethod(MethodProvider createRequestMethod, bool isAsync)
         {
-            ClientProvider? client = EnclosingType as ClientProvider;
-            if (client is null)
+            if (EnclosingType is not ClientProvider client)
             {
                 throw new InvalidOperationException("Protocol methods can only be built for client types.");
             }
@@ -383,19 +382,42 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 methodModifier |= MethodSignatureModifiers.Async;
             }
+
+            ParameterProvider requestOptionsParameter = ScmKnownParameters.RequestOptions;
+            var protocolReturnType = GetResponseType(Operation.Responses, false, isAsync, out _);
+            var convenienceReturnType = GetResponseType(Operation.Responses, true, isAsync, out _);
+            bool addOptionalRequestOptionsParameter = ShouldAddOptionalRequestOptionsParameter(protocolReturnType, convenienceReturnType);
+
+            // construct the protocol method parameters from the create request method parameters
+            ParameterProvider[] methodParameters = new ParameterProvider[MethodParameters.Count];
+
+            for (var i = 0; i < MethodParameters.Count; i++)
+            {
+                var parameter = MethodParameters[i];
+                if (parameter == ScmKnownParameters.RequestOptions && addOptionalRequestOptionsParameter)
+                {
+                    requestOptionsParameter = ScmKnownParameters.OptionalRequestOptions;
+                    methodParameters[i] = requestOptionsParameter;
+                }
+                else
+                {
+                    methodParameters[i] = parameter;
+                }
+            }
+
             var methodSignature = new MethodSignature(
                 isAsync ? _cleanOperationName + "Async" : _cleanOperationName,
                 FormattableStringHelpers.FromString(Operation.Description),
                 methodModifier,
-                GetResponseType(Operation.Responses, false, isAsync, out var responseBodyType),
+                protocolReturnType,
                 $"The response returned from the service.",
-                MethodParameters);
+                methodParameters);
             var processMessageName = isAsync ? "ProcessMessageAsync" : "ProcessMessage";
 
             MethodBodyStatement[] methodBody =
             [
-                UsingDeclare("message", ClientModelPlugin.Instance.TypeFactory.HttpMessageApi.HttpMessageType, This.Invoke(createRequestMethod.Signature, [.. MethodParameters]), out var message),
-                Return(ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(client.PipelineProperty.Invoke(processMessageName, [message, ScmKnownParameters.RequestOptions], isAsync, true))),
+                UsingDeclare("message", ClientModelPlugin.Instance.TypeFactory.HttpMessageApi.HttpMessageType, This.Invoke(createRequestMethod.Signature, [.. methodParameters]), out var message),
+                Return(ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(client.PipelineProperty.Invoke(processMessageName, [message, requestOptionsParameter], isAsync, true))),
             ];
 
             var protocolMethod =
@@ -430,6 +452,32 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return response is null || responseBodyType is null
                 ? ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseType
                 : new CSharpType(ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseOfTType.FrameworkType, responseBodyType);
+        }
+
+        private bool ShouldAddOptionalRequestOptionsParameter(CSharpType? protocolReturnType, CSharpType? convenienceReturnType)
+        {
+            var convenienceMethodParameterCount = ConvenienceMethodParameters.Count;
+            if (convenienceMethodParameterCount == 0 && protocolReturnType?.Equals(convenienceReturnType) == false)
+            {
+                return false;
+            }
+
+            // the request options parameter is optional if the methods have different parameters.
+            // We can exclude the request options parameter from the protocol method count.
+            if ((MethodParameters.Count - 1) != convenienceMethodParameterCount)
+            {
+                return true;
+            }
+
+            for (int i = 0; i < convenienceMethodParameterCount; i++)
+            {
+                if (!MethodParameters[i].Type.Equals(ConvenienceMethodParameters[i].Type))
+                {
+                    return true;
+                }
+            }
+
+            return protocolReturnType?.Equals(convenienceReturnType) == true;
         }
     }
 }

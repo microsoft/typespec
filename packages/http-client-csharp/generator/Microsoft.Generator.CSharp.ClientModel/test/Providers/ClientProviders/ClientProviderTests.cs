@@ -205,7 +205,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             Assert.IsNotNull(mockingConstructor);
         }
 
-        private void ValidatePrimaryConstructor(
+        private static void ValidatePrimaryConstructor(
             ConstructorProvider? primaryPublicConstructor,
             List<InputParameter> inputParameters)
         {
@@ -415,9 +415,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             Assert.AreEqual(2, protocolMethods[1].Signature.Parameters.Count);
 
             Assert.AreEqual(new CSharpType(typeof(BinaryContent)), protocolMethods[0].Signature.Parameters[0].Type);
-            Assert.AreEqual(new CSharpType(typeof(RequestOptions)), protocolMethods[0].Signature.Parameters[1].Type);
+            Assert.AreEqual(new CSharpType(typeof(RequestOptions), true), protocolMethods[0].Signature.Parameters[1].Type);
             Assert.AreEqual(new CSharpType(typeof(BinaryContent)), protocolMethods[1].Signature.Parameters[0].Type);
-            Assert.AreEqual(new CSharpType(typeof(RequestOptions)), protocolMethods[1].Signature.Parameters[1].Type);
+            Assert.AreEqual(new CSharpType(typeof(RequestOptions), true), protocolMethods[1].Signature.Parameters[1].Type);
 
             var convenienceMethods = methods.Where(m => m.Signature.Parameters.Any(p => p.Type.Equals(typeof(string)))).ToList();
             Assert.AreEqual(2, convenienceMethods.Count);
@@ -426,6 +426,33 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             Assert.AreEqual(new CSharpType(typeof(string)), convenienceMethods[0].Signature.Parameters[0].Type);
             Assert.AreEqual("p1", convenienceMethods[0].Signature.Parameters[0].Name);
 
+        }
+
+        [TestCaseSource(nameof(RequestOptionsParameterInSignatureTestCases))]
+        public void TestRequestOptionsParameterInSignature(InputOperation inputOperation, bool shouldBeOptional)
+        {
+            var client = InputFactory.Client(TestClientName, operations: [inputOperation]);
+            var clientProvider = new ClientProvider(client);
+            var protocolMethods = clientProvider.Methods.Where(m => m.Signature.Parameters.Any(p => p.Type.Name == "RequestOptions")).ToList();
+            var syncMethod = protocolMethods.FirstOrDefault(m => !m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async));
+            Assert.IsNotNull(syncMethod);
+
+            var requestOptionsParameterInSyncMethod = syncMethod!.Signature.Parameters.FirstOrDefault(p => p.Type.Name == "RequestOptions");
+            Assert.IsNotNull(requestOptionsParameterInSyncMethod);
+            Assert.AreEqual(shouldBeOptional, requestOptionsParameterInSyncMethod!.Type.IsNullable);
+
+            var asyncMethod = protocolMethods.FirstOrDefault(m => m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async));
+            Assert.IsNotNull(asyncMethod);
+
+            var requestOptionsParameterInAsyncMethod = asyncMethod!.Signature.Parameters.FirstOrDefault(p => p.Type.Name == "RequestOptions");
+            Assert.IsNotNull(requestOptionsParameterInAsyncMethod);
+            Assert.AreEqual(shouldBeOptional, requestOptionsParameterInAsyncMethod!.Type.IsNullable);
+
+            if (shouldBeOptional)
+            {
+                Assert.IsNotNull(requestOptionsParameterInSyncMethod!.DefaultValue);
+                Assert.IsNotNull(requestOptionsParameterInAsyncMethod!.DefaultValue);
+            }
         }
 
         [Test]
@@ -670,6 +697,54 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                         location: RequestLocation.None,
                         kind: InputOperationParameterKind.Client)
                 });
+            }
+        }
+
+        public static IEnumerable<TestCaseData> RequestOptionsParameterInSignatureTestCases
+        {
+            get
+            {
+                yield return new TestCaseData(
+                    InputFactory.Operation(
+                        "TestOperation",
+                        parameters:
+                        [
+                            InputFactory.Parameter(
+                                "p1",
+                                InputPrimitiveType.String,
+                                location: RequestLocation.None,
+                                isRequired: true),
+                            InputFactory.Parameter(
+                                "p2",
+                                InputPrimitiveType.Int64,
+                                location: RequestLocation.None,
+                                isRequired: true),
+                        ]), true);
+
+                yield return new TestCaseData(
+                    InputFactory.Operation(
+                        "TestOperation",
+                        responses: [InputFactory.OperationResponse([201], InputFactory.Model("testModel"))],
+                        parameters:
+                        [
+                            InputFactory.Parameter(
+                                "p1",
+                                InputPrimitiveType.String,
+                                location: RequestLocation.None,
+                                isRequired: true),
+                            InputFactory.Parameter(
+                                "p2",
+                                InputFactory.Model("SampleModel"),
+                                location: RequestLocation.Body,
+                                isRequired: true),
+                        ]), true);
+
+                yield return new TestCaseData(
+                    InputFactory.Operation(
+                        "TestOperation",
+                        responses: [InputFactory.OperationResponse([201], InputFactory.Model("testModel"))],
+                        parameters: []),
+                    false);
             }
         }
 

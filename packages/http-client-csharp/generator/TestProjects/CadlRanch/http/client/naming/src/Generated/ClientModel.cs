@@ -15,17 +15,17 @@ namespace Client.Naming
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult Client(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult Client(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> ClientAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> ClientAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Client(Models.ClientModel body) => throw null;
 
         public virtual Task<ClientResult> ClientAsync(Models.ClientModel body) => throw null;
 
-        public virtual ClientResult Language(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult Language(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> LanguageAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> LanguageAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Language(CSModel body) => throw null;
 

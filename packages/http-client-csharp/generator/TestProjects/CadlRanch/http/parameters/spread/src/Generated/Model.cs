@@ -15,41 +15,41 @@ namespace Parameters.Spread
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult SpreadAsRequestBody(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult SpreadAsRequestBody(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> SpreadAsRequestBodyAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> SpreadAsRequestBodyAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult SpreadAsRequestBody(string name) => throw null;
 
         public virtual Task<ClientResult> SpreadAsRequestBodyAsync(string name) => throw null;
 
-        public virtual ClientResult SpreadCompositeRequestOnlyWithBody(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult SpreadCompositeRequestOnlyWithBody(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> SpreadCompositeRequestOnlyWithBodyAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> SpreadCompositeRequestOnlyWithBodyAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult SpreadCompositeRequestOnlyWithBody(BodyParameter body) => throw null;
 
         public virtual Task<ClientResult> SpreadCompositeRequestOnlyWithBodyAsync(BodyParameter body) => throw null;
 
-        public virtual ClientResult SpreadCompositeRequestWithoutBody(string name, string testHeader, RequestOptions options) => throw null;
+        public virtual ClientResult SpreadCompositeRequestWithoutBody(string name, string testHeader, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> SpreadCompositeRequestWithoutBodyAsync(string name, string testHeader, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> SpreadCompositeRequestWithoutBodyAsync(string name, string testHeader, RequestOptions options = null) => throw null;
 
         public virtual ClientResult SpreadCompositeRequestWithoutBody(string name, string testHeader) => throw null;
 
         public virtual Task<ClientResult> SpreadCompositeRequestWithoutBodyAsync(string name, string testHeader) => throw null;
 
-        public virtual ClientResult SpreadCompositeRequest(string name, string testHeader, BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult SpreadCompositeRequest(string name, string testHeader, BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> SpreadCompositeRequestAsync(string name, string testHeader, BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> SpreadCompositeRequestAsync(string name, string testHeader, BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult SpreadCompositeRequest(string name, string testHeader, BodyParameter body) => throw null;
 
         public virtual Task<ClientResult> SpreadCompositeRequestAsync(string name, string testHeader, BodyParameter body) => throw null;
 
-        public virtual ClientResult SpreadCompositeRequestMix(string name, string testHeader, BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult SpreadCompositeRequestMix(string name, string testHeader, BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> SpreadCompositeRequestMixAsync(string name, string testHeader, BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> SpreadCompositeRequestMixAsync(string name, string testHeader, BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult SpreadCompositeRequestMix(string name, string testHeader, string prop) => throw null;
 
