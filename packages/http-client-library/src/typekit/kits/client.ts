@@ -12,7 +12,7 @@ import { Client } from "../../interfaces.js";
 import { addCredentialParameter, addEndpointParameter } from "../../utils/client-initialization.js";
 import { NameKit } from "./utils.js";
 
-interface ClientKit extends NameKit<Namespace> {
+interface ClientKit extends NameKit<Client> {
   /**
    * Return the model that should be used to initialize the client.
    *
