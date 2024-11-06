@@ -27,13 +27,16 @@ if (!last.data.version) {
 import Link from "@typespec/astro-utils/components/link.astro";
 ---
 
-<script is:inline define:vars={{ releaseDate }}>
+<script>
   document.addEventListener("DOMContentLoaded", () => {
-    const bannerEls = document.querySelectorAll(".new-version-banner");
+    const els = document.querySelectorAll(".new-version-banner") as any as HTMLElement[];
     const today = new Date();
-    if (today.getTime() - new Date(releaseDate).getTime() > 7 * 86400000 /* 7 days */) {
-      bannerEls.forEach((x) => x.classList.add("hide"));
-    }
+    els.forEach((el) => {
+      const releaseDate = new Date(el.dataset.releasedate!);
+      if (today.getTime() - releaseDate.getTime() > 7 * 86400000 /* 7 days */) {
+        els.forEach((x) => x.classList.add("hide"));
+      }
+    });
   });
 </script>
 
@@ -54,6 +57,10 @@ import Link from "@typespec/astro-utils/components/link.astro";
   }
 </style>
 
-<Link class="new-version-banner" href={last.slug}>
+<Link
+  class="new-version-banner"
+  href={last.slug}
+  data-releasedate={last.data.releaseDate!.toISOString()}
+>
   Version {last.data.version} is now available!
 </Link>
