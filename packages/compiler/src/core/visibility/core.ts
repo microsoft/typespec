@@ -70,11 +70,11 @@ function getOrInitializeVisibilityModifiers(
  * If no visibility modifiers have been set for the given `property` and `visibilityClass`, the function will use the
  * provided `defaultSet` to initialize the visibility modifiers.
  *
- * @param program
- * @param property
- * @param visibilityClass
+ * @param program - the program in which the property occurs
+ * @param property - the property to get visibility modifiers for
+ * @param visibilityClass - the visibility class to get visibility modifiers for
  * @param defaultSet - the default set to use if no set has been initialized
- * @returns
+ * @returns the active visibility modifier set for the given property and visibility class
  */
 function getOrInitializeActiveModifierSetForClass(
   program: Program,
@@ -107,6 +107,13 @@ const [getSealedVisibilityClasses, setSealedVisibilityClasses] = useStateMap<
   Set<Enum>
 >("sealedVisibilityClasses");
 
+/**
+ * Seals visibility modifiers for a property in a given visibility class.
+ *
+ * @param program - the program in which the property occurs
+ * @param property - the property to seal visibility modifiers for
+ * @param visibilityClass - the visibility class to seal visibility modifiers for
+ */
 function sealVisibilityModifiersForClass(
   program: Program,
   property: ModelProperty,
@@ -129,6 +136,14 @@ const [getDefaultModifiers, setDefaultModifiers] = useStateMap<Enum, Set<EnumMem
   "defaultVisibilityModifiers",
 );
 
+/**
+ * Gets the default modifier set for a visibility class. If no default modifier set has been set, this function will
+ * initialize the default modifier set to ALL the visibility class's members.
+ *
+ * @param program - the program in which the visibility class occurs
+ * @param visibilityClass - the visibility class to get the default modifier set for
+ * @returns the default modifier set for the visibility class
+ */
 function getDefaultModifierSetForClass(program: Program, visibilityClass: Enum): Set<EnumMember> {
   const cached = getDefaultModifiers(program, visibilityClass);
 
@@ -163,6 +178,9 @@ export function setDefaultModifierSetForVisibilityClass(
 /**
  * Convert a sequence of visibility modifiers into a map of visibility classes to their respective modifiers in the
  * sequence.
+ *
+ * @param modifiers - the visibility modifiers to group
+ * @returns a map of visibility classes to their respective modifiers in the input list
  */
 function groupModifiersByVisibilityClass(modifiers: EnumMember[]): Map<Enum, Set<EnumMember>> {
   const enumMap = new Map<Enum, Set<EnumMember>>();
@@ -393,10 +411,20 @@ export function addVisibilityModifiers(
 
 /**
  * Remove visibility modifiers from a property.
- * @param program
- * @param property
- * @param modifiers
- * @param context
+ *
+ * This function will remove all the `modifiers` from the active set of visibility modifiers for the given `property`.
+ *
+ * If no set of active modifiers exists for the given `property`, the default set for the modifier's visibility class
+ * will be used.
+ *
+ * If the visibility modifiers for `property` in the given modifier's visibility class have been sealed, this function
+ * will issue a diagnostic and ignore that modifier, but it will still remove the rest of the modifiers whose classes
+ * have not been sealed.
+ *
+ * @param program - the program in which the ModelProperty occurs
+ * @param property - the property to remove visibility modifiers from
+ * @param modifiers - the visibility modifiers to remove
+ * @param context - the optional decorator context to use for displaying diagnostics
  */
 export function removeVisibilityModifiers(
   program: Program,
@@ -432,6 +460,17 @@ export function removeVisibilityModifiers(
   }
 }
 
+/**
+ * Clears the visibility modifiers for a property in a given visibility class.
+ *
+ * If the visibility modifiers for the given class are sealed, this function will issue a diagnostic and leave the
+ * visibility modifiers unchanged.
+ *
+ * @param program - the program in which the ModelProperty occurs
+ * @param property - the property to clear visibility modifiers for
+ * @param visibilityClass - the visibility class to clear visibility modifiers for
+ * @param context - the optional decorator context to use for displaying diagnostics
+ */
 export function clearVisibilityModifiersForClass(
   program: Program,
   property: ModelProperty,
@@ -460,6 +499,21 @@ export function clearVisibilityModifiersForClass(
   modifierSet.clear();
 }
 
+/**
+ * Resets the visibility modifiers for a property in a given visibility class.
+ *
+ * This does not clear the modifiers. It resets them to the _uninitialized_ state.
+ *
+ * This is useful when cloning properties and you want to reset the visibility modifiers on the clone.
+ *
+ * If the visibility modifiers for this property and given visibility class are sealed, this function will issue a
+ * diagnostic and leave the visibility modifiers unchanged.
+ *
+ * @param program - the program in which the property occurs
+ * @param property - the property to reset visibility modifiers for
+ * @param visibilityClass - the visibility class to reset visibility modifiers for
+ * @param context - the optional decorator context to use for displaying diagnostics
+ */
 export function resetVisibilityModifiersForClass(
   program: Program,
   property: ModelProperty,
@@ -486,6 +540,17 @@ export function resetVisibilityModifiersForClass(
 
 // #region Visibility Analysis API
 
+/**
+ * Returns the active visibility modifiers for a property in a given visibility class.
+ *
+ * This function is infallible. If the visibility modifiers for the given class have not been set explicitly, it will
+ * return the default visibility modifiers for the class.
+ *
+ * @param program - the program in which the property occurs
+ * @param property - the property to get visibility modifiers for
+ * @param visibilityClass - the visibility class to get visibility modifiers for
+ * @returns the set of active modifiers (enum members) for the property and visibility class
+ */
 export function getVisibilityForClass(
   program: Program,
   property: ModelProperty,
@@ -541,14 +606,24 @@ export function hasVisibility(
  * - NONE of the visibilities in the `none` set.
  */
 export interface VisibilityFilter {
+  /**
+   * If set, the filter considers a property visible if it has ALL of these visibility modifiers.
+   */
   all?: Set<EnumMember>;
+  /**
+   * If set, the filter considers a property visible if it has ANY of these visibility modifiers.
+   */
   any?: Set<EnumMember>;
+  /**
+   * If set, the filter considers a property visible if it has NONE of these visibility modifiers.
+   */
   none?: Set<EnumMember>;
 }
 
 export const VisibilityFilter = {
   /**
    * Convert a TypeSpec `GeneratedVisibilityFilter` value to a `VisibilityFilter`.
+   *
    * @param filter - the decorator argument filter to convert
    * @returns a `VisibilityFilter` object that can be consumed by the visibility APIs
    */
@@ -590,6 +665,7 @@ export function isVisible(
   property: ModelProperty,
   filter: VisibilityFilter,
 ): boolean;
+
 /**
  * Determines if a property has any of the specified (legacy) visibility strings.
  *
@@ -605,6 +681,7 @@ export function isVisible(
   property: ModelProperty,
   visibilities: readonly string[],
 ): boolean;
+
 export function isVisible(
   program: Program,
   property: ModelProperty,

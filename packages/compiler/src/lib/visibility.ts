@@ -117,8 +117,17 @@ export const $withDefaultKeyVisibility: WithDefaultKeyVisibilityDecorator = (
   });
 };
 
+/**
+ * Visibility configuration of an operation.
+ */
 interface OperationVisibilityConfig {
+  /**
+   * Stored parameter visibility configuration.
+   */
   parameters?: string[] | EnumMember[];
+  /**
+   * Stored return type visibility configuration.
+   */
   returnType?: string[] | EnumMember[];
 }
 
@@ -436,10 +445,20 @@ interface CreateVisibilityFilterMutatorOptions {
 
   /**
    * Optionally, a decorator function to remove from the model's decorators, if present.
+   *
+   * This allows removing a decorator like `withVisibilityFilter` from the model after it has been applied
+   * to avoid an infinite loop.
    */
   decoratorFn?: DecoratorFunction;
 }
 
+/**
+ * Create a mutator that applies a visibility filter to a type.
+ *
+ * @param filter - The visibility filter to apply
+ * @param options - optional settings for the mutator
+ * @returns
+ */
 function createVisibilityFilterMutator(
   filter: VisibilityFilter,
   options: CreateVisibilityFilterMutatorOptions = {},
