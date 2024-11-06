@@ -281,7 +281,7 @@ namespace Microsoft.Generator.CSharp
             if (property is IndexPropertyProvider indexer)
             {
                 indexerScope = AmbientScope();
-                Append($"{indexer.Name}[{indexer.IndexerParameter.Type} {((VariableExpression)indexer.IndexerParameter).Declaration}]");
+                Append($"{indexer.Name}[{indexer.IndexerParameter.Type} {ParameterProvider.GetDeclaration(indexer.IndexerParameter)}]");
             }
             else
             {
@@ -406,7 +406,7 @@ namespace Microsoft.Generator.CSharp
             AppendRawIf("out ", parameter.IsOut);
             AppendRawIf("ref ", parameter.IsRef);
 
-            Append($"{parameter.Type} {((VariableExpression)parameter).Declaration}");
+            Append($"{parameter.Type} {ParameterProvider.GetDeclaration(parameter)}");
             if (parameter.DefaultValue != null)
             {
                 AppendRaw(" = ");
