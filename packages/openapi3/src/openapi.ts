@@ -43,7 +43,7 @@ import {
 } from "@typespec/compiler";
 
 import { AssetEmitter, createAssetEmitter, EmitEntity } from "@typespec/compiler/emitter-framework";
-import { unsafe_mutateSubgraph } from "@typespec/compiler/experimental";
+import { unsafe_mutateSubgraphWithNamespace } from "@typespec/compiler/experimental";
 import {} from "@typespec/compiler/utils";
 import {
   AuthenticationOptionReference,
@@ -491,7 +491,7 @@ function createOAPIEmitter(
   }
 
   async function getVersionSnapshotDocument(service: Service, snapshot: VersionSnapshot) {
-    const subgraph = unsafe_mutateSubgraph(program, [snapshot.mutator], service.type);
+    const subgraph = unsafe_mutateSubgraphWithNamespace(program, [snapshot.mutator], service.type);
 
     compilerAssert(subgraph.type.kind === "Namespace", "Should not have mutated to another type");
     const document = await getOpenApiFromVersion(

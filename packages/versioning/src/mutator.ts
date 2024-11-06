@@ -1,5 +1,5 @@
 import type { Namespace, Program, RekeyableMap, Type } from "@typespec/compiler";
-import type { unsafe_Mutator as Mutator } from "@typespec/compiler/experimental";
+import type { unsafe_MutatorWithNamespace as MutatorWithNamespace } from "@typespec/compiler/experimental";
 import { getRenamedFrom, getReturnTypeChangedFrom } from "./decorators.js";
 import type { Version } from "./types.js";
 import { VersioningTimeline, type TimelineMoment } from "./versioning-timeline.js";
@@ -7,7 +7,7 @@ import { Availability, getAvailabilityMapInTimeline, resolveVersions } from "./v
 
 export interface VersionSnapshot {
   readonly version?: Version;
-  readonly mutator: Mutator;
+  readonly mutator: MutatorWithNamespace;
 }
 export function getVersionsMutators(program: Program, namespace: Namespace): VersionSnapshot[] {
   const versions = resolveVersions(program, namespace);
@@ -25,7 +25,7 @@ export function getVersionsMutators(program: Program, namespace: Namespace): Ver
 export function createVersionMutator(
   versioning: VersioningHelper,
   moment: TimelineMoment,
-): Mutator {
+): MutatorWithNamespace {
   function deleteAndRename<T extends Map<string | symbol, NameableType>>(
     map: T,
     rename: (oldName: string | symbol, newName: string | symbol, type: NameableType) => void,
@@ -68,7 +68,6 @@ export function createVersionMutator(
       deleteAndRenameOrdered(clone.operations);
     },
     Model: (original, clone, p, realm) => {
-      console.log("model not called", clone);
       deleteAndRenameOrdered(clone.properties);
     },
     Union: (original, clone, p, realm) => {
