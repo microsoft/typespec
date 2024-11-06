@@ -953,6 +953,10 @@ export type ReturnTypeVisibilityDecorator = (
  *
  * The default modifiers are used when a property does not have any visibility decorators
  * applied to it.
+ *
+ * The modifiers passed to this decorator _MUST_ be members of the target Enum.
+ *
+ * @param visibilities the list of modifiers to use as the default visibility modifiers.
  */
 export type DefaultVisibilityDecorator = (
   context: DecoratorContext,
