@@ -69,10 +69,7 @@ stages:
           os: linux
 
         steps:
-          - template: /eng/tsp-core/pipelines/jobs/build-and-test.yml
-            parameters:
-              nodeVersion: $(nodeVersion)
-              os: linux
+          - template: /eng/tsp-core/pipelines/jobs/website.yml
 
       - template: /eng/tsp-core/pipelines/jobs/publish-artifacts.yml
       - template: /eng/tsp-core/pipelines/jobs/e2e.yml
