@@ -12,7 +12,6 @@ import type {
   InspectTypeDecorator,
   InspectTypeNameDecorator,
   KeyDecorator,
-  ListDecorator,
   MaxItemsDecorator,
   MaxLengthDecorator,
   MaxValueDecorator,
@@ -104,6 +103,7 @@ import { useStateMap, useStateSet } from "./utils.js";
 
 export { $encodedName, resolveEncodedName } from "./encoded-names.js";
 export { serializeValueAsJson } from "./examples.js";
+export { getPagingOperation, isList, type PagingOperation, type PagingProperty } from "./paging.js";
 export * from "./service.js";
 export * from "./visibility.js";
 export { ExampleOptions };
@@ -882,49 +882,6 @@ export const $withoutDefaultValues: WithoutDefaultValuesDecorator = (
     delete p.defaultValue;
   });
 };
-
-// -- @list decorator ---------------------
-
-const listPropertiesKey = createStateSymbol("listProperties");
-
-/**
- * @deprecated Use the `listsResource` decorator in `@typespec/rest` instead.
- */
-// eslint-disable-next-line @typescript-eslint/no-deprecated
-export const $list: ListDecorator = (
-  context: DecoratorContext,
-  target: Operation,
-  listedType?: Type,
-) => {
-  if (listedType && listedType.kind === "TemplateParameter") {
-    // Silently return because this is probably being used in a templated interface
-    return;
-  }
-  if (listedType && listedType.kind !== "Model") {
-    reportDiagnostic(context.program, {
-      code: "list-type-not-model",
-      target: context.getArgumentTarget(0)!,
-    });
-    return;
-  }
-
-  context.program.stateMap(listPropertiesKey).set(target, listedType);
-};
-
-/**
- * @deprecated This function is unused and will be removed in a future release.
- */
-export function getListOperationType(program: Program, target: Type): Model | undefined {
-  return program.stateMap(listPropertiesKey).get(target);
-}
-
-/**
- * @deprecated Use `isListOperation` in `@typespec/rest` instead.
- */
-export function isListOperation(program: Program, target: Operation): boolean {
-  // The type stored for the operation
-  return program.stateMap(listPropertiesKey).has(target);
-}
 
 // -- @tag decorator ---------------------
 

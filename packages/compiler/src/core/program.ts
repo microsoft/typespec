@@ -2,6 +2,7 @@ import { EmitterOptions } from "../config/types.js";
 import { createAssetEmitter } from "../emitter-framework/asset-emitter.js";
 import { setCurrentProgram } from "../experimental/typekit/define-kit.js";
 import { validateEncodedNamesConflicts } from "../lib/encoded-names.js";
+import { validatePagingOperations } from "../lib/paging.js";
 import { MANIFEST } from "../manifest.js";
 import {
   ModuleResolutionResult,
@@ -23,6 +24,7 @@ import { createLinter, resolveLinterDefinition } from "./linter.js";
 import { createLogger } from "./logger/index.js";
 import { createTracer } from "./logger/tracer.js";
 import { createDiagnostic } from "./messages.js";
+import { createResolver } from "./name-resolver.js";
 import { CompilerOptions } from "./options.js";
 import { parse, parseStandaloneTypeReference } from "./parser.js";
 import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
@@ -229,7 +231,10 @@ export async function compile(
   if (options.linterRuleSet) {
     program.reportDiagnostics(await linter.extendRuleSet(options.linterRuleSet));
   }
-  program.checker = createChecker(program);
+
+  const resolver = createResolver(program);
+  resolver.resolveProgram();
+  program.checker = createChecker(program, resolver);
   program.checker.checkProgram();
 
   if (!continueToNextStage) {
@@ -601,6 +606,7 @@ export async function compile(
   /** Run the compiler built-in validators */
   function runCompilerValidators() {
     validateEncodedNamesConflicts(program);
+    validatePagingOperations(program);
   }
 
   function validateRequiredImports() {
@@ -825,7 +831,7 @@ export async function compile(
   function getNode(target: Node | Entity | Sym | TemplateInstanceTarget): Node | undefined {
     if (!("kind" in target) && !("valueKind" in target) && !("entityKind" in target)) {
       // TemplateInstanceTarget
-      if ("node" in target) {
+      if (!("declarations" in target)) {
         return target.node;
       }
       // symbol
@@ -875,8 +881,8 @@ export async function compile(
     }
     const binder = createBinder(program);
     binder.bindNode(node);
-    mutate(node).parent = program.checker.getGlobalNamespaceNode();
-
+    mutate(node).parent = resolver.symbols.global.declarations[0];
+    resolver.resolveTypeReference(node);
     return program.checker.resolveTypeReference(node);
   }
 }

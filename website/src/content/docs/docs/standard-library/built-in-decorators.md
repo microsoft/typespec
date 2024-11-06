@@ -4,12 +4,40 @@ toc_min_heading_level: 2
 toc_max_heading_level: 3
 ---
 ## TypeSpec
+### `@continuationToken` {#@continuationToken}
+
+Pagination property defining the token to get to the next page.
+It MUST be specified both on the request parameter and the response.
+```typespec
+@continuationToken
+```
+
+#### Target
+
+`ModelProperty`
+
+#### Parameters
+None
+
+#### Examples
+
+```tsp
+model Page<T> {
+  @pageItems items: T[];
+  @continuationToken continuationToken: string;
+}
+@list op listPets(@continuationToken continuationToken: string): Page<Pet>;
+```
+
+
 ### `@defaultVisibility` {#@defaultVisibility}
 
 Declares the default visibility modifiers for a visibility class.
 
 The default modifiers are used when a property does not have any visibility decorators
 applied to it.
+
+The modifiers passed to this decorator _MUST_ be members of the target Enum.
 ```typespec
 @defaultVisibility(...visibilities: valueof EnumMember[])
 ```
@@ -21,7 +49,7 @@ applied to it.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| visibilities | `valueof EnumMember[]` |  |
+| visibilities | `valueof EnumMember[]` | the list of modifiers to use as the default visibility modifiers. |
 
 
 
@@ -274,6 +302,36 @@ model Pet {
 ```
 
 
+### `@firstLink` {#@firstLink}
+
+Pagination property defining a link to the first page.
+
+It is expected that navigating to the link will return the same set of responses as the operation that returned the current page.
+```typespec
+@firstLink
+```
+
+#### Target
+
+`ModelProperty`
+
+#### Parameters
+None
+
+#### Examples
+
+```tsp
+model Page<T> {
+  @pageItems items: T[];
+  @nextLink next: url;
+  @prevLink prev: url;
+  @firstLink first: url;
+  @lastLink last: url;
+}
+@list op listPets(): Page<Pet>;
+```
+
+
 ### `@format` {#@format}
 
 Specify a known data format hint for this string type. For example `uuid`, `uri`, etc.
@@ -450,11 +508,41 @@ enum KnownErrorCode {
 ```
 
 
+### `@lastLink` {#@lastLink}
+
+Pagination property defining a link to the last page.
+
+It is expected that navigating to the link will return the same set of responses as the operation that returned the current page.
+```typespec
+@lastLink
+```
+
+#### Target
+
+`ModelProperty`
+
+#### Parameters
+None
+
+#### Examples
+
+```tsp
+model Page<T> {
+  @pageItems items: T[];
+  @nextLink next: url;
+  @prevLink prev: url;
+  @firstLink first: url;
+  @lastLink last: url;
+}
+@list op listPets(): Page<Pet>;
+```
+
+
 ### `@list` {#@list}
 
-Mark this operation as a `list` operation for resource types.
+Mark this operation as a `list` operation that returns a paginated list of items.
 ```typespec
-@list(listedType?: Model)
+@list
 ```
 
 #### Target
@@ -462,9 +550,7 @@ Mark this operation as a `list` operation for resource types.
 `Operation`
 
 #### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| listedType | `Model` | Optional type of the items in the list. |
+None
 
 
 
@@ -662,6 +748,60 @@ scalar distance is float64;
 ```
 
 
+### `@nextLink` {#@nextLink}
+
+Pagination property defining a link to the next page.
+
+It is expected that navigating to the link will return the same set of responses as the operation that returned the current page.
+```typespec
+@nextLink
+```
+
+#### Target
+
+`ModelProperty`
+
+#### Parameters
+None
+
+#### Examples
+
+```tsp
+model Page<T> {
+  @pageItems items: T[];
+  @nextLink next: url;
+  @prevLink prev: url;
+  @firstLink first: url;
+  @lastLink last: url;
+}
+@list op listPets(): Page<Pet>;
+```
+
+
+### `@offset` {#@offset}
+
+Pagination property defining the number of items to skip.
+```typespec
+@offset
+```
+
+#### Target
+
+`ModelProperty`
+
+#### Parameters
+None
+
+#### Examples
+
+```tsp
+model Page<T> {
+  @pageItems items: T[];
+}
+@list op listPets(@offset skip: int32, @pageSize pageSize: int8): Page<Pet>;
+```
+
+
 ### `@opExample` {#@opExample}
 
 Provide example values for an operation's parameters and corresponding return type.
@@ -711,6 +851,78 @@ op upload(data: string | bytes, @header contentType: "text/plain" | "application
 op uploadString(data: string, @header contentType: "text/plain" ): void;
 @overload(upload)
 op uploadBytes(data: bytes, @header contentType: "application/octet-stream"): void;
+```
+
+
+### `@pageIndex` {#@pageIndex}
+
+Pagination property defining the page index.
+```typespec
+@pageIndex
+```
+
+#### Target
+
+`ModelProperty`
+
+#### Parameters
+None
+
+#### Examples
+
+```tsp
+model Page<T> {
+  @pageItems items: T[];
+}
+@list op listPets(@pageIndex page: int32, @pageSize pageSize: int8): Page<Pet>;
+```
+
+
+### `@pageItems` {#@pageItems}
+
+Specify the the property that contains the array of page items.
+```typespec
+@pageItems
+```
+
+#### Target
+
+`ModelProperty`
+
+#### Parameters
+None
+
+#### Examples
+
+```tsp
+model Page<T> {
+  @pageItems items: T[];
+}
+@list op listPets(@pageIndex page: int32, @pageSize pageSize: int8): Page<Pet>;
+```
+
+
+### `@pageSize` {#@pageSize}
+
+Specify the pagination parameter that controls the maximum number of items to include in a page.
+```typespec
+@pageSize
+```
+
+#### Target
+
+`ModelProperty`
+
+#### Parameters
+None
+
+#### Examples
+
+```tsp
+model Page<T> {
+  @pageItems items: T[];
+}
+@list op listPets(@pageIndex page: int32, @pageSize pageSize: int8): Page<Pet>;
 ```
 
 
@@ -764,6 +976,36 @@ scalar LowerAlpha extends string;
 ```
 
 
+### `@prevLink` {#@prevLink}
+
+Pagination property defining a link to the previous page.
+
+It is expected that navigating to the link will return the same set of responses as the operation that returned the current page.
+```typespec
+@prevLink
+```
+
+#### Target
+
+`ModelProperty`
+
+#### Parameters
+None
+
+#### Examples
+
+```tsp
+model Page<T> {
+  @pageItems items: T[];
+  @nextLink next: url;
+  @prevLink prev: url;
+  @firstLink first: url;
+  @lastLink last: url;
+}
+@list op listPets(): Page<Pet>;
+```
+
+
 ### `@projectedName` {#@projectedName}
 :::warning
 **Deprecated**: Use `@encodedName` instead for changing the name over the wire.
@@ -792,6 +1034,38 @@ Provide an alternative name for this type.
 model Certificate {
   @projectedName("json", "exp")
   expireAt: int32;
+}
+```
+
+
+### `@removeVisibility` {#@removeVisibility}
+
+Removes visibility modifiers from a property.
+
+If the visibility modifiers for a visibility class have not been initialized,
+this decorator will use the default visibility modifiers for the visibility
+class as the default modifier set.
+```typespec
+@removeVisibility(...visibilities: valueof EnumMember[])
+```
+
+#### Target
+The property to remove visibility from.
+`ModelProperty`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| visibilities | `valueof EnumMember[]` | The visibility modifiers to remove from the target property. |
+
+#### Examples
+
+```typespec
+model Example {
+  // This property will have the Create and Update visibilities, but not the
+  // Read visibility, since it is removed.
+  @removeVisibility(Lifecycle.Read)
+  secret_property: string;
 }
 ```
 

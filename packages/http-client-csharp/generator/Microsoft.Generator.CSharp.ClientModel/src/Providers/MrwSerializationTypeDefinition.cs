@@ -379,11 +379,22 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         /// </summary>
         internal MethodProvider BuildJsonModelCreateMethod()
         {
+            ValueExpression createCoreInvocation = This.Invoke(JsonModelCreateCoreMethodName, [_utf8JsonReaderParameter, _serializationOptionsParameter]);
+            var createCoreReturnType = _model.Type.RootType;
+
+            // If the return type of the create core method is not the same as the interface type, cast it to the interface type since
+            // the Core methods will always return the root type of the model. The interface type will be the model type unless the model
+            // is an unknown discriminated model.
+            if (createCoreReturnType != _jsonModelTInterface.Arguments[0])
+            {
+                createCoreInvocation = createCoreInvocation.CastTo(_model.Type);
+            }
+
             // T IJsonModel<T>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
             return new MethodProvider
             (
                 new MethodSignature(nameof(IJsonModel<object>.Create), null, MethodSignatureModifiers.None, _jsonModelTInterface.Arguments[0], null, [_utf8JsonReaderParameter, _serializationOptionsParameter], ExplicitInterface: _jsonModelTInterface),
-                This.Invoke(JsonModelCreateCoreMethodName, [_utf8JsonReaderParameter, _serializationOptionsParameter]).CastTo(_model.Type),
+                createCoreInvocation,
                 this
             );
         }
@@ -434,19 +445,19 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return new MethodProvider
             (
               new MethodSignature(methodName, null, signatureModifiers, _model.Type, null, [_jsonElementDeserializationParam, _serializationOptionsParameter]),
-              _model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract) && _inputModel.DiscriminatedSubtypes.Count > 0 ? BuildAbstractDeserializationMethodBody() : BuildDeserializationMethodBody(),
+              _inputModel.DiscriminatedSubtypes.Count > 0 ? BuildDiscriminatedModelDeserializationMethodBody() : BuildDeserializationMethodBody(),
               this
             );
         }
 
-        private MethodBodyStatement[] BuildAbstractDeserializationMethodBody()
+        private MethodBodyStatement[] BuildDiscriminatedModelDeserializationMethodBody()
         {
             var unknownVariant = _model.DerivedModels.First(m => m.IsUnknownDiscriminatorModel);
             bool onlyContainsUnknownDerivedModel = _model.DerivedModels.Count == 1;
             var discriminator = _model.CanonicalView.Properties.Where(p => p.IsDiscriminator).FirstOrDefault();
             var deserializeDiscriminatedModelsConditions = BuildDiscriminatedModelsCondition(
                 discriminator,
-                GetAbstractSwitchCases(unknownVariant),
+                GetDiscriminatorSwitchCases(unknownVariant),
                 onlyContainsUnknownDerivedModel,
                 _jsonElementParameterSnippet);
 
@@ -477,7 +488,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return MethodBodyStatement.Empty;
         }
 
-        private SwitchCaseStatement[] GetAbstractSwitchCases(ModelProvider unknownVariant)
+        private SwitchCaseStatement[] GetDiscriminatorSwitchCases(ModelProvider unknownVariant)
         {
             SwitchCaseStatement[] cases = new SwitchCaseStatement[_model.DerivedModels.Count - 1];
             int index = 0;
@@ -514,11 +525,21 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         internal MethodProvider BuildPersistableModelCreateMethod()
         {
             ParameterProvider dataParameter = new("data", $"The data to parse.", typeof(BinaryData));
+            ValueExpression createCoreInvocation = This.Invoke(PersistableModelCreateCoreMethodName, [dataParameter, _serializationOptionsParameter]);
+            var createCoreReturnType = _model.Type.RootType;
+
+            // If the return type of the create core method is not the same as the interface type, cast it to the interface type since
+            // the Core methods will always return the root type of the model. The interface type will be the model type unless the model
+            // is an unknown discriminated model.
+            if (createCoreReturnType != _persistableModelTInterface.Arguments[0])
+            {
+                createCoreInvocation = createCoreInvocation.CastTo(_model.Type);
+            }
             // IPersistableModel<T>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
             return new MethodProvider
             (
                 new MethodSignature(nameof(IPersistableModel<object>.Create), null, MethodSignatureModifiers.None, _persistableModelTInterface.Arguments[0], null, [dataParameter, _serializationOptionsParameter], ExplicitInterface: _persistableModelTInterface),
-                This.Invoke(PersistableModelCreateCoreMethodName, [dataParameter, _serializationOptionsParameter]).CastTo(_model.Type),
+                createCoreInvocation,
                 this
             );
         }

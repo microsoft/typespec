@@ -23,7 +23,7 @@ None
 
 ### `Create` {#Create}
 
-Makes a copy of the model `T` with only the properties that are visible during the
+A copy of the input model `T` with only the properties that are visible during the
 "Create" resource lifecycle phase.
 
 This transformation is recursive, and will include only properties that have the
@@ -59,7 +59,7 @@ None
 
 ### `CreateOrUpdate` {#CreateOrUpdate}
 
-Makes a copy of the model `T` with only the properties that are visible during the
+A copy of the input model `T` with only the properties that are visible during the
 "Create" or "Update" resource lifecycle phases.
 
 This transformation is recursive, and will include only properties that have the
@@ -220,7 +220,7 @@ None
 
 ### `Read` {#Read}
 
-Makes a copy of the model `T` with only the properties that are visible during the
+A copy of the input model `T` with only the properties that are visible during the
 "Read" resource lifecycle phase.
 
 This transformation is recursive, and will include only properties that have the
@@ -287,7 +287,7 @@ model ServiceOptions
 
 ### `Update` {#Update}
 
-Makes a copy of the model `T` with only the properties that are visible during the
+A copy of the input model `T` with only the properties that are visible during the
 "Update" resource lifecycle phase.
 
 This transformation will include only the properties that have the `Lifecycle.Update`
