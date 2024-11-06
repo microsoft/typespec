@@ -43,7 +43,7 @@ importers:
         version: 22.7.5
       '@vitest/coverage-v8':
         specifier: ^2.1.2
-        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1))
+        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1))
       c8:
         specifier: ^10.1.2
         version: 10.1.2
@@ -67,7 +67,7 @@ importers:
         version: 56.0.0(eslint@9.12.0(jiti@2.3.3))
       eslint-plugin-vitest:
         specifier: ^0.5.4
-        version: 0.5.4(eslint@9.12.0(jiti@2.3.3))(typescript@5.6.3)(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1))
+        version: 0.5.4(eslint@9.12.0(jiti@2.3.3))(typescript@5.6.3)(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1))
       micromatch:
         specifier: ^4.0.8
         version: 4.0.8
@@ -100,7 +100,7 @@ importers:
         version: 8.8.1(eslint@9.12.0(jiti@2.3.3))(typescript@5.6.3)
       vitest:
         specifier: ^2.1.2
-        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
+        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1)
       yaml:
         specifier: ~2.5.1
         version: 2.5.1
@@ -148,7 +148,7 @@ importers:
         version: link:../compiler
       '@vitest/coverage-v8':
         specifier: ^2.1.2
-        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1))
+        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.2(vitest@2.1.2)
@@ -163,7 +163,7 @@ importers:
         version: 5.6.3
       vitest:
         specifier: ^2.1.2
-        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
+        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1)
 
   packages/bundle-uploader:
     dependencies:
@@ -197,7 +197,7 @@ importers:
         version: 7.5.8
       '@vitest/coverage-v8':
         specifier: ^2.1.2
-        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1))
+        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.2(vitest@2.1.2)
@@ -212,7 +212,7 @@ importers:
         version: 5.6.3
       vitest:
         specifier: ^2.1.2
-        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
+        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1)
 
   packages/bundler:
     dependencies:
@@ -255,7 +255,7 @@ importers:
         version: 17.0.33
       '@vitest/coverage-v8':
         specifier: ^2.1.2
-        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1))
+        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.2(vitest@2.1.2)
@@ -273,7 +273,7 @@ importers:
         version: 5.4.8(@types/node@22.7.5)(terser@5.34.1)
       vitest:
         specifier: ^2.1.2
-        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
+        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1)
 
   packages/compiler:
     dependencies:
@@ -343,7 +343,7 @@ importers:
         version: link:../internal-build-utils
       '@vitest/coverage-v8':
         specifier: ^2.1.2
-        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1))
+        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.2(vitest@2.1.2)
@@ -367,7 +367,7 @@ importers:
         version: 5.6.3
       vitest:
         specifier: ^2.1.2
-        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
+        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1)
       vscode-oniguruma:
         specifier: ~2.0.1
         version: 2.0.1
@@ -395,7 +395,7 @@ importers:
         version: 8.8.1
       '@vitest/coverage-v8':
         specifier: ^2.1.2
-        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1))
+        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.2(vitest@2.1.2)
@@ -413,7 +413,7 @@ importers:
         version: 5.6.3
       vitest:
         specifier: ^2.1.2
-        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
+        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1)
 
   packages/events:
     devDependencies:
@@ -431,7 +431,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^2.1.2
-        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1))
+        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.2(vitest@2.1.2)
@@ -446,7 +446,7 @@ importers:
         version: 5.6.3
       vitest:
         specifier: ^2.1.2
-        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
+        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1)
 
   packages/html-program-viewer:
     dependencies:
@@ -501,7 +501,7 @@ importers:
         version: 4.3.2(vite@5.4.8(@types/node@22.7.5)(terser@5.34.1))
       '@vitest/coverage-v8':
         specifier: ^2.1.2
-        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1))
+        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.2(vitest@2.1.2)
@@ -525,7 +525,7 @@ importers:
         version: 4.2.3(@types/node@22.7.5)(rollup@4.24.0)(typescript@5.6.3)(vite@5.4.8(@types/node@22.7.5)(terser@5.34.1))
       vitest:
         specifier: ^2.1.2
-        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
+        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1)
 
   packages/http:
     devDependencies:
@@ -546,7 +546,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^2.1.2
-        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1))
+        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.2(vitest@2.1.2)
@@ -561,7 +561,7 @@ importers:
         version: 5.6.3
       vitest:
         specifier: ^2.1.2
-        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
+        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1)
 
   packages/http-server-csharp:
     dependencies:
@@ -595,7 +595,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^2.1.2
-        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1))
+        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.2(vitest@2.1.2)
@@ -610,7 +610,7 @@ importers:
         version: 5.6.3
       vitest:
         specifier: ^2.1.2
-        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
+        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1)
 
   packages/http-server-javascript:
     dependencies:
@@ -709,7 +709,7 @@ importers:
         version: 17.0.33
       '@vitest/coverage-v8':
         specifier: ^2.1.2
-        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1))
+        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.2(vitest@2.1.2)
@@ -727,7 +727,7 @@ importers:
         version: 5.6.3
       vitest:
         specifier: ^2.1.2
-        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
+        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1)
 
   packages/json-schema:
     dependencies:
@@ -752,7 +752,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^2.1.2
-        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1))
+        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.2(vitest@2.1.2)
@@ -773,7 +773,7 @@ importers:
         version: 5.6.3
       vitest:
         specifier: ^2.1.2
-        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
+        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1)
 
   packages/library-linter:
     devDependencies:
@@ -785,7 +785,7 @@ importers:
         version: link:../compiler
       '@vitest/coverage-v8':
         specifier: ^2.1.2
-        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1))
+        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.2(vitest@2.1.2)
@@ -800,7 +800,7 @@ importers:
         version: 5.6.3
       vitest:
         specifier: ^2.1.2
-        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
+        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1)
 
   packages/monarch:
     dependencies:
@@ -813,7 +813,7 @@ importers:
         version: 22.7.5
       '@vitest/coverage-v8':
         specifier: ^2.1.2
-        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1))
+        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.2(vitest@2.1.2)
@@ -821,8 +821,8 @@ importers:
         specifier: ^10.1.2
         version: 10.1.2
       happy-dom:
-        specifier: ^15.7.4
-        version: 15.7.4
+        specifier: ^15.10.1
+        version: 15.10.1
       rimraf:
         specifier: ~6.0.1
         version: 6.0.1
@@ -831,7 +831,7 @@ importers:
         version: 5.6.3
       vitest:
         specifier: ^2.1.2
-        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
+        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1)
 
   packages/openapi:
     devDependencies:
@@ -855,7 +855,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^2.1.2
-        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1))
+        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.2(vitest@2.1.2)
@@ -870,7 +870,7 @@ importers:
         version: 5.6.3
       vitest:
         specifier: ^2.1.2
-        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
+        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1)
 
   packages/openapi3:
     dependencies:
@@ -913,7 +913,7 @@ importers:
         version: link:../xml
       '@vitest/coverage-v8':
         specifier: ^2.1.2
-        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1))
+        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.2(vitest@2.1.2)
@@ -931,7 +931,7 @@ importers:
         version: 5.6.3
       vitest:
         specifier: ^2.1.2
-        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
+        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1)
 
   packages/playground:
     dependencies:
@@ -1155,7 +1155,7 @@ importers:
         version: 4.3.2(vite@5.4.8(@types/node@22.7.5)(terser@5.34.1))
       '@vitest/coverage-v8':
         specifier: ^2.1.2
-        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1))
+        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.2(vitest@2.1.2)
@@ -1182,7 +1182,7 @@ importers:
         version: 4.2.3(@types/node@22.7.5)(rollup@4.24.0)(typescript@5.6.3)(vite@5.4.8(@types/node@22.7.5)(terser@5.34.1))
       vitest:
         specifier: ^2.1.2
-        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
+        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1)
 
   packages/prettier-plugin-typespec:
     dependencies:
@@ -1213,7 +1213,7 @@ importers:
         version: 4.24.0
       vitest:
         specifier: ^2.1.2
-        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
+        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1)
 
   packages/protobuf:
     devDependencies:
@@ -1231,7 +1231,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^2.1.2
-        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1))
+        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.2(vitest@2.1.2)
@@ -1249,7 +1249,7 @@ importers:
         version: 5.6.3
       vitest:
         specifier: ^2.1.2
-        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
+        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1)
 
   packages/react-components:
     dependencies:
@@ -1292,7 +1292,7 @@ importers:
         version: 4.3.2(vite@5.4.8(@types/node@22.7.5)(terser@5.34.1))
       '@vitest/coverage-v8':
         specifier: ^2.1.2
-        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1))
+        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.2(vitest@2.1.2)
@@ -1316,7 +1316,7 @@ importers:
         version: 4.2.3(@types/node@22.7.5)(rollup@4.24.0)(typescript@5.6.3)(vite@5.4.8(@types/node@22.7.5)(terser@5.34.1))
       vitest:
         specifier: ^2.1.2
-        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
+        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1)
 
   packages/rest:
     devDependencies:
@@ -1337,7 +1337,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^2.1.2
-        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1))
+        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.2(vitest@2.1.2)
@@ -1352,7 +1352,7 @@ importers:
         version: 5.6.3
       vitest:
         specifier: ^2.1.2
-        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
+        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1)
 
   packages/samples:
     dependencies:
@@ -1407,7 +1407,7 @@ importers:
         version: link:../internal-build-utils
       '@vitest/coverage-v8':
         specifier: ^2.1.2
-        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1))
+        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.2(vitest@2.1.2)
@@ -1425,7 +1425,7 @@ importers:
         version: 5.6.3
       vitest:
         specifier: ^2.1.2
-        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
+        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1)
 
   packages/spec:
     devDependencies:
@@ -1501,7 +1501,7 @@ importers:
         version: 17.0.33
       '@vitest/coverage-v8':
         specifier: ^2.1.2
-        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1))
+        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.2(vitest@2.1.2)
@@ -1513,7 +1513,7 @@ importers:
         version: 5.6.3
       vitest:
         specifier: ^2.1.2
-        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
+        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1)
 
   packages/spec-coverage-sdk:
     dependencies:
@@ -1677,7 +1677,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^2.1.2
-        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1))
+        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.2(vitest@2.1.2)
@@ -1692,7 +1692,7 @@ importers:
         version: 5.6.3
       vitest:
         specifier: ^2.1.2
-        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
+        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1)
 
   packages/streams:
     devDependencies:
@@ -1710,7 +1710,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^2.1.2
-        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1))
+        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.2(vitest@2.1.2)
@@ -1725,7 +1725,7 @@ importers:
         version: 5.6.3
       vitest:
         specifier: ^2.1.2
-        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
+        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1)
 
   packages/tmlanguage-generator:
     dependencies:
@@ -1778,7 +1778,7 @@ importers:
         version: link:../prettier-plugin-typespec
       '@vitest/coverage-v8':
         specifier: ^2.1.2
-        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1))
+        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.2(vitest@2.1.2)
@@ -1802,7 +1802,7 @@ importers:
         version: 5.6.3
       vitest:
         specifier: ^2.1.2
-        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
+        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1)
 
   packages/typespec-vs:
     devDependencies:
@@ -1841,7 +1841,7 @@ importers:
         version: link:../internal-build-utils
       '@vitest/coverage-v8':
         specifier: ^2.1.2
-        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1))
+        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.2(vitest@2.1.2)
@@ -1868,7 +1868,7 @@ importers:
         version: 5.6.3
       vitest:
         specifier: ^2.1.2
-        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
+        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1)
       vscode-languageclient:
         specifier: ~9.0.1
         version: 9.0.1
@@ -1889,7 +1889,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^2.1.2
-        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1))
+        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.2(vitest@2.1.2)
@@ -1904,7 +1904,7 @@ importers:
         version: 5.6.3
       vitest:
         specifier: ^2.1.2
-        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
+        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1)
 
   packages/xml:
     devDependencies:
@@ -1922,7 +1922,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^2.1.2
-        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1))
+        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.2(vitest@2.1.2)
@@ -1937,7 +1937,7 @@ importers:
         version: 5.6.3
       vitest:
         specifier: ^2.1.2
-        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
+        version: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1)
 
   website:
     dependencies:
@@ -7944,8 +7944,8 @@ packages:
   hachure-fill@0.5.2:
     resolution: {integrity: sha512-3GKBOn+m2LX9iq+JC1064cSFprJY4jL1jCXTcpnfER5HYE2l/4EfWSGzkPa/ZDBmYI0ZOEj5VHV/eKnPGkHuOg==}
 
-  happy-dom@15.7.4:
-    resolution: {integrity: sha512-r1vadDYGMtsHAAsqhDuk4IpPvr6N8MGKy5ntBo7tSdim+pWDxus2PNqOcOt8LuDZ4t3KJHE+gCuzupcx/GKnyQ==}
+  happy-dom@15.10.1:
+    resolution: {integrity: sha512-FuGnj/qIB4QnBL6fWmD7Wnh6STxevLgOVWB6+nopDGgWG1+t9CXkNB2ldZ+iqwD2UKxD2D0SU8el8A6AX6Q1+g==}
     engines: {node: '>=18.0.0'}
 
   has-bigints@1.0.2:
@@ -16842,7 +16842,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vitest/coverage-v8@2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1))':
+  '@vitest/coverage-v8@2.1.2(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1))':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@bcoe/v8-coverage': 0.2.3
@@ -16856,7 +16856,7 @@ snapshots:
       std-env: 3.7.0
       test-exclude: 7.0.1
       tinyrainbow: 1.2.0
-      vitest: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
+      vitest: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -16918,7 +16918,7 @@ snapshots:
       sirv: 2.0.4
       tinyglobby: 0.2.6
       tinyrainbow: 1.2.0
-      vitest: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
+      vitest: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1)
 
   '@vitest/utils@2.0.5':
     dependencies:
@@ -19032,12 +19032,12 @@ snapshots:
       semver: 7.6.3
       strip-indent: 3.0.0
 
-  eslint-plugin-vitest@0.5.4(eslint@9.12.0(jiti@2.3.3))(typescript@5.6.3)(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)):
+  eslint-plugin-vitest@0.5.4(eslint@9.12.0(jiti@2.3.3))(typescript@5.6.3)(vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1)):
     dependencies:
       '@typescript-eslint/utils': 7.17.0(eslint@9.12.0(jiti@2.3.3))(typescript@5.6.3)
       eslint: 9.12.0(jiti@2.3.3)
     optionalDependencies:
-      vitest: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
+      vitest: 2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1)
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -19629,7 +19629,7 @@ snapshots:
 
   hachure-fill@0.5.2: {}
 
-  happy-dom@15.7.4:
+  happy-dom@15.10.1:
     dependencies:
       entities: 4.5.0
       webidl-conversions: 7.0.0
@@ -23838,7 +23838,7 @@ snapshots:
     optionalDependencies:
       vite: 5.4.10(@types/node@22.7.5)(terser@5.34.1)
 
-  vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1):
+  vitest@2.1.2(@types/node@22.7.5)(@vitest/ui@2.1.2)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1):
     dependencies:
       '@vitest/expect': 2.1.2
       '@vitest/mocker': 2.1.2(@vitest/spy@2.1.2)(vite@5.4.8(@types/node@22.7.5)(terser@5.34.1))
@@ -23862,7 +23862,7 @@ snapshots:
     optionalDependencies:
       '@types/node': 22.7.5
       '@vitest/ui': 2.1.2(vitest@2.1.2)
-      happy-dom: 15.7.4
+      happy-dom: 15.10.1
       jsdom: 25.0.1
     transitivePeerDependencies:
       - less
