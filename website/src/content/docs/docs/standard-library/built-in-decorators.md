@@ -4,6 +4,32 @@ toc_min_heading_level: 2
 toc_max_heading_level: 3
 ---
 ## TypeSpec
+### `@continuationToken` {#@continuationToken}
+
+Pagination property defining the token to get to the next page.
+It MUST be specified both on the request parameter and the response.
+```typespec
+@continuationToken
+```
+
+#### Target
+
+`ModelProperty`
+
+#### Parameters
+None
+
+#### Examples
+
+```tsp
+model Page<T> {
+  @pageItems items: T[];
+  @continuationToken continuationToken: string;
+}
+@list op listPets(@continuationToken continuationToken: string): Page<Pet>;
+```
+
+
 ### `@deprecated` {#@deprecated}
 :::warning
 **Deprecated**: @deprecated decorator is deprecated. Use the `#deprecated` directive instead.
@@ -253,6 +279,36 @@ model Pet {
 ```
 
 
+### `@firstLink` {#@firstLink}
+
+Pagination property defining a link to the first page.
+
+It is expected that navigating to the link will return the same set of responses as the operation that returned the current page.
+```typespec
+@firstLink
+```
+
+#### Target
+
+`ModelProperty`
+
+#### Parameters
+None
+
+#### Examples
+
+```tsp
+model Page<T> {
+  @pageItems items: T[];
+  @nextLink next: url;
+  @prevLink prev: url;
+  @firstLink first: url;
+  @lastLink last: url;
+}
+@list op listPets(): Page<Pet>;
+```
+
+
 ### `@format` {#@format}
 
 Specify a known data format hint for this string type. For example `uuid`, `uri`, etc.
@@ -400,11 +456,41 @@ enum KnownErrorCode {
 ```
 
 
+### `@lastLink` {#@lastLink}
+
+Pagination property defining a link to the last page.
+
+It is expected that navigating to the link will return the same set of responses as the operation that returned the current page.
+```typespec
+@lastLink
+```
+
+#### Target
+
+`ModelProperty`
+
+#### Parameters
+None
+
+#### Examples
+
+```tsp
+model Page<T> {
+  @pageItems items: T[];
+  @nextLink next: url;
+  @prevLink prev: url;
+  @firstLink first: url;
+  @lastLink last: url;
+}
+@list op listPets(): Page<Pet>;
+```
+
+
 ### `@list` {#@list}
 
-Mark this operation as a `list` operation for resource types.
+Mark this operation as a `list` operation that returns a paginated list of items.
 ```typespec
-@list(listedType?: Model)
+@list
 ```
 
 #### Target
@@ -412,9 +498,7 @@ Mark this operation as a `list` operation for resource types.
 `Operation`
 
 #### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| listedType | `Model` | Optional type of the items in the list. |
+None
 
 
 
@@ -612,6 +696,60 @@ scalar distance is float64;
 ```
 
 
+### `@nextLink` {#@nextLink}
+
+Pagination property defining a link to the next page.
+
+It is expected that navigating to the link will return the same set of responses as the operation that returned the current page.
+```typespec
+@nextLink
+```
+
+#### Target
+
+`ModelProperty`
+
+#### Parameters
+None
+
+#### Examples
+
+```tsp
+model Page<T> {
+  @pageItems items: T[];
+  @nextLink next: url;
+  @prevLink prev: url;
+  @firstLink first: url;
+  @lastLink last: url;
+}
+@list op listPets(): Page<Pet>;
+```
+
+
+### `@offset` {#@offset}
+
+Pagination property defining the number of items to skip.
+```typespec
+@offset
+```
+
+#### Target
+
+`ModelProperty`
+
+#### Parameters
+None
+
+#### Examples
+
+```tsp
+model Page<T> {
+  @pageItems items: T[];
+}
+@list op listPets(@offset skip: int32, @pageSize pageSize: int8): Page<Pet>;
+```
+
+
 ### `@opExample` {#@opExample}
 
 Provide example values for an operation's parameters and corresponding return type.
@@ -664,6 +802,78 @@ op uploadBytes(data: bytes, @header contentType: "application/octet-stream"): vo
 ```
 
 
+### `@pageIndex` {#@pageIndex}
+
+Pagination property defining the page index.
+```typespec
+@pageIndex
+```
+
+#### Target
+
+`ModelProperty`
+
+#### Parameters
+None
+
+#### Examples
+
+```tsp
+model Page<T> {
+  @pageItems items: T[];
+}
+@list op listPets(@pageIndex page: int32, @pageSize pageSize: int8): Page<Pet>;
+```
+
+
+### `@pageItems` {#@pageItems}
+
+Specify the the property that contains the array of page items.
+```typespec
+@pageItems
+```
+
+#### Target
+
+`ModelProperty`
+
+#### Parameters
+None
+
+#### Examples
+
+```tsp
+model Page<T> {
+  @pageItems items: T[];
+}
+@list op listPets(@pageIndex page: int32, @pageSize pageSize: int8): Page<Pet>;
+```
+
+
+### `@pageSize` {#@pageSize}
+
+Specify the pagination parameter that controls the maximum number of items to include in a page.
+```typespec
+@pageSize
+```
+
+#### Target
+
+`ModelProperty`
+
+#### Parameters
+None
+
+#### Examples
+
+```tsp
+model Page<T> {
+  @pageItems items: T[];
+}
+@list op listPets(@pageIndex page: int32, @pageSize pageSize: int8): Page<Pet>;
+```
+
+
 ### `@parameterVisibility` {#@parameterVisibility}
 
 Sets which visibilities apply to parameters for the given operation.
@@ -711,6 +921,36 @@ validates a GUID string might have a message like "Must be a valid GUID."
 ```typespec
 @pattern("[a-z]+", "Must be a string consisting of only lower case letters and of at least one character.")
 scalar LowerAlpha extends string;
+```
+
+
+### `@prevLink` {#@prevLink}
+
+Pagination property defining a link to the previous page.
+
+It is expected that navigating to the link will return the same set of responses as the operation that returned the current page.
+```typespec
+@prevLink
+```
+
+#### Target
+
+`ModelProperty`
+
+#### Parameters
+None
+
+#### Examples
+
+```tsp
+model Page<T> {
+  @pageItems items: T[];
+  @nextLink next: url;
+  @prevLink prev: url;
+  @firstLink first: url;
+  @lastLink last: url;
+}
+@list op listPets(): Page<Pet>;
 ```
 
 

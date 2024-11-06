@@ -498,12 +498,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                     [
                         InputFactory.Operation(
                             "TestOperation",
-                            uri: "{endpoint}/{apiVersion}",
-                            parameters:
-                            [
-                                endpointParameter,
-                                stringApiVersionParameter
-                            ])
+                            uri: "{endpoint}/{apiVersion}")
                     ],
                     parameters: [
                         endpointParameter,
@@ -517,10 +512,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                     [
                         InputFactory.Operation(
                         "TestOperation",
-                        parameters: [
-                            endpointParameter,
-                            enumApiVersionParameter
-                        ],
                         uri: "{endpoint}/{apiVersion}")
                     ],
                     parameters: [
