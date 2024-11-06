@@ -117,8 +117,8 @@ model TagMetadata {
 
   /** An external Docs information of the API. */
   externalDocs?: ExternalDocs;
-  
-  /** Attach some custom data, The extension key must start with `x-` */
+
+  /** Attach some custom data, The extension key must start with `x-`. */
   ...Record<unknown>;
 }
 
@@ -130,7 +130,7 @@ model ExternalDocs {
   /** Optional description */
   description?: string;
 
-  /** Attach some custom data, The extension key must start with `x-` */
+  /** Attach some custom data, The extension key must start with `x-`. */
   ...Record<unknown>;
 }
 
