@@ -79,7 +79,7 @@ export interface Mutator {
  * @experimental - This is a type that extends Mutator with a Namespace property.
  */
 export type MutatorWithNamespace = Mutator & {
-  Namespace?: MutatorRecord<Namespace>;
+  Namespace: MutatorRecord<Namespace>;
 };
 
 /** @experimental */
@@ -112,7 +112,11 @@ const seen = new CustomKeyMap<[MutableType, Set<Mutator> | Mutator[]], Type>(([t
   return key;
 });
 
-/** @experimental */
+/**
+ * Mutate the type graph with some namespace mutation.
+ * **Warning** this will most likely endup mutating the entire TypeGraph as every type relate to namespace in some way or another causing parent navigation which in turn would mutate everything in that namespace.
+ * @experimental
+ */
 export function mutateSubgraphWithNamespace<T extends MutableTypeWithNamespace>(
   program: Program,
   mutators: MutatorWithNamespace[],
