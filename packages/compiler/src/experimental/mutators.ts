@@ -73,8 +73,14 @@ export interface Mutator {
   ScalarConstructor?: MutatorRecord<ScalarConstructor>;
   StringTemplate?: MutatorRecord<StringTemplate>;
   StringTemplateSpan?: MutatorRecord<StringTemplateSpan>;
-  Namespace?: MutatorRecord<Namespace>;
 }
+
+/**
+ * @experimental - This is a type that extends Mutator with a Namespace property.
+ */
+export type MutatorWithNamespace = Mutator & {
+  Namespace: MutatorRecord<Namespace>;
+};
 
 /** @experimental */
 export enum MutatorFlow {
@@ -93,7 +99,10 @@ export type MutableType = Exclude<
   | FunctionParameter
   | ObjectType
   | Projection
+  | Namespace
 >;
+/** @experimental */
+export type MutableTypeWithNamespace = MutableType | Namespace;
 const typeId = CustomKeyMap.objectKeyer();
 const mutatorId = CustomKeyMap.objectKeyer();
 const seen = new CustomKeyMap<[MutableType, Set<Mutator> | Mutator[]], Type>(([type, mutators]) => {
@@ -102,6 +111,21 @@ const seen = new CustomKeyMap<[MutableType, Set<Mutator> | Mutator[]], Type>(([t
     .join("-")}`;
   return key;
 });
+
+/**
+ * Mutate the type graph with some namespace mutation.
+ * **Warning** this will most likely end up mutating the entire TypeGraph
+ * as every type relate to namespace in some way or another
+ * causing parent navigation which in turn would mutate everything in that namespace.
+ * @experimental
+ */
+export function mutateSubgraphWithNamespace<T extends MutableTypeWithNamespace>(
+  program: Program,
+  mutators: MutatorWithNamespace[],
+  type: T,
+): { realm: Realm | null; type: MutableTypeWithNamespace } {
+  return mutateSubgraph(program, mutators, type as any);
+}
 
 /** @experimental */
 export function mutateSubgraph<T extends MutableType>(
