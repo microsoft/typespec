@@ -15,7 +15,6 @@ if (!releaseDate) {
 }
 
 if (!last.data.version) {
-  const today = new Date();
   throw new Error(
     [
       "Last release notes should have a version: property in frontmatter. For example:",
@@ -59,7 +58,7 @@ import Link from "@typespec/astro-utils/components/link.astro";
 
 <Link
   class="new-version-banner"
-  href={last.slug}
+  href={"/" + last.slug}
   data-releasedate={last.data.releaseDate!.toISOString()}
 >
   Version {last.data.version} is now available!
