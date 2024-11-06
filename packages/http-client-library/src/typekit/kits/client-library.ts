@@ -1,4 +1,11 @@
-import { Enum, getLocationContext, listServices, Model, Namespace } from "@typespec/compiler";
+import {
+  Enum,
+  getLocationContext,
+  Interface,
+  listServices,
+  Model,
+  Namespace,
+} from "@typespec/compiler";
 import { $, defineKit } from "@typespec/compiler/typekit";
 import { Client } from "../../interfaces.js";
 
@@ -54,25 +61,38 @@ defineKit<Typekit>({
     },
     listClients(type) {
       // if there is no explicit client, we will treat namespaces with service decorator as clients
-      let services = listServices($.program);
-      if (type.kind === "Client") {
-        const subnamespaces =
-          type.type.kind === "Namespace" ? $.clientLibrary.listNamespaces(type.type) : [];
-        services = services.filter((service) => subnamespaces.includes(service.type));
-      } else {
-        services = services.filter((service) => service.type === type);
+      function getClientName(name: string): string {
+        return name.endsWith("Client") ? name : `${name}Client`;
       }
-      const clients: Client[] = services.map((service) => {
-        let name = service.type.name;
-        name = name.endsWith("Client") ? name : `${name}Client`;
-        return {
-          kind: "Client",
-          name,
-          service: service.type,
-          type: service.type,
-        };
-      });
-      return clients;
+      if (type.kind === "Client") {
+        const clientType = type.type;
+        const clientIsNamespace = clientType.kind === "Namespace";
+        if (!clientIsNamespace) {
+          return [];
+        }
+        const subnamespaces: (Namespace | Interface)[] = [
+          ...$.clientLibrary.listNamespaces(clientType),
+          ...clientType.interfaces.values(),
+        ];
+        return subnamespaces.map((sn) => {
+          return {
+            kind: "Client",
+            name: getClientName(sn.name),
+            service: sn,
+            type: sn,
+          } as Client;
+        });
+      }
+      return listServices($.program)
+        .filter((i) => i.type === type)
+        .map((service) => {
+          return {
+            kind: "Client",
+            name: getClientName(service.type.name),
+            service: service.type,
+            type: service.type,
+          };
+        });
     },
     listModels(namespace) {
       const allModels = [...namespace.models.values()];

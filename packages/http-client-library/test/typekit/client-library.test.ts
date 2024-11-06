@@ -64,9 +64,6 @@ describe("listClients", () => {
         title: "Widget Service",
       })
       @test namespace DemoService {
-        @service({
-          title: "Nested Service",
-        })
         namespace NestedService {};
       }
       `)) as { DemoService: Namespace };
