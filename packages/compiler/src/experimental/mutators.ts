@@ -114,7 +114,9 @@ const seen = new CustomKeyMap<[MutableType, Set<Mutator> | Mutator[]], Type>(([t
 
 /**
  * Mutate the type graph with some namespace mutation.
- * **Warning** this will most likely endup mutating the entire TypeGraph as every type relate to namespace in some way or another causing parent navigation which in turn would mutate everything in that namespace.
+ * **Warning** this will most likely end up mutating the entire TypeGraph
+ * as every type relate to namespace in some way or another
+ * causing parent navigation which in turn would mutate everything in that namespace.
  * @experimental
  */
 export function mutateSubgraphWithNamespace<T extends MutableTypeWithNamespace>(
