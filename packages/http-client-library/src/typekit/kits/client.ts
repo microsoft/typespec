@@ -45,8 +45,7 @@ declare module "@typespec/compiler/typekit" {
 defineKit<TypeKit>({
   client: {
     getName(client) {
-      const name = client.name;
-      return name.endsWith("Client") ? name : `${name}Client`;
+      return client.name;
     },
     getParameters(client) {
       const params: ModelProperty[] = [addEndpointParameter(client)];

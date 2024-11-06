@@ -73,10 +73,11 @@ defineKit<Typekit>({
       const clients: Client[] = services
         .filter((x) => x.type === namespace)
         .map((service) => {
-          const clientName = this.client.getName(service.type);
+          let name = service.type.name;
+          name = name.endsWith("Client") ? name : `${name}Client`;
           return {
             kind: "Client",
-            name: clientName,
+            name,
             service: service.type,
             type: service.type,
           };
