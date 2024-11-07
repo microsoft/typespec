@@ -164,9 +164,10 @@ namespace Microsoft.Generator.CSharp.Providers
                 return false;
             }
 
+            // At this point, we know that we are dealing with an Input model.
             // If the property is required and is not on a round-trip model, it doesn't need a setter.
             // This is because required input-only properties are settable via constructor.
-            if (inputProperty.IsRequired && !inputProperty.EnclosingType!.Usage.HasFlag(InputModelTypeUsage.Input | InputModelTypeUsage.Output))
+            if (inputProperty.IsRequired && !inputProperty.EnclosingType!.Usage.HasFlag(InputModelTypeUsage.Output))
             {
                 return false;
             }
