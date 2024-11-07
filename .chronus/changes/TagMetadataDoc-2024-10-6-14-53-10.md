@@ -4,4 +4,4 @@ packages:
   - "@typespec/openapi"
 ---
 
-Update Docs for @tagMetadata
+Update Docs for `@tagMetadata`
