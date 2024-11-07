@@ -159,8 +159,7 @@ namespace Microsoft.Generator.CSharp.Providers
             }
 
             // Output-only properties don't need setters.
-            if (inputProperty.EnclosingType!.Usage.HasFlag(InputModelTypeUsage.Output) &&
-                !inputProperty.EnclosingType.Usage.HasFlag(InputModelTypeUsage.Input))
+            if (!inputProperty.EnclosingType!.Usage.HasFlag(InputModelTypeUsage.Input))
             {
                 return false;
             }
