@@ -70,6 +70,7 @@ const sidebar: SidebarItem[] = [
       "language-basics/imports",
       "language-basics/namespaces",
       "language-basics/decorators",
+      "language-basics/directives",
       "language-basics/documentation",
       "language-basics/scalars",
       "language-basics/models",

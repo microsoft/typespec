@@ -173,7 +173,7 @@ export type ErrorsDocDecorator = (
  *
  * NOTE: This decorator **should not** be used, use the `#deprecated` directive instead.
  *
- * @deprecated Use the `#deprecated` directive instead.
+ * @deprecated Use the `#deprecated` [directive](https://typespec.io/docs/language-basics/directives/#deprecated) instead.
  * @param message Deprecation message.
  * @example
  * Use the `#deprecated` directive instead:
