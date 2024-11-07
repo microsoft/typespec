@@ -50,6 +50,7 @@ namespace UnbrandedTypeSpec.Models
         public bool Equals(ThingOptionalLiteralString other) => string.Equals(_value, other._value, StringComparison.InvariantCultureIgnoreCase);
 
         /// <inheritdoc/>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override int GetHashCode() => _value != null ? StringComparer.InvariantCultureIgnoreCase.GetHashCode(_value) : 0;
 
         /// <inheritdoc/>

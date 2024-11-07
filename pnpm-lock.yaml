@@ -74,6 +74,9 @@ importers:
       picocolors:
         specifier: ~1.1.0
         version: 1.1.0
+      playwright:
+        specifier: ^1.48.2
+        version: 1.48.2
       prettier:
         specifier: ~3.3.3
         version: 3.3.3
@@ -2073,7 +2076,7 @@ importers:
         version: 0.37.0(astro@4.16.8(@types/node@22.7.5)(rollup@4.24.0)(terser@5.34.1)(typescript@5.6.3))
       rehype-mermaid:
         specifier: ^3.0.0
-        version: 3.0.0(playwright@1.48.0)
+        version: 3.0.0(playwright@1.48.2)
       remark-heading-id:
         specifier: ^1.0.1
         version: 1.0.1
@@ -9755,8 +9758,18 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
+  playwright-core@1.48.2:
+    resolution: {integrity: sha512-sjjw+qrLFlriJo64du+EK0kJgZzoQPsabGF4lBvsid+3CNIZIYLgnMj9V6JY5VhM2Peh20DJWIVpVljLLnlawA==}
+    engines: {node: '>=18'}
+    hasBin: true
+
   playwright@1.48.0:
     resolution: {integrity: sha512-qPqFaMEHuY/ug8o0uteYJSRfMGFikhUysk8ZvAtfKmUK3kc/6oNl/y3EczF8OFGYIi/Ex2HspMfzYArk6+XQSA==}
+    engines: {node: '>=18'}
+    hasBin: true
+
+  playwright@1.48.2:
+    resolution: {integrity: sha512-NjYvYgp4BPmiwfe31j4gHLa3J7bD2WiBz8Lk2RoSsmX38SVIARZ18VYjxLjAcDsAhA+F4iSEXTSGgjua0rrlgQ==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -20982,12 +20995,12 @@ snapshots:
 
   merge2@1.4.1: {}
 
-  mermaid-isomorphic@3.0.0(playwright@1.48.0):
+  mermaid-isomorphic@3.0.0(playwright@1.48.2):
     dependencies:
       '@fortawesome/fontawesome-free': 6.6.0
       mermaid: 11.3.0
     optionalDependencies:
-      playwright: 1.48.0
+      playwright: 1.48.2
     transitivePeerDependencies:
       - supports-color
 
@@ -21995,9 +22008,17 @@ snapshots:
 
   playwright-core@1.48.0: {}
 
+  playwright-core@1.48.2: {}
+
   playwright@1.48.0:
     dependencies:
       playwright-core: 1.48.0
+    optionalDependencies:
+      fsevents: 2.3.2
+
+  playwright@1.48.2:
+    dependencies:
+      playwright-core: 1.48.2
     optionalDependencies:
       fsevents: 2.3.2
 
@@ -22426,19 +22447,19 @@ snapshots:
       '@types/hast': 3.0.4
       hast-util-format: 1.1.0
 
-  rehype-mermaid@3.0.0(playwright@1.48.0):
+  rehype-mermaid@3.0.0(playwright@1.48.2):
     dependencies:
       '@types/hast': 3.0.4
       hast-util-from-html-isomorphic: 2.0.0
       hast-util-to-text: 4.0.2
-      mermaid-isomorphic: 3.0.0(playwright@1.48.0)
+      mermaid-isomorphic: 3.0.0(playwright@1.48.2)
       mini-svg-data-uri: 1.4.4
       space-separated-tokens: 2.0.2
       unified: 11.0.5
       unist-util-visit-parents: 6.0.1
       vfile: 6.0.3
     optionalDependencies:
-      playwright: 1.48.0
+      playwright: 1.48.2
     transitivePeerDependencies:
       - supports-color
 
