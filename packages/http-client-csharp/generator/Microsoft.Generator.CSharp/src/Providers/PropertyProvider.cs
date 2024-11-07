@@ -158,7 +158,8 @@ namespace Microsoft.Generator.CSharp.Providers
                 return false;
             }
 
-            if (!inputProperty.EnclosingType!.Usage.HasFlag(InputModelTypeUsage.Input))
+            // If the property is not on a round-trip model, it doesn't need a setter. Input-only properties are settable via constructor.
+            if (!inputProperty.EnclosingType!.Usage.HasFlag(InputModelTypeUsage.Input | InputModelTypeUsage.Output))
             {
                 return false;
             }
@@ -168,7 +169,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 return false;
             }
 
-            if (type.IsCollection && !type.IsReadOnlyMemory)
+            if (type is { IsCollection: true, IsReadOnlyMemory: false })
             {
                 return type.IsNullable;
             }
