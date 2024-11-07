@@ -6,6 +6,7 @@ package com.microsoft.typespec.http.client.generator.core.template;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Annotation;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientAccessorMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Constructor;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodGroupClient;
@@ -319,6 +320,8 @@ public class ServiceClientTemplate implements IJavaTemplate<ServiceClient, JavaF
 
             this.writeAdditionalClassBlock(classBlock);
 
+            writeClientAccessorMethods(classBlock, serviceClient.getClientAccessorMethods());
+
             if (settings.isUseClientLogger()) {
                 TemplateUtil.addClientLogger(classBlock, serviceClient.getClassName(), javaFile.getContents());
             }
@@ -366,5 +369,52 @@ public class ServiceClientTemplate implements IJavaTemplate<ServiceClient, JavaF
      * @param classBlock the class block.
      */
     protected void writeAdditionalClassBlock(JavaClass classBlock) {
+    }
+
+    private static void writeClientAccessorMethods(JavaClass classBlock,
+        List<ClientAccessorMethod> clientAccessorMethods) {
+        for (ClientAccessorMethod clientAccessorMethod : clientAccessorMethods) {
+            final String subClientName = clientAccessorMethod.getSubClient().getClassName();
+            final List<ServiceClientProperty> accessorProperties = clientAccessorMethod.getAccessorProperties();
+            final List<String> arguments = new ArrayList<>();
+
+            // pre-defined properties like "httpPipeline"
+            List<Constructor> parentConstructors = clientAccessorMethod.getServiceClient().getConstructors();
+            // take the last, which is the maximum overload
+            Constructor parentConstructor
+                = clientAccessorMethod.getServiceClient().getConstructors().get(parentConstructors.size() - 1);
+            for (ClientMethodParameter parameter : parentConstructor.getParameters()) {
+                arguments.add("this." + parameter.getName());
+            }
+            // other properties from parent client
+            for (ServiceClientProperty property : clientAccessorMethod.getServiceClient().getProperties()) {
+                if (!property.isReadOnly()) {
+                    arguments.add("this." + property.getName());
+                }
+            }
+            // properties from method
+            for (ServiceClientProperty property : accessorProperties) {
+                arguments.add(property.getName());
+            }
+
+            classBlock.javadocComment(comment -> {
+                comment.description("Gets an instance of " + subClientName + " class.");
+                for (ServiceClientProperty property : accessorProperties) {
+                    comment.param(property.getName(), property.getDescription());
+                }
+                comment.methodReturns("an instance of " + subClientName + "class");
+            });
+            classBlock.publicMethod(clientAccessorMethod.getDeclaration(), method -> {
+                for (ServiceClientProperty property : accessorProperties) {
+                    if (property.isRequired()) {
+                        method.line("Objects.requireNonNull(" + property.getName() + ", \"'" + property.getName()
+                            + "' cannot be null.\");");
+                    }
+                }
+
+                method.methodReturn(
+                    "new " + subClientName + "(" + arguments.stream().collect(Collectors.joining(", ")) + ")");
+            });
+        }
     }
 }

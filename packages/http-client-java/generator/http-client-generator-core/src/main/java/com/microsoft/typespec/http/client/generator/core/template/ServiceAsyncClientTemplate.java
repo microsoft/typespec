@@ -221,16 +221,20 @@ public class ServiceAsyncClientTemplate implements IJavaTemplate<AsyncSyncClient
             List<ServiceClientProperty> accessorProperties = clientAccessorMethod.getAccessorProperties();
             String subClientClassName = clientAccessorMethod.getAsyncSyncClientName(isAsync);
 
+            String serviceClientMethodCall = "serviceClient." + clientAccessorMethod.getName() + "("
+                + accessorProperties.stream().map(ServiceClientProperty::getName).collect(Collectors.joining(", "))
+                + ")";
+
             // expect all properties are required, so no overload
             classBlock.javadocComment(comment -> {
-                comment.description("Gets the " + subClientClassName + ".");
+                comment.description("Gets an instance of " + subClientClassName + " class.");
                 for (ServiceClientProperty property : accessorProperties) {
                     comment.param(property.getName(), property.getDescription());
                 }
-                comment.methodReturns("the " + subClientClassName);
+                comment.methodReturns("an instance of " + subClientClassName + "class");
             });
             classBlock.publicMethod(clientAccessorMethod.getAsyncSyncClientDeclaration(isAsync), method -> {
-                method.methodReturn("null");
+                method.methodReturn("new " + subClientClassName + "(" + serviceClientMethodCall + ")");
             });
         }
     }

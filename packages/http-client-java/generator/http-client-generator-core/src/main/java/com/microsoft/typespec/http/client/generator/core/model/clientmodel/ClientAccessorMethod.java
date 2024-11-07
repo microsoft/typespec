@@ -21,7 +21,7 @@ public class ClientAccessorMethod {
     private ServiceClient serviceClient;
 
     /**
-     * Initializes the ClientAccessorMethod
+     * Initializes the ClientAccessorMethod.
      *
      * @param subClient the ServiceClient of the sub client
      */
@@ -30,12 +30,30 @@ public class ClientAccessorMethod {
     }
 
     /**
-     * Sets the ServiceClient
+     * Sets the ServiceClient containing this accessor method.
      *
      * @param serviceClient the ServiceClient containing this accessor method
      */
     public void setServiceClient(ServiceClient serviceClient) {
         this.serviceClient = serviceClient;
+    }
+
+    /**
+     * Gets the ServiceClient containing this accessor method.
+     *
+     * @return the ServiceClient containing this accessor method
+     */
+    public ServiceClient getServiceClient() {
+        return serviceClient;
+    }
+
+    /**
+     * Gets the sub ServiceClient.
+     *
+     * @return the sub ServiceClient
+     */
+    public ServiceClient getSubClient() {
+        return subClient;
     }
 
     public List<ServiceClientProperty> getAccessorProperties() {
@@ -67,8 +85,17 @@ public class ClientAccessorMethod {
         }
     }
 
+    public String getName() {
+        return "get" + subClient.getClientBaseName();
+    }
+
     public String getDeclaration() {
-        return null;
+        String subClientClassName = subClient.getClassName();
+        List<ServiceClientProperty> additionalProperties = this.getAccessorProperties();
+
+        return subClientClassName + " " + getName() + "("
+            + additionalProperties.stream().map(p -> p.getType() + " " + p.getName()).collect(Collectors.joining(", "))
+            + ")";
     }
 
     public String getAsyncSyncClientName(boolean isAsync) {
