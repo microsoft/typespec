@@ -207,23 +207,7 @@ function groupModifiersByVisibilityClass(modifiers: EnumMember[]): Map<Enum, Set
 const [getLegacyVisibility, setLegacyVisibilityModifiers, getLegacyVisibilityStateMap] =
   useStateMap<ModelProperty, string[]>("legacyVisibility");
 
-// const [getLegacyVisibilityIsExplicit, _setLegacyVisibilityIsExplicit] = useStateSet<ModelProperty>(
-//   "legacyVisibilityIsExplicit",
-// );
-
-// /**
-//  * Sets a flag indicating that legacy visibility modifiers should be considered "explicitly initialized."
-//  *
-//  * This is used to differentiate between legacy visibility cases where visibility is _not_ set, and legacy
-//  * `getVisibility` should return `undefined` and cases where visibility is set to an empty array, and legacy
-//  * visibility should return `[]`.
-//  *
-//  * @param context - the decorator context to use
-//  * @param property - the property to set the flag for
-//  */
-// export function setLegacyVisibilityIsExplicit(program: Program, property: ModelProperty) {
-//   _setLegacyVisibilityIsExplicit(program, property);
-// }
+export { getLegacyVisibility };
 
 /**
  * Sets the legacy visibility modifiers for a property.
@@ -243,26 +227,23 @@ export function setLegacyVisibility(
   visibilities: string[],
 ) {
   const { program } = context;
-  compilerAssert(
-    getLegacyVisibility(program, property) === undefined,
-    "Legacy visibility modifiers have already been set for this property.",
-  );
 
   setLegacyVisibilityModifiers(program, property, visibilities);
 
   const lifecycleClass = getLifecycleVisibilityEnum(program);
 
-  if (visibilities.length === 0 || (visibilities.length === 1 && visibilities[0] === "none")) {
-    clearVisibilityModifiersForClass(program, property, lifecycleClass, context);
-  } else {
+  clearVisibilityModifiersForClass(program, property, lifecycleClass, context);
+
+  const isEmpty =
+    visibilities.length === 0 || (visibilities.length === 1 && visibilities[0] === "none");
+
+  if (!isEmpty) {
     const lifecycleVisibilities = visibilities
       .map((v) => normalizeLegacyLifecycleVisibilityString(program, v))
       .filter((v) => !!v);
 
     addVisibilityModifiers(program, property, lifecycleVisibilities);
   }
-
-  sealVisibilityModifiers(program, property, lifecycleClass);
 }
 
 /**

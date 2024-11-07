@@ -3,9 +3,9 @@
 
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { Enum, Model, ModelProperty } from "../../src/core/types.js";
+import { DecoratorContext, Enum, Model, ModelProperty } from "../../src/core/types.js";
 import { getVisibility, getVisibilityForClass } from "../../src/core/visibility/core.js";
-import { getLifecycleVisibilityEnum } from "../../src/index.js";
+import { $visibility, getLifecycleVisibilityEnum } from "../../src/index.js";
 import { BasicTestRunner, createTestRunner } from "../../src/testing/index.js";
 
 function assertSetsEqual<T>(a: Set<T>, b: Set<T>): void {
@@ -99,6 +99,25 @@ describe("visibility (legacy)", function () {
         "read",
         "update",
       ]);
+    });
+
+    it("allows overriding legacy visibility", async () => {
+      const { Example } = (await runner.compile(`
+        @test model Example {
+          @visibility("read")
+          name: string
+        }
+        `)) as { Example: Model };
+
+      const name = Example.properties.get("name")!;
+
+      const decCtx = {
+        program: runner.program,
+      } as DecoratorContext;
+
+      $visibility(decCtx, name, "create");
+
+      deepStrictEqual(getVisibility(runner.program, name), ["create"]);
     });
   });
 });

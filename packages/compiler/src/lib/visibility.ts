@@ -35,6 +35,7 @@ import {
   clearLegacyVisibility,
   clearVisibilityModifiersForClass,
   GeneratedVisibilityFilter,
+  getLegacyVisibility,
   getVisibility,
   isVisible,
   removeVisibilityModifiers,
@@ -256,6 +257,12 @@ export const $visibility: VisibilityDecorator = (
     // assertion will fail inside the legacy visibility management API.
     if (isUnique) setLegacyVisibility(context, target, legacyVisibilities);
   } else {
+    if (getLegacyVisibility(context.program, target)) {
+      reportDiagnostic(context.program, {
+        code: "visibility-mixed-legacy",
+        target: context.decoratorTarget,
+      });
+    }
     addVisibilityModifiers(context.program, target, modifiers, context);
   }
 };

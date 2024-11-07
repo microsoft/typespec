@@ -8,6 +8,7 @@ import {
   $visibility,
   addVisibilityModifiers,
   clearVisibilityModifiersForClass,
+  DecoratorContext,
   Enum,
   getLifecycleVisibilityEnum,
   getVisibilityForClass,
@@ -667,6 +668,52 @@ describe("compiler: visibility core", () => {
       const legacyVisibility = getVisibility(runner.program, x);
 
       deepStrictEqual(legacyVisibility, []);
+    });
+
+    it("correctly coerces visibility modifiers after rewriting", async () => {
+      const { Example } = (await runner.compile(`
+        @test model Example {
+          @visibility("create")
+          x: string;
+        }
+      `)) as { Example: Model };
+
+      const x = Example.properties.get("x")!;
+
+      const LifecycleEnum = getLifecycleVisibilityEnum(runner.program);
+
+      const visibility = getVisibilityForClass(runner.program, x, LifecycleEnum);
+
+      strictEqual(visibility.size, 1);
+
+      const Lifecycle = {
+        Create: LifecycleEnum.members.get("Create")!,
+        Read: LifecycleEnum.members.get("Read")!,
+        Update: LifecycleEnum.members.get("Update")!,
+      };
+
+      ok(visibility.has(Lifecycle.Create));
+      ok(!visibility.has(Lifecycle.Read));
+      ok(!visibility.has(Lifecycle.Update));
+
+      const legacyVisibility = getVisibility(runner.program, x);
+
+      deepStrictEqual(legacyVisibility, ["create"]);
+
+      // Now change the visibility imperatively using the legacy API
+      $visibility({ program: runner.program } as DecoratorContext, x, "read");
+
+      const updatedVisibility = getVisibilityForClass(runner.program, x, LifecycleEnum);
+
+      strictEqual(updatedVisibility.size, 1);
+
+      ok(!updatedVisibility.has(Lifecycle.Create));
+      ok(updatedVisibility.has(Lifecycle.Read));
+      ok(!updatedVisibility.has(Lifecycle.Update));
+
+      const updatedLegacyVisibility = getVisibility(runner.program, x);
+
+      deepStrictEqual(updatedLegacyVisibility, ["read"]);
     });
   });
 
