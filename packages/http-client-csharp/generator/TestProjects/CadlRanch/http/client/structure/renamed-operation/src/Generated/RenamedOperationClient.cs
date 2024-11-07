@@ -20,25 +20,25 @@ namespace Client.Structure.Service.Renamed.Operation
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult RenamedOne(RequestOptions options = null) => throw null;
+        public virtual ClientResult RenamedOne(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> RenamedOneAsync(RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> RenamedOneAsync(RequestOptions options) => throw null;
 
         public virtual ClientResult RenamedOne() => throw null;
 
         public virtual Task<ClientResult> RenamedOneAsync() => throw null;
 
-        public virtual ClientResult RenamedThree(RequestOptions options = null) => throw null;
+        public virtual ClientResult RenamedThree(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> RenamedThreeAsync(RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> RenamedThreeAsync(RequestOptions options) => throw null;
 
         public virtual ClientResult RenamedThree() => throw null;
 
         public virtual Task<ClientResult> RenamedThreeAsync() => throw null;
 
-        public virtual ClientResult RenamedFive(RequestOptions options = null) => throw null;
+        public virtual ClientResult RenamedFive(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> RenamedFiveAsync(RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> RenamedFiveAsync(RequestOptions options) => throw null;
 
         public virtual ClientResult RenamedFive() => throw null;
 

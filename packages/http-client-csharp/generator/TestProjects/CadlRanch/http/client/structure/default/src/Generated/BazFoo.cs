@@ -14,9 +14,9 @@ namespace Client.Structure.Service.Default
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult Seven(RequestOptions options = null) => throw null;
+        public virtual ClientResult Seven(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> SevenAsync(RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> SevenAsync(RequestOptions options) => throw null;
 
         public virtual ClientResult Seven() => throw null;
 

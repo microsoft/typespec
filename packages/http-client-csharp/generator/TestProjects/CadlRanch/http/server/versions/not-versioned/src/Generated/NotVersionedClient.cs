@@ -19,25 +19,25 @@ namespace Server.Versions.NotVersioned
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult WithoutApiVersion(RequestOptions options = null) => throw null;
+        public virtual ClientResult WithoutApiVersion(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> WithoutApiVersionAsync(RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> WithoutApiVersionAsync(RequestOptions options) => throw null;
 
         public virtual ClientResult WithoutApiVersion() => throw null;
 
         public virtual Task<ClientResult> WithoutApiVersionAsync() => throw null;
 
-        public virtual ClientResult WithQueryApiVersion(string apiVersion, RequestOptions options = null) => throw null;
+        public virtual ClientResult WithQueryApiVersion(string apiVersion, RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> WithQueryApiVersionAsync(string apiVersion, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> WithQueryApiVersionAsync(string apiVersion, RequestOptions options) => throw null;
 
         public virtual ClientResult WithQueryApiVersion(string apiVersion) => throw null;
 
         public virtual Task<ClientResult> WithQueryApiVersionAsync(string apiVersion) => throw null;
 
-        public virtual ClientResult WithPathApiVersion(string apiVersion, RequestOptions options = null) => throw null;
+        public virtual ClientResult WithPathApiVersion(string apiVersion, RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> WithPathApiVersionAsync(string apiVersion, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> WithPathApiVersionAsync(string apiVersion, RequestOptions options) => throw null;
 
         public virtual ClientResult WithPathApiVersion(string apiVersion) => throw null;
 

@@ -14,33 +14,33 @@ namespace Encode.Datetime
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult Default(RequestOptions options = null) => throw null;
+        public virtual ClientResult Default(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> DefaultAsync(RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> DefaultAsync(RequestOptions options) => throw null;
 
         public virtual ClientResult Default() => throw null;
 
         public virtual Task<ClientResult> DefaultAsync() => throw null;
 
-        public virtual ClientResult Rfc3339(RequestOptions options = null) => throw null;
+        public virtual ClientResult Rfc3339(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> Rfc3339Async(RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> Rfc3339Async(RequestOptions options) => throw null;
 
         public virtual ClientResult Rfc3339() => throw null;
 
         public virtual Task<ClientResult> Rfc3339Async() => throw null;
 
-        public virtual ClientResult Rfc7231(RequestOptions options = null) => throw null;
+        public virtual ClientResult Rfc7231(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> Rfc7231Async(RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> Rfc7231Async(RequestOptions options) => throw null;
 
         public virtual ClientResult Rfc7231() => throw null;
 
         public virtual Task<ClientResult> Rfc7231Async() => throw null;
 
-        public virtual ClientResult UnixTimestamp(RequestOptions options = null) => throw null;
+        public virtual ClientResult UnixTimestamp(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> UnixTimestampAsync(RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> UnixTimestampAsync(RequestOptions options) => throw null;
 
         public virtual ClientResult UnixTimestamp() => throw null;
 

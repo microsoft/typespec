@@ -18,17 +18,17 @@ namespace Client.Naming
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult ClientName(RequestOptions options = null) => throw null;
+        public virtual ClientResult ClientName(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> ClientNameAsync(RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> ClientNameAsync(RequestOptions options) => throw null;
 
         public virtual ClientResult ClientName() => throw null;
 
         public virtual Task<ClientResult> ClientNameAsync() => throw null;
 
-        public virtual ClientResult Parameter(string clientName, RequestOptions options = null) => throw null;
+        public virtual ClientResult Parameter(string clientName, RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> ParameterAsync(string clientName, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> ParameterAsync(string clientName, RequestOptions options) => throw null;
 
         public virtual ClientResult Parameter(string clientName) => throw null;
 
@@ -58,17 +58,17 @@ namespace Client.Naming
 
         public virtual Task<ClientResult> CompatibleWithEncodedNameAsync(ClientNameAndJsonEncodedNameModel body) => throw null;
 
-        public virtual ClientResult Request(string clientName, RequestOptions options = null) => throw null;
+        public virtual ClientResult Request(string clientName, RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> RequestAsync(string clientName, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> RequestAsync(string clientName, RequestOptions options) => throw null;
 
         public virtual ClientResult Request(string clientName) => throw null;
 
         public virtual Task<ClientResult> RequestAsync(string clientName) => throw null;
 
-        public virtual ClientResult Response(RequestOptions options = null) => throw null;
+        public virtual ClientResult Response(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> ResponseAsync(RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> ResponseAsync(RequestOptions options) => throw null;
 
         public virtual ClientResult Response() => throw null;
 

@@ -384,9 +384,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             ParameterProvider requestOptionsParameter = ScmKnownParameters.RequestOptions;
-            var protocolReturnType = GetResponseType(Operation.Responses, false, isAsync, out _);
-            var convenienceReturnType = GetResponseType(Operation.Responses, true, isAsync, out _);
-            bool addOptionalRequestOptionsParameter = ShouldAddOptionalRequestOptionsParameter(protocolReturnType, convenienceReturnType);
+            bool addOptionalRequestOptionsParameter = ShouldAddOptionalRequestOptionsParameter();
 
             // construct the protocol method parameters from the create request method parameters
             ParameterProvider[] methodParameters = new ParameterProvider[MethodParameters.Count];
@@ -409,7 +407,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 isAsync ? _cleanOperationName + "Async" : _cleanOperationName,
                 FormattableStringHelpers.FromString(Operation.Description),
                 methodModifier,
-                protocolReturnType,
+                GetResponseType(Operation.Responses, false, isAsync, out _),
                 $"The response returned from the service.",
                 methodParameters);
             var processMessageName = isAsync ? "ProcessMessageAsync" : "ProcessMessage";
@@ -454,10 +452,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 : new CSharpType(ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseOfTType.FrameworkType, responseBodyType);
         }
 
-        private bool ShouldAddOptionalRequestOptionsParameter(CSharpType? protocolReturnType, CSharpType? convenienceReturnType)
+        private bool ShouldAddOptionalRequestOptionsParameter()
         {
             var convenienceMethodParameterCount = ConvenienceMethodParameters.Count;
-            if (convenienceMethodParameterCount == 0 && protocolReturnType?.Equals(convenienceReturnType) == false)
+            if (convenienceMethodParameterCount == 0)
             {
                 return false;
             }
@@ -477,7 +475,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 }
             }
 
-            return protocolReturnType?.Equals(convenienceReturnType) == true;
+            return false;
         }
     }
 }

@@ -704,6 +704,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         {
             get
             {
+                // Protocol & convenience methods will have the same parameters, so RequestOptions should be required.
                 yield return new TestCaseData(
                     InputFactory.Operation(
                         "TestOperation",
@@ -719,12 +720,24 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                                 InputPrimitiveType.Int64,
                                 location: RequestLocation.None,
                                 isRequired: true),
-                        ]), true);
+                        ]), false);
 
+                // convenience method only has a body param, so RequestOptions should be optional in protocol method.
                 yield return new TestCaseData(
                     InputFactory.Operation(
                         "TestOperation",
-                        responses: [InputFactory.OperationResponse([201], InputFactory.Model("testModel"))],
+                        parameters:
+                        [
+                             InputFactory.Parameter(
+                                "p1",
+                                InputPrimitiveType.String,
+                                location: RequestLocation.Body),
+                        ]), true);
+
+                // Protocol & convenience methods will have different parameters since there is a model body param, so RequestOptions should be optional.
+                yield return new TestCaseData(
+                    InputFactory.Operation(
+                        "TestOperation",
                         parameters:
                         [
                             InputFactory.Parameter(
@@ -739,6 +752,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                                 isRequired: true),
                         ]), true);
 
+                // Convenience method has no parameters, RequestOptions should be required in protocol method.
                 yield return new TestCaseData(
                     InputFactory.Operation(
                         "TestOperation",

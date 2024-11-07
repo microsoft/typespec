@@ -14,25 +14,25 @@ namespace Client.Structure.Service.TwoOperationGroup
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult Two(RequestOptions options = null) => throw null;
+        public virtual ClientResult Two(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> TwoAsync(RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> TwoAsync(RequestOptions options) => throw null;
 
         public virtual ClientResult Two() => throw null;
 
         public virtual Task<ClientResult> TwoAsync() => throw null;
 
-        public virtual ClientResult Five(RequestOptions options = null) => throw null;
+        public virtual ClientResult Five(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> FiveAsync(RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> FiveAsync(RequestOptions options) => throw null;
 
         public virtual ClientResult Five() => throw null;
 
         public virtual Task<ClientResult> FiveAsync() => throw null;
 
-        public virtual ClientResult Six(RequestOptions options = null) => throw null;
+        public virtual ClientResult Six(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> SixAsync(RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> SixAsync(RequestOptions options) => throw null;
 
         public virtual ClientResult Six() => throw null;
 
