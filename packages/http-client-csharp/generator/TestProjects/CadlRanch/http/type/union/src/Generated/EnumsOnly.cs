@@ -23,9 +23,9 @@ namespace _Type.Union
 
         public virtual Task<ClientResult<GetResponse3>> GetAsync() => throw null;
 
-        public virtual ClientResult Send(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult Send(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> SendAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> SendAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Send(EnumsOnlyCases prop) => throw null;
 
