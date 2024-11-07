@@ -131,7 +131,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private MethodProvider BuildCreateRequestMethod(InputOperation operation)
         {
-            var pipelineField = ((MemberExpression)ClientProvider.PipelineProperty).ToApi<ClientPipelineApi>();
+            var pipelineField = ClientProvider.PipelineProperty.ToApi<ClientPipelineApi>();
 
             var options = ScmKnownParameters.RequestOptions;
             var signature = new MethodSignature(
@@ -143,20 +143,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 [.. GetMethodParameters(operation, true), options]);
             var paramMap = new Dictionary<string, ParameterProvider>(signature.Parameters.ToDictionary(p => p.Name));
 
-            foreach (var param in ClientProvider.GetUriParameters())
+            foreach (var param in ClientProvider.GetClientParameters())
             {
                 paramMap[param.Name] = param;
-            }
-
-            /* add client-level parameter.*/
-            foreach (var inputParam in operation.Parameters)
-            {
-                if (inputParam.Kind == InputOperationParameterKind.Client && !paramMap.ContainsKey(inputParam.Name))
-                {
-                    var param = ClientModelPlugin.Instance.TypeFactory.CreateParameter(inputParam);
-                    param.Field = ClientProvider.Fields.FirstOrDefault(f => f.Name == "_" + inputParam.Name);
-                    paramMap[inputParam.Name] = param;
-                }
             }
 
             var classifier = GetClassifier(operation);
@@ -165,18 +154,18 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 signature,
                 new MethodBodyStatements(
                 [
-                    Declare("message", pipelineField.CreateMessage().ToApi<HttpMessageApi>(), out HttpMessageApi message),
-                    message.ResponseClassifier().Assign(classifier).Terminate(),
-                    Declare("request", message.Request().ToApi<HttpRequestApi>(), out HttpRequestApi request), // ScopedApi<PipelineRequest>
-                    request.SetMethod(operation.HttpMethod).Terminate(),
+                    Declare("message", pipelineField.CreateMessage(options.ToApi<HttpRequestOptionsApi>(), classifier).ToApi<HttpMessageApi>(), out HttpMessageApi message),
+                    message.ApplyResponseClassifier(classifier.ToApi<StatusCodeClassifierApi>()),
+                    Declare("request", message.Request().ToApi<HttpRequestApi>(), out HttpRequestApi request),
+                    request.SetMethod(operation.HttpMethod),
                     Declare("uri", New.Instance<ClientUriBuilderDefinition>(), out ScopedApi<ClientUriBuilderDefinition> uri),
                     uri.Reset(ClientProvider.EndpointField).Terminate(),
                     .. AppendPathParameters(uri, operation, paramMap),
                     .. AppendQueryParameters(uri, operation, paramMap),
-                    request.SetUri(uri).Terminate(),
+                    request.SetUri(uri),
                     .. AppendHeaderParameters(request, operation, paramMap),
                     .. GetSetContent(request, signature.Parameters),
-                    message.Apply(options),
+                    message.ApplyRequestOptions(options.ToApi<HttpRequestOptionsApi>()),
                     Return(message)
                 ]),
                 this);
@@ -231,7 +220,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 }
                 else
                 {
-                    statement = request.SetHeaders([Literal(inputParameter.NameInRequest), toStringExpression.As<string>()]).Terminate();
+                    statement = request.SetHeaders([Literal(inputParameter.NameInRequest), toStringExpression.As<string>()]);
                 }
                 statements.Add(statement);
             }
@@ -311,18 +300,32 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 pathSpan = pathSpan.Slice(paramIndex + 1);
                 var paramEndIndex = pathSpan.IndexOf('}');
                 var paramName = pathSpan.Slice(0, paramEndIndex).ToString();
-                var inputParam = inputParamHash[paramName];
-
-                if (inputParam.Location == RequestLocation.Path || inputParam.Location == RequestLocation.Uri)
+                /* when the parameter is in operation.uri, it is client parameter
+                 * It is not operation parameter and not in inputParamHash list.
+                 */
+                var isClientParameter = ClientProvider.GetClientParameters().Any(p => p.Name == paramName);
+                CSharpType? type;
+                string? format;
+                ValueExpression valueExpression;
+                if (isClientParameter)
                 {
-                    CSharpType? type;
-                    string? format;
-                    ValueExpression valueExpression;
-                    GetParamInfo(paramMap, operation, inputParam, out type, out format, out valueExpression);
-                    ValueExpression[] toStringParams = format is null ? [] : [Literal(format)];
-                    valueExpression = type?.Equals(typeof(string)) == true ? valueExpression : valueExpression.Invoke(nameof(ToString), toStringParams);
-                    statements.Add(uri.AppendPath(valueExpression, true).Terminate());
+                    GetParamInfo(paramMap[paramName], out type, out format, out valueExpression);
                 }
+                else
+                {
+                    var inputParam = inputParamHash[paramName];
+                    if (inputParam.Location == RequestLocation.Path || inputParam.Location == RequestLocation.Uri)
+                    {
+                        GetParamInfo(paramMap, operation, inputParam, out type, out format, out valueExpression);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException($"The location of parameter {inputParam.Name} should be path or uri");
+                    }
+                }
+                ValueExpression[] toStringParams = format is null ? [] : [Literal(format)];
+                valueExpression = type?.Equals(typeof(string)) == true ? valueExpression : valueExpression.Invoke(nameof(ToString), toStringParams);
+                statements.Add(uri.AppendPath(valueExpression, true).Terminate());
 
                 pathSpan = pathSpan.Slice(paramEndIndex + 1);
             }
@@ -344,17 +347,22 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             else
             {
                 var paramProvider = paramMap[inputParam.Name];
-                type = paramProvider.Field is null ? paramProvider.Type : paramProvider.Field.Type;
-                if (type.IsEnum)
-                {
-                    valueExpression = type.ToSerial(paramProvider);
-                    format = null;
-                }
-                else
-                {
-                    valueExpression = paramProvider.Field is null ? paramProvider : paramProvider.Field;
-                    format = paramProvider.WireInfo.SerializationFormat.ToFormatSpecifier();
-                }
+                GetParamInfo(paramProvider, out type, out format, out valueExpression);
+            }
+        }
+
+        private static void GetParamInfo(ParameterProvider paramProvider, out CSharpType? type, out string? format, out ValueExpression valueExpression)
+        {
+            type = paramProvider.Field is null ? paramProvider.Type : paramProvider.Field.Type;
+            if (type.IsEnum)
+            {
+                valueExpression = type.ToSerial(paramProvider);
+                format = null;
+            }
+            else
+            {
+                valueExpression = paramProvider.Field is null ? paramProvider : paramProvider.Field;
+                format = paramProvider.WireInfo.SerializationFormat.ToFormatSpecifier();
             }
         }
 

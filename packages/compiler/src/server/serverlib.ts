@@ -6,7 +6,6 @@ import {
   CompletionList,
   CompletionParams,
   DefinitionParams,
-  DiagnosticSeverity,
   DiagnosticTag,
   DidChangeWatchedFilesParams,
   DocumentFormattingParams,
@@ -20,9 +19,9 @@ import {
   FoldingRangeParams,
   Hover,
   HoverParams,
+  InitializedParams,
   InitializeParams,
   InitializeResult,
-  InitializedParams,
   Location,
   MarkupContent,
   MarkupKind,
@@ -39,6 +38,7 @@ import {
   SignatureHelp,
   SignatureHelpParams,
   TextDocumentChangeEvent,
+  TextDocumentIdentifier,
   TextDocumentSyncKind,
   TextEdit,
   Diagnostic as VSDiagnostic,
@@ -50,7 +50,7 @@ import { resolveCodeFix } from "../core/code-fixes.js";
 import { compilerAssert, getSourceLocation } from "../core/diagnostics.js";
 import { formatTypeSpec } from "../core/formatter.js";
 import { getEntityName, getTypeName } from "../core/helpers/type-name-utils.js";
-import { ResolveModuleHost, resolveModule } from "../core/index.js";
+import { resolveModule, ResolveModuleHost } from "../core/index.js";
 import { getPositionBeforeTrivia } from "../core/parser-utils.js";
 import { getNodeAtPosition, getNodeAtPositionDetail, visitChildren } from "../core/parser.js";
 import { ensureTrailingDirectorySeparator, getDirectoryPath } from "../core/path-utils.js";
@@ -79,9 +79,13 @@ import { getSemanticTokens } from "./classify.js";
 import { createCompileService } from "./compile-service.js";
 import { resolveCompletion } from "./completion.js";
 import { Commands } from "./constants.js";
+import { convertDiagnosticToLsp } from "./diagnostics.js";
+import { EmitterProvider } from "./emitter-provider.js";
 import { createFileService } from "./file-service.js";
 import { createFileSystemCache } from "./file-system-cache.js";
+import { NpmPackageProvider } from "./npm-package-provider.js";
 import { getSymbolStructure } from "./symbol-structure.js";
+import { provideTspconfigCompletionItems } from "./tspconfig/completion.js";
 import {
   getParameterDocumentation,
   getSymbolDetails,
@@ -109,6 +113,8 @@ export function createServer(host: ServerHost): Server {
     log,
   });
   const compilerHost = createCompilerHost();
+  const npmPackageProvider = new NpmPackageProvider(compilerHost);
+  const emitterProvider = new EmitterProvider(npmPackageProvider);
 
   const compileService = createCompileService({
     fileService,
@@ -265,9 +271,16 @@ export function createServer(host: ServerHost): Server {
 
   function watchedFilesChanged(params: DidChangeWatchedFilesParams) {
     fileSystemCache.notify(params.changes);
+    npmPackageProvider.notify(params.changes);
+  }
+
+  function isTspConfigFile(doc: TextDocument | TextDocumentIdentifier) {
+    return doc.uri.endsWith("tspconfig.yaml");
   }
 
   async function getFoldingRanges(params: FoldingRangeParams): Promise<FoldingRange[]> {
+    if (isTspConfigFile(params.textDocument)) return [];
+
     const ast = await compileService.getScript(params.textDocument);
     if (!ast) {
       return [];
@@ -324,6 +337,8 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function getDocumentSymbols(params: DocumentSymbolParams): Promise<DocumentSymbol[]> {
+    if (isTspConfigFile(params.textDocument)) return [];
+
     const ast = await compileService.getScript(params.textDocument);
     if (!ast) {
       return [];
@@ -335,6 +350,8 @@ export function createServer(host: ServerHost): Server {
   async function findDocumentHighlight(
     params: DocumentHighlightParams,
   ): Promise<DocumentHighlight[]> {
+    if (isTspConfigFile(params.textDocument)) return [];
+
     const result = await compileService.compile(params.textDocument);
     if (result === undefined) {
       return [];
@@ -353,9 +370,13 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function checkChange(change: TextDocumentChangeEvent<TextDocument>) {
+    if (isTspConfigFile(change.document)) return undefined;
+
     compileService.notifyChange(change.document);
   }
   async function reportDiagnostics({ program, document }: CompileResult) {
+    if (isTspConfigFile(document)) return undefined;
+
     currentDiagnosticIndex.clear();
     // Group diagnostics by file.
     //
@@ -373,47 +394,26 @@ export function createServer(host: ServerHost): Server {
     }
 
     for (const each of program.diagnostics) {
-      let diagDocument: TextDocument | undefined;
-
-      const location = getSourceLocation(each.target, { locateId: true });
-      if (location?.file) {
-        diagDocument = (location.file as ServerSourceFile).document;
-      } else {
-        // https://github.com/microsoft/language-server-protocol/issues/256
-        //
-        // LSP does not currently allow sending a diagnostic with no location so
-        // we report diagnostics with no location on the document that changed to
-        // trigger.
-        diagDocument = document;
-        log({ level: "debug", message: `Diagnostic with no location: ${each.message}` });
+      const results = convertDiagnosticToLsp(fileService, program, document, each);
+      for (const result of results) {
+        const [diagnostic, diagDocument] = result;
+        if (each.url) {
+          diagnostic.codeDescription = {
+            href: each.url,
+          };
+        }
+        if (each.code === "deprecated") {
+          diagnostic.tags = [DiagnosticTag.Deprecated];
+        }
+        diagnostic.data = { id: diagnosticIdCounter++ };
+        const diagnostics = diagnosticMap.get(diagDocument);
+        compilerAssert(
+          diagnostics,
+          "Diagnostic reported against a source file that was not added to the program.",
+        );
+        diagnostics.push(diagnostic);
+        currentDiagnosticIndex.set(diagnostic.data.id, each);
       }
-
-      if (!diagDocument || !fileService.upToDate(diagDocument)) {
-        continue;
-      }
-
-      const start = diagDocument.positionAt(location?.pos ?? 0);
-      const end = diagDocument.positionAt(location?.end ?? 0);
-      const range = Range.create(start, end);
-      const severity = convertSeverity(each.severity);
-      const diagnostic = VSDiagnostic.create(range, each.message, severity, each.code, "TypeSpec");
-
-      if (each.url) {
-        diagnostic.codeDescription = {
-          href: each.url,
-        };
-      }
-      if (each.code === "deprecated") {
-        diagnostic.tags = [DiagnosticTag.Deprecated];
-      }
-      diagnostic.data = { id: diagnosticIdCounter++ };
-      const diagnostics = diagnosticMap.get(diagDocument);
-      compilerAssert(
-        diagnostics,
-        "Diagnostic reported against a source file that was not added to the program.",
-      );
-      diagnostics.push(diagnostic);
-      currentDiagnosticIndex.set(diagnostic.data.id, each);
     }
 
     for (const [document, diagnostics] of diagnosticMap) {
@@ -422,6 +422,8 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function getHover(params: HoverParams): Promise<Hover> {
+    if (isTspConfigFile(params.textDocument)) return { contents: [] };
+
     const result = await compileService.compile(params.textDocument);
     if (result === undefined) {
       return { contents: [] };
@@ -442,6 +444,8 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function getSignatureHelp(params: SignatureHelpParams): Promise<SignatureHelp | undefined> {
+    if (isTspConfigFile(params.textDocument)) return undefined;
+
     const result = await compileService.compile(params.textDocument);
     if (result === undefined) {
       return undefined;
@@ -592,6 +596,8 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function formatDocument(params: DocumentFormattingParams): Promise<TextEdit[]> {
+    if (isTspConfigFile(params.textDocument)) return [];
+
     const document = host.getOpenDocumentByURL(params.textDocument.uri);
     if (document === undefined) {
       return [];
@@ -644,6 +650,8 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function gotoDefinition(params: DefinitionParams): Promise<Location[]> {
+    if (isTspConfigFile(params.textDocument)) return [];
+
     const result = await compileService.compile(params.textDocument);
     if (result === undefined) {
       return [];
@@ -690,6 +698,19 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function complete(params: CompletionParams): Promise<CompletionList> {
+    if (isTspConfigFile(params.textDocument)) {
+      const doc = host.getOpenDocumentByURL(params.textDocument.uri);
+      if (doc) {
+        const items = await provideTspconfigCompletionItems(doc, params.position, {
+          fileService,
+          emitterProvider,
+          log,
+        });
+        return CompletionList.create(items);
+      }
+      return CompletionList.create([]);
+    }
+
     const completions: CompletionList = {
       isIncomplete: false,
       items: [],
@@ -714,6 +735,8 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function findReferences(params: ReferenceParams): Promise<Location[]> {
+    if (isTspConfigFile(params.textDocument)) return [];
+
     const result = await compileService.compile(params.textDocument);
     if (result === undefined) {
       return [];
@@ -727,6 +750,8 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function prepareRename(params: PrepareRenameParams): Promise<Range | undefined> {
+    if (isTspConfigFile(params.textDocument)) return undefined;
+
     const result = await compileService.compile(params.textDocument);
     if (result === undefined) {
       return undefined;
@@ -736,6 +761,8 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function rename(params: RenameParams): Promise<WorkspaceEdit> {
+    if (isTspConfigFile(params.textDocument)) return { changes: {} };
+
     const changes: Record<string, TextEdit[]> = {};
     const result = await compileService.compile(params.textDocument);
     if (result) {
@@ -792,6 +819,8 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function getSemanticTokensForDocument(params: SemanticTokensParams) {
+    if (isTspConfigFile(params.textDocument)) return [];
+
     const ast = await compileService.getScript(params.textDocument);
     if (!ast) {
       return [];
@@ -801,6 +830,8 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function buildSemanticTokens(params: SemanticTokensParams): Promise<SemanticTokens> {
+    if (isTspConfigFile(params.textDocument)) return { data: [] };
+
     const builder = new SemanticTokensBuilder();
     const tokens = await getSemanticTokensForDocument(params);
     const file = await compilerHost.readFile(await fileService.getPath(params.textDocument));
@@ -822,6 +853,8 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function getCodeActions(params: CodeActionParams): Promise<CodeAction[]> {
+    if (isTspConfigFile(params.textDocument)) return [];
+
     const actions = [];
     for (const vsDiag of params.context.diagnostics) {
       const tspDiag = currentDiagnosticIndex.get(vsDiag.data?.id);
@@ -898,15 +931,6 @@ export function createServer(host: ServerHost): Server {
     const start = file.getLineAndCharacterOfPosition(location.pos);
     const end = file.getLineAndCharacterOfPosition(location.end);
     return Range.create(start, end);
-  }
-
-  function convertSeverity(severity: "warning" | "error"): DiagnosticSeverity {
-    switch (severity) {
-      case "warning":
-        return DiagnosticSeverity.Warning;
-      case "error":
-        return DiagnosticSeverity.Error;
-    }
   }
 
   function log(log: ServerLog) {

@@ -1,10 +1,10 @@
 import { NodeHost, joinPaths, logDiagnostics } from "@typespec/compiler";
 import { generateJsApiDocs, resolveLibraryRefDocsBase } from "@typespec/tspd/ref-doc";
 import {
-  DocusaurusRenderer,
+  StarlightRenderer,
   renderDataTypes,
   renderDecoratorFile,
-} from "@typespec/tspd/ref-doc/emitters/docusaurus";
+} from "@typespec/tspd/ref-doc/emitters/starlight";
 
 import assert from "assert";
 import { writeFile } from "fs/promises";
@@ -15,7 +15,7 @@ export const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../.."
 
 const diagnostics = new Map();
 
-class CompilerDocusaurusRenderer extends DocusaurusRenderer {
+class CompilerRenderer extends StarlightRenderer {
   /**
    * @param {import("../../tspd/dist/src/ref-doc/types.js").RefDocEntity} type
    */
@@ -53,13 +53,13 @@ process.exit(exitCode);
 
 async function generateCompilerDocs() {
   const compilerPath = join(repoRoot, "packages/compiler");
-  const outputDir = join(repoRoot, "docs/standard-library");
+  const outputDir = join(repoRoot, "website/src/content/docs/docs/standard-library");
   const results = await resolveLibraryRefDocsBase(compilerPath, {
     namespaces: { include: ["TypeSpec"] },
   });
   assert(results, "Unexpected ref doc should have been resolved for compiler.");
   const [refDoc, diagnostics] = results;
-  const renderer = new CompilerDocusaurusRenderer(refDoc as any);
+  const renderer = new CompilerRenderer(refDoc as any);
   const decoratorContent = renderDecoratorFile(renderer, refDoc, { title: "Built-in Decorators" });
   assert(decoratorContent, "Unexpected decorator file shouldn't be empty for compiler.");
   await writeFile(join(outputDir, "built-in-decorators.md"), decoratorContent);

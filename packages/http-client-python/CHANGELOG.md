@@ -1,5 +1,23 @@
 # Change Log - @typespec/http-client-python
 
+## 0.3.7
+
+### Bug Fixes
+
+- Update dependencies to fix install
+
+## 0.3.6
+
+### Bump dependencies
+
+- Bump `@typespec/*` 0.62.0 and `@azure-tools/*` 0.48.0
+
+## 0.3.5
+
+### Bump dependencies
+
+- Bump TCGC to 0.47.4
+
 ## 0.3.4
 
 ### Bug Fixes

@@ -361,45 +361,14 @@
      "Parameters": [
       {
        "$id": "41",
-       "Name": "endpoint",
-       "NameInRequest": "endpoint",
-       "Description": "Service host",
-       "Type": {
-        "$id": "42",
-        "kind": "url",
-        "name": "url",
-        "crossLanguageDefinitionId": "TypeSpec.url"
-       },
-       "Location": "Uri",
-       "IsApiVersion": false,
-       "IsResourceParameter": false,
-       "IsContentType": false,
-       "IsRequired": true,
-       "IsEndpoint": true,
-       "SkipUrlEncoding": false,
-       "Explode": false,
-       "Kind": "Client",
-       "DefaultValue": {
-        "$id": "43",
-        "Type": {
-         "$id": "44",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string"
-        },
-        "Value": "http://localhost:3000"
-       }
-      },
-      {
-       "$id": "45",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "46",
+        "$id": "42",
         "kind": "constant",
         "valueType": {
-         "$id": "47",
+         "$id": "43",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -419,7 +388,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "48",
+       "$id": "44",
        "Name": "bodyParameter",
        "NameInRequest": "bodyParameter",
        "Type": {
@@ -438,7 +407,7 @@
      ],
      "Responses": [
       {
-       "$id": "49",
+       "$id": "45",
        "StatusCodes": [
         204
        ],
@@ -461,24 +430,21 @@
      "Decorators": []
     },
     {
-     "$id": "50",
+     "$id": "46",
      "Name": "spreadCompositeRequestOnlyWithBody",
      "ResourceName": "Model",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "41"
-      },
-      {
-       "$id": "51",
+       "$id": "47",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "52",
+        "$id": "48",
         "kind": "constant",
         "valueType": {
-         "$id": "53",
+         "$id": "49",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -498,7 +464,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "54",
+       "$id": "50",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -517,7 +483,7 @@
      ],
      "Responses": [
       {
-       "$id": "55",
+       "$id": "51",
        "StatusCodes": [
         204
        ],
@@ -540,20 +506,17 @@
      "Decorators": []
     },
     {
-     "$id": "56",
+     "$id": "52",
      "Name": "spreadCompositeRequestWithoutBody",
      "ResourceName": "Model",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "41"
-      },
-      {
-       "$id": "57",
+       "$id": "53",
        "Name": "name",
        "NameInRequest": "name",
        "Type": {
-        "$id": "58",
+        "$id": "54",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -570,11 +533,11 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "59",
+       "$id": "55",
        "Name": "testHeader",
        "NameInRequest": "test-header",
        "Type": {
-        "$id": "60",
+        "$id": "56",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -593,7 +556,7 @@
      ],
      "Responses": [
       {
-       "$id": "61",
+       "$id": "57",
        "StatusCodes": [
         204
        ],
@@ -613,20 +576,17 @@
      "Decorators": []
     },
     {
-     "$id": "62",
+     "$id": "58",
      "Name": "spreadCompositeRequest",
      "ResourceName": "Model",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "41"
-      },
-      {
-       "$id": "63",
+       "$id": "59",
        "Name": "name",
        "NameInRequest": "name",
        "Type": {
-        "$id": "64",
+        "$id": "60",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -643,11 +603,11 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "65",
+       "$id": "61",
        "Name": "testHeader",
        "NameInRequest": "test-header",
        "Type": {
-        "$id": "66",
+        "$id": "62",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -664,15 +624,15 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "67",
+       "$id": "63",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "68",
+        "$id": "64",
         "kind": "constant",
         "valueType": {
-         "$id": "69",
+         "$id": "65",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -692,7 +652,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "70",
+       "$id": "66",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -711,7 +671,7 @@
      ],
      "Responses": [
       {
-       "$id": "71",
+       "$id": "67",
        "StatusCodes": [
         204
        ],
@@ -734,20 +694,17 @@
      "Decorators": []
     },
     {
-     "$id": "72",
+     "$id": "68",
      "Name": "spreadCompositeRequestMix",
      "ResourceName": "Model",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "41"
-      },
-      {
-       "$id": "73",
+       "$id": "69",
        "Name": "name",
        "NameInRequest": "name",
        "Type": {
-        "$id": "74",
+        "$id": "70",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -764,11 +721,11 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "75",
+       "$id": "71",
        "Name": "testHeader",
        "NameInRequest": "test-header",
        "Type": {
-        "$id": "76",
+        "$id": "72",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -785,15 +742,15 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "77",
+       "$id": "73",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "78",
+        "$id": "74",
         "kind": "constant",
         "valueType": {
-         "$id": "79",
+         "$id": "75",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -813,7 +770,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "80",
+       "$id": "76",
        "Name": "spreadCompositeRequestMixRequest",
        "NameInRequest": "spreadCompositeRequestMixRequest",
        "Type": {
@@ -832,7 +789,7 @@
      ],
      "Responses": [
       {
-       "$id": "81",
+       "$id": "77",
        "StatusCodes": [
         204
        ],
@@ -856,12 +813,40 @@
     }
    ],
    "Protocol": {
-    "$id": "82"
+    "$id": "78"
    },
    "Parent": "SpreadClient",
    "Parameters": [
     {
-     "$ref": "41"
+     "$id": "79",
+     "Name": "endpoint",
+     "NameInRequest": "endpoint",
+     "Description": "Service host",
+     "Type": {
+      "$id": "80",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": true,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client",
+     "DefaultValue": {
+      "$id": "81",
+      "Type": {
+       "$id": "82",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "Value": "http://localhost:3000"
+     }
     }
    ],
    "Decorators": []
@@ -878,45 +863,14 @@
      "Parameters": [
       {
        "$id": "85",
-       "Name": "endpoint",
-       "NameInRequest": "endpoint",
-       "Description": "Service host",
-       "Type": {
-        "$id": "86",
-        "kind": "url",
-        "name": "url",
-        "crossLanguageDefinitionId": "TypeSpec.url"
-       },
-       "Location": "Uri",
-       "IsApiVersion": false,
-       "IsResourceParameter": false,
-       "IsContentType": false,
-       "IsRequired": true,
-       "IsEndpoint": true,
-       "SkipUrlEncoding": false,
-       "Explode": false,
-       "Kind": "Client",
-       "DefaultValue": {
-        "$id": "87",
-        "Type": {
-         "$id": "88",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string"
-        },
-        "Value": "http://localhost:3000"
-       }
-      },
-      {
-       "$id": "89",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "90",
+        "$id": "86",
         "kind": "constant",
         "valueType": {
-         "$id": "91",
+         "$id": "87",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -936,7 +890,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "92",
+       "$id": "88",
        "Name": "spreadAsRequestBodyRequest",
        "NameInRequest": "spreadAsRequestBodyRequest",
        "Type": {
@@ -955,7 +909,7 @@
      ],
      "Responses": [
       {
-       "$id": "93",
+       "$id": "89",
        "StatusCodes": [
         204
        ],
@@ -978,20 +932,17 @@
      "Decorators": []
     },
     {
-     "$id": "94",
+     "$id": "90",
      "Name": "spreadParameterWithInnerModel",
      "ResourceName": "Alias",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "85"
-      },
-      {
-       "$id": "95",
+       "$id": "91",
        "Name": "id",
        "NameInRequest": "id",
        "Type": {
-        "$id": "96",
+        "$id": "92",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1008,11 +959,11 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "97",
+       "$id": "93",
        "Name": "x-ms-test-header",
        "NameInRequest": "x-ms-test-header",
        "Type": {
-        "$id": "98",
+        "$id": "94",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1029,15 +980,15 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "99",
+       "$id": "95",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "100",
+        "$id": "96",
         "kind": "constant",
         "valueType": {
-         "$id": "101",
+         "$id": "97",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1057,7 +1008,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "102",
+       "$id": "98",
        "Name": "spreadParameterWithInnerModelRequest",
        "NameInRequest": "spreadParameterWithInnerModelRequest",
        "Type": {
@@ -1076,7 +1027,7 @@
      ],
      "Responses": [
       {
-       "$id": "103",
+       "$id": "99",
        "StatusCodes": [
         204
        ],
@@ -1099,20 +1050,17 @@
      "Decorators": []
     },
     {
-     "$id": "104",
+     "$id": "100",
      "Name": "spreadAsRequestParameter",
      "ResourceName": "Alias",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "85"
-      },
-      {
-       "$id": "105",
+       "$id": "101",
        "Name": "id",
        "NameInRequest": "id",
        "Type": {
-        "$id": "106",
+        "$id": "102",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1129,11 +1077,11 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "107",
+       "$id": "103",
        "Name": "x-ms-test-header",
        "NameInRequest": "x-ms-test-header",
        "Type": {
-        "$id": "108",
+        "$id": "104",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1150,15 +1098,15 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "109",
+       "$id": "105",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "110",
+        "$id": "106",
         "kind": "constant",
         "valueType": {
-         "$id": "111",
+         "$id": "107",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1178,7 +1126,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "112",
+       "$id": "108",
        "Name": "spreadAsRequestParameterRequest",
        "NameInRequest": "spreadAsRequestParameterRequest",
        "Type": {
@@ -1197,7 +1145,7 @@
      ],
      "Responses": [
       {
-       "$id": "113",
+       "$id": "109",
        "StatusCodes": [
         204
        ],
@@ -1220,20 +1168,17 @@
      "Decorators": []
     },
     {
-     "$id": "114",
+     "$id": "110",
      "Name": "spreadWithMultipleParameters",
      "ResourceName": "Alias",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "85"
-      },
-      {
-       "$id": "115",
+       "$id": "111",
        "Name": "id",
        "NameInRequest": "id",
        "Type": {
-        "$id": "116",
+        "$id": "112",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1250,11 +1195,11 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "117",
+       "$id": "113",
        "Name": "x-ms-test-header",
        "NameInRequest": "x-ms-test-header",
        "Type": {
-        "$id": "118",
+        "$id": "114",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1271,15 +1216,15 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "119",
+       "$id": "115",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "120",
+        "$id": "116",
         "kind": "constant",
         "valueType": {
-         "$id": "121",
+         "$id": "117",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1299,7 +1244,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "122",
+       "$id": "118",
        "Name": "spreadWithMultipleParametersRequest",
        "NameInRequest": "spreadWithMultipleParametersRequest",
        "Type": {
@@ -1318,7 +1263,7 @@
      ],
      "Responses": [
       {
-       "$id": "123",
+       "$id": "119",
        "StatusCodes": [
         204
        ],
@@ -1341,21 +1286,18 @@
      "Decorators": []
     },
     {
-     "$id": "124",
+     "$id": "120",
      "Name": "spreadParameterWithInnerAlias",
      "ResourceName": "Alias",
      "Description": "spread an alias with contains another alias property as body.",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "85"
-      },
-      {
-       "$id": "125",
+       "$id": "121",
        "Name": "id",
        "NameInRequest": "id",
        "Type": {
-        "$id": "126",
+        "$id": "122",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1372,11 +1314,11 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "127",
+       "$id": "123",
        "Name": "x-ms-test-header",
        "NameInRequest": "x-ms-test-header",
        "Type": {
-        "$id": "128",
+        "$id": "124",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1393,15 +1335,15 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "129",
+       "$id": "125",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "130",
+        "$id": "126",
         "kind": "constant",
         "valueType": {
-         "$id": "131",
+         "$id": "127",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1421,7 +1363,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "132",
+       "$id": "128",
        "Name": "spreadParameterWithInnerAliasRequest",
        "NameInRequest": "spreadParameterWithInnerAliasRequest",
        "Type": {
@@ -1440,7 +1382,7 @@
      ],
      "Responses": [
       {
-       "$id": "133",
+       "$id": "129",
        "StatusCodes": [
         204
        ],
@@ -1464,12 +1406,40 @@
     }
    ],
    "Protocol": {
-    "$id": "134"
+    "$id": "130"
    },
    "Parent": "SpreadClient",
    "Parameters": [
     {
-     "$ref": "85"
+     "$id": "131",
+     "Name": "endpoint",
+     "NameInRequest": "endpoint",
+     "Description": "Service host",
+     "Type": {
+      "$id": "132",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": true,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client",
+     "DefaultValue": {
+      "$id": "133",
+      "Type": {
+       "$id": "134",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "Value": "http://localhost:3000"
+     }
     }
    ],
    "Decorators": []

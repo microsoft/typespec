@@ -24,16 +24,16 @@
   "main": "./dist/src/index.js",
   "exports": {
     ".": {
-      "types": "./dist/src/index.d.ts",
-      "default": "./dist/src/index.js"
+      "import": "./dist/src/index.js"
     },
     "./ref-doc": {
-      "types": "./dist/src/ref-doc/index.d.ts",
-      "default": "./dist/src/ref-doc/index.js"
+      "import": "./dist/src/ref-doc/index.js"
     },
     "./ref-doc/emitters/docusaurus": {
-      "types": "./dist/src/ref-doc/emitters/docusaurus.d.ts",
-      "default": "./dist/src/ref-doc/emitters/docusaurus.js"
+      "import": "./dist/src/ref-doc/emitters/docusaurus.js"
+    },
+    "./ref-doc/emitters/starlight": {
+      "import": "./dist/src/ref-doc/emitters/starlight.js"
     }
   },
   "engines": {
