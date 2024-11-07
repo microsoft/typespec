@@ -170,7 +170,7 @@ namespace Microsoft.Generator.CSharp.Providers
             // public override bool Equals(object obj) => obj is EnumType other && Equals(other);
             methods.Add(new(
                 equalsSignature,
-                objParameter.AsExpression
+                objParameter
                     .Is(new DeclarationExpression(Type, "other", out var other))
                     .And(This.Invoke(nameof(Equals), [other])),
                 this));

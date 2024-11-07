@@ -8,10 +8,6 @@ namespace Client.Naming.Models
     {
         public ClientModel(bool defaultName) => throw null;
 
-        public bool DefaultName
-        {
-            get => throw null;
-            set => throw null;
-        }
+        public bool DefaultName => throw null;
     }
 }
