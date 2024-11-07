@@ -6,6 +6,7 @@ package com.microsoft.typespec.http.client.generator.core.template;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Annotation;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.AsyncSyncClient;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientAccessorMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ConvenienceMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
@@ -59,6 +60,10 @@ public class ServiceSyncClientTemplate implements IJavaTemplate<AsyncSyncClient,
         }
         imports.add(builderPackageName + "." + builderClassName);
         addServiceClientAnnotationImport(imports);
+
+        for (ClientAccessorMethod clientAccessorMethod : serviceClient.getClientAccessorMethods()) {
+            clientAccessorMethod.addImportsTo(imports, false);
+        }
 
         Templates.getConvenienceSyncMethodTemplate().addImports(imports, syncClient.getConvenienceMethods());
 
@@ -116,6 +121,8 @@ public class ServiceSyncClientTemplate implements IJavaTemplate<AsyncSyncClient,
                     constructorBlock.line("this.serviceClient = serviceClient;");
                 });
         }
+
+        ServiceAsyncClientTemplate.writeSubClientAccessors(serviceClient, classBlock, false);
 
         writeMethods(syncClient, classBlock);
     }

@@ -79,7 +79,7 @@ public class ClientModelUtil {
         boolean generateAsyncMethods = JavaSettings.getInstance().isGenerateAsyncMethods();
         boolean generateSyncMethods = JavaSettings.getInstance().isGenerateSyncMethods();
 
-        if (serviceClient.getProxy() != null) {
+        if (serviceClient.getProxy() != null || CoreUtils.isNullOrEmpty(serviceClient.getMethodGroupClients())) {
             AsyncSyncClient.Builder builder = new AsyncSyncClient.Builder().packageName(packageName)
                 .serviceClient(serviceClient)
                 .crossLanguageDefinitionId(client.getCrossLanguageDefinitionId());

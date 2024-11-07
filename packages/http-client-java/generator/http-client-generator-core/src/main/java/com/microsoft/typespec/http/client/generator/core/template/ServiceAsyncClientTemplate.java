@@ -10,12 +10,14 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Annotation;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.AsyncSyncClient;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientAccessorMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientBuilder;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ConvenienceMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodGroupClient;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceClient;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceClientProperty;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaClass;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaContext;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
@@ -66,6 +68,10 @@ public class ServiceAsyncClientTemplate implements IJavaTemplate<AsyncSyncClient
         }
         imports.add(builderPackageName + "." + builderClassName);
         addServiceClientAnnotationImports(imports);
+
+        for (ClientAccessorMethod clientAccessorMethod : serviceClient.getClientAccessorMethods()) {
+            clientAccessorMethod.addImportsTo(imports, false);
+        }
 
         Templates.getConvenienceAsyncMethodTemplate().addImports(imports, asyncClient.getConvenienceMethods());
 
@@ -132,6 +138,8 @@ public class ServiceAsyncClientTemplate implements IJavaTemplate<AsyncSyncClient
                         Templates.getWrapperClientMethodTemplate().write(clientMethod, classBlock);
                     });
             }
+
+            writeSubClientAccessors(serviceClient, classBlock, true);
 
             writeConvenienceMethods(asyncClient.getConvenienceMethods(), classBlock);
 
@@ -204,6 +212,26 @@ public class ServiceAsyncClientTemplate implements IJavaTemplate<AsyncSyncClient
                             });
                     });
             }
+        }
+    }
+
+    static void writeSubClientAccessors(ServiceClient serviceClient, JavaClass classBlock, boolean isAsync) {
+        // Add accessors to sub clients
+        for (ClientAccessorMethod clientAccessorMethod : serviceClient.getClientAccessorMethods()) {
+            List<ServiceClientProperty> accessorProperties = clientAccessorMethod.getAccessorProperties();
+            String subClientClassName = clientAccessorMethod.getAsyncSyncClientName(isAsync);
+
+            // expect all properties are required, so no overload
+            classBlock.javadocComment(comment -> {
+                comment.description("Gets the " + subClientClassName + ".");
+                for (ServiceClientProperty property : accessorProperties) {
+                    comment.param(property.getName(), property.getDescription());
+                }
+                comment.methodReturns("the " + subClientClassName);
+            });
+            classBlock.publicMethod(clientAccessorMethod.getAsyncSyncClientDeclaration(isAsync), method -> {
+                method.methodReturn("null");
+            });
         }
     }
 

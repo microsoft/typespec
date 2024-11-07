@@ -9,6 +9,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.OperationGroup;
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.mapper.ServiceClientMapper;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientAccessorMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodGroupClient;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PipelinePolicyDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Proxy;
@@ -66,12 +67,14 @@ public class TypeSpecServiceClientMapper extends ServiceClientMapper {
             .forEach(og -> methodGroupClients.add(Mappers.getMethodGroupMapper().map(og, properties)));
         builder.methodGroupClients(methodGroupClients);
 
-        if (proxy == null && CoreUtils.isNullOrEmpty(methodGroupClients)) {
-            // No operation in this client, and no operation group as well. Abort the processing.
+        if (proxy == null
+            && CoreUtils.isNullOrEmpty(methodGroupClients)
+            && CoreUtils.isNullOrEmpty(client.getSubClients())) {
+            // No operation in this client, no operation group, no sub client as well. Abort the processing.
             return null;
         }
 
-        if (proxy == null) {
+        if (proxy == null && !CoreUtils.isNullOrEmpty(methodGroupClients)) {
             proxy = methodGroupClients.iterator().next().getProxy();
         }
 
@@ -82,16 +85,19 @@ public class TypeSpecServiceClientMapper extends ServiceClientMapper {
 
         builder.crossLanguageDefinitionId(client.getCrossLanguageDefinitionId());
 
-        List<ServiceClient> subServiceClients = new ArrayList<>();
+        List<ClientAccessorMethod> clientAccessorMethods = new ArrayList<>();
         for (Client subClient : client.getSubClients()) {
             if (subClient.isPublicParentAccessor()) {
                 ServiceClient subServiceClient = this.map(subClient, codeModel);
-                subServiceClients.add(subServiceClient);
+                clientAccessorMethods.add(new ClientAccessorMethod(subServiceClient));
             }
         }
-        builder.subClients(subServiceClients);
+        builder.clientAccessorMethods(clientAccessorMethods);
 
         ServiceClient serviceClient = builder.build();
+
+        clientAccessorMethods.forEach(m -> m.setServiceClient(serviceClient));
+
         parsed.put(client, serviceClient);
         return serviceClient;
     }
