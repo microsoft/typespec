@@ -154,6 +154,11 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 false,
                 null);
             yield return new TestCaseData(
+                "intOnNoUsageModel",
+                InputFactory.Model("TestModel", usage: InputModelTypeUsage.None, properties: [InputFactory.Property("intProperty", InputPrimitiveType.Int32, isRequired: false)]),
+                false,
+                null);
+            yield return new TestCaseData(
                 "requiredIntOnInputModel",
                 InputFactory.Model("TestModel", usage: InputModelTypeUsage.Input, properties: [InputFactory.Property("intProperty", InputPrimitiveType.Int32, isRequired: true)]),
                 false,
