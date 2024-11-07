@@ -14,7 +14,6 @@ import { fileURLToPath } from "url";
 import { emitCodeModel } from "./code-model.js";
 import { saveCodeModelAsYaml } from "./external-process.js";
 import { PythonEmitterOptions, PythonSdkContext } from "./lib.js";
-import { runPython3 } from "./run-python3.js";
 import { removeUnderscoresFromNamespace } from "./utils.js";
 
 export function getModelsMode(context: SdkContext): "dpg" | "none" {
@@ -162,10 +161,6 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
     }
   } else {
     let venvPath = path.join(root, "venv");
-    if (!fs.existsSync(path.join(venvPath))) {
-      await runPython3("./eng/scripts/setup/install.py");
-      await runPython3("./eng/scripts/setup/prepare.py");
-    }
     if (fs.existsSync(path.join(venvPath, "bin"))) {
       venvPath = path.join(venvPath, "bin", "python");
     } else if (fs.existsSync(path.join(venvPath, "Scripts"))) {
