@@ -3,6 +3,7 @@ import ThemePicker from "@typespec/astro-utils/components/theme-picker.astro";
 import Link from "@typespec/astro-utils/components/link.astro";
 import { Icon } from "@astrojs/starlight/components";
 import Search from "./search.astro";
+import ReleaseNotification from "../release-notification.astro";
 export interface Props {
   noDrawer?: boolean;
 }
@@ -199,6 +200,7 @@ const { noDrawer } = Astro.props;
       <Link class="item link" href="/community">Community</Link>
     </div>
     <div class="items right">
+      <ReleaseNotification />
       <Link
         class="item icon link"
         href="https://github.com/microsoft/typespec"

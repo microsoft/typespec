@@ -254,5 +254,56 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 "this.JsonModelCreateCore(ref reader, options)",
                 invocationExpression!.ToDisplayString());
         }
+
+        // This test validates that a discriminated sub-type with its own discriminator property
+        // properly generates the deserialization method to deserialize into its' discriminated sub-types
+        [Test]
+        public void TestNestedDiscriminatedModelWithOwnDiscriminator()
+        {
+            var oakTreeModel = InputFactory.Model(
+                "oakTree",
+                discriminatedKind: "oak",
+                properties:
+                [
+                    InputFactory.Property("treeType", InputPrimitiveType.String, isRequired: true),
+                ]);
+            var treeModel = InputFactory.Model(
+                "tree",
+                discriminatedKind: "tree",
+                properties:
+                [
+                    InputFactory.Property("treeType", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "oak", oakTreeModel } });
+            var baseModel = InputFactory.Model(
+                "plant",
+                properties:
+                [
+                    InputFactory.Property("foo", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "tree", treeModel } });
+
+            MockHelpers.LoadMockPlugin(inputModels: () => [baseModel, treeModel]);
+            var baseModelProvider = ClientModelPlugin.Instance.OutputLibrary.TypeProviders.OfType<ModelProvider>()
+                .FirstOrDefault(t => t.Name == "Plant");
+            var treeModelProvider = ClientModelPlugin.Instance.OutputLibrary.TypeProviders.OfType<ModelProvider>()
+                .FirstOrDefault(t => t.Name == "Tree");
+            Assert.IsNotNull(baseModelProvider);
+            Assert.IsNotNull(treeModelProvider);
+
+            // validate the base discriminator deserialization method has the switch statement
+            var baseDeserializationMethod = baseModelProvider!.SerializationProviders.FirstOrDefault()!.Methods
+                .FirstOrDefault(m => m.Signature.Name == "DeserializePlant");
+            Assert.IsTrue(baseDeserializationMethod?.BodyStatements!.ToDisplayString().Contains(
+                $"if (element.TryGetProperty(\"foo\"u8, out global::System.Text.Json.JsonElement discriminator))"));
+
+            var treeModelSerializationProvider = treeModelProvider!.SerializationProviders.FirstOrDefault();
+            Assert.IsNotNull(treeModelSerializationProvider);
+
+            // validate the deserialization methods for the tree model
+            var writer = new TypeProviderWriter(treeModelSerializationProvider!);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
     }
 }
