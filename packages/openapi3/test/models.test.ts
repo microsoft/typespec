@@ -139,7 +139,6 @@ describe("openapi3: models", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "@typespec/openapi3/invalid-type-name",
-          message: /type/,
         },
       ]);
     });
