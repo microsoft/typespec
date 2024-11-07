@@ -4,7 +4,7 @@ title: Directives
 
 Directives are predefined annotations that attach to the syntax nodes unlike decorators which will cary over with `model is`, `op is`, etc. This means any syntax node is able to have a directive(e.g `alias`).
 
-There is 2 available directives:
+There are 2 available directives:
 
 - [#deprecated](#deprecated)
 - [#suppress](#suppress)
