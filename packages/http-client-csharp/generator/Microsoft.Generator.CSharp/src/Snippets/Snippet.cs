@@ -167,8 +167,6 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static ScopedApi<bool> NotEqual(this ParameterProvider parameter, ValueExpression other)
             => new BinaryOperatorExpression("!=", parameter, other).As<bool>();
 
-        public static CodeWriterDeclaration Declaration(this ParameterProvider variableExpression) => ((VariableExpression)variableExpression).Declaration;
-
         public static VariableExpression AsExpression(this ParameterProvider variableExpression) => (VariableExpression)variableExpression;
     }
 }
