@@ -202,7 +202,8 @@ namespace Microsoft.Generator.CSharp.Providers
                 Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Override,
                 ReturnType: typeof(int),
                 ReturnDescription: null,
-                Parameters: Array.Empty<ParameterProvider>());
+                Parameters: Array.Empty<ParameterProvider>(),
+                Attributes: [new AttributeStatement(typeof(EditorBrowsableAttribute), FrameworkEnumValue(EditorBrowsableState.Never))]);
 
             // writes the method:
             // for string
