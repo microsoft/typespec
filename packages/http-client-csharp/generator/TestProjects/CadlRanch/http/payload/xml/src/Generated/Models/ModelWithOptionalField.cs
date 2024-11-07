@@ -8,6 +8,10 @@ namespace Payload.Xml.Models
     {
         public string Item => throw null;
 
-        public int? Value => throw null;
+        public int? Value
+        {
+            get => throw null;
+            set => throw null;
+        }
     }
 }

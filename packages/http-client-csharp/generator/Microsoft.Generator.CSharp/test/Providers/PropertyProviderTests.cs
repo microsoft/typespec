@@ -145,6 +145,16 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 null);
             yield return new TestCaseData(
                 "intOnInputModel",
+                InputFactory.Model("TestModel", usage: InputModelTypeUsage.Input, properties: [InputFactory.Property("intProperty", InputPrimitiveType.Int32, isRequired: false)]),
+                true,
+                null);
+            yield return new TestCaseData(
+                "intOnOutputModel",
+                InputFactory.Model("TestModel", usage: InputModelTypeUsage.Output, properties: [InputFactory.Property("intProperty", InputPrimitiveType.Int32, isRequired: false)]),
+                false,
+                null);
+            yield return new TestCaseData(
+                "requiredIntOnInputModel",
                 InputFactory.Model("TestModel", usage: InputModelTypeUsage.Input, properties: [InputFactory.Property("intProperty", InputPrimitiveType.Int32, isRequired: true)]),
                 false,
                 null);
@@ -201,7 +211,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             yield return new TestCaseData(
                 "nonReadOnlyStringPropOnStruct",
                 InputFactory.Model("TestModel", usage: InputModelTypeUsage.Input, properties: [InputFactory.Property("nonReadOnlyString", InputPrimitiveType.String)], modelAsStruct: true),
-                false,
+                true,
                 TypeSignatureModifiers.Struct);
             yield return new TestCaseData(
                 "requiredReadOnlyStringPropOnStruct",

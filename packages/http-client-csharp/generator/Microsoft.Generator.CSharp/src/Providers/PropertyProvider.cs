@@ -158,8 +158,16 @@ namespace Microsoft.Generator.CSharp.Providers
                 return false;
             }
 
-            // If the property is not on a round-trip model, it doesn't need a setter. Input-only properties are settable via constructor.
-            if (!inputProperty.EnclosingType!.Usage.HasFlag(InputModelTypeUsage.Input | InputModelTypeUsage.Output))
+            // Output-only properties don't need setters.
+            if (inputProperty.EnclosingType!.Usage.HasFlag(InputModelTypeUsage.Output) &&
+                !inputProperty.EnclosingType.Usage.HasFlag(InputModelTypeUsage.Input))
+            {
+                return false;
+            }
+
+            // If the property is required and is not on a round-trip model, it doesn't need a setter.
+            // This is because required input-only properties are settable via constructor.
+            if (inputProperty.IsRequired && !inputProperty.EnclosingType!.Usage.HasFlag(InputModelTypeUsage.Input | InputModelTypeUsage.Output))
             {
                 return false;
             }
