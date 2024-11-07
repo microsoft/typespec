@@ -80,7 +80,6 @@ import {
   getParameterKey,
   getTagsMetadata,
   isReadonlyProperty,
-  resolveInfo,
   resolveOperationId,
   shouldInline,
 } from "@typespec/openapi";
@@ -90,10 +89,10 @@ import { getRef } from "./decorators.js";
 import { applyEncoding } from "./encoding.js";
 import { getExampleOrExamples, OperationExamples, resolveOperationExamples } from "./examples.js";
 import { createDiagnostic, FileType, OpenAPI3EmitterOptions, OpenAPIVersion } from "./lib.js";
-import { getDefaultValue, isBytesKeptRaw, OpenAPI3SchemaEmitter } from "./schema-emitter.js";
+import { getOpenApiSpecProps } from "./openapi-spec-mappings.js";
+import { getDefaultValue, isBytesKeptRaw } from "./schema-emitter.js";
 import { getOpenAPI3StatusCodes } from "./status-codes.js";
 import {
-  OpenAPI3Document,
   OpenAPI3Encoding,
   OpenAPI3Header,
   OpenAPI3MediaType,
@@ -112,6 +111,7 @@ import {
   OpenAPI3Tag,
   OpenAPI3VersionedServiceRecord,
   Refable,
+  SupportedOpenAPIDocuments,
 } from "./types.js";
 import { deepEquals, isSharedHttpOperation, SharedHttpOperation } from "./util.js";
 import { resolveVisibilityUsage, VisibilityUsageTracker } from "./visibility-usage.js";
@@ -223,10 +223,11 @@ function createOAPIEmitter(
   options: ResolvedOpenAPI3EmitterOptions,
   specVersion: OpenAPIVersion = "3.0.0",
 ) {
+  const { createRootDoc, createSchemaEmitterCtor } = getOpenApiSpecProps(specVersion);
   let program = context.program;
   let schemaEmitter: AssetEmitter<OpenAPI3Schema, OpenAPI3EmitterOptions>;
 
-  let root: OpenAPI3Document;
+  let root: SupportedOpenAPIDocuments;
   let diagnostics: DiagnosticCollector;
   let currentService: Service;
   let serviceAuth: HttpServiceAuthentication;
@@ -322,38 +323,18 @@ function createOAPIEmitter(
 
     schemaEmitter = createAssetEmitter(
       program,
-      class extends OpenAPI3SchemaEmitter {
-        constructor(emitter: AssetEmitter<Record<string, any>, OpenAPI3EmitterOptions>) {
-          super(emitter, metadataInfo, visibilityUsage, options, xmlModule);
-        }
-      } as any,
+      createSchemaEmitterCtor(metadataInfo, visibilityUsage, options, xmlModule),
       context,
     );
 
     const securitySchemes = getOpenAPISecuritySchemes(allHttpAuthentications);
     const security = getOpenAPISecurity(defaultAuth);
 
-    const info = resolveInfo(program, service.type);
-    root = {
-      openapi: "3.0.0",
-      info: {
-        title: "(title)",
-        ...info,
-        version: version ?? info?.version ?? "0.0.0",
-      },
-      externalDocs: getExternalDocs(program, service.type),
-      tags: [],
-      paths: {},
-      security: security.length > 0 ? security : undefined,
-      components: {
-        parameters: {},
-        requestBodies: {},
-        responses: {},
-        schemas: {},
-        examples: {},
-        securitySchemes: securitySchemes,
-      },
-    };
+    root = createRootDoc(program, service.type, version);
+    if (security.length > 0) {
+      root.security = security;
+    }
+    root.components!.securitySchemes = securitySchemes;
 
     const servers = getServers(program, service.type);
     if (servers) {
@@ -642,7 +623,7 @@ function createOAPIEmitter(
   async function getOpenApiFromVersion(
     service: Service,
     version?: string,
-  ): Promise<[OpenAPI3Document, Readonly<Diagnostic[]>] | undefined> {
+  ): Promise<[SupportedOpenAPIDocuments, Readonly<Diagnostic[]>] | undefined> {
     try {
       const httpService = ignoreDiagnostics(getHttpService(program, service.type));
       const auth = (serviceAuth = resolveAuthentication(httpService));
@@ -1827,7 +1808,7 @@ function createOAPIEmitter(
   }
 }
 
-function serializeDocument(root: OpenAPI3Document, fileType: FileType): string {
+function serializeDocument(root: SupportedOpenAPIDocuments, fileType: FileType): string {
   sortOpenAPIDocument(root);
   switch (fileType) {
     case "json":
@@ -1860,7 +1841,7 @@ function sortObjectByKeys<T extends Record<string, unknown>>(obj: T): T {
     }, {});
 }
 
-function sortOpenAPIDocument(doc: OpenAPI3Document): void {
+function sortOpenAPIDocument(doc: SupportedOpenAPIDocuments): void {
   doc.paths = sortObjectByKeys(doc.paths);
   if (doc.components?.schemas) {
     doc.components.schemas = sortObjectByKeys(doc.components.schemas);

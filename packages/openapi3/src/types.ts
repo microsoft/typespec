@@ -1,6 +1,8 @@
 import { Diagnostic, Service } from "@typespec/compiler";
 import { Contact, ExtensionKey, License } from "@typespec/openapi";
 
+export type SupportedOpenAPIDocuments = OpenAPI3Document | OpenAPIDocument3_1;
+
 export type Extensions = {
   [key in ExtensionKey]?: any;
 };
@@ -56,7 +58,7 @@ export interface OpenAPI3UnversionedServiceRecord {
   readonly versioned: false;
 
   /** The OpenAPI 3 document */
-  readonly document: OpenAPI3Document;
+  readonly document: SupportedOpenAPIDocuments;
 
   /** The diagnostics created for this document */
   readonly diagnostics: readonly Diagnostic[];
@@ -79,7 +81,7 @@ export interface OpenAPI3VersionedServiceRecord {
 
 export interface OpenAPI3VersionedDocumentRecord {
   /** The OpenAPI document*/
-  readonly document: OpenAPI3Document;
+  readonly document: SupportedOpenAPIDocuments;
 
   /** The service that generated this OpenAPI document. */
   readonly service: Service;
