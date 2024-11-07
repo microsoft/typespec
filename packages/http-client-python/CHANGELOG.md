@@ -1,5 +1,11 @@
 # Change Log - @typespec/http-client-python
 
+## 0.3.7
+
+### Bug Fixes
+
+- Update dependencies to fix install
+
 ## 0.3.6
 
 ### Bump dependencies
