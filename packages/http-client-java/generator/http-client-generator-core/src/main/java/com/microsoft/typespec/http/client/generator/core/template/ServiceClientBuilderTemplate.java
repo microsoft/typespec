@@ -19,6 +19,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.Plugin
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Annotation;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.AsyncSyncClient;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientAccessorMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientBuilder;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientBuilderTrait;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientBuilderTraitMethod;
@@ -118,6 +119,27 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
                 builderTypes.append(client.getClassName()).append(".class");
 
                 client.addImportsTo(imports, false);
+            }
+            // sub clients
+            Set<ServiceClient> subClients = new HashSet<>();
+            for (AsyncSyncClient client : clients) {
+                for (ClientAccessorMethod clientAccessorMethod : client.getServiceClient().getClientAccessorMethods()) {
+                    ServiceClient subClient = clientAccessorMethod.getServiceClient();
+                    if (!subClients.contains(subClient)) {
+                        if (JavaSettings.getInstance().isGenerateSyncMethods()) {
+                            builderTypes.append(", ");
+                            builderTypes.append(clientAccessorMethod.getAsyncSyncClientName(false)).append(".class");
+                        }
+                        if (JavaSettings.getInstance().isGenerateAsyncMethods()) {
+                            builderTypes.append(", ");
+                            builderTypes.append(clientAccessorMethod.getAsyncSyncClientName(true)).append(".class");
+                        }
+
+                        clientAccessorMethod.addImportsTo(imports, false);
+
+                        subClients.add(subClient);
+                    }
+                }
             }
         } else {
             builderTypes.append(serviceClient.getClassName()).append(".class");
