@@ -145,8 +145,23 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 null);
             yield return new TestCaseData(
                 "intOnInputModel",
-                InputFactory.Model("TestModel", usage: InputModelTypeUsage.Input, properties: [InputFactory.Property("intProperty", InputPrimitiveType.Int32, isRequired: true)]),
+                InputFactory.Model("TestModel", usage: InputModelTypeUsage.Input, properties: [InputFactory.Property("intProperty", InputPrimitiveType.Int32, isRequired: false)]),
                 true,
+                null);
+            yield return new TestCaseData(
+                "intOnOutputModel",
+                InputFactory.Model("TestModel", usage: InputModelTypeUsage.Output, properties: [InputFactory.Property("intProperty", InputPrimitiveType.Int32, isRequired: false)]),
+                false,
+                null);
+            yield return new TestCaseData(
+                "intOnNoUsageModel",
+                InputFactory.Model("TestModel", usage: InputModelTypeUsage.None, properties: [InputFactory.Property("intProperty", InputPrimitiveType.Int32, isRequired: false)]),
+                false,
+                null);
+            yield return new TestCaseData(
+                "requiredIntOnInputModel",
+                InputFactory.Model("TestModel", usage: InputModelTypeUsage.Input, properties: [InputFactory.Property("intProperty", InputPrimitiveType.Int32, isRequired: true)]),
+                false,
                 null);
             yield return new TestCaseData(
                 "readOnlyCollectionOnOutputModel",
@@ -166,6 +181,11 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             yield return new TestCaseData(
                 "nullableCollectionOnInputModel",
                 InputFactory.Model("TestModel", usage: InputModelTypeUsage.Input, properties: [InputFactory.Property("nullableCollection", new InputNullableType(InputFactory.Array(InputPrimitiveType.String)), isRequired: true, isReadOnly: false)]),
+                false,
+                null);
+            yield return new TestCaseData(
+                "nullableCollectionOnInputOutputModel",
+                InputFactory.Model("TestModel", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output, properties: [InputFactory.Property("nullableCollection", new InputNullableType(InputFactory.Array(InputPrimitiveType.String)), isRequired: true, isReadOnly: false)]),
                 true,
                 null);
             yield return new TestCaseData(
@@ -186,6 +206,11 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             yield return new TestCaseData(
                 "nullableDictionaryOnInputModel",
                 InputFactory.Model("TestModel", usage: InputModelTypeUsage.Input, properties: [InputFactory.Property("nullableDictionary", new InputNullableType(InputFactory.Dictionary(InputPrimitiveType.String)), isRequired: true, isReadOnly: false)]),
+                false,
+                null);
+            yield return new TestCaseData(
+                "nullableDictionaryOnInputOutputModel",
+                InputFactory.Model("TestModel", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output, properties: [InputFactory.Property("nullableDictionary", new InputNullableType(InputFactory.Dictionary(InputPrimitiveType.String)), isRequired: true, isReadOnly: false)]),
                 true,
                 null);
             yield return new TestCaseData(

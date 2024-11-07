@@ -278,7 +278,7 @@ export class DocusaurusRenderer extends MarkdownRenderer {
   }
 
   deprecationNotice(notice: DeprecationNotice): MarkdownDoc {
-    return [":::warning", `**Deprecated**: ${notice.message}`, ":::"];
+    return [":::caution", `**Deprecated**: ${notice.message}`, ":::"];
   }
 }
 
