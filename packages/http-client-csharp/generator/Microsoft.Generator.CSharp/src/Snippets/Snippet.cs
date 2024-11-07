@@ -16,30 +16,10 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static ScopedApi<bool> Equal(this ParameterProvider parameter, ValueExpression other) => new BinaryOperatorExpression("==", parameter, other).As<bool>();
         public static ScopedApi<bool> Is(this ParameterProvider parameter, ValueExpression other) => new BinaryOperatorExpression("is", parameter, other).As<bool>();
 
-        public static ScopedApi As(this ParameterProvider parameter, CSharpType type) => ValueExpressionAsScopedApi(parameter, type);
-        public static ScopedApi<T> As<T>(this ParameterProvider parameter) => ValueExpressionAsScopedApi<T>(parameter);
-        public static ScopedApi<T> As<T>(this PropertyProvider property) => ValueExpressionAsScopedApi<T>(property);
-        public static ScopedApi<T> As<T>(this FieldProvider field) => ValueExpressionAsScopedApi<T>(field);
-
-        private static ScopedApi<T> ValueExpressionAsScopedApi<T>(ValueExpression valueExpression)
-        {
-            if (valueExpression is ScopedApi<T> scopedApi)
-            {
-                return scopedApi;
-            }
-
-            return new ScopedApi<T>(valueExpression);
-        }
-
-        private static ScopedApi ValueExpressionAsScopedApi(ValueExpression valueExpression, CSharpType type)
-        {
-            if (valueExpression is ScopedApi scopedApi && scopedApi.Type.Equals(type))
-            {
-                return scopedApi;
-            }
-
-            return new ScopedApi(type, valueExpression);
-        }
+        public static ScopedApi As(this ParameterProvider parameter, CSharpType type) => ((ValueExpression)parameter).As(type);
+        public static ScopedApi<T> As<T>(this ParameterProvider parameter) => ((ValueExpression)parameter).As<T>();
+        public static ScopedApi<T> As<T>(this PropertyProvider property) => ((ValueExpression)property).As<T>();
+        public static ScopedApi<T> As<T>(this FieldProvider field) => ((ValueExpression)field).As<T>();
 
         public static ValueExpression NullConditional(this ParameterProvider parameter) => new NullConditionalExpression(parameter);
 
