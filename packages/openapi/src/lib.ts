@@ -34,13 +34,6 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`@tagMetadata must be used on the service namespace. Did you mean to annotate '${"namespace"}'  with '@service'?`,
       },
     },
-    "invalid-type-name": {
-      severity: "error",
-      messages: {
-        default: paramMessage`Invalid type name: '${"value"}'. Check @friendlyName decorators and overlap with types in TypeSpec or service namespace.`,
-        parameter: paramMessage`Invalid parameter key: '${"value"}'. Check @friendlyName decorators and overlap with types in TypeSpec or service namespace.`,
-      },
-    },
   },
   state: {
     tagsMetadata: { description: "State for the @tagMetadata decorator." },

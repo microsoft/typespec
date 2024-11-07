@@ -1,7 +1,7 @@
 ---
 changeKind: fix
 packages:
-  - "@typespec/openapi"
+  - "@typespec/openapi3"
 ---
 
 Illegal characters in component keys

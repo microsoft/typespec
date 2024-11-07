@@ -275,6 +275,12 @@ export const libDef = {
         default: paramMessage`XML \`@unwrapped\` can only used on array properties or primitive ones in the OpenAPI 3 emitter, Property '${"name"}' will be ignored.`,
       },
     },
+    "invalid-type-name": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Invalid component name: '${"value"}'. Component names can only contain the characters 'A-Z a-z 0-9 - . _'.`,
+      },
+    },
   },
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<OpenAPI3EmitterOptions>,

@@ -321,10 +321,10 @@ describe("query parameters", () => {
 
     expectDiagnostics(diagnostics, [
       {
-        code: "@typespec/openapi/invalid-type-name",
+        code: "@typespec/openapi3/invalid-type-name",
       },
       {
-        code: "@typespec/openapi/invalid-type-name",
+        code: "@typespec/openapi3/invalid-type-name",
       },
     ]);
   });

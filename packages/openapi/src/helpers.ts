@@ -65,22 +65,8 @@ export function getOpenAPITypeName(
 ): string {
   const name = getFriendlyName(program, type) ?? getTypeName(type, options);
 
-  checkAvailableTypeName(program, type, name);
   checkDuplicateTypeName(program, type, name, existing);
   return name;
-}
-
-function checkAvailableTypeName(program: Program, type: Type, name: string) {
-  const pattern = /^[\w\\.\\-\\<\\>]+$/;
-  if (!pattern.test(name)) {
-    reportDiagnostic(program, {
-      code: "invalid-type-name",
-      format: {
-        value: name,
-      },
-      target: type,
-    });
-  }
 }
 
 /**
@@ -123,8 +109,6 @@ export function getParameterKey(
   if (parent.properties.size > 1) {
     key += `.${property.name}`;
   }
-
-  checkAvailableTypeName(program, property, key);
 
   if (existingParams[key]) {
     reportDiagnostic(program, {

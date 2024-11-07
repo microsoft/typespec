@@ -1540,6 +1540,21 @@ function createOAPIEmitter(
     }
   }
 
+  function checkAvailableComponentName(type: Type, name: string) {
+    const pattern = /^[\w\\.\\-]+$/;
+    if (!pattern.test(name)) {
+      program.reportDiagnostic(
+        createDiagnostic({
+          code: "invalid-type-name",
+          format: {
+            value: name,
+          },
+          target: type,
+        }),
+      );
+    }
+  }
+
   function emitParameters() {
     for (const [property, param] of params) {
       const key = getParameterKey(
@@ -1549,6 +1564,7 @@ function createOAPIEmitter(
         root.components!.parameters!,
         typeNameOptions,
       );
+      checkAvailableComponentName(property, key);
 
       root.components!.parameters![key] = { ...param };
       for (const key of Object.keys(param)) {
@@ -1573,6 +1589,8 @@ function createOAPIEmitter(
       const schemas = root.components!.schemas!;
       const declarations = files[0].globalScope.declarations;
       for (const declaration of declarations) {
+        checkAvailableComponentName(serviceNamespace, declaration.name);
+
         schemas[declaration.name] = declaration.value as any;
       }
     }
