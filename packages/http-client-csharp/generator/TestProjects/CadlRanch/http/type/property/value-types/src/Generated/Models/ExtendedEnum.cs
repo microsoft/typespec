@@ -24,6 +24,7 @@ namespace _Type.Property.ValueTypes.Models
 
         public bool Equals(ExtendedEnum other) => throw null;
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override int GetHashCode() => throw null;
 
         public override string ToString() => throw null;
