@@ -4,7 +4,7 @@ title: Directives
 
 Directives are predefined annotations that attach to the syntax nodes unlike decorators which will cary over with `model is`, `op is`, etc. This means any syntax node is able to have a directive(e.g `alias`).
 
-There is 2 available directives:
+These are the available directives:
 
 - [#deprecated](#deprecated)
 - [#suppress](#suppress)
@@ -57,7 +57,7 @@ model Post {
 A library or emitter can check if a type was annotated with the deprecated directive using the `isDeprecated` method and/or get the message using `getDeprecationDetails`.
 
 ```ts
-import { isDeprecated } from "@typespec/compiler";
+import { getDeprecationDetails, isDeprecated } from "@typespec/compiler";
 const isDeprecated = isDeprecated(program, type);
 const details = getDeprecationDetails(program, type);
 ```
