@@ -542,7 +542,7 @@ describe("uri template", () => {
 
     it("+ operator map to allowReserve even with @path set", async () => {
       const param = await getParameter(
-        `@route("/bar/{+foo}") @path op foo(foo: string): void;`,
+        `@route("/bar/{+foo}") op foo(@path foo: string): void;`,
         "foo",
       );
       expectPathParameter(param, { style: "simple", allowReserved: true, explode: false });
