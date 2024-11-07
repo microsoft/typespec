@@ -1,7 +1,5 @@
 ---
 title: "Built-in Data types"
-toc_min_heading_level: 2
-toc_max_heading_level: 3
 ---
 ## TypeSpec
 ### `Array` {#Array}
@@ -125,7 +123,7 @@ model ExampleOptions
 | description? | [`string`](#string) | Description of the example |
 
 ### `object` {#object}
-:::warning
+:::caution
 **Deprecated**: object is deprecated. Please use {} for an empty model, `Record<unknown>` for a record with unknown property types, `unknown[]` for an array.
 :::
 

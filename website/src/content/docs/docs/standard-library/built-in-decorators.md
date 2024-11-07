@@ -54,7 +54,7 @@ The modifiers passed to this decorator _MUST_ be members of the target Enum.
 
 
 ### `@deprecated` {#@deprecated}
-:::warning
+:::caution
 **Deprecated**: @deprecated decorator is deprecated. Use the `#deprecated` directive instead.
 :::
 
@@ -477,7 +477,7 @@ model Pet {
 
 
 ### `@knownValues` {#@knownValues}
-:::warning
+:::caution
 **Deprecated**: This decorator has been deprecated. Use a named union of string literals with a string variant to achieve the same result without a decorator.
 :::
 
@@ -1007,7 +1007,7 @@ model Page<T> {
 
 
 ### `@projectedName` {#@projectedName}
-:::warning
+:::caution
 **Deprecated**: Use `@encodedName` instead for changing the name over the wire.
 :::
 
