@@ -240,7 +240,7 @@ export const $visibility: VisibilityDecorator = (
 ) => {
   const [modifiers, legacyVisibilities] = splitLegacyVisibility(visibilities);
 
-  if (legacyVisibilities.length > 0) {
+  if (legacyVisibilities.length > 0 || visibilities.length === 0) {
     const isUnique = validateDecoratorUniqueOnNode(context, target, $visibility);
 
     if (modifiers.length > 0) {
@@ -477,17 +477,22 @@ function createVisibilityFilterMutator(
         for (const decorator of prop.decorators) {
           const decFn = decorator.decorator;
           if (decFn === $visibility || decFn === $removeVisibility) {
-            decorators.push({
-              ...decorator,
-              args: decorator.args.filter(
-                (arg) =>
-                  !(
-                    arg.value.entityKind === "Value" &&
-                    arg.value.valueKind === "EnumValue" &&
-                    visibilityClasses.has(arg.value.value.enum)
-                  ),
-              ),
+            const nextArgs = decorator.args.filter((arg) => {
+              if (arg.value.entityKind !== "Value") return false;
+
+              const isString = arg.value.valueKind === "StringValue";
+              const isOperativeVisibility =
+                arg.value.valueKind === "EnumValue" && visibilityClasses.has(arg.value.value.enum);
+
+              return !(isString || isOperativeVisibility);
             });
+
+            if (nextArgs.length > 0) {
+              decorators.push({
+                ...decorator,
+                args: nextArgs,
+              });
+            }
           } else if (decFn !== $invisible) {
             decorators.push(decorator);
           }

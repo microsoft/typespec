@@ -644,8 +644,29 @@ describe("compiler: visibility core", () => {
 
       deepStrictEqual(xVisibility, ["create", "update"]);
       strictEqual(yVisibility, undefined);
-      deepStrictEqual(zVisibility, ["none"]);
+      deepStrictEqual(zVisibility, []);
       deepStrictEqual(aVisibility, ["create", "update", "read"]);
+    });
+
+    it("correctly preseves explicitness of empty visibility", async () => {
+      const { Example } = (await runner.compile(`
+        @test model Example {
+          @visibility
+          x: string;
+        }
+      `)) as { Example: Model };
+
+      const x = Example.properties.get("x")!;
+
+      const Lifecycle = getLifecycleVisibilityEnum(runner.program);
+
+      const visibility = getVisibilityForClass(runner.program, x, Lifecycle);
+
+      strictEqual(visibility.size, 0);
+
+      const legacyVisibility = getVisibility(runner.program, x);
+
+      deepStrictEqual(legacyVisibility, []);
     });
   });
 

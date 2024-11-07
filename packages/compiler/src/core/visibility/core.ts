@@ -207,6 +207,24 @@ function groupModifiersByVisibilityClass(modifiers: EnumMember[]): Map<Enum, Set
 const [getLegacyVisibility, setLegacyVisibilityModifiers, getLegacyVisibilityStateMap] =
   useStateMap<ModelProperty, string[]>("legacyVisibility");
 
+// const [getLegacyVisibilityIsExplicit, _setLegacyVisibilityIsExplicit] = useStateSet<ModelProperty>(
+//   "legacyVisibilityIsExplicit",
+// );
+
+// /**
+//  * Sets a flag indicating that legacy visibility modifiers should be considered "explicitly initialized."
+//  *
+//  * This is used to differentiate between legacy visibility cases where visibility is _not_ set, and legacy
+//  * `getVisibility` should return `undefined` and cases where visibility is set to an empty array, and legacy
+//  * visibility should return `[]`.
+//  *
+//  * @param context - the decorator context to use
+//  * @param property - the property to set the flag for
+//  */
+// export function setLegacyVisibilityIsExplicit(program: Program, property: ModelProperty) {
+//   _setLegacyVisibilityIsExplicit(program, property);
+// }
+
 /**
  * Sets the legacy visibility modifiers for a property.
  *
@@ -234,7 +252,7 @@ export function setLegacyVisibility(
 
   const lifecycleClass = getLifecycleVisibilityEnum(program);
 
-  if (visibilities.length === 1 && visibilities[0] === "none") {
+  if (visibilities.length === 0 || (visibilities.length === 1 && visibilities[0] === "none")) {
     clearVisibilityModifiersForClass(program, property, lifecycleClass, context);
   } else {
     const lifecycleVisibilities = visibilities
@@ -287,8 +305,8 @@ export function getVisibility(program: Program, property: ModelProperty): string
   // Visibility is completely uninitialized, so return undefined to mimic legacy behavior.
   if (!lifecycleModifiers) return undefined;
 
-  // Visibility has been cleared explicitly: return ["none"] to mimic legacy application of visibility "none".
-  if (lifecycleModifiers.size === 0) return ["none"];
+  // Visibility has been cleared explicitly, so return [] to mimic legacy behavior.
+  if (lifecycleModifiers.size === 0) return [];
 
   // Otherwise we just convert the modifiers to strings.
   return Array.from(lifecycleModifiers).map((v) => v.name.toLowerCase());
