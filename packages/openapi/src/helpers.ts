@@ -71,7 +71,7 @@ export function getOpenAPITypeName(
 }
 
 function checkAvailableTypeName(program: Program, type: Type, name: string) {
-  const pattern = /^[a-zA-Z0-9.-_]+$/;
+  const pattern = /^[\w\\.\\-\\<\\>]+$/;
   if (!pattern.test(name)) {
     reportDiagnostic(program, {
       code: "invalid-type-name",
