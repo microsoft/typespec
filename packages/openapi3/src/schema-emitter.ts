@@ -45,7 +45,6 @@ import {
   isNeverType,
   isNullType,
   isSecret,
-  isTemplateDeclaration,
   resolveEncodedName,
   serializeValueAsJson,
 } from "@typespec/compiler";
@@ -83,6 +82,7 @@ import {
   OpenAPI3Schema,
   OpenAPI3SchemaProperty,
 } from "./types.js";
+import { includeDerivedModel, isLiteralType, literalType } from "./util.js";
 import { VisibilityUsageTracker } from "./visibility-usage.js";
 import { XmlModule } from "./xml-module.js";
 
@@ -925,30 +925,6 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     const sourceFile = this.emitter.createSourceFile("openapi");
     return { scope: sourceFile.globalScope };
   }
-}
-
-function isLiteralType(type: Type): type is StringLiteral | NumericLiteral | BooleanLiteral {
-  return type.kind === "Boolean" || type.kind === "String" || type.kind === "Number";
-}
-
-function literalType(type: StringLiteral | NumericLiteral | BooleanLiteral) {
-  switch (type.kind) {
-    case "String":
-      return "string";
-    case "Number":
-      return "number";
-    case "Boolean":
-      return "boolean";
-  }
-}
-
-function includeDerivedModel(model: Model): boolean {
-  return (
-    !isTemplateDeclaration(model) &&
-    (model.templateMapper?.args === undefined ||
-      model.templateMapper.args?.length === 0 ||
-      model.derivedModels.length > 0)
-  );
 }
 
 const B = {
