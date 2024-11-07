@@ -71,7 +71,7 @@ defineKit<Typekit>({
           return [];
         }
         const subnamespaces: (Namespace | Interface)[] = [
-          ...$.clientLibrary.listNamespaces(clientType),
+          ...$.clientLibrary.listNamespaces(clientType),                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
           ...clientType.interfaces.values(),
         ];
         return subnamespaces.map((sn) => {

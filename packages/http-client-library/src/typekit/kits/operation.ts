@@ -55,7 +55,7 @@ defineKit<SdkKit>({
         if (validTypes.length === 1) {
           return validTypes[0].type;
         }
-        return $.union.create({ name: "ValidReturnTypes", variants: validTypes });
+        return $.union.create({ variants: validTypes });
       }
       if (!$.type.isError(returnType)) {
         return returnType;
@@ -75,7 +75,7 @@ defineKit<SdkKit>({
         if (errorTypes.length === 1) {
           return errorTypes[0].type;
         }
-        return $.union.create({ name: "ErrorReturnTypes", variants: errorTypes });
+        return $.union.create({ variants: errorTypes });
       }
       if ($.type.isError(returnType)) {
         return returnType;

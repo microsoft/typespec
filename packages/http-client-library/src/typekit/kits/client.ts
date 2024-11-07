@@ -8,17 +8,21 @@ import {
   Operation,
 } from "@typespec/compiler";
 import { $, defineKit } from "@typespec/compiler/typekit";
+import { getServers } from "@typespec/http";
 import { Client } from "../../interfaces.js";
-import { addCredentialParameter, addEndpointParameter } from "../../utils/client-initialization.js";
+import {
+  getCredentalParameter,
+  getEndpointParametersPerConstructor,
+} from "../../utils/client-initialization.js";
 import { NameKit } from "./utils.js";
 
 interface ClientKit extends NameKit<Client> {
   /**
-   * Return the model that should be used to initialize the client.
+   * Get the constructors for a client
    *
-   * @param client the client to get the initialization model for
+   * @param client The client we're getting constructors for
    */
-  getParameters(client: Client): ModelProperty[];
+  getConstructors(client: Client): Operation[];
 
   /**
    * Whether the client is publicly initializable
@@ -31,6 +35,10 @@ interface ClientKit extends NameKit<Client> {
    * @param client the client to get the methods for
    */
   listServiceOperations(client: Client): Operation[];
+
+  /**
+   * Get the url template of a client, given its constructor as well */
+  getUrlTemplate(client: Client, constructor: Operation): string;
 }
 
 interface TypeKit {
@@ -44,16 +52,42 @@ declare module "@typespec/compiler/typekit" {
 
 defineKit<TypeKit>({
   client: {
-    getName(client) {
-      return client.name;
-    },
-    getParameters(client) {
-      const params: ModelProperty[] = [addEndpointParameter(client)];
-      const credParam = addCredentialParameter(client);
+    getConstructors(client) {
+      const constructors: Operation[] = [];
+      let params: ModelProperty[] = [];
+      const credParam = getCredentalParameter(client);
       if (credParam) {
         params.push(credParam);
       }
-      return params;
+      const endpointParams = getEndpointParametersPerConstructor(client);
+      if (endpointParams.length === 1) {
+        // this means we have a single constructor
+        params = [...endpointParams[0], ...params];
+        constructors.push(
+          $.operation.create({
+            name: "constructor",
+            parameters: params,
+            returnType: $.program.checker.voidType,
+          }),
+        );
+      } else {
+        // this means we have multiple constructors, one for each group of endpoint parameter
+        for (const endpointParamGrouping of endpointParams) {
+          params = [...endpointParamGrouping, ...params];
+          constructors.push(
+            $.operation.create({
+              name: "constructor",
+              parameters: params,
+              returnType: $.program.checker.voidType,
+            }),
+          );
+        }
+      }
+
+      return constructors;
+    },
+    getName(client) {
+      return client.name;
     },
     isPubliclyInitializable(client) {
       return client.type.kind === "Namespace";
@@ -94,6 +128,26 @@ defineKit<TypeKit>({
 
       addOperations(client.type);
       return operations;
+    },
+    getUrlTemplate(client, constructor) {
+      const params = $.operation.getParameters(client, constructor);
+      const endpointParams = params
+        .filter((p) => $.modelProperty.isEndpoint(client, p))
+        .map((p) => p.name)
+        .sort();
+      if (endpointParams.length === 1) {
+        return "{endpoint}";
+      }
+      // here we have multiple templated arguments to an endpoint
+      const servers = getServers($.program, client.service) || [];
+      for (const server of servers) {
+        const serverParams = [...server.parameters.values()].map((p) => p.name).sort();
+        if (JSON.stringify(serverParams) === JSON.stringify(endpointParams)) {
+          // this is the server we want
+          return server.url;
+        }
+      }
+      return "{endpoint}";
     },
   },
 });

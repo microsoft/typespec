@@ -42,6 +42,10 @@ describe("listNamespaces", () => {
     const subNamespaces = $.clientLibrary.listNamespaces($.clientLibrary.listNamespaces()[0]);
     expect(subNamespaces).toHaveLength(1);
     expect(subNamespaces[0].name).toEqual("NestedService");
+
+    const subSubNamespaces = $.clientLibrary.listNamespaces(subNamespaces[0]);
+    expect(subSubNamespaces).toHaveLength(1);
+    expect(subSubNamespaces[0].name).toEqual("NestedNestedService");
   });
 });
 

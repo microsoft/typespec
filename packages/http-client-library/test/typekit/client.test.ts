@@ -12,7 +12,7 @@ beforeEach(async () => {
   runner = await createTypespecHttpClientLibraryTestRunner();
 });
 
-describe("getParameters", () => {
+describe("getConstructors", () => {
   describe("credential parameter", () => {
     it("none", async () => {
       const { DemoService } = (await runner.compile(`
@@ -23,8 +23,9 @@ describe("getParameters", () => {
         `)) as { DemoService: Namespace };
 
       const client = $.clientLibrary.listClients(DemoService)[0];
-      const params = $.client.getParameters(client);
-      expect(params).toHaveLength(1);
+      const constructors = $.client.getConstructors(client);
+      expect(constructors).toHaveLength(1);
+      const params = $.operation.getParameters(client, constructors[0]);
       expect(params[0].name).toEqual("endpoint");
       expect($.scalar.isString(params[0].type)).toBeTruthy();
     });
@@ -38,7 +39,9 @@ describe("getParameters", () => {
         `)) as { DemoService: Namespace };
 
       const client = $.clientLibrary.listClients(DemoService)[0];
-      const params = $.client.getParameters(client);
+      const constructors = $.client.getConstructors(client);
+      expect(constructors).toHaveLength(1);
+      const params = $.operation.getParameters(client, constructors[0]);
       expect(params).toHaveLength(2);
       expect(params[0].name).toEqual("endpoint");
       expect($.scalar.isString(params[0].type)).toBeTruthy();
@@ -61,7 +64,9 @@ describe("getParameters", () => {
         `)) as { DemoService: Namespace };
 
       const client = $.clientLibrary.listClients(DemoService)[0];
-      const params = $.client.getParameters(client);
+      const constructors = $.client.getConstructors(client);
+      expect(constructors).toHaveLength(1);
+      const params = $.operation.getParameters(client, constructors[0]);
       expect(params).toHaveLength(2);
       expect(params[0].name).toEqual("endpoint");
       expect($.scalar.isString(params[0].type)).toBeTruthy();
@@ -69,6 +74,68 @@ describe("getParameters", () => {
       expect(credParam.name).toEqual("credential");
       ok($.literal.isString(credParam.type));
       expect(credParam.type.value).toEqual("oauth2");
+    });
+  });
+  describe("endpoint", () => {
+    it("no servers", async () => {
+      const { DemoService } = (await runner.compile(`
+        @service({
+          title: "Widget Service",
+        })
+        @test namespace DemoService;
+        `)) as { DemoService: Namespace };
+
+      const client = $.clientLibrary.listClients(DemoService)[0];
+      const constructors = $.client.getConstructors(client);
+      expect(constructors).toHaveLength(1);
+      const params = $.operation.getParameters(client, constructors[0]);
+      expect(params).toHaveLength(1);
+      expect(params[0].name).toEqual("endpoint");
+      expect($.scalar.isString(params[0].type)).toBeTruthy();
+    });
+    it("one server", async () => {
+      const { DemoService } = (await runner.compile(`
+        @server("https://example.com", "The service endpoint")
+        @service({
+          title: "Widget Service",
+        })
+        @test namespace DemoService;
+        `)) as { DemoService: Namespace };
+
+      const client = $.clientLibrary.listClients(DemoService)[0];
+      const constructors = $.client.getConstructors(client);
+      expect(constructors).toHaveLength(1);
+      const params = $.operation.getParameters(client, constructors[0]);
+      expect(params).toHaveLength(0);
+    });
+    it("one server with parameter", async () => {
+      const { DemoService } = (await runner.compile(`
+        @server("https://example.com/{name}/foo", "My service url", { name: string })
+        @service({
+          title: "Widget Service",
+        })
+        @test namespace DemoService;
+        `)) as { DemoService: Namespace };
+
+      const client = $.clientLibrary.listClients(DemoService)[0];
+      const constructors = $.client.getConstructors(client);
+      expect(constructors).toHaveLength(1);
+      const params = $.operation.getParameters(client, constructors[0]);
+      expect(params).toHaveLength(1);
+    });
+    it("multiple servers", async () => {
+      const { DemoService } = (await runner.compile(`
+        @server("https://example.com", "The service endpoint")
+        @server("https://example.org", "The service endpoint")
+        @service({
+          title: "Widget Service",
+        })
+        @test namespace DemoService;
+        `)) as { DemoService: Namespace };
+      const client = $.clientLibrary.listClients(DemoService)[0];
+      const constructors = $.client.getConstructors(client);
+      expect(constructors).toHaveLength(2);
+      
     });
   });
 });
@@ -126,5 +193,72 @@ describe("isPubliclyInitializable", () => {
     expect(subclients).toHaveLength(1);
     expect(subclients[0].name).toEqual("NestedInterfaceClient");
     expect($.client.isPubliclyInitializable(subclients[0])).toBeFalsy();
+  });
+});
+
+describe("getEndpoint", () => {
+  it("no servers", async () => {
+    const { DemoService } = (await runner.compile(`
+      @service({
+        title: "Widget Service",
+      })
+      @test namespace DemoService;
+      `)) as { DemoService: Namespace };
+
+    const client = $.clientLibrary.listClients(DemoService)[0];
+    const urlTemplate = $.client.getUrlTemplate(client);
+    ok($.literal.isString(endpoint));
+    expect(endpoint.value).toEqual("{endpoint}");
+  });
+  it("one server", async () => {
+    const { DemoService } = (await runner.compile(`
+      @server("https://example.com", "The service endpoint")
+      @service({
+        title: "Widget Service",
+      })
+      @test namespace DemoService;
+      `)) as { DemoService: Namespace };
+
+    const client = $.clientLibrary.listClients(DemoService)[0];
+    const endpoint = $.client.getEndpoint(client);
+    ok($.literal.isString(endpoint));
+    expect(endpoint.value).toEqual("https://example.com");
+  });
+  it("one server with parameter", async () => {
+    const { DemoService } = (await runner.compile(`
+      @server("https://example.com/{name}/foo", "My service url", { name: string })
+      @service({
+        title: "Widget Service",
+      })
+      @test namespace DemoService;
+      `)) as { DemoService: Namespace };
+    const client = $.clientLibrary.listClients(DemoService)[0];
+    const endpoint = $.client.getEndpoint(client);
+    ok($.literal.isString(endpoint));
+    expect(endpoint.value).toEqual("https://example.com/{name}/foo");
+  });
+  it("multiple servers", async () => {
+    const { DemoService } = (await runner.compile(`
+      @server("https://example.com", "The service endpoint")
+      @server("https://example.org", "The service endpoint")
+      @service({
+        title: "Widget Service",
+      })
+      @test namespace DemoService;
+      `)) as { DemoService: Namespace };
+
+    const client = $.clientLibrary.listClients(DemoService)[0];
+    const endpoint = $.client.getEndpoint(client);
+    ok($.union.is(endpoint));
+    const variants = [...endpoint.variants.values()];
+    expect(variants).toHaveLength(2);
+    const com = variants.find(
+      (v) => $.literal.isString(v.type) && v.type.value === "https://example.com",
+    );
+    ok(com);
+    const org = variants.find(
+      (v) => $.literal.isString(v.type) && v.type.value === "https://example.org",
+    );
+    ok(org);
   });
 });

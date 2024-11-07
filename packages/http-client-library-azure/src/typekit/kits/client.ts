@@ -44,7 +44,7 @@ defineKit<TypeKit>({
           properties: {},
         });
       addEndpointParameter(client, base);
-      // addCredentialParameter(client, base);
+      // getCredentalParameter(client, base);
       return base;
     },
     listSubClientAccessors(client) {

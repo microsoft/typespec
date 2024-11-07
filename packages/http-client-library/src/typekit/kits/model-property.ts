@@ -1,4 +1,4 @@
-import { BaseType, ModelProperty } from "@typespec/compiler";
+import { BaseType, ModelProperty, Value } from "@typespec/compiler";
 import { $, defineKit } from "@typespec/compiler/typekit";
 import { getAuthentication, HttpAuth } from "@typespec/http";
 import { Client } from "../../interfaces.js";
@@ -41,16 +41,12 @@ export interface SdkModelPropertyKit extends NameKit<ModelProperty>, AccessKit<M
   /**
    * Returns whether the model property has a client default value or not.
    */
-  getClientDefaultValue(modelProperty: ModelProperty): unknown;
+  getClientDefaultValue(client: Client, modelProperty: ModelProperty): Value | undefined;
 
   /**
    * Get access of a property
    */
   getAccess(modelProperty: ModelProperty): "public" | "internal";
-
-  /**
-   *
-   */
 }
 
 interface TypeKit {
@@ -75,9 +71,11 @@ defineKit<TypeKit>({
     isOnClient(modelProperty) {
       return false;
     },
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    getClientDefaultValue(modelProperty) {
-      return undefined;
+    getClientDefaultValue(client, modelProperty) {
+      if ($.modelProperty.isEndpoint(client, modelProperty)) {
+        return modelProperty.defaultValue;
+      }
+      return undefined
     },
     getCredentialAuth(client, type) {
       const isCredential = $.client
