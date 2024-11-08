@@ -1,7 +1,5 @@
 ---
 title: "Built-in Data types"
-toc_min_heading_level: 2
-toc_max_heading_level: 3
 ---
 ## TypeSpec
 ### `Array` {#Array}
@@ -17,6 +15,78 @@ model Array<Element>
 |------|-------------|
 | Element | The type of the array elements |
 
+
+#### Properties
+None
+
+### `Create` {#Create}
+
+A copy of the input model `T` with only the properties that are visible during the
+"Create" resource lifecycle phase.
+
+This transformation is recursive, and will include only properties that have the
+`Lifecycle.Create` visibility modifier.
+
+If a `NameTemplate` is provided, the new model will be named according to the template.
+The template uses the same syntax as the `@friendlyName` decorator.
+```typespec
+model Create<T, NameTemplate>
+```
+
+#### Template Parameters
+| Name | Description |
+|------|-------------|
+| T | The model to transform. |
+| NameTemplate | The name template to use for the new model.<br /><br />* |
+
+#### Examples
+
+```typespec
+model Dog {
+  @visibility(Lifecycle.Read)
+  id: int32;
+
+  name: string;
+}
+
+model CreateDog is Create<Dog>;
+```
+
+#### Properties
+None
+
+### `CreateOrUpdate` {#CreateOrUpdate}
+
+A copy of the input model `T` with only the properties that are visible during the
+"Create" or "Update" resource lifecycle phases.
+
+This transformation is recursive, and will include only properties that have the
+`Lifecycle.Create` or `Lifecycle.Update` visibility modifier.
+
+If a `NameTemplate` is provided, the new model will be named according to the template.
+The template uses the same syntax as the `@friendlyName` decorator.
+```typespec
+model CreateOrUpdate<T, NameTemplate>
+```
+
+#### Template Parameters
+| Name | Description |
+|------|-------------|
+| T | The model to transform. |
+| NameTemplate | The name template to use for the new model.<br /><br />* |
+
+#### Examples
+
+```typespec
+model Dog {
+  @visibility(Lifecycle.Read)
+  id: int32;
+
+  name: string;
+}
+
+model CreateOrUpdateDog is CreateOrUpdate<Dog>;
+```
 
 #### Properties
 None
@@ -53,7 +123,7 @@ model ExampleOptions
 | description? | [`string`](#string) | Description of the example |
 
 ### `object` {#object}
-:::warning
+:::caution
 **Deprecated**: object is deprecated. Please use {} for an empty model, `Record<unknown>` for a record with unknown property types, `unknown[]` for an array.
 :::
 
@@ -146,6 +216,42 @@ model PickProperties<Source, Keys>
 #### Properties
 None
 
+### `Read` {#Read}
+
+A copy of the input model `T` with only the properties that are visible during the
+"Read" resource lifecycle phase.
+
+This transformation is recursive, and will include only properties that have the
+`Lifecycle.Read` visibility modifier.
+
+If a `NameTemplate` is provided, the new model will be named according to the template.
+The template uses the same syntax as the `@friendlyName` decorator.
+```typespec
+model Read<T, NameTemplate>
+```
+
+#### Template Parameters
+| Name | Description |
+|------|-------------|
+| T | The model to transform. |
+| NameTemplate | The name template to use for the new model.<br /><br />* |
+
+#### Examples
+
+```typespec
+model Dog {
+  @visibility(Lifecycle.Read)
+  id: int32;
+
+  name: string;
+}
+
+model ReadDog is Read<Dog>;
+```
+
+#### Properties
+None
+
 ### `Record` {#Record}
 
 
@@ -177,6 +283,43 @@ model ServiceOptions
 | title? | [`string`](#string) | Title of the service. |
 | version? | [`string`](#string) | Version of the service. |
 
+### `Update` {#Update}
+
+A copy of the input model `T` with only the properties that are visible during the
+"Update" resource lifecycle phase.
+
+This transformation will include only the properties that have the `Lifecycle.Update`
+visibility modifier, and the types of all properties will be replaced with the
+equivalent `CreateOrUpdate` transformation.
+
+If a `NameTemplate` is provided, the new model will be named according to the template.
+The template uses the same syntax as the `@friendlyName` decorator.
+```typespec
+model Update<T, NameTemplate>
+```
+
+#### Template Parameters
+| Name | Description |
+|------|-------------|
+| T | The model to transform. |
+| NameTemplate | The name template to use for the new model.<br /><br />* |
+
+#### Examples
+
+```typespec
+model Dog {
+  @visibility(Lifecycle.Read)
+  id: int32;
+
+  name: string;
+}
+
+model UpdateDog is Update<Dog>;
+```
+
+#### Properties
+None
+
 ### `UpdateableProperties` {#UpdateableProperties}
 
 Represents a collection of updateable properties.
@@ -192,6 +335,27 @@ model UpdateableProperties<Source>
 
 #### Properties
 None
+
+### `VisibilityFilter` {#VisibilityFilter}
+
+A visibility filter, used to specify which properties should be included when
+using the `withVisibilityFilter` decorator.
+
+The filter matches any property with ALL of the following:
+- If the `any` key is present, the property must have at least one of the specified visibilities.
+- If the `all` key is present, the property must have all of the specified visibilities.
+- If the `none` key is present, the property must have none of the specified visibilities.
+```typespec
+model VisibilityFilter
+```
+
+
+#### Properties
+| Name | Type | Description |
+|------|------|-------------|
+| any? | `EnumMember[]` |  |
+| all? | `EnumMember[]` |  |
+| none? | `EnumMember[]` |  |
 
 ### `ArrayEncoding` {#ArrayEncoding}
 
@@ -244,6 +408,38 @@ enum DurationKnownEncoding
 |------|-------|-------------|
 | ISO8601 | `"ISO8601"` | ISO8601 duration |
 | seconds | `"seconds"` | Encode to integer or float |
+
+
+### `Lifecycle` {#Lifecycle}
+
+A visibility class for resource lifecycle phases.
+
+These visibilities control whether a property is visible during the create, read, and update phases of a resource's
+lifecycle.
+```typespec
+enum Lifecycle
+```
+
+| Name | Value | Description |
+|------|-------|-------------|
+| Create |  |  |
+| Read |  |  |
+| Update |  |  |
+#### Examples
+
+```typespec
+model Dog {
+ @visibility(Lifecycle.Read) id: int32;
+ @visibility(Lifecycle.Create, Lifecycle.Update) secretName: string;
+ name: string;
+}
+```
+
+In this example, the `id` property is only visible during the read phase, and the `secretName` property is only visible
+during the create and update phases. This means that the server will return the `id` property when returning a `Dog`,
+but the client will not be able to set or update it. In contrast, the `secretName` property can be set when creating
+or updating a `Dog`, but the server will never return it. The `name` property has no visibility modifiers and is
+therefore visible in all phases.
 
 
 ### `boolean` {#boolean}

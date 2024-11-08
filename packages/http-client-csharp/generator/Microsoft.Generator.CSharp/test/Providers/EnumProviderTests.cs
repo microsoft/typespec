@@ -149,6 +149,8 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             Assert.IsInstanceOf<AutoPropertyBody>(properties[1].Body);
             var propertyValue2 = (properties[1].Body as AutoPropertyBody)?.InitializationExpression;
             Assert.IsNotNull(propertyValue2);
+
+            ValidateGetHashCodeMethod(enumType);
         }
 
         // Validates the float based extensible enum
@@ -191,6 +193,8 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             Assert.IsInstanceOf<AutoPropertyBody>(properties[1].Body);
             var propertyValue2 = (properties[1].Body as AutoPropertyBody)?.InitializationExpression;
             Assert.IsNotNull(propertyValue2);
+
+            ValidateGetHashCodeMethod(enumType);
         }
 
         // Validates the string based extensible enum
@@ -233,6 +237,21 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             Assert.IsInstanceOf<AutoPropertyBody>(properties[1].Body);
             var propertyValue2 = (properties[1].Body as AutoPropertyBody)?.InitializationExpression;
             Assert.IsNotNull(propertyValue2);
+
+            ValidateGetHashCodeMethod(enumType);
+        }
+
+        private static void ValidateGetHashCodeMethod(EnumProvider enumType)
+        {
+            var getHashCodeMethod = enumType.Methods.Single(m => m.Signature.Name == "GetHashCode");
+            Assert.IsNotNull(getHashCodeMethod);
+            Assert.AreEqual(1, getHashCodeMethod.Signature.Attributes.Count);
+            Assert.AreEqual(
+                "global::System.ComponentModel.EditorBrowsableAttribute",
+                getHashCodeMethod.Signature.Attributes[0].Type.ToString());
+            Assert.AreEqual(
+                "global::System.ComponentModel.EditorBrowsableState.Never",
+                getHashCodeMethod.Signature.Attributes[0].Arguments[0].ToDisplayString());
         }
     }
 }

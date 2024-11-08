@@ -29,7 +29,7 @@ model TypeSpecProjectSchema {
   parameters?: Record<{default: string}>
   "environment-variables"?: Record<{default: string}>
   "warn-as-error"?: boolean;
-  "output-dir"?: boolean;
+  "output-dir"?: string;
   "trace"?: string | string[];
   imports?: string;
   emit?: string[];

@@ -828,69 +828,440 @@ describe("Complex array types", () => {
 });
 
 describe("set xml name in items if that object is used in an xml payload.", () => {
-  it.each([
-    ["@name model", true, `@name("xmlAuthor") model Author { id:string; }`, "xmlAuthor"],
-    ["@name", true, `model Author { @name("xmlId") id:string; }`, "Author"],
-    ["@attribute", true, "model Author { @attribute id:string; }", "Author"],
+  const testCases: [string, string, string, any][] = [
     [
-      "@attribute deeply",
-      true,
-      `model Author { card: Card[]; } model Card { @attribute id:string;}`,
-      "Author",
-    ],
-    [
-      "circular reference child",
-      true,
-      `model Author { @attribute id: string; card: Card[]; } model Card { author:Author[];}`,
-      "Author",
-    ],
-    [
-      "circular reference root",
-      true,
-      `model Author {  @attribute  id: string;  book?: Book[]; }`,
-      "Author",
-    ],
-    ["@name model", false, `@name("XmlAuthor") model Author { name: string; }`, ""],
-    ["@name", false, `model Author { @name("xmlId") name: string; }`, ""],
-    ["@attribute", false, "model Author { @attribute name: string; }", ""],
-    [
-      "circular reference root",
-      false,
-      `model Author {  @attribute  id: string;  book?: Book; }`,
-      "",
-    ],
-    ["scalar", false, `@name("XmlAuthor") scalar Author extends string;`, ""],
-  ])(`%s, is array: %s`, async (_, isArray, refModel, xmlName) => {
-    const mainModel = isArray
-      ? "model Book { author: Author[]; }"
-      : "model Book { author: Author; }";
-    const author = isArray
-      ? {
-          type: "array",
-          items: {
-            allOf: [{ $ref: "#/components/schemas/Author" }],
-            xml: { name: `${xmlName}` },
+      "@name model, is arrays: true",
+      "model Book { author: Author[]; }",
+      `@name("xmlAuthor") model Author { id:string; }`,
+      {
+        Book: {
+          type: "object",
+          properties: {
+            author: {
+              type: "array",
+              items: {
+                allOf: [{ $ref: "#/components/schemas/Author" }],
+                xml: { name: "xmlAuthor" },
+              },
+              xml: {
+                wrapped: true,
+              },
+            },
+          },
+          required: ["author"],
+        },
+        Author: {
+          type: "object",
+          properties: {
+            id: {
+              type: "string",
+            },
           },
           xml: {
-            wrapped: true,
+            name: "xmlAuthor",
           },
-        }
-      : {
-          allOf: [{ $ref: "#/components/schemas/Author" }],
-          xml: { name: "author" },
-        };
+          required: ["id"],
+        },
+      },
+    ],
+    [
+      "@name model property, is arrays: true",
+      "model Book { author: Author[]; }",
+      `model Author { @name("xmlId") id:string; }`,
+      {
+        Book: {
+          type: "object",
+          properties: {
+            author: {
+              type: "array",
+              items: {
+                allOf: [{ $ref: "#/components/schemas/Author" }],
+                xml: { name: "Author" },
+              },
+              xml: {
+                wrapped: true,
+              },
+            },
+          },
+          required: ["author"],
+        },
+        Author: {
+          type: "object",
+          properties: {
+            id: {
+              type: "string",
+              xml: {
+                name: "xmlId",
+              },
+            },
+          },
+          required: ["id"],
+        },
+      },
+    ],
+    [
+      "@attribute, is arrays: true",
+      "model Book { author: Author[]; }",
+      `model Author { @attribute id:string; }`,
+      {
+        Book: {
+          type: "object",
+          properties: {
+            author: {
+              type: "array",
+              items: {
+                allOf: [{ $ref: "#/components/schemas/Author" }],
+                xml: { name: "Author" },
+              },
+              xml: {
+                wrapped: true,
+              },
+            },
+          },
+          required: ["author"],
+        },
+        Author: {
+          type: "object",
+          properties: {
+            id: {
+              type: "string",
+              xml: {
+                attribute: true,
+              },
+            },
+          },
+          required: ["id"],
+        },
+      },
+    ],
+    [
+      "@attribute deeply, is arrays: true",
+      "model Book { author: Author[]; }",
+      `model Author { card: Card[]; } model Card { @attribute id:string;}`,
+      {
+        Book: {
+          type: "object",
+          properties: {
+            author: {
+              type: "array",
+              items: {
+                allOf: [{ $ref: "#/components/schemas/Author" }],
+                xml: { name: "Author" },
+              },
+              xml: {
+                wrapped: true,
+              },
+            },
+          },
+          required: ["author"],
+        },
+        Author: {
+          type: "object",
+          properties: {
+            card: {
+              type: "array",
+              items: {
+                allOf: [{ $ref: "#/components/schemas/Card" }],
+                xml: { name: "Card" },
+              },
+              xml: {
+                wrapped: true,
+              },
+            },
+          },
+          required: ["card"],
+        },
+        Card: {
+          properties: {
+            id: {
+              type: "string",
+              xml: {
+                attribute: true,
+              },
+            },
+          },
+          required: ["id"],
+          type: "object",
+        },
+      },
+    ],
+    [
+      "circular reference child, is arrays: true",
+      "model Book { author: Author[]; }",
+      `model Author { @attribute id: string; card: Card[]; } model Card { author:Author[];}`,
+      {
+        Book: {
+          type: "object",
+          properties: {
+            author: {
+              type: "array",
+              items: {
+                allOf: [{ $ref: "#/components/schemas/Author" }],
+                xml: { name: "Author" },
+              },
+              xml: {
+                wrapped: true,
+              },
+            },
+          },
+          required: ["author"],
+        },
+        Author: {
+          type: "object",
+          properties: {
+            card: {
+              type: "array",
+              items: {
+                allOf: [{ $ref: "#/components/schemas/Card" }],
+                xml: { name: "Card" },
+              },
+              xml: {
+                wrapped: true,
+              },
+            },
+            id: {
+              type: "string",
+              xml: {
+                attribute: true,
+              },
+            },
+          },
+          required: ["id", "card"],
+        },
+        Card: {
+          properties: {
+            author: {
+              items: {
+                $ref: "#/components/schemas/Author",
+              },
+              type: "array",
+            },
+          },
+          required: ["author"],
+          type: "object",
+        },
+      },
+    ],
+    [
+      "circular reference root, is arrays: true",
+      "model Book { author: Author[]; }",
+      `model Author {  @attribute  id: string;  book?: Book[]; }`,
+      {
+        Book: {
+          type: "object",
+          properties: {
+            author: {
+              type: "array",
+              items: {
+                allOf: [{ $ref: "#/components/schemas/Author" }],
+                xml: { name: "Author" },
+              },
+              xml: {
+                wrapped: true,
+              },
+            },
+          },
+          required: ["author"],
+        },
+        Author: {
+          type: "object",
+          properties: {
+            book: {
+              type: "array",
+              items: {
+                allOf: [{ $ref: "#/components/schemas/Book" }],
+                xml: { name: "Book" },
+              },
+              xml: {
+                wrapped: true,
+              },
+            },
+            id: {
+              type: "string",
+              xml: {
+                attribute: true,
+              },
+            },
+          },
+          required: ["id"],
+        },
+      },
+    ],
+    [
+      "@name model, is arrays: false",
+      "model Book { author: Author; }",
+      `@name("XmlAuthor") model Author { name: string; }`,
+      {
+        Book: {
+          type: "object",
+          properties: {
+            author: {
+              allOf: [{ $ref: "#/components/schemas/Author" }],
+              xml: { name: "author" },
+            },
+          },
+          required: ["author"],
+        },
+        Author: {
+          type: "object",
+          properties: {
+            name: {
+              type: "string",
+            },
+          },
+          xml: {
+            name: "XmlAuthor",
+          },
+          required: ["name"],
+        },
+      },
+    ],
+    [
+      "@name model property, is arrays: false",
+      "model Book { author: Author; }",
+      `model Author { @name("xmlId") name: string; }`,
+      {
+        Book: {
+          type: "object",
+          properties: {
+            author: {
+              allOf: [{ $ref: "#/components/schemas/Author" }],
+              xml: { name: "author" },
+            },
+          },
+          required: ["author"],
+        },
+        Author: {
+          type: "object",
+          properties: {
+            name: {
+              type: "string",
+              xml: {
+                name: "xmlId",
+              },
+            },
+          },
+          required: ["name"],
+        },
+      },
+    ],
+    [
+      "@attribute, is arrays: false",
+      "model Book { author: Author; }",
+      "model Author { @attribute name: string; }",
+      {
+        Book: {
+          type: "object",
+          properties: {
+            author: {
+              allOf: [{ $ref: "#/components/schemas/Author" }],
+              xml: { name: "author" },
+            },
+          },
+          required: ["author"],
+        },
+        Author: {
+          type: "object",
+          properties: {
+            name: {
+              type: "string",
+              xml: {
+                attribute: true,
+              },
+            },
+          },
+          required: ["name"],
+        },
+      },
+    ],
+    [
+      "circular reference root, is arrays: false",
+      "model Book { author: Author; }",
+      `model Author {  @attribute  id: string;  book?: Book; }`,
+      {
+        Book: {
+          type: "object",
+          properties: {
+            author: {
+              allOf: [{ $ref: "#/components/schemas/Author" }],
+              xml: { name: "author" },
+            },
+          },
+          required: ["author"],
+        },
+        Author: {
+          type: "object",
+          properties: {
+            id: {
+              type: "string",
+              xml: { attribute: true },
+            },
+            book: {
+              allOf: [{ $ref: "#/components/schemas/Book" }],
+              xml: { name: "book" },
+            },
+          },
+          required: ["id"],
+        },
+      },
+    ],
+    [
+      "scalar, is arrays: false",
+      "model Book { author: Author; }",
+      `@name("XmlAuthor") scalar Author extends string;`,
+      {
+        Book: {
+          type: "object",
+          properties: {
+            author: {
+              allOf: [{ $ref: "#/components/schemas/Author" }],
+              xml: { name: "author" },
+            },
+          },
+          required: ["author"],
+        },
+        Author: {
+          type: "string",
+          xml: { name: "XmlAuthor" },
+        },
+      },
+    ],
+  ];
+  it.each(testCases)("%s", async (_, mainModel, refModel, expected) => {
     const res = await oapiForModel(
       "Book",
       `${mainModel}
        ${refModel}`,
     );
 
-    expect(res.schemas.Book).toMatchObject({
-      type: "object",
-      properties: {
-        author,
-      },
-      required: ["author"],
-    });
+    deepStrictEqual(res?.schemas, expected);
   });
+});
+
+it("test.", async () => {
+  const res = await oapiForModel(
+    "Author",
+    `
+      model Book {
+        author: Author[];
+      }
+
+      model Author {
+      book?: Book[];
+    }`,
+  );
+
+  expect(res.schemas.Author).toMatchInlineSnapshot(`
+    {
+      "properties": {
+        "book": {
+          "items": {
+            "$ref": "#/components/schemas/Book",
+          },
+          "type": "array",
+        },
+      },
+      "type": "object",
+    }
+  `);
 });

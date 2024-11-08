@@ -15,17 +15,17 @@ namespace Client.Naming
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult UnionEnumName(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult UnionEnumName(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> UnionEnumNameAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> UnionEnumNameAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult UnionEnumName(ClientExtensibleEnum body) => throw null;
 
         public virtual Task<ClientResult> UnionEnumNameAsync(ClientExtensibleEnum body) => throw null;
 
-        public virtual ClientResult UnionEnumMemberName(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult UnionEnumMemberName(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> UnionEnumMemberNameAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> UnionEnumMemberNameAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult UnionEnumMemberName(ExtensibleEnum body) => throw null;
 

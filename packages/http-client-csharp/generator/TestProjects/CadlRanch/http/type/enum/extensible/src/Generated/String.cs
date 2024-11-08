@@ -31,17 +31,17 @@ namespace _Type._Enum.Extensible
 
         public virtual Task<ClientResult<DaysOfWeekExtensibleEnum>> GetUnknownValueAsync() => throw null;
 
-        public virtual ClientResult PutKnownValue(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult PutKnownValue(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutKnownValueAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PutKnownValueAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult PutKnownValue(DaysOfWeekExtensibleEnum body) => throw null;
 
         public virtual Task<ClientResult> PutKnownValueAsync(DaysOfWeekExtensibleEnum body) => throw null;
 
-        public virtual ClientResult PutUnknownValue(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult PutUnknownValue(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutUnknownValueAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PutUnknownValueAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult PutUnknownValue(DaysOfWeekExtensibleEnum body) => throw null;
 

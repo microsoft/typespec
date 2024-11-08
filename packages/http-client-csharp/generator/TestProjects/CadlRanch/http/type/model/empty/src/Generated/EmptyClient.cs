@@ -18,9 +18,9 @@ namespace _Type.Model.Empty
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult PutEmpty(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult PutEmpty(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutEmptyAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PutEmptyAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult PutEmpty(EmptyInput input) => throw null;
 
@@ -34,9 +34,9 @@ namespace _Type.Model.Empty
 
         public virtual Task<ClientResult<EmptyOutput>> GetEmptyAsync() => throw null;
 
-        public virtual ClientResult PostRoundTripEmpty(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult PostRoundTripEmpty(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PostRoundTripEmptyAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PostRoundTripEmptyAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult<EmptyInputOutput> PostRoundTripEmpty(EmptyInputOutput body) => throw null;
 

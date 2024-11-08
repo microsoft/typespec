@@ -8,10 +8,6 @@ namespace Parameters.Spread.Models
     {
         public BodyParameter(string name) => throw null;
 
-        public string Name
-        {
-            get => throw null;
-            set => throw null;
-        }
+        public string Name => throw null;
     }
 }
