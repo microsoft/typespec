@@ -739,7 +739,7 @@ export type JsonSchema<AdditionalVocabularies extends {} = {}> = AdditionalVocab
    *
    * @see https://json-schema.org/draft/2020-12/json-schema-validation#name-const
    */
-  const?: any;
+  const?: unknown;
 
   /**
    * Must be strictly greater than 0.
