@@ -70,7 +70,7 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ArgumentNullException"> <paramref name="headParameter"/> or <paramref name="queryParameter"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult SayHi(string headParameter, string queryParameter, string optionalQuery, RequestOptions options)
+        public virtual ClientResult SayHi(string headParameter, string queryParameter, string optionalQuery = null, RequestOptions options = null)
         {
             Argument.AssertNotNull(headParameter, nameof(headParameter));
             Argument.AssertNotNull(queryParameter, nameof(queryParameter));
@@ -94,7 +94,7 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ArgumentNullException"> <paramref name="headParameter"/> or <paramref name="queryParameter"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> SayHiAsync(string headParameter, string queryParameter, string optionalQuery, RequestOptions options)
+        public virtual async Task<ClientResult> SayHiAsync(string headParameter, string queryParameter, string optionalQuery = null, RequestOptions options = null)
         {
             Argument.AssertNotNull(headParameter, nameof(headParameter));
             Argument.AssertNotNull(queryParameter, nameof(queryParameter));
@@ -109,7 +109,7 @@ namespace UnbrandedTypeSpec
         /// <param name="optionalQuery"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="headParameter"/> or <paramref name="queryParameter"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<Thing> SayHi(string headParameter, string queryParameter, string optionalQuery)
+        public virtual ClientResult<Thing> SayHi(string headParameter, string queryParameter, string optionalQuery = null)
         {
             Argument.AssertNotNull(headParameter, nameof(headParameter));
             Argument.AssertNotNull(queryParameter, nameof(queryParameter));
@@ -124,7 +124,7 @@ namespace UnbrandedTypeSpec
         /// <param name="optionalQuery"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="headParameter"/> or <paramref name="queryParameter"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<Thing>> SayHiAsync(string headParameter, string queryParameter, string optionalQuery)
+        public virtual async Task<ClientResult<Thing>> SayHiAsync(string headParameter, string queryParameter, string optionalQuery = null)
         {
             Argument.AssertNotNull(headParameter, nameof(headParameter));
             Argument.AssertNotNull(queryParameter, nameof(queryParameter));
@@ -443,7 +443,7 @@ namespace UnbrandedTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult TopAction(DateTimeOffset action, RequestOptions options)
+        public virtual ClientResult TopAction(DateTimeOffset action, RequestOptions options = null)
         {
             using PipelineMessage message = CreateTopActionRequest(action, options);
             return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
@@ -461,7 +461,7 @@ namespace UnbrandedTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> TopActionAsync(DateTimeOffset action, RequestOptions options)
+        public virtual async Task<ClientResult> TopActionAsync(DateTimeOffset action, RequestOptions options = null)
         {
             using PipelineMessage message = CreateTopActionRequest(action, options);
             return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
@@ -932,7 +932,7 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ArgumentNullException"> <paramref name="accept"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult GetUnknownValue(string accept, RequestOptions options)
+        public virtual ClientResult GetUnknownValue(string accept, RequestOptions options = null)
         {
             Argument.AssertNotNull(accept, nameof(accept));
 
@@ -953,7 +953,7 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ArgumentNullException"> <paramref name="accept"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> GetUnknownValueAsync(string accept, RequestOptions options)
+        public virtual async Task<ClientResult> GetUnknownValueAsync(string accept, RequestOptions options = null)
         {
             Argument.AssertNotNull(accept, nameof(accept));
 
@@ -1112,7 +1112,7 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ArgumentNullException"> <paramref name="id"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult HeadAsBoolean(string id, RequestOptions options)
+        public virtual ClientResult HeadAsBoolean(string id, RequestOptions options = null)
         {
             Argument.AssertNotNull(id, nameof(id));
 
@@ -1133,7 +1133,7 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ArgumentNullException"> <paramref name="id"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> HeadAsBooleanAsync(string id, RequestOptions options)
+        public virtual async Task<ClientResult> HeadAsBooleanAsync(string id, RequestOptions options = null)
         {
             Argument.AssertNotNull(id, nameof(id));
 
@@ -1176,7 +1176,7 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ArgumentNullException"> <paramref name="p1"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult WithApiVersion(string p1, RequestOptions options)
+        public virtual ClientResult WithApiVersion(string p1, RequestOptions options = null)
         {
             Argument.AssertNotNull(p1, nameof(p1));
 
@@ -1197,7 +1197,7 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ArgumentNullException"> <paramref name="p1"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> WithApiVersionAsync(string p1, RequestOptions options)
+        public virtual async Task<ClientResult> WithApiVersionAsync(string p1, RequestOptions options = null)
         {
             Argument.AssertNotNull(p1, nameof(p1));
 

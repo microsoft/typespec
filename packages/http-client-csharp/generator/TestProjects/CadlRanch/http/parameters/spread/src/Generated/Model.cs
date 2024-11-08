@@ -31,9 +31,9 @@ namespace Parameters.Spread
 
         public virtual Task<ClientResult> SpreadCompositeRequestOnlyWithBodyAsync(BodyParameter body) => throw null;
 
-        public virtual ClientResult SpreadCompositeRequestWithoutBody(string name, string testHeader, RequestOptions options) => throw null;
+        public virtual ClientResult SpreadCompositeRequestWithoutBody(string name, string testHeader, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> SpreadCompositeRequestWithoutBodyAsync(string name, string testHeader, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> SpreadCompositeRequestWithoutBodyAsync(string name, string testHeader, RequestOptions options = null) => throw null;
 
         public virtual ClientResult SpreadCompositeRequestWithoutBody(string name, string testHeader) => throw null;
 

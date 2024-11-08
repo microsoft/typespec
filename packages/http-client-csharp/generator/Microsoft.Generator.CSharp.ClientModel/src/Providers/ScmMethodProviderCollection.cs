@@ -365,10 +365,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return conversions;
         }
 
-        public IReadOnlyList<ParameterProvider> MethodParameters => _createRequestMethod.Signature.Parameters;
+        private IReadOnlyList<ParameterProvider> ProtocolMethodParameters => _protocolMethodParameters ??= RestClientProvider.GetMethodParameters(Operation, true);
+        private IReadOnlyList<ParameterProvider>? _protocolMethodParameters;
 
-        private IReadOnlyList<ParameterProvider>? _convenienceMethodParameters;
         private IReadOnlyList<ParameterProvider> ConvenienceMethodParameters => _convenienceMethodParameters ??= RestClientProvider.GetMethodParameters(Operation);
+        private IReadOnlyList<ParameterProvider>? _convenienceMethodParameters;
 
         private ScmMethodProvider BuildProtocolMethod(MethodProvider createRequestMethod, bool isAsync)
         {
@@ -383,25 +384,22 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 methodModifier |= MethodSignatureModifiers.Async;
             }
 
-            ParameterProvider requestOptionsParameter = ScmKnownParameters.RequestOptions;
-            bool addOptionalRequestOptionsParameter = ShouldAddOptionalRequestOptionsParameter();
-
-            // construct the protocol method parameters from the create request method parameters
-            ParameterProvider[] methodParameters = new ParameterProvider[MethodParameters.Count];
-
-            for (var i = 0; i < MethodParameters.Count; i++)
+            var requiredParameters = new List<ParameterProvider>();
+            var optionalParameters = new List<ParameterProvider>();
+            for (var i = 0; i < ProtocolMethodParameters.Count; i++)
             {
-                var parameter = MethodParameters[i];
-                if (parameter == ScmKnownParameters.RequestOptions && addOptionalRequestOptionsParameter)
+                var parameter = ProtocolMethodParameters[i];
+                if (parameter.DefaultValue is null)
                 {
-                    requestOptionsParameter = ScmKnownParameters.OptionalRequestOptions;
-                    methodParameters[i] = requestOptionsParameter;
+                    requiredParameters.Add(parameter);
                 }
                 else
                 {
-                    methodParameters[i] = parameter;
+                    optionalParameters.Add(parameter);
                 }
             }
+            bool addOptionalRequestOptionsParameter = ShouldAddOptionalRequestOptionsParameter();
+            ParameterProvider requestOptionsParameter = addOptionalRequestOptionsParameter ? ScmKnownParameters.OptionalRequestOptions : ScmKnownParameters.RequestOptions;
 
             var methodSignature = new MethodSignature(
                 isAsync ? _cleanOperationName + "Async" : _cleanOperationName,
@@ -409,12 +407,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 methodModifier,
                 GetResponseType(Operation.Responses, false, isAsync, out _),
                 $"The response returned from the service.",
-                methodParameters);
+                addOptionalRequestOptionsParameter ? [.. requiredParameters, .. optionalParameters, requestOptionsParameter] : [.. requiredParameters, requestOptionsParameter, .. optionalParameters]);
             var processMessageName = isAsync ? "ProcessMessageAsync" : "ProcessMessage";
 
             MethodBodyStatement[] methodBody =
             [
-                UsingDeclare("message", ClientModelPlugin.Instance.TypeFactory.HttpMessageApi.HttpMessageType, This.Invoke(createRequestMethod.Signature, [.. methodParameters]), out var message),
+                UsingDeclare("message", ClientModelPlugin.Instance.TypeFactory.HttpMessageApi.HttpMessageType, This.Invoke(createRequestMethod.Signature, [.. requiredParameters, ..optionalParameters, requestOptionsParameter]), out var message),
                 Return(ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(client.PipelineProperty.Invoke(processMessageName, [message, requestOptionsParameter], isAsync, true))),
             ];
 
@@ -461,15 +459,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             // the request options parameter is optional if the methods have different parameters.
-            // We can exclude the request options parameter from the protocol method count.
-            if ((MethodParameters.Count - 1) != convenienceMethodParameterCount)
+            if (ProtocolMethodParameters.Count != convenienceMethodParameterCount)
             {
                 return true;
             }
 
             for (int i = 0; i < convenienceMethodParameterCount; i++)
             {
-                if (!MethodParameters[i].Type.Equals(ConvenienceMethodParameters[i].Type))
+                if (!ProtocolMethodParameters[i].Type.Equals(ConvenienceMethodParameters[i].Type))
                 {
                     return true;
                 }
