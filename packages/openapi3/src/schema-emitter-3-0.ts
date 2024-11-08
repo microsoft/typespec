@@ -1,21 +1,20 @@
 import {
-  compilerAssert,
   Enum,
+  IntrinsicType,
+  Model,
+  ModelProperty,
+  Scalar,
+  Type,
+  Union,
+  compilerAssert,
   getDiscriminatedUnion,
   getDiscriminator,
   getExamples,
   getMaxValueExclusive,
   getMinValueExclusive,
   ignoreDiagnostics,
-  IntrinsicType,
   isNullType,
-  Model,
-  ModelProperty,
-  Program,
-  Scalar,
   serializeValueAsJson,
-  Type,
-  Union,
 } from "@typespec/compiler";
 import {
   AssetEmitter,
@@ -30,18 +29,18 @@ import { getOneOf } from "./decorators.js";
 import { OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { BaseOpenAPI3SchemaEmitter, Builders } from "./schema-emitter.js";
-import { JsonType, OpenAPISchema3_1 } from "./types.js";
+import { JsonType, OpenAPI3Schema } from "./types.js";
 import { isBytesKeptRaw, isLiteralType, literalType } from "./util.js";
 import { VisibilityUsageTracker } from "./visibility-usage.js";
 import { XmlModule } from "./xml-module.js";
 
-export function createWrappedOpenAPI31SchemaEmitterClass(
+export function createWrappedOpenAPI3SchemaEmitterClass(
   metadataInfo: MetadataInfo,
   visibilityUsage: VisibilityUsageTracker,
   options: ResolvedOpenAPI3EmitterOptions,
   xmlModule: XmlModule | undefined,
 ): typeof TypeEmitter<Record<string, any>, OpenAPI3EmitterOptions> {
-  return class extends OpenAPI31SchemaEmitter {
+  return class extends OpenAPI3SchemaEmitter {
     constructor(emitter: AssetEmitter<Record<string, any>, OpenAPI3EmitterOptions>) {
       super(emitter, metadataInfo, visibilityUsage, options, xmlModule);
     }
@@ -49,46 +48,43 @@ export function createWrappedOpenAPI31SchemaEmitterClass(
 }
 
 /**
- * OpenAPI 3.1 schema emitter. Deals with emitting content of `components/schemas` section.
+ * OpenAPI 3.0 schema emitter. Deals with emitting content of `components/schemas` section.
  */
-export class OpenAPI31SchemaEmitter extends BaseOpenAPI3SchemaEmitter<OpenAPISchema3_1> {
+export class OpenAPI3SchemaEmitter extends BaseOpenAPI3SchemaEmitter<OpenAPI3Schema> {
   #applySchemaExamples(
-    program: Program,
     type: Model | Scalar | Union | Enum | ModelProperty,
     target: ObjectBuilder<any>,
   ) {
+    const program = this.emitter.getProgram();
     const examples = getExamples(program, type);
     if (examples.length > 0) {
-      target.set(
-        "examples",
-        examples.map((example) => serializeValueAsJson(program, example.value, type)),
-      );
+      target.set("example", serializeValueAsJson(program, examples[0].value, type));
     }
   }
 
   applyCustomConstraints(
     type: Scalar | Model | ModelProperty | Union | Enum,
-    target: ObjectBuilder<OpenAPISchema3_1>,
-    refSchema?: OpenAPISchema3_1,
+    target: ObjectBuilder<OpenAPI3Schema>,
+    refSchema?: OpenAPI3Schema,
   ) {
     const program = this.emitter.getProgram();
 
     const minValueExclusive = getMinValueExclusive(program, type);
     if (minValueExclusive !== undefined) {
-      target.minimum = undefined;
-      target.exclusiveMinimum = minValueExclusive;
+      target.minimum = minValueExclusive;
+      target.exclusiveMinimum = true;
     }
 
     const maxValueExclusive = getMaxValueExclusive(program, type);
     if (maxValueExclusive !== undefined) {
-      target.maximum = undefined;
-      target.exclusiveMaximum = maxValueExclusive;
+      target.maximum = maxValueExclusive;
+      target.exclusiveMaximum = true;
     }
 
-    this.#applySchemaExamples(program, type, target);
+    this.#applySchemaExamples(type, target);
   }
 
-  enumSchema(en: Enum): OpenAPISchema3_1 {
+  enumSchema(en: Enum): OpenAPI3Schema {
     const program = this.emitter.getProgram();
     if (en.members.size === 0) {
       reportDiagnostic(program, { code: "empty-enum", target: en });
@@ -106,14 +102,15 @@ export class OpenAPI31SchemaEmitter extends BaseOpenAPI3SchemaEmitter<OpenAPISch
       reportDiagnostic(program, { code: "enum-unique-type", target: en });
     }
 
-    const schema: OpenAPISchema3_1 = {
+    const schema: OpenAPI3Schema = {
       type: enumTypes.values().next().value!,
       enum: [...enumValues],
     };
 
     return this.applyConstraints(en, schema);
   }
-  unionSchema(union: Union): ObjectBuilder<OpenAPISchema3_1> {
+
+  unionSchema(union: Union): ObjectBuilder<OpenAPI3Schema> {
     const program = this.emitter.getProgram();
     if (union.variants.size === 0) {
       reportDiagnostic(program, { code: "empty-union", target: union });
@@ -123,13 +120,13 @@ export class OpenAPI31SchemaEmitter extends BaseOpenAPI3SchemaEmitter<OpenAPISch
     const literalVariantEnumByType: Record<string, any[]> = {};
     const ofType = getOneOf(program, union) ? "oneOf" : "anyOf";
     const schemaMembers: { schema: any; type: Type | null }[] = [];
+    let nullable = false;
     const discriminator = getDiscriminator(program, union);
     const isMultipart = this.getContentType().startsWith("multipart/");
 
     for (const variant of variants) {
       if (isNullType(variant.type)) {
-        this.intrinsic(variant.type, "null");
-        schemaMembers.push({ schema: { type: "null" }, type: variant.type });
+        nullable = true;
         continue;
       }
 
@@ -161,13 +158,17 @@ export class OpenAPI31SchemaEmitter extends BaseOpenAPI3SchemaEmitter<OpenAPISch
     const wrapWithObjectBuilder = (
       schemaMember: { schema: any; type: Type | null },
       { mergeUnionWideConstraints }: { mergeUnionWideConstraints: boolean },
-    ): ObjectBuilder<OpenAPISchema3_1> => {
+    ): ObjectBuilder<OpenAPI3Schema> => {
       // we can just return the single schema member after applying nullable
       const schema = schemaMember.schema;
       const type = schemaMember.type;
-      const additionalProps: Partial<OpenAPISchema3_1> = mergeUnionWideConstraints
+      const additionalProps: Partial<OpenAPI3Schema> = mergeUnionWideConstraints
         ? this.applyConstraints(union, {})
         : {};
+
+      if (mergeUnionWideConstraints && nullable) {
+        additionalProps.nullable = true;
+      }
 
       if (Object.keys(additionalProps).length === 0) {
         return new ObjectBuilder(schema);
@@ -186,7 +187,7 @@ export class OpenAPI31SchemaEmitter extends BaseOpenAPI3SchemaEmitter<OpenAPISch
             return new ObjectBuilder({ allOf: Builders.array([schema]), ...additionalProps });
           }
         } else {
-          const merged = new ObjectBuilder<OpenAPISchema3_1>(schema);
+          const merged = new ObjectBuilder<OpenAPI3Schema>(schema);
           for (const [key, value] of Object.entries(additionalProps)) {
             merged.set(key, value);
           }
@@ -195,20 +196,43 @@ export class OpenAPI31SchemaEmitter extends BaseOpenAPI3SchemaEmitter<OpenAPISch
       }
     };
 
+    const checkMerge = (schemaMembers: { schema: any; type: Type | null }[]): boolean => {
+      if (nullable) {
+        for (const m of schemaMembers) {
+          if (m.schema instanceof Placeholder || "$ref" in m.schema) {
+            return true;
+          }
+        }
+      }
+      return false;
+    };
+
     if (schemaMembers.length === 0) {
-      compilerAssert(false, "Attempting to emit an empty union");
+      if (nullable) {
+        // This union is equivalent to just `null` but OA3 has no way to specify
+        // null as a value, so we throw an error.
+        reportDiagnostic(program, { code: "union-null", target: union });
+        return new ObjectBuilder({});
+      } else {
+        // completely empty union can maybe only happen with bugs?
+        compilerAssert(false, "Attempting to emit an empty union");
+      }
     }
 
     if (schemaMembers.length === 1) {
       return wrapWithObjectBuilder(schemaMembers[0], { mergeUnionWideConstraints: true });
     }
 
-    const isMerge = false; // checkMerge(schemaMembers);
-    const schema: OpenAPISchema3_1 = {
+    const isMerge = checkMerge(schemaMembers);
+    const schema: OpenAPI3Schema = {
       [ofType]: schemaMembers.map((m) =>
         wrapWithObjectBuilder(m, { mergeUnionWideConstraints: isMerge }),
       ),
     };
+
+    if (!isMerge && nullable) {
+      schema.nullable = true;
+    }
 
     if (discriminator) {
       // the decorator validates that all the variants will be a model type
@@ -229,7 +253,7 @@ export class OpenAPI31SchemaEmitter extends BaseOpenAPI3SchemaEmitter<OpenAPISch
       case "unknown":
         return {};
       case "null":
-        return { type: "null" };
+        return { nullable: true };
     }
 
     reportDiagnostic(this.emitter.getProgram(), {

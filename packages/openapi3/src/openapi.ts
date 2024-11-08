@@ -90,7 +90,6 @@ import { applyEncoding } from "./encoding.js";
 import { getExampleOrExamples, OperationExamples, resolveOperationExamples } from "./examples.js";
 import { createDiagnostic, FileType, OpenAPI3EmitterOptions, OpenAPIVersion } from "./lib.js";
 import { getOpenApiSpecProps } from "./openapi-spec-mappings.js";
-import { getDefaultValue, isBytesKeptRaw } from "./schema-emitter.js";
 import { getOpenAPI3StatusCodes } from "./status-codes.js";
 import {
   OpenAPI3Encoding,
@@ -113,7 +112,13 @@ import {
   Refable,
   SupportedOpenAPIDocuments,
 } from "./types.js";
-import { deepEquals, isSharedHttpOperation, SharedHttpOperation } from "./util.js";
+import {
+  deepEquals,
+  getDefaultValue,
+  isBytesKeptRaw,
+  isSharedHttpOperation,
+  SharedHttpOperation,
+} from "./util.js";
 import { resolveVisibilityUsage, VisibilityUsageTracker } from "./visibility-usage.js";
 import { resolveXmlModule, XmlModule } from "./xml-module.js";
 

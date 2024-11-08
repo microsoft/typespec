@@ -1,13 +1,17 @@
 import {
   BooleanLiteral,
+  getEncode,
   IntrinsicScalarName,
   isTemplateDeclaration,
   Model,
+  ModelProperty,
   NumericLiteral,
   Program,
   Scalar,
+  serializeValueAsJson,
   StringLiteral,
   Type,
+  Value,
 } from "@typespec/compiler";
 import { HttpOperation } from "@typespec/http";
 /**
@@ -127,4 +131,16 @@ export function includeDerivedModel(model: Model): boolean {
       model.templateMapper.args?.length === 0 ||
       model.derivedModels.length > 0)
   );
+}
+
+export function getDefaultValue(
+  program: Program,
+  defaultType: Value,
+  modelProperty: ModelProperty,
+): any {
+  return serializeValueAsJson(program, defaultType, modelProperty);
+}
+
+export function isBytesKeptRaw(program: Program, type: Type) {
+  return type.kind === "Scalar" && type.name === "bytes" && getEncode(program, type) === undefined;
 }

@@ -12,20 +12,20 @@ import { ArrayBuilder, ObjectBuilder } from "@typespec/compiler/emitter-framewor
 import { reportDiagnostic } from "./lib.js";
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { getSchemaForStdScalars } from "./std-scalar-schemas.js";
-import { OpenAPI3Schema, OpenAPI3XmlSchema } from "./types.js";
+import { OpenAPI3Schema, OpenAPI3XmlSchema, OpenAPISchema3_1 } from "./types.js";
 
 export interface XmlModule {
   attachXmlObjectForScalarOrModel(
     program: Program,
     type: Scalar | Model,
-    emitObject: OpenAPI3Schema,
+    emitObject: OpenAPI3Schema | OpenAPISchema3_1,
   ): void;
 
   attachXmlObjectForModelProperty(
     program: Program,
     options: ResolvedOpenAPI3EmitterOptions,
     prop: ModelProperty,
-    emitObject: OpenAPI3Schema,
+    emitObject: OpenAPI3Schema | OpenAPISchema3_1,
     ref?: Record<string, any>,
   ): void;
 }
@@ -38,7 +38,7 @@ export async function resolveXmlModule(): Promise<XmlModule | undefined> {
     attachXmlObjectForScalarOrModel: (
       program: Program,
       type: Scalar | Model,
-      emitObject: OpenAPI3Schema,
+      emitObject: OpenAPI3Schema | OpenAPISchema3_1,
     ) => {
       const isXmlModel = isXmlModelChecker(program, type, []);
       if (!isXmlModel) {
