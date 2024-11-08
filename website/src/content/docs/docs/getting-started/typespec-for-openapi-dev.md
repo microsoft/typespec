@@ -300,7 +300,7 @@ The following fields of a parameter object are common to both OpenAPI v2 and v3:
 | `in`                      | decorator            | `@query`, `@path`, `@header`, `@body` |
 | `description`             | `@doc` decorator     |                                       |
 | `required`                | from parameter "optionality" | a "?" following the parameter name indicates it is optional (`required: false`), otherwise it is required (`required: true`) |
-| `allowEmptyValue`         |                      | Not currently supported.              |
+| `allowEmptyValue`         |                      | Not supported, this field is `NOT RECOMMENDED` in OpenAPI v3.0.4              |
 <!-- prettier-ignore-end -->
 
 ### OpenAPI v2
