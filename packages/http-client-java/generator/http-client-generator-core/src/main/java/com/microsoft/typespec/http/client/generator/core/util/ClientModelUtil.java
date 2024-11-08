@@ -645,7 +645,11 @@ public class ClientModelUtil {
         // the constructor.
         boolean polymorphicDiscriminatorIsRequired = property.isPolymorphicDiscriminator() && property.isRequired();
 
-        return requiredAndIncluded && (notReadOnlyOrIncludeReadOnly || polymorphicDiscriminatorIsRequired);
+        boolean notConstant = !property.isConstant();
+
+        return requiredAndIncluded
+            && (notReadOnlyOrIncludeReadOnly || polymorphicDiscriminatorIsRequired)
+            && notConstant;
     }
 
     /**
