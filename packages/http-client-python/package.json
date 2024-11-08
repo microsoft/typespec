@@ -30,7 +30,10 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp ./emitter/temp ./generator/test/azure/generated ./generator/test/unbranded/generated ./venv",
-    "build": "tsc -p ./emitter/tsconfig.build.json && tsx ./eng/scripts/setup/run-python3.ts ./eng/scripts/setup/install.py && tsx ./eng/scripts/setup/run-python3.ts ./eng/scripts/setup/prepare.py",
+    "venv:install-reqs": "tsx ./eng/scripts/setup/run-python3.ts ./eng/scripts/setup/install.py",
+    "venv:install-dev-reqs": "tsx ./eng/scripts/setup/run-python3.ts ./eng/scripts/setup/prepare.py",
+    "build-python-wheel": "tsx ./eng/scripts/setup/run-python3.ts build_pygen_wheel.py",
+    "build": "tsc -p ./emitter/tsconfig.build.json && npm run venv:install-reqs && npm run venv:install-dev-reqs && npm run build-python-wheel --verbose",
     "watch": "tsc -p ./emitter/tsconfig.build.json --watch",
     "lint": "eslint . --max-warnings=0",
     "lint:py": "tsx ./eng/scripts/ci/lint.ts --folderName generator",
