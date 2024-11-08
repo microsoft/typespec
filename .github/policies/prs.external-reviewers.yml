@@ -19,3 +19,5 @@ configuration:
                   reviewer: steverice
               - requestReview:
                   reviewer: swatkatz
+              - requestReview:
+                  reviewer: angelevargas
