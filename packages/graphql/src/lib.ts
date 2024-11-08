@@ -35,7 +35,7 @@ export interface GraphQLEmitterOptions {
    * By default a best effort is made to emit all types.
    * @default false
    */
-  "strict-emit"?: boolean;
+  strict?: boolean;
 }
 
 const EmitterOptionsSchema: JSONSchemaType<GraphQLEmitterOptions> = {
@@ -76,7 +76,7 @@ const EmitterOptionsSchema: JSONSchemaType<GraphQLEmitterOptions> = {
         "With this flag on only types references in an operation will be emitted.",
       ].join("\n"),
     },
-    "strict-emit": {
+    strict: {
       type: "boolean",
       nullable: true,
       description: [

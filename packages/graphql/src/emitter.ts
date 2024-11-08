@@ -6,7 +6,7 @@ import { createGraphQLEmitter } from "./schema-emitter.js";
 const defaultOptions = {
   "new-line": "lf",
   "omit-unreachable-types": false,
-  "strict-emit": false,
+  strict: false,
 } as const;
 
 export async function $onEmit(context: EmitContext<GraphQLEmitterOptions>) {
@@ -32,6 +32,6 @@ export function resolveOptions(
     outputFile: resolvePath(context.emitterOutputDir, outputFile),
     newLine: resolvedOptions["new-line"],
     omitUnreachableTypes: resolvedOptions["omit-unreachable-types"],
-    strictEmit: resolvedOptions["strict-emit"],
+    strictEmit: resolvedOptions["strict"],
   };
 }
