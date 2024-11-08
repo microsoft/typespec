@@ -168,6 +168,34 @@ describe("openapi3: operations", () => {
 
     strictEqual(res.paths["/"].get.deprecated, true);
   });
+
+  it("deprecate inline parameters with #deprecated", async () => {
+    const res = await openApiFor(
+      `
+      op read(
+        #deprecated "Cannot use foo"
+        @query foo: string,
+      ): void;
+      `,
+    );
+
+    strictEqual(res.paths["/"].get.parameters[0].deprecated, true);
+  });
+
+  it("deprecate parameters with #deprecated", async () => {
+    const res = await openApiFor(
+      `
+      model PetId {
+        #deprecated "Cannot use foo"
+        @query foo: string;
+      }
+      op get(...PetId): void;
+      `,
+    );
+
+    strictEqual(res.paths["/"].get.parameters[0]["$ref"], "#/components/parameters/PetId");
+    strictEqual(res.components.parameters.PetId.deprecated, true);
+  });
 });
 
 describe("openapi3: request", () => {
