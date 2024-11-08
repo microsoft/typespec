@@ -1,12 +1,14 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
-import { diagnoseOpenApiFor, oapiForModel, openApiFor } from "./test-host.js";
+import { OpenAPISpecHelpers } from "./test-host.js";
 
-describe("openapi3: union type", () => {
-  it("handles discriminated unions", async () => {
-    const res = await openApiFor(
-      `
+describe.each(Object.values(OpenAPISpecHelpers))(
+  "openapi $version: union type",
+  ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
+    it("handles discriminated unions", async () => {
+      const res = await openApiFor(
+        `
       model A {
         type: "ay";
         a: string;
@@ -25,30 +27,30 @@ describe("openapi3: union type", () => {
 
       op foo(x: AorB): { thing: AorB };
       `,
-    );
+      );
 
-    deepStrictEqual(res.components.schemas.AorB, {
-      anyOf: [
-        {
-          $ref: "#/components/schemas/A",
+      deepStrictEqual(res.components.schemas.AorB, {
+        anyOf: [
+          {
+            $ref: "#/components/schemas/A",
+          },
+          {
+            $ref: "#/components/schemas/B",
+          },
+        ],
+        discriminator: {
+          propertyName: "type",
+          mapping: {
+            ay: "#/components/schemas/A",
+            bee: "#/components/schemas/B",
+          },
         },
-        {
-          $ref: "#/components/schemas/B",
-        },
-      ],
-      discriminator: {
-        propertyName: "type",
-        mapping: {
-          ay: "#/components/schemas/A",
-          bee: "#/components/schemas/B",
-        },
-      },
+      });
     });
-  });
 
-  it("handles discriminated unions with enum typed fields", async () => {
-    const res = await openApiFor(
-      `
+    it("handles discriminated unions with enum typed fields", async () => {
+      const res = await openApiFor(
+        `
       enum Types {
         A;
         B: "bee";
@@ -71,197 +73,152 @@ describe("openapi3: union type", () => {
 
       op foo(x: AorB): { thing: AorB };
       `,
-    );
+      );
 
-    deepStrictEqual(res.components.schemas.AorB, {
-      anyOf: [
-        {
-          $ref: "#/components/schemas/A",
+      deepStrictEqual(res.components.schemas.AorB, {
+        anyOf: [
+          {
+            $ref: "#/components/schemas/A",
+          },
+          {
+            $ref: "#/components/schemas/B",
+          },
+        ],
+        discriminator: {
+          propertyName: "type",
+          mapping: {
+            A: "#/components/schemas/A",
+            bee: "#/components/schemas/B",
+          },
         },
-        {
-          $ref: "#/components/schemas/B",
-        },
-      ],
-      discriminator: {
-        propertyName: "type",
-        mapping: {
-          A: "#/components/schemas/A",
-          bee: "#/components/schemas/B",
-        },
-      },
+      });
     });
-  });
 
-  describe("union literals", () => {
-    it("produce an enum from union of string literal", async () => {
-      const res = await openApiFor(
-        `
+    describe("union literals", () => {
+      it("produce an enum from union of string literal", async () => {
+        const res = await openApiFor(
+          `
         model Pet {
           prop: "a" | "b";
         };
         `,
-      );
-      deepStrictEqual(res.components.schemas.Pet.properties.prop, {
-        type: "string",
-        enum: ["a", "b"],
+        );
+        deepStrictEqual(res.components.schemas.Pet.properties.prop, {
+          type: "string",
+          enum: ["a", "b"],
+        });
       });
-    });
-    it("produce an enum from union of numeric literal", async () => {
-      const res = await openApiFor(
-        `
+      it("produce an enum from union of numeric literal", async () => {
+        const res = await openApiFor(
+          `
         model Pet {
           prop: 0 | 1;
         };
         `,
-      );
-      deepStrictEqual(res.components.schemas.Pet.properties.prop, {
-        type: "number",
-        enum: [0, 1],
+        );
+        deepStrictEqual(res.components.schemas.Pet.properties.prop, {
+          type: "number",
+          enum: [0, 1],
+        });
       });
-    });
 
-    // Regression test for https://github.com/microsoft/typespec/issues/3087
-    it("string literals union with same variants don't conflict", async () => {
-      const res = await openApiFor(
-        `
+      // Regression test for https://github.com/microsoft/typespec/issues/3087
+      it("string literals union with same variants don't conflict", async () => {
+        const res = await openApiFor(
+          `
         model Pet {
           prop1: "a" | "b";
           prop2: "a" | "b";
         }
         `,
-      );
-      deepStrictEqual(res.components.schemas.Pet.properties.prop1, {
-        type: "string",
-        enum: ["a", "b"],
+        );
+        deepStrictEqual(res.components.schemas.Pet.properties.prop1, {
+          type: "string",
+          enum: ["a", "b"],
+        });
+        deepStrictEqual(res.components.schemas.Pet.properties.prop2, {
+          type: "string",
+          enum: ["a", "b"],
+        });
       });
-      deepStrictEqual(res.components.schemas.Pet.properties.prop2, {
-        type: "string",
-        enum: ["a", "b"],
-      });
-    });
-    // Regression test for https://github.com/microsoft/typespec/issues/3087
-    it("numeric literals union with same variants don't conflict", async () => {
-      const res = await openApiFor(
-        `
+      // Regression test for https://github.com/microsoft/typespec/issues/3087
+      it("numeric literals union with same variants don't conflict", async () => {
+        const res = await openApiFor(
+          `
         model Pet {
           prop1: 0 | 1;
           prop2: 0 | 1;
         }
         `,
-      );
-      deepStrictEqual(res.components.schemas.Pet.properties.prop1, {
-        type: "number",
-        enum: [0, 1],
-      });
-      deepStrictEqual(res.components.schemas.Pet.properties.prop2, {
-        type: "number",
-        enum: [0, 1],
+        );
+        deepStrictEqual(res.components.schemas.Pet.properties.prop1, {
+          type: "number",
+          enum: [0, 1],
+        });
+        deepStrictEqual(res.components.schemas.Pet.properties.prop2, {
+          type: "number",
+          enum: [0, 1],
+        });
       });
     });
-  });
 
-  it("defines nullable properties with multiple variants", async () => {
-    const res = await oapiForModel(
-      "Pet",
-      `
-      model Pet {
-        name: int32 | string | null;
-      };
-      `,
-    );
-    ok(res.isRef);
-    ok(res.schemas.Pet.properties.name.nullable);
-    deepStrictEqual(res.schemas.Pet.properties.name.anyOf, [
-      {
-        type: "integer",
-        format: "int32",
-      },
-      {
-        type: "string",
-      },
-    ]);
-  });
-
-  it("defines enums with a nullable variant", async () => {
-    const res = await oapiForModel(
-      "Pet",
-      `
-      model Pet {
-        type: "cat" | "dog" | null;
-      };
-    `,
-    );
-    ok(res.isRef);
-    deepStrictEqual(res.schemas.Pet, {
-      type: "object",
-      properties: {
-        type: {
-          type: "string",
-          enum: ["cat", "dog"],
-          nullable: true,
-        },
-      },
-      required: ["type"],
-    });
-  });
-
-  it("handles unions of heterogenous types", async () => {
-    const res = await oapiForModel(
-      "X",
-      `
+    it("handles unions of heterogenous types", async () => {
+      const res = await oapiForModel(
+        "X",
+        `
       model C {}
       model X {
         prop: 1 | C;
         prop2: C | 1; 
       }
       `,
-    );
-    ok(res.isRef);
-    deepStrictEqual(res.schemas.X.properties.prop.anyOf, [
-      {
-        type: "number",
-        enum: [1],
-      },
-      {
-        $ref: "#/components/schemas/C",
-      },
-    ]);
-    deepStrictEqual(res.schemas.X.properties.prop2.anyOf, [
-      {
-        $ref: "#/components/schemas/C",
-      },
-      {
-        type: "number",
-        enum: [1],
-      },
-    ]);
-  });
+      );
+      ok(res.isRef);
+      deepStrictEqual(res.schemas.X.properties.prop.anyOf, [
+        {
+          type: "number",
+          enum: [1],
+        },
+        {
+          $ref: "#/components/schemas/C",
+        },
+      ]);
+      deepStrictEqual(res.schemas.X.properties.prop2.anyOf, [
+        {
+          $ref: "#/components/schemas/C",
+        },
+        {
+          type: "number",
+          enum: [1],
+        },
+      ]);
+    });
 
-  it("handles unions of different primitive types", async () => {
-    const res = await oapiForModel(
-      "X",
-      `
+    it("handles unions of different primitive types", async () => {
+      const res = await oapiForModel(
+        "X",
+        `
       model X {
         prop: 1 | "string"
       }
       `,
-    );
-    ok(res.isRef);
-    deepStrictEqual(res.schemas.X.properties.prop.anyOf, [
-      {
-        type: "number",
-        enum: [1],
-      },
-      {
-        type: "string",
-        enum: ["string"],
-      },
-    ]);
-  });
+      );
+      ok(res.isRef);
+      deepStrictEqual(res.schemas.X.properties.prop.anyOf, [
+        {
+          type: "number",
+          enum: [1],
+        },
+        {
+          type: "string",
+          enum: ["string"],
+        },
+      ]);
+    });
 
-  it("handles union declarations with anonymous variants", async () => {
-    const res = await openApiFor(
-      `
+    it("handles union declarations with anonymous variants", async () => {
+      const res = await openApiFor(
+        `
       model A {
         type: "ay";
         a: string;
@@ -280,31 +237,31 @@ describe("openapi3: union type", () => {
 
       op foo(x: AorB): { thing: AorB };
       `,
-    );
+      );
 
-    deepStrictEqual(res.components.schemas.AorB, {
-      anyOf: [
-        {
-          $ref: "#/components/schemas/A",
+      deepStrictEqual(res.components.schemas.AorB, {
+        anyOf: [
+          {
+            $ref: "#/components/schemas/A",
+          },
+          {
+            $ref: "#/components/schemas/B",
+          },
+        ],
+        discriminator: {
+          propertyName: "type",
+          mapping: {
+            ay: "#/components/schemas/A",
+            bee: "#/components/schemas/B",
+          },
         },
-        {
-          $ref: "#/components/schemas/B",
-        },
-      ],
-      discriminator: {
-        propertyName: "type",
-        mapping: {
-          ay: "#/components/schemas/A",
-          bee: "#/components/schemas/B",
-        },
-      },
+      });
     });
-  });
 
-  it("handles enum unions", async () => {
-    const res = await oapiForModel(
-      "X",
-      `
+    it("handles enum unions", async () => {
+      const res = await oapiForModel(
+        "X",
+        `
       enum A {
         a: 1
       }
@@ -316,20 +273,20 @@ describe("openapi3: union type", () => {
         prop: A | B
       }
       `,
-    );
-    ok(res.isRef);
-    deepStrictEqual(res.schemas.X.properties.prop.anyOf, [
-      {
-        $ref: "#/components/schemas/A",
-      },
-      {
-        $ref: "#/components/schemas/B",
-      },
-    ]);
-  });
+      );
+      ok(res.isRef);
+      deepStrictEqual(res.schemas.X.properties.prop.anyOf, [
+        {
+          $ref: "#/components/schemas/A",
+        },
+        {
+          $ref: "#/components/schemas/B",
+        },
+      ]);
+    });
 
-  it("handles discriminated union mapping with multiple visibilities", async () => {
-    const res = await openApiFor(`
+    it("handles discriminated union mapping with multiple visibilities", async () => {
+      const res = await openApiFor(`
       model A {
         type: "ay";
         a: string;
@@ -360,44 +317,44 @@ describe("openapi3: union type", () => {
       op postFoo(@body data: Data): Data;
     `);
 
-    deepStrictEqual(res.components.schemas.AorB, {
-      anyOf: [
-        {
-          $ref: "#/components/schemas/A",
+      deepStrictEqual(res.components.schemas.AorB, {
+        anyOf: [
+          {
+            $ref: "#/components/schemas/A",
+          },
+          {
+            $ref: "#/components/schemas/B",
+          },
+        ],
+        discriminator: {
+          propertyName: "type",
+          mapping: {
+            ay: "#/components/schemas/A",
+            bee: "#/components/schemas/B",
+          },
         },
-        {
-          $ref: "#/components/schemas/B",
+      });
+      deepStrictEqual(res.components.schemas.AorBCreate, {
+        anyOf: [
+          {
+            $ref: "#/components/schemas/ACreate",
+          },
+          {
+            $ref: "#/components/schemas/BCreate",
+          },
+        ],
+        discriminator: {
+          propertyName: "type",
+          mapping: {
+            ay: "#/components/schemas/ACreate",
+            bee: "#/components/schemas/BCreate",
+          },
         },
-      ],
-      discriminator: {
-        propertyName: "type",
-        mapping: {
-          ay: "#/components/schemas/A",
-          bee: "#/components/schemas/B",
-        },
-      },
+      });
     });
-    deepStrictEqual(res.components.schemas.AorBCreate, {
-      anyOf: [
-        {
-          $ref: "#/components/schemas/ACreate",
-        },
-        {
-          $ref: "#/components/schemas/BCreate",
-        },
-      ],
-      discriminator: {
-        propertyName: "type",
-        mapping: {
-          ay: "#/components/schemas/ACreate",
-          bee: "#/components/schemas/BCreate",
-        },
-      },
-    });
-  });
 
-  it("handles unions defined in a namespace", async () => {
-    const res = await openApiFor(`
+    it("handles unions defined in a namespace", async () => {
+      const res = await openApiFor(`
       namespace Foo {
         model A {
           foo: string;
@@ -421,61 +378,52 @@ describe("openapi3: union type", () => {
       op getFoo(data: Baz.A): {};
     `);
 
-    deepStrictEqual(res.components.schemas["Foo.A"], {
-      properties: {
-        foo: {
-          type: "string",
+      deepStrictEqual(res.components.schemas["Foo.A"], {
+        properties: {
+          foo: {
+            type: "string",
+          },
         },
-      },
-      required: ["foo"],
-      type: "object",
-    });
+        required: ["foo"],
+        type: "object",
+      });
 
-    deepStrictEqual(res.components.schemas["Bar.A"], {
-      properties: {
-        bar: {
-          type: "string",
+      deepStrictEqual(res.components.schemas["Bar.A"], {
+        properties: {
+          bar: {
+            type: "string",
+          },
         },
-      },
-      required: ["bar"],
-      type: "object",
+        required: ["bar"],
+        type: "object",
+      });
+
+      deepStrictEqual(res.components.schemas["Baz.A"], {
+        anyOf: [
+          {
+            $ref: "#/components/schemas/Foo.A",
+          },
+          {
+            $ref: "#/components/schemas/Bar.A",
+          },
+        ],
+      });
     });
 
-    deepStrictEqual(res.components.schemas["Baz.A"], {
-      anyOf: [
-        {
-          $ref: "#/components/schemas/Foo.A",
-        },
-        {
-          $ref: "#/components/schemas/Bar.A",
-        },
-      ],
+    it("throws diagnostics for empty enum definitions", async () => {
+      const diagnostics = await diagnoseOpenApiFor(`union Pet {}`);
+
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/openapi3/empty-union",
+        message:
+          "Empty unions are not supported for OpenAPI v3 - enums must have at least one value.",
+      });
     });
-  });
 
-  it("throws diagnostics for empty enum definitions", async () => {
-    const diagnostics = await diagnoseOpenApiFor(`union Pet {}`);
-
-    expectDiagnostics(diagnostics, {
-      code: "@typespec/openapi3/empty-union",
-      message:
-        "Empty unions are not supported for OpenAPI v3 - enums must have at least one value.",
-    });
-  });
-
-  it("throws diagnostics for null enum definitions", async () => {
-    const diagnostics = await diagnoseOpenApiFor(`union Pet {null}`);
-
-    expectDiagnostics(diagnostics, {
-      code: "@typespec/openapi3/union-null",
-      message: "Cannot have a union containing only null types.",
-    });
-  });
-
-  it("supports description on unions that reduce to enums", async () => {
-    const res = await oapiForModel(
-      "Foo",
-      `
+    it("supports description on unions that reduce to enums", async () => {
+      const res = await oapiForModel(
+        "Foo",
+        `
       @doc("FooUnion")
       union Foo {
         "a";
@@ -483,14 +431,14 @@ describe("openapi3: union type", () => {
       }
 
       `,
-    );
-    strictEqual(res.schemas.Foo.description, "FooUnion");
-  });
+      );
+      strictEqual(res.schemas.Foo.description, "FooUnion");
+    });
 
-  it("supports summary on unions and union variants", async () => {
-    const res = await oapiForModel(
-      "Foo",
-      `
+    it("supports summary on unions and union variants", async () => {
+      const res = await oapiForModel(
+        "Foo",
+        `
       @summary("FooUnion")
       union Foo {
         int32;
@@ -503,15 +451,15 @@ describe("openapi3: union type", () => {
         string;
       }
       `,
-    );
-    strictEqual(res.schemas.Foo.title, "FooUnion");
-    strictEqual(res.schemas.Bar.title, "BarUnion");
-  });
+      );
+      strictEqual(res.schemas.Foo.title, "FooUnion");
+      strictEqual(res.schemas.Bar.title, "BarUnion");
+    });
 
-  it("does not duplicate top-level description on union members", async () => {
-    const res = await oapiForModel(
-      "Foo",
-      `
+    it("does not duplicate top-level description on union members", async () => {
+      const res = await oapiForModel(
+        "Foo",
+        `
       @doc("The possible types of things")
       union Foo {
         string,
@@ -519,23 +467,73 @@ describe("openapi3: union type", () => {
         bar: "bar",
         buzz: "buzz",
       }`,
-    );
+      );
 
-    strictEqual(res.schemas.Foo.description, "The possible types of things");
-    strictEqual(res.schemas.Foo.anyOf.length, 2);
-    for (const variant of res.schemas.Foo.anyOf) {
-      strictEqual(variant.description, undefined);
-    }
+      strictEqual(res.schemas.Foo.description, "The possible types of things");
+      strictEqual(res.schemas.Foo.anyOf.length, 2);
+      for (const variant of res.schemas.Foo.anyOf) {
+        strictEqual(variant.description, undefined);
+      }
+    });
+  },
+);
+
+describe("openapi 3.0.0 union with null", () => {
+  const { diagnoseOpenApiFor, oapiForModel, openApiFor } = OpenAPISpecHelpers["3.0.0"];
+
+  it("defines nullable properties with multiple variants", async () => {
+    const res = await oapiForModel(
+      "Pet",
+      `
+    model Pet {
+      name: int32 | string | null;
+    };
+    `,
+    );
+    ok(res.isRef);
+    ok(res.schemas.Pet.properties.name.nullable);
+    deepStrictEqual(res.schemas.Pet.properties.name.anyOf, [
+      {
+        type: "integer",
+        format: "int32",
+      },
+      {
+        type: "string",
+      },
+    ]);
+  });
+
+  it("defines enums with a nullable variant", async () => {
+    const res = await oapiForModel(
+      "Pet",
+      `
+    model Pet {
+      type: "cat" | "dog" | null;
+    };
+  `,
+    );
+    ok(res.isRef);
+    deepStrictEqual(res.schemas.Pet, {
+      type: "object",
+      properties: {
+        type: {
+          type: "string",
+          enum: ["cat", "dog"],
+          nullable: true,
+        },
+      },
+      required: ["type"],
+    });
   });
 
   it("type property should always be set when nullable property is present", async () => {
     const openApi = await openApiFor(`
-      scalar MyStr extends string;
-      model Foo {};
-      model A {
-        x: MyStr |Foo| null;
-      }
-      `);
+    scalar MyStr extends string;
+    model Foo {};
+    model A {
+      x: MyStr |Foo| null;
+    }
+    `);
     deepStrictEqual(openApi.components.schemas.A.properties, {
       x: {
         anyOf: [
@@ -556,11 +554,11 @@ describe("openapi3: union type", () => {
 
   it("scalar type property should always be set when nullable property is present", async () => {
     const openApi = await openApiFor(`
-        model Foo {};
-        model A {
-          x: Foo |string| null;
-        }
-        `);
+      model Foo {};
+      model A {
+        x: Foo |string| null;
+      }
+      `);
     deepStrictEqual(openApi.components.schemas.A.properties, {
       x: {
         anyOf: [
@@ -584,14 +582,129 @@ describe("openapi3: union type", () => {
       ["enum", "enum Other {a, b}"],
     ])("%s variant", async (_, code) => {
       const openApi = await openApiFor(`
-        union Test { Other, null }
-        ${code}
-        `);
+      union Test { Other, null }
+      ${code}
+      `);
 
       expect(openApi.components.schemas.Test).toMatchObject({
         allOf: [{ $ref: "#/components/schemas/Other" }],
         nullable: true,
       });
+    });
+  });
+
+  it("throws diagnostics for null enum definitions", async () => {
+    const diagnostics = await diagnoseOpenApiFor(`union Pet {null}`);
+
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/openapi3/union-null",
+      message: "Cannot have a union containing only null types.",
+    });
+  });
+});
+
+describe("openapi 3.1.0 union with null", () => {
+  const { oapiForModel, openApiFor } = OpenAPISpecHelpers["3.1.0"];
+
+  it("defines nullable properties with multiple variants", async () => {
+    const res = await oapiForModel(
+      "Pet",
+      `
+      model Pet {
+        name: int32 | string | null;
+      };
+      `,
+    );
+    ok(res.isRef);
+    deepStrictEqual(res.schemas.Pet.properties.name.anyOf, [
+      {
+        type: "integer",
+        format: "int32",
+      },
+      {
+        type: "string",
+      },
+      {
+        type: "null",
+      },
+    ]);
+  });
+
+  it("defines enums with a nullable variant", async () => {
+    const res = await oapiForModel(
+      "Pet",
+      `
+      model Pet {
+        type: "cat" | "dog" | null;
+      };
+    `,
+    );
+    ok(res.isRef);
+    deepStrictEqual(res.schemas.Pet, {
+      type: "object",
+      properties: {
+        type: {
+          anyOf: [
+            {
+              type: "string",
+              enum: ["cat", "dog"],
+            },
+            {
+              type: "null",
+            },
+          ],
+        },
+      },
+      required: ["type"],
+    });
+  });
+
+  it("supports refs and nullable property present", async () => {
+    const openApi = await openApiFor(`
+      scalar MyStr extends string;
+      model Foo {};
+      model A {
+        x: MyStr | Foo | null;
+      }
+      `);
+    deepStrictEqual(openApi.components.schemas.A.properties, {
+      x: {
+        anyOf: [
+          {
+            $ref: "#/components/schemas/MyStr",
+          },
+          {
+            $ref: "#/components/schemas/Foo",
+          },
+          {
+            type: "null",
+          },
+        ],
+      },
+    });
+  });
+
+  describe("null and another single variant produce anyOf", () => {
+    it.each([
+      ["model", "model Other {}"],
+      ["enum", "enum Other {a, b}"],
+    ])("%s variant", async (_, code) => {
+      const openApi = await openApiFor(`
+        union Test { Other, null }
+        ${code}
+        `);
+
+      expect(openApi.components.schemas.Test).toMatchObject({
+        anyOf: [{ $ref: "#/components/schemas/Other" }, { type: "null" }],
+      });
+    });
+  });
+
+  it("supports null enum definitions", async () => {
+    const openApi = await openApiFor(`union Pet {null}`);
+
+    deepStrictEqual(openApi.components.schemas.Pet, {
+      type: "null",
     });
   });
 });

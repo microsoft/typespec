@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { OpenAPI3Document } from "../src/types.js";
-import { openApiFor } from "./test-host.js";
+import { openApiFor, OpenAPISpecHelpers } from "./test-host.js";
 
 describe("schema examples", () => {
   it("apply example on model", async () => {
@@ -52,7 +52,7 @@ describe("schema examples", () => {
   });
 });
 
-describe("operation examples", () => {
+describe.each(Object.values(OpenAPISpecHelpers))("openapi $version: operation examples", () => {
   it("set example on the request body", async () => {
     const res: OpenAPI3Document = await openApiFor(
       `

@@ -1,4 +1,4 @@
-import { Diagnostic, interpolatePath } from "@typespec/compiler";
+import { Diagnostic, interpolatePath, resolvePath } from "@typespec/compiler";
 import {
   createTestHost,
   createTestWrapper,
@@ -29,8 +29,9 @@ export async function createOpenAPITestHost() {
 }
 
 export async function createOpenAPITestRunner({
+  emitterOptions,
   withVersioning,
-}: { withVersioning?: boolean } = {}) {
+}: { withVersioning?: boolean; emitterOptions?: OpenAPI3EmitterOptions } = {}) {
   const host = await createOpenAPITestHost();
   const importAndUsings = `
   import "@typespec/http";
@@ -49,6 +50,9 @@ export async function createOpenAPITestRunner({
     wrapper: (code) => `${importAndUsings} ${code}`,
     compilerOptions: {
       emit: ["@typespec/openapi3"],
+      options: {
+        "@typespec/openapi3": { ...emitterOptions },
+      },
     },
   });
 }
@@ -112,20 +116,32 @@ export async function openApiFor(
   }
 }
 
-export async function checkFor(code: string) {
+export async function checkFor(code: string, options: OpenAPI3EmitterOptions = {}) {
   const host = await createOpenAPITestRunner();
-  return await host.diagnose(code);
+  return await host.diagnose(code, {
+    noEmit: true,
+    emit: ["@typespec/openapi3"],
+    options: { "@typespec/openapi3": { ...options } },
+  });
 }
 
-export async function oapiForModel(name: string, modelDef: string) {
-  const oapi = await openApiFor(`
+export async function oapiForModel(
+  name: string,
+  modelDef: string,
+  options: OpenAPI3EmitterOptions = {},
+) {
+  const oapi = await openApiFor(
+    `
     ${modelDef};
     @service({title: "Testing model"})
     @route("/")
     namespace root {
       op read(): { @body body: ${name} };
     }
-  `);
+  `,
+    undefined,
+    options,
+  );
 
   const useSchema = oapi.paths["/"].get.responses[200].content["application/json"].schema;
 
@@ -135,3 +151,58 @@ export async function oapiForModel(name: string, modelDef: string) {
     schemas: oapi.components.schemas || {},
   };
 }
+
+async function openapiWithOptions(
+  code: string,
+  options: OpenAPI3EmitterOptions,
+): Promise<OpenAPI3Document> {
+  const runner = await createOpenAPITestRunner();
+
+  const outPath = resolvePath("/openapi.json");
+
+  const diagnostics = await runner.diagnose(code, {
+    noEmit: false,
+    emit: ["@typespec/openapi3"],
+    options: { "@typespec/openapi3": { ...options, "output-file": outPath } },
+  });
+
+  expectDiagnosticEmpty(diagnostics);
+
+  const content = runner.fs.get(outPath)!;
+  return JSON.parse(content);
+}
+
+export const OpenAPISpecHelpers = {
+  "3.0.0": {
+    version: "3.0.0",
+    oapiForModel: (...[name, modelDef, options]: Parameters<typeof oapiForModel>) =>
+      oapiForModel(name, modelDef, { ...options, "openapi-versions": ["3.0.0"] }),
+    openApiFor: (...[code, versions, options]: Parameters<typeof openApiFor>) =>
+      openApiFor(code, versions, { ...options, "openapi-versions": ["3.0.0"] }),
+    openapiWithOptions: (...[code, options]: Parameters<typeof openapiWithOptions>) =>
+      openapiWithOptions(code, { ...options, "openapi-versions": ["3.0.0"] }),
+    checkFor: (...[code, options]: Parameters<typeof checkFor>) =>
+      checkFor(code, { ...options, "openapi-versions": ["3.0.0"] }),
+    diagnoseOpenApiFor: (...[code, options]: Parameters<typeof diagnoseOpenApiFor>) =>
+      diagnoseOpenApiFor(code, { ...options, "openapi-versions": ["3.0.0"] }),
+    emitOpenApiWithDiagnostics: (
+      ...[code, options]: Parameters<typeof emitOpenApiWithDiagnostics>
+    ) => emitOpenApiWithDiagnostics(code, { ...options, "openapi-versions": ["3.0.0"] }),
+  },
+  "3.1.0": {
+    version: "3.1.0",
+    oapiForModel: (...[name, modelDef, options]: Parameters<typeof oapiForModel>) =>
+      oapiForModel(name, modelDef, { ...options, "openapi-versions": ["3.1.0"] }),
+    openApiFor: (...[code, versions, options]: Parameters<typeof openApiFor>) =>
+      openApiFor(code, versions, { ...options, "openapi-versions": ["3.1.0"] }),
+    openapiWithOptions: (...[code, options]: Parameters<typeof openapiWithOptions>) =>
+      openapiWithOptions(code, { ...options, "openapi-versions": ["3.1.0"] }),
+    checkFor: (...[code, options]: Parameters<typeof checkFor>) =>
+      checkFor(code, { ...options, "openapi-versions": ["3.1.0"] }),
+    diagnoseOpenApiFor: (...[code, options]: Parameters<typeof diagnoseOpenApiFor>) =>
+      diagnoseOpenApiFor(code, { ...options, "openapi-versions": ["3.1.0"] }),
+    emitOpenApiWithDiagnostics: (
+      ...[code, options]: Parameters<typeof emitOpenApiWithDiagnostics>
+    ) => emitOpenApiWithDiagnostics(code, { ...options, "openapi-versions": ["3.1.0"] }),
+  },
+} as const;

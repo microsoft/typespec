@@ -1,8 +1,8 @@
 import { deepStrictEqual, ok } from "assert";
 import { describe, it } from "vitest";
-import { oapiForModel } from "./test-host.js";
+import { OpenAPISpecHelpers } from "./test-host.js";
 
-describe("openapi3: Record", () => {
+describe.each(Object.values(OpenAPISpecHelpers))("openapi $version: Record", ({ oapiForModel }) => {
   it("defines record inline", async () => {
     const res = await oapiForModel(
       "Pet",

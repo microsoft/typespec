@@ -1,8 +1,8 @@
 import { deepStrictEqual, strictEqual } from "assert";
 import { describe, it } from "vitest";
-import { openApiFor } from "./test-host.js";
+import { OpenAPISpecHelpers } from "./test-host.js";
 
-describe("openapi3: info", () => {
+describe.each(Object.values(OpenAPISpecHelpers))("openapi $version: info", ({ openApiFor }) => {
   it("set the service title with @service", async () => {
     const res = await openApiFor(
       `
