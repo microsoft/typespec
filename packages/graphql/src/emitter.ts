@@ -19,7 +19,7 @@ export interface ResolvedGraphQLEmitterOptions {
   outputFile: string;
   newLine: NewLine;
   omitUnreachableTypes: boolean;
-  strictEmit: boolean;
+  strict: boolean;
 }
 
 export function resolveOptions(
@@ -32,6 +32,6 @@ export function resolveOptions(
     outputFile: resolvePath(context.emitterOutputDir, outputFile),
     newLine: resolvedOptions["new-line"],
     omitUnreachableTypes: resolvedOptions["omit-unreachable-types"],
-    strictEmit: resolvedOptions["strict"],
+    strict: resolvedOptions["strict"],
   };
 }
