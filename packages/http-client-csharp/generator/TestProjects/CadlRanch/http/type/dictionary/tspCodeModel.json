@@ -2398,15 +2398,7 @@
          "decorators": []
         },
         "valueType": {
-         "$id": "261",
-         "kind": "nullable",
-         "type": {
-          "$id": "262",
-          "kind": "float32",
-          "name": "float32",
-          "crossLanguageDefinitionId": "TypeSpec.float32",
-          "decorators": []
-         }
+         "$ref": "252"
         },
         "decorators": []
        },
@@ -2423,7 +2415,7 @@
      ],
      "Responses": [
       {
-       "$id": "263",
+       "$id": "261",
        "StatusCodes": [
         204
        ],
@@ -2447,17 +2439,17 @@
     }
    ],
    "Protocol": {
-    "$id": "264"
+    "$id": "262"
    },
    "Parent": "DictionaryClient",
    "Parameters": [
     {
-     "$id": "265",
+     "$id": "263",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Description": "Service host",
      "Type": {
-      "$id": "266",
+      "$id": "264",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -2472,9 +2464,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "267",
+      "$id": "265",
       "Type": {
-       "$id": "268",
+       "$id": "266",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
