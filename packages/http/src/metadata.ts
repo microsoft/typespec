@@ -207,9 +207,10 @@ export function resolveRequestVisibility(
   operation: Operation,
   verb: HttpVerb,
 ): Visibility {
-  const parameterVisibility = arrayToVisibility(getParameterVisibility(program, operation));
+  const parameterVisibility = getParameterVisibility(program, operation);
+  const parameterVisibilityArray = arrayToVisibility(parameterVisibility);
   const defaultVisibility = getDefaultVisibilityForVerb(verb);
-  let visibility = parameterVisibility ?? defaultVisibility;
+  let visibility = parameterVisibilityArray ?? defaultVisibility;
   // If the verb is PATCH, then we need to add the patch flag to the visibility in order for
   // later processes to properly apply it
   if (verb === "patch") {
@@ -236,6 +237,7 @@ export function isMetadata(program: Program, property: ModelProperty) {
  * Determines if the given property is visible with the given visibility.
  */
 export function isVisible(program: Program, property: ModelProperty, visibility: Visibility) {
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
   return isVisibleCore(program, property, visibilityToArray(visibility));
 }
 
