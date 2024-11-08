@@ -1,4 +1,4 @@
-import { getSourceLocation } from "../index.js";
+import { getSourceLocation } from "../diagnostics.js";
 import type { Logger, LogInfo, LogLevel, LogSink, ProcessedLog } from "../types.js";
 
 const LogLevels = {

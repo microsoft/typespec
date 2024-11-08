@@ -118,6 +118,7 @@ model TagMetadata {
   /** An external Docs information of the API. */
   externalDocs?: ExternalDocs;
 
+  /** Attach some custom data, The extension key must start with `x-`. */
   ...Record<unknown>;
 }
 
@@ -129,6 +130,7 @@ model ExternalDocs {
   /** Optional description */
   description?: string;
 
+  /** Attach some custom data, The extension key must start with `x-`. */
   ...Record<unknown>;
 }
 
@@ -136,5 +138,12 @@ model ExternalDocs {
  * Specify OpenAPI additional information.
  * @param name tag name
  * @param tagMetadata Additional information
+ *
+ * @example
+ * ```typespec
+ * @service()
+ * @tagMetadata("Tag Name", #{description: "Tag description", externalDocs: #{url: "https://example.com", description: "More info.", `x-custom`: "string"}, `x-custom`: "string"})
+ * namespace PetStore {}
+ * ```
  */
 extern dec tagMetadata(target: Namespace, name: valueof string, tagMetadata: valueof TagMetadata);

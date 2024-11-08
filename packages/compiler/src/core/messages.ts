@@ -1017,6 +1017,28 @@ const diagnostics = {
     },
   },
 
+  // #region Visibility
+  "visibility-sealed": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Visibility of property '${"propName"}' is sealed and cannot be changed.`,
+    },
+  },
+  "visibility-mixed-legacy": {
+    severity: "error",
+    messages: {
+      default:
+        "Cannot apply both string (legacy) visibility modifiers and enum-based visibility modifiers to a property.",
+    },
+  },
+  "default-visibility-not-member": {
+    severity: "error",
+    messages: {
+      default: "The default visibility modifiers of a class must be members of the class enum.",
+    },
+  },
+  // #endregion
+
   // #region CLI
   "no-compatible-vs-installed": {
     severity: "error",

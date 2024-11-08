@@ -31,17 +31,17 @@ namespace _Type.Property.Optional
 
         public virtual Task<ClientResult<PlainDateProperty>> GetDefaultAsync() => throw null;
 
-        public virtual ClientResult PutAll(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult PutAll(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutAllAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PutAllAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult PutAll(PlainDateProperty body) => throw null;
 
         public virtual Task<ClientResult> PutAllAsync(PlainDateProperty body) => throw null;
 
-        public virtual ClientResult PutDefault(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult PutDefault(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutDefaultAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PutDefaultAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult PutDefault(PlainDateProperty body) => throw null;
 
