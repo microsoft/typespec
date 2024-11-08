@@ -1,7 +1,8 @@
-import { ModelProperty, Operation, StringLiteral, StringValue, Type } from "@typespec/compiler";
+import { ModelProperty, Operation, StringLiteral, Type } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import { getAuthentication, getServers } from "@typespec/http";
 import { Client } from "../interfaces.js";
+import { getStringValue, getUniqueTypes } from "./helpers.js";
 
 /**
  * Returns endpoint parameters, grouped by constructor. Meaning, each constructor will have its own set of parameters.
@@ -18,14 +19,7 @@ export function getEndpointParametersPerConstructor(client: Client): ModelProper
           name,
           type: $.program.checker.getStdType("string"),
           optional: false,
-          defaultValue: {
-            kind: "StringValue",
-            value: "{endpoint}",
-            type: $.literal.createString("{endpoint}"),
-            valueKind: "StringValue",
-            entityKind: "Value",
-            scalar: undefined,
-          } as StringValue,
+          defaultValue: getStringValue("{endpoint}"),
         }),
       ],
     ];
@@ -37,8 +31,9 @@ export function getEndpointParametersPerConstructor(client: Client): ModelProper
     overridingEndpointConstructor.push(
       $.modelProperty.create({
         name: "endpoint",
-        type: $.literal.createString(server.url),
+        type: $.builtin.string,
         optional: false,
+        defaultValue: getStringValue(server.url),
       }),
     );
     retval.push(overridingEndpointConstructor);
@@ -49,6 +44,7 @@ export function getEndpointParametersPerConstructor(client: Client): ModelProper
           name: param.name,
           type: param.type,
           optional: param.optional,
+          defaultValue: param.defaultValue,
         }),
       );
     }
@@ -99,11 +95,10 @@ export function getConstructors(client: Client): Operation[] {
   } else {
     // this means we have one constructor with overloads, one for each group of endpoint parameter
     for (const endpointParamGrouping of endpointParams) {
-      params = [...endpointParamGrouping, ...params];
       constructors.push(
         $.operation.create({
           name: "constructor",
-          parameters: params,
+          parameters: [...endpointParamGrouping, ...params],
           returnType: $.program.checker.voidType,
         }),
       );
@@ -132,7 +127,7 @@ export function createBaseConstructor(client: Client, constructors: Operation[])
     // if they aren't used in every single overload, then the parameter should be optional
     // otherwise, it's optional if any of the overloads have it as optional
     const overrideToOptional = params.length !== constructors.length;
-    const uniqueTypes = Array.from(new Set(params.map((param) => param.type)));
+    const uniqueTypes = getUniqueTypes(params.map((param) => param.type));
     const combinedType =
       uniqueTypes.length > 1
         ? $.union.create({ variants: uniqueTypes.map((x) => $.unionVariant.create({ type: x })) })

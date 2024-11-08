@@ -113,9 +113,9 @@ describe("getConstructor", () => {
       const params = $.operation.getClientSignature(client, constructor);
       expect(params).toHaveLength(1);
       expect(params[0].name).toEqual("endpoint");
-      expect($.modelProperty.getClientDefaultValue(client, params[0])).toEqual(
-        "https://example.com",
-      );
+      const clientDefaultValue = $.modelProperty.getClientDefaultValue(client, params[0]);
+      ok(clientDefaultValue?.valueKind === "StringValue");
+      expect(clientDefaultValue.value).toEqual("https://example.com");
     });
     it("one server with parameter", async () => {
       const { DemoService } = (await runner.compile(`
@@ -180,8 +180,26 @@ describe("getConstructor", () => {
         @test namespace DemoService;
         `)) as { DemoService: Namespace };
       const client = $.clientLibrary.listClients(DemoService)[0];
-      const constructors = $.client.getConstructor(client);
-      expect(constructors).toHaveLength(2);
+      const constructor = $.client.getConstructor(client);
+
+      // base operation
+      expect(constructor.returnType).toEqual($.program.checker.voidType);
+      const params = $.operation.getClientSignature(client, constructor);
+      expect(params).toHaveLength(1);
+      const endpointParam = params.find((p) => p.name === "endpoint");
+      ok(endpointParam);
+      expect(endpointParam.optional).toBeFalsy();
+      // TODO: i'm getting a ProxyRef to a String type instead of an actual string type, so $.isString is failing
+      ok(endpointParam.type.kind === "Scalar" && endpointParam.type.name === "string");
+
+      // should have two overloads, one for each server
+      const overloads = $.operation.getOverloads(client, constructor);
+      expect(overloads).toHaveLength(2);
+
+      // .com overload
+      const comOverload = overloads[0];
+      const comOverloadParams = $.operation.getClientSignature(client, comOverload);
+      expect(comOverloadParams).toHaveLength(1);
     });
   });
 });

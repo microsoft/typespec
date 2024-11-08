@@ -10,10 +10,7 @@ beforeEach(async () => {
 });
 
 describe("isEndpoint", () => {
-  it("returns true if the model property is an endpoint", async () => {
-    
-  });
-
+  it("returns true if the model property is an endpoint", async () => {});
 });
 
 describe("isCredential", () => {});
