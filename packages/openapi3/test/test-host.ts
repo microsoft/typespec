@@ -152,7 +152,7 @@ export async function oapiForModel(
   };
 }
 
-async function openapiWithOptions(
+export async function openapiWithOptions(
   code: string,
   options: OpenAPI3EmitterOptions,
 ): Promise<OpenAPI3Document> {
@@ -171,38 +171,3 @@ async function openapiWithOptions(
   const content = runner.fs.get(outPath)!;
   return JSON.parse(content);
 }
-
-export const OpenAPISpecHelpers = {
-  "3.0.0": {
-    version: "3.0.0",
-    oapiForModel: (...[name, modelDef, options]: Parameters<typeof oapiForModel>) =>
-      oapiForModel(name, modelDef, { ...options, "openapi-versions": ["3.0.0"] }),
-    openApiFor: (...[code, versions, options]: Parameters<typeof openApiFor>) =>
-      openApiFor(code, versions, { ...options, "openapi-versions": ["3.0.0"] }),
-    openapiWithOptions: (...[code, options]: Parameters<typeof openapiWithOptions>) =>
-      openapiWithOptions(code, { ...options, "openapi-versions": ["3.0.0"] }),
-    checkFor: (...[code, options]: Parameters<typeof checkFor>) =>
-      checkFor(code, { ...options, "openapi-versions": ["3.0.0"] }),
-    diagnoseOpenApiFor: (...[code, options]: Parameters<typeof diagnoseOpenApiFor>) =>
-      diagnoseOpenApiFor(code, { ...options, "openapi-versions": ["3.0.0"] }),
-    emitOpenApiWithDiagnostics: (
-      ...[code, options]: Parameters<typeof emitOpenApiWithDiagnostics>
-    ) => emitOpenApiWithDiagnostics(code, { ...options, "openapi-versions": ["3.0.0"] }),
-  },
-  "3.1.0": {
-    version: "3.1.0",
-    oapiForModel: (...[name, modelDef, options]: Parameters<typeof oapiForModel>) =>
-      oapiForModel(name, modelDef, { ...options, "openapi-versions": ["3.1.0"] }),
-    openApiFor: (...[code, versions, options]: Parameters<typeof openApiFor>) =>
-      openApiFor(code, versions, { ...options, "openapi-versions": ["3.1.0"] }),
-    openapiWithOptions: (...[code, options]: Parameters<typeof openapiWithOptions>) =>
-      openapiWithOptions(code, { ...options, "openapi-versions": ["3.1.0"] }),
-    checkFor: (...[code, options]: Parameters<typeof checkFor>) =>
-      checkFor(code, { ...options, "openapi-versions": ["3.1.0"] }),
-    diagnoseOpenApiFor: (...[code, options]: Parameters<typeof diagnoseOpenApiFor>) =>
-      diagnoseOpenApiFor(code, { ...options, "openapi-versions": ["3.1.0"] }),
-    emitOpenApiWithDiagnostics: (
-      ...[code, options]: Parameters<typeof emitOpenApiWithDiagnostics>
-    ) => emitOpenApiWithDiagnostics(code, { ...options, "openapi-versions": ["3.1.0"] }),
-  },
-} as const;

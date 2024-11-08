@@ -1,11 +1,9 @@
 import { deepStrictEqual, ok } from "assert";
 import { describe, expect, it } from "vitest";
 import { OpenAPI3SchemaProperty, OpenAPISchema3_1, Refable } from "../src/types.js";
-import { OpenAPISpecHelpers } from "./test-host.js";
+import { worksFor } from "./works-for.js";
 
-describe("openapi 3.0.0: nullable properties", () => {
-  const { oapiForModel, openApiFor } = OpenAPISpecHelpers["3.0.0"];
-
+worksFor(["3.0.0"], ({ oapiForModel, openApiFor }) => {
   it("makes nullable schema when union with null", async () => {
     const res = await openApiFor(
       `
@@ -75,9 +73,8 @@ describe("openapi 3.0.0: nullable properties", () => {
   });
 });
 
-describe("openapi 3.1.0: nullable properties", () => {
-  const { oapiForModel, openApiFor } = OpenAPISpecHelpers["3.1.0"];
-
+worksFor(["3.1.0"], ({ oapiForModel, openApiFor }) => {
+  // eslint-disable-next-line vitest/no-identical-title
   it("makes nullable schema when union with null", async () => {
     const res = await openApiFor(
       `
@@ -93,6 +90,7 @@ describe("openapi 3.1.0: nullable properties", () => {
     });
   });
 
+  // eslint-disable-next-line vitest/no-identical-title
   it("handles a nullable enum", async () => {
     const res = await oapiForModel(
       "X",
@@ -111,6 +109,7 @@ describe("openapi 3.1.0: nullable properties", () => {
     });
   });
 
+  // eslint-disable-next-line vitest/no-identical-title
   describe("when used in circular references", () => {
     async function expectInCircularReference(ref: string, value: Refable<OpenAPISchema3_1>) {
       const res = await openApiFor(

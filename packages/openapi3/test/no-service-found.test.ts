@@ -1,24 +1,22 @@
 import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
-import { describe, it } from "vitest";
-import { OpenAPISpecHelpers } from "./test-host.js";
+import { it } from "vitest";
+import { worksFor } from "./works-for.js";
 
-describe.each(Object.values(OpenAPISpecHelpers))(
-  "openapi $version: no-service-found diagnostic",
-  ({ diagnoseOpenApiFor }) => {
-    it("does not emit warning if a non-service namespace has no routes", async () => {
-      const diagnostics = await diagnoseOpenApiFor(
-        `
+worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor }) => {
+  it("does not emit warning if a non-service namespace has no routes", async () => {
+    const diagnostics = await diagnoseOpenApiFor(
+      `
     namespace Test {
       model Foo {};
     }
     `,
-      );
-      expectDiagnosticEmpty(diagnostics);
-    });
+    );
+    expectDiagnosticEmpty(diagnostics);
+  });
 
-    it("emit a warning if a non-service namespace has routes", async () => {
-      const diagnostics = await diagnoseOpenApiFor(
-        `
+  it("emit a warning if a non-service namespace has routes", async () => {
+    const diagnostics = await diagnoseOpenApiFor(
+      `
     namespace Test {
       model Foo {};
 
@@ -26,29 +24,29 @@ describe.each(Object.values(OpenAPISpecHelpers))(
       op get(): Foo;
     }
     `,
-      );
-      expectDiagnostics(diagnostics, [
-        {
-          code: "@typespec/http/no-service-found",
-        },
-      ]);
-    });
+    );
+    expectDiagnostics(diagnostics, [
+      {
+        code: "@typespec/http/no-service-found",
+      },
+    ]);
+  });
 
-    it("does not emit a warning if a service namespace has no routes", async () => {
-      const diagnostics = await diagnoseOpenApiFor(
-        `
+  it("does not emit a warning if a service namespace has no routes", async () => {
+    const diagnostics = await diagnoseOpenApiFor(
+      `
     @service
     namespace Test {
       model Foo {};
     }
     `,
-      );
-      expectDiagnosticEmpty(diagnostics);
-    });
+    );
+    expectDiagnosticEmpty(diagnostics);
+  });
 
-    it("does not emit a warning if a service namespace has routes", async () => {
-      const diagnostics = await diagnoseOpenApiFor(
-        `
+  it("does not emit a warning if a service namespace has routes", async () => {
+    const diagnostics = await diagnoseOpenApiFor(
+      `
     @service
     namespace Test {
       model Foo {};
@@ -61,8 +59,7 @@ describe.each(Object.values(OpenAPISpecHelpers))(
       op ping(): void;
     }
     `,
-      );
-      expectDiagnosticEmpty(diagnostics);
-    });
-  },
-);
+    );
+    expectDiagnosticEmpty(diagnostics);
+  });
+});

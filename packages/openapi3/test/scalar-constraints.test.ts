@@ -1,9 +1,9 @@
+/* eslint-disable vitest/no-identical-title */
 import { strictEqual } from "assert";
 import { describe, it } from "vitest";
-import { OpenAPISpecHelpers } from "./test-host.js";
+import { worksFor } from "./works-for.js";
 
-describe("openapi 3.0.0: scalar constraints", () => {
-  const { oapiForModel } = OpenAPISpecHelpers["3.0.0"];
+worksFor(["3.0.0"], ({ oapiForModel }) => {
   describe("numeric constraints", () => {
     const scalarNumberTypes = [
       "int8",
@@ -128,8 +128,7 @@ describe("openapi 3.0.0: scalar constraints", () => {
   });
 });
 
-describe("openapi 3.1.0: scalar constraints", () => {
-  const { oapiForModel } = OpenAPISpecHelpers["3.1.0"];
+worksFor(["3.1.0"], ({ oapiForModel }) => {
   describe("numeric constraints", () => {
     const scalarNumberTypes = [
       "int8",

@@ -2,14 +2,13 @@ import { DecoratorContext, getNamespaceFullName, Namespace } from "@typespec/com
 import { createTestWrapper, expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
 import { describe, it } from "vitest";
-import { createOpenAPITestHost, createOpenAPITestRunner, OpenAPISpecHelpers } from "./test-host.js";
+import { createOpenAPITestHost, createOpenAPITestRunner } from "./test-host.js";
+import { worksFor } from "./works-for.js";
 
-describe.each(Object.values(OpenAPISpecHelpers))(
-  "openapi $version: versioning",
-  ({ openApiFor, version: specVersion }) => {
-    it("works with models", async () => {
-      const { v1, v2, v3 } = await openApiFor(
-        `
+worksFor(["3.0.0", "3.1.0"], ({ openApiFor, version: specVersion }) => {
+  it("works with models", async () => {
+    const { v1, v2, v3 } = await openApiFor(
+      `
       @versioned(Versions)
       @service({title: "My Service"})
       namespace MyService {
@@ -44,91 +43,91 @@ describe.each(Object.values(OpenAPISpecHelpers))(
         }
       }
     `,
-        ["v1", "v2", "v3"],
-      );
+      ["v1", "v2", "v3"],
+    );
 
-      strictEqual(v1.info.version, "v1");
-      deepStrictEqual(v1.components.schemas.Test, {
-        type: "object",
-        properties: {
-          prop1: { type: "string" },
-          prop3: { type: "string" },
-          prop4: { type: "string" },
-          prop5: { type: "string" },
-        },
-        required: ["prop1", "prop3", "prop4", "prop5"],
-      });
-
-      deepStrictEqual(v1.components.schemas["MyLibrary.Foo"], {
-        type: "object",
-        properties: {
-          prop1: { type: "string" },
-        },
-        required: ["prop1"],
-      });
-
-      strictEqual(v2.info.version, "v2");
-      deepStrictEqual(v2.components.schemas.Test, {
-        type: "object",
-        properties: {
-          prop1: { type: "string" },
-          prop2: { type: "string" },
-          prop4: { type: "string" },
-          prop5: { type: "string" },
-        },
-        required: ["prop1", "prop2", "prop4", "prop5"],
-      });
-      deepStrictEqual(v2.components.schemas["MyLibrary.Foo"], {
-        type: "object",
-        properties: {
-          prop1: { type: "string" },
-          prop2: { type: "string" },
-        },
-        required: ["prop1", "prop2"],
-      });
-
-      strictEqual(v3.info.version, "v3");
-      deepStrictEqual(v3.components.schemas.Test, {
-        type: "object",
-        properties: {
-          prop1: { type: "string" },
-          prop2: { type: "string" },
-          prop4new: { type: "string" },
-          prop5: { type: "string" },
-        },
-        required: ["prop1", "prop2", "prop4new"],
-      });
-      deepStrictEqual(v3.components.schemas["MyLibrary.Foo"], {
-        type: "object",
-        properties: {
-          prop1: { type: "string" },
-          prop2: { type: "string" },
-          prop3: { type: "string" },
-        },
-        required: ["prop1", "prop2", "prop3"],
-      });
+    strictEqual(v1.info.version, "v1");
+    deepStrictEqual(v1.components.schemas.Test, {
+      type: "object",
+      properties: {
+        prop1: { type: "string" },
+        prop3: { type: "string" },
+        prop4: { type: "string" },
+        prop5: { type: "string" },
+      },
+      required: ["prop1", "prop3", "prop4", "prop5"],
     });
 
-    it("doesn't lose parent namespace", async () => {
-      const host = await createOpenAPITestHost();
+    deepStrictEqual(v1.components.schemas["MyLibrary.Foo"], {
+      type: "object",
+      properties: {
+        prop1: { type: "string" },
+      },
+      required: ["prop1"],
+    });
 
-      let storedNamespace: string | undefined = undefined;
-      host.addJsFile("test.js", {
-        $armNamespace(context: DecoratorContext, entity: Namespace) {
-          storedNamespace = getNamespaceFullName(entity);
-        },
-      });
+    strictEqual(v2.info.version, "v2");
+    deepStrictEqual(v2.components.schemas.Test, {
+      type: "object",
+      properties: {
+        prop1: { type: "string" },
+        prop2: { type: "string" },
+        prop4: { type: "string" },
+        prop5: { type: "string" },
+      },
+      required: ["prop1", "prop2", "prop4", "prop5"],
+    });
+    deepStrictEqual(v2.components.schemas["MyLibrary.Foo"], {
+      type: "object",
+      properties: {
+        prop1: { type: "string" },
+        prop2: { type: "string" },
+      },
+      required: ["prop1", "prop2"],
+    });
 
-      const runner = createTestWrapper(host, {
-        autoImports: [...host.libraries.map((x) => x.name), "./test.js"],
-        autoUsings: ["TypeSpec.Rest", "TypeSpec.Http", "TypeSpec.OpenAPI", "TypeSpec.Versioning"],
-        compilerOptions: {
-          emit: ["@typespec/openapi3"],
-          options: { "@typespec/openapi3": { "openapi-versions": [specVersion] } },
-        },
-      });
+    strictEqual(v3.info.version, "v3");
+    deepStrictEqual(v3.components.schemas.Test, {
+      type: "object",
+      properties: {
+        prop1: { type: "string" },
+        prop2: { type: "string" },
+        prop4new: { type: "string" },
+        prop5: { type: "string" },
+      },
+      required: ["prop1", "prop2", "prop4new"],
+    });
+    deepStrictEqual(v3.components.schemas["MyLibrary.Foo"], {
+      type: "object",
+      properties: {
+        prop1: { type: "string" },
+        prop2: { type: "string" },
+        prop3: { type: "string" },
+      },
+      required: ["prop1", "prop2", "prop3"],
+    });
+  });
 
-      await runner.compile(`
+  it("doesn't lose parent namespace", async () => {
+    const host = await createOpenAPITestHost();
+
+    let storedNamespace: string | undefined = undefined;
+    host.addJsFile("test.js", {
+      $armNamespace(context: DecoratorContext, entity: Namespace) {
+        storedNamespace = getNamespaceFullName(entity);
+      },
+    });
+
+    const runner = createTestWrapper(host, {
+      autoImports: [...host.libraries.map((x) => x.name), "./test.js"],
+      autoUsings: ["TypeSpec.Rest", "TypeSpec.Http", "TypeSpec.OpenAPI", "TypeSpec.Versioning"],
+      compilerOptions: {
+        emit: ["@typespec/openapi3"],
+        options: { "@typespec/openapi3": { "openapi-versions": [specVersion] } },
+      },
+    });
+
+    await runner.compile(`
     @versioned(Contoso.Library.Versions)
     namespace Contoso.Library {
       namespace Blah { }
@@ -150,18 +149,18 @@ describe.each(Object.values(OpenAPISpecHelpers))(
     }
     `);
 
-      strictEqual(storedNamespace, "Contoso.WidgetService");
-    });
+    strictEqual(storedNamespace, "Contoso.WidgetService");
+  });
 
-    // Test for https://github.com/microsoft/typespec/issues/812
-    it("doesn't throw errors when using UpdateableProperties", async () => {
-      // if this test throws a duplicate name diagnostic, check that getEffectiveType
-      // is returning the projected type.
-      const runner = await createOpenAPITestRunner({
-        withVersioning: true,
-        emitterOptions: { "openapi-versions": [specVersion] },
-      });
-      await runner.compile(`
+  // Test for https://github.com/microsoft/typespec/issues/812
+  it("doesn't throw errors when using UpdateableProperties", async () => {
+    // if this test throws a duplicate name diagnostic, check that getEffectiveType
+    // is returning the projected type.
+    const runner = await createOpenAPITestRunner({
+      withVersioning: true,
+      emitterOptions: { "openapi-versions": [specVersion] },
+    });
+    await runner.compile(`
       @versioned(Library.Versions)
       namespace Library {
         enum Versions {
@@ -183,15 +182,15 @@ describe.each(Object.values(OpenAPISpecHelpers))(
         }
       }
     `);
-    });
+  });
 
-    describe("versioned resource", () => {
-      it("reports diagnostic without crashing for mismatched versions", async () => {
-        const runner = await createOpenAPITestRunner({
-          withVersioning: true,
-          emitterOptions: { "openapi-versions": [specVersion] },
-        });
-        const diagnostics = await runner.diagnose(`
+  describe("versioned resource", () => {
+    it("reports diagnostic without crashing for mismatched versions", async () => {
+      const runner = await createOpenAPITestRunner({
+        withVersioning: true,
+        emitterOptions: { "openapi-versions": [specVersion] },
+      });
+      const diagnostics = await runner.diagnose(`
         @versioned(Versions)
         @service
         namespace DemoService;
@@ -221,17 +220,17 @@ describe.each(Object.values(OpenAPISpecHelpers))(
         @route("/widgets")
         interface Widgets extends Resource.ResourceOperations<Widget, Error> {}
       `);
-        expectDiagnostics(diagnostics, {
-          code: "@typespec/versioning/incompatible-versioned-reference",
-        });
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
       });
+    });
 
-      it("succeeds for aligned versions", async () => {
-        const runner = await createOpenAPITestRunner({
-          withVersioning: true,
-          emitterOptions: { "openapi-versions": [specVersion] },
-        });
-        await runner.compile(`
+    it("succeeds for aligned versions", async () => {
+      const runner = await createOpenAPITestRunner({
+        withVersioning: true,
+        emitterOptions: { "openapi-versions": [specVersion] },
+      });
+      await runner.compile(`
         @versioned(Versions)
         @service
         namespace DemoService;
@@ -262,7 +261,6 @@ describe.each(Object.values(OpenAPISpecHelpers))(
         @route("/widgets")
         interface Widgets extends Resource.ResourceOperations<Widget, Error> {}
     `);
-      });
     });
-  },
-);
+  });
+});
