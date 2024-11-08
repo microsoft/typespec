@@ -55,7 +55,7 @@ The [`@versioned`](../../libraries/versioning/reference/decorators#@TypeSpec.Ver
 
 Let's define two versions of our API, `v1` and `v2`:
 
-```tsp tryit="{"emit": ["@typespec/openapi3"]}"
+```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
 import "@typespec/http";
 // highlight-next-line
 import "@typespec/versioning";
@@ -115,7 +115,7 @@ The [`@added`](../../libraries/versioning/reference/decorators#@TypeSpec.Version
 
 Let's add a `Toy` model that is only available in version 2 of the API:
 
-```tsp tryit="{"emit": ["@typespec/openapi3"]}"
+```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
 import "@typespec/http";
 import "@typespec/versioning";
 
@@ -174,7 +174,7 @@ Let's define version-specific operations to manage toys for pets. These operatio
 
 ### Example: Adding Version-Specific Operations
 
-```tsp tryit="{"emit": ["@typespec/openapi3"]}"
+```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
 import "@typespec/http";
 import "@typespec/versioning";
 
