@@ -87,7 +87,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
         self.is_lro_initial_operation: bool = self.yaml_data.get("isLroInitialOperation", False)
         self.include_documentation: bool = not self.is_lro_initial_operation
         self.internal: bool = self.yaml_data.get("internal", False)
-        if self.internal:
+        if self.internal and not self.name.startswith("_"):
             self.name = "_" + self.name
         self.has_etag: bool = self.yaml_data.get("hasEtag", False)
         self.cross_language_definition_id: Optional[str] = self.yaml_data.get("crossLanguageDefinitionId")
