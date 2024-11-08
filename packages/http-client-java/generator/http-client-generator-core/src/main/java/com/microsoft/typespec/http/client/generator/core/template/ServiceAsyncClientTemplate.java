@@ -57,6 +57,7 @@ public class ServiceAsyncClientTemplate implements IJavaTemplate<AsyncSyncClient
         final boolean samePackageAsBuilder = builderPackageName.equals(asyncClient.getPackageName());
         final JavaVisibility constructorVisibility
             = samePackageAsBuilder ? JavaVisibility.PackagePrivate : JavaVisibility.Public;
+        ClientBuilder rootClientBuilder = getClientBuilder(asyncClient);
 
         Set<String> imports = new HashSet<>();
         if (wrapServiceClient) {
@@ -67,6 +68,9 @@ public class ServiceAsyncClientTemplate implements IJavaTemplate<AsyncSyncClient
             imports.add(methodGroupClient.getPackage() + "." + methodGroupClient.getClassName());
         }
         imports.add(builderPackageName + "." + builderClassName);
+        if (rootClientBuilder != null) {
+            rootClientBuilder.addImportsTo(imports, false);
+        }
         addServiceClientAnnotationImports(imports);
 
         for (ClientAccessorMethod clientAccessorMethod : serviceClient.getClientAccessorMethods()) {
@@ -79,9 +83,9 @@ public class ServiceAsyncClientTemplate implements IJavaTemplate<AsyncSyncClient
         javaFile.javadocComment(comment -> comment.description(String
             .format("Initializes a new instance of the asynchronous %1$s type.", serviceClient.getInterfaceName())));
 
-        if (asyncClient.getClientBuilder() != null) {
-            javaFile.annotation(String.format("ServiceClient(builder = %s.class, isAsync = true)",
-                asyncClient.getClientBuilder().getClassName()));
+        if (rootClientBuilder != null) {
+            javaFile.annotation(
+                String.format("ServiceClient(builder = %s.class, isAsync = true)", rootClientBuilder.getClassName()));
         }
         javaFile.publicFinalClass(asyncClassName, classBlock -> {
             // Add service client member variable
@@ -215,6 +219,15 @@ public class ServiceAsyncClientTemplate implements IJavaTemplate<AsyncSyncClient
         }
     }
 
+    /**
+     * Writes the wrapper method of the accessor method for sub client.
+     * <p>
+     * The method invokes method in ServiceClient class.
+     *
+     * @param serviceClient the ServiceClient
+     * @param classBlock the class block
+     * @param isAsync whether the wrapper is for sync client or async client
+     */
     static void writeSubClientAccessors(ServiceClient serviceClient, JavaClass classBlock, boolean isAsync) {
         // Add accessors to sub clients
         for (ClientAccessorMethod clientAccessorMethod : serviceClient.getClientAccessorMethods()) {
@@ -237,6 +250,29 @@ public class ServiceAsyncClientTemplate implements IJavaTemplate<AsyncSyncClient
                 method.methodReturn("new " + subClientClassName + "(" + serviceClientMethodCall + ")");
             });
         }
+    }
+
+    /**
+     * Gets the client builder, or finds a client builder from parent clients. It could return {@code null}.
+     *
+     * @param client the AsyncSyncClient
+     * @return the ClientBuilder
+     */
+    static ClientBuilder getClientBuilder(AsyncSyncClient client) {
+        if (client.getClientBuilder() != null) {
+            return client.getClientBuilder();
+        }
+        ServiceClient serviceClient = client.getServiceClient().getParentClient();
+        while (serviceClient != null) {
+            if (serviceClient.getSyncClient() != null && serviceClient.getSyncClient().getClientBuilder() != null) {
+                return serviceClient.getSyncClient().getClientBuilder();
+            } else if (serviceClient.getAsyncClient() != null
+                && serviceClient.getAsyncClient().getClientBuilder() != null) {
+                return serviceClient.getAsyncClient().getClientBuilder();
+            }
+            serviceClient = serviceClient.getParentClient();
+        }
+        return null;
     }
 
     private void writeConvenienceMethods(List<ConvenienceMethod> convenienceMethods, JavaClass classBlock) {

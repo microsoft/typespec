@@ -96,7 +96,10 @@ public class TypeSpecServiceClientMapper extends ServiceClientMapper {
 
         ServiceClient serviceClient = builder.build();
 
-        clientAccessorMethods.forEach(m -> m.setServiceClient(serviceClient));
+        clientAccessorMethods.forEach(m -> {
+            m.setServiceClient(serviceClient);
+            m.getSubClient().setParentClient(serviceClient);
+        });
 
         parsed.put(client, serviceClient);
         return serviceClient;

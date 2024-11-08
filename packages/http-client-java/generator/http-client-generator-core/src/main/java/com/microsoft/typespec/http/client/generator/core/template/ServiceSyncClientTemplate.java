@@ -7,6 +7,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Annotation;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.AsyncSyncClient;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientAccessorMethod;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientBuilder;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ConvenienceMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
@@ -49,6 +50,7 @@ public class ServiceSyncClientTemplate implements IJavaTemplate<AsyncSyncClient,
         final boolean samePackageAsBuilder = builderPackageName.equals(syncClient.getPackageName());
         final JavaVisibility constructorVisibility
             = samePackageAsBuilder ? JavaVisibility.PackagePrivate : JavaVisibility.Public;
+        ClientBuilder rootClientBuilder = ServiceAsyncClientTemplate.getClientBuilder(syncClient);
 
         Set<String> imports = new HashSet<>();
         if (wrapServiceClient) {
@@ -59,6 +61,9 @@ public class ServiceSyncClientTemplate implements IJavaTemplate<AsyncSyncClient,
             imports.add(methodGroupClient.getPackage() + "." + methodGroupClient.getClassName());
         }
         imports.add(builderPackageName + "." + builderClassName);
+        if (rootClientBuilder != null) {
+            rootClientBuilder.addImportsTo(imports, false);
+        }
         addServiceClientAnnotationImport(imports);
 
         for (ClientAccessorMethod clientAccessorMethod : serviceClient.getClientAccessorMethods()) {
@@ -71,9 +76,8 @@ public class ServiceSyncClientTemplate implements IJavaTemplate<AsyncSyncClient,
         javaFile.javadocComment(comment -> comment.description(String
             .format("Initializes a new instance of the synchronous %1$s type.", serviceClient.getInterfaceName())));
 
-        if (syncClient.getClientBuilder() != null) {
-            javaFile.annotation(
-                String.format("ServiceClient(builder = %s.class)", syncClient.getClientBuilder().getClassName()));
+        if (rootClientBuilder != null) {
+            javaFile.annotation(String.format("ServiceClient(builder = %s.class)", rootClientBuilder.getClassName()));
         }
         javaFile.publicFinalClass(syncClassName, classBlock -> {
             writeClass(syncClient, classBlock, constructorVisibility);

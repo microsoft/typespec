@@ -82,6 +82,9 @@ public class ServiceClient {
     private PipelinePolicyDetails pipelinePolicyDetails;
 
     private List<ClientAccessorMethod> clientAccessorMethods;
+    private ServiceClient parentClient;
+    private AsyncSyncClient asyncClient;
+    private AsyncSyncClient syncClient;
 
     /**
      * Create a new ServiceClient with the provided properties.
@@ -227,8 +230,49 @@ public class ServiceClient {
         return pipelinePolicyDetails;
     }
 
+    /**
+     * Gets the list of client accessor methods.
+     *
+     * @return the list of client accessor methods
+     */
     public List<ClientAccessorMethod> getClientAccessorMethods() {
         return clientAccessorMethods;
+    }
+
+    /**
+     * Gets the parent class.
+     *
+     * @return the parent class
+     */
+    public ServiceClient getParentClient() {
+        return parentClient;
+    }
+
+    // Use a setter instead of builder, to avoid circular reference during build,
+    // as ServiceClient already refers to sub client via ClientAccessorMethod.
+    /**
+     * Sets the parent class.
+     *
+     * @param parentClient the parent class
+     */
+    public void setParentClient(ServiceClient parentClient) {
+        this.parentClient = parentClient;
+    }
+
+    public AsyncSyncClient getAsyncClient() {
+        return asyncClient;
+    }
+
+    public void setAsyncClient(AsyncSyncClient asyncClient) {
+        this.asyncClient = asyncClient;
+    }
+
+    public AsyncSyncClient getSyncClient() {
+        return syncClient;
+    }
+
+    public void setSyncClient(AsyncSyncClient syncClient) {
+        this.syncClient = syncClient;
     }
 
     public String getCrossLanguageDefinitionId() {
@@ -247,6 +291,12 @@ public class ServiceClient {
         if (!includeBuilderImports) {
             for (ClientMethod clientMethod : getClientMethods()) {
                 clientMethod.addImportsTo(imports, includeImplementationImports, settings);
+            }
+        }
+
+        if (includeImplementationImports) {
+            for (ClientAccessorMethod clientAccessorMethod : getClientAccessorMethods()) {
+                clientAccessorMethod.addImportsTo(imports, false);
             }
         }
 

@@ -167,6 +167,7 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
         JavaSettings settings = JavaSettings.getInstance();
 
         if (operations.isEmpty()) {
+            // no operation, does not need a Proxy
             builder.clientMethods(Collections.emptyList());
             return null;
         }

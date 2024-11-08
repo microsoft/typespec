@@ -121,25 +121,12 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
                 client.addImportsTo(imports, false);
             }
             // sub clients
-            Set<ServiceClient> subClients = new HashSet<>();
-            for (AsyncSyncClient client : clients) {
-                for (ClientAccessorMethod clientAccessorMethod : client.getServiceClient().getClientAccessorMethods()) {
-                    ServiceClient subClient = clientAccessorMethod.getServiceClient();
-                    if (!subClients.contains(subClient)) {
-                        if (JavaSettings.getInstance().isGenerateSyncMethods()) {
-                            builderTypes.append(", ");
-                            builderTypes.append(clientAccessorMethod.getAsyncSyncClientName(false)).append(".class");
-                        }
-                        if (JavaSettings.getInstance().isGenerateAsyncMethods()) {
-                            builderTypes.append(", ");
-                            builderTypes.append(clientAccessorMethod.getAsyncSyncClientName(true)).append(".class");
-                        }
+            List<AsyncSyncClient> subClients = getSubClientsWithoutBuilder(clients);
+            for (AsyncSyncClient client : subClients) {
+                builderTypes.append(", ");
+                builderTypes.append(client.getClassName()).append(".class");
 
-                        clientAccessorMethod.addImportsTo(imports, false);
-
-                        subClients.add(subClient);
-                    }
-                }
+                client.addImportsTo(imports, false);
             }
         } else {
             builderTypes.append(serviceClient.getClassName()).append(".class");
@@ -639,5 +626,33 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
 
     protected void addOverrideAnnotation(JavaContext classBlock) {
         classBlock.annotation("Override");
+    }
+
+    private static List<AsyncSyncClient> getSubClientsWithoutBuilder(List<AsyncSyncClient> clients) {
+        Set<AsyncSyncClient> subClients = new HashSet<>();
+        for (AsyncSyncClient client : clients) {
+            addSubClientDfs(client.getServiceClient(), subClients);
+        }
+        return new ArrayList<>(subClients);
+    }
+
+    private static void addSubClientDfs(ServiceClient serviceClient, Set<AsyncSyncClient> subClients) {
+        for (ClientAccessorMethod clientAccessorMethod : serviceClient.getClientAccessorMethods()) {
+            AsyncSyncClient client = clientAccessorMethod.getServiceClient().getAsyncClient();
+            ServiceClient serviceClient1 = null;
+            if (client != null && !subClients.contains(client) && client.getClientBuilder() == null) {
+                subClients.add(client);
+                serviceClient1 = client.getServiceClient();
+            }
+            client = clientAccessorMethod.getServiceClient().getAsyncClient();
+            if (client != null && !subClients.contains(client) && client.getClientBuilder() == null) {
+                subClients.add(client);
+                serviceClient1 = client.getServiceClient();
+            }
+
+            if (serviceClient1 != null) {
+                addSubClientDfs(serviceClient1, subClients);
+            }
+        }
     }
 }

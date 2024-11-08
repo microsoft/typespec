@@ -4,7 +4,6 @@
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
-import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -56,6 +55,11 @@ public class ClientAccessorMethod {
         return subClient;
     }
 
+    /**
+     * Gets the ServiceClient properties that should be on accessor method signature.
+     *
+     * @return the properties for accessor method parameters.
+     */
     public List<ServiceClientProperty> getAccessorProperties() {
         List<ServiceClientProperty> additionalProperties = new ArrayList<>();
         for (ServiceClientProperty property : subClient.getProperties()) {
@@ -73,11 +77,12 @@ public class ClientAccessorMethod {
         subClient.addImportsTo(imports, false, false, settings);
 
         // wrapper classes
-        final String packageName = ClientModelUtil.getAsyncSyncClientPackageName(subClient);
-        final String subClientAsyncClassName = getAsyncSyncClientName(true);
-        final String subClientClassName = getAsyncSyncClientName(false);
-        imports.add(packageName + "." + subClientClassName);
-        imports.add(packageName + "." + subClientAsyncClassName);
+        if (subClient.getSyncClient() != null) {
+            subClient.getSyncClient().addImportsTo(imports, false);
+        }
+        if (subClient.getAsyncClient() != null) {
+            subClient.getAsyncClient().addImportsTo(imports, false);
+        }
 
         // properties
         for (ServiceClientProperty property : subClient.getProperties()) {
@@ -85,10 +90,20 @@ public class ClientAccessorMethod {
         }
     }
 
+    /**
+     * Gets the method name for ServiceClient.
+     *
+     * @return the method name for ServiceClient
+     */
     public String getName() {
         return "get" + subClient.getClientBaseName();
     }
 
+    /**
+     * Gets the method declaration for ServiceClient.
+     *
+     * @return the method declaration for ServiceClient
+     */
     public String getDeclaration() {
         String subClientClassName = subClient.getClassName();
         List<ServiceClientProperty> additionalProperties = this.getAccessorProperties();
@@ -98,12 +113,22 @@ public class ClientAccessorMethod {
             + ")";
     }
 
+    /**
+     * Gets the client class name of AsyncSyncClient.
+     *
+     * @param isAsync whether it is sync client or async client
+     * @return the client class name of AsyncSyncClient
+     */
     public String getAsyncSyncClientName(boolean isAsync) {
-        return isAsync
-            ? ClientModelUtil.clientNameToAsyncClientName(subClient.getClientBaseName())
-            : subClient.getClientBaseName();
+        return isAsync ? subClient.getAsyncClient().getClassName() : subClient.getSyncClient().getClassName();
     }
 
+    /**
+     * Gets the method declaration for AsyncSyncClient.
+     *
+     * @param isAsync whether it is sync client or async client
+     * @return the method declaration for AsyncSyncClient
+     */
     public String getAsyncSyncClientDeclaration(boolean isAsync) {
         String subClientClassName = getAsyncSyncClientName(isAsync);
         List<ServiceClientProperty> additionalProperties = this.getAccessorProperties();
