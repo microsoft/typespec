@@ -17,7 +17,8 @@
     "index.ts"
   ],
   "scripts": {
-    "build": "astro check && tsc -p ./tsconfig.build.json"
+    "build": "astro check && tsc -p ./tsconfig.build.json",
+    "watch": "tsc -p ./tsconfig.build.json --watch"
   },
   "devDependencies": {
     "@types/react": "~18.3.11",
