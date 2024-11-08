@@ -22,9 +22,9 @@ namespace _Type.Scalar
 
         public virtual Task<ClientResult<decimal>> ResponseBodyAsync() => throw null;
 
-        public virtual ClientResult RequestBody(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult RequestBody(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> RequestBodyAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> RequestBodyAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult RequestBody(decimal body) => throw null;
 

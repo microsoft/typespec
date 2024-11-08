@@ -31,12 +31,12 @@ namespace _Type.Property.Nullable
 
         public virtual Task<ClientResult<CollectionsModelProperty>> GetNullAsync() => throw null;
 
-        public virtual ClientResult PatchNonNull(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult PatchNonNull(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PatchNonNullAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PatchNonNullAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult PatchNull(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult PatchNull(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PatchNullAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PatchNullAsync(BinaryContent content, RequestOptions options = null) => throw null;
     }
 }

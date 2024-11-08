@@ -1,5 +1,6 @@
-import type { ModelProperty, Scalar, Type } from "../../../core/types.js";
-import { EncodeData, getEncode, getFormat, getVisibility } from "../../../lib/decorators.js";
+import type { Enum, EnumMember, ModelProperty, Scalar, Type } from "../../../core/types.js";
+import { getVisibilityForClass } from "../../../core/visibility/core.js";
+import { EncodeData, getEncode, getFormat } from "../../../lib/decorators.js";
 import { defineKit } from "../define-kit.js";
 
 export interface ModelPropertyKit {
@@ -26,11 +27,10 @@ export interface ModelPropertyKit {
    */
   getFormat(property: ModelProperty): string | undefined;
 
-  // todo: update this with Will's proposal.
   /**
    * Get the visibility of the model property.
    */
-  getVisibility(property: ModelProperty): string[] | undefined;
+  getVisibilityForClass(property: ModelProperty, visibilityClass: Enum): Set<EnumMember>;
 }
 
 interface TypeKit {
@@ -63,8 +63,8 @@ defineKit<TypeKit>({
       return getFormat(this.program, type) ?? getFormat(this.program, type.type as Scalar);
     },
 
-    getVisibility(property) {
-      return getVisibility(this.program, property);
+    getVisibilityForClass(property, visibilityClass) {
+      return getVisibilityForClass(this.program, property, visibilityClass);
     },
   },
 });

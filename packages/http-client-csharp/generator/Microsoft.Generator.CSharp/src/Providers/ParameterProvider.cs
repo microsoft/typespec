@@ -175,7 +175,7 @@ namespace Microsoft.Generator.CSharp.Providers
         }
 
         private VariableExpression? _asVariable;
-        public VariableExpression AsExpression => _asVariable ??= this;
+        private VariableExpression AsExpression => _asVariable ??= this;
 
         public TypeProvider? SpreadSource { get; set; }
 

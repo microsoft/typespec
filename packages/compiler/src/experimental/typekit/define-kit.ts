@@ -1,10 +1,10 @@
 import { type Program } from "../../core/program.js";
 
-let currentProgram: Program | undefined;
+const CURRENT_PROGRAM = Symbol.for("TypeSpec.currentProgram");
 
 /** @experimental */
 export function setCurrentProgram(program: Program): void {
-  currentProgram = program;
+  (globalThis as any)[CURRENT_PROGRAM] = program;
 }
 
 /** @experimental */
@@ -21,7 +21,7 @@ export function createTypekit(): TypekitPrototype {
 
   Object.defineProperty(tk, "program", {
     get() {
-      return currentProgram;
+      return (globalThis as any)[CURRENT_PROGRAM];
     },
   });
 

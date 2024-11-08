@@ -23,17 +23,17 @@ namespace _Type._Enum.Fixed
 
         public virtual Task<ClientResult<DaysOfWeekEnum>> GetKnownValueAsync() => throw null;
 
-        public virtual ClientResult PutKnownValue(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult PutKnownValue(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutKnownValueAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PutKnownValueAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult PutKnownValue(DaysOfWeekEnum body) => throw null;
 
         public virtual Task<ClientResult> PutKnownValueAsync(DaysOfWeekEnum body) => throw null;
 
-        public virtual ClientResult PutUnknownValue(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult PutUnknownValue(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutUnknownValueAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PutUnknownValueAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult PutUnknownValue(DaysOfWeekEnum body) => throw null;
 

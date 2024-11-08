@@ -23,9 +23,9 @@ namespace _Type.Property.AdditionalProperties
 
         public virtual Task<ClientResult<DifferentSpreadModelArrayRecord>> GetAsync() => throw null;
 
-        public virtual ClientResult Put(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Put(DifferentSpreadModelArrayRecord body) => throw null;
 

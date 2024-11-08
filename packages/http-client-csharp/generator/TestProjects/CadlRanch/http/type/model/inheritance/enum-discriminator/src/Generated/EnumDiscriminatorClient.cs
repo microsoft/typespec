@@ -26,9 +26,9 @@ namespace _Type.Model.Inheritance.EnumDiscriminator
 
         public virtual Task<ClientResult<Dog>> GetExtensibleModelAsync() => throw null;
 
-        public virtual ClientResult PutExtensibleModel(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult PutExtensibleModel(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutExtensibleModelAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PutExtensibleModelAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult PutExtensibleModel(Dog input) => throw null;
 
@@ -58,9 +58,9 @@ namespace _Type.Model.Inheritance.EnumDiscriminator
 
         public virtual Task<ClientResult<Snake>> GetFixedModelAsync() => throw null;
 
-        public virtual ClientResult PutFixedModel(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult PutFixedModel(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutFixedModelAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PutFixedModelAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult PutFixedModel(Snake input) => throw null;
 
