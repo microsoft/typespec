@@ -15,3 +15,5 @@ TODO: write installation instructions after the package has been published
 ```bash
 tsp compile . --emit=graphql
 ```
+
+TEST
