@@ -1,13 +1,21 @@
 import { ModelProperty, Operation, Type } from "@typespec/compiler";
 import { $, defineKit } from "@typespec/compiler/typekit";
 import { Client } from "../../interfaces.js";
+import { getConstructors } from "../../utils/client-helpers.js";
 import { AccessKit, getAccess, getName, NameKit } from "./utils.js";
 
 export interface SdkOperationKit extends NameKit<Operation>, AccessKit<Operation> {
   /**
+   * Get the overloads for an operation
+   *
+   * @param client
+   * @param operation
+   */
+  getOverloads(client: Client, operation: Operation): Operation[];
+  /**
    * Get parameters. This will take into account any parameters listed on the client
    */
-  getParameters(client: Client, operation: Operation): ModelProperty[];
+  getClientSignature(client: Client, operation: Operation): ModelProperty[];
 
   /**
    * Get valid return types for an operation
@@ -31,16 +39,24 @@ declare module "@typespec/compiler/typekit" {
 
 defineKit<SdkKit>({
   operation: {
+    getOverloads(client, operation) {
+      if (operation.name === "constructor") {
+        const constructors = getConstructors(client);
+        if (constructors.length > 1) {
+          return constructors;
+        }
+      }
+      return [];
+    },
     getAccess(operation) {
       return getAccess(operation);
     },
     getName(operation) {
       return getName(operation);
     },
-    getParameters(client, operation) {
-      return [...operation.parameters.properties.values()].filter(
-        (p) => !$.client.getParameters(client).find((cp) => cp.name === p.name),
-      );
+    getClientSignature(client, operation) {
+      // TODO: filter out client parameters
+      return [...operation.parameters.properties.values()];
     },
     getValidReturnType(operation) {
       const returnType = operation.returnType;

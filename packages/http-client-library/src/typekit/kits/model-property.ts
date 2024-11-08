@@ -11,13 +11,6 @@ export interface SdkCredential extends BaseType {
 
 export interface SdkModelPropertyKit extends NameKit<ModelProperty>, AccessKit<ModelProperty> {
   /**
-   * Returns whether it's an endpoint parameter or not.
-   *
-   * @param type whether it's an endpoint parameter or not
-   */
-  isEndpoint(client: Client, type: ModelProperty): boolean;
-
-  /**
    * Get credential information from the model property. Returns undefined if the credential parameter
    */
   getCredentialAuth(client: Client, type: ModelProperty): HttpAuth[] | undefined;
@@ -60,10 +53,6 @@ declare module "@typespec/compiler/typekit" {
 
 defineKit<TypeKit>({
   modelProperty: {
-    isEndpoint(client, type) {
-      const clientParams = $.client.getParameters(client);
-      return type.name === "endpoint" && Boolean(clientParams.find((p) => p === type));
-    },
     isCredential(modelProperty) {
       return modelProperty.name === "credential";
     },
@@ -72,15 +61,17 @@ defineKit<TypeKit>({
       return false;
     },
     getClientDefaultValue(client, modelProperty) {
-      if ($.modelProperty.isEndpoint(client, modelProperty)) {
-        return modelProperty.defaultValue;
+      const clientParams = $.operation.getClientSignature(client, $.client.getConstructor(client));
+      const clientParam = clientParams.find((p) => p.name === modelProperty.name);
+      if (clientParam) {
+        return clientParam.defaultValue;
       }
-      return undefined
+      return undefined;
     },
     getCredentialAuth(client, type) {
-      const isCredential = $.client
-        .getParameters(client)
-        .find((p) => p.name === "credential" && p === type);
+      const clientConstructor = $.client.getConstructor(client);
+      const params = $.operation.getClientSignature(client, clientConstructor);
+      const isCredential = params.find((p) => p.name === "credential" && p === type);
       if (!isCredential || type.type.kind !== "String") return undefined;
       const scheme = type.type.value;
       return getAuthentication($.program, client.service)

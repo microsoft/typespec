@@ -1,4 +1,4 @@
-import type { ModelProperty, Scalar, Type } from "../../../core/types.js";
+import type { ModelProperty, Scalar, Type, Value } from "../../../core/types.js";
 import { EncodeData, getEncode, getFormat, getVisibility } from "../../../lib/decorators.js";
 import { defineKit } from "../define-kit.js";
 
@@ -17,6 +17,11 @@ export interface ModelPropertyDescriptor {
    * Whether the model property is optional.
    */
   optional?: boolean;
+
+  /**
+   * Default value
+   */
+  defaultValue?: Value | undefined;
 }
 
 export interface ModelPropertyKit {
@@ -96,6 +101,7 @@ defineKit<TypeKit>({
         type: desc.type,
         optional: desc.optional ?? false,
         decorators: [],
+        defaultValue: desc.defaultValue,
       });
     },
   },

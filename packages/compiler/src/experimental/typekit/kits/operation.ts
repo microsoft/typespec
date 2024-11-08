@@ -25,11 +25,6 @@ export interface OperationKit {
    * @param desc The descriptor of the operation.
    */
   create(desc: OperationDescriptor): Operation;
-
-  /**
-   * Get parameters
-   */
-  getParameters(operation: Operation): ModelProperty[];
 }
 
 interface TypeKit {
@@ -66,9 +61,6 @@ export const OperationKit = defineKit<TypeKit>({
       });
       this.program.checker.finishType(operation);
       return operation;
-    },
-    getParameters(operation) {
-      return [...operation.parameters.properties.values()];
     },
   },
 });

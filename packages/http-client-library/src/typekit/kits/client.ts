@@ -3,26 +3,24 @@ import {
   Interface,
   isTemplateDeclaration,
   isTemplateDeclarationOrInstance,
-  ModelProperty,
   Namespace,
   Operation,
 } from "@typespec/compiler";
 import { $, defineKit } from "@typespec/compiler/typekit";
 import { getServers } from "@typespec/http";
 import { Client } from "../../interfaces.js";
-import {
-  getCredentalParameter,
-  getEndpointParametersPerConstructor,
-} from "../../utils/client-initialization.js";
+import { createBaseConstructor, getConstructors } from "../../utils/client-helpers.js";
 import { NameKit } from "./utils.js";
 
 interface ClientKit extends NameKit<Client> {
   /**
-   * Get the constructors for a client
+   * Get the constructor for a client. Will return the base intersection of all possible constructors.
+   *
+   * If you'd like to look at overloads, call `$.operation.getOverloads` on the result of this function.
    *
    * @param client The client we're getting constructors for
    */
-  getConstructors(client: Client): Operation[];
+  getConstructor(client: Client): Operation;
 
   /**
    * Whether the client is publicly initializable
@@ -52,39 +50,12 @@ declare module "@typespec/compiler/typekit" {
 
 defineKit<TypeKit>({
   client: {
-    getConstructors(client) {
-      const constructors: Operation[] = [];
-      let params: ModelProperty[] = [];
-      const credParam = getCredentalParameter(client);
-      if (credParam) {
-        params.push(credParam);
+    getConstructor(client) {
+      const constructors = getConstructors(client);
+      if (constructors.length === 1) {
+        return constructors[0];
       }
-      const endpointParams = getEndpointParametersPerConstructor(client);
-      if (endpointParams.length === 1) {
-        // this means we have a single constructor
-        params = [...endpointParams[0], ...params];
-        constructors.push(
-          $.operation.create({
-            name: "constructor",
-            parameters: params,
-            returnType: $.program.checker.voidType,
-          }),
-        );
-      } else {
-        // this means we have multiple constructors, one for each group of endpoint parameter
-        for (const endpointParamGrouping of endpointParams) {
-          params = [...endpointParamGrouping, ...params];
-          constructors.push(
-            $.operation.create({
-              name: "constructor",
-              parameters: params,
-              returnType: $.program.checker.voidType,
-            }),
-          );
-        }
-      }
-
-      return constructors;
+      return createBaseConstructor(client, constructors);
     },
     getName(client) {
       return client.name;
@@ -130,9 +101,11 @@ defineKit<TypeKit>({
       return operations;
     },
     getUrlTemplate(client, constructor) {
-      const params = $.operation.getParameters(client, constructor);
+      const params = $.operation.getClientSignature(client, constructor);
       const endpointParams = params
-        .filter((p) => $.modelProperty.isEndpoint(client, p))
+        .filter(
+          (p) => $.modelProperty.getName(p) === "endpoint" || $.modelProperty.isHttpPathParam(p),
+        )
         .map((p) => p.name)
         .sort();
       if (endpointParams.length === 1) {
