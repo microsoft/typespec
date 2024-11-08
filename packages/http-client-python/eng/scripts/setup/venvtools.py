@@ -85,3 +85,16 @@ def python_run(venv_context, module, command=None, *, additional_dir="."):
     except subprocess.CalledProcessError as err:
         print(err)
         sys.exit(1)
+
+def build_wheel(venv_context, command, *, additional_dir="."):
+    try:
+        cmd_line = [venv_context.env_exe] + command
+        print("Executing: {}".format(" ".join(cmd_line)))
+        subprocess.run(
+            cmd_line,
+            cwd=_ROOT_DIR / additional_dir,
+            check=True,
+        )
+    except subprocess.CalledProcessError as err:
+        print(err)
+        sys.exit(1)

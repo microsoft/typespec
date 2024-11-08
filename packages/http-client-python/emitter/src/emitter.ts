@@ -138,10 +138,8 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
         "PyYAML",
         "tomli",
         "setuptools",
+        "emfs:generator/dist/pygen-0.1.0-py3-none-any.whl",
       ]);
-      await micropip.install(
-        "https://github.com/YalinLi0312/typespec/releases/download/pygen%40v0.1.0/pygen-0.1.0-py3-none-any.whl",
-      );
       const globals = pyodide.toPy({ outputFolder, yamlPath, commandArgs });
       const python = `
         async def main():

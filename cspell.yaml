@@ -251,6 +251,7 @@ words:
   - pyimport
   - NODEFS
   - yamldata
+  - reqs
 ignorePaths:
   - "**/node_modules/**"
   - "**/dist/**"
