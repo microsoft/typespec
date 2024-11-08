@@ -217,7 +217,8 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                         && definedByModel
                         && streamStyle
                         && !property.isPolymorphicDiscriminator()
-                        && !modelIsJsonMergePatch) {
+                        && !modelIsJsonMergePatch
+                        && !property.isConstant()) {
                         generateSetterJavadoc(classBlock, model, property);
                         addGeneratedAnnotation(classBlock);
                         classBlock.method(JavaVisibility.PackagePrivate, null,
