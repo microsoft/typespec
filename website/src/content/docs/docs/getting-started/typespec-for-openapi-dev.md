@@ -40,7 +40,7 @@ The following table shows how common OpenAPI types map to TypeSpec types:
 You can also define a property with no type specified using the TypeSpec `unknown` type.
 
 ```typespec
-  @doc("This property has no `type` defined.")
+  /** This property has no `type` defined. */
   noType?: unknown;
 ```
 
@@ -456,7 +456,7 @@ The fields in an OpenAPI response object are specified with the following TypeSp
 
 ```typespec
 @get op read(@path id: string): {
-  @doc("the widget")
+  /** the widget */
   @body
   widget: Widget;
 
@@ -498,7 +498,8 @@ The spread operation is useful if you want one or more properties to be present 
 
 ```typespec
 model Legs {
-  @doc("number of legs") legs: int32;
+  /** number of legs */
+  legs: int32;
 }
 
 model Dog {
@@ -784,7 +785,7 @@ In TypeSpec this information is specified with [decorators on the namespace][typ
 [typespec-service-metadata]: https://typespec.io/docs/libraries/http/#service-definition-and-metadata
 
 ```typespec
-@doc("The Contoso Widget Service provides access to the Contoso Widget API.")
+/** The Contoso Widget Service provides access to the Contoso Widget API. */
 @service({
   title: "Widget Service",
 })
