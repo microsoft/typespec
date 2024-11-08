@@ -34,25 +34,25 @@ namespace Client.Naming
 
         public virtual Task<ClientResult> ParameterAsync(string clientName) => throw null;
 
-        public virtual ClientResult Client(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult Client(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> ClientAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> ClientAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Client(ClientNameModel body) => throw null;
 
         public virtual Task<ClientResult> ClientAsync(ClientNameModel body) => throw null;
 
-        public virtual ClientResult Language(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult Language(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> LanguageAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> LanguageAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Language(LanguageClientNameModel body) => throw null;
 
         public virtual Task<ClientResult> LanguageAsync(LanguageClientNameModel body) => throw null;
 
-        public virtual ClientResult CompatibleWithEncodedName(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult CompatibleWithEncodedName(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> CompatibleWithEncodedNameAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> CompatibleWithEncodedNameAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult CompatibleWithEncodedName(ClientNameAndJsonEncodedNameModel body) => throw null;
 

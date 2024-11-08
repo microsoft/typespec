@@ -18,9 +18,9 @@ namespace _Type.Model.Usage
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult Input(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult Input(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> InputAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> InputAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Input(InputRecord input) => throw null;
 
@@ -34,9 +34,9 @@ namespace _Type.Model.Usage
 
         public virtual Task<ClientResult<OutputRecord>> OutputAsync() => throw null;
 
-        public virtual ClientResult InputAndOutput(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult InputAndOutput(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> InputAndOutputAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> InputAndOutputAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult<InputOutputRecord> InputAndOutput(InputOutputRecord body) => throw null;
 
