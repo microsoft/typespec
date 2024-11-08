@@ -23,9 +23,9 @@ namespace _Type.Property.ValueTypes
 
         public virtual Task<ClientResult<BooleanProperty>> GetAsync() => throw null;
 
-        public virtual ClientResult Put(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Put(BooleanProperty body) => throw null;
 

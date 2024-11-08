@@ -101,6 +101,25 @@ export type MutableType = Exclude<
   | Projection
   | Namespace
 >;
+
+/**
+ * Determines if a type is mutable.
+ */
+export function isMutableType(type: Type): type is MutableType {
+  switch (type.kind) {
+    case "TemplateParameter":
+    case "Intrinsic":
+    case "Function":
+    case "Decorator":
+    case "FunctionParameter":
+    case "Object":
+    case "Projection":
+      return false;
+    default:
+      return true;
+  }
+}
+
 /** @experimental */
 export type MutableTypeWithNamespace = MutableType | Namespace;
 const typeId = CustomKeyMap.objectKeyer();

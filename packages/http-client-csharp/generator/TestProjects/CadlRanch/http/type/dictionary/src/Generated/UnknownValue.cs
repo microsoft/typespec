@@ -24,9 +24,9 @@ namespace _Type.Dictionary
 
         public virtual Task<ClientResult<IDictionary<string, BinaryData>>> GetAsync() => throw null;
 
-        public virtual ClientResult Put(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Put(IDictionary<string, BinaryData> body) => throw null;
 
