@@ -31,5 +31,5 @@
 ######################
 # GraphQL
 ######################
-/packages/graphql/                           @@steverice @swatkatz @bterlson @markcowl @allenjzhang @timotheeguerin
+/packages/graphql/                           @steverice @swatkatz @bterlson @markcowl @allenjzhang @timotheeguerin
 
