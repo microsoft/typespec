@@ -88,7 +88,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 methodBody =
                 [
                     .. GetStackVariablesForProtocolParamConversion(ConvenienceMethodParameters, out var declarations),
-                    Return(This.Invoke(protocolMethod.Signature, [.. GetParamConversions(ConvenienceMethodParameters, declarations), Null], isAsync))
+                    Return(This.Invoke(protocolMethod.Signature, [.. GetParamConversions(ConvenienceMethodParameters, declarations)], isAsync))
                 ];
             }
             else
@@ -96,7 +96,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 methodBody =
                 [
                     .. GetStackVariablesForProtocolParamConversion(ConvenienceMethodParameters, out var paramDeclarations),
-                    Declare("result", This.Invoke(protocolMethod.Signature, [.. GetParamConversions(ConvenienceMethodParameters, paramDeclarations), Null], isAsync).ToApi<ClientResponseApi>(), out ClientResponseApi result),
+                    Declare("result", This.Invoke(protocolMethod.Signature, [.. GetParamConversions(ConvenienceMethodParameters, paramDeclarations)], isAsync).ToApi<ClientResponseApi>(), out ClientResponseApi result),
                     .. GetStackVariablesForReturnValueConversion(result, responseBodyType, isAsync, out var resultDeclarations),
                     Return(result.FromValue(GetResultConversion(result, result.GetRawResponse(), responseBodyType, resultDeclarations), result.GetRawResponse())),
                 ];
@@ -320,8 +320,21 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             List<ValueExpression> conversions = new List<ValueExpression>();
             bool addedSpreadSource = false;
+            bool firstOptional = false;
+            bool requestOptionsExpressionAdded = false;
+
             foreach (var param in convenienceMethodParameters)
             {
+                if (!firstOptional && param.DefaultValue is not null)
+                {
+                    firstOptional = true;
+                    if (!ShouldAddOptionalRequestOptionsParameter())
+                    {
+                        // insert the required request options parameter before the first optional parameter
+                        conversions.Add(Null);
+                        requestOptionsExpressionAdded = true;
+                    }
+                }
                 if (param.SpreadSource is not null)
                 {
                     if (!addedSpreadSource)
@@ -361,6 +374,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 {
                     conversions.Add(param);
                 }
+            }
+            if (!requestOptionsExpressionAdded)
+            {
+                conversions.Add(Null);
             }
             return conversions;
         }

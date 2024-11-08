@@ -30,9 +30,9 @@ namespace _Type.Scalar
 
         public virtual Task<ClientResult> RequestBodyAsync(decimal body) => throw null;
 
-        public virtual ClientResult RequestParameter(decimal value, RequestOptions options = null) => throw null;
+        public virtual ClientResult RequestParameter(decimal value, RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> RequestParameterAsync(decimal value, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> RequestParameterAsync(decimal value, RequestOptions options) => throw null;
 
         public virtual ClientResult RequestParameter(decimal value) => throw null;
 

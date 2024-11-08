@@ -27,9 +27,9 @@ namespace Server.Path.Multiple
 
         public virtual Task<ClientResult> NoOperationParamsAsync() => throw null;
 
-        public virtual ClientResult WithOperationPathParam(string keyword, RequestOptions options = null) => throw null;
+        public virtual ClientResult WithOperationPathParam(string keyword, RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> WithOperationPathParamAsync(string keyword, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> WithOperationPathParamAsync(string keyword, RequestOptions options) => throw null;
 
         public virtual ClientResult WithOperationPathParam(string keyword) => throw null;
 
