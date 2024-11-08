@@ -1,11 +1,37 @@
-import type { EmitContext } from "@typespec/compiler";
-import { emitFile, resolvePath } from "@typespec/compiler";
+import type { EmitContext, NewLine } from "@typespec/compiler";
+import { resolvePath } from "@typespec/compiler";
+import type { GraphQLEmitterOptions } from "./lib.js";
+import { createGraphQLEmitter } from "./schema-emitter.js";
 
-export async function $onEmit(context: EmitContext) {
-  if (!context.program.compilerOptions.noEmit) {
-    await emitFile(context.program, {
-      path: resolvePath(context.emitterOutputDir, "output.txt"),
-      content: "Hello world\n",
-    });
-  }
+const defaultOptions = {
+  "new-line": "lf",
+  "omit-unreachable-types": false,
+  "strict-emit": false,
+} as const;
+
+export async function $onEmit(context: EmitContext<GraphQLEmitterOptions>) {
+  const options = resolveOptions(context);
+  const emitter = createGraphQLEmitter(context, options);
+  await emitter.emitGraphQL();
+}
+
+export interface ResolvedGraphQLEmitterOptions {
+  outputFile: string;
+  newLine: NewLine;
+  omitUnreachableTypes: boolean;
+  strictEmit: boolean;
+}
+
+export function resolveOptions(
+  context: EmitContext<GraphQLEmitterOptions>,
+): ResolvedGraphQLEmitterOptions {
+  const resolvedOptions = { ...defaultOptions, ...context.options };
+  const outputFile = resolvedOptions["output-file"] ?? "{schema-name}.graphql";
+
+  return {
+    outputFile: resolvePath(context.emitterOutputDir, outputFile),
+    newLine: resolvedOptions["new-line"],
+    omitUnreachableTypes: resolvedOptions["omit-unreachable-types"],
+    strictEmit: resolvedOptions["strict-emit"],
+  };
 }
