@@ -139,7 +139,7 @@ Attach a documentation string.
 #### Examples
 
 ```typespec
-/** Represent a Pet available in the PetStore */
+@doc("Represent a Pet available in the PetStore")
 model Pet {}
 ```
 
