@@ -1,0 +1,20 @@
+id: prs.external-reviewers
+name: Assign External Reviewers to PRs.
+description: Github doesn't allow CODEOWNERS to have external users but some emitters are contributed externally https://github.com/orgs/community/discussions/23042
+resource: repository
+disabled: false
+configuration:
+  resourceManagementConfiguration:
+    eventResponderTasks:
+      - if:
+          - payloadType: Pull_Request
+        then:
+          - if:
+              - includesModifiedFiles:
+                  files:
+                    - packages/graphql/**/*
+            then:
+              - requestReviewer:
+                  reviewer: steverice
+              - requestReviewer:
+                  reviewer: swatkatz
