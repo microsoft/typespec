@@ -1,5 +1,5 @@
 {
-  "name": "graphql",
+  "name": "@typespec/graphql",
   "version": "0.1.0",
   "type": "module",
   "main": "dist/src/index.js",
