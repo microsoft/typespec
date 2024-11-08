@@ -1,3 +1,4 @@
+# cspell:ignore swatkatz
 id: prs.external-reviewers
 name: Assign External Reviewers to PRs.
 description: Github doesn't allow CODEOWNERS to have external users but some emitters are contributed externally https://github.com/orgs/community/discussions/23042
