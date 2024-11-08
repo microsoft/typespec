@@ -14,7 +14,7 @@ configuration:
                   files:
                     - packages/graphql/**/*
             then:
-              - requestReviewer:
+              - requestReview:
                   reviewer: steverice
-              - requestReviewer:
+              - requestReview:
                   reviewer: swatkatz
