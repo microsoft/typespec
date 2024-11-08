@@ -1,3 +1,4 @@
+import { getSymNode } from "../core/binder.js";
 import {
   compilerAssert,
   DocContent,
@@ -55,7 +56,7 @@ export function getSymbolDetails(
 function getSymbolDocumentation(program: Program, symbol: Sym) {
   const docs: string[] = [];
 
-  for (const node of symbol.declarations) {
+  for (const node of [...symbol.declarations, ...(symbol.node ? [symbol.node] : [])]) {
     // Add /** ... */ developer docs
     for (const d of node.docs ?? []) {
       docs.push(getDocContent(d.content));
@@ -65,7 +66,7 @@ function getSymbolDocumentation(program: Program, symbol: Sym) {
   // Add @doc(...) API docs
   let type = symbol.type;
   if (!type) {
-    const entity = program.checker.getTypeOrValueForNode(symbol.declarations[0]);
+    const entity = program.checker.getTypeOrValueForNode(getSymNode(symbol));
     if (entity && isType(entity)) {
       type = entity;
     }

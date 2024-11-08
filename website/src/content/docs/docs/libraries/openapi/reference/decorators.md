@@ -136,3 +136,39 @@ Specify the OpenAPI `operationId` property for this operation.
 @operationId("download")
 op read(): string;
 ```
+
+### `@tagMetadata` {#@TypeSpec.OpenAPI.tagMetadata}
+
+Specify OpenAPI additional information.
+
+```typespec
+@TypeSpec.OpenAPI.tagMetadata(name: valueof string, tagMetadata: valueof TypeSpec.OpenAPI.TagMetadata)
+```
+
+#### Target
+
+`Namespace`
+
+#### Parameters
+
+| Name        | Type                                                                  | Description            |
+| ----------- | --------------------------------------------------------------------- | ---------------------- |
+| name        | `valueof string`                                                      | tag name               |
+| tagMetadata | [valueof `TagMetadata`](./data-types.md#TypeSpec.OpenAPI.TagMetadata) | Additional information |
+
+#### Examples
+
+```typespec
+@service
+@tagMetadata(
+  "Tag Name",
+  #{
+    description: "Tag description",
+    externalDocs: #{ url: "https://example.com", description: "More info.", `x-custom`: "string" },
+    `x-custom`: "string",
+  }
+)
+namespace PetStore {
+
+}
+```

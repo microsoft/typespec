@@ -102,7 +102,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             var parameter = CodeModelPlugin.Instance.TypeFactory.CreateParameter(inputType);
             var publicParameter = parameter.ToPublicInputParameter();
 
-            Assert.AreEqual(parameter.AsExpression, publicParameter.AsExpression);
+            Assert.AreEqual(parameter, publicParameter);
             Assert.AreEqual(parameter.Attributes, publicParameter.Attributes);
             Assert.AreEqual(parameter.DefaultValue, publicParameter.DefaultValue);
             Assert.AreEqual(parameter.Description, publicParameter.Description);
@@ -127,7 +127,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             var parameter = CodeModelPlugin.Instance.TypeFactory.CreateParameter(inputType);
             var refParemeter = parameter.WithRef();
 
-            Assert.AreEqual(parameter.AsExpression, refParemeter.AsExpression);
+            Assert.AreEqual(parameter, refParemeter);
             Assert.AreEqual(parameter.Attributes, refParemeter.Attributes);
             Assert.AreEqual(parameter.DefaultValue, refParemeter.DefaultValue);
             Assert.AreEqual(parameter.Description, refParemeter.Description);

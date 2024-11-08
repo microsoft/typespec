@@ -1,7 +1,5 @@
 ---
 title: "Data types"
-toc_min_heading_level: 2
-toc_max_heading_level: 3
 ---
 
 ## TypeSpec.Http
@@ -306,6 +304,20 @@ model TypeSpec.Http.ImplicitFlow
 | refreshUrl?      | `string`                                | the refresh URL                   |
 | scopes?          | `string[]`                              | list of scopes for the credential |
 
+### `Link` {#TypeSpec.Http.Link}
+
+```typespec
+model TypeSpec.Http.Link
+```
+
+#### Properties
+
+| Name        | Type              | Description |
+| ----------- | ----------------- | ----------- |
+| target      | `url`             |             |
+| rel         | `string`          |             |
+| attributes? | `Record<unknown>` |             |
+
 ### `LocationHeader` {#TypeSpec.Http.LocationHeader}
 
 The Location header contains the URL where the status of the long running operation can be checked.
@@ -606,3 +618,9 @@ enum TypeSpec.Http.OAuth2FlowType
 | implicit          |       | implicit flow           |
 | password          |       | password flow           |
 | clientCredentials |       | client credential flow  |
+
+### `LinkHeader` {#TypeSpec.Http.LinkHeader}
+
+```typespec
+scalar TypeSpec.Http.LinkHeader
+```

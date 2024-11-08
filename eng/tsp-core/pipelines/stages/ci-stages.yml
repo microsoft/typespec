@@ -61,6 +61,16 @@ stages:
               nodeVersion: $(nodeVersion)
               os: linux
 
+      - job: website
+        displayName: Website
+        pool:
+          name: $(LINUXPOOL)
+          image: $(LINUXVMIMAGE)
+          os: linux
+
+        steps:
+          - template: /eng/tsp-core/pipelines/jobs/website.yml
+
       - template: /eng/tsp-core/pipelines/jobs/publish-artifacts.yml
       - template: /eng/tsp-core/pipelines/jobs/e2e.yml
 

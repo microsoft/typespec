@@ -63,10 +63,13 @@ export async function processSidebar(
 
     for (const item of items) {
       if (await isDirectory(resolve(base, directory, item))) {
-        result.push({
-          label: humanize(item),
-          items: await autogenerate(join(directory, item), order),
-        });
+        const dirItems = await autogenerate(join(directory, item), order);
+        if (dirItems.length > 0) {
+          result.push({
+            label: humanize(item),
+            items: dirItems,
+          });
+        }
       } else {
         const parsed = parse(item);
         if (parsed.ext === ".mdx" || parsed.ext === ".md") {
