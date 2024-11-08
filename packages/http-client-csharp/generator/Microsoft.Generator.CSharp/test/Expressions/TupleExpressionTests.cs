@@ -26,11 +26,11 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
         public void VerifyTUpleExpressionAssignment()
         {
             var item1 = new ParameterProvider("item1", FormattableStringHelpers.Empty, new CSharpType(typeof(int)));
-            var item2 = new ParameterProvider("item2", FormattableStringHelpers.Empty, new CSharpType(typeof(int)));
+            var item2 = new ParameterProvider("item2", FormattableStringHelpers.Empty, new CSharpType(typeof(string)));
             var variableTupleExpression = new VariableTupleExpression(false, item1, item2);
             using CodeWriter writer = new CodeWriter();
-            variableTupleExpression.Assign(new TupleExpression(Literal(1), Literal(2))).Write(writer);
-            Assert.AreEqual("(int item1, int item2) = (1, 2)", writer.ToString(false));
+            variableTupleExpression.Assign(new TupleExpression(Literal(1), Literal("a"))).Write(writer);
+            Assert.AreEqual("(int item1, string item2) = (1, \"a\")", writer.ToString(false));
         }
     }
 }
