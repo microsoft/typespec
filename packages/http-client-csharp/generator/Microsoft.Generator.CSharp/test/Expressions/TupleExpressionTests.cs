@@ -23,7 +23,7 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
         }
 
         [Test]
-        public void VerifyTUpleExpressionAssignment()
+        public void VerifyTupleExpressionAssignment()
         {
             var item1 = new ParameterProvider("item1", FormattableStringHelpers.Empty, new CSharpType(typeof(int)));
             var item2 = new ParameterProvider("item2", FormattableStringHelpers.Empty, new CSharpType(typeof(string)));
