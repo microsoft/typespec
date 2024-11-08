@@ -629,22 +629,22 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
     }
 
     private static List<AsyncSyncClient> getSubClientsWithoutBuilder(List<AsyncSyncClient> clients) {
-        Set<AsyncSyncClient> subClients = new HashSet<>();
+        List<AsyncSyncClient> subClients = new ArrayList<>();
         for (AsyncSyncClient client : clients) {
             addSubClientDfs(client.getServiceClient(), subClients);
         }
         return new ArrayList<>(subClients);
     }
 
-    private static void addSubClientDfs(ServiceClient serviceClient, Set<AsyncSyncClient> subClients) {
+    private static void addSubClientDfs(ServiceClient serviceClient, List<AsyncSyncClient> subClients) {
         for (ClientAccessorMethod clientAccessorMethod : serviceClient.getClientAccessorMethods()) {
-            AsyncSyncClient client = clientAccessorMethod.getServiceClient().getAsyncClient();
+            AsyncSyncClient client = clientAccessorMethod.getSubClient().getSyncClient();
             ServiceClient serviceClient1 = null;
             if (client != null && !subClients.contains(client) && client.getClientBuilder() == null) {
                 subClients.add(client);
                 serviceClient1 = client.getServiceClient();
             }
-            client = clientAccessorMethod.getServiceClient().getAsyncClient();
+            client = clientAccessorMethod.getSubClient().getAsyncClient();
             if (client != null && !subClients.contains(client) && client.getClientBuilder() == null) {
                 subClients.add(client);
                 serviceClient1 = client.getServiceClient();
