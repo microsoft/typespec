@@ -75,6 +75,11 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     },
+    "http-parameters-body-optionality": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/parameters/body-optionality -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
     "http-parameters-spread": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/parameters/spread -p StubLibraryPlugin",
       "commandName": "Executable",
