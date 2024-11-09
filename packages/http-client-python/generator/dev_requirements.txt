@@ -12,3 +12,4 @@ black==24.8.0
 ptvsd==4.3.2
 types-PyYAML==6.0.12.8
 wheel==0.44.0
+build==1.2.2

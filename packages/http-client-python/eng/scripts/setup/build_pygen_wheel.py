@@ -25,7 +25,7 @@ except ImportError:
 
 from pathlib import Path
 
-from venvtools import build_wheel
+from venvtools import python_run
 
 _ROOT_DIR = Path(__file__).parent.parent.parent.parent
 
@@ -35,7 +35,7 @@ def main():
     if venv_path.exists():
         env_builder = venv.EnvBuilder(with_pip=True)        
         venv_context = env_builder.ensure_directories(venv_path)
-        build_wheel(venv_context, ["setup.py", "bdist_wheel"], additional_dir="generator")
+        python_run(venv_context, "build", ["--wheel"], additional_dir="generator")
     else:
         raise Exception("Please run 'npm install' first to create a Python virtual environment.")
 
