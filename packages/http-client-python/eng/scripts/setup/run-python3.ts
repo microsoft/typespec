@@ -7,7 +7,7 @@
 // Invoke it like so: "tsx run-python3.ts script.py"
 
 import cp from "child_process";
-import { patchPythonPath } from "./system-requirements.js";
+import { patchPythonPath } from "./system-requirements";
 
 async function runPython3(...args: string[]) {
   const command = await patchPythonPath(["python", ...args], {
