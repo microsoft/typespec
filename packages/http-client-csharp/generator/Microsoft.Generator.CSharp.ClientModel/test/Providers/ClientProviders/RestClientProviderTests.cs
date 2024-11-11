@@ -137,7 +137,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         [TestCaseSource(nameof(GetMethodParametersTestCases))]
         public void TestGetMethodParameters(InputOperation inputOperation)
         {
-            var methodParameters = RestClientProvider.GetMethodParameters(inputOperation);
+            var methodParameters = RestClientProvider.GetMethodParameters(inputOperation, RestClientProvider.MethodType.Convenience);
 
             Assert.IsTrue(methodParameters.Count > 0);
 
@@ -172,7 +172,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         [TestCase]
         public void TestGetMethodParameters_ProperOrdering()
         {
-            var methodParameters = RestClientProvider.GetMethodParameters(OperationWithMixedParamOrdering);
+            var methodParameters = RestClientProvider.GetMethodParameters(OperationWithMixedParamOrdering, RestClientProvider.MethodType.Convenience);
 
             Assert.AreEqual(OperationWithMixedParamOrdering.Parameters.Count, methodParameters.Count);
 
@@ -185,7 +185,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             Assert.AreEqual("optionalQuery", methodParameters[5].Name);
             Assert.AreEqual("optionalHeader", methodParameters[6].Name);
 
-            var orderedPathParams = RestClientProvider.GetMethodParameters(OperationWithOnlyPathParams);
+            var orderedPathParams = RestClientProvider.GetMethodParameters(OperationWithOnlyPathParams, RestClientProvider.MethodType.Convenience);
             Assert.AreEqual(OperationWithOnlyPathParams.Parameters.Count, orderedPathParams.Count);
             Assert.AreEqual("c", orderedPathParams[0].Name);
             Assert.AreEqual("a", orderedPathParams[1].Name);

@@ -134,12 +134,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var pipelineField = ClientProvider.PipelineProperty.ToApi<ClientPipelineApi>();
 
             var options = ScmKnownParameters.RequestOptions;
-            var parameters = GetMethodParameters(operation, true);
-            // All the parameters should be required for the CreateRequest method
-            foreach (var parameter in parameters)
-            {
-                parameter.DefaultValue = null;
-            }
+            var parameters = GetMethodParameters(operation, MethodType.CreateRequest);
+
             var signature = new MethodSignature(
                 $"Create{operation.Name.ToCleanName()}Request",
                 null,
@@ -179,7 +175,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private IReadOnlyList<MethodBodyStatement> GetSetContent(HttpRequestApi request, IReadOnlyList<ParameterProvider> parameters)
         {
-            var contentParam = parameters.FirstOrDefault(p => ReferenceEquals(p, ScmKnownParameters.RequestContent));
+            var contentParam = parameters.FirstOrDefault(
+                p => ReferenceEquals(p, ScmKnownParameters.RequestContent) || ReferenceEquals(p, ScmKnownParameters.OptionalRequestContent));
             return contentParam is null ? [] : [request.Content().Assign(contentParam).Terminate()];
         }
 
@@ -425,7 +422,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return MethodCache[operation];
         }
 
-        internal static List<ParameterProvider> GetMethodParameters(InputOperation operation, bool isProtocol = false)
+        internal static List<ParameterProvider> GetMethodParameters(InputOperation operation, MethodType methodType)
         {
             SortedList<int, ParameterProvider> sortedParams = [];
             int path = 0;
@@ -445,11 +442,20 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
                 ParameterProvider? parameter = ClientModelPlugin.Instance.TypeFactory.CreateParameter(inputParam).ToPublicInputParameter();
 
-                if (isProtocol)
+                if (methodType is MethodType.Protocol or MethodType.CreateRequest)
                 {
                     if (inputParam.Location == RequestLocation.Body)
                     {
-                        parameter = ScmKnownParameters.RequestContent;
+                        if (methodType == MethodType.CreateRequest)
+                        {
+                            parameter = ScmKnownParameters.RequestContent;
+                        }
+                        else
+                        {
+                            parameter = parameter.DefaultValue == null
+                                ? ScmKnownParameters.RequestContent
+                                : ScmKnownParameters.OptionalRequestContent;
+                        }
                     }
                     else
                     {
@@ -510,6 +516,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 sortedParams.Add(bodyRequired++, ScmKnownParameters.ContentType);
             }
 
+            // All the parameters should be required for the CreateRequest method
+            if (methodType == MethodType.CreateRequest)
+            {
+                foreach (var parameter in sortedParams.Values)
+                {
+                    parameter.DefaultValue = null;
+                }
+            }
+
             return [.. sortedParams.Values];
         }
 
@@ -521,6 +536,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             throw new InvalidOperationException($"inputParam `{inputParam.Name}` is `Spread` but not a model type");
+        }
+
+        internal enum MethodType
+        {
+            CreateRequest,
+            Protocol,
+            Convenience
         }
     }
 }
