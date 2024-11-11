@@ -54,6 +54,8 @@ public class ObjectMapper implements IMapper<ObjectSchema, IType>, NeedsPlainObj
         } else if (settings.isFluent() && compositeType.isFlattenedSchema()) {
             // put class of flattened type to implementation package
             classPackage = settings.getPackage(settings.getFluentModelsSubpackage());
+        } else if (settings.isDataPlaneClient() && compositeType.getLanguage().getJava().getNamespace() != null) {
+            classPackage = compositeType.getLanguage().getJava().getNamespace();
         } else if (settings.isDataPlaneClient() && isInternalModel(compositeType)) {
             // internal type is not exposed to user
             classPackage = settings.getPackage(settings.getImplementationSubpackage(), settings.getModelsSubpackage());

@@ -168,6 +168,8 @@ export class CodeModelBuilder {
   private program: Program;
   private typeNameOptions: TypeNameOptions;
   private namespace: string;
+  private baseJavaNamespace: string;
+  // private legacyJavaNamespace: boolean;
   private sdkContext!: SdkContext;
   private options: EmitterOptions;
   private codeModel: CodeModel;
@@ -206,7 +208,12 @@ export class CodeModelBuilder {
 
     this.namespace = getNamespaceFullName(this.serviceNamespace) || "Azure.Client";
     // java namespace
-    const javaNamespace = this.getJavaNamespace(this.namespace);
+    if (this.emitterContext.options.namespace) {
+      this.baseJavaNamespace = this.emitterContext.options.namespace;
+    } else {
+      this.baseJavaNamespace = this.getJavaNamespace(this.namespace)!;
+    }
+    // this.legacyJavaNamespace = this.options.namespace != undefined && this.options.namespace.length > 0;
 
     const namespace1 = this.namespace;
     this.typeNameOptions = {
@@ -233,7 +240,7 @@ export class CodeModelBuilder {
           namespace: this.namespace,
         },
         java: {
-          namespace: javaNamespace,
+          namespace: this.baseJavaNamespace,
         },
       },
     });
@@ -266,6 +273,8 @@ export class CodeModelBuilder {
     this.processModels();
 
     this.processSchemaUsage();
+
+    this.processJavaNamespace();
 
     this.deduplicateSchemaName();
 
@@ -424,6 +433,16 @@ export class CodeModelBuilder {
     this.codeModel.schemas.constants?.forEach((it) => this.resolveSchemaUsage(it));
   }
 
+  private processJavaNamespace() {
+    // post process for usage and namespace ("implementation.models")
+    this.codeModel.schemas.objects?.forEach((it) => this.updateJavaNamespace(it));
+    this.codeModel.schemas.groups?.forEach((it) => this.updateJavaNamespace(it));
+    this.codeModel.schemas.choices?.forEach((it) => this.updateJavaNamespace(it));
+    this.codeModel.schemas.sealedChoices?.forEach((it) => this.updateJavaNamespace(it));
+    this.codeModel.schemas.ors?.forEach((it) => this.updateJavaNamespace(it));
+    this.codeModel.schemas.constants?.forEach((it) => this.updateJavaNamespace(it));
+  }
+
   private deduplicateSchemaName() {
     // deduplicate model name
     const nameCount = new Map<string, number>();
@@ -483,6 +502,33 @@ export class CodeModelBuilder {
     }
   }
 
+  private updateJavaNamespace(schema: Schema) {
+    if (
+      schema instanceof ObjectSchema ||
+      schema instanceof GroupSchema ||
+      schema instanceof ChoiceSchema ||
+      schema instanceof SealedChoiceSchema ||
+      schema instanceof OrSchema ||
+      schema instanceof ConstantSchema
+    ) {
+      const schemaUsage: SchemaContext[] | undefined = schema.usage;
+
+      if (schema.language.java?.namespace) {
+        if (this.isBranded() && schema.language.java.namespace.startsWith("com.azure.")) {
+          // skip com.azure models
+          return;
+        }
+
+        if (schemaUsage?.includes(SchemaContext.Internal)) {
+          schema.language.java.namespace = schema.language.java.namespace + ".implementation";
+        }
+        if (this.isBranded()) {
+          schema.language.java.namespace = schema.language.java.namespace + ".models";
+        }
+      }
+    }
+  }
+
   private processClients() {
     // preprocess group-etag-headers
     this.options["group-etag-headers"] = this.options["group-etag-headers"] ?? true;
@@ -490,13 +536,13 @@ export class CodeModelBuilder {
     const sdkPackage = this.sdkContext.sdkPackage;
     for (const client of sdkPackage.clients) {
       let clientName = client.name;
-      let javaNamespace = this.getJavaNamespace(this.namespace);
+      let javaNamespace = this.baseJavaNamespace;
       const clientFullName = client.name;
       const clientNameSegments = clientFullName.split(".");
       if (clientNameSegments.length > 1) {
         clientName = clientNameSegments.at(-1)!;
-        const clientSubNamespace = clientNameSegments.slice(0, -1).join(".");
-        javaNamespace = this.getJavaNamespace(this.namespace + "." + clientSubNamespace);
+        const clientSubNamespace = clientNameSegments.slice(0, -1).join(".").toLowerCase();
+        javaNamespace = this.baseJavaNamespace + "." + clientSubNamespace;
       }
 
       const codeModelClient = new CodeModelClient(clientName, client.doc ?? "", {
@@ -955,7 +1001,7 @@ export class CodeModelBuilder {
           language: {
             java: {
               name: "OperationLocationPollingStrategy",
-              namespace: this.getJavaNamespace(this.namespace) + ".implementation",
+              namespace: this.baseJavaNamespace + ".implementation",
             },
           },
         });
@@ -1952,7 +1998,7 @@ export class CodeModelBuilder {
           namespace: namespace,
         },
         java: {
-          namespace: this.getJavaNamespace(namespace),
+          namespace: this.getJavaNamespace(namespace, type),
         },
       },
     });
@@ -2052,7 +2098,7 @@ export class CodeModelBuilder {
           namespace: namespace,
         },
         java: {
-          namespace: this.getJavaNamespace(namespace),
+          namespace: this.getJavaNamespace(namespace, type),
         },
       },
     });
@@ -2234,7 +2280,7 @@ export class CodeModelBuilder {
             namespace: namespace,
           },
           java: {
-            namespace: this.getJavaNamespace(namespace),
+            namespace: this.getJavaNamespace(namespace, it),
           },
         },
       });
@@ -2320,15 +2366,21 @@ export class CodeModelBuilder {
 
   private processMultipartFormDataFilePropertySchema(property: SdkBodyModelPropertyType): Schema {
     const processSchemaFunc = (type: SdkType) => this.processSchema(type, "");
-    if (property.type.kind === "bytes" || property.type.kind === "model") {
+    const processNamespaceFunc = (type: SdkType) => {
       const namespace =
-        property.type.kind === "model"
+        type.kind === "model"
           ? (getNamespace(property.type.__raw) ?? this.namespace)
           : this.namespace;
+      const javaNamespace = this.getJavaNamespace(namespace, type);
+      return { namespace, javaNamespace };
+    };
+
+    if (property.type.kind === "bytes" || property.type.kind === "model") {
+      const namespaceTuple = processNamespaceFunc(property.type);
       return getFileDetailsSchema(
         property,
-        getNamespace(property.type.__raw) ?? this.namespace,
-        namespace,
+        namespaceTuple.namespace,
+        namespaceTuple.javaNamespace,
         this.codeModel.schemas,
         this.binarySchema,
         this.stringSchema,
@@ -2338,17 +2390,14 @@ export class CodeModelBuilder {
       property.type.kind === "array" &&
       (property.type.valueType.kind === "bytes" || property.type.valueType.kind === "model")
     ) {
-      const namespace =
-        property.type.valueType.kind === "model"
-          ? (getNamespace(property.type.valueType.__raw) ?? this.namespace)
-          : this.namespace;
+      const namespaceTuple = processNamespaceFunc(property.type.valueType);
       return new ArraySchema(
         property.name,
         property.doc ?? "",
         getFileDetailsSchema(
           property,
-          namespace,
-          this.getJavaNamespace(namespace),
+          namespaceTuple.namespace,
+          namespaceTuple.javaNamespace,
           this.codeModel.schemas,
           this.binarySchema,
           this.stringSchema,
@@ -2444,19 +2493,41 @@ export class CodeModelBuilder {
     }
   }
 
-  private getJavaNamespace(namespace: string | undefined): string | undefined {
+  private getJavaNamespace(
+    namespace: string | undefined,
+    type: SdkType | SdkClientType<SdkHttpOperation> | undefined = undefined,
+  ): string | undefined {
     const tspNamespace = this.namespace;
-    const baseJavaNamespace = this.emitterContext.options.namespace;
+
     if (!namespace) {
       return undefined;
-    } else if (
-      baseJavaNamespace &&
+    }
+
+    if (this.baseJavaNamespace && type && "crossLanguageDefinitionId" in type) {
+      // special handling for namespace of model that cannot be mapped to azure-core
+      if (type.crossLanguageDefinitionId === "TypeSpec.Http.File") {
+        // TypeSpec.Http.File
+        return this.baseJavaNamespace;
+      } else if (type.crossLanguageDefinitionId === "Azure.Core.Foundations.OperationState") {
+        // Azure.Core.OperationState
+        return this.baseJavaNamespace;
+      } else if (type.crossLanguageDefinitionId === "Azure.Core.ResourceOperationStatus") {
+        // Azure.Core.ResourceOperationStatus<>
+        // usually this model will not be generated, but javadoc of protocol method requires it be in SDK namespace
+        return this.baseJavaNamespace;
+      }
+    }
+
+    if (
+      this.baseJavaNamespace &&
       (namespace === tspNamespace || namespace.startsWith(tspNamespace + "."))
     ) {
-      return baseJavaNamespace + namespace.slice(tspNamespace.length).toLowerCase();
-    } else {
-      return "com." + namespace.toLowerCase();
+      // make sure the mapping of typespec service namespace to options.namespace is maintained
+      // e.g. "Microsoft.StandbyPool" to "com.azure.resourcemanager.standbypool"
+      return this.baseJavaNamespace;
     }
+
+    return "com." + namespace.toLowerCase();
   }
 
   private logWarning(msg: string) {

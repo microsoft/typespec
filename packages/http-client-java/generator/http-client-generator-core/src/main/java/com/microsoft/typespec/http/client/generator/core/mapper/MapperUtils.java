@@ -61,6 +61,8 @@ public final class MapperUtils {
             String enumPackage = settings.getPackage(settings.getModelsSubpackage());
             if (settings.isCustomType(enumTypeName)) {
                 enumPackage = settings.getPackage(settings.getCustomTypesSubpackage());
+            } else if (settings.isDataPlaneClient() && enumType.getLanguage().getJava().getNamespace() != null) {
+                enumPackage = enumType.getLanguage().getJava().getNamespace();
             } else if (settings.isDataPlaneClient()
                 && (enumType.getUsage() != null && enumType.getUsage().contains(SchemaContext.INTERNAL))) {
                 // internal type, which is not exposed to user
