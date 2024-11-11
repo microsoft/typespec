@@ -1,5 +1,11 @@
 # Change Log - @typespec/http-client-python
 
+## 0.3.8
+
+### Bug Fixes
+
+- Fix access for paging operation and lro
+
 ## 0.3.7
 
 ### Bug Fixes
