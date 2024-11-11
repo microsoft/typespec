@@ -23,9 +23,9 @@ namespace Payload.Xml
 
         public virtual Task<ClientResult<ModelWithUnwrappedArray>> GetAsync() => throw null;
 
-        public virtual ClientResult Put(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Put(ModelWithUnwrappedArray input) => throw null;
 
