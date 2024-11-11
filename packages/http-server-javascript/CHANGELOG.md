@@ -1,5 +1,16 @@
 # Changelog - @typespec/http-server-javascript
 
+## 0.58.0-alpha.5
+
+### Bump dependencies
+
+- [#4679](https://github.com/microsoft/typespec/pull/4679) Upgrade dependencies - October 2024
+
+### Features
+
+- [#4761](https://github.com/microsoft/typespec/pull/4761) Add `@cookie` decorator to specify cookie parameters
+
+
 ## 0.58.0-alpha.4
 
 ### Bump dependencies

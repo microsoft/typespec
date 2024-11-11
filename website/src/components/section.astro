@@ -1,0 +1,137 @@
+---
+import clsx from "clsx";
+import AssetImg from "./asset-img.astro";
+import { DescriptionText, NeutralText, PrimaryText } from "./text/text";
+
+export interface Props {
+  header?: string;
+  title?: string;
+  description?: string;
+  illustration?: string;
+  itemStyle?: "card" | "plain";
+  layout?: "text-left" | "text-right";
+}
+
+const { layout, header, title, description, illustration } = Astro.props;
+---
+
+<style>
+  .section {
+    display: flex;
+    gap: 10px 60px;
+    width: 100%;
+    max-width: 100%;
+    align-items: center;
+    align-content: center;
+    flex-direction: column;
+  }
+
+  @media only screen and (min-width: 1200px) {
+    .section {
+      padding: 0 40px;
+      gap: 3vw;
+    }
+
+    .prose-left {
+      flex-direction: row;
+    }
+
+    .prose-right {
+      flex-direction: row-reverse;
+    }
+  }
+
+  @media only screen and (min-width: 1500px) {
+    .section {
+      gap: 170px;
+    }
+  }
+
+  .info-container {
+    display: flex;
+    max-width: 100%;
+    padding: 20px;
+    justify-content: center;
+  }
+
+  .info {
+    display: flex;
+    width: 520px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 56px;
+  }
+
+  .info-heading {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-vertical-spacing-xxl, 24px);
+    align-self: stretch;
+  }
+
+  .info-title {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--vertical-xl, 20px);
+    align-self: stretch;
+  }
+
+  .info-description {
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 28px;
+  }
+
+  .illustration {
+    flex: 1 0 50%;
+    max-width: calc(100% - 40px);
+    overflow: hidden;
+  }
+
+  .illustration :global(.tabs-container) {
+    margin-bottom: 0;
+  }
+
+  .illustration :global(.tabs-container) :global(.margin-top--md) {
+    margin-top: 0 !important;
+  }
+
+  .items-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .item {
+    display: flex;
+    gap: 12px;
+  }
+</style>
+
+<div class={clsx("section", layout === "text-right" ? "prose-right" : "prose-left")}>
+  <div class={"info-container"}>
+    <div class={"info"}>
+      {
+        header || title || description ? (
+          <div class={"info-heading"}>
+            <div class={"info-title"}>
+              <PrimaryText>{header}</PrimaryText>
+              <NeutralText size="xlarge">{title}</NeutralText>
+            </div>
+            <DescriptionText size="large" className={"info-description"}>
+              {description}
+            </DescriptionText>
+          </div>
+        ) : undefined
+      }
+      <slot />
+    </div>
+  </div>
+  <div class={"illustration"}>
+    {illustration && <AssetImg src={illustration} />}
+    <slot name="illustration" />
+  </div>
+</div>

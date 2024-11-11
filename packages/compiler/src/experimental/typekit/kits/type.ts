@@ -1,5 +1,5 @@
-import type { Type } from "../../../core/types.js";
-import { defineKit } from "../define-kit.js";
+import { type Namespace, type Type } from "../../../core/types.js";
+import { $, defineKit } from "../define-kit.js";
 import { copyMap } from "../utils.js";
 
 /**  @experimental */
@@ -63,9 +63,40 @@ defineKit<BaseTypeKit>({
         case "Enum":
           clone = this.program.checker.createType({
             ...type,
-            decorators: [...type.decorators],
             members: copyMap(type.members),
           });
+          break;
+        case "Namespace":
+          clone = this.program.checker.createType({
+            ...type,
+            decorators: [...type.decorators],
+            instantiationParameters: type.instantiationParameters
+              ? [...type.instantiationParameters]
+              : undefined,
+            projections: [...type.projections],
+          });
+          const clonedNamespace = clone as Namespace;
+          clonedNamespace.decoratorDeclarations = cloneTypeCollection(type.decoratorDeclarations, {
+            namespace: clonedNamespace,
+          });
+          clonedNamespace.models = cloneTypeCollection(type.models, { namespace: clonedNamespace });
+          clonedNamespace.enums = cloneTypeCollection(type.enums, { namespace: clonedNamespace });
+          clonedNamespace.functionDeclarations = cloneTypeCollection(type.functionDeclarations, {
+            namespace: clonedNamespace,
+          });
+          clonedNamespace.interfaces = cloneTypeCollection(type.interfaces, {
+            namespace: clonedNamespace,
+          });
+          clonedNamespace.namespaces = cloneTypeCollection(type.namespaces, {
+            namespace: clonedNamespace,
+          });
+          clonedNamespace.operations = cloneTypeCollection(type.operations, {
+            namespace: clonedNamespace,
+          });
+          clonedNamespace.scalars = cloneTypeCollection(type.scalars, {
+            namespace: clonedNamespace,
+          });
+          clonedNamespace.unions = cloneTypeCollection(type.unions, { namespace: clonedNamespace });
           break;
         default:
           clone = this.program.checker.createType({
@@ -79,3 +110,18 @@ defineKit<BaseTypeKit>({
     },
   },
 });
+
+function cloneTypeCollection<T extends Type>(
+  collection: Map<string, T>,
+  options: { namespace?: Namespace } = {},
+): Map<string, T> {
+  const cloneCollection = new Map<string, T>();
+  for (const [key, type] of collection) {
+    const clone = $.type.clone(type);
+    if ("namespace" in clone && options.namespace) {
+      clone.namespace = options.namespace;
+    }
+    cloneCollection.set(key, clone);
+  }
+  return cloneCollection;
+}

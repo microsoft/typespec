@@ -86,9 +86,18 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.AreEqual("Prop2", modelTypeProvider.CustomCodeView.Properties[0].Name);
             var wireInfo = modelTypeProvider.CustomCodeView.Properties[0].WireInfo;
             Assert.IsNotNull(wireInfo);
-            Assert.AreEqual( "prop1", wireInfo!.SerializedName);
+            Assert.AreEqual("prop1", wireInfo!.SerializedName);
             Assert.AreEqual("Prop1", modelTypeProvider.CustomCodeView.Properties[1].Name);
             Assert.IsNull(modelTypeProvider.CustomCodeView.Properties[1].WireInfo);
+
+            // validate canonical view
+            Assert.AreEqual(2, modelTypeProvider.CanonicalView!.Properties.Count);
+            Assert.AreEqual("Prop2", modelTypeProvider.CanonicalView.Properties[0].Name);
+            Assert.AreEqual("Prop1", modelTypeProvider.CanonicalView.Properties[1].Name);
+            wireInfo = modelTypeProvider.CanonicalView.Properties[0].WireInfo;
+            Assert.IsNotNull(wireInfo);
+            Assert.AreEqual("prop1", wireInfo!.SerializedName);
+            Assert.IsNull(modelTypeProvider.CanonicalView.Properties[1].WireInfo);
 
             Assert.AreEqual(0, modelTypeProvider.Properties.Count);
         }
@@ -138,6 +147,120 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             // the property type should be changed
             Assert.AreEqual("SomeEnum", modelTypeProvider.CustomCodeView.Properties[0].Type.Name);
             Assert.IsTrue(modelTypeProvider.CustomCodeView.Properties[0].Type.IsNullable);
+        }
+
+        [Test]
+        public async Task CanChangeListOfEnumPropToListOfExtensibleEnumField()
+        {
+            var props = new[]
+            {
+                InputFactory.Property("Prop1", InputFactory.Array(InputFactory.Enum(
+                    "MyEnum",
+                    InputPrimitiveType.String,
+                    usage: InputModelTypeUsage.Input,
+                    values: [InputFactory.EnumMember.String("foo", "bar")])))
+            };
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
+
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelTypeProvider = plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+            AssertCommon(modelTypeProvider, "Sample.Models", "MockInputModel");
+
+            // the field should be added to the custom code view
+            Assert.AreEqual(1, modelTypeProvider.CustomCodeView!.Fields.Count);
+            // the canonical type should be changed
+            Assert.AreEqual(2, modelTypeProvider.CanonicalView!.Fields.Count);
+
+            var enumCollectionProp = modelTypeProvider.CanonicalView.Fields.Where(f => f.Name == "_prop1").FirstOrDefault();
+            Assert.IsNotNull(enumCollectionProp);
+            Assert.IsFalse(enumCollectionProp!.Type.IsNullable);
+            Assert.IsTrue(enumCollectionProp.Type.IsList);
+
+            var elementType = enumCollectionProp.Type.ElementType;
+            Assert.AreEqual("MyEnum", elementType.Name);
+            Assert.IsFalse(elementType.IsNullable);
+            Assert.IsTrue(elementType.IsEnum);
+            Assert.IsTrue(elementType.IsStruct);
+        }
+
+        [Test]
+        public async Task CanChangeListOfEnumPropToListOfExtensibleEnum()
+        {
+            var props = new[]
+            {
+                InputFactory.Property("Prop1", InputFactory.Array(InputFactory.Enum(
+                    "MyEnum",
+                    InputPrimitiveType.String,
+                    usage: InputModelTypeUsage.Input,
+                    values: [InputFactory.EnumMember.String("foo", "bar")])))
+            };
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
+
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelTypeProvider = plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+            AssertCommon(modelTypeProvider, "Sample.Models", "MockInputModel");
+
+            // the property should be added to the custom code view
+            Assert.AreEqual(1, modelTypeProvider.CustomCodeView!.Properties.Count);
+            // the canonical type should be changed
+            Assert.AreEqual(1, modelTypeProvider.CanonicalView!.Properties.Count);
+
+            var enumCollectionProp = modelTypeProvider.CanonicalView.Properties[0];
+            Assert.AreEqual("Prop1", enumCollectionProp.Name);
+            Assert.IsFalse(enumCollectionProp.Type.IsNullable);
+            Assert.IsTrue(enumCollectionProp.Type.IsList);
+
+            var elementType = enumCollectionProp.Type.ElementType;
+            Assert.AreEqual("MyEnum", elementType.Name);
+            Assert.IsFalse(elementType.IsNullable);
+            Assert.IsTrue(elementType.IsEnum);
+            Assert.IsTrue(elementType.IsStruct);
+        }
+
+        [Test]
+        public async Task CanChangeDictOfEnumPropToDictOfExtensibleEnum()
+        {
+            var props = new[]
+            {
+                InputFactory.Property("Prop1", InputFactory.Dictionary(InputFactory.Enum(
+                    "MyEnum",
+                    InputPrimitiveType.String,
+                    usage: InputModelTypeUsage.Input,
+                    values: [InputFactory.EnumMember.String("foo", "bar")])))
+            };
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
+
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelTypeProvider = plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+            AssertCommon(modelTypeProvider, "Sample.Models", "MockInputModel");
+
+            // the property should be added to the custom code view
+            Assert.AreEqual(1, modelTypeProvider.CustomCodeView!.Properties.Count);
+            // the canonical type should be changed
+            Assert.AreEqual(1, modelTypeProvider.CanonicalView!.Properties.Count);
+
+            var enumCollectionProp = modelTypeProvider.CanonicalView.Properties[0];
+            Assert.AreEqual("Prop1", enumCollectionProp.Name);
+            Assert.IsFalse(enumCollectionProp.Type.IsNullable);
+            Assert.IsTrue(enumCollectionProp.Type.IsDictionary);
+
+            var elementType = enumCollectionProp.Type.ElementType;
+            Assert.AreEqual("MyEnum", elementType.Name);
+            Assert.IsFalse(elementType.IsNullable);
+            Assert.IsTrue(elementType.IsEnum);
+            Assert.IsTrue(elementType.IsStruct);
         }
 
         [Test]
@@ -323,6 +446,17 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task CanRemoveField()
+        {
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModelTypes: [InputFactory.Model("mockInputModel", properties: [])],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var csharpGen = new CSharpGen();
+            await csharpGen.ExecuteAsync();
+            Assert.AreEqual(0, plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel").Fields.Count);
+        }
+
+        [Test]
         public async Task CanChangeEnumMemberName()
         {
             var enumValues = new[]
@@ -342,12 +476,12 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.IsNotNull(enumProvider);
 
             // validate the enum provider uses the custom member name
-            Assert.AreEqual(3, enumProvider!.Fields.Count);
-            Assert.AreEqual("Red", enumProvider.Fields[0].Name);
-            Assert.AreEqual("Green", enumProvider.Fields[1].Name);
-            Assert.AreEqual("SkyBlue", enumProvider.Fields[2].Name);
+            Assert.AreEqual(3, enumProvider!.EnumValues.Count);
+            Assert.AreEqual("Red", enumProvider.EnumValues[0].Name);
+            Assert.AreEqual("Green", enumProvider.EnumValues[1].Name);
+            Assert.AreEqual("SkyBlue", enumProvider.EnumValues[2].Name);
 
-            // the members should also be added to the custom code view
+            // the members should be added to the custom code view with the custom member names
             Assert.IsNotNull(customCodeView);
             Assert.AreEqual(3, customCodeView?.Fields.Count);
             Assert.AreEqual("Red", customCodeView?.Fields[0].Name);
@@ -481,6 +615,26 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task CanReplaceField()
+        {
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModelTypes: new[] {
+                    InputFactory.Model(
+                        "mockInputModel",
+                        // use Input so that we generate a public ctor
+                        usage: InputModelTypeUsage.Input,
+                        properties: []),
+                },
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var csharpGen = new CSharpGen();
+
+            await csharpGen.ExecuteAsync();
+
+            // The generated code should not contain any fields
+            Assert.IsEmpty(plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel").Fields);
+        }
+
+        [Test]
         public async Task DoesNotReplaceDefaultConstructorIfNotCustomized()
         {
             var plugin = MockHelpers.LoadMockPlugin(
@@ -499,6 +653,152 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.AreEqual(2, ctors.Count);
             Assert.IsTrue(ctors.Any(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)));
             Assert.IsTrue(ctors.Any(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal)));
+        }
+
+        // Validates that if a required literal property is customized, then the default ctor
+        // does not include the custom property as a parameter.
+        [Test]
+        public async Task DoesNotIncludeReqCustomLiteralInDefaultCtor()
+        {
+            var enumType = InputFactory.Enum(
+                "originalEnum",
+                InputPrimitiveType.String,
+                values: [InputFactory.EnumMember.String("bar", "bar")]);
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModelTypes: [
+                    InputFactory.Model(
+                        "mockInputModel",
+                        usage: InputModelTypeUsage.Input,
+                        properties:
+                        [
+                            InputFactory.Property("Prop1", InputFactory.Literal.Enum(enumType, "bar"), isRequired: true),
+                            InputFactory.Property("Prop2", InputPrimitiveType.String, isRequired: true),
+                        ])
+                    ],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var csharpGen = new CSharpGen();
+
+            await csharpGen.ExecuteAsync();
+
+            var ctors = plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel").Constructors;
+            Assert.AreEqual(2, ctors.Count);
+
+            var publicCtor = ctors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsNotNull(publicCtor);
+
+            var ctorParams = publicCtor!.Signature.Parameters;
+
+            // should not have the custom required literal property
+            Assert.AreEqual(1, ctorParams.Count);
+            Assert.AreEqual("prop2", ctorParams[0].Name);
+        }
+
+        [Test]
+        public async Task DoesNotIncludeReqCustomFieldLiteralInDefaultCtor()
+        {
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModelTypes: [
+                    InputFactory.Model(
+                        "mockInputModel",
+                        usage: InputModelTypeUsage.Input,
+                        properties:
+                        [
+                            InputFactory.Property("Prop1", InputFactory.Literal.String("bar"), isRequired: true),
+                            InputFactory.Property("Prop2", InputPrimitiveType.String, isRequired: true),
+                        ])
+                    ],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var csharpGen = new CSharpGen();
+
+            await csharpGen.ExecuteAsync();
+
+            var ctors = plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel").Constructors;
+            Assert.AreEqual(2, ctors.Count);
+
+            var publicCtor = ctors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsNotNull(publicCtor);
+
+            var ctorParams = publicCtor!.Signature.Parameters;
+
+            // should not have the custom required literal property
+            Assert.AreEqual(1, ctorParams.Count);
+            Assert.AreEqual("prop2", ctorParams[0].Name);
+        }
+
+        [Test]
+        public async Task CanChangeModelToAbstract()
+        {
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModelTypes: new[] {
+                    InputFactory.Model(
+                        "mockInputModel",
+                        // use Input so that we generate a public ctor
+                        usage: InputModelTypeUsage.Input,
+                        properties: []),
+                },
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var csharpGen = new CSharpGen();
+
+            await csharpGen.ExecuteAsync();
+
+            // The generated type should be abstract
+            var modelProvider = plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+            Assert.IsTrue(modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract));
+            Assert.IsTrue(modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsFalse(modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Sealed));
+
+            // There should be no model factory as there are no constructible models
+            Assert.IsEmpty(plugin.Object.OutputLibrary.TypeProviders.Where(t => t is ModelFactoryProvider));
+        }
+
+        [Test]
+        public async Task CanCustomizePropertyIntoReadOnlyMemory()
+        {
+            await MockHelpers.LoadMockPluginAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProp = InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.Int32));
+            var inputModel = InputFactory.Model("mockInputModel", properties: [modelProp], usage: InputModelTypeUsage.Json);
+
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelFactoryProvider = plugin.Object.OutputLibrary.TypeProviders.Single(t => t is ModelFactoryProvider);
+            Assert.IsNotNull(modelFactoryProvider);
+            var writer = new TypeProviderWriter(modelFactoryProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task CanCustomizeDiscriminatorModel()
+        {
+            await MockHelpers.LoadMockPluginAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProp = InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.Int32));
+            var discriminatorValues = InputFactory.Enum("discriminatorValue", InputPrimitiveType.String, usage: InputModelTypeUsage.Input, isExtensible: true, values:
+            [
+                InputFactory.EnumMember.String("Foo", "foo"),
+                InputFactory.EnumMember.String("Bar", "bar")
+            ]);
+            var discriminatorProp = InputFactory.Property("discriminator", discriminatorValues, isDiscriminator: true, isRequired: true);
+            var fooModel = InputFactory.Model("fooModel", properties: [modelProp, discriminatorProp], usage: InputModelTypeUsage.Json, discriminatedKind: "foo");
+            var barModel = InputFactory.Model("barModel", properties: [modelProp, discriminatorProp], usage: InputModelTypeUsage.Json, discriminatedKind: "bar");
+            var inputModel = InputFactory.Model(
+                "mockInputModel",
+                properties: [modelProp, discriminatorProp], derivedModels: [fooModel, barModel],
+                usage: InputModelTypeUsage.Json);
+
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModelTypes: [inputModel, fooModel, barModel],
+                inputEnumTypes: [discriminatorValues],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = plugin.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider && t.Name == "FooModel");
+            Assert.IsNotNull(modelProvider);
+            var writer = new TypeProviderWriter(modelProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
     }
 }

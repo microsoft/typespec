@@ -8,16 +8,8 @@ namespace _Type.Property.Nullable.Models
 {
     public partial class CollectionsModelProperty
     {
-        public string RequiredProperty
-        {
-            get => throw null;
-            set => throw null;
-        }
+        public string RequiredProperty => throw null;
 
-        public IList<InnerModel> NullableProperty
-        {
-            get => throw null;
-            set => throw null;
-        }
+        public IList<InnerModel> NullableProperty => throw null;
     }
 }

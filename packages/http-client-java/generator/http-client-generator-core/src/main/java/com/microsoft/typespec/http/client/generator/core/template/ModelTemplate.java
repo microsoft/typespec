@@ -217,7 +217,8 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                         && definedByModel
                         && streamStyle
                         && !property.isPolymorphicDiscriminator()
-                        && !modelIsJsonMergePatch) {
+                        && !modelIsJsonMergePatch
+                        && !property.isConstant()) {
                         generateSetterJavadoc(classBlock, model, property);
                         addGeneratedAnnotation(classBlock);
                         classBlock.method(JavaVisibility.PackagePrivate, null,
@@ -409,6 +410,13 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
         String lastParentName = model.getName();
         ClientModel parentModel = ClientModelUtil.getClientModel(model.getParentModelName());
         while (parentModel != null && !lastParentName.equals(parentModel.getName())) {
+            // implementation code of stream-style serialization refs to the element type of the Map
+            for (ClientModelProperty parentProperty : parentModel.getProperties()) {
+                if (parentProperty.isAdditionalProperties()) {
+                    parentProperty.addImportsTo(imports, false);
+                }
+            }
+
             imports.addAll(parentModel.getImports());
             lastParentName = parentModel.getName();
             parentModel = ClientModelUtil.getClientModel(parentModel.getParentModelName());
@@ -614,7 +622,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
         addGeneratedAnnotation(classBlock);
         addFieldAnnotations(model, property, classBlock, settings);
 
-        if (ClientModelUtil.includePropertyInConstructor(property, settings)) {
+        if (ClientModelUtil.includePropertyInConstructor(property, settings) || property.isConstant()) {
             classBlock.privateFinalMemberVariable(fieldSignature);
         } else {
             classBlock.privateMemberVariable(fieldSignature);

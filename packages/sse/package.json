@@ -1,6 +1,6 @@
 {
   "name": "@typespec/sse",
-  "version": "0.61.0",
+  "version": "0.62.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library providing server sent events bindings",
   "homepage": "https://typespec.io",
@@ -41,7 +41,7 @@
     "test-official": "vitest run --coverage --reporter=junit --reporter=default --no-file-parallelism",
     "lint": "eslint . --ext .ts --max-warnings=0",
     "lint:fix": "eslint . --fix --ext .ts",
-    "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../docs/libraries/sse/reference"
+    "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../website/src/content/docs/docs/libraries/sse/reference"
   },
   "files": [
     "lib/*.tsp",

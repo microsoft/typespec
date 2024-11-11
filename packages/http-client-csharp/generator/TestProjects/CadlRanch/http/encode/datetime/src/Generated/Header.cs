@@ -48,12 +48,12 @@ namespace Encode.Datetime
 
         public virtual Task<ClientResult> UnixTimestampAsync(DateTimeOffset value) => throw null;
 
-        public virtual ClientResult UnixTimestampArray(IList<DateTimeOffset> value, RequestOptions options) => throw null;
+        public virtual ClientResult UnixTimestampArray(IEnumerable<DateTimeOffset> value, RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> UnixTimestampArrayAsync(IList<DateTimeOffset> value, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> UnixTimestampArrayAsync(IEnumerable<DateTimeOffset> value, RequestOptions options) => throw null;
 
-        public virtual ClientResult UnixTimestampArray(IList<DateTimeOffset> value) => throw null;
+        public virtual ClientResult UnixTimestampArray(IEnumerable<DateTimeOffset> value) => throw null;
 
-        public virtual Task<ClientResult> UnixTimestampArrayAsync(IList<DateTimeOffset> value) => throw null;
+        public virtual Task<ClientResult> UnixTimestampArrayAsync(IEnumerable<DateTimeOffset> value) => throw null;
     }
 }

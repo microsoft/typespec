@@ -348,7 +348,6 @@ namespace UnbrandedTypeSpec.Models
                 {
                     if (prop.Value.ValueKind == JsonValueKind.Null)
                     {
-                        intExtensibleEnum = null;
                         continue;
                     }
                     intExtensibleEnum = new IntExtensibleEnum(prop.Value.GetInt32());
@@ -372,7 +371,6 @@ namespace UnbrandedTypeSpec.Models
                 {
                     if (prop.Value.ValueKind == JsonValueKind.Null)
                     {
-                        floatExtensibleEnum = null;
                         continue;
                     }
                     floatExtensibleEnum = new FloatExtensibleEnum(prop.Value.GetSingle());
@@ -382,7 +380,6 @@ namespace UnbrandedTypeSpec.Models
                 {
                     if (prop.Value.ValueKind == JsonValueKind.Null)
                     {
-                        floatExtensibleEnumWithIntValue = null;
                         continue;
                     }
                     floatExtensibleEnumWithIntValue = new FloatExtensibleEnumWithIntValue(prop.Value.GetSingle());
@@ -406,7 +403,6 @@ namespace UnbrandedTypeSpec.Models
                 {
                     if (prop.Value.ValueKind == JsonValueKind.Null)
                     {
-                        floatFixedEnum = null;
                         continue;
                     }
                     floatFixedEnum = prop.Value.GetSingle().ToFloatFixedEnum();
@@ -416,7 +412,6 @@ namespace UnbrandedTypeSpec.Models
                 {
                     if (prop.Value.ValueKind == JsonValueKind.Null)
                     {
-                        floatFixedEnumWithIntValue = null;
                         continue;
                     }
                     floatFixedEnumWithIntValue = prop.Value.GetInt32().ToFloatFixedEnumWithIntValue();
@@ -440,7 +435,6 @@ namespace UnbrandedTypeSpec.Models
                 {
                     if (prop.Value.ValueKind == JsonValueKind.Null)
                     {
-                        intFixedEnum = null;
                         continue;
                     }
                     intFixedEnum = prop.Value.GetInt32().ToIntFixedEnum();
@@ -464,7 +458,6 @@ namespace UnbrandedTypeSpec.Models
                 {
                     if (prop.Value.ValueKind == JsonValueKind.Null)
                     {
-                        stringFixedEnum = null;
                         continue;
                     }
                     stringFixedEnum = prop.Value.GetString().ToStringFixedEnum();
@@ -479,7 +472,6 @@ namespace UnbrandedTypeSpec.Models
                 {
                     if (prop.Value.ValueKind == JsonValueKind.Null)
                     {
-                        optionalUnknown = null;
                         continue;
                     }
                     optionalUnknown = BinaryData.FromString(prop.Value.GetRawText());
@@ -643,6 +635,10 @@ namespace UnbrandedTypeSpec.Models
         /// <param name="roundTripModel"> The <see cref="RoundTripModel"/> to serialize into <see cref="BinaryContent"/>. </param>
         public static implicit operator BinaryContent(RoundTripModel roundTripModel)
         {
+            if (roundTripModel == null)
+            {
+                return null;
+            }
             return BinaryContent.Create(roundTripModel, ModelSerializationExtensions.WireOptions);
         }
 

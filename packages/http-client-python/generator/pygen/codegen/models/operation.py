@@ -87,7 +87,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
         self.is_lro_initial_operation: bool = self.yaml_data.get("isLroInitialOperation", False)
         self.include_documentation: bool = not self.is_lro_initial_operation
         self.internal: bool = self.yaml_data.get("internal", False)
-        if self.internal:
+        if self.internal and not self.name.startswith("_"):
             self.name = "_" + self.name
         self.has_etag: bool = self.yaml_data.get("hasEtag", False)
         self.cross_language_definition_id: Optional[str] = self.yaml_data.get("crossLanguageDefinitionId")
@@ -142,11 +142,6 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
         if not async_mode and not self.is_overload and self.response_type_annotation(async_mode=False) == "None":
             # doesn't matter if it's async or not
             retval = add_to_pylint_disable(retval, "inconsistent-return-statements")
-        try:
-            if any(is_internal(r.type) for r in self.responses) or is_internal(self.parameters.body_parameter.type):
-                retval = add_to_pylint_disable(retval, "protected-access")
-        except ValueError:
-            pass
         if len(self.name) > NAME_LENGTH_LIMIT:
             retval = add_to_pylint_disable(retval, "name-too-long")
         return retval

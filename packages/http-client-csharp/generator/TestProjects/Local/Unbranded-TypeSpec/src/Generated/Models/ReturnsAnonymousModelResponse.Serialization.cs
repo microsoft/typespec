@@ -118,6 +118,10 @@ namespace UnbrandedTypeSpec.Models
         /// <param name="returnsAnonymousModelResponse"> The <see cref="ReturnsAnonymousModelResponse"/> to serialize into <see cref="BinaryContent"/>. </param>
         public static implicit operator BinaryContent(ReturnsAnonymousModelResponse returnsAnonymousModelResponse)
         {
+            if (returnsAnonymousModelResponse == null)
+            {
+                return null;
+            }
             return BinaryContent.Create(returnsAnonymousModelResponse, ModelSerializationExtensions.WireOptions);
         }
 

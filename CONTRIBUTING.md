@@ -322,6 +322,7 @@ Area of the codebase
 | `openapi3:converter`         | #957300 | Issues for @typespec/openapi3 openapi to typespec converter       |
 | `emitter:service:csharp`     | #967200 |                                                                   |
 | `emitter:service:js`         | #967200 |                                                                   |
+| `emitter:service:java`       | #967200 | Issue for Java service emitter                                    |
 | `eng`                        | #65bfff |                                                                   |
 | `ui:playground`              | #3256a8 |                                                                   |
 | `ui:type-graph-viewer`       | #3256a8 |                                                                   |

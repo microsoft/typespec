@@ -12,6 +12,7 @@ import {
   SdkServiceOperation,
   UsageFlags,
   getCrossLanguagePackageId,
+  isAzureCoreModel,
 } from "@azure-tools/typespec-client-generator-core";
 import { ignoreDiagnostics } from "@typespec/compiler";
 import {
@@ -244,6 +245,7 @@ export function emitCodeModel<TServiceOperation extends SdkServiceOperation>(
   }
   // loop through models and enums since there may be some orphaned models needs to be generated
   for (const model of sdkPackage.models) {
+    // filter out spread models
     if (
       model.name === "" ||
       ((model.usage & UsageFlags.Spread) > 0 &&
@@ -252,12 +254,23 @@ export function emitCodeModel<TServiceOperation extends SdkServiceOperation>(
     ) {
       continue;
     }
-    if (!disableGenerationMap.has(model)) {
-      getType(sdkContext, model);
+    // filter out specific models not used in python, e.g., pageable models
+    if (disableGenerationMap.has(model)) {
+      continue;
     }
+    // filter out core models
+    if (isAzureCoreModel(model)) {
+      continue;
+    }
+    getType(sdkContext, model);
   }
   for (const sdkEnum of sdkPackage.enums) {
+    // filter out api version enum since python do not generate it
     if (sdkEnum.usage === UsageFlags.ApiVersionEnum) {
+      continue;
+    }
+    // filter out core enums
+    if (isAzureCoreModel(sdkEnum)) {
       continue;
     }
     getType(sdkContext, sdkEnum);

@@ -73,7 +73,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         }
 
         [TestCaseSource(nameof(BuildFieldsTestCases))]
-        public void TestBuildFields(List<InputParameter> inputParameters, bool containsAdditionalOptionalParams)
+        public void TestBuildFields(List<InputParameter> inputParameters, bool containsAdditionalParams)
         {
             var client = InputFactory.Client(TestClientName, parameters: [.. inputParameters]);
             var clientProvider = new ClientProvider(client);
@@ -82,7 +82,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
 
             // validate the fields
             var fields = clientProvider.Fields;
-            if (containsAdditionalOptionalParams)
+            if (containsAdditionalParams)
             {
                 Assert.AreEqual(6, fields.Count);
 
@@ -100,20 +100,20 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 Assert.AreEqual(new CSharpType(typeof(Uri)), endpointField?.Type);
             }
 
-            // validate other optional parameters as fields
-            if (containsAdditionalOptionalParams)
+            // validate other parameters as fields
+            if (containsAdditionalParams)
             {
-                var optionalParamField = fields.FirstOrDefault(f => f.Name == "_optionalParam");
+                var optionalParamField = fields.FirstOrDefault(f => f.Name == "_optionalNullableParam");
                 Assert.IsNotNull(optionalParamField);
-                Assert.AreEqual(new CSharpType(typeof(string)), optionalParamField?.Type);
+                Assert.AreEqual(new CSharpType(typeof(string), isNullable: true), optionalParamField?.Type);
 
-                var optionalParam2Field = fields.FirstOrDefault(f => f.Name == "_optionalParam2");
-                Assert.IsNotNull(optionalParam2Field);
-                Assert.AreEqual(new CSharpType(typeof(string)), optionalParam2Field?.Type);
+                var requiredParam2Field = fields.FirstOrDefault(f => f.Name == "_requiredParam2");
+                Assert.IsNotNull(requiredParam2Field);
+                Assert.AreEqual(new CSharpType(typeof(string), isNullable: false), requiredParam2Field?.Type);
 
-                var optionalParam3Field = fields.FirstOrDefault(f => f.Name == "_optionalParam3");
-                Assert.IsNotNull(optionalParam3Field);
-                Assert.AreEqual(new CSharpType(typeof(long)), optionalParam3Field?.Type);
+                var requiredParam3Field = fields.FirstOrDefault(f => f.Name == "_requiredParam3");
+                Assert.IsNotNull(requiredParam3Field);
+                Assert.AreEqual(new CSharpType(typeof(long), isNullable: false), requiredParam3Field?.Type);
             }
         }
 
@@ -142,6 +142,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             }
             else
             {
+                // The 3 fields are _endpoint, AuthorizationHeader, and _keyCredential
                 Assert.AreEqual(3, fields.Count);
             }
         }
@@ -204,7 +205,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             Assert.IsNotNull(mockingConstructor);
         }
 
-        private void ValidatePrimaryConstructor(
+        private static void ValidatePrimaryConstructor(
             ConstructorProvider? primaryPublicConstructor,
             List<InputParameter> inputParameters)
         {
@@ -373,6 +374,33 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             Assert.AreEqual(Helpers.GetExpectedFromFile(), codeFile.Content);
         }
 
+        [Test]
+        public void ValidateMethodSignatureUsesIEnumerable()
+        {
+            MockHelpers.LoadMockPlugin();
+
+            var inputClient = InputFactory.Client(
+                TestClientName,
+                operations:
+                [
+                    InputFactory.Operation(
+                        "Foo",
+                        parameters:
+                        [
+                            InputFactory.Parameter(
+                                "arrayParam",
+                                InputFactory.Array(
+                                    InputPrimitiveType.String))
+                        ])
+                ]);
+            var clientProvider = ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
+            var convenienceMethod = clientProvider.Methods.FirstOrDefault(
+                m => m.Signature.Name == "Foo" &&
+                     !m.Signature.Parameters.Any(p => p.Type.Equals(typeof(RequestOptions))));
+            Assert.IsNotNull(convenienceMethod);
+            Assert.AreEqual(new CSharpType(typeof(IEnumerable<string>)), convenienceMethod!.Signature.Parameters[0].Type);
+        }
+
         [TestCaseSource(nameof(ValidateClientWithSpreadTestCases))]
         public void ValidateClientWithSpread(InputClient inputClient)
         {
@@ -387,9 +415,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             Assert.AreEqual(2, protocolMethods[1].Signature.Parameters.Count);
 
             Assert.AreEqual(new CSharpType(typeof(BinaryContent)), protocolMethods[0].Signature.Parameters[0].Type);
-            Assert.AreEqual(new CSharpType(typeof(RequestOptions)), protocolMethods[0].Signature.Parameters[1].Type);
+            Assert.AreEqual(new CSharpType(typeof(RequestOptions), true), protocolMethods[0].Signature.Parameters[1].Type);
             Assert.AreEqual(new CSharpType(typeof(BinaryContent)), protocolMethods[1].Signature.Parameters[0].Type);
-            Assert.AreEqual(new CSharpType(typeof(RequestOptions)), protocolMethods[1].Signature.Parameters[1].Type);
+            Assert.AreEqual(new CSharpType(typeof(RequestOptions), true), protocolMethods[1].Signature.Parameters[1].Type);
 
             var convenienceMethods = methods.Where(m => m.Signature.Parameters.Any(p => p.Type.Equals(typeof(string)))).ToList();
             Assert.AreEqual(2, convenienceMethods.Count);
@@ -400,13 +428,61 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
 
         }
 
+        [TestCaseSource(nameof(RequestOptionsParameterInSignatureTestCases))]
+        public void TestRequestOptionsParameterInSignature(InputOperation inputOperation, bool shouldBeOptional, bool hasOptionalParameter)
+        {
+            var client = InputFactory.Client(TestClientName, operations: [inputOperation]);
+            var clientProvider = new ClientProvider(client);
+            var protocolMethods = clientProvider.Methods.Where(m => m.Signature.Parameters.Any(p => p.Type.Name == "RequestOptions")).ToList();
+            var syncMethod = protocolMethods.FirstOrDefault(m => !m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async));
+            Assert.IsNotNull(syncMethod);
+
+            var requestOptionsParameterInSyncMethod = syncMethod!.Signature.Parameters.FirstOrDefault(p => p.Type.Name == "RequestOptions");
+            Assert.IsNotNull(requestOptionsParameterInSyncMethod);
+            Assert.AreEqual(shouldBeOptional, requestOptionsParameterInSyncMethod!.Type.IsNullable);
+
+            var asyncMethod = protocolMethods.FirstOrDefault(m => m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async));
+            Assert.IsNotNull(asyncMethod);
+
+            var requestOptionsParameterInAsyncMethod = asyncMethod!.Signature.Parameters.FirstOrDefault(p => p.Type.Name == "RequestOptions");
+            Assert.IsNotNull(requestOptionsParameterInAsyncMethod);
+            Assert.AreEqual(shouldBeOptional, requestOptionsParameterInAsyncMethod!.Type.IsNullable);
+
+            if (shouldBeOptional)
+            {
+                Assert.IsNotNull(requestOptionsParameterInSyncMethod.DefaultValue);
+                Assert.IsNotNull(requestOptionsParameterInAsyncMethod.DefaultValue);
+                // request options should be last optional parameter
+                Assert.AreEqual("RequestOptions", syncMethod.Signature.Parameters[^1].Type.Name);
+                Assert.AreEqual("RequestOptions", asyncMethod.Signature.Parameters[^1].Type.Name);
+            }
+            else
+            {
+                Assert.IsNull(requestOptionsParameterInSyncMethod.DefaultValue);
+                Assert.IsNull(requestOptionsParameterInAsyncMethod.DefaultValue);
+                // optional parameters should come after the required request options
+                if (hasOptionalParameter)
+                {
+                    Assert.AreEqual("RequestOptions", syncMethod.Signature.Parameters[^2].Type.Name);
+                    Assert.AreEqual("RequestOptions", asyncMethod.Signature.Parameters[^2].Type.Name);
+                }
+            }
+        }
+
         [Test]
         public void TestApiVersionOfClient()
         {
+            List<string> apiVersions = ["1.0", "2.0"];
+            var enumValues = apiVersions.Select(a => InputFactory.EnumMember.String(a, a));
+            var inputEnum = InputFactory.Enum("ServiceVersion", InputPrimitiveType.Int64, values: [.. enumValues], usage: InputModelTypeUsage.ApiVersionEnum);
+
+            MockHelpers.LoadMockPlugin(
+                apiVersions: () => apiVersions,
+                inputEnums: () => [inputEnum]);
             var client = InputFactory.Client(TestClientName,
                 operations: [
                     InputFactory.Operation("OperationWithApiVersion",
-                            parameters: [InputFactory.Parameter("apiVersion", InputPrimitiveType.String, isRequired: true, location: RequestLocation.Query, kind: InputOperationParameterKind.Client)])
+                            parameters: [InputFactory.Parameter("apiVersion", InputPrimitiveType.String, isRequired: true, location: RequestLocation.Query, kind: InputOperationParameterKind.Client, isApiVersion: true)])
                     ]);
             var clientProvider = new ClientProvider(client);
             Assert.IsNotNull(clientProvider);
@@ -414,7 +490,55 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             /* verify that the client has apiVersion field */
             Assert.IsNotNull(clientProvider.Fields.FirstOrDefault(f => f.Name.Equals("_apiVersion")));
 
+            /* verify that there is no apiVersion parameter in constructor. */
+            var apiVersionParameter = clientProvider.Constructors.Select(c => c.Signature.Parameters.FirstOrDefault(p => p.Name.Equals("apiVersion"))).FirstOrDefault();
+            Assert.IsNull(apiVersionParameter);
+
+            /* verify the apiVersion assignment in constructor body */
+            var primaryConstructor = clientProvider.Constructors.FirstOrDefault(
+                c => c.Signature?.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Public);
+            Assert.IsNotNull(primaryConstructor);
+            var bodyStatements = primaryConstructor?.BodyStatements as MethodBodyStatements;
+            Assert.IsNotNull(bodyStatements);
+            Assert.IsTrue(bodyStatements!.Statements.Any(s => s.ToDisplayString().IndexOf("_apiVersion = options.Version;\n") != -1));
+
             var method = clientProvider.Methods.FirstOrDefault(m => m.Signature.Name.Equals("OperationWithApiVersion"));
+            Assert.IsNotNull(method);
+            /* verify that the method does not have apiVersion parameter */
+            Assert.IsNull(method?.Signature.Parameters.FirstOrDefault(p => p.Name.Equals("apiVersion")));
+        }
+
+        [TestCaseSource(nameof(ValidateApiVersionPathParameterTestCases))]
+        public void TestApiVersionPathParameterOfClient(InputClient inputClient)
+        {
+            List<string> apiVersions = ["value1", "value2"];
+            var enumValues = apiVersions.Select(a => InputFactory.EnumMember.String(a, a));
+            var inputEnum = InputFactory.Enum("ServiceVersion", InputPrimitiveType.Int64, values: [.. enumValues], usage: InputModelTypeUsage.ApiVersionEnum);
+            MockHelpers.LoadMockPlugin(
+                apiVersions: () => apiVersions,
+                inputEnums: () => [inputEnum]);
+
+            var clientProvider = new ClientProvider(inputClient);
+            Assert.IsNotNull(clientProvider);
+
+            /* verify that the client has apiVersion field */
+            var apiVersionField = clientProvider.Fields.FirstOrDefault(f => f.Name.Equals("_apiVersion"));
+            Assert.IsNotNull(apiVersionField);
+            Assert.AreEqual(new CSharpType(typeof(string)), apiVersionField?.Type);
+
+            /* verify that there is no apiVersion parameter in constructor. */
+            var apiVersionParameter = clientProvider.Constructors.Select(c => c.Signature.Parameters.FirstOrDefault(p => p.Name.Equals("apiVersion"))).FirstOrDefault();
+            Assert.IsNull(apiVersionParameter);
+
+            /* verify the apiVersion assignment in constructor body */
+            var primaryConstructor = clientProvider.Constructors.FirstOrDefault(
+                c => c.Signature?.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Public);
+            Assert.IsNotNull(primaryConstructor);
+            var bodyStatements = primaryConstructor?.BodyStatements as MethodBodyStatements;
+            Assert.IsNotNull(bodyStatements);
+            Assert.IsTrue(bodyStatements!.Statements.Any(s => s.ToDisplayString().IndexOf("_apiVersion = options.Version;\n") != -1));
+
+            var method = clientProvider.Methods.FirstOrDefault(m => m.Signature.Name.Equals("TestOperation"));
             Assert.IsNotNull(method);
             /* verify that the method does not have apiVersion parameter */
             Assert.IsNull(method?.Signature.Parameters.FirstOrDefault(p => p.Name.Equals("apiVersion")));
@@ -485,24 +609,28 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 }, false);
                 yield return new TestCaseData(new List<InputParameter>
                 {
+                    // have to explicitly set isRequired because we now call CreateParameter in buildFields
                     InputFactory.Parameter(
-                        "optionalParam",
+                        "optionalNullableParam",
                         InputPrimitiveType.String,
                         location: RequestLocation.None,
                         defaultValue: InputFactory.Constant.String("someValue"),
-                        kind: InputOperationParameterKind.Client),
+                        kind: InputOperationParameterKind.Client,
+                        isRequired: false),
                     InputFactory.Parameter(
-                        "optionalParam2",
+                        "requiredParam2",
                         InputPrimitiveType.String,
                         location: RequestLocation.None,
                         defaultValue: InputFactory.Constant.String("someValue"),
-                        kind: InputOperationParameterKind.Client),
+                        kind: InputOperationParameterKind.Client,
+                        isRequired: true),
                     InputFactory.Parameter(
-                        "optionalParam3",
+                        "requiredParam3",
                         InputPrimitiveType.Int64,
                         location: RequestLocation.None,
                         defaultValue: InputFactory.Constant.Int64(2),
-                        kind: InputOperationParameterKind.Client),
+                        kind: InputOperationParameterKind.Client,
+                        isRequired: true),
                     InputFactory.Parameter(
                         KnownParameters.Endpoint.Name,
                         InputPrimitiveType.String,
@@ -586,6 +714,106 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             }
         }
 
+        public static IEnumerable<TestCaseData> RequestOptionsParameterInSignatureTestCases
+        {
+            get
+            {
+                // Protocol & convenience methods will have the same parameters, so RequestOptions should be required.
+                yield return new TestCaseData(
+                    InputFactory.Operation(
+                        "TestOperation",
+                        parameters:
+                        [
+                            InputFactory.Parameter(
+                                "p1",
+                                InputPrimitiveType.String,
+                                location: RequestLocation.None,
+                                isRequired: true),
+                            InputFactory.Parameter(
+                                "p2",
+                                InputPrimitiveType.Int64,
+                                location: RequestLocation.None,
+                                isRequired: true),
+                        ]), false, false);
+
+                // Protocol & convenience methods will have the same parameters, so RequestOptions should be required.
+                // One of the parameter is optional, so RequestOptions should come before it
+                yield return new TestCaseData(
+                    InputFactory.Operation(
+                        "TestOperation",
+                        parameters:
+                        [
+                            InputFactory.Parameter(
+                                "p1",
+                                InputPrimitiveType.String,
+                                location: RequestLocation.None,
+                                isRequired: false),
+                            InputFactory.Parameter(
+                                "p2",
+                                InputPrimitiveType.Int64,
+                                location: RequestLocation.None,
+                                isRequired: true),
+                        ]), false, true);
+
+                // convenience method only has a body param, so RequestOptions should be optional in protocol method.
+                yield return new TestCaseData(
+                    InputFactory.Operation(
+                        "TestOperation",
+                        parameters:
+                        [
+                             InputFactory.Parameter(
+                                "p1",
+                                InputPrimitiveType.String,
+                                location: RequestLocation.Body),
+                        ]), true, false);
+
+                // Protocol & convenience methods will have different parameters since there is a model body param, so RequestOptions should be optional.
+                yield return new TestCaseData(
+                    InputFactory.Operation(
+                        "TestOperation",
+                        parameters:
+                        [
+                            InputFactory.Parameter(
+                                "p1",
+                                InputPrimitiveType.String,
+                                location: RequestLocation.None,
+                                isRequired: true),
+                            InputFactory.Parameter(
+                                "p2",
+                                InputFactory.Model("SampleModel"),
+                                location: RequestLocation.Body,
+                                isRequired: true),
+                        ]), true, false);
+
+                // Protocol & convenience methods will have different parameters since there is a model body param, so RequestOptions should be optional.
+                // One parameter is optional
+                yield return new TestCaseData(
+                    InputFactory.Operation(
+                        "TestOperation",
+                        parameters:
+                        [
+                            InputFactory.Parameter(
+                                "p1",
+                                InputPrimitiveType.String,
+                                location: RequestLocation.None,
+                                isRequired: true),
+                            InputFactory.Parameter(
+                                "p2",
+                                InputFactory.Model("SampleModel"),
+                                location: RequestLocation.Body,
+                                isRequired: false),
+                        ]), true, true);
+
+                // Convenience method has no parameters, RequestOptions should be required in protocol method.
+                yield return new TestCaseData(
+                    InputFactory.Operation(
+                        "TestOperation",
+                        responses: [InputFactory.OperationResponse([201], InputFactory.Model("testModel"))],
+                        parameters: []),
+                    false, false);
+            }
+        }
+
         private static IEnumerable<TestCaseData> EndpointParamInitializationValueTestCases()
         {
             // string primitive type
@@ -598,6 +826,71 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                     isEndpoint: true,
                     defaultValue: InputFactory.Constant.String("mockValue")),
                 New.Instance(KnownParameters.Endpoint.Type, Literal("mockvalue")));
+        }
+
+        private static IEnumerable<TestCaseData> ValidateApiVersionPathParameterTestCases()
+        {
+            InputParameter endpointParameter = InputFactory.Parameter(
+                "endpoint",
+                InputPrimitiveType.String,
+                location: RequestLocation.Uri,
+                isRequired: true,
+                kind: InputOperationParameterKind.Client,
+                isEndpoint: true,
+                isApiVersion: false);
+
+            InputParameter stringApiVersionParameter = InputFactory.Parameter(
+                "apiVersion",
+                InputPrimitiveType.String,
+                location: RequestLocation.Uri,
+                isRequired: true,
+                kind: InputOperationParameterKind.Client,
+                isApiVersion: true);
+
+            InputParameter enumApiVersionParameter = InputFactory.Parameter(
+                "apiVersion",
+                InputFactory.Enum(
+                    "InputEnum",
+                    InputPrimitiveType.String,
+                    usage: InputModelTypeUsage.Input,
+                    isExtensible: true,
+                    values:
+                    [
+                        InputFactory.EnumMember.String("value1", "value1"),
+                        InputFactory.EnumMember.String("value2", "value2")
+                    ]),
+                location: RequestLocation.Uri,
+                isRequired: true,
+                kind: InputOperationParameterKind.Client,
+                isApiVersion: true);
+
+            yield return new TestCaseData(
+                InputFactory.Client(
+                    "TestClient",
+                    operations:
+                    [
+                        InputFactory.Operation(
+                            "TestOperation",
+                            uri: "{endpoint}/{apiVersion}")
+                    ],
+                    parameters: [
+                        endpointParameter,
+                        stringApiVersionParameter
+                    ]));
+
+            yield return new TestCaseData(
+                InputFactory.Client(
+                    "TestClient",
+                    operations:
+                    [
+                        InputFactory.Operation(
+                        "TestOperation",
+                        uri: "{endpoint}/{apiVersion}")
+                    ],
+                    parameters: [
+                        endpointParameter,
+                        enumApiVersionParameter
+                    ]));
         }
     }
 }

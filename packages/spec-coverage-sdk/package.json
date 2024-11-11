@@ -1,9 +1,8 @@
 {
   "name": "@typespec/spec-coverage-sdk",
-  "version": "0.1.0",
+  "version": "0.1.0-alpha.1",
   "description": "Spec utility to manage the reported coverage",
   "main": "dist/index.js",
-  "private": true,
   "type": "module",
   "scripts": {
     "watch": "tsc -p ./tsconfig.build.json --watch",

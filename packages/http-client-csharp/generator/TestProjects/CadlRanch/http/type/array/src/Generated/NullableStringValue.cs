@@ -23,12 +23,12 @@ namespace _Type._Array
 
         public virtual Task<ClientResult<IList<string>>> GetAsync() => throw null;
 
-        public virtual ClientResult Put(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult Put(IList<string> body) => throw null;
+        public virtual ClientResult Put(IEnumerable<string> body) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(IList<string> body) => throw null;
+        public virtual Task<ClientResult> PutAsync(IEnumerable<string> body) => throw null;
     }
 }

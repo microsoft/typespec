@@ -182,6 +182,10 @@ namespace UnbrandedTypeSpec.Models
         /// <param name="modelWithRequiredNullableProperties"> The <see cref="ModelWithRequiredNullableProperties"/> to serialize into <see cref="BinaryContent"/>. </param>
         public static implicit operator BinaryContent(ModelWithRequiredNullableProperties modelWithRequiredNullableProperties)
         {
+            if (modelWithRequiredNullableProperties == null)
+            {
+                return null;
+            }
             return BinaryContent.Create(modelWithRequiredNullableProperties, ModelSerializationExtensions.WireOptions);
         }
 

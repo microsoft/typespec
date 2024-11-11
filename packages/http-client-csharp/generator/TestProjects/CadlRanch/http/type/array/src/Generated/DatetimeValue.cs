@@ -24,12 +24,12 @@ namespace _Type._Array
 
         public virtual Task<ClientResult<IList<DateTimeOffset>>> GetAsync() => throw null;
 
-        public virtual ClientResult Put(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult Put(IList<DateTimeOffset> body) => throw null;
+        public virtual ClientResult Put(IEnumerable<DateTimeOffset> body) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(IList<DateTimeOffset> body) => throw null;
+        public virtual Task<ClientResult> PutAsync(IEnumerable<DateTimeOffset> body) => throw null;
     }
 }

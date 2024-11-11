@@ -1,0 +1,28 @@
+---
+import AssetImg from "./asset-img.astro";
+
+export interface Props {
+  src: string;
+}
+
+const { src } = Astro.props;
+---
+
+<style>
+  :global(html[data-theme="light"]) .dark {
+    display: none;
+  }
+
+  :global(html[data-theme="dark"]) .light {
+    display: none;
+  }
+
+  .light,
+  .dark {
+    display: block;
+  }
+</style>
+<div>
+  <AssetImg className={"dark"} src={`${src}.dark.png`} />
+  <AssetImg className={"light"} src={`${src}.light.png`} />
+</div>

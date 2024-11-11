@@ -1,13 +1,14 @@
 import { loadScenarios } from "../scenarios-resolver.js";
 import { Diagnostic } from "../utils/diagnostic-reporter.js";
 import { getCommit, getPackageJson } from "../utils/misc-utils.js";
-import { ScenarioLocation, ScenarioManifest, GeneratorMode } from "@typespec/spec-coverage-sdk";
+import { ScenarioLocation, ScenarioManifest } from "@typespec/spec-coverage-sdk";
 import { getSourceLocation, normalizePath } from "@typespec/compiler";
 import { relative } from "path";
 import type { Scenario } from "../lib/decorators.js";
 
 export async function computeScenarioManifest(
   scenariosPath: string,
+  setName: string
 ): Promise<[ScenarioManifest | undefined, readonly Diagnostic[]]> {
   const [scenarios, diagnostics] = await loadScenarios(scenariosPath);
   if (diagnostics.length > 0) {
@@ -16,7 +17,7 @@ export async function computeScenarioManifest(
 
   const commit = getCommit(scenariosPath);
   const pkg = await getPackageJson(scenariosPath);
-  return [createScenarioManifest(scenariosPath, pkg?.version ?? "?", commit, scenarios), []];
+  return [createScenarioManifest(scenariosPath, pkg?.version ?? "?", commit, scenarios, setName), []];
 }
 
 export function createScenarioManifest(
@@ -24,6 +25,7 @@ export function createScenarioManifest(
   version: string,
   commit: string,
   scenarios: Scenario[],
+  setName: string
 ): ScenarioManifest {
   const sortedScenarios = [...scenarios].sort((a, b) => a.name.localeCompare(b.name));
   return {
@@ -38,6 +40,6 @@ export function createScenarioManifest(
       };
       return { name, scenarioDoc, location };
     }),
-    modes: GeneratorMode,
+    setName
   };
 }
