@@ -14,7 +14,7 @@ using NUnit.Framework;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 
-namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
+namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.RestClientProviders
 {
     public class RestClientProviderTests
     {
@@ -276,6 +276,33 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 Assert.IsTrue(bodyStatements!.Statements.Any(s => s.ToDisplayString() == "message.ResponseClassifier = PipelineMessageClassifier200;\n"));
                 Assert.IsFalse(bodyStatements!.Statements.Any(s => s.ToDisplayString() == "message.ResponseClassifier = PipelineMessageClassifier201;\n"));
             }
+        }
+
+        [Test]
+        public void TestBuildCreateRequestMethodWithQueryParameters()
+        {
+            List<InputParameter> parameters =
+            [
+                InputFactory.Parameter("p1Explode", InputFactory.Array(InputPrimitiveType.String), location: RequestLocation.Query, isRequired: true, explode: true),
+                InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String), location: RequestLocation.Query, isRequired: true, delimiter: "|"),
+                InputFactory.Parameter("p2Explode", InputFactory.Array(InputPrimitiveType.Int32), location: RequestLocation.Query, isRequired: true, explode: true),
+                InputFactory.Parameter("p2", InputFactory.Array(InputPrimitiveType.Int32), location: RequestLocation.Query, isRequired: true, delimiter: " "),
+                InputFactory.Parameter("optionalParam", new InputNullableType(InputPrimitiveType.String), location: RequestLocation.Query, isRequired: false, explode: false)
+            ];
+            var operation = InputFactory.Operation(
+                "sampleOp",
+                parameters: parameters);
+
+            var client = InputFactory.Client(
+                "TestClient",
+                operations: [operation]);
+
+            var clientProvider = new ClientProvider(client);
+            var restClientProvider = new MockClientProvider(client, clientProvider);
+
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         private readonly static InputOperation BasicOperation = InputFactory.Operation(
