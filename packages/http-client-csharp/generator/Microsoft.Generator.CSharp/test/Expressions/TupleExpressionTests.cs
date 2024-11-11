@@ -32,5 +32,16 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
             variableTupleExpression.Assign(new TupleExpression(Literal(1), Literal("a"))).Write(writer);
             Assert.AreEqual("(int item1, string item2) = (1, \"a\")", writer.ToString(false));
         }
+
+        [Test]
+        public void VerifyTupleExpressionWithRef()
+        {
+            var item1 = new ParameterProvider("item1", FormattableStringHelpers.Empty, new CSharpType(typeof(int)));
+            var item2 = new ParameterProvider("item2", FormattableStringHelpers.Empty, new CSharpType(typeof(string)));
+            var tupleVariableExpression = new VariableTupleExpression(true, item1, item2);
+            using CodeWriter writer = new CodeWriter();
+            tupleVariableExpression.Write(writer);
+            Assert.AreEqual("ref (int item1, string item2)", writer.ToString(false));
+        }
     }
 }

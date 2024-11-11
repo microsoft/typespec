@@ -134,13 +134,19 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var pipelineField = ClientProvider.PipelineProperty.ToApi<ClientPipelineApi>();
 
             var options = ScmKnownParameters.RequestOptions;
+            var parameters = GetMethodParameters(operation, true);
+            // All the parameters should be required for the CreateRequest method
+            foreach (var parameter in parameters)
+            {
+                parameter.DefaultValue = null;
+            }
             var signature = new MethodSignature(
                 $"Create{operation.Name.ToCleanName()}Request",
                 null,
                 MethodSignatureModifiers.Internal,
                 ClientModelPlugin.Instance.TypeFactory.HttpMessageApi.HttpMessageType,
                 null,
-                [.. GetMethodParameters(operation, true), options]);
+                [.. parameters, options]);
             var paramMap = new Dictionary<string, ParameterProvider>(signature.Parameters.ToDictionary(p => p.Name));
 
             foreach (var param in ClientProvider.GetClientParameters())
@@ -491,7 +497,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         }
                         break;
                     case ParameterLocation.Body:
-                        sortedParams.Add(bodyRequired++, parameter);
+                        sortedParams.Add(parameter.DefaultValue == null ? bodyRequired++ : bodyOptional++, parameter);
                         break;
                     default:
                         sortedParams.Add(optional++, parameter);
