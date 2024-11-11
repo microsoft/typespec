@@ -26,9 +26,5 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Projects\http\type\model\empty\src\Generated\Internal\" />
-  </ItemGroup>
  
 </Project>
