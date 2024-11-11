@@ -516,6 +516,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 sortedParams.Add(bodyRequired++, ScmKnownParameters.ContentType);
             }
 
+            // All the parameters should be required for the CreateRequest method
+            if (methodType == MethodType.CreateRequest)
+            {
+                foreach (var parameter in sortedParams.Values)
+                {
+                    parameter.DefaultValue = null;
+                }
+            }
+
             return [.. sortedParams.Values];
         }
 
