@@ -23,6 +23,6 @@
     "com.cadl.multipleapiversion.SecondClient.getWithResponse": "Cadl.MultipleApiVersion2.Client.get",
     "com.cadl.multipleapiversion.SecondClientBuilder": "Cadl.MultipleApiVersion2",
     "com.cadl.multipleapiversion.models.Resource": "Cadl.MultipleApiVersion.Resource",
-    "com.cadl.multipleapiversion.models.Resource2": "Cadl.MultipleApiVersion2.Resource2"
+    "com.cadl.multipleapiversion2.models.Resource2": "Cadl.MultipleApiVersion2.Resource2"
   }
 }

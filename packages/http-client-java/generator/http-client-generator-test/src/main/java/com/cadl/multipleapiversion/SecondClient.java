@@ -16,7 +16,7 @@ import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import com.cadl.multipleapiversion.implementation.SecondClientImpl;
-import com.cadl.multipleapiversion.models.Resource2;
+import com.cadl.multipleapiversion2.models.Resource2;
 
 /**
  * Initializes a new instance of the synchronous SecondClient type.

@@ -17,7 +17,7 @@ import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.FluxUtil;
 import com.cadl.multipleapiversion.implementation.SecondClientImpl;
-import com.cadl.multipleapiversion.models.Resource2;
+import com.cadl.multipleapiversion2.models.Resource2;
 import reactor.core.publisher.Mono;
 
 /**
