@@ -101,6 +101,15 @@ defineKit<Typekit>({
         for (const param of op.parameters.properties.values()) {
           if (param.type.kind === "Model" && allModels.includes(param.type)) {
             modelsMap.set(param.type.name, param.type);
+            for (const prop of param.type.properties.values()) {
+              if (
+                prop.type.kind === "Model" &&
+                allModels.includes(prop.type) &&
+                !modelsMap.has(prop.type.name)
+              ) {
+                modelsMap.set(prop.type.name, prop.type);
+              }
+            }
           }
           if (
             param.sourceProperty?.type.kind === "Model" &&
