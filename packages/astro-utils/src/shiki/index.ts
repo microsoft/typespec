@@ -9,5 +9,5 @@ export const TypeSpecLang = {
   id: "typespec",
   scopeName: "source.tsp",
   path: grammarPath,
-  aliases: ["typespec", "tsp"],
+  aliases: ["tsp"],
 };
