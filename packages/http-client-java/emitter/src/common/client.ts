@@ -44,6 +44,9 @@ export class Client extends Aspect implements Client {
     subClient.publicBuilder = false;
     subClient.publicParentAccessor = true;
     this.subClients.push(subClient);
+
+    // at present, sub client must have same namespace of its parent client
+    subClient.language.java!.namespace = this.language.java!.namespace;
   }
 }
 
