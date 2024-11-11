@@ -13,11 +13,11 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Class
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientAccessorMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientBuilder;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ConvenienceMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodGroupClient;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceClient;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceClientProperty;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaClass;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaContext;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
@@ -231,17 +231,16 @@ public class ServiceAsyncClientTemplate implements IJavaTemplate<AsyncSyncClient
     static void writeSubClientAccessors(ServiceClient serviceClient, JavaClass classBlock, boolean isAsync) {
         // Add accessors to sub clients
         for (ClientAccessorMethod clientAccessorMethod : serviceClient.getClientAccessorMethods()) {
-            List<ServiceClientProperty> accessorProperties = clientAccessorMethod.getAccessorProperties();
+            List<ClientMethodParameter> methodParameters = clientAccessorMethod.getMethodParameters();
             String subClientClassName = clientAccessorMethod.getAsyncSyncClientName(isAsync);
 
             String serviceClientMethodCall = "serviceClient." + clientAccessorMethod.getName() + "("
-                + accessorProperties.stream().map(ServiceClientProperty::getName).collect(Collectors.joining(", "))
-                + ")";
+                + methodParameters.stream().map(ClientMethodParameter::getName).collect(Collectors.joining(", ")) + ")";
 
             // expect all properties are required, so no overload
             classBlock.javadocComment(comment -> {
                 comment.description("Gets an instance of " + subClientClassName + " class.");
-                for (ServiceClientProperty property : accessorProperties) {
+                for (ClientMethodParameter property : methodParameters) {
                     comment.param(property.getName(), property.getDescription());
                 }
                 comment.methodReturns("an instance of " + subClientClassName + "class");

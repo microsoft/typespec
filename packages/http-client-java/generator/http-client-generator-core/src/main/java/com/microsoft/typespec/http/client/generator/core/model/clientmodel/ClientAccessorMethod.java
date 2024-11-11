@@ -19,6 +19,8 @@ public class ClientAccessorMethod {
     // serviceClient is guaranteed to be set
     private ServiceClient serviceClient;
 
+    private List<ClientMethodParameter> clientMethodParameters;
+
     /**
      * Initializes the ClientAccessorMethod.
      *
@@ -58,17 +60,28 @@ public class ClientAccessorMethod {
     /**
      * Gets the ServiceClient properties that should be on accessor method signature.
      *
-     * @return the properties for accessor method parameters.
+     * @return the method parameters for accessor method parameters.
      */
-    public List<ServiceClientProperty> getAccessorProperties() {
-        List<ServiceClientProperty> additionalProperties = new ArrayList<>();
-        for (ServiceClientProperty property : subClient.getProperties()) {
-            String name = property.getName();
-            if (serviceClient.getProperties().stream().noneMatch(p -> name.equals(p.getName()))) {
-                additionalProperties.add(property);
+    public List<ClientMethodParameter> getMethodParameters() {
+        if (clientMethodParameters == null) {
+            clientMethodParameters = new ArrayList<>();
+            for (ServiceClientProperty property : subClient.getProperties()) {
+                String name = property.getName();
+                if (serviceClient.getProperties().stream().noneMatch(p -> name.equals(p.getName()))) {
+                    ClientMethodParameter methodParameter
+                        = new ClientMethodParameter.Builder().description(property.getDescription())
+                            .finalParameter(false)
+                            .wireType(property.getType())
+                            .name(property.getName())
+                            .required(property.isRequired())
+                            .constant(false)
+                            .fromClient(true)
+                            .build();
+                    clientMethodParameters.add(methodParameter);
+                }
             }
         }
-        return additionalProperties;
+        return clientMethodParameters;
     }
 
     public void addImportsTo(Set<String> imports, boolean includeImplementationImports) {
@@ -106,10 +119,12 @@ public class ClientAccessorMethod {
      */
     public String getDeclaration() {
         String subClientClassName = subClient.getClassName();
-        List<ServiceClientProperty> additionalProperties = this.getAccessorProperties();
+        List<ClientMethodParameter> additionalProperties = this.getMethodParameters();
 
         return subClientClassName + " " + getName() + "("
-            + additionalProperties.stream().map(p -> p.getType() + " " + p.getName()).collect(Collectors.joining(", "))
+            + additionalProperties.stream()
+                .map(p -> p.getClientType() + " " + p.getName())
+                .collect(Collectors.joining(", "))
             + ")";
     }
 
@@ -131,10 +146,12 @@ public class ClientAccessorMethod {
      */
     public String getAsyncSyncClientDeclaration(boolean isAsync) {
         String subClientClassName = getAsyncSyncClientName(isAsync);
-        List<ServiceClientProperty> additionalProperties = this.getAccessorProperties();
+        List<ClientMethodParameter> additionalProperties = this.getMethodParameters();
 
         return subClientClassName + " get" + subClientClassName + "( "
-            + additionalProperties.stream().map(p -> p.getType() + " " + p.getName()).collect(Collectors.joining(", "))
+            + additionalProperties.stream()
+                .map(p -> p.getClientType() + " " + p.getName())
+                .collect(Collectors.joining(", "))
             + ")";
     }
 }

@@ -377,7 +377,7 @@ public class ServiceClientTemplate implements IJavaTemplate<ServiceClient, JavaF
         List<ClientAccessorMethod> clientAccessorMethods) {
         for (ClientAccessorMethod clientAccessorMethod : clientAccessorMethods) {
             final String subClientName = clientAccessorMethod.getSubClient().getClassName();
-            final List<ServiceClientProperty> accessorProperties = clientAccessorMethod.getAccessorProperties();
+            final List<ClientMethodParameter> methodParameters = clientAccessorMethod.getMethodParameters();
             final List<String> arguments = new ArrayList<>();
 
             // pre-defined properties like "httpPipeline"
@@ -395,21 +395,21 @@ public class ServiceClientTemplate implements IJavaTemplate<ServiceClient, JavaF
                 }
             }
             // properties from method
-            for (ServiceClientProperty property : accessorProperties) {
-                arguments.add(property.getName());
+            for (ClientMethodParameter parameter : methodParameters) {
+                arguments.add(parameter.getName());
             }
 
             classBlock.javadocComment(comment -> {
                 comment.description("Gets an instance of " + subClientName + " class.");
-                for (ServiceClientProperty property : accessorProperties) {
-                    comment.param(property.getName(), property.getDescription());
+                for (ClientMethodParameter parameter : methodParameters) {
+                    comment.param(parameter.getName(), parameter.getDescription());
                 }
                 comment.methodReturns("an instance of " + subClientName + "class");
             });
             classBlock.publicMethod(clientAccessorMethod.getDeclaration(), method -> {
-                for (ServiceClientProperty property : accessorProperties) {
-                    if (property.isRequired()) {
-                        method.line("Objects.requireNonNull(" + property.getName() + ", \"'" + property.getName()
+                for (ClientMethodParameter parameter : methodParameters) {
+                    if (parameter.isRequired()) {
+                        method.line("Objects.requireNonNull(" + parameter.getName() + ", \"'" + parameter.getName()
                             + "' cannot be null.\");");
                     }
                 }
