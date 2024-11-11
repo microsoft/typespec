@@ -26,9 +26,9 @@ namespace _Type.Model.Inheritance.SingleDiscriminator
 
         public virtual Task<ClientResult<Bird>> GetModelAsync() => throw null;
 
-        public virtual ClientResult PutModel(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult PutModel(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutModelAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PutModelAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult PutModel(Bird input) => throw null;
 
@@ -42,9 +42,9 @@ namespace _Type.Model.Inheritance.SingleDiscriminator
 
         public virtual Task<ClientResult<Bird>> GetRecursiveModelAsync() => throw null;
 
-        public virtual ClientResult PutRecursiveModel(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult PutRecursiveModel(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutRecursiveModelAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PutRecursiveModelAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult PutRecursiveModel(Bird input) => throw null;
 

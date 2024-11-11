@@ -23,9 +23,9 @@ namespace _Type.Scalar
 
         public virtual Task<ClientResult<IList<decimal>>> PrepareVerifyAsync() => throw null;
 
-        public virtual ClientResult Verify(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult Verify(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> VerifyAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> VerifyAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Verify(decimal body) => throw null;
 

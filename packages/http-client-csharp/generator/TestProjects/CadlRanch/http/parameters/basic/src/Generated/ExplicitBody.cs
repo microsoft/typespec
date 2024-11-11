@@ -15,9 +15,9 @@ namespace Parameters.Basic
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult Simple(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult Simple(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> SimpleAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> SimpleAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Simple(User body) => throw null;
 

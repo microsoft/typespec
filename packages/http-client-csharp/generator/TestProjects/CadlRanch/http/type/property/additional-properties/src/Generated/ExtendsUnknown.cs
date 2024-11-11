@@ -23,9 +23,9 @@ namespace _Type.Property.AdditionalProperties
 
         public virtual Task<ClientResult<ExtendsUnknownAdditionalProperties>> GetAsync() => throw null;
 
-        public virtual ClientResult Put(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Put(ExtendsUnknownAdditionalProperties body) => throw null;
 
