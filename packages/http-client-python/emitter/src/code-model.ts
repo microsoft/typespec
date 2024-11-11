@@ -30,7 +30,7 @@ import {
   simpleTypesMap,
   typesMap,
 } from "./types.js";
-import { emitParamBase, getImplementation, removeUnderscoresFromNamespace } from "./utils.js";
+import { emitParamBase, getImplementation, removeUnderscoresFromNamespace, getClientNamespace } from "./utils.js";
 
 function emitBasicMethod<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext<TServiceOperation>,
@@ -169,6 +169,7 @@ function emitOperationGroups<TServiceOperation extends SdkServiceOperation>(
         propertyName: operationGroup.name,
         operations: operations,
         operationGroups: emitOperationGroups(context, operationGroup, rootClient, name),
+        clientNamespace: getClientNamespace(client.clientNamespace, context.sdkPackage.rootNamespace),
       });
     }
   }
@@ -186,6 +187,7 @@ function emitOperationGroups<TServiceOperation extends SdkServiceOperation>(
         className: "",
         propertyName: "",
         operations: operations,
+        clientNamespace: getClientNamespace(client.clientNamespace, context.sdkPackage.rootNamespace),
       });
     }
   }
@@ -223,6 +225,7 @@ function emitClient<TServiceOperation extends SdkServiceOperation>(
     url,
     apiVersions: client.apiVersions,
     arm: context.arm,
+    clientNamespace: getClientNamespace(client.clientNamespace, context.sdkPackage.rootNamespace),
   };
 }
 

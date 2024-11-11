@@ -199,3 +199,10 @@ export function isAzureCoreErrorResponse(t: SdkType | undefined): boolean {
 export function capitalize(name: string): string {
   return name[0].toUpperCase() + name.slice(1);
 }
+
+export function getClientNamespace(clientNamespace: string, rootNameSpace: string) {
+  if (["azure.core", "azure.resourcemanager"].some(item => clientNamespace.toLowerCase().startsWith(item))) {
+    return rootNameSpace;
+  }
+  return clientNamespace;
+}
