@@ -275,10 +275,10 @@ export const libDef = {
         default: paramMessage`XML \`@unwrapped\` can only used on array properties or primitive ones in the OpenAPI 3 emitter, Property '${"name"}' will be ignored.`,
       },
     },
-    "invalid-type-name": {
+    "invalid-component-fixed-field-key": {
       severity: "error",
       messages: {
-        default: paramMessage`Invalid component name: '${"value"}'. Component names can only contain the characters 'A-Z a-z 0-9 - . _'.`,
+        default: paramMessage`Invalid key '${"value"}' used in fixed fields of Component object. Only keys matching the regular expression to ^[a-zA-Z0-9.-_]+$ are allowed.`,
       },
     },
   },
