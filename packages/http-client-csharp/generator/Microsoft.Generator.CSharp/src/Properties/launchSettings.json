@@ -105,6 +105,11 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     },
+    "http-serialization-encoded-name-json": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/serialization/encoded-name/json -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
     "http-server-path-multiple": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/server/path/multiple -p StubLibraryPlugin",
       "commandName": "Executable",
