@@ -615,7 +615,9 @@ public class ClientModelUtil {
      * @return whether the property will have a setter method.
      */
     public static boolean needsPublicSetter(ClientModelPropertyAccess property, JavaSettings settings) {
-        return !isReadOnlyOrInConstructor(property, settings) && !isFlattenedProperty(property);
+        return !isReadOnlyOrInConstructor(property, settings)
+            && !isFlattenedProperty(property)
+            && !property.isConstant();
     }
 
     private static boolean isReadOnlyOrInConstructor(ClientModelPropertyAccess property, JavaSettings settings) {
@@ -653,7 +655,11 @@ public class ClientModelUtil {
         // the constructor.
         boolean polymorphicDiscriminatorIsRequired = property.isPolymorphicDiscriminator() && property.isRequired();
 
-        return requiredAndIncluded && (notReadOnlyOrIncludeReadOnly || polymorphicDiscriminatorIsRequired);
+        boolean notConstant = !property.isConstant();
+
+        return requiredAndIncluded
+            && (notReadOnlyOrIncludeReadOnly || polymorphicDiscriminatorIsRequired)
+            && notConstant;
     }
 
     /**

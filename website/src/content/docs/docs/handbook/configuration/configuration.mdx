@@ -2,6 +2,8 @@
 title: Configuration
 ---
 
+import { FileTree } from "@astrojs/starlight/components";
+
 The TypeSpec compiler and libraries can be configured either via a [configuration file](#configuration-file) or command line flags.
 
 ## Configuration file
@@ -52,7 +54,7 @@ In such cases, you can use the `extends` property in the configuration file.
 
 For instance, in `<my-pkg>/tspconfig.yaml`:
 
-```yaml
+```yaml title=tspconfig.yaml
 options:
   emitter1:
     some-option: my-name
@@ -62,7 +64,7 @@ options:
 
 in `<my-pkg>/proj2/tspconfig.yaml`, enable `emitter1` using the options specified in the parent `tspconfig.yaml`
 
-```yaml
+```yaml title=proj2/tspconfig.yaml
 extends: ../tspconfig.yaml
 emit:
   - emitter1
@@ -122,7 +124,7 @@ These parameters can then be referred to by their name in a variable interpolati
 All parameters must have a default value.
 **Example:**
 
-```yaml
+```yaml title=tspconfig.yaml
 parameters:
   base-dir:
     default: "{cwd}"
@@ -148,7 +150,7 @@ All environment variables must have a default value.
 
 **Example:**
 
-```yaml
+```yaml title=tspconfig.yaml
 environment-variables:
   BASE_DIR:
     default: "{cwd}"
@@ -162,7 +164,7 @@ Emitter options can refer to each other by using the other option's name as the 
 
 Interpolation is only possible among emitter options from the same emitter.
 
-```yaml
+```yaml title=tspconfig.yaml
 options:
   @typespec/openapi3:
     emitter-output-dir: {output-dir}/{emitter-sub-folder}
@@ -172,7 +174,7 @@ options:
 
 Emitter options support a nested structure, enabling complex configurations.
 
-```yaml
+```yaml title=tspconfig.yaml
 options:
   emitter-sub-folder:
     sub-folder: bar
@@ -198,7 +200,7 @@ Due to this capability, emitter option names should not contain a `.` in their n
 
 Specify the common output-dir for all emitters. See [this](#configuring-output-directory) to configure per emitter.
 
-```yaml
+```yaml title=tspconfig.yaml
 output-dir: {cwd}/typespec-build
 ```
 
@@ -216,7 +218,7 @@ See [output directory configuration for mode details](#configuring-output-direct
 
 Configure what area to trace. See [tracing docs](./tracing.md)
 
-```yaml
+```yaml title=tspconfig.yaml
 # Trace all.
 trace: *
 
@@ -238,7 +240,7 @@ All warnings will be treated and emitted as errors, resulting in a non-zero exit
 
 **It is recommended to use this feature in Continuous Integration (CI) to ensure all warnings are addressed.**
 
-```yaml
+```yaml title=tspconfig.yaml
 warn-as-error: true
 ```
 
@@ -252,13 +254,13 @@ tsp compile . --warn-as-error
 
 Suppress all `deprecated` diagnostics that are raised when declarations are marked with the `#deprecated` directive.
 
-```yaml
+```bash
 tsp compile . --ignore-deprecated
 ```
 
 ### `imports` - Configure additional imports
 
-```yaml
+```yaml title=tspconfig.yaml
 imports:
   - sidecar.tsp
 ```
@@ -275,7 +277,7 @@ Specify which emitters to use and their options if applicable.
 
 The value can be the name of an emitter or a path to the emitter package/entrypoint.
 
-```yaml
+```yaml title=tspconfig.yaml
 emit:
   - emitter1 # Package name
   - /path/to/emitter2 # Give a path to an emitter
@@ -291,7 +293,7 @@ tsp compile . --emit emitter1 --emit /path/to/emitter2
 
 Emitters can define a set of options, those can be set as the value of the map.
 
-```yaml
+```yaml title=tspconfig.yaml
 options:
   # Enable and configure emitter1
   emitter1:
@@ -304,7 +306,6 @@ options:
 Emitters options can also be provided using the `--option` in this format `--option=<emitterName>.<optionName>=<value>`
 
 ```bash
-
 tsp compile . --option "emitter1.option1=option1-value"
 ```
 
@@ -344,7 +345,7 @@ This flag disables emitting. If emitters are still specified, the emitter will r
 
 This flag can also be used to suppress the "There are no emitters" warning.
 
-```yaml
+```yaml title=tspconfig.yaml
 tsp compile . --no-emit
 ```
 
@@ -411,38 +412,45 @@ where:
 
 For instance, if the emitters `@typespec/openapi3` and `@typespec/jsonschema` are given, the default output folder structure would be:
 
-```
-{project-root}/tsp-output:
-  @typespec:
-    openapi3
-      ... openapi3 files ...
-    jsonschema
-      ... json schema files ...
-```
+{/* prettier-ignore */}
+<FileTree>
+- \{project-root}/tsp-output
+  - @typespec:
+    - openapi3
+      - ... openapi3 files ...
+    - jsonschema
+      - ... json schema files ...
+</FileTree>
 
 You can change the compiler's `output-dir` with `--output-dir` or by setting that value in the tspconfig.yaml, which would result in the following structure:
 
-```
+```bash
 --output-dir={cwd}/my-custom-output-dir
-
-{cwd}/my-custom-output-dir:
-  @typespec:
-    openapi3
-      ... openapi3 files ...
-    jsonschema
-      ... json schema files ...
 ```
+
+{/* prettier-ignore */}
+<FileTree>
+- \{cwd}/my-custom-output-dir
+  - @typespec:
+    - openapi3
+      - ... openapi3 files ...
+    - jsonschema
+      - ... json schema files ...
+</FileTree>
 
 To change a specific emitter's output directory, you can set the `emitter-output-dir` option for that emitter:
 
-```
+```bash
 --option "@typespec/openapi3.output-dir={project-root}/openapispec"
-
-{project-root}
-  openapispec:
-    ... openapi3 files ...
-  tsp-output:
-    @typespec:
-      jsonschema
-        ... json schema files ...
 ```
+
+{/* prettier-ignore */}
+<FileTree>
+- \{project-root}
+  - openapispec
+    - ... openapi3 files ...
+  - tsp-output
+    - @typespec
+      - jsonschema
+        - ... json schema files ...
+</FileTree>
