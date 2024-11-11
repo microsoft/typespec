@@ -615,8 +615,12 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                     ifAction.indent(() -> {
                         if (valueType == ClassType.BINARY_DATA) {
                             // Special handling for BinaryData
-                            ifAction.line(
-                                "jsonWriter.writeUntypedField(additionalProperty.getKey(), additionalProperty.getValue() == null ? null : additionalProperty.getValue().toObject(Object.class));");
+                            ifAction.line("jsonWriter.writeFieldName(additionalProperty.getKey());");
+                            ifAction
+                                .ifBlock("additionalProperty.getValue() == null",
+                                    ifBlock -> ifBlock.line("jsonWriter.writeNull();"))
+                                .elseBlock(
+                                    elseBlock -> elseBlock.line("additionalProperty.getValue().writeTo(jsonWriter);"));
                         } else {
                             ifAction.line(
                                 "jsonWriter.writeUntypedField(additionalProperty.getKey(), additionalProperty.getValue());");
@@ -709,8 +713,8 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                 // Special handling for BinaryData (instead of using "serializationMethodBase" and
                 // "serializationValueGetterModifier")
                 // The reason is that some backend would fail the request on "null" value (e.g. OpenAI)
-                String writeBinaryDataExpr = "jsonWriter.writeUntypedField(\"" + serializedName + "\", "
-                    + propertyValueGetter + ".toObject(Object.class));";
+                methodBlock.line("jsonWriter.writeFieldName(\"" + serializedName + "\");");
+                String writeBinaryDataExpr = propertyValueGetter + ".writeTo(jsonWriter);";
                 if (!property.isRequired()) {
                     methodBlock.ifBlock(propertyValueGetter + " != null",
                         ifAction -> ifAction.line(writeBinaryDataExpr));
@@ -843,7 +847,7 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                         ((MapType) elementType).getValueType(), serializedName, propertyValueGetter, depth + 1,
                         isJsonMergePatch);
                 } else if (elementType == ClassType.BINARY_DATA) {
-                    methodBlock.line(lambdaWriterName + ".writeUntyped(" + elementName + ")");
+                    methodBlock.line(elementName + ".writeTo(" + lambdaWriterName + ")");
                 } else {
                     throw new RuntimeException("Unknown value type " + elementType + " in " + containerType
                         + " serialization. Need to add support for it.");

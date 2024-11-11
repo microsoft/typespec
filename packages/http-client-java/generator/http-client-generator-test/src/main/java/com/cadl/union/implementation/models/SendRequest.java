@@ -80,7 +80,8 @@ public final class SendRequest implements JsonSerializable<SendRequest> {
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
-        jsonWriter.writeUntypedField("input", this.input.toObject(Object.class));
+        jsonWriter.writeFieldName("input");
+        this.input.writeTo(jsonWriter);
         jsonWriter.writeJsonField("user", this.user);
         return jsonWriter.writeEndObject();
     }

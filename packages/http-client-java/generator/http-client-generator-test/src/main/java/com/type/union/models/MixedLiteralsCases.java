@@ -106,10 +106,14 @@ public final class MixedLiteralsCases implements JsonSerializable<MixedLiteralsC
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
-        jsonWriter.writeUntypedField("stringLiteral", this.stringLiteral.toObject(Object.class));
-        jsonWriter.writeUntypedField("intLiteral", this.intLiteral.toObject(Object.class));
-        jsonWriter.writeUntypedField("floatLiteral", this.floatLiteral.toObject(Object.class));
-        jsonWriter.writeUntypedField("booleanLiteral", this.booleanLiteral.toObject(Object.class));
+        jsonWriter.writeFieldName("stringLiteral");
+        this.stringLiteral.writeTo(jsonWriter);
+        jsonWriter.writeFieldName("intLiteral");
+        this.intLiteral.writeTo(jsonWriter);
+        jsonWriter.writeFieldName("floatLiteral");
+        this.floatLiteral.writeTo(jsonWriter);
+        jsonWriter.writeFieldName("booleanLiteral");
+        this.booleanLiteral.writeTo(jsonWriter);
         return jsonWriter.writeEndObject();
     }
 
