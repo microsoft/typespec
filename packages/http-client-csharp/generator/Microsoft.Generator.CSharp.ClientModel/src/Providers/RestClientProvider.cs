@@ -252,7 +252,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     var delimiter = inputParameter.ArraySerializationDelimiter;
                     if (delimiter != null && !inputParameter.Explode)
                     {
-                        statement = uri.AppendQueryDelimited(Literal(inputParameter.NameInRequest), valueExpression, delimiter, format, true).Terminate();
+                        statement = uri.AppendQueryDelimited(Literal(inputParameter.NameInRequest), valueExpression, format, true, delimiter: delimiter).Terminate();
                     }
                     else
                     {
