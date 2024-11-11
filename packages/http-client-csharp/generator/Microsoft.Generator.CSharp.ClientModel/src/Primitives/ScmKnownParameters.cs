@@ -39,6 +39,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Primitives
         public static readonly ParameterProvider RequestOptions = new(ClientModelPlugin.Instance.TypeFactory.HttpRequestOptionsApi.ParameterName, $"The request options, which can override default behaviors of the client pipeline on a per-call basis.", ClientModelPlugin.Instance.TypeFactory.HttpRequestOptionsApi.HttpRequestOptionsType);
         public static readonly ParameterProvider RequestContent = new("content", $"The content to send as the body of the request.", ClientModelPlugin.Instance.TypeFactory.RequestContentApi.RequestContentType, location: ParameterLocation.Body) { Validation = ParameterValidationType.AssertNotNull };
 
+        // There is intentionally no default value here to avoid ambiguous calls between convenience and protocol methods.
+        public static readonly ParameterProvider OptionalRequestContent = new(
+            "content",
+            $"The content to send as the body of the request.",
+            ClientModelPlugin.Instance.TypeFactory.RequestContentApi.RequestContentType.WithNullable(true),
+            location: ParameterLocation.Body);
+
         // Known header parameters
         public static readonly ParameterProvider RepeatabilityRequestId = new("repeatabilityRequestId", FormattableStringHelpers.Empty, typeof(Guid))
         {

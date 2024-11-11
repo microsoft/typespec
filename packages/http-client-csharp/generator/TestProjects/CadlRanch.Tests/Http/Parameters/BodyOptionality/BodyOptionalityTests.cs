@@ -3,9 +3,8 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using Parameters.BodyOptionality;
 using Parameters.BodyOptionality.Models;
-using TestProjects.CadlRanch.Tests;
 
-namespace CadlRanchProjects.Tests
+namespace TestProjects.CadlRanch.Tests.Http.Parameters.BodyOptionality
 {
     public class BodyOptionalityTests : CadlRanchTestBase
     {
