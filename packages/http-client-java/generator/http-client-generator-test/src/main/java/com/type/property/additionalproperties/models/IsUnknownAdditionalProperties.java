@@ -84,10 +84,12 @@ public class IsUnknownAdditionalProperties implements JsonSerializable<IsUnknown
         jsonWriter.writeStringField("name", this.name);
         if (additionalProperties != null) {
             for (Map.Entry<String, BinaryData> additionalProperty : additionalProperties.entrySet()) {
-                jsonWriter.writeUntypedField(additionalProperty.getKey(),
-                    additionalProperty.getValue() == null
-                        ? null
-                        : additionalProperty.getValue().toObject(Object.class));
+                jsonWriter.writeFieldName(additionalProperty.getKey());
+                if (additionalProperty.getValue() == null) {
+                    jsonWriter.writeNull();
+                } else {
+                    additionalProperty.getValue().writeTo(jsonWriter);
+                }
             }
         }
         return jsonWriter.writeEndObject();
