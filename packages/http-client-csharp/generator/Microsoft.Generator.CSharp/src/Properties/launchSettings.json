@@ -160,6 +160,11 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     },
+    "http-type-model-visibility": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/type/model/visibility -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
     "http-type-property-additional-properties": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/type/property/additional-properties -p StubLibraryPlugin",
       "commandName": "Executable",
