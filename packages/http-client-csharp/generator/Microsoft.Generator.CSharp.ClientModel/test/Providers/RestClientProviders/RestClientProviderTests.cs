@@ -14,7 +14,7 @@ using NUnit.Framework;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 
-namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
+namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.RestClientProviders
 {
     public class RestClientProviderTests
     {
@@ -137,7 +137,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         [TestCaseSource(nameof(GetMethodParametersTestCases))]
         public void TestGetMethodParameters(InputOperation inputOperation)
         {
-            var methodParameters = RestClientProvider.GetMethodParameters(inputOperation);
+            var methodParameters = RestClientProvider.GetMethodParameters(inputOperation, RestClientProvider.MethodType.Convenience);
 
             Assert.IsTrue(methodParameters.Count > 0);
 
@@ -172,7 +172,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         [TestCase]
         public void TestGetMethodParameters_ProperOrdering()
         {
-            var methodParameters = RestClientProvider.GetMethodParameters(OperationWithMixedParamOrdering);
+            var methodParameters = RestClientProvider.GetMethodParameters(OperationWithMixedParamOrdering, RestClientProvider.MethodType.Convenience);
 
             Assert.AreEqual(OperationWithMixedParamOrdering.Parameters.Count, methodParameters.Count);
 
@@ -185,7 +185,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             Assert.AreEqual("optionalQuery", methodParameters[5].Name);
             Assert.AreEqual("optionalHeader", methodParameters[6].Name);
 
-            var orderedPathParams = RestClientProvider.GetMethodParameters(OperationWithOnlyPathParams);
+            var orderedPathParams = RestClientProvider.GetMethodParameters(OperationWithOnlyPathParams, RestClientProvider.MethodType.Convenience);
             Assert.AreEqual(OperationWithOnlyPathParams.Parameters.Count, orderedPathParams.Count);
             Assert.AreEqual("c", orderedPathParams[0].Name);
             Assert.AreEqual("a", orderedPathParams[1].Name);
@@ -276,6 +276,33 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 Assert.IsTrue(bodyStatements!.Statements.Any(s => s.ToDisplayString() == "message.ResponseClassifier = PipelineMessageClassifier200;\n"));
                 Assert.IsFalse(bodyStatements!.Statements.Any(s => s.ToDisplayString() == "message.ResponseClassifier = PipelineMessageClassifier201;\n"));
             }
+        }
+
+        [Test]
+        public void TestBuildCreateRequestMethodWithQueryParameters()
+        {
+            List<InputParameter> parameters =
+            [
+                InputFactory.Parameter("p1Explode", InputFactory.Array(InputPrimitiveType.String), location: RequestLocation.Query, isRequired: true, explode: true),
+                InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String), location: RequestLocation.Query, isRequired: true, delimiter: "|"),
+                InputFactory.Parameter("p2Explode", InputFactory.Array(InputPrimitiveType.Int32), location: RequestLocation.Query, isRequired: true, explode: true),
+                InputFactory.Parameter("p2", InputFactory.Array(InputPrimitiveType.Int32), location: RequestLocation.Query, isRequired: true, delimiter: " "),
+                InputFactory.Parameter("optionalParam", new InputNullableType(InputPrimitiveType.String), location: RequestLocation.Query, isRequired: false, explode: false)
+            ];
+            var operation = InputFactory.Operation(
+                "sampleOp",
+                parameters: parameters);
+
+            var client = InputFactory.Client(
+                "TestClient",
+                operations: [operation]);
+
+            var clientProvider = new ClientProvider(client);
+            var restClientProvider = new MockClientProvider(client, clientProvider);
+
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         private readonly static InputOperation BasicOperation = InputFactory.Operation(
