@@ -63,7 +63,6 @@ $failingSpecs = @(
     Join-Path 'http' 'type' 'model' 'flatten'
     Join-Path 'http' 'type' 'model' 'inheritance' 'nested-discriminator'
     Join-Path 'http' 'type' 'model' 'inheritance' 'not-discriminated'
-    Join-Path 'http' 'type' 'model' 'inheritance' 'recursive'
     Join-Path 'http' 'type' 'model' 'templated'
 )
 
