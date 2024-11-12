@@ -32,12 +32,14 @@ _ROOT_DIR = Path(__file__).parent.parent.parent.parent
 
 def main():
     venv_path = _ROOT_DIR / "venv"
-    if venv_path.exists():
-        env_builder = venv.EnvBuilder(with_pip=True)        
-        venv_context = env_builder.ensure_directories(venv_path)
-        python_run(venv_context, "build", ["--wheel"], additional_dir="generator")
-    else:
-        raise Exception("Please run 'npm install' first to create a Python virtual environment.")
+    venv_preexists = venv_path.exists()
+
+    assert venv_preexists  # Otherwise install was not done
+
+    env_builder = venv.EnvBuilder(with_pip=True)        
+    venv_context = env_builder.ensure_directories(venv_path)
+    python_run(venv_context, "build", ["--wheel"], additional_dir="generator")
+
 
 if __name__ == "__main__":
     main()

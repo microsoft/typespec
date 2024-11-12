@@ -47,12 +47,6 @@ def main():
             ["install", "-r", f"{_ROOT_DIR}/generator/requirements.txt"],
         )
         python_run(venv_context, "pip", ["install", "-e", f"{_ROOT_DIR}/generator"])
-        python_run(
-            venv_context,
-            "pip",
-            ["install", "-r", f"{_ROOT_DIR}/generator/dev_requirements.txt"],
-        )
-        python_run(venv_context, "build", ["--wheel"], additional_dir="generator")
 
 
 if __name__ == "__main__":
