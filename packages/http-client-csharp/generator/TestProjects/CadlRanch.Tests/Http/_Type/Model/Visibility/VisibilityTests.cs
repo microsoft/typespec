@@ -15,7 +15,7 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Model.Visibility
 {
     public class TypeModelVisibilityTests : CadlRanchTestBase
     {
-        [Test]
+        [CadlRanchTest]
         public Task Models_ReadOnlyRoundTrip() => Test(async (host) =>
         {
             var response = await new VisibilityClient(host, null).PutReadOnlyModelAsync(new ReadOnlyModel());
@@ -27,7 +27,7 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Model.Visibility
             Assert.AreEqual("value2", response.Value.OptionalStringRecord["k2"]);
         });
 
-        [Test]
+        [CadlRanchTest]
         public void ReadOnlyPropertiesAreReadOnly()
         {
             var property = HasProperty(typeof(VisibilityModel), "ReadProp", BindingFlags.Public | BindingFlags.Instance);
@@ -38,14 +38,14 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Model.Visibility
             Assert.AreEqual(typeof(IReadOnlyList<int>), listProperty.PropertyType);
         }
 
-        [Test]
+        [CadlRanchTest]
         public void RequiredPropertiesAreSettable()
         {
             var requiredInt = HasProperty(typeof(VisibilityModel), nameof(VisibilityModel.QueryProp), BindingFlags.Public | BindingFlags.Instance);
             Assert.NotNull(requiredInt.SetMethod);
         }
 
-        [Test]
+        [CadlRanchTest]
         public void RequiredListsAreNotSettable()
         {
             var requiredStringList = HasProperty(typeof(VisibilityModel), nameof(VisibilityModel.ReadProp), BindingFlags.Public | BindingFlags.Instance);
@@ -55,7 +55,7 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Model.Visibility
             Assert.Null(requiredStringList.SetMethod);
         }
 
-        [Test]
+        [CadlRanchTest]
         public void ReadOnlyPropertiesAreDeserialized()
         {
             var model = ModelReaderWriter.Read<VisibilityModel>(BinaryData.FromString("{\"readProp\":\"abc\"}"));
