@@ -287,6 +287,11 @@ async function main() {
             array: true,
             demandOption: true,
           })
+          .option("setName", {
+            type: "string",
+            description: "Set used to generate the manifest.",
+            demandOption: true,
+          })
           .option("storageAccountName", {
             type: "string",
             description: "Name of the storage account",
@@ -294,13 +299,11 @@ async function main() {
           .demandOption("storageAccountName");
       },
       async (args) => {
-        for (const scenariosPath of args.scenariosPaths) {
-          logger.info(`Uploading scenario manifest for scenarios at ${scenariosPath}`);
-          await uploadScenarioManifest({
-            scenariosPath: resolve(process.cwd(), scenariosPath),
-            storageAccountName: args.storageAccountName,
-          });
-        }
+        await uploadScenarioManifest({
+          scenariosPaths: args.scenariosPaths,
+          storageAccountName: args.storageAccountName,
+          setName: args.setName,
+        });
       },
     )
     .command(

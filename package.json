@@ -57,6 +57,7 @@
     "eslint-plugin-vitest": "^0.5.4",
     "micromatch": "^4.0.8",
     "picocolors": "~1.1.0",
+    "playwright": "^1.48.2",
     "prettier": "~3.3.3",
     "prettier-plugin-astro": "^0.14.1",
     "prettier-plugin-organize-imports": "~4.1.0",

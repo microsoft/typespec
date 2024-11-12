@@ -55,7 +55,6 @@ export function emitBasicHttpMethod(
     {
       ...emitHttpOperation(context, rootClient, operationGroupName, method.operation, method),
       abstract: isAbstract(method),
-      internal: method.access === "internal",
       name: camelToSnakeCase(method.name),
       description: method.doc ?? "",
       summary: method.summary,
@@ -207,6 +206,7 @@ function emitHttpOperation(
     exposeStreamKeyword: true,
     crossLanguageDefinitionId: method?.crossLanguageDefintionId,
     samples: arrayToRecord(method?.operation.examples),
+    internal: method.access === "internal",
   };
   if (result.bodyParameter && isSpreadBody(operation.bodyParam)) {
     result.bodyParameter["propertyToParameterName"] = {};

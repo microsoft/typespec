@@ -1,0 +1,64 @@
+---
+import { getCollection } from "astro:content";
+const releaseNotes = await getCollection("docs", (x) => x.id.startsWith("docs/release-notes"));
+const last = releaseNotes[releaseNotes.length - 1];
+const releaseDate = last.data.releaseDate;
+if (!releaseDate) {
+  const today = new Date();
+  throw new Error(
+    [
+      "Last release notes should have a releaseDate: property in frontmatter. For example:",
+      `  releaseDate: ${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`,
+      "",
+    ].join("\n"),
+  );
+}
+
+if (!last.data.version) {
+  throw new Error(
+    [
+      "Last release notes should have a version: property in frontmatter. For example:",
+      `  version: "X.Y"`,
+      "",
+    ].join("\n"),
+  );
+}
+import Link from "@typespec/astro-utils/components/link.astro";
+---
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const els = document.querySelectorAll(".new-version-banner") as any as HTMLElement[];
+    const today = new Date();
+    els.forEach((el) => {
+      const releaseDate = new Date(el.dataset.releasedate!);
+      if (today.getTime() - releaseDate.getTime() > 7 * 86400000 /* 7 days */) {
+        els.forEach((x) => x.classList.add("hide"));
+      }
+    });
+  });
+</script>
+
+<style>
+  .new-version-banner {
+    border: 1px solid var(--colorBrandBackground);
+    display: block;
+    padding: 2px 1rem;
+    border-radius: 2px;
+    line-height: 24px;
+  }
+  .new-version-banner:hover {
+    outline: 1px solid var(--colorBrandBackgroundHover);
+  }
+  .hide {
+    display: none;
+  }
+</style>
+
+<Link
+  class="new-version-banner"
+  href={"/" + last.slug}
+  data-releasedate={last.data.releaseDate!.toISOString()}
+>
+  Version {last.data.version} is now available!
+</Link>
