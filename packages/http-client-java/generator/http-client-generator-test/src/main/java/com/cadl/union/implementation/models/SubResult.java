@@ -107,8 +107,8 @@ public final class SubResult extends Result {
         getData().writeTo(jsonWriter);
         jsonWriter.writeJsonField("result", getResult());
         jsonWriter.writeStringField("text", this.text);
-        jsonWriter.writeFieldName("arrayData");
         if (this.arrayData != null) {
+            jsonWriter.writeFieldName("arrayData");
             this.arrayData.writeTo(jsonWriter);
         }
         return jsonWriter.writeEndObject();

@@ -713,12 +713,14 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                 // Special handling for BinaryData (instead of using "serializationMethodBase" and
                 // "serializationValueGetterModifier")
                 // The reason is that some backend would fail the request on "null" value (e.g. OpenAI)
-                methodBlock.line("jsonWriter.writeFieldName(\"" + serializedName + "\");");
                 String writeBinaryDataExpr = propertyValueGetter + ".writeTo(jsonWriter);";
                 if (!property.isRequired()) {
-                    methodBlock.ifBlock(propertyValueGetter + " != null",
-                        ifAction -> ifAction.line(writeBinaryDataExpr));
+                    methodBlock.ifBlock(propertyValueGetter + " != null", ifAction -> {
+                        ifAction.line("jsonWriter.writeFieldName(\"" + serializedName + "\");");
+                        ifAction.line(writeBinaryDataExpr);
+                    });
                 } else {
+                    methodBlock.line("jsonWriter.writeFieldName(\"" + serializedName + "\");");
                     methodBlock.line(writeBinaryDataExpr);
                 }
             } else if (fieldSerializationMethod != null) {
