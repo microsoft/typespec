@@ -231,7 +231,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return statements;
         }
 
-        private IEnumerable<MethodBodyStatement> AppendQueryParameters(ScopedApi<ClientUriBuilderDefinition> uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap)
+        private static List<MethodBodyStatement> AppendQueryParameters(ScopedApi<ClientUriBuilderDefinition> uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap)
         {
             List<MethodBodyStatement> statements = new(operation.Parameters.Count);
 
@@ -242,14 +242,25 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
                 string? format;
                 ValueExpression valueExpression;
-                GetParamInfo(paramMap, operation, inputParameter, out var type, out format, out valueExpression);
+                GetParamInfo(paramMap, operation, inputParameter, out var paramType, out format, out valueExpression);
                 var convertToStringExpression = TypeFormattersSnippets.ConvertToString(valueExpression, Literal(format));
-                ValueExpression toStringExpression = type?.Equals(typeof(string)) == true ? valueExpression : convertToStringExpression;
+                ValueExpression toStringExpression = paramType?.Equals(typeof(string)) == true ? valueExpression : convertToStringExpression;
                 MethodBodyStatement statement;
-                if (type?.IsCollection == true)
+
+                if (paramType?.IsCollection == true)
                 {
-                    statement = uri.AppendQueryDelimited(Literal(inputParameter.NameInRequest),
-                       valueExpression, format, true).Terminate();
+                    var delimiter = inputParameter.ArraySerializationDelimiter;
+                    if (delimiter != null && !inputParameter.Explode)
+                    {
+                        statement = uri.AppendQueryDelimited(Literal(inputParameter.NameInRequest), valueExpression, format, true, delimiter: delimiter).Terminate();
+                    }
+                    else
+                    {
+                        statement = new ForeachStatement("param", valueExpression.As(paramType), out VariableExpression item)
+                        {
+                            uri.AppendQuery(Literal(inputParameter.NameInRequest), item, true).Terminate()
+                        };
+                    }
                 }
                 else
                 {
@@ -257,16 +268,39 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         .Terminate();
                 }
 
-                statement = inputParameter.IsRequired
-                    ? statement
-                    : new IfStatement(valueExpression.NotEqual(Null))
-                    {
-                        statement
-                    };
+                if (!inputParameter.IsRequired || paramType?.IsNullable == true ||
+                    (paramType is { IsValueType: false, IsFrameworkType: true } && paramType.FrameworkType != typeof(string)))
+                {
+                    statement = BuildQueryParameterNullCheck(paramType, valueExpression, statement);
+                }
+
                 statements.Add(statement);
             }
 
             return statements;
+        }
+
+        private static IfStatement BuildQueryParameterNullCheck(
+            CSharpType? parameterType,
+            ValueExpression valueExpression,
+            MethodBodyStatement originalStatement)
+        {
+            if (parameterType?.IsCollection == true)
+            {
+                var changeTrackingListDeclaration = Declare(
+                    "changeTrackingList",
+                    ClientModelPlugin.Instance.TypeFactory.ListInitializationType.MakeGenericType(parameterType.Arguments),
+                    out var changeTrackingReference);
+
+                return new IfStatement(valueExpression.NotEqual(Null)
+                    .And(Not(valueExpression.Is(changeTrackingListDeclaration)
+                    .And(changeTrackingReference.Property("IsUndefined")))))
+                {
+                    originalStatement
+                };
+            }
+
+            return new IfStatement(valueExpression.NotEqual(Null)) { originalStatement };
         }
 
         private IEnumerable<MethodBodyStatement> AppendPathParameters(ScopedApi<ClientUriBuilderDefinition> uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap)
