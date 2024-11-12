@@ -6,7 +6,6 @@
 # license information.
 # --------------------------------------------------------------------------
 import sys
-import os
 
 if not sys.version_info >= (3, 8, 0):
     raise Exception("Autorest for Python extension requires Python 3.8 at least")
@@ -26,22 +25,19 @@ except ImportError:
 
 from pathlib import Path
 
-from venvtools import python_run
+from venvtools import ExtendedEnvBuilder, python_run
 
 _ROOT_DIR = Path(__file__).parent.parent.parent.parent
 
 
 def main():
-    venv_path = _ROOT_DIR / "venv"
-    venv_preexists = venv_path.exists()
+    venv_path = _ROOT_DIR / "venv_build_wheel"
+    env_builder = ExtendedEnvBuilder(with_pip=True, upgrade_deps=True)
+    env_builder.create(venv_path)
+    venv_context = env_builder.context
 
-    assert venv_preexists  # Otherwise install was not done
-
-    env_builder = venv.EnvBuilder(with_pip=True)        
-    venv_context = env_builder.ensure_directories(venv_path)
-    print(venv_context.env_exe)
-    print(os.path.exists(venv_context.env_exe))
-
+    python_run(venv_context, "pip", ["install", "-U", "pip"])
+    python_run(venv_context, "pip", ["install", "build"])
     python_run(venv_context, "build", ["--wheel"], additional_dir="generator")
 
 
