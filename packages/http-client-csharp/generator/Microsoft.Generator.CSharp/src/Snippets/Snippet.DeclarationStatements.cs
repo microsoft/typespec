@@ -87,5 +87,12 @@ namespace Microsoft.Generator.CSharp.Snippets
             variable = variableExpression.As<T>();
             return new DeclarationExpression(variableExpression);
         }
+
+        public static DeclarationExpression Declare(string name, CSharpType variableType, out VariableExpression variable)
+        {
+            var variableRef = new VariableExpression(variableType, name);
+            variable = variableRef;
+            return new DeclarationExpression(variableRef);
+        }
     }
 }
