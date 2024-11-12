@@ -42,12 +42,7 @@ def main():
     print(venv_context.env_exe)
     print(os.path.exists(venv_context.env_exe))
 
-    for root, dirs, files in os.walk(venv_path):
-        for dir_name in dirs:
-            print(os.path.join(root, dir_name))
-        for file in files:
-            print(file)
-    # python_run(venv_context, "build", ["--wheel"], additional_dir="generator")
+    python_run(venv_context, "build", ["--wheel"], additional_dir="generator")
 
 
 if __name__ == "__main__":
