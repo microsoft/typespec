@@ -150,6 +150,11 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     },
+    "http-type-model-inheritance-nested-discriminator": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/type/model/inheritance/nested-discriminator -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
     "http-type-model-inheritance-single-discriminator": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/type/model/inheritance/single-discriminator -p StubLibraryPlugin",
       "commandName": "Executable",
