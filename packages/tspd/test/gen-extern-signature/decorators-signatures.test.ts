@@ -24,8 +24,10 @@ async function generateDecoratorSignatures(code: string) {
   );
 
   const result = await generateExternDecorators(host.program, "test-lib", {
-    printWidth: 160, // So there is no inconsistency in the .each test with different parameter length
-    plugins: [],
+    prettierConfig: {
+      printWidth: 160, // So there is no inconsistency in the .each test with different parameter length
+      plugins: [],
+    },
   });
 
   return result["__global__.ts"];
@@ -186,6 +188,11 @@ export type Decorators = {
       [`valueof "abc" | "def" | string`, `"abc" | "def" | string`],
       [`valueof string[]`, `readonly string[]`],
       [`valueof ("abc" | "def")[]`, `readonly ("abc" | "def")[]`],
+      [`valueof Record<int32>`, `Record<string, number>`],
+      [
+        `valueof {...Record<int32>, other: string}`,
+        `{ readonly [key: string]: number; readonly other: string }`,
+      ],
       [`valueof {name: string, age?: int32}`, `{ readonly name: string; readonly age?: number }`],
     ])("%s => %s", async (ref, expected) => {
       await expectSignatures({

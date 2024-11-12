@@ -1,6 +1,9 @@
 {% import 'operation_tools.jinja2' as op_tools %}
 # coding=utf-8
 {{ code_model.options['license_header'] }}
+{% if serializer.global_pylint_disables() %}
+{{ serializer.global_pylint_disables() }}
+{% endif %}
 
 {{ imports }}
 {% for model in code_model.model_types %}

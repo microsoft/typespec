@@ -14,9 +14,9 @@ namespace Payload.MediaType
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult SendAsText(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult SendAsText(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> SendAsTextAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> SendAsTextAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult SendAsText(string text) => throw null;
 
@@ -30,9 +30,9 @@ namespace Payload.MediaType
 
         public virtual Task<ClientResult<string>> GetAsTextAsync() => throw null;
 
-        public virtual ClientResult SendAsJson(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult SendAsJson(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> SendAsJsonAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> SendAsJsonAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult SendAsJson(string text) => throw null;
 

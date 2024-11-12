@@ -43,6 +43,10 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 declaredModifiers |= TypeSignatureModifiers.Static;
             }
+            if (_namedTypeSymbol.IsAbstract)
+            {
+                declaredModifiers |= TypeSignatureModifiers.Abstract;
+            }
             switch (_namedTypeSymbol.TypeKind)
             {
                 case TypeKind.Class:
@@ -95,7 +99,7 @@ namespace Microsoft.Generator.CSharp.Providers
                         this,
                         GetSymbolXmlDoc(fieldSymbol, "summary"))
                     {
-                        Attributes = fieldSymbol.GetAttributes()
+                        OriginalName = GetOriginalName(fieldSymbol)
                     };
 
                     fields.Add(fieldProvider);
@@ -109,13 +113,6 @@ namespace Microsoft.Generator.CSharp.Providers
             List<PropertyProvider> properties = new List<PropertyProvider>();
             foreach (var propertySymbol in _namedTypeSymbol.GetMembers().OfType<IPropertySymbol>())
             {
-                var codeGenAttribute = propertySymbol.GetAttributes().SingleOrDefault(
-                    a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenMemberAttributeName);
-                string? originalName = null;
-                if (codeGenAttribute != null)
-                {
-                    CodeGenAttributes.TryGetCodeGenMemberAttributeValue(codeGenAttribute, out originalName);
-                }
                 var propertyProvider = new PropertyProvider(
                     GetSymbolXmlDoc(propertySymbol, "summary"),
                     GetAccessModifier(propertySymbol.DeclaredAccessibility),
@@ -124,11 +121,27 @@ namespace Microsoft.Generator.CSharp.Providers
                     new AutoPropertyBody(propertySymbol.SetMethod is not null),
                     this)
                 {
-                    OriginalName = originalName
+                    OriginalName = GetOriginalName(propertySymbol),
+                    CustomProvider = new(() => propertySymbol.Type is INamedTypeSymbol propertyNamedTypeSymbol
+                        ? new NamedTypeSymbolProvider(propertyNamedTypeSymbol)
+                        : null)
                 };
                 properties.Add(propertyProvider);
             }
             return [.. properties];
+        }
+
+        private static string? GetOriginalName(ISymbol symbol)
+        {
+            var codeGenAttribute = symbol.GetAttributes().SingleOrDefault(
+                a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenMemberAttributeName);
+            string? originalName = null;
+            if (codeGenAttribute != null)
+            {
+                CodeGenAttributes.TryGetCodeGenMemberAttributeValue(codeGenAttribute, out originalName);
+            }
+
+            return originalName;
         }
 
         protected override ConstructorProvider[] BuildConstructors()

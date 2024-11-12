@@ -24,12 +24,12 @@ namespace _Type._Array
 
         public virtual Task<ClientResult<IList<InnerModel>>> GetAsync() => throw null;
 
-        public virtual ClientResult Put(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult Put(IList<InnerModel> body) => throw null;
+        public virtual ClientResult Put(IEnumerable<InnerModel> body) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(IList<InnerModel> body) => throw null;
+        public virtual Task<ClientResult> PutAsync(IEnumerable<InnerModel> body) => throw null;
     }
 }

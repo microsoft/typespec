@@ -1,9 +1,9 @@
-import { Diagnostic } from "@typespec/compiler";
+import type { Diagnostic } from "@typespec/compiler";
 import { createAssetEmitter } from "@typespec/compiler/emitter-framework";
 import { createTestHost, expectDiagnosticEmpty } from "@typespec/compiler/testing";
 import { parse } from "yaml";
 import { JsonSchemaEmitter } from "../src/json-schema-emitter.js";
-import { JSONSchemaEmitterOptions } from "../src/lib.js";
+import type { JSONSchemaEmitterOptions } from "../src/lib.js";
 import { JsonSchemaTestLibrary } from "../src/testing/index.js";
 
 export async function getHostForCadlFile(contents: string, decorators?: Record<string, any>) {

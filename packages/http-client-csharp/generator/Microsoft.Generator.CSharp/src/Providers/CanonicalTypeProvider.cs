@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
@@ -12,13 +13,23 @@ namespace Microsoft.Generator.CSharp.Providers
 {
     internal class CanonicalTypeProvider : TypeProvider
     {
-        private readonly InputModelType? _inputModel;
         private readonly TypeProvider _generatedTypeProvider;
+        private readonly Dictionary<string, InputModelProperty> _specPropertiesMap;
+        private readonly Dictionary<string, string?> _serializedNameMap;
+        private readonly HashSet<string> _renamedProperties;
+        private readonly HashSet<string> _renamedFields;
 
         public CanonicalTypeProvider(TypeProvider generatedTypeProvider, InputType? inputType)
         {
             _generatedTypeProvider = generatedTypeProvider;
-            _inputModel = inputType as InputModelType;
+            var inputModel = inputType as InputModelType;
+            var specProperties = inputModel?.Properties ?? [];
+            _specPropertiesMap = specProperties.ToDictionary(p => p.Name.ToCleanName(), p => p);
+            _serializedNameMap = BuildSerializationNameMap();
+            _renamedProperties = (_generatedTypeProvider.CustomCodeView?.Properties ?? [])
+                .Where(p => p.OriginalName != null).Select(p => p.OriginalName!).ToHashSet();
+            _renamedFields = (_generatedTypeProvider.CustomCodeView?.Fields ?? [])
+                .Where(p => p.OriginalName != null).Select(p => p.OriginalName!).ToHashSet();
         }
         protected override string BuildRelativeFilePath() => throw new InvalidOperationException("This type should not be writing in generation");
 
@@ -29,49 +40,46 @@ namespace Microsoft.Generator.CSharp.Providers
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _generatedTypeProvider.DeclarationModifiers;
 
         private protected override PropertyProvider[] FilterCustomizedProperties(PropertyProvider[] canonicalProperties) => canonicalProperties;
+        private protected override FieldProvider[] FilterCustomizedFields(FieldProvider[] canonicalFields) => canonicalFields;
 
         private protected override CanonicalTypeProvider GetCanonicalView() => this;
 
-        // TODO - Implement BuildMethods, BuildConstructors, etc as needed
+        // TODO - Implement BuildMethods, etc as needed
+        protected override ConstructorProvider[] BuildConstructors()
+        {
+            return [.. _generatedTypeProvider.Constructors, .. _generatedTypeProvider.CustomCodeView?.Constructors ?? []];
+        }
 
         protected override PropertyProvider[] BuildProperties()
         {
-            var specProperties = _inputModel?.Properties ?? [];
-            var specPropertiesMap = specProperties.ToDictionary(p => p.Name.ToCleanName(), p => p);
             var generatedProperties = _generatedTypeProvider.Properties;
             var customProperties = _generatedTypeProvider.CustomCodeView?.Properties ?? [];
-
-            Dictionary<string, string?> serializedNameMapping = BuildSerializationNameMap();
 
             // Update the serializedName of generated properties if necessary
             foreach (var generatedProperty in generatedProperties)
             {
-                if (serializedNameMapping.TryGetValue(generatedProperty.Name, out var serializedName) && serializedName != null)
+                if (_serializedNameMap.TryGetValue(generatedProperty.Name, out var serializedName) && serializedName != null)
                 {
                     generatedProperty.WireInfo!.SerializedName = serializedName;
                 }
             }
 
-            Dictionary<InputModelProperty, PropertyProvider> specToCustomPropertiesMap = BuildSpecToCustomPropertyMap(customProperties, specPropertiesMap);
-
             foreach (var customProperty in customProperties)
             {
                 InputModelProperty? specProperty = null;
 
-                if (((customProperty.OriginalName != null && specPropertiesMap.TryGetValue(customProperty.OriginalName, out var candidateSpecProperty))
-                     || specPropertiesMap.TryGetValue(customProperty.Name, out candidateSpecProperty))
-                    // Ensure that the spec property is mapped to this custom property
-                    && specToCustomPropertiesMap[candidateSpecProperty] == customProperty)
+                if (TryGetCandidateSpecProperty(customProperty, out var candidateSpecProperty))
                 {
                     specProperty = candidateSpecProperty;
+                    customProperty.IsDiscriminator = specProperty.IsDiscriminator;
                     customProperty.WireInfo = new PropertyWireInformation(specProperty);
                 }
 
                 string? serializedName = specProperty?.SerializedName;
                 bool hasCustomSerialization = false;
                 // Update the serializedName of custom properties if necessary
-                if (serializedNameMapping.TryGetValue(customProperty.Name, out var customSerializedName) ||
-                    (customProperty.OriginalName != null && serializedNameMapping.TryGetValue(customProperty.OriginalName, out customSerializedName)))
+                if (_serializedNameMap.TryGetValue(customProperty.Name, out var customSerializedName) ||
+                    (customProperty.OriginalName != null && _serializedNameMap.TryGetValue(customProperty.OriginalName, out customSerializedName)))
                 {
                     hasCustomSerialization = true;
                     if (customSerializedName != null)
@@ -98,42 +106,191 @@ namespace Microsoft.Generator.CSharp.Providers
                     }
                 }
 
-                // handle customized extensible enums, since the custom type would not be an enum, but the spec type would be an enum
-                if (specProperty?.Type is InputEnumType { IsExtensible: true } inputEnumType)
-                {
-                    customProperty.Type = new CSharpType(
-                        customProperty.Type.Name,
-                        customProperty.Type.Namespace,
-                        customProperty.Type.IsValueType,
-                        customProperty.Type.IsNullable,
-                        customProperty.Type.DeclaringType,
-                        customProperty.Type.Arguments,
-                        customProperty.Type.IsPublic,
-                        customProperty.Type.IsStruct,
-                        customProperty.Type.BaseType,
-                        TypeFactory.CreatePrimitiveCSharpTypeCore(inputEnumType.ValueType));
-                }
+                customProperty.Type = EnsureCorrectTypeRepresentation(specProperty, customProperty.Type);
             }
 
             return [..generatedProperties, ..customProperties];
         }
 
-        private static Dictionary<InputModelProperty, PropertyProvider> BuildSpecToCustomPropertyMap(
-            IReadOnlyList<PropertyProvider> customProperties,
-            Dictionary<string, InputModelProperty> specPropertiesMap)
+        protected override FieldProvider[] BuildFields()
         {
-            var specToCustomPropertiesMap = new Dictionary<InputModelProperty, PropertyProvider>();
-            // Create a map from spec properties to custom properties so that we know which custom properties are replacing spec properties
-            foreach (var customProperty in customProperties)
+            var generatedFields = _generatedTypeProvider.Fields;
+            var customFields = _generatedTypeProvider.CustomCodeView?.Fields ?? [];
+
+            // Update the serializedName of generated properties if necessary
+            foreach (var generatedField in generatedFields)
             {
-                if ((customProperty.OriginalName != null && specPropertiesMap.TryGetValue(customProperty.OriginalName, out var specProperty))
-                    || specPropertiesMap.TryGetValue(customProperty.Name, out specProperty))
+                if (_serializedNameMap.TryGetValue(generatedField.Name, out var serializedName) && serializedName != null)
                 {
-                    // If the spec property is not already mapped to a custom property, map it to this custom property
-                    specToCustomPropertiesMap.TryAdd(specProperty, customProperty);
+                    generatedField.WireInfo!.SerializedName = serializedName;
                 }
             }
-            return specToCustomPropertiesMap;
+
+            foreach (var customField in customFields)
+            {
+                InputModelProperty? specProperty = null;
+
+                if (TryGetCandidateSpecProperty(customField, out var candidateSpecProperty))
+                {
+                    specProperty = candidateSpecProperty;
+                    customField.WireInfo = new PropertyWireInformation(specProperty);
+                }
+
+                string? serializedName = specProperty?.SerializedName;
+                bool hasCustomSerialization = false;
+                // Update the serializedName of custom properties if necessary
+                if (_serializedNameMap.TryGetValue(customField.Name, out var customSerializedName) ||
+                    (customField.OriginalName != null && _serializedNameMap.TryGetValue(customField.OriginalName, out customSerializedName)))
+                {
+                    hasCustomSerialization = true;
+                    if (customSerializedName != null)
+                    {
+                        serializedName = customSerializedName;
+                    }
+                }
+
+                if (serializedName != null || hasCustomSerialization)
+                {
+                    if (specProperty == null)
+                    {
+                        customField.WireInfo = new(
+                            SerializationFormat.Default,
+                            false,
+                            true,
+                            customField.Type.IsNullable,
+                            false,
+                            serializedName ?? customField.Name.ToVariableName());;
+                    }
+                    else
+                    {
+                        customField.WireInfo!.SerializedName = serializedName!;
+                    }
+                }
+
+                customField.Type = EnsureCorrectTypeRepresentation(specProperty, customField.Type);
+            }
+
+            return [..generatedFields, ..customFields];
+        }
+
+        private static bool IsCustomizedEnumProperty(
+            InputModelProperty? inputProperty,
+            CSharpType customType,
+            [NotNullWhen(true)] out InputType? specValueType)
+        {
+            var enumValueType = GetEnumValueType(inputProperty?.Type);
+            if (enumValueType != null)
+            {
+                specValueType = enumValueType;
+                return true;
+            }
+            if (customType.IsEnum && inputProperty != null)
+            {
+                specValueType = inputProperty.Type is InputNullableType nullableType ? nullableType.Type : inputProperty.Type;
+                return true;
+            }
+            specValueType = null;
+            return false;
+        }
+
+        private static CSharpType EnsureCorrectTypeRepresentation(InputModelProperty? specProperty, CSharpType customType)
+        {
+            if (customType.IsCollection)
+            {
+                var elementType = EnsureCorrectTypeRepresentation(specProperty, customType.ElementType);
+                if (customType.IsList)
+                {
+                    customType = new CSharpType(customType.FrameworkType, [elementType], customType.IsNullable);
+                }
+                else if (customType.IsDictionary)
+                {
+                    customType = new CSharpType(customType.FrameworkType, [customType.Arguments[0], elementType], customType.IsNullable);
+                }
+            }
+
+            // handle customized enums - we need to pull the type information from the spec property
+            customType = EnsureEnum(specProperty, customType);
+            // ensure literal types are correctly represented in the custom field using the info from the spec property
+            return EnsureLiteral(specProperty, customType);
+        }
+
+        private static CSharpType EnsureLiteral(InputModelProperty? specProperty, CSharpType customType)
+        {
+            if (specProperty?.Type is InputLiteralType inputLiteral && (customType.IsFrameworkType || customType.IsEnum))
+            {
+                return CSharpType.FromLiteral(customType, inputLiteral.Value);
+            }
+
+            return customType;
+        }
+
+        private static CSharpType EnsureEnum(InputModelProperty? specProperty, CSharpType customType)
+        {
+            if (!customType.IsFrameworkType && IsCustomizedEnumProperty(specProperty, customType, out var specType))
+            {
+                return new CSharpType(
+                    customType.Name,
+                    customType.Namespace,
+                    customType.IsValueType,
+                    customType.IsNullable,
+                    customType.DeclaringType,
+                    customType.Arguments,
+                    customType.IsPublic,
+                    customType.IsStruct,
+                    customType.BaseType,
+                    TypeFactory.CreatePrimitiveCSharpTypeCore(specType));
+            }
+            return customType;
+        }
+
+        private static InputPrimitiveType? GetEnumValueType(InputType? type)
+        {
+            return type switch
+            {
+                InputNullableType nullableType => GetEnumValueType(nullableType.Type),
+                InputEnumType enumType => enumType.ValueType,
+                InputLiteralType { ValueType: InputEnumType enumTypeFromLiteral } => enumTypeFromLiteral.ValueType,
+                InputArrayType arrayType => GetEnumValueType(arrayType.ValueType),
+                InputDictionaryType dictionaryType => GetEnumValueType(dictionaryType.ValueType),
+                _ => null
+            };
+        }
+
+        private bool TryGetCandidateSpecProperty(
+            PropertyProvider customProperty,
+            [NotNullWhen(true)] out InputModelProperty? candidateSpecProperty)
+        {
+            if (customProperty.OriginalName != null && _specPropertiesMap.TryGetValue(customProperty.OriginalName, out candidateSpecProperty))
+            {
+                return true;
+            }
+
+            if (_specPropertiesMap.TryGetValue(customProperty.Name, out candidateSpecProperty) &&
+                !_renamedProperties.Contains(customProperty.Name) &&
+                !_renamedFields.Contains(customProperty.Name))
+            {
+                return true;
+            }
+
+            candidateSpecProperty = null;
+            return false;
+        }
+
+        private bool TryGetCandidateSpecProperty(FieldProvider customField, [NotNullWhen(true)] out InputModelProperty? candidateSpecProperty)
+        {
+            if (customField.OriginalName != null && _specPropertiesMap.TryGetValue(customField.OriginalName, out candidateSpecProperty))
+            {
+                return true;
+            }
+
+            if (_specPropertiesMap.TryGetValue(customField.Name, out candidateSpecProperty) &&
+                !_renamedProperties.Contains(customField.Name))
+            {
+                return true;
+            }
+
+            candidateSpecProperty = null;
+            return false;
         }
 
         private Dictionary<string, string?> BuildSerializationNameMap()

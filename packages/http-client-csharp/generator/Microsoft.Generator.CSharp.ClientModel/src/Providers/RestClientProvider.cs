@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -36,10 +35,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         internal ClientProvider ClientProvider { get; }
 
         private FieldProvider _pipelineMessageClassifier200;
+        private FieldProvider _pipelineMessageClassifier201;
         private FieldProvider _pipelineMessageClassifier204;
         private FieldProvider _pipelineMessageClassifier2xxAnd4xx;
         private TypeProvider _classifier2xxAnd4xxDefinition;
 
+        private PropertyProvider _classifier201Property;
         private PropertyProvider _classifier200Property;
         private PropertyProvider _classifier204Property;
         private PropertyProvider _classifier2xxAnd4xxProperty;
@@ -48,11 +49,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             _inputClient = inputClient;
             ClientProvider = clientProvider;
-            _pipelineMessageClassifier200 = new FieldProvider(FieldModifiers.Private | FieldModifiers.Static, typeof(PipelineMessageClassifier), "_pipelineMessageClassifier200", this);
-            _pipelineMessageClassifier204 = new FieldProvider(FieldModifiers.Private | FieldModifiers.Static, typeof(PipelineMessageClassifier), "_pipelineMessageClassifier204", this);
+            _pipelineMessageClassifier200 = new FieldProvider(FieldModifiers.Private | FieldModifiers.Static, ClientModelPlugin.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType, "_pipelineMessageClassifier200", this);
+            _pipelineMessageClassifier201 = new FieldProvider(FieldModifiers.Private | FieldModifiers.Static, ClientModelPlugin.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType, "_pipelineMessageClassifier201", this);
+            _pipelineMessageClassifier204 = new FieldProvider(FieldModifiers.Private | FieldModifiers.Static, ClientModelPlugin.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType, "_pipelineMessageClassifier204", this);
             _classifier2xxAnd4xxDefinition = new Classifier2xxAnd4xxDefinition(this);
             _pipelineMessageClassifier2xxAnd4xx = new FieldProvider(FieldModifiers.Private | FieldModifiers.Static, _classifier2xxAnd4xxDefinition.Type, "_pipelineMessageClassifier2xxAnd4xx", this);
             _classifier200Property = GetResponseClassifierProperty(_pipelineMessageClassifier200, 200);
+            _classifier201Property = GetResponseClassifierProperty(_pipelineMessageClassifier201, 201);
             _classifier204Property = GetResponseClassifierProperty(_pipelineMessageClassifier204, 204);
             _classifier2xxAnd4xxProperty = new PropertyProvider(
                 $"Gets the PipelineMessageClassifier2xxAnd4xx",
@@ -72,6 +75,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return
             [
                 _classifier200Property,
+                _classifier201Property,
                 _classifier204Property,
                 _classifier2xxAnd4xxProperty
             ];
@@ -82,13 +86,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return new PropertyProvider(
                     null,
                     MethodSignatureModifiers.Private | MethodSignatureModifiers.Static,
-                    typeof(PipelineMessageClassifier),
+                    ClientModelPlugin.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType,
                     pipelineMessageClassifier.Name.Substring(1).ToCleanName(),
                     new ExpressionPropertyBody(
-                        pipelineMessageClassifier.Assign(
-                            Static<PipelineMessageClassifier>().Invoke(
-                                nameof(PipelineMessageClassifier.Create),
-                                [New.Array(typeof(ushort), true, true, [Literal(code)])]))),
+                        pipelineMessageClassifier.Assign(This.ToApi<StatusCodeClassifierApi>().Create(code))),
                     this);
         }
 
@@ -97,6 +98,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return
             [
                 _pipelineMessageClassifier200,
+                _pipelineMessageClassifier201,
                 _pipelineMessageClassifier204,
                 _pipelineMessageClassifier2xxAnd4xx
             ];
@@ -129,32 +131,23 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private MethodProvider BuildCreateRequestMethod(InputOperation operation)
         {
-            var pipelineField = ClientProvider.PipelineProperty.As<ClientPipeline>();
+            var pipelineField = ClientProvider.PipelineProperty.ToApi<ClientPipelineApi>();
 
             var options = ScmKnownParameters.RequestOptions;
+            var parameters = GetMethodParameters(operation, MethodType.CreateRequest);
+
             var signature = new MethodSignature(
                 $"Create{operation.Name.ToCleanName()}Request",
                 null,
                 MethodSignatureModifiers.Internal,
-                typeof(PipelineMessage),
+                ClientModelPlugin.Instance.TypeFactory.HttpMessageApi.HttpMessageType,
                 null,
-                [.. GetMethodParameters(operation, true), options]);
+                [.. parameters, options]);
             var paramMap = new Dictionary<string, ParameterProvider>(signature.Parameters.ToDictionary(p => p.Name));
 
-            foreach (var param in ClientProvider.GetUriParameters())
+            foreach (var param in ClientProvider.GetClientParameters())
             {
                 paramMap[param.Name] = param;
-            }
-
-            /* add client-level parameter.*/
-            foreach (var inputParam in operation.Parameters)
-            {
-                if (inputParam.Kind == InputOperationParameterKind.Client && !paramMap.ContainsKey(inputParam.Name))
-                {
-                    var param = ClientModelPlugin.Instance.TypeFactory.CreateParameter(inputParam);
-                    param.Field = ClientProvider.Fields.FirstOrDefault(f => f.Name == "_" + inputParam.Name);
-                    paramMap[inputParam.Name] = param;
-                }
             }
 
             var classifier = GetClassifier(operation);
@@ -163,27 +156,28 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 signature,
                 new MethodBodyStatements(
                 [
-                    Declare("message", pipelineField.CreateMessage(), out ScopedApi<PipelineMessage> message),
-                    message.ResponseClassifier().Assign(classifier).Terminate(),
-                    Declare("request", message.Request(), out ScopedApi<PipelineRequest> request),
+                    Declare("message", pipelineField.CreateMessage(options.ToApi<HttpRequestOptionsApi>(), classifier).ToApi<HttpMessageApi>(), out HttpMessageApi message),
+                    message.ApplyResponseClassifier(classifier.ToApi<StatusCodeClassifierApi>()),
+                    Declare("request", message.Request().ToApi<HttpRequestApi>(), out HttpRequestApi request),
                     request.SetMethod(operation.HttpMethod),
                     Declare("uri", New.Instance<ClientUriBuilderDefinition>(), out ScopedApi<ClientUriBuilderDefinition> uri),
                     uri.Reset(ClientProvider.EndpointField).Terminate(),
                     .. AppendPathParameters(uri, operation, paramMap),
                     .. AppendQueryParameters(uri, operation, paramMap),
-                    request.Uri().Assign(uri.ToUri()).Terminate(),
+                    request.SetUri(uri),
                     .. AppendHeaderParameters(request, operation, paramMap),
                     .. GetSetContent(request, signature.Parameters),
-                    message.Apply(options).Terminate(),
+                    message.ApplyRequestOptions(options.ToApi<HttpRequestOptionsApi>()),
                     Return(message)
                 ]),
                 this);
         }
 
-        private IReadOnlyList<MethodBodyStatement> GetSetContent(ScopedApi<PipelineRequest> request, IReadOnlyList<ParameterProvider> parameters)
+        private IReadOnlyList<MethodBodyStatement> GetSetContent(HttpRequestApi request, IReadOnlyList<ParameterProvider> parameters)
         {
-            var contentParam = parameters.FirstOrDefault(p => ReferenceEquals(p, ScmKnownParameters.BinaryContent));
-            return contentParam is null ? [] : [request.SetContent(contentParam)];
+            var contentParam = parameters.FirstOrDefault(
+                p => ReferenceEquals(p, ScmKnownParameters.RequestContent) || ReferenceEquals(p, ScmKnownParameters.OptionalRequestContent));
+            return contentParam is null ? [] : [request.Content().Assign(contentParam).Terminate()];
         }
 
         private PropertyProvider GetClassifier(InputOperation operation)
@@ -198,6 +192,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 return response.StatusCodes[0] switch
                 {
                     200 => _classifier200Property,
+                    201 => _classifier201Property,
                     204 => _classifier204Property,
                     _ => throw new InvalidOperationException($"Unexpected status code {response.StatusCodes[0]}")
                 };
@@ -206,7 +201,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             throw new InvalidOperationException("Multiple status codes not supported");
         }
 
-        private IEnumerable<MethodBodyStatement> AppendHeaderParameters(ScopedApi<PipelineRequest> request, InputOperation operation, Dictionary<string, ParameterProvider> paramMap)
+        private IEnumerable<MethodBodyStatement> AppendHeaderParameters(HttpRequestApi request, InputOperation operation, Dictionary<string, ParameterProvider> paramMap)
         {
             List<MethodBodyStatement> statements = new(operation.Parameters.Count);
 
@@ -228,7 +223,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 }
                 else
                 {
-                    statement = request.SetHeaderValue(inputParameter.NameInRequest, toStringExpression.As<string>());
+                    statement = request.SetHeaders([Literal(inputParameter.NameInRequest), toStringExpression.As<string>()]);
                 }
                 statements.Add(statement);
             }
@@ -236,7 +231,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return statements;
         }
 
-        private IEnumerable<MethodBodyStatement> AppendQueryParameters(ScopedApi<ClientUriBuilderDefinition> uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap)
+        private static List<MethodBodyStatement> AppendQueryParameters(ScopedApi<ClientUriBuilderDefinition> uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap)
         {
             List<MethodBodyStatement> statements = new(operation.Parameters.Count);
 
@@ -247,14 +242,25 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
                 string? format;
                 ValueExpression valueExpression;
-                GetParamInfo(paramMap, operation, inputParameter, out var type, out format, out valueExpression);
+                GetParamInfo(paramMap, operation, inputParameter, out var paramType, out format, out valueExpression);
                 var convertToStringExpression = TypeFormattersSnippets.ConvertToString(valueExpression, Literal(format));
-                ValueExpression toStringExpression = type?.Equals(typeof(string)) == true ? valueExpression : convertToStringExpression;
+                ValueExpression toStringExpression = paramType?.Equals(typeof(string)) == true ? valueExpression : convertToStringExpression;
                 MethodBodyStatement statement;
-                if (type?.IsCollection == true)
+
+                if (paramType?.IsCollection == true)
                 {
-                    statement = uri.AppendQueryDelimited(Literal(inputParameter.NameInRequest),
-                       valueExpression, format, true).Terminate();
+                    var delimiter = inputParameter.ArraySerializationDelimiter;
+                    if (delimiter != null && !inputParameter.Explode)
+                    {
+                        statement = uri.AppendQueryDelimited(Literal(inputParameter.NameInRequest), valueExpression, format, true, delimiter: delimiter).Terminate();
+                    }
+                    else
+                    {
+                        statement = new ForeachStatement("param", valueExpression.As(paramType), out VariableExpression item)
+                        {
+                            uri.AppendQuery(Literal(inputParameter.NameInRequest), item, true).Terminate()
+                        };
+                    }
                 }
                 else
                 {
@@ -262,16 +268,39 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         .Terminate();
                 }
 
-                statement = inputParameter.IsRequired
-                    ? statement
-                    : new IfStatement(valueExpression.NotEqual(Null))
-                    {
-                        statement
-                    };
+                if (!inputParameter.IsRequired || paramType?.IsNullable == true ||
+                    (paramType is { IsValueType: false, IsFrameworkType: true } && paramType.FrameworkType != typeof(string)))
+                {
+                    statement = BuildQueryParameterNullCheck(paramType, valueExpression, statement);
+                }
+
                 statements.Add(statement);
             }
 
             return statements;
+        }
+
+        private static IfStatement BuildQueryParameterNullCheck(
+            CSharpType? parameterType,
+            ValueExpression valueExpression,
+            MethodBodyStatement originalStatement)
+        {
+            if (parameterType?.IsCollection == true)
+            {
+                var changeTrackingListDeclaration = Declare(
+                    "changeTrackingList",
+                    ClientModelPlugin.Instance.TypeFactory.ListInitializationType.MakeGenericType(parameterType.Arguments),
+                    out var changeTrackingReference);
+
+                return new IfStatement(valueExpression.NotEqual(Null)
+                    .And(Not(valueExpression.Is(changeTrackingListDeclaration)
+                    .And(changeTrackingReference.Property("IsUndefined")))))
+                {
+                    originalStatement
+                };
+            }
+
+            return new IfStatement(valueExpression.NotEqual(Null)) { originalStatement };
         }
 
         private IEnumerable<MethodBodyStatement> AppendPathParameters(ScopedApi<ClientUriBuilderDefinition> uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap)
@@ -308,18 +337,32 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 pathSpan = pathSpan.Slice(paramIndex + 1);
                 var paramEndIndex = pathSpan.IndexOf('}');
                 var paramName = pathSpan.Slice(0, paramEndIndex).ToString();
-                var inputParam = inputParamHash[paramName];
-
-                if (inputParam.Location == RequestLocation.Path || inputParam.Location == RequestLocation.Uri)
+                /* when the parameter is in operation.uri, it is client parameter
+                 * It is not operation parameter and not in inputParamHash list.
+                 */
+                var isClientParameter = ClientProvider.GetClientParameters().Any(p => p.Name == paramName);
+                CSharpType? type;
+                string? format;
+                ValueExpression valueExpression;
+                if (isClientParameter)
                 {
-                    CSharpType? type;
-                    string? format;
-                    ValueExpression valueExpression;
-                    GetParamInfo(paramMap, operation, inputParam, out type, out format, out valueExpression);
-                    ValueExpression[] toStringParams = format is null ? [] : [Literal(format)];
-                    valueExpression = type?.Equals(typeof(string)) == true ? valueExpression : valueExpression.Invoke(nameof(ToString), toStringParams);
-                    statements.Add(uri.AppendPath(valueExpression, true).Terminate());
+                    GetParamInfo(paramMap[paramName], out type, out format, out valueExpression);
                 }
+                else
+                {
+                    var inputParam = inputParamHash[paramName];
+                    if (inputParam.Location == RequestLocation.Path || inputParam.Location == RequestLocation.Uri)
+                    {
+                        GetParamInfo(paramMap, operation, inputParam, out type, out format, out valueExpression);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException($"The location of parameter {inputParam.Name} should be path or uri");
+                    }
+                }
+                ValueExpression[] toStringParams = format is null ? [] : [Literal(format)];
+                valueExpression = type?.Equals(typeof(string)) == true ? valueExpression : valueExpression.Invoke(nameof(ToString), toStringParams);
+                statements.Add(uri.AppendPath(valueExpression, true).Terminate());
 
                 pathSpan = pathSpan.Slice(paramEndIndex + 1);
             }
@@ -341,17 +384,22 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             else
             {
                 var paramProvider = paramMap[inputParam.Name];
-                if (paramProvider.Type.IsEnum)
-                {
-                    var csharpType = paramProvider.Field is null ? paramProvider.Type : paramProvider.Field.Type;
-                    valueExpression = csharpType.ToSerial(paramProvider);
-                    format = null;
-                }
-                else
-                {
-                    valueExpression = paramProvider.Field is null ? paramProvider : paramProvider.Field;
-                    format = paramProvider.WireInfo.SerializationFormat.ToFormatSpecifier();
-                }
+                GetParamInfo(paramProvider, out type, out format, out valueExpression);
+            }
+        }
+
+        private static void GetParamInfo(ParameterProvider paramProvider, out CSharpType? type, out string? format, out ValueExpression valueExpression)
+        {
+            type = paramProvider.Field is null ? paramProvider.Type : paramProvider.Field.Type;
+            if (type.IsEnum)
+            {
+                valueExpression = type.ToSerial(paramProvider);
+                format = null;
+            }
+            else
+            {
+                valueExpression = paramProvider.Field is null ? paramProvider : paramProvider.Field;
+                format = paramProvider.WireInfo.SerializationFormat.ToFormatSpecifier();
             }
         }
 
@@ -381,10 +429,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     null,
                     null);
 
-                var paramProvider = ClientModelPlugin.Instance.TypeFactory.CreateParameter(inputParameter);
+                var paramProvider = ClientModelPlugin.Instance.TypeFactory.CreateParameter(inputParameter).ToPublicInputParameter();
                 paramProvider.DefaultValue = !inputParameter.IsRequired ? Default : null;
                 paramProvider.SpreadSource = ClientModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
-                paramProvider.Type = paramProvider.Type.InputType;
 
                 builtParameters[index++] = paramProvider;
             }
@@ -409,7 +456,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return MethodCache[operation];
         }
 
-        internal static List<ParameterProvider> GetMethodParameters(InputOperation operation, bool isProtocol = false)
+        internal static List<ParameterProvider> GetMethodParameters(InputOperation operation, MethodType methodType)
         {
             SortedList<int, ParameterProvider> sortedParams = [];
             int path = 0;
@@ -427,13 +474,22 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
                 var spreadInputModel = inputParam.Kind == InputOperationParameterKind.Spread ? GetSpreadParameterModel(inputParam) : null;
 
-                ParameterProvider? parameter = ClientModelPlugin.Instance.TypeFactory.CreateParameter(inputParam);
+                ParameterProvider? parameter = ClientModelPlugin.Instance.TypeFactory.CreateParameter(inputParam).ToPublicInputParameter();
 
-                if (isProtocol)
+                if (methodType is MethodType.Protocol or MethodType.CreateRequest)
                 {
                     if (inputParam.Location == RequestLocation.Body)
                     {
-                        parameter = ScmKnownParameters.BinaryContent;
+                        if (methodType == MethodType.CreateRequest)
+                        {
+                            parameter = ScmKnownParameters.RequestContent;
+                        }
+                        else
+                        {
+                            parameter = parameter.DefaultValue == null
+                                ? ScmKnownParameters.RequestContent
+                                : ScmKnownParameters.OptionalRequestContent;
+                        }
                     }
                     else
                     {
@@ -481,7 +537,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         }
                         break;
                     case ParameterLocation.Body:
-                        sortedParams.Add(bodyRequired++, parameter);
+                        sortedParams.Add(parameter.DefaultValue == null ? bodyRequired++ : bodyOptional++, parameter);
                         break;
                     default:
                         sortedParams.Add(optional++, parameter);
@@ -492,6 +548,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             if (operation.IsMultipartFormData)
             {
                 sortedParams.Add(bodyRequired++, ScmKnownParameters.ContentType);
+            }
+
+            // All the parameters should be required for the CreateRequest method
+            if (methodType == MethodType.CreateRequest)
+            {
+                foreach (var parameter in sortedParams.Values)
+                {
+                    parameter.DefaultValue = null;
+                }
             }
 
             return [.. sortedParams.Values];
@@ -505,6 +570,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             throw new InvalidOperationException($"inputParam `{inputParam.Name}` is `Spread` but not a model type");
+        }
+
+        internal enum MethodType
+        {
+            CreateRequest,
+            Protocol,
+            Convenience
         }
     }
 }

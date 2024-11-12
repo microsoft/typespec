@@ -23,7 +23,7 @@ class EnumNestedDiscriminatorClientTestBase extends TestProxyTestBase {
     protected void beforeTest() {
         EnumNestedDiscriminatorClientBuilder enumNestedDiscriminatorClientbuilder
             = new EnumNestedDiscriminatorClientBuilder()
-                .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
+                .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
                 .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
                 .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {

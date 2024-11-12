@@ -2,8 +2,10 @@ import {
   CompilerHost,
   Decorator,
   Diagnostic,
+  Namespace,
   type PackageJson,
   Program,
+  SemanticNodeListener,
   type SourceLocation,
   compile,
   createDiagnosticCollector,
@@ -12,6 +14,7 @@ import {
   getTypeName,
   joinPaths,
   navigateProgram,
+  navigateTypesInNamespace,
   resolvePath,
 } from "@typespec/compiler";
 import prettier from "prettier";
@@ -80,7 +83,9 @@ export async function generateExternSignatureForExports(
   } catch (e) {}
   await host.mkdirp(outDir);
 
-  const files = await generateExternDecorators(program, pkgJson.name, prettierConfig ?? undefined);
+  const files = await generateExternDecorators(program, pkgJson.name, {
+    prettierConfig: prettierConfig ?? undefined,
+  });
   for (const [name, content] of Object.entries(files)) {
     await host.writeFile(resolvePath(outDir, name), content);
   }
@@ -92,14 +97,19 @@ async function readPackageJson(host: CompilerHost, libraryPath: string): Promise
   return JSON.parse(file.text);
 }
 
+export interface GenerateExternDecoratorOptions {
+  /** Render those namespaces only(exclude sub namespaces as well). By default it will include all namespaces. */
+  readonly namespaces?: Namespace[];
+  readonly prettierConfig?: prettier.Options;
+}
 export async function generateExternDecorators(
   program: Program,
   packageName: string,
-  prettierConfig?: prettier.Options,
+  options?: GenerateExternDecoratorOptions,
 ): Promise<Record<string, string>> {
   const decorators = new Map<string, DecoratorSignature[]>();
 
-  navigateProgram(program, {
+  const listener: SemanticNodeListener = {
     decorator(dec) {
       if (
         packageName !== "@typespec/compiler" &&
@@ -115,12 +125,19 @@ export async function generateExternDecorators(
       }
       decoratorForNamespace.push(resolveDecoratorSignature(dec));
     },
-  });
+  };
+  if (options?.namespaces) {
+    for (const namespace of options.namespaces) {
+      navigateTypesInNamespace(namespace, listener, { skipSubNamespaces: true });
+    }
+  } else {
+    navigateProgram(program, listener);
+  }
 
   function format(value: string) {
     try {
       const formatted = prettier.format(value, {
-        ...prettierConfig,
+        ...options?.prettierConfig,
         parser: "typescript",
       });
       return formatted;

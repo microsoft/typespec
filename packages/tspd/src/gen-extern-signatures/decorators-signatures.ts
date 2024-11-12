@@ -222,6 +222,10 @@ export function generateSignatures(
         } else if (isReflectionType(type)) {
           return getValueOfReflectionType(type);
         } else {
+          // If its exactly the record type use Record<string, T> instead of the model name.
+          if (type.indexer && type.name === "Record" && type.namespace?.name === "TypeSpec") {
+            return `Record<string, ${getValueTSType(type.indexer.value)}>`;
+          }
           if (type.name) {
             return useLocalType(type);
           } else {
@@ -248,6 +252,9 @@ export function generateSignatures(
     const properties = [...model.properties.values()].map((x) => {
       return `readonly ${x.name}${x.optional ? "?" : ""}: ${getValueTSType(x.type)}`;
     });
+    if (model.indexer?.value) {
+      properties.unshift(`readonly [key: string]: ${getValueTSType(model.indexer.value)}`);
+    }
 
     return `{ ${properties.join(", ")} }`;
   }

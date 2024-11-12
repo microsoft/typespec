@@ -112,7 +112,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                Return(Not(collectionParam.AsExpression.Is(changeTrackingDeclarationExpression)
+                Return(Not(collectionParam.Is(changeTrackingDeclarationExpression)
                     .And(new MemberExpression(changeTrackingReference, "IsUndefined"))))
             },
             this);
@@ -127,7 +127,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                Return(Not(collectionParam.AsExpression.Is(changeTrackingDeclarationExpression)
+                Return(Not(collectionParam.Is(changeTrackingDeclarationExpression)
                     .And(new MemberExpression(changeTrackingReference, "IsUndefined"))))
             },
             this);
@@ -142,7 +142,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                Return(Not(collectionParam.AsExpression.Is(changeTrackingDeclarationExpression)
+                Return(Not(collectionParam.Is(changeTrackingDeclarationExpression)
                     .And(new MemberExpression(changeTrackingReference, "IsUndefined"))))
             },
             this);

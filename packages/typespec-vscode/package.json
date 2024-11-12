@@ -1,6 +1,6 @@
 {
   "name": "typespec-vscode",
-  "version": "0.61.0",
+  "version": "0.62.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec language support for VS Code",
   "homepage": "https://typespec.io",
@@ -20,7 +20,8 @@
   "publisher": "typespec",
   "displayName": "TypeSpec for VS Code",
   "categories": [
-    "Programming Languages"
+    "Programming Languages",
+    "Snippets"
   ],
   "type": "module",
   "main": "./dist/src/extension.cjs",
@@ -30,7 +31,8 @@
   },
   "activationEvents": [
     "onLanguage:typespec",
-    "onCommand:typespec.restartServer"
+    "onCommand:typespec.restartServer",
+    "workspaceContains:**/tspconfig.yaml"
   ],
   "icon": "./icons/logo.png",
   "contributes": {
@@ -141,6 +143,12 @@
           }
         }
       }
+    ],
+    "snippets": [
+      {
+        "language": "typespec",
+        "path": "./snippets.json"
+      }
     ]
   },
   "scripts": {
@@ -156,7 +164,7 @@
     "deploy": "vsce publish",
     "open-in-browser": "vscode-test-web --extensionDevelopmentPath=. .",
     "test:e2e": "pnpm test:web",
-    "test:web": "vscode-test-web --extensionDevelopmentPath=. --headless --extensionTestsPath=dist/test/suite.js ./test/data"
+    "test:web": "vscode-test-web --extensionDevelopmentPath=. --headless --extensionTestsPath=dist/test/web/suite.js ./test/web/data"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "~28.0.0",

@@ -31,17 +31,17 @@ namespace _Type.Property.Optional
 
         public virtual Task<ClientResult<RequiredAndOptionalProperty>> GetRequiredOnlyAsync() => throw null;
 
-        public virtual ClientResult PutAll(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult PutAll(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutAllAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PutAllAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult PutAll(RequiredAndOptionalProperty body) => throw null;
 
         public virtual Task<ClientResult> PutAllAsync(RequiredAndOptionalProperty body) => throw null;
 
-        public virtual ClientResult PutRequiredOnly(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult PutRequiredOnly(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutRequiredOnlyAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PutRequiredOnlyAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult PutRequiredOnly(RequiredAndOptionalProperty body) => throw null;
 

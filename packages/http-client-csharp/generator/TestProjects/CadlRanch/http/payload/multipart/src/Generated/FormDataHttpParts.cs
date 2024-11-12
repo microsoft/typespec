@@ -14,9 +14,9 @@ namespace Payload.MultiPart
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult JsonArrayAndFileArray(BinaryContent content, string contentType, RequestOptions options) => throw null;
+        public virtual ClientResult JsonArrayAndFileArray(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> JsonArrayAndFileArrayAsync(BinaryContent content, string contentType, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> JsonArrayAndFileArrayAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
         public virtual FormDataHttpPartsContentType GetFormDataHttpPartsContentTypeClient() => throw null;
 

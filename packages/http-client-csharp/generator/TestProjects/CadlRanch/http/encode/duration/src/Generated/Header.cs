@@ -32,13 +32,13 @@ namespace Encode.Duration
 
         public virtual Task<ClientResult> Iso8601Async(TimeSpan duration) => throw null;
 
-        public virtual ClientResult Iso8601Array(IList<TimeSpan> duration, RequestOptions options) => throw null;
+        public virtual ClientResult Iso8601Array(IEnumerable<TimeSpan> duration, RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> Iso8601ArrayAsync(IList<TimeSpan> duration, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> Iso8601ArrayAsync(IEnumerable<TimeSpan> duration, RequestOptions options) => throw null;
 
-        public virtual ClientResult Iso8601Array(IList<TimeSpan> duration) => throw null;
+        public virtual ClientResult Iso8601Array(IEnumerable<TimeSpan> duration) => throw null;
 
-        public virtual Task<ClientResult> Iso8601ArrayAsync(IList<TimeSpan> duration) => throw null;
+        public virtual Task<ClientResult> Iso8601ArrayAsync(IEnumerable<TimeSpan> duration) => throw null;
 
         public virtual ClientResult Int32Seconds(TimeSpan duration, RequestOptions options) => throw null;
 

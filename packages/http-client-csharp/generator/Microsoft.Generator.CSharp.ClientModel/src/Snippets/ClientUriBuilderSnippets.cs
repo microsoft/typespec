@@ -23,8 +23,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         public static InvokeMethodExpression AppendQuery(this ScopedApi<ClientUriBuilderDefinition> uriBuilder, ValueExpression name, ValueExpression value, string? format, bool shouldEscape)
             => uriBuilder.Invoke("AppendQuery", [name, value, Literal(format), Literal(shouldEscape)]);
 
-        public static InvokeMethodExpression AppendQueryDelimited(this ScopedApi<ClientUriBuilderDefinition> uriBuilder, ValueExpression name, ValueExpression value, string? format, bool shouldEscape)
-            => uriBuilder.Invoke("AppendQueryDelimited", [name, value, Literal(","), Literal(format), Literal(shouldEscape)]);
+        public static InvokeMethodExpression AppendQueryDelimited(this ScopedApi<ClientUriBuilderDefinition> uriBuilder, ValueExpression name, ValueExpression value, string? format, bool shouldEscape, string delimiter = ",")
+            => uriBuilder.Invoke("AppendQueryDelimited", [name, value, Literal(delimiter), Literal(format), Literal(shouldEscape)]);
 
         public static ScopedApi<Uri> ToUri(this ScopedApi<ClientUriBuilderDefinition> uriBuilder)
             => uriBuilder.Invoke("ToUri").As<Uri>();
