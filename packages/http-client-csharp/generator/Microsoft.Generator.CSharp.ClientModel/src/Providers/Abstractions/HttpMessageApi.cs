@@ -25,8 +25,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         public abstract MethodBodyStatement ApplyRequestOptions(HttpRequestOptionsApi options);
 
-        public abstract MethodBodyStatement[] ExtractResponse();
-
         public abstract HttpMessageApi FromExpression(ValueExpression original);
 
         public abstract HttpMessageApi ToExpression();

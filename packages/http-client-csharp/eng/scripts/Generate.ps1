@@ -51,7 +51,6 @@ function IsSpecDir {
 $failingSpecs = @(
     Join-Path 'http' 'special-words'
     Join-Path 'http' 'encode' 'numeric'
-    Join-Path 'http' 'parameters' 'collection-format'
     Join-Path 'http' 'payload' 'content-negotiation'
     Join-Path 'http' 'payload' 'json-merge-patch'
     Join-Path 'http' 'payload' 'pageable'
@@ -63,7 +62,6 @@ $failingSpecs = @(
     Join-Path 'http' 'special-headers' 'conditional-request'
     Join-Path 'http' 'special-headers' 'repeatability'
     Join-Path 'http' 'type' 'model' 'flatten'
-    Join-Path 'http' 'type' 'model' 'visibility'
     Join-Path 'http' 'type' 'model' 'inheritance' 'nested-discriminator'
     Join-Path 'http' 'type' 'model' 'inheritance' 'not-discriminated'
     Join-Path 'http' 'type' 'model' 'inheritance' 'recursive'
