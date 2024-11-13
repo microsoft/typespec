@@ -1,0 +1,15 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "tsptest.literalservice.LiteralServiceAsyncClient": "null",
+    "tsptest.literalservice.LiteralServiceAsyncClient.put": "TspTest.LiteralService.LiteralOp.put",
+    "tsptest.literalservice.LiteralServiceAsyncClient.putWithResponse": "TspTest.LiteralService.LiteralOp.put",
+    "tsptest.literalservice.LiteralServiceClient": "null",
+    "tsptest.literalservice.LiteralServiceClient.put": "TspTest.LiteralService.LiteralOp.put",
+    "tsptest.literalservice.LiteralServiceClient.putWithResponse": "TspTest.LiteralService.LiteralOp.put",
+    "tsptest.literalservice.LiteralServiceClientBuilder": "TspTest.LiteralService",
+    "tsptest.literalservice.models.Model": "TspTest.LiteralService.Model",
+    "tsptest.literalservice.models.ModelOptionalLiteral": "null",
+    "tsptest.literalservice.models.PutRequestOptionalLiteralParam": "null"
+  }
+}
