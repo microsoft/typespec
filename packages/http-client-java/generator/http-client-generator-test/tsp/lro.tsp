@@ -122,7 +122,10 @@ namespace TspTest.LongRunning {
   }
 }
 
-@useDependency(Azure.Core.Versions.v1_0_Preview_2, TspTest.LongRunning.ApiVersions.v2022_06_01_preview)
+@useDependency(
+  Azure.Core.Versions.v1_0_Preview_2,
+  TspTest.LongRunning.ApiVersions.v2022_06_01_preview
+)
 namespace TspTest.NonService {
   @route("/poll")
   @get
