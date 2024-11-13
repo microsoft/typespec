@@ -186,7 +186,8 @@ public final class SendLongRequest implements JsonSerializable<SendLongRequest> 
         jsonWriter.writeIntField("dataInt", this.dataInt);
         jsonWriter.writeJsonField("user", this.user);
         if (this.dataUnion != null) {
-            jsonWriter.writeUntypedField("dataUnion", this.dataUnion.toObject(Object.class));
+            jsonWriter.writeFieldName("dataUnion");
+            this.dataUnion.writeTo(jsonWriter);
         }
         jsonWriter.writeNumberField("dataLong", this.dataLong);
         jsonWriter.writeNumberField("data_float", this.dataFloat);
