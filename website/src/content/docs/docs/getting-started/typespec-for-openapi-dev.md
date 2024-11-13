@@ -231,7 +231,7 @@ The fields in an OpenAPI operation object are specified with the following TypeS
 | `requestBody`             | parameter with `@body` decorator           | see [Request Body Object](#request-body-object-oas3)                         |
 | `responses`               | `op` return type(s)                        | see [Responses Object](#responses-object)                                    |
 | `callbacks`               |                                            | Not currently supported.                                                     |
-| `deprecated`              | `#deprecated` decorator                    |                                                                              |
+| `deprecated`              | `#deprecated` directive                    |                                                                              |
 | `security`                |                                            | see [Security Schemes Object](#securityDefinitions--securitySchemes-Object). |
 | `servers`                 | `@server` decorator                        | Can be specified multiple times.                                             |
 
