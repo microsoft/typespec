@@ -53,7 +53,8 @@ namespace Microsoft.Generator.CSharp
             CSharpType result = new CSharpType(type);
             if (namedTypeSymbol is not null && namedTypeSymbol.IsGenericType && !result.IsNullable)
             {
-                return result.MakeGenericType([.. namedTypeSymbol.TypeArguments.Select(GetCSharpType)]);
+                var res = result.MakeGenericType([.. namedTypeSymbol.TypeArguments.Select(GetCSharpType)]);
+                return res;
             }
 
             return result;
