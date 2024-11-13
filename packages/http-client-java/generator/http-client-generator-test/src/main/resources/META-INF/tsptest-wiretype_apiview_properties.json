@@ -1,0 +1,25 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "tsptest.wiretype.WireTypeAsyncClient": "null",
+    "tsptest.wiretype.WireTypeAsyncClient.bothClassMismatch": "TspTest.WireType.WireTypeOp.bothClassMismatch",
+    "tsptest.wiretype.WireTypeAsyncClient.bothClassMismatchWithResponse": "TspTest.WireType.WireTypeOp.bothClassMismatch",
+    "tsptest.wiretype.WireTypeAsyncClient.subClassMismatch": "TspTest.WireType.WireTypeOp.subClassMismatch",
+    "tsptest.wiretype.WireTypeAsyncClient.subClassMismatchWithResponse": "TspTest.WireType.WireTypeOp.subClassMismatch",
+    "tsptest.wiretype.WireTypeAsyncClient.superClassMismatch": "TspTest.WireType.WireTypeOp.superClassMismatch",
+    "tsptest.wiretype.WireTypeAsyncClient.superClassMismatchWithResponse": "TspTest.WireType.WireTypeOp.superClassMismatch",
+    "tsptest.wiretype.WireTypeClient": "null",
+    "tsptest.wiretype.WireTypeClient.bothClassMismatch": "TspTest.WireType.WireTypeOp.bothClassMismatch",
+    "tsptest.wiretype.WireTypeClient.bothClassMismatchWithResponse": "TspTest.WireType.WireTypeOp.bothClassMismatch",
+    "tsptest.wiretype.WireTypeClient.subClassMismatch": "TspTest.WireType.WireTypeOp.subClassMismatch",
+    "tsptest.wiretype.WireTypeClient.subClassMismatchWithResponse": "TspTest.WireType.WireTypeOp.subClassMismatch",
+    "tsptest.wiretype.WireTypeClient.superClassMismatch": "TspTest.WireType.WireTypeOp.superClassMismatch",
+    "tsptest.wiretype.WireTypeClient.superClassMismatchWithResponse": "TspTest.WireType.WireTypeOp.superClassMismatch",
+    "tsptest.wiretype.WireTypeClientBuilder": "TspTest.WireType",
+    "tsptest.wiretype.models.SubClass": "TspTest.WireType.SubClass",
+    "tsptest.wiretype.models.SubClassBothMismatch": "TspTest.WireType.SubClassBothMismatch",
+    "tsptest.wiretype.models.SubClassMismatch": "TspTest.WireType.SubClassMismatch",
+    "tsptest.wiretype.models.SuperClass": "TspTest.WireType.SuperClass",
+    "tsptest.wiretype.models.SuperClassMismatch": "TspTest.WireType.SuperClassMismatch"
+  }
+}
