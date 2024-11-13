@@ -89,14 +89,14 @@ public class CoreTests {
 
     @Test
     public void testAction() {
-        Mono<User> response = client.export(1, "serialization/encodedname/json");
+        Mono<User> response = client.export(1, "json");
 
         StepVerifier.create(response).assertNext(user -> {
             Assertions.assertEquals(1, user.getId());
             Assertions.assertEquals("Madge", user.getName());
         }).expectComplete().verify();
 
-        UserList userList = syncClient.exportAllUsers("serialization/encodedname/json");
+        UserList userList = syncClient.exportAllUsers("json");
         Assertions.assertEquals(2, userList.getUsers().size());
         Assertions.assertEquals("Madge", userList.getUsers().get(0).getName());
         Assertions.assertEquals("John", userList.getUsers().get(1).getName());

@@ -74,7 +74,7 @@ public class LroCoreTests {
     @Test
     public void testPost() {
         SyncPoller<PollOperationDetails, ExportedUser> poller
-            = client.beginExport("madge", "serialization/encodedname/json");
+            = client.beginExport("madge", "json");
 
         PollResponse<PollOperationDetails> response = poller.waitForCompletion();
         Assertions.assertEquals(LongRunningOperationStatus.SUCCESSFULLY_COMPLETED, response.getStatus());
