@@ -9,7 +9,7 @@ using Azure.Core.Foundations;
   title: "ErrorModel",
 })
 @useDependency(Azure.Core.Versions.v1_0_Preview_2)
-namespace Cadl.ErrorModel;
+namespace TspTest.ErrorModel;
 
 model Diagnostic {
   name: string;

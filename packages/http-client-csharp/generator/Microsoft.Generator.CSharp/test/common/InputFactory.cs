@@ -80,7 +80,9 @@ namespace Microsoft.Generator.CSharp.Tests.Common
             bool isEndpoint = false,
             bool isResourceParameter = false,
             bool isContentType = false,
-            bool isApiVersion = false)
+            bool isApiVersion = false,
+            bool explode = false,
+            string? delimiter = null)
         {
             return new InputParameter(
                 name,
@@ -96,8 +98,8 @@ namespace Microsoft.Generator.CSharp.Tests.Common
                 isContentType,
                 isEndpoint,
                 false,
-                false,
-                null,
+                explode,
+                delimiter,
                 null);
         }
 

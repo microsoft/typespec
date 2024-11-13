@@ -7,7 +7,7 @@ using Azure.ClientGenerator.Core;
 @service({
   title: "Visibility",
 })
-namespace Cadl.Visibility;
+namespace TspTest.Visibility;
 
 model Dog {
   @visibility("read") id: int32;
