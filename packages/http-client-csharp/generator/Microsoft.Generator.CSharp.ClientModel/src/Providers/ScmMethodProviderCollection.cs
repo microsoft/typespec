@@ -320,21 +320,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             List<ValueExpression> conversions = new List<ValueExpression>();
             bool addedSpreadSource = false;
-            bool firstOptional = false;
-            bool requestOptionsExpressionAdded = false;
 
             foreach (var param in convenienceMethodParameters)
             {
-                if (!firstOptional && param.DefaultValue is not null)
-                {
-                    firstOptional = true;
-                    if (!ShouldAddOptionalRequestOptionsParameter())
-                    {
-                        // insert the required request options argument expression before the first optional argument expression
-                        conversions.Add(Null);
-                        requestOptionsExpressionAdded = true;
-                    }
-                }
                 if (param.SpreadSource is not null)
                 {
                     if (!addedSpreadSource)
@@ -375,10 +363,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     conversions.Add(param);
                 }
             }
-            if (!requestOptionsExpressionAdded)
-            {
-                conversions.Add(Null);
-            }
+            // RequestOptions argument
+            conversions.Add(Null);
             return conversions;
         }
 
@@ -418,13 +404,28 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             bool addOptionalRequestOptionsParameter = ShouldAddOptionalRequestOptionsParameter();
             ParameterProvider requestOptionsParameter = addOptionalRequestOptionsParameter ? ScmKnownParameters.OptionalRequestOptions : ScmKnownParameters.RequestOptions;
 
+            if (!addOptionalRequestOptionsParameter && optionalParameters.Count > 0)
+            {
+                // If there are optional parameters, but the request options parameter is not optional, make the optional parameters nullable required.
+                // This is to ensure that the request options parameter is always the last parameter.
+                foreach (var parameter in optionalParameters)
+                {
+                    parameter.DefaultValue = null;
+                    parameter.Type = parameter.Type.WithNullable(true);
+                }
+                // Now, the request options parameter can be optional due to the above changes to the method signature.
+                requestOptionsParameter = ScmKnownParameters.OptionalRequestOptions;
+                requiredParameters.AddRange(optionalParameters);
+                optionalParameters.Clear();
+            }
+
             var methodSignature = new MethodSignature(
                 isAsync ? _cleanOperationName + "Async" : _cleanOperationName,
                 FormattableStringHelpers.FromString(Operation.Description),
                 methodModifier,
                 GetResponseType(Operation.Responses, false, isAsync, out _),
                 $"The response returned from the service.",
-                addOptionalRequestOptionsParameter ? [.. requiredParameters, .. optionalParameters, requestOptionsParameter] : [.. requiredParameters, requestOptionsParameter, .. optionalParameters]);
+                [.. requiredParameters, .. optionalParameters, requestOptionsParameter]);
             var processMessageName = isAsync ? "ProcessMessageAsync" : "ProcessMessage";
 
             MethodBodyStatement[] methodBody =
@@ -484,6 +485,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             for (int i = 0; i < convenienceMethodParameterCount; i++)
             {
                 if (!ProtocolMethodParameters[i].Type.Equals(ConvenienceMethodParameters[i].Type))
+                {
+                    return true;
+                }
+                if (ProtocolMethodParameters[i].DefaultValue == null && ConvenienceMethodParameters[i].DefaultValue != null)
+                {
+                    return true;
+                }
+                if (ProtocolMethodParameters[i].DefaultValue != null && ConvenienceMethodParameters[i].DefaultValue == null)
                 {
                     return true;
                 }

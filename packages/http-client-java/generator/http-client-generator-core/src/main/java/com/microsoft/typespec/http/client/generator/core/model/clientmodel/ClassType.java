@@ -321,8 +321,9 @@ public class ClassType implements IType {
     public static final ClassType DURATION = new Builder(false).knownClass(Duration.class)
         .defaultValueExpressionConverter(defaultValueExpression -> "Duration.parse(\"" + defaultValueExpression + "\")")
         .jsonToken("JsonToken.STRING")
-        .serializationValueGetterModifier(
-            valueGetter -> CORE_UTILS.getName() + ".durationToStringWithDays(" + valueGetter + ")")
+        .serializationValueGetterModifier(valueGetter -> JavaSettings.getInstance().isBranded()
+            ? CORE_UTILS.getName() + ".durationToStringWithDays(" + valueGetter + ")"
+            : "Objects.toString(" + valueGetter + ", null)")
         .jsonDeserializationMethod("getNullable(nonNullReader -> Duration.parse(nonNullReader.getString()))")
         .serializationMethodBase("writeString")
         .xmlElementDeserializationMethod("getNullableElement(Duration::parse)")
