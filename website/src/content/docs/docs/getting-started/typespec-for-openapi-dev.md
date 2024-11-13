@@ -343,7 +343,7 @@ The following fields of a parameter object are specific to OpenAPI v3:
 | `style`                      | `format` parameter on `@query` or `@header` |                                     |
 | `explode`                    | `format` parameter on `@query` or `@header` |                                     |
 | `schema`                     | parameter schema                            | see [Schema Object](#schema-object) |
-| `deprecated`                 |                                             | `#deprecated` decorator.            |
+| `deprecated`                 |  `#deprecated` directive.                       |                                  |
 | `example`                    |                                             | Not currently supported.            |
 | `examples`                   |                                             | Not currently supported.            |
 | `content`                    |                                             | Not currently supported.            |
