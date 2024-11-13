@@ -134,8 +134,11 @@ public final class PartialUpdateModel implements JsonSerializable<PartialUpdateM
         this.testProperty = testProperty;
     }
 
-    @Override
+    /**
+     * {@inheritDoc}
+     */
     @Generated
+    @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
         jsonWriter.writeBooleanField("boolean", this.booleanProperty);

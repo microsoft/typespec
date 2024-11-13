@@ -9,7 +9,6 @@ import com.azure.core.client.traits.ConfigurationTrait;
 import com.azure.core.client.traits.EndpointTrait;
 import com.azure.core.client.traits.HttpTrait;
 import com.azure.core.http.HttpClient;
-import com.azure.core.http.HttpHeaderName;
 import com.azure.core.http.HttpHeaders;
 import com.azure.core.http.HttpPipeline;
 import com.azure.core.http.HttpPipelineBuilder;
@@ -17,8 +16,8 @@ import com.azure.core.http.HttpPipelinePosition;
 import com.azure.core.http.policy.AddDatePolicy;
 import com.azure.core.http.policy.AddHeadersFromContextPolicy;
 import com.azure.core.http.policy.AddHeadersPolicy;
-import com.azure.core.http.policy.HttpLoggingPolicy;
 import com.azure.core.http.policy.HttpLogOptions;
+import com.azure.core.http.policy.HttpLoggingPolicy;
 import com.azure.core.http.policy.HttpPipelinePolicy;
 import com.azure.core.http.policy.HttpPolicyProviders;
 import com.azure.core.http.policy.RequestIdPolicy;
@@ -31,11 +30,11 @@ import com.azure.core.util.CoreUtils;
 import com.azure.core.util.builder.ClientBuilderUtil;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.core.util.serializer.JacksonAdapter;
-import tsptest.partialupdate.implementation.PartialUpdateClientImpl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import tsptest.partialupdate.implementation.PartialUpdateClientImpl;
 
 /**
  * A builder for creating a new instance of the PartialUpdateClient type.
@@ -51,7 +50,7 @@ public final class PartialUpdateClientBuilder implements HttpTrait<PartialUpdate
     private static final String SDK_VERSION = "version";
 
     @Generated
-    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("cadl-partialupdate.properties");
+    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("tsptest-partialupdate.properties");
 
     @Generated
     private final List<HttpPipelinePolicy> pipelinePolicies;
@@ -215,6 +214,7 @@ public final class PartialUpdateClientBuilder implements HttpTrait<PartialUpdate
      */
     @Generated
     private PartialUpdateClientImpl buildInnerClient() {
+        this.validateClient();
         HttpPipeline localPipeline = (pipeline != null) ? pipeline : createHttpPipeline();
         PartialUpdateClientImpl client = new PartialUpdateClientImpl(localPipeline,
             JacksonAdapter.createDefaultSerializerAdapter(), this.endpoint);
@@ -234,10 +234,8 @@ public final class PartialUpdateClientBuilder implements HttpTrait<PartialUpdate
         policies.add(new UserAgentPolicy(applicationId, clientName, clientVersion, buildConfiguration));
         policies.add(new RequestIdPolicy());
         policies.add(new AddHeadersFromContextPolicy());
-        HttpHeaders headers = new HttpHeaders();
-        localClientOptions.getHeaders()
-            .forEach(header -> headers.set(HttpHeaderName.fromString(header.getName()), header.getValue()));
-        if (headers.getSize() > 0) {
+        HttpHeaders headers = CoreUtils.createHttpHeadersFromClientOptions(localClientOptions);
+        if (headers != null) {
             policies.add(new AddHeadersPolicy(headers));
         }
         this.pipelinePolicies.stream()
@@ -279,4 +277,11 @@ public final class PartialUpdateClientBuilder implements HttpTrait<PartialUpdate
     }
 
     private static final ClientLogger LOGGER = new ClientLogger(PartialUpdateClientBuilder.class);
+
+    @Generated
+    private void validateClient() {
+        // This method is invoked from 'buildInnerClient'/'buildClient' method.
+        // Developer can customize this method, to validate that the necessary conditions are met for the new client.
+        Objects.requireNonNull(endpoint, "'endpoint' cannot be null.");
+    }
 }

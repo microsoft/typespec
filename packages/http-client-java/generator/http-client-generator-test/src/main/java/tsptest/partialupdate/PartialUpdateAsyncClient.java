@@ -15,9 +15,9 @@ import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.FluxUtil;
+import reactor.core.publisher.Mono;
 import tsptest.partialupdate.implementation.PartialUpdateClientImpl;
 import tsptest.partialupdate.models.PartialUpdateModel;
-import reactor.core.publisher.Mono;
 
 /**
  * Initializes a new instance of the asynchronous PartialUpdateClient type.
@@ -42,14 +42,16 @@ public final class PartialUpdateAsyncClient {
      * The read operation.
      * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>{@code
+     * <pre>
+     * {@code
      * {
      *     boolean: boolean (Required)
      *     string: String (Required)
      *     bytes: byte[] (Required)
      *     aggregate: String (Optional)
      * }
-     * }</pre>
+     * }
+     * </pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
