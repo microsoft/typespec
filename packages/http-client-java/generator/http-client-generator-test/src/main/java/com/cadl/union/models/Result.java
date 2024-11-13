@@ -98,7 +98,8 @@ public class Result implements JsonSerializable<Result> {
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
         jsonWriter.writeStringField("name", this.name);
-        jsonWriter.writeUntypedField("data", this.data.toObject(Object.class));
+        jsonWriter.writeFieldName("data");
+        this.data.writeTo(jsonWriter);
         jsonWriter.writeJsonField("result", this.result);
         return jsonWriter.writeEndObject();
     }

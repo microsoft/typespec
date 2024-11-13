@@ -103,11 +103,13 @@ public final class SubResult extends Result {
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
         jsonWriter.writeStringField("name", getName());
-        jsonWriter.writeUntypedField("data", getData().toObject(Object.class));
+        jsonWriter.writeFieldName("data");
+        getData().writeTo(jsonWriter);
         jsonWriter.writeJsonField("result", getResult());
         jsonWriter.writeStringField("text", this.text);
         if (this.arrayData != null) {
-            jsonWriter.writeUntypedField("arrayData", this.arrayData.toObject(Object.class));
+            jsonWriter.writeFieldName("arrayData");
+            this.arrayData.writeTo(jsonWriter);
         }
         return jsonWriter.writeEndObject();
     }
