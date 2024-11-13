@@ -13,7 +13,7 @@ using Azure.ClientGenerator.Core;
   title: "Response",
 })
 @versioned(ApiVersions)
-namespace Cadl.Response;
+namespace TspTest.Response;
 
 enum ApiVersions {
   @useDependency(global.Azure.Core.Versions.v1_0_Preview_2)
@@ -122,7 +122,7 @@ op CustomLongRunningOperation<
 
 @Azure.ClientGenerator.Core.client({
   name: "ResponseClient",
-  service: Cadl.Response,
+  service: TspTest.Response,
 })
 @doc("Response")
 @route("/response")

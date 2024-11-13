@@ -8,7 +8,7 @@ using Azure.ClientGenerator.Core;
 @service({
   title: "MultiContentTypes",
 })
-namespace Cadl.MultiContentTypes;
+namespace TspTest.MultiContentTypes;
 
 model Resource {
   @visibility("read")
