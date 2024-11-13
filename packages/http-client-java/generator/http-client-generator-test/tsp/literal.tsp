@@ -7,7 +7,7 @@ using Azure.Core;
 @service({
   title: "LiteralService",
 })
-namespace Cadl.LiteralService;
+namespace TspTest.LiteralService;
 
 model Model {
   literal: "literal";

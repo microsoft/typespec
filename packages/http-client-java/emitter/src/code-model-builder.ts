@@ -2471,7 +2471,7 @@ export class CodeModelBuilder {
     ) {
       return baseJavaNamespace + namespace.slice(tspNamespace.length).toLowerCase();
     } else {
-      return "com." + namespace.toLowerCase();
+      return namespace.toLowerCase();
     }
   }
 

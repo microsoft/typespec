@@ -7,7 +7,7 @@ using TypeSpec.Http;
   title: "EnumNestedDiscriminator",
 })
 @route("/type/model/inheritance/enum-nested-discriminator")
-namespace Type.Model.Inheritance.EnumNestedDiscriminator;
+namespace TspTest.EnumNestedDiscriminator;
 
 @doc("extensible enum type for discriminator")
 union FishKind {

@@ -448,23 +448,25 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             Assert.IsNotNull(requestOptionsParameterInAsyncMethod);
             Assert.AreEqual(shouldBeOptional, requestOptionsParameterInAsyncMethod!.Type.IsNullable);
 
+            // request options should always be last parameter
+            Assert.AreEqual("RequestOptions", syncMethod.Signature.Parameters[^1].Type.Name);
+            Assert.AreEqual("RequestOptions", asyncMethod.Signature.Parameters[^1].Type.Name);
+
             if (shouldBeOptional)
             {
                 Assert.IsNotNull(requestOptionsParameterInSyncMethod.DefaultValue);
                 Assert.IsNotNull(requestOptionsParameterInAsyncMethod.DefaultValue);
-                // request options should be last optional parameter
-                Assert.AreEqual("RequestOptions", syncMethod.Signature.Parameters[^1].Type.Name);
-                Assert.AreEqual("RequestOptions", asyncMethod.Signature.Parameters[^1].Type.Name);
             }
-            else
+
+            if (shouldBeOptional && hasOptionalParameter)
             {
-                Assert.IsNull(requestOptionsParameterInSyncMethod.DefaultValue);
-                Assert.IsNull(requestOptionsParameterInAsyncMethod.DefaultValue);
-                // optional parameters should come after the required request options
-                if (hasOptionalParameter)
+                var optionalParameter = syncMethod.Signature.Parameters[^2];
+                // The optional parameter should be required in protocol method
+                Assert.IsNull(optionalParameter.DefaultValue);
+                // It should also be nullable for value types
+                if (optionalParameter.Type.IsValueType)
                 {
-                    Assert.AreEqual("RequestOptions", syncMethod.Signature.Parameters[^2].Type.Name);
-                    Assert.AreEqual("RequestOptions", asyncMethod.Signature.Parameters[^2].Type.Name);
+                    Assert.IsTrue(optionalParameter.Type.IsNullable);
                 }
             }
         }
@@ -736,8 +738,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                                 isRequired: true),
                         ]), false, false);
 
-                // Protocol & convenience methods will have the same parameters, so RequestOptions should be required.
-                // One of the parameter is optional, so RequestOptions should come before it
+                // Protocol & convenience methods will have the same parameters.
+                // One of the parameter is optional, so it should be make required in the protocol method, and RequestOptions can be optional.
                 yield return new TestCaseData(
                     InputFactory.Operation(
                         "TestOperation",
@@ -753,7 +755,26 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                                 InputPrimitiveType.Int64,
                                 location: RequestLocation.None,
                                 isRequired: true),
-                        ]), false, true);
+                        ]), true, true);
+
+                // Protocol & convenience methods will have the same parameters.
+                // One of the parameter is optional value type, so it should be made nullable required in the protocol method, and RequestOptions can be optional.
+                yield return new TestCaseData(
+                    InputFactory.Operation(
+                        "TestOperation",
+                        parameters:
+                        [
+                            InputFactory.Parameter(
+                                "p1",
+                                InputPrimitiveType.Int32,
+                                location: RequestLocation.None,
+                                isRequired: false),
+                            InputFactory.Parameter(
+                                "p2",
+                                InputPrimitiveType.Int64,
+                                location: RequestLocation.None,
+                                isRequired: true),
+                        ]), true, true);
 
                 // convenience method only has a body param, so RequestOptions should be optional in protocol method.
                 yield return new TestCaseData(
