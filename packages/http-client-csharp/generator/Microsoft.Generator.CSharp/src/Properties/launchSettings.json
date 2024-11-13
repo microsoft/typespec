@@ -140,6 +140,11 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     },
+    "http-special-headers-repeatability": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/special-headers/repeatability -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
     "http-type-array": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/type/array -p StubLibraryPlugin",
       "commandName": "Executable",
