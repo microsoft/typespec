@@ -1541,7 +1541,7 @@ function createOAPIEmitter(
   }
 
   function validateComponentFixedFieldKey(type: Type, name: string) {
-    const pattern = /^[a-zA-Z0-9\\.\-\\_]+$/;
+    const pattern = /^[a-zA-Z0-9\.\-_]+$/;
     if (!pattern.test(name)) {
       program.reportDiagnostic(
         createDiagnostic({
