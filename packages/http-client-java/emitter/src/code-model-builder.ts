@@ -2527,7 +2527,7 @@ export class CodeModelBuilder {
       return this.baseJavaNamespace;
     }
 
-    return "com." + namespace.toLowerCase();
+    return namespace.toLowerCase();
   }
 
   private logWarning(msg: string) {
