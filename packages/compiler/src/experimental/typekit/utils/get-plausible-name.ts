@@ -1,4 +1,5 @@
-import { Enum, Interface, isTemplateInstance, Model, Scalar, Union } from "../../../index.js";
+import { isTemplateInstance } from "../../../core/type-utils.js";
+import { Enum, Interface, Model, Scalar, Union } from "../../../core/types.js";
 
 export function getPlausibleName(type: Model | Union | Enum | Scalar | Interface) {
   if (!("name" in type)) {

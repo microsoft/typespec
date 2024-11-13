@@ -1,4 +1,4 @@
-import { ModelProperty, Operation, Type } from "../../../core/index.js";
+import { ModelProperty, Operation, Type } from "../../../core/types.js";
 import { $, defineKit } from "../define-kit.js";
 
 interface OperationDescriptor {

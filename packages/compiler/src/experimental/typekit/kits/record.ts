@@ -1,4 +1,5 @@
-import { isRecordModelType, Model, Type } from "../../../index.js";
+import { isRecordModelType } from "../../../core/type-utils.js";
+import { Model, Type } from "../../../core/types.js";
 import { defineKit } from "../define-kit.js";
 
 export interface RecordKit {

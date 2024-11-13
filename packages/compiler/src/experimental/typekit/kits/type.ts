@@ -1,4 +1,4 @@
-import { getDiscriminatedUnion } from "../../../core/index.js";
+import { getDiscriminatedUnion } from "../../../core/helpers/discriminator-utils.js";
 import { Discriminator, getDiscriminator } from "../../../core/intrinsic-type-state.js";
 import { isErrorType } from "../../../core/type-utils.js";
 import { Enum, Model, Scalar, Union, type Namespace, type Type } from "../../../core/types.js";
