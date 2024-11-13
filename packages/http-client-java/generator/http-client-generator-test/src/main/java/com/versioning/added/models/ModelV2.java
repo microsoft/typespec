@@ -89,7 +89,8 @@ public final class ModelV2 implements JsonSerializable<ModelV2> {
         jsonWriter.writeStartObject();
         jsonWriter.writeStringField("prop", this.prop);
         jsonWriter.writeStringField("enumProp", this.enumProp == null ? null : this.enumProp.toString());
-        jsonWriter.writeUntypedField("unionProp", this.unionProp.toObject(Object.class));
+        jsonWriter.writeFieldName("unionProp");
+        this.unionProp.writeTo(jsonWriter);
         return jsonWriter.writeEndObject();
     }
 

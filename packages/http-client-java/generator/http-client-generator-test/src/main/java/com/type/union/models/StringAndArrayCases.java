@@ -69,8 +69,10 @@ public final class StringAndArrayCases implements JsonSerializable<StringAndArra
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
-        jsonWriter.writeUntypedField("string", this.string.toObject(Object.class));
-        jsonWriter.writeUntypedField("array", this.array.toObject(Object.class));
+        jsonWriter.writeFieldName("string");
+        this.string.writeTo(jsonWriter);
+        jsonWriter.writeFieldName("array");
+        this.array.writeTo(jsonWriter);
         return jsonWriter.writeEndObject();
     }
 

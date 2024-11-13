@@ -51,7 +51,8 @@ public final class UnknownStringProperty implements JsonSerializable<UnknownStri
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
-        jsonWriter.writeUntypedField("property", this.property.toObject(Object.class));
+        jsonWriter.writeFieldName("property");
+        this.property.writeTo(jsonWriter);
         return jsonWriter.writeEndObject();
     }
 

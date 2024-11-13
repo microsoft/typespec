@@ -106,10 +106,12 @@ public final class ExtendsUnknownAdditionalPropertiesDiscriminatedDerived
         jsonWriter.writeNumberField("age", this.age);
         if (getAdditionalProperties() != null) {
             for (Map.Entry<String, BinaryData> additionalProperty : getAdditionalProperties().entrySet()) {
-                jsonWriter.writeUntypedField(additionalProperty.getKey(),
-                    additionalProperty.getValue() == null
-                        ? null
-                        : additionalProperty.getValue().toObject(Object.class));
+                jsonWriter.writeFieldName(additionalProperty.getKey());
+                if (additionalProperty.getValue() == null) {
+                    jsonWriter.writeNull();
+                } else {
+                    additionalProperty.getValue().writeTo(jsonWriter);
+                }
             }
         }
         return jsonWriter.writeEndObject();
