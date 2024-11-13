@@ -10,7 +10,7 @@ using Azure.ClientGenerator.Core;
 @service({
   title: "Internal",
 })
-namespace Cadl.Internal;
+namespace TspTest.Internal;
 
 // ApiRequest and RequestInner will be generated
 @access(Access.public)
