@@ -125,10 +125,14 @@ public final class MixedTypesCases implements JsonSerializable<MixedTypesCases> 
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
-        jsonWriter.writeUntypedField("model", this.model.toObject(Object.class));
-        jsonWriter.writeUntypedField("literal", this.literal.toObject(Object.class));
-        jsonWriter.writeUntypedField("int", this.intProperty.toObject(Object.class));
-        jsonWriter.writeUntypedField("boolean", this.booleanProperty.toObject(Object.class));
+        jsonWriter.writeFieldName("model");
+        this.model.writeTo(jsonWriter);
+        jsonWriter.writeFieldName("literal");
+        this.literal.writeTo(jsonWriter);
+        jsonWriter.writeFieldName("int");
+        this.intProperty.writeTo(jsonWriter);
+        jsonWriter.writeFieldName("boolean");
+        this.booleanProperty.writeTo(jsonWriter);
         jsonWriter.writeArrayField("array", this.array,
             (writer, element) -> writer.writeUntyped(element == null ? null : element.toObject(Object.class)));
         return jsonWriter.writeEndObject();

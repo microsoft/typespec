@@ -447,6 +447,53 @@ namespace Microsoft.Generator.CSharp.Providers
                 this);
         }
 
+        private IReadOnlyList<PropertyProvider> GetAllBasePropertiesForConstructorInitialization()
+        {
+            var properties = new List<PropertyProvider>();
+            var modelProvider = BaseModelProvider;
+            bool isDirectBase = true;
+            while (modelProvider != null)
+            {
+                foreach (var property in modelProvider.CanonicalView.Properties)
+                {
+                    if (property.IsDiscriminator)
+                    {
+                        // In the case of nested discriminators, we only need to include the direct base discriminator property,
+                        // as this is the only one that will be initialized in this model's constructor.
+                        if (isDirectBase)
+                        {
+                            properties.Add(property);
+                        }
+                    }
+                    else
+                    {
+                        properties.Add(property);
+                    }
+                }
+
+                modelProvider = modelProvider.BaseModelProvider;
+                isDirectBase = false;
+            }
+
+            return properties;
+        }
+
+        private IReadOnlyList<FieldProvider> GetAllBaseFieldsForConstructorInitialization()
+        {
+            var fields = new List<FieldProvider>();
+            var modelProvider = BaseModelProvider;
+            while (modelProvider != null)
+            {
+                foreach (var field in modelProvider.CanonicalView.Fields)
+                {
+                    fields.Add(field);
+                }
+                modelProvider = modelProvider.BaseModelProvider;
+            }
+
+            return fields;
+        }
+
         private (IReadOnlyList<ParameterProvider> Parameters, ConstructorInitializer? Initializer) BuildConstructorParameters(
             bool isPrimaryConstructor)
         {
@@ -457,9 +504,8 @@ namespace Microsoft.Generator.CSharp.Providers
 
             if (isPrimaryConstructor)
             {
-                // the primary ctor should only include the properties of the direct base model
-                baseProperties = BaseModelProvider?.CanonicalView.Properties ?? [];
-                baseFields = BaseModelProvider?.CanonicalView.Fields ?? [];
+                baseProperties = GetAllBasePropertiesForConstructorInitialization();
+                baseFields = GetAllBaseFieldsForConstructorInitialization();
             }
             else if (BaseModelProvider?.FullConstructor.Signature != null)
             {
