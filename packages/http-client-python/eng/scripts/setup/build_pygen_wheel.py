@@ -15,11 +15,6 @@ try:
 except ImportError:
     raise Exception("Your Python installation doesn't have pip available")
 
-try:
-    import venv
-except ImportError:
-    raise Exception("Your Python installation doesn't have venv available")
-
 
 # Now we have pip and Py >= 3.8, go to work
 

@@ -7,7 +7,6 @@ import {
 import { EmitContext } from "@typespec/compiler";
 import { exec } from "child_process";
 import fs from "fs";
-import jsyaml from "js-yaml";
 import path, { dirname } from "path";
 import { loadPyodide } from "pyodide";
 import { fileURLToPath } from "url";
@@ -80,6 +79,7 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
   const root = path.join(dirname(fileURLToPath(import.meta.url)), "..", "..");
   const outputDir = context.emitterOutputDir;
   const yamlMap = emitCodeModel(sdkContext);
+  const yamlPath = await saveCodeModelAsYaml("python-yaml-path", yamlMap);
   addDefaultOptions(sdkContext);
   const resolvedOptions = sdkContext.emitContext.options;
   if (resolvedOptions["use-pyodide"]) {
@@ -97,7 +97,7 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
       resolvedOptions["package-pprint-name"] !== undefined &&
       !resolvedOptions["package-pprint-name"].startsWith('"')
     ) {
-      resolvedOptions["package-pprint-name"] = `"${resolvedOptions["package-pprint-name"]}"`;
+      resolvedOptions["package-pprint-name"] = `${resolvedOptions["package-pprint-name"]}`;
     }
 
     for (const [key, value] of Object.entries(resolvedOptions)) {
@@ -118,29 +118,14 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
       }
       const pyodide = await loadPyodide({ indexURL: path.join(root, "node_modules", "pyodide") });
       pyodide.FS.mount(pyodide.FS.filesystems.NODEFS, { root: "." }, ".");
-      const yamlStr = jsyaml.dump(yamlMap);
-      if (!fs.existsSync("temp")) {
-        fs.mkdirSync("temp");
-      }
-      const yamlPath = path.join("temp", "yamldata.yaml");
-      pyodide.FS.writeFile(yamlPath, yamlStr);
+      await pyodide.loadPackage("setuptools");
+      await pyodide.loadPackage("tomli");
+      await pyodide.loadPackage("docutils");
       await pyodide.loadPackage("micropip");
       const micropip = pyodide.pyimport("micropip");
-      await micropip.install([
-        "black",
-        "click",
-        "docutils==0.21.2",
-        "Jinja2==3.1.4",
-        "m2r2==0.3.3.post2",
-        "MarkupSafe",
-        "pathspec",
-        "platformdirs",
-        "PyYAML",
-        "tomli",
-        "setuptools",
-        "emfs:generator/dist/pygen-0.1.0-py3-none-any.whl",
-      ]);
-      const globals = pyodide.toPy({ outputFolder, yamlPath, commandArgs });
+      await micropip.install("emfs:generator/dist/pygen-0.1.0-py3-none-any.whl");
+      const yamlRelativePath = path.relative(root, yamlPath);
+      const globals = pyodide.toPy({ outputFolder, yamlRelativePath, commandArgs });
       const python = `
         async def main():
           import warnings
@@ -148,9 +133,9 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
             warnings.simplefilter("ignore", SyntaxWarning)
             from pygen import m2r, preprocess, codegen, black
 
-          m2r.M2R(output_folder=outputFolder, cadl_file=yamlPath, **commandArgs).process()
-          preprocess.PreProcessPlugin(output_folder=outputFolder, cadl_file=yamlPath, **commandArgs).process()
-          codegen.CodeGenerator(output_folder=outputFolder, cadl_file=yamlPath, **commandArgs).process()
+          m2r.M2R(output_folder=outputFolder, cadl_file=yamlRelativePath, **commandArgs).process()
+          preprocess.PreProcessPlugin(output_folder=outputFolder, cadl_file=yamlRelativePath, **commandArgs).process()
+          codegen.CodeGenerator(output_folder=outputFolder, cadl_file=yamlRelativePath, **commandArgs).process()
           black.BlackScriptPlugin(output_folder=outputFolder, **commandArgs).process()
     
         await main()
@@ -166,7 +151,6 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
     } else {
       throw new Error("Virtual environment doesn't exist.");
     }
-    const yamlPath = await saveCodeModelAsYaml("python-yaml-path", yamlMap);
     const commandArgs = [
       venvPath,
       `${root}/eng/scripts/setup/run_tsp.py`,
