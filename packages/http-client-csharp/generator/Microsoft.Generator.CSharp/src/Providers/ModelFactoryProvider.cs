@@ -145,7 +145,7 @@ namespace Microsoft.Generator.CSharp.Providers
             for (int i = 0; i < modelCtorFullSignature.Parameters.Count; i++)
             {
                 var ctorParam = modelCtorFullSignature.Parameters[i];
-                if (ReferenceEquals(ctorParam, binaryDataParameter))
+                if (ReferenceEquals(ctorParam, binaryDataParameter) && !modelProvider.SupportsBinaryDataAdditionalProperties)
                 {
                     expressions.Add(binaryDataParameter.PositionalReference(Null));
                     continue;
