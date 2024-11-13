@@ -283,7 +283,6 @@ Pet:
 ```tsp
 @encodedName("application/xml", "XmlPet")
 model Pet {
-  @encodedName("application/xml", "ItemsTags")
   tags: Tag[];
 }
 
@@ -298,11 +297,9 @@ model Tag {
 
 ```xml
 <XmlPet>
-  <ItemsTags>
-    <XmlTag>
-      <name>string</name>
-    </XmlTag>
-  </ItemsTags>
+  <XmlTag>
+    <name>string</name>
+  </XmlTag>
 </XmlPet>
 ```
 
@@ -318,20 +315,19 @@ Tag:
   xml:
     name: "XmlTag"
 Pet:
-  type: "object"
+  type: object
   properties:
     tags:
-      type: "array"
-      xml:
-        name: "ItemsTags"
-        wrapped: true
+      type: array
       items:
         allOf:
-          - $ref: "#/definitions/Tag"
+          - $ref: "#/components/schemas/Tag"
         xml:
           name: XmlTag
+      xml:
+        wrapped: true
   xml:
-    name: "XmlPet"
+    name: XmlPet
 ```
 
 </td>
@@ -657,6 +653,8 @@ Book:
   properties:
     id:
       type: integer
+      xml:
+        attribute: true
     title:
       type: string
       xml:
@@ -839,6 +837,10 @@ Book:
   xml:
     prefix: "smp"
     namespace: "http://example.com/schema"
+Namespaces:
+  type: string
+  enum:
+    - http://example.com/schema
 ```
 
 </td>
@@ -900,6 +902,11 @@ Book:
   xml:
     prefix: "smp"
     namespace: "http://example.com/schema"
+Namespaces:
+  type: string
+  enum:
+    - http://example.com/schema
+    - http://example.com/ns2
 ```
 
 </td>
@@ -951,8 +958,6 @@ Book:
         attribute: true
     content:
       type: string
-      xml:
-        x-ms-text: true # on autorest emitter
 ```
 
 </td>
