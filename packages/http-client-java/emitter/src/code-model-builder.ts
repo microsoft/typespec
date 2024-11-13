@@ -2518,8 +2518,12 @@ export class CodeModelBuilder {
       } else if (type.crossLanguageDefinitionId === "Azure.Core.Foundations.OperationState") {
         // Azure.Core.OperationState
         return this.baseJavaNamespace;
-      } else if (type.crossLanguageDefinitionId === "Azure.Core.ResourceOperationStatus") {
+      } else if (
+        type.crossLanguageDefinitionId === "Azure.Core.ResourceOperationStatus" ||
+        type.crossLanguageDefinitionId === "Azure.Core.Foundations.OperationStatus"
+      ) {
         // Azure.Core.ResourceOperationStatus<>
+        // Azure.Core.Foundations.OperationStatus<>
         // usually this model will not be generated, but javadoc of protocol method requires it be in SDK namespace
         return this.baseJavaNamespace;
       }
