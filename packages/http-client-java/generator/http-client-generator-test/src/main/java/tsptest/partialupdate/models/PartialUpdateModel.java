@@ -135,6 +135,7 @@ public final class PartialUpdateModel implements JsonSerializable<PartialUpdateM
     }
 
     @Override
+    @Generated
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
         jsonWriter.writeBooleanField("boolean", this.booleanProperty);
@@ -153,6 +154,7 @@ public final class PartialUpdateModel implements JsonSerializable<PartialUpdateM
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the PartialUpdateModel.
      */
+    @Generated
     public static PartialUpdateModel fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             boolean booleanProperty = false;
