@@ -1541,8 +1541,7 @@ function createOAPIEmitter(
   }
 
   function validateComponentFixedFieldKey(type: Type, name: string) {
-    // eslint-disable-next-line no-useless-escape
-    const pattern = /^[a-zA-Z0-9\.\-_]+$/;
+    const pattern = /^[a-zA-Z0-9.\-_]+$/;
     if (!pattern.test(name)) {
       program.reportDiagnostic(
         createDiagnostic({

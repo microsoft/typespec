@@ -278,7 +278,7 @@ export const libDef = {
     "invalid-component-fixed-field-key": {
       severity: "error",
       messages: {
-        default: paramMessage`Invalid key '${"value"}' used in fixed fields of Component object. Only keys matching the regular expression to ^[a-zA-Z0-9.-_]+$ are allowed.`,
+        default: paramMessage`Invalid key '${"value"}' used in fixed fields of Component object. Only keys matching the regular expression to ^[a-zA-Z0-9.\-_]+$ are allowed.`,
       },
     },
   },
