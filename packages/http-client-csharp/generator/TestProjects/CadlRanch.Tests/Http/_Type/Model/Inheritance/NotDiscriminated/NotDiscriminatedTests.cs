@@ -30,11 +30,11 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Model.Inheritance.NotDiscrimin
         [CadlRanchTest]
         public Task PutValid() => Test(async (host) =>
         {
-            var response = await new NotDiscriminatedClient(host, null).PutValidAsync(new Siamese("def", 11, false));
+            var response = await new NotDiscriminatedClient(host, null).PutValidAsync(new Siamese("abc", 32, true));
             Assert.AreEqual(200, response.GetRawResponse().Status);
-            Assert.AreEqual("def", response.Value.Name);
-            Assert.AreEqual(11, response.Value.Age);
-            Assert.IsFalse(response.Value.Smart);
+            Assert.AreEqual("abc", response.Value.Name);
+            Assert.AreEqual(32, response.Value.Age);
+            Assert.IsTrue(response.Value.Smart);
         });
     }
 }
