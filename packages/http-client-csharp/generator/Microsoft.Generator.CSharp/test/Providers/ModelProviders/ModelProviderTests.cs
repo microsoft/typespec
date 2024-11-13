@@ -264,9 +264,9 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.AreEqual("prop1", baseParameters[0].Name);
             Assert.AreEqual(new CSharpType(typeof(string)), baseParameters[0].Type);
             Assert.AreEqual(2, derivedParameters.Count);
-            Assert.AreEqual("prop3", derivedParameters[0].Name);
+            Assert.AreEqual("prop1", derivedParameters[0].Name);
             Assert.AreEqual(new CSharpType(typeof(string)), derivedParameters[0].Type);
-            Assert.AreEqual("prop1", derivedParameters[1].Name);
+            Assert.AreEqual("prop3", derivedParameters[1].Name);
             Assert.AreEqual(new CSharpType(typeof(string)), derivedParameters[1].Type);
 
             // validate the secondary constructor
@@ -290,18 +290,18 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.AreEqual(new CSharpType(typeof(IDictionary<string, BinaryData>)), secondaryCtorParameters[3].Type);
             // validate derived secondary constructor
             Assert.AreEqual(6, derivedSecondaryCtorParams.Count); // all base props + 2 properties + 1 additionalRawData + additional props
-            Assert.AreEqual("prop3", derivedSecondaryCtorParams[0].Name);
+            Assert.AreEqual("prop1", derivedSecondaryCtorParams[0].Name);
             Assert.AreEqual(new CSharpType(typeof(string)), derivedSecondaryCtorParams[0].Type);
-            Assert.AreEqual("prop4", derivedSecondaryCtorParams[1].Name);
+            Assert.AreEqual("prop2", derivedSecondaryCtorParams[1].Name);
             Assert.AreEqual(new CSharpType(typeof(string), true), derivedSecondaryCtorParams[1].Type);
-            Assert.AreEqual("prop1", derivedSecondaryCtorParams[2].Name);
-            Assert.AreEqual(new CSharpType(typeof(string)), derivedSecondaryCtorParams[2].Type);
-            Assert.AreEqual("prop2", derivedSecondaryCtorParams[3].Name);
-            Assert.AreEqual(new CSharpType(typeof(string), true), derivedSecondaryCtorParams[3].Type);
-            Assert.AreEqual("additionalProperties", derivedSecondaryCtorParams[4].Name);
-            Assert.AreEqual(new CSharpType(typeof(IDictionary<string, string>)), derivedSecondaryCtorParams[4].Type);
-            Assert.AreEqual("additionalBinaryDataProperties", derivedSecondaryCtorParams[5].Name);
-            Assert.AreEqual(new CSharpType(typeof(IDictionary<string, BinaryData>)), derivedSecondaryCtorParams[5].Type);
+            Assert.AreEqual("additionalProperties", derivedSecondaryCtorParams[2].Name);
+            Assert.AreEqual(new CSharpType(typeof(IDictionary<string, string>)), derivedSecondaryCtorParams[2].Type);
+            Assert.AreEqual("additionalBinaryDataProperties", derivedSecondaryCtorParams[3].Name);
+            Assert.AreEqual(new CSharpType(typeof(IDictionary<string, BinaryData>)), derivedSecondaryCtorParams[3].Type);
+            Assert.AreEqual("prop3", derivedSecondaryCtorParams[4].Name);
+            Assert.AreEqual(new CSharpType(typeof(string)), derivedSecondaryCtorParams[4].Type);
+            Assert.AreEqual("prop4", derivedSecondaryCtorParams[5].Name);
+            Assert.AreEqual(new CSharpType(typeof(string), isNullable: true), derivedSecondaryCtorParams[5].Type);
         }
 
         [TestCase(true)]
