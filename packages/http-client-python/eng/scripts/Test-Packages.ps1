@@ -34,7 +34,7 @@ try {
         Set-StrictMode -Version 1
         
         # run E2E Test for TypeSpec emitter
-        Write-Host "Generating test projects ..."
+        Write-Host "Generating test projects with venv ..."
         & "$packageRoot/eng/scripts/Generate.ps1"
         Write-Host 'Code generation is completed.'
 
@@ -44,7 +44,20 @@ try {
             Write-Host 'Done. No code generation differences detected.'
         }
         catch {
-            Write-Error 'Generated code is not up to date. Please run: eng/Generate.ps1'
+            Write-Error 'Generated code is not up to date. Please run: eng/scripts/Generate.ps1'
+        }
+
+        Write-Host "Generating test projects with pyodide ..."
+        & "$packageRoot/eng/scripts/Generate-WithPyodide.ps1"
+        Write-Host 'Code generation is completed.'
+
+        try {
+            Write-Host 'Checking for differences in generated code...'
+            & "$packageRoot/eng/scripts/Check-GitChanges.ps1"
+            Write-Host 'Done. No code generation differences detected.'
+        }
+        catch {
+            Write-Error 'Generated code is not up to date. Please run: eng/scripts/Generate-WithPyodide.ps1'
         }
 
         try {
