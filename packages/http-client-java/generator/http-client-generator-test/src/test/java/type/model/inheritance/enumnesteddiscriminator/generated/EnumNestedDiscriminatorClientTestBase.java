@@ -13,8 +13,8 @@ import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.test.TestMode;
 import com.azure.core.test.TestProxyTestBase;
 import com.azure.core.util.Configuration;
-import type.model.inheritance.enumnesteddiscriminator.EnumNestedDiscriminatorClient;
-import type.model.inheritance.enumnesteddiscriminator.EnumNestedDiscriminatorClientBuilder;
+import tsptest.enumnesteddiscriminator.EnumNestedDiscriminatorClient;
+import tsptest.enumnesteddiscriminator.EnumNestedDiscriminatorClientBuilder;
 
 class EnumNestedDiscriminatorClientTestBase extends TestProxyTestBase {
     protected EnumNestedDiscriminatorClient enumNestedDiscriminatorClient;
