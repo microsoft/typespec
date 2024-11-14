@@ -35,6 +35,103 @@ namespace TestProjects.CadlRanch.Tests.Http.Payload.Multipart
         });
 
         [CadlRanchTest]
+        public Task CheckFileNameAndContentType() => Test(async (host) =>
+        {
+            using MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
+            content.Add("123", "id");
+            content.Add(File.OpenRead(SampleJpgPath), "profileImage", "hello.jpg", "image/jpg");
+            var response = await new MultiPartClient(host, null).GetFormDataClient().CheckFileNameAndContentTypeAsync(content, content.ContentType, null);
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [CadlRanchTest]
+        public Task FileArrayAndBasic() => Test(async (host) =>
+        {
+            using MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
+            content.Add("123", "id");
+            content.Add("{\"city\":\"X\"}", "address", contentType: "application/json");
+            content.Add(File.OpenRead(SampleJpgPath), "profileImage", "profileImage", "application/octet-stream");
+            content.Add("[{\"city\":\"Y\"},{\"city\":\"Z\"}]", "previousAddresses", contentType: "application/json");
+            content.Add(File.OpenRead(SamplePngPath), "pictures", "pictures", "application/octet-stream");
+            content.Add(File.OpenRead(SamplePngPath), "pictures", "pictures", "application/octet-stream");
+            var response = await new MultiPartClient(host, null).GetFormDataClient().FileArrayAndBasicAsync(content, content.ContentType, null);
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [CadlRanchTest]
+        public Task HttpPartsImageJpegContentType() => Test(async (host) =>
+        {
+            using MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
+            content.Add(File.OpenRead(SampleJpgPath), "profileImage", "hello.jpg", "image/jpg");
+            var response = await new MultiPartClient(host, null).GetFormDataClient()
+                .GetFormDataHttpPartsClient()
+                .GetFormDataHttpPartsContentTypeClient()
+                .ImageJpegContentTypeAsync(content, content.ContentType, null);
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [CadlRanchTest]
+        public Task HttpPartsOptionalContentType() => Test(async (host) =>
+        {
+            using MultiPartFormDataBinaryContent contentWithNoContentType = new MultiPartFormDataBinaryContent();
+            contentWithNoContentType.Add(File.OpenRead(SampleJpgPath), "profileImage", "hello.jpg");
+            var response = await new MultiPartClient(host, null).GetFormDataClient()
+                .GetFormDataHttpPartsClient()
+                .GetFormDataHttpPartsContentTypeClient()
+                .OptionalContentTypeAsync(contentWithNoContentType, contentWithNoContentType.ContentType, null);
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+
+            using MultiPartFormDataBinaryContent contentWithContentType = new MultiPartFormDataBinaryContent();
+            contentWithContentType.Add(File.OpenRead(SampleJpgPath), "profileImage", "hello.jpg", "application/octet-stream");
+            response = await new MultiPartClient(host, null).GetFormDataClient()
+                .GetFormDataHttpPartsClient()
+                .GetFormDataHttpPartsContentTypeClient()
+                .OptionalContentTypeAsync(contentWithContentType, contentWithContentType.ContentType, null);
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [CadlRanchTest]
+        public Task HttpPartsRequiredContentType() => Test(async (host) =>
+        {
+            using MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
+            content.Add(File.OpenRead(SampleJpgPath), "profileImage", "hello.jpg", "application/octet-stream");
+            var response = await new MultiPartClient(host, null).GetFormDataClient()
+                .GetFormDataHttpPartsClient()
+                .GetFormDataHttpPartsContentTypeClient()
+                .RequiredContentTypeAsync(content, content.ContentType, null);
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [CadlRanchTest]
+        public Task HttpPartsJsonArrayAndFileArray() => Test(async (host) =>
+        {
+            using MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
+            content.Add("123", "id");
+            content.Add("{\"city\":\"X\"}", "address", contentType: "application/json");
+            content.Add(File.OpenRead(SampleJpgPath), "profileImage", "hello.jpg", "application/octet-stream");
+            content.Add("[{\"city\":\"Y\"},{\"city\":\"Z\"}]", "previousAddresses", contentType: "application/json");
+            content.Add(File.OpenRead(SamplePngPath), "pictures", "hello.jpg", "application/octet-stream");
+            content.Add(File.OpenRead(SamplePngPath), "pictures", "hello.jpg", "application/octet-stream");
+
+            var response = await new MultiPartClient(host, null).GetFormDataClient()
+                .GetFormDataHttpPartsClient()
+                .JsonArrayAndFileArrayAsync(content, content.ContentType, null);
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [CadlRanchTest]
+        public Task HttpPartsNonStringFloat() => Test(async (host) =>
+        {
+            using MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
+            content.Add(0.5f, "temperature");
+            var response = await new MultiPartClient(host, null).GetFormDataClient()
+                .GetFormDataHttpPartsClient()
+                .GetFormDataHttpPartsNonStringClient()
+                .FloatAsync(content, content.ContentType, null);
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [CadlRanchTest]
         public Task BinaryArrayParts() => Test(async (host) =>
         {
             using MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
