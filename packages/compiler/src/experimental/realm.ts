@@ -8,6 +8,8 @@ import { createTypekit, Typekit } from "./typekit/index.js";
  *
  * For all operations, if a type was created within the realm, the realm's own state map is used. Otherwise, the owning'
  * Program's state map is used.
+ *
+ * @experimental
  */
 class StateMapRealmView<V> implements Map<Type, V> {
   #realm: Realm;
@@ -96,6 +98,12 @@ class StateMapRealmView<V> implements Map<Type, V> {
   }
 }
 
+/**
+ * A symbol used to access a realm's typekit.
+ *
+ * @internal
+ * @experimental
+ */
 export const REALM_TYPEKIT = Symbol.for("TypeSpec::Realm::Typekit");
 
 /**
@@ -110,8 +118,6 @@ export const REALM_TYPEKIT = Symbol.for("TypeSpec::Realm::Typekit");
 export class Realm {
   #program: Program;
 
-  // Type registry
-
   /**
    * Stores all types owned by this realm.
    */
@@ -121,11 +127,17 @@ export class Realm {
    * Stores types that are deleted in this realm. When a realm is active and doing a traversal, you will
    * not find this type in e.g. collections. Deleted types are mapped to `null` if you ask for it.
    */
-  #deletedTypes = new Set<Type>();
+  #deletedTypes = new WeakSet<Type>();
 
   #stateMaps = new Map<symbol, Map<Type, any>>();
   public key!: symbol;
 
+  /**
+   * Create a new realm in the given program.
+   *
+   * @param program - The program to create the realm in.
+   * @param description - A short description of the realm's purpose.
+   */
   constructor(program: Program, description: string) {
     this.key = Symbol(description);
     this.#program = program;
@@ -135,14 +147,31 @@ export class Realm {
 
   #_typekit: Typekit | undefined;
 
+  /**
+   * The typekit instance bound to this realm.
+   *
+   * If the realm does not already have a typekit associated with it, one will be created and bound to this realm.
+   */
   get [REALM_TYPEKIT](): Typekit {
     return (this.#_typekit ??= createTypekit(this));
   }
 
+  /**
+   * The program that this realm is associated with.
+   */
   get program(): Program {
     return this.#program;
   }
 
+  /**
+   * Gets a state map for the given state key symbol.
+   *
+   * This state map is a view of the program's state map for the given state key, with modifications made to the realm's
+   * own state.
+   *
+   * @param stateKey - The symbol to use as the state key.
+   * @returns The realm's state map for the given state key.
+   */
   stateMap(stateKey: symbol) {
     let m = this.#stateMaps.get(stateKey);
 
@@ -154,6 +183,12 @@ export class Realm {
     return new StateMapRealmView<any>(this, m, this.#program.stateMap(stateKey));
   }
 
+  /**
+   * Clones a type and adds it to the realm. This operation will use the realm's typekit to clone the type.
+   *
+   * @param type - The type to clone.
+   * @returns A clone of the input type that exists within this realm.
+   */
   clone<T extends Type>(type: T): T {
     compilerAssert(type, "Undefined type passed to clone");
 
@@ -163,14 +198,34 @@ export class Realm {
     return clone;
   }
 
+  /**
+   * Removes a type from this realm. This operation will not affect the type in the program, only this realm's view
+   * of the type.
+   *
+   * @param type - The TypeSpec type to remove from this realm.
+   */
   remove(type: Type): void {
     this.#deletedTypes.add(type);
   }
 
+  /**
+   * Determines whether or not this realm contains a given type.
+   *
+   * @param type - The type to check.
+   * @returns true if the type was created within this realm or added to this realm, false otherwise.
+   */
   hasType(type: Type): boolean {
     return this.#types.has(type);
   }
 
+  /**
+   * Adds a type to this realm. Once a type is added to the realm, the realm considers it part of itself.
+   *
+   * A type can be present in multiple realms, but `Realm.realmForType` will only return the last realm that the type
+   * was added to.
+   *
+   * @param type - The type to add to this realm.
+   */
   addType(type: Type): void {
     this.#types.add(type);
     Realm.realmForType.set(type, this);
@@ -189,5 +244,5 @@ export class Realm {
     return this.#knownRealms.get(key);
   }
 
-  static realmForType = new Map<Type, Realm>();
+  static realmForType = new WeakMap<Type, Realm>();
 }

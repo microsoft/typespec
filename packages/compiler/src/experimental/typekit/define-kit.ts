@@ -1,13 +1,24 @@
 import { type Program } from "../../core/program.js";
 import { Realm } from "../realm.js";
 
-/** @experimental */
+/**
+ * A Typekit is a collection of utility functions and namespaces that allow you to work with TypeSpec types.
+ *
+ * @experimental
+ */
 export interface Typekit {
   readonly program: Program;
   readonly realm: Realm;
 }
 
-/** @experimental */
+/**
+ * The prototype object for Typekit instances.
+ *
+ * @see {@link defineKit}
+ *
+ * @experimental
+ * @internal
+ */
 export const TypekitPrototype: Record<string, unknown> = {};
 
 /**
@@ -21,7 +32,13 @@ export type StripGuards<T> = {
     : StripGuards<T[K]>;
 };
 
-/** @experimental */
+/**
+ * Defines an extension to the Typekit interface.
+ *
+ * All Typekit instances will inherit the functionality defined by calls to this function.
+ *
+ * @experimental
+ */
 export function defineKit<T extends Record<string, any>>(
   source: StripGuards<T> & ThisType<Typekit>,
 ): void {
