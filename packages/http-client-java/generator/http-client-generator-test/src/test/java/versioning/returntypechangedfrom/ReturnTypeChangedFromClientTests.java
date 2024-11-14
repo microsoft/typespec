@@ -3,8 +3,8 @@
 
 package versioning.returntypechangedfrom;
 
-import com.versioning.returntypechangedfrom.models.Versions;
 import org.junit.jupiter.api.Test;
+import versioning.returntypechangedfrom.models.Versions;
 
 public class ReturnTypeChangedFromClientTests {
     private final ReturnTypeChangedFromClient returnTypeChangedFromClient
