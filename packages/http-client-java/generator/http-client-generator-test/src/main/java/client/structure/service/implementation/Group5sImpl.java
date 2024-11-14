@@ -4,6 +4,7 @@
 
 package client.structure.service.implementation;
 
+import client.structure.service.models.ClientType;
 import com.azure.core.annotation.ExpectedResponses;
 import com.azure.core.annotation.Host;
 import com.azure.core.annotation.HostParam;
@@ -21,7 +22,6 @@ import com.azure.core.http.rest.Response;
 import com.azure.core.http.rest.RestProxy;
 import com.azure.core.util.Context;
 import com.azure.core.util.FluxUtil;
-import com.client.structure.service.models.ClientType;
 import reactor.core.publisher.Mono;
 
 /**

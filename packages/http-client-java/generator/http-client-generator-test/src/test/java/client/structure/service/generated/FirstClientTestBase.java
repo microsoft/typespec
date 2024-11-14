@@ -12,6 +12,7 @@ import client.structure.service.FirstClient;
 import client.structure.service.FirstClientBuilder;
 import client.structure.service.Group3Client;
 import client.structure.service.Group4Client;
+import client.structure.service.models.ClientType;
 import client.structure.service.subnamespace.Group5Client;
 import client.structure.service.subnamespace.SecondClient;
 import client.structure.service.subnamespace.SecondClientBuilder;
@@ -36,7 +37,7 @@ class FirstClientTestBase extends TestProxyTestBase {
     protected void beforeTest() {
         FirstClientBuilder firstClientbuilder
             = new FirstClientBuilder().endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
-                .client(Configuration.getGlobalConfiguration().get("CLIENT", "client"))
+                .client(ClientType.fromString(Configuration.getGlobalConfiguration().get("CLIENT", "client")))
                 .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
                 .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {
@@ -46,7 +47,7 @@ class FirstClientTestBase extends TestProxyTestBase {
 
         FirstClientBuilder group3Clientbuilder
             = new FirstClientBuilder().endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
-                .client(Configuration.getGlobalConfiguration().get("CLIENT", "client"))
+                .client(ClientType.fromString(Configuration.getGlobalConfiguration().get("CLIENT", "client")))
                 .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
                 .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {
@@ -56,7 +57,7 @@ class FirstClientTestBase extends TestProxyTestBase {
 
         FirstClientBuilder group4Clientbuilder
             = new FirstClientBuilder().endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
-                .client(Configuration.getGlobalConfiguration().get("CLIENT", "client"))
+                .client(ClientType.fromString(Configuration.getGlobalConfiguration().get("CLIENT", "client")))
                 .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
                 .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {
@@ -66,7 +67,7 @@ class FirstClientTestBase extends TestProxyTestBase {
 
         SecondClientBuilder secondClientbuilder
             = new SecondClientBuilder().endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
-                .client(Configuration.getGlobalConfiguration().get("CLIENT", "client"))
+                .client(ClientType.fromString(Configuration.getGlobalConfiguration().get("CLIENT", "client")))
                 .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
                 .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {
@@ -76,7 +77,7 @@ class FirstClientTestBase extends TestProxyTestBase {
 
         SecondClientBuilder group5Clientbuilder
             = new SecondClientBuilder().endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
-                .client(Configuration.getGlobalConfiguration().get("CLIENT", "client"))
+                .client(ClientType.fromString(Configuration.getGlobalConfiguration().get("CLIENT", "client")))
                 .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
                 .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {

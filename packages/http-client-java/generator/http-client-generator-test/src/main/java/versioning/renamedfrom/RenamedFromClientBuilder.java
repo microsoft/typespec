@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import versioning.renamedfrom.implementation.RenamedFromClientImpl;
+import versioning.renamedfrom.models.Versions;
 
 /**
  * A builder for creating a new instance of the RenamedFromClient type.
@@ -198,7 +199,7 @@ public final class RenamedFromClientBuilder implements HttpTrait<RenamedFromClie
      * Need to be set as 'v1' or 'v2' in client.
      */
     @Generated
-    private String version;
+    private Versions version;
 
     /**
      * Sets Need to be set as 'v1' or 'v2' in client.
@@ -207,7 +208,7 @@ public final class RenamedFromClientBuilder implements HttpTrait<RenamedFromClie
      * @return the RenamedFromClientBuilder.
      */
     @Generated
-    public RenamedFromClientBuilder version(String version) {
+    public RenamedFromClientBuilder version(Versions version) {
         this.version = version;
         return this;
     }

@@ -4,13 +4,13 @@
 
 package client.structure.service.implementation;
 
+import client.structure.service.models.ClientType;
 import com.azure.core.http.HttpPipeline;
 import com.azure.core.http.HttpPipelineBuilder;
 import com.azure.core.http.policy.RetryPolicy;
 import com.azure.core.http.policy.UserAgentPolicy;
 import com.azure.core.util.serializer.JacksonAdapter;
 import com.azure.core.util.serializer.SerializerAdapter;
-import com.client.structure.service.models.ClientType;
 
 /**
  * Initializes a new instance of the TwoOperationGroupClient type.

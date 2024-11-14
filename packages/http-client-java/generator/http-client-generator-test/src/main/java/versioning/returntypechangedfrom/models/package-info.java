@@ -8,4 +8,4 @@
  * Test for the `&#064;returnTypeChangedFrom` decorator.
  * <!-- end generated doc -->
  */
-package com.versioning.returntypechangedfrom.models;
+package versioning.returntypechangedfrom.models;
