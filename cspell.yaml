@@ -250,7 +250,6 @@ words:
   - pyodide
   - pyimport
   - NODEFS
-  - yamldata
   - deps
 ignorePaths:
   - "**/node_modules/**"
