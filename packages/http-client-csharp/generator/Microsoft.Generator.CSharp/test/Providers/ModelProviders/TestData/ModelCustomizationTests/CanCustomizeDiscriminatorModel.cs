@@ -14,7 +14,7 @@ namespace Sample.Models
         {
         }
 
-        internal FooModel(global::System.Collections.Generic.IList<int> prop1, global::Sample.Models.DiscriminatorValue discriminator, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties) : base(prop1, discriminator, additionalBinaryDataProperties)
+        internal FooModel(global::Sample.Models.DiscriminatorValue discriminator, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties, global::System.Collections.Generic.IList<int> prop1) : base(prop1, discriminator, additionalBinaryDataProperties)
         {
         }
 

@@ -44,7 +44,6 @@
     "tsptest.specialheaders.SkipSpecialHeadersClient.deleteWithSpecialHeaders": "TspTest.SpecialHeaders.SkipSpecialHeaders.deleteWithSpecialHeaders",
     "tsptest.specialheaders.SkipSpecialHeadersClient.deleteWithSpecialHeadersWithResponse": "TspTest.SpecialHeaders.SkipSpecialHeaders.deleteWithSpecialHeaders",
     "tsptest.specialheaders.SpecialHeadersClientBuilder": "TspTest.SpecialHeaders",
-    "tsptest.specialheaders.models.Error1": "null",
     "tsptest.specialheaders.models.Resource": "TspTest.SpecialHeaders.Resource"
   }
 }
