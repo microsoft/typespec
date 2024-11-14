@@ -145,6 +145,12 @@ namespace Microsoft.Generator.CSharp.Providers
             for (int i = 0; i < modelCtorFullSignature.Parameters.Count; i++)
             {
                 var ctorParam = modelCtorFullSignature.Parameters[i];
+                if (ReferenceEquals(ctorParam, binaryDataParameter) && !modelProvider.SupportsBinaryDataAdditionalProperties)
+                {
+                    expressions.Add(binaryDataParameter.PositionalReference(Null));
+                    continue;
+                }
+
                 var factoryParam = factoryMethodSignature.Parameters.FirstOrDefault(p => p.Name.Equals(ctorParam.Name));
 
                 if (factoryParam == null)
@@ -178,11 +184,6 @@ namespace Microsoft.Generator.CSharp.Providers
                         expressions.Add(factoryParam);
                     }
                 }
-            }
-
-            if (binaryDataParameter != null && !modelProvider.SupportsBinaryDataAdditionalProperties)
-            {
-                expressions.Add(binaryDataParameter.PositionalReference(Null));
             }
 
             return [.. expressions];
