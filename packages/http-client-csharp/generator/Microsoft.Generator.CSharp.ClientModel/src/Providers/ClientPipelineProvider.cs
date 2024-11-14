@@ -33,7 +33,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         public override ClientPipelineApi FromExpression(ValueExpression expression)
             => new ClientPipelineProvider(expression);
 
-        public override ValueExpression ApplyAuthorizationPolicies(params ValueExpression[] arguments)
+        public override ValueExpression AuthorizationPolicy(params ValueExpression[] arguments)
             => Static<ApiKeyAuthenticationPolicy>().Invoke(nameof(ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy), arguments).As<ApiKeyAuthenticationPolicy>();
 
         public override MethodBodyStatement Send(HttpMessageApi message, HttpRequestOptionsApi options)

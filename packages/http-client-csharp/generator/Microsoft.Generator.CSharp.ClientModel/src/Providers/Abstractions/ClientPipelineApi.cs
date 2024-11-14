@@ -27,7 +27,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         public abstract ValueExpression Create(ValueExpression options, ValueExpression perRetryPolicies);
 
-        public abstract ValueExpression ApplyAuthorizationPolicies(params ValueExpression[] authorizationPolicies);
+        public abstract ValueExpression AuthorizationPolicy(params ValueExpression[] arguments);
         public abstract ClientPipelineApi FromExpression(ValueExpression expression);
         public abstract ClientPipelineApi ToExpression();
     }
