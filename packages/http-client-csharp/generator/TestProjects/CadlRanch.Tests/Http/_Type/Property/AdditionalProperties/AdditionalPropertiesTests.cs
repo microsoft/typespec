@@ -158,9 +158,12 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Property.AdditionalProperties
         public Task IsModelArrayGet() => Test(async (host) =>
         {
             var response = await new AdditionalPropertiesClient(host, null).GetIsModelArrayClient().GetAsync();
+            Assert.AreEqual(200, response.GetRawResponse().Status);
+
             var value = response.Value;
             Assert.AreEqual(1, value.AdditionalProperties.Count);
             Assert.IsTrue(value.AdditionalProperties.ContainsKey("prop"));
+
             var prop = value.AdditionalProperties["prop"].Select(item => ModelReaderWriter.Read<ModelForRecord>(item)).ToList();
             Assert.AreEqual(2, prop.Count);
             Assert.AreEqual("ok", prop[0]!.State);
