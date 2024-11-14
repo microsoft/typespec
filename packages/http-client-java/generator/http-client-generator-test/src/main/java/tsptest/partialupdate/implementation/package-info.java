@@ -6,4 +6,4 @@
  * Package containing the implementations for PartialUpdate.
  * <!-- end generated doc -->
  */
-package com.cadl.partialupdate.implementation;
+package tsptest.partialupdate.implementation;

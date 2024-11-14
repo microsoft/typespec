@@ -5,5 +5,9 @@
  * <!-- start generated doc -->
  * Package containing the classes for PartialUpdate.
  * <!-- end generated doc -->
+ * <!-- @formatter:off -->
+ * <p>
+ * Custom Javadoc to test in-place partial update wrapping custom Javadoc with Eclipse format comments.
+ * <!-- @formatter:on -->
  */
-package com.cadl.partialupdate;
+package tsptest.partialupdate;
