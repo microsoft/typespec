@@ -2380,9 +2380,7 @@ export class CodeModelBuilder {
     const processSchemaFunc = (type: SdkType) => this.processSchema(type, "");
     const processNamespaceFunc = (type: SdkType) => {
       const namespace =
-        type.kind === "model"
-          ? (getNamespace(type.__raw) ?? this.namespace)
-          : this.namespace;
+        type.kind === "model" ? (getNamespace(type.__raw) ?? this.namespace) : this.namespace;
       const javaNamespace = this.getJavaNamespace(namespace, type);
       return { namespace, javaNamespace };
     };
