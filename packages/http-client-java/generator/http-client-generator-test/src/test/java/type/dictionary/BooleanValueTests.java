@@ -1,0 +1,30 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+package type.dictionary;
+
+import java.util.HashMap;
+import java.util.Map;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+public class BooleanValueTests {
+
+    private final BooleanValueClient client = new DictionaryClientBuilder().buildBooleanValueClient();
+    private final Map<String, Boolean> expected = new HashMap<>();
+    {
+        expected.put("k1", true);
+        expected.put("k2", false);
+    }
+
+    @Test
+    public void testBooleanGet() {
+        Map<String, Boolean> response = client.get();
+        Assertions.assertEquals(expected, response);
+    }
+
+    @Test
+    public void testBooleanPut() {
+        client.put(expected);
+    }
+}

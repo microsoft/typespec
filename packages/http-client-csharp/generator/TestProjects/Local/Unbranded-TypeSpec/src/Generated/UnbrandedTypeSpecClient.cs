@@ -70,7 +70,7 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ArgumentNullException"> <paramref name="headParameter"/> or <paramref name="queryParameter"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult SayHi(string headParameter, string queryParameter, string optionalQuery, RequestOptions options)
+        public virtual ClientResult SayHi(string headParameter, string queryParameter, string optionalQuery, RequestOptions options = null)
         {
             Argument.AssertNotNull(headParameter, nameof(headParameter));
             Argument.AssertNotNull(queryParameter, nameof(queryParameter));
@@ -94,7 +94,7 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ArgumentNullException"> <paramref name="headParameter"/> or <paramref name="queryParameter"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> SayHiAsync(string headParameter, string queryParameter, string optionalQuery, RequestOptions options)
+        public virtual async Task<ClientResult> SayHiAsync(string headParameter, string queryParameter, string optionalQuery, RequestOptions options = null)
         {
             Argument.AssertNotNull(headParameter, nameof(headParameter));
             Argument.AssertNotNull(queryParameter, nameof(queryParameter));
@@ -109,7 +109,7 @@ namespace UnbrandedTypeSpec
         /// <param name="optionalQuery"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="headParameter"/> or <paramref name="queryParameter"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<Thing> SayHi(string headParameter, string queryParameter, string optionalQuery)
+        public virtual ClientResult<Thing> SayHi(string headParameter, string queryParameter, string optionalQuery = null)
         {
             Argument.AssertNotNull(headParameter, nameof(headParameter));
             Argument.AssertNotNull(queryParameter, nameof(queryParameter));
@@ -124,7 +124,7 @@ namespace UnbrandedTypeSpec
         /// <param name="optionalQuery"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="headParameter"/> or <paramref name="queryParameter"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<Thing>> SayHiAsync(string headParameter, string queryParameter, string optionalQuery)
+        public virtual async Task<ClientResult<Thing>> SayHiAsync(string headParameter, string queryParameter, string optionalQuery = null)
         {
             Argument.AssertNotNull(headParameter, nameof(headParameter));
             Argument.AssertNotNull(queryParameter, nameof(queryParameter));
@@ -148,7 +148,7 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ArgumentNullException"> <paramref name="p2"/>, <paramref name="p1"/> or <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult HelloAgain(string p2, string p1, BinaryContent content, RequestOptions options)
+        public virtual ClientResult HelloAgain(string p2, string p1, BinaryContent content, RequestOptions options = null)
         {
             Argument.AssertNotNull(p2, nameof(p2));
             Argument.AssertNotNull(p1, nameof(p1));
@@ -173,7 +173,7 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ArgumentNullException"> <paramref name="p2"/>, <paramref name="p1"/> or <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> HelloAgainAsync(string p2, string p1, BinaryContent content, RequestOptions options)
+        public virtual async Task<ClientResult> HelloAgainAsync(string p2, string p1, BinaryContent content, RequestOptions options = null)
         {
             Argument.AssertNotNull(p2, nameof(p2));
             Argument.AssertNotNull(p1, nameof(p1));
@@ -230,7 +230,7 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ArgumentNullException"> <paramref name="p2"/>, <paramref name="p1"/> or <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult NoContentType(string p2, string p1, BinaryContent content, RequestOptions options)
+        public virtual ClientResult NoContentType(string p2, string p1, BinaryContent content, RequestOptions options = null)
         {
             Argument.AssertNotNull(p2, nameof(p2));
             Argument.AssertNotNull(p1, nameof(p1));
@@ -255,7 +255,7 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ArgumentNullException"> <paramref name="p2"/>, <paramref name="p1"/> or <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> NoContentTypeAsync(string p2, string p1, BinaryContent content, RequestOptions options)
+        public virtual async Task<ClientResult> NoContentTypeAsync(string p2, string p1, BinaryContent content, RequestOptions options = null)
         {
             Argument.AssertNotNull(p2, nameof(p2));
             Argument.AssertNotNull(p1, nameof(p1));
@@ -328,7 +328,7 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult CreateLiteral(BinaryContent content, RequestOptions options)
+        public virtual ClientResult CreateLiteral(BinaryContent content, RequestOptions options = null)
         {
             Argument.AssertNotNull(content, nameof(content));
 
@@ -349,7 +349,7 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> CreateLiteralAsync(BinaryContent content, RequestOptions options)
+        public virtual async Task<ClientResult> CreateLiteralAsync(BinaryContent content, RequestOptions options = null)
         {
             Argument.AssertNotNull(content, nameof(content));
 
@@ -532,7 +532,7 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult PatchAction(BinaryContent content, RequestOptions options)
+        public virtual ClientResult PatchAction(BinaryContent content, RequestOptions options = null)
         {
             Argument.AssertNotNull(content, nameof(content));
 
@@ -553,7 +553,7 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> PatchActionAsync(BinaryContent content, RequestOptions options)
+        public virtual async Task<ClientResult> PatchActionAsync(BinaryContent content, RequestOptions options = null)
         {
             Argument.AssertNotNull(content, nameof(content));
 
@@ -574,7 +574,7 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult AnonymousBody(BinaryContent content, RequestOptions options)
+        public virtual ClientResult AnonymousBody(BinaryContent content, RequestOptions options = null)
         {
             Argument.AssertNotNull(content, nameof(content));
 
@@ -595,7 +595,7 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> AnonymousBodyAsync(BinaryContent content, RequestOptions options)
+        public virtual async Task<ClientResult> AnonymousBodyAsync(BinaryContent content, RequestOptions options = null)
         {
             Argument.AssertNotNull(content, nameof(content));
 
@@ -698,7 +698,7 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult FriendlyModel(BinaryContent content, RequestOptions options)
+        public virtual ClientResult FriendlyModel(BinaryContent content, RequestOptions options = null)
         {
             Argument.AssertNotNull(content, nameof(content));
 
@@ -719,7 +719,7 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> FriendlyModelAsync(BinaryContent content, RequestOptions options)
+        public virtual async Task<ClientResult> FriendlyModelAsync(BinaryContent content, RequestOptions options = null)
         {
             Argument.AssertNotNull(content, nameof(content));
 
@@ -814,7 +814,7 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult ProjectedNameModel(BinaryContent content, RequestOptions options)
+        public virtual ClientResult ProjectedNameModel(BinaryContent content, RequestOptions options = null)
         {
             Argument.AssertNotNull(content, nameof(content));
 
@@ -835,7 +835,7 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> ProjectedNameModelAsync(BinaryContent content, RequestOptions options)
+        public virtual async Task<ClientResult> ProjectedNameModelAsync(BinaryContent content, RequestOptions options = null)
         {
             Argument.AssertNotNull(content, nameof(content));
 
@@ -998,7 +998,7 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult InternalProtocol(BinaryContent content, RequestOptions options)
+        public virtual ClientResult InternalProtocol(BinaryContent content, RequestOptions options = null)
         {
             Argument.AssertNotNull(content, nameof(content));
 
@@ -1019,7 +1019,7 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> InternalProtocolAsync(BinaryContent content, RequestOptions options)
+        public virtual async Task<ClientResult> InternalProtocolAsync(BinaryContent content, RequestOptions options = null)
         {
             Argument.AssertNotNull(content, nameof(content));
 

@@ -13,14 +13,19 @@ namespace Microsoft.Generator.CSharp.Snippets
 {
     public static partial class Snippet
     {
-        public static ScopedApi As(this ParameterProvider parameter, CSharpType type) => parameter.AsExpression.As(type);
-        public static ScopedApi<T> As<T>(this ParameterProvider parameter) => parameter.AsExpression.As<T>();
-        public static ScopedApi<T> As<T>(this PropertyProvider property) => ((MemberExpression)property).As<T>();
-        public static ScopedApi<T> As<T>(this FieldProvider field) => ((MemberExpression)field).As<T>();
+        public static ScopedApi<bool> Equal(this ParameterProvider parameter, ValueExpression other) => new BinaryOperatorExpression("==", parameter, other).As<bool>();
+        public static ScopedApi<bool> Is(this ParameterProvider parameter, ValueExpression other) => new BinaryOperatorExpression("is", parameter, other).As<bool>();
+
+        public static ScopedApi As(this ParameterProvider parameter, CSharpType type) => ((ValueExpression)parameter).As(type);
+        public static ScopedApi<T> As<T>(this ParameterProvider parameter) => ((ValueExpression)parameter).As<T>();
+        public static ScopedApi<T> As<T>(this PropertyProvider property) => ((ValueExpression)property).As<T>();
+        public static ScopedApi<T> As<T>(this FieldProvider field) => ((ValueExpression)field).As<T>();
 
         public static ValueExpression NullConditional(this ParameterProvider parameter) => new NullConditionalExpression(parameter);
 
-        public static ValueExpression NullCoalesce(this ParameterProvider parameter, ValueExpression value) => parameter.AsExpression.NullCoalesce(value);
+        public static ValueExpression NullCoalesce(this ParameterProvider parameter, ValueExpression value) => new BinaryOperatorExpression("??", parameter, value);
+        public static ValueExpression PositionalReference(this ParameterProvider parameter, ValueExpression value)
+            => new PositionalParameterReferenceExpression(parameter.Name, value);
 
         public static DictionaryExpression AsDictionary(this FieldProvider field, CSharpType keyType, CSharpType valueType) => new(new KeyValuePairType(keyType, valueType), field);
         public static DictionaryExpression AsDictionary(this ParameterProvider parameter, CSharpType keyType, CSharpType valueType) => new(new KeyValuePairType(keyType, valueType), parameter);
@@ -141,5 +146,7 @@ namespace Microsoft.Generator.CSharp.Snippets
 
         public static ScopedApi<bool> NotEqual(this ParameterProvider parameter, ValueExpression other)
             => new BinaryOperatorExpression("!=", parameter, other).As<bool>();
+
+        public static VariableExpression AsExpression(this ParameterProvider variableExpression) => (VariableExpression)variableExpression;
     }
 }

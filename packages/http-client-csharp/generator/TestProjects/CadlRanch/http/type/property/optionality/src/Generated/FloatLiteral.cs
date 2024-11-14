@@ -31,17 +31,17 @@ namespace _Type.Property.Optional
 
         public virtual Task<ClientResult<FloatLiteralProperty>> GetDefaultAsync() => throw null;
 
-        public virtual ClientResult PutAll(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult PutAll(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutAllAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PutAllAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult PutAll(FloatLiteralProperty body) => throw null;
 
         public virtual Task<ClientResult> PutAllAsync(FloatLiteralProperty body) => throw null;
 
-        public virtual ClientResult PutDefault(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult PutDefault(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutDefaultAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PutDefaultAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult PutDefault(FloatLiteralProperty body) => throw null;
 

@@ -109,3 +109,41 @@ model License {
  * @param additionalInfo Additional information
  */
 extern dec info(target: Namespace, additionalInfo: AdditionalInfo);
+
+/** Metadata to a single tag that is used by operations. */
+model TagMetadata {
+  /** A description of the API. */
+  description?: string;
+
+  /** An external Docs information of the API. */
+  externalDocs?: ExternalDocs;
+
+  /** Attach some custom data, The extension key must start with `x-`. */
+  ...Record<unknown>;
+}
+
+/** External Docs information. */
+model ExternalDocs {
+  /** Documentation url */
+  url: string;
+
+  /** Optional description */
+  description?: string;
+
+  /** Attach some custom data, The extension key must start with `x-`. */
+  ...Record<unknown>;
+}
+
+/**
+ * Specify OpenAPI additional information.
+ * @param name tag name
+ * @param tagMetadata Additional information
+ *
+ * @example
+ * ```typespec
+ * @service()
+ * @tagMetadata("Tag Name", #{description: "Tag description", externalDocs: #{url: "https://example.com", description: "More info.", `x-custom`: "string"}, `x-custom`: "string"})
+ * namespace PetStore {}
+ * ```
+ */
+extern dec tagMetadata(target: Namespace, name: valueof string, tagMetadata: valueof TagMetadata);

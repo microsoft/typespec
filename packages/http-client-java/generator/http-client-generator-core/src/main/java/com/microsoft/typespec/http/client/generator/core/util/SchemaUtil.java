@@ -270,9 +270,13 @@ public class SchemaUtil {
             if (!CoreUtils.isNullOrEmpty(namespace) && !CoreUtils.isNullOrEmpty(name)) {
                 if (Objects.equals(namespace, "Azure.Core.Foundations")) {
                     // https://github.com/Azure/azure-sdk-for-java/blob/main/sdk/core/azure-core/src/main/java/com/azure/core/models/ResponseError.java
-                    if (Objects.equals(name, "Error")) {
+                    if (Objects.equals(name, "Error")
+                        || (Objects.equals(compositeType.getCrossLanguageDefinitionId(),
+                            "Azure.Core.Foundations.Error"))) {
                         classType = ClassType.RESPONSE_ERROR;
-                    } else if (Objects.equals(name, "InnerError")) {
+                    } else if (Objects.equals(name, "InnerError")
+                        || (Objects.equals(compositeType.getCrossLanguageDefinitionId(),
+                            "Azure.Core.Foundations.InnerError"))) {
                         // InnerError is not public, but usually it is only referenced from Error
                         classType = ClassType.RESPONSE_INNER_ERROR;
                     }
