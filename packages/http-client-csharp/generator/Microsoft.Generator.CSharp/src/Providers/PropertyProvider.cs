@@ -85,7 +85,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
             Type = inputProperty.IsReadOnly ? propertyType.OutputType : propertyType;
             Modifiers = inputProperty.IsDiscriminator ? MethodSignatureModifiers.Internal : MethodSignatureModifiers.Public;
-            Name = inputProperty.Name.ToCleanName();
+            Name = GetPropertyName(inputProperty, enclosingType);
             Body = new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(propertyType, inputProperty));
             Description = string.IsNullOrEmpty(inputProperty.Description) ? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(Name, !Body.HasSetter) : $"{inputProperty.Description}";
             XmlDocSummary = PropertyDescriptionBuilder.BuildPropertyDescription(inputProperty, propertyType, serializationFormat, Description);
@@ -209,6 +209,22 @@ namespace Microsoft.Generator.CSharp.Providers
         private string GetDebuggerDisplay()
         {
             return $"Name: {Name}, Type: {Type}";
+        }
+
+        private static string GetPropertyName(InputModelProperty inputProperty, TypeProvider enclosingType)
+        {
+            var inputPropertyName = inputProperty.Name;
+
+            switch (inputPropertyName)
+            {
+                case var name when name == enclosingType.Name:
+                case nameof(GetHashCode):
+                case nameof(ToString):
+                case nameof(Equals):
+                    return inputPropertyName.ToCleanName() + "Property";
+                default:
+                    return inputPropertyName.ToCleanName();
+            }
         }
 
         private MemberExpression? _asMember;
