@@ -19,8 +19,12 @@ namespace TestProjects.CadlRanch.Tests.Http.Payload.Multipart
         {
             using MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
             content.Add("123", "id");
-            content.Add(File.OpenRead(SampleJpgPath), "profileImage", "profileImage", "application/octet-stream");
+
+            await using var imageStream = File.OpenRead(SampleJpgPath);
+            content.Add(imageStream, "profileImage", "profileImage", "application/octet-stream");
+
             var response = await new MultiPartClient(host, null).GetFormDataClient().BasicAsync(content, content.ContentType, null);
+
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
@@ -29,8 +33,12 @@ namespace TestProjects.CadlRanch.Tests.Http.Payload.Multipart
         {
             using MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
             content.Add("{\"city\":\"X\"}", "address");
-            content.Add(File.OpenRead(SampleJpgPath), "profileImage", "profileImage", "application/octet-stream");
+
+            await using var imageStream = File.OpenRead(SampleJpgPath);
+            content.Add(imageStream, "profileImage", "profileImage", "application/octet-stream");
+
             var response = await new MultiPartClient(host, null).GetFormDataClient().JsonPartAsync(content, content.ContentType, null);
+
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
@@ -39,8 +47,12 @@ namespace TestProjects.CadlRanch.Tests.Http.Payload.Multipart
         {
             using MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
             content.Add("123", "id");
-            content.Add(File.OpenRead(SampleJpgPath), "profileImage", "hello.jpg", "image/jpg");
+
+            await using var imageStream = File.OpenRead(SampleJpgPath);
+            content.Add(imageStream, "profileImage", "hello.jpg", "image/jpg");
+
             var response = await new MultiPartClient(host, null).GetFormDataClient().CheckFileNameAndContentTypeAsync(content, content.ContentType, null);
+
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
@@ -50,11 +62,19 @@ namespace TestProjects.CadlRanch.Tests.Http.Payload.Multipart
             using MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
             content.Add("123", "id");
             content.Add("{\"city\":\"X\"}", "address", contentType: "application/json");
-            content.Add(File.OpenRead(SampleJpgPath), "profileImage", "profileImage", "application/octet-stream");
+
+            await using var imageStream1 = File.OpenRead(SampleJpgPath);
+            content.Add(imageStream1, "profileImage", "profileImage", "application/octet-stream");
             content.Add("[{\"city\":\"Y\"},{\"city\":\"Z\"}]", "previousAddresses", contentType: "application/json");
-            content.Add(File.OpenRead(SamplePngPath), "pictures", "pictures", "application/octet-stream");
-            content.Add(File.OpenRead(SamplePngPath), "pictures", "pictures", "application/octet-stream");
+
+            await using var imageStream2 = File.OpenRead(SamplePngPath);
+            content.Add(imageStream2, "pictures", "pictures", "application/octet-stream");
+
+            await using var imageStream3 = File.OpenRead(SamplePngPath);
+            content.Add(imageStream3, "pictures", "pictures", "application/octet-stream");
+
             var response = await new MultiPartClient(host, null).GetFormDataClient().FileArrayAndBasicAsync(content, content.ContentType, null);
+
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
@@ -62,11 +82,14 @@ namespace TestProjects.CadlRanch.Tests.Http.Payload.Multipart
         public Task HttpPartsImageJpegContentType() => Test(async (host) =>
         {
             using MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
-            content.Add(File.OpenRead(SampleJpgPath), "profileImage", "hello.jpg", "image/jpg");
+            await using var imageStream = File.OpenRead(SampleJpgPath);
+            content.Add(imageStream, "profileImage", "hello.jpg", "image/jpg");
+
             var response = await new MultiPartClient(host, null).GetFormDataClient()
                 .GetFormDataHttpPartsClient()
                 .GetFormDataHttpPartsContentTypeClient()
                 .ImageJpegContentTypeAsync(content, content.ContentType, null);
+
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
@@ -74,19 +97,25 @@ namespace TestProjects.CadlRanch.Tests.Http.Payload.Multipart
         public Task HttpPartsOptionalContentType() => Test(async (host) =>
         {
             using MultiPartFormDataBinaryContent contentWithNoContentType = new MultiPartFormDataBinaryContent();
-            contentWithNoContentType.Add(File.OpenRead(SampleJpgPath), "profileImage", "hello.jpg");
+            await using var imageStream1 = File.OpenRead(SampleJpgPath);
+            contentWithNoContentType.Add(imageStream1, "profileImage", "hello.jpg");
+
             var response = await new MultiPartClient(host, null).GetFormDataClient()
                 .GetFormDataHttpPartsClient()
                 .GetFormDataHttpPartsContentTypeClient()
                 .OptionalContentTypeAsync(contentWithNoContentType, contentWithNoContentType.ContentType, null);
+
             Assert.AreEqual(204, response.GetRawResponse().Status);
 
             using MultiPartFormDataBinaryContent contentWithContentType = new MultiPartFormDataBinaryContent();
-            contentWithContentType.Add(File.OpenRead(SampleJpgPath), "profileImage", "hello.jpg", "application/octet-stream");
+            await using var imageStream2 = File.OpenRead(SampleJpgPath);
+            contentWithContentType.Add(imageStream2, "profileImage", "hello.jpg", "application/octet-stream");
+
             response = await new MultiPartClient(host, null).GetFormDataClient()
                 .GetFormDataHttpPartsClient()
                 .GetFormDataHttpPartsContentTypeClient()
                 .OptionalContentTypeAsync(contentWithContentType, contentWithContentType.ContentType, null);
+
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
@@ -94,11 +123,14 @@ namespace TestProjects.CadlRanch.Tests.Http.Payload.Multipart
         public Task HttpPartsRequiredContentType() => Test(async (host) =>
         {
             using MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
-            content.Add(File.OpenRead(SampleJpgPath), "profileImage", "hello.jpg", "application/octet-stream");
+            await using var imageStream = File.OpenRead(SampleJpgPath);
+            content.Add(imageStream, "profileImage", "hello.jpg", "application/octet-stream");
+
             var response = await new MultiPartClient(host, null).GetFormDataClient()
                 .GetFormDataHttpPartsClient()
                 .GetFormDataHttpPartsContentTypeClient()
                 .RequiredContentTypeAsync(content, content.ContentType, null);
+
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
@@ -108,14 +140,21 @@ namespace TestProjects.CadlRanch.Tests.Http.Payload.Multipart
             using MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
             content.Add("123", "id");
             content.Add("{\"city\":\"X\"}", "address", contentType: "application/json");
-            content.Add(File.OpenRead(SampleJpgPath), "profileImage", "hello.jpg", "application/octet-stream");
+
+            await using var imageStream1 = File.OpenRead(SampleJpgPath);
+            content.Add(imageStream1, "profileImage", "hello.jpg", "application/octet-stream");
             content.Add("[{\"city\":\"Y\"},{\"city\":\"Z\"}]", "previousAddresses", contentType: "application/json");
-            content.Add(File.OpenRead(SamplePngPath), "pictures", "hello.jpg", "application/octet-stream");
-            content.Add(File.OpenRead(SamplePngPath), "pictures", "hello.jpg", "application/octet-stream");
+
+            await using var imageStream2 = File.OpenRead(SamplePngPath);
+            content.Add(imageStream2, "pictures", "hello.jpg", "application/octet-stream");
+
+            await using var imageStream3 = File.OpenRead(SamplePngPath);
+            content.Add(imageStream3, "pictures", "hello.jpg", "application/octet-stream");
 
             var response = await new MultiPartClient(host, null).GetFormDataClient()
                 .GetFormDataHttpPartsClient()
                 .JsonArrayAndFileArrayAsync(content, content.ContentType, null);
+
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
@@ -136,9 +175,14 @@ namespace TestProjects.CadlRanch.Tests.Http.Payload.Multipart
         {
             using MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
             content.Add("123", "id");
-            content.Add(File.OpenRead(SamplePngPath), "pictures", "pictures", "application/octet-stream");
-            content.Add(File.OpenRead(SamplePngPath), "pictures", "pictures", "application/octet-stream");
+            await using var imageStream1 = File.OpenRead(SamplePngPath);
+            content.Add(imageStream1, "pictures", "pictures", "application/octet-stream");
+
+            await using var imageStream2 = File.OpenRead(SamplePngPath);
+            content.Add(imageStream2, "pictures", "pictures", "application/octet-stream");
+
             var response = await new MultiPartClient(host, null).GetFormDataClient().BinaryArrayPartsAsync(content, content.ContentType, null);
+
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
@@ -146,8 +190,11 @@ namespace TestProjects.CadlRanch.Tests.Http.Payload.Multipart
         public Task AnonymousModel() => Test(async (host) =>
         {
             using MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
-            content.Add(File.OpenRead(SampleJpgPath), "profileImage", "profileImage", "application/octet-stream");
+            await using var imageStream = File.OpenRead(SampleJpgPath);
+            content.Add(imageStream, "profileImage", "profileImage", "application/octet-stream");
+
             var response = await new MultiPartClient(host, null).GetFormDataClient().AnonymousModelAsync(content, content.ContentType, null);
+
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
@@ -162,10 +209,12 @@ namespace TestProjects.CadlRanch.Tests.Http.Payload.Multipart
         private Task MultiBinaryParts(bool hasPicture) => Test(async (host) =>
         {
             using MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
-            content.Add(File.OpenRead(SampleJpgPath), "profileImage", "profileImage", "application/octet-stream");
+            await using var imageStream1 = File.OpenRead(SampleJpgPath);
+            content.Add(imageStream1, "profileImage", "profileImage", "application/octet-stream");
+            await using var imageStream2 = File.OpenRead(SamplePngPath);
             if (hasPicture)
             {
-                content.Add(File.OpenRead(SamplePngPath), "picture", "picture", "application/octet-stream");
+                content.Add(imageStream2, "picture", "picture", "application/octet-stream");
             }
             var response = await new MultiPartClient(host, null).GetFormDataClient().MultiBinaryPartsAsync(content, content.ContentType, null);
             Assert.AreEqual(204, response.GetRawResponse().Status);
