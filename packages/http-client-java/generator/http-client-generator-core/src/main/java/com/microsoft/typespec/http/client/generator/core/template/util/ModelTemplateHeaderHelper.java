@@ -77,6 +77,10 @@ public final class ModelTemplateHeaderHelper {
             // the raw headers.
             List<ClientModelProperty> collectionProperties = new ArrayList<>();
             for (ClientModelProperty property : model.getProperties()) {
+                if (property.isConstant()) {
+                    continue;
+                }
+
                 if (CoreUtils.isNullOrEmpty(property.getHeaderCollectionPrefix())) {
                     generateHeaderDeserializationFunction(property, constructor);
                 } else {
