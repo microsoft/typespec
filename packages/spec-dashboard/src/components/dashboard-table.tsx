@@ -71,7 +71,7 @@ export const DashboardTable: FunctionComponent<DashboardTableProps> = ({ coverag
   );
   const treeRows = useMemo(() => {
     return buildTreeRows(tree, expandedRows, toggleExpand);
-  }, [expandedRows, toggleExpand]);
+  }, [tree, expandedRows, toggleExpand]);
 
   const rows = treeRows.map((x) => {
     return (
