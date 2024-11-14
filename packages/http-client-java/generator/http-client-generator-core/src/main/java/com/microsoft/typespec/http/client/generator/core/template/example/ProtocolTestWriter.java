@@ -85,6 +85,7 @@ public class ProtocolTestWriter {
                         String expr;
                         if (defaultValueExpression == null) {
                             if (serviceClientProperty.getType() instanceof EnumType) {
+                                // TODO: handle non-string enum
                                 expr = String.format(
                                     "%1$s.fromString(Configuration.getGlobalConfiguration().get(\"%2$s\", %3$s))",
                                     serviceClientProperty.getType(),
