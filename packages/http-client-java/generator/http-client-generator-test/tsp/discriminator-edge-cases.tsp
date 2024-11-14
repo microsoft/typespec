@@ -9,7 +9,7 @@ using Azure.ClientGenerator.Core;
 @service({
   title: "DiscriminatorEdgeCases",
 })
-namespace Cadl.DiscriminatorEdgeCases;
+namespace TspTest.DiscriminatorEdgeCases;
 
 model ParentWithRequiredProperty {
   discriminator: string;
@@ -35,7 +35,7 @@ model GrandChildWithAnotherDiscriminator extends ChildWithAnotherDiscriminator {
 }
 
 @client({
-  service: Cadl.DiscriminatorEdgeCases,
+  service: TspTest.DiscriminatorEdgeCases,
   name: "DiscriminatorEdgeCasesClient",
 })
 @route("/model")

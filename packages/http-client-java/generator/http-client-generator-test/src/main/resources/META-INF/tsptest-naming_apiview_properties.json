@@ -1,0 +1,29 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "tsptest.naming.NamingAsyncClient": "null",
+    "tsptest.naming.NamingAsyncClient.getAnonymous": "TspTest.Naming.NamingOp.getAnonymous",
+    "tsptest.naming.NamingAsyncClient.getAnonymousWithResponse": "TspTest.Naming.NamingOp.getAnonymous",
+    "tsptest.naming.NamingAsyncClient.post": "TspTest.Naming.NamingOp.post",
+    "tsptest.naming.NamingAsyncClient.postWithResponse": "TspTest.Naming.NamingOp.post",
+    "tsptest.naming.NamingClient": "null",
+    "tsptest.naming.NamingClient.getAnonymous": "TspTest.Naming.NamingOp.getAnonymous",
+    "tsptest.naming.NamingClient.getAnonymousWithResponse": "TspTest.Naming.NamingOp.getAnonymous",
+    "tsptest.naming.NamingClient.post": "TspTest.Naming.NamingOp.post",
+    "tsptest.naming.NamingClient.postWithResponse": "TspTest.Naming.NamingOp.post",
+    "tsptest.naming.NamingClientBuilder": "TspTest.Naming",
+    "tsptest.naming.models.BinaryData": "TspTest.Naming.DataModel",
+    "tsptest.naming.models.BytesData": "TspTest.Naming.BytesData",
+    "tsptest.naming.models.Data": "TspTest.Naming.Data",
+    "tsptest.naming.models.DataRequest": "TspTest.Naming.Request",
+    "tsptest.naming.models.DataResponse": "TspTest.Naming.Response",
+    "tsptest.naming.models.DataStatus": "TspTest.Naming.StatusModel",
+    "tsptest.naming.models.GetAnonymousResponse": "TspTest.Naming.getAnonymous.Response.anonymous",
+    "tsptest.naming.models.RequestParameters": "TspTest.Naming.Request.parameters.anonymous",
+    "tsptest.naming.models.RequestParametersType": "Request.parameters.type.anonymous",
+    "tsptest.naming.models.RunObject": "TspTest.Naming.RunObject",
+    "tsptest.naming.models.RunObjectLastError": "TspTest.Naming.RunObject.last_error.anonymous",
+    "tsptest.naming.models.RunObjectLastErrorCode": "RunObject.last_error.code.anonymous",
+    "tsptest.naming.models.TypesModel": "TspTest.Naming.TypesModel"
+  }
+}

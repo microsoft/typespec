@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -24,9 +25,10 @@ namespace Microsoft.Generator.CSharp.Tests
             string? configuration = null,
             InputModelType[]? inputModelTypes = null,
             InputEnumType[]? inputEnumTypes = null,
-            Func<Task<Compilation>>? compilation = null)
+            Func<Task<Compilation>>? compilation = null,
+            IEnumerable<MetadataReference>? additionalMetadataReferences = null)
         {
-            var mockPlugin = LoadMockPlugin(createCSharpTypeCore, createOutputLibrary, configuration, inputModelTypes, inputEnumTypes);
+            var mockPlugin = LoadMockPlugin(createCSharpTypeCore, createOutputLibrary, configuration, inputModelTypes, inputEnumTypes, additionalMetadataReferences);
 
             var compilationResult = compilation == null ? null : await compilation();
 
@@ -41,7 +43,8 @@ namespace Microsoft.Generator.CSharp.Tests
             Func<OutputLibrary>? createOutputLibrary = null,
             string? configuration = null,
             InputModelType[]? inputModelTypes = null,
-            InputEnumType[]? inputEnumTypes = null)
+            InputEnumType[]? inputEnumTypes = null,
+            IEnumerable<MetadataReference>? additionalMetadataReferences = null)
         {
             var configFilePath = Path.Combine(AppContext.BaseDirectory, TestHelpersFolder);
             // initialize the singleton instance of the plugin
@@ -71,6 +74,14 @@ namespace Microsoft.Generator.CSharp.Tests
 
             var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(null)) { CallBase = true };
             mockPlugin.Setup(p => p.SourceInputModel).Returns(sourceInputModel.Object);
+
+            if (additionalMetadataReferences != null)
+            {
+                foreach (var reference in additionalMetadataReferences)
+                {
+                    mockPlugin.Object.AddMetadataReference(reference);
+                }
+            }
 
             CodeModelPlugin.Instance = mockPlugin.Object;
 

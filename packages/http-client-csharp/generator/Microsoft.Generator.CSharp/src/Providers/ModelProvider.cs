@@ -447,13 +447,14 @@ namespace Microsoft.Generator.CSharp.Providers
                 this);
         }
 
-        private IReadOnlyList<PropertyProvider> GetAllBasePropertiesForConstructorInitialization()
+        private IEnumerable<PropertyProvider> GetAllBasePropertiesForConstructorInitialization()
         {
-            var properties = new List<PropertyProvider>();
+            var properties = new Stack<List<PropertyProvider>>();
             var modelProvider = BaseModelProvider;
             bool isDirectBase = true;
             while (modelProvider != null)
             {
+                properties.Push([]);
                 foreach (var property in modelProvider.CanonicalView.Properties)
                 {
                     if (property.IsDiscriminator)
@@ -462,12 +463,12 @@ namespace Microsoft.Generator.CSharp.Providers
                         // as this is the only one that will be initialized in this model's constructor.
                         if (isDirectBase)
                         {
-                            properties.Add(property);
+                            properties.Peek().Add(property);
                         }
                     }
                     else
                     {
-                        properties.Add(property);
+                        properties.Peek().Add(property);
                     }
                 }
 
@@ -475,23 +476,25 @@ namespace Microsoft.Generator.CSharp.Providers
                 isDirectBase = false;
             }
 
-            return properties;
+            // parameters need to be ordered from the base-most class to the derived class
+            return properties.SelectMany(l => l);
         }
 
-        private IReadOnlyList<FieldProvider> GetAllBaseFieldsForConstructorInitialization()
+        private IEnumerable<FieldProvider> GetAllBaseFieldsForConstructorInitialization()
         {
-            var fields = new List<FieldProvider>();
+            var fields = new Stack<List<FieldProvider>>();
             var modelProvider = BaseModelProvider;
             while (modelProvider != null)
             {
+                fields.Push([]);
                 foreach (var field in modelProvider.CanonicalView.Fields)
                 {
-                    fields.Add(field);
+                    fields.Peek().Add(field);
                 }
                 modelProvider = modelProvider.BaseModelProvider;
             }
 
-            return fields;
+            return fields.SelectMany(l => l);
         }
 
         private (IReadOnlyList<ParameterProvider> Parameters, ConstructorInitializer? Initializer) BuildConstructorParameters(
@@ -539,7 +542,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 AddInitializationParameterForCtor(constructorParameters, Type.IsStruct, isPrimaryConstructor, field: field);
             }
 
-            constructorParameters.AddRange(_inputModel.IsUnknownDiscriminatorModel
+            constructorParameters.InsertRange(0, _inputModel.IsUnknownDiscriminatorModel
                 ? baseParameters
                 : baseParameters.Where(p =>
                     p.Property is null
