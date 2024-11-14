@@ -251,6 +251,7 @@ words:
   - pyimport
   - NODEFS
   - deps
+  - pyyaml
 ignorePaths:
   - "**/node_modules/**"
   - "**/dist/**"
