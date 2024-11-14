@@ -36,6 +36,9 @@ export function createResponseErrorSchema(
       },
     },
   });
+  (responseErrorSchema as CrossLanguageDefinition).crossLanguageDefinitionId =
+    "Azure.Core.Foundations.Error";
+
   schemas.add(responseErrorSchema);
   responseErrorSchema.addProperty(
     new Property("code", "One of a server-defined set of error codes.", stringSchema, {
@@ -114,6 +117,9 @@ export function createResponseInnerErrorSchema(
       },
     },
   );
+  (responseInnerErrorSchema as CrossLanguageDefinition).crossLanguageDefinitionId =
+    "Azure.Core.Foundations.InnerError";
+
   schemas.add(responseInnerErrorSchema);
   responseInnerErrorSchema.addProperty(
     new Property("code", "One of a server-defined set of error codes.", stringSchema, {
