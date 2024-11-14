@@ -242,11 +242,14 @@ export class CodeModelBuilder {
     }); // include all versions and do the filter by ourselves
 
     // java namespace
-    if (this.options.namespace && this.options.namespace.length > 0) {
+    if (this.options.namespace) {
+      // legacy mode, clientNamespace from TCGC will be ignored
       this.legacyJavaNamespace = true;
       this.baseJavaNamespace = this.options.namespace;
     } else {
       this.legacyJavaNamespace = false;
+      // baseJavaNamespace is used for model from Azure.Core/Azure.ResourceManager but cannot be mapped to azure-core
+      // otherwise, the clientNamespace from SdkType will be used
       this.baseJavaNamespace = this.getBaseJavaNamespace();
     }
 
