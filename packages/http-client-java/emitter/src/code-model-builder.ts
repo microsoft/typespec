@@ -450,7 +450,7 @@ export class CodeModelBuilder {
       const name = schema.language.default.name;
       if (
         name &&
-        // skip models under "com.azure.core."/"Azure.", if branded
+        // skip models under "com.azure.core." in java, or "Azure." in typespec, if branded
         !(
           this.isBranded() &&
           (schema.language.java?.namespace?.startsWith("com.azure.core.") ||

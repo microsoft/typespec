@@ -11,7 +11,7 @@ namespace _Type.Model.Inheritance.NestedDiscriminator.Models
     {
         public Salmon(int age) : base("salmon", age) => throw null;
 
-        internal Salmon(IList<Fish> friends, IDictionary<string, Fish> hate, Fish partner, string kind, int age, IDictionary<string, BinaryData> additionalBinaryDataProperties) : base(kind, age, additionalBinaryDataProperties) => throw null;
+        internal Salmon(string kind, int age, IDictionary<string, BinaryData> additionalBinaryDataProperties, IList<Fish> friends, IDictionary<string, Fish> hate, Fish partner) : base(kind, age, additionalBinaryDataProperties) => throw null;
 
         public IList<Fish> Friends => throw null;
 
