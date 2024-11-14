@@ -561,7 +561,7 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
             Set<String> referencePropertyNames = new HashSet<>();
             // properties from the target model
             for (ClientModelProperty property1 : targetModel.getProperties()) {
-                if (!property1.getClientFlatten() && !property1.isAdditionalProperties() && !property1.isConstant()) {
+                if (!property1.getClientFlatten() && !property1.isAdditionalProperties()) {
                     String name = disambiguatePropertyNameOfFlattenedSchema(propertyNames,
                         originalFlattenedPropertyName, property1.getName());
                     if (!referencePropertyNames.contains(name)) {
