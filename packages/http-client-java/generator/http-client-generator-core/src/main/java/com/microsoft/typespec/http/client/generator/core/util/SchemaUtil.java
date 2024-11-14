@@ -223,12 +223,7 @@ public class SchemaUtil {
             returnType = ClassType.BINARY_DATA;
         } else if (!(returnType instanceof PrimitiveType)) {
             if (type instanceof EnumType) {
-                boolean isPathOrURIParameter = RequestParameterLocation.PATH == parameterRequestLocation
-                    || RequestParameterLocation.URI == parameterRequestLocation;
-                boolean isEnumAsString = !(JavaSettings.getInstance().isDataPlaneClient() && isPathOrURIParameter);
-                if (isEnumAsString) { // do not change enum to string type for data-plane path/url parameter
-                    returnType = ClassType.STRING;
-                }
+                returnType = ClassType.STRING;
             }
             if (type instanceof IterableType && ((IterableType) type).getElementType() instanceof EnumType) {
                 returnType = new IterableType(ClassType.STRING);

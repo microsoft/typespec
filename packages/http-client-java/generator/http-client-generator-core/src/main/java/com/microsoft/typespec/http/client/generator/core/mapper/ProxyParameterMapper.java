@@ -66,9 +66,11 @@ public class ProxyParameterMapper implements IMapper<Parameter, ProxyMethodParam
 
         IType clientType = wireType.getClientType();
 
-        if (settings.isDataPlaneClient()) {
-            clientType = SchemaUtil.removeModelFromParameter(parameterRequestLocation, clientType);
+
+        if (isRemoveModelFromParameter(parameter, clientType)) {
+          clientType = SchemaUtil.removeModelFromParameter(parameterRequestLocation, clientType);
         }
+
         builder.clientType(clientType);
 
         if (wireType instanceof ListType
@@ -88,7 +90,7 @@ public class ProxyParameterMapper implements IMapper<Parameter, ProxyMethodParam
             if (parameterRequestLocation
                 != RequestParameterLocation.BODY /* && parameterRequestLocation != RequestParameterLocation.FormData */) {
                 wireType = ClassType.STRING;
-            } else if (settings.isDataPlaneClient()) {
+            } else if (isRemoveModelFromParameter(parameter, wireType)) {
                 wireType = SchemaUtil.removeModelFromParameter(parameterRequestLocation, wireType);
             }
         } else if (wireType instanceof ListType
@@ -102,7 +104,7 @@ public class ProxyParameterMapper implements IMapper<Parameter, ProxyMethodParam
             } else {
                 wireType = ClassType.STRING;
             }
-        } else if (settings.isDataPlaneClient()) {
+        } else if (isRemoveModelFromParameter(parameter, wireType)) {
             wireType = SchemaUtil.removeModelFromParameter(parameterRequestLocation, wireType);
         }
         builder.wireType(wireType);
@@ -180,6 +182,10 @@ public class ProxyParameterMapper implements IMapper<Parameter, ProxyMethodParam
         builder.explode(parameter.getProtocol().getHttp().getExplode());
 
         return builder.build();
+    }
+
+    protected boolean isRemoveModelFromParameter(Parameter parameter, IType clientType) {
+        return JavaSettings.getInstance().isDataPlaneClient();
     }
 
     protected ProxyMethodParameter.Builder createProxyMethodParameterBuilder() {
