@@ -70,6 +70,11 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     },
+    "http-encode-numeric": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/encode/numeric -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
     "http-parameters-basic": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/parameters/basic -p StubLibraryPlugin",
       "commandName": "Executable",

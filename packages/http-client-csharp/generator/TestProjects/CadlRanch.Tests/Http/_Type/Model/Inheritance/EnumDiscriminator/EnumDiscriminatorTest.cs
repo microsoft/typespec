@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Threading.Tasks;
 using _Type.Model.Inheritance.EnumDiscriminator;
 using _Type.Model.Inheritance.EnumDiscriminator.Models;
@@ -40,7 +41,7 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Model.Inheritance.EnumDiscrimi
         {
             var result = await new EnumDiscriminatorClient(host, null).GetExtensibleModelWrongDiscriminatorAsync();
             Assert.AreEqual(200, result.GetRawResponse().Status);
-            Assert.IsNotInstanceOf<Golden>(result.Value);
+            Assert.IsInstanceOf<UnknownDog>(result.Value);
             Assert.AreEqual(8, result.Value.Weight);
         });
 
@@ -63,19 +64,19 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Model.Inheritance.EnumDiscrimi
         [CadlRanchTest]
         public Task GetFixedModelMissingDiscriminator() => Test(async (host) =>
         {
-            var response = await new EnumDiscriminatorClient(host, null).GetExtensibleModelMissingDiscriminatorAsync();
+            var response = await new EnumDiscriminatorClient(host, null).GetFixedModelMissingDiscriminatorAsync();
             Assert.AreEqual(200, response.GetRawResponse().Status);
-            Assert.IsNotInstanceOf<Golden>(response.Value);
-            Assert.AreEqual(10, response.Value.Weight);
+            Assert.IsInstanceOf<UnknownSnake>(response.Value);
+            Assert.AreEqual(10, response.Value.Length);
         });
 
         [CadlRanchTest]
-        public Task GetFixedModelWrongDiscriminator() => Test(async (host) =>
+        public Task GetFixedModelWrongDiscriminator() => Test((host) =>
         {
-            var result = await new EnumDiscriminatorClient(host, null).GetExtensibleModelWrongDiscriminatorAsync();
-            Assert.AreEqual(200, result.GetRawResponse().Status);
-            Assert.IsNotInstanceOf<Golden>(result.Value);
-            Assert.AreEqual(8, result.Value.Weight);
+            var exception = Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await new EnumDiscriminatorClient(host, null).GetFixedModelWrongDiscriminatorAsync());
+            Assert.IsNotNull(exception);
+            Assert.IsTrue(exception!.Message.Contains("wrongKind"));
+            return Task.CompletedTask;
         });
 
     }

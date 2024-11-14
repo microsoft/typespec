@@ -429,8 +429,15 @@ export class CodeModelBuilder {
     const nameCount = new Map<string, number>();
     const deduplicateName = (schema: Schema) => {
       const name = schema.language.default.name;
-      // skip models under "com.azure.core."
-      if (name && !schema.language.java?.namespace?.startsWith("com.azure.core.")) {
+      if (
+        name &&
+        // skip models under "com.azure.core." in java, or "Azure." in typespec, if branded
+        !(
+          this.isBranded() &&
+          (schema.language.java?.namespace?.startsWith("com.azure.core.") ||
+            schema.language.default?.namespace?.startsWith("Azure."))
+        )
+      ) {
         if (!nameCount.has(name)) {
           nameCount.set(name, 1);
         } else {
