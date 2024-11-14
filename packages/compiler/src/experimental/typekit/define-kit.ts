@@ -1,61 +1,14 @@
 import { type Program } from "../../core/program.js";
-
-const CURRENT_PROGRAM = Symbol.for("TypeSpec.currentProgram");
-
-/** @experimental */
-export function setCurrentProgram(program: Program): void {
-  (globalThis as any)[CURRENT_PROGRAM] = program;
-}
+import { Realm } from "../realm.js";
 
 /** @experimental */
-export interface TypekitPrototype {
-  program: Program;
+export interface Typekit {
+  readonly program: Program;
+  readonly realm: Realm;
 }
 
 /** @experimental */
 export const TypekitPrototype: Record<string, unknown> = {};
-
-/** @experimental */
-export function createTypekit(): TypekitPrototype {
-  const tk = Object.create(TypekitPrototype);
-
-  Object.defineProperty(tk, "program", {
-    get() {
-      return (globalThis as any)[CURRENT_PROGRAM];
-    },
-  });
-
-  const handler: ProxyHandler<TypekitPrototype> = {
-    get(target, prop, receiver) {
-      const value = Reflect.get(target, prop, receiver);
-
-      if (prop === "program") {
-        // don't wrap program (probably need to ensure this isn't a nested program somewhere)
-        return value;
-      }
-
-      if (typeof value === "function") {
-        return function (this: any, ...args: any[]) {
-          return value.apply(proxy, args);
-        };
-      }
-
-      if (typeof value === "object" && value !== null) {
-        return new Proxy(value, handler);
-      }
-
-      return value;
-    },
-  };
-
-  const proxy = new Proxy(tk, handler);
-  return proxy;
-}
-
-/** @experimental */
-export interface TypekitContext {
-  program: Program;
-}
 
 /**
  * contextual typing to type guards is annoying (often have to restate the signature),
@@ -70,12 +23,9 @@ export type StripGuards<T> = {
 
 /** @experimental */
 export function defineKit<T extends Record<string, any>>(
-  source: StripGuards<T> & ThisType<TypekitPrototype>,
+  source: StripGuards<T> & ThisType<Typekit>,
 ): void {
   for (const [name, fnOrNs] of Object.entries(source)) {
     TypekitPrototype[name] = fnOrNs;
   }
 }
-
-/** @experimental */
-export const $: TypekitPrototype = createTypekit();

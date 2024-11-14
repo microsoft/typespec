@@ -39,6 +39,7 @@ it("works", async () => {
   const mutated = mutateSubgraph(runner.program, [mutator], Foo);
 
   const mutatedModel = mutated.type as Model;
+  expect(mutated.realm?.hasType(mutatedModel)).toBeTruthy();
   expect(mutatedModel.properties.get("x")).toBeUndefined();
   expect(mutatedModel.properties.get("y")).toBeDefined();
   // checking if the original model is not mutated
@@ -65,7 +66,7 @@ it("recurses the model", async () => {
     name: "test",
     Model: {
       filter: () => {
-        return MutatorFlow.MutateAndRecurse;
+        return MutatorFlow.MutateAndRecur;
       },
       mutate: (clone) => {
         visited.push(clone.name);
@@ -133,7 +134,7 @@ it("do not recurse the model", async () => {
     name: "test",
     Model: {
       filter: () => {
-        return MutatorFlow.DoNotRecurse;
+        return MutatorFlow.DoNotRecur;
       },
       mutate: (clone) => {
         visited.push(clone.name);

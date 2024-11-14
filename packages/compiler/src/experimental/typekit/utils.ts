@@ -1,17 +1,17 @@
 import type { DecoratorApplication, DecoratorFunction, RekeyableMap } from "../../core/types.js";
 import { createRekeyableMap } from "../../utils/misc.js";
-import { $ } from "./define-kit.js";
+import { Typekit } from "./define-kit.js";
 
 /** @experimental */
 export function copyMap<T, U>(map: RekeyableMap<T, U>): RekeyableMap<T, U> {
-  return createRekeyableMap(Array.from(map.entries()));
+  return createRekeyableMap(map.entries());
 }
 
 /** @experimental */
 export type DecoratorArgs = DecoratorFunction | [DecoratorFunction, ...any[]];
 
 /** @experimental */
-export function decoratorApplication(args?: DecoratorArgs[]): DecoratorApplication[] {
+export function decoratorApplication(kit: Typekit, args?: DecoratorArgs[]): DecoratorApplication[] {
   if (!args) {
     return [];
   }
@@ -25,7 +25,7 @@ export function decoratorApplication(args?: DecoratorArgs[]): DecoratorApplicati
             value:
               typeof rawValue === "object" && rawValue !== null
                 ? rawValue
-                : $.literal.create(rawValue),
+                : kit.literal.create(rawValue),
             jsValue: rawValue,
           }))
         : [],

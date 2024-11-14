@@ -1,8 +1,14 @@
 import { compilerAssert } from "../core/diagnostics.js";
 import { Program } from "../core/program.js";
 import { Type } from "../core/types.js";
-import { $ } from "./typekit/define-kit.js";
+import { createTypekit, Typekit } from "./typekit/index.js";
 
+/**
+ * A Realm's view of a Program's state map for a given state key.
+ *
+ * For all operations, if a type was created within the realm, the realm's own state map is used. Otherwise, the owning'
+ * Program's state map is used.
+ */
 class StateMapRealmView<V> implements Map<Type, V> {
   #realm: Realm;
   #parentState: Map<Type, V>;
@@ -15,20 +21,20 @@ class StateMapRealmView<V> implements Map<Type, V> {
   }
 
   has(t: Type) {
-    return this.dispatch(t).has(t) ?? false;
+    return this.#select(t).has(t) ?? false;
   }
 
   set(t: Type, v: any) {
-    this.dispatch(t).set(t, v);
+    this.#select(t).set(t, v);
     return this;
   }
 
   get(t: Type) {
-    return this.dispatch(t).get(t);
+    return this.#select(t).get(t);
   }
 
   delete(t: Type) {
-    return this.dispatch(t).delete(t);
+    return this.#select(t).delete(t);
   }
 
   forEach(cb: (value: V, key: Type, map: Map<Type, V>) => void, thisArg?: any) {
@@ -40,8 +46,7 @@ class StateMapRealmView<V> implements Map<Type, V> {
   }
 
   get size() {
-    // extremely non-optimal, maybe worth not offering it?
-    return [...this.entries()].length;
+    return this.#realmState.size + this.#parentState.size;
   }
 
   clear() {
@@ -82,7 +87,7 @@ class StateMapRealmView<V> implements Map<Type, V> {
 
   [Symbol.toStringTag] = "StateMap";
 
-  dispatch(keyType: Type): Map<Type, V> {
+  #select(keyType: Type): Map<Type, V> {
     if (this.#realm.hasType(keyType)) {
       return this.#realmState;
     }
@@ -91,9 +96,19 @@ class StateMapRealmView<V> implements Map<Type, V> {
   }
 }
 
-/** @experimental */
+export const REALM_TYPEKIT = Symbol.for("TypeSpec::Realm::Typekit");
+
+/**
+ * A Realm is an alternate view of a Program where types can be cloned, deleted, and modified without affecting the
+ * original types in the Program.
+ *
+ * The realm stores the types that exist within the realm, views of state maps that only apply within the realm,
+ * and a view of types that have been removed from the realm's view.
+ *
+ * @experimental
+ */
 export class Realm {
-  #program!: Program;
+  #program: Program;
 
   // Type registry
 
@@ -114,7 +129,18 @@ export class Realm {
   constructor(program: Program, description: string) {
     this.key = Symbol(description);
     this.#program = program;
+
     Realm.#knownRealms.set(this.key, this);
+  }
+
+  #_typekit: Typekit | undefined;
+
+  get [REALM_TYPEKIT](): Typekit {
+    return (this.#_typekit ??= createTypekit(this));
+  }
+
+  get program(): Program {
+    return this.#program;
   }
 
   stateMap(stateKey: symbol) {
@@ -132,7 +158,7 @@ export class Realm {
     compilerAssert(type, "Undefined type passed to clone");
 
     const clone = this.#cloneIntoRealm(type);
-    $.type.finishType(clone);
+    this[REALM_TYPEKIT].type.finishType(clone);
 
     return clone;
   }
@@ -151,7 +177,7 @@ export class Realm {
   }
 
   #cloneIntoRealm<T extends Type>(type: T): T {
-    const clone = $.type.clone(type);
+    const clone = this[REALM_TYPEKIT].type.clone(type);
     this.#types.add(clone);
     Realm.realmForType.set(clone, this);
     return clone;
