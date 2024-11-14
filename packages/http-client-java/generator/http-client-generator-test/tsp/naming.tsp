@@ -12,7 +12,7 @@ using Azure.ClientGenerator.Core;
 @service({
   title: "Naming",
 })
-namespace Cadl.Naming;
+namespace TspTest.Naming;
 
 @summary("summary of Response")
 @doc("description of Response. Include tab '	' in doc.")
