@@ -16,7 +16,7 @@ import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import tsptest.multipleapiversion.implementation.SecondClientImpl;
-import tsptest.multipleapiversion2.models.Resource2;
+import tsptest.multipleapiversion.models.Resource2;
 
 /**
  * Initializes a new instance of the synchronous SecondClient type.

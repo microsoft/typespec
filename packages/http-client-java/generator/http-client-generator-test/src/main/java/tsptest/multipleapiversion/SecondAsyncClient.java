@@ -18,7 +18,7 @@ import com.azure.core.util.BinaryData;
 import com.azure.core.util.FluxUtil;
 import reactor.core.publisher.Mono;
 import tsptest.multipleapiversion.implementation.SecondClientImpl;
-import tsptest.multipleapiversion2.models.Resource2;
+import tsptest.multipleapiversion.models.Resource2;
 
 /**
  * Initializes a new instance of the asynchronous SecondClient type.

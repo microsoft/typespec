@@ -8,9 +8,9 @@ package client.structure.service.generated;
 // If you wish to modify these files, please copy them out of the 'generated' package, and modify there.
 // See https://aka.ms/azsdk/dpg/java/tests for guide on adding a test.
 
-import client.structure.service.Group1Client;
-import client.structure.service.Group2Client;
-import client.structure.service.TwoOperationGroupClientBuilder;
+import client.structure.twooperationgroup.Group1Client;
+import client.structure.twooperationgroup.Group2Client;
+import client.structure.twooperationgroup.TwoOperationGroupClientBuilder;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.test.TestMode;

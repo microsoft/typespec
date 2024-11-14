@@ -8,13 +8,13 @@ package client.structure.service.generated;
 // If you wish to modify these files, please copy them out of the 'generated' package, and modify there.
 // See https://aka.ms/azsdk/dpg/java/tests for guide on adding a test.
 
-import client.structure.service.FirstClient;
-import client.structure.service.FirstClientBuilder;
-import client.structure.service.Group3Client;
-import client.structure.service.Group4Client;
-import client.structure.service.subnamespace.Group5Client;
-import client.structure.service.subnamespace.SecondClient;
-import client.structure.service.subnamespace.SecondClientBuilder;
+import client.structure.anotherclientoperationgroup.subnamespace.Group5Client;
+import client.structure.anotherclientoperationgroup.subnamespace.SecondClient;
+import client.structure.anotherclientoperationgroup.subnamespace.SecondClientBuilder;
+import client.structure.clientoperationgroup.FirstClient;
+import client.structure.clientoperationgroup.FirstClientBuilder;
+import client.structure.clientoperationgroup.Group3Client;
+import client.structure.clientoperationgroup.Group4Client;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.test.TestMode;
