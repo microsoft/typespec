@@ -64,7 +64,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.Abstractions
             public override ClientPipelineApi FromExpression(ValueExpression expression)
                 => new TestClientPipelineApi(expression);
 
-            public override ValueExpression PerRetryPolicy(params ValueExpression[] arguments)
+            public override ValueExpression ApplyAuthorizationPolicies(params ValueExpression[] arguments)
                 => Original.Invoke("GetFakePerRetryPolicy", arguments);
 
             public override MethodBodyStatement Send(HttpMessageApi message, HttpRequestOptionsApi options)

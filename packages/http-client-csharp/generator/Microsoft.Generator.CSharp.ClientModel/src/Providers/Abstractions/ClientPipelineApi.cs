@@ -4,7 +4,6 @@
 using System;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
-using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 
@@ -28,7 +27,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         public abstract ValueExpression Create(ValueExpression options, ValueExpression perRetryPolicies);
 
-        public abstract ValueExpression PerRetryPolicy(params ValueExpression[] arguments);
+        public abstract ValueExpression ApplyAuthorizationPolicies(params ValueExpression[] authorizationPolicies);
         public abstract ClientPipelineApi FromExpression(ValueExpression expression);
         public abstract ClientPipelineApi ToExpression();
     }
