@@ -527,8 +527,8 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
 
         List<ClientModelPropertyReference> propertyReferences = new ArrayList<>();
         ObjectSchema targetModelSchema = (ObjectSchema) property.getSchema();
-        String originalFlattenedPropertyName = property.getLanguage().getJava().getName();  // not
-                                                                                            // modelProperty.getName()
+        // use "property.getLanguage().getJava().getName()", not "modelProperty.getName()"
+        String originalFlattenedPropertyName = property.getLanguage().getJava().getName();
         ClientModel targetModel = this.map(targetModelSchema);
         if (targetModel != null && targetModel.getProperties() != null) {
             // gather this type and its parents
