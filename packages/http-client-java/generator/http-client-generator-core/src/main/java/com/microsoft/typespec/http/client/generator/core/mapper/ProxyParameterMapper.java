@@ -66,9 +66,8 @@ public class ProxyParameterMapper implements IMapper<Parameter, ProxyMethodParam
 
         IType clientType = wireType.getClientType();
 
-
         if (isRemoveModelFromParameter(parameter, clientType)) {
-          clientType = SchemaUtil.removeModelFromParameter(parameterRequestLocation, clientType);
+            clientType = SchemaUtil.removeModelFromParameter(parameterRequestLocation, clientType);
         }
 
         builder.clientType(clientType);
