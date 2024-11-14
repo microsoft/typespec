@@ -118,6 +118,7 @@ function getGithubLineNumber(value: number): `L${number}` {
 }
 
 function getLabelForRow(row: TreeTableRow): string {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   return useMemo(() => {
     const countLeafChildren = (node: ManifestTreeNode): number => {
       if (Object.keys(node.children).length === 0) {
