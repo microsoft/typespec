@@ -527,7 +527,7 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
 
         List<ClientModelPropertyReference> propertyReferences = new ArrayList<>();
         ObjectSchema targetModelSchema = (ObjectSchema) property.getSchema();
-        // not modelProperty.getName()
+        // use "property.getLanguage().getJava().getName()", not "modelProperty.getName()"
         String originalFlattenedPropertyName = property.getLanguage().getJava().getName();
         ClientModel targetModel = this.map(targetModelSchema);
         if (targetModel != null && targetModel.getProperties() != null) {
@@ -561,7 +561,7 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
             Set<String> referencePropertyNames = new HashSet<>();
             // properties from the target model
             for (ClientModelProperty property1 : targetModel.getProperties()) {
-                if (!property1.getClientFlatten() && !property1.isAdditionalProperties() && !property1.isConstant()) {
+                if (!property1.getClientFlatten() && !property1.isAdditionalProperties()) {
                     String name = disambiguatePropertyNameOfFlattenedSchema(propertyNames,
                         originalFlattenedPropertyName, property1.getName());
                     if (!referencePropertyNames.contains(name)) {
