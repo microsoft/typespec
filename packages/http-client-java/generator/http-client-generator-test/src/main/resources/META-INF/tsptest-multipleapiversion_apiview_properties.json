@@ -23,6 +23,6 @@
     "tsptest.multipleapiversion.SecondClient.getWithResponse": "TspTest.MultipleApiVersion2.Client.get",
     "tsptest.multipleapiversion.SecondClientBuilder": "TspTest.MultipleApiVersion2",
     "tsptest.multipleapiversion.models.Resource": "TspTest.MultipleApiVersion.Resource",
-    "tsptest.multipleapiversion.models.Resource2": "TspTest.MultipleApiVersion2.Resource2"
+    "tsptest.multipleapiversion2.models.Resource2": "TspTest.MultipleApiVersion2.Resource2"
   }
 }

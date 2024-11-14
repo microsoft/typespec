@@ -7,4 +7,4 @@
  * Package containing the data models for MultipleApiVersion.
  * <!-- end generated doc -->
  */
-package com.cadl.multipleapiversion2.models;
+package tsptest.multipleapiversion2.models;
