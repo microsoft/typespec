@@ -84,7 +84,11 @@ public class ObjectMapper implements IMapper<ObjectSchema, IType>, NeedsPlainObj
      * @return The predefined type.
      */
     protected ClassType mapPredefinedModel(ObjectSchema compositeType) {
-        return SchemaUtil.mapExternalModel(compositeType);
+        if (JavaSettings.getInstance().isBranded()) {
+            return SchemaUtil.mapExternalModel(compositeType);
+        } else {
+            return null;
+        }
     }
 
     /**
