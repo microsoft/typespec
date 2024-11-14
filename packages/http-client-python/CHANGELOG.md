@@ -1,5 +1,11 @@
 # Change Log - @typespec/http-client-python
 
+## 0.3.9
+
+### Bug Fixes
+
+- Fix quote for string type
+
 ## 0.3.8
 
 ### Bug Fixes
