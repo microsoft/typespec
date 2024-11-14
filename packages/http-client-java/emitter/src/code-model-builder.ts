@@ -77,7 +77,6 @@ import {
 } from "@azure-tools/typespec-client-generator-core";
 import {
   EmitContext,
-  Interface,
   Model,
   ModelProperty,
   Namespace,
@@ -168,13 +167,13 @@ export class CodeModelBuilder {
   private program: Program;
   private typeNameOptions: TypeNameOptions;
   private namespace: string;
-  private baseJavaNamespace: string;
-  // private legacyJavaNamespace: boolean;
+  private baseJavaNamespace: string = ""; // it will be set at the start of "build" function
+  private legacyJavaNamespace: boolean = false; // backward-compatible mode, that emitter ignores clientNamespace from TCGC
   private sdkContext!: SdkContext;
   private options: EmitterOptions;
   private codeModel: CodeModel;
   private emitterContext: EmitContext<EmitterOptions>;
-  private serviceNamespace: Namespace | Interface | Operation;
+  private serviceNamespace: Namespace;
 
   private loggingEnabled: boolean = false;
 
@@ -207,13 +206,6 @@ export class CodeModelBuilder {
     this.serviceNamespace = service.type;
 
     this.namespace = getNamespaceFullName(this.serviceNamespace) || "Azure.Client";
-    // java namespace
-    if (this.emitterContext.options.namespace) {
-      this.baseJavaNamespace = this.emitterContext.options.namespace;
-    } else {
-      this.baseJavaNamespace = this.getJavaNamespace(this.namespace)!;
-    }
-    // this.legacyJavaNamespace = this.options.namespace != undefined && this.options.namespace.length > 0;
 
     const namespace1 = this.namespace;
     this.typeNameOptions = {
@@ -239,9 +231,7 @@ export class CodeModelBuilder {
           summary: this.getSummary(this.serviceNamespace),
           namespace: this.namespace,
         },
-        java: {
-          namespace: this.baseJavaNamespace,
-        },
+        java: {},
       },
     });
   }
@@ -250,6 +240,17 @@ export class CodeModelBuilder {
     this.sdkContext = await createSdkContext(this.emitterContext, "@typespec/http-client-java", {
       versioning: { previewStringRegex: /$/ },
     }); // include all versions and do the filter by ourselves
+
+    // java namespace
+    if (this.options.namespace && this.options.namespace.length > 0) {
+      this.legacyJavaNamespace = true;
+      this.baseJavaNamespace = this.options.namespace;
+    } else {
+      this.legacyJavaNamespace = false;
+      this.baseJavaNamespace = this.getBaseJavaNamespace();
+    }
+
+    this.codeModel.language.java!.namespace = this.baseJavaNamespace;
 
     // TODO: reportDiagnostics from TCGC temporary disabled
     // issue https://github.com/Azure/typespec-azure/issues/1675
@@ -543,13 +544,17 @@ export class CodeModelBuilder {
     const sdkPackage = this.sdkContext.sdkPackage;
     for (const client of sdkPackage.clients) {
       let clientName = client.name;
-      let javaNamespace = this.baseJavaNamespace;
+      const namespace =
+        client.__raw.type.kind === "Interface"
+          ? getNamespace(client.__raw.type)
+          : getNamespaceFullName(client.__raw.type);
+      let javaNamespace = this.getJavaNamespace(namespace, client);
       const clientFullName = client.name;
       const clientNameSegments = clientFullName.split(".");
       if (clientNameSegments.length > 1) {
         clientName = clientNameSegments.at(-1)!;
         const clientSubNamespace = clientNameSegments.slice(0, -1).join(".").toLowerCase();
-        javaNamespace = this.baseJavaNamespace + "." + clientSubNamespace;
+        javaNamespace = javaNamespace + "." + clientSubNamespace;
       }
 
       const codeModelClient = new CodeModelClient(clientName, client.doc ?? "", {
@@ -2376,7 +2381,7 @@ export class CodeModelBuilder {
     const processNamespaceFunc = (type: SdkType) => {
       const namespace =
         type.kind === "model"
-          ? (getNamespace(property.type.__raw) ?? this.namespace)
+          ? (getNamespace(type.__raw) ?? this.namespace)
           : this.namespace;
       const javaNamespace = this.getJavaNamespace(namespace, type);
       return { namespace, javaNamespace };
@@ -2500,17 +2505,36 @@ export class CodeModelBuilder {
     }
   }
 
+  private getBaseJavaNamespace(): string {
+    // hack, just find the shortest clientNamespace among all clients
+    // hopefully it is the root namespace of the SDK
+    let baseJavaNamespace: string | undefined = undefined;
+    this.sdkContext.sdkPackage.clients
+      .map((it) => it.clientNamespace)
+      .forEach((it) => {
+        if (baseJavaNamespace === undefined || baseJavaNamespace.length > it.length) {
+          baseJavaNamespace = it;
+        }
+      });
+    // fallback if there is no client
+    if (!baseJavaNamespace) {
+      baseJavaNamespace = this.namespace;
+    }
+    return baseJavaNamespace.toLowerCase();
+  }
+
   private getJavaNamespace(
     namespace: string | undefined,
     type: SdkType | SdkClientType<SdkHttpOperation> | undefined = undefined,
   ): string | undefined {
-    const tspNamespace = this.namespace;
+    // TypeSpec namespace from service
+    const serviceNamespace = this.namespace;
 
-    if (!namespace) {
-      return undefined;
-    }
+    // clientNamespace from TCGC
+    const clientNamespace: string | undefined =
+      type && "clientNamespace" in type ? type.clientNamespace : undefined;
 
-    if (this.baseJavaNamespace && type && "crossLanguageDefinitionId" in type) {
+    if (this.isBranded() && this.baseJavaNamespace && type && "crossLanguageDefinitionId" in type) {
       // special handling for namespace of model that cannot be mapped to azure-core
       if (type.crossLanguageDefinitionId === "TypeSpec.Http.File") {
         // TypeSpec.Http.File
@@ -2529,16 +2553,24 @@ export class CodeModelBuilder {
       }
     }
 
-    if (
-      this.baseJavaNamespace &&
-      (namespace === tspNamespace || namespace.startsWith(tspNamespace + "."))
-    ) {
-      // make sure the mapping of typespec service namespace to options.namespace is maintained
-      // e.g. "Microsoft.StandbyPool" to "com.azure.resourcemanager.standbypool"
-      return this.baseJavaNamespace;
-    }
+    if (this.legacyJavaNamespace || !clientNamespace) {
+      if (!namespace) {
+        return this.baseJavaNamespace;
+      }
 
-    return namespace.toLowerCase();
+      if (
+        this.baseJavaNamespace &&
+        (namespace === serviceNamespace || namespace.startsWith(serviceNamespace + "."))
+      ) {
+        // make sure the mapping of typespec service namespace to options.namespace is maintained
+        // e.g. "Microsoft.StandbyPool" to "com.azure.resourcemanager.standbypool"
+        return this.baseJavaNamespace;
+      }
+
+      return namespace.toLowerCase();
+    } else {
+      return clientNamespace.toLowerCase();
+    }
   }
 
   private logWarning(msg: string) {

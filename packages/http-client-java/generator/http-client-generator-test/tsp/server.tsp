@@ -23,6 +23,7 @@ using Azure.ClientGenerator.Core;
     `relative-path`?: string,
   }
 )
+@clientNamespace("tsptest.server", "java")
 namespace TspTest.Server {
   @Azure.ClientGenerator.Core.client({
     name: "HttpbinClient",
@@ -50,16 +51,18 @@ namespace TspTest.Server {
     ApiVersion: APIVersions,
   }
 )
+@clientNamespace("tsptest.server.contoso", "java")
 namespace TspTest.ContosoServer {
   enum APIVersions {
     v1: "v1",
   }
 
   @client({
-    name: "Contoso.Sub.ContosoClient",
+    name: "ContosoClient",
     service: TspTest.ContosoServer,
   })
   @route("/contoso/")
+  @clientNamespace("tsptest.server.contoso.sub", "java")
   interface ServerOp {
     get(@path(#{ allowReserved: true }) group: string): OkResponse | NoContentResponse;
   }
