@@ -259,7 +259,7 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Property.AdditionalProperties
         [CadlRanchTest]
         public Task ExtendsUnknownDerivedPut() => Test(async (host) =>
         {
-            var value = new ExtendsUnknownAdditionalPropertiesDerived(314, "ExtendsUnknownAdditionalProperties")
+            var value = new ExtendsUnknownAdditionalPropertiesDerived("ExtendsUnknownAdditionalProperties", 314)
             {
                 Age = 2.71875f,
                 AdditionalProperties =
@@ -296,7 +296,7 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Property.AdditionalProperties
         [CadlRanchTest]
         public Task ExtendsUnknownDiscriminatedPut() => Test(async (host) =>
         {
-            var value = new ExtendsUnknownAdditionalPropertiesDiscriminatedDerived(314, "Derived")
+            var value = new ExtendsUnknownAdditionalPropertiesDiscriminatedDerived("Derived", 314)
             {
                 Age = 2.71875f,
                 AdditionalProperties =
@@ -361,7 +361,7 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Property.AdditionalProperties
         [CadlRanchTest]
         public Task IsUnknownDerivedPut() => Test(async (host) =>
         {
-            var value = new IsUnknownAdditionalPropertiesDerived(314, "IsUnknownAdditionalProperties")
+            var value = new IsUnknownAdditionalPropertiesDerived("IsUnknownAdditionalProperties", 314)
             {
                 Age = 2.71875f,
                 AdditionalProperties =
@@ -398,7 +398,7 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Property.AdditionalProperties
         [CadlRanchTest]
         public Task IsUnknownDiscriminatedPut() => Test(async (host) =>
         {
-            var value = new IsUnknownAdditionalPropertiesDiscriminatedDerived(314, "Derived")
+            var value = new IsUnknownAdditionalPropertiesDiscriminatedDerived("Derived", 314)
             {
                 Age = 2.71875f,
                 AdditionalProperties =
@@ -426,7 +426,7 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Property.AdditionalProperties
         [CadlRanchTest]
         public Task ExtendsDifferentSpreadFloatPut() => Test(async host =>
         {
-            var value = new DifferentSpreadFloatDerived(43.125f, "abc")
+            var value = new DifferentSpreadFloatDerived("abc", 43.125f)
             {
                 AdditionalProperties =
                 {
@@ -453,7 +453,7 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Property.AdditionalProperties
         [CadlRanchTest]
         public Task ExtendsDifferentSpreadModelPut() => Test(async host =>
         {
-            var value = new DifferentSpreadModelDerived(new ModelForRecord("ok"), "abc")
+            var value = new DifferentSpreadModelDerived("abc", new ModelForRecord("ok"))
             {
                 AdditionalProperties =
                 {
@@ -485,7 +485,7 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Property.AdditionalProperties
         [CadlRanchTest]
         public Task ExtendsDifferentSpreadModelArrayPut() => Test(async host =>
         {
-            var value = new DifferentSpreadModelArrayDerived(new[] { new ModelForRecord("ok"), new ModelForRecord("ok") }, "abc")
+            var value = new DifferentSpreadModelArrayDerived("abc", new[] { new ModelForRecord("ok"), new ModelForRecord("ok") })
             {
                 AdditionalProperties =
                 {
@@ -510,7 +510,7 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Property.AdditionalProperties
         [CadlRanchTest]
         public Task ExtendsDifferentSpreadStringPut() => Test(async host =>
         {
-            var value = new DifferentSpreadStringDerived("abc", 43.125f)
+            var value = new DifferentSpreadStringDerived(43.125f, "abc")
             {
                 AdditionalProperties =
                 {

@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
@@ -135,7 +137,9 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
                             InputFactory.Property("Prop1", InputPrimitiveType.String, isRequired: true),
                         ])
                ],
-               compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+               compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+               additionalMetadataReferences: [MetadataReference.CreateFromFile(typeof(BinaryData).Assembly.Location)]);
+
             var csharpGen = new CSharpGen();
 
             await csharpGen.ExecuteAsync();
@@ -160,7 +164,8 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
             Assert.AreEqual("prop1", modelFactoryMethod.Signature.Parameters[1].Name);
 
             Assert.IsTrue(modelFactoryMethod.BodyStatements!.ToDisplayString()
-                .Contains("return new global::Sample.Models.MockInputModel(data?.ToList(), prop1, additionalBinaryDataProperties: null);"));
+                .Contains("return new global::Sample.Models.MockInputModel(data?.ToList(), prop1, additionalBinaryDataProperties: null);"),
+                modelFactoryMethod.BodyStatements!.ToDisplayString());
         }
     }
 }

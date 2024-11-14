@@ -1,0 +1,13 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "tsptest.errormodel.ErrorModelAsyncClient": "null",
+    "tsptest.errormodel.ErrorModelAsyncClient.read": "TspTest.ErrorModel.ErrorOp.read",
+    "tsptest.errormodel.ErrorModelAsyncClient.readWithResponse": "TspTest.ErrorModel.ErrorOp.read",
+    "tsptest.errormodel.ErrorModelClient": "null",
+    "tsptest.errormodel.ErrorModelClient.read": "TspTest.ErrorModel.ErrorOp.read",
+    "tsptest.errormodel.ErrorModelClient.readWithResponse": "TspTest.ErrorModel.ErrorOp.read",
+    "tsptest.errormodel.ErrorModelClientBuilder": "TspTest.ErrorModel",
+    "tsptest.errormodel.models.Diagnostic": "TspTest.ErrorModel.Diagnostic"
+  }
+}
