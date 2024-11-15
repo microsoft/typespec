@@ -86,7 +86,7 @@ namespace Microsoft.Generator.CSharp.Providers
             Type = inputProperty.IsReadOnly ? propertyType.OutputType : propertyType;
             Modifiers = inputProperty.IsDiscriminator ? MethodSignatureModifiers.Internal : MethodSignatureModifiers.Public;
             Name = inputProperty.Name == enclosingType.Name
-                ? inputProperty.Name.ToCleanName() + "Property"
+                ? $"{inputProperty.Name.ToCleanName()}Property"
                 : inputProperty.Name.ToCleanName();
             Body = new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(propertyType, inputProperty));
             Description = string.IsNullOrEmpty(inputProperty.Description) ? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(Name, !Body.HasSetter) : $"{inputProperty.Description}";
