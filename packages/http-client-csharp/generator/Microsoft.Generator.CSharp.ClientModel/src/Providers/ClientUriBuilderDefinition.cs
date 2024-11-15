@@ -298,15 +298,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var formatParameter = new ParameterProvider("format", $"The format.", typeof(string), Literal(null));
             var escapeParameter = new ParameterProvider("escape", $"The escape.", typeof(bool), Bool(true));
 
-            var parameters = new List<ParameterProvider>();
-            if (hasName)
-            {
-                parameters.Add(nameParameter);
-            }
-            parameters.Add(valueParameter);
-            parameters.Add(delimiterParameter);
-            parameters.Add(formatParameter);
-            parameters.Add(escapeParameter);
+            var parameters = hasName
+                ? new[] { nameParameter, valueParameter, delimiterParameter, formatParameter, escapeParameter }
+                : new[] { valueParameter, delimiterParameter, formatParameter, escapeParameter };
 
             var signature = new MethodSignature(
                 Name: delimitedMethodName,
