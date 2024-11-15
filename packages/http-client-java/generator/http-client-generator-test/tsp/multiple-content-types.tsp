@@ -40,6 +40,7 @@ interface MultipleContentTypesOnRequest {
   @doc("one data type maps to multiple content types")
   @route("upload/single-body-type")
   @post
+  @convenientAPI(false)
   uploadBytesWithSingleBodyTypeForMultiContentTypes(
     @body data: bytes,
     @header contentType:
@@ -53,6 +54,7 @@ interface MultipleContentTypesOnRequest {
   @route("upload/multi-body-types")
   @sharedRoute
   @post
+  @convenientAPI(false)
   uploadBytesWithMultiBodyTypesForMultiContentTypes(
     @body data: bytes,
     @header contentType: "application/octet-stream" | "image/jpeg" | "image/png",
@@ -71,6 +73,7 @@ interface MultipleContentTypesOnRequest {
   @route("upload/multi-body-types")
   @sharedRoute
   @post
+  @convenientAPI(false)
   uploadJsonOrBytesWithMultiBodyTypesForMultiContentTypes(
     @body data: bytes | Resource,
     @header contentType:
@@ -106,6 +109,7 @@ interface MultipleContentTypesOnRequest {
 @doc("multiple data types map to multiple content types")
 @route("upload/overload/multi-body-types")
 @post
+@convenientAPI(false)
 op uploadWithOverload(
   @body data: string | bytes | Resource,
   @header contentType:
@@ -126,6 +130,7 @@ op uploadStringWithOverload(@body data: string, @header contentType: "text/plain
 @route("upload/overload/multi-body-types")
 @post
 @overload(uploadWithOverload)
+@convenientAPI(false)
 op uploadImagesWithOverload(
   @body data: bytes,
   @header contentType: "image/jpeg" | "image/png",
@@ -135,6 +140,7 @@ op uploadImagesWithOverload(
 @route("upload/overload/multi-body-types")
 @post
 @overload(uploadWithOverload)
+@convenientAPI(false)
 op uploadBytesOrJsonWithOverload(
   @body data: bytes | Resource,
   @header contentType: "application/octet-stream" | "image/jpeg" | "image/png" | "application/json",

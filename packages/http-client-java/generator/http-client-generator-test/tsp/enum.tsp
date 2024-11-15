@@ -63,7 +63,7 @@ enum OperationStateValues {
   Failed,
 }
 
-@usage(Usage.input)
+@usage(Usage.input | Usage.output)
 model Operation {
   name: "Read" | "Write";
   best: true;

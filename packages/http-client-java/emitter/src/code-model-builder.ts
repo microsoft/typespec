@@ -152,7 +152,9 @@ import {
   getUsage,
   isStable,
   modelIs,
+  processSchemaUsageFromSdkType,
   pushDistinct,
+  trackSchemaUsage,
 } from "./type-utils.js";
 import {
   getNamespace,
@@ -265,7 +267,7 @@ export class CodeModelBuilder {
 
     this.processModels();
 
-    this.processSchemaUsage();
+    this.postProcessSchemaUsage();
 
     this.deduplicateSchemaName();
 
@@ -280,9 +282,6 @@ export class CodeModelBuilder {
         parameter = this.createApiVersionParameter(arg.name, ParameterLocation.Uri);
       } else {
         const schema = this.processSchema(arg.type, arg.name);
-        this.trackSchemaUsage(schema, {
-          usage: [SchemaContext.Input, SchemaContext.Output /*SchemaContext.Public*/],
-        });
         parameter = new Parameter(arg.name, arg.doc ?? "", schema, {
           implementation: ImplementationLocation.Client,
           origin: "modelerfour:synthesized/host",
@@ -383,45 +382,19 @@ export class CodeModelBuilder {
     // process sdk models
     for (const model of sdkModels) {
       if (!processedSdkModels.has(model)) {
+        // For this part, we only process models which explicitly set access and use decorator,
+        // otherwise, there will be isseus, e.g. for multipart models, we generate our own model, but TCGC returns the original multipart model with public access and input usage, so we will generate the original multipart model which is unexpected
         const access = getAccess(model.__raw, accessCache);
-        if (access === "public") {
-          const schema = this.processSchema(model, "");
-
-          this.trackSchemaUsage(schema, {
-            usage: [SchemaContext.Public],
-          });
-        } else if (access === "internal") {
-          const schema = this.processSchema(model, model.name);
-
-          this.trackSchemaUsage(schema, {
-            usage: [SchemaContext.Internal],
-          });
+        if (access) {
+          this.processSchema(model, "");
         }
 
         const usage = getUsage(model.__raw, usageCache);
         if (usage) {
-          const schema = this.processSchema(model, "");
-
-          this.trackSchemaUsage(schema, {
-            usage: usage,
-          });
+          this.processSchema(model, "");
         }
-
-        processedSdkModels.add(model);
       }
     }
-  }
-
-  private processSchemaUsage() {
-    this.codeModel.schemas.objects?.forEach((it) => this.propagateSchemaUsage(it));
-
-    // post process for schema usage
-    this.codeModel.schemas.objects?.forEach((it) => this.resolveSchemaUsage(it));
-    this.codeModel.schemas.groups?.forEach((it) => this.resolveSchemaUsage(it));
-    this.codeModel.schemas.choices?.forEach((it) => this.resolveSchemaUsage(it));
-    this.codeModel.schemas.sealedChoices?.forEach((it) => this.resolveSchemaUsage(it));
-    this.codeModel.schemas.ors?.forEach((it) => this.resolveSchemaUsage(it));
-    this.codeModel.schemas.constants?.forEach((it) => this.resolveSchemaUsage(it));
   }
 
   private deduplicateSchemaName() {
@@ -930,7 +903,7 @@ export class CodeModelBuilder {
 
             op.responses?.forEach((r) => {
               if (r instanceof SchemaResponse) {
-                this.trackSchemaUsage(r.schema, { usage: [SchemaContext.Paged] });
+                trackSchemaUsage(r.schema, { usage: [SchemaContext.Paged] });
               }
             });
             break;
@@ -1004,19 +977,10 @@ export class CodeModelBuilder {
         }
       }
 
-      // track usage
       if (pollingSchema) {
         this.trackSchemaUsage(pollingSchema, { usage: [SchemaContext.Output] });
         if (trackConvenienceApi) {
           this.trackSchemaUsage(pollingSchema, {
-            usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
-          });
-        }
-      }
-      if (finalSchema) {
-        this.trackSchemaUsage(finalSchema, { usage: [SchemaContext.Output] });
-        if (trackConvenienceApi) {
-          this.trackSchemaUsage(finalSchema, {
             usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
           });
         }
@@ -1199,14 +1163,6 @@ export class CodeModelBuilder {
       if (parameterOnClient) {
         clientContext.addGlobalParameter(parameter);
       }
-
-      this.trackSchemaUsage(schema, { usage: [SchemaContext.Input] });
-
-      if (op.convenienceApi) {
-        this.trackSchemaUsage(schema, {
-          usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
-        });
-      }
     }
   }
 
@@ -1307,13 +1263,6 @@ export class CodeModelBuilder {
           },
         );
 
-        this.trackSchemaUsage(requestConditionsSchema, { usage: [SchemaContext.Input] });
-        if (op.convenienceApi) {
-          this.trackSchemaUsage(requestConditionsSchema, {
-            usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
-          });
-        }
-
         // update group schema for properties
         for (const parameter of request.parameters) {
           if (
@@ -1385,20 +1334,11 @@ export class CodeModelBuilder {
 
     const jsonMergePatch = operationIsJsonMergePatch(sdkHttpOperation);
 
-    const schemaIsPublicBeforeProcess =
-      schema instanceof ObjectSchema &&
-      (schema as SchemaUsage).usage?.includes(SchemaContext.Public);
-
-    this.trackSchemaUsage(schema, { usage: [SchemaContext.Input] });
-
-    if (op.convenienceApi) {
-      // model/schema does not need to be Public or Internal, if it is not to be used in convenience API
+    if (jsonMergePatch) {
+      // if it's json-merge-patch body, we need to track the body model's access, see case https://gist.github.com/haolingdong-msft/2d941f452551a6f96e141adbc38ac483#case7-flatten-body--json-merge-patch
       this.trackSchemaUsage(schema, {
         usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
       });
-    }
-
-    if (jsonMergePatch) {
       this.trackSchemaUsage(schema, { usage: [SchemaContext.JsonMergePatch] });
     }
     if (op.convenienceApi && operationIsMultipart(sdkHttpOperation)) {
@@ -1431,14 +1371,6 @@ export class CodeModelBuilder {
             schema.language.default.name = pascalCase(op.language.default.name) + "PatchRequest";
           }
           return;
-        }
-
-        const schemaUsage = (schema as SchemaUsage).usage;
-        if (!schemaIsPublicBeforeProcess && schemaUsage?.includes(SchemaContext.Public)) {
-          // Public added in this op, change it to PublicSpread
-          // This means that if this op would originally add Public to this schema, it adds PublicSpread instead
-          schemaUsage?.splice(schemaUsage?.indexOf(SchemaContext.Public), 1);
-          this.trackSchemaUsage(schema, { usage: [SchemaContext.PublicSpread] });
         }
 
         if (op.convenienceApi && op.parameters) {
@@ -1606,11 +1538,6 @@ export class CodeModelBuilder {
     }
   }
 
-  private findResponseBody(bodyType: Type): Type {
-    // find a type that possibly without http metadata like @statusCode
-    return this.getEffectiveSchemaType(bodyType);
-  }
-
   private processResponse(
     op: CodeModelOperation,
     statusCode: number | HttpStatusCodeRange | "*",
@@ -1628,6 +1555,7 @@ export class CodeModelBuilder {
     if (sdkResponse.headers) {
       for (const header of sdkResponse.headers) {
         const schema = this.processSchema(header.type, header.serializedName);
+
         headers.push(
           new HttpHeader(header.serializedName, schema, {
             language: {
@@ -1642,7 +1570,6 @@ export class CodeModelBuilder {
     }
 
     const bodyType: SdkType | undefined = sdkResponse.type;
-    let trackConvenienceApi: boolean = Boolean(op.convenienceApi);
 
     const unknownResponseBody =
       sdkResponse.contentTypes &&
@@ -1671,10 +1598,6 @@ export class CodeModelBuilder {
     } else if (bodyType) {
       // schema (usually JSON)
       let schema: Schema | undefined = undefined;
-      if (longRunning) {
-        // LRO uses the LroMetadata for poll/final result, not the response of activation request
-        trackConvenienceApi = false;
-      }
       if (!schema) {
         schema = this.processSchema(bodyType, op.language.default.name + "Response");
       }
@@ -1719,16 +1642,6 @@ export class CodeModelBuilder {
       }
     } else {
       op.addResponse(response);
-
-      if (response instanceof SchemaResponse) {
-        this.trackSchemaUsage(response.schema, { usage: [SchemaContext.Output] });
-
-        if (trackConvenienceApi) {
-          this.trackSchemaUsage(response.schema, {
-            usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
-          });
-        }
-      }
     }
   }
 
@@ -1964,6 +1877,7 @@ export class CodeModelBuilder {
       },
     });
     schema.crossLanguageDefinitionId = type.crossLanguageDefinitionId;
+    schema.usage = processSchemaUsageFromSdkType(type, schema.usage);
     return this.codeModel.schemas.add(schema);
   }
 
@@ -2066,6 +1980,8 @@ export class CodeModelBuilder {
     (objectSchema as CrossLanguageDefinition).crossLanguageDefinitionId =
       type.crossLanguageDefinitionId;
     this.codeModel.schemas.add(objectSchema);
+    // TODO haoling: fix as any
+    objectSchema.usage = processSchemaUsageFromSdkType(type, objectSchema.usage) as any;
 
     // cache this now before we accidentally recurse on this type.
     if (!this.schemaCache.has(type)) {
@@ -2623,83 +2539,24 @@ export class CodeModelBuilder {
 
   private _subscriptionParameter?: Parameter;
 
-  private propagateSchemaUsage(schema: Schema): void {
-    const processedSchemas = new Set<Schema>();
-
-    const innerApplySchemaUsage = (schema: Schema, schemaUsage: SchemaUsage) => {
-      this.trackSchemaUsage(schema, schemaUsage);
-      innerPropagateSchemaUsage(schema, schemaUsage);
-    };
-
-    const innerPropagateSchemaUsage = (schema: Schema, schemaUsage: SchemaUsage) => {
-      if (processedSchemas.has(schema)) {
-        return;
-      }
-
-      processedSchemas.add(schema);
-      if (schema instanceof ObjectSchema || schema instanceof GroupSchema) {
-        if (schemaUsage.usage || schemaUsage.serializationFormats) {
-          schema.properties?.forEach((p) => {
-            if (p.readOnly && schemaUsage.usage?.includes(SchemaContext.Input)) {
-              const schemaUsageWithoutInput = {
-                usage: schemaUsage.usage.filter((it) => it !== SchemaContext.Input),
-                serializationFormats: schemaUsage.serializationFormats,
-              };
-              innerApplySchemaUsage(p.schema, schemaUsageWithoutInput);
-            } else {
-              innerApplySchemaUsage(p.schema, schemaUsage);
-            }
-          });
-
-          if (schema instanceof ObjectSchema) {
-            schema.parents?.all?.forEach((p) => innerApplySchemaUsage(p, schemaUsage));
-            schema.parents?.immediate?.forEach((p) => innerApplySchemaUsage(p, schemaUsage));
-
-            if (schema.discriminator) {
-              // propagate access/usage to immediate children, if the schema is a discriminated model
-              // if the schema is not a discriminated model, its children likely not valid for the mode/API
-              // TODO: it does not handle the case that concrete model (kind: "type1") for the discriminated model have depth larger than 1 (e.g. kind: "type1" | "type2" in middle)
-              schema.children?.immediate?.forEach((c) => innerApplySchemaUsage(c, schemaUsage));
-            }
-
-            if (schema.discriminator?.property?.schema) {
-              innerApplySchemaUsage(schema.discriminator?.property?.schema, schemaUsage);
-            }
-          }
-        }
-      } else if (schema instanceof DictionarySchema) {
-        innerApplySchemaUsage(schema.elementType, schemaUsage);
-      } else if (schema instanceof ArraySchema) {
-        innerApplySchemaUsage(schema.elementType, schemaUsage);
-      } else if (schema instanceof OrSchema) {
-        schema.anyOf?.forEach((it) => innerApplySchemaUsage(it, schemaUsage));
-      } else if (schema instanceof ConstantSchema) {
-        innerApplySchemaUsage(schema.valueType, schemaUsage);
+  private postProcessSchemaUsage(): void {
+    const innerProcessUsage = (schema: Schema) => {
+      const usages = (schema as SchemaUsage).usage;
+      if (
+        usages &&
+        usages.includes(SchemaContext.Public) &&
+        usages.includes(SchemaContext.Internal)
+      ) {
+        // If access contains both public and internal, remove internal
+        usages.splice(usages.indexOf(SchemaContext.Internal), 1);
       }
     };
-
-    // Exclude context that not to be propagated
-    const updatedSchemaUsage = (schema as SchemaUsage).usage?.filter(
-      (it) => it !== SchemaContext.Paged && it !== SchemaContext.PublicSpread,
-    );
-    const indexSpread = (schema as SchemaUsage).usage?.indexOf(SchemaContext.PublicSpread);
-    if (
-      updatedSchemaUsage &&
-      indexSpread &&
-      indexSpread >= 0 &&
-      !(schema as SchemaUsage).usage?.includes(SchemaContext.Public)
-    ) {
-      // Propagate Public, if schema is PublicSpread
-      updatedSchemaUsage.push(SchemaContext.Public);
-    }
-    const schemaUsage = {
-      usage: updatedSchemaUsage,
-      serializationFormats: (schema as SchemaUsage).serializationFormats?.filter(
-        (it) => it !== KnownMediaType.Multipart,
-      ),
-    };
-    // Propagate the usage of the initial schema itself
-    innerPropagateSchemaUsage(schema, schemaUsage);
+    this.codeModel.schemas.choices?.forEach(innerProcessUsage);
+    this.codeModel.schemas.objects?.forEach(innerProcessUsage);
+    this.codeModel.schemas.sealedChoices?.forEach(innerProcessUsage);
+    this.codeModel.schemas.constants?.forEach(innerProcessUsage);
+    this.codeModel.schemas.groups?.forEach(innerProcessUsage);
+    this.codeModel.schemas.ors?.forEach(innerProcessUsage);
   }
 
   private trackSchemaUsage(schema: Schema, schemaUsage: SchemaUsage): void {

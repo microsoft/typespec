@@ -62,8 +62,6 @@ public final class MultipleContentTypesOnRequestAsyncClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> uploadBytesWithSingleBodyTypeForMultiContentTypesWithResponse(String contentType,
         BinaryData data, RequestOptions requestOptions) {
-        // Convenience API is not generated, as operation 'uploadBytesWithSingleBodyTypeForMultiContentTypes' is
-        // multiple content-type
         return this.serviceClient.uploadBytesWithSingleBodyTypeForMultiContentTypesWithResponseAsync(contentType, data,
             requestOptions);
     }
@@ -92,8 +90,6 @@ public final class MultipleContentTypesOnRequestAsyncClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> uploadBytesWithMultiBodyTypesForMultiContentTypesWithResponse(String contentType,
         BinaryData data, RequestOptions requestOptions) {
-        // Convenience API is not generated, as operation 'uploadBytesWithMultiBodyTypesForMultiContentTypes' is
-        // multiple content-type
         return this.serviceClient.uploadBytesWithMultiBodyTypesForMultiContentTypesWithResponseAsync(contentType, data,
             requestOptions);
     }
@@ -151,8 +147,6 @@ public final class MultipleContentTypesOnRequestAsyncClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> uploadJsonOrBytesWithMultiBodyTypesForMultiContentTypesWithResponse(String contentType,
         BinaryData data, RequestOptions requestOptions) {
-        // Convenience API is not generated, as operation 'uploadJsonOrBytesWithMultiBodyTypesForMultiContentTypes' is
-        // multiple content-type
         return this.serviceClient.uploadJsonOrBytesWithMultiBodyTypesForMultiContentTypesWithResponseAsync(contentType,
             data, requestOptions);
     }

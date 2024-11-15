@@ -44,6 +44,7 @@
     "tsptest.specialheaders.SkipSpecialHeadersClient.deleteWithSpecialHeaders": "TspTest.SpecialHeaders.SkipSpecialHeaders.deleteWithSpecialHeaders",
     "tsptest.specialheaders.SkipSpecialHeadersClient.deleteWithSpecialHeadersWithResponse": "TspTest.SpecialHeaders.SkipSpecialHeaders.deleteWithSpecialHeaders",
     "tsptest.specialheaders.SpecialHeadersClientBuilder": "TspTest.SpecialHeaders",
+    "tsptest.specialheaders.models.RepeatabilityResult": "Azure.Core.RepeatabilityResult",
     "tsptest.specialheaders.models.Resource": "TspTest.SpecialHeaders.Resource"
   }
 }

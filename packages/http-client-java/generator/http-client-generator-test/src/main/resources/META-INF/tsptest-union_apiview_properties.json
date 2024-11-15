@@ -24,6 +24,8 @@
     "tsptest.union.implementation.models.SendRequest": "send.Request.anonymous",
     "tsptest.union.implementation.models.SubResult": "TspTest.Union.SubResult",
     "tsptest.union.models.ArrayData": "TspTest.Union.ArrayData",
+    "tsptest.union.models.OperationState": "Azure.Core.Foundations.OperationState",
+    "tsptest.union.models.ResourceOperationStatusOperationStatusResultError": "Azure.Core.ResourceOperationStatus",
     "tsptest.union.models.Result": "TspTest.Union.Result",
     "tsptest.union.models.SendLongOptions": "null",
     "tsptest.union.models.User": "TspTest.Union.User"

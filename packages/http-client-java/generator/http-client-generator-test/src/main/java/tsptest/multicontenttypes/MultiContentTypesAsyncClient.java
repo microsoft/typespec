@@ -60,7 +60,6 @@ public final class MultiContentTypesAsyncClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> uploadWithOverloadWithResponse(String contentType, BinaryData data,
         RequestOptions requestOptions) {
-        // Convenience API is not generated, as operation 'uploadWithOverload' is multiple content-type
         return this.serviceClient.uploadWithOverloadWithResponseAsync(contentType, data, requestOptions);
     }
 }

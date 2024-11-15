@@ -20,8 +20,10 @@
     "tsptest.protocolandconvenient.ProtocolAndConvenientClientBuilder": "TspTest.ProtocolAndConvenient",
     "tsptest.protocolandconvenient.models.ResourceA": "TspTest.ProtocolAndConvenient.ResourceA",
     "tsptest.protocolandconvenient.models.ResourceB": "TspTest.ProtocolAndConvenient.ResourceB",
+    "tsptest.protocolandconvenient.models.ResourceD": "TspTest.ProtocolAndConvenient.ResourceD",
     "tsptest.protocolandconvenient.models.ResourceE": "TspTest.ProtocolAndConvenient.ResourceE",
     "tsptest.protocolandconvenient.models.ResourceF": "TspTest.ProtocolAndConvenient.ResourceF",
+    "tsptest.protocolandconvenient.models.ResourceH": "TspTest.ProtocolAndConvenient.ResourceH",
     "tsptest.protocolandconvenient.models.ResourceI": "TspTest.ProtocolAndConvenient.ResourceI",
     "tsptest.protocolandconvenient.models.ResourceJ": "TspTest.ProtocolAndConvenient.ResourceJ"
   }
