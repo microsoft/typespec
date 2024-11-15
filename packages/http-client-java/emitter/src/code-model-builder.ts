@@ -271,7 +271,6 @@ export class CodeModelBuilder {
 
     this.postProcessSchemaUsage();
 
-
     this.deduplicateSchemaName();
 
     return this.codeModel;
@@ -400,18 +399,6 @@ export class CodeModelBuilder {
       }
     }
   }
-
-  // private processSchemaUsage() {
-  //   this.codeModel.schemas.objects?.forEach((it) => this.propagateSchemaUsage(it));
-
-  //   // post process for schema usage
-  //   this.codeModel.schemas.objects?.forEach((it) => this.resolveSchemaUsage(it));
-  //   this.codeModel.schemas.groups?.forEach((it) => this.resolveSchemaUsage(it));
-  //   this.codeModel.schemas.choices?.forEach((it) => this.resolveSchemaUsage(it));
-  //   this.codeModel.schemas.sealedChoices?.forEach((it) => this.resolveSchemaUsage(it));
-  //   this.codeModel.schemas.ors?.forEach((it) => this.resolveSchemaUsage(it));
-  //   this.codeModel.schemas.constants?.forEach((it) => this.resolveSchemaUsage(it));
-  // }
 
   private deduplicateSchemaName() {
     // deduplicate model name
@@ -1384,8 +1371,6 @@ export class CodeModelBuilder {
           if (sdkType.isGeneratedName) {
             schema.language.default.name = pascalCase(op.language.default.name) + "PatchRequest";
           }
-          // // TODO haoling: maybe put to a global post processing
-          // this.postProcessSchemaUsage(schema);
           return;
         }
 
