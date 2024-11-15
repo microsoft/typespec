@@ -137,6 +137,40 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Property.AdditionalProperties
         });
 
         [CadlRanchTest]
+        public Task ExtendsModelArrayPut() => Test(async (host) =>
+        {
+            var value = new ExtendsModelArrayAdditionalProperties([new ModelForRecord("ok"), new ModelForRecord("ok")])
+            {
+                AdditionalProperties =
+                {
+                    ["prop"] =
+                    [
+                        ModelReaderWriter.Write(new ModelForRecord("ok")),
+                        ModelReaderWriter.Write(new ModelForRecord("ok"))
+                    ]
+                }
+            };
+            var response = await new AdditionalPropertiesClient(host, null).GetExtendsModelArrayClient().PutAsync(value);
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [CadlRanchTest]
+        public Task IsModelArrayGet() => Test(async (host) =>
+        {
+            var response = await new AdditionalPropertiesClient(host, null).GetIsModelArrayClient().GetAsync();
+            Assert.AreEqual(200, response.GetRawResponse().Status);
+
+            var value = response.Value;
+            Assert.AreEqual(1, value.AdditionalProperties.Count);
+            Assert.IsTrue(value.AdditionalProperties.ContainsKey("prop"));
+
+            var prop = value.AdditionalProperties["prop"].Select(item => ModelReaderWriter.Read<ModelForRecord>(item)).ToList();
+            Assert.AreEqual(2, prop.Count);
+            Assert.AreEqual("ok", prop[0]!.State);
+            Assert.AreEqual("ok", prop[1]!.State);
+        });
+
+        [CadlRanchTest]
         public Task IsModelArrayPut() => Test(async (host) =>
         {
             var value = new IsModelArrayAdditionalProperties(new[] { new ModelForRecord("ok"), new ModelForRecord("ok") })
