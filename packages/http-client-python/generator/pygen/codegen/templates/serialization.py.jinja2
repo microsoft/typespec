@@ -1682,10 +1682,14 @@ class Deserializer(object):
             subtype = getattr(response, "_subtype_map", {})
             try:
                 readonly = [
-                    k for k, v in response._validation.items() if v.get("readonly")  # pylint: disable=protected-access  # type: ignore
+                    k
+                    for k, v in response._validation.items()  # pylint: disable=protected-access  # type: ignore
+                    if v.get("readonly")
                 ]
                 const = [
-                    k for k, v in response._validation.items() if v.get("constant")  # pylint: disable=protected-access  # type: ignore
+                    k
+                    for k, v in response._validation.items()  # pylint: disable=protected-access  # type: ignore
+                    if v.get("constant")
                 ]
                 kwargs = {k: v for k, v in attrs.items() if k not in subtype and k not in readonly + const}
                 response_obj = response(**kwargs)
