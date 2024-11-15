@@ -240,6 +240,11 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     },
+    "http-special-headers-conditional-request": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/special-headers/conditional-request -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
     "Unbranded-TypeSpec": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/Local/Unbranded-TypeSpec -p ClientModelPlugin",
       "commandName": "Executable",
