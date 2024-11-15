@@ -36,7 +36,7 @@ try {
             $generatorTestDir = Join-Path $packageRoot 'generator/http-client-generator-test'
             Push-Location $generatorTestDir
             try {
-                npm run clean && npm install
+                & ./Setup.ps1
                 & ./CadlRanch-Tests.ps1
                 Set-Location $packageRoot
                 Write-Host 'Cadl ranch tests passed'
