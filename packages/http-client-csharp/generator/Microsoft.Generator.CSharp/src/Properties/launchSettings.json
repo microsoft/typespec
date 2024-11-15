@@ -145,6 +145,11 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     },
+    "http-special-headers-conditional-request": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/special-headers/conditional-request -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
     "http-special-headers-repeatability": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/special-headers/repeatability -p StubLibraryPlugin",
       "commandName": "Executable",
@@ -237,11 +242,6 @@
     },
     "http-type-union": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/type/union -p StubLibraryPlugin",
-      "commandName": "Executable",
-      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
-    },
-    "http-special-headers-conditional-request": {
-      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/special-headers/conditional-request -p StubLibraryPlugin",
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     },
