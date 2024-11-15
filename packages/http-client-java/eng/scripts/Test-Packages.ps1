@@ -28,10 +28,8 @@ try {
         $env:PATH = "$env:JAVA_HOME\bin;$env:PATH"
 
         Write-Host "Updated PATH: $env:PATH"
-        # unit test the emitter
-        Invoke-LoggedCommand "npm run build" -GroupOutput
         
-        # cadl-ranch tests
+        # cadl-ranch tests (unit tests included in java/typescript package build)
         try {
             $generatorTestDir = Join-Path $packageRoot 'generator/http-client-generator-test'
             Push-Location $generatorTestDir

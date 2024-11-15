@@ -28,5 +28,5 @@ extends:
           UnitTestArgs: -UnitTests
           StagePrefix: "Java"
           LanguageShortName: "java"
-          HasNugetPackages: true
+          HasNugetPackages: false
           CadlRanchName: "@typespec/http-client-java"
