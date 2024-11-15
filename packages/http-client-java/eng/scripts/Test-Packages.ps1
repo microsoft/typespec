@@ -34,15 +34,21 @@ try {
         # cadl-ranch tests
         try {
             $generatorTestDir = Join-Path $packageRoot 'generator/http-client-generator-test'
-            Set-Location $generatorTestDir
-            & ./CadlRanch-Tests.ps1
-            Set-Location $packageRoot
-            Write-Host 'Cadl ranch tests passed'
+            Push-Location $generatorTestDir
+            try {
+                npm run clean && npm install
+                & ./CadlRanch-Tests.ps1
+                Set-Location $packageRoot
+                Write-Host 'Cadl ranch tests passed'
+            }
+            finally {
+                Pop-Location
+            }
         } 
         catch {
             Write-Error "Cadl ranch tests failed:  $_"
         }
-
+        # copy coverage report to artifacts dir
         try {
             $coverageReportDir = Join-Path $packageRoot 'generator/artifacts/coverage'
             if (!(Test-Path $coverageReportDir)) {
