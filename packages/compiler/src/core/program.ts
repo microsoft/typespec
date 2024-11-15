@@ -15,6 +15,7 @@ import { PackageJson } from "../types/package-json.js";
 import { deepEquals, findProjectRoot, isDefined, mapEquals, mutate } from "../utils/misc.js";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
+import { createShowLinterRuleDocUrlCodeFix } from "./compiler-code-fixes/show-linter-rule-doc-url.codefix.js";
 import { createSuppressCodeFix } from "./compiler-code-fixes/suppress.codefix.js";
 import { compilerAssert } from "./diagnostics.js";
 import { resolveTypeSpecEntrypoint } from "./entrypoint-resolution.js";
@@ -723,6 +724,10 @@ export async function compile(
     if (diagnostic.severity === "warning" && diagnostic.target !== NoTarget) {
       mutate(diagnostic).codefixes ??= [];
       mutate(diagnostic.codefixes).push(createSuppressCodeFix(diagnostic.target, diagnostic.code));
+    }
+
+    if (diagnostic.url) {
+      mutate(diagnostic.codefixes).push(createShowLinterRuleDocUrlCodeFix(diagnostic.url!));
     }
 
     if (options.warningAsError && diagnostic.severity === "warning") {

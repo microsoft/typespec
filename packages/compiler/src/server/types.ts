@@ -87,7 +87,7 @@ export interface Server {
   getDocumentSymbols(params: DocumentSymbolParams): Promise<DocumentSymbol[]>;
   documentClosed(change: TextDocumentChangeEvent<TextDocument>): void;
   getCodeActions(params: CodeActionParams): Promise<CodeAction[]>;
-  executeCommand(params: ExecuteCommandParams): Promise<void>;
+  executeCommand(params: ExecuteCommandParams): Promise<[string, string]>;
   log(log: ServerLog): void;
 }
 

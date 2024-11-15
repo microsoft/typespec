@@ -1,4 +1,11 @@
-import { ExtensionContext, LogOutputChannel, RelativePattern, workspace } from "vscode";
+import {
+  commands,
+  ExtensionContext,
+  LogOutputChannel,
+  RelativePattern,
+  Uri,
+  workspace,
+} from "vscode";
 import { Executable, LanguageClient, LanguageClientOptions } from "vscode-languageclient/node.js";
 import logger from "./log/logger.js";
 import { resolveTypeSpecServer } from "./tsp-executable-resolver.js";
@@ -76,6 +83,16 @@ export class TspLanguageClient {
   async dispose(): Promise<void> {
     if (this.client) {
       await this.client.dispose();
+    }
+  }
+
+  openUri(): void {
+    if (this.client) {
+      // Open the lint rule documentation in the browser
+      this.client.onRequest("OpenLintRuleDocRequest", async (params) => {
+        await commands.executeCommand("vscode.open", Uri.parse(params.url));
+        return {};
+      });
     }
   }
 

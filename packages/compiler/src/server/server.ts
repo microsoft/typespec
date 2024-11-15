@@ -14,6 +14,7 @@ import {
 } from "vscode-languageserver/node.js";
 import { NodeHost } from "../core/node-host.js";
 import { typespecVersion } from "../utils/misc.js";
+import { Commands } from "./constants.js";
 import { createServer } from "./serverlib.js";
 import { Server, ServerHost, ServerLog } from "./types.js";
 
@@ -126,7 +127,18 @@ function main() {
   connection.onHover(profile(s.getHover));
   connection.onSignatureHelp(profile(s.getSignatureHelp));
   connection.onCodeAction(profile(s.getCodeActions));
-  connection.onExecuteCommand(profile(s.executeCommand));
+  // connection.onExecuteCommand(profile(s.executeCommand));
+
+  connection.onExecuteCommand(async (params) => {
+    const result = await s.executeCommand(params);
+    const [commandType, docUrl] = result;
+    if (commandType === Commands.OPEN_RULE_DOC) {
+      await connection.sendRequest("OpenLintRuleDocRequest", {
+        url: docUrl, //show docUrl
+      });
+    }
+  });
+
   connection.languages.semanticTokens.on(profile(s.buildSemanticTokens));
 
   documents.onDidChangeContent(profile(s.checkChange));

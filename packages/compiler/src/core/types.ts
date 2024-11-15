@@ -2315,6 +2315,7 @@ export interface Diagnostic {
 export interface CodeFix {
   readonly id: string;
   readonly label: string;
+  readonly url?: string;
   readonly fix: (fixContext: CodeFixContext) => CodeFixEdit | CodeFixEdit[] | Promise<void> | void;
 }
 

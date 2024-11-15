@@ -199,7 +199,7 @@ export function createServer(host: ServerHost): Server {
         codeActionKinds: ["quickfix"],
       },
       executeCommandProvider: {
-        commands: [Commands.APPLY_CODE_FIX],
+        commands: [Commands.APPLY_CODE_FIX, Commands.OPEN_RULE_DOC],
       },
     };
 
@@ -861,13 +861,20 @@ export function createServer(host: ServerHost): Server {
       if (tspDiag === undefined || tspDiag.codefixes === undefined) continue;
 
       for (const fix of tspDiag.codefixes ?? []) {
+        const currentCmd =
+          fix.label === "Open document" ? Commands.OPEN_RULE_DOC : Commands.APPLY_CODE_FIX;
+        const currentArgs =
+          fix.label === "Open document"
+            ? [fix.url]
+            : [params.textDocument.uri, vsDiag.data?.id, fix.id];
+
         const codeAction: CodeAction = {
           ...CodeAction.create(
             fix.label,
             {
               title: fix.label,
-              command: Commands.APPLY_CODE_FIX,
-              arguments: [params.textDocument.uri, vsDiag.data?.id, fix.id],
+              command: currentCmd,
+              arguments: currentArgs,
             },
             CodeActionKind.QuickFix,
           ),
@@ -880,7 +887,7 @@ export function createServer(host: ServerHost): Server {
     return actions;
   }
 
-  async function executeCommand(params: ExecuteCommandParams) {
+  async function executeCommand(params: ExecuteCommandParams): Promise<[string, string]> {
     if (params.command === Commands.APPLY_CODE_FIX) {
       const [documentUri, diagId, fixId] = params.arguments ?? [];
       if (documentUri && diagId && fixId) {
@@ -892,7 +899,12 @@ export function createServer(host: ServerHost): Server {
           await host.applyEdit({ changes: { [documentUri]: vsEdits } });
         }
       }
+      return [Commands.APPLY_CODE_FIX, ""];
+    } else if (params.command === Commands.OPEN_RULE_DOC) {
+      return [Commands.OPEN_RULE_DOC, params.arguments?.[0] ?? ""];
     }
+
+    return ["", ""];
   }
   function convertCodeFixEdits(edits: CodeFixEdit[]): TextEdit[] {
     return edits.map(convertCodeFixEdit);
