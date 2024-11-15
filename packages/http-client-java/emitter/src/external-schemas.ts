@@ -15,9 +15,9 @@ import {
   SdkType,
 } from "@azure-tools/typespec-client-generator-core";
 import { CrossLanguageDefinition } from "./common/client.js";
-import { getNamespace, pascalCase } from "./utils.js";
-import { trackSchemaUsage } from "./type-utils.js";
 import { SchemaContext } from "./common/schemas/usage.js";
+import { trackSchemaUsage } from "./type-utils.js";
+import { getNamespace, pascalCase } from "./utils.js";
 
 /*
  * These schema need to reflect

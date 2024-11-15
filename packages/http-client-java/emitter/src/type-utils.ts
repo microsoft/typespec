@@ -1,4 +1,20 @@
+import {
+  ArraySchema,
+  DictionarySchema,
+  GroupSchema,
+  ObjectSchema,
+  Schema,
+} from "@autorest/codemodel";
 import { getUnionAsEnum } from "@azure-tools/typespec-azure-core";
+import {
+  SdkDurationType,
+  SdkEnumType,
+  SdkModelType,
+  SdkType,
+  UsageFlags,
+  isSdkFloatKind,
+  isSdkIntKind,
+} from "@azure-tools/typespec-client-generator-core";
 import {
   DecoratedType,
   DecoratorApplication,
@@ -20,15 +36,12 @@ import {
   isTemplateInstance,
   isTypeSpecValueTypeOf,
 } from "@typespec/compiler";
-import { DurationSchema } from "./common/schemas/time.js";
-import { getNamespace } from "./utils.js";
-import { SdkDurationType, SdkEnumType, SdkModelType, SdkType, UsageFlags, isSdkFloatKind, isSdkIntKind } from "@azure-tools/typespec-client-generator-core";
-import { SchemaContext, SchemaUsage } from "./common/schemas/usage.js";
 import { ChoiceSchema, SealedChoiceSchema } from "./common/schemas/choice.js";
-import { OrSchema } from "./common/schemas/relationship.js";
 import { ConstantSchema } from "./common/schemas/constant.js";
-import { ArraySchema, DictionarySchema, GroupSchema, ObjectSchema, Schema } from "@autorest/codemodel";
-
+import { OrSchema } from "./common/schemas/relationship.js";
+import { DurationSchema } from "./common/schemas/time.js";
+import { SchemaContext, SchemaUsage } from "./common/schemas/usage.js";
+import { getNamespace } from "./utils.js";
 
 /** Acts as a cache for processing inputs.
  *
@@ -340,7 +353,10 @@ export function isArmCommonType(entity: Type): boolean {
   return false;
 }
 
-export function processSchemaUsageFromSdkType(sdkType: SdkModelType | SdkEnumType, schemaUsage: SchemaContext[] | undefined): SchemaContext[] {
+export function processSchemaUsageFromSdkType(
+  sdkType: SdkModelType | SdkEnumType,
+  schemaUsage: SchemaContext[] | undefined,
+): SchemaContext[] {
   let usage: SchemaContext[] = schemaUsage ?? [];
   const usageFlags: UsageFlags = sdkType.usage;
   if (usageFlags & UsageFlags.Error) {
@@ -353,15 +369,11 @@ export function processSchemaUsageFromSdkType(sdkType: SdkModelType | SdkEnumTyp
   if (usageFlags === 0) {
     return [];
   }
-  if (usageFlags & UsageFlags.Input) 
-    usage = pushDistinct(usage, SchemaContext.Input);
-  if (usageFlags & UsageFlags.Output) 
-    usage = pushDistinct(usage, SchemaContext.Output);
-  if (usageFlags & UsageFlags.JsonMergePatch) 
+  if (usageFlags & UsageFlags.Input) usage = pushDistinct(usage, SchemaContext.Input);
+  if (usageFlags & UsageFlags.Output) usage = pushDistinct(usage, SchemaContext.Output);
+  if (usageFlags & UsageFlags.JsonMergePatch)
     usage = pushDistinct(usage, SchemaContext.JsonMergePatch);
-  if (usageFlags & UsageFlags.Spread)
-    usage = pushDistinct(usage, SchemaContext.Input);
-
+  if (usageFlags & UsageFlags.Spread) usage = pushDistinct(usage, SchemaContext.Input);
 
   const accessFlags = sdkType.access;
   if (accessFlags === "internal") {
@@ -396,7 +408,6 @@ export function trackSchemaUsage(schema: Schema, schemaUsage: SchemaUsage): void
     trackSchemaUsage(schema.elementType, schemaUsage);
   }
 }
-
 
 function getDecoratorScopedValue<T>(
   type: DecoratedType,

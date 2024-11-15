@@ -30,7 +30,6 @@ import {
   Response,
   Schema,
   SchemaResponse,
-  Schemas,
   SchemaType,
   Security,
   SecurityScheme,
@@ -70,7 +69,6 @@ import {
   SdkType,
   SdkUnionType,
   createSdkContext,
-  getAccessOverride,
   getAllModels,
   getWireName,
   isApiVersion,
@@ -383,9 +381,8 @@ export class CodeModelBuilder {
 
     // process sdk models
     for (const model of sdkModels) {
-      
       if (!processedSdkModels.has(model)) {
-        // For this part, we only process models which explicitly set access and use decorator, 
+        // For this part, we only process models which explicitly set access and use decorator,
         // otherwise, there will be isseus, e.g. for multipart models, we generate our own model, but TCGC returns the original multipart model with public access and input usage, so we will generate the original multipart model which is unexpected
         const access = getAccess(model.__raw, accessCache);
         if (access) {
@@ -1339,7 +1336,9 @@ export class CodeModelBuilder {
 
     if (jsonMergePatch) {
       // if it's json-merge-patch body, we need to track the body model's access, see case https://gist.github.com/haolingdong-msft/2d941f452551a6f96e141adbc38ac483#case7-flatten-body--json-merge-patch
-      this.trackSchemaUsage(schema, { usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public] });
+      this.trackSchemaUsage(schema, {
+        usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
+      });
       this.trackSchemaUsage(schema, { usage: [SchemaContext.JsonMergePatch] });
     }
     if (op.convenienceApi && operationIsMultipart(sdkHttpOperation)) {
@@ -1571,7 +1570,6 @@ export class CodeModelBuilder {
     }
 
     const bodyType: SdkType | undefined = sdkResponse.type;
-    let trackConvenienceApi: boolean = Boolean(op.convenienceApi);
 
     const unknownResponseBody =
       sdkResponse.contentTypes &&
@@ -1600,10 +1598,6 @@ export class CodeModelBuilder {
     } else if (bodyType) {
       // schema (usually JSON)
       let schema: Schema | undefined = undefined;
-      if (longRunning) {
-        // LRO uses the LroMetadata for poll/final result, not the response of activation request
-        trackConvenienceApi = false;
-      }
       if (!schema) {
         schema = this.processSchema(bodyType, op.language.default.name + "Response");
       }
@@ -2548,7 +2542,11 @@ export class CodeModelBuilder {
   private postProcessSchemaUsage(): void {
     const innerProcessUsage = (schema: Schema) => {
       const usages = (schema as SchemaUsage).usage;
-      if (usages && usages.includes(SchemaContext.Public) && usages.includes(SchemaContext.Internal)) { 
+      if (
+        usages &&
+        usages.includes(SchemaContext.Public) &&
+        usages.includes(SchemaContext.Internal)
+      ) {
         // If access contains both public and internal, remove internal
         usages.splice(usages.indexOf(SchemaContext.Internal), 1);
       }
