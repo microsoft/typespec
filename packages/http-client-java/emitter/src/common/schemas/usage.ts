@@ -23,7 +23,7 @@ export enum SchemaContext {
   PublicSpread = "spread",
 
   /** Schema is used in json-merge-patch operation */
-  JsonMergePatch = "json-merge-patch"
+  JsonMergePatch = "json-merge-patch",
 }
 
 export interface SchemaUsage {
