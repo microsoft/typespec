@@ -1,14 +1,23 @@
-import { Namespace, Program } from "@typespec/compiler";
-import { TypeEmitter } from "@typespec/compiler/emitter-framework";
+import { EmitContext, Namespace, Program } from "@typespec/compiler";
+import { AssetEmitter } from "@typespec/compiler/emitter-framework";
 import { MetadataInfo } from "@typespec/http";
 import { getExternalDocs, resolveInfo } from "@typespec/openapi";
 import { OpenAPI3EmitterOptions, OpenAPIVersion } from "./lib.js";
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
-import { createWrappedOpenAPI3SchemaEmitterClass } from "./schema-emitter-3-0.js";
-import { createWrappedOpenAPI31SchemaEmitterClass } from "./schema-emitter-3-1.js";
-import { SupportedOpenAPIDocuments } from "./types.js";
+import { createSchemaEmitter3_0 } from "./schema-emitter-3-0.js";
+import { createSchemaEmitter3_1 } from "./schema-emitter-3-1.js";
+import { OpenAPI3Schema, OpenAPISchema3_1, SupportedOpenAPIDocuments } from "./types.js";
 import { VisibilityUsageTracker } from "./visibility-usage.js";
 import { XmlModule } from "./xml-module.js";
+
+export type CreateSchemaEmitter = (props: {
+  program: Program;
+  context: EmitContext<OpenAPI3EmitterOptions>;
+  metadataInfo: MetadataInfo;
+  visibilityUsage: VisibilityUsageTracker;
+  options: ResolvedOpenAPI3EmitterOptions;
+  xmlModule: XmlModule | undefined;
+}) => AssetEmitter<OpenAPI3Schema | OpenAPISchema3_1, OpenAPI3EmitterOptions>;
 
 export interface OpenApiSpecSpecificProps {
   createRootDoc: (
@@ -17,16 +26,7 @@ export interface OpenApiSpecSpecificProps {
     serviceVersion?: string,
   ) => SupportedOpenAPIDocuments;
 
-  /**
-   * Creates a constructor for the schema emitter class for the given OpenAPI version.
-   * This constructor is meant to be used when creating an AssetEmitter.
-   */
-  createSchemaEmitterCtor: (
-    metadataInfo: MetadataInfo,
-    visibilityUsage: VisibilityUsageTracker,
-    options: ResolvedOpenAPI3EmitterOptions,
-    xmlModule: XmlModule | undefined,
-  ) => typeof TypeEmitter<Record<string, any>, OpenAPI3EmitterOptions>;
+  createSchemaEmitter: CreateSchemaEmitter;
 }
 
 export function getOpenApiSpecProps(specVersion: OpenAPIVersion): OpenApiSpecSpecificProps {
@@ -36,14 +36,14 @@ export function getOpenApiSpecProps(specVersion: OpenAPIVersion): OpenApiSpecSpe
         createRootDoc(program, serviceType, serviceVersion) {
           return createRoot(program, serviceType, specVersion, serviceVersion);
         },
-        createSchemaEmitterCtor: createWrappedOpenAPI3SchemaEmitterClass,
+        createSchemaEmitter: createSchemaEmitter3_0,
       };
     case "3.1.0":
       return {
         createRootDoc(program, serviceType, serviceVersion) {
           return createRoot(program, serviceType, specVersion, serviceVersion);
         },
-        createSchemaEmitterCtor: createWrappedOpenAPI31SchemaEmitterClass,
+        createSchemaEmitter: createSchemaEmitter3_1,
       };
   }
 }

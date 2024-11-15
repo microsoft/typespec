@@ -109,6 +109,7 @@ import {
   OpenAPI3StatusCode,
   OpenAPI3Tag,
   OpenAPI3VersionedServiceRecord,
+  OpenAPISchema3_1,
   Refable,
   SupportedOpenAPIDocuments,
 } from "./types.js";
@@ -228,9 +229,9 @@ function createOAPIEmitter(
   options: ResolvedOpenAPI3EmitterOptions,
   specVersion: OpenAPIVersion = "3.0.0",
 ) {
-  const { createRootDoc, createSchemaEmitterCtor } = getOpenApiSpecProps(specVersion);
+  const { createRootDoc, createSchemaEmitter } = getOpenApiSpecProps(specVersion);
   let program = context.program;
-  let schemaEmitter: AssetEmitter<OpenAPI3Schema, OpenAPI3EmitterOptions>;
+  let schemaEmitter: AssetEmitter<OpenAPI3Schema | OpenAPISchema3_1, OpenAPI3EmitterOptions>;
 
   let root: SupportedOpenAPIDocuments;
   let diagnostics: DiagnosticCollector;
@@ -326,11 +327,14 @@ function createOAPIEmitter(
       options.omitUnreachableTypes,
     );
 
-    schemaEmitter = createAssetEmitter(
+    schemaEmitter = createSchemaEmitter({
       program,
-      createSchemaEmitterCtor(metadataInfo, visibilityUsage, options, xmlModule),
       context,
-    );
+      metadataInfo,
+      visibilityUsage,
+      options,
+      xmlModule,
+    });
 
     const securitySchemes = getOpenAPISecuritySchemes(allHttpAuthentications);
     const security = getOpenAPISecurity(defaultAuth);

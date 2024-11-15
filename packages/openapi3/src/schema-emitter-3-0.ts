@@ -1,23 +1,24 @@
 import {
-  Enum,
-  IntrinsicType,
-  Model,
-  ModelProperty,
-  Scalar,
-  Type,
-  Union,
   compilerAssert,
+  Enum,
   getDiscriminatedUnion,
   getDiscriminator,
   getExamples,
   getMaxValueExclusive,
   getMinValueExclusive,
   ignoreDiagnostics,
+  IntrinsicType,
   isNullType,
+  Model,
+  ModelProperty,
+  Scalar,
   serializeValueAsJson,
+  Type,
+  Union,
 } from "@typespec/compiler";
 import {
   AssetEmitter,
+  createAssetEmitter,
   EmitterOutput,
   ObjectBuilder,
   Placeholder,
@@ -27,6 +28,7 @@ import { MetadataInfo } from "@typespec/http";
 import { shouldInline } from "@typespec/openapi";
 import { getOneOf } from "./decorators.js";
 import { OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
+import { CreateSchemaEmitter } from "./openapi-spec-mappings.js";
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { Builders, OpenAPI3SchemaEmitterBase } from "./schema-emitter.js";
 import { JsonType, OpenAPI3Schema } from "./types.js";
@@ -34,7 +36,7 @@ import { isBytesKeptRaw, isLiteralType, literalType } from "./util.js";
 import { VisibilityUsageTracker } from "./visibility-usage.js";
 import { XmlModule } from "./xml-module.js";
 
-export function createWrappedOpenAPI3SchemaEmitterClass(
+function createWrappedSchemaEmitterClass(
   metadataInfo: MetadataInfo,
   visibilityUsage: VisibilityUsageTracker,
   options: ResolvedOpenAPI3EmitterOptions,
@@ -46,6 +48,19 @@ export function createWrappedOpenAPI3SchemaEmitterClass(
     }
   };
 }
+
+export const createSchemaEmitter3_0: CreateSchemaEmitter = ({ program, context, ...rest }) => {
+  return createAssetEmitter(
+    program,
+    createWrappedSchemaEmitterClass(
+      rest.metadataInfo,
+      rest.visibilityUsage,
+      rest.options,
+      rest.xmlModule,
+    ),
+    context,
+  );
+};
 
 /**
  * OpenAPI 3.0 schema emitter. Deals with emitting content of `components/schemas` section.
