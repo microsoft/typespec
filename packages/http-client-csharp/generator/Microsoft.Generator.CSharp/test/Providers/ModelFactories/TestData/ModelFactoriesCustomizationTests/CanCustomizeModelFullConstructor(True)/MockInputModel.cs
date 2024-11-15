@@ -12,10 +12,10 @@ public partial class MockInputModel
 {
     private readonly IReadOnlyList<MockInputModel> _data;
 
-    internal MockInputModel(IReadOnlyList<MockInputModel> data, string prop1, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+    internal MockInputModel(IReadOnlyList<MockInputModel> data, string prop1, IDictionary<string, BinaryData> additionalData)
     {
         Prop1 = prop1;
         _data = data;
-        _additionalBinaryDataProperties = additionalBinaryDataProperties;
+        _additionalBinaryDataProperties = additionalData;
     }
 }
