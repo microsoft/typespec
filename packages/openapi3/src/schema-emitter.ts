@@ -82,7 +82,7 @@ import { XmlModule } from "./xml-module.js";
 /**
  * Base OpenAPI3 schema emitter. Deals with emitting content of `components/schemas` section.
  */
-export class BaseOpenAPI3SchemaEmitter<
+export class OpenAPI3SchemaEmitterBase<
   Schema extends OpenAPI3Schema | OpenAPISchema3_1,
 > extends TypeEmitter<Record<string, any>, OpenAPI3EmitterOptions> {
   protected _metadataInfo: MetadataInfo;

@@ -28,7 +28,7 @@ import { shouldInline } from "@typespec/openapi";
 import { getOneOf } from "./decorators.js";
 import { OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
-import { BaseOpenAPI3SchemaEmitter, Builders } from "./schema-emitter.js";
+import { Builders, OpenAPI3SchemaEmitterBase } from "./schema-emitter.js";
 import { JsonType, OpenAPI3Schema } from "./types.js";
 import { isBytesKeptRaw, isLiteralType, literalType } from "./util.js";
 import { VisibilityUsageTracker } from "./visibility-usage.js";
@@ -50,7 +50,7 @@ export function createWrappedOpenAPI3SchemaEmitterClass(
 /**
  * OpenAPI 3.0 schema emitter. Deals with emitting content of `components/schemas` section.
  */
-export class OpenAPI3SchemaEmitter extends BaseOpenAPI3SchemaEmitter<OpenAPI3Schema> {
+export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Schema> {
   #applySchemaExamples(
     type: Model | Scalar | Union | Enum | ModelProperty,
     target: ObjectBuilder<any>,
