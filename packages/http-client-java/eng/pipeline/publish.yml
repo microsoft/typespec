@@ -17,7 +17,7 @@ extends:
         parameters:
           BuildPrereleaseVersion: true
           UseTypeSpecNext: false
-          Publish: "internal"
+          Publish: "public"
           PublishDependsOnTest: true
           PackagePath: /packages/http-client-java
           EmitterPackageJsonPath: packages/http-client-java/emitter/package.json
