@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import versioning.added.implementation.AddedClientImpl;
+import versioning.added.models.Versions;
 
 /**
  * A builder for creating a new instance of the AddedClient type.
@@ -198,7 +199,7 @@ public final class AddedClientBuilder implements HttpTrait<AddedClientBuilder>, 
      * Need to be set as 'v1' or 'v2' in client.
      */
     @Generated
-    private String version;
+    private Versions version;
 
     /**
      * Sets Need to be set as 'v1' or 'v2' in client.
@@ -207,7 +208,7 @@ public final class AddedClientBuilder implements HttpTrait<AddedClientBuilder>, 
      * @return the AddedClientBuilder.
      */
     @Generated
-    public AddedClientBuilder version(String version) {
+    public AddedClientBuilder version(Versions version) {
         this.version = version;
         return this;
     }
