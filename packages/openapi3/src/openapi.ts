@@ -1249,6 +1249,10 @@ function createOAPIEmitter(
       Object.assign(param, attributes);
     }
 
+    if (isDeprecated(program, parameter.param)) {
+      param.deprecated = true;
+    }
+
     return param;
   }
 
