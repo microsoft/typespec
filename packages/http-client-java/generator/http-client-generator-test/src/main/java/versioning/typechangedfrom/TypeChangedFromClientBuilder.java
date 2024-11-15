@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import versioning.typechangedfrom.implementation.TypeChangedFromClientImpl;
+import versioning.typechangedfrom.models.Versions;
 
 /**
  * A builder for creating a new instance of the TypeChangedFromClient type.
@@ -194,7 +195,7 @@ public final class TypeChangedFromClientBuilder implements HttpTrait<TypeChanged
      * Need to be set as 'v1' or 'v2' in client.
      */
     @Generated
-    private String version;
+    private Versions version;
 
     /**
      * Sets Need to be set as 'v1' or 'v2' in client.
@@ -203,7 +204,7 @@ public final class TypeChangedFromClientBuilder implements HttpTrait<TypeChanged
      * @return the TypeChangedFromClientBuilder.
      */
     @Generated
-    public TypeChangedFromClientBuilder version(String version) {
+    public TypeChangedFromClientBuilder version(Versions version) {
         this.version = version;
         return this;
     }
