@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,6 +17,24 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
 {
     public class DiscriminatorTests
     {
+        private static readonly InputModelType _dinosaurModel = InputFactory.Model("dinosaur", discriminatedKind: "dinosaur", properties:
+        [
+            InputFactory.Property("type", InputPrimitiveType.String, isRequired: true),
+            InputFactory.Property("dinosaurKind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true)
+        ]);
+
+        private static readonly InputModelType _animalModel = InputFactory.Model(
+            "animal",
+            properties:
+            [
+                InputFactory.Property("type", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                InputFactory.Property("name", InputPrimitiveType.Boolean, isRequired: true)
+            ],
+            discriminatedModels: new Dictionary<string, InputModelType>()
+            {
+                { "dinosaur", _dinosaurModel }
+            });
+
         private static readonly InputModelType _catModel = InputFactory.Model("cat", discriminatedKind: "cat", properties:
         [
             InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
@@ -132,7 +151,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public void DerviedCtorHasSardAsLastParam()
+        public void DerivedCtorHasAdditionalBinaryDataPropertiesParam()
         {
             MockHelpers.LoadMockPlugin();
             var catModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(_catModel);
@@ -140,7 +159,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.AreEqual(2, catModel!.Constructors.Count);
             var serializationCtor = catModel.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
             Assert.IsNotNull(serializationCtor);
-            Assert.AreEqual("additionalBinaryDataProperties", serializationCtor!.Signature.Parameters.Last().Name);
+            Assert.IsTrue(serializationCtor!.Signature.Parameters.Any(p => p.Name == "additionalBinaryDataProperties"));
         }
 
         [Test]
@@ -149,9 +168,38 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             MockHelpers.LoadMockPlugin(inputModelTypes: [_baseModel, _catModel, _dogModel]);
             var outputLibrary = CodeModelPlugin.Instance.OutputLibrary;
             var models = outputLibrary.TypeProviders.OfType<ModelProvider>();
+            Assert.AreEqual(6, models.Count());
+            // since each model has a discriminator, there should be 3 additional models for their unknown variants
+            var unknownPet = models.FirstOrDefault(t => t.Name == "UnknownPet");
+            Assert.IsNotNull(unknownPet);
+            var unknownCat = models.FirstOrDefault(t => t.Name == "UnknownCat");
+            Assert.IsNotNull(unknownCat);
+            var unknownDog = models.FirstOrDefault(t => t.Name == "UnknownDog");
+            Assert.IsNotNull(unknownDog);
+        }
+
+        // This test validates that a nested discriminated model with its' own discriminator property will have an unknown variant
+        [Test]
+        public void DiscriminatedModelWithNoSubTypesHasUnknownVariant()
+        {
+            MockHelpers.LoadMockPlugin(inputModelTypes: [_animalModel, _dinosaurModel]);
+            var outputLibrary = CodeModelPlugin.Instance.OutputLibrary;
+            var models = outputLibrary.TypeProviders.OfType<ModelProvider>();
             Assert.AreEqual(4, models.Count());
-            var unknownModel = models.FirstOrDefault(t => t.Name == "UnknownPet");
-            Assert.IsNotNull(unknownModel);
+
+            var animalModel = models.FirstOrDefault(t => t.Name == "Animal");
+            Assert.IsNotNull(animalModel);
+            Assert.IsNull(animalModel!.BaseModelProvider);
+            var unknownAnimal = models.FirstOrDefault(t => t.Name == "UnknownAnimal");
+            Assert.IsNotNull(unknownAnimal);
+            Assert.AreEqual(animalModel, unknownAnimal!.BaseModelProvider);
+
+            var dinosaurModel = models.FirstOrDefault(t => t.Name == "Dinosaur");
+            Assert.IsNotNull(dinosaurModel);
+            Assert.AreEqual(animalModel, dinosaurModel!.BaseModelProvider);
+            var unknownDinosaur = models.FirstOrDefault(t => t.Name == "UnknownDinosaur");
+            Assert.IsNotNull(unknownDinosaur);
+            Assert.AreEqual(dinosaurModel, unknownDinosaur!.BaseModelProvider);
         }
 
         [Test]
@@ -172,6 +220,32 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             var unknownModel = outputLibrary.TypeProviders.OfType<ModelProvider>().FirstOrDefault(t => t.Name == "UnknownPet");
             Assert.IsNotNull(unknownModel);
             Assert.AreEqual("Pet", unknownModel!.Type.BaseType!.Name);
+        }
+
+        // This test validates that a discriminator model whose discriminator value is "unknown" will throw
+        [Test]
+        public void DiscriminatedModelWithUnknownValueThrows()
+        {
+            Assert.Throws<ArgumentException>(() =>
+            {
+                var unknownPlantModel = InputFactory.Model(
+                    "unknownPlant", discriminatedKind: "unknown", properties:
+                    [
+                        InputFactory.Property("type", InputPrimitiveType.String, isRequired: true),
+                    ]);
+
+                var plantModel = InputFactory.Model(
+                    "plant",
+                    properties:
+                    [
+                        InputFactory.Property("type", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                        InputFactory.Property("name", InputPrimitiveType.Boolean, isRequired: true)
+                    ],
+                    discriminatedModels: new Dictionary<string, InputModelType>()
+                    {
+                        { "unknown", unknownPlantModel }
+                    });
+            });
         }
 
         [Test]

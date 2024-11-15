@@ -28,20 +28,22 @@ export function createResponseErrorSchema(
   schemas: Schemas,
   stringSchema: StringSchema,
 ): ObjectSchema {
-  const responseErrorSchema = new ObjectSchema(
-    "Error",
-    "Status details for long running operations",
-    {
-      language: {
-        default: {
-          namespace: "Azure.Core.Foundations",
-        },
+  const responseErrorSchema = new ObjectSchema("Error", "The error object.", {
+    language: {
+      default: {
+        namespace: "Azure.Core.Foundations",
+      },
+      java: {
+        namespace: "com.azure.core.models",
       },
     },
-  );
+  });
+  (responseErrorSchema as CrossLanguageDefinition).crossLanguageDefinitionId =
+    "Azure.Core.Foundations.Error";
+
   schemas.add(responseErrorSchema);
   responseErrorSchema.addProperty(
-    new Property("code", "the error code of this error.", stringSchema, {
+    new Property("code", "One of a server-defined set of error codes.", stringSchema, {
       serializedName: "code",
       required: true,
       nullable: false,
@@ -49,7 +51,7 @@ export function createResponseErrorSchema(
     }),
   );
   responseErrorSchema.addProperty(
-    new Property("message", "the error message of this error.", stringSchema, {
+    new Property("message", "A human-readable representation of the error.", stringSchema, {
       serializedName: "message",
       required: true,
       nullable: false,
@@ -57,7 +59,7 @@ export function createResponseErrorSchema(
     }),
   );
   responseErrorSchema.addProperty(
-    new Property("target", "the target of this error.", stringSchema, {
+    new Property("target", "The target of this error.", stringSchema, {
       serializedName: "target",
       required: false,
       nullable: true,
@@ -72,7 +74,7 @@ export function createResponseErrorSchema(
   responseErrorSchema.addProperty(
     new Property(
       "errorDetails",
-      "a list of details about specific errors that led to this reported error.",
+      "An array of details about specific errors that led to this reported error.",
       errorDetailsSchema,
       {
         serializedName: "details",
@@ -82,7 +84,62 @@ export function createResponseErrorSchema(
       },
     ),
   );
+  const innerErrorSchema = createResponseInnerErrorSchema(schemas, stringSchema);
+  responseErrorSchema.addProperty(
+    new Property(
+      "innerError",
+      "An object containing more specific information than the current object about the error.",
+      innerErrorSchema,
+      {
+        serializedName: "innererror",
+        required: false,
+        nullable: true,
+        readOnly: true,
+      },
+    ),
+  );
   return responseErrorSchema;
+}
+
+export function createResponseInnerErrorSchema(
+  schemas: Schemas,
+  stringSchema: StringSchema,
+): ObjectSchema {
+  const responseInnerErrorSchema = new ObjectSchema(
+    "InnerError",
+    "An object containing more specific information about the error.",
+    {
+      language: {
+        default: {
+          namespace: "Azure.Core.Foundations",
+        },
+        java: {
+          namespace: "com.azure.core.models",
+        },
+      },
+    },
+  );
+  (responseInnerErrorSchema as CrossLanguageDefinition).crossLanguageDefinitionId =
+    "Azure.Core.Foundations.InnerError";
+
+  schemas.add(responseInnerErrorSchema);
+  responseInnerErrorSchema.addProperty(
+    new Property("code", "One of a server-defined set of error codes.", stringSchema, {
+      serializedName: "code",
+      required: false,
+      nullable: true,
+      readOnly: true,
+    }),
+  );
+  responseInnerErrorSchema.addProperty(
+    new Property("innerError", "Inner error.", responseInnerErrorSchema, {
+      serializedName: "innererror",
+      required: false,
+      nullable: true,
+      readOnly: true,
+    }),
+  );
+  return responseInnerErrorSchema;
 }
 
 export function createPollOperationDetailsSchema(
@@ -91,7 +148,7 @@ export function createPollOperationDetailsSchema(
 ): ObjectSchema {
   const pollOperationDetailsSchema = new ObjectSchema(
     "PollOperationDetails",
-    "Status details for long running operations",
+    "Status details for long running operations.",
     {
       language: {
         default: {
@@ -131,11 +188,6 @@ export function createPollOperationDetailsSchema(
         required: false,
         nullable: true,
         readOnly: true,
-        language: {
-          java: {
-            namespace: "com.azure.core.models",
-          },
-        },
       },
     ),
   );

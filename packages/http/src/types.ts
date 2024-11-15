@@ -10,7 +10,7 @@ import {
   Tuple,
   Type,
 } from "@typespec/compiler";
-import { PathOptions, QueryOptions } from "../generated-defs/TypeSpec.Http.js";
+import { CookieOptions, PathOptions, QueryOptions } from "../generated-defs/TypeSpec.Http.js";
 import { HeaderProperty, HttpProperty } from "./http-property.js";
 
 /**
@@ -299,6 +299,11 @@ export interface HeaderFieldOptions {
   format?: "csv" | "multi" | "ssv" | "tsv" | "pipes" | "simple" | "form";
 }
 
+export interface CookieParameterOptions extends Required<CookieOptions> {
+  type: "cookie";
+  name: string;
+}
+
 export interface QueryParameterOptions extends Required<Omit<QueryOptions, "format">> {
   type: "query";
   /**
@@ -313,10 +318,14 @@ export interface PathParameterOptions extends Required<PathOptions> {
 
 export type HttpOperationParameter =
   | HttpOperationHeaderParameter
+  | HttpOperationCookieParameter
   | HttpOperationQueryParameter
   | HttpOperationPathParameter;
 
 export type HttpOperationHeaderParameter = HeaderFieldOptions & {
+  param: ModelProperty;
+};
+export type HttpOperationCookieParameter = CookieParameterOptions & {
   param: ModelProperty;
 };
 export type HttpOperationQueryParameter = QueryParameterOptions & {

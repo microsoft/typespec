@@ -1,0 +1,19 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "tsptest.server.HttpbinAsyncClient": "TspTest.Server.ServerOp",
+    "tsptest.server.HttpbinAsyncClient.status": "TspTest.Server.ServerOp.status",
+    "tsptest.server.HttpbinAsyncClient.statusWithResponse": "TspTest.Server.ServerOp.status",
+    "tsptest.server.HttpbinClient": "TspTest.Server.ServerOp",
+    "tsptest.server.HttpbinClient.status": "TspTest.Server.ServerOp.status",
+    "tsptest.server.HttpbinClient.statusWithResponse": "TspTest.Server.ServerOp.status",
+    "tsptest.server.HttpbinClientBuilder": "TspTest.Server.ServerOp",
+    "tsptest.server.contoso.sub.ContosoAsyncClient": "TspTest.ContosoServer.ServerOp",
+    "tsptest.server.contoso.sub.ContosoAsyncClient.get": "TspTest.ContosoServer.ServerOp.get",
+    "tsptest.server.contoso.sub.ContosoAsyncClient.getWithResponse": "TspTest.ContosoServer.ServerOp.get",
+    "tsptest.server.contoso.sub.ContosoClient": "TspTest.ContosoServer.ServerOp",
+    "tsptest.server.contoso.sub.ContosoClient.get": "TspTest.ContosoServer.ServerOp.get",
+    "tsptest.server.contoso.sub.ContosoClient.getWithResponse": "TspTest.ContosoServer.ServerOp.get",
+    "tsptest.server.contoso.sub.ContosoClientBuilder": "TspTest.ContosoServer.ServerOp"
+  }
+}

@@ -15,41 +15,41 @@ namespace Parameters.Spread
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult SpreadAsRequestBody(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult SpreadAsRequestBody(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> SpreadAsRequestBodyAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> SpreadAsRequestBodyAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult SpreadAsRequestBody(string name) => throw null;
 
         public virtual Task<ClientResult> SpreadAsRequestBodyAsync(string name) => throw null;
 
-        public virtual ClientResult SpreadParameterWithInnerModel(string id, string xMsTestHeader, BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult SpreadParameterWithInnerModel(string id, string xMsTestHeader, BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> SpreadParameterWithInnerModelAsync(string id, string xMsTestHeader, BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> SpreadParameterWithInnerModelAsync(string id, string xMsTestHeader, BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult SpreadParameterWithInnerModel(string id, string xMsTestHeader, string name) => throw null;
 
         public virtual Task<ClientResult> SpreadParameterWithInnerModelAsync(string id, string xMsTestHeader, string name) => throw null;
 
-        public virtual ClientResult SpreadAsRequestParameter(string id, string xMsTestHeader, BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult SpreadAsRequestParameter(string id, string xMsTestHeader, BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> SpreadAsRequestParameterAsync(string id, string xMsTestHeader, BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> SpreadAsRequestParameterAsync(string id, string xMsTestHeader, BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult SpreadAsRequestParameter(string id, string xMsTestHeader, string name) => throw null;
 
         public virtual Task<ClientResult> SpreadAsRequestParameterAsync(string id, string xMsTestHeader, string name) => throw null;
 
-        public virtual ClientResult SpreadWithMultipleParameters(string id, string xMsTestHeader, BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult SpreadWithMultipleParameters(string id, string xMsTestHeader, BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> SpreadWithMultipleParametersAsync(string id, string xMsTestHeader, BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> SpreadWithMultipleParametersAsync(string id, string xMsTestHeader, BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult SpreadWithMultipleParameters(string id, string xMsTestHeader, string requiredString, IEnumerable<int> requiredIntList, int? optionalInt = default, IEnumerable<string> optionalStringList = default) => throw null;
 
         public virtual Task<ClientResult> SpreadWithMultipleParametersAsync(string id, string xMsTestHeader, string requiredString, IEnumerable<int> requiredIntList, int? optionalInt = default, IEnumerable<string> optionalStringList = default) => throw null;
 
-        public virtual ClientResult SpreadParameterWithInnerAlias(string id, string xMsTestHeader, BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult SpreadParameterWithInnerAlias(string id, string xMsTestHeader, BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> SpreadParameterWithInnerAliasAsync(string id, string xMsTestHeader, BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> SpreadParameterWithInnerAliasAsync(string id, string xMsTestHeader, BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult SpreadParameterWithInnerAlias(string id, string xMsTestHeader, string name, int age) => throw null;
 

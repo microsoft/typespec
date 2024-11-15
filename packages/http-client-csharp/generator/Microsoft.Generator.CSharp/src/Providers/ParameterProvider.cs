@@ -9,6 +9,7 @@ using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Providers
@@ -54,6 +55,7 @@ namespace Microsoft.Generator.CSharp.Providers
             if (!inputParameter.IsRequired && !type.IsCollection)
             {
                 type = type.WithNullable(true);
+                DefaultValue = Snippet.Null;
             }
             Type = type;
             Validation = inputParameter.IsRequired && !Type.IsValueType && !Type.IsNullable
@@ -175,7 +177,7 @@ namespace Microsoft.Generator.CSharp.Providers
         }
 
         private VariableExpression? _asVariable;
-        public VariableExpression AsExpression => _asVariable ??= this;
+        private VariableExpression AsExpression => _asVariable ??= this;
 
         public TypeProvider? SpreadSource { get; set; }
 

@@ -418,8 +418,15 @@ export class CodeModelBuilder {
     const nameCount = new Map<string, number>();
     const deduplicateName = (schema: Schema) => {
       const name = schema.language.default.name;
-      // skip models under "com.azure.core."
-      if (name && !schema.language.java?.namespace?.startsWith("com.azure.core.")) {
+      if (
+        name &&
+        // skip models under "com.azure.core." in java, or "Azure." in typespec, if branded
+        !(
+          this.isBranded() &&
+          (schema.language.java?.namespace?.startsWith("com.azure.core.") ||
+            schema.language.default?.namespace?.startsWith("Azure."))
+        )
+      ) {
         if (!nameCount.has(name)) {
           nameCount.set(name, 1);
         } else {
@@ -2248,6 +2255,8 @@ export class CodeModelBuilder {
         return pascalCase(type.value ? "True" : "False");
       case "Union":
         return type.name ?? "Union";
+      case "UnionVariant":
+        return (typeof type.name === "string" ? type.name : undefined) ?? "UnionVariant";
       default:
         throw new Error(`Unrecognized type for union variable: '${type.kind}'.`);
     }
@@ -2390,7 +2399,7 @@ export class CodeModelBuilder {
     ) {
       return baseJavaNamespace + namespace.slice(tspNamespace.length).toLowerCase();
     } else {
-      return "com." + namespace.toLowerCase();
+      return namespace.toLowerCase();
     }
   }
 
