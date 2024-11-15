@@ -60,7 +60,7 @@
 import { Mutable, mutate } from "../utils/misc.js";
 import { createSymbol, createSymbolTable, getSymNode } from "./binder.js";
 import { compilerAssert } from "./diagnostics.js";
-import { visitChildren } from "./parser.js";
+import { getFirstAncestor, visitChildren } from "./parser.js";
 import { Program } from "./program.js";
 import {
   AliasStatementNode,
@@ -69,8 +69,10 @@ import {
   EnumStatementNode,
   Expression,
   IdentifierNode,
+  ImportStatementNode,
   InterfaceStatementNode,
   IntersectionExpressionNode,
+  JsSourceFileNode,
   MemberExpressionNode,
   ModelExpressionNode,
   ModelPropertyNode,
@@ -79,6 +81,7 @@ import {
   Node,
   NodeFlags,
   NodeLinks,
+  NoTarget,
   OperationStatementNode,
   ProjectionDecoratorReferenceExpressionNode,
   ProjectionStatementNode,
@@ -94,6 +97,7 @@ import {
   TypeReferenceNode,
   TypeSpecScriptNode,
   UnionStatementNode,
+  UsingStatementNode,
 } from "./types.js";
 
 export interface NameResolver {
@@ -142,6 +146,12 @@ export interface NameResolver {
     node: TypeReferenceNode | IdentifierNode | MemberExpressionNode,
   ): ResolutionResult;
 
+  /** Get the import statement nodes which is not used in resolving yet */
+  getUnusedImports(): ImportStatementNode[];
+
+  /** Get the using statement nodes which is not used in resolving yet */
+  getUnusedUsings(): UsingStatementNode[];
+
   /** Built-in symbols. */
   readonly symbols: {
     /** Symbol for the global namespace */
@@ -174,6 +184,19 @@ export function createResolver(program: Program): NameResolver {
   );
   mutate(globalNamespaceNode).symbol = globalNamespaceSym;
   mutate(globalNamespaceSym.exports).set(globalNamespaceNode.id.sv, globalNamespaceSym);
+
+  /**
+   * Tracking the nodes whose symbol is resolved through global binding
+   */
+  const nodesWithSymResolvedThroughGlobal = new Set<IdentifierNode>();
+  /**
+   * Tracking the nodes whose symbol is resolved through using binding
+   */
+  const nodesWithSymResolvedThroughUsing = new Set<IdentifierNode>();
+  /**
+   * Tracking the symbols that are used through using.
+   */
+  const usedUsingSym = new Map<TypeSpecScriptNode, Set<Sym>>();
 
   const metaTypePrototypes = createMetaTypePrototypes();
 
@@ -222,7 +245,310 @@ export function createResolver(program: Program): NameResolver {
     resolveTypeReference,
 
     getAugmentDecoratorsForSym,
+    getUnusedImports,
+    getUnusedUsings,
   };
+
+  function getUnusedImports(): ImportStatementNode[] {
+    const notUsed = getNotNeededFileAndLibs();
+    if (!notUsed) return [];
+
+    const { notNeededFile, notNeededLib } = notUsed;
+    const targets = new Set<ImportStatementNode>();
+    notNeededFile.forEach((file) => {
+      const lc = program.getSourceFileLocationContext(file.file);
+      if (lc.type === "project" || (lc.type === "library" && notNeededLib.has(lc.metadata.name))) {
+        lc.importedBy?.forEach((target) => {
+          if (
+            target !== NoTarget &&
+            "kind" in target &&
+            target.kind === SyntaxKind.ImportStatement
+          ) {
+            targets.add(target);
+          }
+        });
+      }
+    });
+    return [...targets];
+  }
+
+  function getNotNeededFileAndLibs() {
+    const deps = getSourceFileSymDependencies();
+    const { neededFiles, neededLibs } = getNeededFileAndLibsFromSymDependencies(deps);
+    updateNeededFileForReachability(neededFiles);
+
+    const notNeededFile = new Set<TypeSpecScriptNode | JsSourceFileNode>();
+    const notNeededLib = new Set<string>();
+    for (const tspAndJs of [program.sourceFiles.values(), program.jsSourceFiles.values()]) {
+      for (const file of tspAndJs) {
+        if (!neededFiles.has(file)) {
+          notNeededFile.add(file);
+        }
+        const lc = program.getSourceFileLocationContext(file.file);
+        if (lc.type === "library" && !neededLibs.has(lc.metadata.name)) {
+          notNeededLib.add(lc.metadata.name);
+        }
+      }
+    }
+    return { notNeededFile, notNeededLib };
+  }
+
+  /**
+   *  Some extra files are still needed even when no sym from it is used because some needed file depends on its import to be included in compilation
+   *  i.e. Main.tsp depends on model B in B.tsp, and Main.tsp import A.tsp and A.tsp import B.tsp, then A.tsp is needed too
+   */
+  function updateNeededFileForReachability(neededFile: Set<TypeSpecScriptNode | JsSourceFileNode>) {
+    // here we will first go through all the needed files and mark them into 3 categories: reachable, unreachable, unreachable-root
+    //   reachable: the file is reachable from the entrypoint or imported by cli argument/configuration which we don't need to worry about
+    //   unreachable-root: the file is not reachable from other node which we need to do further work to make them reachable
+    //   unreachable: the file is not reachable from reachable node, but it's reachable from unreachable-root directly or indirectly,
+    //                which should be good when we make unreachable-root reachable
+    // then we will use BFS to make all the unreachable-root reachable with minimal node added.
+    // please be aware the added node may not be the most optimistic solution with all the unreachable-root node considered together, but it should be good enough
+    // because we don't want to spend too much resource on this and also we don't expect the graph to be very complex
+    type Reachability = "reachable" | "unreachable" | "unreachable-root";
+    type SourceFile = TypeSpecScriptNode | JsSourceFileNode;
+    const reachability = new Map<SourceFile, Reachability>();
+    markReachability();
+    updateForUnreachableRoots();
+    return;
+
+    function markReachability() {
+      neededFile.forEach((file) => {
+        const lc = program.getSourceFileLocationContext(file.file);
+        if (lc.type === "project" || lc.type === "library") {
+          markReachabilityInternal(file);
+        }
+      });
+    }
+
+    function markReachabilityInternal(file: SourceFile): Reachability | undefined {
+      if (!neededFile.has(file)) {
+        return undefined;
+      }
+      const lc = program.getSourceFileLocationContext(file.file);
+      if (lc.type !== "project" && lc.type !== "library") {
+        // other type's file should be reachable in nature
+        return "reachable";
+      }
+      let result: Reachability | undefined = reachability.get(file);
+      if (result) {
+        return result;
+      }
+
+      for (const importedFrom of lc.importedBy ?? []) {
+        if (importedFrom === NoTarget) {
+          reachability.set(file, "reachable");
+          return "reachable";
+        }
+        const fromFile = importedFrom.parent;
+        // we only consider needed files when checking reachability
+        if (fromFile && neededFile.has(fromFile)) {
+          const fromReachable = markReachabilityInternal(fromFile);
+          if (fromReachable === "reachable") {
+            reachability.set(file, "reachable");
+            return "reachable";
+          } else {
+            // cur should be "unreachable" when from is "unreachable" or "unreachable-root"
+            result = "unreachable";
+          }
+        }
+      }
+      if (result === undefined) {
+        // the file is not imported by any other needed files in the project
+        result = "unreachable-root";
+      }
+      reachability.set(file, result);
+      return result;
+    }
+
+    function updateForUnreachableRoots() {
+      for (const [file, re] of reachability) {
+        if (re === "unreachable-root") {
+          updateForUnreachableRoot(file);
+        }
+      }
+    }
+
+    function updateForUnreachableRoot(file: SourceFile) {
+      const visited = new Set<SourceFile>();
+      const re = reachability.get(file);
+      if (re !== "unreachable-root") {
+        return;
+      }
+      type QueueItem = { file: SourceFile; parentIndex: number };
+      const queue: QueueItem[] = [{ file, parentIndex: -1 }];
+      visited.add(file);
+      let pos = 0;
+      let cur: QueueItem | undefined = undefined;
+      while (pos < queue.length) {
+        cur = queue[pos];
+        if (reachability.get(cur.file) === "reachable") {
+          break;
+        } else {
+          const lc = program.getSourceFileLocationContext(cur.file.file);
+          if (lc.type !== "project" && lc.type !== "library") {
+            compilerAssert(
+              false,
+              "unexpected to reach here. other type file shouldn't be marked as unreachable-root",
+            );
+          } else {
+            for (const importedFrom of lc.importedBy ?? []) {
+              if (importedFrom === NoTarget) {
+                break;
+              } else if (importedFrom.parent && !visited.has(importedFrom.parent)) {
+                visited.add(importedFrom.parent);
+                queue.push({ file: importedFrom.parent, parentIndex: pos });
+              }
+            }
+          }
+        }
+        pos++;
+      }
+      if (pos < queue.length) {
+        while (pos >= 0) {
+          reachability.set(queue[pos].file, "reachable");
+          neededFile.add(queue[pos].file);
+          pos = queue[pos].parentIndex;
+        }
+      } else {
+        compilerAssert(false, "It's not expected that a file can't be reached from the entrypoint");
+      }
+    }
+  }
+
+  function getNeededFileAndLibsFromSymDependencies(
+    deps: Map<TypeSpecScriptNode | JsSourceFileNode, Set<TypeSpecScriptNode | JsSourceFileNode>>,
+  ) {
+    const neededFiles: Set<TypeSpecScriptNode | JsSourceFileNode> = new Set();
+    const neededLibs: Set<string> = new Set();
+    const addNeeded = (file: TypeSpecScriptNode | JsSourceFileNode) => {
+      if (neededFiles.has(file)) return;
+
+      neededFiles.add(file);
+      const lc = program.getSourceFileLocationContext(file.file);
+      if (lc.type === "library") {
+        neededLibs.add(lc.metadata.name);
+      }
+      for (const f of deps.get(file) ?? []) {
+        addNeeded(f);
+      }
+    };
+
+    program.sourceFiles.forEach((file) => {
+      const lc = program.getSourceFileLocationContext(file.file);
+      // entrypoint and import from argument/config is importedBy NoTarget
+      if (lc.type === "project" && lc.importedBy?.has(NoTarget)) {
+        addNeeded(file);
+      }
+    });
+    return { neededFiles, neededLibs };
+  }
+
+  /**
+   * Get the dependencies because of node in one file references the node in another file
+   * Please be aware that "import" is not counted here
+   */
+  function getSourceFileSymDependencies(): Map<
+    TypeSpecScriptNode | JsSourceFileNode,
+    Set<TypeSpecScriptNode | JsSourceFileNode>
+  > {
+    const dependencies = new Map<
+      TypeSpecScriptNode | JsSourceFileNode,
+      Set<TypeSpecScriptNode | JsSourceFileNode>
+    >();
+
+    foreachProjectFile(nodesWithSymResolvedThroughGlobal, (s, sym) => {
+      // there may be multiple declarations. i.e. for Decorator/Function, it may have one declaration and one implementation
+      for (const decl of sym.declarations) {
+        const t = getSourceFile(decl);
+        if (!t || s === t) continue;
+        dependencies.get(s)?.add(t) ?? dependencies.set(s, new Set([t]));
+      }
+    });
+
+    foreachProjectFile(nodesWithSymResolvedThroughUsing, (s, sym) => {
+      // for using statement, if it's used somewhere, the dependency should have been handled by the usage. otherwise
+      //   1. if any of the using target files has already been included in the dependency, then do nothing
+      //   2. if none of the using target files has been included in the dependency
+      //      a. if any of these file is from compiler or synthetic, then do nothing
+      //      b. if all of these files are from project or library, then add the file of the first declaration into the dependency to make sure
+      //         we won't suggest removing the imports which would cause compiler error for the using statement
+      //         (i.e. import "./a.tsp"; using A; // we need to make sure 'import "./a.tsp"' won't be marked as unnecessary because it's needed by 'using A' even when using A is not used anywhere)
+      // But please be aware that this is not enough to determine whether a using is needed or not because even there is file dependency, it may be for other reasons
+      // We still need to compare the symbol in locals to determine the usage, refer to getUnusedUsings() for details
+      let extraDep: TypeSpecScriptNode | JsSourceFileNode | undefined;
+      for (const decl of sym.declarations) {
+        const t = getSourceFile(decl);
+        if (!t || s === t) continue;
+        if (dependencies.get(s)?.has(t)) {
+          return;
+        }
+        const tlc = program.getSourceFileLocationContext(t.file);
+        if (tlc.type === "compiler" || tlc.type === "synthetic") {
+          return;
+        }
+        if (!extraDep) {
+          extraDep = t;
+        }
+      }
+      if (extraDep) {
+        dependencies.get(s)?.add(extraDep) ?? dependencies.set(s, new Set([extraDep]));
+      }
+    });
+
+    return dependencies;
+
+    function getSourceFile(node: Node): TypeSpecScriptNode | JsSourceFileNode | undefined {
+      return getFirstAncestor(
+        node,
+        (n) => n.kind === SyntaxKind.TypeSpecScript || n.kind === SyntaxKind.JsSourceFile,
+        true,
+      ) as TypeSpecScriptNode | JsSourceFileNode | undefined;
+    }
+
+    function foreachProjectFile(
+      nodes: Set<IdentifierNode | MemberExpressionNode | TypeReferenceNode>,
+      callback: (node: TypeSpecScriptNode | JsSourceFileNode, sym: Sym) => void,
+    ) {
+      for (const node of nodes) {
+        const s = getSourceFile(node);
+        if (!s) continue;
+        const lc = program.getSourceFileLocationContext(s.file);
+        if (lc.type === "project") {
+          const link = getNodeLinks(node);
+          const sym = link.resolvedSymbol;
+          if (sym) {
+            callback(s, sym);
+          }
+        }
+      }
+    }
+  }
+
+  function getUnusedUsings(): UsingStatementNode[] {
+    const unusedUsings: Set<UsingStatementNode> = new Set();
+    for (const file of program.sourceFiles.values()) {
+      const lc = program.getSourceFileLocationContext(file.file);
+      if (lc.type === "project") {
+        const usedSym = usedUsingSym.get(file) ?? new Set<Sym>();
+        for (const using of file.usings) {
+          const table = getNodeLinks(using.name).resolvedSymbol;
+          let used = false;
+          for (const [_, sym] of table?.exports ?? new Map<string, Sym>()) {
+            if (usedSym.has(getMergedSymbol(sym))) {
+              used = true;
+              break;
+            }
+          }
+          if (used === false) {
+            unusedUsings.add(using);
+          }
+        }
+      }
+    }
+    return [...unusedUsings];
+  }
 
   function getAugmentDecoratorsForSym(sym: Sym) {
     return augmentDecoratorsForSym.get(sym) ?? [];
@@ -960,6 +1286,16 @@ export function createResolver(program: Program): NameResolver {
       if ("locals" in scope && scope.locals !== undefined) {
         binding = tableLookup(scope.locals, node, options.resolveDecorators);
         if (binding) {
+          if (binding.flags & SymbolFlags.Using && binding.symbolSource) {
+            nodesWithSymResolvedThroughUsing.add(node);
+            const fileNode = getFirstAncestor(node, (n) => n.kind === SyntaxKind.TypeSpecScript) as
+              | TypeSpecScriptNode
+              | undefined;
+            if (fileNode) {
+              usedUsingSym.get(fileNode)?.add(binding.symbolSource) ??
+                usedUsingSym.set(fileNode, new Set([binding.symbolSource]));
+            }
+          }
           return resolvedResult(binding);
         }
       }
@@ -987,8 +1323,12 @@ export function createResolver(program: Program): NameResolver {
       const usingBinding = tableLookup(scope.locals, node, options.resolveDecorators);
 
       if (globalBinding && usingBinding) {
+        const target = getResolvingTargetNodeForGlobalBinding(node);
+        nodesWithSymResolvedThroughGlobal.add(target);
         return ambiguousResult([globalBinding, usingBinding]);
       } else if (globalBinding) {
+        const target = getResolvingTargetNodeForGlobalBinding(node);
+        nodesWithSymResolvedThroughGlobal.add(target);
         return resolvedResult(globalBinding);
       } else if (usingBinding) {
         if (usingBinding.flags & SymbolFlags.DuplicateUsing) {
@@ -997,11 +1337,31 @@ export function createResolver(program: Program): NameResolver {
               []),
           ]);
         }
+        if (usingBinding.flags & SymbolFlags.Using && usingBinding.symbolSource) {
+          nodesWithSymResolvedThroughUsing.add(node);
+          usedUsingSym.get(scope)?.add(usingBinding.symbolSource) ??
+            usedUsingSym.set(scope, new Set([usingBinding.symbolSource]));
+        }
         return resolvedResult(usingBinding.symbolSource!);
       }
     }
 
     return failedResult(ResolutionResultFlags.Unknown);
+
+    /**
+     * Get the target node that is being resolved which is the source of the reference
+     */
+    function getResolvingTargetNodeForGlobalBinding(id: IdentifierNode): IdentifierNode {
+      if (id.parent && id.parent.kind === SyntaxKind.MemberExpression) {
+        let cur = id.parent;
+        while (cur.parent && cur.parent.kind === SyntaxKind.MemberExpression) {
+          cur = cur.parent;
+        }
+        return cur.id;
+      }
+      // for type reference and identifier node, just return the id
+      return id;
+    }
   }
 
   /**

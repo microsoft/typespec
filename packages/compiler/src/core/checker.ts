@@ -4,6 +4,7 @@ import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "../ut
 import { createSymbol, getSymNode } from "./binder.js";
 import { createChangeIdentifierCodeFix } from "./compiler-code-fixes/change-identifier.codefix.js";
 import { createModelToObjectValueCodeFix } from "./compiler-code-fixes/model-to-object-literal.codefix.js";
+import { removeUnnecessaryCodeCodeFix } from "./compiler-code-fixes/remove-unnecessary-code.codefix.js";
 import { createTupleToArrayValueCodeFix } from "./compiler-code-fixes/tuple-to-array-value.codefix.js";
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
 import { ProjectionError, compilerAssert, ignoreDiagnostics } from "./diagnostics.js";
@@ -3461,6 +3462,44 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     internalDecoratorValidation();
+
+    reportUnusedUsingAndImports();
+  }
+
+  function reportUnusedUsingAndImports() {
+    resolver.getUnusedImports().forEach((target) => {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "unnecessary",
+          target: target,
+          format: {
+            code: `import "${target.path.value}"`,
+          },
+          codefixes: [removeUnnecessaryCodeCodeFix(target)],
+        }),
+      );
+    });
+
+    const getUsingName = (node: MemberExpressionNode | IdentifierNode): string => {
+      if (node.kind === SyntaxKind.MemberExpression) {
+        return `${getUsingName(node.base)}${node.selector}${node.id.sv}`;
+      } else {
+        // identifier node
+        return node.sv;
+      }
+    };
+    resolver.getUnusedUsings().forEach((target) => {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "unnecessary",
+          target: target,
+          format: {
+            code: `using ${getUsingName(target.name)}`,
+          },
+          codefixes: [removeUnnecessaryCodeCodeFix(target)],
+        }),
+      );
+    });
   }
 
   function checkDuplicateSymbols() {

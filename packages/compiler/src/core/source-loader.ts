@@ -6,7 +6,7 @@ import {
   ResolveModuleHost,
 } from "../module-resolver/module-resolver.js";
 import { PackageJson } from "../types/package-json.js";
-import { deepEquals, doIO, resolveTspMain } from "../utils/misc.js";
+import { deepEquals, doIO, mutate, resolveTspMain } from "../utils/misc.js";
 import { compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
 import { resolveTypeSpecEntrypointForDir } from "./entrypoint-resolution.js";
 import { createDiagnostic } from "./messages.js";
@@ -129,6 +129,12 @@ export async function createSourceLoader(
     diagnosticTarget: DiagnosticTarget | typeof NoTarget,
   ) {
     if (seenSourceFiles.has(path)) {
+      // we need to update the location context even when the file has been loaded because
+      // it may be imported from a different file
+      const file = sourceFiles.get(path);
+      if (file) {
+        updateLocationContext(file.file, locationContext, diagnosticTarget);
+      }
       return;
     }
     seenSourceFiles.add(path);
@@ -138,7 +144,7 @@ export async function createSourceLoader(
     });
 
     if (file) {
-      sourceFileLocationContexts.set(file, locationContext);
+      updateLocationContext(file, locationContext, diagnosticTarget);
       await loadTypeSpecScript(file);
     }
   }
@@ -287,12 +293,14 @@ export async function createSourceLoader(
   ) {
     const sourceFile = jsSourceFiles.get(path);
     if (sourceFile !== undefined) {
+      // the path may be imported from a different file, so we still need to update even when the sourceFile is already loaded.
+      updateLocationContext(sourceFile.file, locationContext, diagnosticTarget);
       return sourceFile;
     }
 
     const file = diagnostics.pipe(await loadJsFile(host, path, diagnosticTarget));
     if (file !== undefined) {
-      sourceFileLocationContexts.set(file.file, locationContext);
+      updateLocationContext(file.file, locationContext, diagnosticTarget);
       jsSourceFiles.set(path, file);
     }
     return file;
@@ -307,6 +315,32 @@ export async function createSourceLoader(
         return file.text;
       },
     };
+  }
+
+  function updateLocationContext(
+    file: SourceFile,
+    locationContext: LocationContext,
+    target: DiagnosticTarget | typeof NoTarget,
+  ) {
+    const found = sourceFileLocationContexts.get(file);
+    if (
+      found &&
+      (found.type === "project" || found.type === "library") &&
+      (target === NoTarget || ("kind" in target && target.kind === SyntaxKind.ImportStatement))
+    ) {
+      mutate(found).importedBy ??= new Set();
+      mutate(found.importedBy).add(target);
+    }
+    if (!found) {
+      const lc = { ...locationContext };
+      if (
+        (lc.type === "project" || lc.type === "library") &&
+        (target === NoTarget || ("kind" in target && target.kind === SyntaxKind.ImportStatement))
+      ) {
+        lc.importedBy = new Set([target]);
+      }
+      sourceFileLocationContexts.set(file, lc);
+    }
   }
 }
 

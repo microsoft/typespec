@@ -404,6 +404,8 @@ export function createServer(host: ServerHost): Server {
         }
         if (each.code === "deprecated") {
           diagnostic.tags = [DiagnosticTag.Deprecated];
+        } else if (each.code === "unnecessary") {
+          diagnostic.tags = [DiagnosticTag.Unnecessary];
         }
         diagnostic.data = { id: diagnosticIdCounter++ };
         const diagnostics = diagnosticMap.get(diagDocument);
