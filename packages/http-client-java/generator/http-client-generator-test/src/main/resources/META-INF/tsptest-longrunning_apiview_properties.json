@@ -20,7 +20,8 @@
     "tsptest.longrunning.models.JobResult": "TspTest.LongRunning.JobResult",
     "tsptest.longrunning.models.JobResultResult": "TspTest.LongRunning.JobResult.result.anonymous",
     "tsptest.longrunning.models.JobStatus": "TspTest.LongRunning.JobStatus",
-    "tsptest.longrunning.models.OperationState": "Azure.Core.Foundations.OperationState",
-    "tsptest.longrunning.models.PollResponse": "TspTest.LongRunning.PollResponse"
+    "tsptest.longrunning.models.LroOperationStatusError": "TspTest.LongRunning.LroOperationStatus",
+    "tsptest.longrunning.models.PollResponse": "TspTest.LongRunning.PollResponse",
+    "tsptest.longrunning.models.RepeatabilityResult": "Azure.Core.RepeatabilityResult"
   }
 }

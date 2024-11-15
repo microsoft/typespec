@@ -8,4 +8,4 @@
  * Illustrates OASIS repeatability headers.
  * <!-- end generated doc -->
  */
-package com.specialheaders.repeatability.models;
+package specialheaders.repeatability.models;

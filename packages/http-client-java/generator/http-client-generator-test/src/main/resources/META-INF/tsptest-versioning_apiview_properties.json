@@ -15,6 +15,8 @@
     "tsptest.versioning.VersioningClient.list": "TspTest.Versioning.VersioningOp.list",
     "tsptest.versioning.VersioningClientBuilder": "TspTest.Versioning",
     "tsptest.versioning.models.ExportedResource": "TspTest.Versioning.ExportedResource",
-    "tsptest.versioning.models.Resource": "TspTest.Versioning.Resource"
+    "tsptest.versioning.models.OperationState": "Azure.Core.Foundations.OperationState",
+    "tsptest.versioning.models.Resource": "TspTest.Versioning.Resource",
+    "tsptest.versioning.models.ResourceOperationStatusResourceExportedResourceError": "Azure.Core.ResourceOperationStatus"
   }
 }

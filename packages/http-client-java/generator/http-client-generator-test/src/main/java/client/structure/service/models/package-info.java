@@ -15,4 +15,4 @@
  * 6. have two clients with a hierarchy relation.
  * <!-- end generated doc -->
  */
-package com.client.structure.service.models;
+package client.structure.service.models;
