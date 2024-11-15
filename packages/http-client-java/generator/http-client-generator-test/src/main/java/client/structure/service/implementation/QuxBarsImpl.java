@@ -4,6 +4,7 @@
 
 package client.structure.service.implementation;
 
+import client.structure.service.models.ClientType;
 import com.azure.core.annotation.ExpectedResponses;
 import com.azure.core.annotation.Host;
 import com.azure.core.annotation.HostParam;
@@ -60,7 +61,7 @@ public final class QuxBarsImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Mono<Response<Void>> nine(@HostParam("endpoint") String endpoint, @HostParam("client") String client,
+        Mono<Response<Void>> nine(@HostParam("endpoint") String endpoint, @HostParam("client") ClientType client,
             RequestOptions requestOptions, Context context);
 
         @Post("/nine")
@@ -69,7 +70,7 @@ public final class QuxBarsImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Response<Void> nineSync(@HostParam("endpoint") String endpoint, @HostParam("client") String client,
+        Response<Void> nineSync(@HostParam("endpoint") String endpoint, @HostParam("client") ClientType client,
             RequestOptions requestOptions, Context context);
     }
 

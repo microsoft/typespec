@@ -4,6 +4,7 @@
 
 package client.structure.service.implementation;
 
+import client.structure.service.models.ClientType;
 import com.azure.core.annotation.ExpectedResponses;
 import com.azure.core.annotation.Host;
 import com.azure.core.annotation.HostParam;
@@ -60,7 +61,7 @@ public final class Group2sImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Mono<Response<Void>> two(@HostParam("endpoint") String endpoint, @HostParam("client") String client,
+        Mono<Response<Void>> two(@HostParam("endpoint") String endpoint, @HostParam("client") ClientType client,
             RequestOptions requestOptions, Context context);
 
         @Post("/two")
@@ -69,7 +70,7 @@ public final class Group2sImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Response<Void> twoSync(@HostParam("endpoint") String endpoint, @HostParam("client") String client,
+        Response<Void> twoSync(@HostParam("endpoint") String endpoint, @HostParam("client") ClientType client,
             RequestOptions requestOptions, Context context);
 
         @Post("/five")
@@ -78,7 +79,7 @@ public final class Group2sImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Mono<Response<Void>> five(@HostParam("endpoint") String endpoint, @HostParam("client") String client,
+        Mono<Response<Void>> five(@HostParam("endpoint") String endpoint, @HostParam("client") ClientType client,
             RequestOptions requestOptions, Context context);
 
         @Post("/five")
@@ -87,7 +88,7 @@ public final class Group2sImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Response<Void> fiveSync(@HostParam("endpoint") String endpoint, @HostParam("client") String client,
+        Response<Void> fiveSync(@HostParam("endpoint") String endpoint, @HostParam("client") ClientType client,
             RequestOptions requestOptions, Context context);
 
         @Post("/six")
@@ -96,7 +97,7 @@ public final class Group2sImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Mono<Response<Void>> six(@HostParam("endpoint") String endpoint, @HostParam("client") String client,
+        Mono<Response<Void>> six(@HostParam("endpoint") String endpoint, @HostParam("client") ClientType client,
             RequestOptions requestOptions, Context context);
 
         @Post("/six")
@@ -105,7 +106,7 @@ public final class Group2sImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Response<Void> sixSync(@HostParam("endpoint") String endpoint, @HostParam("client") String client,
+        Response<Void> sixSync(@HostParam("endpoint") String endpoint, @HostParam("client") ClientType client,
             RequestOptions requestOptions, Context context);
     }
 

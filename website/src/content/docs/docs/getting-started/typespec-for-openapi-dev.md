@@ -231,7 +231,7 @@ The fields in an OpenAPI operation object are specified with the following TypeS
 | `requestBody`             | parameter with `@body` decorator           | see [Request Body Object](#request-body-object-oas3)                         |
 | `responses`               | `op` return type(s)                        | see [Responses Object](#responses-object)                                    |
 | `callbacks`               |                                            | Not currently supported.                                                     |
-| `deprecated`              | `@deprecated` decorator                    |                                                                              |
+| `deprecated`              | `#deprecated` directive                    |                                                                              |
 | `security`                |                                            | see [Security Schemes Object](#securityDefinitions--securitySchemes-Object). |
 | `servers`                 | `@server` decorator                        | Can be specified multiple times.                                             |
 
@@ -308,7 +308,9 @@ The following fields of a parameter object are common to both OpenAPI v2 and v3:
 | `in`                      | decorator                    | `@query`, `@path`, `@header`, `@body`                                                                                        |
 | `description`             | `/** */` or `@doc` decorator |                                                                                                                              |
 | `required`                | from parameter "optionality" | a "?" following the parameter name indicates it is optional (`required: false`), otherwise it is required (`required: true`) |
-| `allowEmptyValue`         |                              | Not currently supported.                                                                                                     |
+| `allowEmptyValue`         |                              | Not supported, this field is `NOT RECOMMENDED` in OpenAPI.                                                                   |
+
+<!-- prettier-ignore-end -->
 
 ### OpenAPI v2
 
@@ -341,7 +343,7 @@ The following fields of a parameter object are specific to OpenAPI v3:
 | `style`                      | `format` parameter on `@query` or `@header` |                                     |
 | `explode`                    | `format` parameter on `@query` or `@header` |                                     |
 | `schema`                     | parameter schema                            | see [Schema Object](#schema-object) |
-| `deprecated`                 |                                             | Not currently supported.            |
+| `deprecated`                 | `#deprecated` directive.                    |                                     |
 | `example`                    |                                             | Not currently supported.            |
 | `examples`                   |                                             | Not currently supported.            |
 | `content`                    |                                             | Not currently supported.            |

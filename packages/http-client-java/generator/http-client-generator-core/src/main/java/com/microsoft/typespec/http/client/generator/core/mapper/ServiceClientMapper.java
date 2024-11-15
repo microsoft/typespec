@@ -232,7 +232,7 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
             String serviceClientPropertyName = CodeNamer.getPropertyName(p.getLanguage().getJava().getName());
 
             IType serviceClientPropertyClientType = Mappers.getSchemaMapper().map(p.getSchema());
-            if (settings.isDataPlaneClient()) {
+            if (isRemoveModelFromParameter(p, serviceClientPropertyClientType)) {
                 // mostly for Enum to String
                 serviceClientPropertyClientType = SchemaUtil.removeModelFromParameter(RequestParameterLocation.URI,
                     serviceClientPropertyClientType);
@@ -279,6 +279,10 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
         }
 
         return serviceClientProperties;
+    }
+
+    protected boolean isRemoveModelFromParameter(Parameter parameter, IType type) {
+        return JavaSettings.getInstance().isDataPlaneClient();
     }
 
     protected void processParametersAndConstructors(ServiceClient.Builder builder, Client client, CodeModel codeModel,
