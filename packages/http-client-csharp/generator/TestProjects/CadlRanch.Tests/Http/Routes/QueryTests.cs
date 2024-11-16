@@ -25,6 +25,13 @@ namespace TestProjects.CadlRanch.Tests.Http.Routes
         });
 
         [CadlRanchTest]
+        public Task QueryTemplateOnly() => Test(async (host) =>
+        {
+            var response = await new RoutesClient(host, null).GetQueryParametersClient().TemplateOnlyAsync("a");
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [CadlRanchTest]
         public Task QueryExpansionPrimitive() => Test(async (host) =>
         {
             var response = await new RoutesClient(host, null).GetQueryParametersClient()
@@ -83,6 +90,39 @@ namespace TestProjects.CadlRanch.Tests.Http.Routes
             var response = await new RoutesClient(host, null).GetQueryParametersClient()
                 .GetQueryParametersQueryExpansionClient()
                 .GetQueryParametersQueryExpansionExplodeClient()
+                .RecordAsync(new Dictionary<string, int> {{"a", 1}, {"b", 2}});
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [CadlRanchTest]
+        [Ignore("https://github.com/microsoft/typespec/issues/5139")]
+        public Task QueryContinuationPrimitive() => Test(async (host) =>
+        {
+            var response = await new RoutesClient(host, null).GetQueryParametersClient()
+                .GetQueryParametersQueryContinuationClient()
+                .GetQueryParametersQueryContinuationStandardClient()
+                .PrimitiveAsync("a");
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [CadlRanchTest]
+        [Ignore("https://github.com/microsoft/typespec/issues/5139")]
+        public Task QueryContinuationArray() => Test(async (host) =>
+        {
+            var response = await new RoutesClient(host, null).GetQueryParametersClient()
+                .GetQueryParametersQueryContinuationClient()
+                .GetQueryParametersQueryContinuationStandardClient()
+                .ArrayAsync(["a", "b"]);
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [CadlRanchTest]
+        [Ignore("https://github.com/microsoft/typespec/issues/5139")]
+        public Task QueryContinuationRecord() => Test(async (host) =>
+        {
+            var response = await new RoutesClient(host, null).GetQueryParametersClient()
+                .GetQueryParametersQueryContinuationClient()
+                .GetQueryParametersQueryContinuationStandardClient()
                 .RecordAsync(new Dictionary<string, int> {{"a", 1}, {"b", 2}});
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });

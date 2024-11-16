@@ -265,9 +265,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         {
                             statement = new[]
                             {
-                                Declare("list", New.List<object>(), out var list), new ForeachStatement("param",
-                                    valueExpression.AsDictionary(paramType),
-                                    out KeyValuePairExpression item) { list.Add(item.Key), list.Add(item.Value) },
+                                Declare("list", New.List<object>(), out var list),
+                                new ForeachStatement("param", valueExpression.AsDictionary(paramType), out KeyValuePairExpression item)
+                                {
+                                    list.Add(item.Key),
+                                    list.Add(item.Value)
+                                },
                                 uri.AppendQueryDelimited(Literal(inputParameter.NameInRequest), list, format, true)
                                     .Terminate()
                             };

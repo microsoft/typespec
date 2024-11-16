@@ -32,6 +32,20 @@ namespace TestProjects.CadlRanch.Tests.Http.Routes
         });
 
         [CadlRanchTest]
+        public Task PathExplicit() => Test(async (host) =>
+        {
+            var response = await new RoutesClient(host, null).GetPathParametersClient().ExplicitAsync("a");
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [CadlRanchTest]
+        public Task PathTemplateOnly() => Test(async (host) =>
+        {
+            var response = await new RoutesClient(host, null).GetPathParametersClient().TemplateOnlyAsync("a");
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [CadlRanchTest]
         public Task ReservedAnnotation() => Test(async (host) =>
         {
             var response = await new RoutesClient(host, null).GetPathParametersClient()
@@ -50,7 +64,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Routes
         });
 
         [CadlRanchTest]
-        [Ignore("https://github.com/Azure/cadl-ranch/issues/772'")]
+        [Ignore("https://github.com/Azure/cadl-ranch/issues/772")]
         public Task Explicit() => Test(async (host) =>
         {
             var response = await new RoutesClient(host, null).GetPathParametersClient().ExplicitAsync("a");
@@ -58,7 +72,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Routes
         });
 
         [CadlRanchTest]
-        [Ignore("https://github.com/Azure/cadl-ranch/issues/772'")]
+        [Ignore("https://github.com/Azure/cadl-ranch/issues/772")]
         public Task LabelExpansionExplodeArray() => Test(async (host) =>
         {
             var response = await new RoutesClient(host, null).GetPathParametersClient()
@@ -69,7 +83,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Routes
         });
 
         [CadlRanchTest]
-        [Ignore("https://github.com/Azure/cadl-ranch/issues/772'")]
+        [Ignore("https://github.com/Azure/cadl-ranch/issues/772")]
         public Task LabelExpansionArray() => Test(async (host) =>
         {
             var response = await new RoutesClient(host, null).GetPathParametersClient()
@@ -80,7 +94,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Routes
         });
 
         [CadlRanchTest]
-        [Ignore("https://github.com/Azure/cadl-ranch/issues/772'")]
+        [Ignore("https://github.com/Azure/cadl-ranch/issues/772")]
         public Task LabelExpansionExplodePrimitive() => Test(async (host) =>
         {
             var response = await new RoutesClient(host, null).GetPathParametersClient()
@@ -91,7 +105,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Routes
         });
 
         [CadlRanchTest]
-        [Ignore("https://github.com/Azure/cadl-ranch/issues/772'")]
+        [Ignore("https://github.com/Azure/cadl-ranch/issues/772")]
         public Task LabelExpansionPrimitive() => Test(async (host) =>
         {
             var response = await new RoutesClient(host, null).GetPathParametersClient()
@@ -102,7 +116,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Routes
         });
 
         [CadlRanchTest]
-        [Ignore("https://github.com/Azure/cadl-ranch/issues/772'")]
+        [Ignore("https://github.com/Azure/cadl-ranch/issues/772")]
         public Task LabelExpansionExplodeRecord() => Test(async (host) =>
         {
             var response = await new RoutesClient(host, null).GetPathParametersClient()
@@ -113,7 +127,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Routes
         });
 
         [CadlRanchTest]
-        [Ignore("https://github.com/Azure/cadl-ranch/issues/772'")]
+        [Ignore("https://github.com/Azure/cadl-ranch/issues/772")]
         public Task LabelExpansionRecord() => Test(async (host) =>
         {
             var response = await new RoutesClient(host, null).GetPathParametersClient()
