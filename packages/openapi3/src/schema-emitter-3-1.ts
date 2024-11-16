@@ -1,14 +1,10 @@
 import {
   compilerAssert,
   Enum,
-  getDiscriminatedUnion,
-  getDiscriminator,
   getExamples,
   getMaxValueExclusive,
   getMinValueExclusive,
-  ignoreDiagnostics,
   IntrinsicType,
-  isNullType,
   Model,
   ModelProperty,
   Program,
@@ -139,22 +135,20 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
     const literalVariantEnumByType: Record<string, any[]> = {};
     const ofType = getOneOf(program, union) ? "oneOf" : "anyOf";
     const schemaMembers: { schema: any; type: Type | null }[] = [];
-    const discriminator = getDiscriminator(program, union);
     const isMultipart = this.getContentType().startsWith("multipart/");
 
+    // 1. Iterate over all the union variants to generate a schema for each one.
     for (const variant of variants) {
-      if (isNullType(variant.type)) {
-        this.intrinsic(variant.type, "null");
-        schemaMembers.push({ schema: { type: "null" }, type: variant.type });
-        continue;
-      }
-
+      // 2. Special handling for multipart - want to treat as binary
       if (isMultipart && isBytesKeptRaw(program, variant.type)) {
         schemaMembers.push({ schema: { type: "string", format: "binary" }, type: variant.type });
         continue;
       }
 
+      // 3.a. Literal types are actual values (though not Value types)
       if (isLiteralType(variant.type)) {
+        // Create schemas grouped by kind (boolean, string, numeric)
+        // and add the literals seen to each respective `enum` array
         if (!literalVariantEnumByType[variant.type.kind]) {
           const enumValue: any[] = [variant.type.value];
           literalVariantEnumByType[variant.type.kind] = enumValue;
@@ -166,6 +160,7 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
           literalVariantEnumByType[variant.type.kind].push(variant.type.value);
         }
       } else {
+        // 3.b. Anything else, we get the schema for that type.
         const enumSchema = this.emitter.emitTypeReference(variant.type, {
           referenceContext: isMultipart ? { contentType: "application/json" } : {},
         });
@@ -178,7 +173,6 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
       schemaMember: { schema: any; type: Type | null },
       { mergeUnionWideConstraints }: { mergeUnionWideConstraints: boolean },
     ): ObjectBuilder<OpenAPISchema3_1> => {
-      // we can just return the single schema member after applying nullable
       const schema = schemaMember.schema;
       const type = schemaMember.type;
       const additionalProps: Partial<OpenAPISchema3_1> = mergeUnionWideConstraints
@@ -219,23 +213,13 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
       return wrapWithObjectBuilder(schemaMembers[0], { mergeUnionWideConstraints: true });
     }
 
-    const isMerge = false; // checkMerge(schemaMembers);
     const schema: OpenAPISchema3_1 = {
       [ofType]: schemaMembers.map((m) =>
-        wrapWithObjectBuilder(m, { mergeUnionWideConstraints: isMerge }),
+        wrapWithObjectBuilder(m, { mergeUnionWideConstraints: false }),
       ),
     };
 
-    if (discriminator) {
-      // the decorator validates that all the variants will be a model type
-      // with the discriminator field present.
-      schema.discriminator = { ...discriminator };
-      // Diagnostic already reported in compiler for unions
-      const discriminatedUnion = ignoreDiagnostics(getDiscriminatedUnion(union, discriminator));
-      if (discriminatedUnion.variants.size > 0) {
-        schema.discriminator.mapping = this.getDiscriminatorMapping(discriminatedUnion);
-      }
-    }
+    this.applyDiscriminator(union, schema);
 
     return this.applyConstraints(union, schema);
   }

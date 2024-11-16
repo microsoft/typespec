@@ -1,12 +1,9 @@
 import {
   compilerAssert,
   Enum,
-  getDiscriminatedUnion,
-  getDiscriminator,
   getExamples,
   getMaxValueExclusive,
   getMinValueExclusive,
-  ignoreDiagnostics,
   IntrinsicType,
   isNullType,
   Model,
@@ -136,7 +133,6 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
     const ofType = getOneOf(program, union) ? "oneOf" : "anyOf";
     const schemaMembers: { schema: any; type: Type | null }[] = [];
     let nullable = false;
-    const discriminator = getDiscriminator(program, union);
     const isMultipart = this.getContentType().startsWith("multipart/");
 
     for (const variant of variants) {
@@ -249,16 +245,7 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
       schema.nullable = true;
     }
 
-    if (discriminator) {
-      // the decorator validates that all the variants will be a model type
-      // with the discriminator field present.
-      schema.discriminator = { ...discriminator };
-      // Diagnostic already reported in compiler for unions
-      const discriminatedUnion = ignoreDiagnostics(getDiscriminatedUnion(union, discriminator));
-      if (discriminatedUnion.variants.size > 0) {
-        schema.discriminator.mapping = this.getDiscriminatorMapping(discriminatedUnion);
-      }
-    }
+    this.applyDiscriminator(union, schema);
 
     return this.applyConstraints(union, schema);
   }

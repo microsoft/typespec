@@ -35,6 +35,7 @@ import {
   getPattern,
   getSummary,
   getTypeName,
+  ignoreDiagnostics,
   isArrayModelType,
   isNeverType,
   isSecret,
@@ -70,7 +71,6 @@ import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { getSchemaForStdScalars } from "./std-scalar-schemas.js";
 import {
   CommonOpenAPI3Schema,
-  OpenAPI3Discriminator,
   OpenAPI3Schema,
   OpenAPI3SchemaProperty,
   OpenAPISchema3_1,
@@ -138,6 +138,20 @@ export class OpenAPI3SchemaEmitterBase<
     return patch;
   }
 
+  applyDiscriminator(type: Model | Union, schema: Schema): void {
+    const program = this.emitter.getProgram();
+    const discriminator = getDiscriminator(program, type);
+    if (discriminator) {
+      // the decorator validates that all the variants will be a model type
+      // with the discriminator field present.
+      schema.discriminator = { ...discriminator };
+      const discriminatedUnion = ignoreDiagnostics(getDiscriminatedUnion(type, discriminator));
+      if (discriminatedUnion.variants.size > 0) {
+        schema.discriminator.mapping = this.getDiscriminatorMapping(discriminatedUnion);
+      }
+    }
+  }
+
   modelDeclaration(model: Model, _: string): EmitterOutput<object> {
     const program = this.emitter.getProgram();
     const visibility = this.#getVisibilityContext();
@@ -157,18 +171,7 @@ export class OpenAPI3SchemaEmitterBase<
       this.emitter.emitTypeReference(child);
     }
 
-    const discriminator = getDiscriminator(program, model);
-    if (discriminator) {
-      const [union] = getDiscriminatedUnion(model, discriminator);
-
-      const openApiDiscriminator: OpenAPI3Discriminator = { ...discriminator };
-      if (union.variants.size > 0) {
-        openApiDiscriminator.mapping = this.getDiscriminatorMapping(union);
-      }
-
-      schema.discriminator = openApiDiscriminator;
-    }
-
+    this.applyDiscriminator(model, schema as any);
     this.#applyExternalDocs(model, schema);
 
     if (model.baseModel) {
