@@ -7,9 +7,9 @@
     "format": "npm run -s prettier -- --write",
     "check-format": "npm run prettier -- --check",
     "prettier": "prettier --config ./.prettierrc.yaml **/*.tsp",
-    "testserver-run": "npx --no-install cadl-ranch serve ./node_modules/@azure-tools/cadl-ranch-specs/http --coverageFile ./cadl-ranch-coverage-java-standard.json",
-    "testserver-start": "npx --no-install cadl-ranch server start ./node_modules/@azure-tools/cadl-ranch-specs/http --coverageFile ./cadl-ranch-coverage-java-standard.json",
-    "testserver-stop": "npx --no-install cadl-ranch server stop"
+    "testserver-run": "cadl-ranch serve ./node_modules/@azure-tools/cadl-ranch-specs/http --coverageFile ./cadl-ranch-coverage-java-standard.json",
+    "testserver-start": "cadl-ranch server start ./node_modules/@azure-tools/cadl-ranch-specs/http --coverageFile ./cadl-ranch-coverage-java-standard.json",
+    "testserver-stop": "cadl-ranch server stop"
   },
   "dependencies": {
     "@azure-tools/cadl-ranch-specs": "0.39.0",
