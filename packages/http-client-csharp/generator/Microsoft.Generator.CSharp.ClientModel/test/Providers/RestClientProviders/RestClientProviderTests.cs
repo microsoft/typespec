@@ -287,7 +287,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.RestClientProvi
                 InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String), location: RequestLocation.Query, isRequired: true, delimiter: "|"),
                 InputFactory.Parameter("p2Explode", InputFactory.Array(InputPrimitiveType.Int32), location: RequestLocation.Query, isRequired: true, explode: true),
                 InputFactory.Parameter("p2", InputFactory.Array(InputPrimitiveType.Int32), location: RequestLocation.Query, isRequired: true, delimiter: " "),
-                InputFactory.Parameter("optionalParam", new InputNullableType(InputPrimitiveType.String), location: RequestLocation.Query, isRequired: false, explode: false)
+                InputFactory.Parameter("optionalParam", new InputNullableType(InputPrimitiveType.String), location: RequestLocation.Query, isRequired: false, explode: false),
+                InputFactory.Parameter("p3Explode", InputFactory.Dictionary(InputPrimitiveType.Int32), location: RequestLocation.Query, isRequired: true, explode: true),
+                InputFactory.Parameter("p3", InputFactory.Dictionary(InputPrimitiveType.Int32), location: RequestLocation.Query, isRequired: true),
             ];
             var operation = InputFactory.Operation(
                 "sampleOp",
