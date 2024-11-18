@@ -542,6 +542,28 @@ it("handles enum, complex type properties, and circular references", async () =>
   );
 });
 
+it("processes sub-namespaces of a service", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+      namespace Bar {
+      /** A simple test model*/
+      model Foo {
+        #suppress "@azure-tools/typespec-azure-core/casing-style" "Testing"
+        #suppress "@typespec/http-server-csharp/invalid-identifier" "Testing"
+        /** An invalid name test */
+        \`**()invalid~~Name\`?: string = "This is a string literal";
+      }
+  }
+      `,
+    "Foo.cs",
+    [
+      "public partial class Foo",
+      `public string GeneratedInvalidName { get; set; } = "This is a string literal";`,
+    ],
+  );
+});
+
 it("creates Valid Identifiers", async () => {
   await compileAndValidateSingleModel(
     runner,

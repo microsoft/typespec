@@ -11,6 +11,7 @@ import {
   Operation,
   Program,
   Scalar,
+  Service,
   StringLiteral,
   Tuple,
   Type,
@@ -1095,8 +1096,8 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
   }
 
-  function processNameSpace(program: Program, target: Namespace) {
-    const service = getService(program, target);
+  function processNameSpace(program: Program, target: Namespace, service?: Service | undefined) {
+    if (!service) service = getService(program, target);
     if (service) {
       for (const [_, model] of target.models) {
         emitter.emitType(model);
@@ -1112,6 +1113,9 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       }
       for (const [_, op] of target.operations) {
         emitter.emitType(op);
+      }
+      for (const [_, sub] of target.namespaces) {
+        processNameSpace(program, sub, service);
       }
     } else {
       for (const [_, sub] of target.namespaces) {
