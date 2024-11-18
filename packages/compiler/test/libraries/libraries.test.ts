@@ -82,6 +82,16 @@ describe("compiler: libraries", () => {
         message: `Duplicate name: "@myDec"`,
         file: "lib2.js",
       },
+      {
+        code: "unnecessary",
+        message: `Unnecessary code: import "./lib1.js"`,
+        severity: "hint",
+      },
+      {
+        code: "unnecessary",
+        message: `Unnecessary code: import "./lib2.js"`,
+        severity: "hint",
+      },
     ]);
   });
 });

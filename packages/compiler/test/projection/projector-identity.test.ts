@@ -2,6 +2,7 @@ import { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { DecoratorContext, Namespace, Type, getTypeName, isType } from "../../src/core/index.js";
 import { createProjector } from "../../src/core/projector.js";
+import { expectDiagnostics } from "../../src/testing/expect.js";
 import { createTestHost, createTestRunner } from "../../src/testing/test-host.js";
 import { BasicTestRunner, TestHost } from "../../src/testing/types.js";
 
@@ -43,9 +44,25 @@ describe("compiler: projector: Identity", () => {
       $track: (_: DecoratorContext, target: Type) => trackedTypes.push(target),
     });
 
-    const { target } = await runner.compile(`
+    const mergedCode = `
       import "./track.js";
-      ${code}`);
+      ${code}`;
+
+    let target: Type;
+    if (code.includes("@track")) {
+      const r = await runner.compile(mergedCode);
+      target = r.target;
+    } else {
+      const [r, diagnostics] = await runner.compileAndDiagnose(mergedCode);
+      expectDiagnostics(diagnostics, [
+        {
+          code: "unnecessary",
+          message: `Unnecessary code: import "./track.js"`,
+          severity: "hint",
+        },
+      ]);
+      target = r.target;
+    }
 
     while (trackedTypes.length > 0) {
       trackedTypes.pop();

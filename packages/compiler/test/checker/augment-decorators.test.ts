@@ -337,10 +337,17 @@ describe("emit diagnostic", () => {
        model Foo {}
        @@notDefined(Foo, "A string Foo");
     `);
-    expectDiagnostics(diagnostics, {
-      code: "invalid-ref",
-      message: "Unknown decorator @notDefined",
-    });
+    expectDiagnostics(diagnostics, [
+      {
+        code: "invalid-ref",
+        message: "Unknown decorator @notDefined",
+      },
+      {
+        code: "unnecessary",
+        message: `Unnecessary code: import "./test.js"`,
+        severity: "hint",
+      },
+    ]);
   });
 
   it("if target is invalid identifier", async () => {

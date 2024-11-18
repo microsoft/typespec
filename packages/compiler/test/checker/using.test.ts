@@ -1,12 +1,7 @@
 import { rejects, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { Model } from "../../src/core/types.js";
-import {
-  TestHost,
-  createTestHost,
-  expectDiagnosticEmpty,
-  expectDiagnostics,
-} from "../../src/testing/index.js";
+import { TestHost, createTestHost, expectDiagnostics } from "../../src/testing/index.js";
 
 describe("compiler: using statements", () => {
   let testHost: TestHost;
@@ -21,6 +16,7 @@ describe("compiler: using statements", () => {
       `
       import "./a.tsp";
       import "./b.tsp";
+      alias foo = Y;
       `,
     );
     testHost.addTypeSpecFile(
@@ -51,6 +47,7 @@ describe("compiler: using statements", () => {
       `
       import "./a.tsp";
       import "./b.tsp";
+      alias foo = Z.Y;
       `,
     );
     testHost.addTypeSpecFile(
@@ -82,6 +79,7 @@ describe("compiler: using statements", () => {
       `
       import "./a.tsp";
       import "./b.tsp";
+      alias foo = Y;
       `,
     );
     testHost.addTypeSpecFile(
@@ -125,8 +123,14 @@ describe("compiler: using statements", () => {
       `,
     );
     testHost.addTypeSpecFile("b.tsp", `namespace B { model BModel {} }`);
-
-    expectDiagnosticEmpty(await testHost.diagnose("./"));
+    const diags = await testHost.diagnose("./");
+    expectDiagnostics(diags, [
+      {
+        code: "unnecessary",
+        message: "Unnecessary code: using A",
+        severity: "hint",
+      },
+    ]);
   });
 
   it("TypeSpec.Xyz namespace doesn't need TypeSpec prefix in using", async () => {
@@ -135,6 +139,7 @@ describe("compiler: using statements", () => {
       `
       import "./a.tsp";
       import "./b.tsp";
+      alias foo = Y;
       `,
     );
     testHost.addTypeSpecFile(
@@ -189,7 +194,28 @@ describe("compiler: using statements", () => {
     );
 
     const diagnostics = await testHost.diagnose("./");
-    expectDiagnosticEmpty(diagnostics);
+    expectDiagnostics(diagnostics, [
+      {
+        code: "unnecessary",
+        message: 'Unnecessary code: import "./a.tsp"',
+        severity: "hint",
+      },
+      {
+        code: "unnecessary",
+        message: 'Unnecessary code: import "./b.tsp"',
+        severity: "hint",
+      },
+      {
+        code: "unnecessary",
+        message: "Unnecessary code: using N.A",
+        severity: "hint",
+      },
+      {
+        code: "unnecessary",
+        message: "Unnecessary code: using M.A",
+        severity: "hint",
+      },
+    ]);
   });
 
   describe("duplicate usings", () => {
@@ -211,7 +237,23 @@ describe("compiler: using statements", () => {
       testHost.addTypeSpecFile("a.tsp", `namespace A { model AModel {} }`);
 
       const diagnostics = await testHost.diagnose("./");
-      expectDiagnosticEmpty(diagnostics);
+      expectDiagnostics(diagnostics, [
+        {
+          code: "unnecessary",
+          message: "Unnecessary code: using A",
+          severity: "hint",
+        },
+        {
+          code: "unnecessary",
+          message: "Unnecessary code: using A",
+          severity: "hint",
+        },
+        {
+          code: "unnecessary",
+          message: "Unnecessary code: using A",
+          severity: "hint",
+        },
+      ]);
     });
 
     it("throws errors for duplicate imported usings", async () => {
@@ -242,6 +284,26 @@ describe("compiler: using statements", () => {
       expectDiagnostics(diagnostics, [
         { code: "duplicate-using", message: 'duplicate using of "N.M" namespace' },
         { code: "duplicate-using", message: 'duplicate using of "N.M" namespace' },
+        {
+          code: "unnecessary",
+          message: 'Unnecessary code: import "./a.tsp"',
+          severity: "hint",
+        },
+        {
+          code: "unnecessary",
+          message: 'Unnecessary code: import "./b.tsp"',
+          severity: "hint",
+        },
+        {
+          code: "unnecessary",
+          message: "Unnecessary code: using N.M",
+          severity: "hint",
+        },
+        {
+          code: "unnecessary",
+          message: "Unnecessary code: using N.M",
+          severity: "hint",
+        },
       ]);
     });
   });
@@ -276,7 +338,28 @@ describe("compiler: using statements", () => {
     );
 
     const diagnostics = await testHost.diagnose("./");
-    expectDiagnosticEmpty(diagnostics);
+    expectDiagnostics(diagnostics, [
+      {
+        code: "unnecessary",
+        message: 'Unnecessary code: import "./a.tsp"',
+        severity: "hint",
+      },
+      {
+        code: "unnecessary",
+        message: 'Unnecessary code: import "./b.tsp"',
+        severity: "hint",
+      },
+      {
+        code: "unnecessary",
+        message: "Unnecessary code: using N",
+        severity: "hint",
+      },
+      {
+        code: "unnecessary",
+        message: "Unnecessary code: using M",
+        severity: "hint",
+      },
+    ]);
   });
 
   it("report ambiguous diagnostics when using name present in multiple using", async () => {
@@ -310,13 +393,16 @@ describe("compiler: using statements", () => {
       `,
     );
     const diagnostics = await testHost.diagnose("./", { nostdlib: true });
-    expectDiagnostics(diagnostics, [
-      {
-        code: "ambiguous-symbol",
-        message:
-          '"A" is an ambiguous name between N.A, M.A. Try using fully qualified name instead: N.A, M.A',
-      },
-    ]);
+    expectDiagnostics(
+      diagnostics.filter((d) => d.code !== "unnecessary"),
+      [
+        {
+          code: "ambiguous-symbol",
+          message:
+            '"A" is an ambiguous name between N.A, M.A. Try using fully qualified name instead: N.A, M.A',
+        },
+      ],
+    );
   });
 
   it("report ambiguous diagnostics when symbol exists in using namespace and global namespace", async () => {
@@ -347,13 +433,16 @@ describe("compiler: using statements", () => {
     );
 
     const diagnostics = await testHost.diagnose("./", { nostdlib: true });
-    expectDiagnostics(diagnostics, [
-      {
-        code: "ambiguous-symbol",
-        message:
-          '"M" is an ambiguous name between global.M, B.M. Try using fully qualified name instead: global.M, B.M',
-      },
-    ]);
+    expectDiagnostics(
+      diagnostics.filter((d) => d.code !== "unnecessary"),
+      [
+        {
+          code: "ambiguous-symbol",
+          message:
+            '"M" is an ambiguous name between global.M, B.M. Try using fully qualified name instead: global.M, B.M',
+        },
+      ],
+    );
   });
 
   it("reports ambiguous symbol for decorator", async () => {
@@ -380,12 +469,15 @@ describe("compiler: using statements", () => {
     });
 
     const diagnostics = await testHost.diagnose("./");
-    expectDiagnostics(diagnostics, [
-      {
-        code: "ambiguous-symbol",
-        message: `"doc" is an ambiguous name between TypeSpec.doc, Test.A.doc. Try using fully qualified name instead: TypeSpec.doc, Test.A.doc`,
-      },
-    ]);
+    expectDiagnostics(
+      diagnostics.filter((d) => d.code !== "unnecessary"),
+      [
+        {
+          code: "ambiguous-symbol",
+          message: `"doc" is an ambiguous name between TypeSpec.doc, Test.A.doc. Try using fully qualified name instead: TypeSpec.doc, Test.A.doc`,
+        },
+      ],
+    );
   });
 
   it("reports ambiguous symbol for decorator with missing implementation", async () => {
@@ -406,13 +498,16 @@ describe("compiler: using statements", () => {
     );
 
     const diagnostics = await testHost.diagnose("./");
-    expectDiagnostics(diagnostics, [
-      {
-        code: "ambiguous-symbol",
-        message: `"doc" is an ambiguous name between TypeSpec.doc, Test.A.doc. Try using fully qualified name instead: TypeSpec.doc, Test.A.doc`,
-      },
-      { code: "missing-implementation" },
-    ]);
+    expectDiagnostics(
+      diagnostics.filter((d) => d.code !== "unnecessary"),
+      [
+        {
+          code: "ambiguous-symbol",
+          message: `"doc" is an ambiguous name between TypeSpec.doc, Test.A.doc. Try using fully qualified name instead: TypeSpec.doc, Test.A.doc`,
+        },
+        { code: "missing-implementation" },
+      ],
+    );
   });
 
   it("ambiguous use doesn't affect other files", async () => {
@@ -456,14 +551,17 @@ describe("compiler: using statements", () => {
       `,
     );
     const diagnostics = await testHost.diagnose("./");
-    expectDiagnostics(diagnostics, [
-      {
-        code: "ambiguous-symbol",
-        message:
-          '"A" is an ambiguous name between N.A, M.A. Try using fully qualified name instead: N.A, M.A',
-        file: /ambiguous\.tsp$/,
-      },
-    ]);
+    expectDiagnostics(
+      diagnostics.filter((d) => d.code !== "unnecessary"),
+      [
+        {
+          code: "ambiguous-symbol",
+          message:
+            '"A" is an ambiguous name between N.A, M.A. Try using fully qualified name instead: N.A, M.A',
+          file: /ambiguous\.tsp$/,
+        },
+      ],
+    );
   });
 
   it("resolves 'local' decls over usings", async () => {
@@ -493,11 +591,29 @@ describe("compiler: using statements", () => {
       `,
     );
 
-    const { B } = (await testHost.compile("./")) as {
+    const [result, diags] = await testHost.compileAndDiagnose("./");
+    const { B } = result as {
       B: Model;
     };
     strictEqual(B.properties.size, 1);
     strictEqual(B.properties.get("a")!.type.kind, "Union");
+    expectDiagnostics(diags, [
+      {
+        code: "unnecessary",
+        message: 'Unnecessary code: import "./a.tsp"',
+        severity: "hint",
+      },
+      {
+        code: "unnecessary",
+        message: 'Unnecessary code: import "./b.tsp"',
+        severity: "hint",
+      },
+      {
+        code: "unnecessary",
+        message: "Unnecessary code: using N",
+        severity: "hint",
+      },
+    ]);
   });
 
   it("usings are local to a file", async () => {
@@ -585,10 +701,17 @@ describe("emit diagnostics", () => {
     const diagnostics = await diagnose(`
       using NotDefined;
     `);
-    expectDiagnostics(diagnostics, {
-      code: "invalid-ref",
-      message: "Unknown identifier NotDefined",
-    });
+    expectDiagnostics(diagnostics, [
+      {
+        code: "invalid-ref",
+        message: "Unknown identifier NotDefined",
+      },
+      {
+        code: "unnecessary",
+        message: "Unnecessary code: using NotDefined",
+        severity: "hint",
+      },
+    ]);
   });
 
   describe("when using non-namespace types", () => {
@@ -605,10 +728,17 @@ describe("emit diagnostics", () => {
           using Target;
           ${code}
         `);
-        expectDiagnostics(diagnostics, {
-          code: "using-invalid-ref",
-          message: "Using must refer to a namespace",
-        });
+        expectDiagnostics(diagnostics, [
+          {
+            code: "using-invalid-ref",
+            message: "Using must refer to a namespace",
+          },
+          {
+            code: "unnecessary",
+            message: "Unnecessary code: using Target",
+            severity: "hint",
+          },
+        ]);
       });
     });
   });

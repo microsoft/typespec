@@ -91,6 +91,9 @@ describe("compiler: namespaces with blocks", () => {
       import "./a.tsp";
       import "./b.tsp";
       import "./c.tsp";
+
+      using N;
+      alias A = X | Y | Z;
       `,
     );
     testHost.addTypeSpecFile(
@@ -131,6 +134,9 @@ describe("compiler: namespaces with blocks", () => {
       import "./a.tsp";
       import "./b.tsp";
       import "./c.tsp";
+      model M {
+        ...N.Z;
+      }
       `,
     );
     testHost.addTypeSpecFile(
@@ -276,6 +282,8 @@ describe("compiler: namespaces with blocks", () => {
       import "./a.tsp";
       import "./b.tsp";
       import "./c.tsp";
+
+      alias fooOp = foo.foo;
       `,
     );
     testHost.addTypeSpecFile(
@@ -360,6 +368,7 @@ describe("compiler: blockless namespaces", () => {
       import "./a.tsp";
       import "./b.tsp";
       import "./c.tsp";
+      alias foo = Z;
       `,
     );
     testHost.addTypeSpecFile(
@@ -482,6 +491,7 @@ describe("compiler: blockless namespaces", () => {
       `
       import "./a.tsp";
       import "./b.tsp";
+      alias foo = X;
       `,
     );
     testHost.addTypeSpecFile(
@@ -701,6 +711,11 @@ describe("compiler: decorators in namespaces", () => {
       {
         code: "invalid-ref",
         message: /A\.B\.A\.B/,
+      },
+      {
+        code: "unnecessary",
+        message: `Unnecessary code: import "./other.tsp"`,
+        severity: "hint",
       },
     ]);
   });

@@ -194,6 +194,9 @@ export function createResolver(program: Program): NameResolver {
    */
   const nodesWithSymResolvedThroughUsing = new Set<IdentifierNode>();
   /**
+   * Tracking the nodes whose symbol is resolved through namespace exports
+   */
+  const nodesWithSymResolvedThroughNamespace = new Set<IdentifierNode>(); /**
    * Tracking the symbols that are used through using.
    */
   const usedUsingSym = new Map<TypeSpecScriptNode, Set<Sym>>();
@@ -348,7 +351,7 @@ export function createResolver(program: Program): NameResolver {
           if (fromReachable === "reachable") {
             reachability.set(file, "reachable");
             return "reachable";
-          } else {
+          } else if (fromReachable !== undefined) {
             // cur should be "unreachable" when from is "unreachable" or "unreachable-root"
             result = "unreachable";
           }
@@ -371,14 +374,14 @@ export function createResolver(program: Program): NameResolver {
     }
 
     function updateForUnreachableRoot(file: SourceFile) {
-      const visited = new Set<SourceFile>();
+      const inQueue = new Set<SourceFile>();
       const re = reachability.get(file);
       if (re !== "unreachable-root") {
         return;
       }
       type QueueItem = { file: SourceFile; parentIndex: number };
       const queue: QueueItem[] = [{ file, parentIndex: -1 }];
-      visited.add(file);
+      inQueue.add(file);
       let pos = 0;
       let cur: QueueItem | undefined = undefined;
       while (pos < queue.length) {
@@ -396,8 +399,8 @@ export function createResolver(program: Program): NameResolver {
             for (const importedFrom of lc.importedBy ?? []) {
               if (importedFrom === NoTarget) {
                 break;
-              } else if (importedFrom.parent && !visited.has(importedFrom.parent)) {
-                visited.add(importedFrom.parent);
+              } else if (importedFrom.parent && !inQueue.has(importedFrom.parent)) {
+                inQueue.add(importedFrom.parent);
                 queue.push({ file: importedFrom.parent, parentIndex: pos });
               }
             }
@@ -412,7 +415,7 @@ export function createResolver(program: Program): NameResolver {
           pos = queue[pos].parentIndex;
         }
       } else {
-        compilerAssert(false, "It's not expected that a file can't be reached from the entrypoint");
+        compilerAssert(false, "It's not expected that a file can't be reached");
       }
     }
   }
@@ -446,7 +449,7 @@ export function createResolver(program: Program): NameResolver {
   }
 
   /**
-   * Get the dependencies because of node in one file references the node in another file
+   * Get the dependencies because node in one file references the sym(node) in another file
    * Please be aware that "import" is not counted here
    */
   function getSourceFileSymDependencies(): Map<
@@ -458,24 +461,43 @@ export function createResolver(program: Program): NameResolver {
       Set<TypeSpecScriptNode | JsSourceFileNode>
     >();
 
-    foreachProjectFile(nodesWithSymResolvedThroughGlobal, (s, sym) => {
-      // there may be multiple declarations. i.e. for Decorator/Function, it may have one declaration and one implementation
-      for (const decl of sym.declarations) {
-        const t = getSourceFile(decl);
-        if (!t || s === t) continue;
-        dependencies.get(s)?.add(t) ?? dependencies.set(s, new Set([t]));
-      }
+    foreachProjectFile(
+      [...nodesWithSymResolvedThroughGlobal, ...nodesWithSymResolvedThroughNamespace],
+      (s, sym) => {
+        // there may be multiple declarations. i.e. for Decorator/Function, it may have one declaration and one implementation
+        for (const decl of sym.declarations) {
+          const t = getSourceFile(decl);
+          if (!t || s === t) continue;
+          dependencies.get(s)?.add(t) ?? dependencies.set(s, new Set([t]));
+        }
+      },
+    );
+
+    augmentDecoratorsForSym.forEach((decorators, sym) => {
+      // Add the dependency from the augment decorator target to the augment decorator
+      sym.declarations.forEach((decl) => {
+        const s = getSourceFile(decl);
+        if (!s) return;
+        decorators.forEach((decorator) => {
+          const t = getSourceFile(decorator);
+          if (!t) return;
+          dependencies.get(s)?.add(t) ?? dependencies.set(s, new Set([t]));
+        });
+      });
     });
 
     foreachProjectFile(nodesWithSymResolvedThroughUsing, (s, sym) => {
       // for using statement, if it's used somewhere, the dependency should have been handled by the usage. otherwise
-      //   1. if any of the using target files has already been included in the dependency, then do nothing
-      //   2. if none of the using target files has been included in the dependency
-      //      a. if any of these file is from compiler or synthetic, then do nothing
-      //      b. if all of these files are from project or library, then add the file of the first declaration into the dependency to make sure
+      //   1. if any of the using target files have already been included in the dependency, then no extra work needed
+      //   2. if none of the using target files have been included in the dependency
+      //      a. if any of these file is from compiler or synthetic, then no extra work needed
+      //      b. if all of these files are from project or library, then add the file of one declaration into the dependency to make sure
       //         we won't suggest removing the imports which would cause compiler error for the using statement
-      //         (i.e. import "./a.tsp"; using A; // we need to make sure 'import "./a.tsp"' won't be marked as unnecessary because it's needed by 'using A' even when using A is not used anywhere)
-      // But please be aware that this is not enough to determine whether a using is needed or not because even there is file dependency, it may be for other reasons
+      //         (i.e. for
+      //               import "./a.tsp";  // defines the A namespace
+      //               using A; // which is not used anywhere
+      //          we need to make sure 'import "./a.tsp"' won't be marked as unnecessary because it's needed by 'using A' even when using A is not used anywhere)
+      // Also please be aware that this is not enough to determine whether a using is needed or not because even there is file dependency, it may be for other reasons
       // We still need to compare the symbol in locals to determine the usage, refer to getUnusedUsings() for details
       let extraDep: TypeSpecScriptNode | JsSourceFileNode | undefined;
       for (const decl of sym.declarations) {
@@ -499,16 +521,8 @@ export function createResolver(program: Program): NameResolver {
 
     return dependencies;
 
-    function getSourceFile(node: Node): TypeSpecScriptNode | JsSourceFileNode | undefined {
-      return getFirstAncestor(
-        node,
-        (n) => n.kind === SyntaxKind.TypeSpecScript || n.kind === SyntaxKind.JsSourceFile,
-        true,
-      ) as TypeSpecScriptNode | JsSourceFileNode | undefined;
-    }
-
     function foreachProjectFile(
-      nodes: Set<IdentifierNode | MemberExpressionNode | TypeReferenceNode>,
+      nodes: Iterable<IdentifierNode>,
       callback: (node: TypeSpecScriptNode | JsSourceFileNode, sym: Sym) => void,
     ) {
       for (const node of nodes) {
@@ -523,6 +537,14 @@ export function createResolver(program: Program): NameResolver {
           }
         }
       }
+    }
+
+    function getSourceFile(node: Node): TypeSpecScriptNode | JsSourceFileNode | undefined {
+      return getFirstAncestor(
+        node,
+        (n) => n.kind === SyntaxKind.TypeSpecScript || n.kind === SyntaxKind.JsSourceFile,
+        true,
+      ) as TypeSpecScriptNode | JsSourceFileNode | undefined;
     }
   }
 
@@ -680,6 +702,9 @@ export function createResolver(program: Program): NameResolver {
     node: MemberExpressionNode,
     options: ResolveTypReferenceOptions,
   ): ResolutionResult {
+    if (node.id.sv === "X") {
+      console.log("X");
+    }
     const baseResult = resolveTypeReference(node.base, {
       ...options,
       resolveDecorators: false, // When resolving the base it can never be a decorator
@@ -1276,11 +1301,20 @@ export function createResolver(program: Program): NameResolver {
     let scope: Node | undefined = node.parent;
     let binding: Sym | undefined;
 
+    if (node.sv === "foo") {
+      console.log("foo");
+    }
     while (scope && scope.kind !== SyntaxKind.TypeSpecScript) {
       if (scope.symbol && scope.symbol.flags & SymbolFlags.ExportContainer) {
         const mergedSymbol = getMergedSymbol(scope.symbol);
         binding = tableLookup(mergedSymbol.exports!, node, options.resolveDecorators);
-        if (binding) return resolvedResult(binding);
+        if (binding) {
+          if (binding.flags & SymbolFlags.Namespace) {
+            const target = getResolvingTargetNode(node);
+            nodesWithSymResolvedThroughNamespace.add(target);
+          }
+          return resolvedResult(binding);
+        }
       }
 
       if ("locals" in scope && scope.locals !== undefined) {
@@ -1323,11 +1357,11 @@ export function createResolver(program: Program): NameResolver {
       const usingBinding = tableLookup(scope.locals, node, options.resolveDecorators);
 
       if (globalBinding && usingBinding) {
-        const target = getResolvingTargetNodeForGlobalBinding(node);
+        const target = getResolvingTargetNode(node);
         nodesWithSymResolvedThroughGlobal.add(target);
         return ambiguousResult([globalBinding, usingBinding]);
       } else if (globalBinding) {
-        const target = getResolvingTargetNodeForGlobalBinding(node);
+        const target = getResolvingTargetNode(node);
         nodesWithSymResolvedThroughGlobal.add(target);
         return resolvedResult(globalBinding);
       } else if (usingBinding) {
@@ -1351,7 +1385,7 @@ export function createResolver(program: Program): NameResolver {
     /**
      * Get the target node that is being resolved which is the source of the reference
      */
-    function getResolvingTargetNodeForGlobalBinding(id: IdentifierNode): IdentifierNode {
+    function getResolvingTargetNode(id: IdentifierNode): IdentifierNode {
       if (id.parent && id.parent.kind === SyntaxKind.MemberExpression) {
         let cur = id.parent;
         while (cur.parent && cur.parent.kind === SyntaxKind.MemberExpression) {

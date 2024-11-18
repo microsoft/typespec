@@ -862,7 +862,6 @@ describe("compiler: models", () => {
       testHost.addTypeSpecFile(
         "main.tsp",
         `
-        import "./dec.js";
         @test model A { x: int32 }
         model B extends A { y: string };
         @test model C is B { }
@@ -877,7 +876,6 @@ describe("compiler: models", () => {
       testHost.addTypeSpecFile(
         "main.tsp",
         `
-        import "./dec.js";
         @test model A is string[];
         `,
       );
@@ -889,7 +887,6 @@ describe("compiler: models", () => {
       testHost.addTypeSpecFile(
         "main.tsp",
         `
-        import "./dec.js";
         @test model A is (string | int32)[];
         `,
       );
@@ -934,7 +931,6 @@ describe("compiler: models", () => {
       testHost.addTypeSpecFile(
         "main.tsp",
         `
-        import "./dec.js";
         model A { x: int32 }
         model B is A { x: int32 };
         `,

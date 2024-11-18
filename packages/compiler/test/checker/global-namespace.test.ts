@@ -1,7 +1,7 @@
 import assert, { notStrictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { Model } from "../../src/core/types.js";
-import { TestHost, createTestHost } from "../../src/testing/index.js";
+import { TestHost, createTestHost, expectDiagnostics } from "../../src/testing/index.js";
 
 describe("compiler: global namespace", () => {
   let testHost: TestHost;
@@ -63,7 +63,14 @@ describe("compiler: global namespace", () => {
     it("adds top-level namespaces", async () => {
       testHost.addTypeSpecFile("a.tsp", `namespace Foo {}`);
 
-      await testHost.compile("./");
+      const [_, diags] = await testHost.compileAndDiagnose("./");
+      expectDiagnostics(diags, [
+        {
+          code: "unnecessary",
+          message: `Unnecessary code: import "./a.tsp"`,
+          severity: "hint",
+        },
+      ]);
 
       const globalNamespaceType = testHost.program.checker.getGlobalNamespaceType();
       assert(
@@ -79,7 +86,14 @@ describe("compiler: global namespace", () => {
     it("adds top-level models", async () => {
       testHost.addTypeSpecFile("a.tsp", `model MyModel {}`);
 
-      await testHost.compile("./");
+      const [_, diags] = await testHost.compileAndDiagnose("./");
+      expectDiagnostics(diags, [
+        {
+          code: "unnecessary",
+          message: `Unnecessary code: import "./a.tsp"`,
+          severity: "hint",
+        },
+      ]);
 
       const globalNamespaceType = testHost.program.checker.getGlobalNamespaceType();
       assert(
@@ -91,7 +105,14 @@ describe("compiler: global namespace", () => {
     it("adds top-level operations", async () => {
       testHost.addTypeSpecFile("a.tsp", `op myOperation(): string;`);
 
-      await testHost.compile("./");
+      const [_, diags] = await testHost.compileAndDiagnose("./");
+      expectDiagnostics(diags, [
+        {
+          code: "unnecessary",
+          message: `Unnecessary code: import "./a.tsp"`,
+          severity: "hint",
+        },
+      ]);
 
       const globalNamespaceType = testHost.program.checker.getGlobalNamespaceType();
       assert(

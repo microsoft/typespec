@@ -688,4 +688,102 @@ describe("compiler: unused imports", () => {
     const diagnostics = await host.diagnose("main.tsp");
     expectDiagnosticEmpty(diagnostics);
   });
+
+  it("import in circle won't cause problem. Main -> a.tsp <-> b.tsp -> b2.tsp -> b.tsp, Main -> c.tsp -> d.tsp -> e.tsp -> c.tsp & b.tsp", async () => {
+    host.addJsFile("blue.js", { $blue() {} });
+    host.addTypeSpecFile(
+      "main.tsp",
+      `
+      import "./a.tsp";
+      import "./c.tsp";
+      model BEx {...B2, ...B2Alias}
+      `,
+    );
+    host.addTypeSpecFile(
+      "a.tsp",
+      `
+      import "./b.tsp";
+      `,
+    );
+    host.addTypeSpecFile(
+      "b.tsp",
+      `
+      import "./b2.tsp";
+      import "./a.tsp";
+      model B {}
+      `,
+    );
+    host.addTypeSpecFile(
+      "b2.tsp",
+      `
+      import "./b.tsp";
+      model B2 {}
+      `,
+    );
+    host.addTypeSpecFile(
+      "c.tsp",
+      `
+      import "./d.tsp";
+      `,
+    );
+    host.addTypeSpecFile(
+      "d.tsp",
+      `
+      import "./e.tsp";
+      `,
+    );
+    host.addTypeSpecFile(
+      "e.tsp",
+      `
+      import "./b.tsp";
+      import "./c.tsp";
+      
+      alias B2Alias = B2;
+      `,
+    );
+
+    const diagnostics = await host.diagnose("main.tsp");
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  it("import from cli won't be counted as not needed", async () => {
+    host.addJsFile("blue.js", { $blue() {} });
+    host.addTypeSpecFile(
+      "main.tsp",
+      `
+        model Main {}
+      `,
+    );
+    host.addTypeSpecFile(
+      "a.tsp",
+      `
+        import "./b.tsp";
+        model A extends B {}
+      `,
+    );
+    host.addTypeSpecFile(
+      "b.tsp",
+      `
+        import "./c.tsp";
+        model B {}
+      `,
+    );
+    host.addTypeSpecFile(
+      "c.tsp",
+      `
+        model C {}
+      `,
+    );
+
+    const [_, diagnostics] = await host.compileAndDiagnose("main.tsp", {
+      additionalImports: ["./a.tsp"],
+    });
+    expectDiagnostics(diagnostics, [
+      {
+        code: "unnecessary",
+        message: `Unnecessary code: import "./c.tsp"`,
+        severity: "hint",
+      },
+    ]);
+  });
 });
