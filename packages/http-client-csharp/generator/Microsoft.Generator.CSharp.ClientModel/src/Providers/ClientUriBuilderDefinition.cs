@@ -290,7 +290,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private readonly CSharpType _t = typeof(IEnumerable<>).GetGenericArguments()[0];
 
-        private MethodProvider BuildAppendDelimitedMethod(string delimitedMethodName, string methodName, bool hasName = true)
+        private MethodProvider BuildAppendDelimitedMethod(string appendDelimitedMethodName, string appendMethodName, bool hasName = true)
         {
             var nameParameter = new ParameterProvider("name", $"The name.", typeof(string));
             var valueParameter =
@@ -304,7 +304,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 : new[] { valueParameter, delimiterParameter, formatParameter, escapeParameter };
 
             var signature = new MethodSignature(
-                Name: delimitedMethodName,
+                Name: appendDelimitedMethodName,
                 Modifiers: MethodSignatureModifiers.Public,
                 Parameters: parameters,
                 ReturnType: null,
@@ -321,10 +321,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 delimiterParameter.Assign(Literal(","), true).Terminate(),
                 Declare("stringValues", value.Select(selector), out var stringValues),
                 hasName ? new InvokeMethodExpression(
-                            null, methodName,
+                            null, appendMethodName,
                         [nameParameter, StringSnippets.Join(delimiterParameter, stringValues), escapeParameter])
                         .Terminate()
-                    : new InvokeMethodExpression(null, methodName, [StringSnippets.Join(delimiterParameter, stringValues), escapeParameter])
+                    : new InvokeMethodExpression(null, appendMethodName, [StringSnippets.Join(delimiterParameter, stringValues), escapeParameter])
                     .Terminate()
             };
             return new(signature, body, this);
