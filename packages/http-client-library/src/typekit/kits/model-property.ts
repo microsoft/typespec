@@ -60,7 +60,8 @@ defineKit<TypeKit>({
     },
     isOnClient(client, modelProperty) {
       const clientParams = $.operation.getClientSignature(client, $.client.getConstructor(client));
-      return Boolean(clientParams.find((p) => p === modelProperty));
+      // TODO: better comparison than name
+      return Boolean(clientParams.find((p) => p.name === modelProperty.name));
     },
     getClientDefaultValue(client, modelProperty) {
       if (!$.modelProperty.isOnClient(client, modelProperty)) return undefined;
