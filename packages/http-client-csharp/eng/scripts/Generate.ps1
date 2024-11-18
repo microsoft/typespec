@@ -52,7 +52,6 @@ $failingSpecs = @(
     Join-Path 'http' 'payload' 'json-merge-patch'
     Join-Path 'http' 'payload' 'pageable'
     Join-Path 'http' 'resiliency' 'srv-driven'
-    Join-Path 'http' 'routes'
     Join-Path 'http' 'special-headers' 'conditional-request'
     Join-Path 'http' 'type' 'model' 'flatten'
     Join-Path 'http' 'type' 'model' 'templated'
