@@ -9,6 +9,7 @@
     "versioning.removed.RemovedClient.v2WithResponse": "Versioning.Removed.v2",
     "versioning.removed.RemovedClientBuilder": "Versioning.Removed",
     "versioning.removed.models.EnumV2": "Versioning.Removed.EnumV2",
-    "versioning.removed.models.ModelV2": "Versioning.Removed.ModelV2"
+    "versioning.removed.models.ModelV2": "Versioning.Removed.ModelV2",
+    "versioning.removed.models.Versions": "Versioning.Removed.Versions"
   }
 }

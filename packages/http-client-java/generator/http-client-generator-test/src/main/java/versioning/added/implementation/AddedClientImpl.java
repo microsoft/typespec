@@ -32,6 +32,7 @@ import com.azure.core.util.serializer.JacksonAdapter;
 import com.azure.core.util.serializer.SerializerAdapter;
 import reactor.core.publisher.Mono;
 import versioning.added.AddedServiceVersion;
+import versioning.added.models.Versions;
 
 /**
  * Initializes a new instance of the AddedClient type.
@@ -59,14 +60,14 @@ public final class AddedClientImpl {
     /**
      * Need to be set as 'v1' or 'v2' in client.
      */
-    private final String version;
+    private final Versions version;
 
     /**
      * Gets Need to be set as 'v1' or 'v2' in client.
      * 
      * @return the version value.
      */
-    public String getVersion() {
+    public Versions getVersion() {
         return this.version;
     }
 
@@ -133,7 +134,7 @@ public final class AddedClientImpl {
      * @param version Need to be set as 'v1' or 'v2' in client.
      * @param serviceVersion Service version.
      */
-    public AddedClientImpl(String endpoint, String version, AddedServiceVersion serviceVersion) {
+    public AddedClientImpl(String endpoint, Versions version, AddedServiceVersion serviceVersion) {
         this(new HttpPipelineBuilder().policies(new UserAgentPolicy(), new RetryPolicy()).build(),
             JacksonAdapter.createDefaultSerializerAdapter(), endpoint, version, serviceVersion);
     }
@@ -146,7 +147,7 @@ public final class AddedClientImpl {
      * @param version Need to be set as 'v1' or 'v2' in client.
      * @param serviceVersion Service version.
      */
-    public AddedClientImpl(HttpPipeline httpPipeline, String endpoint, String version,
+    public AddedClientImpl(HttpPipeline httpPipeline, String endpoint, Versions version,
         AddedServiceVersion serviceVersion) {
         this(httpPipeline, JacksonAdapter.createDefaultSerializerAdapter(), endpoint, version, serviceVersion);
     }
@@ -161,7 +162,7 @@ public final class AddedClientImpl {
      * @param serviceVersion Service version.
      */
     public AddedClientImpl(HttpPipeline httpPipeline, SerializerAdapter serializerAdapter, String endpoint,
-        String version, AddedServiceVersion serviceVersion) {
+        Versions version, AddedServiceVersion serviceVersion) {
         this.httpPipeline = httpPipeline;
         this.serializerAdapter = serializerAdapter;
         this.endpoint = endpoint;
@@ -183,7 +184,7 @@ public final class AddedClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Mono<Response<BinaryData>> v1(@HostParam("endpoint") String endpoint, @HostParam("version") String version,
+        Mono<Response<BinaryData>> v1(@HostParam("endpoint") String endpoint, @HostParam("version") Versions version,
             @HeaderParam("header-v2") String headerV2, @HeaderParam("Content-Type") String contentType,
             @HeaderParam("Accept") String accept, @BodyParam("application/json") BinaryData body,
             RequestOptions requestOptions, Context context);
@@ -194,7 +195,7 @@ public final class AddedClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Response<BinaryData> v1Sync(@HostParam("endpoint") String endpoint, @HostParam("version") String version,
+        Response<BinaryData> v1Sync(@HostParam("endpoint") String endpoint, @HostParam("version") Versions version,
             @HeaderParam("header-v2") String headerV2, @HeaderParam("Content-Type") String contentType,
             @HeaderParam("Accept") String accept, @BodyParam("application/json") BinaryData body,
             RequestOptions requestOptions, Context context);
@@ -205,7 +206,7 @@ public final class AddedClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Mono<Response<BinaryData>> v2(@HostParam("endpoint") String endpoint, @HostParam("version") String version,
+        Mono<Response<BinaryData>> v2(@HostParam("endpoint") String endpoint, @HostParam("version") Versions version,
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
             @BodyParam("application/json") BinaryData body, RequestOptions requestOptions, Context context);
 
@@ -215,7 +216,7 @@ public final class AddedClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Response<BinaryData> v2Sync(@HostParam("endpoint") String endpoint, @HostParam("version") String version,
+        Response<BinaryData> v2Sync(@HostParam("endpoint") String endpoint, @HostParam("version") Versions version,
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
             @BodyParam("application/json") BinaryData body, RequestOptions requestOptions, Context context);
     }

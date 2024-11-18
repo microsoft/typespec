@@ -7,9 +7,12 @@ import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.OperationGroup;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Parameter;
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.mapper.ServiceClientMapper;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientAccessorMethod;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodGroupClient;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PipelinePolicyDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Proxy;
@@ -116,5 +119,12 @@ public class TypeSpecServiceClientMapper extends ServiceClientMapper {
             builder
                 .pipelinePolicyDetails(new PipelinePolicyDetails().setRequestIdHeaderName(clientRequestIdHeaderName));
         }
+    }
+
+    @Override
+    protected boolean isRemoveModelFromParameter(Parameter parameter, IType type) {
+        boolean isEnumType = type instanceof EnumType;
+        boolean isClientParameter = Parameter.ImplementationLocation.CLIENT.equals(parameter.getImplementation());
+        return super.isRemoveModelFromParameter(parameter, type) && !(isEnumType && isClientParameter);
     }
 }
