@@ -29,7 +29,7 @@ export interface SdkModelPropertyKit extends NameKit<ModelProperty>, AccessKit<M
   /**
    * Returns whether the model property is part of the client's initialization or not.
    */
-  isOnClient(modelProperty: ModelProperty): boolean;
+  isOnClient(client: Client, modelProperty: ModelProperty): boolean;
 
   /**
    * Returns whether the model property has a client default value or not.
@@ -53,26 +53,22 @@ declare module "@typespec/compiler/typekit" {
 
 defineKit<TypeKit>({
   modelProperty: {
-    isCredential(modelProperty) {
-      return modelProperty.name === "credential";
+    isCredential(client, modelProperty) {
+      return (
+        $.modelProperty.isOnClient(client, modelProperty) && modelProperty.name === "credential"
+      );
     },
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    isOnClient(modelProperty) {
-      return false;
+    isOnClient(client, modelProperty) {
+      const clientParams = $.operation.getClientSignature(client, $.client.getConstructor(client));
+      return Boolean(clientParams.find((p) => p === modelProperty));
     },
     getClientDefaultValue(client, modelProperty) {
-      const clientParams = $.operation.getClientSignature(client, $.client.getConstructor(client));
-      const clientParam = clientParams.find((p) => p.name === modelProperty.name);
-      if (clientParam) {
-        return clientParam.defaultValue;
-      }
-      return undefined;
+      if (!$.modelProperty.isOnClient(client, modelProperty)) return undefined;
+      return modelProperty.defaultValue;
     },
     getCredentialAuth(client, type) {
-      const clientConstructor = $.client.getConstructor(client);
-      const params = $.operation.getClientSignature(client, clientConstructor);
-      const isCredential = params.find((p) => p.name === "credential" && p === type);
-      if (!isCredential || type.type.kind !== "String") return undefined;
+      if (!$.modelProperty.isCredential(client, type) || type.type.kind !== "String")
+        return undefined;
       const scheme = type.type.value;
       return getAuthentication($.program, client.service)
         ?.options.flatMap((o) => o.schemes)
