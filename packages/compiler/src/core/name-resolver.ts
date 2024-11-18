@@ -261,7 +261,7 @@ export function createResolver(program: Program): NameResolver {
     notNeededFile.forEach((file) => {
       const lc = program.getSourceFileLocationContext(file.file);
       if (lc.type === "project" || (lc.type === "library" && notNeededLib.has(lc.metadata.name))) {
-        lc.importedBy?.forEach((target) => {
+        file.importedBy?.forEach((target) => {
           if (
             target !== NoTarget &&
             "kind" in target &&
@@ -339,7 +339,7 @@ export function createResolver(program: Program): NameResolver {
         return result;
       }
 
-      for (const importedFrom of lc.importedBy ?? []) {
+      for (const importedFrom of file.importedBy ?? []) {
         if (importedFrom === NoTarget) {
           reachability.set(file, "reachable");
           return "reachable";
@@ -396,7 +396,7 @@ export function createResolver(program: Program): NameResolver {
               "unexpected to reach here. other type file shouldn't be marked as unreachable-root",
             );
           } else {
-            for (const importedFrom of lc.importedBy ?? []) {
+            for (const importedFrom of cur.file.importedBy ?? []) {
               if (importedFrom === NoTarget) {
                 break;
               } else if (importedFrom.parent && !inQueue.has(importedFrom.parent)) {
@@ -441,7 +441,7 @@ export function createResolver(program: Program): NameResolver {
     program.sourceFiles.forEach((file) => {
       const lc = program.getSourceFileLocationContext(file.file);
       // entrypoint and import from argument/config is importedBy NoTarget
-      if (lc.type === "project" && lc.importedBy?.has(NoTarget)) {
+      if (lc.type === "project" && file.importedBy.indexOf(NoTarget) >= 0) {
         addNeeded(file);
       }
     });
@@ -702,9 +702,6 @@ export function createResolver(program: Program): NameResolver {
     node: MemberExpressionNode,
     options: ResolveTypReferenceOptions,
   ): ResolutionResult {
-    if (node.id.sv === "X") {
-      console.log("X");
-    }
     const baseResult = resolveTypeReference(node.base, {
       ...options,
       resolveDecorators: false, // When resolving the base it can never be a decorator
@@ -1301,9 +1298,6 @@ export function createResolver(program: Program): NameResolver {
     let scope: Node | undefined = node.parent;
     let binding: Sym | undefined;
 
-    if (node.sv === "foo") {
-      console.log("foo");
-    }
     while (scope && scope.kind !== SyntaxKind.TypeSpecScript) {
       if (scope.symbol && scope.symbol.flags & SymbolFlags.ExportContainer) {
         const mergedSymbol = getMergedSymbol(scope.symbol);
@@ -1343,7 +1337,13 @@ export function createResolver(program: Program): NameResolver {
         const mergedSymbol = getMergedSymbol(ns.symbol);
         binding = tableLookup(mergedSymbol.exports!, node, options.resolveDecorators);
 
-        if (binding) return resolvedResult(binding);
+        if (binding) {
+          if (binding.flags & SymbolFlags.Namespace) {
+            const target = getResolvingTargetNode(node);
+            nodesWithSymResolvedThroughNamespace.add(target);
+          }
+          return resolvedResult(binding);
+        }
       }
 
       // check "global scope" declarations

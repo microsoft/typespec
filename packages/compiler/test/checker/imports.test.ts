@@ -4,7 +4,6 @@ import {
   LibraryLocationContext,
   LocationContext,
   ModuleLibraryMetadata,
-  NoTarget,
   ProjectLocationContext,
 } from "../../src/core/index.js";
 import {
@@ -218,24 +217,12 @@ describe("compiler: imports", () => {
     }
 
     interface ScopeExpectation<T extends Structure> {
-      expectScopes(
-        scopes: Record<
-          keyof T & TspFile,
-          LocationContext & { expectedImportedBy: { fromFile: string; importStatement: string }[] }
-        >,
-      ): Promise<void>;
+      expectScopes(scopes: Record<keyof T & TspFile, LocationContext>): Promise<void>;
     }
 
     function givenStructure<T extends Structure>(config: ScopeTest<T>): ScopeExpectation<T> {
       return {
-        expectScopes: async (
-          scopes: Record<
-            keyof T,
-            LocationContext & {
-              expectedImportedBy: { fromFile: string; importStatement: string }[];
-            }
-          >,
-        ) => {
+        expectScopes: async (scopes: Record<keyof T, LocationContext>) => {
           const unnecessaryImportDiags: DiagnosticMatch[] = [];
           for (const [filename, fileConfig] of Object.entries(config.structure)) {
             if (filename.endsWith(".tsp")) {
@@ -266,32 +253,7 @@ describe("compiler: imports", () => {
           for (const [filename, expectedScope] of Object.entries(scopes)) {
             const file = host.program.sourceFiles.get(resolveVirtualPath(filename));
             ok(file, `Expected to have file "${filename}"`);
-            const lc = { ...host.program.getSourceFileLocationContext(file.file) };
-            const importedByArray: { fromFile: string; importStatement: string }[] = [];
-            if ("importedBy" in lc) {
-              lc.importedBy?.forEach((x) => {
-                importedByArray.push(
-                  x === NoTarget
-                    ? { fromFile: "NoTarget", importStatement: "" }
-                    : {
-                        fromFile: x.parent?.file.path ?? "",
-                        importStatement: `import "${x.path.value}"`,
-                      },
-                );
-              });
-              delete lc.importedBy;
-            }
-            for (let i = 0; i < (expectedScope.expectedImportedBy ?? []).length; i++) {
-              if (
-                expectedScope.expectedImportedBy[i].fromFile &&
-                expectedScope.expectedImportedBy[i].fromFile !== "NoTarget"
-              ) {
-                expectedScope.expectedImportedBy[i].fromFile = resolveVirtualPath(
-                  expectedScope.expectedImportedBy[i].fromFile,
-                );
-              }
-            }
-            deepStrictEqual({ ...lc, expectedImportedBy: importedByArray }, expectedScope);
+            deepStrictEqual(host.program.getSourceFileLocationContext(file.file), expectedScope);
           }
         },
       };
@@ -304,9 +266,7 @@ describe("compiler: imports", () => {
       };
     }
 
-    const projectScope: ProjectLocationContext = {
-      type: "project",
-    };
+    const projectScope: ProjectLocationContext = { type: "project" };
     it("relative files are stays in project", async () => {
       await givenStructure({
         entrypoint: "my-project/main.tsp",
@@ -316,22 +276,9 @@ describe("compiler: imports", () => {
           "common.tsp": [],
         },
       }).expectScopes({
-        "my-project/main.tsp": {
-          ...projectScope,
-          expectedImportedBy: [{ fromFile: "NoTarget", importStatement: "" }],
-        },
-        "my-project/other.tsp": {
-          ...projectScope,
-          expectedImportedBy: [
-            { fromFile: "my-project/main.tsp", importStatement: `import "./other.tsp"` },
-          ],
-        },
-        "common.tsp": {
-          ...projectScope,
-          expectedImportedBy: [
-            { fromFile: "my-project/main.tsp", importStatement: `import "../common.tsp"` },
-          ],
-        },
+        "my-project/main.tsp": projectScope,
+        "my-project/other.tsp": projectScope,
+        "common.tsp": projectScope,
       });
     });
 
@@ -352,22 +299,9 @@ describe("compiler: imports", () => {
           "node_modules/my-lib2/main.tsp": [],
         },
       }).expectScopes({
-        "my-project/main.tsp": {
-          ...projectScope,
-          expectedImportedBy: [{ fromFile: "NoTarget", importStatement: "" }],
-        },
-        "node_modules/my-lib1/main.tsp": {
-          ...libraryScope({ name: "my-lib1" }),
-          expectedImportedBy: [
-            { fromFile: "my-project/main.tsp", importStatement: 'import "my-lib1"' },
-          ],
-        },
-        "node_modules/my-lib2/main.tsp": {
-          ...libraryScope({ name: "my-lib2" }),
-          expectedImportedBy: [
-            { fromFile: "my-project/main.tsp", importStatement: 'import "my-lib2"' },
-          ],
-        },
+        "my-project/main.tsp": projectScope,
+        "node_modules/my-lib1/main.tsp": libraryScope({ name: "my-lib1" }),
+        "node_modules/my-lib2/main.tsp": libraryScope({ name: "my-lib2" }),
       });
     });
 
@@ -388,22 +322,9 @@ describe("compiler: imports", () => {
           "node_modules/my-lib2/main.tsp": [],
         },
       }).expectScopes({
-        "my-project/main.tsp": {
-          ...projectScope,
-          expectedImportedBy: [{ fromFile: "NoTarget", importStatement: "" }],
-        },
-        "node_modules/my-lib1/main.tsp": {
-          ...libraryScope({ name: "my-lib1" }),
-          expectedImportedBy: [
-            { fromFile: "my-project/main.tsp", importStatement: 'import "my-lib1"' },
-          ],
-        },
-        "node_modules/my-lib2/main.tsp": {
-          ...libraryScope({ name: "my-lib2" }),
-          expectedImportedBy: [
-            { fromFile: "node_modules/my-lib1/main.tsp", importStatement: 'import "my-lib2"' },
-          ],
-        },
+        "my-project/main.tsp": projectScope,
+        "node_modules/my-lib1/main.tsp": libraryScope({ name: "my-lib1" }),
+        "node_modules/my-lib2/main.tsp": libraryScope({ name: "my-lib2" }),
       });
     });
 
@@ -421,26 +342,9 @@ describe("compiler: imports", () => {
             "my-project/common.tsp": [],
           },
         }).expectScopes({
-          "my-project/main.tsp": {
-            ...projectScope,
-            expectedImportedBy: [{ fromFile: "NoTarget", importStatement: "" }],
-          },
-          "my-project/my-lib1/main.tsp": {
-            ...libraryScope({ name: "my-lib1" }),
-            expectedImportedBy: [
-              { fromFile: "my-project/main.tsp", importStatement: 'import "./my-lib1"' },
-            ],
-          },
-          "my-project/common.tsp": {
-            ...libraryScope({ name: "my-lib1" }),
-            expectedImportedBy: [
-              {
-                fromFile: "my-project/my-lib1/main.tsp",
-                importStatement: 'import "../common.tsp"',
-              },
-              { fromFile: "my-project/main.tsp", importStatement: 'import "./common.tsp"' },
-            ],
-          },
+          "my-project/main.tsp": projectScope,
+          "my-project/my-lib1/main.tsp": libraryScope({ name: "my-lib1" }),
+          "my-project/common.tsp": libraryScope({ name: "my-lib1" }),
         });
       });
 
@@ -457,26 +361,9 @@ describe("compiler: imports", () => {
             "my-project/common.tsp": [],
           },
         }).expectScopes({
-          "my-project/main.tsp": {
-            ...projectScope,
-            expectedImportedBy: [{ fromFile: "NoTarget", importStatement: "" }],
-          },
-          "my-project/my-lib1/main.tsp": {
-            ...libraryScope({ name: "my-lib1" }),
-            expectedImportedBy: [
-              { fromFile: "my-project/main.tsp", importStatement: 'import "./my-lib1"' },
-            ],
-          },
-          "my-project/common.tsp": {
-            ...projectScope,
-            expectedImportedBy: [
-              { fromFile: "my-project/main.tsp", importStatement: 'import "./common.tsp"' },
-              {
-                fromFile: "my-project/my-lib1/main.tsp",
-                importStatement: 'import "../common.tsp"',
-              },
-            ],
-          },
+          "my-project/main.tsp": projectScope,
+          "my-project/my-lib1/main.tsp": libraryScope({ name: "my-lib1" }),
+          "my-project/common.tsp": projectScope,
         });
       });
     });

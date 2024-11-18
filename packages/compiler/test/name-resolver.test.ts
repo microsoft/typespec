@@ -1484,5 +1484,6 @@ function createJsSourceFile(exports: any): JsSourceFileNode {
     pos: 0,
     end: 0,
     flags: NodeFlags.None,
+    importedBy: [],
   };
 }

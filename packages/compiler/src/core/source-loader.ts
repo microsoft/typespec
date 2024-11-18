@@ -6,7 +6,7 @@ import {
   ResolveModuleHost,
 } from "../module-resolver/module-resolver.js";
 import { PackageJson } from "../types/package-json.js";
-import { deepEquals, doIO, mutate, resolveTspMain } from "../utils/misc.js";
+import { deepEquals, doIO, resolveTspMain } from "../utils/misc.js";
 import { compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
 import { resolveTypeSpecEntrypointForDir } from "./entrypoint-resolution.js";
 import { createDiagnostic } from "./messages.js";
@@ -133,7 +133,7 @@ export async function createSourceLoader(
       // it may be imported from a different file
       const file = sourceFiles.get(path);
       if (file) {
-        updateLocationContext(file.file, locationContext, diagnosticTarget);
+        updateImportedBy(file, diagnosticTarget);
       }
       return;
     }
@@ -144,8 +144,9 @@ export async function createSourceLoader(
     });
 
     if (file) {
-      updateLocationContext(file, locationContext, diagnosticTarget);
-      await loadTypeSpecScript(file);
+      sourceFileLocationContexts.set(file, locationContext);
+      const tss = await loadTypeSpecScript(file);
+      updateImportedBy(tss, diagnosticTarget);
     }
   }
 
@@ -293,17 +294,29 @@ export async function createSourceLoader(
   ) {
     const sourceFile = jsSourceFiles.get(path);
     if (sourceFile !== undefined) {
-      // the path may be imported from a different file, so we still need to update even when the sourceFile is already loaded.
-      updateLocationContext(sourceFile.file, locationContext, diagnosticTarget);
+      updateImportedBy(sourceFile, diagnosticTarget);
       return sourceFile;
     }
 
     const file = diagnostics.pipe(await loadJsFile(host, path, diagnosticTarget));
     if (file !== undefined) {
-      updateLocationContext(file.file, locationContext, diagnosticTarget);
+      sourceFileLocationContexts.set(file.file, locationContext);
+      updateImportedBy(file, diagnosticTarget);
       jsSourceFiles.set(path, file);
     }
     return file;
+  }
+
+  function updateImportedBy(
+    file: JsSourceFileNode | TypeSpecScriptNode,
+    target: DiagnosticTarget | typeof NoTarget,
+  ) {
+    if (
+      (target === NoTarget || ("kind" in target && target.kind === SyntaxKind.ImportStatement)) &&
+      !file.importedBy.includes(target)
+    ) {
+      file.importedBy.push(target);
+    }
   }
 
   function getResolveModuleHost(): ResolveModuleHost {
@@ -315,32 +328,6 @@ export async function createSourceLoader(
         return file.text;
       },
     };
-  }
-
-  function updateLocationContext(
-    file: SourceFile,
-    locationContext: LocationContext,
-    target: DiagnosticTarget | typeof NoTarget,
-  ) {
-    const found = sourceFileLocationContexts.get(file);
-    if (
-      found &&
-      (found.type === "project" || found.type === "library") &&
-      (target === NoTarget || ("kind" in target && target.kind === SyntaxKind.ImportStatement))
-    ) {
-      mutate(found).importedBy ??= new Set();
-      mutate(found.importedBy).add(target);
-    }
-    if (!found) {
-      const lc = { ...locationContext };
-      if (
-        (lc.type === "project" || lc.type === "library") &&
-        (target === NoTarget || ("kind" in target && target.kind === SyntaxKind.ImportStatement))
-      ) {
-        lc.importedBy = new Set([target]);
-      }
-      sourceFileLocationContexts.set(file, lc);
-    }
   }
 }
 
@@ -409,6 +396,7 @@ export async function loadJsFile(
     pos: 0,
     end: 0,
     flags: NodeFlags.None,
+    importedBy: [],
   };
   return [node, diagnostics];
 }
