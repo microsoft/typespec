@@ -294,7 +294,7 @@ export class CodeModelBuilder {
       } else {
         const schema = this.processSchema(arg.type, arg.name);
         this.trackSchemaUsage(schema, {
-          usage: [SchemaContext.Input, SchemaContext.Output /*SchemaContext.Public*/],
+          usage: [SchemaContext.Input, SchemaContext.Output, SchemaContext.Public],
         });
         parameter = new Parameter(arg.name, arg.doc ?? "", schema, {
           implementation: ImplementationLocation.Client,

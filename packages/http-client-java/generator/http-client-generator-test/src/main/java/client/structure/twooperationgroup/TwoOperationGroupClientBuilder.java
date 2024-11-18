@@ -4,6 +4,7 @@
 
 package client.structure.twooperationgroup;
 
+import client.structure.service.models.ClientType;
 import client.structure.twooperationgroup.implementation.TwoOperationGroupClientImpl;
 import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.ServiceClientBuilder;
@@ -195,7 +196,7 @@ public final class TwoOperationGroupClientBuilder implements HttpTrait<TwoOperat
      * Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.
      */
     @Generated
-    private String client;
+    private ClientType client;
 
     /**
      * Sets Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.
@@ -204,7 +205,7 @@ public final class TwoOperationGroupClientBuilder implements HttpTrait<TwoOperat
      * @return the TwoOperationGroupClientBuilder.
      */
     @Generated
-    public TwoOperationGroupClientBuilder client(String client) {
+    public TwoOperationGroupClientBuilder client(ClientType client) {
         this.client = client;
         return this;
     }

@@ -3,6 +3,7 @@
 
 package client.structure;
 
+import client.structure.service.models.ClientType;
 import client.structure.twooperationgroup.Group1Client;
 import client.structure.twooperationgroup.Group2Client;
 import client.structure.twooperationgroup.TwoOperationGroupClientBuilder;
@@ -11,10 +12,10 @@ import org.junit.jupiter.api.Test;
 public class OperationGroupClientTests {
 
     private final Group1Client client1 = new TwoOperationGroupClientBuilder().endpoint("http://localhost:3000")
-        .client("two-operation-group")
+        .client(ClientType.TWO_OPERATION_GROUP)
         .buildGroup1Client();
     private final Group2Client client2 = new TwoOperationGroupClientBuilder().endpoint("http://localhost:3000")
-        .client("two-operation-group")
+        .client(ClientType.TWO_OPERATION_GROUP)
         .buildGroup2Client();
 
     @Test

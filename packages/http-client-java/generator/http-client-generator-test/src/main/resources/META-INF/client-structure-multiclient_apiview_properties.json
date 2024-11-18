@@ -30,6 +30,7 @@
     "client.structure.multiclient.ClientBClient.renamedSixWithResponse": "Client.Structure.MultiClient.ClientB.renamedSix",
     "client.structure.multiclient.ClientBClient.renamedTwo": "Client.Structure.MultiClient.ClientB.renamedTwo",
     "client.structure.multiclient.ClientBClient.renamedTwoWithResponse": "Client.Structure.MultiClient.ClientB.renamedTwo",
-    "client.structure.multiclient.ClientBClientBuilder": "Client.Structure.MultiClient.ClientB"
+    "client.structure.multiclient.ClientBClientBuilder": "Client.Structure.MultiClient.ClientB",
+    "client.structure.service.models.ClientType": "Client.Structure.Service.ClientType"
   }
 }

@@ -8,6 +8,7 @@ package client.structure.twooperationgroup.generated;
 // If you wish to modify these files, please copy them out of the 'generated' package, and modify there.
 // See https://aka.ms/azsdk/dpg/java/tests for guide on adding a test.
 
+import client.structure.service.models.ClientType;
 import client.structure.twooperationgroup.Group1Client;
 import client.structure.twooperationgroup.Group2Client;
 import client.structure.twooperationgroup.TwoOperationGroupClientBuilder;
@@ -26,7 +27,7 @@ class TwoOperationGroupClientTestBase extends TestProxyTestBase {
     protected void beforeTest() {
         TwoOperationGroupClientBuilder group1Clientbuilder = new TwoOperationGroupClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
-            .client(Configuration.getGlobalConfiguration().get("CLIENT", "client"))
+            .client(ClientType.fromString(Configuration.getGlobalConfiguration().get("CLIENT", "client")))
             .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {
@@ -36,7 +37,7 @@ class TwoOperationGroupClientTestBase extends TestProxyTestBase {
 
         TwoOperationGroupClientBuilder group2Clientbuilder = new TwoOperationGroupClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
-            .client(Configuration.getGlobalConfiguration().get("CLIENT", "client"))
+            .client(ClientType.fromString(Configuration.getGlobalConfiguration().get("CLIENT", "client")))
             .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {

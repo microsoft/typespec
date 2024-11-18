@@ -1,6 +1,7 @@
 {
   "flavor": "Azure", 
   "CrossLanguageDefinitionId": {
+    "client.structure.service.models.ClientType": "Client.Structure.Service.ClientType",
     "client.structure.twooperationgroup.Group1AsyncClient": "null",
     "client.structure.twooperationgroup.Group1AsyncClient.four": "Client.Structure.TwoOperationGroup.Group1.four",
     "client.structure.twooperationgroup.Group1AsyncClient.fourWithResponse": "Client.Structure.TwoOperationGroup.Group1.four",

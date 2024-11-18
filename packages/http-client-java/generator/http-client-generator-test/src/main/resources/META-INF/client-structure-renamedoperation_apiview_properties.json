@@ -29,6 +29,7 @@
     "client.structure.renamedoperation.RenamedOperationClient.renamedOneWithResponse": "Client.Structure.RenamedOperation.renamedOne",
     "client.structure.renamedoperation.RenamedOperationClient.renamedThree": "Client.Structure.RenamedOperation.renamedThree",
     "client.structure.renamedoperation.RenamedOperationClient.renamedThreeWithResponse": "Client.Structure.RenamedOperation.renamedThree",
-    "client.structure.renamedoperation.RenamedOperationClientBuilder": "Client.Structure.RenamedOperation"
+    "client.structure.renamedoperation.RenamedOperationClientBuilder": "Client.Structure.RenamedOperation",
+    "client.structure.service.models.ClientType": "Client.Structure.Service.ClientType"
   }
 }

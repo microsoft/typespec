@@ -96,11 +96,8 @@ namespace Microsoft.Generator.CSharp.Providers
                             binaryDataParam = constructor.Signature.Parameters
                                 .FirstOrDefault(p => p?.Type.Equals(typeof(IDictionary<string, BinaryData>)) == true, binaryDataParam);
 
-                            if (customCtorParamCount > fullCtorParamCount)
-                            {
-                                fullConstructor = constructor;
-                                break;
-                            }
+                            fullConstructor = constructor;
+                            break;
                         }
                     }
                 }

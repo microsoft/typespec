@@ -36,6 +36,7 @@
     "client.structure.clientoperationgroup.Group4AsyncClient.fourWithResponse": "Client.Structure.ClientOperationGroup.Group4.four",
     "client.structure.clientoperationgroup.Group4Client": "null",
     "client.structure.clientoperationgroup.Group4Client.four": "Client.Structure.ClientOperationGroup.Group4.four",
-    "client.structure.clientoperationgroup.Group4Client.fourWithResponse": "Client.Structure.ClientOperationGroup.Group4.four"
+    "client.structure.clientoperationgroup.Group4Client.fourWithResponse": "Client.Structure.ClientOperationGroup.Group4.four",
+    "client.structure.service.models.ClientType": "Client.Structure.Service.ClientType"
   }
 }

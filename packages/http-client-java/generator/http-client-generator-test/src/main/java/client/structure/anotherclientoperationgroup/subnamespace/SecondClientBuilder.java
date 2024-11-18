@@ -5,6 +5,7 @@
 package client.structure.anotherclientoperationgroup.subnamespace;
 
 import client.structure.clientoperationgroup.implementation.SecondClientImpl;
+import client.structure.service.models.ClientType;
 import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.ServiceClientBuilder;
 import com.azure.core.client.traits.ConfigurationTrait;
@@ -195,7 +196,7 @@ public final class SecondClientBuilder implements HttpTrait<SecondClientBuilder>
      * Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.
      */
     @Generated
-    private String client;
+    private ClientType client;
 
     /**
      * Sets Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.
@@ -204,7 +205,7 @@ public final class SecondClientBuilder implements HttpTrait<SecondClientBuilder>
      * @return the SecondClientBuilder.
      */
     @Generated
-    public SecondClientBuilder client(String client) {
+    public SecondClientBuilder client(ClientType client) {
         this.client = client;
         return this;
     }

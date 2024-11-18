@@ -12,6 +12,7 @@ import client.structure.multiclient.ClientAClient;
 import client.structure.multiclient.ClientAClientBuilder;
 import client.structure.multiclient.ClientBClient;
 import client.structure.multiclient.ClientBClientBuilder;
+import client.structure.service.models.ClientType;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.test.TestMode;
@@ -27,7 +28,7 @@ class ClientAClientTestBase extends TestProxyTestBase {
     protected void beforeTest() {
         ClientAClientBuilder clientAClientbuilder
             = new ClientAClientBuilder().endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
-                .client(Configuration.getGlobalConfiguration().get("CLIENT", "client"))
+                .client(ClientType.fromString(Configuration.getGlobalConfiguration().get("CLIENT", "client")))
                 .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
                 .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {
@@ -37,7 +38,7 @@ class ClientAClientTestBase extends TestProxyTestBase {
 
         ClientBClientBuilder clientBClientbuilder
             = new ClientBClientBuilder().endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
-                .client(Configuration.getGlobalConfiguration().get("CLIENT", "client"))
+                .client(ClientType.fromString(Configuration.getGlobalConfiguration().get("CLIENT", "client")))
                 .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
                 .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {

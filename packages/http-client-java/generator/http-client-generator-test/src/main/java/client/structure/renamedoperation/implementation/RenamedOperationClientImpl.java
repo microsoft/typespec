@@ -4,6 +4,7 @@
 
 package client.structure.renamedoperation.implementation;
 
+import client.structure.service.models.ClientType;
 import com.azure.core.annotation.ExpectedResponses;
 import com.azure.core.annotation.Host;
 import com.azure.core.annotation.HostParam;
@@ -55,14 +56,14 @@ public final class RenamedOperationClientImpl {
     /**
      * Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.
      */
-    private final String client;
+    private final ClientType client;
 
     /**
      * Gets Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.
      * 
      * @return the client value.
      */
-    public String getClient() {
+    public ClientType getClient() {
         return this.client;
     }
 
@@ -114,7 +115,7 @@ public final class RenamedOperationClientImpl {
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
      * @param client Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.
      */
-    public RenamedOperationClientImpl(String endpoint, String client) {
+    public RenamedOperationClientImpl(String endpoint, ClientType client) {
         this(new HttpPipelineBuilder().policies(new UserAgentPolicy(), new RetryPolicy()).build(),
             JacksonAdapter.createDefaultSerializerAdapter(), endpoint, client);
     }
@@ -126,7 +127,7 @@ public final class RenamedOperationClientImpl {
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
      * @param client Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.
      */
-    public RenamedOperationClientImpl(HttpPipeline httpPipeline, String endpoint, String client) {
+    public RenamedOperationClientImpl(HttpPipeline httpPipeline, String endpoint, ClientType client) {
         this(httpPipeline, JacksonAdapter.createDefaultSerializerAdapter(), endpoint, client);
     }
 
@@ -139,7 +140,7 @@ public final class RenamedOperationClientImpl {
      * @param client Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.
      */
     public RenamedOperationClientImpl(HttpPipeline httpPipeline, SerializerAdapter serializerAdapter, String endpoint,
-        String client) {
+        ClientType client) {
         this.httpPipeline = httpPipeline;
         this.serializerAdapter = serializerAdapter;
         this.endpoint = endpoint;
@@ -162,7 +163,7 @@ public final class RenamedOperationClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Mono<Response<Void>> renamedOne(@HostParam("endpoint") String endpoint, @HostParam("client") String client,
+        Mono<Response<Void>> renamedOne(@HostParam("endpoint") String endpoint, @HostParam("client") ClientType client,
             RequestOptions requestOptions, Context context);
 
         @Post("/one")
@@ -171,7 +172,7 @@ public final class RenamedOperationClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Response<Void> renamedOneSync(@HostParam("endpoint") String endpoint, @HostParam("client") String client,
+        Response<Void> renamedOneSync(@HostParam("endpoint") String endpoint, @HostParam("client") ClientType client,
             RequestOptions requestOptions, Context context);
 
         @Post("/three")
@@ -180,8 +181,8 @@ public final class RenamedOperationClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Mono<Response<Void>> renamedThree(@HostParam("endpoint") String endpoint, @HostParam("client") String client,
-            RequestOptions requestOptions, Context context);
+        Mono<Response<Void>> renamedThree(@HostParam("endpoint") String endpoint,
+            @HostParam("client") ClientType client, RequestOptions requestOptions, Context context);
 
         @Post("/three")
         @ExpectedResponses({ 204 })
@@ -189,7 +190,7 @@ public final class RenamedOperationClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Response<Void> renamedThreeSync(@HostParam("endpoint") String endpoint, @HostParam("client") String client,
+        Response<Void> renamedThreeSync(@HostParam("endpoint") String endpoint, @HostParam("client") ClientType client,
             RequestOptions requestOptions, Context context);
 
         @Post("/five")
@@ -198,7 +199,7 @@ public final class RenamedOperationClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Mono<Response<Void>> renamedFive(@HostParam("endpoint") String endpoint, @HostParam("client") String client,
+        Mono<Response<Void>> renamedFive(@HostParam("endpoint") String endpoint, @HostParam("client") ClientType client,
             RequestOptions requestOptions, Context context);
 
         @Post("/five")
@@ -207,7 +208,7 @@ public final class RenamedOperationClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Response<Void> renamedFiveSync(@HostParam("endpoint") String endpoint, @HostParam("client") String client,
+        Response<Void> renamedFiveSync(@HostParam("endpoint") String endpoint, @HostParam("client") ClientType client,
             RequestOptions requestOptions, Context context);
     }
 
