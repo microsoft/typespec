@@ -21,6 +21,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private const string ResetMethodName = "Reset";
         private const string AppendQueryMethodName = "AppendQuery";
         private const string AppendQueryDelimitedMethodName = "AppendQueryDelimited";
+        private const string AppendPathDelimitedMethodName = "AppendPathDelimited";
         private const string AppendPathMethodName = "AppendPath";
 
         private readonly FieldProvider _uriBuilderField;
@@ -275,7 +276,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             return
             [
-                BuildAppendDelimitedMethod(AppendQueryDelimitedMethodName, "AppendQuery")
+                BuildAppendDelimitedMethod(AppendQueryDelimitedMethodName, AppendQueryMethodName)
             ];
         }
 
@@ -283,7 +284,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             return
             [
-                BuildAppendDelimitedMethod("AppendPathDelimited", "AppendPath", false),
+                BuildAppendDelimitedMethod(AppendPathDelimitedMethodName, AppendPathMethodName, false),
             ];
         }
 

@@ -313,18 +313,18 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             if (parameterType?.IsCollection == true)
             {
-                DeclarationExpression? changeTrackingListDeclaration;
+                DeclarationExpression? changeTrackingCollectionDeclaration;
                 VariableExpression? changeTrackingReference;
                 if (parameterType.IsDictionary)
                 {
-                    changeTrackingListDeclaration = Declare(
+                    changeTrackingCollectionDeclaration = Declare(
                         "changeTrackingDictionary",
                         ClientModelPlugin.Instance.TypeFactory.DictionaryInitializationType.MakeGenericType(parameterType.Arguments),
                         out changeTrackingReference);
                 }
                 else
                 {
-                    changeTrackingListDeclaration = Declare(
+                    changeTrackingCollectionDeclaration = Declare(
                         "changeTrackingList",
                         ClientModelPlugin.Instance.TypeFactory.ListInitializationType.MakeGenericType(parameterType
                             .Arguments),
@@ -332,7 +332,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 }
 
                 return new IfStatement(valueExpression.NotEqual(Null)
-                    .And(Not(valueExpression.Is(changeTrackingListDeclaration)
+                    .And(Not(valueExpression.Is(changeTrackingCollectionDeclaration)
                     .And(changeTrackingReference.Property("IsUndefined")))))
                 {
                     originalStatement
