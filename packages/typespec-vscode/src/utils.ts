@@ -1,4 +1,5 @@
 import type { ModuleResolutionResult, ResolveModuleHost } from "@typespec/compiler";
+import { exec, spawn, SpawnOptions } from "child_process";
 import { readFile, realpath, stat } from "fs/promises";
 import { dirname, normalize, resolve } from "path";
 import { Executable } from "vscode-languageclient/node.js";
@@ -101,4 +102,61 @@ export async function loadModule(
     logger.debug(`Exception when resolving module for ${packageName} from ${baseDir}`, [e]);
     return undefined;
   }
+}
+
+export async function executeCommand(command: string, args: string[], options: any): Promise<any> {
+  if (args.length > 0) {
+    command = `${command} ${args.join(" ")}`;
+  }
+  exec(command, options, (error, stdout, stderr) => {
+    if (error) {
+      logger.error(`Error: ${error.message}`);
+      return;
+    }
+    if (stderr) {
+      logger.error(`Stderr: ${stderr}`);
+      return;
+    }
+    logger.info(`Stdout: ${stdout}`);
+  });
+}
+
+export interface ExecOutput {
+  stdout: string;
+  stderr: string;
+  exitCode: number;
+  error: string;
+  spawnOptions: SpawnOptions;
+}
+export async function spawnExecution(
+  command: string,
+  args: string[],
+  options: any,
+): Promise<ExecOutput> {
+  let stdout = "";
+  let stderr = "";
+  let retcode = 0;
+  const child = spawn(command, args, options);
+
+  child.stdout.on("data", (data) => {
+    // logger.info(`Stdout: ${data}`);
+    stdout += data.toString();
+  });
+
+  child.stderr.on("data", (data) => {
+    stderr += data.toString();
+  });
+
+  child.on("close", (code) => {
+    // logger.info(`Child process exited with code ${code}`);
+    retcode = code ?? 0;
+  });
+
+  return {
+    stdout: stdout,
+    stderr: stderr,
+    exitCode: retcode,
+    error: stderr,
+    spawnOptions: options,
+  };
 }

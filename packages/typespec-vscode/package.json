@@ -108,8 +108,29 @@
         "command": "typespec.showOutputChannel",
         "title": "Show Output Channel",
         "category": "TypeSpec"
+      },
+      {
+        "command": "typespec.emit",
+        "title": "TypeSpec emit",
+        "category": "TypeSpec"
       }
     ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "typespec.emit",
+          "when": "explorerResourceIsFolder || resourceLangId == typespec",
+          "group": "code_generation"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "typespec.emit",
+          "when": "resourceLangId == typespec",
+          "group": "code_generation"
+        }
+      ]
+    },
     "semanticTokenScopes": [
       {
         "scopes": {
