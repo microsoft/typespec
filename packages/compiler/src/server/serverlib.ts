@@ -1,3 +1,4 @@
+import { exec } from "node:child_process";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
   CodeAction,
@@ -47,7 +48,7 @@ import {
 } from "vscode-languageserver/node.js";
 import { CharCode } from "../core/charcode.js";
 import { resolveCodeFix } from "../core/code-fixes.js";
-import { compilerAssert, getSourceLocation } from "../core/diagnostics.js";
+import { compilerAssert, defineCodeFix, getSourceLocation } from "../core/diagnostics.js";
 import { formatTypeSpec } from "../core/formatter.js";
 import { getEntityName, getTypeName } from "../core/helpers/type-name-utils.js";
 import { resolveModule, ResolveModuleHost } from "../core/index.js";
@@ -74,7 +75,7 @@ import {
   TypeReferenceNode,
   TypeSpecScriptNode,
 } from "../core/types.js";
-import { getNormalizedRealPath, resolveTspMain } from "../utils/misc.js";
+import { getNormalizedRealPath, mutate, resolveTspMain } from "../utils/misc.js";
 import { getSemanticTokens } from "./classify.js";
 import { createCompileService } from "./compile-service.js";
 import { resolveCompletion } from "./completion.js";
@@ -860,12 +861,25 @@ export function createServer(host: ServerHost): Server {
       const tspDiag = currentDiagnosticIndex.get(vsDiag.data?.id);
       if (tspDiag === undefined || tspDiag.codefixes === undefined) continue;
 
+      if (
+        vsDiag.codeDescription?.href &&
+        tspDiag.codefixes?.findIndex((x) => x.id === "show-linter-rule-doc-url") === -1
+      ) {
+        mutate(tspDiag.codefixes).push(
+          defineCodeFix({
+            id: "show-linter-rule-doc-url",
+            label: `Open document`,
+            fix: (context) => {},
+          }),
+        );
+      }
+
       for (const fix of tspDiag.codefixes ?? []) {
         const currentCmd =
-          fix.label === "Open document" ? Commands.OPEN_RULE_DOC : Commands.APPLY_CODE_FIX;
+          fix.id === "show-linter-rule-doc-url" ? Commands.OPEN_RULE_DOC : Commands.APPLY_CODE_FIX;
         const currentArgs =
-          fix.label === "Open document"
-            ? [fix.url]
+          fix.id === "show-linter-rule-doc-url"
+            ? [vsDiag.codeDescription?.href]
             : [params.textDocument.uri, vsDiag.data?.id, fix.id];
 
         const codeAction: CodeAction = {
@@ -887,7 +901,7 @@ export function createServer(host: ServerHost): Server {
     return actions;
   }
 
-  async function executeCommand(params: ExecuteCommandParams): Promise<[string, string]> {
+  async function executeCommand(params: ExecuteCommandParams) {
     if (params.command === Commands.APPLY_CODE_FIX) {
       const [documentUri, diagId, fixId] = params.arguments ?? [];
       if (documentUri && diagId && fixId) {
@@ -899,12 +913,19 @@ export function createServer(host: ServerHost): Server {
           await host.applyEdit({ changes: { [documentUri]: vsEdits } });
         }
       }
-      return [Commands.APPLY_CODE_FIX, ""];
-    } else if (params.command === Commands.OPEN_RULE_DOC) {
-      return [Commands.OPEN_RULE_DOC, params.arguments?.[0] ?? ""];
+    } else if (params.command === Commands.OPEN_RULE_DOC && params.arguments) {
+      const docUrl = params.arguments?.[0] as string;
+      if (process.platform === "win32") {
+        // in windows
+        exec(`start ${docUrl}`);
+      } else if (process.platform === "darwin") {
+        // in macos
+        exec(`open ${docUrl}`);
+      } else {
+        // in linux or other unix-like systems
+        exec(`xdg-open ${docUrl}`);
+      }
     }
-
-    return ["", ""];
   }
   function convertCodeFixEdits(edits: CodeFixEdit[]): TextEdit[] {
     return edits.map(convertCodeFixEdit);

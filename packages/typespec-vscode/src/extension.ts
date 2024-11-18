@@ -27,7 +27,6 @@ export async function activate(context: ExtensionContext) {
     commands.registerCommand("typespec.restartServer", async () => {
       if (client) {
         await client.restart();
-        client.openUri();
       }
     }),
   );
@@ -40,7 +39,6 @@ export async function activate(context: ExtensionContext) {
         client = await TspLanguageClient.create(context, outputChannel);
         await oldClient?.stop();
         await client.start();
-        client.openUri();
       }
     }),
   );
@@ -53,7 +51,6 @@ export async function activate(context: ExtensionContext) {
     async () => {
       client = await TspLanguageClient.create(context, outputChannel);
       await client.start();
-      client.openUri();
     },
   );
 }
