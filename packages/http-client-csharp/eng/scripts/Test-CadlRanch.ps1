@@ -32,6 +32,10 @@ foreach ($directory in $directories) {
     if (-not (Compare-Paths $subPath $filter)) {
         continue
     }
+
+    if ($subPath.Contains($(Join-Path 'srv-driven' 'v1'))) {
+        continue
+    }
     
     $testPath = "$cadlRanchRoot.Tests"
     $testFilter = "TestProjects.CadlRanch.Tests"
@@ -63,6 +67,22 @@ foreach ($directory in $directories) {
     if ($LASTEXITCODE -ne 0) {
         exit $LASTEXITCODE
     }
+
+    # srv-driven contains two separate specs, for two separate clients. We need to generate both.
+    if ($subPath.Contains("srv-driven")) {
+        Write-Host "Regenerating $subPath v1" -ForegroundColor Cyan
+  
+        $specFile = Join-Path $specsDirectory $subPath "old.tsp"
+        $srvDrivenOutputDir = Join-Path $outputDir "v1"
+        # override namespace for "resiliency/srv-driven/old.tsp" (make it different to that from "main.tsp")
+        $command = Get-TspCommand $specFile $srvDrivenOutputDir -additionalOptions " --option @typespec/http-client-csharp.namespace=Resiliency.ServiceDriven.V1"
+        Invoke $command
+
+        if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+        }
+    }
+
 
     Write-Host "Testing $subPath" -ForegroundColor Cyan
     $command  = "dotnet test $cadlRanchCsproj --filter `"FullyQualifiedName~$testFilter`""
