@@ -6,6 +6,7 @@ package com.microsoft.typespec.http.client.generator.mapper;
 import com.microsoft.typespec.http.client.generator.core.mapper.ClientMapper;
 import com.microsoft.typespec.http.client.generator.core.mapper.DefaultMapperFactory;
 import com.microsoft.typespec.http.client.generator.core.mapper.PrimitiveMapper;
+import com.microsoft.typespec.http.client.generator.core.mapper.ProxyParameterMapper;
 
 public class TypeSpecMapperFactory extends DefaultMapperFactory {
 
@@ -17,5 +18,10 @@ public class TypeSpecMapperFactory extends DefaultMapperFactory {
     @Override
     public PrimitiveMapper getPrimitiveMapper() {
         return TypeSpecPrimitiveMapper.getInstance();
+    }
+
+    @Override
+    public ProxyParameterMapper getProxyParameterMapper() {
+        return TypeSpecProxyParameterMapper.getInstance();
     }
 }

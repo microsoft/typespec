@@ -5,6 +5,7 @@
 package client.structure.service;
 
 import client.structure.service.implementation.RenamedOperationClientImpl;
+import client.structure.service.models.ClientType;
 import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.ServiceClientBuilder;
 import com.azure.core.client.traits.ConfigurationTrait;
@@ -199,7 +200,7 @@ public final class RenamedOperationClientBuilder implements HttpTrait<RenamedOpe
      * Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.
      */
     @Generated
-    private String client;
+    private ClientType client;
 
     /**
      * Sets Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.
@@ -208,7 +209,7 @@ public final class RenamedOperationClientBuilder implements HttpTrait<RenamedOpe
      * @return the RenamedOperationClientBuilder.
      */
     @Generated
-    public RenamedOperationClientBuilder client(String client) {
+    public RenamedOperationClientBuilder client(ClientType client) {
         this.client = client;
         return this;
     }
