@@ -100,6 +100,11 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     },
+    "http-payload-json-merge-patch": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/payload/json-merge-patch -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
     "http-payload-media-type": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/payload/media-type -p StubLibraryPlugin",
       "commandName": "Executable",
