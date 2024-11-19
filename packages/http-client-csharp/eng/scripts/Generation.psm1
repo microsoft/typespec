@@ -25,7 +25,7 @@ function Get-TspCommand {
         [string]$specFile,
         [string]$generationDir,
         [bool]$generateStub = $false,
-        [string[]]$additionalOptions = @()
+        [string]$namespaceOverride = $null
     )
     $command = "npx tsp compile $specFile"
     $command += " --trace @typespec/http-client-csharp"
@@ -40,9 +40,10 @@ function Get-TspCommand {
         $command += " --option @typespec/http-client-csharp.plugin-name=StubLibraryPlugin"
     }
 
-    foreach ($option in $additionalOptions) {
-        $command += " $option"
+    if ($namespaceOverride) {
+        $command += " --option @typespec/http-client-csharp.namespace=$namespaceOverride"
     }
+
     return $command
 }
 
@@ -77,7 +78,32 @@ function Compare-Paths {
     return $normalizedPath1.Contains($normalizedPath2)
 }
 
+function Generate-Srv-Driven {
+    param (
+      [string]$specFilePath,
+      [string]$outputDir,
+      [bool]$generateStub = $false,
+      [bool]$createOutputDirIfNotExist = $true
+    )
+
+    $specFilePath = $(Join-Path $specFilePath "old.tsp")
+    $outputDir = $(Join-Path $outputDir "v1")
+    if ($createOutputDirIfNotExist -and -not (Test-Path $outputDir)) {
+        New-Item -ItemType Directory -Path $outputDir | Out-Null
+    }
+
+    Write-Host "Generating http\resiliency\srv-driven\v1" -ForegroundColor Cyan
+    Invoke (Get-TspCommand $specFilePath $outputDir -generateStub $generateStub -namespaceOverride "Resiliency.ServiceDriven.V1")
+
+    # exit if the generation failed
+    if ($LASTEXITCODE -ne 0) {
+        exit $LASTEXITCODE
+    }
+}
+
+
 Export-ModuleMember -Function "Invoke"
 Export-ModuleMember -Function "Get-TspCommand"
 Export-ModuleMember -Function "Refresh-Build"
 Export-ModuleMember -Function "Compare-Paths"
+Export-ModuleMember -Function "Generate-Srv-Driven"

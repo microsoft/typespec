@@ -70,17 +70,7 @@ foreach ($directory in $directories) {
 
     # srv-driven contains two separate specs, for two separate clients. We need to generate both.
     if ($subPath.Contains("srv-driven")) {
-        Write-Host "Regenerating $subPath v1" -ForegroundColor Cyan
-  
-        $specFile = Join-Path $specsDirectory $subPath "old.tsp"
-        $srvDrivenOutputDir = Join-Path $outputDir "v1"
-        # override namespace for "resiliency/srv-driven/old.tsp" (make it different to that from "main.tsp")
-        $command = Get-TspCommand $specFile $srvDrivenOutputDir -additionalOptions " --option @typespec/http-client-csharp.namespace=Resiliency.ServiceDriven.V1"
-        Invoke $command
-
-        if ($LASTEXITCODE -ne 0) {
-            exit $LASTEXITCODE
-        }
+        Generate-Srv-Driven $(Join-Path $specsDirectory $subPath) $outputDir -createOutputDirIfNotExist $false
     }
 
 

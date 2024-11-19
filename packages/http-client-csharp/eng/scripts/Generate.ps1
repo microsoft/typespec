@@ -112,20 +112,7 @@ foreach ($directory in $directories) {
 
     # srv-driven contains two separate specs, for two separate clients. We need to generate both.
     if ($folders.Contains("srv-driven")) {
-        $specFile = Join-Path $directory.FullName "old.tsp"
-        $generationDir = Join-Path $generationDir "v1"
-        if (-not (Test-Path $generationDir)) {
-            New-Item -ItemType Directory -Path $generationDir | Out-Null
-        }
-
-        Write-Host "Generating $subPath v1" -ForegroundColor Cyan
-        # override namespace for "resiliency/srv-driven/old.tsp" (make it different to that from "main.tsp")
-        Invoke (Get-TspCommand $specFile $generationDir $stubbed " --option @typespec/http-client-csharp.namespace=Resiliency.ServiceDriven.V1")
-
-        # exit if the generation failed
-        if ($LASTEXITCODE -ne 0) {
-            exit $LASTEXITCODE
-        }
+        Generate-Srv-Driven $directory.FullName $generationDir -generateStub $stubbed
     }
 
     # TODO need to build but depends on https://github.com/Azure/autorest.csharp/issues/4463
