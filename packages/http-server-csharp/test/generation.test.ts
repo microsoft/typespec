@@ -711,3 +711,38 @@ it("Handles user-defined model templates", async () => {
     ],
   );
 });
+
+it("Handles void type in operations", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+       using TypeSpec.Rest.Resource;
+
+       namespace MyService {
+         model Toy {
+          @key("toyId")
+          id: int64;
+      
+          petId: int64;
+          name: string;
+        }
+
+      @friendlyName("{name}ListResults", Item)
+       model ResponsePage<Item> {
+        items: Item[];
+        nextLink?: string;
+       }
+
+         @post @route("/foo") op foo(...Toy): void;
+      }
+    `,
+    [
+      ["IMyServiceOperations.cs", ["interface IMyServiceOperations"]],
+      [
+        "MyServiceOperationsControllerBase.cs",
+        ["public abstract partial class MyServiceOperationsControllerBase: ControllerBase"],
+      ],
+      ["Toy.cs", ["public partial class Toy"]],
+    ],
+  );
+});

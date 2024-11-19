@@ -73,6 +73,7 @@ import {
   getCSharpIdentifier,
   getCSharpStatusCode,
   getCSharpType,
+  getCSharpTypeForIntrinsic,
   getCSharpTypeForScalar,
   getModelAttributes,
   getModelInstantiationName,
@@ -200,13 +201,15 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
           return this.emitter.result.rawCode(code`System.Text.Json.Nodes.JsonNode`);
         case "ErrorType":
         case "never":
-        case "void":
           reportDiagnostic(this.emitter.getProgram(), {
             code: "invalid-intrinsic",
             target: intrinsic,
             format: { typeName: intrinsic.name },
           });
           return "";
+        case "void":
+          const type = getCSharpTypeForIntrinsic(this.emitter.getProgram(), intrinsic);
+          return this.emitter.result.rawCode(`${type?.type.getTypeReference()}`);
       }
     }
 
