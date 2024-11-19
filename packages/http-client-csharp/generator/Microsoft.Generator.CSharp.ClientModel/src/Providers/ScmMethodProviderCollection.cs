@@ -78,8 +78,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 methodModifier,
                 GetResponseType(Operation.Responses, true, isAsync, out var responseBodyType),
                 null,
-                ConvenienceMethodParameters);
-            var processMessageName = isAsync ? "ProcessMessageAsync" : "ProcessMessage";
+                isAsync ? [.. ConvenienceMethodParameters, ScmKnownParameters.CancellationToken] : ConvenienceMethodParameters);
 
             MethodBodyStatement[] methodBody;
 
@@ -364,7 +363,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 }
             }
             // RequestOptions argument
-            conversions.Add(Null);
+            conversions.Add(ScmKnownParameters.RequestOptions.PositionalReference(Null));
             return conversions;
         }
 

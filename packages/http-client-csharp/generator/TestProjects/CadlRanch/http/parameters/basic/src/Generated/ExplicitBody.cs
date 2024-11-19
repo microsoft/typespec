@@ -4,6 +4,7 @@
 
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 using Parameters.Basic.Models;
 
@@ -21,6 +22,6 @@ namespace Parameters.Basic
 
         public virtual ClientResult Simple(User body) => throw null;
 
-        public virtual Task<ClientResult> SimpleAsync(User body) => throw null;
+        public virtual Task<ClientResult> SimpleAsync(User body, CancellationToken cancellationToken = default) => throw null;
     }
 }
