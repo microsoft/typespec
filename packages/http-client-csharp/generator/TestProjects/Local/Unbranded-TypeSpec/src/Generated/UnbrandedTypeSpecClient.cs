@@ -131,7 +131,11 @@ namespace UnbrandedTypeSpec
             Argument.AssertNotNull(headParameter, nameof(headParameter));
             Argument.AssertNotNull(queryParameter, nameof(queryParameter));
 
-            ClientResult result = await SayHiAsync(headParameter, queryParameter, optionalQuery, options: null).ConfigureAwait(false);
+            ClientResult result = await SayHiAsync(headParameter, queryParameter, optionalQuery, new RequestOptions
+            {
+                CancellationToken = cancellationToken
+            }
+            ).ConfigureAwait(false);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
@@ -214,7 +218,11 @@ namespace UnbrandedTypeSpec
             Argument.AssertNotNull(p1, nameof(p1));
             Argument.AssertNotNull(action, nameof(action));
 
-            ClientResult result = await HelloAgainAsync(p2, p1, action, options: null).ConfigureAwait(false);
+            ClientResult result = await HelloAgainAsync(p2, p1, action, new RequestOptions
+            {
+                CancellationToken = cancellationToken
+            }
+            ).ConfigureAwait(false);
             return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
         }
 
@@ -315,7 +323,11 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult<Thing>> HelloDemo2Async(CancellationToken cancellationToken = default)
         {
-            ClientResult result = await HelloDemo2Async(options: null).ConfigureAwait(false);
+            ClientResult result = await HelloDemo2Async(new RequestOptions
+            {
+                CancellationToken = cancellationToken
+            }
+            ).ConfigureAwait(false);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
@@ -382,7 +394,11 @@ namespace UnbrandedTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            ClientResult result = await CreateLiteralAsync(body, options: null).ConfigureAwait(false);
+            ClientResult result = await CreateLiteralAsync(body, new RequestOptions
+            {
+                CancellationToken = cancellationToken
+            }
+            ).ConfigureAwait(false);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
@@ -433,7 +449,11 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult<Thing>> HelloLiteralAsync(CancellationToken cancellationToken = default)
         {
-            ClientResult result = await HelloLiteralAsync(options: null).ConfigureAwait(false);
+            ClientResult result = await HelloLiteralAsync(new RequestOptions
+            {
+                CancellationToken = cancellationToken
+            }
+            ).ConfigureAwait(false);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
@@ -488,7 +508,11 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult<Thing>> TopActionAsync(DateTimeOffset action, CancellationToken cancellationToken = default)
         {
-            ClientResult result = await TopActionAsync(action, options: null).ConfigureAwait(false);
+            ClientResult result = await TopActionAsync(action, new RequestOptions
+            {
+                CancellationToken = cancellationToken
+            }
+            ).ConfigureAwait(false);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
@@ -689,7 +713,11 @@ namespace UnbrandedTypeSpec
                 optionalNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
                 requiredNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
                 null);
-            ClientResult result = await AnonymousBodyAsync(spreadModel, options: null).ConfigureAwait(false);
+            ClientResult result = await AnonymousBodyAsync(spreadModel, new RequestOptions
+            {
+                CancellationToken = cancellationToken
+            }
+            ).ConfigureAwait(false);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
@@ -758,7 +786,11 @@ namespace UnbrandedTypeSpec
             Argument.AssertNotNull(name, nameof(name));
 
             Friend spreadModel = new Friend(name, null);
-            ClientResult result = await FriendlyModelAsync(spreadModel, options: null).ConfigureAwait(false);
+            ClientResult result = await FriendlyModelAsync(spreadModel, new RequestOptions
+            {
+                CancellationToken = cancellationToken
+            }
+            ).ConfigureAwait(false);
             return ClientResult.FromValue((Friend)result, result.GetRawResponse());
         }
 
@@ -808,7 +840,11 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> AddTimeHeaderAsync(CancellationToken cancellationToken = default)
         {
-            return await AddTimeHeaderAsync(options: null).ConfigureAwait(false);
+            return await AddTimeHeaderAsync(new RequestOptions
+            {
+                CancellationToken = cancellationToken
+            }
+            ).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -876,7 +912,11 @@ namespace UnbrandedTypeSpec
             Argument.AssertNotNull(name, nameof(name));
 
             ProjectedModel spreadModel = new ProjectedModel(name, null);
-            ClientResult result = await ProjectedNameModelAsync(spreadModel, options: null).ConfigureAwait(false);
+            ClientResult result = await ProjectedNameModelAsync(spreadModel, new RequestOptions
+            {
+                CancellationToken = cancellationToken
+            }
+            ).ConfigureAwait(false);
             return ClientResult.FromValue((ProjectedModel)result, result.GetRawResponse());
         }
 
@@ -927,7 +967,11 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult<ReturnsAnonymousModelResponse>> ReturnsAnonymousModelAsync(CancellationToken cancellationToken = default)
         {
-            ClientResult result = await ReturnsAnonymousModelAsync(options: null).ConfigureAwait(false);
+            ClientResult result = await ReturnsAnonymousModelAsync(new RequestOptions
+            {
+                CancellationToken = cancellationToken
+            }
+            ).ConfigureAwait(false);
             return ClientResult.FromValue((ReturnsAnonymousModelResponse)result, result.GetRawResponse());
         }
 
@@ -994,7 +1038,11 @@ namespace UnbrandedTypeSpec
         {
             Argument.AssertNotNull(accept, nameof(accept));
 
-            ClientResult result = await GetUnknownValueAsync(accept, options: null).ConfigureAwait(false);
+            ClientResult result = await GetUnknownValueAsync(accept, new RequestOptions
+            {
+                CancellationToken = cancellationToken
+            }
+            ).ConfigureAwait(false);
             return ClientResult.FromValue(result.GetRawResponse().Content.ToObjectFromJson<string>(), result.GetRawResponse());
         }
 
@@ -1061,7 +1109,11 @@ namespace UnbrandedTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            ClientResult result = await InternalProtocolAsync(body, options: null).ConfigureAwait(false);
+            ClientResult result = await InternalProtocolAsync(body, new RequestOptions
+            {
+                CancellationToken = cancellationToken
+            }
+            ).ConfigureAwait(false);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
@@ -1111,7 +1163,11 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> StillConvenientAsync(CancellationToken cancellationToken = default)
         {
-            return await StillConvenientAsync(options: null).ConfigureAwait(false);
+            return await StillConvenientAsync(new RequestOptions
+            {
+                CancellationToken = cancellationToken
+            }
+            ).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -1176,7 +1232,11 @@ namespace UnbrandedTypeSpec
         {
             Argument.AssertNotNull(id, nameof(id));
 
-            return await HeadAsBooleanAsync(id, options: null).ConfigureAwait(false);
+            return await HeadAsBooleanAsync(id, new RequestOptions
+            {
+                CancellationToken = cancellationToken
+            }
+            ).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -1241,7 +1301,11 @@ namespace UnbrandedTypeSpec
         {
             Argument.AssertNotNull(p1, nameof(p1));
 
-            return await WithApiVersionAsync(p1, options: null).ConfigureAwait(false);
+            return await WithApiVersionAsync(p1, new RequestOptions
+            {
+                CancellationToken = cancellationToken
+            }
+            ).ConfigureAwait(false);
         }
     }
 }

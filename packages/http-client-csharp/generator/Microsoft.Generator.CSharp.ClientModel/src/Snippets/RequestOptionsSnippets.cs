@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.ClientModel.Primitives;
+using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Snippets;
@@ -11,8 +12,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
     internal static class RequestOptionsSnippets
     {
-        public static ScopedApi<RequestOptions> FromCancellationToken()
-            => Static<RequestOptions>().Invoke("FromCancellationToken", [KnownParameters.CancellationTokenParameter]).As<RequestOptions>();
+        public static ScopedApi<RequestOptions> FromCancellationToken(ValueExpression cancellationToken)
+            => New.Instance<RequestOptions>(
+                arguments: [],
+                properties: new Dictionary<ValueExpression, ValueExpression>
+                    { { new MemberExpression(null, nameof(RequestOptions.CancellationToken)), cancellationToken } });
 
         public static ValueExpression ErrorOptions(this ScopedApi<RequestOptions> requestOptions) => requestOptions.Property(nameof(RequestOptions.ErrorOptions));
     }
