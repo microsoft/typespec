@@ -3467,7 +3467,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function reportUnusedUsingAndImports() {
-    // Don't provide unused... diagnostics if customer is using projection in the project because
+    // Don't provide unused diagnostics if customer is using projection in the project because
     // the projection statements will only be processed when applying projection. There is no way to determine
     // whether "import" or "using" is referenced from them, so we just skip here to avoid providing incorrect suggestions (diagnostics)
     // This should be fine for now considering projection is an experiemental feature.
@@ -3481,10 +3481,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         return;
       }
     }
-
-    // test to add
-    // import through namespace (block or blockless) 's exports
-    // complex circle like 8
 
     resolver.getUnusedImports().forEach((target) => {
       reportCheckerDiagnostic(

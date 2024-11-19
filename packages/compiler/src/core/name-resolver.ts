@@ -273,8 +273,8 @@ export function createResolver(program: Program): NameResolver {
   }
 
   function getNotNeededFileAndLibs() {
-    const deps = getSourceFileSymDependencies();
-    const { neededFiles, neededLibs } = getNeededFileAndLibsFromSymDependencies(deps);
+    const deps = getSourceFileDependencies();
+    const { neededFiles, neededLibs } = getNeededFileAndLibsFromFileDependencies(deps);
     updateNeededFileForReachability(neededFiles);
 
     const notNeededFile = new Set<TypeSpecScriptNode | JsSourceFileNode>();
@@ -417,7 +417,7 @@ export function createResolver(program: Program): NameResolver {
     }
   }
 
-  function getNeededFileAndLibsFromSymDependencies(
+  function getNeededFileAndLibsFromFileDependencies(
     deps: Map<TypeSpecScriptNode | JsSourceFileNode, Set<TypeSpecScriptNode | JsSourceFileNode>>,
   ) {
     const neededFiles: Set<TypeSpecScriptNode | JsSourceFileNode> = new Set();
@@ -446,10 +446,12 @@ export function createResolver(program: Program): NameResolver {
   }
 
   /**
-   * Get the dependencies because node in one file references the sym(node) in another file
+   * Get the dependencies because
+   *   - node in one file references the sym(node) in another file
+   *   - augment decorator in one file apply to the sym(node) in another file
    * Please be aware that "import" is not counted here
    */
-  function getSourceFileSymDependencies(): Map<
+  function getSourceFileDependencies(): Map<
     TypeSpecScriptNode | JsSourceFileNode,
     Set<TypeSpecScriptNode | JsSourceFileNode>
   > {
@@ -1319,9 +1321,7 @@ export function createResolver(program: Program): NameResolver {
       if (scope.symbol && scope.symbol.flags & SymbolFlags.ExportContainer) {
         const mergedSymbol = getMergedSymbol(scope.symbol);
         binding = tableLookup(mergedSymbol.exports!, node, options.resolveDecorators);
-        if (binding) {
-          return resolvedResult(binding);
-        }
+        if (binding) return resolvedResult(binding);
       }
 
       if ("locals" in scope && scope.locals !== undefined) {
@@ -1350,9 +1350,7 @@ export function createResolver(program: Program): NameResolver {
         const mergedSymbol = getMergedSymbol(ns.symbol);
         binding = tableLookup(mergedSymbol.exports!, node, options.resolveDecorators);
 
-        if (binding) {
-          return resolvedResult(binding);
-        }
+        if (binding) return resolvedResult(binding);
       }
 
       // check "global scope" declarations

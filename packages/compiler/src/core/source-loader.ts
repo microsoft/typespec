@@ -129,8 +129,6 @@ export async function createSourceLoader(
     diagnosticTarget: DiagnosticTarget | typeof NoTarget,
   ) {
     if (seenSourceFiles.has(path)) {
-      // we need to update the location context even when the file has been loaded because
-      // it may be imported from a different file
       const file = sourceFiles.get(path);
       if (file) {
         updateImportedBy(file, diagnosticTarget);

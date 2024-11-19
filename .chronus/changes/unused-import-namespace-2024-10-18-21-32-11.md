@@ -4,4 +4,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-Support diagnostices for unused import and using statements
+Support diagnostics for unused import and using statements
