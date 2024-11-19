@@ -186,17 +186,14 @@ export function createResolver(program: Program): NameResolver {
   mutate(globalNamespaceSym.exports).set(globalNamespaceNode.id.sv, globalNamespaceSym);
 
   /**
-   * Tracking the nodes whose symbol is resolved through global binding
-   */
-  const nodesWithSymResolvedThroughGlobal = new Set<IdentifierNode>();
-  /**
    * Tracking the nodes whose symbol is resolved through using binding
    */
   const nodesWithSymResolvedThroughUsing = new Set<IdentifierNode>();
   /**
-   * Tracking the nodes whose symbol is resolved through namespace exports
+   * Tracking the nodes whose symbol may reference symbols from other files
    */
-  const nodesWithSymResolvedThroughNamespace = new Set<IdentifierNode>(); /**
+  const nodesMayRefSymCrossFile = new Set<IdentifierNode>();
+  /**
    * Tracking the symbols that are used through using.
    */
   const usedUsingSym = new Map<TypeSpecScriptNode, Set<Sym>>();
@@ -461,17 +458,14 @@ export function createResolver(program: Program): NameResolver {
       Set<TypeSpecScriptNode | JsSourceFileNode>
     >();
 
-    foreachProjectFile(
-      [...nodesWithSymResolvedThroughGlobal, ...nodesWithSymResolvedThroughNamespace],
-      (s, sym) => {
-        // there may be multiple declarations. i.e. for Decorator/Function, it may have one declaration and one implementation
-        for (const decl of sym.declarations) {
-          const t = getSourceFile(decl);
-          if (!t || s === t) continue;
-          dependencies.get(s)?.add(t) ?? dependencies.set(s, new Set([t]));
-        }
-      },
-    );
+    foreachProjectFile(nodesMayRefSymCrossFile, (s, sym) => {
+      // there may be multiple declarations. i.e. for Decorator/Function, it may have one declaration and one implementation
+      for (const decl of sym.declarations) {
+        const t = getSourceFile(decl);
+        if (!t || s === t) continue;
+        dependencies.get(s)?.add(t) ?? dependencies.set(s, new Set([t]));
+      }
+    });
 
     augmentDecoratorsForSym.forEach((decorators, sym) => {
       // Add the dependency from the augment decorator target to the augment decorator
@@ -692,10 +686,33 @@ export function createResolver(program: Program): NameResolver {
     } else if (node.kind === SyntaxKind.MemberExpression) {
       return resolveMemberExpression(node, options);
     } else if (node.kind === SyntaxKind.Identifier) {
-      return resolveIdentifier(node, options);
+      const r = resolveIdentifier(node, options);
+      if (r.resolutionResult & ResolutionResultFlags.Resolved) {
+        // an IdentifierNode's sym may be resolved through using, namespace or global bindings
+        // in all case it may reference symbols from other files, so add to track here
+        // and only consider target node (i.e. 'c' in A.B.c) should be enough
+        const target = getResolvingTargetNode(node);
+        nodesMayRefSymCrossFile.add(target);
+      }
+      return r;
     }
 
     compilerAssert(false, "Unexpected node kind");
+  }
+
+  /**
+   * Get the target node that is being resolved which is the source of the reference
+   */
+  function getResolvingTargetNode(id: IdentifierNode): IdentifierNode {
+    if (id.parent && id.parent.kind === SyntaxKind.MemberExpression) {
+      let cur = id.parent;
+      while (cur.parent && cur.parent.kind === SyntaxKind.MemberExpression) {
+        cur = cur.parent;
+      }
+      return cur.id;
+    }
+    // for type reference and identifier node, just return the id
+    return id;
   }
 
   function resolveMemberExpression(
@@ -1303,10 +1320,6 @@ export function createResolver(program: Program): NameResolver {
         const mergedSymbol = getMergedSymbol(scope.symbol);
         binding = tableLookup(mergedSymbol.exports!, node, options.resolveDecorators);
         if (binding) {
-          if (binding.flags & SymbolFlags.Namespace) {
-            const target = getResolvingTargetNode(node);
-            nodesWithSymResolvedThroughNamespace.add(target);
-          }
           return resolvedResult(binding);
         }
       }
@@ -1338,10 +1351,6 @@ export function createResolver(program: Program): NameResolver {
         binding = tableLookup(mergedSymbol.exports!, node, options.resolveDecorators);
 
         if (binding) {
-          if (binding.flags & SymbolFlags.Namespace) {
-            const target = getResolvingTargetNode(node);
-            nodesWithSymResolvedThroughNamespace.add(target);
-          }
           return resolvedResult(binding);
         }
       }
@@ -1357,12 +1366,8 @@ export function createResolver(program: Program): NameResolver {
       const usingBinding = tableLookup(scope.locals, node, options.resolveDecorators);
 
       if (globalBinding && usingBinding) {
-        const target = getResolvingTargetNode(node);
-        nodesWithSymResolvedThroughGlobal.add(target);
         return ambiguousResult([globalBinding, usingBinding]);
       } else if (globalBinding) {
-        const target = getResolvingTargetNode(node);
-        nodesWithSymResolvedThroughGlobal.add(target);
         return resolvedResult(globalBinding);
       } else if (usingBinding) {
         if (usingBinding.flags & SymbolFlags.DuplicateUsing) {
@@ -1381,21 +1386,6 @@ export function createResolver(program: Program): NameResolver {
     }
 
     return failedResult(ResolutionResultFlags.Unknown);
-
-    /**
-     * Get the target node that is being resolved which is the source of the reference
-     */
-    function getResolvingTargetNode(id: IdentifierNode): IdentifierNode {
-      if (id.parent && id.parent.kind === SyntaxKind.MemberExpression) {
-        let cur = id.parent;
-        while (cur.parent && cur.parent.kind === SyntaxKind.MemberExpression) {
-          cur = cur.parent;
-        }
-        return cur.id;
-      }
-      // for type reference and identifier node, just return the id
-      return id;
-    }
   }
 
   /**

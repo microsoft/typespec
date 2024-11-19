@@ -689,6 +689,100 @@ describe("compiler: unused imports", () => {
     expectDiagnosticEmpty(diagnostics);
   });
 
+  it("no unused diagnostic when referenced in same namespace", async () => {
+    host.addJsFile("blue.js", { $blue() {} });
+    host.addTypeSpecFile(
+      "main.tsp",
+      `
+      import "./a.tsp";
+      import "./b.tsp";
+      namespace N {
+        model M extends B {}
+      }
+      `,
+    );
+    host.addTypeSpecFile(
+      "a.tsp",
+      `
+      namespace N {
+        model A {}
+      }
+      `,
+    );
+    host.addTypeSpecFile(
+      "b.tsp",
+      `
+      namespace N {
+        model B extends A {}
+      }
+      `,
+    );
+
+    const diagnostics = await host.diagnose("main.tsp");
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  it("no unused diagnostic when referenced in same namespace (blockless)", async () => {
+    host.addJsFile("blue.js", { $blue() {} });
+    host.addTypeSpecFile(
+      "main.tsp",
+      `
+      import "./a.tsp";
+      import "./b.tsp";
+      namespace N;
+      model M extends B {}
+      `,
+    );
+    host.addTypeSpecFile(
+      "a.tsp",
+      `
+      namespace N;
+      model A {};
+      `,
+    );
+    host.addTypeSpecFile(
+      "b.tsp",
+      `
+      namespace N;
+      model B extends A {}
+      `,
+    );
+
+    const diagnostics = await host.diagnose("main.tsp");
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  it("no unused diagnostic when referenced in same namespace (blockless with un-blockless)", async () => {
+    host.addJsFile("blue.js", { $blue() {} });
+    host.addTypeSpecFile(
+      "main.tsp",
+      `
+      import "./a.tsp";
+      import "./b.tsp";
+      namespace N;
+      model M extends B {}
+      `,
+    );
+    host.addTypeSpecFile(
+      "a.tsp",
+      `
+      namespace N;
+      model A {};
+      `,
+    );
+    host.addTypeSpecFile(
+      "b.tsp",
+      `
+      namespace N {
+        model B extends A {}
+      }
+      `,
+    );
+
+    const diagnostics = await host.diagnose("main.tsp");
+    expectDiagnosticEmpty(diagnostics);
+  });
+
   it("import in circle won't cause problem. Main -> a.tsp <-> b.tsp -> b2.tsp -> b.tsp, Main -> c.tsp -> d.tsp -> e.tsp -> c.tsp & b.tsp", async () => {
     host.addJsFile("blue.js", { $blue() {} });
     host.addTypeSpecFile(
@@ -744,6 +838,60 @@ describe("compiler: unused imports", () => {
 
     const diagnostics = await host.diagnose("main.tsp");
     expectDiagnosticEmpty(diagnostics);
+  });
+
+  it("import in circle won't cause problem. Main -> a.tsp <-> b.tsp -> c.tsp -> d.tsp, b.tsp <-> e.tsp <-> d.tsp, Main ref d's model", async () => {
+    host.addJsFile("blue.js", { $blue() {} });
+    host.addTypeSpecFile(
+      "main.tsp",
+      `
+      import "./a.tsp";
+      model M { ...D }
+      `,
+    );
+    host.addTypeSpecFile(
+      "a.tsp",
+      `
+      import "./b.tsp";
+      `,
+    );
+    host.addTypeSpecFile(
+      "b.tsp",
+      `
+      import "./a.tsp";
+      import "./c.tsp";
+      import "./e.tsp";
+      `,
+    );
+    host.addTypeSpecFile(
+      "c.tsp",
+      `
+      import "./d.tsp";
+      `,
+    );
+    host.addTypeSpecFile(
+      "d.tsp",
+      `
+      import "./e.tsp";
+      model D {}
+      `,
+    );
+    host.addTypeSpecFile(
+      "e.tsp",
+      `
+      import "./b.tsp";
+      import "./d.tsp";
+      `,
+    );
+
+    const diagnostics = await host.diagnose("main.tsp");
+    expectDiagnostics(diagnostics, [
+      {
+        code: "unnecessary",
+        message: `Unnecessary code: import "./c.tsp"`,
+        severity: "hint",
+      },
+    ]);
   });
 
   it("import from cli won't be counted as not needed", async () => {
