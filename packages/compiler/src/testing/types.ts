@@ -19,6 +19,11 @@ export interface TestHost extends TestFileSystem {
   testTypes: Record<string, Type>;
 
   compile(main: string, options?: CompilerOptions): Promise<Record<string, Type>>;
+  compileWithProgram(
+    main: string,
+    options?: CompilerOptions,
+    oldProgram?: Program,
+  ): Promise<Program>;
   diagnose(main: string, options?: CompilerOptions): Promise<readonly Diagnostic[]>;
   compileAndDiagnose(
     main: string,

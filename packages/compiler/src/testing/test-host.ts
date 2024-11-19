@@ -300,6 +300,7 @@ async function createTestHostInternal(): Promise<TestHost> {
       await fileSystem.addTypeSpecLibrary(lib);
     },
     compile,
+    compileWithProgram,
     diagnose,
     compileAndDiagnose,
     testTypes,
@@ -317,6 +318,19 @@ async function createTestHostInternal(): Promise<TestHost> {
     const [testTypes, diagnostics] = await compileAndDiagnose(main, options);
     expectDiagnosticEmpty(diagnostics);
     return testTypes;
+  }
+
+  async function compileWithProgram(
+    mainFile: string,
+    options?: CompilerOptions,
+    oldProgram?: Program,
+  ) {
+    return compileProgram(
+      fileSystem.compilerHost,
+      resolveVirtualPath(mainFile),
+      options,
+      oldProgram,
+    );
   }
 
   async function diagnose(main: string, options: CompilerOptions = {}) {

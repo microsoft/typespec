@@ -783,6 +783,53 @@ describe("compiler: unused imports", () => {
     expectDiagnosticEmpty(diagnostics);
   });
 
+  it("check with old program", async () => {
+    host.addJsFile("blue.js", { $blue() {} });
+    host.addTypeSpecFile(
+      "main.tsp",
+      `
+      import "./a.tsp";
+      import "./b.tsp";
+      import "./blue.js";
+      namespace N;
+      model M extends B {}
+      `,
+    );
+    host.addTypeSpecFile(
+      "a.tsp",
+      `
+      namespace N;
+      model A {};
+      `,
+    );
+    host.addTypeSpecFile(
+      "b.tsp",
+      `
+      namespace N {
+        @blue()
+        model B {}
+      }
+      `,
+    );
+
+    const oldProgram = await host.compileWithProgram("main.tsp");
+    expectDiagnostics(oldProgram.diagnostics, [
+      {
+        code: "unnecessary",
+        message: `Unnecessary code: import "./a.tsp"`,
+        severity: "hint",
+      },
+    ]);
+    const p = await host.compileWithProgram("main.tsp", undefined, oldProgram);
+    expectDiagnostics(p.diagnostics, [
+      {
+        code: "unnecessary",
+        message: `Unnecessary code: import "./a.tsp"`,
+        severity: "hint",
+      },
+    ]);
+  });
+
   it("import in circle won't cause problem. Main -> a.tsp <-> b.tsp -> b2.tsp -> b.tsp, Main -> c.tsp -> d.tsp -> e.tsp -> c.tsp & b.tsp", async () => {
     host.addJsFile("blue.js", { $blue() {} });
     host.addTypeSpecFile(
