@@ -8,17 +8,17 @@
 import sys
 
 if not sys.version_info >= (3, 8, 0):
-    raise Warning("Autorest for Python extension requires Python 3.8 at least")
+    raise Warning("Autorest for Python extension requires Python 3.8 at least. If you don't have Python, please run with --pyodide.")
 
 try:
     import pip
 except ImportError:
-    raise Warning("Your Python installation doesn't have pip available")
+    raise Warning("Your Python installation doesn't have pip available. If you don't have Python, please run with --pyodide.")
 
 try:
     import venv
 except ImportError:
-    raise Warning("Your Python installation doesn't have venv available")
+    raise Warning("Your Python installation doesn't have venv available. If you don't have Python, please run with --pyodide.")
 
 
 # Now we have pip and Py >= 3.8, go to work
