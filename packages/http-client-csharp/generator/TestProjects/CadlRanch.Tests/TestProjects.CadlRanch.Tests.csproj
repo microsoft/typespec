@@ -27,8 +27,4 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Http\Payload\JsonMergePatch\" />
-  </ItemGroup>
-
 </Project>
