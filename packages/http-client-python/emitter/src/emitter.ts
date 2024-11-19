@@ -14,6 +14,7 @@ import { emitCodeModel } from "./code-model.js";
 import { saveCodeModelAsYaml } from "./external-process.js";
 import { PythonEmitterOptions, PythonSdkContext } from "./lib.js";
 import { removeUnderscoresFromNamespace } from "./utils.js";
+import { runPython3 } from "./run-python3.js";
 
 export function getModelsMode(context: SdkContext): "dpg" | "none" {
   const specifiedModelsMode = context.emitContext.options["models-mode"];
@@ -149,7 +150,8 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
     } else if (fs.existsSync(path.join(venvPath, "Scripts"))) {
       venvPath = path.join(venvPath, "Scripts", "python.exe");
     } else {
-      throw new Error("Virtual environment doesn't exist.");
+      await runPython3("./eng/scripts/setup/install.py");
+      await runPython3("./eng/scripts/setup/prepare.py");
     }
     const commandArgs = [
       venvPath,
