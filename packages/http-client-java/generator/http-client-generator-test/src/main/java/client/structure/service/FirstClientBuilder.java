@@ -5,6 +5,7 @@
 package client.structure.service;
 
 import client.structure.service.implementation.FirstClientImpl;
+import client.structure.service.models.ClientType;
 import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.ServiceClientBuilder;
 import com.azure.core.client.traits.ConfigurationTrait;
@@ -201,7 +202,7 @@ public final class FirstClientBuilder implements HttpTrait<FirstClientBuilder>, 
      * Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.
      */
     @Generated
-    private String client;
+    private ClientType client;
 
     /**
      * Sets Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.
@@ -210,7 +211,7 @@ public final class FirstClientBuilder implements HttpTrait<FirstClientBuilder>, 
      * @return the FirstClientBuilder.
      */
     @Generated
-    public FirstClientBuilder client(String client) {
+    public FirstClientBuilder client(ClientType client) {
         this.client = client;
         return this;
     }

@@ -43,6 +43,7 @@
     "dist/**"
   ],
   "dependencies": {
+    "@typespec/http-client-csharp": "file:",
     "json-serialize-refs": "0.1.0-0"
   },
   "peerDependencies": {
@@ -56,7 +57,7 @@
   },
   "devDependencies": {
     "@azure-tools/cadl-ranch": "0.16.1",
-    "@azure-tools/cadl-ranch-specs": "0.39.2",
+    "@azure-tools/cadl-ranch-specs": "0.39.3",
     "@azure-tools/typespec-azure-core": "0.48.0",
     "@azure-tools/typespec-client-generator-core": "0.48.1",
     "@microsoft/api-extractor": "^7.47.11",
