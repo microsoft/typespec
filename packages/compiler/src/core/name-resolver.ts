@@ -262,7 +262,9 @@ export function createResolver(program: Program): NameResolver {
           if (
             target !== NoTarget &&
             "kind" in target &&
-            target.kind === SyntaxKind.ImportStatement
+            target.kind === SyntaxKind.ImportStatement &&
+            target.parent &&
+            program.getSourceFileLocationContext(target.parent.file).type === "project"
           ) {
             targets.add(target);
           }
