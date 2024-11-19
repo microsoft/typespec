@@ -12,13 +12,10 @@ namespace UnbrandedTypeSpec
     public partial class UnbrandedTypeSpecClient
     {
         private static PipelineMessageClassifier _pipelineMessageClassifier200;
-        private static PipelineMessageClassifier _pipelineMessageClassifier201;
         private static PipelineMessageClassifier _pipelineMessageClassifier204;
         private static Classifier2xxAnd4xx _pipelineMessageClassifier2xxAnd4xx;
 
         private static PipelineMessageClassifier PipelineMessageClassifier200 => _pipelineMessageClassifier200 = PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
-
-        private static PipelineMessageClassifier PipelineMessageClassifier201 => _pipelineMessageClassifier201 = PipelineMessageClassifier.Create(stackalloc ushort[] { 201 });
 
         private static PipelineMessageClassifier PipelineMessageClassifier204 => _pipelineMessageClassifier204 = PipelineMessageClassifier.Create(stackalloc ushort[] { 204 });
 

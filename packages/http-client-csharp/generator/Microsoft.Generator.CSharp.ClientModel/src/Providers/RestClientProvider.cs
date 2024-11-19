@@ -31,32 +31,19 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private Dictionary<InputOperation, MethodProvider>? _methodCache;
         private Dictionary<InputOperation, MethodProvider> MethodCache => _methodCache ??= [];
 
+        private readonly Dictionary<int, PropertyProvider> _pipelineMessage20xClassifiers;
         private readonly InputClient _inputClient;
-        internal ClientProvider ClientProvider { get; }
-
-        private FieldProvider _pipelineMessageClassifier200;
-        private FieldProvider _pipelineMessageClassifier201;
-        private FieldProvider _pipelineMessageClassifier204;
-        private FieldProvider _pipelineMessageClassifier2xxAnd4xx;
-        private TypeProvider _classifier2xxAnd4xxDefinition;
-
-        private PropertyProvider _classifier201Property;
-        private PropertyProvider _classifier200Property;
-        private PropertyProvider _classifier204Property;
-        private PropertyProvider _classifier2xxAnd4xxProperty;
+        private readonly FieldProvider _pipelineMessageClassifier2xxAnd4xx;
+        private readonly PropertyProvider _classifier2xxAnd4xxProperty;
+        private readonly TypeProvider _classifier2xxAnd4xxDefinition;
 
         public RestClientProvider(InputClient inputClient, ClientProvider clientProvider)
         {
             _inputClient = inputClient;
             ClientProvider = clientProvider;
-            _pipelineMessageClassifier200 = new FieldProvider(FieldModifiers.Private | FieldModifiers.Static, ClientModelPlugin.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType, "_pipelineMessageClassifier200", this);
-            _pipelineMessageClassifier201 = new FieldProvider(FieldModifiers.Private | FieldModifiers.Static, ClientModelPlugin.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType, "_pipelineMessageClassifier201", this);
-            _pipelineMessageClassifier204 = new FieldProvider(FieldModifiers.Private | FieldModifiers.Static, ClientModelPlugin.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType, "_pipelineMessageClassifier204", this);
+            _pipelineMessage20xClassifiers = BuildPipelineMessage20xClassifiers();
             _classifier2xxAnd4xxDefinition = new Classifier2xxAnd4xxDefinition(this);
             _pipelineMessageClassifier2xxAnd4xx = new FieldProvider(FieldModifiers.Private | FieldModifiers.Static, _classifier2xxAnd4xxDefinition.Type, "_pipelineMessageClassifier2xxAnd4xx", this);
-            _classifier200Property = GetResponseClassifierProperty(_pipelineMessageClassifier200, 200);
-            _classifier201Property = GetResponseClassifierProperty(_pipelineMessageClassifier201, 201);
-            _classifier204Property = GetResponseClassifierProperty(_pipelineMessageClassifier204, 204);
             _classifier2xxAnd4xxProperty = new PropertyProvider(
                 $"Gets the PipelineMessageClassifier2xxAnd4xx",
                 MethodSignatureModifiers.Private | MethodSignatureModifiers.Static,
@@ -66,42 +53,44 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 this);
         }
 
+        internal ClientProvider ClientProvider { get; }
+
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.RestClient.cs");
 
         protected override string BuildName() => _inputClient.Name.ToCleanName();
 
         protected override PropertyProvider[] BuildProperties()
         {
-            return
-            [
-                _classifier200Property,
-                _classifier201Property,
-                _classifier204Property,
-                _classifier2xxAnd4xxProperty
-            ];
-        }
+            List<PropertyProvider> pipelineMessage20xClassifiersProperties = new(_pipelineMessage20xClassifiers.Count);
+            var orderedStatusCodes = _pipelineMessage20xClassifiers.Keys.OrderBy(k => k);
 
-        private PropertyProvider GetResponseClassifierProperty(FieldProvider pipelineMessageClassifier, int code)
-        {
-            return new PropertyProvider(
-                    null,
-                    MethodSignatureModifiers.Private | MethodSignatureModifiers.Static,
-                    ClientModelPlugin.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType,
-                    pipelineMessageClassifier.Name.Substring(1).ToCleanName(),
-                    new ExpressionPropertyBody(
-                        pipelineMessageClassifier.Assign(This.ToApi<StatusCodeClassifierApi>().Create(code))),
-                    this);
+            foreach (var statusCode in orderedStatusCodes)
+            {
+                var classifierProperty = _pipelineMessage20xClassifiers[statusCode];
+                if (classifierProperty.BackingField != null)
+                {
+                    pipelineMessage20xClassifiersProperties.Add(classifierProperty);
+                }
+            }
+
+            return [.. pipelineMessage20xClassifiersProperties, _classifier2xxAnd4xxProperty];
         }
 
         protected override FieldProvider[] BuildFields()
         {
-            return
-            [
-                _pipelineMessageClassifier200,
-                _pipelineMessageClassifier201,
-                _pipelineMessageClassifier204,
-                _pipelineMessageClassifier2xxAnd4xx
-            ];
+            List<FieldProvider> pipelineMessage20xClassifiersFields = new(_pipelineMessage20xClassifiers.Count);
+            var orderedStatusCodes = _pipelineMessage20xClassifiers.Keys.OrderBy(k => k);
+
+            foreach (var statusCode in orderedStatusCodes)
+            {
+                var classifierProperty = _pipelineMessage20xClassifiers[statusCode];
+                if (classifierProperty.BackingField != null)
+                {
+                    pipelineMessage20xClassifiersFields.Add(classifierProperty.BackingField);
+                }
+            }
+
+            return [.. pipelineMessage20xClassifiersFields, _pipelineMessageClassifier2xxAnd4xx];
         }
 
         protected override TypeProvider[] BuildNestedTypes()
@@ -121,12 +110,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             return [.. methods];
-        }
-
-        private bool IsCreateRequest(MethodProvider method)
-        {
-            var span = method.Signature.Name.AsSpan();
-            return span.StartsWith("Create", StringComparison.Ordinal) && span.EndsWith("Request", StringComparison.Ordinal);
         }
 
         private MethodProvider BuildCreateRequestMethod(InputOperation operation)
@@ -180,6 +163,46 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return contentParam is null ? [] : [request.Content().Assign(contentParam).Terminate()];
         }
 
+        private Dictionary<int, PropertyProvider> BuildPipelineMessage20xClassifiers()
+        {
+            Dictionary<int, PropertyProvider> classifiers = [];
+
+            foreach (var inputOperation in _inputClient.Operations)
+            {
+                foreach (var response in inputOperation.Responses)
+                {
+                    if (response.IsErrorResponse || response.StatusCodes.Count != 1)
+                        continue;
+
+                    var statusCode = response.StatusCodes[0];
+                    if (statusCode >= 200 && statusCode < 300 && !classifiers.ContainsKey(statusCode))
+                    {
+                        var classifierBackingField = new FieldProvider(
+                            FieldModifiers.Private | FieldModifiers.Static,
+                            ClientModelPlugin.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType,
+                            $"_pipelineMessageClassifier{statusCode}",
+                            this);
+
+                        var classifierProperty = new PropertyProvider(
+                            null,
+                            MethodSignatureModifiers.Private | MethodSignatureModifiers.Static,
+                            ClientModelPlugin.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType,
+                            classifierBackingField.Name.Substring(1).ToCleanName(),
+                            new ExpressionPropertyBody(
+                                classifierBackingField.Assign(This.ToApi<StatusCodeClassifierApi>().Create(statusCode))),
+                            this)
+                        {
+                            BackingField = classifierBackingField
+                        };
+
+                        classifiers[statusCode] = classifierProperty;
+                    }
+                }
+            }
+
+            return classifiers;
+        }
+
         private PropertyProvider GetClassifier(InputOperation operation)
         {
             if (operation.HttpMethod == HttpMethod.Head.ToString())
@@ -189,13 +212,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             if (response.StatusCodes.Count == 1)
             {
-                return response.StatusCodes[0] switch
+                if (_pipelineMessage20xClassifiers.TryGetValue(response.StatusCodes[0], out var classifier))
                 {
-                    200 => _classifier200Property,
-                    201 => _classifier201Property,
-                    204 => _classifier204Property,
-                    _ => throw new InvalidOperationException($"Unexpected status code {response.StatusCodes[0]}")
-                };
+                    return classifier;
+                }
+
+                throw new InvalidOperationException($"Unexpected status code {response.StatusCodes[0]}");
             }
 
             throw new InvalidOperationException("Multiple status codes not supported");
