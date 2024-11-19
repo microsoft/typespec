@@ -180,7 +180,7 @@ const { noDrawer } = Astro.props;
   }
 </style>
 <nav aria-label="Main" class="navbar">
-  <li class="brand-item"><Link href="/" class="brand"><b>TypeSpec</b></Link></li>
+  <span class="brand-item"><Link href="/" class="brand"><b>TypeSpec</b></Link></span>
 
   <div id="header-nav-content" class="nav-content">
     <div class="items">
@@ -205,13 +205,13 @@ const { noDrawer } = Astro.props;
         class="item icon link"
         href="https://github.com/microsoft/typespec"
         target="_blank"
-        rel="noopener noreferrer"><Icon name="github" /></Link
+        rel="noopener noreferrer"><Icon name="github" label="github" /></Link
       >
       <Link
         class="item icon link"
         href="https://aka.ms/typespec/discord"
         target="_blank"
-        rel="noopener noreferrer"><Icon name="discord" /></Link
+        rel="noopener noreferrer"><Icon name="discord" label="discord" /></Link
       >
       <div class="item">
         <ThemePicker />
