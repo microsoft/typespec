@@ -21,8 +21,8 @@ using TypeSpec.JsonSchema;
 namespace Example;
 
 model Car {
-  make: string;
-  model: string;
+  maker: string;
+  modelName: string;
 }
 ```
 
