@@ -38,7 +38,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Resiliency.SrvDriven
         {
             var options = new ResiliencyServiceDrivenClientOptions(ResiliencyServiceDrivenClientOptions.ServiceVersion.V2);
             var client = new ResiliencyServiceDrivenClient(host, ServiceDeploymentV2, options);
-            var response = await client.FromNoneAsync("new");
+            var response = await client.FromNoneAsync("new", cancellationToken: default);
 
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
@@ -58,7 +58,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Resiliency.SrvDriven
         {
             var options = new ResiliencyServiceDrivenClientOptions(ResiliencyServiceDrivenClientOptions.ServiceVersion.V2);
             var client = new ResiliencyServiceDrivenClient(host, ServiceDeploymentV2, options);
-            var response = await client.FromOneOptionalAsync("optional", "new");
+            var response = await client.FromOneOptionalAsync("optional", "new", cancellationToken: default);
 
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
@@ -78,7 +78,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Resiliency.SrvDriven
         {
             var options = new ResiliencyServiceDrivenClientOptions(ResiliencyServiceDrivenClientOptions.ServiceVersion.V2);
             var client = new ResiliencyServiceDrivenClient(host, ServiceDeploymentV2, options);
-            var response = await client.FromOneRequiredAsync("required", "new");
+            var response = await client.FromOneRequiredAsync("required", "new", cancellationToken: default);
 
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });

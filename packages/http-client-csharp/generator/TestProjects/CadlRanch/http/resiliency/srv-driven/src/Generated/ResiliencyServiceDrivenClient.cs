@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Resiliency.ServiceDriven
@@ -25,7 +26,7 @@ namespace Resiliency.ServiceDriven
 
         public virtual ClientResult AddOperation() => throw null;
 
-        public virtual Task<ClientResult> AddOperationAsync() => throw null;
+        public virtual Task<ClientResult> AddOperationAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult FromNone(string newParameter, RequestOptions options = null) => throw null;
 
@@ -33,7 +34,7 @@ namespace Resiliency.ServiceDriven
 
         public virtual ClientResult FromNone(string newParameter = null) => throw null;
 
-        public virtual Task<ClientResult> FromNoneAsync(string newParameter = null) => throw null;
+        public virtual Task<ClientResult> FromNoneAsync(string newParameter = null, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult FromOneRequired(string parameter, string newParameter, RequestOptions options = null) => throw null;
 
@@ -41,7 +42,7 @@ namespace Resiliency.ServiceDriven
 
         public virtual ClientResult FromOneRequired(string parameter, string newParameter = null) => throw null;
 
-        public virtual Task<ClientResult> FromOneRequiredAsync(string parameter, string newParameter = null) => throw null;
+        public virtual Task<ClientResult> FromOneRequiredAsync(string parameter, string newParameter = null, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult FromOneOptional(string parameter, string newParameter, RequestOptions options = null) => throw null;
 
@@ -49,6 +50,6 @@ namespace Resiliency.ServiceDriven
 
         public virtual ClientResult FromOneOptional(string parameter = null, string newParameter = null) => throw null;
 
-        public virtual Task<ClientResult> FromOneOptionalAsync(string parameter = null, string newParameter = null) => throw null;
+        public virtual Task<ClientResult> FromOneOptionalAsync(string parameter = null, string newParameter = null, CancellationToken cancellationToken = default) => throw null;
     }
 }
