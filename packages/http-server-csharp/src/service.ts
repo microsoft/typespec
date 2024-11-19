@@ -22,6 +22,7 @@ import {
   isErrorModel,
   isNeverType,
   isNullType,
+  isTemplateDeclaration,
   isVoidType,
 } from "@typespec/compiler";
 import {
@@ -1101,7 +1102,9 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     if (!service) service = getService(program, target);
     if (service) {
       for (const [_, model] of target.models) {
-        emitter.emitType(model);
+        if (!isTemplateDeclaration(model)) {
+          emitter.emitType(model);
+        }
       }
       for (const [_, en] of target.enums) {
         emitter.emitType(en);
@@ -1110,14 +1113,18 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         emitter.emitType(sc);
       }
       for (const [_, iface] of target.interfaces) {
-        emitter.emitType(iface);
+        if (!isTemplateDeclaration(iface)) {
+          emitter.emitType(iface);
+        }
       }
       if (target.operations.size > 0) {
         // Collect interface operations for a business logic interface and controller
         const nsOps: [string, Operation][] = [];
 
-        for (const [_, op] of target.operations) {
-          nsOps.push([op.name, op]);
+        for (const [name, op] of target.operations) {
+          if (!isTemplateDeclaration(op)) {
+            nsOps.push([name, op]);
+          }
         }
         const iface: Interface = program.checker.createAndFinishType({
           node: undefined as any,

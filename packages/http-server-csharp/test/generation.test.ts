@@ -676,3 +676,38 @@ it("Generates types and controllers in a service subnamespace", async () => {
     ],
   );
 });
+
+it("Handles user-defined model templates", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+       using TypeSpec.Rest.Resource;
+
+       namespace MyService {
+         model Toy {
+          @key("toyId")
+          id: int64;
+      
+          petId: int64;
+          name: string;
+        }
+
+      @friendlyName("{name}ListResults", Item)
+       model ResponsePage<Item> {
+        items: Item[];
+        nextLink?: string;
+       }
+
+         op foo(): ResponsePage<Toy>;
+      }
+    `,
+    [
+      ["IMyServiceOperations.cs", ["interface IMyServiceOperations"]],
+      [
+        "MyServiceOperationsControllerBase.cs",
+        ["public abstract partial class MyServiceOperationsControllerBase: ControllerBase"],
+      ],
+      ["ToyListResults.cs", ["public partial class ToyListResults"]],
+    ],
+  );
+});
