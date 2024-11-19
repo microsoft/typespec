@@ -1,9 +1,9 @@
 import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
-import { checkFor, openApiFor } from "./test-host.js";
+import { worksFor } from "./works-for.js";
 
-describe("openapi3: return types", () => {
+worksFor(["3.0.0", "3.1.0"], ({ checkFor, openApiFor }) => {
   it("model used with @body and without shouldn't conflict if it contains no metadata", async () => {
     const res = await openApiFor(
       `

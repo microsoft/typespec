@@ -1,9 +1,9 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual } from "assert";
-import { describe, it } from "vitest";
-import { diagnoseOpenApiFor, openApiFor } from "./test-host.js";
+import { it } from "vitest";
+import { worksFor } from "./works-for.js";
 
-describe("openapi3: shared routes", () => {
+worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
   it("emits warning for routes containing query parameters", async () => {
     const diagnostics = await diagnoseOpenApiFor(
       `

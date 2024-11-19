@@ -1,13 +1,12 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
 import { OpenAPI3Schema } from "../src/types.js";
-import { oapiForModel, openApiFor } from "./test-host.js";
+import { worksFor } from "./works-for.js";
 
-describe("openapi3: primitives", () => {
+worksFor(["3.0.0", "3.1.0"], ({ oapiForModel, openApiFor }) => {
   describe("handle TypeSpec intrinsic types", () => {
     const cases = [
       ["unknown", {}],
-      ["null", { nullable: true }],
       ["numeric", { type: "number" }],
       ["integer", { type: "integer" }],
       ["int8", { type: "integer", format: "int8" }],
@@ -328,5 +327,33 @@ describe("openapi3: primitives", () => {
       it("set type: string and format to int64 when @encode(string)", () =>
         testEncode("decimal128", { type: "string", format: "decimal128" }, null, "string"));
     });
+  });
+});
+
+worksFor(["3.0.0"], ({ oapiForModel }) => {
+  it("handle null type as nullable", async () => {
+    const res = await oapiForModel(
+      "Pet",
+      `
+      model Pet { name: null };
+      `,
+    );
+
+    const schema = res.schemas.Pet.properties.name;
+    deepStrictEqual(schema, { nullable: true });
+  });
+});
+
+worksFor(["3.1.0"], ({ oapiForModel }) => {
+  it("handle null type as null", async () => {
+    const res = await oapiForModel(
+      "Pet",
+      `
+      model Pet { name: null };
+      `,
+    );
+
+    const schema = res.schemas.Pet.properties.name;
+    deepStrictEqual(schema, { type: "null" });
   });
 });
