@@ -38,6 +38,7 @@ import {
   code,
   createAssetEmitter,
 } from "@typespec/compiler/emitter-framework";
+import { createRekeyableMap } from "@typespec/compiler/utils";
 import {
   HttpOperation,
   HttpOperationParameter,
@@ -1111,9 +1112,30 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       for (const [_, iface] of target.interfaces) {
         emitter.emitType(iface);
       }
-      for (const [_, op] of target.operations) {
-        emitter.emitType(op);
+      if (target.operations.size > 0) {
+        // Collect interface operations for a business logic interface and controller
+        const nsOps: [string, Operation][] = [];
+
+        for (const [_, op] of target.operations) {
+          nsOps.push([op.name, op]);
+        }
+        const iface: Interface = program.checker.createAndFinishType({
+          node: undefined as any,
+          sourceInterfaces: [],
+          decorators: [],
+          operations: createRekeyableMap(nsOps),
+          kind: "Interface",
+          name: `${target.name}Operations`,
+          namespace: target,
+          entityKind: "Type",
+          isFinished: true,
+        });
+        for (const [_, op] of nsOps) {
+          op.interface = iface;
+        }
+        emitter.emitType(iface);
       }
+
       for (const [_, sub] of target.namespaces) {
         processNameSpace(program, sub, service);
       }

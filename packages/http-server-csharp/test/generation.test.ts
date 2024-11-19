@@ -647,3 +647,32 @@ it("Generates types for generic model instantiation", async () => {
     ["public partial class ToyCollectionWithNextLink"],
   );
 });
+
+it("Generates types and controllers in a service subnamespace", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+       using TypeSpec.Rest.Resource;
+
+       namespace MyService {
+         model Toy {
+          @key("toyId")
+          id: int64;
+      
+          petId: int64;
+          name: string;
+        }
+
+         op foo(): CollectionWithNextLink<Toy>;
+      }
+    `,
+    [
+      ["IMyServiceOperations.cs", ["interface IMyServiceOperations"]],
+      [
+        "MyServiceOperationsControllerBase.cs",
+        ["public abstract partial class MyServiceOperationsControllerBase: ControllerBase"],
+      ],
+      ["ToyCollectionWithNextLink.cs", ["public partial class ToyCollectionWithNextLink"]],
+    ],
+  );
+});
