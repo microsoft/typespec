@@ -11,6 +11,7 @@ using System;
 using System.Linq;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 
 namespace TestProjects.CadlRanch.Tests.Http.Parameters.Spread
 {
@@ -153,6 +154,10 @@ namespace TestProjects.CadlRanch.Tests.Http.Parameters.Spread
         {
             if (IsProtocolMethod(method))
                 return;
+            if (method.Name.EndsWith("Async"))
+            {
+                expected = expected.Append((typeof(CancellationToken), "cancellationToken", false));
+            }
             var parameters = method.GetParameters().Where(p => !p.ParameterType.Equals(typeof(RequestOptions)));
             var parameterTypes = parameters.Select(p => p.ParameterType);
             var parameterNames = parameters.Select(p => p.Name);

@@ -4,6 +4,7 @@
 
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 using _Type.Property.Nullable.Models;
 
@@ -21,7 +22,7 @@ namespace _Type.Property.Nullable
 
         public virtual ClientResult<DatetimeProperty> GetNonNull() => throw null;
 
-        public virtual Task<ClientResult<DatetimeProperty>> GetNonNullAsync() => throw null;
+        public virtual Task<ClientResult<DatetimeProperty>> GetNonNullAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult GetNull(RequestOptions options) => throw null;
 
@@ -29,7 +30,7 @@ namespace _Type.Property.Nullable
 
         public virtual ClientResult<DatetimeProperty> GetNull() => throw null;
 
-        public virtual Task<ClientResult<DatetimeProperty>> GetNullAsync() => throw null;
+        public virtual Task<ClientResult<DatetimeProperty>> GetNullAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult PatchNonNull(BinaryContent content, RequestOptions options = null) => throw null;
 

@@ -12,7 +12,7 @@ namespace Sample
     {
         public virtual global::System.ClientModel.ClientResult Operation(global::Sample.Models.InputEnum queryParam)
         {
-            return this.Operation(queryParam.ToString(), null);
+            return this.Operation(queryParam.ToString(), options: null);
         }
     }
 }
