@@ -4,6 +4,7 @@
 
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 using _Type.Property.Optional.Models;
 
@@ -21,7 +22,7 @@ namespace _Type.Property.Optional
 
         public virtual ClientResult<BytesProperty> GetAll() => throw null;
 
-        public virtual Task<ClientResult<BytesProperty>> GetAllAsync() => throw null;
+        public virtual Task<ClientResult<BytesProperty>> GetAllAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult GetDefault(RequestOptions options) => throw null;
 
@@ -29,7 +30,7 @@ namespace _Type.Property.Optional
 
         public virtual ClientResult<BytesProperty> GetDefault() => throw null;
 
-        public virtual Task<ClientResult<BytesProperty>> GetDefaultAsync() => throw null;
+        public virtual Task<ClientResult<BytesProperty>> GetDefaultAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult PutAll(BinaryContent content, RequestOptions options = null) => throw null;
 
@@ -37,7 +38,7 @@ namespace _Type.Property.Optional
 
         public virtual ClientResult PutAll(BytesProperty body) => throw null;
 
-        public virtual Task<ClientResult> PutAllAsync(BytesProperty body) => throw null;
+        public virtual Task<ClientResult> PutAllAsync(BytesProperty body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult PutDefault(BinaryContent content, RequestOptions options = null) => throw null;
 
@@ -45,6 +46,6 @@ namespace _Type.Property.Optional
 
         public virtual ClientResult PutDefault(BytesProperty body) => throw null;
 
-        public virtual Task<ClientResult> PutDefaultAsync(BytesProperty body) => throw null;
+        public virtual Task<ClientResult> PutDefaultAsync(BytesProperty body, CancellationToken cancellationToken = default) => throw null;
     }
 }

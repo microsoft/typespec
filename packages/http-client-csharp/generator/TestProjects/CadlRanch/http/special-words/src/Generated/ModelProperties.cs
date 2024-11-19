@@ -4,6 +4,7 @@
 
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 using SpecialWords.Models;
 
@@ -21,6 +22,6 @@ namespace SpecialWords
 
         public virtual ClientResult SameAsModel(SameAsModel body) => throw null;
 
-        public virtual Task<ClientResult> SameAsModelAsync(SameAsModel body) => throw null;
+        public virtual Task<ClientResult> SameAsModelAsync(SameAsModel body, CancellationToken cancellationToken = default) => throw null;
     }
 }

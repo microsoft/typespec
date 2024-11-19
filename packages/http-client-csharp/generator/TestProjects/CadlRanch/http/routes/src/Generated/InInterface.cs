@@ -4,6 +4,7 @@
 
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Routes
@@ -20,6 +21,6 @@ namespace Routes
 
         public virtual ClientResult Fixed() => throw null;
 
-        public virtual Task<ClientResult> FixedAsync() => throw null;
+        public virtual Task<ClientResult> FixedAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

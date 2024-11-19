@@ -1,5 +1,11 @@
 # Change Log - @typespec/http-client-python
 
+## 0.3.10
+
+### Bug Fixes
+
+- Bump pyright and mypy dependencies
+
 ## 0.3.9
 
 ### Bug Fixes
