@@ -7,6 +7,7 @@ using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.ClientModel.Snippets;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 using Microsoft.Generator.CSharp.Statements;
+using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
@@ -35,5 +36,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             => Original.Property("Uri").Assign(value.As<ClientUriBuilderDefinition>().ToUri()).Terminate();
 
         public override HttpRequestApi ToExpression() => this;
+
+        public override MethodBodyStatement DeclareUri(out ScopedApi uri)
+            => Declare("uri", New.Instance<ClientUriBuilderDefinition>(), out uri);
     }
 }

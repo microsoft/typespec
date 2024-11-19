@@ -17,9 +17,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         }
 
         public abstract MethodBodyStatement SetMethod(string httpMethod);
-
         public abstract MethodBodyStatement SetUri(ValueExpression uri);
-
+        public abstract MethodBodyStatement DeclareUri(out ScopedApi uri);
         public abstract MethodBodyStatement SetHeaders(IReadOnlyList<ValueExpression> arguments);
 
         public abstract ValueExpression Content();

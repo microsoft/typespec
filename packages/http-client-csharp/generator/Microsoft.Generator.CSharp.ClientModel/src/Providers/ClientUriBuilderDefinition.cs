@@ -91,20 +91,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             var methods = new List<MethodProvider>();
 
-            if (GetBaseType() is null)
-            {
-                methods.Add(BuildResetMethod());
-                methods.AddRange(BuildAppendPathMethods());
-                methods.AddRange(BuildAppendQueryMethods());
-                methods.Add(BuildToUriMethod());
-            }
+            methods.Add(BuildResetMethod());
+            methods.AddRange(BuildAppendPathMethods());
+            methods.AddRange(BuildAppendQueryMethods());
+            methods.Add(BuildToUriMethod());
 
             methods.AddRange(BuildAppendQueryDelimitedMethods());
 
             return methods.ToArray();
         }
-
-        protected override CSharpType? GetBaseType() => ClientModelPlugin.Instance.TypeFactory.ClientUriBuilderBaseType;
 
         private const string _resetMethodName = "Reset";
         private MethodProvider BuildResetMethod()
