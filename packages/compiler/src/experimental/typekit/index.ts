@@ -21,8 +21,6 @@ export function createTypekit(realm: Realm): Typekit {
 
   const handler: ProxyHandler<Typekit> = {
     get(target, prop, receiver) {
-      const value = Reflect.get(target, prop, receiver);
-
       if (prop === "program") {
         // don't wrap program (probably need to ensure this isn't a nested program somewhere)
         return realm.program;
@@ -31,6 +29,8 @@ export function createTypekit(realm: Realm): Typekit {
       if (prop === "realm") {
         return realm;
       }
+
+      const value = Reflect.get(target, prop, receiver);
 
       if (typeof value === "function") {
         return function (this: any, ...args: any[]) {
@@ -105,11 +105,13 @@ function _$(program: Program): Typekit;
 function _$(arg: Realm | Program): Typekit {
   let realm: Realm;
   if (Object.hasOwn(arg, "projectRoot")) {
+    // arg is a Program
     realm = (arg as DefaultRealmStore)[DEFAULT_REALM] ??= new Realm(
       arg as Program,
       "default typekit realm",
     );
   } else {
+    // arg is a Realm
     realm = arg as Realm;
   }
 
