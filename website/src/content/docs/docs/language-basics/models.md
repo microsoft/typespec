@@ -39,11 +39,12 @@ model Dog {
 
 #### Default values
 
-[Optional properties](#optional-properties) can be assigned a default value using the `=` operator.
+Properties can be assigned a default value using the `=` operator.
 
 ```typespec
 model Dog {
   address?: string = "wild";
+  age: number = 0;
 }
 ```
 
