@@ -6,7 +6,7 @@ import { EmitPackageQuickPickItem, recommendedEmitters } from "./emit/emitters.j
 import { ExtensionLogListener } from "./log/extension-log-listener.js";
 import logger from "./log/logger.js";
 import { TypeSpecLogOutputChannel } from "./log/typespec-log-output-channel.js";
-import { npmInstallPackages } from "./npm-utils.js";
+import { InstallationAction, NpmUtil } from "./npm-utils.js";
 import { createTaskProvider } from "./task-provider.js";
 import { TspLanguageClient } from "./tsp-language-client.js";
 import { isFile } from "./utils.js";
@@ -38,11 +38,11 @@ export async function activate(context: ExtensionContext) {
 
   /* code generation command. */
   context.subscriptions.push(
-    commands.registerCommand("typespec.emit", async (uri: vscode.Uri) => {
+    commands.registerCommand("typespec.GenerateSDK", async (uri: vscode.Uri) => {
       await vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Window,
-          title: "TypeSpec Emitting",
+          title: "TypeSpec Gerating SDK...",
           cancellable: false,
         },
         async (progress) => await doEmit(context, uri, progress),
@@ -62,6 +62,15 @@ export async function activate(context: ExtensionContext) {
     }),
   );
 
+  vscode.tasks.registerTaskProvider("Typespec.GenerateSdk", {
+    provideTasks: () => {
+      return generatSdkTask();
+    },
+    resolveTask(_task: vscode.Task): vscode.Task | undefined {
+      return undefined;
+    },
+  });
+
   return await vscode.window.withProgress(
     {
       title: "Launching TypeSpec language service...",
@@ -78,7 +87,18 @@ export async function deactivate() {
   await client?.stop();
 }
 
-async function doEmit(
+function generatSdkTask(): vscode.Task[] {
+  let task = new vscode.Task(
+    { type: "Typespec.GenerateSdk" },
+    vscode.TaskScope.Workspace,
+    "Generate Sdk",
+    "generate sdk",
+    new vscode.ShellExecution("echo Hello World"),
+  );
+  return [task];
+}
+
+export async function doEmit(
   context: vscode.ExtensionContext,
   uri: vscode.Uri,
   overallProgress: vscode.Progress<{ message?: string; increment?: number }>,
@@ -144,6 +164,7 @@ async function doEmit(
   }
 
   /* TODO: verify packages to install. */
+
   /* TODO: verify the sdk runtime installation. */
 
   logger.info("npm install...", [], {
@@ -152,19 +173,50 @@ async function doEmit(
     progress: overallProgress,
   });
 
+  const npmUtil = new NpmUtil(baseDir);
+
   const packagesToInstall: string[] = [];
   for (const e of selectedEmitters) {
     /* install emitter package. */
     logger.info(`select ${e.package}`);
-    let packageFullName = e.package;
-    if (e.version) {
-      packageFullName = `${e.package}@${e.version}`;
+    const { action, version } = npmUtil.ensureNpmPackageInstall(e.package, e.version);
+    if (action === InstallationAction.Upgrade) {
+      logger.info(`Upgrading ${e.package} to version ${version}`);
+      const options = {
+        ok: `OK (install ${e.package} by 'npm install'`,
+        recheck: `Check again (install ${e.package} manually)`,
+        ignore: `Ignore emitter ${e.label}`,
+        cancel: "Cancel",
+      };
+      const selected = await vscode.window.showQuickPick(Object.values(options), {
+        canPickMany: false,
+        ignoreFocusOut: true,
+        placeHolder: `Package '${e.package}' needs to be installed for emitting`,
+        title: `TypeSpec Emit...`,
+      });
+      if (selected === options.ok) {
+        packagesToInstall.push(`${e.package}@${version}`);
+      }
+    } else if (action === InstallationAction.Install) {
+      logger.info(`Installing ${e.package} version ${version}`, [], {
+        showOutput: true,
+        showPopup: true,
+        progress: overallProgress,
+      });
+      logger.info(`Installing ${e.package} version ${version}`);
+      packagesToInstall.push(`${e.package}@${version}`);
     }
-    packagesToInstall.push(packageFullName);
+    // let packageFullName = e.package;
+    // if (e.version) {
+    //   packageFullName = `${e.package}@${e.version}`;
+    // }
+
+    // packagesToInstall.push(packageFullName);
   }
 
   /* npm install packages. */
-  await npmInstallPackages(packagesToInstall, { cwd: baseDir });
+  await npmUtil.npmInstallPackages(packagesToInstall);
+  // await npmInstallPackages(packagesToInstall, { cwd: baseDir });
 
   /* emit */
   logger.info("start to emit code...");

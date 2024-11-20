@@ -37,3 +37,5 @@ export const recommendedEmitters: ReadonlyArray<EmitPackageQuickPickItem> = [
     fromConfig: false,
   },
 ];
+
+const config = vscode.workspace.getConfiguration("TypeSpec");

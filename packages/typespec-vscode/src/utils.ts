@@ -136,6 +136,7 @@ export async function spawnExecution(
   let stdout = "";
   let stderr = "";
   let retcode = 0;
+
   const child = spawn(command, args, options);
 
   child.stdout.on("data", (data) => {
