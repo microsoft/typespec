@@ -5,6 +5,7 @@
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Routes
@@ -21,7 +22,7 @@ namespace Routes
 
         public virtual ClientResult Primitive(string @param) => throw null;
 
-        public virtual Task<ClientResult> PrimitiveAsync(string @param) => throw null;
+        public virtual Task<ClientResult> PrimitiveAsync(string @param, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Array(IEnumerable<string> @param, RequestOptions options) => throw null;
 
@@ -29,7 +30,7 @@ namespace Routes
 
         public virtual ClientResult Array(IEnumerable<string> @param) => throw null;
 
-        public virtual Task<ClientResult> ArrayAsync(IEnumerable<string> @param) => throw null;
+        public virtual Task<ClientResult> ArrayAsync(IEnumerable<string> @param, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Record(IDictionary<string, int> @param, RequestOptions options) => throw null;
 
@@ -37,6 +38,6 @@ namespace Routes
 
         public virtual ClientResult Record(IDictionary<string, int> @param) => throw null;
 
-        public virtual Task<ClientResult> RecordAsync(IDictionary<string, int> @param) => throw null;
+        public virtual Task<ClientResult> RecordAsync(IDictionary<string, int> @param, CancellationToken cancellationToken = default) => throw null;
     }
 }

@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Payload.ContentNegotiation
@@ -21,7 +22,7 @@ namespace Payload.ContentNegotiation
 
         public virtual ClientResult<BinaryData> GetAvatarAsPng() => throw null;
 
-        public virtual Task<ClientResult<BinaryData>> GetAvatarAsPngAsync() => throw null;
+        public virtual Task<ClientResult<BinaryData>> GetAvatarAsPngAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult GetAvatarAsJpeg(RequestOptions options) => throw null;
 
@@ -29,6 +30,6 @@ namespace Payload.ContentNegotiation
 
         public virtual ClientResult<BinaryData> GetAvatarAsJpeg() => throw null;
 
-        public virtual Task<ClientResult<BinaryData>> GetAvatarAsJpegAsync() => throw null;
+        public virtual Task<ClientResult<BinaryData>> GetAvatarAsJpegAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

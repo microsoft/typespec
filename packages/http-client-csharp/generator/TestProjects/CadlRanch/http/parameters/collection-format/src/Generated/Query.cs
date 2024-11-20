@@ -5,6 +5,7 @@
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Parameters.CollectionFormat
@@ -21,7 +22,7 @@ namespace Parameters.CollectionFormat
 
         public virtual ClientResult Multi(IEnumerable<string> colors) => throw null;
 
-        public virtual Task<ClientResult> MultiAsync(IEnumerable<string> colors) => throw null;
+        public virtual Task<ClientResult> MultiAsync(IEnumerable<string> colors, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Ssv(IEnumerable<string> colors, RequestOptions options) => throw null;
 
@@ -29,7 +30,7 @@ namespace Parameters.CollectionFormat
 
         public virtual ClientResult Ssv(IEnumerable<string> colors) => throw null;
 
-        public virtual Task<ClientResult> SsvAsync(IEnumerable<string> colors) => throw null;
+        public virtual Task<ClientResult> SsvAsync(IEnumerable<string> colors, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Tsv(IEnumerable<string> colors, RequestOptions options) => throw null;
 
@@ -37,7 +38,7 @@ namespace Parameters.CollectionFormat
 
         public virtual ClientResult Tsv(IEnumerable<string> colors) => throw null;
 
-        public virtual Task<ClientResult> TsvAsync(IEnumerable<string> colors) => throw null;
+        public virtual Task<ClientResult> TsvAsync(IEnumerable<string> colors, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Pipes(IEnumerable<string> colors, RequestOptions options) => throw null;
 
@@ -45,7 +46,7 @@ namespace Parameters.CollectionFormat
 
         public virtual ClientResult Pipes(IEnumerable<string> colors) => throw null;
 
-        public virtual Task<ClientResult> PipesAsync(IEnumerable<string> colors) => throw null;
+        public virtual Task<ClientResult> PipesAsync(IEnumerable<string> colors, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Csv(IEnumerable<string> colors, RequestOptions options) => throw null;
 
@@ -53,6 +54,6 @@ namespace Parameters.CollectionFormat
 
         public virtual ClientResult Csv(IEnumerable<string> colors) => throw null;
 
-        public virtual Task<ClientResult> CsvAsync(IEnumerable<string> colors) => throw null;
+        public virtual Task<ClientResult> CsvAsync(IEnumerable<string> colors, CancellationToken cancellationToken = default) => throw null;
     }
 }
