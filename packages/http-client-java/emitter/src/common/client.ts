@@ -14,8 +14,8 @@ export interface Client extends Aspect, CrossLanguageDefinition {
 
   parent?: Client;
   subClients: Array<Client>;
-  publicBuilder: boolean;
-  publicParentAccessor: boolean;
+  buildMethodPublic: boolean;
+  parentAccessorPublic: boolean;
 }
 
 export class Client extends Aspect implements Client {
@@ -25,8 +25,8 @@ export class Client extends Aspect implements Client {
     this.operationGroups = [];
     this.security = new Security(false);
     this.subClients = [];
-    this.publicBuilder = true;
-    this.publicParentAccessor = false;
+    this.buildMethodPublic = true;
+    this.parentAccessorPublic = false;
 
     this.applyTo(this, objectInitializer);
   }
@@ -41,8 +41,8 @@ export class Client extends Aspect implements Client {
 
   addSubClient(subClient: Client) {
     subClient.parent = this;
-    subClient.publicBuilder = false;
-    subClient.publicParentAccessor = true;
+    subClient.buildMethodPublic = false;
+    subClient.parentAccessorPublic = true;
     this.subClients.push(subClient);
 
     // at present, sub client must have same namespace of its parent client

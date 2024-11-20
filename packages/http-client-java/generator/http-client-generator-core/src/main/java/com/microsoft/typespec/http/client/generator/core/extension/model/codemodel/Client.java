@@ -24,8 +24,8 @@ public class Client extends Metadata {
     private String crossLanguageDefinitionId;
     private Client parent;
     private List<Client> subClients = Collections.emptyList();
-    private boolean publicBuilder = true;
-    private boolean publicParentAccessor = false;
+    private boolean buildMethodPublic = true;
+    private boolean parentAccessorPublic = false;
 
     /**
      * Creates a new instance of the Client class.
@@ -176,20 +176,20 @@ public class Client extends Metadata {
         this.subClients = subClients;
     }
 
-    public boolean isPublicBuilder() {
-        return publicBuilder;
+    public boolean isBuildMethodPublic() {
+        return buildMethodPublic;
     }
 
-    public void setPublicBuilder(boolean publicBuilder) {
-        this.publicBuilder = publicBuilder;
+    public void setBuildMethodPublic(boolean buildMethodPublic) {
+        this.buildMethodPublic = buildMethodPublic;
     }
 
-    public boolean isPublicParentAccessor() {
-        return publicParentAccessor;
+    public boolean isParentAccessorPublic() {
+        return parentAccessorPublic;
     }
 
-    public void setPublicParentAccessor(boolean publicParentAccessor) {
-        this.publicParentAccessor = publicParentAccessor;
+    public void setParentAccessorPublic(boolean parentAccessorPublic) {
+        this.parentAccessorPublic = parentAccessorPublic;
     }
 
     @Override
@@ -207,8 +207,8 @@ public class Client extends Metadata {
             .writeStringField("crossLanguageDefinitionId", crossLanguageDefinitionId)
             .writeJsonField("parent", parent)
             .writeArrayField("subClients", subClients, JsonWriter::writeJson)
-            .writeBooleanField("publicBuilder", publicBuilder)
-            .writeBooleanField("publicParentAccessor", publicParentAccessor);
+            .writeBooleanField("buildMethodPublic", buildMethodPublic)
+            .writeBooleanField("parentAccessorPublic", parentAccessorPublic);
     }
 
     /**
@@ -256,11 +256,11 @@ public class Client extends Metadata {
         } else if ("subClients".equals(fieldName)) {
             client.subClients = reader.readArray(Client::fromJson);
             return true;
-        } else if ("publicBuilder".equals(fieldName)) {
-            client.publicBuilder = reader.getBoolean();
+        } else if ("buildMethodPublic".equals(fieldName)) {
+            client.buildMethodPublic = reader.getBoolean();
             return true;
-        } else if ("publicParentAccessor".equals(fieldName)) {
-            client.publicParentAccessor = reader.getBoolean();
+        } else if ("parentAccessorPublic".equals(fieldName)) {
+            client.parentAccessorPublic = reader.getBoolean();
             return true;
         }
 

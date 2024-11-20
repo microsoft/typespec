@@ -46,7 +46,7 @@ public class TypeSpecServiceClientMapper extends ServiceClientMapper {
             builder.builderPackageName(client.getLanguage().getJava().getNamespace());
         }
 
-        builder.builderDisabled(!client.isPublicBuilder());
+        builder.builderDisabled(!client.isBuildMethodPublic());
 
         Proxy proxy = null;
         OperationGroup clientOperationGroup = client.getOperationGroups()
@@ -90,7 +90,7 @@ public class TypeSpecServiceClientMapper extends ServiceClientMapper {
 
         List<ClientAccessorMethod> clientAccessorMethods = new ArrayList<>();
         for (Client subClient : client.getSubClients()) {
-            if (subClient.isPublicParentAccessor()) {
+            if (subClient.isParentAccessorPublic()) {
                 ServiceClient subServiceClient = this.map(subClient, codeModel);
                 clientAccessorMethods.add(new ClientAccessorMethod(subServiceClient));
             }

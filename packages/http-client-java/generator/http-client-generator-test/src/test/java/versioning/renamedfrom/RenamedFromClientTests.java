@@ -13,7 +13,9 @@ public class RenamedFromClientTests {
     private final RenamedFromClient renamedFromClient
         = new RenamedFromClientBuilder().endpoint("http://localhost:3000").version(Versions.V2).buildClient();
     private final NewInterfaceClient newInterfaceClient
-        = new RenamedFromClientBuilder().endpoint("http://localhost:3000").version(Versions.V2).buildNewInterfaceClient();
+        = new RenamedFromClientBuilder().endpoint("http://localhost:3000")
+            .version(Versions.V2)
+            .buildNewInterfaceClient();
 
     @Test
     public void testNewOp() {
