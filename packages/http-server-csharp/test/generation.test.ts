@@ -378,7 +378,7 @@ it("generates literal properties", async () => {
       "public partial class Foo",
       `public string StringLiteralProp { get; } = "This is a string literal";`,
       "public bool? BoolLiteralProp { get; } = true;",
-      "public object? NumericLiteralProp { get; set; }",
+      "public int? NumericLiteralProp { get; } = 17",
     ],
   );
 });
@@ -743,6 +743,39 @@ it("Handles void type in operations", async () => {
         ["public abstract partial class MyServiceOperationsControllerBase: ControllerBase"],
       ],
       ["Toy.cs", ["public partial class Toy"]],
+    ],
+  );
+});
+
+it("generates appropriate types for literals", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+      /** A simple test model*/
+      model Foo {
+        /** Numeric literal */
+        intProp: 8;
+        /** Floating point literal */
+        floatProp: 3.14;
+        /** string literal */
+        stringProp: "A string of characters";
+        /** string template prop */
+        stringTempProp: "\${Foo.stringProp} and then some";
+        /** boolean */
+        trueProp: true;
+        /** boolean */
+        falseProp: false;
+      }
+      `,
+    "Foo.cs",
+    [
+      "public partial class Foo",
+      "public int IntProp { get; } = 8",
+      "public double FloatProp { get; } = 3.14",
+      `public string StringProp { get; } = "A string of characters"`,
+      `public string StringTempProp { get; } = "A string of characters and then some"`,
+      "public bool TrueProp { get; } = true",
+      "public bool FalseProp { get; } = false",
     ],
   );
 });

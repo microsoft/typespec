@@ -62,6 +62,12 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`Intrinsic type ${"typeName"} is not valid in this context.  Please use a model, enum, union, scalar, or the unknown type`,
       },
     },
+    "invalid-interpolation": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`StringTemplate types should only reference literal-valued constants, enum members, or literal-values model properties.  The interpolated value will not contain one or more referenced elements in generated code.`,
+      },
+    },
   },
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<CSharpServiceEmitterOptions>,

@@ -104,3 +104,25 @@ it("warns for invalid identifiers", async () => {
     },
   ]);
 });
+
+it("warns for invalid interpolation", async () => {
+  const [_, diagnostics] = await runner.compileAndDiagnose(
+    getStandardService(`
+      /** A simple test model*/
+      model Foo {
+        /** string literal */
+        stringProp?: string;
+        /** boolean literal */
+        stringTemplateProp?: "\${Foo.stringProp} is a bad interpolation";
+      }
+    `),
+  );
+
+  expectDiagnostics(diagnostics, [
+    {
+      code: "@typespec/http-server-csharp/invalid-interpolation",
+      message:
+        "StringTemplate types should only reference literal-valued constants, enum members, or literal-values model properties.  The interpolated value will not contain one or more referenced elements in generated code.",
+    },
+  ]);
+});

@@ -13,6 +13,8 @@ import {
   Scalar,
   Service,
   StringLiteral,
+  StringTemplate,
+  StringTemplateSpan,
   Tuple,
   Type,
   Union,
@@ -328,12 +330,51 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     #findPropertyType(
       property: ModelProperty,
     ): [EmitterOutput<string>, string | boolean | undefined] {
+      function extractStringValue(type: Type, span: StringTemplateSpan): string {
+        switch (type.kind) {
+          case "String":
+            return type.value;
+          case "Boolean":
+            return `${type.value}`;
+          case "Number":
+            return type.valueAsString;
+          case "StringTemplateSpan":
+            if (type.isInterpolated) {
+              return extractStringValue(type.type, span);
+            } else {
+              return type.type.value;
+            }
+          case "ModelProperty":
+            return extractStringValue(type.type, span);
+          case "EnumMember":
+            if (type.value === undefined) return "";
+            if (typeof type.value === "string") return type.value;
+            if (typeof type.value === "number") return `${type.value}`;
+        }
+        reportDiagnostic(emitter.getProgram(), {
+          code: "invalid-interpolation",
+          target: span,
+          format: {},
+        });
+        return "";
+      }
       switch (property.type.kind) {
         case "String":
           return [code`string`, `"${property.type.value}"`];
+        case "StringTemplate":
+          const template = property.type;
+          if (template.stringValue !== undefined)
+            return [code`string`, `"${template.stringValue}"`];
+          const spanResults: string[] = [];
+          for (const span of template.spans) {
+            spanResults.push(extractStringValue(span, span));
+          }
+          return [code`string`, `"${spanResults.join("")}"`];
         case "Boolean":
           return [code`bool`, `${property.type.value === true ? true : false}`];
         case "Number":
+          const [type, value] = this.#findNumericType(property.type);
+          return [code`${type}`, `${value}`];
         case "Object":
           return [code`object`, undefined];
         case "Model":
@@ -346,6 +387,11 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       }
     }
 
+    #findNumericType(type: NumericLiteral): [string, string] {
+      const stringValue = type.valueAsString;
+      if (stringValue.includes(".") || stringValue.includes("e")) return ["double", stringValue];
+      return ["int", stringValue];
+    }
     modelPropertyReference(property: ModelProperty): EmitterOutput<string> {
       return code`${this.emitter.emitTypeReference(property.type)}`;
     }
@@ -556,6 +602,10 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     operationReturnType(operation: Operation, returnType: Type): EmitterOutput<string> {
       const [httpOperation, _] = getHttpOperation(this.emitter.getProgram(), operation);
       return this.#emitOperationResponses(httpOperation);
+    }
+
+    stringTemplate(stringTemplate: StringTemplate): EmitterOutput<string> {
+      return this.emitter.result.rawCode(stringTemplate.stringValue || "");
     }
 
     #getOperationResponse(operation: HttpOperation): [string, CSharpType] | undefined {
