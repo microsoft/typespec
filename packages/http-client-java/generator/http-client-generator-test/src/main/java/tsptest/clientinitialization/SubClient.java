@@ -37,6 +37,7 @@ public final class SubClient {
     /**
      * The action operation.
      * 
+     * @param type The type parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -46,13 +47,15 @@ public final class SubClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> actionWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.actionWithResponse(requestOptions);
+    public Response<Void> actionWithResponse(String type, RequestOptions requestOptions) {
+        return this.serviceClient.actionWithResponse(type, requestOptions);
     }
 
     /**
      * The action operation.
      * 
+     * @param type The type parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
@@ -61,9 +64,9 @@ public final class SubClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void action() {
+    public void action(String type) {
         // Generated convenience method for actionWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        actionWithResponse(requestOptions).getValue();
+        actionWithResponse(type, requestOptions).getValue();
     }
 }

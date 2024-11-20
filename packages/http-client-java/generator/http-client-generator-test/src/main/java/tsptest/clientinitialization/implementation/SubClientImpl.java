@@ -9,6 +9,7 @@ import com.azure.core.annotation.Host;
 import com.azure.core.annotation.HostParam;
 import com.azure.core.annotation.PathParam;
 import com.azure.core.annotation.Post;
+import com.azure.core.annotation.QueryParam;
 import com.azure.core.annotation.ReturnType;
 import com.azure.core.annotation.ServiceInterface;
 import com.azure.core.annotation.ServiceMethod;
@@ -145,7 +146,7 @@ public final class SubClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<Void>> action(@HostParam("endpoint") String endpoint, @PathParam("name") String name,
-            RequestOptions requestOptions, Context context);
+            @QueryParam("type") String type, RequestOptions requestOptions, Context context);
 
         @Post("/client/initialization/basic/sub-client/{name}:action")
         @ExpectedResponses({ 204 })
@@ -154,12 +155,13 @@ public final class SubClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<Void> actionSync(@HostParam("endpoint") String endpoint, @PathParam("name") String name,
-            RequestOptions requestOptions, Context context);
+            @QueryParam("type") String type, RequestOptions requestOptions, Context context);
     }
 
     /**
      * The action operation.
      * 
+     * @param type The type parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -168,14 +170,15 @@ public final class SubClientImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> actionWithResponseAsync(RequestOptions requestOptions) {
+    public Mono<Response<Void>> actionWithResponseAsync(String type, RequestOptions requestOptions) {
         return FluxUtil
-            .withContext(context -> service.action(this.getEndpoint(), this.getName(), requestOptions, context));
+            .withContext(context -> service.action(this.getEndpoint(), this.getName(), type, requestOptions, context));
     }
 
     /**
      * The action operation.
      * 
+     * @param type The type parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -184,7 +187,7 @@ public final class SubClientImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> actionWithResponse(RequestOptions requestOptions) {
-        return service.actionSync(this.getEndpoint(), this.getName(), requestOptions, Context.NONE);
+    public Response<Void> actionWithResponse(String type, RequestOptions requestOptions) {
+        return service.actionSync(this.getEndpoint(), this.getName(), type, requestOptions, Context.NONE);
     }
 }
