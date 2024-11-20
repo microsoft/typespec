@@ -160,7 +160,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     message.ApplyResponseClassifier(classifier.ToApi<StatusCodeClassifierApi>()),
                     Declare("request", message.Request().ToApi<HttpRequestApi>(), out HttpRequestApi request),
                     request.SetMethod(operation.HttpMethod),
-                    //Declare("uri", New.Instance<ClientUriBuilderDefinition>(), out ScopedApi uri),
                     request.DeclareUri(out ScopedApi uri),
                     uri.Reset(ClientProvider.EndpointField).Terminate(),
                     .. AppendPathParameters(uri, operation, paramMap),
