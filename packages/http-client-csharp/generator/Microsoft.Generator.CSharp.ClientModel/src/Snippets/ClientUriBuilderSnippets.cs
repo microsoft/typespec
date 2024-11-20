@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Snippets;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
@@ -18,7 +17,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
             => uriBuilder.Invoke("AppendPath", path, Literal(shouldEscape));
 
         public static InvokeMethodExpression AppendPathDelimited(this ScopedApi uriBuilder, ValueExpression path, string? format, bool? shouldEscape, string? delimiter = ",")
-            => uriBuilder.Invoke("AppendPathDelimited",  [path, Literal(delimiter), Literal(format), Literal(shouldEscape)]);
+            => uriBuilder.Invoke("AppendPathDelimited", [path, Literal(delimiter), Literal(format), Literal(shouldEscape)]);
 
         public static InvokeMethodExpression AppendQuery(this ScopedApi uriBuilder, ValueExpression name, ValueExpression value, bool shouldEscape)
             => uriBuilder.Invoke("AppendQuery", [name, value, Literal(shouldEscape)]);
