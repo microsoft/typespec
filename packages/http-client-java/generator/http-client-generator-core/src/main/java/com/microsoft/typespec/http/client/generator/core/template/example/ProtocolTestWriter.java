@@ -49,14 +49,18 @@ public class ProtocolTestWriter {
         // client and builder
         syncClients.forEach(c -> {
             c.addImportsTo(imports, false);
-            c.getClientBuilder().addImportsTo(imports, false);
+            if (c.getClientBuilder() != null) {
+                c.getClientBuilder().addImportsTo(imports, false);
+            }
         });
         // base test class
         imports.add(String.format("%s.%s", testContext.getPackageName(), testContext.getTestBaseClassName()));
 
         this.clientVariableWriter = classBlock -> {
             syncClients.forEach(c -> {
-                classBlock.protectedMemberVariable(c.getClassName(), CodeNamer.toCamelCase(c.getClassName()));
+                if (c.getClientBuilder() != null) {
+                    classBlock.protectedMemberVariable(c.getClassName(), CodeNamer.toCamelCase(c.getClassName()));
+                }
             });
         };
 
@@ -67,6 +71,11 @@ public class ProtocolTestWriter {
                 if (serviceClientIterator.hasNext()) {
                     // either a single serviceClient for all syncClients, or 1 serviceClient to 1 syncClient
                     currentServiceClient = serviceClientIterator.next();
+                }
+
+                if (syncClient.getClientBuilder() == null) {
+                    // no Builder
+                    continue;
                 }
 
                 String clientVarName = CodeNamer.toCamelCase(syncClient.getClassName());

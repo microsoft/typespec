@@ -166,10 +166,16 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
         String baseName) {
         JavaSettings settings = JavaSettings.getInstance();
 
+        if (operations.isEmpty()) {
+            // no operation, does not need a Proxy
+            builder.clientMethods(Collections.emptyList());
+            return null;
+        }
+
         // TODO: Assume all operations share the same base url
-        Proxy.Builder proxyBuilder = getProxyBuilder().name(baseName + "Service")
-            .clientTypeName(baseName)
-            .baseURL(getBaseUrl(operations.iterator().next()));
+        String baseUrl = getBaseUrl(operations.iterator().next());
+        Proxy.Builder proxyBuilder
+            = getProxyBuilder().name(baseName + "Service").clientTypeName(baseName).baseURL(baseUrl);
         List<ProxyMethod> restAPIMethods = new ArrayList<>();
         for (Operation operation : operations) {
             if (settings.isDataPlaneClient()) {
