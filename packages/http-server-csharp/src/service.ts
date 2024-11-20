@@ -685,13 +685,15 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       }
       let i = 1;
       for (const requiredParam of requiredParams) {
+        const [paramType, _] = this.#findPropertyType(requiredParam);
         signature.push(
-          code`${this.emitter.emitTypeReference(requiredParam.type)} ${ensureCSharpIdentifier(this.emitter.getProgram(), requiredParam, requiredParam.name, NameCasingType.Parameter)}${i++ < totalParams ? ", " : ""}`,
+          code`${paramType} ${ensureCSharpIdentifier(this.emitter.getProgram(), requiredParam, requiredParam.name, NameCasingType.Parameter)}${i++ < totalParams ? ", " : ""}`,
         );
       }
       for (const optionalParam of optionalParams) {
+        const [paramType, _] = this.#findPropertyType(optionalParam);
         signature.push(
-          code`${this.emitter.emitTypeReference(optionalParam.type)}? ${ensureCSharpIdentifier(this.emitter.getProgram(), optionalParam, optionalParam.name, NameCasingType.Parameter)}${i++ < totalParams ? ", " : ""}`,
+          code`${paramType}? ${ensureCSharpIdentifier(this.emitter.getProgram(), optionalParam, optionalParam.name, NameCasingType.Parameter)}${i++ < totalParams ? ", " : ""}`,
         );
       }
       return signature.reduce();

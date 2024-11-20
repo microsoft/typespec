@@ -779,3 +779,54 @@ it("generates appropriate types for literals", async () => {
     ],
   );
 });
+
+it("generates appropriate types for literals in operation parameters", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+      /** A simple test model*/
+      model Foo {
+        /** Numeric literal */
+        @header intProp: 8;
+        /** Floating point literal */
+        @header floatProp: 3.14;
+        /** string literal */
+        @header stringProp: "A string of characters";
+        /** string template prop */
+        @header stringTempProp: "\${Foo.stringProp} and then some";
+        /** boolean */
+        @header trueProp: true;
+        /** boolean */
+        @header falseProp: false;
+      }
+
+      @route("/foo") op foo(...Foo): void;
+      `,
+    [
+      [
+        "Foo.cs",
+        [
+          "public partial class Foo",
+          "public int IntProp { get; } = 8",
+          "public double FloatProp { get; } = 3.14",
+          `public string StringProp { get; } = "A string of characters"`,
+          `public string StringTempProp { get; } = "A string of characters and then some"`,
+          "public bool TrueProp { get; } = true",
+          "public bool FalseProp { get; } = false",
+        ],
+      ],
+      [
+        "ContosoOperationsControllerBase.cs",
+        [
+          `public virtual async Task<IActionResult> Foo([FromHeader(Name="int-prop")] int intProp = 8, [FromHeader(Name="float-prop")] double floatProp = 3.14, [FromHeader(Name="string-prop")] string stringProp = "A string of characters", [FromHeader(Name="string-temp-prop")] string stringTempProp = "A string of characters and then some", [FromHeader(Name="true-prop")] bool trueProp = true, [FromHeader(Name="false-prop")] bool falseProp = false)`,
+        ],
+      ],
+      [
+        "IContosoOperations.cs",
+        [
+          `Task FooAsync( int intProp, double floatProp, string stringProp, string stringTempProp, bool trueProp, bool falseProp);`,
+        ],
+      ],
+    ],
+  );
+});
