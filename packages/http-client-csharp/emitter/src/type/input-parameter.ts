@@ -8,7 +8,7 @@ import { InputType } from "./input-type.js";
 import { RequestLocation } from "./request-location.js";
 
 //TODO: Define VirtualParameter for HLC
-export interface VirtualParameter { }
+export interface VirtualParameter {}
 export interface InputParameter {
   Name: string;
   NameInRequest: string;

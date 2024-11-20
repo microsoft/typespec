@@ -30,6 +30,7 @@ import { InputOperation } from "../type/input-operation.js";
 import { InputParameter } from "../type/input-parameter.js";
 import { InputType } from "../type/input-type.js";
 import { convertLroFinalStateVia } from "../type/operation-final-state-via.js";
+import { OperationLongRunning } from "../type/operation-long-running.js";
 import { OperationPaging } from "../type/operation-paging.js";
 import { OperationResponse } from "../type/operation-response.js";
 import { RequestLocation } from "../type/request-location.js";
@@ -41,7 +42,6 @@ import { fromSdkHttpExamples } from "./example-converter.js";
 import { Logger } from "./logger.js";
 import { getInputType } from "./model.js";
 import { capitalize, isSdkPathParameter } from "./utils.js";
-import { OperationLongRunning } from "../type/operation-long-running.js";
 
 export function fromSdkServiceMethod(
   method: SdkServiceMethod<SdkHttpOperation>,
@@ -96,12 +96,12 @@ export function fromSdkServiceMethod(
     Decorators: method.decorators,
     Examples: method.operation.examples
       ? fromSdkHttpExamples(
-        sdkContext,
-        method.operation.examples,
-        parameterMap,
-        responseMap,
-        typeMap,
-      )
+          sdkContext,
+          method.operation.examples,
+          parameterMap,
+          responseMap,
+          typeMap,
+        )
       : undefined,
   };
 }
@@ -228,13 +228,13 @@ function loadLongRunningOperation(
       StatusCodes: method.operation.verb === "delete" ? [204] : [200],
       BodyType:
         method.__raw_lro_metadata.finalEnvelopeResult &&
-          method.__raw_lro_metadata.finalEnvelopeResult !== "void"
+        method.__raw_lro_metadata.finalEnvelopeResult !== "void"
           ? getInputType(
-            sdkContext,
-            method.__raw_lro_metadata.finalEnvelopeResult,
-            typeMap,
-            method.operation.__raw.operation,
-          )
+              sdkContext,
+              method.__raw_lro_metadata.finalEnvelopeResult,
+              typeMap,
+              method.operation.__raw.operation,
+            )
           : undefined,
       BodyMediaType: BodyMediaType.Json,
     } as OperationResponse,

@@ -35,10 +35,10 @@ export function resolveServers(
       const value = prop.default ? getDefaultValue(prop.default) : "";
       const inputType: InputType = isEndpoint
         ? {
-          kind: "url",
-          name: "url",
-          crossLanguageDefinitionId: "TypeSpec.url",
-        }
+            kind: "url",
+            name: "url",
+            crossLanguageDefinitionId: "TypeSpec.url",
+          }
         : getInputType(context, prop, typeMap);
 
       if (value) {

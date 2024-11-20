@@ -149,10 +149,10 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
       const isEndpoint = parameter.name === endpointVariableName;
       const parameterType: InputType = isEndpoint
         ? {
-          kind: "url",
-          name: "url",
-          crossLanguageDefinitionId: "TypeSpec.url",
-        }
+            kind: "url",
+            name: "url",
+            crossLanguageDefinitionId: "TypeSpec.url",
+          }
         : fromSdkType(parameter.type, sdkContext, sdkTypeMap); // TODO: consolidate with converter.fromSdkEndpointType
       parameters.push({
         Name: parameter.name,
