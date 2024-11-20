@@ -10,7 +10,7 @@
    "name": "Resource",
    "crossLanguageDefinitionId": "Payload.JsonMergePatch.Resource",
    "usage": "Input,Output,Json",
-   "description": "Details about a resource.",
+   "doc": "Details about a resource.",
    "decorators": [],
    "properties": [
     {
@@ -72,7 +72,7 @@
        "name": "InnerModel",
        "crossLanguageDefinitionId": "Payload.JsonMergePatch.InnerModel",
        "usage": "Input,Output,JsonMergePatch,Json",
-       "description": "It is the model used by Resource model",
+       "doc": "It is the model used by Resource model",
        "decorators": [],
        "properties": [
         {
@@ -236,7 +236,7 @@
    "name": "ResourcePatch",
    "crossLanguageDefinitionId": "Payload.JsonMergePatch.ResourcePatch",
    "usage": "Input,JsonMergePatch,Json",
-   "description": "Details about a resource for patch operation.",
+   "doc": "Details about a resource for patch operation.",
    "decorators": [],
    "properties": [
     {
@@ -393,20 +393,20 @@
   {
    "$id": "41",
    "Name": "JsonMergePatchClient",
-   "Description": "Test for merge-patch+json content-type",
+   "Doc": "Test for merge-patch+json content-type",
    "Operations": [
     {
      "$id": "42",
      "Name": "createResource",
      "ResourceName": "JsonMergePatch",
-     "Description": "Test content-type: application/merge-patch+json with required body",
+     "Doc": "Test content-type: application/merge-patch+json with required body",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "43",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "44",
         "kind": "constant",
@@ -509,7 +509,7 @@
      "$id": "51",
      "Name": "updateResource",
      "ResourceName": "JsonMergePatch",
-     "Description": "Test content-type: application/merge-patch+json with required body",
+     "Doc": "Test content-type: application/merge-patch+json with required body",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -618,7 +618,7 @@
      "$id": "60",
      "Name": "updateOptionalResource",
      "ResourceName": "JsonMergePatch",
-     "Description": "Test content-type: application/merge-patch+json with optional body",
+     "Doc": "Test content-type: application/merge-patch+json with optional body",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -732,7 +732,7 @@
      "$id": "70",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "71",
       "kind": "url",
