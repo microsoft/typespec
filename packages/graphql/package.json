@@ -1,6 +1,21 @@
 {
   "name": "@typespec/graphql",
   "version": "0.1.0",
+  "author": "Microsoft Corporation",
+  "description": "TypeSpec library for emitting GraphQL",
+  "homepage": "https://typespec.io",
+  "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/microsoft/typespec.git"
+  },
+  "bugs": {
+    "url": "https://github.com/microsoft/typespec/issues"
+  },
+  "keywords": [
+    "typespec"
+  ],
   "type": "module",
   "main": "dist/src/index.js",
   "exports": {
@@ -13,15 +28,8 @@
       "default": "./dist/src/testing/index.js"
     }
   },
-  "peerDependencies": {
-    "@typespec/compiler": "workspace:~"
-  },
-  "devDependencies": {
-    "@types/node": "~22.7.5",
-    "rimraf": "~6.0.1",
-    "source-map-support": "~0.5.21",
-    "typescript": "~5.6.3",
-    "vitest": "^2.1.2"
+  "engines": {
+    "node": ">=18.0.0"
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
@@ -32,5 +40,20 @@
     "lint": "eslint src/ test/ --report-unused-disable-directives --max-warnings=0",
     "lint:fix": "eslint . --report-unused-disable-directives --fix"
   },
-  "private": true
+  "files": [
+    "lib/*.tsp",
+    "dist/**",
+    "!dist/test/**"
+  ],
+  "peerDependencies": {
+    "@typespec/compiler": "workspace:~"
+  },
+  "devDependencies": {
+    "@types/node": "~22.7.5",
+    "@typespec/compiler": "workspace:~",
+    "rimraf": "~6.0.1",
+    "source-map-support": "~0.5.21",
+    "typescript": "~5.6.3",
+    "vitest": "^2.1.2"
+  }
 }
