@@ -121,7 +121,8 @@ namespace Microsoft.Generator.CSharp.Providers
                 wireInfo: WireInfo,
                 validation: Validation)
             {
-                _asVariable = AsExpression
+                _asVariable = AsExpression,
+                SpreadSource = SpreadSource
             };
         }
 
