@@ -125,11 +125,6 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     },
-    "http-resiliency-srv-driven-v1": {
-      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/resiliency/srv-driven/v1 -p StubLibraryPlugin",
-      "commandName": "Executable",
-      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
-    },
     "http-routes": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/routes -p StubLibraryPlugin",
       "commandName": "Executable",

@@ -412,17 +412,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 // If there are optional parameters, but the request options parameter is not optional, make the optional parameters nullable required.
                 // This is to ensure that the request options parameter is always the last parameter.
-
-                for (var i = 0; i < optionalParameters.Count; i++)
+                foreach (var parameter in optionalParameters)
                 {
-                    // Ensure a new copy is made to avoid modifying the original reference.
-                    var optionalParam = optionalParameters[i].ToPublicInputParameter();
-
-                    optionalParam.DefaultValue = null;
-                    optionalParam.Type = optionalParameters[i].Type.WithNullable(true);
-                    requiredParameters.Add(optionalParam);
+                    parameter.DefaultValue = null;
+                    parameter.Type = parameter.Type.WithNullable(true);
                 }
 
+                requiredParameters.AddRange(optionalParameters);
                 optionalParameters.Clear();
             }
 
@@ -492,14 +488,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             for (int i = 0; i < convenienceMethodParameterCount; i++)
             {
                 if (!ProtocolMethodParameters[i].Type.Equals(ConvenienceMethodParameters[i].Type))
-                {
-                    return true;
-                }
-                if (ProtocolMethodParameters[i].DefaultValue == null && ConvenienceMethodParameters[i].DefaultValue != null)
-                {
-                    return true;
-                }
-                if (ProtocolMethodParameters[i].DefaultValue != null && ConvenienceMethodParameters[i].DefaultValue == null)
                 {
                     return true;
                 }
