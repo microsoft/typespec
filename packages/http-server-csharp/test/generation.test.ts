@@ -830,3 +830,57 @@ it("generates appropriate types for literals in operation parameters", async () 
     ],
   );
 });
+
+it("generates appropriate types for literal tuples in operation parameters", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+      /** A simple test model*/
+      model Foo {
+        /** Numeric literal */
+        @header intProp: [8, 10];
+        /** Floating point literal */
+        @header floatProp: [3.14, 5.2];
+        /** string literal */
+        @header stringProp: "string of characters";
+        /** string literal */
+        @header stringArrayProp: ["A string of characters", "and another"];
+        /** string template prop */
+        @header stringTempProp: ["A \${Foo.stringProp} and then some", "Yet another \${Foo.stringProp}"];
+        /** boolean */
+        @header trueProp: [true, true];
+        /** boolean */
+        @header falseProp: [false, false];
+      }
+
+      @route("/foo") op foo(...Foo): void;
+      `,
+    [
+      [
+        "Foo.cs",
+        [
+          "public partial class Foo",
+          "public int[] IntProp { get; } = [8, 10]",
+          "public double[] FloatProp { get; } = [3.14, 5.2]",
+          `public string StringProp { get; } = "string of characters"`,
+          `public string[] StringArrayProp { get; } = ["A string of characters", "and another"]`,
+          `public string[] StringTempProp { get; } = ["A string of characters and then some", "Yet another string of characters"]`,
+          "public bool[] TrueProp { get; } = [true, true]",
+          "public bool[] FalseProp { get; } = [false, false]",
+        ],
+      ],
+      [
+        "ContosoOperationsControllerBase.cs",
+        [
+          `public virtual async Task<IActionResult> Foo([FromHeader(Name="int-prop")] int[] intProp, [FromHeader(Name="float-prop")] double[] floatProp, [FromHeader(Name="string-prop")] string stringProp = "string of characters", [FromHeader(Name="string-array-prop")] string[] stringArrayProp, [FromHeader(Name="string-temp-prop")] string[] stringTempProp, [FromHeader(Name="true-prop")] bool[] trueProp, [FromHeader(Name="false-prop")] bool[] falseProp)`,
+        ],
+      ],
+      [
+        "IContosoOperations.cs",
+        [
+          `Task FooAsync( int[] intProp, double[] floatProp, string stringProp, string[] stringArrayProp, string[] stringTempProp, bool[] trueProp, bool[] falseProp);`,
+        ],
+      ],
+    ],
+  );
+});

@@ -330,6 +330,13 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     #findPropertyType(
       property: ModelProperty,
     ): [EmitterOutput<string>, string | boolean | undefined] {
+      return this.#getTypeInfoForTsType(property.type);
+    }
+
+    #getTypeInfoForTsType(
+      this: any,
+      tsType: Type,
+    ): [EmitterOutput<string>, string | boolean | undefined] {
       function extractStringValue(type: Type, span: StringTemplateSpan): string {
         switch (type.kind) {
           case "String":
@@ -358,11 +365,11 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         });
         return "";
       }
-      switch (property.type.kind) {
+      switch (tsType.kind) {
         case "String":
-          return [code`string`, `"${property.type.value}"`];
+          return [code`string`, `"${tsType.value}"`];
         case "StringTemplate":
-          const template = property.type;
+          const template = tsType;
           if (template.stringValue !== undefined)
             return [code`string`, `"${template.stringValue}"`];
           const spanResults: string[] = [];
@@ -371,19 +378,43 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
           }
           return [code`string`, `"${spanResults.join("")}"`];
         case "Boolean":
-          return [code`bool`, `${property.type.value === true ? true : false}`];
+          return [code`bool`, `${tsType.value === true ? true : false}`];
         case "Number":
-          const [type, value] = this.#findNumericType(property.type);
+          const [type, value] = this.#findNumericType(tsType);
           return [code`${type}`, `${value}`];
+        case "Tuple":
+          const defaults = [];
+          const [csharpType, isObject] = this.#coalesceTypes(tsType.values);
+          if (isObject) return ["object[]", undefined];
+          for (const value of tsType.values) {
+            const [_, itemDefault] = this.#getTypeInfoForTsType(value);
+            defaults.push(itemDefault);
+          }
+          return [code`${csharpType.getTypeReference()}[]`, `[${defaults.join(", ")}]`];
         case "Object":
           return [code`object`, undefined];
         case "Model":
-          if (this.#isRecord(property.type)) {
+          if (this.#isRecord(tsType)) {
             return [code`JsonObject`, undefined];
           }
-          return [code`${this.emitter.emitTypeReference(property.type)}`, undefined];
+          return [code`${emitter.emitTypeReference(tsType)}`, undefined];
+        case "Enum":
+          return [code`${emitter.emitTypeReference(tsType)}`, undefined];
+        case "EnumMember":
+          if (typeof tsType.value === "number") {
+            const stringValue = tsType.value.toString();
+            if (stringValue.includes(".") || stringValue.includes("e"))
+              return ["double", stringValue];
+            return ["int", stringValue];
+          }
+          if (typeof tsType.value === "string") {
+            return ["string", tsType.value];
+          }
+          return [code`object`, undefined];
+        case "Union":
+          return [code`${emitter.emitTypeReference(tsType)}`, undefined];
         default:
-          return [code`${this.emitter.emitTypeReference(property.type)}`, undefined];
+          return [code`${emitter.emitTypeReference(tsType)}`, undefined];
       }
     }
 
@@ -828,7 +859,8 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         name,
         NameCasingType.Parameter,
       );
-      const [emittedType, emittedDefault] = this.#findPropertyType(parameter);
+      let [emittedType, emittedDefault] = this.#findPropertyType(parameter);
+      if (emittedType.toString().endsWith("[]")) emittedDefault = undefined;
       // eslint-disable-next-line @typescript-eslint/no-deprecated
       const defaultValue = parameter.default
         ? // eslint-disable-next-line @typescript-eslint/no-deprecated
@@ -1074,26 +1106,47 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     #coalesceUnionTypes(union: Union): CSharpType {
-      const defaultValue: CSharpType = new CSharpType({
-        name: "object",
-        namespace: "System",
-        isValueType: false,
-      });
+      const [result, _] = this.#coalesceTypes([...union.variants.values()].flatMap((v) => v.type));
+      return result;
+    }
+
+    #coalesceTypes(types: Type[]): [CSharpType, boolean] {
+      const defaultValue: [CSharpType, boolean] = [
+        new CSharpType({
+          name: "object",
+          namespace: "System",
+          isValueType: false,
+        }),
+        true,
+      ];
       let current: CSharpType | undefined = undefined;
-      for (const [_, variant] of union.variants.entries()) {
+      for (const type of types) {
         let candidate: CSharpType;
-        switch (variant.type.kind) {
+        switch (type.kind) {
           case "Boolean":
             candidate = new CSharpType({ name: "bool", namespace: "System", isValueType: true });
             break;
+          case "StringTemplate":
           case "String":
             candidate = new CSharpType({ name: "string", namespace: "System", isValueType: false });
             break;
+          case "Number":
+            const stringValue = type.valueAsString;
+            if (stringValue.includes(".") || stringValue.includes("e")) {
+              candidate = new CSharpType({
+                name: "double",
+                namespace: "System",
+                isValueType: true,
+              });
+            } else {
+              candidate = new CSharpType({ name: "int", namespace: "System", isValueType: true });
+            }
+            break;
           case "Union":
-            candidate = this.#coalesceUnionTypes(variant.type);
+            candidate = this.#coalesceUnionTypes(type);
             break;
           case "Scalar":
-            candidate = getCSharpTypeForScalar(this.emitter.getProgram(), variant.type);
+            candidate = getCSharpTypeForScalar(this.emitter.getProgram(), type);
             break;
           default:
             return defaultValue;
@@ -1102,7 +1155,8 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         current = current ?? candidate;
         if (current === undefined || !candidate.equals(current)) return defaultValue;
       }
-      return current ?? defaultValue;
+
+      return current === undefined ? defaultValue : [current, false];
     }
 
     writeOutput(sourceFiles: SourceFile<string>[]): Promise<void> {
