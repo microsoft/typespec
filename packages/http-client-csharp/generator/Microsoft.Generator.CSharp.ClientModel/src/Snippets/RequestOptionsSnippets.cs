@@ -17,7 +17,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
                 arguments: [],
                 properties: new Dictionary<ValueExpression, ValueExpression>
                     { { new MemberExpression(null, nameof(RequestOptions.CancellationToken)), cancellationToken } },
-                useSingleLine: true);
+                useSingleLineForPropertyInitialization: true);
 
         public static ValueExpression ErrorOptions(this ScopedApi<RequestOptions> requestOptions) => requestOptions.Property(nameof(RequestOptions.ErrorOptions));
     }
