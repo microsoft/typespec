@@ -13,8 +13,8 @@ import { fileURLToPath } from "url";
 import { emitCodeModel } from "./code-model.js";
 import { saveCodeModelAsYaml } from "./external-process.js";
 import { PythonEmitterOptions, PythonSdkContext } from "./lib.js";
-import { removeUnderscoresFromNamespace } from "./utils.js";
 import { runPython3 } from "./run-python3.js";
+import { removeUnderscoresFromNamespace } from "./utils.js";
 
 export function getModelsMode(context: SdkContext): "dpg" | "none" {
   const specifiedModelsMode = context.emitContext.options["models-mode"];
