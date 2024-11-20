@@ -1,4 +1,3 @@
-import { exec } from "node:child_process";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
   CodeAction,
@@ -48,7 +47,7 @@ import {
 } from "vscode-languageserver/node.js";
 import { CharCode } from "../core/charcode.js";
 import { resolveCodeFix } from "../core/code-fixes.js";
-import { compilerAssert, defineCodeFix, getSourceLocation } from "../core/diagnostics.js";
+import { compilerAssert, getSourceLocation } from "../core/diagnostics.js";
 import { formatTypeSpec } from "../core/formatter.js";
 import { getEntityName, getTypeName } from "../core/helpers/type-name-utils.js";
 import { resolveModule, ResolveModuleHost } from "../core/index.js";
@@ -75,7 +74,7 @@ import {
   TypeReferenceNode,
   TypeSpecScriptNode,
 } from "../core/types.js";
-import { getNormalizedRealPath, mutate, resolveTspMain } from "../utils/misc.js";
+import { getNormalizedRealPath, resolveTspMain } from "../utils/misc.js";
 import { getSemanticTokens } from "./classify.js";
 import { createCompileService } from "./compile-service.js";
 import { resolveCompletion } from "./completion.js";
@@ -200,7 +199,7 @@ export function createServer(host: ServerHost): Server {
         codeActionKinds: ["quickfix"],
       },
       executeCommandProvider: {
-        commands: [Commands.APPLY_CODE_FIX, Commands.OPEN_RULE_DOC],
+        commands: [Commands.APPLY_CODE_FIX],
       },
     };
 
@@ -861,34 +860,14 @@ export function createServer(host: ServerHost): Server {
       const tspDiag = currentDiagnosticIndex.get(vsDiag.data?.id);
       if (tspDiag === undefined || tspDiag.codefixes === undefined) continue;
 
-      if (
-        vsDiag.codeDescription?.href &&
-        tspDiag.codefixes?.findIndex((x) => x.id === "show-linter-rule-doc-url") === -1
-      ) {
-        mutate(tspDiag.codefixes).push(
-          defineCodeFix({
-            id: "show-linter-rule-doc-url",
-            label: `Open document`,
-            fix: (context) => {},
-          }),
-        );
-      }
-
       for (const fix of tspDiag.codefixes ?? []) {
-        const currentCmd =
-          fix.id === "show-linter-rule-doc-url" ? Commands.OPEN_RULE_DOC : Commands.APPLY_CODE_FIX;
-        const currentArgs =
-          fix.id === "show-linter-rule-doc-url"
-            ? [vsDiag.codeDescription?.href]
-            : [params.textDocument.uri, vsDiag.data?.id, fix.id];
-
         const codeAction: CodeAction = {
           ...CodeAction.create(
             fix.label,
             {
               title: fix.label,
-              command: currentCmd,
-              arguments: currentArgs,
+              command: Commands.APPLY_CODE_FIX,
+              arguments: [params.textDocument.uri, vsDiag.data?.id, fix.id],
             },
             CodeActionKind.QuickFix,
           ),
@@ -912,18 +891,6 @@ export function createServer(host: ServerHost): Server {
           const vsEdits = convertCodeFixEdits(edits);
           await host.applyEdit({ changes: { [documentUri]: vsEdits } });
         }
-      }
-    } else if (params.command === Commands.OPEN_RULE_DOC && params.arguments) {
-      const docUrl = params.arguments?.[0] as string;
-      if (process.platform === "win32") {
-        // in windows
-        exec(`start ${docUrl}`);
-      } else if (process.platform === "darwin") {
-        // in macos
-        exec(`open ${docUrl}`);
-      } else {
-        // in linux or other unix-like systems
-        exec(`xdg-open ${docUrl}`);
       }
     }
   }

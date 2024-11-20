@@ -4,7 +4,6 @@ export const casingRule = createRule({
   name: "casing",
   severity: "warning",
   description: "Enforce TypeSpec recommended naming convention for types.",
-  url: "https://github.com/microsoft/typespec/tree/main/packages/best-practices", // Add URL to documentation
   messages: {
     default: paramMessage`Must match expected casing '${"casing"}'`,
   },

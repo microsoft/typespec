@@ -1,9 +1,2 @@
 emit:
   - "@typespec/openapi3"
-
-linter:
-  extends: # Extend `recommended` ruleset from @typespec/best-practices library
-    - "@typespec/best-practices/recommended"
-
-  enable: # Explicitly enable some rules
-    "@typespec/best-practices/casing": true

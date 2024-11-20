@@ -16,5 +16,4 @@ export const UPDATE_DEBOUNCE_TIME = 200;
 
 export const Commands = {
   APPLY_CODE_FIX: "typespec.applyCodeFix",
-  OPEN_RULE_DOC: "typespec.openRuleDoc",
 };
