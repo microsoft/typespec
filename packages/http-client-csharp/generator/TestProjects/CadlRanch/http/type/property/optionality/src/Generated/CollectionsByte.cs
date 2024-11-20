@@ -4,6 +4,7 @@
 
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 using _Type.Property.Optional.Models;
 
@@ -21,7 +22,7 @@ namespace _Type.Property.Optional
 
         public virtual ClientResult<CollectionsByteProperty> GetAll() => throw null;
 
-        public virtual Task<ClientResult<CollectionsByteProperty>> GetAllAsync() => throw null;
+        public virtual Task<ClientResult<CollectionsByteProperty>> GetAllAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult GetDefault(RequestOptions options) => throw null;
 
@@ -29,7 +30,7 @@ namespace _Type.Property.Optional
 
         public virtual ClientResult<CollectionsByteProperty> GetDefault() => throw null;
 
-        public virtual Task<ClientResult<CollectionsByteProperty>> GetDefaultAsync() => throw null;
+        public virtual Task<ClientResult<CollectionsByteProperty>> GetDefaultAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult PutAll(BinaryContent content, RequestOptions options = null) => throw null;
 
@@ -37,7 +38,7 @@ namespace _Type.Property.Optional
 
         public virtual ClientResult PutAll(CollectionsByteProperty body) => throw null;
 
-        public virtual Task<ClientResult> PutAllAsync(CollectionsByteProperty body) => throw null;
+        public virtual Task<ClientResult> PutAllAsync(CollectionsByteProperty body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult PutDefault(BinaryContent content, RequestOptions options = null) => throw null;
 
@@ -45,6 +46,6 @@ namespace _Type.Property.Optional
 
         public virtual ClientResult PutDefault(CollectionsByteProperty body) => throw null;
 
-        public virtual Task<ClientResult> PutDefaultAsync(CollectionsByteProperty body) => throw null;
+        public virtual Task<ClientResult> PutDefaultAsync(CollectionsByteProperty body, CancellationToken cancellationToken = default) => throw null;
     }
 }

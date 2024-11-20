@@ -4,6 +4,7 @@
 
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 using _Type.Property.AdditionalProperties.Models;
 
@@ -21,7 +22,7 @@ namespace _Type.Property.AdditionalProperties
 
         public virtual ClientResult<ExtendsFloatAdditionalProperties> Get() => throw null;
 
-        public virtual Task<ClientResult<ExtendsFloatAdditionalProperties>> GetAsync() => throw null;
+        public virtual Task<ClientResult<ExtendsFloatAdditionalProperties>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
@@ -29,6 +30,6 @@ namespace _Type.Property.AdditionalProperties
 
         public virtual ClientResult Put(ExtendsFloatAdditionalProperties body) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(ExtendsFloatAdditionalProperties body) => throw null;
+        public virtual Task<ClientResult> PutAsync(ExtendsFloatAdditionalProperties body, CancellationToken cancellationToken = default) => throw null;
     }
 }
