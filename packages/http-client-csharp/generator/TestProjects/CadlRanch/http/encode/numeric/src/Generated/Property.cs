@@ -4,6 +4,7 @@
 
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 using Encode.Numeric.Models;
 
@@ -21,7 +22,7 @@ namespace Encode.Numeric
 
         public virtual ClientResult<SafeintAsStringProperty> SafeintAsString(SafeintAsStringProperty value) => throw null;
 
-        public virtual Task<ClientResult<SafeintAsStringProperty>> SafeintAsStringAsync(SafeintAsStringProperty value) => throw null;
+        public virtual Task<ClientResult<SafeintAsStringProperty>> SafeintAsStringAsync(SafeintAsStringProperty value, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Uint32AsStringOptional(BinaryContent content, RequestOptions options = null) => throw null;
 
@@ -29,7 +30,7 @@ namespace Encode.Numeric
 
         public virtual ClientResult<Uint32AsStringProperty> Uint32AsStringOptional(Uint32AsStringProperty value) => throw null;
 
-        public virtual Task<ClientResult<Uint32AsStringProperty>> Uint32AsStringOptionalAsync(Uint32AsStringProperty value) => throw null;
+        public virtual Task<ClientResult<Uint32AsStringProperty>> Uint32AsStringOptionalAsync(Uint32AsStringProperty value, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Uint8AsString(BinaryContent content, RequestOptions options = null) => throw null;
 
@@ -37,6 +38,6 @@ namespace Encode.Numeric
 
         public virtual ClientResult<Uint8AsStringProperty> Uint8AsString(Uint8AsStringProperty value) => throw null;
 
-        public virtual Task<ClientResult<Uint8AsStringProperty>> Uint8AsStringAsync(Uint8AsStringProperty value) => throw null;
+        public virtual Task<ClientResult<Uint8AsStringProperty>> Uint8AsStringAsync(Uint8AsStringProperty value, CancellationToken cancellationToken = default) => throw null;
     }
 }
