@@ -215,7 +215,7 @@
      "kind": "enumvalue",
      "name": "43.125",
      "value": 43.125,
-     "description": "43.125",
+     "doc": "43.125",
      "valueType": {
       "$ref": "25"
      },
@@ -225,7 +225,7 @@
     }
    ],
    "crossLanguageDefinitionId": "",
-   "description": "The FloatLiteralProperty_property",
+   "doc": "The FloatLiteralProperty_property",
    "isFixed": false,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -248,7 +248,7 @@
      "kind": "enumvalue",
      "name": "42",
      "value": 42,
-     "description": "42",
+     "doc": "42",
      "valueType": {
       "$ref": "28"
      },
@@ -258,7 +258,7 @@
     }
    ],
    "crossLanguageDefinitionId": "",
-   "description": "The IntLiteralProperty_property",
+   "doc": "The IntLiteralProperty_property",
    "isFixed": false,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -281,7 +281,7 @@
      "kind": "enumvalue",
      "name": "hello",
      "value": "hello",
-     "description": "hello",
+     "doc": "hello",
      "valueType": {
       "$ref": "31"
      },
@@ -291,7 +291,7 @@
     }
    ],
    "crossLanguageDefinitionId": "",
-   "description": "The StringLiteralProperty_property",
+   "doc": "The StringLiteralProperty_property",
    "isFixed": false,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -325,7 +325,7 @@
      "enumType": {
       "$ref": "33"
      },
-     "description": "First value.",
+     "doc": "First value.",
      "decorators": []
     },
     {
@@ -343,11 +343,11 @@
      "enumType": {
       "$ref": "33"
      },
-     "description": "Second value.",
+     "doc": "Second value.",
      "decorators": []
     }
    ],
-   "description": "Enum that will be used as a property for model EnumProperty. Extensible.",
+   "doc": "Enum that will be used as a property for model EnumProperty. Extensible.",
    "isFixed": false,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -381,7 +381,7 @@
      "enumType": {
       "$ref": "39"
      },
-     "description": "First value.",
+     "doc": "First value.",
      "decorators": []
     },
     {
@@ -399,11 +399,11 @@
      "enumType": {
       "$ref": "39"
      },
-     "description": "Second value.",
+     "doc": "Second value.",
      "decorators": []
     }
    ],
-   "description": "Enum that will be used as a property for model EnumProperty. Non-extensible.",
+   "doc": "Enum that will be used as a property for model EnumProperty. Non-extensible.",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -417,7 +417,7 @@
    "name": "UnionEnumValueProperty",
    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionEnumValueProperty",
    "usage": "Input,Output,Json",
-   "description": "Template type for testing models with specific properties. Pass in the type of the property you are looking for",
+   "doc": "Template type for testing models with specific properties. Pass in the type of the property you are looking for",
    "decorators": [],
    "properties": [
     {
@@ -425,7 +425,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$id": "47",
       "kind": "constant",
@@ -450,7 +450,7 @@
    "name": "UnionFloatLiteralProperty",
    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionFloatLiteralProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with a union of float literal as property.",
+   "doc": "Model with a union of float literal as property.",
    "decorators": [],
    "properties": [
     {
@@ -458,7 +458,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$ref": "6"
      },
@@ -477,7 +477,7 @@
    "name": "UnionIntLiteralProperty",
    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionIntLiteralProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with a union of int literal as property.",
+   "doc": "Model with a union of int literal as property.",
    "decorators": [],
    "properties": [
     {
@@ -485,7 +485,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$ref": "12"
      },
@@ -504,7 +504,7 @@
    "name": "UnionStringLiteralProperty",
    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionStringLiteralProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with a union of string literal as property.",
+   "doc": "Model with a union of string literal as property.",
    "decorators": [],
    "properties": [
     {
@@ -512,7 +512,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$ref": "18"
      },
@@ -531,7 +531,7 @@
    "name": "BooleanLiteralProperty",
    "crossLanguageDefinitionId": "Type.Property.ValueTypes.BooleanLiteralProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with a boolean literal property.",
+   "doc": "Model with a boolean literal property.",
    "decorators": [],
    "properties": [
     {
@@ -539,7 +539,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$id": "56",
       "kind": "constant",
@@ -568,7 +568,7 @@
    "name": "FloatLiteralProperty",
    "crossLanguageDefinitionId": "Type.Property.ValueTypes.FloatLiteralProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with a float literal property.",
+   "doc": "Model with a float literal property.",
    "decorators": [],
    "properties": [
     {
@@ -576,7 +576,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$id": "60",
       "kind": "constant",
@@ -601,7 +601,7 @@
    "name": "IntLiteralProperty",
    "crossLanguageDefinitionId": "Type.Property.ValueTypes.IntLiteralProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with a int literal property.",
+   "doc": "Model with a int literal property.",
    "decorators": [],
    "properties": [
     {
@@ -609,7 +609,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$id": "63",
       "kind": "constant",
@@ -634,7 +634,7 @@
    "name": "StringLiteralProperty",
    "crossLanguageDefinitionId": "Type.Property.ValueTypes.StringLiteralProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with a string literal property.",
+   "doc": "Model with a string literal property.",
    "decorators": [],
    "properties": [
     {
@@ -642,7 +642,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$id": "66",
       "kind": "constant",
@@ -667,7 +667,7 @@
    "name": "UnknownArrayProperty",
    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownArrayProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with a property unknown, and the data is an array.",
+   "doc": "Model with a property unknown, and the data is an array.",
    "decorators": [],
    "properties": [
     {
@@ -675,7 +675,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$id": "69",
       "kind": "unknown",
@@ -698,7 +698,7 @@
    "name": "UnknownDictProperty",
    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownDictProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with a property unknown, and the data is a dictionnary.",
+   "doc": "Model with a property unknown, and the data is a dictionnary.",
    "decorators": [],
    "properties": [
     {
@@ -706,7 +706,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$id": "72",
       "kind": "unknown",
@@ -729,7 +729,7 @@
    "name": "UnknownIntProperty",
    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownIntProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with a property unknown, and the data is a int32.",
+   "doc": "Model with a property unknown, and the data is a int32.",
    "decorators": [],
    "properties": [
     {
@@ -737,7 +737,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$id": "75",
       "kind": "unknown",
@@ -760,7 +760,7 @@
    "name": "UnknownStringProperty",
    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownStringProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with a property unknown, and the data is a string.",
+   "doc": "Model with a property unknown, and the data is a string.",
    "decorators": [],
    "properties": [
     {
@@ -768,7 +768,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$id": "78",
       "kind": "unknown",
@@ -791,7 +791,7 @@
    "name": "NeverProperty",
    "crossLanguageDefinitionId": "Type.Property.ValueTypes.NeverProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with a property never. (This property should not be included).",
+   "doc": "Model with a property never. (This property should not be included).",
    "decorators": [],
    "properties": []
   },
@@ -801,7 +801,7 @@
    "name": "DictionaryStringProperty",
    "crossLanguageDefinitionId": "Type.Property.ValueTypes.DictionaryStringProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with dictionary string properties",
+   "doc": "Model with dictionary string properties",
    "decorators": [],
    "properties": [
     {
@@ -809,7 +809,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$id": "82",
       "kind": "dict",
@@ -844,7 +844,7 @@
    "name": "CollectionsModelProperty",
    "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsModelProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with collection model properties",
+   "doc": "Model with collection model properties",
    "decorators": [],
    "properties": [
     {
@@ -852,7 +852,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$id": "87",
       "kind": "array",
@@ -863,7 +863,7 @@
        "name": "InnerModel",
        "crossLanguageDefinitionId": "Type.Property.ValueTypes.InnerModel",
        "usage": "Input,Output,Json",
-       "description": "Inner model. Will be a property type for ModelWithModelProperties",
+       "doc": "Inner model. Will be a property type for ModelWithModelProperties",
        "decorators": [],
        "properties": [
         {
@@ -871,7 +871,7 @@
          "kind": "property",
          "name": "property",
          "serializedName": "property",
-         "description": "Required string property",
+         "doc": "Required string property",
          "type": {
           "$id": "90",
           "kind": "string",
@@ -909,7 +909,7 @@
    "name": "CollectionsIntProperty",
    "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsIntProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with collection int properties",
+   "doc": "Model with collection int properties",
    "decorators": [],
    "properties": [
     {
@@ -917,7 +917,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$id": "93",
       "kind": "array",
@@ -947,7 +947,7 @@
    "name": "CollectionsStringProperty",
    "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsStringProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with collection string properties",
+   "doc": "Model with collection string properties",
    "decorators": [],
    "properties": [
     {
@@ -955,7 +955,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$id": "97",
       "kind": "array",
@@ -985,7 +985,7 @@
    "name": "ModelProperty",
    "crossLanguageDefinitionId": "Type.Property.ValueTypes.ModelProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with model properties",
+   "doc": "Model with model properties",
    "decorators": [],
    "properties": [
     {
@@ -993,7 +993,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$ref": "88"
      },
@@ -1012,7 +1012,7 @@
    "name": "ExtensibleEnumProperty",
    "crossLanguageDefinitionId": "Type.Property.ValueTypes.ExtensibleEnumProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with extensible enum properties",
+   "doc": "Model with extensible enum properties",
    "decorators": [],
    "properties": [
     {
@@ -1020,7 +1020,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$ref": "33"
      },
@@ -1039,7 +1039,7 @@
    "name": "EnumProperty",
    "crossLanguageDefinitionId": "Type.Property.ValueTypes.EnumProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with enum properties",
+   "doc": "Model with enum properties",
    "decorators": [],
    "properties": [
     {
@@ -1047,7 +1047,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$ref": "39"
      },
@@ -1066,7 +1066,7 @@
    "name": "DurationProperty",
    "crossLanguageDefinitionId": "Type.Property.ValueTypes.DurationProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with a duration property",
+   "doc": "Model with a duration property",
    "decorators": [],
    "properties": [
     {
@@ -1074,7 +1074,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$id": "107",
       "kind": "duration",
@@ -1105,7 +1105,7 @@
    "name": "DatetimeProperty",
    "crossLanguageDefinitionId": "Type.Property.ValueTypes.DatetimeProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with a datetime property",
+   "doc": "Model with a datetime property",
    "decorators": [],
    "properties": [
     {
@@ -1113,7 +1113,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$id": "111",
       "kind": "utcDateTime",
@@ -1144,7 +1144,7 @@
    "name": "Decimal128Property",
    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal128Property",
    "usage": "Input,Output,Json",
-   "description": "Model with a decimal128 property",
+   "doc": "Model with a decimal128 property",
    "decorators": [],
    "properties": [
     {
@@ -1152,7 +1152,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$id": "115",
       "kind": "decimal128",
@@ -1175,7 +1175,7 @@
    "name": "DecimalProperty",
    "crossLanguageDefinitionId": "Type.Property.ValueTypes.DecimalProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with a decimal property",
+   "doc": "Model with a decimal property",
    "decorators": [],
    "properties": [
     {
@@ -1183,7 +1183,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$id": "118",
       "kind": "decimal",
@@ -1206,7 +1206,7 @@
    "name": "FloatProperty",
    "crossLanguageDefinitionId": "Type.Property.ValueTypes.FloatProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with a float property",
+   "doc": "Model with a float property",
    "decorators": [],
    "properties": [
     {
@@ -1214,7 +1214,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$id": "121",
       "kind": "float32",
@@ -1237,7 +1237,7 @@
    "name": "IntProperty",
    "crossLanguageDefinitionId": "Type.Property.ValueTypes.IntProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with a int property",
+   "doc": "Model with a int property",
    "decorators": [],
    "properties": [
     {
@@ -1245,7 +1245,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$id": "124",
       "kind": "int32",
@@ -1268,7 +1268,7 @@
    "name": "BytesProperty",
    "crossLanguageDefinitionId": "Type.Property.ValueTypes.BytesProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with a bytes property",
+   "doc": "Model with a bytes property",
    "decorators": [],
    "properties": [
     {
@@ -1276,7 +1276,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$id": "127",
       "kind": "bytes",
@@ -1300,7 +1300,7 @@
    "name": "StringProperty",
    "crossLanguageDefinitionId": "Type.Property.ValueTypes.StringProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with a string property",
+   "doc": "Model with a string property",
    "decorators": [],
    "properties": [
     {
@@ -1308,7 +1308,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$id": "130",
       "kind": "string",
@@ -1331,7 +1331,7 @@
    "name": "BooleanProperty",
    "crossLanguageDefinitionId": "Type.Property.ValueTypes.BooleanProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with a boolean property",
+   "doc": "Model with a boolean property",
    "decorators": [],
    "properties": [
     {
@@ -1339,7 +1339,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$id": "133",
       "kind": "boolean",
@@ -1361,7 +1361,7 @@
   {
    "$id": "134",
    "Name": "ValueTypesClient",
-   "Description": "Illustrates various property types for models",
+   "Doc": "Illustrates various property types for models",
    "Operations": [],
    "Protocol": {
     "$id": "135"
@@ -1371,7 +1371,7 @@
      "$id": "136",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "137",
       "kind": "url",
@@ -1409,7 +1409,7 @@
      "$id": "141",
      "Name": "get",
      "ResourceName": "Boolean",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1471,14 +1471,14 @@
      "$id": "146",
      "Name": "put",
      "ResourceName": "Boolean",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "147",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "148",
         "kind": "constant",
@@ -1506,7 +1506,7 @@
        "$id": "150",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "131"
        },
@@ -1555,7 +1555,7 @@
      "$id": "153",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "154",
       "kind": "url",
@@ -1593,7 +1593,7 @@
      "$id": "158",
      "Name": "get",
      "ResourceName": "String",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1655,14 +1655,14 @@
      "$id": "163",
      "Name": "put",
      "ResourceName": "String",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "164",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "165",
         "kind": "constant",
@@ -1690,7 +1690,7 @@
        "$id": "167",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "128"
        },
@@ -1739,7 +1739,7 @@
      "$id": "170",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "171",
       "kind": "url",
@@ -1777,7 +1777,7 @@
      "$id": "175",
      "Name": "get",
      "ResourceName": "Bytes",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1839,14 +1839,14 @@
      "$id": "180",
      "Name": "put",
      "ResourceName": "Bytes",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "181",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "182",
         "kind": "constant",
@@ -1874,7 +1874,7 @@
        "$id": "184",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "125"
        },
@@ -1923,7 +1923,7 @@
      "$id": "187",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "188",
       "kind": "url",
@@ -1961,7 +1961,7 @@
      "$id": "192",
      "Name": "get",
      "ResourceName": "Int",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2023,14 +2023,14 @@
      "$id": "197",
      "Name": "put",
      "ResourceName": "Int",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "198",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "199",
         "kind": "constant",
@@ -2058,7 +2058,7 @@
        "$id": "201",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "122"
        },
@@ -2107,7 +2107,7 @@
      "$id": "204",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "205",
       "kind": "url",
@@ -2145,7 +2145,7 @@
      "$id": "209",
      "Name": "get",
      "ResourceName": "Float",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2207,14 +2207,14 @@
      "$id": "214",
      "Name": "put",
      "ResourceName": "Float",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "215",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "216",
         "kind": "constant",
@@ -2242,7 +2242,7 @@
        "$id": "218",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "119"
        },
@@ -2291,7 +2291,7 @@
      "$id": "221",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "222",
       "kind": "url",
@@ -2329,7 +2329,7 @@
      "$id": "226",
      "Name": "get",
      "ResourceName": "Decimal",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2391,14 +2391,14 @@
      "$id": "231",
      "Name": "put",
      "ResourceName": "Decimal",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "232",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "233",
         "kind": "constant",
@@ -2426,7 +2426,7 @@
        "$id": "235",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "116"
        },
@@ -2475,7 +2475,7 @@
      "$id": "238",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "239",
       "kind": "url",
@@ -2513,7 +2513,7 @@
      "$id": "243",
      "Name": "get",
      "ResourceName": "Decimal128",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2575,14 +2575,14 @@
      "$id": "248",
      "Name": "put",
      "ResourceName": "Decimal128",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "249",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "250",
         "kind": "constant",
@@ -2610,7 +2610,7 @@
        "$id": "252",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "113"
        },
@@ -2659,7 +2659,7 @@
      "$id": "255",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "256",
       "kind": "url",
@@ -2697,7 +2697,7 @@
      "$id": "260",
      "Name": "get",
      "ResourceName": "Datetime",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2759,14 +2759,14 @@
      "$id": "265",
      "Name": "put",
      "ResourceName": "Datetime",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "266",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "267",
         "kind": "constant",
@@ -2794,7 +2794,7 @@
        "$id": "269",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "109"
        },
@@ -2843,7 +2843,7 @@
      "$id": "272",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "273",
       "kind": "url",
@@ -2881,7 +2881,7 @@
      "$id": "277",
      "Name": "get",
      "ResourceName": "Duration",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2943,14 +2943,14 @@
      "$id": "282",
      "Name": "put",
      "ResourceName": "Duration",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "283",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "284",
         "kind": "constant",
@@ -2978,7 +2978,7 @@
        "$id": "286",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "105"
        },
@@ -3027,7 +3027,7 @@
      "$id": "289",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "290",
       "kind": "url",
@@ -3065,7 +3065,7 @@
      "$id": "294",
      "Name": "get",
      "ResourceName": "Enum",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -3127,14 +3127,14 @@
      "$id": "299",
      "Name": "put",
      "ResourceName": "Enum",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "300",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "301",
         "kind": "constant",
@@ -3162,7 +3162,7 @@
        "$id": "303",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "103"
        },
@@ -3211,7 +3211,7 @@
      "$id": "306",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "307",
       "kind": "url",
@@ -3249,7 +3249,7 @@
      "$id": "311",
      "Name": "get",
      "ResourceName": "ExtensibleEnum",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -3311,14 +3311,14 @@
      "$id": "316",
      "Name": "put",
      "ResourceName": "ExtensibleEnum",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "317",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "318",
         "kind": "constant",
@@ -3346,7 +3346,7 @@
        "$id": "320",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "101"
        },
@@ -3395,7 +3395,7 @@
      "$id": "323",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "324",
       "kind": "url",
@@ -3433,7 +3433,7 @@
      "$id": "328",
      "Name": "get",
      "ResourceName": "Model",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -3495,14 +3495,14 @@
      "$id": "333",
      "Name": "put",
      "ResourceName": "Model",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "334",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "335",
         "kind": "constant",
@@ -3530,7 +3530,7 @@
        "$id": "337",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "99"
        },
@@ -3579,7 +3579,7 @@
      "$id": "340",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "341",
       "kind": "url",
@@ -3617,7 +3617,7 @@
      "$id": "345",
      "Name": "get",
      "ResourceName": "CollectionsString",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -3679,14 +3679,14 @@
      "$id": "350",
      "Name": "put",
      "ResourceName": "CollectionsString",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "351",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "352",
         "kind": "constant",
@@ -3714,7 +3714,7 @@
        "$id": "354",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "95"
        },
@@ -3763,7 +3763,7 @@
      "$id": "357",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "358",
       "kind": "url",
@@ -3801,7 +3801,7 @@
      "$id": "362",
      "Name": "get",
      "ResourceName": "CollectionsInt",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -3863,14 +3863,14 @@
      "$id": "367",
      "Name": "put",
      "ResourceName": "CollectionsInt",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "368",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "369",
         "kind": "constant",
@@ -3898,7 +3898,7 @@
        "$id": "371",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "91"
        },
@@ -3947,7 +3947,7 @@
      "$id": "374",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "375",
       "kind": "url",
@@ -3985,7 +3985,7 @@
      "$id": "379",
      "Name": "get",
      "ResourceName": "CollectionsModel",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -4047,14 +4047,14 @@
      "$id": "384",
      "Name": "put",
      "ResourceName": "CollectionsModel",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "385",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "386",
         "kind": "constant",
@@ -4082,7 +4082,7 @@
        "$id": "388",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "85"
        },
@@ -4131,7 +4131,7 @@
      "$id": "391",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "392",
       "kind": "url",
@@ -4169,7 +4169,7 @@
      "$id": "396",
      "Name": "get",
      "ResourceName": "DictionaryString",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -4231,14 +4231,14 @@
      "$id": "401",
      "Name": "put",
      "ResourceName": "DictionaryString",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "402",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "403",
         "kind": "constant",
@@ -4266,7 +4266,7 @@
        "$id": "405",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "80"
        },
@@ -4315,7 +4315,7 @@
      "$id": "408",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "409",
       "kind": "url",
@@ -4353,7 +4353,7 @@
      "$id": "413",
      "Name": "get",
      "ResourceName": "Never",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -4415,14 +4415,14 @@
      "$id": "418",
      "Name": "put",
      "ResourceName": "Never",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "419",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "420",
         "kind": "constant",
@@ -4450,7 +4450,7 @@
        "$id": "422",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "79"
        },
@@ -4499,7 +4499,7 @@
      "$id": "425",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "426",
       "kind": "url",
@@ -4537,7 +4537,7 @@
      "$id": "430",
      "Name": "get",
      "ResourceName": "UnknownString",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -4599,14 +4599,14 @@
      "$id": "435",
      "Name": "put",
      "ResourceName": "UnknownString",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "436",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "437",
         "kind": "constant",
@@ -4634,7 +4634,7 @@
        "$id": "439",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "76"
        },
@@ -4683,7 +4683,7 @@
      "$id": "442",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "443",
       "kind": "url",
@@ -4721,7 +4721,7 @@
      "$id": "447",
      "Name": "get",
      "ResourceName": "UnknownInt",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -4783,14 +4783,14 @@
      "$id": "452",
      "Name": "put",
      "ResourceName": "UnknownInt",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "453",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "454",
         "kind": "constant",
@@ -4818,7 +4818,7 @@
        "$id": "456",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "73"
        },
@@ -4867,7 +4867,7 @@
      "$id": "459",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "460",
       "kind": "url",
@@ -4905,7 +4905,7 @@
      "$id": "464",
      "Name": "get",
      "ResourceName": "UnknownDict",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -4967,14 +4967,14 @@
      "$id": "469",
      "Name": "put",
      "ResourceName": "UnknownDict",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "470",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "471",
         "kind": "constant",
@@ -5002,7 +5002,7 @@
        "$id": "473",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "70"
        },
@@ -5051,7 +5051,7 @@
      "$id": "476",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "477",
       "kind": "url",
@@ -5089,7 +5089,7 @@
      "$id": "481",
      "Name": "get",
      "ResourceName": "UnknownArray",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -5151,14 +5151,14 @@
      "$id": "486",
      "Name": "put",
      "ResourceName": "UnknownArray",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "487",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "488",
         "kind": "constant",
@@ -5186,7 +5186,7 @@
        "$id": "490",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "67"
        },
@@ -5235,7 +5235,7 @@
      "$id": "493",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "494",
       "kind": "url",
@@ -5273,7 +5273,7 @@
      "$id": "498",
      "Name": "get",
      "ResourceName": "StringLiteral",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -5335,14 +5335,14 @@
      "$id": "503",
      "Name": "put",
      "ResourceName": "StringLiteral",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "504",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "505",
         "kind": "constant",
@@ -5370,7 +5370,7 @@
        "$id": "507",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "64"
        },
@@ -5419,7 +5419,7 @@
      "$id": "510",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "511",
       "kind": "url",
@@ -5457,7 +5457,7 @@
      "$id": "515",
      "Name": "get",
      "ResourceName": "IntLiteral",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -5519,14 +5519,14 @@
      "$id": "520",
      "Name": "put",
      "ResourceName": "IntLiteral",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "521",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "522",
         "kind": "constant",
@@ -5554,7 +5554,7 @@
        "$id": "524",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "61"
        },
@@ -5603,7 +5603,7 @@
      "$id": "527",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "528",
       "kind": "url",
@@ -5641,7 +5641,7 @@
      "$id": "532",
      "Name": "get",
      "ResourceName": "FloatLiteral",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -5703,14 +5703,14 @@
      "$id": "537",
      "Name": "put",
      "ResourceName": "FloatLiteral",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "538",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "539",
         "kind": "constant",
@@ -5738,7 +5738,7 @@
        "$id": "541",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "58"
        },
@@ -5787,7 +5787,7 @@
      "$id": "544",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "545",
       "kind": "url",
@@ -5825,7 +5825,7 @@
      "$id": "549",
      "Name": "get",
      "ResourceName": "BooleanLiteral",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -5887,14 +5887,14 @@
      "$id": "554",
      "Name": "put",
      "ResourceName": "BooleanLiteral",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "555",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "556",
         "kind": "constant",
@@ -5922,7 +5922,7 @@
        "$id": "558",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "54"
        },
@@ -5971,7 +5971,7 @@
      "$id": "561",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "562",
       "kind": "url",
@@ -6009,7 +6009,7 @@
      "$id": "566",
      "Name": "get",
      "ResourceName": "UnionStringLiteral",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -6071,14 +6071,14 @@
      "$id": "571",
      "Name": "put",
      "ResourceName": "UnionStringLiteral",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "572",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "573",
         "kind": "constant",
@@ -6106,7 +6106,7 @@
        "$id": "575",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "52"
        },
@@ -6155,7 +6155,7 @@
      "$id": "578",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "579",
       "kind": "url",
@@ -6193,7 +6193,7 @@
      "$id": "583",
      "Name": "get",
      "ResourceName": "UnionIntLiteral",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -6255,14 +6255,14 @@
      "$id": "588",
      "Name": "put",
      "ResourceName": "UnionIntLiteral",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "589",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "590",
         "kind": "constant",
@@ -6290,7 +6290,7 @@
        "$id": "592",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "50"
        },
@@ -6339,7 +6339,7 @@
      "$id": "595",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "596",
       "kind": "url",
@@ -6377,7 +6377,7 @@
      "$id": "600",
      "Name": "get",
      "ResourceName": "UnionFloatLiteral",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -6439,14 +6439,14 @@
      "$id": "605",
      "Name": "put",
      "ResourceName": "UnionFloatLiteral",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "606",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "607",
         "kind": "constant",
@@ -6474,7 +6474,7 @@
        "$id": "609",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "48"
        },
@@ -6523,7 +6523,7 @@
      "$id": "612",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "613",
       "kind": "url",
@@ -6561,7 +6561,7 @@
      "$id": "617",
      "Name": "get",
      "ResourceName": "UnionEnumValue",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -6623,14 +6623,14 @@
      "$id": "622",
      "Name": "put",
      "ResourceName": "UnionEnumValue",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "623",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "624",
         "kind": "constant",
@@ -6658,7 +6658,7 @@
        "$id": "626",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "45"
        },
@@ -6707,7 +6707,7 @@
      "$id": "629",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "630",
       "kind": "url",

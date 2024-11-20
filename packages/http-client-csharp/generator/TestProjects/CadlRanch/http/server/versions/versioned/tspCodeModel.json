@@ -34,7 +34,7 @@
      "enumType": {
       "$ref": "2"
      },
-     "description": "The version 2022-12-01-preview.",
+     "doc": "The version 2022-12-01-preview.",
      "decorators": []
     },
     {
@@ -52,11 +52,11 @@
      "enumType": {
       "$ref": "2"
      },
-     "description": "The version 2022-12-01-preview.",
+     "doc": "The version 2022-12-01-preview.",
      "decorators": []
     }
    ],
-   "description": "The version of the API.",
+   "doc": "The version of the API.",
    "isFixed": true,
    "isFlags": false,
    "usage": "ApiVersionEnum",
@@ -68,7 +68,7 @@
   {
    "$id": "8",
    "Name": "VersionedClient",
-   "Description": "Illustrates versioned server.",
+   "Doc": "Illustrates versioned server.",
    "Operations": [
     {
      "$id": "9",
@@ -283,7 +283,7 @@
      "$id": "30",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Need to be set as 'http://localhost:3000' in client.",
+     "Doc": "Need to be set as 'http://localhost:3000' in client.",
      "Type": {
       "$id": "31",
       "kind": "url",

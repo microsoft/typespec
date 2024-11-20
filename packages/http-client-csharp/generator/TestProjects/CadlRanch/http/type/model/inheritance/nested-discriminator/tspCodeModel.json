@@ -10,14 +10,14 @@
    "name": "Fish",
    "crossLanguageDefinitionId": "Type.Model.Inheritance.NestedDiscriminator.Fish",
    "usage": "Input,Output,Json",
-   "description": "This is base model for polymorphic multiple levels inheritance with a discriminator.",
+   "doc": "This is base model for polymorphic multiple levels inheritance with a discriminator.",
    "decorators": [],
    "discriminatorProperty": {
     "$id": "3",
     "kind": "property",
     "name": "kind",
     "serializedName": "kind",
-    "description": "Discriminator property for Fish.",
+    "doc": "Discriminator property for Fish.",
     "type": {
      "$id": "4",
      "kind": "string",
@@ -64,7 +64,7 @@
      "name": "Shark",
      "crossLanguageDefinitionId": "Type.Model.Inheritance.NestedDiscriminator.Shark",
      "usage": "Input,Output,Json",
-     "description": "The second level model in polymorphic multiple levels inheritance and it defines a new discriminator.",
+     "doc": "The second level model in polymorphic multiple levels inheritance and it defines a new discriminator.",
      "discriminatorValue": "shark",
      "decorators": [],
      "discriminatorProperty": {
@@ -127,7 +127,7 @@
        "name": "SawShark",
        "crossLanguageDefinitionId": "Type.Model.Inheritance.NestedDiscriminator.SawShark",
        "usage": "Input,Output,Json",
-       "description": "The third level model SawShark in polymorphic multiple levels inheritance.",
+       "doc": "The third level model SawShark in polymorphic multiple levels inheritance.",
        "discriminatorValue": "saw",
        "decorators": [],
        "baseModel": {
@@ -167,7 +167,7 @@
        "name": "GoblinShark",
        "crossLanguageDefinitionId": "Type.Model.Inheritance.NestedDiscriminator.GoblinShark",
        "usage": "Input,Output,Json",
-       "description": "The third level model GoblinShark in polymorphic multiple levels inheritance.",
+       "doc": "The third level model GoblinShark in polymorphic multiple levels inheritance.",
        "discriminatorValue": "goblin",
        "decorators": [],
        "baseModel": {
@@ -209,7 +209,7 @@
      "name": "Salmon",
      "crossLanguageDefinitionId": "Type.Model.Inheritance.NestedDiscriminator.Salmon",
      "usage": "Input,Output,Json",
-     "description": "The second level model in polymorphic multiple levels inheritance which contains references to other polymorphic instances.",
+     "doc": "The second level model in polymorphic multiple levels inheritance which contains references to other polymorphic instances.",
      "discriminatorValue": "salmon",
      "decorators": [],
      "baseModel": {
@@ -326,7 +326,7 @@
   {
    "$id": "33",
    "Name": "NestedDiscriminatorClient",
-   "Description": "Illustrates multiple level inheritance with multiple discriminators.",
+   "Doc": "Illustrates multiple level inheritance with multiple discriminators.",
    "Operations": [
     {
      "$id": "34",
@@ -399,7 +399,7 @@
        "$id": "40",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "41",
         "kind": "constant",
@@ -536,7 +536,7 @@
        "$id": "51",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "52",
         "kind": "constant",
@@ -733,7 +733,7 @@
      "$id": "67",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "68",
       "kind": "url",

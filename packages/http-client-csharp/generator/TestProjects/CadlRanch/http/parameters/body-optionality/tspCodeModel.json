@@ -38,7 +38,7 @@
   {
    "$id": "5",
    "Name": "BodyOptionalityClient",
-   "Description": "Test describing optionality of the request body.",
+   "Doc": "Test describing optionality of the request body.",
    "Operations": [
     {
      "$id": "6",
@@ -50,7 +50,7 @@
        "$id": "7",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "8",
         "kind": "constant",
@@ -126,7 +126,7 @@
        "$id": "13",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "14",
         "kind": "constant",
@@ -201,7 +201,7 @@
      "$id": "19",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "20",
       "kind": "url",
@@ -245,7 +245,7 @@
        "$id": "25",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "26",
         "kind": "constant",
@@ -321,7 +321,7 @@
        "$id": "31",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "32",
         "kind": "constant",
@@ -397,7 +397,7 @@
      "$id": "37",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "38",
       "kind": "url",

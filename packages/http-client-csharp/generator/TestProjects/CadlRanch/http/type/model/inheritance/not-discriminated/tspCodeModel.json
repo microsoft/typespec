@@ -10,7 +10,7 @@
    "name": "Siamese",
    "crossLanguageDefinitionId": "Type.Model.Inheritance.NotDiscriminated.Siamese",
    "usage": "Input,Output,Json",
-   "description": "The third level model in the normal multiple levels inheritance.",
+   "doc": "The third level model in the normal multiple levels inheritance.",
    "decorators": [],
    "baseModel": {
     "$id": "3",
@@ -18,7 +18,7 @@
     "name": "Cat",
     "crossLanguageDefinitionId": "Type.Model.Inheritance.NotDiscriminated.Cat",
     "usage": "Input,Output,Json",
-    "description": "The second level model in the normal multiple levels inheritance.",
+    "doc": "The second level model in the normal multiple levels inheritance.",
     "decorators": [],
     "baseModel": {
      "$id": "4",
@@ -26,7 +26,7 @@
      "name": "Pet",
      "crossLanguageDefinitionId": "Type.Model.Inheritance.NotDiscriminated.Pet",
      "usage": "Input,Output,Json",
-     "description": "This is base model for not-discriminated normal multiple levels inheritance.",
+     "doc": "This is base model for not-discriminated normal multiple levels inheritance.",
      "decorators": [],
      "properties": [
       {
@@ -105,7 +105,7 @@
   {
    "$id": "11",
    "Name": "NotDiscriminatedClient",
-   "Description": "Illustrates not-discriminated inheritance model.",
+   "Doc": "Illustrates not-discriminated inheritance model.",
    "Operations": [
     {
      "$id": "12",
@@ -117,7 +117,7 @@
        "$id": "13",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "14",
         "kind": "constant",
@@ -254,7 +254,7 @@
        "$id": "24",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "25",
         "kind": "constant",
@@ -362,7 +362,7 @@
      "$id": "33",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "34",
       "kind": "url",

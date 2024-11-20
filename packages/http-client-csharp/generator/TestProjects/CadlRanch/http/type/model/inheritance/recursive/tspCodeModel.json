@@ -10,7 +10,7 @@
    "name": "Extension",
    "crossLanguageDefinitionId": "Type.Model.Inheritance.Recursive.Extension",
    "usage": "Input,Output,Json",
-   "description": "extension",
+   "doc": "extension",
    "decorators": [],
    "baseModel": {
     "$id": "3",
@@ -18,7 +18,7 @@
     "name": "Element",
     "crossLanguageDefinitionId": "Type.Model.Inheritance.Recursive.Element",
     "usage": "Input,Output,Json",
-    "description": "element",
+    "doc": "element",
     "decorators": [],
     "properties": [
      {
@@ -75,7 +75,7 @@
   {
    "$id": "8",
    "Name": "RecursiveClient",
-   "Description": "Illustrates inheritance recursion",
+   "Doc": "Illustrates inheritance recursion",
    "Operations": [
     {
      "$id": "9",
@@ -87,7 +87,7 @@
        "$id": "10",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "11",
         "kind": "constant",
@@ -223,7 +223,7 @@
      "$id": "21",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "22",
       "kind": "url",

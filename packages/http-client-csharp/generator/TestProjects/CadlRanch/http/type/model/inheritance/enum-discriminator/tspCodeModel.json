@@ -31,11 +31,11 @@
      "enumType": {
       "$ref": "2"
      },
-     "description": "Species golden",
+     "doc": "Species golden",
      "decorators": []
     }
    ],
-   "description": "extensible enum type for discriminator",
+   "doc": "extensible enum type for discriminator",
    "isFixed": false,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -69,11 +69,11 @@
      "enumType": {
       "$ref": "6"
      },
-     "description": "Species cobra",
+     "doc": "Species cobra",
      "decorators": []
     }
    ],
-   "description": "fixed enum type for discriminator",
+   "doc": "fixed enum type for discriminator",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -87,14 +87,14 @@
    "name": "Dog",
    "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.Dog",
    "usage": "Input,Output,Json",
-   "description": "Test extensible enum type for discriminator",
+   "doc": "Test extensible enum type for discriminator",
    "decorators": [],
    "discriminatorProperty": {
     "$id": "11",
     "kind": "property",
     "name": "kind",
     "serializedName": "kind",
-    "description": "discriminator property",
+    "doc": "discriminator property",
     "type": {
      "$ref": "2"
     },
@@ -114,7 +114,7 @@
      "kind": "property",
      "name": "weight",
      "serializedName": "weight",
-     "description": "Weight of the dog",
+     "doc": "Weight of the dog",
      "type": {
       "$id": "13",
       "kind": "int32",
@@ -138,7 +138,7 @@
      "name": "Golden",
      "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.Golden",
      "usage": "Input,Output,Json",
-     "description": "Golden dog model",
+     "doc": "Golden dog model",
      "discriminatorValue": "golden",
      "decorators": [],
      "baseModel": {
@@ -150,7 +150,7 @@
        "kind": "property",
        "name": "kind",
        "serializedName": "kind",
-       "description": "discriminator property",
+       "doc": "discriminator property",
        "type": {
         "$id": "17",
         "kind": "constant",
@@ -184,14 +184,14 @@
    "name": "Snake",
    "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.Snake",
    "usage": "Input,Output,Json",
-   "description": "Test fixed enum type for discriminator",
+   "doc": "Test fixed enum type for discriminator",
    "decorators": [],
    "discriminatorProperty": {
     "$id": "20",
     "kind": "property",
     "name": "kind",
     "serializedName": "kind",
-    "description": "discriminator property",
+    "doc": "discriminator property",
     "type": {
      "$ref": "6"
     },
@@ -211,7 +211,7 @@
      "kind": "property",
      "name": "length",
      "serializedName": "length",
-     "description": "Length of the snake",
+     "doc": "Length of the snake",
      "type": {
       "$id": "22",
       "kind": "int32",
@@ -235,7 +235,7 @@
      "name": "Cobra",
      "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.Cobra",
      "usage": "Input,Output,Json",
-     "description": "Cobra model",
+     "doc": "Cobra model",
      "discriminatorValue": "cobra",
      "decorators": [],
      "baseModel": {
@@ -247,7 +247,7 @@
        "kind": "property",
        "name": "kind",
        "serializedName": "kind",
-       "description": "discriminator property",
+       "doc": "discriminator property",
        "type": {
         "$id": "26",
         "kind": "constant",
@@ -280,13 +280,13 @@
   {
    "$id": "28",
    "Name": "EnumDiscriminatorClient",
-   "Description": "Illustrates inheritance with enum discriminator.",
+   "Doc": "Illustrates inheritance with enum discriminator.",
    "Operations": [
     {
      "$id": "29",
      "Name": "getExtensibleModel",
      "ResourceName": "EnumDiscriminator",
-     "Description": "Receive model with extensible enum discriminator type.",
+     "Doc": "Receive model with extensible enum discriminator type.",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -348,14 +348,14 @@
      "$id": "34",
      "Name": "putExtensibleModel",
      "ResourceName": "EnumDiscriminator",
-     "Description": "Send model with extensible enum discriminator type.",
+     "Doc": "Send model with extensible enum discriminator type.",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "35",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "36",
         "kind": "constant",
@@ -383,7 +383,7 @@
        "$id": "38",
        "Name": "input",
        "NameInRequest": "input",
-       "Description": "Dog to create",
+       "Doc": "Dog to create",
        "Type": {
         "$ref": "10"
        },
@@ -426,7 +426,7 @@
      "$id": "40",
      "Name": "getExtensibleModelMissingDiscriminator",
      "ResourceName": "EnumDiscriminator",
-     "Description": "Get a model omitting the discriminator.",
+     "Doc": "Get a model omitting the discriminator.",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -488,7 +488,7 @@
      "$id": "45",
      "Name": "getExtensibleModelWrongDiscriminator",
      "ResourceName": "EnumDiscriminator",
-     "Description": "Get a model containing discriminator value never defined.",
+     "Doc": "Get a model containing discriminator value never defined.",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -550,7 +550,7 @@
      "$id": "50",
      "Name": "getFixedModel",
      "ResourceName": "EnumDiscriminator",
-     "Description": "Receive model with fixed enum discriminator type.",
+     "Doc": "Receive model with fixed enum discriminator type.",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -612,14 +612,14 @@
      "$id": "55",
      "Name": "putFixedModel",
      "ResourceName": "EnumDiscriminator",
-     "Description": "Send model with fixed enum discriminator type.",
+     "Doc": "Send model with fixed enum discriminator type.",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "56",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "57",
         "kind": "constant",
@@ -647,7 +647,7 @@
        "$id": "59",
        "Name": "input",
        "NameInRequest": "input",
-       "Description": "Snake to create",
+       "Doc": "Snake to create",
        "Type": {
         "$ref": "19"
        },
@@ -690,7 +690,7 @@
      "$id": "61",
      "Name": "getFixedModelMissingDiscriminator",
      "ResourceName": "EnumDiscriminator",
-     "Description": "Get a model omitting the discriminator.",
+     "Doc": "Get a model omitting the discriminator.",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -752,7 +752,7 @@
      "$id": "66",
      "Name": "getFixedModelWrongDiscriminator",
      "ResourceName": "EnumDiscriminator",
-     "Description": "Get a model containing discriminator value never defined.",
+     "Doc": "Get a model containing discriminator value never defined.",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -819,7 +819,7 @@
      "$id": "72",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "73",
       "kind": "url",
