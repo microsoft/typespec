@@ -10,7 +10,8 @@ namespace Microsoft.Generator.CSharp.Input
         public InputParameter(
             string name,
             string nameInRequest,
-            string? description,
+            string? summary,
+            string? doc,
             InputType type,
             RequestLocation location,
             InputConstant? defaultValue,
@@ -27,7 +28,7 @@ namespace Microsoft.Generator.CSharp.Input
         {
             Name = name;
             NameInRequest = nameInRequest;
-            Description = description;
+            Description = summary ?? doc;
             Type = type;
             Location = location;
             DefaultValue = defaultValue;

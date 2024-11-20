@@ -15,13 +15,13 @@ namespace Microsoft.Generator.CSharp.Input
         private IList<InputModelType> _derivedModels = [];
 
         // TODO: Follow up issue https://github.com/microsoft/typespec/issues/3619. After https://github.com/Azure/typespec-azure/pull/966 is completed, update this type and remove the "modelAsStruct" parameter.
-        public InputModelType(string name, string crossLanguageDefinitionId, string? access, string? deprecation, string? description, InputModelTypeUsage usage, IReadOnlyList<InputModelProperty> properties, InputModelType? baseModel, IReadOnlyList<InputModelType> derivedModels, string? discriminatorValue, InputModelProperty? discriminatorProperty, IReadOnlyDictionary<string, InputModelType> discriminatedSubtypes, InputType? additionalProperties, bool modelAsStruct)
+        public InputModelType(string name, string crossLanguageDefinitionId, string? access, string? deprecation, string? summary, string? doc, InputModelTypeUsage usage, IReadOnlyList<InputModelProperty> properties, InputModelType? baseModel, IReadOnlyList<InputModelType> derivedModels, string? discriminatorValue, InputModelProperty? discriminatorProperty, IReadOnlyDictionary<string, InputModelType> discriminatedSubtypes, InputType? additionalProperties, bool modelAsStruct)
             : base(name)
         {
             CrossLanguageDefinitionId = crossLanguageDefinitionId;
             Access = access;
             Deprecation = deprecation;
-            Description = description;
+            Description = string.IsNullOrEmpty(summary) ? doc : summary;
             Usage = usage;
             Properties = properties;
             BaseModel = baseModel;
@@ -93,6 +93,7 @@ namespace Microsoft.Generator.CSharp.Input
                     $"Unknown{cleanBaseName}",
                     "internal",
                     null,
+                    null,
                     $"Unknown variant of {cleanBaseName}",
                     Usage | InputModelTypeUsage.Json,
                     [],
@@ -102,7 +103,8 @@ namespace Microsoft.Generator.CSharp.Input
                     new InputModelProperty(
                         DiscriminatorProperty!.Name,
                         DiscriminatorProperty.SerializedName,
-                        DiscriminatorProperty.Description,
+                        DiscriminatorProperty.Summary,
+                        DiscriminatorProperty.Doc,
                         DiscriminatorProperty.Type,
                         DiscriminatorProperty.IsRequired,
                         DiscriminatorProperty.IsReadOnly,

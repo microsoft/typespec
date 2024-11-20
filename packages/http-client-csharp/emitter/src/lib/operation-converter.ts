@@ -41,6 +41,7 @@ import { fromSdkHttpExamples } from "./example-converter.js";
 import { Logger } from "./logger.js";
 import { getInputType } from "./model.js";
 import { capitalize, isSdkPathParameter } from "./utils.js";
+import { OperationLongRunning } from "../type/operation-long-running.js";
 
 export function fromSdkServiceMethod(
   method: SdkServiceMethod<SdkHttpOperation>,
@@ -76,7 +77,7 @@ export function fromSdkServiceMethod(
       getOperationGroupName(sdkContext, method.operation, sdkContext.sdkPackage.rootNamespace),
     Deprecated: getDeprecated(sdkContext.program, method.__raw!),
     Summary: method.summary,
-    Description: method.doc,
+    Doc: method.doc,
     Accessibility: method.access,
     Parameters: [...parameterMap.values()],
     Responses: [...responseMap.values()],
@@ -95,12 +96,12 @@ export function fromSdkServiceMethod(
     Decorators: method.decorators,
     Examples: method.operation.examples
       ? fromSdkHttpExamples(
-          sdkContext,
-          method.operation.examples,
-          parameterMap,
-          responseMap,
-          typeMap,
-        )
+        sdkContext,
+        method.operation.examples,
+        parameterMap,
+        responseMap,
+        typeMap,
+      )
       : undefined,
   };
 }
@@ -182,7 +183,8 @@ function fromSdkHttpOperationParameter(
   return {
     Name: p.name,
     NameInRequest: p.kind === "header" ? normalizeHeaderName(serializedName) : serializedName,
-    Description: p.summary ?? p.doc,
+    Summary: p.summary,
+    Doc: p.doc,
     Type: parameterType,
     Location: getParameterLocation(p),
     IsApiVersion:
@@ -203,7 +205,7 @@ function loadLongRunningOperation(
   method: SdkServiceMethod<SdkHttpOperation>,
   sdkContext: SdkContext<NetEmitterOptions>,
   typeMap: SdkTypeMap,
-): import("../type/operation-long-running.js").OperationLongRunning | undefined {
+): OperationLongRunning | undefined {
   if (method.kind !== "lro") {
     return undefined;
   }
@@ -226,13 +228,13 @@ function loadLongRunningOperation(
       StatusCodes: method.operation.verb === "delete" ? [204] : [200],
       BodyType:
         method.__raw_lro_metadata.finalEnvelopeResult &&
-        method.__raw_lro_metadata.finalEnvelopeResult !== "void"
+          method.__raw_lro_metadata.finalEnvelopeResult !== "void"
           ? getInputType(
-              sdkContext,
-              method.__raw_lro_metadata.finalEnvelopeResult,
-              typeMap,
-              method.operation.__raw.operation,
-            )
+            sdkContext,
+            method.__raw_lro_metadata.finalEnvelopeResult,
+            typeMap,
+            method.operation.__raw.operation,
+          )
           : undefined,
       BodyMediaType: BodyMediaType.Json,
     } as OperationResponse,
@@ -270,7 +272,8 @@ function fromSdkServiceResponseHeaders(
       ({
         Name: h.__raw!.name,
         NameInResponse: h.serializedName,
-        Description: h.summary ?? h.doc,
+        Summary: h.summary,
+        Doc: h.doc,
         Type: fromSdkType(h.type, sdkContext, typeMap),
       }) as HttpResponseHeader,
   );

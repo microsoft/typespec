@@ -8,11 +8,13 @@ namespace Microsoft.Generator.CSharp.Input
 {
     public class InputModelProperty
     {
-        public InputModelProperty(string name, string serializedName, string? description, InputType type, bool isRequired, bool isReadOnly, bool isDiscriminator)
+        public InputModelProperty(string name, string serializedName, string? summary, string? doc, InputType type, bool isRequired, bool isReadOnly, bool isDiscriminator)
         {
             Name = name;
             SerializedName = serializedName;
-            Description = description;
+            Summary = summary;
+            Doc = doc;
+            Description = string.IsNullOrEmpty(summary) ? doc : summary;
             Type = type;
             IsRequired = isRequired;
             IsReadOnly = isReadOnly;
@@ -21,6 +23,8 @@ namespace Microsoft.Generator.CSharp.Input
 
         public string Name { get; }
         public string SerializedName { get; }
+        public string? Summary { get; }
+        public string? Doc { get; }
         public string? Description { get; }
         public InputType Type { get; }
         public bool IsRequired { get; }

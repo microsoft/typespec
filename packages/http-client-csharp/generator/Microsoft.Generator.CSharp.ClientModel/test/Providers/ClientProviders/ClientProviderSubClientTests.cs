@@ -14,11 +14,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
     public class ClientProviderSubClientTests
     {
         private const string TestClientName = "TestClient";
-        private static readonly InputClient _animalClient = new("animal", "AnimalClient description", [], [], TestClientName);
-        private static readonly InputClient _dogClient = new("dog", "DogClient description", [], [], _animalClient.Name);
-        private static readonly InputClient _catClient = new("cat", "CatClient description", [], [], _animalClient.Name);
-        private static readonly InputClient _hawkClient = new("hawkClient", "HawkClient description", [], [], _animalClient.Name);
-        private static readonly InputClient _huskyClient = new("husky", "HuskyClient description", [], [], _dogClient.Name);
+        private static readonly InputClient _animalClient = new("animal", "", "AnimalClient description", [], [], TestClientName);
+        private static readonly InputClient _dogClient = new("dog", "", "DogClient description", [], [], _animalClient.Name);
+        private static readonly InputClient _catClient = new("cat", "", "CatClient description", [], [], _animalClient.Name);
+        private static readonly InputClient _hawkClient = new("hawkClient", "", "HawkClient description", [], [], _animalClient.Name);
+        private static readonly InputClient _huskyClient = new("husky", "", "HuskyClient description", [], [], _dogClient.Name);
 
         [SetUp]
         public void SetUp()

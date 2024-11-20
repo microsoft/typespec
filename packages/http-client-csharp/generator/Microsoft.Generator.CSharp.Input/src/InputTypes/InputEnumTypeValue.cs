@@ -7,12 +7,12 @@ namespace Microsoft.Generator.CSharp.Input
 {
     public class InputEnumTypeValue
     {
-        public InputEnumTypeValue(string name, object value, InputPrimitiveType valueType, string? description)
+        public InputEnumTypeValue(string name, object value, InputPrimitiveType valueType, string? summary, string? doc)
         {
             Name = name;
             Value = value;
             ValueType = valueType;
-            Description = description;
+            Description = string.IsNullOrEmpty(summary) ? doc : summary;
         }
 
         public string Name { get; }
