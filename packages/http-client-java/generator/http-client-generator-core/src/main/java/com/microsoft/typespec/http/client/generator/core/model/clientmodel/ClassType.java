@@ -309,13 +309,18 @@ public class ClassType implements IType {
         .jsonToken("JsonToken.STRING")
         .serializationValueGetterModifier(valueGetter -> valueGetter
             + " == null ? null : DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(" + valueGetter + ")")
-        .jsonDeserializationMethod("getNullable(nonNullReader -> " + CORE_UTILS.getName()
-            + ".parseBestOffsetDateTime(nonNullReader.getString()))")
+        .jsonDeserializationMethod(JavaSettings.getInstance().isBranded()
+            ? ("getNullable(nonNullReader -> " + CORE_UTILS.getName()
+                + ".parseBestOffsetDateTime(nonNullReader.getString()))")
+            : ("getNullable(nonNullReader -> OffsetDateTime.parse(nonNullReader.getString()))"))
         .serializationMethodBase("writeString")
-        .xmlElementDeserializationMethod(
-            "getNullableElement(dateString -> " + CORE_UTILS.getName() + ".parseBestOffsetDateTime(dateString))")
-        .xmlAttributeDeserializationTemplate("%s.getNullableAttribute(%s, %s, dateString -> " + CORE_UTILS.getName()
-            + ".parseBestOffsetDateTime(dateString))")
+        .xmlElementDeserializationMethod(JavaSettings.getInstance().isBranded()
+            ? ("getNullableElement(dateString -> " + CORE_UTILS.getName() + ".parseBestOffsetDateTime(dateString))")
+            : ("getNullableElement(dateString -> OffsetDateTime.parse(dateString))"))
+        .xmlAttributeDeserializationTemplate(JavaSettings.getInstance().isBranded()
+            ? ("%s.getNullableAttribute(%s, %s, dateString -> " + CORE_UTILS.getName()
+                + ".parseBestOffsetDateTime(dateString))")
+            : ("%s.getNullableAttribute(%s, %s, dateString -> OffsetDateTime.parse(dateString))"))
         .build();
 
     public static final ClassType DURATION = new Builder(false).knownClass(Duration.class)

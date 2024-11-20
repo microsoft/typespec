@@ -4,6 +4,7 @@
 
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 using _Type.Property.Optional.Models;
 
@@ -21,7 +22,7 @@ namespace _Type.Property.Optional
 
         public virtual ClientResult<FloatLiteralProperty> GetAll() => throw null;
 
-        public virtual Task<ClientResult<FloatLiteralProperty>> GetAllAsync() => throw null;
+        public virtual Task<ClientResult<FloatLiteralProperty>> GetAllAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult GetDefault(RequestOptions options) => throw null;
 
@@ -29,7 +30,7 @@ namespace _Type.Property.Optional
 
         public virtual ClientResult<FloatLiteralProperty> GetDefault() => throw null;
 
-        public virtual Task<ClientResult<FloatLiteralProperty>> GetDefaultAsync() => throw null;
+        public virtual Task<ClientResult<FloatLiteralProperty>> GetDefaultAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult PutAll(BinaryContent content, RequestOptions options = null) => throw null;
 
@@ -37,7 +38,7 @@ namespace _Type.Property.Optional
 
         public virtual ClientResult PutAll(FloatLiteralProperty body) => throw null;
 
-        public virtual Task<ClientResult> PutAllAsync(FloatLiteralProperty body) => throw null;
+        public virtual Task<ClientResult> PutAllAsync(FloatLiteralProperty body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult PutDefault(BinaryContent content, RequestOptions options = null) => throw null;
 
@@ -45,6 +46,6 @@ namespace _Type.Property.Optional
 
         public virtual ClientResult PutDefault(FloatLiteralProperty body) => throw null;
 
-        public virtual Task<ClientResult> PutDefaultAsync(FloatLiteralProperty body) => throw null;
+        public virtual Task<ClientResult> PutDefaultAsync(FloatLiteralProperty body, CancellationToken cancellationToken = default) => throw null;
     }
 }

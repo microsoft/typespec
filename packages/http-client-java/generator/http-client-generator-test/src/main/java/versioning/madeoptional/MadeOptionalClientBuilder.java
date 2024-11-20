@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import versioning.madeoptional.implementation.MadeOptionalClientImpl;
+import versioning.madeoptional.models.Versions;
 
 /**
  * A builder for creating a new instance of the MadeOptionalClient type.
@@ -193,7 +194,7 @@ public final class MadeOptionalClientBuilder implements HttpTrait<MadeOptionalCl
      * Need to be set as 'v1' or 'v2' in client.
      */
     @Generated
-    private String version;
+    private Versions version;
 
     /**
      * Sets Need to be set as 'v1' or 'v2' in client.
@@ -202,7 +203,7 @@ public final class MadeOptionalClientBuilder implements HttpTrait<MadeOptionalCl
      * @return the MadeOptionalClientBuilder.
      */
     @Generated
-    public MadeOptionalClientBuilder version(String version) {
+    public MadeOptionalClientBuilder version(Versions version) {
         this.version = version;
         return this;
     }
