@@ -1,6 +1,7 @@
 import {
   Enum,
   Interface,
+  isTemplateInstance,
   Model,
   Namespace,
   Operation,
@@ -36,6 +37,9 @@ export class TypeCollector {
   }
 
   #collectFromType(type: Type): void {
+    if (isTemplateInstance(type)) {
+      return;
+    }
     switch (type.kind) {
       case "Namespace":
         if (!this.namespaces) {
