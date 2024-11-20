@@ -23,15 +23,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private string _cleanOperationName;
         private readonly MethodProvider _createRequestMethod;
 
-        private readonly string _createRequestMethodName;
-
         private ClientProvider Client { get; }
 
         public ScmMethodProviderCollection(InputOperation operation, TypeProvider enclosingType)
             : base(operation, enclosingType)
         {
             _cleanOperationName = operation.Name.ToCleanName();
-            _createRequestMethodName = "Create" + _cleanOperationName + "Request";
             Client = enclosingType as ClientProvider ?? throw new InvalidOperationException("Scm methods can only be built for client types.");
             _createRequestMethod = Client.RestClient.GetCreateRequestMethod(Operation);
         }
@@ -388,6 +385,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             var requiredParameters = new List<ParameterProvider>();
             var optionalParameters = new List<ParameterProvider>();
+
             for (var i = 0; i < ProtocolMethodParameters.Count; i++)
             {
                 var parameter = ProtocolMethodParameters[i];
@@ -407,14 +405,17 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 // If there are optional parameters, but the request options parameter is not optional, make the optional parameters nullable required.
                 // This is to ensure that the request options parameter is always the last parameter.
-                foreach (var parameter in optionalParameters)
+
+                for (var i = 0; i < optionalParameters.Count; i++)
                 {
-                    parameter.DefaultValue = null;
-                    parameter.Type = parameter.Type.WithNullable(true);
+                    // Ensure a new copy is made to avoid modifying the original reference.
+                    var optionalParam = optionalParameters[i].ToPublicInputParameter();
+
+                    optionalParam.DefaultValue = null;
+                    optionalParam.Type = optionalParameters[i].Type.WithNullable(true);
+                    requiredParameters.Add(optionalParam);
                 }
-                // Now, the request options parameter can be optional due to the above changes to the method signature.
-                requestOptionsParameter = ScmKnownParameters.OptionalRequestOptions;
-                requiredParameters.AddRange(optionalParameters);
+
                 optionalParameters.Clear();
             }
 

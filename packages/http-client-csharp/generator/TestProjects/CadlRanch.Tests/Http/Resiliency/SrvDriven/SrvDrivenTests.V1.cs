@@ -39,7 +39,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Resiliency.SrvDriven
         {
             var options = new ResiliencyServiceDrivenClientOptions(ResiliencyServiceDrivenClientOptions.ServiceVersion.V1);
             var client = new ResiliencyServiceDrivenClient(host, ServiceDeploymentV1, options);
-            var response = await client.FromOneOptionalAsync("optional", cancellationToken: default);
+            var response = await client.FromOneOptionalAsync("optional");
 
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });

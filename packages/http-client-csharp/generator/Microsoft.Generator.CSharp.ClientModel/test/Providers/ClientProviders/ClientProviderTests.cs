@@ -739,7 +739,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                         ]), false, false);
 
                 // Protocol & convenience methods will have the same parameters.
-                // One of the parameter is optional, so it should be make required in the protocol method, and RequestOptions can be optional.
+                // One of the parameter is optional, so it should be made required in the protocol method.
                 yield return new TestCaseData(
                     InputFactory.Operation(
                         "TestOperation",
@@ -755,7 +755,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                                 InputPrimitiveType.Int64,
                                 location: RequestLocation.None,
                                 isRequired: true),
-                        ]), true, true);
+                        ]), false, true);
 
                 // Protocol & convenience methods will have the same parameters.
                 // One of the parameter is optional value type, so it should be made nullable required in the protocol method, and RequestOptions can be optional.
@@ -774,7 +774,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                                 InputPrimitiveType.Int64,
                                 location: RequestLocation.None,
                                 isRequired: true),
-                        ]), true, true);
+                        ]), false, true);
 
                 // convenience method only has a body param, so RequestOptions should be optional in protocol method.
                 yield return new TestCaseData(
