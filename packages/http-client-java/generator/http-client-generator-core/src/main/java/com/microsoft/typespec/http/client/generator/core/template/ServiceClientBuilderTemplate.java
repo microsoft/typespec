@@ -19,6 +19,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.Plugin
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Annotation;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.AsyncSyncClient;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientAccessorMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientBuilder;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientBuilderTrait;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientBuilderTraitMethod;
@@ -115,6 +116,14 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
                 } else {
                     builderTypes.append(", ");
                 }
+                builderTypes.append(client.getClassName()).append(".class");
+
+                client.addImportsTo(imports, false);
+            }
+            // sub clients
+            List<AsyncSyncClient> subClients = getSubClientsWithoutBuilder(clients);
+            for (AsyncSyncClient client : subClients) {
+                builderTypes.append(", ");
                 builderTypes.append(client.getClassName()).append(".class");
 
                 client.addImportsTo(imports, false);
@@ -617,5 +626,33 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
 
     protected void addOverrideAnnotation(JavaContext classBlock) {
         classBlock.annotation("Override");
+    }
+
+    private static List<AsyncSyncClient> getSubClientsWithoutBuilder(List<AsyncSyncClient> clients) {
+        List<AsyncSyncClient> subClients = new ArrayList<>();
+        for (AsyncSyncClient client : clients) {
+            addSubClientDfs(client.getServiceClient(), subClients);
+        }
+        return new ArrayList<>(subClients);
+    }
+
+    private static void addSubClientDfs(ServiceClient serviceClient, List<AsyncSyncClient> subClients) {
+        for (ClientAccessorMethod clientAccessorMethod : serviceClient.getClientAccessorMethods()) {
+            AsyncSyncClient client = clientAccessorMethod.getSubClient().getSyncClient();
+            ServiceClient serviceClient1 = null;
+            if (client != null && !subClients.contains(client) && client.getClientBuilder() == null) {
+                subClients.add(client);
+                serviceClient1 = client.getServiceClient();
+            }
+            client = clientAccessorMethod.getSubClient().getAsyncClient();
+            if (client != null && !subClients.contains(client) && client.getClientBuilder() == null) {
+                subClients.add(client);
+                serviceClient1 = client.getServiceClient();
+            }
+
+            if (serviceClient1 != null) {
+                addSubClientDfs(serviceClient1, subClients);
+            }
+        }
     }
 }

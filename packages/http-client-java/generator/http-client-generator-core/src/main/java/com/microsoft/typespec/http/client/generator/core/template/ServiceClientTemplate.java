@@ -6,6 +6,7 @@ package com.microsoft.typespec.http.client.generator.core.template;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Annotation;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientAccessorMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Constructor;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodGroupClient;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -56,7 +58,8 @@ public class ServiceClientTemplate implements IJavaTemplate<ServiceClient, JavaF
             serviceClientClassDeclaration += String.format(" implements %1$s", serviceClient.getInterfaceName());
         }
 
-        Set<String> imports = new HashSet<String>();
+        Set<String> imports = new HashSet<>();
+        imports.add(Objects.class.getName());
         if (settings.isUseClientLogger()) {
             ClassType.CLIENT_LOGGER.addImportsTo(imports, false);
         }
@@ -158,15 +161,7 @@ public class ServiceClientTemplate implements IJavaTemplate<ServiceClient, JavaF
             }
 
             // additional service client properties in constructor arguments
-            String constructorArgs = serviceClient.getProperties()
-                .stream()
-                .filter(p -> !p.isReadOnly())
-                .map(ServiceClientProperty::getName)
-                .collect(Collectors.joining(", "));
-            if (!constructorArgs.isEmpty()) {
-                constructorArgs = ", " + constructorArgs;
-            }
-            final String constructorArgsFinal = constructorArgs;
+            final String constructorArgs = getAdditionalConstructorArguments(serviceClient);
             // code lines
             Consumer<JavaBlock> constructorParametersCodes = javaBlock -> {
                 serviceClient.getProperties()
@@ -275,12 +270,12 @@ public class ServiceClientTemplate implements IJavaTemplate<ServiceClient, JavaF
                                 final String initializeSerializer = writeSerializerInitialization();
                                 constructorBlock.line(
                                     "this(new HttpPipelineBuilder().policies(new UserAgentPolicy(), %1$s).build(), %2$s%3$s);",
-                                    initializeRetryPolicy, initializeSerializer, constructorArgsFinal);
+                                    initializeRetryPolicy, initializeSerializer, constructorArgs);
                             } else if (constructor.getParameters()
                                 .equals(Arrays.asList(serviceClient.getHttpPipelineParameter()))) {
                                 final String createDefaultSerializerAdapter = writeSerializerInitialization();
                                 constructorBlock.line("this(httpPipeline, %1$s%2$s);", createDefaultSerializerAdapter,
-                                    constructorArgsFinal);
+                                    constructorArgs);
                             } else if (constructor.getParameters()
                                 .equals(Arrays.asList(serviceClient.getHttpPipelineParameter(),
                                     serviceClient.getSerializerAdapterParameter()))) {
@@ -318,6 +313,8 @@ public class ServiceClientTemplate implements IJavaTemplate<ServiceClient, JavaF
             additionalMethods.forEach(method -> method.writeMethod(classBlock));
 
             this.writeAdditionalClassBlock(classBlock);
+
+            writeClientAccessorMethods(classBlock, serviceClient.getClientAccessorMethods());
 
             if (settings.isUseClientLogger()) {
                 TemplateUtil.addClientLogger(classBlock, serviceClient.getClassName(), javaFile.getContents());
@@ -366,5 +363,64 @@ public class ServiceClientTemplate implements IJavaTemplate<ServiceClient, JavaF
      * @param classBlock the class block.
      */
     protected void writeAdditionalClassBlock(JavaClass classBlock) {
+    }
+
+    private static void writeClientAccessorMethods(JavaClass classBlock,
+        List<ClientAccessorMethod> clientAccessorMethods) {
+        for (ClientAccessorMethod clientAccessorMethod : clientAccessorMethods) {
+            final String subClientName = clientAccessorMethod.getSubClient().getClassName();
+            final List<ClientMethodParameter> methodParameters = clientAccessorMethod.getMethodParameters();
+            final List<String> arguments = new ArrayList<>();
+
+            // pre-defined properties like "httpPipeline"
+            List<Constructor> parentConstructors = clientAccessorMethod.getServiceClient().getConstructors();
+            // take the last, which is the maximum overload
+            Constructor parentConstructor
+                = clientAccessorMethod.getServiceClient().getConstructors().get(parentConstructors.size() - 1);
+            for (ClientMethodParameter parameter : parentConstructor.getParameters()) {
+                arguments.add(parameter.getName());
+            }
+            String argumentStr
+                = String.join(", ", arguments) + getAdditionalConstructorArguments(clientAccessorMethod.getSubClient());
+
+            classBlock.javadocComment(comment -> {
+                comment.description("Gets an instance of " + subClientName + " class.");
+                for (ClientMethodParameter parameter : methodParameters) {
+                    comment.param(parameter.getName(), parameter.getDescription());
+                }
+                comment.methodReturns("an instance of " + subClientName + "class");
+            });
+            classBlock.publicMethod(clientAccessorMethod.getDeclaration(), method -> {
+                for (ClientMethodParameter parameter : methodParameters) {
+                    if (parameter.isRequired()) {
+                        method.line("Objects.requireNonNull(" + parameter.getName() + ", \"'" + parameter.getName()
+                            + "' cannot be null.\");");
+                    }
+                }
+
+                method.methodReturn("new " + subClientName + "(" + argumentStr + ")");
+            });
+        }
+    }
+
+    /**
+     * Gets additional method arguments for constructing the client instance.
+     * <p>
+     * Argument of "httpPipeline" and "serializerAdapter" not included.
+     * String starts with ", ".
+     *
+     * @param serviceClient the ServiceClient.
+     * @return the string of additional method arguments.
+     */
+    private static String getAdditionalConstructorArguments(ServiceClient serviceClient) {
+        String constructorArgs = serviceClient.getProperties()
+            .stream()
+            .filter(p -> !p.isReadOnly())
+            .map(ServiceClientProperty::getName)
+            .collect(Collectors.joining(", "));
+        if (!constructorArgs.isEmpty()) {
+            constructorArgs = ", " + constructorArgs;
+        }
+        return constructorArgs;
     }
 }
