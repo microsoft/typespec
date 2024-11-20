@@ -15,7 +15,7 @@ namespace Sample
     {
         public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> OperationAsync(global::Sample.Models.InputEnum queryParam, global::System.Threading.CancellationToken cancellationToken = default)
         {
-            return await this.OperationAsync(queryParam.ToString(), new global::System.ClientModel.Primitives.RequestOptions { CancellationToken = cancellationToken }).ConfigureAwait(false);
+            return await this.OperationAsync(queryParam.ToString(), cancellationToken.CanBeCanceled ? new global::System.ClientModel.Primitives.RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
         }
     }
 }
