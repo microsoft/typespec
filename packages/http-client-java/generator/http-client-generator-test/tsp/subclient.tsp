@@ -14,7 +14,7 @@ using Azure.ClientGenerator.Core;
 @scenarioDoc("""
   Testing that "SubClient" be initialized with "name" client property,
   and that the "action" API under "SubClient" does not take "name" parameter in method signature.
-
+  
   Use "subclient1" as "name" parameter in test.
   """)
 namespace TspTest.ClientInitialization;
