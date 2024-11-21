@@ -49,18 +49,9 @@ function IsSpecDir {
 }
 
 $failingSpecs = @(
-    Join-Path 'http' 'special-words'
-    Join-Path 'http' 'encode' 'numeric'
-    Join-Path 'http' 'payload' 'content-negotiation'
-    Join-Path 'http' 'payload' 'json-merge-patch'
     Join-Path 'http' 'payload' 'pageable'
-    Join-Path 'http' 'resiliency' 'srv-driven'
-    Join-Path 'http' 'routes'
-    Join-Path 'http' 'server' 'endpoint' 'not-defined'
     Join-Path 'http' 'special-headers' 'conditional-request'
-    Join-Path 'http' 'special-headers' 'repeatability'
     Join-Path 'http' 'type' 'model' 'flatten'
-    Join-Path 'http' 'type' 'model' 'inheritance' 'not-discriminated'
     Join-Path 'http' 'type' 'model' 'templated'
 )
 
@@ -102,7 +93,7 @@ foreach ($directory in $directories) {
         $generationDir = Join-Path $generationDir $folder
     }
 
-    #create the directory if it doesn't exist
+    # create the directory if it doesn't exist
     if (-not (Test-Path $generationDir)) {
         New-Item -ItemType Directory -Path $generationDir | Out-Null
     }
@@ -117,6 +108,11 @@ foreach ($directory in $directories) {
     # exit if the generation failed
     if ($LASTEXITCODE -ne 0) {
         exit $LASTEXITCODE
+    }
+
+    # srv-driven contains two separate specs, for two separate clients. We need to generate both.
+    if ($folders.Contains("srv-driven")) {
+        Generate-Srv-Driven $directory.FullName $generationDir -generateStub $stubbed
     }
 
     # TODO need to build but depends on https://github.com/Azure/autorest.csharp/issues/4463

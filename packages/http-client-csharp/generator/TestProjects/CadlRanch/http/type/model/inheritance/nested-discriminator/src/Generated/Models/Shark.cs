@@ -9,9 +9,9 @@ namespace _Type.Model.Inheritance.NestedDiscriminator.Models
 {
     public partial class Shark : Fish
     {
-        public Shark(string sharktype, int age) : base("shark", age) => throw null;
+        public Shark(int age, string sharktype) : base("shark", age) => throw null;
 
-        internal Shark(string sharktype, string kind, int age, IDictionary<string, BinaryData> additionalBinaryDataProperties) : base(kind, age, additionalBinaryDataProperties) => throw null;
+        internal Shark(string kind, int age, IDictionary<string, BinaryData> additionalBinaryDataProperties, string sharktype) : base(kind, age, additionalBinaryDataProperties) => throw null;
 
         internal string Sharktype
         {

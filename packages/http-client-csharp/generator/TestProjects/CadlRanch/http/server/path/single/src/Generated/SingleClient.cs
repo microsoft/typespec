@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Server.Path.Single
@@ -25,6 +26,6 @@ namespace Server.Path.Single
 
         public virtual ClientResult MyOp() => throw null;
 
-        public virtual Task<ClientResult> MyOpAsync() => throw null;
+        public virtual Task<ClientResult> MyOpAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }
