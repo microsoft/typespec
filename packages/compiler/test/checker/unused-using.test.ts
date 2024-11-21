@@ -10,7 +10,7 @@ describe("compiler: unused using statements", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {
-    testHost = await createTestHost();
+    testHost = await createTestHost({ checkUnnecessaryDiagnostics: true });
   });
 
   it("no unused diagnostic when using is used", async () => {

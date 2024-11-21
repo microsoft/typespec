@@ -8,7 +8,7 @@ describe("compiler: operations", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {
-    testHost = await createTestHost();
+    testHost = await createTestHost({ checkUnnecessaryDiagnostics: true });
   });
 
   it("can return void", async () => {

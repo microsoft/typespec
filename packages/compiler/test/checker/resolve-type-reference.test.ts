@@ -11,7 +11,7 @@ import {
 describe("compiler: resolveTypeReference", () => {
   let runner: BasicTestRunner;
   beforeEach(async () => {
-    runner = createTestWrapper(await createTestHost());
+    runner = createTestWrapper(await createTestHost({ checkUnnecessaryDiagnostics: true }));
   });
 
   async function expectResolve(reference: string, code: string) {

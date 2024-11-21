@@ -19,7 +19,7 @@ describe("compiler: imports", () => {
   let host: TestHost;
 
   beforeEach(async () => {
-    host = await createTestHost();
+    host = await createTestHost({ checkUnnecessaryDiagnostics: true });
   });
 
   function expectFileLoaded(files: { typespec?: string[]; js?: string[] }) {
@@ -230,13 +230,15 @@ describe("compiler: imports", () => {
                 filename,
                 (fileConfig as string[]).map((x) => `import "${x}";`).join("\n"),
               );
-              (fileConfig as string[]).forEach((x) => {
-                unnecessaryImportDiags.push({
-                  code: "unnecessary",
-                  message: `Unnecessary code: import "${x}"`,
-                  severity: "hint",
+              if (!filename.includes("my-lib")) {
+                (fileConfig as string[]).forEach((x) => {
+                  unnecessaryImportDiags.push({
+                    code: "unnecessary",
+                    message: `Unnecessary code: import "${x}"`,
+                    severity: "hint",
+                  });
                 });
-              });
+              }
             } else {
               host.addTypeSpecFile(filename, JSON.stringify(fileConfig, null, 2));
             }

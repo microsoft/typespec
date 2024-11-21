@@ -7,7 +7,7 @@ describe("compiler: using statements", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {
-    testHost = await createTestHost();
+    testHost = await createTestHost({ checkUnnecessaryDiagnostics: true });
   });
 
   it("works in global scope", async () => {
@@ -686,7 +686,7 @@ describe("compiler: using statements", () => {
 
 describe("emit diagnostics", () => {
   async function diagnose(code: string) {
-    const testHost = await createTestHost();
+    const testHost = await createTestHost({ checkUnnecessaryDiagnostics: true });
     testHost.addTypeSpecFile(
       "main.tsp",
       `

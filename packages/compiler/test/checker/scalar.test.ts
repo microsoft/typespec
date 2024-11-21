@@ -13,7 +13,7 @@ describe("compiler: scalars", () => {
   let runner: BasicTestRunner;
 
   beforeEach(async () => {
-    const host = await createTestHost();
+    const host = await createTestHost({ checkUnnecessaryDiagnostics: true });
     runner = createTestWrapper(host);
   });
 

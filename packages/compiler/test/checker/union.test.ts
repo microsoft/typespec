@@ -7,7 +7,7 @@ describe("compiler: union declarations", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {
-    testHost = await createTestHost();
+    testHost = await createTestHost({ checkUnnecessaryDiagnostics: true });
   });
 
   it("can be declared and decorated", async () => {

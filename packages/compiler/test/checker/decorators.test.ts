@@ -24,7 +24,7 @@ describe("compiler: checker: decorators", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {
-    testHost = await createTestHost();
+    testHost = await createTestHost({ checkUnnecessaryDiagnostics: true });
   });
 
   describe("declaration", () => {

@@ -59,6 +59,7 @@ export interface TypeSpecTestLibrary {
 
 export interface TestHostConfig {
   libraries?: TypeSpecTestLibrary[];
+  checkUnnecessaryDiagnostics?: boolean;
 }
 
 export class TestHostError extends Error {

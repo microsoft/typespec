@@ -28,7 +28,7 @@ interface RelatedTypeOptions {
 let runner: BasicTestRunner;
 let host: TestHost;
 beforeEach(async () => {
-  host = await createTestHost();
+  host = await createTestHost({ checkUnnecessaryDiagnostics: true });
   runner = createTestWrapper(host);
 });
 

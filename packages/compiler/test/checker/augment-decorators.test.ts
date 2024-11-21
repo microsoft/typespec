@@ -11,7 +11,7 @@ import {
 let testHost: TestHost;
 
 beforeEach(async () => {
-  testHost = await createTestHost();
+  testHost = await createTestHost({ checkUnnecessaryDiagnostics: true });
 });
 
 it("run decorator without arguments", async () => {

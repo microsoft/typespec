@@ -10,7 +10,7 @@ describe("compiler: type cloning", () => {
   const blues = new Set();
 
   beforeEach(async () => {
-    testHost = await createTestHost();
+    testHost = await createTestHost({ checkUnnecessaryDiagnostics: true });
     testHost.addJsFile("test.js", {
       $blue(_: Program, t: Type) {
         blues.add(t);

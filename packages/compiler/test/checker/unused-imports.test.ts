@@ -10,7 +10,7 @@ describe("compiler: unused imports", () => {
   let host: TestHost;
 
   beforeEach(async () => {
-    host = await createTestHost();
+    host = await createTestHost({ checkUnnecessaryDiagnostics: true });
   });
 
   it("no unused diagnostic for import file with usage", async () => {

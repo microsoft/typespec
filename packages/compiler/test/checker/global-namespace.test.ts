@@ -7,7 +7,7 @@ describe("compiler: global namespace", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {
-    testHost = await createTestHost();
+    testHost = await createTestHost({ checkUnnecessaryDiagnostics: true });
   });
 
   describe("it adds top level entities to the global namespace", () => {

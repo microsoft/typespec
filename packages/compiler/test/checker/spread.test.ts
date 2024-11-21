@@ -18,7 +18,7 @@ describe("compiler: spread", () => {
   let runner: BasicTestRunner;
 
   beforeEach(async () => {
-    const host = await createTestHost();
+    const host = await createTestHost({ checkUnnecessaryDiagnostics: true });
     host.addJsFile("blue.js", { $blue });
     runner = createTestWrapper(host);
   });

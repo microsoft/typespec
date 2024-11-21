@@ -80,7 +80,7 @@ describe("typeof can be used to force sending a type to a decorator that accept 
 
   beforeEach(async () => {
     called = undefined;
-    const host = await createTestHost();
+    const host = await createTestHost({ checkUnnecessaryDiagnostics: true });
     host.addJsFile("dec.js", {
       $foo: (_ctx: any, _target: any, value: any) => {
         called = value;

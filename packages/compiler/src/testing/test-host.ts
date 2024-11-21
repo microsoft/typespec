@@ -242,7 +242,7 @@ export const StandardTestLibrary: TypeSpecTestLibrary = {
 };
 
 export async function createTestHost(config: TestHostConfig = {}): Promise<TestHost> {
-  const testHost = await createTestHostInternal();
+  const testHost = await createTestHostInternal(config);
   await testHost.addTypeSpecLibrary(StandardTestLibrary);
   if (config.libraries) {
     for (const library of config.libraries) {
@@ -257,7 +257,7 @@ export async function createTestRunner(host?: TestHost): Promise<BasicTestRunner
   return createTestWrapper(testHost);
 }
 
-async function createTestHostInternal(): Promise<TestHost> {
+async function createTestHostInternal(config: TestHostConfig): Promise<TestHost> {
   let program: Program | undefined;
   const libraries: TypeSpecTestLibrary[] = [];
   const testTypes: Record<string, Type> = {};
@@ -314,9 +314,19 @@ async function createTestHostInternal(): Promise<TestHost> {
     },
   };
 
+  function filterUnnecessaryDiagnostics(diagnostics: readonly Diagnostic[]) {
+    if (config.checkUnnecessaryDiagnostics === true) {
+      return diagnostics;
+    } else {
+      // don't check hint diagnostics by default considering many test case contains unnecessary using or import
+      // in test tsp code which actually doesn't matter to the test
+      return diagnostics.filter((d) => d.code !== "unnecessary");
+    }
+  }
+
   async function compile(main: string, options: CompilerOptions = {}) {
     const [testTypes, diagnostics] = await compileAndDiagnose(main, options);
-    expectDiagnosticEmpty(diagnostics);
+    expectDiagnosticEmpty(filterUnnecessaryDiagnostics(diagnostics));
     return testTypes;
   }
 
@@ -335,7 +345,7 @@ async function createTestHostInternal(): Promise<TestHost> {
 
   async function diagnose(main: string, options: CompilerOptions = {}) {
     const [, diagnostics] = await compileAndDiagnose(main, options);
-    return diagnostics;
+    return filterUnnecessaryDiagnostics(diagnostics);
   }
 
   async function compileAndDiagnose(
@@ -351,7 +361,7 @@ async function createTestHostInternal(): Promise<TestHost> {
     logVerboseTestOutput((log) =>
       logDiagnostics(p.diagnostics, createLogger({ sink: fileSystem.compilerHost.logSink })),
     );
-    return [testTypes, p.diagnostics];
+    return [testTypes, filterUnnecessaryDiagnostics(p.diagnostics)];
   }
 }
 

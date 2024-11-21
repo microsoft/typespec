@@ -24,7 +24,7 @@ describe("compiler: emitter options", () => {
     options: Record<string, unknown>,
   ): Promise<[EmitContext | undefined, readonly Diagnostic[]]> {
     let emitContext: EmitContext | undefined;
-    const host = await createTestHost();
+    const host = await createTestHost({ checkUnnecessaryDiagnostics: true });
     host.addTypeSpecFile("main.tsp", "");
     host.addTypeSpecFile(
       "node_modules/fake-emitter/package.json",

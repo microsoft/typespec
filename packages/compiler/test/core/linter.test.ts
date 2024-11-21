@@ -34,7 +34,7 @@ describe("compiler: linter", () => {
     code: string | Record<string, string>,
     linterDef: LinterDefinition,
   ): Promise<Linter> {
-    const host = await createTestHost();
+    const host = await createTestHost({ checkUnnecessaryDiagnostics: true });
     if (typeof code === "string") {
       host.addTypeSpecFile("main.tsp", code);
     } else {
@@ -252,7 +252,7 @@ describe("compiler: linter", () => {
 
   describe("(integration) loading in program", () => {
     async function diagnoseReal(code: string) {
-      const host = await createTestHost();
+      const host = await createTestHost({ checkUnnecessaryDiagnostics: true });
       host.addTypeSpecFile("main.tsp", code);
       host.addTypeSpecFile(
         "node_modules/my-lib/package.json",

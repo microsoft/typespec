@@ -14,7 +14,7 @@ describe("compiler: projector: Identity", () => {
   let runner: BasicTestRunner;
 
   beforeEach(async () => {
-    host = await createTestHost();
+    host = await createTestHost({ checkUnnecessaryDiagnostics: true });
     runner = await createTestRunner(host);
   });
 

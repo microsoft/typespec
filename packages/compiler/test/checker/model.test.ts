@@ -21,7 +21,7 @@ describe("compiler: models", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {
-    testHost = await createTestHost();
+    testHost = await createTestHost({ checkUnnecessaryDiagnostics: true });
   });
 
   it("allow template parameters passed into decorators", async () => {
@@ -794,7 +794,7 @@ describe("compiler: models", () => {
     const blues = new WeakSet();
     const reds = new WeakSet();
     beforeEach(async () => {
-      testHost = await createTestHost();
+      testHost = await createTestHost({ checkUnnecessaryDiagnostics: true });
       testHost.addJsFile("dec.js", {
         $blue(p: any, t: Type) {
           blues.add(t);

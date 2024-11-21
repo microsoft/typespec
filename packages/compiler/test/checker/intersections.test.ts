@@ -13,7 +13,7 @@ describe("compiler: intersections", () => {
   let runner: BasicTestRunner;
 
   beforeEach(async () => {
-    const host = await createTestHost();
+    const host = await createTestHost({ checkUnnecessaryDiagnostics: true });
     runner = createTestWrapper(host);
   });
 

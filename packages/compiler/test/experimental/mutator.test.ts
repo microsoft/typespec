@@ -15,7 +15,7 @@ let host: TestHost;
 let runner: BasicTestRunner;
 
 beforeEach(async () => {
-  host = await createTestHost();
+  host = await createTestHost({ checkUnnecessaryDiagnostics: true });
   runner = createTestWrapper(host);
 });
 
