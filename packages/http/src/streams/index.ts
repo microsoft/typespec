@@ -12,12 +12,31 @@ try {
 }
 
 export interface StreamMetadata {
+  /**
+   * The `Type` of the property decorated with `@body`.
+   */
   bodyType: Type;
+  /**
+   * The `Type` of the stream model.
+   * For example, an instance of `HttpStream`.
+   */
   originalType: Type;
+  /**
+   * The `Type` of the streaming payload.
+   *
+   * For example, given `HttpStream<Foo, "application/jsonl">`,
+   * the `streamType` would be `Foo`.
+   */
   streamType: Type;
+  /**
+   * The list of content-types that this stream supports.
+   */
   contentTypes: string[];
 }
 
+/**
+ * Gets stream metadata for a given `HttpOperationParameters` or `HttpOperationResponseContent`.
+ */
 export function getStreamMetadata(
   program: Program,
   httpParametersOrResponse: HttpOperationParameters | HttpOperationResponseContent,
