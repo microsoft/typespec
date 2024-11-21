@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Linq;
 
 namespace Microsoft.Generator.CSharp.Statements
 {
@@ -29,16 +30,20 @@ namespace Microsoft.Generator.CSharp.Statements
         {
             StartTag = startTag;
             EndTag = endTag;
-            _lines = EscapeLines(lines);
+            _lines = FormatLines(lines);
             InnerStatements = innerStatements;
         }
 
-        private List<FormattableString> EscapeLines(IEnumerable<FormattableString> lines)
+        private List<FormattableString> FormatLines(IEnumerable<FormattableString> lines)
         {
             List<FormattableString> escapedLines = new List<FormattableString>();
             foreach (var line in lines)
             {
-                escapedLines.Add(FormattableStringFactory.Create(EscapeLine(line.Format), EscapeArguments(line.GetArguments())));
+                var splitLines = line.ToString().Split("\n");
+                foreach (var s in splitLines)
+                {
+                    escapedLines.Add(FormattableStringFactory.Create(EscapeLine(s), EscapeArguments(line.GetArguments())));
+                }
             }
             return escapedLines;
         }
