@@ -46,22 +46,39 @@ describe("openapi: decorators", () => {
   });
 
   describe("@extension", () => {
-    it.each(["minProperties", "maxProperties", "uniqueItems", "multipleOf", "x-custom"])(
-      "apply extension on model with %s",
-      async (key) => {
-        const { Foo } = await runner.compile(`
-          @extension("${key}", "Bar")
-          @test
+    const extensionKeys: [string, any][] = [
+      ["minProperties", 1],
+      ["maxProperties", 1],
+      ["uniqueItems", true],
+      ["multipleOf", 1],
+    ];
+    it.each(extensionKeys)("apply extension on model prop with %s", async (key, value) => {
+      const { prop } = await runner.compile(`      
           model Foo {
+            @extension("${key}", ${value})
+            @test
             prop: string
           }
         `);
 
-        deepStrictEqual(Object.fromEntries(getExtensions(runner.program, Foo)), {
-          [key]: "Bar",
-        });
-      },
-    );
+      deepStrictEqual(Object.fromEntries(getExtensions(runner.program, prop)), {
+        [key]: value,
+      });
+    });
+
+    it("apply extension on model", async () => {
+      const { Foo } = await runner.compile(`
+        @extension("x-custom", "Bar")
+        @test
+        model Foo {
+          prop: string
+        }
+      `);
+
+      deepStrictEqual(Object.fromEntries(getExtensions(runner.program, Foo)), {
+        "x-custom": "Bar",
+      });
+    });
 
     it("apply extension with complex value", async () => {
       const { Foo } = await runner.compile(`

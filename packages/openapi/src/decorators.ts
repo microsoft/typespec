@@ -56,10 +56,13 @@ export const $extension: ExtensionDecorator = (
   context: DecoratorContext,
   entity: Type,
   extensionName: string,
-  value: TypeSpecValue,
+  value?: TypeSpecValue,
 ) => {
   if (
-    !["minProperties", "maxProperties", "uniqueItems", "multipleOf"].includes(extensionName) &&
+    !(
+      ["minProperties", "maxProperties", "uniqueItems", "multipleOf"].includes(extensionName) &&
+      entity.kind === "ModelProperty"
+    ) &&
     !isOpenAPIExtensionKey(extensionName)
   ) {
     reportDiagnostic(context.program, {
@@ -69,11 +72,38 @@ export const $extension: ExtensionDecorator = (
     });
   }
 
-  const [data, diagnostics] = typespecTypeToJson(value, entity);
-  if (diagnostics.length > 0) {
-    context.program.reportDiagnostics(diagnostics);
+  let inputData: any = true;
+  if (value !== undefined) {
+    const [data, diagnostics] = typespecTypeToJson(value, entity);
+    if (diagnostics.length > 0) {
+      context.program.reportDiagnostics(diagnostics);
+    }
+
+    if (
+      "minProperties" === extensionName ||
+      "maxProperties" === extensionName ||
+      "multipleOf" === extensionName
+    ) {
+      if (isNaN(Number(data))) {
+        reportDiagnostic(context.program, {
+          code: "invalid-extension-value",
+          format: { value: extensionName },
+          target: entity,
+        });
+      }
+    }
+
+    switch (extensionName) {
+      case "minProperties":
+      case "maxProperties":
+      case "multipleOf":
+        inputData = Number(data);
+        break;
+      default:
+        inputData = data;
+    }
   }
-  setExtension(context.program, entity, extensionName as ExtensionKey, data);
+  setExtension(context.program, entity, extensionName as ExtensionKey, inputData);
 };
 
 /**

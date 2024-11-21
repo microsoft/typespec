@@ -9,6 +9,12 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`OpenAPI extension must start with 'x-' but was '${"value"}'`,
       },
     },
+    "invalid-extension-value": {
+      severity: "error",
+      messages: {
+        default: paramMessage`'minProperties'/'maxProperties'/'multipleOf' must number but '${"value"}' is not a number.'`,
+      },
+    },
     "duplicate-type-name": {
       severity: "error",
       messages: {

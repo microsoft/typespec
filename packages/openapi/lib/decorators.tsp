@@ -25,12 +25,19 @@ extern dec operationId(target: Operation, operationId: valueof string);
  * @example
  *
  * ```typespec
+ * model Foo {
+ *  @extension("uniqueItems")
+ *  x: int32;
+ * };
+ * ```
+ *
+ * ```typespec
  * @extension("x-custom", "My value")
  * @extension("x-pageable", {nextLink: "x-next-link"})
  * op read(): string;
  * ```
  */
-extern dec extension(target: unknown, key: valueof string, value: unknown);
+extern dec extension(target: unknown, key: valueof string, value?: unknown);
 
 /**
  * Specify that this model is to be treated as the OpenAPI `default` response.

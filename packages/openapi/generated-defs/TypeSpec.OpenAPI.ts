@@ -35,6 +35,13 @@ export type OperationIdDecorator = (
  * @param value Extension value.
  * @example
  * ```typespec
+ * model Foo {
+ *  @extension("uniqueItems")
+ *  x: int32;
+ * };
+ * ```
+ *
+ * ```typespec
  * @extension("x-custom", "My value")
  * @extension("x-pageable", {nextLink: "x-next-link"})
  * op read(): string;
@@ -44,7 +51,7 @@ export type ExtensionDecorator = (
   context: DecoratorContext,
   target: Type,
   key: string,
-  value: Type,
+  value?: Type,
 ) => void;
 
 /**

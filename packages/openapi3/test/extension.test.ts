@@ -1,27 +1,32 @@
-import { deepStrictEqual, ok, strictEqual } from "assert";
+import { ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
 
 import { oapiForModel, openApiFor } from "./test-host.js";
 
-const extensionKeys = ["minProperties", "maxProperties", "uniqueItems", "multipleOf"];
+const extensionKeys: [string, any][] = [
+  ["minProperties", 1],
+  ["maxProperties", 1],
+  ["uniqueItems", true],
+  ["multipleOf", 1],
+];
 describe("inline adds an extension to a parameter", () => {
-  it.each(extensionKeys)("%s", async (key) => {
+  it.each(extensionKeys)("%s", async (key, value) => {
     const oapi = await openApiFor(
       `
       op get(
         @path
-        @extension("${key}", "foobaz")
+        @extension("${key}", ${value})
         petId: string;
       ): void;
       `,
     );
-    strictEqual(oapi.paths["/{petId}"].get.parameters[0]["schema"][key], "foobaz");
+    strictEqual(oapi.paths["/{petId}"].get.parameters[0]["schema"][key], value);
     strictEqual(oapi.paths["/{petId}"].get.parameters[0][key], undefined);
   });
 });
 
 describe("adds an extension to a parameter", () => {
-  it.each(extensionKeys)("%s", async (key) => {
+  it.each(extensionKeys)("%s", async (key, value) => {
     const oapi = await openApiFor(
       `
       model Pet {
@@ -29,7 +34,7 @@ describe("adds an extension to a parameter", () => {
       }
       model PetId {
         @path
-        @extension("${key}", "foobaz")
+        @extension("${key}", ${value})
         petId: string;
       }
       @route("/Pets")
@@ -43,17 +48,17 @@ describe("adds an extension to a parameter", () => {
       "#/components/parameters/PetId",
     );
     strictEqual(oapi.components.parameters.PetId.name, "petId");
-    strictEqual(oapi.components.parameters.PetId.schema[key], "foobaz");
+    strictEqual(oapi.components.parameters.PetId.schema[key], value);
     strictEqual(oapi.components.parameters.PetId[key], undefined);
   });
 });
 
 describe("adds an extension to a model", () => {
-  it.each(extensionKeys)("%s", async (key) => {
+  it.each(extensionKeys)("%s", async (key, value) => {
     const res = await oapiForModel(
       "Foo",
       `model Foo {
-        @extension("${key}", "foobaz")
+        @extension("${key}", ${value})
         x: int32;
       };`,
     );
@@ -61,23 +66,8 @@ describe("adds an extension to a model", () => {
     expect(res.schemas.Foo).toMatchObject({
       required: ["x"],
       properties: {
-        x: { [key]: "foobaz" },
+        x: { [key]: value },
       },
-    });
-  });
-});
-
-describe("adds an extension to a scalar", () => {
-  it.each(extensionKeys)("%s", async (key) => {
-    const res = await oapiForModel(
-      "Pet",
-      `@extension("${key}", "my-value")
-      scalar Pet extends string;`,
-    );
-
-    deepStrictEqual(res.schemas.Pet, {
-      type: "string",
-      [key]: "my-value",
     });
   });
 });
