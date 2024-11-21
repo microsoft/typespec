@@ -1,6 +1,6 @@
 import { Program, Type, navigateProgram } from "@typespec/compiler";
 import { BasicTestRunner } from "@typespec/compiler/testing";
-import assert from "assert";
+import assert, { deepStrictEqual } from "assert";
 import { beforeEach, it } from "vitest";
 import { getPropertySource, getSourceModel } from "../src/utils.js";
 import { createCSharpServiceEmitterTestRunner, getStandardService } from "./test-host.js";
@@ -745,6 +745,48 @@ it("Handles void type in operations", async () => {
       ["Toy.cs", ["public partial class Toy"]],
     ],
   );
+});
+
+it("Handles empty body 2xx as void", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+       using TypeSpec.Rest.Resource;
+
+       namespace MyService {
+         model Toy {
+          @key("toyId")
+          id: int64;
+      
+          petId: int64;
+          name: string;
+        }
+
+      @friendlyName("{name}ListResults", Item)
+       model ResponsePage<Item> {
+        items: Item[];
+        nextLink?: string;
+       }
+
+         @post @route("/foo") op foo(...Toy): OkResponse;
+      }
+    `,
+    [
+      [
+        "IMyServiceOperations.cs",
+        ["interface IMyServiceOperations", "Task FooAsync( long id, long petId, string name)"],
+      ],
+      [
+        "MyServiceOperationsControllerBase.cs",
+        [
+          "public abstract partial class MyServiceOperationsControllerBase: ControllerBase",
+          "public virtual async Task<IActionResult> Foo(Toy body)",
+        ],
+      ],
+      ["Toy.cs", ["public partial class Toy"]],
+    ],
+  );
+  deepStrictEqual([...runner.fs.keys()].filter((k) => k.includes("OkResponse.cs")).length, 0);
 });
 
 it("generates appropriate types for literals", async () => {

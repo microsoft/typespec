@@ -675,7 +675,8 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       }
 
       for (const response of operation.responses) {
-        this.emitter.emitType(response.type);
+        if (!isEmptyResponseModel(this.emitter.getProgram(), response.type))
+          this.emitter.emitType(response.type);
       }
 
       return builder.reduce();
@@ -1207,6 +1208,10 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
   }
 
+  function isEmptyResponseModel(program: Program, model: Type): boolean {
+    if (model.kind !== "Model") return false;
+    return model.properties.size === 1 && isStatusCode(program, [...model.properties.values()][0]);
+  }
   function processNameSpace(program: Program, target: Namespace, service?: Service | undefined) {
     if (!service) service = getService(program, target);
     if (service) {
