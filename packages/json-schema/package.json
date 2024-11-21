@@ -57,7 +57,7 @@
     "@typespec/compiler": "workspace:~"
   },
   "devDependencies": {
-    "@types/node": "~22.7.5",
+    "@types/node": "~22.7.9",
     "@typespec/compiler": "workspace:~",
     "@typespec/internal-build-utils": "workspace:~",
     "@typespec/library-linter": "workspace:~",

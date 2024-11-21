@@ -46,7 +46,7 @@
     "prettier": "~3.3.3"
   },
   "devDependencies": {
-    "@types/node": "~22.7.5",
+    "@types/node": "~22.7.9",
     "@typespec/compiler": "workspace:~",
     "@typespec/http": "workspace:~",
     "tsx": "^4.19.1",
