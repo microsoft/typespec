@@ -60,7 +60,7 @@ extern dec errorsDoc(target: Operation, doc: valueof string);
  *
  * NOTE: This decorator **should not** be used, use the `#deprecated` directive instead.
  *
- * @deprecated Use the `#deprecated` directive instead.
+ * @deprecated Use the `#deprecated` [directive](https://typespec.io/docs/language-basics/directives/#deprecated) instead.
  * @param message Deprecation message.
  *
  * @example
@@ -276,13 +276,6 @@ extern dec maxValueExclusive(target: numeric | ModelProperty, value: valueof num
  * ```
  */
 extern dec secret(target: string | ModelProperty);
-
-/**
- * Mark this operation as a `list` operation for resource types.
- * @deprecated Use the `listsResource` decorator in `@typespec/rest` instead.
- * @param listedType Optional type of the items in the list.
- */
-extern dec list(target: Operation, listedType?: Model);
 
 /**
  * Attaches a tag to an operation, interface, or namespace. Multiple `@tag` decorators can be specified to attach multiple tags to a TypeSpec element.
@@ -570,7 +563,7 @@ model OperationExample {
  * @example
  *
  * ```tsp
- * @example(#{parameters: #{name: "Fluffy", age: 2}, returnType: #{name: "Fluffy", age: 2, id: "abc"})
+ * @opExample(#{parameters: #{name: "Fluffy", age: 2}, returnType: #{name: "Fluffy", age: 2, id: "abc"})
  * op createPet(pet: Pet): Pet;
  * ```
  */
@@ -579,93 +572,6 @@ extern dec opExample(
   example: valueof OperationExample,
   options?: valueof ExampleOptions
 );
-/**
- * Indicates that a property is only considered to be present or applicable ("visible") with
- * the in the given named contexts ("visibilities"). When a property has no visibilities applied
- * to it, it is implicitly visible always.
- *
- * As far as the TypeSpec core library is concerned, visibilities are open-ended and can be arbitrary
- * strings, but  the following visibilities are well-known to standard libraries and should be used
- * with standard emitters that interpret them as follows:
- *
- * - "read": output of any operation.
- * - "create": input to operations that create an entity..
- * - "query": input to operations that read data.
- * - "update": input to operations that update data.
- * - "delete": input to operations that delete data.
- *
- * See also: [Automatic visibility](https://typespec.io/docs/libraries/http/operations#automatic-visibility)
- *
- * @param visibilities List of visibilities which apply to this property.
- *
- * @example
- *
- * ```typespec
- * model Dog {
- *   // the service will generate an ID, so you don't need to send it.
- *   @visibility("read") id: int32;
- *   // the service will store this secret name, but won't ever return it
- *   @visibility("create", "update") secretName: string;
- *   // the regular name is always present
- *   name: string;
- * }
- * ```
- */
-extern dec visibility(target: ModelProperty, ...visibilities: valueof string[]);
-
-/**
- * Removes properties that are not considered to be present or applicable
- * ("visible") in the given named contexts ("visibilities"). Can be used
- * together with spread to effectively spread only visible properties into
- * a new model.
- *
- * See also: [Automatic visibility](https://typespec.io/docs/libraries/http/operations#automatic-visibility)
- *
- * When using an emitter that applies visibility automatically, it is generally
- * not necessary to use this decorator.
- *
- * @param visibilities List of visibilities which apply to this property.
- *
- * @example
- * ```typespec
- * model Dog {
- *   @visibility("read") id: int32;
- *   @visibility("create", "update") secretName: string;
- *   name: string;
- * }
- *
- * // The spread operator will copy all the properties of Dog into DogRead,
- * // and @withVisibility will then remove those that are not visible with
- * // create or update visibility.
- * //
- * // In this case, the id property is removed, and the name and secretName
- * // properties are kept.
- * @withVisibility("create", "update")
- * model DogCreateOrUpdate {
- *   ...Dog;
- * }
- *
- * // In this case the id and name properties are kept and the secretName property
- * // is removed.
- * @withVisibility("read")
- * model DogRead {
- *   ...Dog;
- * }
- * ```
- */
-extern dec withVisibility(target: Model, ...visibilities: valueof string[]);
-
-/**
- * Set the visibility of key properties in a model if not already set.
- *
- * @param visibility The desired default visibility value. If a key property already has a `visibility` decorator then the default visibility is not applied.
- */
-extern dec withDefaultKeyVisibility(target: Model, visibility: valueof string);
-
-/**
- * Returns the model with non-updateable properties removed.
- */
-extern dec withUpdateableProperties(target: Model);
 
 /**
  * Returns the model with required properties removed.
@@ -690,6 +596,157 @@ extern dec withoutOmittedProperties(target: Model, omit: string | Union);
 extern dec withPickedProperties(target: Model, pick: string | Union);
 
 //---------------------------------------------------------------------------
+// Paging
+//---------------------------------------------------------------------------
+
+/**
+ * Mark this operation as a `list` operation that returns a paginated list of items.
+ */
+extern dec list(target: Operation);
+
+/**
+ * Pagination property defining the number of items to skip.
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ * }
+ * @list op listPets(@offset skip: int32, @pageSize pageSize: int8): Page<Pet>;
+ * ```
+ */
+extern dec offset(target: ModelProperty);
+
+/**
+ * Pagination property defining the page index.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ * }
+ * @list op listPets(@pageIndex page: int32, @pageSize pageSize: int8): Page<Pet>;
+ * ```
+ */
+extern dec pageIndex(target: ModelProperty);
+
+/**
+ * Specify the pagination parameter that controls the maximum number of items to include in a page.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ * }
+ * @list op listPets(@pageIndex page: int32, @pageSize pageSize: int8): Page<Pet>;
+ * ```
+ */
+extern dec pageSize(target: ModelProperty);
+
+/**
+ * Specify the the property that contains the array of page items.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ * }
+ * @list op listPets(@pageIndex page: int32, @pageSize pageSize: int8): Page<Pet>;
+ * ```
+ */
+extern dec pageItems(target: ModelProperty);
+
+/**
+ * Pagination property defining the token to get to the next page.
+ * It MUST be specified both on the request parameter and the response.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ *   @continuationToken continuationToken: string;
+ * }
+ * @list op listPets(@continuationToken continuationToken: string): Page<Pet>;
+ * ```
+ */
+extern dec continuationToken(target: ModelProperty);
+
+/**
+ * Pagination property defining a link to the next page.
+ *
+ * It is expected that navigating to the link will return the same set of responses as the operation that returned the current page.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ *   @nextLink next: url;
+ *   @prevLink prev: url;
+ *   @firstLink first: url;
+ *   @lastLink last: url;
+ * }
+ * @list op listPets(): Page<Pet>;
+ * ```
+ */
+extern dec nextLink(target: ModelProperty);
+
+/**
+ * Pagination property defining a link to the previous page.
+ *
+ * It is expected that navigating to the link will return the same set of responses as the operation that returned the current page.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ *   @nextLink next: url;
+ *   @prevLink prev: url;
+ *   @firstLink first: url;
+ *   @lastLink last: url;
+ * }
+ * @list op listPets(): Page<Pet>;
+ * ```
+ */
+extern dec prevLink(target: ModelProperty);
+
+/**
+ * Pagination property defining a link to the first page.
+ *
+ * It is expected that navigating to the link will return the same set of responses as the operation that returned the current page.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ *   @nextLink next: url;
+ *   @prevLink prev: url;
+ *   @firstLink first: url;
+ *   @lastLink last: url;
+ * }
+ * @list op listPets(): Page<Pet>;
+ * ```
+ */
+extern dec firstLink(target: ModelProperty);
+
+/**
+ * Pagination property defining a link to the last page.
+ *
+ * It is expected that navigating to the link will return the same set of responses as the operation that returned the current page.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ *   @nextLink next: url;
+ *   @prevLink prev: url;
+ *   @firstLink first: url;
+ *   @lastLink last: url;
+ * }
+ * @list op listPets(): Page<Pet>;
+ * ```
+ */
+extern dec lastLink(target: ModelProperty);
+
+//---------------------------------------------------------------------------
 // Debugging
 //---------------------------------------------------------------------------
 
@@ -704,15 +761,3 @@ extern dec inspectType(target: unknown, text: valueof string);
  * @param text Custom text to log
  */
 extern dec inspectTypeName(target: unknown, text: valueof string);
-
-/**
- * Sets which visibilities apply to parameters for the given operation.
- * @param visibilities List of visibility strings which apply to this operation.
- */
-extern dec parameterVisibility(target: Operation, ...visibilities: valueof string[]);
-
-/**
- * Sets which visibilities apply to the return type for the given operation.
- * @param visibilities List of visibility strings which apply to this operation.
- */
-extern dec returnTypeVisibility(target: Operation, ...visibilities: valueof string[]);

@@ -3,7 +3,23 @@ export * from "../module-resolver/module-resolver.js";
 export * from "./checker.js";
 export * from "./decorator-utils.js";
 export * from "./deprecation.js";
-export * from "./diagnostics.js";
+export {
+  assertType,
+  compilerAssert,
+  createDiagnosticCollector,
+  defineCodeFix,
+  formatDiagnostic,
+  getSourceLocation,
+  ignoreDiagnostics,
+  logDiagnostics,
+  logVerboseTestOutput,
+  reportDeprecated,
+  type DiagnosticCollector,
+  type DiagnosticHandler,
+  type ProjectionError,
+  type SourceLocationOptions,
+  type WriteLine,
+} from "./diagnostics.js";
 export * from "./emitter-utils.js";
 export * from "./formatter.js";
 export * from "./helpers/index.js";
@@ -53,3 +69,4 @@ export * from "./semantic-walker.js";
 export { createSourceFile, getSourceFileKindFromExt } from "./source-file.js";
 export * from "./type-utils.js";
 export * from "./types.js";
+export * from "./visibility/index.js";

@@ -435,6 +435,8 @@ describe("openapi3: return types", () => {
         #suppress "@typespec/http/metadata-ignored"
         @header header: string,
         #suppress "@typespec/http/metadata-ignored"
+        @cookie cookie: string,
+        #suppress "@typespec/http/metadata-ignored"
         @query query: string,
         #suppress "@typespec/http/metadata-ignored"
         @statusCode code: 201,
@@ -444,10 +446,11 @@ describe("openapi3: return types", () => {
       type: "object",
       properties: {
         header: { type: "string" },
+        cookie: { type: "string" },
         query: { type: "string" },
         code: { type: "number", enum: [201] },
       },
-      required: ["header", "query", "code"],
+      required: ["header", "cookie", "query", "code"],
     });
   });
 
@@ -493,6 +496,24 @@ describe("openapi3: return types", () => {
         name: { type: "string" },
       },
       required: ["name"],
+    });
+  });
+
+  it("invalid metadata properties in body should still be included but response cookies should not be included", async () => {
+    const res = await openApiFor(`op read(): {
+        @header header: string;
+        #suppress "@typespec/http/response-cookie-not-supported"
+        @cookie cookie: string;
+        @query query: string;
+        name: string;
+      };`);
+    expect(res.paths["/"].get.responses["200"].content["application/json"].schema).toEqual({
+      type: "object",
+      properties: {
+        query: { type: "string" },
+        name: { type: "string" },
+      },
+      required: ["query", "name"],
     });
   });
 

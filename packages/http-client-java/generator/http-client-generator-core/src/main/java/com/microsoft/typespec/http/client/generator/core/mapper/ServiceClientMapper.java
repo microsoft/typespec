@@ -166,10 +166,16 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
         String baseName) {
         JavaSettings settings = JavaSettings.getInstance();
 
+        if (operations.isEmpty()) {
+            // no operation, does not need a Proxy
+            builder.clientMethods(Collections.emptyList());
+            return null;
+        }
+
         // TODO: Assume all operations share the same base url
-        Proxy.Builder proxyBuilder = getProxyBuilder().name(baseName + "Service")
-            .clientTypeName(baseName)
-            .baseURL(getBaseUrl(operations.iterator().next()));
+        String baseUrl = getBaseUrl(operations.iterator().next());
+        Proxy.Builder proxyBuilder
+            = getProxyBuilder().name(baseName + "Service").clientTypeName(baseName).baseURL(baseUrl);
         List<ProxyMethod> restAPIMethods = new ArrayList<>();
         for (Operation operation : operations) {
             if (settings.isDataPlaneClient()) {
@@ -232,7 +238,7 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
             String serviceClientPropertyName = CodeNamer.getPropertyName(p.getLanguage().getJava().getName());
 
             IType serviceClientPropertyClientType = Mappers.getSchemaMapper().map(p.getSchema());
-            if (settings.isDataPlaneClient()) {
+            if (isRemoveModelFromParameter(p, serviceClientPropertyClientType)) {
                 // mostly for Enum to String
                 serviceClientPropertyClientType = SchemaUtil.removeModelFromParameter(RequestParameterLocation.URI,
                     serviceClientPropertyClientType);
@@ -279,6 +285,10 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
         }
 
         return serviceClientProperties;
+    }
+
+    protected boolean isRemoveModelFromParameter(Parameter parameter, IType type) {
+        return JavaSettings.getInstance().isDataPlaneClient();
     }
 
     protected void processParametersAndConstructors(ServiceClient.Builder builder, Client client, CodeModel codeModel,

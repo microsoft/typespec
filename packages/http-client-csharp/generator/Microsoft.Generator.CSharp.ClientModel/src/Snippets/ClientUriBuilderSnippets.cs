@@ -14,8 +14,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         public static InvokeMethodExpression Reset(this ScopedApi<ClientUriBuilderDefinition> uriBuilder, ValueExpression baseUri)
             => uriBuilder.Invoke("Reset", baseUri);
 
-        public static InvokeMethodExpression AppendPath(this ScopedApi<ClientUriBuilderDefinition> uriBuilder, ValueExpression path, bool shouldEscape)
+        public static InvokeMethodExpression AppendPath(this ScopedApi<ClientUriBuilderDefinition> uriBuilder, ValueExpression path, bool? shouldEscape)
             => uriBuilder.Invoke("AppendPath", path, Literal(shouldEscape));
+
+        public static InvokeMethodExpression AppendPathDelimited(this ScopedApi<ClientUriBuilderDefinition> uriBuilder, ValueExpression path, string? format, bool? shouldEscape, string? delimiter = ",")
+            => uriBuilder.Invoke("AppendPathDelimited",  [path, Literal(delimiter), Literal(format), Literal(shouldEscape)]);
 
         public static InvokeMethodExpression AppendQuery(this ScopedApi<ClientUriBuilderDefinition> uriBuilder, ValueExpression name, ValueExpression value, bool shouldEscape)
             => uriBuilder.Invoke("AppendQuery", [name, value, Literal(shouldEscape)]);
@@ -23,8 +26,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         public static InvokeMethodExpression AppendQuery(this ScopedApi<ClientUriBuilderDefinition> uriBuilder, ValueExpression name, ValueExpression value, string? format, bool shouldEscape)
             => uriBuilder.Invoke("AppendQuery", [name, value, Literal(format), Literal(shouldEscape)]);
 
-        public static InvokeMethodExpression AppendQueryDelimited(this ScopedApi<ClientUriBuilderDefinition> uriBuilder, ValueExpression name, ValueExpression value, string? format, bool shouldEscape)
-            => uriBuilder.Invoke("AppendQueryDelimited", [name, value, Literal(","), Literal(format), Literal(shouldEscape)]);
+        public static InvokeMethodExpression AppendQueryDelimited(this ScopedApi<ClientUriBuilderDefinition> uriBuilder, ValueExpression name, ValueExpression value, string? format, bool shouldEscape, string? delimiter = ",")
+            => uriBuilder.Invoke("AppendQueryDelimited", [name, value, Literal(delimiter), Literal(format), Literal(shouldEscape)]);
 
         public static ScopedApi<Uri> ToUri(this ScopedApi<ClientUriBuilderDefinition> uriBuilder)
             => uriBuilder.Invoke("ToUri").As<Uri>();

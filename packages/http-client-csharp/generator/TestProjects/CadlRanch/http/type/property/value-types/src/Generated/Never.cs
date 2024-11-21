@@ -4,6 +4,7 @@
 
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 using _Type.Property.ValueTypes.Models;
 
@@ -21,14 +22,14 @@ namespace _Type.Property.ValueTypes
 
         public virtual ClientResult<NeverProperty> Get() => throw null;
 
-        public virtual Task<ClientResult<NeverProperty>> GetAsync() => throw null;
+        public virtual Task<ClientResult<NeverProperty>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult Put(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Put(NeverProperty body) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(NeverProperty body) => throw null;
+        public virtual Task<ClientResult> PutAsync(NeverProperty body, CancellationToken cancellationToken = default) => throw null;
     }
 }

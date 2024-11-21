@@ -4,6 +4,7 @@
 
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 using Payload.Xml.Models;
 
@@ -21,14 +22,14 @@ namespace Payload.Xml
 
         public virtual ClientResult<ModelWithDictionary> Get() => throw null;
 
-        public virtual Task<ClientResult<ModelWithDictionary>> GetAsync() => throw null;
+        public virtual Task<ClientResult<ModelWithDictionary>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult Put(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Put(ModelWithDictionary input) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(ModelWithDictionary input) => throw null;
+        public virtual Task<ClientResult> PutAsync(ModelWithDictionary input, CancellationToken cancellationToken = default) => throw null;
     }
 }

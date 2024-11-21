@@ -1,5 +1,6 @@
 import { isIdentifierContinue, isIdentifierStart, utf16CodeUnits } from "../charcode.js";
 import { Keywords } from "../scanner.js";
+import { IdentifierNode, MemberExpressionNode, SyntaxKind, TypeReferenceNode } from "../types.js";
 
 /**
  * Print a string as a TypeSpec identifier. If the string is a valid identifier, return it as is otherwise wrap it into backticks.
@@ -42,4 +43,17 @@ function needBacktick(sv: string) {
     pos += utf16CodeUnits(cp);
   } while (pos < sv.length && isIdentifierContinue((cp = sv.codePointAt(pos)!)));
   return pos < sv.length;
+}
+
+export function typeReferenceToString(
+  node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
+): string {
+  switch (node.kind) {
+    case SyntaxKind.MemberExpression:
+      return `${typeReferenceToString(node.base)}${node.selector}${typeReferenceToString(node.id)}`;
+    case SyntaxKind.TypeReference:
+      return typeReferenceToString(node.target);
+    case SyntaxKind.Identifier:
+      return node.sv;
+  }
 }

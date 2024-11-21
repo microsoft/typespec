@@ -12,7 +12,7 @@ import type {
   Type,
   Union,
   UnionVariant,
-} from "../src/index.js";
+} from "../src/core/index.js";
 
 export interface ExampleOptions {
   readonly title?: string;
@@ -22,6 +22,12 @@ export interface ExampleOptions {
 export interface OperationExample {
   readonly parameters?: unknown;
   readonly returnType?: unknown;
+}
+
+export interface VisibilityFilter {
+  readonly any?: readonly EnumValue[];
+  readonly all?: readonly EnumValue[];
+  readonly none?: readonly EnumValue[];
 }
 
 /**
@@ -114,12 +120,22 @@ export type WithoutDefaultValuesDecorator = (context: DecoratorContext, target: 
 /**
  * Set the visibility of key properties in a model if not already set.
  *
- * @param visibility The desired default visibility value. If a key property already has a `visibility` decorator then the default visibility is not applied.
+ * This will set the visibility modifiers of all key properties in the model if the visibility is not already _explicitly_ set,
+ * but will not change the visibility of any properties that have visibility set _explicitly_, even if the visibility
+ * is the same as the default visibility.
+ *
+ * Visibility may be explicitly set using any of the following decorators:
+ *
+ * - `@visibility`
+ * - `@removeVisibility`
+ * - `@invisible`
+ *
+ * @param visibility The desired default visibility value. If a key property already has visibility set, it will not be changed.
  */
 export type WithDefaultKeyVisibilityDecorator = (
   context: DecoratorContext,
   target: Model,
-  visibility: string,
+  visibility: string | EnumValue,
 ) => void;
 
 /**
@@ -173,7 +189,7 @@ export type ErrorsDocDecorator = (
  *
  * NOTE: This decorator **should not** be used, use the `#deprecated` directive instead.
  *
- * @deprecated Use the `#deprecated` directive instead.
+ * @deprecated Use the `#deprecated` [directive](https://typespec.io/docs/language-basics/directives/#deprecated) instead.
  * @param message Deprecation message.
  * @example
  * Use the `#deprecated` directive instead:
@@ -414,18 +430,6 @@ export type MaxValueExclusiveDecorator = (
 export type SecretDecorator = (context: DecoratorContext, target: Scalar | ModelProperty) => void;
 
 /**
- * Mark this operation as a `list` operation for resource types.
- *
- * @deprecated Use the `listsResource` decorator in `@typespec/rest` instead.
- * @param listedType Optional type of the items in the list.
- */
-export type ListDecorator = (
-  context: DecoratorContext,
-  target: Operation,
-  listedType?: Model,
-) => void;
-
-/**
  * Attaches a tag to an operation, interface, or namespace. Multiple `@tag` decorators can be specified to attach multiple tags to a TypeSpec element.
  *
  * @param tag Tag value
@@ -618,7 +622,7 @@ export type ExampleDecorator = (
  * @param options Optional metadata for the example.
  * @example
  * ```tsp
- * @example(#{parameters: #{name: "Fluffy", age: 2}, returnType: #{name: "Fluffy", age: 2, id: "abc"})
+ * @opExample(#{parameters: #{name: "Fluffy", age: 2}, returnType: #{name: "Fluffy", age: 2, id: "abc"})
  * op createPet(pet: Pet): Pet;
  * ```
  */
@@ -627,6 +631,172 @@ export type OpExampleDecorator = (
   target: Operation,
   example: OperationExample,
   options?: ExampleOptions,
+) => void;
+
+/**
+ * Mark this operation as a `list` operation that returns a paginated list of items.
+ */
+export type ListDecorator = (context: DecoratorContext, target: Operation) => void;
+
+/**
+ * Pagination property defining the number of items to skip.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ * }
+ * @list op listPets(@offset skip: int32, @pageSize pageSize: int8): Page<Pet>;
+ * ```
+ */
+export type OffsetDecorator = (context: DecoratorContext, target: ModelProperty) => void;
+
+/**
+ * Pagination property defining the page index.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ * }
+ * @list op listPets(@pageIndex page: int32, @pageSize pageSize: int8): Page<Pet>;
+ * ```
+ */
+export type PageIndexDecorator = (context: DecoratorContext, target: ModelProperty) => void;
+
+/**
+ * Specify the pagination parameter that controls the maximum number of items to include in a page.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ * }
+ * @list op listPets(@pageIndex page: int32, @pageSize pageSize: int8): Page<Pet>;
+ * ```
+ */
+export type PageSizeDecorator = (context: DecoratorContext, target: ModelProperty) => void;
+
+/**
+ * Specify the the property that contains the array of page items.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ * }
+ * @list op listPets(@pageIndex page: int32, @pageSize pageSize: int8): Page<Pet>;
+ * ```
+ */
+export type PageItemsDecorator = (context: DecoratorContext, target: ModelProperty) => void;
+
+/**
+ * Pagination property defining the token to get to the next page.
+ * It MUST be specified both on the request parameter and the response.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ *   @continuationToken continuationToken: string;
+ * }
+ * @list op listPets(@continuationToken continuationToken: string): Page<Pet>;
+ * ```
+ */
+export type ContinuationTokenDecorator = (context: DecoratorContext, target: ModelProperty) => void;
+
+/**
+ * Pagination property defining a link to the next page.
+ *
+ * It is expected that navigating to the link will return the same set of responses as the operation that returned the current page.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ *   @nextLink next: url;
+ *   @prevLink prev: url;
+ *   @firstLink first: url;
+ *   @lastLink last: url;
+ * }
+ * @list op listPets(): Page<Pet>;
+ * ```
+ */
+export type NextLinkDecorator = (context: DecoratorContext, target: ModelProperty) => void;
+
+/**
+ * Pagination property defining a link to the previous page.
+ *
+ * It is expected that navigating to the link will return the same set of responses as the operation that returned the current page.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ *   @nextLink next: url;
+ *   @prevLink prev: url;
+ *   @firstLink first: url;
+ *   @lastLink last: url;
+ * }
+ * @list op listPets(): Page<Pet>;
+ * ```
+ */
+export type PrevLinkDecorator = (context: DecoratorContext, target: ModelProperty) => void;
+
+/**
+ * Pagination property defining a link to the first page.
+ *
+ * It is expected that navigating to the link will return the same set of responses as the operation that returned the current page.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ *   @nextLink next: url;
+ *   @prevLink prev: url;
+ *   @firstLink first: url;
+ *   @lastLink last: url;
+ * }
+ * @list op listPets(): Page<Pet>;
+ * ```
+ */
+export type FirstLinkDecorator = (context: DecoratorContext, target: ModelProperty) => void;
+
+/**
+ * Pagination property defining a link to the last page.
+ *
+ * It is expected that navigating to the link will return the same set of responses as the operation that returned the current page.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ *   @nextLink next: url;
+ *   @prevLink prev: url;
+ *   @firstLink first: url;
+ *   @lastLink last: url;
+ * }
+ * @list op listPets(): Page<Pet>;
+ * ```
+ */
+export type LastLinkDecorator = (context: DecoratorContext, target: ModelProperty) => void;
+
+/**
+ * A debugging decorator used to inspect a type.
+ *
+ * @param text Custom text to log
+ */
+export type InspectTypeDecorator = (context: DecoratorContext, target: Type, text: string) => void;
+
+/**
+ * A debugging decorator used to inspect a type name.
+ *
+ * @param text Custom text to log
+ */
+export type InspectTypeNameDecorator = (
+  context: DecoratorContext,
+  target: Type,
+  text: string,
 ) => void;
 
 /**
@@ -651,9 +821,9 @@ export type OpExampleDecorator = (
  * ```typespec
  * model Dog {
  *   // the service will generate an ID, so you don't need to send it.
- *   @visibility("read") id: int32;
+ *   @visibility(Lifecycle.Read) id: int32;
  *   // the service will store this secret name, but won't ever return it
- *   @visibility("create", "update") secretName: string;
+ *   @visibility(Lifecycle.Create, Lifecycle.Update) secretName: string;
  *   // the regular name is always present
  *   name: string;
  * }
@@ -662,7 +832,53 @@ export type OpExampleDecorator = (
 export type VisibilityDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
-  ...visibilities: string[]
+  ...visibilities: (string | EnumValue)[]
+) => void;
+
+/**
+ * Indicates that a property is not visible in the given visibility class.
+ *
+ * This decorator removes all active visibility modifiers from the property within
+ * the given visibility class.
+ *
+ * @param visibilityClass The visibility class to make the property invisible within.
+ * @example
+ * ```typespec
+ * model Example {
+ *   @invisible(Lifecycle)
+ *   hidden_property: string;
+ * }
+ * ```
+ */
+export type InvisibleDecorator = (
+  context: DecoratorContext,
+  target: ModelProperty,
+  visibilityClass: Enum,
+) => void;
+
+/**
+ * Removes visibility modifiers from a property.
+ *
+ * If the visibility modifiers for a visibility class have not been initialized,
+ * this decorator will use the default visibility modifiers for the visibility
+ * class as the default modifier set.
+ *
+ * @param target The property to remove visibility from.
+ * @param visibilities The visibility modifiers to remove from the target property.
+ * @example
+ * ```typespec
+ * model Example {
+ *   // This property will have the Create and Update visibilities, but not the
+ *   // Read visibility, since it is removed.
+ *   @removeVisibility(Lifecycle.Read)
+ *   secret_property: string;
+ * }
+ * ```
+ */
+export type RemoveVisibilityDecorator = (
+  context: DecoratorContext,
+  target: ModelProperty,
+  ...visibilities: EnumValue[]
 ) => void;
 
 /**
@@ -707,25 +923,7 @@ export type VisibilityDecorator = (
 export type WithVisibilityDecorator = (
   context: DecoratorContext,
   target: Model,
-  ...visibilities: string[]
-) => void;
-
-/**
- * A debugging decorator used to inspect a type.
- *
- * @param text Custom text to log
- */
-export type InspectTypeDecorator = (context: DecoratorContext, target: Type, text: string) => void;
-
-/**
- * A debugging decorator used to inspect a type name.
- *
- * @param text Custom text to log
- */
-export type InspectTypeNameDecorator = (
-  context: DecoratorContext,
-  target: Type,
-  text: string,
+  ...visibilities: (string | EnumValue)[]
 ) => void;
 
 /**
@@ -736,7 +934,7 @@ export type InspectTypeNameDecorator = (
 export type ParameterVisibilityDecorator = (
   context: DecoratorContext,
   target: Operation,
-  ...visibilities: string[]
+  ...visibilities: (string | EnumValue)[]
 ) => void;
 
 /**
@@ -747,8 +945,82 @@ export type ParameterVisibilityDecorator = (
 export type ReturnTypeVisibilityDecorator = (
   context: DecoratorContext,
   target: Operation,
-  ...visibilities: string[]
+  ...visibilities: (string | EnumValue)[]
 ) => void;
+
+/**
+ * Declares the default visibility modifiers for a visibility class.
+ *
+ * The default modifiers are used when a property does not have any visibility decorators
+ * applied to it.
+ *
+ * The modifiers passed to this decorator _MUST_ be members of the target Enum.
+ *
+ * @param visibilities the list of modifiers to use as the default visibility modifiers.
+ */
+export type DefaultVisibilityDecorator = (
+  context: DecoratorContext,
+  target: Enum,
+  ...visibilities: EnumValue[]
+) => void;
+
+/**
+ * Applies the given visibility filter to the properties of the target model.
+ *
+ * This transformation is recursive, so it will also apply the filter to any nested
+ * or referenced models that are the types of any properties in the `target`.
+ *
+ * @param target The model to apply the visibility filter to.
+ * @param filter The visibility filter to apply to the properties of the target model.
+ * @example
+ * ```typespec
+ * model Dog {
+ *   @visibility(Lifecycle.Read)
+ *   id: int32;
+ *
+ *   name: string;
+ * }
+ *
+ * @withVisibilityFilter(#{ all: #[Lifecycle.Read] })
+ * model DogRead {
+ *  ...Dog
+ * }
+ * ```
+ */
+export type WithVisibilityFilterDecorator = (
+  context: DecoratorContext,
+  target: Model,
+  filter: VisibilityFilter,
+) => void;
+
+/**
+ * Transforms the `target` model to include only properties that are visible during the
+ * "Update" lifecycle phase.
+ *
+ * Any nested models of optional properties will be transformed into the "CreateOrUpdate"
+ * lifecycle phase instead of the "Update" lifecycle phase, so that nested models may be
+ * fully updated.
+ *
+ * @param target The model to apply the transformation to.
+ * @example
+ * ```typespec
+ * model Dog {
+ *   @visibility(Lifecycle.Read)
+ *   id: int32;
+ *
+ *   @visibility(Lifecycle.Create, Lifecycle.Update)
+ *   secretName: string;
+ *
+ *   name: string;
+ * }
+ *
+ * @withLifecycleUpdate
+ * model DogUpdate {
+ *   ...Dog
+ * }
+ * ```
+ */
+export type WithLifecycleUpdateDecorator = (context: DecoratorContext, target: Model) => void;
 
 export type TypeSpecDecorators = {
   encode: EncodeDecorator;
@@ -776,7 +1048,6 @@ export type TypeSpecDecorators = {
   minValueExclusive: MinValueExclusiveDecorator;
   maxValueExclusive: MaxValueExclusiveDecorator;
   secret: SecretDecorator;
-  list: ListDecorator;
   tag: TagDecorator;
   friendlyName: FriendlyNameDecorator;
   knownValues: KnownValuesDecorator;
@@ -787,10 +1058,25 @@ export type TypeSpecDecorators = {
   discriminator: DiscriminatorDecorator;
   example: ExampleDecorator;
   opExample: OpExampleDecorator;
-  visibility: VisibilityDecorator;
-  withVisibility: WithVisibilityDecorator;
+  list: ListDecorator;
+  offset: OffsetDecorator;
+  pageIndex: PageIndexDecorator;
+  pageSize: PageSizeDecorator;
+  pageItems: PageItemsDecorator;
+  continuationToken: ContinuationTokenDecorator;
+  nextLink: NextLinkDecorator;
+  prevLink: PrevLinkDecorator;
+  firstLink: FirstLinkDecorator;
+  lastLink: LastLinkDecorator;
   inspectType: InspectTypeDecorator;
   inspectTypeName: InspectTypeNameDecorator;
+  visibility: VisibilityDecorator;
+  invisible: InvisibleDecorator;
+  removeVisibility: RemoveVisibilityDecorator;
+  withVisibility: WithVisibilityDecorator;
   parameterVisibility: ParameterVisibilityDecorator;
   returnTypeVisibility: ReturnTypeVisibilityDecorator;
+  defaultVisibility: DefaultVisibilityDecorator;
+  withVisibilityFilter: WithVisibilityFilterDecorator;
+  withLifecycleUpdate: WithLifecycleUpdateDecorator;
 };

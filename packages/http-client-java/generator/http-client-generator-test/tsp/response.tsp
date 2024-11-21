@@ -13,7 +13,7 @@ using Azure.ClientGenerator.Core;
   title: "Response",
 })
 @versioned(ApiVersions)
-namespace Cadl.Response;
+namespace TspTest.Response;
 
 enum ApiVersions {
   @useDependency(global.Azure.Core.Versions.v1_0_Preview_2)
@@ -86,7 +86,7 @@ model StringsList {
   @items
   value: string[];
 
-  @nextLink
+  @global.Azure.Core.nextLink
   nextLink?: string;
 }
 
@@ -95,7 +95,7 @@ model Int32sList {
   @items
   value: int32[];
 
-  @nextLink
+  @global.Azure.Core.nextLink
   nextLink?: string;
 }
 
@@ -104,7 +104,7 @@ model DateTimesList {
   @items
   value: utcDateTime[];
 
-  @nextLink
+  @global.Azure.Core.nextLink
   nextLink?: string;
 }
 
@@ -122,7 +122,7 @@ op CustomLongRunningOperation<
 
 @Azure.ClientGenerator.Core.client({
   name: "ResponseClient",
-  service: Cadl.Response,
+  service: TspTest.Response,
 })
 @doc("Response")
 @route("/response")

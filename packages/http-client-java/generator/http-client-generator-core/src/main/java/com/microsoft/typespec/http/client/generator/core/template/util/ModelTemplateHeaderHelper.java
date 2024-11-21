@@ -69,14 +69,18 @@ public final class ModelTemplateHeaderHelper {
 
         classBlock.lineComment("HttpHeaders containing the raw property values.");
         classBlock.javadocComment(comment -> {
-            comment.description(String.format("Creates an instance of %1$s class.", model.getName()));
+            comment.description("Creates an instance of " + model.getName() + " class.");
             comment.param("rawHeaders", "The raw HttpHeaders that will be used to create the property values.");
         });
-        classBlock.publicConstructor(String.format("%s(HttpHeaders rawHeaders)", model.getName()), constructor -> {
+        classBlock.publicConstructor(model.getName() + "(HttpHeaders rawHeaders)", constructor -> {
             // HeaderCollections need special handling as they may have multiple values that need to be retrieved from
             // the raw headers.
             List<ClientModelProperty> collectionProperties = new ArrayList<>();
             for (ClientModelProperty property : model.getProperties()) {
+                if (property.isConstant()) {
+                    continue;
+                }
+
                 if (CoreUtils.isNullOrEmpty(property.getHeaderCollectionPrefix())) {
                     generateHeaderDeserializationFunction(property, constructor);
                 } else {
@@ -106,9 +110,9 @@ public final class ModelTemplateHeaderHelper {
 
         if (HEADER_TO_KNOWN_HTTPHEADERNAME.containsKey(caseInsensitiveName)) {
             // known name
-            return String.format("HttpHeaderName.%s", HEADER_TO_KNOWN_HTTPHEADERNAME.get(caseInsensitiveName));
+            return "HttpHeaderName." + HEADER_TO_KNOWN_HTTPHEADERNAME.get(caseInsensitiveName);
         } else {
-            return String.format("HttpHeaderName.fromString(%s)", ClassType.STRING.defaultValueExpression(headerName));
+            return "HttpHeaderName.fromString(" + ClassType.STRING.defaultValueExpression(headerName) + ")";
         }
     }
 
@@ -134,7 +138,7 @@ public final class ModelTemplateHeaderHelper {
             String headerName = property.getSerializedName();
             String constantName = CodeNamer.getEnumMemberName(headerName);
             classBlock.variable(
-                String.format("HttpHeaderName %s = HttpHeaderName.fromString(\"%s\")", constantName, headerName),
+                "HttpHeaderName " + constantName + " = HttpHeaderName.fromString(\"" + headerName + "\")",
                 JavaVisibility.Private, JavaModifier.Static, JavaModifier.Final);
         }
     }
@@ -153,36 +157,36 @@ public final class ModelTemplateHeaderHelper {
             ? "HttpHeaderName." + knownHttpHeaderNameConstant
             : CodeNamer.getEnumMemberName(property.getSerializedName());
 
-        String rawHeaderAccess = String.format("rawHeaders.getValue(%s)", httpHeaderName);
+        String rawHeaderAccess = "rawHeaders.getValue(" + httpHeaderName + ")";
         if (needsNullGuarding) {
-            javaBlock.line("String %s = %s;", property.getName(), rawHeaderAccess);
+            javaBlock.line("String " + property.getName() + " = " + rawHeaderAccess + ";");
             rawHeaderAccess = property.getName();
         }
 
         boolean needsTryCatch = false;
         String setter;
         if (wireType == PrimitiveType.BOOLEAN || wireType == ClassType.BOOLEAN) {
-            setter = String.format("Boolean.parseBoolean(%s)", rawHeaderAccess);
+            setter = "Boolean.parseBoolean(" + rawHeaderAccess + ")";
         } else if (wireType == PrimitiveType.DOUBLE || wireType == ClassType.DOUBLE) {
-            setter = String.format("Double.parseDouble(%s)", rawHeaderAccess);
+            setter = "Double.parseDouble(" + rawHeaderAccess + ")";
         } else if (wireType == PrimitiveType.FLOAT || wireType == ClassType.FLOAT) {
-            setter = String.format("Float.parseFloat(%s)", rawHeaderAccess);
+            setter = "Float.parseFloat(" + rawHeaderAccess + ")";
         } else if (wireType == PrimitiveType.INT || wireType == ClassType.INTEGER) {
-            setter = String.format("Integer.parseInt(%s)", rawHeaderAccess);
+            setter = "Integer.parseInt(" + rawHeaderAccess + ")";
         } else if (wireType == PrimitiveType.LONG || wireType == ClassType.LONG) {
-            setter = String.format("Long.parseLong(%s)", rawHeaderAccess);
+            setter = "Long.parseLong(" + rawHeaderAccess + ")";
         } else if (wireType == ArrayType.BYTE_ARRAY) {
-            setter = String.format("Base64.getDecoder().decode(%s)", rawHeaderAccess);
+            setter = "Base64.getDecoder().decode(" + rawHeaderAccess + ")";
         } else if (wireType == ClassType.STRING) {
             setter = rawHeaderAccess;
         } else if (wireType == ClassType.DATE_TIME_RFC_1123) {
-            setter = String.format("new DateTimeRfc1123(%s)", rawHeaderAccess);
+            setter = "new DateTimeRfc1123(" + rawHeaderAccess + ")";
         } else if (wireType == ClassType.DATE_TIME) {
-            setter = String.format("OffsetDateTime.parse(%s)", rawHeaderAccess);
+            setter = "OffsetDateTime.parse(" + rawHeaderAccess + ")";
         } else if (wireType == ClassType.LOCAL_DATE) {
-            setter = String.format("LocalDate.parse(%s)", rawHeaderAccess);
+            setter = "LocalDate.parse(" + rawHeaderAccess + ")";
         } else if (wireType == ClassType.DURATION) {
-            setter = String.format("Duration.parse(%s)", rawHeaderAccess);
+            setter = "Duration.parse(" + rawHeaderAccess + ")";
         } else if (wireType == ClassType.UUID) {
             setter = "UUID.fromString(" + rawHeaderAccess + ")";
         } else if (wireType == ClassType.URL) {
@@ -190,13 +194,12 @@ public final class ModelTemplateHeaderHelper {
             setter = "new URL(" + rawHeaderAccess + ")";
         } else if (wireType instanceof EnumType) {
             EnumType enumType = (EnumType) wireType;
-            setter = String.format("%s.%s(%s)", enumType.getName(), enumType.getFromMethodName(), rawHeaderAccess);
+            setter = enumType.getName() + "." + enumType.getFromMethodName() + "(" + rawHeaderAccess + ")";
         } else {
             // TODO (alzimmer): Check if the wire type is a Swagger type that could use stream-style serialization.
             needsTryCatch = true;
-            setter = String.format(
-                "JacksonAdapter.createDefaultSerializerAdapter().deserializeHeader(rawHeaders.get(\"%s\"), %s)",
-                property.getSerializedName(), getWireTypeJavaType(wireType));
+            setter = "JacksonAdapter.createDefaultSerializerAdapter().deserializeHeader(" + "rawHeaders.get(\""
+                + property.getSerializedName() + "\"), " + getWireTypeJavaType(wireType) + ")";
         }
 
         if (needsTryCatch) {
@@ -206,10 +209,10 @@ public final class ModelTemplateHeaderHelper {
 
         // String is special as the setter is null safe for it, unlike other nullable types.
         if (needsNullGuarding) {
-            javaBlock.ifBlock(String.format("%s != null", property.getName()),
-                ifBlock -> ifBlock.line("this.%s = %s;", property.getName(), setter));
+            javaBlock.ifBlock(property.getName() + " != null",
+                ifBlock -> ifBlock.line("this." + property.getName() + " = " + setter + ";"));
         } else {
-            javaBlock.line("this.%s = %s;", property.getName(), setter);
+            javaBlock.line("this." + property.getName() + " = " + setter + ";");
         }
 
         if (needsTryCatch) {
@@ -241,7 +244,7 @@ public final class ModelTemplateHeaderHelper {
             MapType wireType = (MapType) property.getWireType();
 
             // Prefix the map with the property name for the cases where multiple header collections exist.
-            block.line("%s %sHeaderCollection = new HashMap<>();", wireType, property.getName());
+            block.line(wireType + " " + property.getName() + "HeaderCollection = new LinkedHashMap<>();");
         }
 
         block.line();
@@ -252,21 +255,20 @@ public final class ModelTemplateHeaderHelper {
             for (int i = 0; i < propertiesSize; i++) {
                 ClientModelProperty property = properties.get(i);
                 boolean needsContinue = i < propertiesSize - 1;
-                body.ifBlock(String.format("headerName.startsWith(\"%s\")", property.getHeaderCollectionPrefix()),
-                    ifBlock -> {
-                        ifBlock.line("%sHeaderCollection.put(headerName.substring(%d), header.getValue());",
-                            property.getName(), property.getHeaderCollectionPrefix().length());
-                        if (needsContinue) {
-                            ifBlock.line("continue;");
-                        }
-                    });
+                body.ifBlock("headerName.startsWith(\"" + property.getHeaderCollectionPrefix() + "\")", ifBlock -> {
+                    ifBlock.line("%sHeaderCollection.put(headerName.substring(%d), header.getValue());",
+                        property.getName(), property.getHeaderCollectionPrefix().length());
+                    if (needsContinue) {
+                        ifBlock.line("continue;");
+                    }
+                });
             }
         });
 
         block.line();
 
         for (ClientModelProperty property : properties) {
-            block.line("this.%s = %sHeaderCollection;", property.getName(), property.getName());
+            block.line("this." + property.getName() + " = " + property.getName() + "HeaderCollection;");
         }
     }
 
