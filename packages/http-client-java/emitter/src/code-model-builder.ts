@@ -496,106 +496,120 @@ export class CodeModelBuilder {
 
     const sdkPackage = this.sdkContext.sdkPackage;
     for (const client of sdkPackage.clients) {
-      let clientName = client.name;
-      let javaNamespace = this.getJavaNamespace(this.namespace);
-      const clientFullName = client.name;
-      const clientNameSegments = clientFullName.split(".");
-      if (clientNameSegments.length > 1) {
-        clientName = clientNameSegments.at(-1)!;
-        const clientSubNamespace = clientNameSegments.slice(0, -1).join(".");
-        javaNamespace = this.getJavaNamespace(this.namespace + "." + clientSubNamespace);
-      }
+      this.processClient(client);
+    }
+  }
 
-      const codeModelClient = new CodeModelClient(clientName, client.doc ?? "", {
-        summary: client.summary,
-        language: {
-          default: {
-            namespace: this.namespace,
-          },
-          java: {
-            namespace: javaNamespace,
-          },
+  private processClient(client: SdkClientType<SdkHttpOperation>): CodeModelClient {
+    let clientName = client.name;
+    let javaNamespace = this.getJavaNamespace(this.namespace);
+    const clientFullName = client.name;
+    const clientNameSegments = clientFullName.split(".");
+    if (clientNameSegments.length > 1) {
+      clientName = clientNameSegments.at(-1)!;
+      const clientSubNamespace = clientNameSegments.slice(0, -1).join(".");
+      javaNamespace = this.getJavaNamespace(this.namespace + "." + clientSubNamespace);
+    }
+
+    const codeModelClient = new CodeModelClient(clientName, client.doc ?? "", {
+      summary: client.summary,
+      language: {
+        default: {
+          namespace: this.namespace,
         },
+        java: {
+          namespace: javaNamespace,
+        },
+      },
 
-        // at present, use global security definition
-        security: this.codeModel.security,
-      });
-      codeModelClient.crossLanguageDefinitionId = client.crossLanguageDefinitionId;
+      // at present, use global security definition
+      security: this.codeModel.security,
+    });
+    codeModelClient.crossLanguageDefinitionId = client.crossLanguageDefinitionId;
 
-      // versioning
-      const versions = client.apiVersions;
-      if (versions && versions.length > 0) {
-        if (!this.sdkContext.apiVersion || ["all", "latest"].includes(this.sdkContext.apiVersion)) {
-          this.apiVersion = versions[versions.length - 1];
-        } else {
-          this.apiVersion = versions.find((it: string) => it === this.sdkContext.apiVersion);
-          if (!this.apiVersion) {
-            throw new Error("Unrecognized api-version: " + this.sdkContext.apiVersion);
-          }
-        }
-
-        codeModelClient.apiVersions = [];
-        for (const version of this.getFilteredApiVersions(
-          this.apiVersion,
-          versions,
-          this.options["service-version-exclude-preview"],
-        )) {
-          const apiVersion = new ApiVersion();
-          apiVersion.version = version;
-          codeModelClient.apiVersions.push(apiVersion);
+    // versioning
+    const versions = client.apiVersions;
+    if (versions && versions.length > 0) {
+      if (!this.sdkContext.apiVersion || ["all", "latest"].includes(this.sdkContext.apiVersion)) {
+        this.apiVersion = versions[versions.length - 1];
+      } else {
+        this.apiVersion = versions.find((it: string) => it === this.sdkContext.apiVersion);
+        if (!this.apiVersion) {
+          throw new Error("Unrecognized api-version: " + this.sdkContext.apiVersion);
         }
       }
 
-      // client initialization
-      let baseUri = "{endpoint}";
-      let hostParameters: Parameter[] = [];
-      client.initialization.properties.forEach((initializationProperty) => {
-        if (initializationProperty.kind === "endpoint") {
-          let sdkPathParameters: SdkPathParameter[] = [];
-          if (initializationProperty.type.kind === "union") {
-            if (initializationProperty.type.variantTypes.length === 2) {
-              // only get the sdkPathParameters from the endpoint whose serverUrl is not {"endpoint"}
-              for (const endpointType of initializationProperty.type.variantTypes) {
-                if (endpointType.kind === "endpoint" && endpointType.serverUrl !== "{endpoint}") {
-                  sdkPathParameters = endpointType.templateArguments;
-                  baseUri = endpointType.serverUrl;
-                }
+      codeModelClient.apiVersions = [];
+      for (const version of this.getFilteredApiVersions(
+        this.apiVersion,
+        versions,
+        this.options["service-version-exclude-preview"],
+      )) {
+        const apiVersion = new ApiVersion();
+        apiVersion.version = version;
+        codeModelClient.apiVersions.push(apiVersion);
+      }
+    }
+
+    // client initialization
+    let baseUri = "{endpoint}";
+    let hostParameters: Parameter[] = [];
+    client.initialization.properties.forEach((initializationProperty) => {
+      if (initializationProperty.kind === "endpoint") {
+        let sdkPathParameters: SdkPathParameter[] = [];
+        if (initializationProperty.type.kind === "union") {
+          if (initializationProperty.type.variantTypes.length === 2) {
+            // only get the sdkPathParameters from the endpoint whose serverUrl is not {"endpoint"}
+            for (const endpointType of initializationProperty.type.variantTypes) {
+              if (endpointType.kind === "endpoint" && endpointType.serverUrl !== "{endpoint}") {
+                sdkPathParameters = endpointType.templateArguments;
+                baseUri = endpointType.serverUrl;
               }
-            } else if (initializationProperty.type.variantTypes.length > 2) {
-              throw new Error("Multiple server url defined for one client is not supported yet.");
             }
-          } else if (initializationProperty.type.kind === "endpoint") {
-            sdkPathParameters = initializationProperty.type.templateArguments;
-            baseUri = initializationProperty.type.serverUrl;
+          } else if (initializationProperty.type.variantTypes.length > 2) {
+            throw new Error("Multiple server url defined for one client is not supported yet.");
           }
-
-          hostParameters = this.processHostParameters(sdkPathParameters);
-          codeModelClient.addGlobalParameters(hostParameters);
+        } else if (initializationProperty.type.kind === "endpoint") {
+          sdkPathParameters = initializationProperty.type.templateArguments;
+          baseUri = initializationProperty.type.serverUrl;
         }
-      });
 
-      const clientContext = new ClientContext(
-        baseUri,
-        hostParameters,
-        codeModelClient.globalParameters!,
-        codeModelClient.apiVersions,
-      );
-
-      // preprocess operation groups and operations
-      // operations without operation group
-      const serviceMethodsWithoutSubClient = this.listServiceMethodsUnderClient(client);
-      let codeModelGroup = new OperationGroup("");
-      for (const serviceMethod of serviceMethodsWithoutSubClient) {
-        if (!this.needToSkipProcessingOperation(serviceMethod.__raw, clientContext)) {
-          codeModelGroup.addOperation(this.processOperation(serviceMethod, clientContext, ""));
-        }
+        hostParameters = this.processHostParameters(sdkPathParameters);
+        codeModelClient.addGlobalParameters(hostParameters);
       }
-      if (codeModelGroup.operations?.length > 0) {
-        codeModelClient.operationGroups.push(codeModelGroup);
-      }
+    });
 
+    const clientContext = new ClientContext(
+      baseUri,
+      hostParameters,
+      codeModelClient.globalParameters!,
+      codeModelClient.apiVersions,
+    );
+
+    const enableSubclient: boolean = Boolean(this.options["enable-subclient"]);
+
+    // preprocess operation groups and operations
+    // operations without operation group
+    const serviceMethodsWithoutSubClient = this.listServiceMethodsUnderClient(client);
+    let codeModelGroup = new OperationGroup("");
+    for (const serviceMethod of serviceMethodsWithoutSubClient) {
+      if (!this.needToSkipProcessingOperation(serviceMethod.__raw, clientContext)) {
+        codeModelGroup.addOperation(this.processOperation(serviceMethod, clientContext, ""));
+      }
+    }
+    if (codeModelGroup.operations?.length > 0 || enableSubclient) {
+      codeModelClient.operationGroups.push(codeModelGroup);
+    }
+
+    const subClients = this.listSubClientsUnderClient(client, !enableSubclient);
+    if (enableSubclient) {
+      // subclient, no operation group
+      for (const subClient of subClients) {
+        const codeModelSubclient = this.processClient(subClient);
+        codeModelClient.addSubClient(codeModelSubclient);
+      }
+    } else {
       // operations under operation groups
-      const subClients = this.listSubClientsUnderClient(client, true, true);
       for (const subClient of subClients) {
         const serviceMethods = this.listServiceMethodsUnderClient(subClient);
         // operation group with no operation is skipped
@@ -611,48 +625,51 @@ export class CodeModelBuilder {
           codeModelClient.operationGroups.push(codeModelGroup);
         }
       }
-      this.codeModel.clients.push(codeModelClient);
+    }
 
-      // postprocess for ServiceVersion
-      let apiVersionSameForAllClients = true;
-      let sharedApiVersions = undefined;
+    this.codeModel.clients.push(codeModelClient);
+
+    // postprocess for ServiceVersion
+    let apiVersionSameForAllClients = true;
+    let sharedApiVersions = undefined;
+    for (const client of this.codeModel.clients) {
+      const apiVersions = client.apiVersions;
+      if (!apiVersions) {
+        // client does not have apiVersions
+        apiVersionSameForAllClients = false;
+      } else if (!sharedApiVersions) {
+        // first client, set it to sharedApiVersions
+        sharedApiVersions = apiVersions;
+      } else {
+        apiVersionSameForAllClients = isEqual(sharedApiVersions, apiVersions);
+      }
+      if (!apiVersionSameForAllClients) {
+        break;
+      }
+    }
+    if (apiVersionSameForAllClients) {
+      const serviceVersion = getServiceVersion(this.codeModel);
+      for (const client of this.codeModel.clients) {
+        client.serviceVersion = serviceVersion;
+      }
+    } else {
       for (const client of this.codeModel.clients) {
         const apiVersions = client.apiVersions;
-        if (!apiVersions) {
-          // client does not have apiVersions
-          apiVersionSameForAllClients = false;
-        } else if (!sharedApiVersions) {
-          // first client, set it to sharedApiVersions
-          sharedApiVersions = apiVersions;
-        } else {
-          apiVersionSameForAllClients = isEqual(sharedApiVersions, apiVersions);
-        }
-        if (!apiVersionSameForAllClients) {
-          break;
-        }
-      }
-      if (apiVersionSameForAllClients) {
-        const serviceVersion = getServiceVersion(this.codeModel);
-        for (const client of this.codeModel.clients) {
-          client.serviceVersion = serviceVersion;
-        }
-      } else {
-        for (const client of this.codeModel.clients) {
-          const apiVersions = client.apiVersions;
-          if (apiVersions) {
-            client.serviceVersion = getServiceVersion(client);
-          }
+        if (apiVersions) {
+          client.serviceVersion = getServiceVersion(client);
         }
       }
     }
+
+    return codeModelClient;
   }
 
   private listSubClientsUnderClient(
     client: SdkClientType<SdkHttpOperation>,
-    includeNestedOperationGroups: boolean,
-    isRootClient: boolean,
+    includeNestedSubClients: boolean,
   ): SdkClientType<SdkHttpOperation>[] {
-    const operationGroups: SdkClientType<SdkHttpOperation>[] = [];
+    const isRootClient = !client.parent;
+    const subClients: SdkClientType<SdkHttpOperation>[] = [];
     for (const method of client.methods) {
       if (method.kind === "clientaccessor") {
         const subClient = method.response;
@@ -661,19 +678,18 @@ export class CodeModelBuilder {
           subClient.name =
             removeClientSuffix(client.name) + removeClientSuffix(pascalCase(subClient.name));
         }
-        operationGroups.push(subClient);
-        if (includeNestedOperationGroups) {
+        subClients.push(subClient);
+        if (includeNestedSubClients) {
           for (const operationGroup of this.listSubClientsUnderClient(
             subClient,
-            includeNestedOperationGroups,
-            false,
+            includeNestedSubClients,
           )) {
-            operationGroups.push(operationGroup);
+            subClients.push(operationGroup);
           }
         }
       }
     }
-    return operationGroups;
+    return subClients;
   }
 
   private listServiceMethodsUnderClient(
