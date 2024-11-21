@@ -27,7 +27,7 @@ namespace Microsoft.Generator.CSharp.Tests.Common
             [CallerMemberName] string method = "",
             [CallerFilePath] string filePath = "")
         {
-            var pieces = filePath.Split('\\');
+            var pieces = filePath.Split(Path.DirectorySeparatorChar);
             var callingClass = pieces.Last().Split('.').First();
             var paramString = parameters is null ? string.Empty : $"({parameters})";
             var extName = isFile ? ".cs" : string.Empty;
