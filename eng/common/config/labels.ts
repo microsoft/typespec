@@ -194,6 +194,10 @@ export default defineConfig({
           color: "7057ff",
           description: "Good for newcomers",
         },
+        mq: {
+          color: "0969da",
+          description: "Good candidate for MQ",
+        },
       },
     },
   },
