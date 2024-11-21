@@ -28,13 +28,11 @@ namespace Microsoft.Generator.CSharp.Tests.Common
             [CallerFilePath] string filePath = "")
         {
 
-            var pieces =  Path.GetFullPath(filePath).Split(Path.DirectorySeparatorChar);
-            var callingClass = pieces.Last().Split('.').First();
+            var callingClass =  Path.GetFileName(filePath).Split('.').First();
             var paramString = parameters is null ? string.Empty : $"({parameters})";
             var extName = isFile ? ".cs" : string.Empty;
-            var directory = Path.Join(pieces.Take(pieces.Length - 1).ToArray());
 
-            return Path.Combine(directory, "TestData", callingClass, $"{method}{paramString}{extName}");
+            return Path.Combine(Path.GetDirectoryName(filePath)!, "TestData", callingClass, $"{method}{paramString}{extName}");
         }
 
 
