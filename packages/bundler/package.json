@@ -49,7 +49,7 @@
     "@rollup/plugin-node-resolve": "~15.3.0",
     "@rollup/plugin-virtual": "~3.0.2",
     "@typespec/compiler": "workspace:~",
-    "picocolors": "~1.1.0",
+    "picocolors": "~1.1.1",
     "rollup": "~4.24.0",
     "yargs": "~17.7.2"
   },

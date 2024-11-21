@@ -186,7 +186,7 @@ importers:
         specifier: ^2.2.3
         version: 2.2.3
       picocolors:
-        specifier: ~1.1.0
+        specifier: ~1.1.1
         version: 1.1.1
       semver:
         specifier: ^7.6.3
@@ -241,7 +241,7 @@ importers:
         specifier: workspace:~
         version: link:../compiler
       picocolors:
-        specifier: ~1.1.0
+        specifier: ~1.1.1
         version: 1.1.1
       rollup:
         specifier: ~4.24.0
@@ -296,7 +296,7 @@ importers:
         specifier: ~4.2.0
         version: 4.2.0
       picocolors:
-        specifier: ~1.1.0
+        specifier: ~1.1.1
         version: 1.1.1
       prettier:
         specifier: ~3.3.3
@@ -631,7 +631,7 @@ importers:
         specifier: workspace:~
         version: link:../http
       tsx:
-        specifier: ^4.19.1
+        specifier: ^4.19.2
         version: 4.19.2
       typescript:
         specifier: ~5.6.3
@@ -689,7 +689,7 @@ importers:
         specifier: ^6.0.9
         version: 6.0.9(@pnpm/logger@5.2.0)
       cspell:
-        specifier: ^8.14.4
+        specifier: ^8.16.0
         version: 8.16.0
       semver:
         specifier: ^7.6.3
@@ -1163,11 +1163,8 @@ importers:
         specifier: ^10.1.2
         version: 10.1.2
       cross-env:
-        specifier: ^7.0.3
+        specifier: ~7.0.3
         version: 7.0.3
-      cross-spawn:
-        specifier: ^7.0.6
-        version: 7.0.6
       rimraf:
         specifier: ~6.0.1
         version: 6.0.1
@@ -1463,7 +1460,7 @@ importers:
         specifier: ^1.4.5-lts.1
         version: 1.4.5-lts.1
       picocolors:
-        specifier: ~1.1.0
+        specifier: ~1.1.1
         version: 1.1.1
       prettier:
         specifier: ~3.3.3
@@ -1649,7 +1646,7 @@ importers:
         specifier: ^3.3.1
         version: 3.3.2
       picocolors:
-        specifier: ~1.1.0
+        specifier: ~1.1.1
         version: 1.1.1
       source-map-support:
         specifier: ~0.5.21
@@ -1804,7 +1801,7 @@ importers:
         specifier: workspace:~
         version: link:../compiler
       picocolors:
-        specifier: ~1.1.0
+        specifier: ~1.1.1
         version: 1.1.1
       prettier:
         specifier: ~3.3.3

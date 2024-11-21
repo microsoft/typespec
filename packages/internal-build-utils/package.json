@@ -41,7 +41,7 @@
   ],
   "dependencies": {
     "@pnpm/find-workspace-packages": "^6.0.9",
-    "cspell": "^8.14.4",
+    "cspell": "^8.16.0",
     "semver": "^7.6.3",
     "strip-json-comments": "~5.0.1",
     "yargs": "~17.7.2"

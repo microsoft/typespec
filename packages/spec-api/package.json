@@ -30,7 +30,7 @@
     "express-promise-router": "^4.1.1",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
-    "picocolors": "~1.1.0",
+    "picocolors": "~1.1.1",
     "prettier": "~3.3.3",
     "winston": "^3.17.0",
     "xml2js": "^0.6.2",
