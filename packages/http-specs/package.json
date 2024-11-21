@@ -38,7 +38,7 @@
   },
   "devDependencies": {
     "@types/multer": "^1.4.10",
-    "@types/node": "~22.7.5",
+    "@types/node": "~22.7.9",
     "@typespec/openapi": "workspace:~",
     "@typespec/openapi3": "workspace:~",
     "concurrently": "^9.0.1",

@@ -30,7 +30,7 @@
     "express-promise-router": "^4.1.1",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
-    "picocolors": "~1.1.0",
+    "picocolors": "~1.1.1",
     "prettier": "~3.3.3",
     "winston": "^3.15.0",
     "xml2js": "^0.6.2",
@@ -42,13 +42,13 @@
     "@types/express": "^5.0.0",
     "@types/morgan": "^1.9.4",
     "@types/multer": "^1.4.10",
-    "@types/node": "~22.7.5",
+    "@types/node": "~22.7.9",
     "@types/xml2js": "^0.4.11",
     "@types/yargs": "~17.0.33",
-    "@vitest/coverage-v8": "^2.1.2",
+    "@vitest/coverage-v8": "^2.1.5",
     "@vitest/ui": "^2.1.2",
     "rimraf": "~6.0.1",
     "typescript": "~5.6.3",
-    "vitest": "^2.1.2"
+    "vitest": "^2.1.5"
   }
 }
