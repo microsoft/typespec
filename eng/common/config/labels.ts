@@ -169,7 +169,7 @@ export const CommonLabels = {
       },
       stale: {
         color: "ffffff",
-        description: "Mark an PR that hasn't gotten update and will be closed.",
+        description: "Mark a PR that hasn't been recently updated and will be closed.",
       },
       "triaged:core": {
         color: "5319e7",
