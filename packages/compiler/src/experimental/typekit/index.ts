@@ -1,5 +1,5 @@
 import { compilerAssert, Program } from "../../core/index.js";
-import { Realm, REALM_TYPEKIT } from "../realm.js";
+import { Realm } from "../realm.js";
 import { Typekit, TypekitPrototype } from "./define-kit.js";
 
 export * from "./define-kit.js";
@@ -115,7 +115,7 @@ function _$(arg: Realm | Program): Typekit {
     realm = arg as Realm;
   }
 
-  return realm[REALM_TYPEKIT];
+  return realm.typekit;
 }
 
 /**
@@ -178,7 +178,7 @@ export const $: DefaultTypekit = new Proxy(_$, {
 
     if (prop === "realm") return realm;
 
-    const tk = realm[REALM_TYPEKIT];
+    const tk = _$(realm);
 
     return Reflect.get(tk, prop, tk);
   },

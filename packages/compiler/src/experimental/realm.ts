@@ -99,14 +99,6 @@ class StateMapRealmView<V> implements Map<Type, V> {
 }
 
 /**
- * A symbol used to access a realm's typekit.
- *
- * @internal
- * @experimental
- */
-export const REALM_TYPEKIT = Symbol.for("TypeSpec::Realm::Typekit");
-
-/**
  * A Realm is an alternate view of a Program where types can be cloned, deleted, and modified without affecting the
  * original types in the Program.
  *
@@ -152,7 +144,7 @@ export class Realm {
    *
    * If the realm does not already have a typekit associated with it, one will be created and bound to this realm.
    */
-  get [REALM_TYPEKIT](): Typekit {
+  get typekit(): Typekit {
     return (this.#_typekit ??= createTypekit(this));
   }
 
@@ -193,7 +185,7 @@ export class Realm {
     compilerAssert(type, "Undefined type passed to clone");
 
     const clone = this.#cloneIntoRealm(type);
-    this[REALM_TYPEKIT].type.finishType(clone);
+    this.typekit.type.finishType(clone);
 
     return clone;
   }
@@ -232,7 +224,7 @@ export class Realm {
   }
 
   #cloneIntoRealm<T extends Type>(type: T): T {
-    const clone = this[REALM_TYPEKIT].type.clone(type);
+    const clone = this.typekit.type.clone(type);
     this.#types.add(clone);
     Realm.realmForType.set(clone, this);
     return clone;
