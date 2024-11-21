@@ -52,8 +52,8 @@ export function createTypekit(realm: Realm): Typekit {
 
 // #region Default Typekit
 
-const CURRENT_PROGRAM = Symbol.for("TypeSpec::Typekit::CURRENT_PROGRAM");
-const DEFAULT_REALM = Symbol.for("TypeSpec::Typekit::DEFAULT_TYPEKIT_REALM");
+const CURRENT_PROGRAM = Symbol.for("TypeSpec.Typekit.CURRENT_PROGRAM");
+const DEFAULT_REALM = Symbol.for("TypeSpec.Typekit.DEFAULT_TYPEKIT_REALM");
 
 function getCurrentProgram(): Program | undefined {
   return (globalThis as any)[CURRENT_PROGRAM];
