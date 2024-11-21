@@ -95,7 +95,7 @@ type ShowSourceButtonProps = {
   scenario: ScenarioData;
 };
 const GotoSourceButton: FunctionComponent<ShowSourceButtonProps> = ({ scenario }) => {
-  const baseUrl = "https://github.com/Azure/cadl-ranch/blob/main/packages/cadl-ranch-specs/http/";
+  const baseUrl = "https://github.com/Microsoft/typespec/tree/main/packages/http-specs/specs/";
   const start = getGithubLineNumber(scenario.location.start.line);
   const end = getGithubLineNumber(scenario.location.end.line);
   const url = `${baseUrl}/${scenario.location.path}#${start}-${end}`;
