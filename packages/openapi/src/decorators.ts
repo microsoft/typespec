@@ -58,7 +58,10 @@ export const $extension: ExtensionDecorator = (
   extensionName: string,
   value: TypeSpecValue,
 ) => {
-  if (!isOpenAPIExtensionKey(extensionName)) {
+  if (
+    !["minProperties", "maxProperties", "uniqueItems", "multipleOf"].includes(extensionName) &&
+    !isOpenAPIExtensionKey(extensionName)
+  ) {
     reportDiagnostic(context.program, {
       code: "invalid-extension-key",
       format: { value: extensionName },
