@@ -16,10 +16,10 @@
     "_specs_.azure.clientgenerator.core.usage.UsageClient.outputToInputOutput": "_Specs_.Azure.ClientGenerator.Core.Usage.ModelInOperation.outputToInputOutput",
     "_specs_.azure.clientgenerator.core.usage.UsageClient.outputToInputOutputWithResponse": "_Specs_.Azure.ClientGenerator.Core.Usage.ModelInOperation.outputToInputOutput",
     "_specs_.azure.clientgenerator.core.usage.UsageClientBuilder": "_Specs_.Azure.ClientGenerator.Core.Usage",
-    "_specs_.azure.clientgenerator.core.usage.models.InputModel": "_Specs_.Azure.ClientGenerator.Core.Usage.ModelInOperation.InputModel",
-    "_specs_.azure.clientgenerator.core.usage.models.OrphanModel": "_Specs_.Azure.ClientGenerator.Core.Usage.OrphanModel",
-    "_specs_.azure.clientgenerator.core.usage.models.OutputModel": "_Specs_.Azure.ClientGenerator.Core.Usage.ModelInOperation.OutputModel",
-    "_specs_.azure.clientgenerator.core.usage.models.ResultModel": "_Specs_.Azure.ClientGenerator.Core.Usage.ModelInOperation.ResultModel",
-    "_specs_.azure.clientgenerator.core.usage.models.RoundTripModel": "_Specs_.Azure.ClientGenerator.Core.Usage.ModelInOperation.RoundTripModel"
+    "_specs_.azure.clientgenerator.core.usage.modelinoperation.models.InputModel": "_Specs_.Azure.ClientGenerator.Core.Usage.ModelInOperation.InputModel",
+    "_specs_.azure.clientgenerator.core.usage.modelinoperation.models.OutputModel": "_Specs_.Azure.ClientGenerator.Core.Usage.ModelInOperation.OutputModel",
+    "_specs_.azure.clientgenerator.core.usage.modelinoperation.models.ResultModel": "_Specs_.Azure.ClientGenerator.Core.Usage.ModelInOperation.ResultModel",
+    "_specs_.azure.clientgenerator.core.usage.modelinoperation.models.RoundTripModel": "_Specs_.Azure.ClientGenerator.Core.Usage.ModelInOperation.RoundTripModel",
+    "_specs_.azure.clientgenerator.core.usage.models.OrphanModel": "_Specs_.Azure.ClientGenerator.Core.Usage.OrphanModel"
   }
 }
