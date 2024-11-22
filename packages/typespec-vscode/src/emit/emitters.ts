@@ -1,12 +1,26 @@
 import vscode from "vscode";
+import { languageEmitterSettingNames } from "../const.js";
+import { EmitQuickPickItem } from "./emit-quick-pick-item.js";
 
-export interface EmitPackageQuickPickItem extends vscode.QuickPickItem {
-  language: string;
-  package: string;
-  version?: string;
-  fromConfig: boolean;
+const extensionConfig = vscode.workspace.getConfiguration();
+
+function getEmitterPickItem(language: string): EmitQuickPickItem {
+  const packageName: string =
+    extensionConfig.get(languageEmitterSettingNames[language] ?? "") ?? "";
+  return {
+    language: language,
+    package: packageName,
+    label: `emit ${language} client sdk`,
+    description: `from ${packageName}`,
+    fromConfig: false,
+  };
 }
 
+export const recommendedEmitters: ReadonlyArray<EmitQuickPickItem> = Object.keys(
+  languageEmitterSettingNames,
+).map((lang) => getEmitterPickItem(lang));
+
+/*
 export const recommendedEmitters: ReadonlyArray<EmitPackageQuickPickItem> = [
   {
     language: "openapi3",
@@ -31,11 +45,10 @@ export const recommendedEmitters: ReadonlyArray<EmitPackageQuickPickItem> = [
   },
   {
     language: "Net",
-    package: "@typespec/http-client-csharp",
+    package: config.get("typespec.emitter.net") ?? "@typespec/http-client-csharp",
     label: "emit C# code",
     description: "from @typespec/http-client-csharp",
     fromConfig: false,
   },
 ];
-
-const config = vscode.workspace.getConfiguration("TypeSpec");
+*/

@@ -168,7 +168,7 @@
       },
       {
         "command": "typespec.GenerateSDK",
-        "title": "TypeSpec Generate SDK",
+        "title": "TypeSpec: Generate Client SDK",
         "category": "TypeSpec"
       }
     ],
@@ -243,6 +243,9 @@
     "open-in-browser": "vscode-test-web --extensionDevelopmentPath=. .",
     "test:e2e": "pnpm test:web",
     "test:web": "vscode-test-web --extensionDevelopmentPath=. --headless --extensionTestsPath=dist/test/web/suite.js ./test/web/data"
+  },
+  "dependencies": {
+    "@typespec/compiler": "workspace:~"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "~28.0.0",

@@ -1,9 +1,21 @@
-import { executeCommand } from "./utils.js";
+import fs from "fs";
+import path from "path";
+import logger from "./log/logger.js";
+import { executeCommand, loadModule } from "./utils.js";
 
 export enum InstallationAction {
   Install = "Install",
-  Cancel = "Cancel",
   Upgrade = "Upgrade",
+  Skip = "Skip",
+  Cancel = "Cancel",
+}
+
+export interface NpmPackageInfo {
+  name: string;
+  version?: string;
+  resolved?: string;
+  overridden?: string;
+  dependencies?: Record<string, NpmPackageInfo>;
 }
 
 export class NpmUtil {
@@ -23,22 +35,50 @@ export class NpmUtil {
     await executeCommand(command, [], { ...options, cwd: this.cwd });
   }
 
-  public ensureNpmPackageInstall(
+  public async ensureNpmPackageInstall(
     packageName: string,
     version?: string,
-  ): { action: InstallationAction; version: string } {
-    const [isPackageInstalled, installedVersion] = this.isPackageInstalled(packageName, version);
+  ): Promise<{ action: InstallationAction; version: string }> {
+    const { installed: isPackageInstalled, version: installedVersion } =
+      await this.isPackageInstalled(packageName);
     if (isPackageInstalled) {
       if (version && installedVersion !== version) {
         return { action: InstallationAction.Upgrade, version: version };
       }
-      return { action: InstallationAction.Cancel, version: installedVersion };
+      return { action: InstallationAction.Cancel, version: installedVersion ?? "" };
     } else {
-      return { action: InstallationAction.Install, version: version ?? "latest" };
+      return { action: InstallationAction.Install, version: version ?? "" };
     }
   }
 
-  private isPackageInstalled(packageName: string, version?: string): [boolean, string] {
-    return [false, "latest"];
+  private async isPackageInstalled(
+    packageName: string,
+  ): Promise<{ installed: boolean; version: string | undefined }> {
+    const packageInfo = await this.loadNpmPackage(packageName);
+    if (packageInfo) return { installed: true, version: packageInfo.version };
+    return { installed: false, version: undefined };
+  }
+
+  private async loadNpmPackage(packageName: string): Promise<NpmPackageInfo | undefined> {
+    const executable = await loadModule(this.cwd, packageName);
+    if (executable) {
+      const packageJsonPath = path.resolve(executable.path, "package.json");
+
+      /* get the package version. */
+      let version;
+      try {
+        const data = fs.readFileSync(packageJsonPath, "utf-8");
+        const packageJson = JSON.parse(data);
+        version = packageJson.version;
+      } catch (error) {
+        logger.error(`Error reading package.json: ${error}`);
+      }
+      return {
+        name: packageName,
+        version: version,
+      };
+    }
+
+    return undefined;
   }
 }
