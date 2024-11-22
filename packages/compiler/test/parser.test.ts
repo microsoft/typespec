@@ -168,9 +168,16 @@ describe("compiler: parser", () => {
       `scalar bar extends uuid {
         init fromOther(abc: string)
       }`,
+      `scalar bar extends uuid {
+        init trailingComma(abc: string, def: string,)
+      }`,
     ]);
 
     parseErrorEach([["scalar uuid is string;", [{ message: "'{' expected." }]]]);
+  });
+
+  describe("operation statements", () => {
+    parseEach(["op foo(): int32;", "op trailingCommas(a: string,b: other,): int32;"]);
   });
 
   describe("interface statements", () => {
@@ -202,6 +209,7 @@ describe("compiler: parser", () => {
       'namespace A { op b(param: [number, string]): [1, "hi"]; }',
       "alias EmptyTuple =  [];",
       "model Template<T=[]> { }",
+      "alias TrailingComma = [1, 2,];",
     ]);
   });
 
@@ -245,6 +253,7 @@ describe("compiler: parser", () => {
       `const a = int8(123);`,
       `const a = utcDateTime.fromISO("abc");`,
       `const a = utcDateTime.fromISO("abc", "def");`,
+      `const trailingComma = utcDateTime.fromISO("abc", "def",);`,
     ]);
     parseErrorEach([
       [`const a = int8(123;`, [{ message: "')' expected." }]],
@@ -266,6 +275,7 @@ describe("compiler: parser", () => {
       `const A = #["abc"];`,
       `const A = #["abc", 123];`,
       `const A = #["abc", 123, #{nested: true}];`,
+      `const Trailing = #["abc", 123,];`,
     ]);
   });
 
@@ -814,6 +824,7 @@ describe("compiler: parser", () => {
       "extern dec myDec(target: Type, optional?: StringLiteral);",
       "extern dec myDec(target: Type, ...rest: StringLiteral[]);",
       "extern dec myDec(target, arg1, ...rest);",
+      "extern dec trailingComma(target, arg1: other, arg2: string,);",
     ]);
 
     parseErrorEach([
@@ -861,6 +872,7 @@ describe("compiler: parser", () => {
       "extern fn myDec(optional?: StringLiteral): void;",
       "extern fn myDec(...rest: StringLiteral[]): void;",
       "extern fn myDec(arg1, ...rest): void;",
+      "extern fn trailingComma(arg1: other, arg2: string,);",
     ]);
 
     parseErrorEach([
@@ -1235,6 +1247,14 @@ describe("compiler: parser", () => {
         strict: true,
       },
     );
+  });
+
+  describe("template parameters", () => {
+    parseEach(["model Foo<T> {}", "model TrailingComma<A, B,> {}"]);
+  });
+
+  describe("template arguments", () => {
+    parseEach(["alias Test = Foo<T>;", "alias TrailingComma = Foo<A, B,>;"]);
   });
 
   describe("annotations order", () => {
