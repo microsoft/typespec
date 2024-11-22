@@ -15,6 +15,7 @@ import { PackageJson } from "../types/package-json.js";
 import { deepEquals, findProjectRoot, isDefined, mapEquals, mutate } from "../utils/misc.js";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
+import { removeUnnecessaryCodeCodeFix } from "./compiler-code-fixes/remove-unnecessary-code.codefix.js";
 import { createSuppressCodeFix } from "./compiler-code-fixes/suppress.codefix.js";
 import { compilerAssert } from "./diagnostics.js";
 import { resolveTypeSpecEntrypoint } from "./entrypoint-resolution.js";
@@ -26,7 +27,7 @@ import { createTracer } from "./logger/tracer.js";
 import { createDiagnostic } from "./messages.js";
 import { createResolver } from "./name-resolver.js";
 import { CompilerOptions } from "./options.js";
-import { parse, parseStandaloneTypeReference } from "./parser.js";
+import { parse, parseStandaloneTypeReference, visitChildren } from "./parser.js";
 import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
 import { createProjector } from "./projector.js";
 import {
@@ -45,11 +46,13 @@ import {
   EmitContext,
   EmitterFunc,
   Entity,
+  IdentifierNode,
   JsSourceFileNode,
   LibraryInstance,
   LibraryMetadata,
   LiteralType,
   LocationContext,
+  MemberExpressionNode,
   ModuleLibraryMetadata,
   Namespace,
   NoTarget,
@@ -202,7 +205,7 @@ export async function compile(
   const basedir = getDirectoryPath(resolvedMain) || "/";
   await checkForCompilerVersionMismatch(basedir);
 
-  await loadSources(resolvedMain);
+  const srcLoader = await loadSources(resolvedMain);
 
   let emit = options.emit;
   let emitterOptions = options.options;
@@ -232,7 +235,7 @@ export async function compile(
     program.reportDiagnostics(await linter.extendRuleSet(options.linterRuleSet));
   }
 
-  const resolver = createResolver(program);
+  const resolver = createResolver(program, srcLoader.resolution);
   resolver.resolveProgram();
   program.checker = createChecker(program, resolver);
   program.checker.checkProgram();
@@ -244,6 +247,7 @@ export async function compile(
   await runValidators();
 
   validateRequiredImports();
+  validateUnnecessaryCode();
 
   await validateLoadedLibraries();
   if (!continueToNextStage) {
@@ -259,6 +263,67 @@ export async function compile(
   }
 
   return program;
+
+  function isProjectionUsed() {
+    const isProjectionStatement = (node: Node): true | undefined => {
+      if (node.kind === SyntaxKind.ProjectionStatement) {
+        return true;
+      }
+      return visitChildren(node, isProjectionStatement);
+    };
+    for (const file of program.sourceFiles.values()) {
+      if (program.getSourceFileLocationContext(file.file).type === "project") {
+        if (visitChildren(file, isProjectionStatement) === true) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  function validateUnnecessaryCode() {
+    // Don't provide unused diagnostics if customer is using projection in the project because
+    // the projection statements will only be processed when applying projection. There is no way to determine
+    // whether "import" or "using" is referenced from them, so we just skip here to avoid providing incorrect suggestions (diagnostics)
+    // This should be fine for now considering projection is an experiemental feature.
+    if (isProjectionUsed()) return;
+
+    resolver.getUnusedImports().forEach((target) => {
+      if (!requireImports.has(target.path.value)) {
+        reportDiagnostic(
+          createDiagnostic({
+            code: "unnecessary",
+            target: target,
+            format: {
+              code: `import "${target.path.value}"`,
+            },
+            codefixes: [removeUnnecessaryCodeCodeFix(target)],
+          }),
+        );
+      }
+    });
+
+    const getUsingName = (node: MemberExpressionNode | IdentifierNode): string => {
+      if (node.kind === SyntaxKind.MemberExpression) {
+        return `${getUsingName(node.base)}${node.selector}${node.id.sv}`;
+      } else {
+        // identifier node
+        return node.sv;
+      }
+    };
+    resolver.getUnusedUsings().forEach((target) => {
+      reportDiagnostic(
+        createDiagnostic({
+          code: "unnecessary",
+          target: target,
+          format: {
+            code: `using ${getUsingName(target.name)}`,
+          },
+          codefixes: [removeUnnecessaryCodeCodeFix(target)],
+        }),
+      );
+    });
+  }
 
   /**
    * Validate the libraries loaded during the compilation process are compatible.
@@ -350,6 +415,8 @@ export async function compile(
       binder.bindJsSourceFile(jsFile);
     }
     program.reportDiagnostics(sourceResolution.diagnostics);
+
+    return sourceLoader;
   }
 
   async function loadIntrinsicTypes(loader: SourceLoader) {

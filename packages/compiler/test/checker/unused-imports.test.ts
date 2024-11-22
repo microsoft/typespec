@@ -1,9 +1,10 @@
 import { beforeEach, describe, it } from "vitest";
+import { createTypeSpecLibrary } from "../../src/index.js";
 import {
-  TestHost,
   createTestHost,
   expectDiagnosticEmpty,
   expectDiagnostics,
+  TestHost,
 } from "../../src/testing/index.js";
 
 describe("compiler: unused imports", () => {
@@ -334,6 +335,60 @@ describe("compiler: unused imports", () => {
         severity: "hint",
       },
     ]);
+  });
+
+  it("unused import library but required by emitter", async () => {
+    host.addTypeSpecFile(
+      "main.tsp",
+      `
+      import "my-lib";
+
+      model A { x: int16 }
+      `,
+    );
+    host.addTypeSpecFile(
+      "node_modules/my-lib/package.json",
+      JSON.stringify({
+        name: "my-lib",
+        exports: { ".": { typespec: "./main.tsp" } },
+      }),
+    );
+    host.addTypeSpecFile(
+      "node_modules/my-lib/main.tsp",
+      `
+      model C { }
+      `,
+    );
+    host.addTypeSpecFile(
+      "node_modules/fake-emitter/package.json",
+      JSON.stringify({
+        main: "index.js",
+      }),
+    );
+    const fakeEmitter = createTypeSpecLibrary({
+      name: "fake-emitter",
+      diagnostics: {},
+      requireImports: ["my-lib"],
+      emitter: {
+        options: {
+          type: "object",
+          properties: {
+            "asset-dir": { type: "string", format: "absolute-path", nullable: true },
+            "max-files": { type: "number", nullable: true },
+          },
+          additionalProperties: false,
+        },
+      },
+    });
+    host.addJsFile("node_modules/fake-emitter/index.js", {
+      $lib: fakeEmitter,
+      $onEmit: () => {},
+    });
+
+    const diagnostics = await host.diagnose("main.tsp", {
+      emit: ["fake-emitter"],
+    });
+    expectDiagnosticEmpty(diagnostics);
   });
 
   it("no unused import library when there is one ref", async () => {

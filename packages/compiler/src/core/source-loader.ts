@@ -6,7 +6,7 @@ import {
   ResolveModuleHost,
 } from "../module-resolver/module-resolver.js";
 import { PackageJson } from "../types/package-json.js";
-import { deepEquals, doIO, mutate, resolveTspMain } from "../utils/misc.js";
+import { deepEquals, doIO, resolveTspMain } from "../utils/misc.js";
 import { compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
 import { resolveTypeSpecEntrypointForDir } from "./entrypoint-resolution.js";
 import { createDiagnostic } from "./messages.js";
@@ -15,6 +15,7 @@ import { getDirectoryPath } from "./path-utils.js";
 import { createSourceFile } from "./source-file.js";
 import {
   DiagnosticTarget,
+  ImportStatementNode,
   ModuleLibraryMetadata,
   NodeFlags,
   NoTarget,
@@ -36,6 +37,8 @@ export interface SourceResolution {
   /** Javascript source files(Entrypoint only) */
   readonly jsSourceFiles: Map<string, JsSourceFileNode>;
 
+  /** How source files are imported. NoTarget means the file is entrypoint or imported from cli/configuration directly */
+  readonly sourceFileImportedBy: Map<string, Set<ImportStatementNode | typeof NoTarget>>;
   readonly locationContexts: WeakMap<SourceFile, LocationContext>;
   readonly loadedLibraries: Map<string, TypeSpecLibraryReference>;
 
@@ -85,6 +88,7 @@ export async function createSourceLoader(
   const sourceFiles = new Map<string, TypeSpecScriptNode>();
   const jsSourceFiles = new Map<string, JsSourceFileNode>();
   const loadedLibraries = new Map<string, TypeSpecLibraryReference>();
+  const sourceFileImportedBy = new Map<string, Set<ImportStatementNode | typeof NoTarget>>();
 
   async function importFile(
     path: string,
@@ -117,6 +121,7 @@ export async function createSourceLoader(
     resolution: {
       sourceFiles,
       jsSourceFiles,
+      sourceFileImportedBy,
       locationContexts: sourceFileLocationContexts,
       loadedLibraries: loadedLibraries,
       diagnostics: diagnostics.diagnostics,
@@ -169,7 +174,6 @@ export async function createSourceLoader(
     if (options?.getCachedScript) {
       const old = options.getCachedScript(file);
       if (old?.file === file && deepEquals(old.parseOptions, options.parseOptions)) {
-        mutate(old).importedBy = [];
         return old;
       }
     }
@@ -310,11 +314,9 @@ export async function createSourceLoader(
     file: JsSourceFileNode | TypeSpecScriptNode,
     target: DiagnosticTarget | typeof NoTarget,
   ) {
-    if (
-      (target === NoTarget || ("kind" in target && target.kind === SyntaxKind.ImportStatement)) &&
-      !file.importedBy.includes(target)
-    ) {
-      file.importedBy.push(target);
+    if (target === NoTarget || ("kind" in target && target.kind === SyntaxKind.ImportStatement)) {
+      sourceFileImportedBy.get(file.file.path)?.add(target) ??
+        sourceFileImportedBy.set(file.file.path, new Set([target]));
     }
   }
 
@@ -395,7 +397,6 @@ export async function loadJsFile(
     pos: 0,
     end: 0,
     flags: NodeFlags.None,
-    importedBy: [],
   };
   return [node, diagnostics];
 }

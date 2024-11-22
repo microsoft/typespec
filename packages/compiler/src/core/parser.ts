@@ -407,7 +407,6 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       comments,
       printable: treePrintable,
       parseOptions: options,
-      importedBy: [],
       ...finishNode(0),
     };
   }

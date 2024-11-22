@@ -342,11 +342,6 @@ describe("emit diagnostic", () => {
         code: "invalid-ref",
         message: "Unknown decorator @notDefined",
       },
-      {
-        code: "unnecessary",
-        message: `Unnecessary code: import "./test.js"`,
-        severity: "hint",
-      },
     ]);
   });
 

@@ -457,7 +457,7 @@ describe("compiler: unused using statements", () => {
     ]);
   });
 
-  it("unused invalid using", async () => {
+  it("unused invalid using, no unnecessary diagnostic when there is other error", async () => {
     testHost.addTypeSpecFile(
       "main.tsp",
       `
@@ -478,15 +478,10 @@ describe("compiler: unused using statements", () => {
         code: "invalid-ref",
         severity: "error",
       },
-      {
-        code: "unnecessary",
-        message: "Unnecessary code: using N.M2",
-        severity: "hint",
-      },
     ]);
   });
 
-  it("unused using along with duplicate usings", async () => {
+  it("unused using along with duplicate usings, no unnecessary diagnostic when there is other error", async () => {
     testHost.addTypeSpecFile(
       "main.tsp",
       `
@@ -513,16 +508,6 @@ describe("compiler: unused using statements", () => {
       {
         code: "duplicate-using",
         message: 'duplicate using of "N.M" namespace',
-      },
-      {
-        code: "unnecessary",
-        message: "Unnecessary code: using N.M",
-        severity: "hint",
-      },
-      {
-        code: "unnecessary",
-        message: "Unnecessary code: using N.M",
-        severity: "hint",
       },
     ]);
   });
@@ -691,7 +676,7 @@ describe("compiler: unused using statements", () => {
     ]);
   });
 
-  it("report unused using when the ref is ambiguous while others not impacted", async () => {
+  it("no report unused using when the ref is ambiguous (error) while others not impacted", async () => {
     testHost.addTypeSpecFile(
       "main.tsp",
       `
@@ -723,11 +708,6 @@ describe("compiler: unused using statements", () => {
         code: "ambiguous-symbol",
         message:
           '"A" is an ambiguous name between N.A, M.A. Try using fully qualified name instead: N.A, M.A',
-      },
-      {
-        code: "unnecessary",
-        message: "Unnecessary code: using N",
-        severity: "hint",
       },
     ]);
   });

@@ -1349,8 +1349,6 @@ export interface TypeSpecScriptNode extends DeclarationNode, BaseNode {
   readonly printable: boolean; // If this ast tree can safely be printed/formatted.
   readonly locals: SymbolTable;
   readonly parseOptions: ParseOptions; // Options used to parse this file
-  /* How this file is imported. NoTarget means this file is entrypoint or imported from cli argument/configuration */
-  readonly importedBy: (ImportStatementNode | typeof NoTarget)[];
 }
 
 export type Statement =
@@ -2154,9 +2152,6 @@ export interface JsSourceFileNode extends DeclarationNode, BaseNode {
 
   /* Any namespaces declared by decorators. */
   readonly namespaceSymbols: Sym[];
-
-  /* How this file is imported. NoTarget means this file is entrypoint or imported from cli argument/configuration */
-  readonly importedBy: (ImportStatementNode | typeof NoTarget)[];
 }
 
 export interface JsNamespaceDeclarationNode extends DeclarationNode, BaseNode {

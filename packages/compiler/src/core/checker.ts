@@ -4,7 +4,6 @@ import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "../ut
 import { createSymbol, getSymNode } from "./binder.js";
 import { createChangeIdentifierCodeFix } from "./compiler-code-fixes/change-identifier.codefix.js";
 import { createModelToObjectValueCodeFix } from "./compiler-code-fixes/model-to-object-literal.codefix.js";
-import { removeUnnecessaryCodeCodeFix } from "./compiler-code-fixes/remove-unnecessary-code.codefix.js";
 import { createTupleToArrayValueCodeFix } from "./compiler-code-fixes/tuple-to-array-value.codefix.js";
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
 import { ProjectionError, compilerAssert, ignoreDiagnostics } from "./diagnostics.js";
@@ -3462,59 +3461,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     internalDecoratorValidation();
-
-    reportUnusedUsingAndImports();
-  }
-
-  function reportUnusedUsingAndImports() {
-    // Don't provide unused diagnostics if customer is using projection in the project because
-    // the projection statements will only be processed when applying projection. There is no way to determine
-    // whether "import" or "using" is referenced from them, so we just skip here to avoid providing incorrect suggestions (diagnostics)
-    // This should be fine for now considering projection is an experiemental feature.
-    for (const node of processedProjections) {
-      const file = getFirstAncestor(
-        node,
-        (n) => n.kind === SyntaxKind.TypeSpecScript,
-      ) as TypeSpecScriptNode;
-      const lc = program.getSourceFileLocationContext(file.file);
-      if (lc.type === "project") {
-        return;
-      }
-    }
-
-    resolver.getUnusedImports().forEach((target) => {
-      reportCheckerDiagnostic(
-        createDiagnostic({
-          code: "unnecessary",
-          target: target,
-          format: {
-            code: `import "${target.path.value}"`,
-          },
-          codefixes: [removeUnnecessaryCodeCodeFix(target)],
-        }),
-      );
-    });
-
-    const getUsingName = (node: MemberExpressionNode | IdentifierNode): string => {
-      if (node.kind === SyntaxKind.MemberExpression) {
-        return `${getUsingName(node.base)}${node.selector}${node.id.sv}`;
-      } else {
-        // identifier node
-        return node.sv;
-      }
-    };
-    resolver.getUnusedUsings().forEach((target) => {
-      reportCheckerDiagnostic(
-        createDiagnostic({
-          code: "unnecessary",
-          target: target,
-          format: {
-            code: `using ${getUsingName(target.name)}`,
-          },
-          codefixes: [removeUnnecessaryCodeCodeFix(target)],
-        }),
-      );
-    });
   }
 
   function checkDuplicateSymbols() {

@@ -62,6 +62,7 @@ import { createSymbol, createSymbolTable, getSymNode } from "./binder.js";
 import { compilerAssert } from "./diagnostics.js";
 import { getFirstAncestor, visitChildren } from "./parser.js";
 import { Program } from "./program.js";
+import { SourceResolution } from "./source-loader.js";
 import {
   AliasStatementNode,
   AugmentDecoratorStatementNode,
@@ -170,7 +171,7 @@ interface ResolveTypReferenceOptions {
 let currentNodeId = 0;
 let currentSymbolId = 0;
 
-export function createResolver(program: Program): NameResolver {
+export function createResolver(program: Program, sourceResolution: SourceResolution): NameResolver {
   const mergedSymbols = new Map<Sym, Sym>();
   const augmentedSymbolTables = new Map<SymbolTable, SymbolTable>();
   const nodeLinks = new Map<number, NodeLinks>();
@@ -258,13 +259,15 @@ export function createResolver(program: Program): NameResolver {
     notNeededFile.forEach((file) => {
       const lc = program.getSourceFileLocationContext(file.file);
       if (lc.type === "project" || (lc.type === "library" && notNeededLib.has(lc.metadata.name))) {
-        file.importedBy?.forEach((target) => {
+        sourceResolution.sourceFileImportedBy.get(file.file.path)?.forEach((target) => {
           if (
             target !== NoTarget &&
             "kind" in target &&
             target.kind === SyntaxKind.ImportStatement &&
             target.parent &&
-            program.getSourceFileLocationContext(target.parent.file).type === "project"
+            program.getSourceFileLocationContext(target.parent.file).type === "project" &&
+            // just ignore the imports in the files which is not needed
+            !notNeededFile.has(target.parent)
           ) {
             targets.add(target);
           }
@@ -338,7 +341,7 @@ export function createResolver(program: Program): NameResolver {
         return result;
       }
 
-      for (const importedFrom of file.importedBy ?? []) {
+      for (const importedFrom of sourceResolution.sourceFileImportedBy.get(file.file.path) ?? []) {
         if (importedFrom === NoTarget) {
           reachability.set(file, "reachable");
           return "reachable";
@@ -395,7 +398,9 @@ export function createResolver(program: Program): NameResolver {
               "unexpected to reach here. other type file shouldn't be marked as unreachable-root",
             );
           } else {
-            for (const importedFrom of cur.file.importedBy ?? []) {
+            for (const importedFrom of sourceResolution.sourceFileImportedBy.get(
+              cur.file.file.path,
+            ) ?? []) {
               if (importedFrom === NoTarget) {
                 break;
               } else if (importedFrom.parent && !inQueue.has(importedFrom.parent)) {
@@ -440,7 +445,10 @@ export function createResolver(program: Program): NameResolver {
     program.sourceFiles.forEach((file) => {
       const lc = program.getSourceFileLocationContext(file.file);
       // entrypoint and import from argument/config is importedBy NoTarget
-      if (lc.type === "project" && file.importedBy.indexOf(NoTarget) >= 0) {
+      if (
+        lc.type === "project" &&
+        sourceResolution.sourceFileImportedBy.get(file.file.path)?.has(NoTarget)
+      ) {
         addNeeded(file);
       }
     });

@@ -159,7 +159,13 @@ describe("compiler: linter", () => {
       const linter = await createTestLinterAndEnableRules(files, {
         rules: [noModelFoo],
       });
-      expectDiagnosticEmpty(linter.lint());
+      expectDiagnostics(linter.lint(), [
+        {
+          code: "unnecessary",
+          message: `Unnecessary code: import "my-lib"`,
+          severity: "hint",
+        },
+      ]);
     });
 
     it("emit diagnostic when in the user code", async () => {
@@ -174,11 +180,18 @@ describe("compiler: linter", () => {
       const linter = await createTestLinterAndEnableRules(files, {
         rules: [noModelFoo],
       });
-      expectDiagnostics(linter.lint(), {
-        severity: "warning",
-        code: "@typespec/test-linter/no-model-foo",
-        message: `Cannot call model 'Foo'`,
-      });
+      expectDiagnostics(linter.lint(), [
+        {
+          severity: "warning",
+          code: "@typespec/test-linter/no-model-foo",
+          message: `Cannot call model 'Foo'`,
+        },
+        {
+          code: "unnecessary",
+          message: `Unnecessary code: import "my-lib"`,
+          severity: "hint",
+        },
+      ]);
     });
   });
 

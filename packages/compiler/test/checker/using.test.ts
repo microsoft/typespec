@@ -284,26 +284,6 @@ describe("compiler: using statements", () => {
       expectDiagnostics(diagnostics, [
         { code: "duplicate-using", message: 'duplicate using of "N.M" namespace' },
         { code: "duplicate-using", message: 'duplicate using of "N.M" namespace' },
-        {
-          code: "unnecessary",
-          message: 'Unnecessary code: import "./a.tsp"',
-          severity: "hint",
-        },
-        {
-          code: "unnecessary",
-          message: 'Unnecessary code: import "./b.tsp"',
-          severity: "hint",
-        },
-        {
-          code: "unnecessary",
-          message: "Unnecessary code: using N.M",
-          severity: "hint",
-        },
-        {
-          code: "unnecessary",
-          message: "Unnecessary code: using N.M",
-          severity: "hint",
-        },
       ]);
     });
   });
@@ -706,11 +686,6 @@ describe("emit diagnostics", () => {
         code: "invalid-ref",
         message: "Unknown identifier NotDefined",
       },
-      {
-        code: "unnecessary",
-        message: "Unnecessary code: using NotDefined",
-        severity: "hint",
-      },
     ]);
   });
 
@@ -732,11 +707,6 @@ describe("emit diagnostics", () => {
           {
             code: "using-invalid-ref",
             message: "Using must refer to a namespace",
-          },
-          {
-            code: "unnecessary",
-            message: "Unnecessary code: using Target",
-            severity: "hint",
           },
         ]);
       });

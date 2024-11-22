@@ -1,11 +1,6 @@
 import { beforeEach, describe, it } from "vitest";
 import { Diagnostic } from "../../src/core/types.js";
-import {
-  DiagnosticMatch,
-  TestHost,
-  createTestHost,
-  expectDiagnostics,
-} from "../../src/testing/index.js";
+import { TestHost, createTestHost, expectDiagnostics } from "../../src/testing/index.js";
 
 describe("compiler: duplicate declarations", () => {
   let testHost: TestHost;
@@ -98,13 +93,7 @@ describe("compiler: duplicate declarations", () => {
     );
 
     const diagnostics = await testHost.diagnose("./");
-    assertDuplicates(diagnostics, [
-      {
-        code: "unnecessary",
-        message: `Unnecessary code: import "./b.tsp"`,
-        severity: "hint",
-      },
-    ]);
+    assertDuplicates(diagnostics);
   });
 
   describe("reports duplicate namespace/non-namespace", () => {
@@ -149,18 +138,7 @@ describe("compiler: duplicate declarations", () => {
         testHost.addTypeSpecFile("a.tsp", "namespace N {}");
         testHost.addTypeSpecFile("b.tsp", "model N {}");
         const diagnostics = await testHost.diagnose("./");
-        assertDuplicates(diagnostics, [
-          {
-            code: "unnecessary",
-            message: `Unnecessary code: import "./a.tsp"`,
-            severity: "hint",
-          },
-          {
-            code: "unnecessary",
-            message: `Unnecessary code: import "./b.tsp"`,
-            severity: "hint",
-          },
-        ]);
+        assertDuplicates(diagnostics);
       });
       it("with non-namespace first", async () => {
         testHost.addTypeSpecFile(
@@ -185,26 +163,12 @@ describe("compiler: duplicate declarations", () => {
           { code: "duplicate-symbol", message: /MMM/ },
           { code: "duplicate-symbol", message: /QQQ/ },
           { code: "duplicate-symbol", message: /QQQ/ },
-          {
-            code: "unnecessary",
-            message: `Unnecessary code: import "./a.tsp"`,
-            severity: "hint",
-          },
-          {
-            code: "unnecessary",
-            message: `Unnecessary code: import "./b.tsp"`,
-            severity: "hint",
-          },
         ]);
       });
     });
   });
 });
 
-function assertDuplicates(diagnostics: readonly Diagnostic[], extra: DiagnosticMatch[] = []) {
-  expectDiagnostics(diagnostics, [
-    { code: "duplicate-symbol" },
-    { code: "duplicate-symbol" },
-    ...extra,
-  ]);
+function assertDuplicates(diagnostics: readonly Diagnostic[]) {
+  expectDiagnostics(diagnostics, [{ code: "duplicate-symbol" }, { code: "duplicate-symbol" }]);
 }

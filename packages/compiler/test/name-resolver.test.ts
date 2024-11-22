@@ -7,6 +7,7 @@ import { createLogger } from "../src/core/logger/logger.js";
 import { createTracer } from "../src/core/logger/tracer.js";
 import { createResolver, NameResolver } from "../src/core/name-resolver.js";
 import { getNodeAtPosition, parse } from "../src/core/parser.js";
+import { SourceResolution } from "../src/core/source-loader.js";
 import {
   IdentifierNode,
   JsSourceFileNode,
@@ -29,7 +30,15 @@ let program: Program;
 beforeEach(() => {
   program = createProgramShim();
   binder = createBinder(program);
-  resolver = createResolver(program);
+  const mockSourceResolution: SourceResolution = {
+    sourceFiles: new Map(),
+    jsSourceFiles: new Map(),
+    sourceFileImportedBy: new Map(),
+    locationContexts: new WeakMap(),
+    loadedLibraries: new Map(),
+    diagnostics: [],
+  };
+  resolver = createResolver(program, mockSourceResolution);
 });
 
 describe("model statements", () => {
@@ -1484,6 +1493,5 @@ function createJsSourceFile(exports: any): JsSourceFileNode {
     pos: 0,
     end: 0,
     flags: NodeFlags.None,
-    importedBy: [],
   };
 }

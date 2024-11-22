@@ -139,7 +139,6 @@ describe("compiler: checker: decorators", () => {
           code: "decorator-extern",
           message: "A decorator declaration must be prefixed with the 'extern' modifier.",
         },
-        ...unnecessaryDiags,
       ]);
     });
 
@@ -152,7 +151,6 @@ describe("compiler: checker: decorators", () => {
           code: "rest-parameter-array",
           message: "A rest parameter must be of an array type.",
         },
-        ...unnecessaryDiags,
       ]);
     });
 
@@ -165,7 +163,6 @@ describe("compiler: checker: decorators", () => {
           code: "missing-implementation",
           message: "Extern declaration must have an implementation in JS file.",
         },
-        ...unnecessaryDiags,
       ]);
     });
   });
@@ -275,7 +272,6 @@ describe("compiler: checker: decorators", () => {
           code: "invalid-argument-count",
           message: "Expected 2 arguments, but got 1.",
         },
-        ...unnecessaryDiags,
       ]);
       expectDecoratorNotCalled();
     });
@@ -293,7 +289,6 @@ describe("compiler: checker: decorators", () => {
           code: "invalid-argument-count",
           message: "Expected 1-2 arguments, but got 3.",
         },
-        ...unnecessaryDiags,
       ]);
       expectDecoratorCalledWith(Foo, "one", "two");
     });
@@ -311,7 +306,6 @@ describe("compiler: checker: decorators", () => {
           code: "invalid-argument-count",
           message: "Expected 0 arguments, but got 1.",
         },
-        ...unnecessaryDiags,
       ]);
     });
 
@@ -328,7 +322,6 @@ describe("compiler: checker: decorators", () => {
           code: "invalid-argument-count",
           message: "Expected at least 1 arguments, but got 0.",
         },
-        ...unnecessaryDiags,
       ]);
       expectDecoratorNotCalled();
     });
@@ -361,7 +354,6 @@ describe("compiler: checker: decorators", () => {
           code: "invalid-argument",
           message: "Argument of type '123' is not assignable to parameter of type 'string'",
         },
-        ...unnecessaryDiags,
       ]);
       expectDecoratorNotCalled();
     });
@@ -383,7 +375,6 @@ describe("compiler: checker: decorators", () => {
           code: "invalid-argument",
           message: "Argument of type '456' is not assignable to parameter of type 'string'",
         },
-        ...unnecessaryDiags,
       ]);
       expectDecoratorNotCalled();
     });

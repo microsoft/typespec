@@ -712,11 +712,6 @@ describe("compiler: decorators in namespaces", () => {
         code: "invalid-ref",
         message: /A\.B\.A\.B/,
       },
-      {
-        code: "unnecessary",
-        message: `Unnecessary code: import "./other.tsp"`,
-        severity: "hint",
-      },
     ]);
   });
 
