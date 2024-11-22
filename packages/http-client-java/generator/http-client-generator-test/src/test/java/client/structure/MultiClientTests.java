@@ -3,10 +3,10 @@
 
 package client.structure;
 
-import client.structure.service.ClientAClient;
-import client.structure.service.ClientAClientBuilder;
-import client.structure.service.ClientBClient;
-import client.structure.service.ClientBClientBuilder;
+import client.structure.multiclient.ClientAClient;
+import client.structure.multiclient.ClientAClientBuilder;
+import client.structure.multiclient.ClientBClient;
+import client.structure.multiclient.ClientBClientBuilder;
 import client.structure.service.models.ClientType;
 import org.junit.jupiter.api.Test;
 

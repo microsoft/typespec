@@ -25,7 +25,8 @@ export function pascalCase(name: string): string {
 export function getNamespace(type: Type | undefined): string | undefined {
   if (
     type &&
-    (type.kind === "Model" ||
+    (type.kind === "Interface" ||
+      type.kind === "Model" ||
       type.kind === "Enum" ||
       type.kind === "Union" ||
       type.kind === "Operation")
