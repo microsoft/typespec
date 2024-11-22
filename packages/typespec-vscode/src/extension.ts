@@ -204,29 +204,13 @@ export async function doEmit(
 
   // And set its HTML content
   panel.webview.html = getWebviewContent(selectedEmitters);
-  // Handle messages from the webview
-  // panel.webview.onDidReceiveMessage(
-  //   async (message) => {
-  //     switch (message.command) {
-  //       case "submitValues":
-  //         vscode.window.showInformationMessage(`${message}}`);
-  //         vscode.commands.executeCommand("workbench.action.closeActiveEditor");
-  //         panel.dispose();
-  //         return;
-  //     }
-  //   },
-  //   undefined,
-  //   context.subscriptions,
-  // );
 
-  // Wait for the panel to be disposed
+  // Handle messages from the webview
   const outputDirs = await new Promise<{}>((resolve) => {
     panel.webview.onDidReceiveMessage(
       async (message) => {
         switch (message.command) {
           case "submitValues":
-            //vscode.window.showInformationMessage(`${message}}`);
-            //vscode.commands.executeCommand("workbench.action.closeActiveEditor");
             resolve(message);
             panel.dispose();
         }
@@ -295,17 +279,10 @@ export async function doEmit(
       logger.info(`Installing ${e.package} version ${version}`);
       packagesToInstall.push(`${e.package}@${version}`);
     }
-    // let packageFullName = e.package;
-    // if (e.version) {
-    //   packageFullName = `${e.package}@${e.version}`;
-    // }
-
-    // packagesToInstall.push(packageFullName);
   }
 
   /* npm install packages. */
   await npmUtil.npmInstallPackages(packagesToInstall);
-  // await npmInstallPackages(packagesToInstall, { cwd: baseDir });
 
   /* emit */
   logger.info("start to emit code...");
@@ -317,24 +294,7 @@ export async function doEmit(
   const startFile = `${baseDir}/main.tsp`;
   const compileCommand = "npx tsp";
   for (const e of selectedEmitters) {
-    /*TODO: add a dialog to config output dir. */
     let outputDir = path.resolve(baseDir, "tsp-output", e.language);
-    // const outputDirInput = await vscode.window.showInputBox({
-    //   placeHolder: `client/${e.language}`,
-    //   value: `client/${e.language}`,
-    //   prompt: "Please provide the output directory",
-    //   validateInput: (text: string) => {
-    //     return text.trim() === "" ? "Input cannot be empty" : null;
-    //   },
-    // });
-
-    // if (outputDirInput) {
-    //   if (!path.isAbsolute(outputDirInput)) {
-    //     outputDir = path.resolve(baseDir, outputDirInput);
-    //   } else {
-    //     outputDir = outputDirInput;
-    //   }
-    // }
     if (e.outputDir) {
       if (!path.isAbsolute(e.outputDir)) {
         outputDir = path.resolve(baseDir, e.outputDir);
@@ -343,7 +303,6 @@ export async function doEmit(
       }
     }
 
-    //const outputDir = path.resolve(baseDir, "tsp-output", e.language);
     await compile(compileCommand, startFile, e.package, outputDir);
     logger.info(`Generate Client SDK for ${e.language} ...`, [], {
       showOutput: false,
