@@ -162,5 +162,6 @@ if ($null -eq $filter) {
 
     # Write the launch settings to the launchSettings.json file
     $launchSettingsPath = Join-Path $solutionDir "Microsoft.Generator.CSharp" "src" "Properties" "launchSettings.json"
-    $sortedLaunchSettings | ConvertTo-Json | Set-Content $launchSettingsPath
+    # Write the settings to JSON and normalize line endings to Unix style (LF)
+    $sortedLaunchSettings | ConvertTo-Json | ForEach-Object { $_ -replace "`r`n", "`n" } | Set-Content $launchSettingsPath
 }
