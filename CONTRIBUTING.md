@@ -365,6 +365,7 @@ Process labels
 | -------------- | ------- | --------------------------------------------------------------------------------- |
 | `needs-area`   | #ffffff |                                                                                   |
 | `needs-info`   | #ffffff | Mark an issue that needs reply from the author or it will be closed automatically |
+| `stale`        | #ffffff | Mark a PR that hasn't been recently updated and will be closed.                   |
 | `triaged:core` | #5319e7 |                                                                                   |
 
 #### misc
