@@ -2269,7 +2269,7 @@ export class CodeModelBuilder {
             namespace: namespace,
           },
           java: {
-            namespace: this.getJavaNamespace(it),
+            namespace: this.getJavaNamespace(),
           },
         },
       });
@@ -2355,10 +2355,11 @@ export class CodeModelBuilder {
 
   private processMultipartFormDataFilePropertySchema(property: SdkBodyModelPropertyType): Schema {
     const processSchemaFunc = (type: SdkType) => this.processSchema(type, "");
-    const processNamespaceFunc = (type: SdkType) => {
+    const processNamespaceFunc = (type: SdkBuiltInType | SdkModelType) => {
       const namespace =
         type.kind === "model" ? (getNamespace(type.__raw) ?? this.namespace) : this.namespace;
-      const javaNamespace = this.getJavaNamespace(type);
+      const javaNamespace =
+        type.kind === "model" ? this.getJavaNamespace(type) : this.getJavaNamespace();
       return { namespace, javaNamespace };
     };
 
@@ -2499,13 +2500,17 @@ export class CodeModelBuilder {
   }
 
   private getJavaNamespace(
-    type: SdkType | SdkClientType<SdkHttpOperation> | undefined = undefined,
+    type:
+      | SdkModelType
+      | SdkEnumType
+      | SdkUnionType
+      | SdkClientType<SdkHttpOperation>
+      | undefined = undefined,
   ): string | undefined {
     // clientNamespace from TCGC
-    const clientNamespace: string | undefined =
-      type && "clientNamespace" in type ? type.clientNamespace : undefined;
+    const clientNamespace: string | undefined = type?.clientNamespace;
 
-    if (this.isBranded() && this.baseJavaNamespace && type && "crossLanguageDefinitionId" in type) {
+    if (this.isBranded() && type) {
       // special handling for namespace of model that cannot be mapped to azure-core
       if (type.crossLanguageDefinitionId === "TypeSpec.Http.File") {
         // TypeSpec.Http.File
