@@ -76,6 +76,21 @@ describe("openapi3: return types", () => {
     ok(res.paths["/"].put.responses["201"].content["application/json"].schema);
   });
 
+  it("handle @statusCode decorator with void return type", async () => {
+    const res = await openApiFor(`
+      model TestResult<T> {
+        @statusCode statusCode: 201;
+        @body body: T;
+      }
+
+      interface Test {
+        test(): TestResult<void>;
+      }
+      `);
+    ok(res.paths["/"].get.responses["201"]);
+    deepStrictEqual(res.paths["/"].get.responses["201"].content["application/json"].schema, {});
+  });
+
   it("defines responses with headers and status codes", async () => {
     const res = await openApiFor(
       `
