@@ -69,6 +69,10 @@ public class ObjectMapper implements IMapper<ObjectSchema, IType>, NeedsPlainObj
         } else {
             packageSuffixes = new String[] { settings.getModelsSubpackage() };
         }
+        /*
+         * For models with language.java.namespace, it would be used as the base package name to append suffixes.
+         * Otherwise, the packageName in JavaSetting is the base package name.
+         */
         if (!CoreUtils.isNullOrEmpty(compositeType.getLanguage().getJava().getNamespace())) {
             classPackage
                 = settings.getPackageName(compositeType.getLanguage().getJava().getNamespace(), packageSuffixes);

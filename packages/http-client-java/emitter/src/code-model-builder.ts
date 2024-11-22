@@ -248,8 +248,9 @@ export class CodeModelBuilder {
       this.baseJavaNamespace = this.options.namespace;
     } else {
       this.legacyJavaNamespace = false;
-      // baseJavaNamespace is used for model from Azure.Core/Azure.ResourceManager but cannot be mapped to azure-core
-      // otherwise, the clientNamespace from SdkType will be used
+      // baseJavaNamespace is used for model from Azure.Core/Azure.ResourceManager but cannot be mapped to azure-core,
+      // or some model (e.g. Options, FileDetails) that is created in this emitter.
+      // otherwise, the clientNamespace from SdkType will be used.
       this.baseJavaNamespace = this.getBaseJavaNamespace();
     }
 
@@ -2176,7 +2177,7 @@ export class CodeModelBuilder {
     if (type.kind === "Model") {
       const effective = getEffectiveModelType(program, type, isSchemaProperty);
       if (this.isArm() && getNamespace(effective as Model)?.startsWith("Azure.ResourceManager")) {
-        // Catalog is TrackedResource<CatalogProperties>
+        // e.g. typespec: Catalog is TrackedResource<CatalogProperties>
         return type;
       } else if (effective.name) {
         return effective;
