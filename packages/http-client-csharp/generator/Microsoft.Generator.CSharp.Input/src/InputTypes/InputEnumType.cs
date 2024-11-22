@@ -13,7 +13,8 @@ namespace Microsoft.Generator.CSharp.Input
             CrossLanguageDefinitionId = crossLanguageDefinitionId;
             Accessibility = accessibility;
             Deprecated = deprecated;
-            Description = string.IsNullOrEmpty(summary) ? (doc ?? string.Empty) : summary;
+            Summary = summary;
+            Doc = doc;
             Usage = usage;
             ValueType = valueType;
             Values = values;
@@ -23,7 +24,8 @@ namespace Microsoft.Generator.CSharp.Input
         public string CrossLanguageDefinitionId { get; }
         public string? Accessibility { get; }
         public string? Deprecated { get; }
-        public string Description { get; }
+        public string? Summary { get; }
+        public string? Doc { get; }
         public InputModelTypeUsage Usage { get; }
         public InputPrimitiveType ValueType { get; }
         public IReadOnlyList<InputEnumTypeValue> Values { get; }

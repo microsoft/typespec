@@ -33,7 +33,8 @@ namespace Microsoft.Generator.CSharp.Providers
             _inputType = input;
             _deprecated = input.Deprecated;
             IsExtensible = input.IsExtensible;
-            Description = input.Description != null ? FormattableStringHelpers.FromString(input.Description) : $"The {Name}.";
+            Description = string.IsNullOrEmpty(input.Summary) ? (string.IsNullOrEmpty(input.Doc) ? $"The {Name}." : FormattableStringHelpers.FromString(input.Doc))
+                : FormattableStringHelpers.FromString(input.Summary);
         }
 
         public bool IsExtensible { get; }
