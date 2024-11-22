@@ -1,4 +1,4 @@
-import { createTypeSpecLibrary, type JSONSchemaType } from "@typespec/compiler";
+import { createTypeSpecLibrary, paramMessage, type JSONSchemaType } from "@typespec/compiler";
 
 export const NAMESPACE = "TypeSpec.GraphQL";
 
@@ -93,11 +93,38 @@ const EmitterOptionsSchema: JSONSchemaType<GraphQLEmitterOptions> = {
 
 export const libDef = {
   name: "@typespec/graphql",
-  diagnostics: {},
+  diagnostics: {
+    "invalid-interface": {
+      severity: "error",
+      messages: {
+        default: paramMessage`All models used with \`@compose\` must be marked as an \`@Interface\`, but ${"interface"} is not.`,
+      },
+    },
+    "circular-interface": {
+      severity: "error",
+      messages: {
+        default: "An interface cannot implement itself.",
+      },
+    },
+    "missing-interface-property": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Model must contain property \`${"property"}\` from \`${"interface"}\` in order to implement it in GraphQL.`,
+      },
+    },
+    "incompatible-interface-property": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Property \`${"property"}\` is incompatible with \`${"interface"}\`.`,
+      },
+    },
+  },
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<GraphQLEmitterOptions>,
   },
   state: {
+    compose: { description: "State for the @compose decorator." },
+    interface: { description: "State for the @Interface decorator." },
     schema: { description: "State for the @schema decorator." },
   },
 } as const;
