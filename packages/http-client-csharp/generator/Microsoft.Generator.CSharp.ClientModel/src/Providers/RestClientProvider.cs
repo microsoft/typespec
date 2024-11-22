@@ -160,7 +160,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     message.ApplyResponseClassifier(classifier.ToApi<StatusCodeClassifierApi>()),
                     Declare("request", message.Request().ToApi<HttpRequestApi>(), out HttpRequestApi request),
                     request.SetMethod(operation.HttpMethod),
-                    Declare("uri", New.Instance<ClientUriBuilderDefinition>(), out ScopedApi<ClientUriBuilderDefinition> uri),
+                    Declare("uri", New.Instance(request.UriBuilderType), out ScopedApi uri),
                     uri.Reset(ClientProvider.EndpointField).Terminate(),
                     .. AppendPathParameters(uri, operation, paramMap),
                     .. AppendQueryParameters(uri, operation, paramMap),
@@ -231,7 +231,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return statements;
         }
 
-        private static List<MethodBodyStatement> AppendQueryParameters(ScopedApi<ClientUriBuilderDefinition> uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap)
+        private static List<MethodBodyStatement> AppendQueryParameters(ScopedApi uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap)
         {
             List<MethodBodyStatement> statements = new(operation.Parameters.Count);
 
@@ -250,7 +250,33 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 if (paramType?.IsCollection == true)
                 {
                     var delimiter = inputParameter.ArraySerializationDelimiter;
-                    if (delimiter != null && !inputParameter.Explode)
+
+                    if (inputParameter.Type is InputDictionaryType)
+                    {
+                        if (inputParameter.Explode)
+                        {
+                            statement = new ForeachStatement("param", valueExpression.AsDictionary(paramType),
+                                out KeyValuePairExpression item)
+                            {
+                                uri.AppendQuery(item.Key, item.Value, true).Terminate()
+                            };
+                        }
+                        else
+                        {
+                            statement = new[]
+                            {
+                                Declare("list", New.List<object>(), out var list),
+                                new ForeachStatement("param", valueExpression.AsDictionary(paramType), out KeyValuePairExpression item)
+                                {
+                                    list.Add(item.Key),
+                                    list.Add(item.Value)
+                                },
+                                uri.AppendQueryDelimited(Literal(inputParameter.NameInRequest), list, format, true)
+                                    .Terminate()
+                            };
+                        }
+                    }
+                    else if (!inputParameter.Explode)
                     {
                         statement = uri.AppendQueryDelimited(Literal(inputParameter.NameInRequest), valueExpression, format, true, delimiter: delimiter).Terminate();
                     }
@@ -287,13 +313,26 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             if (parameterType?.IsCollection == true)
             {
-                var changeTrackingListDeclaration = Declare(
-                    "changeTrackingList",
-                    ClientModelPlugin.Instance.TypeFactory.ListInitializationType.MakeGenericType(parameterType.Arguments),
-                    out var changeTrackingReference);
+                DeclarationExpression? changeTrackingCollectionDeclaration;
+                VariableExpression? changeTrackingReference;
+                if (parameterType.IsDictionary)
+                {
+                    changeTrackingCollectionDeclaration = Declare(
+                        "changeTrackingDictionary",
+                        ClientModelPlugin.Instance.TypeFactory.DictionaryInitializationType.MakeGenericType(parameterType.Arguments),
+                        out changeTrackingReference);
+                }
+                else
+                {
+                    changeTrackingCollectionDeclaration = Declare(
+                        "changeTrackingList",
+                        ClientModelPlugin.Instance.TypeFactory.ListInitializationType.MakeGenericType(parameterType
+                            .Arguments),
+                        out changeTrackingReference);
+                }
 
                 return new IfStatement(valueExpression.NotEqual(Null)
-                    .And(Not(valueExpression.Is(changeTrackingListDeclaration)
+                    .And(Not(valueExpression.Is(changeTrackingCollectionDeclaration)
                     .And(changeTrackingReference.Property("IsUndefined")))))
                 {
                     originalStatement
@@ -303,7 +342,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return new IfStatement(valueExpression.NotEqual(Null)) { originalStatement };
         }
 
-        private IEnumerable<MethodBodyStatement> AppendPathParameters(ScopedApi<ClientUriBuilderDefinition> uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap)
+        private IEnumerable<MethodBodyStatement> AppendPathParameters(ScopedApi uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap)
         {
             Dictionary<string, InputParameter> inputParamHash = new(operation.Parameters.ToDictionary(p => p.Name));
             List<MethodBodyStatement> statements = new(operation.Parameters.Count);
@@ -317,7 +356,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private void AddUriSegments(
             string segments,
             int offset,
-            ScopedApi<ClientUriBuilderDefinition> uri,
+            ScopedApi uri,
             List<MethodBodyStatement> statements,
             Dictionary<string, InputParameter> inputParamHash,
             Dictionary<string, ParameterProvider> paramMap,
@@ -344,13 +383,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 CSharpType? type;
                 string? format;
                 ValueExpression valueExpression;
+                InputParameter? inputParam = null;
                 if (isClientParameter)
                 {
                     GetParamInfo(paramMap[paramName], out type, out format, out valueExpression);
                 }
                 else
                 {
-                    var inputParam = inputParamHash[paramName];
+                    inputParam = inputParamHash[paramName];
                     if (inputParam.Location == RequestLocation.Path || inputParam.Location == RequestLocation.Uri)
                     {
                         GetParamInfo(paramMap, operation, inputParam, out type, out format, out valueExpression);
@@ -361,8 +401,19 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     }
                 }
                 ValueExpression[] toStringParams = format is null ? [] : [Literal(format)];
-                valueExpression = type?.Equals(typeof(string)) == true ? valueExpression : valueExpression.Invoke(nameof(ToString), toStringParams);
-                statements.Add(uri.AppendPath(valueExpression, true).Terminate());
+                bool escape = !inputParam?.SkipUrlEncoding ?? true;
+                if (type?.OutputType.IsCollection == true)
+                {
+                    statements.Add(uri.AppendPathDelimited(
+                        valueExpression, format, escape, inputParam?.ArraySerializationDelimiter).Terminate());
+                }
+                else
+                {
+                    valueExpression = type?.Equals(typeof(string)) == true
+                        ? valueExpression
+                        : valueExpression.Invoke(nameof(ToString), toStringParams);
+                    statements.Add(uri.AppendPath(valueExpression, escape).Terminate());
+                }
 
                 pathSpan = pathSpan.Slice(paramEndIndex + 1);
             }

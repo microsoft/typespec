@@ -32,6 +32,10 @@ foreach ($directory in $directories) {
     if (-not (Compare-Paths $subPath $filter)) {
         continue
     }
+
+    if ($subPath.Contains($(Join-Path 'srv-driven' 'v1'))) {
+        continue
+    }
     
     $testPath = "$cadlRanchRoot.Tests"
     $testFilter = "TestProjects.CadlRanch.Tests"
@@ -63,6 +67,12 @@ foreach ($directory in $directories) {
     if ($LASTEXITCODE -ne 0) {
         exit $LASTEXITCODE
     }
+
+    # srv-driven contains two separate specs, for two separate clients. We need to generate both.
+    if ($subPath.Contains("srv-driven")) {
+        Generate-Srv-Driven $(Join-Path $specsDirectory $subPath) $outputDir -createOutputDirIfNotExist $false
+    }
+
 
     Write-Host "Testing $subPath" -ForegroundColor Cyan
     $command  = "dotnet test $cadlRanchCsproj --filter `"FullyQualifiedName~$testFilter`""

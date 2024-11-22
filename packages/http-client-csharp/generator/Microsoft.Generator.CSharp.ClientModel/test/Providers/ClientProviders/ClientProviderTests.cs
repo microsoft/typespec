@@ -361,17 +361,18 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             Assert.AreEqual(2, methods.Where(m => m.Signature.Parameters.Any(p => p.Name == "queryParam" && p.Type.IsFrameworkType && p.Type.FrameworkType == typeof(string))).Count());
         }
 
-        [Test]
-        public void ValidateQueryParamWriterDiff()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ValidateQueryParamWriterDiff(bool isAsync)
         {
             MockHelpers.LoadMockPlugin(
-                createClientCore: (client) => new ValidateQueryParamDiffClientProvider(client));
+                createClientCore: (client) => new ValidateQueryParamDiffClientProvider(client, isAsync));
 
             var clientProvider = ClientModelPlugin.Instance.TypeFactory.CreateClient(GetEnumQueryParamClient());
 
             TypeProviderWriter writer = new(clientProvider);
             var codeFile = writer.Write();
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), codeFile.Content);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(isAsync.ToString()), codeFile.Content);
         }
 
         [Test]
@@ -574,14 +575,19 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
 
         private class ValidateQueryParamDiffClientProvider : ClientProvider
         {
-            public ValidateQueryParamDiffClientProvider(InputClient client)
+            private readonly bool _isAsync;
+
+            public ValidateQueryParamDiffClientProvider(InputClient client, bool isAsync = false)
                 : base(client)
             {
+                _isAsync = isAsync;
             }
 
             protected override MethodProvider[] BuildMethods()
             {
-                var method = base.BuildMethods().Where(m => m.Signature.Parameters.Any(p => p.Name == "queryParam" && p.Type.Name == "InputEnum" && !m.Signature.Name.EndsWith("Async"))).First();
+                var method = base.BuildMethods().First(m => m.Signature.Parameters.Any(p =>
+                    p is { Name: "queryParam", Type.Name: "InputEnum" } &&
+                    ((_isAsync && m.Signature.Name.EndsWith("Async")) || (!_isAsync && !m.Signature.Name.EndsWith("Async")))));
                 method.Update(xmlDocProvider: new XmlDocProvider()); // null out the docs
                 return [method];
             }
@@ -739,7 +745,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                         ]), false, false);
 
                 // Protocol & convenience methods will have the same parameters.
-                // One of the parameter is optional, so it should be make required in the protocol method, and RequestOptions can be optional.
+                // One of the parameter is optional, so it should be made required in the protocol method.
                 yield return new TestCaseData(
                     InputFactory.Operation(
                         "TestOperation",
@@ -755,7 +761,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                                 InputPrimitiveType.Int64,
                                 location: RequestLocation.None,
                                 isRequired: true),
-                        ]), true, true);
+                        ]), false, true);
 
                 // Protocol & convenience methods will have the same parameters.
                 // One of the parameter is optional value type, so it should be made nullable required in the protocol method, and RequestOptions can be optional.
@@ -774,7 +780,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                                 InputPrimitiveType.Int64,
                                 location: RequestLocation.None,
                                 isRequired: true),
-                        ]), true, true);
+                        ]), false, true);
 
                 // convenience method only has a body param, so RequestOptions should be optional in protocol method.
                 yield return new TestCaseData(

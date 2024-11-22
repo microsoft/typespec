@@ -1,0 +1,14 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "tsptest.clientinitialization.ClientInitializationAsyncClient": "TspTest.ClientInitialization",
+    "tsptest.clientinitialization.ClientInitializationClient": "TspTest.ClientInitialization",
+    "tsptest.clientinitialization.ClientInitializationClientBuilder": "TspTest.ClientInitialization",
+    "tsptest.clientinitialization.SubAsyncClient": "TspTest.ClientInitialization.SubClient",
+    "tsptest.clientinitialization.SubAsyncClient.action": "TspTest.ClientInitialization.SubClient.action",
+    "tsptest.clientinitialization.SubAsyncClient.actionWithResponse": "TspTest.ClientInitialization.SubClient.action",
+    "tsptest.clientinitialization.SubClient": "TspTest.ClientInitialization.SubClient",
+    "tsptest.clientinitialization.SubClient.action": "TspTest.ClientInitialization.SubClient.action",
+    "tsptest.clientinitialization.SubClient.actionWithResponse": "TspTest.ClientInitialization.SubClient.action"
+  }
+}

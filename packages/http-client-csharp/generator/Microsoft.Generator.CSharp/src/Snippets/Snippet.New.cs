@@ -73,10 +73,12 @@ namespace Microsoft.Generator.CSharp.Snippets
             public static ValueExpression Instance(CSharpType type, IReadOnlyList<ValueExpression> arguments) => new NewInstanceExpression(type, arguments);
             public static ValueExpression Instance(CSharpType type, params ValueExpression[] arguments) => new NewInstanceExpression(type, arguments);
             public static ValueExpression Instance(CSharpType type, IReadOnlyDictionary<ValueExpression, ValueExpression> properties) => new NewInstanceExpression(type, [], new ObjectInitializerExpression(properties));
-            public static ScopedApi Instance(Type type, params ValueExpression[] arguments) => new NewInstanceExpression(type, arguments).As(type);
+            public static ScopedApi Instance(Type type, params ValueExpression[] arguments) => new NewInstanceExpression(TypeReferenceExpression.GetTypeFromDefinition(type), arguments).As(type);
             public static ScopedApi Instance(Type type, IReadOnlyDictionary<ValueExpression, ValueExpression> properties) => new NewInstanceExpression(type, [], new ObjectInitializerExpression(properties)).As(type);
-            public static ScopedApi<T> Instance<T>(IEnumerable<ValueExpression> arguments, IReadOnlyDictionary<ValueExpression, ValueExpression> properties)
-                => new NewInstanceExpression(TypeReferenceExpression.GetTypeFromDefinition(typeof(T)), [.. arguments], new ObjectInitializerExpression(properties)).As<T>();
+            public static ScopedApi Instance(CSharpType type, IEnumerable<ValueExpression> arguments, IReadOnlyDictionary<ValueExpression, ValueExpression> properties, bool useSingleLineForPropertyInitialization = false)
+                => new NewInstanceExpression(TypeReferenceExpression.GetTypeFromDefinition(type), [.. arguments], new ObjectInitializerExpression(properties, useSingleLineForPropertyInitialization)).As(type);
+            public static ScopedApi<T> Instance<T>(IEnumerable<ValueExpression> arguments, IReadOnlyDictionary<ValueExpression, ValueExpression> properties, bool useSingleLineForPropertyInitialization = false)
+                => new NewInstanceExpression(TypeReferenceExpression.GetTypeFromDefinition(typeof(T)), [.. arguments], new ObjectInitializerExpression(properties, useSingleLineForPropertyInitialization)).As<T>();
             public static ScopedApi<T> Instance<T>(params ValueExpression[] arguments)
                 => new NewInstanceExpression(TypeReferenceExpression.GetTypeFromDefinition(typeof(T)), arguments).As<T>();
         }

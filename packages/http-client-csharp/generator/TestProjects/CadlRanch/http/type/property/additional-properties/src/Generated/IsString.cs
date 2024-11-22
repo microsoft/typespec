@@ -4,6 +4,7 @@
 
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 using _Type.Property.AdditionalProperties.Models;
 
@@ -21,7 +22,7 @@ namespace _Type.Property.AdditionalProperties
 
         public virtual ClientResult<IsStringAdditionalProperties> Get() => throw null;
 
-        public virtual Task<ClientResult<IsStringAdditionalProperties>> GetAsync() => throw null;
+        public virtual Task<ClientResult<IsStringAdditionalProperties>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
@@ -29,6 +30,6 @@ namespace _Type.Property.AdditionalProperties
 
         public virtual ClientResult Put(IsStringAdditionalProperties body) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(IsStringAdditionalProperties body) => throw null;
+        public virtual Task<ClientResult> PutAsync(IsStringAdditionalProperties body, CancellationToken cancellationToken = default) => throw null;
     }
 }

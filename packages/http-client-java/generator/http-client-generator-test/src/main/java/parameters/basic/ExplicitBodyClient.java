@@ -15,8 +15,8 @@ import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
+import parameters.basic.explicitbody.models.User;
 import parameters.basic.implementation.ExplicitBodiesImpl;
-import parameters.basic.models.User;
 
 /**
  * Initializes a new instance of the synchronous BasicClient type.

@@ -4,7 +4,7 @@
 package parameters.basic;
 
 import org.junit.jupiter.api.Test;
-import parameters.basic.models.User;
+import parameters.basic.explicitbody.models.User;
 
 public class BasicClientTests {
     private final ExplicitBodyClient explicitBodyClient = new BasicClientBuilder().buildExplicitBodyClient();

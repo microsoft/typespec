@@ -58,14 +58,22 @@ public final class MapperUtils {
         if (enumTypeName == null || enumTypeName.isEmpty() || enumTypeName.equals("enum")) {
             return ClassType.STRING;
         } else {
-            String enumPackage = settings.getPackage(settings.getModelsSubpackage());
+            String enumPackage = settings.getPackage();
+            String[] packageSuffixes;
             if (settings.isCustomType(enumTypeName)) {
-                enumPackage = settings.getPackage(settings.getCustomTypesSubpackage());
+                packageSuffixes = new String[] { settings.getCustomTypesSubpackage() };
             } else if (settings.isDataPlaneClient()
                 && (enumType.getUsage() != null && enumType.getUsage().contains(SchemaContext.INTERNAL))) {
                 // internal type, which is not exposed to user
-                enumPackage
-                    = settings.getPackage(settings.getImplementationSubpackage(), settings.getModelsSubpackage());
+                packageSuffixes
+                    = new String[] { settings.getImplementationSubpackage(), settings.getModelsSubpackage() };
+            } else {
+                packageSuffixes = new String[] { settings.getModelsSubpackage() };
+            }
+            if (!CoreUtils.isNullOrEmpty(enumType.getLanguage().getJava().getNamespace())) {
+                enumPackage = settings.getPackageName(enumType.getLanguage().getJava().getNamespace(), packageSuffixes);
+            } else {
+                enumPackage = settings.getPackage(packageSuffixes);
             }
 
             String summary = enumType.getSummary();

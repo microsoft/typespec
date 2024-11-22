@@ -3,18 +3,19 @@
 
 package client.structure;
 
-import client.structure.service.ClientAClient;
-import client.structure.service.ClientAClientBuilder;
-import client.structure.service.ClientBClient;
-import client.structure.service.ClientBClientBuilder;
+import client.structure.multiclient.ClientAClient;
+import client.structure.multiclient.ClientAClientBuilder;
+import client.structure.multiclient.ClientBClient;
+import client.structure.multiclient.ClientBClientBuilder;
+import client.structure.service.models.ClientType;
 import org.junit.jupiter.api.Test;
 
 public class MultiClientTests {
 
     private final ClientAClient client1
-        = new ClientAClientBuilder().endpoint("http://localhost:3000").client("multi-client").buildClient();
+        = new ClientAClientBuilder().endpoint("http://localhost:3000").client(ClientType.MULTI_CLIENT).buildClient();
     private final ClientBClient client2
-        = new ClientBClientBuilder().endpoint("http://localhost:3000").client("multi-client").buildClient();
+        = new ClientBClientBuilder().endpoint("http://localhost:3000").client(ClientType.MULTI_CLIENT).buildClient();
 
     @Test
     public void testClient() {
