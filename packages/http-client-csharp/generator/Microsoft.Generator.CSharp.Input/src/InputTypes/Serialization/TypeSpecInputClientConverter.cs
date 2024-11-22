@@ -59,7 +59,8 @@ namespace Microsoft.Generator.CSharp.Input
             }
 
             client.Name = name ?? throw new JsonException("InputClient must have name");
-            client.Description = string.IsNullOrEmpty(summary) ? (doc ?? string.Empty) : summary;
+            client.Summary = summary;
+            client.Doc = doc;
             client.Operations = operations ?? Array.Empty<InputOperation>();
             client.Parameters = parameters ?? Array.Empty<InputParameter>();
             client.Parent = parent;
