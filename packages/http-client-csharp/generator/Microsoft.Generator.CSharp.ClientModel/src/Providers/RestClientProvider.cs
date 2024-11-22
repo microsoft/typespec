@@ -31,7 +31,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private Dictionary<InputOperation, MethodProvider>? _methodCache;
         private Dictionary<InputOperation, MethodProvider> MethodCache => _methodCache ??= [];
 
-        private readonly Dictionary<int, PropertyProvider> _pipelineMessage20xClassifiers;
+        private readonly Dictionary<string, PropertyProvider> _pipelineMessage20xClassifiers;
         private readonly InputClient _inputClient;
         private readonly FieldProvider _pipelineMessageClassifier2xxAnd4xx;
         private readonly PropertyProvider _classifier2xxAnd4xxProperty;
@@ -62,11 +62,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         protected override PropertyProvider[] BuildProperties()
         {
             List<PropertyProvider> pipelineMessage20xClassifiersProperties = new(_pipelineMessage20xClassifiers.Count);
-            var orderedStatusCodes = _pipelineMessage20xClassifiers.Keys.OrderBy(k => k);
+            var orderedClassifierNameSuffixes = _pipelineMessage20xClassifiers.Keys.OrderBy(k => k);
 
-            foreach (var statusCode in orderedStatusCodes)
+            foreach (var classifierNameSuffix in orderedClassifierNameSuffixes)
             {
-                var classifierProperty = _pipelineMessage20xClassifiers[statusCode];
+                var classifierProperty = _pipelineMessage20xClassifiers[classifierNameSuffix];
                 if (classifierProperty.BackingField != null)
                 {
                     pipelineMessage20xClassifiersProperties.Add(classifierProperty);
@@ -79,11 +79,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         protected override FieldProvider[] BuildFields()
         {
             List<FieldProvider> pipelineMessage20xClassifiersFields = new(_pipelineMessage20xClassifiers.Count);
-            var orderedStatusCodes = _pipelineMessage20xClassifiers.Keys.OrderBy(k => k);
+            var orderedClassifierNameSuffixes = _pipelineMessage20xClassifiers.Keys.OrderBy(k => k);
 
-            foreach (var statusCode in orderedStatusCodes)
+            foreach (var classifierNameSuffix in orderedClassifierNameSuffixes)
             {
-                var classifierProperty = _pipelineMessage20xClassifiers[statusCode];
+                var classifierProperty = _pipelineMessage20xClassifiers[classifierNameSuffix];
                 if (classifierProperty.BackingField != null)
                 {
                     pipelineMessage20xClassifiersFields.Add(classifierProperty.BackingField);
@@ -163,40 +163,35 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return contentParam is null ? [] : [request.Content().Assign(contentParam).Terminate()];
         }
 
-        private Dictionary<int, PropertyProvider> BuildPipelineMessage20xClassifiers()
+        private Dictionary<string, PropertyProvider> BuildPipelineMessage20xClassifiers()
         {
-            Dictionary<int, PropertyProvider> classifiers = [];
+            // Contains a mapping of classifier status code suffixes to their corresponding pipeline message classifier property
+            Dictionary<string, PropertyProvider> classifiers = [];
 
             foreach (var inputOperation in _inputClient.Operations)
             {
-                foreach (var response in inputOperation.Responses)
+                if (TryGetPipelineMessageClassifierSuffix(inputOperation, out var classifierNameSuffix) &&
+                    !classifiers.ContainsKey(classifierNameSuffix))
                 {
-                    if (response.IsErrorResponse || response.StatusCodes.Count != 1)
-                        continue;
+                    var classifierBackingField = new FieldProvider(
+                        FieldModifiers.Private | FieldModifiers.Static,
+                        ClientModelPlugin.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType,
+                        $"_pipelineMessageClassifier{classifierNameSuffix}",
+                        this);
 
-                    var statusCode = response.StatusCodes[0];
-                    if (statusCode >= 200 && statusCode < 300 && !classifiers.ContainsKey(statusCode))
+                    var classifierProperty = new PropertyProvider(
+                        null,
+                        MethodSignatureModifiers.Private | MethodSignatureModifiers.Static,
+                        ClientModelPlugin.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType,
+                        classifierBackingField.Name.Substring(1).ToCleanName(),
+                        new ExpressionPropertyBody(
+                            classifierBackingField.Assign(This.ToApi<StatusCodeClassifierApi>().Create(GetSuccessStatusCodes(inputOperation)))),
+                        this)
                     {
-                        var classifierBackingField = new FieldProvider(
-                            FieldModifiers.Private | FieldModifiers.Static,
-                            ClientModelPlugin.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType,
-                            $"_pipelineMessageClassifier{statusCode}",
-                            this);
+                        BackingField = classifierBackingField
+                    };
 
-                        var classifierProperty = new PropertyProvider(
-                            null,
-                            MethodSignatureModifiers.Private | MethodSignatureModifiers.Static,
-                            ClientModelPlugin.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType,
-                            classifierBackingField.Name.Substring(1).ToCleanName(),
-                            new ExpressionPropertyBody(
-                                classifierBackingField.Assign(This.ToApi<StatusCodeClassifierApi>().Create(statusCode))),
-                            this)
-                        {
-                            BackingField = classifierBackingField
-                        };
-
-                        classifiers[statusCode] = classifierProperty;
-                    }
+                    classifiers[classifierNameSuffix] = classifierProperty;
                 }
             }
 
@@ -208,19 +203,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             if (operation.HttpMethod == HttpMethod.Head.ToString())
                 return _classifier2xxAnd4xxProperty;
 
-            var response = operation.Responses.First(r => !r.IsErrorResponse); //should only be one of these
-
-            if (response.StatusCodes.Count == 1)
+            if (TryGetPipelineMessageClassifierSuffix(operation, out var classifierSuffix) &&
+                _pipelineMessage20xClassifiers.TryGetValue(classifierSuffix, out var classifier))
             {
-                if (_pipelineMessage20xClassifiers.TryGetValue(response.StatusCodes[0], out var classifier))
-                {
-                    return classifier;
-                }
-
-                throw new InvalidOperationException($"Unexpected status code {response.StatusCodes[0]}");
+                return classifier;
             }
 
-            throw new InvalidOperationException("Multiple status codes not supported");
+            throw new InvalidOperationException($"Unexpected status codes for operation {operation.Name}");
         }
 
         private IEnumerable<MethodBodyStatement> AppendHeaderParameters(HttpRequestApi request, InputOperation operation, Dictionary<string, ParameterProvider> paramMap)
@@ -521,6 +510,39 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             parameterProvider = null;
             return false;
+        }
+
+        private static bool TryGetPipelineMessageClassifierSuffix(InputOperation operation, [NotNullWhen(true)] out string? classifierSuffix)
+        {
+            var successStatusCodes = GetSuccessStatusCodes(operation);
+            if (successStatusCodes.Count > 0)
+            {
+                classifierSuffix = string.Join(string.Empty, successStatusCodes);
+                return true;
+            }
+
+            classifierSuffix = null;
+            return false;
+        }
+
+        private static List<int> GetSuccessStatusCodes(InputOperation operation)
+        {
+            HashSet<int> statusCodes = [];
+            foreach (var response in operation.Responses)
+            {
+                if (response.IsErrorResponse)
+                    continue;
+
+                foreach (var statusCode in response.StatusCodes)
+                {
+                    if (statusCode >= 200 && statusCode < 300)
+                    {
+                        statusCodes.Add(statusCode);
+                    }
+                }
+            }
+
+            return [.. statusCodes.OrderBy(i => i)];
         }
 
         internal MethodProvider GetCreateRequestMethod(InputOperation operation)

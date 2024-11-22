@@ -12,6 +12,7 @@ namespace Sample
     public partial class TestClient
     {
         private static global::System.ClientModel.Primitives.PipelineMessageClassifier _pipelineMessageClassifier200;
+        private static global::System.ClientModel.Primitives.PipelineMessageClassifier _pipelineMessageClassifier200201202;
         private static global::System.ClientModel.Primitives.PipelineMessageClassifier _pipelineMessageClassifier201;
         private static global::System.ClientModel.Primitives.PipelineMessageClassifier _pipelineMessageClassifier202;
         private static global::System.ClientModel.Primitives.PipelineMessageClassifier _pipelineMessageClassifier203;
@@ -21,6 +22,8 @@ namespace Sample
         private static global::Sample.TestClient.Classifier2xxAnd4xx _pipelineMessageClassifier2xxAnd4xx;
 
         private static global::System.ClientModel.Primitives.PipelineMessageClassifier PipelineMessageClassifier200 => _pipelineMessageClassifier200 = global::System.ClientModel.Primitives.PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
+
+        private static global::System.ClientModel.Primitives.PipelineMessageClassifier PipelineMessageClassifier200201202 => _pipelineMessageClassifier200201202 = global::System.ClientModel.Primitives.PipelineMessageClassifier.Create(stackalloc ushort[] { 200, 201, 202 });
 
         private static global::System.ClientModel.Primitives.PipelineMessageClassifier PipelineMessageClassifier201 => _pipelineMessageClassifier201 = global::System.ClientModel.Primitives.PipelineMessageClassifier.Create(stackalloc ushort[] { 201 });
 
@@ -124,6 +127,34 @@ namespace Sample
         {
             global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier203;
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
+            request.Method = "GET";
+            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
+            uri.Reset(_endpoint);
+            request.Uri = uri.ToUri();
+            request.Content = content;
+            message.Apply(options);
+            return message;
+        }
+
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateTestOperation200201202Request(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options)
+        {
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage();
+            message.ResponseClassifier = PipelineMessageClassifier200201202;
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
+            request.Method = "GET";
+            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
+            uri.Reset(_endpoint);
+            request.Uri = uri.ToUri();
+            request.Content = content;
+            message.Apply(options);
+            return message;
+        }
+
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateDuplicateTestOperation200201202Request(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options)
+        {
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage();
+            message.ResponseClassifier = PipelineMessageClassifier200201202;
             global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Method = "GET";
             global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
