@@ -122,7 +122,7 @@ it("warns for invalid interpolation", async () => {
     {
       code: "@typespec/http-server-csharp/invalid-interpolation",
       message:
-        "StringTemplate types should only reference literal-valued constants, enum members, or literal-values model properties.  The interpolated value will not contain one or more referenced elements in generated code.",
+        "StringTemplate types should only reference literal-valued constants, enum members, or literal-valued model properties.  The interpolated value will not contain one or more referenced elements in generated code.",
     },
   ]);
 });

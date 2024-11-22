@@ -354,7 +354,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
           case "ModelProperty":
             return extractStringValue(type.type, span);
           case "EnumMember":
-            if (type.value === undefined) return "";
+            if (type.value === undefined) return type.name;
             if (typeof type.value === "string") return type.value;
             if (typeof type.value === "number") return `${type.value}`;
         }
