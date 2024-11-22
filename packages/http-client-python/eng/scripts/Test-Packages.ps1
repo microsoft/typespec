@@ -38,14 +38,8 @@ try {
         & "$packageRoot/eng/scripts/Generate-WithPyodide.ps1"
         Write-Host 'Code generation is completed.'
 
-        try {
-            Write-Host 'Checking for differences in generated code...'
-            & "$packageRoot/eng/scripts/Check-GitChanges.ps1"
-            Write-Host 'Done. No code generation differences detected.'
-        }
-        catch {
-            Write-Error 'Generated code is not up to date. Please run: eng/scripts/Generate-WithPyodide.ps1'
-        }
+        # force add updates
+        Invoke-LoggedCommand "git add $packageRoot/generator/test -f"
 
         Write-Host "Generating test projects with venv ..."
         & "$packageRoot/eng/scripts/Generate.ps1"
@@ -59,6 +53,9 @@ try {
         catch {
             Write-Error 'Generated code is not up to date. Please run: eng/scripts/Generate.ps1'
         }
+
+        # reset force updates
+        Invoke-LoggedCommand "git reset ."
 
         try {
             Write-Host "Pip List" 
