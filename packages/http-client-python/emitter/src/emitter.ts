@@ -145,13 +145,16 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
     }
   } else {
     let venvPath = path.join(root, "venv");
+    if (!fs.existsSync(venvPath)) {
+      await runPython3("./eng/scripts/setup/install.py");
+      await runPython3("./eng/scripts/setup/prepare.py");
+    }
     if (fs.existsSync(path.join(venvPath, "bin"))) {
       venvPath = path.join(venvPath, "bin", "python");
     } else if (fs.existsSync(path.join(venvPath, "Scripts"))) {
       venvPath = path.join(venvPath, "Scripts", "python.exe");
     } else {
-      await runPython3("./eng/scripts/setup/install.py");
-      await runPython3("./eng/scripts/setup/prepare.py");
+      throw new Error("Virtual environment doesn't exist.");
     }
     const commandArgs = [
       venvPath,
