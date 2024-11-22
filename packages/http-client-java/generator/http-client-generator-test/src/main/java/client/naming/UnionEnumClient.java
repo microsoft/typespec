@@ -5,8 +5,8 @@
 package client.naming;
 
 import client.naming.implementation.UnionEnumsImpl;
-import client.naming.models.ClientExtensibleEnum;
-import client.naming.models.ExtensibleEnum;
+import client.naming.unionenum.models.ClientExtensibleEnum;
+import client.naming.unionenum.models.ExtensibleEnum;
 import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.ReturnType;
 import com.azure.core.annotation.ServiceClient;

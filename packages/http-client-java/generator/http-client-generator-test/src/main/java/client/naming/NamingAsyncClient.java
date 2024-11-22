@@ -5,9 +5,9 @@
 package client.naming;
 
 import client.naming.implementation.NamingClientImpl;
-import client.naming.models.ClientNameAndJsonEncodedNameModel;
-import client.naming.models.ClientNameModel;
-import client.naming.models.LanguageClientNameModel;
+import client.naming.property.models.ClientNameAndJsonEncodedNameModel;
+import client.naming.property.models.ClientNameModel;
+import client.naming.property.models.LanguageClientNameModel;
 import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.ReturnType;
 import com.azure.core.annotation.ServiceClient;
