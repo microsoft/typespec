@@ -4,6 +4,7 @@
  */
 export type ExtensionKey = `x-${string}`;
 
+export type SchemaExtensionKey = "minProperties" | "maxProperties" | "uniqueItems" | "multipleOf";
 /**
  * OpenAPI additional information
  */

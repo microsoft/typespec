@@ -37,7 +37,7 @@ op listPets(): Pet[] | PetStoreResponse;
 Attach some custom data to the OpenAPI element generated from this type.
 
 ```typespec
-@TypeSpec.OpenAPI.extension(key: valueof string, value: unknown)
+@TypeSpec.OpenAPI.extension(key: valueof string, value?: unknown)
 ```
 
 #### Target
@@ -46,10 +46,10 @@ Attach some custom data to the OpenAPI element generated from this type.
 
 #### Parameters
 
-| Name  | Type             | Description                         |
-| ----- | ---------------- | ----------------------------------- |
-| key   | `valueof string` | Extension key. Must start with `x-` |
-| value | `unknown`        | Extension value.                    |
+| Name  | Type             | Description                                                                                                 |
+| ----- | ---------------- | ----------------------------------------------------------------------------------------------------------- |
+| key   | `valueof string` | minProperties/maxProperties/uniqueItems/multipleOf or Extension key. the extension key must start with `x-` |
+| value | `unknown`        | Extension value.                                                                                            |
 
 #### Examples
 
@@ -62,6 +62,42 @@ Attach some custom data to the OpenAPI element generated from this type.
   }
 )
 op read(): string;
+```
+
+##### Specify that every item in the array must be unique.
+
+```typespec
+model Foo {
+  @extension("uniqueItems")
+  x: unknown[];
+}
+```
+
+##### Specify that the numeric type must be a multiple of some numeric value.
+
+```typespec
+model Foo {
+  @extension("multipleOf", 1)
+  x: int32;
+}
+```
+
+##### Specify the maximum number of properties this object can have.
+
+```typespec
+model Foo {
+  @extension("maxProperties", 1)
+  x: int32;
+}
+```
+
+##### Specify the minimum number of properties this object can have.
+
+```typespec
+model Foo {
+  @extension("minProperties", 1)
+  x: int32;
+}
 ```
 
 ### `@externalDocs` {#@TypeSpec.OpenAPI.externalDocs}

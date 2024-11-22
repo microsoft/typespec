@@ -46,13 +46,12 @@ describe("openapi: decorators", () => {
   });
 
   describe("@extension", () => {
-    const extensionKeys: [string, any][] = [
+    it.each([
       ["minProperties", 1],
       ["maxProperties", 1],
       ["uniqueItems", true],
       ["multipleOf", 1],
-    ];
-    it.each(extensionKeys)("apply extension on model prop with %s", async (key, value) => {
+    ])("apply extension on model prop with %s", async (key, value) => {
       const { prop } = await runner.compile(`      
           model Foo {
             @extension("${key}", ${value})
@@ -65,6 +64,23 @@ describe("openapi: decorators", () => {
         [key]: value,
       });
     });
+
+    it.each(["minProperties", "maxProperties", "uniqueItems", "multipleOf"])(
+      "%s, emit diagnostics when passing invalid extension value",
+      async (key) => {
+        const diagnostics = await runner.diagnose(`        
+        model Foo {
+          @extension("${key}", "string")
+          @test
+          prop: string
+        }
+      `);
+
+        expectDiagnostics(diagnostics, {
+          code: "@typespec/openapi/invalid-extension-value",
+        });
+      },
+    );
 
     it("apply extension on model", async () => {
       const { Foo } = await runner.compile(`

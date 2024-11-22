@@ -31,20 +31,41 @@ export type OperationIdDecorator = (
 /**
  * Attach some custom data to the OpenAPI element generated from this type.
  *
- * @param key Extension key. Must start with `x-`
+ * @param key minProperties/maxProperties/uniqueItems/multipleOf or Extension key. the extension key must start with `x-`
  * @param value Extension value.
  * @example
- * ```typespec
- * model Foo {
- *  @extension("uniqueItems")
- *  x: int32;
- * };
- * ```
- *
  * ```typespec
  * @extension("x-custom", "My value")
  * @extension("x-pageable", {nextLink: "x-next-link"})
  * op read(): string;
+ * ```
+ * @example Specify that every item in the array must be unique.
+ * ```typespec
+ * model Foo {
+ *  @extension("uniqueItems")
+ *  x: unknown[];
+ * };
+ * ```
+ * @example Specify that the numeric type must be a multiple of some numeric value.
+ * ```typespec
+ * model Foo {
+ *  @extension("multipleOf", 1)
+ *  x: int32;
+ * };
+ * ```
+ * @example Specify the maximum number of properties this object can have.
+ * ```typespec
+ * model Foo {
+ *  @extension("maxProperties", 1)
+ *  x: int32;
+ * };
+ * ```
+ * @example Specify the minimum number of properties this object can have.
+ * ```typespec
+ * model Foo {
+ *  @extension("minProperties", 1)
+ *  x: int32;
+ * };
  * ```
  */
 export type ExtensionDecorator = (

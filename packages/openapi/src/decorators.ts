@@ -25,7 +25,7 @@ import {
 } from "../generated-defs/TypeSpec.OpenAPI.js";
 import { isOpenAPIExtensionKey, validateAdditionalInfoModel, validateIsUri } from "./helpers.js";
 import { createStateSymbol, OpenAPIKeys, reportDiagnostic } from "./lib.js";
-import { AdditionalInfo, ExtensionKey, ExternalDocs } from "./types.js";
+import { AdditionalInfo, ExtensionKey, ExternalDocs, SchemaExtensionKey } from "./types.js";
 
 const operationIdsKey = createStateSymbol("operationIds");
 /**
@@ -58,39 +58,52 @@ export const $extension: ExtensionDecorator = (
   extensionName: string,
   value?: TypeSpecValue,
 ) => {
+  const validExtensions = ["minProperties", "maxProperties", "uniqueItems", "multipleOf"];
+  const isModelProperty = entity.kind === "ModelProperty";
+
   if (
-    !(
-      ["minProperties", "maxProperties", "uniqueItems", "multipleOf"].includes(extensionName) &&
-      entity.kind === "ModelProperty"
-    ) &&
+    !(validExtensions.includes(extensionName) && isModelProperty) &&
     !isOpenAPIExtensionKey(extensionName)
   ) {
     reportDiagnostic(context.program, {
       code: "invalid-extension-key",
+      messageId: "decorator",
       format: { value: extensionName },
       target: entity,
     });
+    return;
+  }
+
+  if (extensionName !== "uniqueItems" && value === undefined) {
+    reportDiagnostic(context.program, {
+      code: "missing-extension-value",
+      format: { extension: extensionName },
+      target: entity,
+    });
+    return;
   }
 
   let inputData: any = true;
   if (value !== undefined) {
     const [data, diagnostics] = typespecTypeToJson(value, entity);
-    if (diagnostics.length > 0) {
-      context.program.reportDiagnostics(diagnostics);
+    const numberExtensions = ["minProperties", "maxProperties", "multipleOf"];
+    if (numberExtensions.includes(extensionName) && isNaN(Number(data))) {
+      reportDiagnostic(context.program, {
+        code: "invalid-extension-value",
+        format: { extensionName: extensionName },
+        target: entity,
+      });
+      return;
     }
 
-    if (
-      "minProperties" === extensionName ||
-      "maxProperties" === extensionName ||
-      "multipleOf" === extensionName
-    ) {
-      if (isNaN(Number(data))) {
-        reportDiagnostic(context.program, {
-          code: "invalid-extension-value",
-          format: { value: extensionName },
-          target: entity,
-        });
-      }
+    if (extensionName === "uniqueItems" && data !== true && data !== false) {
+      reportDiagnostic(context.program, {
+        code: "invalid-extension-value",
+        messageId: "uniqueItems",
+        format: { extensionName: extensionName },
+        target: entity,
+      });
+      return;
     }
 
     switch (extensionName) {
@@ -99,11 +112,22 @@ export const $extension: ExtensionDecorator = (
       case "multipleOf":
         inputData = Number(data);
         break;
+      case "uniqueItems":
+        inputData = data === true ? true : false;
+        break;
       default:
+        if (diagnostics.length > 0) {
+          context.program.reportDiagnostics(diagnostics);
+        }
         inputData = data;
     }
   }
-  setExtension(context.program, entity, extensionName as ExtensionKey, inputData);
+  setExtension(
+    context.program,
+    entity,
+    extensionName as ExtensionKey | SchemaExtensionKey,
+    inputData,
+  );
 };
 
 /**
@@ -130,7 +154,7 @@ export function setInfo(
 export function setExtension(
   program: Program,
   entity: Type,
-  extensionName: ExtensionKey,
+  extensionName: ExtensionKey | SchemaExtensionKey,
   data: unknown,
 ) {
   const openApiExtensions = program.stateMap(openApiExtensionKey);
@@ -144,7 +168,10 @@ export function setExtension(
  * @param program Program
  * @param entity Type
  */
-export function getExtensions(program: Program, entity: Type): ReadonlyMap<ExtensionKey, any> {
+export function getExtensions(
+  program: Program,
+  entity: Type,
+): ReadonlyMap<ExtensionKey | SchemaExtensionKey, any> {
   return program.stateMap(openApiExtensionKey).get(entity) ?? new Map<ExtensionKey, any>();
 }
 
