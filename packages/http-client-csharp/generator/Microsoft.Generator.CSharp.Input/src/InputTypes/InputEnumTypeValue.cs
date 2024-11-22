@@ -12,13 +12,15 @@ namespace Microsoft.Generator.CSharp.Input
             Name = name;
             Value = value;
             ValueType = valueType;
-            Description = string.IsNullOrEmpty(summary) ? doc : summary;
+            Summary = summary;
+            Doc = doc;
         }
 
         public string Name { get; }
         public object Value { get; }
         public InputPrimitiveType ValueType { get; }
-        public string? Description { get; }
+        public string? Summary { get; }
+        public string? Doc { get; }
         public IReadOnlyList<InputDecoratorInfo> Decorators { get; internal set; } = new List<InputDecoratorInfo>();
 
         public virtual string GetJsonValueString() => GetValueString();
