@@ -80,11 +80,11 @@
     "encode.duration.QueryClient.int32SecondsWithResponse": "Encode.Duration.Query.int32Seconds",
     "encode.duration.QueryClient.iso8601": "Encode.Duration.Query.iso8601",
     "encode.duration.QueryClient.iso8601WithResponse": "Encode.Duration.Query.iso8601",
-    "encode.duration.models.DefaultDurationProperty": "Encode.Duration.Property.DefaultDurationProperty",
-    "encode.duration.models.Float64SecondsDurationProperty": "Encode.Duration.Property.Float64SecondsDurationProperty",
-    "encode.duration.models.FloatSecondsDurationArrayProperty": "Encode.Duration.Property.FloatSecondsDurationArrayProperty",
-    "encode.duration.models.FloatSecondsDurationProperty": "Encode.Duration.Property.FloatSecondsDurationProperty",
-    "encode.duration.models.ISO8601DurationProperty": "Encode.Duration.Property.ISO8601DurationProperty",
-    "encode.duration.models.Int32SecondsDurationProperty": "Encode.Duration.Property.Int32SecondsDurationProperty"
+    "encode.duration.property.models.DefaultDurationProperty": "Encode.Duration.Property.DefaultDurationProperty",
+    "encode.duration.property.models.Float64SecondsDurationProperty": "Encode.Duration.Property.Float64SecondsDurationProperty",
+    "encode.duration.property.models.FloatSecondsDurationArrayProperty": "Encode.Duration.Property.FloatSecondsDurationArrayProperty",
+    "encode.duration.property.models.FloatSecondsDurationProperty": "Encode.Duration.Property.FloatSecondsDurationProperty",
+    "encode.duration.property.models.ISO8601DurationProperty": "Encode.Duration.Property.ISO8601DurationProperty",
+    "encode.duration.property.models.Int32SecondsDurationProperty": "Encode.Duration.Property.Int32SecondsDurationProperty"
   }
 }
