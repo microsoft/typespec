@@ -11,7 +11,6 @@
   --sl-color-text-accent: var(--colorBrandForeground1);
   --sl-color-gray-2: var(--colorNeutralForeground1);
   --sl-color-gray-5: var(--colorNeutralStroke1);
-  --sl-color-bg-inline-code: var(--ec-frm-edBg);
 }
 
 .DocSearch-Button {
