@@ -371,10 +371,11 @@ Process labels
 
 Misc labels
 
-| Name                       | Color   | Description        |
-| -------------------------- | ------- | ------------------ |
-| `Client Emitter Migration` | #FD92F0 |                    |
-| `good first issue`         | #7057ff | Good for newcomers |
+| Name                       | Color   | Description           |
+| -------------------------- | ------- | --------------------- |
+| `Client Emitter Migration` | #FD92F0 |                       |
+| `good first issue`         | #7057ff | Good for newcomers    |
+| `mq`                       | #0969da | Good candidate for MQ |
 
 <!-- LABEL GENERATED REF END -->
 

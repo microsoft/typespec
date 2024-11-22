@@ -366,7 +366,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             conversions.Add(
                 isAsync
-                    ? RequestOptionsSnippets.FromCancellationToken(ScmKnownParameters.CancellationToken)
+                    ? IHttpRequestOptionsApiSnippets.FromCancellationToken(ScmKnownParameters.CancellationToken)
                     : ScmKnownParameters.RequestOptions.PositionalReference(Null));
             return conversions;
         }
