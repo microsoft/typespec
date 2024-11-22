@@ -24,6 +24,7 @@ namespace Microsoft.Generator.CSharp
         private List<LibraryVisitor> _visitors = [];
         private List<MetadataReference> _additionalMetadataReferences = [];
         private static CodeModelPlugin? _instance;
+        private List<string> _sharedSourceDirectories = [];
         internal static CodeModelPlugin Instance
         {
             get
@@ -67,6 +68,8 @@ namespace Microsoft.Generator.CSharp
         public virtual TypeProviderWriter GetWriter(TypeProvider provider) => new(provider);
         public IReadOnlyList<MetadataReference> AdditionalMetadataReferences => _additionalMetadataReferences;
 
+        public IReadOnlyList<string> SharedSourceDirectories => _sharedSourceDirectories;
+
         public virtual void Configure()
         {
         }
@@ -81,7 +84,13 @@ namespace Microsoft.Generator.CSharp
             _additionalMetadataReferences.Add(reference);
         }
 
+        public void AddSharedSourceDirectory(string sharedSourceDirectory)
+        {
+            _sharedSourceDirectories.Add(sharedSourceDirectory);
+        }
+
         private SourceInputModel? _sourceInputModel;
+
         internal async Task InitializeSourceInputModelAsync()
         {
             GeneratedCodeWorkspace existingCode = GeneratedCodeWorkspace.CreateExistingCodeProject([Instance.Configuration.ProjectDirectory], Instance.Configuration.ProjectGeneratedDirectory);

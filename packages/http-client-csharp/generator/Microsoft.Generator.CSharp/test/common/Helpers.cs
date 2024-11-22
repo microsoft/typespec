@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -15,56 +13,35 @@ namespace Microsoft.Generator.CSharp.Tests.Common
     {
         private static readonly string _assemblyLocation = Path.GetDirectoryName(typeof(Helpers).Assembly.Location)!;
 
-        public static string GetExpectedFromFile(string? parameters = null)
+        public static string GetExpectedFromFile(
+            string? parameters = null,
+            [CallerMemberName] string method = "",
+            [CallerFilePath] string filePath = "")
         {
-            return File.ReadAllText(GetAssetFileOrDirectoryPath(true, parameters));
+            return File.ReadAllText(GetAssetFileOrDirectoryPath(true, parameters, method, filePath));
         }
 
-        private static string GetAssetFileOrDirectoryPath(bool isFile, string? parameters = null)
+        public static string GetAssetFileOrDirectoryPath(
+            bool isFile,
+            string? parameters = null,
+            [CallerMemberName] string method = "",
+            [CallerFilePath] string filePath = "")
         {
-            var stackTrace = new StackTrace();
-            var stackFrame = GetRealMethodInvocation(stackTrace);
-            var method = stackFrame.GetMethod();
-            var callingClass = method!.DeclaringType;
-            var nsSplit = callingClass!.Namespace!.Split('.');
+
+            var callingClass =  Path.GetFileName(filePath).Split('.').First();
             var paramString = parameters is null ? string.Empty : $"({parameters})";
             var extName = isFile ? ".cs" : string.Empty;
-            var path = _assemblyLocation;
-            var nsSkip = nsSplit.Contains("ClientModel") ? 5 : 4;
-            for (int i = nsSkip; i < nsSplit.Length; i++)
-            {
-                path = Path.Combine(path, nsSplit[i]);
-            }
-            return Path.Combine(path, "TestData", callingClass.Name, $"{method.Name}{paramString}{extName}");
+
+            return Path.Combine(Path.GetDirectoryName(filePath)!, "TestData", callingClass, $"{method}{paramString}{extName}");
         }
 
-        private static StackFrame GetRealMethodInvocation(StackTrace stackTrace)
+
+        public static async Task<Compilation> GetCompilationFromDirectoryAsync(
+            string? parameters = null,
+            [CallerMemberName] string method = "",
+            [CallerFilePath] string filePath = "")
         {
-            int i = 1;
-            while (i < stackTrace.FrameCount)
-            {
-                var frame = stackTrace.GetFrame(i);
-                var declaringType = frame!.GetMethod()!.DeclaringType!;
-                // we need to skip those method invocations from this class, or from the async state machine when the caller is an async method
-                if (declaringType != typeof(Helpers) && declaringType.Name != "MockHelpers" && !IsCompilerGenerated(declaringType))
-                {
-                    return frame;
-                }
-                i++;
-            }
-
-            throw new InvalidOperationException($"There is no method invocation outside the {typeof(Helpers)} class in the stack trace");
-
-            static bool IsCompilerGenerated(Type type)
-            {
-                return type.IsDefined(typeof(CompilerGeneratedAttribute), false) || (type.Namespace?.StartsWith("System.Runtime.CompilerServices") ?? false) ||
-                    type.Name.StartsWith("<<", StringComparison.Ordinal);
-            }
-        }
-
-        public static async Task<Compilation> GetCompilationFromDirectoryAsync(string? parameters = null)
-        {
-            var directory = GetAssetFileOrDirectoryPath(false, parameters);
+            var directory = GetAssetFileOrDirectoryPath(false, parameters, method, filePath);
             var codeGenAttributeFiles = Path.Combine(_assemblyLocation, "..", "..", "..", "..", "..", "Microsoft.Generator.CSharp.Customization", "src");
             var workspace = GeneratedCodeWorkspace.CreateExistingCodeProject([directory, codeGenAttributeFiles], Path.Combine(directory, "Generated"));
             return await workspace.GetCompilationAsync();
